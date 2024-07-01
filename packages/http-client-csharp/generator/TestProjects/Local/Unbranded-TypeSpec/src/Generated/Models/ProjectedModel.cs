@@ -7,6 +7,7 @@ using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
+    /// <summary> this is a model with a projected name. </summary>
     public partial class ProjectedModel
     {
         /// <summary> Initializes a new instance of <see cref="ProjectedModel"/>. </summary>

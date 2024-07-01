@@ -24,14 +24,12 @@ namespace Microsoft.Generator.CSharp.Input
         public static InputLiteralType CreateInputLiteralType(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             var isFirstProperty = id == null && name == null;
-            bool isNullable = false;
             object? value = null;
             InputType? type = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadBoolean(nameof(InputLiteralType.IsNullable), ref isNullable)
                     || reader.TryReadWithConverter(nameof(InputLiteralType.ValueType), options, ref type);
 
                 if (isKnownProperty)
@@ -53,7 +51,7 @@ namespace Microsoft.Generator.CSharp.Input
 
             value = value ?? throw new JsonException("InputConstant must have value");
 
-            var literalType = new InputLiteralType(type, value, isNullable);
+            var literalType = new InputLiteralType(type, value);
 
             if (id != null)
             {

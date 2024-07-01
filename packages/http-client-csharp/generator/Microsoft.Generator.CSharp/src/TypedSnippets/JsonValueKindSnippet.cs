@@ -6,7 +6,7 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record JsonValueKindSnippet(ValueExpression Untyped) : TypedSnippet<JsonValueKind>(Untyped)
+    public sealed record JsonValueKindSnippet(ValueExpression Expression) : TypedSnippet<JsonValueKind>(Expression)
     {
         public static JsonValueKindSnippet String => InvokeStaticProperty(nameof(JsonValueKind.String));
         public static JsonValueKindSnippet Number => InvokeStaticProperty(nameof(JsonValueKind.Number));

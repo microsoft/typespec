@@ -1,14 +1,11 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Generator.CSharp.Snippets;
 using Moq;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
-using static Microsoft.Generator.CSharp.Snippets.ExtensibleSnippets;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
@@ -22,22 +19,6 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void TestInitialize()
         {
-            // mock api types
-            var mockApiTypes = new Mock<ApiTypes>()
-            {
-                CallBase = true
-            };
-
-            var mockExtensibleSnippets = new Mock<ExtensibleSnippets>()
-            {
-                CallBase = true
-            };
-
-            mockApiTypes.SetupGet(p => p.EndPointSampleValue).Returns("Sample");
-
-            var modelSnippets = new Mock<ModelSnippets>().Object;
-            mockExtensibleSnippets.SetupGet(p => p.Model).Returns(modelSnippets);
-
             string ns = "sample.namespace";
             string? unknownStringProperty = "unknownPropertyValue";
             bool? unknownBoolProp = false;

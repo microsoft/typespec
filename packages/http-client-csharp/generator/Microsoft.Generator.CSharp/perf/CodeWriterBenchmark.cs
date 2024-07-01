@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.Perf
@@ -16,9 +18,9 @@ namespace Microsoft.Generator.CSharp.Perf
         {
             var properties = new[]
             {
-                new InputModelProperty("MyProperty", "myProperty", "The property of mine", new InputPrimitiveType(InputPrimitiveTypeKind.Int32, false), true, false, false)
+                new InputModelProperty("MyProperty", "myProperty", "The property of mine", new InputPrimitiveType(InputPrimitiveTypeKind.Int32), true, false, false)
             };
-            var inputModel = new InputModelType("MyModel", null, null, null, "Test model", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, null, false);
+            var inputModel = new InputModelType("MyModel", string.Empty, null, null, "Test model", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
             var modelProvider = new ModelProvider(inputModel);
             _writer = new TypeProviderWriter(modelProvider);
         }

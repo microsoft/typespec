@@ -35,12 +35,11 @@ namespace Microsoft.Generator.CSharp.Statements
                 writer.Append($"switch (");
                 MatchExpression.Write(writer);
                 writer.WriteRawLine(")");
-                writer.WriteRawLine("{");
+                using var scope = writer.Scope();
                 foreach (var switchCase in Cases)
                 {
                     switchCase.Write(writer);
                 }
-                writer.WriteRawLine("}");
             }
         }
     }

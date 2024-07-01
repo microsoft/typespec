@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.Statements
@@ -26,28 +27,28 @@ namespace Microsoft.Generator.CSharp.Statements
         private readonly List<MethodBodyStatement> _body = new();
         public IReadOnlyList<MethodBodyStatement> Body => _body;
 
-        public ForeachStatement(CSharpType itemType, string itemName, ValueExpression enumerable, bool isAsync, out VariableReferenceSnippet item)
+        public ForeachStatement(CSharpType itemType, string itemName, ValueExpression enumerable, bool isAsync, out VariableExpression item)
             : this(itemType, new CodeWriterDeclaration(itemName), enumerable, isAsync)
         {
-            item = new VariableReferenceSnippet(itemType, Item);
+            item = new VariableExpression(itemType, Item);
         }
 
-        public ForeachStatement(string itemName, EnumerableSnippet enumerable, out TypedSnippet item)
+        public ForeachStatement(string itemName, EnumerableSnippet enumerable, out VariableExpression item)
             : this(null, new CodeWriterDeclaration(itemName), enumerable, false)
         {
-            item = new VariableReferenceSnippet(enumerable.ItemType, Item);
+            item = new VariableExpression(enumerable.ItemType, Item);
         }
 
-        public ForeachStatement(string itemName, EnumerableSnippet enumerable, bool isAsync, out TypedSnippet item)
+        public ForeachStatement(string itemName, EnumerableSnippet enumerable, bool isAsync, out VariableExpression item)
             : this(null, new CodeWriterDeclaration(itemName), enumerable, isAsync)
         {
-            item = new VariableReferenceSnippet(enumerable.ItemType, Item);
+            item = new VariableExpression(enumerable.ItemType, Item);
         }
 
         public ForeachStatement(string itemName, DictionarySnippet dictionary, out KeyValuePairSnippet item)
             : this(null, new CodeWriterDeclaration(itemName), dictionary, false)
         {
-            var variable = new VariableReferenceSnippet(KeyValuePairSnippet.GetType(dictionary.KeyType, dictionary.ValueType), Item);
+            var variable = new VariableExpression(KeyValuePairSnippet.GetType(dictionary.KeyType, dictionary.ValueType), Item);
             item = new KeyValuePairSnippet(dictionary.KeyType, dictionary.ValueType, variable);
         }
 

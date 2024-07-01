@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -33,7 +33,6 @@ namespace Microsoft.Generator.CSharp.Input
             InputType? parameterType = null;
             string? location = null;
             InputConstant? defaultValue = null;
-            InputParameter? groupBy = null;
             string? kind = null;
             bool isRequired = false;
             bool isApiVersion = false;
@@ -53,7 +52,6 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadWithConverter(nameof(InputParameter.Type), options, ref parameterType)
                     || reader.TryReadString(nameof(InputParameter.Location), ref location)
                     || reader.TryReadWithConverter(nameof(InputParameter.DefaultValue), options, ref defaultValue)
-                    || reader.TryReadWithConverter(nameof(InputParameter.GroupedBy), options, ref groupBy)
                     || reader.TryReadString(nameof(InputParameter.Kind), ref kind)
                     || reader.TryReadBoolean(nameof(InputParameter.IsRequired), ref isRequired)
                     || reader.TryReadBoolean(nameof(InputParameter.IsApiVersion), ref isApiVersion)
@@ -94,7 +92,6 @@ namespace Microsoft.Generator.CSharp.Input
                 type: parameterType,
                 location: requestLocation,
                 defaultValue: defaultValue,
-                groupedBy: groupBy,
                 kind: parameterKind,
                 isRequired: isRequired,
                 isApiVersion: isApiVersion,

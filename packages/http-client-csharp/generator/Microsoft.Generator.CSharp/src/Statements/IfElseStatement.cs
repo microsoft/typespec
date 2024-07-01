@@ -17,31 +17,15 @@ namespace Microsoft.Generator.CSharp.Statements
         }
 
         public IfElseStatement(ValueExpression condition, MethodBodyStatement ifStatement, MethodBodyStatement? elseStatement, bool inline = false, bool addBraces = true)
-            : this(new IfStatement(condition, inline, addBraces) { ifStatement }, elseStatement) {}
+            : this(new IfStatement(condition, inline, addBraces) { ifStatement }, elseStatement) { }
 
         internal override void Write(CodeWriter writer)
         {
             If.Write(writer);
-            if (Else is null)
+            if (Else is not null)
             {
-                return;
-            }
-
-            if (If.Inline || !If.AddBraces)
-            {
-                using (writer.AmbientScope())
-                {
-                    writer.AppendRaw("else ");
-                    if (!If.Inline)
-                    {
-                        writer.WriteLine();
-                    }
-                    Else.Write(writer);
-                }
-            }
-            else
-            {
-                using (writer.Scope($"else"))
+                writer.WriteLine($"else");
+                using (writer.Scope())
                 {
                     Else.Write(writer);
                 }

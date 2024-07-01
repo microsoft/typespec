@@ -146,6 +146,7 @@ ignorePaths:
   - .editorconfig
   - .github/CODEOWNERS
   - packages/samples/test/output/**
+  - "**/BenchmarkDotNet.Artifacts/**"
 useGitignore: true
 enableGlobDot: true
 enableFiletypes:

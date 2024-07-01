@@ -5,7 +5,7 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public class InputDurationType : InputType
     {
-        public InputDurationType(DurationKnownEncoding encode, InputPrimitiveType wireType, bool isNullable) : base("Duration", isNullable)
+        public InputDurationType(DurationKnownEncoding encode, InputPrimitiveType wireType) : base("Duration")
         {
             Encode = encode;
             WireType = wireType;

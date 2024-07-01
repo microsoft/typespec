@@ -5,29 +5,33 @@ using System.Collections.Generic;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record DictionaryInitializerExpression(IReadOnlyList<(ValueExpression Key, ValueExpression Value)>? Values = null) : ValueExpression
+    public sealed record DictionaryInitializerExpression(IReadOnlyDictionary<ValueExpression, ValueExpression> Values) : ObjectInitializerExpression(Values)
     {
         internal override void Write(CodeWriter writer)
         {
-            if (Values is not { Count: > 0 })
+            var enumerator = Values.GetEnumerator();
+            if (!enumerator.MoveNext())
             {
-                writer.AppendRaw("{}");
+                writer.AppendRaw("{ }");
                 return;
             }
-
-            writer.WriteLine();
-            writer.WriteRawLine("{");
-            for (int i = 0; i < Values.Count; i++)
+            using var scope = writer.Scope();
+            WriteItem(writer, enumerator.Current);
+            while (enumerator.MoveNext())
             {
-                var (key, value) = Values[i];
-                key.Write(writer);
-                writer.AppendRaw(" = ");
-                value.Write(writer);
-                if (i < Values.Count - 1)
-                    writer.WriteRawLine(",");
+                writer.WriteRawLine(",");
+                WriteItem(writer, enumerator.Current);
             }
             writer.WriteLine();
-            writer.AppendRaw("}");
+        }
+
+        private void WriteItem(CodeWriter writer, KeyValuePair<ValueExpression, ValueExpression> item)
+        {
+            writer.AppendRaw("{ ");
+            item.Key.Write(writer);
+            writer.AppendRaw(", ");
+            item.Value.Write(writer);
+            writer.AppendRaw(" }");
         }
     }
 }

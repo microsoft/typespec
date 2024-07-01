@@ -9,5 +9,5 @@ namespace Microsoft.Generator.CSharp.Snippets
     /// <summary>
     /// Represents expression which has a return value of a framework type.
     /// </summary>
-    public sealed record FrameworkTypeSnippet(Type FrameworkType, ValueExpression Untyped) : TypedSnippet(FrameworkType, Untyped);
+    public sealed record FrameworkTypeSnippet(Type FrameworkType, ValueExpression Expression) : TypedSnippet(FrameworkType, Expression);
 }

@@ -12,7 +12,6 @@ namespace Microsoft.Generator.CSharp.Input
             InputType type,
             RequestLocation location,
             InputConstant? defaultValue,
-            InputParameter? groupedBy,
             InputOperationParameterKind kind,
             bool isRequired,
             bool isApiVersion,
@@ -30,7 +29,6 @@ namespace Microsoft.Generator.CSharp.Input
             Type = type;
             Location = location;
             DefaultValue = defaultValue;
-            GroupedBy = groupedBy;
             Kind = kind;
             IsRequired = isRequired;
             IsApiVersion = isApiVersion;
@@ -49,7 +47,6 @@ namespace Microsoft.Generator.CSharp.Input
         public InputType Type { get; }
         public RequestLocation Location { get; }
         public InputConstant? DefaultValue { get; }
-        public InputParameter? GroupedBy { get; }
         public InputOperationParameterKind Kind { get; }
         public bool IsRequired { get; }
         public bool IsApiVersion { get; }

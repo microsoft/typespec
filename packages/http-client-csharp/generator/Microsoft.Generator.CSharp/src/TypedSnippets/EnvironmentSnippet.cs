@@ -6,7 +6,7 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record EnvironmentSnippet(ValueExpression Untyped) : TypedSnippet(typeof(Environment), Untyped)
+    public sealed record EnvironmentSnippet(ValueExpression Expression) : TypedSnippet(typeof(Environment), Expression)
     {
         public static StringSnippet NewLine() => new(new TypeReferenceExpression(typeof(Environment)).Property(nameof(Environment.NewLine)));
     }

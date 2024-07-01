@@ -3,11 +3,12 @@
 
 using System.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal sealed record RequestOptionsSnippet(ValueExpression Untyped) : TypedSnippet<RequestOptions>(Untyped)
+    internal sealed record RequestOptionsSnippet(ValueExpression Expression) : TypedSnippet<RequestOptions>(Expression)
     {
         public static RequestOptionsSnippet FromCancellationToken()
             => new(new InvokeStaticMethodExpression(null, "FromCancellationToken", new ValueExpression[] { KnownParameters.CancellationTokenParameter }));

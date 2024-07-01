@@ -6,7 +6,7 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record CancellationTokenSnippet(ValueExpression Untyped) : TypedSnippet<CancellationToken>(Untyped)
+    public sealed record CancellationTokenSnippet(ValueExpression Expression) : TypedSnippet<CancellationToken>(Expression)
     {
         public BoolSnippet CanBeCanceled => new(Property(nameof(CancellationToken.CanBeCanceled)));
     }

@@ -1,10 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Generator.CSharp.Input;
-using System.Text.RegularExpressions;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
+using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {

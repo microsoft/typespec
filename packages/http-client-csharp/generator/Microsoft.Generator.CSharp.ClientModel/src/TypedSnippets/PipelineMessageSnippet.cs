@@ -7,12 +7,14 @@ using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal sealed record PipelineMessageSnippet(ValueExpression Untyped) : TypedSnippet<PipelineMessage>(Untyped)
+    internal sealed record PipelineMessageSnippet(ValueExpression Expression) : TypedSnippet<PipelineMessage>(Expression)
     {
         public PipelineRequestSnippet Request => new(Property(nameof(PipelineMessage.Request)));
 
         public PipelineResponseSnippet Response => new(Property(nameof(PipelineMessage.Response)));
 
         public BoolSnippet BufferResponse => new(Property(nameof(PipelineMessage.BufferResponse)));
+
+        public PipelineResponseSnippet ExtractResponse() => new(Invoke(nameof(PipelineMessage.ExtractResponse), []));
     }
 }

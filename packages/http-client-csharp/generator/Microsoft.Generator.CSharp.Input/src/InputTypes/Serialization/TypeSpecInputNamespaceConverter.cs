@@ -57,15 +57,6 @@ namespace Microsoft.Generator.CSharp.Input
             models ??= Array.Empty<InputModelType>();
             clients ??= Array.Empty<InputClient>();
 
-            // resolve the derived models now
-            foreach (var model in models)
-            {
-                if (model.BaseModel is { } baseModel)
-                {
-                    ((List<InputModelType>)baseModel.DerivedModels).Add(model);
-                }
-            }
-
             return new InputNamespace(
                 name ?? throw new JsonException(),
                 apiVersions,

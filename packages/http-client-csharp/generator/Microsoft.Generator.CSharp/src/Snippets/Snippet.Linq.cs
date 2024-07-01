@@ -12,7 +12,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         {
             public static ValueExpression ToList(ValueExpression expression)
             {
-                return new InvokeStaticMethodExpression(typeof(Enumerable), nameof(Enumerable.ToList), new[] { expression }, CallAsExtension: true);
+                return new InvokeStaticMethodExpression(typeof(Enumerable), nameof(Enumerable.ToList), [expression], CallAsExtension: true);
             }
         }
     }

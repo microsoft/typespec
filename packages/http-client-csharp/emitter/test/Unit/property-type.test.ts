@@ -2,8 +2,7 @@ import { TestHost } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
-import { InputTypeKind } from "../../src/type/input-type-kind.js";
-import { InputEnumType, InputListType } from "../../src/type/input-type.js";
+import { InputArrayType, InputEnumType } from "../../src/type/input-type.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
@@ -29,18 +28,15 @@ describe("Test GetInputType for array", () => {
     const context = createEmitterContext(program);
     const sdkContext = createNetSdkContext(context);
     const root = createModel(sdkContext);
-    deepStrictEqual(root.Clients[0].Operations[0].Parameters[0].Type.Kind, InputTypeKind.Array);
+    deepStrictEqual(root.Clients[0].Operations[0].Parameters[0].Type.Kind, "array");
     deepStrictEqual(
       {
-        Kind: InputTypeKind.Array,
-        Name: InputTypeKind.Array,
-        ElementType: {
+        Kind: "array",
+        ValueType: {
           Kind: "string",
-          IsNullable: false,
           Encode: undefined,
         },
-        IsNullable: false,
-      } as InputListType,
+      } as InputArrayType,
       root.Clients[0].Operations[0].Parameters[0].Type
     );
   });
@@ -55,18 +51,15 @@ describe("Test GetInputType for array", () => {
     const context = createEmitterContext(program);
     const sdkContext = createNetSdkContext(context);
     const root = createModel(sdkContext);
-    deepStrictEqual(root.Clients[0].Operations[0].Responses[0].BodyType?.Kind, InputTypeKind.Array);
+    deepStrictEqual(root.Clients[0].Operations[0].Responses[0].BodyType?.Kind, "array");
     deepStrictEqual(
       {
-        Kind: InputTypeKind.Array,
-        Name: InputTypeKind.Array,
-        ElementType: {
+        Kind: "array",
+        ValueType: {
           Kind: "string",
-          IsNullable: false,
           Encode: undefined,
         },
-        IsNullable: false,
-      } as InputListType,
+      } as InputArrayType,
       root.Clients[0].Operations[0].Responses[0].BodyType
     );
   });
@@ -107,13 +100,12 @@ describe("Test GetInputType for enum", () => {
       {
         Kind: "enum",
         Name: "SimpleEnum",
-        Namespace: "Azure.Csharp.Testing",
+        CrossLanguageDefinitionId: "Azure.Csharp.Testing.SimpleEnum",
         Accessibility: undefined,
         Deprecated: undefined,
         Description: "fixed string enum",
         ValueType: {
           Kind: "string",
-          IsNullable: false,
           Encode: undefined,
         },
         Values: [
@@ -134,7 +126,6 @@ describe("Test GetInputType for enum", () => {
           },
         ],
         IsExtensible: false,
-        IsNullable: false,
         Usage: "Input",
       } as InputEnumType,
       root.Clients[0].Operations[0].Parameters[0].Type,
@@ -175,13 +166,12 @@ describe("Test GetInputType for enum", () => {
       {
         Kind: "enum",
         Name: "FixedIntEnum",
-        Namespace: "Azure.Csharp.Testing",
+        CrossLanguageDefinitionId: "Azure.Csharp.Testing.FixedIntEnum",
         Accessibility: undefined,
         Deprecated: undefined,
         Description: "Fixed int enum",
         ValueType: {
           Kind: "int32",
-          IsNullable: false,
           Encode: undefined,
         },
         Values: [
@@ -202,7 +192,6 @@ describe("Test GetInputType for enum", () => {
           },
         ],
         IsExtensible: false,
-        IsNullable: false,
         Usage: "Input",
       } as InputEnumType,
       root.Clients[0].Operations[0].Parameters[0].Type,
@@ -236,13 +225,12 @@ describe("Test GetInputType for enum", () => {
       {
         Kind: "enum",
         Name: "FixedEnum",
-        Namespace: "Azure.Csharp.Testing",
+        CrossLanguageDefinitionId: "Azure.Csharp.Testing.FixedEnum",
         Accessibility: undefined,
         Deprecated: undefined,
         Description: "Fixed enum",
         ValueType: {
           Kind: "string",
-          IsNullable: false,
           Encode: undefined,
         },
         Values: [
@@ -251,7 +239,6 @@ describe("Test GetInputType for enum", () => {
           { Name: "Four", Value: "4", Description: undefined },
         ],
         IsExtensible: false,
-        IsNullable: false,
         Usage: "Input",
       } as InputEnumType,
       root.Clients[0].Operations[0].Parameters[0].Type,

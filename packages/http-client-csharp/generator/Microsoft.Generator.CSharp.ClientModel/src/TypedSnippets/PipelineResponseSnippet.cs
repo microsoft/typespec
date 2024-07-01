@@ -7,10 +7,12 @@ using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal sealed record PipelineResponseSnippet(ValueExpression Untyped) : TypedSnippet<PipelineResponse>(Untyped)
+    internal sealed record PipelineResponseSnippet(ValueExpression Expression) : TypedSnippet<PipelineResponse>(Expression)
     {
         public BinaryDataSnippet Content => new(Property(nameof(PipelineResponse.Content)));
 
         public StreamSnippet ContentStream => new(Property(nameof(PipelineResponse.ContentStream)));
+
+        public BoolSnippet IsError => new(Property(nameof(PipelineResponse.IsError)));
     }
 }

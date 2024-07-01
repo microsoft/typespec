@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
@@ -29,10 +30,8 @@ namespace Microsoft.Generator.CSharp.Providers
             IsFloatValueType = ValueType.Equals(typeof(float)) || ValueType.Equals(typeof(double));
             IsNumericValueType = IsIntValueType || IsFloatValueType;
 
-            Description = input.Description != null ? FormattableStringHelpers.FromString(input.Description) : FormattableStringHelpers.Empty;
+            Description = input.Description != null ? FormattableStringHelpers.FromString(input.Description) : $"The {Name}.";
         }
-
-        protected override string GetFileName() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
         public CSharpType ValueType { get; }
         public bool IsExtensible { get; }
@@ -40,14 +39,10 @@ namespace Microsoft.Generator.CSharp.Providers
         internal bool IsFloatValueType { get; }
         internal bool IsStringValueType { get; }
         internal bool IsNumericValueType { get; }
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
         public override string Name { get; }
         public override string Namespace { get; }
-        public override FormattableString Description { get; }
-
-        /// <summary>
-        /// The serialization provider for this enum.
-        /// </summary>
-        public TypeProvider? Serialization { get; protected init; }
+        protected override FormattableString Description { get; }
 
         private IReadOnlyList<EnumTypeMember>? _members;
         public IReadOnlyList<EnumTypeMember> Members => _members ??= BuildMembers();

@@ -3,9 +3,10 @@
 
 using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
-using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Perf
 {
@@ -22,7 +23,7 @@ namespace Microsoft.Generator.CSharp.Perf
                 new ParameterProvider("param1", $"param1", typeof(int)) { Validation = ParameterValidationType.None },
                 new ParameterProvider("param2", $"param2", typeof(string)) { Validation = ParameterValidationType.AssertNotNull }
             };
-            Signature = new MethodSignature("name", null, null, MethodSignatureModifiers.Public, null, null, parameters);
+            Signature = new MethodSignature("name", null, MethodSignatureModifiers.Public, null, null, parameters);
             ParamHash = GetParamhash(false);
         }
 
@@ -106,11 +107,11 @@ namespace Microsoft.Generator.CSharp.Perf
             {
                 if (parameter.Validation != ParameterValidationType.None)
                 {
-                    statements[index] = Argument.ValidateParameter(parameter);
+                    statements[index] = ArgumentSnippet.ValidateParameter(parameter);
                     index++;
                 }
             }
-            statements[index] = EmptyLineStatement;
+            statements[index] = MethodBodyStatement.EmptyLine;
             index++;
 
             statements[index] = bodyStatements;
@@ -126,12 +127,12 @@ namespace Microsoft.Generator.CSharp.Perf
             {
                 if (parameter.Validation != ParameterValidationType.None)
                 {
-                    statements.Add(Argument.ValidateParameter(parameter));
+                    statements.Add(ArgumentSnippet.ValidateParameter(parameter));
                     wroteValidation = true;
                 }
             }
             if (wroteValidation)
-                statements.Add(EmptyLineStatement);
+                statements.Add(MethodBodyStatement.EmptyLine);
 
             statements.Add(original);
             return statements;
@@ -144,12 +145,12 @@ namespace Microsoft.Generator.CSharp.Perf
             {
                 if (parameter.Validation != ParameterValidationType.None)
                 {
-                    yield return Argument.ValidateParameter(parameter);
+                    yield return ArgumentSnippet.ValidateParameter(parameter);
                     wroteValidation = true;
                 }
             }
             if (wroteValidation)
-                yield return EmptyLineStatement;
+                yield return MethodBodyStatement.EmptyLine;
         }
 
         private IReadOnlyList<MethodBodyStatement> GetValidationStatements()
@@ -160,12 +161,12 @@ namespace Microsoft.Generator.CSharp.Perf
             {
                 if (parameter.Validation != ParameterValidationType.None)
                 {
-                    statements.Add(Argument.ValidateParameter(parameter));
+                    statements.Add(ArgumentSnippet.ValidateParameter(parameter));
                     wroteValidation = true;
                 }
             }
             if (wroteValidation)
-                statements.Add(EmptyLineStatement);
+                statements.Add(MethodBodyStatement.EmptyLine);
             return statements;
         }
     }

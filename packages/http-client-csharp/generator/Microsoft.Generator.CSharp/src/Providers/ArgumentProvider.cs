@@ -6,16 +6,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
+using static Microsoft.Generator.CSharp.Snippets.ArgumentSnippet;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
     internal class ArgumentProvider : TypeProvider
     {
-        private static readonly Lazy<ArgumentProvider> _instance = new(() => new ArgumentProvider());
-
         private class Template<T> { }
 
         private const string AssertNotNullMethodName = "AssertNotNull";
@@ -25,15 +25,9 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly CSharpType _t = typeof(Template<>).GetGenericArguments()[0];
         private readonly ParameterProvider _nameParam = new ParameterProvider("name", $"The name.", typeof(string));
         private readonly CSharpType _nullableT;
-        private readonly ParameterReferenceSnippet _nameParamRef;
 
-        public static ArgumentProvider Instance => _instance.Value;
-
-        protected override string GetFileName() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
-
-        private ArgumentProvider()
+        public ArgumentProvider()
         {
-            _nameParamRef = new ParameterReferenceSnippet(_nameParam);
             _nullableT = _t.WithNullable(true);
         }
 
@@ -41,6 +35,8 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }
+
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         public override string Name => "Argument";
 
@@ -53,7 +49,6 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return new MethodSignature(
                 name,
-                null,
                 null,
                 MethodSignatureModifiers.Static | MethodSignatureModifiers.Public,
                 returnType,
@@ -81,82 +76,79 @@ namespace Microsoft.Generator.CSharp.Providers
             ];
         }
 
-
         private MethodProvider BuildAssertNull()
         {
-            var valueParam = new ParameterProvider("value", $"The value.", _t);
-            var messageParam = new ParameterProvider("message", $"The message.", typeof(string), DefaultOf(new CSharpType(typeof(string), true)));
-            var signature = GetSignature("AssertNull", [valueParam, _nameParam, messageParam], [_t]);
-            var value = new ParameterReferenceSnippet(valueParam);
-            var message = new ParameterReferenceSnippet(messageParam);
+            var value = new ParameterProvider("value", $"The value.", _t);
+            var message = new ParameterProvider("message", $"The message.", typeof(string), DefaultOf(new CSharpType(typeof(string), true)));
+            var signature = GetSignature("AssertNull", [value, _nameParam, message], [_t]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                new IfStatement(NotEqual(value, Null))
+                new IfStatement(value.AsExpression.NotEqual(Null))
                 {
                     ThrowArgumentException(NullCoalescing(message, Literal("Value must be null.")))
                 }
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildCheckNotNullOrEmptyString()
         {
-            var valueParam = new ParameterProvider("value", $"The value.", typeof(string));
-            var signature = GetSignature("CheckNotNullOrEmpty", [valueParam, _nameParam], returnType: typeof(string));
-            var value = new ParameterReferenceSnippet(valueParam);
+            var value = new ParameterProvider("value", $"The value.", typeof(string));
+            var signature = GetSignature("CheckNotNullOrEmpty", [value, _nameParam], returnType: typeof(string));
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                AssertNotNullOrEmpty(value, _nameParamRef),
+                AssertNotNullOrEmpty(value, _nameParam),
                 Return(value)
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildCheckNotNull()
         {
-            var valueParam = new ParameterProvider("value", $"The value.", _t);
-            var signature = GetSignature("CheckNotNull", [valueParam, _nameParam], new[] { _t }, new[] { Where.Class(_t) }, _t);
-            var value = new ParameterReferenceSnippet(valueParam);
+            var value = new ParameterProvider("value", $"The value.", _t);
+            var signature = GetSignature("CheckNotNull", [value, _nameParam], new[] { _t }, new[] { Where.Class(_t) }, _t);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                AssertNotNull(value, _nameParamRef),
+                AssertNotNull(value, _nameParam),
                 Return(value)
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildAssertEnumDefined()
         {
-            var valueParam = new ParameterProvider("value", $"The value.", typeof(object), null);
-            var enumTypeParam = new ParameterProvider("enumType", $"The enum value.", typeof(Type));
-            var signature = GetSignature("AssertEnumDefined", [enumTypeParam, valueParam, _nameParam]);
-            var enumType = new ParameterReferenceSnippet(enumTypeParam).Untyped;
-            var value = new ParameterReferenceSnippet(valueParam).Untyped;
+            var value = new ParameterProvider("value", $"The value.", typeof(object), null);
+            var enumType = new ParameterProvider("enumType", $"The enum value.", typeof(Type));
+            var signature = GetSignature("AssertEnumDefined", [enumType, value, _nameParam]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(Not(new BoolSnippet(new InvokeStaticMethodExpression(typeof(Enum), "IsDefined", [enumType, value]))))
                 {
                     ThrowArgumentException(new FormattableStringExpression("Value not defined for {0}.", [new MemberExpression(enumType, "FullName")]))
                 }
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildAssertInRange()
         {
-            var valueParam = new ParameterProvider("value", $"The value.", _t);
-            var minParam = new ParameterProvider("minimum", $"The minimum value.", _t);
-            var maxParam = new ParameterProvider("maximum", $"The maximum value.", _t);
+            var value = new ParameterProvider("value", $"The value.", _t);
+            var min = new ParameterProvider("minimum", $"The minimum value.", _t);
+            var max = new ParameterProvider("maximum", $"The maximum value.", _t);
             var whereExpressions = new WhereExpression[] { Where.NotNull(_t).And(new CSharpType(typeof(IComparable<>), _t)) };
-            var signature = GetSignature("AssertInRange", new[] { valueParam, minParam, maxParam, _nameParam }, new[] { _t }, whereExpressions);
-            var value = new ParameterReferenceSnippet(valueParam);
+            var signature = GetSignature("AssertInRange", new[] { value, min, max, _nameParam }, new[] { _t }, whereExpressions);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                new IfStatement(GreaterThan(GetCompareToExpression(new ParameterReferenceSnippet(minParam), value), Literal(0)))
+                new IfStatement(GetCompareToExpression(min, value).GreaterThan(Literal(0)))
                 {
-                    Throw(New.ArgumentOutOfRangeException(_nameParamRef, "Value is less than the minimum allowed.", false))
+                    Throw(New.ArgumentOutOfRangeException(_nameParam, "Value is less than the minimum allowed.", false))
                 },
-                new IfStatement(LessThan(GetCompareToExpression(new ParameterReferenceSnippet(maxParam), value), Literal(0)))
+                new IfStatement(GetCompareToExpression(max, value).LessThan(Literal(0)))
                 {
-                    Throw(New.ArgumentOutOfRangeException(_nameParamRef, "Value is greater than the maximum allowed.", false))
+                    Throw(New.ArgumentOutOfRangeException(_nameParam, "Value is greater than the maximum allowed.", false))
                 }
-            });
+            },
+            this);
         }
 
         private ValueExpression GetCompareToExpression(ValueExpression left, ValueExpression right)
@@ -166,18 +158,18 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private MethodProvider BuildAssertNotDefault()
         {
-            var valueParam = new ParameterProvider("value", $"The value.", _t);
+            var value = new ParameterProvider("value", $"The value.", _t);
             var valueParamWithRef = new ParameterProvider("value", $"The value.", _t, null, true);
             var whereExpressions = new WhereExpression[] { Where.Struct(_t).And(new CSharpType(typeof(IEquatable<>), _t)) };
             var signature = GetSignature("AssertNotDefault", [valueParamWithRef, _nameParam], [_t], whereExpressions);
-            var value = new ParameterReferenceSnippet(valueParam);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                new IfStatement(new BoolSnippet(value.Untyped.Invoke("Equals", Default)))
+                new IfStatement(new BoolSnippet(value.Invoke("Equals", Default)))
                 {
                     ThrowArgumentException("Value cannot be empty.")
                 }
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildAssertNotNullOrWhiteSpace()
@@ -192,7 +184,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     ThrowArgumentException("Value cannot be empty or contain only white-space characters.")
                 }
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildAssertNotNullOrEmptyString()
@@ -203,61 +196,63 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 AssertNotNullSnippet(valueParam),
-                new IfStatement(Equal(value.Length, Literal(0)))
+                new IfStatement(value.Length.Equal(Literal(0)))
                 {
                     ThrowArgumentException("Value cannot be an empty string.")
                 }
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildAssertNotNullOrEmptyCollection()
         {
             const string throwMessage = "Value cannot be an empty collection.";
-            var valueParam = new ParameterProvider("value", $"The value.", new CSharpType(typeof(IEnumerable<>), _t));
-            var signature = GetSignature(AssertNotNullOrEmptyMethodName, [valueParam, _nameParam], [_t]);
+            var value = new ParameterProvider("value", $"The value.", new CSharpType(typeof(IEnumerable<>), _t));
+            var signature = GetSignature(AssertNotNullOrEmptyMethodName, [value, _nameParam], [_t]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                AssertNotNullSnippet(valueParam),
-                new IfStatement(IsCollectionEmpty(valueParam, new VariableReferenceSnippet(new CSharpType(typeof(ICollection<>), _t), new CodeWriterDeclaration("collectionOfT"))))
+                AssertNotNullSnippet(value),
+                new IfStatement(IsCollectionEmpty(value, new VariableExpression(new CSharpType(typeof(ICollection<>), _t), new CodeWriterDeclaration("collectionOfT"))))
                 {
                     ThrowArgumentException(throwMessage)
                 },
-                new IfStatement(IsCollectionEmpty(valueParam, new VariableReferenceSnippet(typeof(ICollection), new CodeWriterDeclaration("collection"))))
+                new IfStatement(IsCollectionEmpty(value, new VariableExpression(typeof(ICollection), new CodeWriterDeclaration("collection"))))
                 {
                     ThrowArgumentException(throwMessage)
                 },
-                UsingDeclare("e", new CSharpType(typeof(IEnumerator<>), _t), new ParameterReferenceSnippet(valueParam).Untyped.Invoke("GetEnumerator"), out var eVar),
-                new IfStatement(Not(new BoolSnippet(eVar.Untyped.Invoke("MoveNext"))))
+                UsingDeclare("e", new CSharpType(typeof(IEnumerator<>), _t), value.Invoke("GetEnumerator"), out var eVar),
+                new IfStatement(Not(new BoolSnippet(eVar.Invoke("MoveNext"))))
                 {
                     ThrowArgumentException(throwMessage)
                 }
-            });
+            },
+            this);
         }
 
-        private static BoolSnippet IsCollectionEmpty(ParameterProvider valueParam, VariableReferenceSnippet collection)
+        private static BoolSnippet IsCollectionEmpty(ParameterProvider valueParam, VariableExpression collection)
         {
-            return BoolSnippet.Is(valueParam, new DeclarationExpression(collection.Type, collection.Declaration, false)).And(Equal(new MemberExpression(collection, "Count"), Literal(0)));
+            return valueParam.AsExpression.Is(new DeclarationExpression(collection)).And(new MemberExpression(collection, "Count").Equal(Literal(0)));
         }
 
         private MethodBodyStatement ThrowArgumentException(ValueExpression expression)
         {
-            return Throw(New.ArgumentException(_nameParamRef, expression, false));
+            return Throw(New.ArgumentException(_nameParam, expression, false));
         }
 
         private MethodBodyStatement ThrowArgumentException(string message) => ThrowArgumentException(Literal(message));
 
         private MethodProvider BuildAssertNotNullStruct()
         {
-            var valueParam = new ParameterProvider("value", $"The value.", _nullableT);
-            var signature = GetSignature(AssertNotNullMethodName, [valueParam, _nameParam], [_t], [Where.Struct(_t)]);
-            var value = new ParameterReferenceSnippet(valueParam);
+            var value = new ParameterProvider("value", $"The value.", _nullableT);
+            var signature = GetSignature(AssertNotNullMethodName, [value, _nameParam], [_t], [Where.Struct(_t)]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(Not(new BoolSnippet(new MemberExpression(value, "HasValue"))))
                 {
-                    Throw(New.ArgumentNullException(_nameParamRef, false))
+                    Throw(New.ArgumentNullException(_nameParam, false))
                 }
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildAssertNotNull()
@@ -267,30 +262,16 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 AssertNotNullSnippet(valueParam)
-            });
+            },
+            this);
         }
 
-        private IfStatement AssertNotNullSnippet(ParameterProvider valueParam)
+        private IfStatement AssertNotNullSnippet(ParameterProvider value)
         {
-            return new IfStatement(Is(new ParameterReferenceSnippet(valueParam), Null))
+            return new IfStatement(value.AsExpression.Is(Null))
             {
-                Throw(New.ArgumentNullException(_nameParamRef, false))
+                Throw(New.ArgumentNullException(_nameParam, false))
             };
-        }
-
-        internal MethodBodyStatement AssertNotNull(ValueExpression variable, ValueExpression? name = null)
-        {
-            return new InvokeStaticMethodStatement(Type, AssertNotNullMethodName, variable, name ?? Nameof(variable));
-        }
-
-        internal MethodBodyStatement AssertNotNullOrEmpty(ValueExpression variable, ValueExpression? name = null)
-        {
-            return new InvokeStaticMethodStatement(Type, AssertNotNullOrEmptyMethodName, variable, name ?? Nameof(variable));
-        }
-
-        internal MethodBodyStatement AssertNotNullOrWhiteSpace(ValueExpression variable, ValueExpression? name = null)
-        {
-            return new InvokeStaticMethodStatement(Type, AssertNotNullOrWhiteSpaceMethodName, variable, name ?? Nameof(variable));
         }
     }
 }

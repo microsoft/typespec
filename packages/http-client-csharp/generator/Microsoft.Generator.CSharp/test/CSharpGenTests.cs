@@ -5,23 +5,24 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.Primitives;
 using Moq;
+using Moq.Protected;
 using NUnit.Framework;
-using static Microsoft.Generator.CSharp.Snippets.ExtensibleSnippets;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
     public class CSharpGenTests
     {
         private readonly string _mocksFolder = "./Mocks";
+
         // Validates that the output path is parsed correctly when provided
         [Test]
         public void TestGetOutputPath_OutputPathProvided()
         {
             var outputPath = "./outputDir";
-            var parsedOutputPath = CSharpGen.ParseOutputPath(outputPath).Replace("\\", "/");
-            var expectedPath = $"{outputPath}/src";
+            var parsedOutputPath = CSharpGen.ParseGeneratedSourceOutputPath(outputPath);
+            var expectedPath = Path.Combine(outputPath, "src", "Generated");
             var areEqual = string.Equals(expectedPath, parsedOutputPath, StringComparison.OrdinalIgnoreCase);
 
             Assert.IsTrue(areEqual);
@@ -35,8 +36,8 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TestGetConfigurationInputFilePath_DefaultPath()
         {
             var outputPath = "";
-            var parsedOutputPath = CSharpGen.ParseOutputPath(outputPath).Replace("\\", "/");
-            var expectedPath = $"src";
+            var parsedOutputPath = CSharpGen.ParseGeneratedSourceOutputPath(outputPath);
+            var expectedPath = Path.Combine("src", "Generated");
             var areEqual = string.Equals(expectedPath, parsedOutputPath, StringComparison.OrdinalIgnoreCase);
 
             Assert.IsTrue(areEqual);
@@ -58,22 +59,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 CallBase = true
             };
 
-            // mock api types
-            var mockApiTypes = new Mock<ApiTypes>()
-            {
-                CallBase = true
-            };
-
-            // mock extensible snippets
-            var mockExtensibleSnippets = new Mock<ExtensibleSnippets>()
-            {
-                CallBase = true
-            };
-
-            mockTypeFactory.Setup(p => p.CreateCSharpType(It.IsAny<InputType>())).Returns(new CSharpType(typeof(IList<>)));
-            mockExtensibleSnippets.SetupGet(p => p.Model).Returns(new Mock<ModelSnippets>().Object);
-            mockPlugin.SetupGet(p => p.ApiTypes).Returns(mockApiTypes.Object);
-            mockPlugin.SetupGet(p => p.ExtensibleSnippets).Returns(mockExtensibleSnippets.Object);
+            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(new CSharpType(typeof(IList<>)));
             mockPlugin.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
 
             var configFilePath = Path.Combine(_mocksFolder, "Configuration.json");
@@ -84,15 +70,14 @@ namespace Microsoft.Generator.CSharp.Tests
 
         private void TestOutputPathAppended(string outputPath, string expectedPath)
         {
-            var srcPath = "/src";
+            var srcPath = "src";
 
-            outputPath += srcPath;
+            outputPath = Path.Combine(outputPath, srcPath);
 
 
-            var parsedOutputPath = CSharpGen.ParseOutputPath(outputPath);
-            var cleanedOutputPath = parsedOutputPath.Replace("\\", "/");
+            var parsedOutputPath = CSharpGen.ParseGeneratedSourceOutputPath(outputPath);
 
-            var areEqual = string.Equals(expectedPath, cleanedOutputPath, StringComparison.OrdinalIgnoreCase);
+            var areEqual = string.Equals(expectedPath, parsedOutputPath, StringComparison.OrdinalIgnoreCase);
 
             Assert.IsTrue(areEqual);
         }

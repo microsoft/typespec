@@ -6,11 +6,11 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record TimeSpanSnippet(ValueExpression Untyped) : TypedSnippet<TimeSpan>(Untyped)
+    public sealed record TimeSpanSnippet(ValueExpression Expression) : TypedSnippet<TimeSpan>(Expression)
     {
-        public StringSnippet InvokeToString(string? format) => new(Untyped.Invoke(nameof(TimeSpan.ToString), [Snippet.Literal(format)]));
+        public StringSnippet InvokeToString(string? format) => new(Expression.Invoke(nameof(TimeSpan.ToString), [Snippet.Literal(format)]));
         public StringSnippet InvokeToString(ValueExpression format, ValueExpression formatProvider)
-            => new(Untyped.Invoke(nameof(TimeSpan.ToString), new[] { format, formatProvider }));
+            => new(Expression.Invoke(nameof(TimeSpan.ToString), new[] { format, formatProvider }));
 
         public static TimeSpanSnippet FromSeconds(ValueExpression value) => new(InvokeStatic(nameof(TimeSpan.FromSeconds), value));
 

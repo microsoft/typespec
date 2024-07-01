@@ -3,13 +3,14 @@
 
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record KeyValuePairSnippet(CSharpType KeyType, CSharpType ValueType, ValueExpression Untyped) : TypedSnippet(GetType(KeyType, ValueType), Untyped)
+    public sealed record KeyValuePairSnippet(CSharpType KeyType, CSharpType ValueType, ValueExpression Expression) : TypedSnippet(GetType(KeyType, ValueType), Expression)
     {
-        public ValueExpression Key => new MemberExpression(Untyped, nameof(KeyValuePair<string, string>.Key));
-        public ValueExpression Value => new MemberExpression(Untyped, nameof(KeyValuePair<string, string>.Value));
+        public ValueExpression Key => new MemberExpression(Expression, nameof(KeyValuePair<string, string>.Key));
+        public ValueExpression Value => new MemberExpression(Expression, nameof(KeyValuePair<string, string>.Value));
 
         public static CSharpType GetType(CSharpType keyType, CSharpType valueType) => new(typeof(KeyValuePair<,>), false, keyType, valueType);
     }

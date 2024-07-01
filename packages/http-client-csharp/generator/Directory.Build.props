@@ -3,24 +3,20 @@
     <RepoRoot>$(MSBuildThisFileDirectory)</RepoRoot>
     <RepoEngPath>$(MSBuildThisFileDirectory)../eng</RepoEngPath>
     <IsTestProject Condition="$(MSBuildProjectName.EndsWith('.Tests'))">true</IsTestProject>
+    <IsPerfProject Condition="$(MSBuildProjectName.EndsWith('.Perf'))">true</IsPerfProject>
+    <IsSrcProject Condition="'$(IsTestProject)' != 'true' and '$(IsPerfProject)' != 'true'">true</IsSrcProject>
     <CentralPackagesFile>$(MSBuildThisFileDirectory)Packages.Data.props</CentralPackagesFile>
     <ShouldUseCentralVersions Condition="'$(ShouldUseCentralVersions)' == ''">true</ShouldUseCentralVersions>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(IsTestProject)' != 'true'">
-    <PackageIcon>packageIcon.png</PackageIcon>
-    <PackageIconPath>$(RepoEngPath)/images/$(PackageIcon)</PackageIconPath>
-  </PropertyGroup>
-
-  <!-- Setup default project properties -->
   <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <TargetFramework>net8.0</TargetFramework>
     <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
     <Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
     <PlatformName Condition="'$(PlatformName)' == ''">$(Platform)</PlatformName>
-  </PropertyGroup>
 
-  <!-- Setup common output paths -->
-  <PropertyGroup>
+    <!-- Setup common output paths -->
     <ArtifactsDir Condition="'$(ArtifactsDir)' == ''">$(RepoRoot)artifacts\</ArtifactsDir>
     <ArtifactsObjDir>$(ArtifactsDir)obj\</ArtifactsObjDir>
     <ArtifactsBinDir>$(ArtifactsDir)bin\</ArtifactsBinDir>
@@ -43,13 +39,24 @@
 
     <PackageOutputPath>$(ArtifactsPackagesDir)</PackageOutputPath>
     <CodeAnalysisRuleSet>$(RepoEngPath)\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
 
-  <PropertyGroup>
     <DelaySign>false</DelaySign>
     <PublicSign>false</PublicSign>
     <ImportDefaultReferences>false</ImportDefaultReferences>
-    <LangVersion>12.0</LangVersion>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsSrcProject)' == 'true'">
+    <PackageIcon>packageIcon.png</PackageIcon>
+    <PackageIconPath>$(RepoEngPath)/images/$(PackageIcon)</PackageIconPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsPerfProject)' == 'true'">
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
 </Project>

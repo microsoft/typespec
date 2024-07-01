@@ -4,10 +4,14 @@
 
 namespace UnbrandedTypeSpec.Models
 {
+    /// <summary> int fixed enum. </summary>
     public enum IntFixedEnum
     {
+        /// <summary> One. </summary>
         One = 1,
+        /// <summary> Two. </summary>
         Two = 2,
+        /// <summary> Four. </summary>
         Four = 4
     }
 }

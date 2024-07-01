@@ -5,7 +5,7 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public class InputDateTimeType : InputType
     {
-        public InputDateTimeType(DateTimeKnownEncoding encode, InputPrimitiveType wireType, bool isNullable) : base("DateTime", isNullable)
+        public InputDateTimeType(DateTimeKnownEncoding encode, InputPrimitiveType wireType) : base("DateTime")
         {
             Encode = encode;
             WireType = wireType;

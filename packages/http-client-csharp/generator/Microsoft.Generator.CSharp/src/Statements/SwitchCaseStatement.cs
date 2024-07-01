@@ -12,20 +12,16 @@ namespace Microsoft.Generator.CSharp.Statements
     {
         public IReadOnlyList<ValueExpression> Matches { get; }
         public MethodBodyStatement Statement { get; }
-        public bool Inline { get; }
-        public bool AddScope { get; }
 
-        public SwitchCaseStatement(IReadOnlyList<ValueExpression> matches, MethodBodyStatement statement, bool inline = false, bool addScope = false)
+        public SwitchCaseStatement(IReadOnlyList<ValueExpression> matches, MethodBodyStatement statement)
         {
             Matches = matches;
             Statement = statement;
-            Inline = inline;
-            AddScope = addScope;
         }
 
-        public SwitchCaseStatement(ValueExpression match, MethodBodyStatement statement, bool inline = false, bool addScope = false) : this(new[] { match }, statement, inline, addScope) { }
+        public SwitchCaseStatement(ValueExpression match, MethodBodyStatement statement) : this([match], statement) { }
 
-        public static SwitchCaseStatement Default(MethodBodyStatement statement, bool inline = false, bool addScope = false) => new(Array.Empty<ValueExpression>(), statement, inline, addScope);
+        public static SwitchCaseStatement Default(MethodBodyStatement statement) => new(Array.Empty<ValueExpression>(), statement);
 
         internal override void Write(CodeWriter writer)
         {
@@ -47,23 +43,8 @@ namespace Microsoft.Generator.CSharp.Statements
                 writer.AppendRaw("default");
             }
 
-            writer.AppendRaw(": ");
-            if (!Inline)
-            {
-                writer.WriteLine();
-            }
-
-            if (AddScope)
-            {
-                using (writer.Scope())
-                {
-                    Statement.Write(writer);
-                }
-            }
-            else
-            {
-                Statement.Write(writer);
-            }
+            using var scope = writer.ScopeRaw(":", "", newLine: false);
+            Statement.Write(writer);
         }
     }
 }
