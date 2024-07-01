@@ -8,6 +8,7 @@ export async function emitMain(program: TypeSpecProgram): Promise<string> {
   const content = `
   import "@typespec/http";
   import "@typespec/openapi";
+  import "@typespec/openapi3";
 
   using Http;
   using OpenAPI;

@@ -28,6 +28,8 @@ function getTypeFromSchema(schema: OpenAPI3Schema): string {
     type = getNumberType(schema);
   } else if (schema.type === "object") {
     type = getObjectType(schema);
+  } else if (schema.oneOf) {
+    type = getOneOfType(schema);
   } else if (schema.type === "string") {
     type = getStringType(schema);
   }
@@ -49,6 +51,16 @@ function getAnyOfType(schema: OpenAPI3Schema): string {
   const definitions: string[] = [];
 
   for (const item of schema.anyOf ?? []) {
+    definitions.push(generateTypeFromSchema(item));
+  }
+
+  return definitions.join(" | ");
+}
+
+function getOneOfType(schema: OpenAPI3Schema): string {
+  const definitions: string[] = [];
+
+  for (const item of schema.oneOf ?? []) {
     definitions.push(generateTypeFromSchema(item));
   }
 

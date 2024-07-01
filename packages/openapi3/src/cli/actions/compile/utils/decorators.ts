@@ -1,11 +1,5 @@
 import { ExtensionKey } from "@typespec/openapi";
-import {
-  Extensions,
-  OpenAPI3Operation,
-  OpenAPI3Parameter,
-  OpenAPI3Schema,
-  Refable,
-} from "../../../../types.js";
+import { Extensions, OpenAPI3Parameter, OpenAPI3Schema, Refable } from "../../../../types.js";
 import { TypeSpecDecorator } from "../interfaces.js";
 
 const validLocations = ["header", "query", "path"];
@@ -28,12 +22,6 @@ export function getExtensions(element: Extensions): TypeSpecDecorator[] {
 
 function isExtensionKey(key: string): key is ExtensionKey {
   return key.startsWith("x-");
-}
-
-export function getOperationDecorators(operation: OpenAPI3Operation): TypeSpecDecorator[] {
-  const decorators: TypeSpecDecorator[] = [];
-
-  return decorators;
 }
 
 export function getParameterDecorators(parameter: OpenAPI3Parameter) {
@@ -117,7 +105,15 @@ export function getDecoratorsForSchema(schema: Refable<OpenAPI3Schema>): TypeSpe
       break;
   }
 
+  if (schema.oneOf) {
+    decorators.push(...getOneOfSchemaDecorators(schema));
+  }
+
   return decorators;
+}
+
+function getOneOfSchemaDecorators(schema: OpenAPI3Schema): TypeSpecDecorator[] {
+  return [{ name: "oneOf", args: [] }];
 }
 
 function getArraySchemaDecorators(schema: OpenAPI3Schema) {
