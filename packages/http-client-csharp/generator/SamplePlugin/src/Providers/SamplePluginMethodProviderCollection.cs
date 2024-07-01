@@ -27,14 +27,14 @@ namespace SamplePlugin.Providers
             methods.Add(
                 new ClientMethodProvider(
                     new MethodSignature(
-                        $"TestExpressionBodyConversion{_operation.Name}",
+                        $"TestExpressionBodyConversion{ToTitleCase(Operation.Name)}",
                         $"Test expression body conversion.",
                         MethodSignatureModifiers.Public,
                         typeof(int),
                         $"Returns an int",
                         Array.Empty<ParameterProvider>()),
                     Literal(42),
-                    _enclosingType) { IsProtocol = true });
+                    EnclosingType) { IsProtocol = true });
             var updatedMethods = new List<MethodProvider>();
 
             foreach (var method in methods)
@@ -65,10 +65,20 @@ namespace SamplePlugin.Providers
                                 Throw()
                             }),
                         InvokeConsoleWriteLine(Literal($"Exiting method {convertedMethod.Signature.Name}."))),
-                    _enclosingType));
+                    EnclosingType));
             }
 
             return updatedMethods;
+        }
+
+        private string ToTitleCase(string name)
+        {
+            if (char.IsLetter(name[0]))
+            {
+                return char.ToUpper(name[0]) + name.Substring(1);
+            }
+
+            return name;
         }
     }
 }

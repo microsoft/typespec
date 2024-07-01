@@ -120,11 +120,11 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionsayHi()
+        public int TestExpressionBodyConversionSayHi()
         {
             try
             {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionsayHi.");
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionSayHi.");
                 return 42;
             }
             catch (Exception ex)
@@ -134,7 +134,7 @@ namespace UnbrandedTypeSpec
             }
             finally
             {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionsayHi.");
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionSayHi.");
             }
         }
 
@@ -241,11 +241,11 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionhelloAgain()
+        public int TestExpressionBodyConversionHelloAgain()
         {
             try
             {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionhelloAgain.");
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionHelloAgain.");
                 return 42;
             }
             catch (Exception ex)
@@ -255,7 +255,7 @@ namespace UnbrandedTypeSpec
             }
             finally
             {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionhelloAgain.");
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionHelloAgain.");
             }
         }
 
@@ -362,11 +362,11 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionnoContentType()
+        public int TestExpressionBodyConversionNoContentType()
         {
             try
             {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionnoContentType.");
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionNoContentType.");
                 return 42;
             }
             catch (Exception ex)
@@ -376,7 +376,7 @@ namespace UnbrandedTypeSpec
             }
             finally
             {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionnoContentType.");
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionNoContentType.");
             }
         }
 
@@ -445,11 +445,11 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionhelloDemo2()
+        public int TestExpressionBodyConversionHelloDemo2()
         {
             try
             {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionhelloDemo2.");
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionHelloDemo2.");
                 return 42;
             }
             catch (Exception ex)
@@ -459,7 +459,7 @@ namespace UnbrandedTypeSpec
             }
             finally
             {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionhelloDemo2.");
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionHelloDemo2.");
             }
         }
 
@@ -540,11 +540,11 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversioncreateLiteral()
+        public int TestExpressionBodyConversionCreateLiteral()
         {
             try
             {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversioncreateLiteral.");
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionCreateLiteral.");
                 return 42;
             }
             catch (Exception ex)
@@ -554,7 +554,7 @@ namespace UnbrandedTypeSpec
             }
             finally
             {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversioncreateLiteral.");
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionCreateLiteral.");
             }
         }
 
@@ -623,11 +623,11 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionhelloLiteral()
+        public int TestExpressionBodyConversionHelloLiteral()
         {
             try
             {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionhelloLiteral.");
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionHelloLiteral.");
                 return 42;
             }
             catch (Exception ex)
@@ -637,7 +637,7 @@ namespace UnbrandedTypeSpec
             }
             finally
             {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionhelloLiteral.");
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionHelloLiteral.");
             }
         }
 
@@ -726,11 +726,11 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversiontopAction()
+        public int TestExpressionBodyConversionTopAction()
         {
             try
             {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversiontopAction.");
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionTopAction.");
                 return 42;
             }
             catch (Exception ex)
@@ -740,7 +740,7 @@ namespace UnbrandedTypeSpec
             }
             finally
             {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversiontopAction.");
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionTopAction.");
             }
         }
 
@@ -809,11 +809,11 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversiontopAction2()
+        public int TestExpressionBodyConversionTopAction2()
         {
             try
             {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversiontopAction2.");
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionTopAction2.");
                 return 42;
             }
             catch (Exception ex)
@@ -823,7 +823,7 @@ namespace UnbrandedTypeSpec
             }
             finally
             {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversiontopAction2.");
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionTopAction2.");
             }
         }
 
@@ -904,11 +904,11 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionpatchAction()
+        public int TestExpressionBodyConversionPatchAction()
         {
             try
             {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionpatchAction.");
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionPatchAction.");
                 return 42;
             }
             catch (Exception ex)
@@ -918,7 +918,7 @@ namespace UnbrandedTypeSpec
             }
             finally
             {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionpatchAction.");
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionPatchAction.");
             }
         }
 
@@ -999,11 +999,11 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionanonymousBody()
+        public int TestExpressionBodyConversionAnonymousBody()
         {
             try
             {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionanonymousBody.");
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionAnonymousBody.");
                 return 42;
             }
             catch (Exception ex)
@@ -1013,7 +1013,7 @@ namespace UnbrandedTypeSpec
             }
             finally
             {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionanonymousBody.");
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionAnonymousBody.");
             }
         }
 
@@ -1094,11 +1094,11 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionfriendlyModel()
+        public int TestExpressionBodyConversionFriendlyModel()
         {
             try
             {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionfriendlyModel.");
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionFriendlyModel.");
                 return 42;
             }
             catch (Exception ex)
@@ -1108,7 +1108,7 @@ namespace UnbrandedTypeSpec
             }
             finally
             {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionfriendlyModel.");
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionFriendlyModel.");
             }
         }
 
@@ -1181,11 +1181,11 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionaddTimeHeader()
+        public int TestExpressionBodyConversionAddTimeHeader()
         {
             try
             {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionaddTimeHeader.");
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionAddTimeHeader.");
                 return 42;
             }
             catch (Exception ex)
@@ -1195,7 +1195,7 @@ namespace UnbrandedTypeSpec
             }
             finally
             {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionaddTimeHeader.");
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionAddTimeHeader.");
             }
         }
 
@@ -1276,11 +1276,11 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionprojectedNameModel()
+        public int TestExpressionBodyConversionProjectedNameModel()
         {
             try
             {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionprojectedNameModel.");
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionProjectedNameModel.");
                 return 42;
             }
             catch (Exception ex)
@@ -1290,7 +1290,7 @@ namespace UnbrandedTypeSpec
             }
             finally
             {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionprojectedNameModel.");
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionProjectedNameModel.");
             }
         }
 
@@ -1359,11 +1359,11 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionreturnsAnonymousModel()
+        public int TestExpressionBodyConversionReturnsAnonymousModel()
         {
             try
             {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionreturnsAnonymousModel.");
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionReturnsAnonymousModel.");
                 return 42;
             }
             catch (Exception ex)
@@ -1373,7 +1373,7 @@ namespace UnbrandedTypeSpec
             }
             finally
             {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionreturnsAnonymousModel.");
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionReturnsAnonymousModel.");
             }
         }
 
@@ -1442,11 +1442,11 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversiongetUnknownValue()
+        public int TestExpressionBodyConversionGetUnknownValue()
         {
             try
             {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversiongetUnknownValue.");
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionGetUnknownValue.");
                 return 42;
             }
             catch (Exception ex)
@@ -1456,7 +1456,7 @@ namespace UnbrandedTypeSpec
             }
             finally
             {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversiongetUnknownValue.");
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionGetUnknownValue.");
             }
         }
 
@@ -1537,11 +1537,11 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversioninternalProtocol()
+        public int TestExpressionBodyConversionInternalProtocol()
         {
             try
             {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversioninternalProtocol.");
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionInternalProtocol.");
                 return 42;
             }
             catch (Exception ex)
@@ -1551,7 +1551,7 @@ namespace UnbrandedTypeSpec
             }
             finally
             {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversioninternalProtocol.");
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionInternalProtocol.");
             }
         }
 
@@ -1620,11 +1620,11 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionstillConvenient()
+        public int TestExpressionBodyConversionStillConvenient()
         {
             try
             {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionstillConvenient.");
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionStillConvenient.");
                 return 42;
             }
             catch (Exception ex)
@@ -1634,7 +1634,7 @@ namespace UnbrandedTypeSpec
             }
             finally
             {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionstillConvenient.");
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionStillConvenient.");
             }
         }
 
@@ -1723,11 +1723,11 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionheadAsBoolean()
+        public int TestExpressionBodyConversionHeadAsBoolean()
         {
             try
             {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionheadAsBoolean.");
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionHeadAsBoolean.");
                 return 42;
             }
             catch (Exception ex)
@@ -1737,7 +1737,7 @@ namespace UnbrandedTypeSpec
             }
             finally
             {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionheadAsBoolean.");
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionHeadAsBoolean.");
             }
         }
     }

@@ -44,7 +44,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodProvider BuildConvenienceMethod(bool isAsync)
         {
-            ClientProvider? client = _enclosingType as ClientProvider;
+            ClientProvider? client = EnclosingType as ClientProvider;
             if (client is null)
             {
                 throw new InvalidOperationException("Protocol methods can only be built for client types.");
@@ -57,9 +57,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
             var methodSignature = new MethodSignature(
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
-                FormattableStringHelpers.FromString(_operation.Description),
+                FormattableStringHelpers.FromString(Operation.Description),
                 methodModifier,
-                GetResponseType(_operation.Responses, true, isAsync),
+                GetResponseType(Operation.Responses, true, isAsync),
                 null,
                 Parameters: ConvenienceMethodParameters);
             var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
@@ -73,7 +73,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         [result.CastTo(_bodyParameter.Type), result.Invoke("GetRawResponse")])),
                 ];
 
-            var convenienceMethod = new ClientMethodProvider(methodSignature, methodBody, _enclosingType);
+            var convenienceMethod = new ClientMethodProvider(methodSignature, methodBody, EnclosingType);
             convenienceMethod.XmlDocs!.Exceptions.Add(new(typeof(ClientResultException), "Service returned a non-success status code.", []));
             return convenienceMethod;
         }
@@ -87,7 +87,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private List<ParameterProvider> GetMethodParameters(bool isConvenience)
         {
             List<ParameterProvider> methodParameters = new();
-            foreach (InputParameter inputParam in _operation.Parameters)
+            foreach (InputParameter inputParam in Operation.Parameters)
             {
                 if (inputParam.Kind != InputOperationParameterKind.Method)
                     continue;
@@ -107,7 +107,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodProvider BuildProtocolMethod(bool isAsync)
         {
-            ClientProvider? client = _enclosingType as ClientProvider;
+            ClientProvider? client = EnclosingType as ClientProvider;
             if (client is null)
             {
                 throw new InvalidOperationException("Protocol methods can only be built for client types.");
@@ -120,9 +120,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
             var methodSignature = new MethodSignature(
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
-                FormattableStringHelpers.FromString(_operation.Description),
+                FormattableStringHelpers.FromString(Operation.Description),
                 methodModifier,
-                GetResponseType(_operation.Responses, false, isAsync),
+                GetResponseType(Operation.Responses, false, isAsync),
                 $"The response returned from the service.",
                 Parameters: [.. MethodParameters, ScmKnownParameters.RequestOptions]);
             var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
@@ -136,12 +136,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ];
 
             var protocolMethod =
-                new ClientMethodProvider(methodSignature, methodBody, _enclosingType) { IsProtocol = true };
+                new ClientMethodProvider(methodSignature, methodBody, EnclosingType) { IsProtocol = true };
             protocolMethod.XmlDocs!.Exceptions.Add(new(typeof(ClientResultException), "Service returned a non-success status code.", []));
             List<XmlDocStatement> listItems = new List<XmlDocStatement>();
             listItems.Add(new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."])));
             XmlDocStatement listXmlDoc = new XmlDocStatement("<list type=\"bullet\">", "</list>", [], innerStatements: [.. listItems]);
-            protocolMethod.XmlDocs.Summary = new XmlDocSummaryStatement([$"[Protocol Method] {_operation.Description}"], listXmlDoc);
+            protocolMethod.XmlDocs.Summary = new XmlDocSummaryStatement([$"[Protocol Method] {Operation.Description}"], listXmlDoc);
             return protocolMethod;
         }
 
@@ -166,14 +166,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var methodModifier = MethodSignatureModifiers.Internal;
             var methodSignature = new MethodSignature(
                 _createRequestMethodName,
-                FormattableStringHelpers.FromString(_operation.Description),
+                FormattableStringHelpers.FromString(Operation.Description),
                 methodModifier,
                 typeof(PipelineMessage),
                 null,
                 Parameters: [.. MethodParameters, ScmKnownParameters.RequestOptions]);
             var methodBody = Throw(New.NotImplementedException(Literal("Method not implemented.")));
 
-            return new MethodProvider(methodSignature, methodBody, _enclosingType);
+            return new MethodProvider(methodSignature, methodBody, EnclosingType);
         }
     }
 }
