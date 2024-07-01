@@ -14,8 +14,6 @@ export type FullOpenAPI3Info = OpenAPI3Info & {
   termsOfService?: string;
 };
 
-export type SupportedHttpMethods = "delete" | "get" | "head" | "patch" | "post" | "put";
-
 export interface TypeSpecProgram {
   serviceInfo: TypeSpecServiceInfo;
   models: TypeSpecModel[];

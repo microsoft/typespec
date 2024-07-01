@@ -1,6 +1,6 @@
-import { SupportedHttpMethods } from "../interfaces.js";
+import { HttpVerb } from "@typespec/http";
 
-export const supportedHttpMethods = new Set<SupportedHttpMethods>([
+export const supportedHttpMethods = new Set<HttpVerb>([
   "delete",
   "get",
   "head",
