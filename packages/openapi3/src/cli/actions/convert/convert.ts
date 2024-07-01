@@ -4,7 +4,7 @@ import { OpenAPI3Document } from "../../../types.js";
 import { CliHost } from "../../types.js";
 import { handleInternalCompilerError } from "../../utils.js";
 import { ConvertCliArgs } from "./args.js";
-import { emitMain } from "./emitters/emit-main.js";
+import { generateMain } from "./generators/emit-main.js";
 import { transform } from "./transforms/transforms.js";
 
 export async function convertAction(host: CliHost, args: ConvertCliArgs & { path: string }) {
@@ -14,7 +14,7 @@ export async function convertAction(host: CliHost, args: ConvertCliArgs & { path
   const program = transform(model);
   let mainTsp: string;
   try {
-    mainTsp = await emitMain(program);
+    mainTsp = await generateMain(program);
   } catch (err) {
     handleInternalCompilerError(err);
   }

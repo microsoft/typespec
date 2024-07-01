@@ -1,10 +1,10 @@
 import { formatTypeSpec } from "@typespec/compiler";
-import { generateModel } from "../generators/generate-model.js";
-import { generateOperation } from "../generators/generate-operation.js";
-import { generateServiceInformation } from "../generators/generate-service-info.js";
 import { TypeSpecProgram } from "../interfaces.js";
+import { generateModel } from "./generate-model.js";
+import { generateOperation } from "./generate-operation.js";
+import { generateServiceInformation } from "./generate-service-info.js";
 
-export async function emitMain(program: TypeSpecProgram): Promise<string> {
+export async function generateMain(program: TypeSpecProgram): Promise<string> {
   const content = `
   import "@typespec/http";
   import "@typespec/openapi";
