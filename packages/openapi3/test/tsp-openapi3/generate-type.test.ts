@@ -1,3 +1,4 @@
+import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
 import { describe, it } from "vitest";
 import { generateTypeFromSchema } from "../../src/cli/actions/convert/generators/generate-types.js";
@@ -63,10 +64,10 @@ const testScenarios: TestScenario[] = [
   { schema: { $ref: "#/Path/To/Some/Model" }, expected: "Model" },
   { schema: { $ref: "#/Path/To/Some/Model.Prop" }, expected: "Model.Prop" },
   // arrays
-  { schema: { type: "array", items: { type: "string" } }, expected: "(string)[]" },
+  { schema: { type: "array", items: { type: "string" } }, expected: "string[]" },
   {
     schema: { type: "array", items: { type: "array", items: { type: "string" } } },
-    expected: "((string)[])[]",
+    expected: "string[][]",
   },
   {
     schema: { type: "array", items: { type: "string", enum: ["foo", "bar"] } },
@@ -145,9 +146,16 @@ const testScenarios: TestScenario[] = [
 
 describe("tsp-openapi: generate-type", () => {
   testScenarios.forEach((t) =>
-    it(`${generateScenarioName(t)}`, () => {
+    it(`${generateScenarioName(t)}`, async () => {
       const type = generateTypeFromSchema(t.schema);
-      strictEqual(type, t.expected);
+      const wrappedType = await formatWrappedType(type);
+      const wrappedExpected = await formatWrappedType(t.expected);
+      strictEqual(wrappedType, wrappedExpected);
     })
   );
 });
+
+// Wrap the expected and actual types in this model to get formatted types.
+function formatWrappedType(type: string): Promise<string> {
+  return formatTypeSpec(`model Test { test: ${type}; }`);
+}
