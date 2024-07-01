@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { SdkBuiltInKinds } from "@azure-tools/typespec-client-generator-core";
+import { AccessFlags, SdkBuiltInKinds } from "@azure-tools/typespec-client-generator-core";
 import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler";
 import { InputEnumTypeValue } from "./input-enum-type-value.js";
 import { InputModelProperty } from "./input-model-property.js";
-import { InputTypeKind } from "./input-type-kind.js";
 
 interface InputTypeBase {
   Kind: string;
   Description?: string;
+  Deprecation?: string;
 }
 
 export type InputType =
@@ -71,31 +71,29 @@ export function isInputUnionType(type: InputType): type is InputUnionType {
 }
 
 export interface InputModelType extends InputTypeBase {
-  Kind: InputTypeKind.Model; // TODO -- will change to TCGC value in future refactor
-  Name: string;
-  Namespace?: string;
-  Accessibility?: string;
-  Deprecated?: string;
-  Description?: string;
-  Usage: string;
+  Kind: "model";
   Properties: InputModelProperty[];
-  BaseModel?: InputModelType;
-  DiscriminatorPropertyName?: string;
+  Name: string;
+  CrossLanguageDefinitionId: string;
+  Access?: AccessFlags;
+  Usage: string; // TODO -- replace this with UsageFlags in TCGC
+  AdditionalProperties?: InputType;
   DiscriminatorValue?: string;
-  DerivedModels?: InputModelType[];
-  InheritedDictionaryType?: InputDictionaryType;
+  DiscriminatedSubtypes?: Record<string, InputModelType>;
+  DiscriminatorProperty?: InputModelProperty;
+  BaseModel?: InputModelType;
 }
 
 export function isInputModelType(type: InputType): type is InputModelType {
-  return type.Kind === InputTypeKind.Model;
+  return type.Kind === "model";
 }
 
 export interface InputEnumType extends InputTypeBase {
   Kind: "enum";
   Name: string;
+  CrossLanguageDefinitionId: string;
   ValueType: InputPrimitiveType;
   Values: InputEnumTypeValue[];
-  Namespace?: string;
   Accessibility?: string;
   Deprecated?: string;
   IsExtensible: boolean;

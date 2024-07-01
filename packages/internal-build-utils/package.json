@@ -41,7 +41,7 @@
   ],
   "dependencies": {
     "@pnpm/find-workspace-packages": "^6.0.9",
-    "cspell": "^8.8.1",
+    "cspell": "^8.9.1",
     "semver": "^7.6.2",
     "strip-json-comments": "~5.0.1",
     "yargs": "~17.7.2"
@@ -52,10 +52,10 @@
     "@types/yargs": "~17.0.32",
     "@vitest/coverage-v8": "^1.6.0",
     "@vitest/ui": "^1.6.0",
-    "c8": "^9.1.0",
+    "c8": "^10.1.2",
     "chokidar": "~3.6.0",
     "rimraf": "~5.0.7",
-    "typescript": "~5.4.5",
+    "typescript": "~5.5.3",
     "vitest": "^1.6.0"
   }
 }

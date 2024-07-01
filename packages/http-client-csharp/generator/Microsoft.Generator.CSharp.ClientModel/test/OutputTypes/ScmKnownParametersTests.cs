@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.Generator.CSharp.Primitives;
 using Moq;
 using NUnit.Framework;
 
@@ -30,15 +31,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.OutputTypes
         public void TestMatchConditionsParameter()
         {
             var result = ScmKnownParameters.MatchConditionsParameter;
-            Assert.IsNotNull(result);
-            Assert.IsNotNull(result.Type);
-            Assert.IsTrue(result.Type.Equals(new CSharpType(typeof(int))));
-        }
-
-        [TestCase]
-        public void TestRequestConditionsParameter()
-        {
-            var result = ScmKnownParameters.RequestConditionsParameter;
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.Type);
             Assert.IsTrue(result.Type.Equals(new CSharpType(typeof(int))));

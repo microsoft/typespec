@@ -2,12 +2,13 @@
 // Licensed under the MIT License.
 
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    internal sealed record ArgumentSnippet(ValueExpression Untyped) : TypedSnippet<ArgumentProvider>(Untyped)
+    internal sealed record ArgumentSnippet(ValueExpression Expression) : TypedSnippet<ArgumentProvider>(Expression)
     {
         private const string AssertNotNullMethodName = "AssertNotNull";
         private const string AssertNotNullOrEmptyMethodName = "AssertNotNullOrEmpty";
@@ -35,7 +36,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         {
             ParameterValidationType.AssertNotNullOrEmpty => AssertNotNullOrEmpty(parameter),
             ParameterValidationType.AssertNotNull => AssertNotNull(parameter),
-            _ => Snippet.EmptyStatement
+            _ => MethodBodyStatement.Empty
         };
     }
 }

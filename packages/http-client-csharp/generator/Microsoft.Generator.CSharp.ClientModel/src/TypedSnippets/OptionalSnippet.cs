@@ -3,12 +3,13 @@
 
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal sealed record OptionalSnippet(ValueExpression Untyped) : TypedSnippet<SystemOptionalProvider>(Untyped)
+    internal sealed record OptionalSnippet(ValueExpression Expression) : TypedSnippet<SystemOptionalProvider>(Expression)
     {
         private const string IsDefinedMethodName = "IsDefined";
         private const string IsCollectionDefinedMethodName = "IsCollectionDefined";

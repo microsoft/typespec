@@ -2,15 +2,16 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Generator.CSharp.Input;
 using System.Collections.Generic;
-using Microsoft.Generator.CSharp.Providers;
-using Moq;
-using NUnit.Framework;
-using System.Reflection;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Providers;
+using Moq;
 using Moq.Protected;
+using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Writers
 {
@@ -62,8 +63,8 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var properties = new List<InputModelProperty> { RequiredStringProperty, RequiredIntProperty };
             MockPluginSetValue(properties);
 
-            var inputModel = new InputModelType("TestModel", null, "public", null, "Test model.", InputModelTypeUsage.RoundTrip,
-                properties, null, new List<InputModelType>(), null, null, null, false);
+            var inputModel = new InputModelType("TestModel", string.Empty, "public", null, "Test model.", InputModelTypeUsage.RoundTrip,
+                properties, null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
 
             var modelProvider = new ModelProvider(inputModel);
             var codeFile = new TypeProviderWriter(modelProvider).Write();
@@ -80,8 +81,8 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var properties = new List<InputModelProperty> { RequiredStringProperty, RequiredIntProperty };
             MockPluginSetValue(properties);
 
-            var inputModel = new InputModelType("TestModel", null, "public", null, "Test model.", InputModelTypeUsage.RoundTrip,
-                properties, null, new List<InputModelType>(), null, null, null, modelAsStruct: true);
+            var inputModel = new InputModelType("TestModel", string.Empty, "public", null, "Test model.", InputModelTypeUsage.RoundTrip,
+                properties, null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, modelAsStruct: true);
 
             var modelProvider = new ModelProvider(inputModel);
             var codeFile = new TypeProviderWriter(modelProvider).Write();

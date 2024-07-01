@@ -7,10 +7,9 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
-using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
-using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -25,8 +24,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public override TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
 
         public override ScmTypeFactory TypeFactory { get; }
-
-        public override ExtensibleSnippets ExtensibleSnippets { get; }
 
         public override IReadOnlyList<MetadataReference> AdditionalMetadataReferences => [MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location)];
 
@@ -51,7 +48,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
             : base(context)
         {
             TypeFactory = new ScmTypeFactory();
-            ExtensibleSnippets = new SystemExtensibleSnippets();
             _instance = this;
         }
     }
