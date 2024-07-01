@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 
         public PipelineResponseSnippet Response => new(Property(nameof(PipelineMessage.Response)));
 
-        public BoolSnippet BufferResponse => new(Property(nameof(PipelineMessage.BufferResponse)));
+        public ScopedApi<bool> BufferResponse => new(Property(nameof(PipelineMessage.BufferResponse)));
 
         public PipelineResponseSnippet ExtractResponse() => new(Invoke(nameof(PipelineMessage.ExtractResponse), []));
     }

@@ -14,6 +14,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 
         public StreamSnippet ContentStream => new(Property(nameof(PipelineResponse.ContentStream)));
 
-        public BoolSnippet IsError => new(Property(nameof(PipelineResponse.IsError)));
+        public ScopedApi<bool> IsError => new(Property(nameof(PipelineResponse.IsError)));
     }
 }

@@ -17,7 +17,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         {
             var left = ValueExpression.Empty;
             var right = ValueExpression.Empty;
-            var boolExpression = new BoolSnippet(left);
+            var boolExpression = left.As<bool>();
 
             var result = boolExpression.Or(right);
             using var writer = new CodeWriter();
@@ -31,7 +31,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         {
             var left = ValueExpression.Empty;
             var right = ValueExpression.Empty;
-            var boolExpression = new BoolSnippet(left);
+            var boolExpression = left.As<bool>();
 
             var result = boolExpression.And(right);
             using var writer = new CodeWriter();

@@ -122,7 +122,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetSignature("AssertEnumDefined", [enumType, value, _nameParam]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                new IfStatement(Not(new BoolSnippet(new InvokeStaticMethodExpression(typeof(Enum), "IsDefined", [enumType, value]))))
+                new IfStatement(Not(Static<Enum>().Invoke("IsDefined", [enumType, value])))
                 {
                     ThrowArgumentException(new FormattableStringExpression("Value not defined for {0}.", [new MemberExpression(enumType, "FullName")]))
                 }
@@ -164,7 +164,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetSignature("AssertNotDefault", [valueParamWithRef, _nameParam], [_t], whereExpressions);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                new IfStatement(new BoolSnippet(value.Invoke("Equals", Default)))
+                new IfStatement(value.Invoke("Equals", Default))
                 {
                     ThrowArgumentException("Value cannot be empty.")
                 }
@@ -221,7 +221,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     ThrowArgumentException(throwMessage)
                 },
                 UsingDeclare("e", new CSharpType(typeof(IEnumerator<>), _t), value.Invoke("GetEnumerator"), out var eVar),
-                new IfStatement(Not(new BoolSnippet(eVar.Invoke("MoveNext"))))
+                new IfStatement(Not(eVar.Invoke("MoveNext")))
                 {
                     ThrowArgumentException(throwMessage)
                 }
@@ -229,7 +229,7 @@ namespace Microsoft.Generator.CSharp.Providers
             this);
         }
 
-        private static BoolSnippet IsCollectionEmpty(ParameterProvider valueParam, VariableExpression collection)
+        private static ScopedApi<bool> IsCollectionEmpty(ParameterProvider valueParam, VariableExpression collection)
         {
             return valueParam.AsExpression.Is(new DeclarationExpression(collection)).And(new MemberExpression(collection, "Count").Equal(Literal(0)));
         }
@@ -247,7 +247,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetSignature(AssertNotNullMethodName, [value, _nameParam], [_t], [Where.Struct(_t)]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                new IfStatement(Not(new BoolSnippet(new MemberExpression(value, "HasValue"))))
+                new IfStatement(Not(value.Property("HasValue")))
                 {
                     Throw(New.ArgumentNullException(_nameParam, false))
                 }

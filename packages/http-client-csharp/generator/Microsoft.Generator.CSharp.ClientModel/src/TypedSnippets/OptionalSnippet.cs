@@ -4,6 +4,7 @@
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -14,18 +15,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         private const string IsDefinedMethodName = "IsDefined";
         private const string IsCollectionDefinedMethodName = "IsCollectionDefined";
 
-        private static SystemOptionalProvider? _optionalProvider;
-
-        private static SystemOptionalProvider OptionalProvider => _optionalProvider ??= new();
-
-        public static BoolSnippet IsCollectionDefined(TypedSnippet collection)
+        public static ScopedApi<bool> IsCollectionDefined(TypedSnippet collection)
         {
-            return new BoolSnippet(new InvokeStaticMethodExpression(OptionalProvider.Type, IsCollectionDefinedMethodName, [collection]));
+            return Static<OptionalDefinition>().Invoke(IsCollectionDefinedMethodName, [collection]).As<bool>();
         }
 
-        public static BoolSnippet IsDefined(TypedSnippet value)
+        public static ScopedApi<bool> IsDefined(TypedSnippet value)
         {
-            return new BoolSnippet(new InvokeStaticMethodExpression(OptionalProvider.Type, IsDefinedMethodName, [value]));
+            return Static<OptionalDefinition>().Invoke(IsDefinedMethodName, [value]).As<bool>();
         }
 
         public static ValueExpression FallBackToChangeTrackingCollection(TypedSnippet collection, CSharpType? paramType)

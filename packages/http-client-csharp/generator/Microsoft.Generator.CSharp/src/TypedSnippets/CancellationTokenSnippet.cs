@@ -8,6 +8,6 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public sealed record CancellationTokenSnippet(ValueExpression Expression) : TypedSnippet<CancellationToken>(Expression)
     {
-        public BoolSnippet CanBeCanceled => new(Property(nameof(CancellationToken.CanBeCanceled)));
+        public ScopedApi<bool> CanBeCanceled => new(Property(nameof(CancellationToken.CanBeCanceled)));
     }
 }

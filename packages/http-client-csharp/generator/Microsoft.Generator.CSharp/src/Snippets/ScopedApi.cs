@@ -14,5 +14,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         {
             Expression.Write(writer);
         }
+
+        protected internal override bool IsEmptyExpression() => Expression.IsEmptyExpression();
     }
 }

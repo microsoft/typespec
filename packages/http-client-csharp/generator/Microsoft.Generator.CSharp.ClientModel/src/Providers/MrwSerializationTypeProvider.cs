@@ -36,7 +36,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             new("options", $"The client options for reading and writing models.", typeof(ModelReaderWriterOptions));
         private readonly Utf8JsonWriterSnippet _utf8JsonWriterSnippet;
         private readonly ModelReaderWriterOptionsSnippet _mrwOptionsParameterSnippet;
-        private readonly BoolSnippet _isNotEqualToWireConditionSnippet;
+        private readonly ScopedApi<bool> _isNotEqualToWireConditionSnippet;
         private readonly CSharpType _privateAdditionalPropertiesPropertyType = typeof(IDictionary<string, BinaryData>);
         private readonly CSharpType _jsonModelTInterface;
         private readonly CSharpType? _jsonModelObjectInterface;
@@ -573,7 +573,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var propertyType = propertyProvider.Type;
             var propertySerialization = propertyProvider.WireInfo;
             var propertyName = propertySerialization?.SerializedName ?? propertyProvider.Name;
-            BoolSnippet propertyIsInitialized;
+            ScopedApi<bool> propertyIsInitialized;
 
             if (propertyType.IsCollection && !propertyType.IsReadOnlyMemory && isPropRequired)
             {

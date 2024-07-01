@@ -9,6 +9,6 @@ namespace Microsoft.Generator.CSharp.Snippets
     {
         public static DoubleSnippet MaxValue => new(StaticProperty(nameof(double.MaxValue)));
 
-        public static BoolSnippet IsNan(ValueExpression d) => new(new InvokeStaticMethodExpression(typeof(double), nameof(double.IsNaN), new[] { d }));
+        public static ScopedApi<bool> IsNan(ValueExpression d) => new(new InvokeStaticMethodExpression(typeof(double), nameof(double.IsNaN), new[] { d }));
     }
 }

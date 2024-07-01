@@ -10,7 +10,7 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public sealed record EnumerableSnippet(CSharpType ItemType, ValueExpression Expression) : TypedSnippet(new CSharpType(typeof(IEnumerable<>), false, ItemType), Expression)
     {
-        public BoolSnippet Any() => new(new InvokeStaticMethodExpression(typeof(Enumerable), nameof(Enumerable.Any), new[] { Expression }, CallAsExtension: true));
+        public ScopedApi<bool> Any() => new(new InvokeStaticMethodExpression(typeof(Enumerable), nameof(Enumerable.Any), [Expression], CallAsExtension: true));
         public EnumerableSnippet Select(TypedSnippet selector) => new(selector.Type, new InvokeStaticMethodExpression(typeof(Enumerable), nameof(Enumerable.Select), new[] { Expression, selector }, CallAsExtension: true));
     }
 }

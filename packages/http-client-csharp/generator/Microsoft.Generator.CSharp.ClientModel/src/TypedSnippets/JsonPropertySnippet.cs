@@ -13,6 +13,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public StringSnippet Name => new(Property(nameof(JsonProperty.Name)));
         public JsonElementSnippet Value => new(Property(nameof(JsonProperty.Value)));
 
-        public BoolSnippet NameEquals(string value) => new(Expression.Invoke(nameof(JsonProperty.NameEquals), LiteralU8(value)));
+        public ScopedApi<bool> NameEquals(string value) => new(Expression.Invoke(nameof(JsonProperty.NameEquals), LiteralU8(value)));
     }
 }

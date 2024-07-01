@@ -27,5 +27,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         public StringBuilderSnippet AppendLine(FormattableStringExpression value) => new(Expression.Invoke(nameof(StringBuilder.AppendLine), value));
 
         public StringBuilderSnippet Remove(ValueExpression startIndex, ValueExpression length) => new(Expression.Invoke(nameof(StringBuilder.Remove), [startIndex, length]));
+
+        public ValueExpression this[ValueExpression index] => new IndexerExpression(this, index);
     }
 }

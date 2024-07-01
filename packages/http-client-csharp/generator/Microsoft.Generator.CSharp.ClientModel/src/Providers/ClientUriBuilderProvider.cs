@@ -6,12 +6,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Microsoft.Generator.CSharp.Expressions;
-using Microsoft.Generator.CSharp.Providers;
-using Microsoft.Generator.CSharp.Statements;
-using Microsoft.Generator.CSharp.Snippets;
-using static Microsoft.Generator.CSharp.Snippets.Snippet;
-using static Microsoft.Generator.CSharp.ClientModel.Snippets.TypeFormattersSnippet;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.Statements;
+using static Microsoft.Generator.CSharp.ClientModel.Snippets.TypeFormattersSnippet;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
@@ -129,17 +129,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Description: null, ReturnDescription: null);
 
             var value = new StringSnippet(valueParameter);
-            var escape = new BoolSnippet(escapeParameter);
             var pathBuilder = new StringBuilderSnippet(PathBuilderProperty);
             MethodBodyStatement body = new MethodBodyStatement[]
             {
                 MethodBodyStatement.Empty,
-                new IfStatement(escape)
+                new IfStatement(escapeParameter)
                 {
-                    value.Assign(new InvokeStaticMethodExpression(typeof(Uri), nameof(Uri.EscapeDataString), new[]{ value.Expression })).Terminate()
+                    value.Assign(new InvokeStaticMethodExpression(typeof(Uri), nameof(Uri.EscapeDataString), [value.Expression])).Terminate()
                 },
                 MethodBodyStatement.Empty,
-                new IfStatement(pathBuilder.Length.Expression.GreaterThan(Int(0)).And(new IndexerExpression(pathBuilder, pathBuilder.Length - Int(1)).Equal(Literal('/'))).And(new IndexerExpression(value, Int(0)).Equal(Literal('/'))))
+                new IfStatement(pathBuilder.Length.Expression.GreaterThan(Int(0)).And(pathBuilder[pathBuilder.Length - Int(1)].Equal(Literal('/'))).And(value[Int(0)].Equal(Literal('/'))))
                 {
                     pathBuilder.Remove(pathBuilder.Length - Int(1), Int(1)).Terminate()
                 },
@@ -180,7 +179,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
             var convertToStringExpression = ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
-            var body = new InvokeInstanceMethodExpression(null, _appendPathMethodName, new[] { convertToStringExpression.Expression, escapeParameter }, null, false);
+            var body = new InvokeInstanceMethodExpression(null, _appendPathMethodName, [convertToStringExpression.Expression, escapeParameter], null, false);
 
             return new(signature, body, this);
         }
@@ -201,7 +200,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             var name = new StringSnippet(nameParameter);
             var value = new StringSnippet(valueParameter);
-            var escape = new BoolSnippet(escapeParameter);
             var queryBuilder = new StringBuilderSnippet(QueryBuilderProperty);
             var body = new MethodBodyStatement[]
             {
@@ -211,7 +209,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     queryBuilder.Append(Literal('&')).Terminate()
                 },
                 MethodBodyStatement.Empty,
-                new IfStatement(escape)
+                new IfStatement(escapeParameter)
                 {
                     value.Assign(new InvokeStaticMethodExpression(typeof(Uri), nameof(Uri.EscapeDataString), new[] { value.Expression })).Terminate()
                 },
@@ -255,7 +253,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
             var convertToStringExpression = ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
-            var body = new InvokeInstanceMethodExpression(null, _appendQueryMethodName, new[] { nameParameter, convertToStringExpression.Expression, escapeParameter }, null, false);
+            var body = new InvokeInstanceMethodExpression(null, _appendQueryMethodName, [nameParameter, convertToStringExpression.Expression, escapeParameter], null, false);
 
             return new(signature, body, this);
         }
@@ -290,14 +288,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var name = new StringSnippet(nameParameter);
             var value = new EnumerableSnippet(_t, valueParameter);
             var delimiter = new StringSnippet(delimiterParameter);
-            var escape = new BoolSnippet(escapeParameter);
 
             var v = new VariableExpression(_t, "v");
             var convertToStringExpression = ConvertToString(v, hasFormat ? new StringSnippet(formatParameter).Expression : null);
             var body = new[]
             {
-                Declare("stringValues", value.Select(new StringSnippet(new FuncExpression(new[] {v.Declaration}, convertToStringExpression))), out var stringValues),
-               new InvokeInstanceMethodExpression(null, _appendQueryMethodName, new[] { name.Expression, StringSnippet.Join(delimiter, stringValues), escape }, null, false).Terminate()
+                Declare("stringValues", value.Select(new StringSnippet(new FuncExpression([v.Declaration], convertToStringExpression))), out var stringValues),
+               new InvokeInstanceMethodExpression(null, _appendQueryMethodName, [name.Expression, StringSnippet.Join(delimiter, stringValues), escapeParameter], null, false).Terminate()
         };
 
             return new(signature, body, this);

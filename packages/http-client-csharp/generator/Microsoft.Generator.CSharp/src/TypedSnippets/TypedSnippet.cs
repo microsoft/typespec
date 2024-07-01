@@ -40,9 +40,9 @@ namespace Microsoft.Generator.CSharp.Snippets
         private MethodBodyStatement? _terminated;
         public MethodBodyStatement Terminate() => _terminated ??= new ExpressionStatement(this);
 
-        public BoolSnippet Equal(ValueExpression other) => new(new BinaryOperatorExpression("==", this, other));
+        public ScopedApi<bool> Equal(ValueExpression other) => new(new BinaryOperatorExpression("==", this, other));
 
-        public BoolSnippet NotEqual(ValueExpression other) => new(new BinaryOperatorExpression("!=", this, other));
+        public ScopedApi<bool> NotEqual(ValueExpression other) => new(new BinaryOperatorExpression("!=", this, other));
 
         public InvokeInstanceMethodExpression Invoke(string methodName, params ValueExpression[] args)
             => new InvokeInstanceMethodExpression(this, methodName, [..args], null, false);

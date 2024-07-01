@@ -59,10 +59,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Modifiers: _methodModifiers,
                 ReturnType: typeof(string),
                 Description: null, ReturnDescription: null);
-            var boolValue = new BoolSnippet(boolValueParameter);
             var toStringBool = new MethodProvider(
                 boolSignature,
-                new TernaryConditionalExpression(boolValue, Literal("true"), Literal("false")),
+                new TernaryConditionalExpression(boolValueParameter, Literal("true"), Literal("false")),
                 this);
 
             var dateTimeParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(DateTime));

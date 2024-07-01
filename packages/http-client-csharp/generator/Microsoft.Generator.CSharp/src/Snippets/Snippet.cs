@@ -29,10 +29,10 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ValueExpression Null { get; } = new KeywordExpression("null", null);
         public static ValueExpression This { get; } = new KeywordExpression("this", null);
         public static ValueExpression Base { get; } = new KeywordExpression("base", null);
-        public static BoolSnippet True { get; } = new(new KeywordExpression("true", null));
-        public static BoolSnippet False { get; } = new(new KeywordExpression("false", null));
+        public static ScopedApi<bool> True { get; } = new(new KeywordExpression("true", null));
+        public static ScopedApi<bool> False { get; } = new(new KeywordExpression("false", null));
 
-        public static BoolSnippet Bool(bool value) => value ? True : False;
+        public static ScopedApi<bool> Bool(bool value) => value ? True : False;
         public static IntSnippet Int(int value) => new(Literal(value));
         public static LongSnippet Long(long value) => new(Literal(value));
         public static ValueExpression Float(float value) => Literal(value);
@@ -62,7 +62,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static StringSnippet Literal(string? value) => new(value is null ? Null : new LiteralExpression(value));
         public static StringSnippet LiteralU8(string value) => new(new UnaryOperatorExpression("u8", new LiteralExpression(value), true));
 
-        public static BoolSnippet Not(BoolSnippet operand) => new(new UnaryOperatorExpression("!", operand, false));
+        public static ScopedApi<bool> Not(ValueExpression operand) => new(new UnaryOperatorExpression("!", operand, false));
 
         public static MethodBodyStatement Continue => new KeywordExpression("continue", null).Terminate();
         public static MethodBodyStatement Break => new KeywordExpression("break", null).Terminate();
