@@ -13,6 +13,10 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public static partial class Snippet
     {
+        public static ScopedApi<T> As<T>(this ValueExpression expression) => new(expression);
+
+        public static ValueExpression Static<T>() => new TypeReferenceExpression(typeof(T));
+
         public static ValueExpression Identifier(string name) => new MemberExpression(null, name);
         public static MethodBodyStatement AsStatement(this IEnumerable<MethodBodyStatement> statements) => statements.ToArray();
 

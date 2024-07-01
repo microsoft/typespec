@@ -13,7 +13,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    internal sealed class ChangeTrackingDictionaryProvider : TypeProvider
+    internal sealed class ChangeTrackingDictionaryDefinition : TypeProvider
     {
         private class ChangeTrackingDictionaryTemplate<TKey, TValue> { }
         private readonly CSharpType _tKey = typeof(ChangeTrackingDictionaryTemplate<,>).GetGenericArguments()[0];
@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private IndexableExpression EnsureDictionary { get; init; }
         private BoolSnippet IsUndefined { get; } = new BoolSnippet(new MemberExpression(This, "IsUndefined"));
 
-        public ChangeTrackingDictionaryProvider()
+        public ChangeTrackingDictionaryDefinition()
         {
             WhereClause = Where.NotNull(_tKey);
             _indexParam = new ParameterProvider("key", $"The key.", _tKey);
@@ -154,7 +154,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private PropertyProvider BuildIndexer()
         {
             var indexParam = new ParameterProvider("key", $"The key.", _tKey);
-            return new IndexerProvider(null, MethodSignatureModifiers.Public, _tValue, indexParam, new MethodPropertyBody(
+            return new IndexPropertyProvider(null, MethodSignatureModifiers.Public, _tValue, indexParam, new MethodPropertyBody(
                 new MethodBodyStatement[]
                 {
                     new IfStatement(IsUndefined)

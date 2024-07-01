@@ -12,7 +12,7 @@ using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
-    internal sealed class SystemOptionalProvider : OptionalProvider
+    internal sealed class SystemOptionalProvider : OptionalDefinition
     {
         private const string IsDefinedMethodName = "IsDefined";
         protected override MethodProvider[] BuildMethods()

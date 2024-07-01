@@ -8,14 +8,14 @@ using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    internal sealed record ArgumentSnippet(ValueExpression Expression) : TypedSnippet<ArgumentProvider>(Expression)
+    internal sealed record ArgumentSnippet(ValueExpression Expression) : TypedSnippet<ArgumentDefinition>(Expression)
     {
         private const string AssertNotNullMethodName = "AssertNotNull";
         private const string AssertNotNullOrEmptyMethodName = "AssertNotNullOrEmpty";
         private const string AssertNotNullOrWhiteSpaceMethodName = "AssertNotNullOrWhiteSpace";
 
-        private static ArgumentProvider? _provider;
-        private static ArgumentProvider Provider => _provider ??= new();
+        private static ArgumentDefinition? _provider;
+        private static ArgumentDefinition Provider => _provider ??= new();
 
         public static MethodBodyStatement AssertNotNull(ValueExpression variable, ValueExpression? name = null)
         {

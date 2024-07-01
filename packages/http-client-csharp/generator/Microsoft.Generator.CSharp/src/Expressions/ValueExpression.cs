@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Expressions
     {
         public static readonly ValueExpression Empty = new();
 
-        protected ValueExpression() { }
+        private protected ValueExpression() { }
 
         internal virtual void Write(CodeWriter writer) { }
 

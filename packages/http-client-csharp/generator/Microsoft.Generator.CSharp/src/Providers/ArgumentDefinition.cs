@@ -14,7 +14,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    internal class ArgumentProvider : TypeProvider
+    internal class ArgumentDefinition : TypeProvider
     {
         private class Template<T> { }
 
@@ -26,7 +26,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly ParameterProvider _nameParam = new ParameterProvider("name", $"The name.", typeof(string));
         private readonly CSharpType _nullableT;
 
-        public ArgumentProvider()
+        public ArgumentDefinition()
         {
             _nullableT = _t.WithNullable(true);
         }

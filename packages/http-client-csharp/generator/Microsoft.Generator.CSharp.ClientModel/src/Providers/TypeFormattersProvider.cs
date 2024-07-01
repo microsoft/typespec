@@ -254,7 +254,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var signature = new MethodSignature(
                 Name: ParseDateTimeOffsetMethodName,
                 Modifiers: _methodModifiers,
-                Parameters: new[] { valueParameter, formatParameter },
+                Parameters: [valueParameter, formatParameter],
                 ReturnType: typeof(DateTimeOffset),
                 Description: null, ReturnDescription: null);
 
@@ -302,28 +302,28 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var signature = new MethodSignature(
                 Name: ConvertToStringMethodName,
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
-                Parameters: new[] { valueParameter, formatParameter },
+                Parameters: [valueParameter, formatParameter],
                 ReturnType: typeof(string),
                 Description: null, ReturnDescription: null);
 
             var value = (ValueExpression)valueParameter;
             var format = new StringSnippet(formatParameter);
-            var body = new SwitchExpression(value, new SwitchCaseExpression[]
-            {
+            var body = new SwitchExpression(value,
+            [
                 new SwitchCaseExpression(Null, Literal("null")),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(string), "s", out var s), s),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(bool), "b", out var b), TypeFormattersSnippet.ToString(b)),
-                new SwitchCaseExpression(GetTypePattern(new CSharpType[] {typeof(int),typeof(float), typeof(double), typeof(long), typeof(decimal)}), value.CastTo(typeof(IFormattable)).Invoke(nameof(IFormattable.ToString), _defaultNumberFormatField, _invariantCultureExpression)),
+                new SwitchCaseExpression(GetTypePattern([typeof(int),typeof(float), typeof(double), typeof(long), typeof(decimal)]), value.CastTo(typeof(IFormattable)).Invoke(nameof(IFormattable.ToString), _defaultNumberFormatField, _invariantCultureExpression)),
                 // TODO -- figure out how to write this line
                 SwitchCaseExpression.When(new DeclarationExpression(typeof(byte[]), "b", out var bytes), format.NotEqual(Null), TypeFormattersSnippet.ToString(bytes, format)),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(IEnumerable<string>), "s", out var enumerable), StringSnippet.Join(Literal(","), enumerable)),
                 SwitchCaseExpression.When(new DeclarationExpression(typeof(DateTimeOffset), "dateTime", out var dateTime), format.NotEqual(Null), TypeFormattersSnippet.ToString(dateTime, format)),
                 SwitchCaseExpression.When(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpan), format.NotEqual(Null), TypeFormattersSnippet.ToString(timeSpan, format)),
-                new SwitchCaseExpression(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpanNoFormat), new InvokeStaticMethodExpression(typeof(XmlConvert), nameof(XmlConvert.ToString), [timeSpanNoFormat])),
+                new SwitchCaseExpression(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpanNoFormat), Static<XmlConvert>().Invoke(nameof(XmlConvert.ToString), [timeSpanNoFormat])),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(Guid), "guid", out var guid), guid.Invoke("ToString")),
-                new SwitchCaseExpression(new DeclarationExpression(typeof(BinaryData), "binaryData", out var binaryData), ConvertToString(new BinaryDataSnippet(binaryData).ToArray(), format)),
+                new SwitchCaseExpression(new DeclarationExpression(typeof(BinaryData), "binaryData", out var binaryData), ConvertToString(binaryData.As<BinaryData>().ToArray(), format)),
                 SwitchCaseExpression.Default(value.InvokeToString())
-            });
+            ]);
 
             return new(signature, body, this);
         }

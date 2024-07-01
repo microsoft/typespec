@@ -6,10 +6,10 @@ using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    internal class IndexerProvider : PropertyProvider
+    internal class IndexPropertyProvider : PropertyProvider
     {
         public ParameterProvider IndexerParameter { get; }
-        public IndexerProvider(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType propertyType, ParameterProvider indexerParameter, PropertyBody propertyBody, CSharpType? explicitInterface = null)
+        public IndexPropertyProvider(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType propertyType, ParameterProvider indexerParameter, PropertyBody propertyBody, CSharpType? explicitInterface = null)
             : base(description, modifiers, propertyType, "this", propertyBody, explicitInterface)
         {
             IndexerParameter = indexerParameter;

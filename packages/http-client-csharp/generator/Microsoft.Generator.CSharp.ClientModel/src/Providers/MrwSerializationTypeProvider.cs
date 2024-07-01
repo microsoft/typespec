@@ -750,9 +750,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             if (serializationFormat is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url)
             {
-                return _utf8JsonWriterSnippet.WriteBase64StringValue(new BinaryDataSnippet(value).ToArray(), serializationFormat.ToFormatSpecifier());
+                return _utf8JsonWriterSnippet.WriteBase64StringValue(value.As<BinaryData>().ToArray(), serializationFormat.ToFormatSpecifier());
             }
-            return _utf8JsonWriterSnippet.WriteBinaryData(new BinaryDataSnippet(value));
+            return _utf8JsonWriterSnippet.WriteBinaryData(value);
         }
 
         private static EnumerableSnippet GetEnumerableExpression(ValueExpression expression, CSharpType enumerableType)

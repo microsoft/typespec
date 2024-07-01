@@ -13,7 +13,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    internal sealed class ChangeTrackingListProvider : TypeProvider
+    internal sealed class ChangeTrackingListDefinition : TypeProvider
     {
         private class ChangeTrackingListTemplate<T> { }
 
@@ -31,7 +31,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private BoolSnippet IsUndefined { get; } = new BoolSnippet(new MemberExpression(This, "IsUndefined"));
         private IndexableExpression EnsureList { get; init; }
 
-        public ChangeTrackingListProvider()
+        public ChangeTrackingListDefinition()
         {
             _t = typeof(ChangeTrackingListTemplate<>).GetGenericArguments()[0];
             _iListOfT = new CSharpType(typeof(IList<>), _t);
@@ -130,7 +130,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private PropertyProvider BuildIndexer()
         {
             var indexParam = new ParameterProvider("index", $"The inner list.", typeof(int));
-            return new IndexerProvider(null, MethodSignatureModifiers.Public, _t, indexParam, new MethodPropertyBody(
+            return new IndexPropertyProvider(null, MethodSignatureModifiers.Public, _t, indexParam, new MethodPropertyBody(
                 new MethodBodyStatement[]
                 {
                     new IfStatement(IsUndefined)

@@ -30,8 +30,8 @@ namespace Microsoft.Generator.CSharp.Snippets
             return Declare(variableRef, value);
         }
 
-        public static MethodBodyStatement Declare(string name, BinaryDataSnippet value, out BinaryDataSnippet variable)
-            => Declare(name, value, d => new BinaryDataSnippet(d), out variable);
+        public static MethodBodyStatement Declare(string name, ScopedApi<BinaryData> value, out ScopedApi<BinaryData> variable)
+            => Declare(name, value, out variable);
 
         public static MethodBodyStatement Declare(string name, DictionarySnippet value, out DictionarySnippet variable)
             => Declare(name, value, d => new DictionarySnippet(value.KeyType, value.ValueType, d), out variable);
@@ -71,6 +71,14 @@ namespace Microsoft.Generator.CSharp.Snippets
             var declaration = new CodeWriterDeclaration(name);
             var variableExpression = new VariableExpression(value.Type, declaration);
             variable = factory(variableExpression);
+            return new DeclarationExpression(variableExpression).Assign(value).Terminate();
+        }
+
+        private static MethodBodyStatement Declare<T>(string name, ScopedApi<T> value, out ScopedApi<T> variable)
+        {
+            var declaration = new CodeWriterDeclaration(name);
+            var variableExpression = new VariableExpression(value.Type, declaration);
+            variable = new(variableExpression);
             return new DeclarationExpression(variableExpression).Assign(value).Terminate();
         }
     }

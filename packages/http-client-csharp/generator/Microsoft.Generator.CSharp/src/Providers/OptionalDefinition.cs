@@ -10,7 +10,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    public class OptionalProvider : TypeProvider
+    public class OptionalDefinition : TypeProvider
     {
         private class ListTemplate<T> { }
 
@@ -20,7 +20,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly CSharpType _genericChangeTrackingList;
         private readonly CSharpType _genericChangeTrackingDictionary;
 
-        public OptionalProvider()
+        public OptionalDefinition()
         {
             _genericChangeTrackingList = CodeModelPlugin.Instance.TypeFactory.ListInitializationType;
             _genericChangeTrackingDictionary = CodeModelPlugin.Instance.TypeFactory.DictionaryInitializationType;
