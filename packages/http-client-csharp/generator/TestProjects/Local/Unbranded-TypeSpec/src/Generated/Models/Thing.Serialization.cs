@@ -136,6 +136,157 @@ namespace UnbrandedTypeSpec.Models
             throw new NotImplementedException("Not implemented");
         }
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual Thing JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        {
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            JsonElement element = document.RootElement;
+
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            string name = default;
+            BinaryData requiredUnion = default;
+            ThingRequiredLiteralString requiredLiteralString = default;
+            ThingRequiredLiteralInt requiredLiteralInt = default;
+            ThingRequiredLiteralFloat requiredLiteralFloat = default;
+            bool requiredLiteralBool = default;
+            ThingOptionalLiteralString optionalLiteralString = default;
+            ThingOptionalLiteralInt optionalLiteralInt = default;
+            ThingOptionalLiteralFloat optionalLiteralFloat = default;
+            bool optionalLiteralBool = default;
+            string requiredBadDescription = default;
+            IList<int> optionalNullableList = default;
+            IList<int> requiredNullableList = default;
+            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
+            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
+            foreach (var prop in element.EnumerateObject())
+            {
+                if (prop.NameEquals("name"u8))
+                {
+                    name = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("requiredUnion"u8))
+                {
+                    requiredUnion = BinaryData.FromString(prop.Value.GetRawText());
+                    continue;
+                }
+                if (prop.NameEquals("requiredLiteralString"u8))
+                {
+                    requiredLiteralString = new ThingRequiredLiteralString(prop.Value.GetString());
+                    continue;
+                }
+                if (prop.NameEquals("requiredLiteralInt"u8))
+                {
+                    requiredLiteralInt = new ThingRequiredLiteralInt(prop.Value.GetInt32());
+                    continue;
+                }
+                if (prop.NameEquals("requiredLiteralFloat"u8))
+                {
+                    requiredLiteralFloat = new ThingRequiredLiteralFloat(prop.Value.GetSingle());
+                    continue;
+                }
+                if (prop.NameEquals("requiredLiteralBool"u8))
+                {
+                    requiredLiteralBool = prop.Value.GetBoolean();
+                    continue;
+                }
+                if (prop.NameEquals("optionalLiteralString"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    optionalLiteralString = new ThingOptionalLiteralString(prop.Value.GetString());
+                    continue;
+                }
+                if (prop.NameEquals("optionalLiteralInt"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    optionalLiteralInt = new ThingOptionalLiteralInt(prop.Value.GetInt32());
+                    continue;
+                }
+                if (prop.NameEquals("optionalLiteralFloat"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    optionalLiteralFloat = new ThingOptionalLiteralFloat(prop.Value.GetSingle());
+                    continue;
+                }
+                if (prop.NameEquals("optionalLiteralBool"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    optionalLiteralBool = prop.Value.GetBoolean();
+                    continue;
+                }
+                if (prop.NameEquals("requiredBadDescription"u8))
+                {
+                    requiredBadDescription = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("optionalNullableList"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    List<int> array = new List<int>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        array.Add(item.GetInt32());
+                    }
+                    optionalNullableList = array;
+                    continue;
+                }
+                if (prop.NameEquals("requiredNullableList"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        requiredNullableList = new ChangeTrackingList<int>();
+                        continue;
+                    }
+                    List<int> array = new List<int>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        array.Add(item.GetInt32());
+                    }
+                    requiredNullableList = array;
+                    continue;
+                }
+                if (options.Format != "W")
+                {
+                    rawDataDictionary.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                }
+            }
+            serializedAdditionalRawData = rawDataDictionary;
+            return new Thing(
+                name,
+                requiredUnion,
+                requiredLiteralString,
+                requiredLiteralInt,
+                requiredLiteralFloat,
+                requiredLiteralBool,
+                optionalLiteralString,
+                optionalLiteralInt,
+                optionalLiteralFloat,
+                optionalLiteralBool,
+                requiredBadDescription,
+                optionalNullableList ?? new ChangeTrackingList<int>(),
+                requiredNullableList,
+                serializedAdditionalRawData);
+        }
+
         BinaryData IPersistableModel<Thing>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
@@ -157,6 +308,24 @@ namespace UnbrandedTypeSpec.Models
         }
 
         string IPersistableModel<Thing>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        private static object GetObjectInstance(Type returnType)
+        {
+            PersistableModelProxyAttribute attribute = Attribute.GetCustomAttribute(returnType, typeof(PersistableModelProxyAttribute), false) as PersistableModelProxyAttribute;
+            Type typeToActivate = attribute is null ? returnType : attribute.ProxyType;
+
+            if (returnType.IsAbstract && attribute is null)
+            {
+                throw new InvalidOperationException($"{returnType.Name} must be decorated with {nameof(PersistableModelProxyAttribute)} to be used with {nameof(ModelReaderWriter)}.");
+            }
+
+            object obj = Activator.CreateInstance(typeToActivate, true);
+            if (obj is null)
+            {
+                throw new InvalidOperationException($"Unable to create instance of {typeToActivate.Name}.");
+            }
+            return obj;
+        }
 
         /// <param name="thing"> The <see cref="Thing"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(Thing thing)

@@ -75,7 +75,7 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public BoolSnippet Is(ValueExpression other) => new(new BinaryOperatorExpression("is", this, other));
 
-        public ValueExpression Increment() => new UnaryOperatorExpression("++", this, true);
+        public UnaryOperatorExpression Increment() => new UnaryOperatorExpression("++", this, true);
 
         public ValueExpression AndExpr(ValueExpression other) => new BinaryOperatorExpression("and", this, other);
 

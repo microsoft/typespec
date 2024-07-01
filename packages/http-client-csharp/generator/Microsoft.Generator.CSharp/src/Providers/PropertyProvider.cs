@@ -14,6 +14,7 @@ namespace Microsoft.Generator.CSharp.Providers
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public class PropertyProvider
     {
+        private VariableExpression? _variable;
         public FormattableString Description { get; }
         public XmlDocSummaryStatement XmlDocSummary { get; }
         public MethodSignatureModifiers Modifiers { get; }
@@ -60,6 +61,8 @@ namespace Microsoft.Generator.CSharp.Providers
             XmlDocs = GetXmlDocs();
             WireInfo = wireInfo;
         }
+
+        public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
 
         private XmlDocProvider GetXmlDocs()
         {
