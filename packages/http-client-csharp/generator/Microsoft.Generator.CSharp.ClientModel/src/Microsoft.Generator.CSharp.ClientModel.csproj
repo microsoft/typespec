@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <PackageId>Microsoft.Generator.CSharp.ClientModel</PackageId>
-    <OutputType>Exe</OutputType>
     <Version>1.0.0-beta.1</Version>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
