@@ -22,7 +22,7 @@ model Pet {
   tag?: string;
 }
 
-model Pets is Array<Pet>;
+model Pets is Pet[];
 
 model Error {
   code: int32;

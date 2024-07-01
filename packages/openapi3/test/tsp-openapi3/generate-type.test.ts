@@ -63,16 +63,20 @@ const testScenarios: TestScenario[] = [
   { schema: { $ref: "#/Path/To/Some/Model" }, expected: "Model" },
   { schema: { $ref: "#/Path/To/Some/Model.Prop" }, expected: "Model.Prop" },
   // arrays
-  { schema: { type: "array", items: { type: "string" } }, expected: "Array<string>" },
+  { schema: { type: "array", items: { type: "string" } }, expected: "(string)[]" },
   {
     schema: { type: "array", items: { type: "array", items: { type: "string" } } },
-    expected: "Array<Array<string>>",
+    expected: "((string)[])[]",
   },
   {
     schema: { type: "array", items: { type: "string", enum: ["foo", "bar"] } },
-    expected: `Array<"foo" | "bar">`,
+    expected: `("foo" | "bar")[]`,
   },
-  { schema: { type: "array", items: { $ref: "#/Path/To/Some/Model" } }, expected: "Array<Model>" },
+  { schema: { type: "array", items: { $ref: "#/Path/To/Some/Model" } }, expected: "Model[]" },
+  {
+    schema: { type: "array", items: { anyOf: [{ type: "string" }, { $ref: "#/Path/To/Model" }] } },
+    expected: "(string | Model)[]",
+  },
   // objects
   {
     schema: { type: "object", properties: { foo: { type: "string" } } },

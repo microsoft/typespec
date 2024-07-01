@@ -110,14 +110,15 @@ function getObjectType(schema: OpenAPI3Schema): string {
 export function getArrayType(schema: OpenAPI3Schema): string {
   const items = schema.items;
   if (!items) {
-    return "Array<unknown>";
+    return "unknown[]";
   }
 
   if ("$ref" in items) {
-    return `Array<${getRefName(items.$ref)}>`;
+    return `${getRefName(items.$ref)}[]`;
   }
 
-  return `Array<${getTypeFromSchema(items)}>`;
+  // Prettier will get rid of the extra parenthesis for us
+  return `(${getTypeFromSchema(items)})[]`;
 }
 
 export function getIntegerType(schema: OpenAPI3Schema): string {

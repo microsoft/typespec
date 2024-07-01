@@ -39,7 +39,7 @@ model WidgetUpdate {
  */
 model Widgets_list200ApplicationJsonResponse {
   @statusCode statusCode: 200;
-  @bodyRoot body: Array<Widget>;
+  @bodyRoot body: Widget[];
 }
 
 /**
