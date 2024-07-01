@@ -5,12 +5,13 @@ using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record VariableExpression(CSharpType Type, CodeWriterDeclaration Declaration) : ValueExpression
+    public sealed record VariableExpression(CSharpType Type, CodeWriterDeclaration Declaration, bool IsRef = false) : ValueExpression
     {
         public VariableExpression(CSharpType type, string name) : this(type, new CodeWriterDeclaration(name)) { }
 
         internal override void Write(CodeWriter writer)
         {
+            writer.AppendRawIf("ref ", IsRef);
             writer.Append(Declaration);
         }
 
