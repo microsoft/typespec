@@ -1,6 +1,6 @@
 import yargs from "yargs";
 import { packageVersion } from "../version.js";
-import { convertAction } from "./actions/compile/compile.js";
+import { convertAction } from "./actions/convert/convert.js";
 import { withCliHost } from "./utils.js";
 
 export async function main() {
