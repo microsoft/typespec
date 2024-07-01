@@ -54,7 +54,7 @@ model Order {
 model Customer {
   id?: int64;
   username?: string;
-  address?: Address[];
+  address?: Array<Address>;
 }
 
 model Address {
@@ -97,8 +97,8 @@ model Pet {
   id?: int64;
   name: string;
   category?: Category;
-  photoUrls: string[];
-  tags?: Tag[];
+  photoUrls: Array<string>;
+  tags?: Array<Tag>;
 
   /**
    * pet status in the store
@@ -183,7 +183,7 @@ model updatePet405Response {
  */
 model findPetsByStatus200ApplicationXmlResponse {
   @statusCode statusCode: 200;
-  @bodyRoot body: Pet[];
+  @bodyRoot body: Array<Pet>;
   @header contentType: "application/xml";
 }
 
@@ -192,7 +192,7 @@ model findPetsByStatus200ApplicationXmlResponse {
  */
 model findPetsByStatus200ApplicationJsonResponse {
   @statusCode statusCode: 200;
-  @bodyRoot body: Pet[];
+  @bodyRoot body: Array<Pet>;
 }
 
 /**
@@ -208,7 +208,7 @@ model findPetsByStatus400Response {
  */
 model findPetsByTags200ApplicationXmlResponse {
   @statusCode statusCode: 200;
-  @bodyRoot body: Pet[];
+  @bodyRoot body: Array<Pet>;
   @header contentType: "application/xml";
 }
 
@@ -217,7 +217,7 @@ model findPetsByTags200ApplicationXmlResponse {
  */
 model findPetsByTags200ApplicationJsonResponse {
   @statusCode statusCode: 200;
-  @bodyRoot body: Pet[];
+  @bodyRoot body: Array<Pet>;
 }
 
 /**
@@ -561,7 +561,7 @@ op findPetsByTags(
   @query({
     format: "form",
   })
-  tags?: string[],
+  tags?: Array<string>,
 ): findPetsByTags200ApplicationXmlResponse | findPetsByTags200ApplicationJsonResponse | findPetsByTags400Response;
 
 @tag("pet")
@@ -705,7 +705,7 @@ op createUser(
 @route("/user/createWithList")
 @post
 op createUsersWithListInput(
-  @bodyRoot body: User[],
+  @bodyRoot body: Array<User>,
 ): createUsersWithListInput200ApplicationXmlResponse | createUsersWithListInput200ApplicationJsonResponse | createUsersWithListInputDefaultResponse;
 
 @tag("user")
