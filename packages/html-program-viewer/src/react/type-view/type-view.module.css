@@ -1,0 +1,27 @@
+.type-view {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.main {
+  padding: var(--fui-Card--size) 0 !important;
+}
+
+.header-section {
+  padding: 0 var(--fui-Card--size);
+}
+
+.inspect-section {
+  padding: 0 var(--fui-Card--size);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.doc {
+  color: var(--colorNeutralForeground3);
+}

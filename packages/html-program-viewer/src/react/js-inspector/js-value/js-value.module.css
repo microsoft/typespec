@@ -1,0 +1,15 @@
+.string {
+  color: var(--colorPaletteLightGreenForeground2);
+}
+
+.boolean {
+  color: var(--colorPaletteDarkOrangeForeground1);
+}
+
+.number {
+  color: var(--colorPaletteDarkOrangeForeground1);
+}
+
+.intrinsic {
+  color: var(--colorPaletteDarkOrangeForeground1);
+}

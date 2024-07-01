@@ -1,7 +1,6 @@
 import { mergeClasses } from "@fluentui/react-components";
 import {
   useCallback,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -10,16 +9,17 @@ import {
   type MouseEvent,
 } from "react";
 import { useControllableValue } from "../hooks.js";
-import Pane, { type PaneProps } from "./pane.js";
+import { Pane, type PaneProps } from "./pane.js";
 import { SashContent } from "./sash-content.js";
 import { Sash } from "./sash.js";
 import style from "./split-pane.module.css";
+import { useElDimensions } from "./use-el-dimensions.js";
 
 export interface SplitPaneProps {
   children: JSX.Element[];
   allowResize?: boolean;
   split?: "vertical" | "horizontal";
-  initialSizes?: (string | number)[];
+  initialSizes?: (string | number | undefined)[];
   sizes?: (string | number | undefined)[];
   sashRender?: (index: number, active: boolean) => React.ReactNode;
   onChange?: (sizes: number[]) => void;
@@ -64,18 +64,9 @@ export const SplitPane: FunctionComponent<SplitPaneProps> = ({
   const axis = useRef<Axis>({ x: 0, y: 0 });
   const wrapper = useRef<HTMLDivElement>(null);
   const cacheSizes = useRef<CacheSizes>({ sizes: [], sashPosSizes: [] });
-  const [wrapperRect, setWrapperRect] = useState<Record<string, number>>({});
   const [isDragging, setDragging] = useState<boolean>(false);
 
-  useEffect(() => {
-    const resizeObserver = new ResizeObserver(() => {
-      setWrapperRect(wrapper?.current?.getBoundingClientRect() ?? ({} as any));
-    });
-    resizeObserver.observe(wrapper.current!);
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, []);
+  const wrapperRect = useElDimensions(wrapper);
 
   const { sizeName, splitPos, splitAxis } = useMemo(
     () =>
@@ -168,7 +159,7 @@ export const SplitPane: FunctionComponent<SplitPaneProps> = ({
   );
 
   const onDragging = useCallback(
-    function (e: MouseEvent<HTMLDivElement>, i: number) {
+    (e: MouseEvent<HTMLDivElement>, i: number) => {
       const curAxis = { x: e.pageX, y: e.pageY };
       let distanceX = curAxis[splitAxis] - axis.current[splitAxis];
 
