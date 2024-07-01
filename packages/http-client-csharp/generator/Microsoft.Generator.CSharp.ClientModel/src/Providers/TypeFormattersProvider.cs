@@ -88,7 +88,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 Parameters = [dateTimeOffsetParameter, formatParameter]
             };
-            var dateTimeOffsetValue = new DateTimeOffsetSnippet(dateTimeOffsetParameter);
+            var dateTimeOffsetValue = dateTimeOffsetParameter.As<DateTimeOffset>();
             var roundtripZFormat = new StringSnippet(_roundtripZFormatField);
             var toStringDateTimeOffset = new MethodProvider(
                 dateTimeOffsetSignature,
@@ -264,8 +264,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 signature,
                 new SwitchExpression(format,
                 [
-                    new(Literal("U"), DateTimeOffsetSnippet.FromUnixTimeSeconds(LongSnippet.Parse(value, invariantCulture))),
-                    SwitchCaseExpression.Default(DateTimeOffsetSnippet.Parse(value, invariantCulture, new MemberExpression(typeof(DateTimeStyles), nameof(DateTimeStyles.AssumeUniversal))))
+                    new(Literal("U"), DateTimeOffsetSnippets.FromUnixTimeSeconds(LongSnippet.Parse(value, invariantCulture))),
+                    SwitchCaseExpression.Default(DateTimeOffsetSnippets.Parse(value, invariantCulture, new MemberExpression(typeof(DateTimeStyles), nameof(DateTimeStyles.AssumeUniversal))))
                 ]),
                 this);
         }

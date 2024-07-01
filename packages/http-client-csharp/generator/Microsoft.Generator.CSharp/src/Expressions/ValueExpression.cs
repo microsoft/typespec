@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public ScopedApi<bool> InvokeEquals(ValueExpression other) => new(Invoke(nameof(Equals), other));
 
-        public virtual ValueExpression Property(string propertyName, bool nullConditional = false)
+        public ValueExpression Property(string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(this) : this, propertyName);
 
         public InvokeInstanceMethodExpression Invoke(string methodName)

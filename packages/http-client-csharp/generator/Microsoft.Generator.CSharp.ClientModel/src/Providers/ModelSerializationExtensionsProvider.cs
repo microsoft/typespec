@@ -229,7 +229,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
             var format = new StringSnippet(_formatParameter);
             var body = new SwitchExpression(format,
-                SwitchCaseExpression.When(Literal("U"), element.ValueKind.Equal(JsonValueKindSnippet.Number), DateTimeOffsetSnippet.FromUnixTimeSeconds(element.GetInt64())),
+                SwitchCaseExpression.When(Literal("U"), element.ValueKind.Equal(JsonValueKindSnippet.Number), DateTimeOffsetSnippets.FromUnixTimeSeconds(element.GetInt64())),
                 // relying on the param check of the inner call to throw ArgumentNullException if GetString() returns null
                 SwitchCaseExpression.Default(ParseDateTimeOffset(element.GetString(), format))
                 );
@@ -370,7 +370,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
             var writer = new Utf8JsonWriterSnippet(ScmKnownParameters.Utf8JsonWriter);
-            var value = new DateTimeOffsetSnippet(valueParameter);
+            var value = valueParameter.As<DateTimeOffset>();
             var format = new StringSnippet(_formatParameter);
             var body = new MethodBodyStatement[]
             {
