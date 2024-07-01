@@ -34,6 +34,10 @@ function getTypeFromSchema(schema: OpenAPI3Schema): string {
     type = getStringType(schema);
   }
 
+  if (schema.nullable) {
+    type += ` | null`;
+  }
+
   if (schema.default) {
     type += ` = ${JSON.stringify(schema.default)}`;
   }
@@ -100,20 +104,20 @@ function getObjectType(schema: OpenAPI3Schema): string {
     props.push(`...${recordType}`);
   }
 
-  return `{${props.join(";")}}`;
+  return `{${props.join("; ")}}`;
 }
 
 export function getArrayType(schema: OpenAPI3Schema): string {
   const items = schema.items;
   if (!items) {
-    return "unknown[]";
+    return "Array<unknown>";
   }
 
   if ("$ref" in items) {
-    return `${getRefName(items.$ref)}[]`;
+    return `Array<${getRefName(items.$ref)}>`;
   }
 
-  return `${getTypeFromSchema(items)}[]`;
+  return `Array<${getTypeFromSchema(items)}>`;
 }
 
 export function getIntegerType(schema: OpenAPI3Schema): string {

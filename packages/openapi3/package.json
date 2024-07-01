@@ -48,7 +48,7 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/emitters/openapi3/reference",
-    "generate-tsp": "node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./test/openapi-to-typespec/utils/generate-typespec.ts",
+    "regen-specs": "cross-env RECORD=true vitest run",
     "gen-version": "node scripts/generate-version.js"
   },
   "files": [
@@ -82,6 +82,7 @@
     "@vitest/coverage-v8": "^1.6.0",
     "@vitest/ui": "^1.6.0",
     "c8": "^9.1.0",
+    "cross-env": "~7.0.3",
     "rimraf": "~5.0.7",
     "ts-node": "~10.9.2",
     "typescript": "~5.4.5",
