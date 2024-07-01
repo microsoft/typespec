@@ -1,4 +1,4 @@
-export interface CompileCliArgs {
+export interface ConvertCliArgs {
   "output-dir"?: string;
   args?: string[];
 }

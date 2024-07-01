@@ -1,6 +1,6 @@
 import yargs from "yargs";
 import { packageVersion } from "../version.js";
-import { compileAction } from "./actions/compile/compile.js";
+import { convertAction } from "./actions/compile/compile.js";
 import { withCliHost } from "./utils.js";
 
 export async function main() {
@@ -9,8 +9,8 @@ export async function main() {
     .strict()
     .parserConfiguration({ "boolean-negation": false, "greedy-arrays": true })
     .command(
-      "compile <path>",
-      "Compile OpenAPI3 source to TypeSpec.",
+      "convert <path>",
+      "Convert OpenAPI3 source to TypeSpec.",
       (cmd) => {
         return cmd
           .positional("path", {
@@ -25,7 +25,7 @@ export async function main() {
             demandOption: true,
           });
       },
-      withCliHost((host, args) => compileAction(host, args))
+      withCliHost((host, args) => convertAction(host, args))
     )
     .version(packageVersion)
     .demandCommand(1, "You must use one of the supported commands.").argv;
