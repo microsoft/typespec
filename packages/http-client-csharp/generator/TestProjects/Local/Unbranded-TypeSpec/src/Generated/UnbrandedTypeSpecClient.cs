@@ -30,7 +30,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Return hi
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -54,7 +54,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Return hi
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -111,7 +111,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Return hi again
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -135,7 +135,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Return hi again
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -196,7 +196,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Return hi again
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -220,7 +220,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Return hi again
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -281,7 +281,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Return hi in demo2
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -298,7 +298,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Return hi in demo2
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -334,7 +334,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Create with literal value
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -352,7 +352,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Create with literal value
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -399,7 +399,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Send literal parameters
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -416,7 +416,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Send literal parameters
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -452,7 +452,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] top level method
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -473,7 +473,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] top level method
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -521,7 +521,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] top level method2
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -538,7 +538,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] top level method2
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -574,7 +574,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] top level patch
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -592,7 +592,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] top level patch
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -639,7 +639,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] body parameter without body decorator
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -657,7 +657,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] body parameter without body decorator
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -704,7 +704,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Model can have its friendly name
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -722,7 +722,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Model can have its friendly name
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -769,7 +769,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] addTimeHeader
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -787,7 +787,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] addTimeHeader
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -826,7 +826,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Model can have its projected name
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -844,7 +844,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Model can have its projected name
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -891,7 +891,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] return anonymous model
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -908,7 +908,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] return anonymous model
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -944,7 +944,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] get extensible enum
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -961,7 +961,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] get extensible enum
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -997,7 +997,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] When set protocol false and convenient true, then the protocol method should be internal
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -1015,7 +1015,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] When set protocol false and convenient true, then the protocol method should be internal
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -1062,7 +1062,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -1079,7 +1079,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -1115,7 +1115,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] head as boolean.
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -1136,7 +1136,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] head as boolean.
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This protocol method allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
