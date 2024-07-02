@@ -40,7 +40,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
         public void ValidateDictionary()
         {
             using CodeWriter writer = new CodeWriter();
-            New.Dictionary(typeof(string), typeof(int)).Expression.Write(writer);
+            New.Dictionary(typeof(string), typeof(int)).Write(writer);
             Assert.AreEqual("new global::System.Collections.Generic.Dictionary<string, int>()", writer.ToString(false));
         }
 
@@ -52,7 +52,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
             {
                 { Literal("x"), Literal(1) },
                 { Literal("y"), Literal(2) }
-            }).Expression.Write(writer);
+            }).Write(writer);
             Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 

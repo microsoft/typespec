@@ -26,7 +26,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly CSharpType _IEnumerator;
         private readonly CSharpType _keyValuePair;
         private readonly FieldProvider _innerDictionaryField;
-        private readonly DictionarySnippet _innerDictionary;
+        private readonly DictionaryExpression _innerDictionary;
         private readonly MethodSignature _ensureDictionarySignature;
 
         private IndexableExpression EnsureDictionary { get; init; }
@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp.Providers
             _IEnumerator = new CSharpType(typeof(IEnumerator<>), new CSharpType(typeof(KeyValuePair<,>), _tKey, _tValue));
             _keyValuePair = new CSharpType(typeof(KeyValuePair<,>), _tKey, _tValue);
             _innerDictionaryField = new FieldProvider(FieldModifiers.Private, new CSharpType(typeof(IDictionary<,>), _tKey, _tValue), "_innerDictionary");
-            _innerDictionary = new DictionarySnippet(_tKey, _tValue, new VariableExpression(_IDictionary, _innerDictionaryField.Declaration));
+            _innerDictionary = _innerDictionaryField.AsDictionary(_tKey, _tValue);
             _ensureDictionarySignature = new MethodSignature("EnsureDictionary", null, MethodSignatureModifiers.Public, _IDictionary, null, Array.Empty<ParameterProvider>());
             EnsureDictionary = new(This.Invoke(_ensureDictionarySignature));
         }
@@ -84,7 +84,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private MethodProvider ConstructorWithReadOnlyDictionary()
         {
             var dictionaryParam = new ParameterProvider("dictionary", $"The inner dictionary.", _IReadOnlyDictionary);
-            DictionarySnippet dictionary = new DictionarySnippet(_tKey, _tValue, dictionaryParam);
+            DictionaryExpression dictionary = dictionaryParam.AsDictionary(_tKey, _tValue);
             var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, new[] { dictionaryParam });
             return new MethodProvider(signature, new MethodBodyStatement[]
             {

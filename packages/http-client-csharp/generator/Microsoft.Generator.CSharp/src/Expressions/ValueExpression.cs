@@ -27,6 +27,11 @@ namespace Microsoft.Generator.CSharp.Expressions
         public static implicit operator ValueExpression(Type type) => new TypeReferenceExpression(type);
         public static implicit operator ValueExpression(CSharpType type) => new TypeReferenceExpression(type);
 
+        public ScopedApi<T> As<T>() => new(this);
+
+        public DictionaryExpression AsDictionary(CSharpType keyType, CSharpType valueType) => new(keyType, valueType, this);
+        public DictionaryExpression AsDictionary(CSharpType dictionaryType) => new(dictionaryType, this);
+
         public ValueExpression NullableStructValue(CSharpType candidateType) => candidateType is { IsNullable: true, IsValueType: true } ? new MemberExpression(this, nameof(Nullable<int>.Value)) : this;
         public StringSnippet InvokeToString() => new(Invoke(nameof(ToString)));
         public ValueExpression InvokeGetType() => Invoke(nameof(GetType));

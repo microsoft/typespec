@@ -47,10 +47,10 @@ namespace Microsoft.Generator.CSharp.Snippets
             public static IndexableExpression Array(CSharpType? elementType, bool isInline, params ValueExpression[] items) => new(new NewArrayExpression(elementType, new ArrayInitializerExpression(items, isInline)));
             public static IndexableExpression Array(CSharpType? elementType, ValueExpression size) => new(new NewArrayExpression(elementType, Size: size));
 
-            public static DictionarySnippet Dictionary(CSharpType keyType, CSharpType valueType)
-                => new(keyType, valueType, new NewInstanceExpression(new CSharpType(typeof(Dictionary<,>), keyType, valueType), []));
-            public static DictionarySnippet Dictionary(CSharpType keyType, CSharpType valueType, IReadOnlyDictionary<ValueExpression, ValueExpression> values)
-                => new(keyType, valueType, new NewInstanceExpression(new CSharpType(typeof(Dictionary<,>), keyType, valueType), [], new DictionaryInitializerExpression(values)));
+            public static DictionaryExpression Dictionary(CSharpType keyType, CSharpType valueType)
+                => new(new NewInstanceExpression(new CSharpType(typeof(Dictionary<,>), keyType, valueType), []));
+            public static DictionaryExpression Dictionary(CSharpType keyType, CSharpType valueType, IReadOnlyDictionary<ValueExpression, ValueExpression> values)
+                => new(new NewInstanceExpression(new CSharpType(typeof(Dictionary<,>), keyType, valueType), [], new DictionaryInitializerExpression(values)));
 
             public static ListSnippet List(CSharpType elementType) => new(elementType, Instance(new CSharpType(typeof(List<>), elementType)));
 

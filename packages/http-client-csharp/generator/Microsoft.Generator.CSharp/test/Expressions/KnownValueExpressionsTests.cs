@@ -101,7 +101,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
             var valueType = new CSharpType(t2);
             var untypedValue = ValueExpression.Empty;
 
-            var dictionaryExpression = new DictionarySnippet(t1, t2, untypedValue);
+            var dictionaryExpression = untypedValue.AsDictionary(t1, t2);
 
             Assert.AreEqual(keyType, dictionaryExpression.KeyType);
             Assert.AreEqual(valueType, dictionaryExpression.ValueType);
@@ -113,7 +113,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         {
             var keyType = new CSharpType(typeof(int));
             var valueType = new CSharpType(typeof(string));
-            var dictionaryExpression = new DictionarySnippet(keyType, valueType, ValueExpression.Empty);
+            var dictionaryExpression = ValueExpression.Empty.AsDictionary(keyType, valueType);
 
             var key = ValueExpression.Empty;
             var value = ValueExpression.Empty;

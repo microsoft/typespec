@@ -606,7 +606,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 { IsDictionary: true } =>
                     CreateDictionarySerializationStatement(
-                        new DictionarySnippet(serializationType.Arguments[0], serializationType.Arguments[1], value),
+                        value.AsDictionary(serializationType),
                         serializationFormat),
                 { IsList: true } or { IsArray: true } =>
                     CreateListSerializationStatement(GetEnumerableExpression(value, serializationType), serializationFormat),
@@ -616,7 +616,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             };
 
         private MethodBodyStatement CreateDictionarySerializationStatement(
-            DictionarySnippet dictionary,
+            DictionaryExpression dictionary,
             SerializationFormat serializationFormat)
         {
             return new[]
@@ -792,7 +792,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             var rawDataMemberExp = new MemberExpression(null, _rawDataField.Name);
-            var rawDataDictionaryExp = new DictionarySnippet(_rawDataField.Type.Arguments[0], _rawDataField.Type.Arguments[1], rawDataMemberExp);
+            var rawDataDictionaryExp = rawDataMemberExp.AsDictionary(_rawDataField.Type);
             var forEachStatement = new ForeachStatement("item", rawDataDictionaryExp, out KeyValuePairSnippet item)
             {
                 _utf8JsonWriterSnippet.WritePropertyName(item.Key),
