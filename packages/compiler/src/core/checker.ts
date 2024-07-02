@@ -4618,6 +4618,8 @@ export function createChecker(program: Program): Checker {
       const parentType = getTypeName(overriddenProp.type);
       const newPropType = getTypeName(newProp.type);
 
+      let invalid = false;
+
       if (!isAssignable) {
         reportCheckerDiagnostic(
           createDiagnostic({
@@ -4626,8 +4628,22 @@ export function createChecker(program: Program): Checker {
             target: diagnosticTarget ?? newProp,
           })
         );
-        return;
+        invalid = true;
       }
+
+      if (!overriddenProp.optional && newProp.optional) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "override-property-mismatch",
+            messageId: "disallowedOptionalOverride",
+            format: { propName: overriddenProp.name },
+            target: diagnosticTarget ?? newProp,
+          })
+        );
+        invalid = true;
+      }
+
+      if (invalid) return;
     }
 
     properties.set(newProp.name, newProp);
