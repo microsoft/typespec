@@ -30,9 +30,6 @@ namespace Microsoft.Generator.CSharp.Snippets
             return Declare(variableRef, value);
         }
 
-        public static MethodBodyStatement Declare(string name, ScopedApi<BinaryData> value, out ScopedApi<BinaryData> variable)
-            => Declare(name, value, out variable);
-
         public static MethodBodyStatement Declare(string name, DictionaryExpression value, out DictionaryExpression variable)
         {
             var declaration = new CodeWriterDeclaration(name);
@@ -47,20 +44,10 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement Declare(string name, ListSnippet value, out ListSnippet variable)
             => Declare(name, value, d => new ListSnippet(value.ItemType, d), out variable);
 
-        public static MethodBodyStatement Declare(string name, ScopedApi<string> value, out ScopedApi<string> variable)
-            => Declare(name, value, out variable);
-
         public static MethodBodyStatement Declare(string name, StreamReaderSnippet value, out StreamReaderSnippet variable)
             => Declare(name, value, d => new StreamReaderSnippet(d), out variable);
 
         public static MethodBodyStatement Declare(string name, TypedSnippet value, out VariableExpression variable)
-        {
-            var declaration = new VariableExpression(value.Type, name);
-            variable = declaration;
-            return Declare(declaration, value);
-        }
-
-        public static MethodBodyStatement Declare<T>(string name, ScopedApi<T> value, out VariableExpression variable)
         {
             var declaration = new VariableExpression(value.Type, name);
             variable = declaration;
@@ -86,7 +73,7 @@ namespace Microsoft.Generator.CSharp.Snippets
             return new DeclarationExpression(variableExpression).Assign(value).Terminate();
         }
 
-        private static MethodBodyStatement Declare<T>(string name, ScopedApi<T> value, out ScopedApi<T> variable)
+        public static MethodBodyStatement Declare<T>(string name, ScopedApi<T> value, out ScopedApi<T> variable)
         {
             var declaration = new CodeWriterDeclaration(name);
             var variableExpression = new VariableExpression(value.Type, declaration);

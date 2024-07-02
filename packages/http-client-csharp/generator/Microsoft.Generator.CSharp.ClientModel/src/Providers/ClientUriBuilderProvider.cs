@@ -128,7 +128,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
 
-            var pathBuilder = new StringBuilderSnippet(PathBuilderProperty);
+            var pathBuilder = PathBuilderProperty.As<StringBuilder>();
             MethodBodyStatement body = new MethodBodyStatement[]
             {
                 MethodBodyStatement.Empty,
@@ -137,13 +137,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     valueParameter.Assign(new InvokeStaticMethodExpression(typeof(Uri), nameof(Uri.EscapeDataString), [valueParameter])).Terminate()
                 },
                 MethodBodyStatement.Empty,
-                new IfStatement(pathBuilder.Length.GreaterThan(Int(0)).And(pathBuilder[pathBuilder.Length.Minus(Int(1))].Equal(Literal('/'))).And(valueParameter.As<string>().Index(Int(0)).Equal(Literal('/'))))
+                new IfStatement(pathBuilder.Length().GreaterThan(Int(0)).And(pathBuilder.Index(pathBuilder.Length().Minus(Int(1))).Equal(Literal('/'))).And(valueParameter.As<string>().Index(Int(0)).Equal(Literal('/'))))
                 {
-                    pathBuilder.Remove(pathBuilder.Length.Minus(Int(1)), Int(1)).Terminate()
+                    pathBuilder.Remove(pathBuilder.Length().Minus(Int(1)), Int(1)).Terminate()
                 },
                 MethodBodyStatement.Empty,
                 pathBuilder.Append(valueParameter).Terminate(),
-                UriBuilderPath.Assign(pathBuilder.Expression.InvokeToString()).Terminate()
+                UriBuilderPath.Assign(pathBuilder.InvokeToString()).Terminate()
             };
 
             return
@@ -197,11 +197,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
 
-            var queryBuilder = new StringBuilderSnippet(QueryBuilderProperty);
+            var queryBuilder = QueryBuilderProperty.As<StringBuilder>();
             var body = new MethodBodyStatement[]
             {
                 MethodBodyStatement.Empty,
-                new IfStatement(queryBuilder.Length.GreaterThan(Int(0)))
+                new IfStatement(queryBuilder.Length().GreaterThan(Int(0)))
                 {
                     queryBuilder.Append(Literal('&')).Terminate()
                 },

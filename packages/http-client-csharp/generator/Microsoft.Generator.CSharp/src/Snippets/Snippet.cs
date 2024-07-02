@@ -14,6 +14,7 @@ namespace Microsoft.Generator.CSharp.Snippets
     public static partial class Snippet
     {
         public static ScopedApi<T> As<T>(this ParameterProvider parameter) => new(parameter);
+        public static ScopedApi<T> As<T>(this PropertyProvider property) => new(property);
         public static DictionaryExpression AsDictionary(this FieldProvider field, CSharpType keyType, CSharpType valueType) => new(keyType, valueType, field);
         public static DictionaryExpression AsDictionary(this ParameterProvider parameter, CSharpType keyType, CSharpType valueType) => new(keyType, valueType, parameter);
 
