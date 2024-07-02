@@ -97,8 +97,10 @@ namespace UnbrandedTypeSpec.Models
             switch (format)
             {
                 case "J":
-                    Utf8JsonReader reader = new Utf8JsonReader((ReadOnlySpan<byte>)data);
-                    return JsonModelCreateCore(ref reader, options);
+                    using (JsonDocument document = JsonDocument.Parse(data))
+                    {
+                        return ProjectedModel.DeserializeProjectedModel(document.RootElement, options);
+                    }
                 default:
                     throw new FormatException($"The model {nameof(ProjectedModel)} does not support reading '{options.Format}' format.");
             }

@@ -504,17 +504,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodBodyStatement[] BuildPersistableModelCreateCoreMethodBody()
         {
-            // var reader = new Utf8JsonReader((ReadOnlySpan<byte>)data);
-            var reader = new VariableExpression(typeof(Utf8JsonReader), "reader");
-            var readerInitialization = Declare(reader, New.Instance(typeof(Utf8JsonReader), _dataParameter.AsExpression.CastTo(typeof(ReadOnlySpan<byte>))));
-            var readerParam = new ParameterProvider("reader", $"The JSON reader.", typeof(Utf8JsonReader), isRef: true);
-            var returnStatement = Return(This.Invoke(JsonModelCreateCoreMethodName, [readerParam, _mrwOptionsParameterSnippet]));
-            var statements = new MethodBodyStatement[]
-            {
-                readerInitialization,
-                returnStatement
-            };
-            var switchCase = new SwitchCaseStatement(ModelReaderWriterOptionsSnippet.JsonFormat, statements);
+            var switchCase = new SwitchCaseStatement(
+                ModelReaderWriterOptionsSnippet.JsonFormat,
+                new MethodBodyStatement[]
+                {
+                    new UsingScopeStatement(typeof(JsonDocument), "document", JsonDocumentSnippet.Parse(_dataParameter), out var jsonDocumentVar)
+                    {
+                        Return(TypeProviderSnippet.Deserialize(_model, new JsonDocumentSnippet(jsonDocumentVar).RootElement, _serializationOptionsParameter))
+                    },
+               });
             var typeOfT = _persistableModelTInterface.Arguments[0];
             var defaultCase = SwitchCaseStatement.Default(
                 ThrowValidationFailException(_mrwOptionsParameterSnippet.Format, typeOfT, ReadAction));
