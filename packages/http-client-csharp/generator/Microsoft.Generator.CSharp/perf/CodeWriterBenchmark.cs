@@ -16,6 +16,7 @@ namespace Microsoft.Generator.CSharp.Perf
 
         public CodeWriterBenchmark()
         {
+            PluginInitializer.Initialize();
             var properties = new[]
             {
                 new InputModelProperty("MyProperty", "myProperty", "The property of mine", new InputPrimitiveType(InputPrimitiveTypeKind.Int32), true, false, false)
@@ -23,12 +24,6 @@ namespace Microsoft.Generator.CSharp.Perf
             var inputModel = new InputModelType("MyModel", string.Empty, null, null, "Test model", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
             var modelProvider = new ModelProvider(inputModel);
             _writer = new TypeProviderWriter(modelProvider);
-        }
-
-        [GlobalSetup]
-        public void GlobalSetup()
-        {
-            PluginInitializer.Initialize();
         }
 
         [Benchmark]
