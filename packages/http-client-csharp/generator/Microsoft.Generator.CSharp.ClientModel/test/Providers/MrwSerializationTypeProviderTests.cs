@@ -16,6 +16,7 @@ using Microsoft.Generator.CSharp.Providers;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
+using System.Text.Json;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 {
@@ -391,6 +392,32 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             var emptyCtor = ctors[1];
             Assert.AreEqual(MethodSignatureModifiers.Internal, emptyCtor.Signature.Modifiers);
             Assert.AreEqual(0, emptyCtor.Signature.Parameters.Count);
+        }
+
+        [Test]
+        public void TestBuildBuildDeserializationMethod()
+        {
+            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var model = new ModelProvider(inputModel);
+            var provider = new MrwSerializationTypeProvider(model, inputModel);
+
+            // Assert
+            Assert.IsNotNull(provider);
+
+            var deserializationMethod = provider.BuildDeserializationMethod();
+            Assert.IsNotNull(deserializationMethod);
+
+            var signature = deserializationMethod?.Signature as MethodSignature;
+            Assert.IsNotNull(signature);
+            Assert.AreEqual($"Deserialize{model.Name}", signature?.Name);
+            Assert.AreEqual(2, signature?.Parameters.Count);
+            Assert.AreEqual(new CSharpType(typeof(JsonElement)), signature?.Parameters[0].Type);
+            Assert.AreEqual(new CSharpType(typeof(ModelReaderWriterOptions)), signature?.Parameters[1].Type);
+            Assert.AreEqual(model.Type, signature?.ReturnType);
+            Assert.AreEqual(MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static, signature?.Modifiers);
+
+            var methodBody = deserializationMethod?.BodyStatements;
+            Assert.IsNotNull(methodBody);
         }
     }
 }
