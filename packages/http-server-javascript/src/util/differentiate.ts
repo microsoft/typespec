@@ -261,7 +261,7 @@ function isLiteralValueType(type: Type): type is JsLiteralType {
     type.kind === "Boolean" ||
     type.kind === "Number" ||
     type.kind === "String" ||
-    type.kind == "EnumMember"
+    type.kind === "EnumMember"
   );
 }
 
