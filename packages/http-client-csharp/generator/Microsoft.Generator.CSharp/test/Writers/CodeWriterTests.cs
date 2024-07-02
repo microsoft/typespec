@@ -42,7 +42,9 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
 
             var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
             // initialize the singleton instance of the plugin
-            _ = new MockCodeModelPlugin(new GeneratorContext(Configuration.Load(configFilePath)));
+            var mockPlugin = new MockCodeModelPlugin(new GeneratorContext(Configuration.Load(configFilePath)));
+
+            CodeModelPlugin.Instance = mockPlugin;
         }
 
         [TearDown]
