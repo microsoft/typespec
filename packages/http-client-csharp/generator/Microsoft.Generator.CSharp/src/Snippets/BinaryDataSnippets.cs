@@ -10,8 +10,8 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public static class BinaryDataSnippets
     {
-        public static FrameworkTypeSnippet ToObjectFromJson(this ScopedApi<BinaryData> binaryData, Type responseType)
-            => new(responseType, new InvokeInstanceMethodExpression(binaryData, nameof(BinaryData.ToObjectFromJson), [], [new CSharpType(responseType)], false));
+        public static ScopedApi ToObjectFromJson(this ScopedApi<BinaryData> binaryData, Type responseType)
+            => binaryData.Invoke(nameof(BinaryData.ToObjectFromJson), [], [new CSharpType(responseType)], false).As(responseType);
 
         public static ListSnippet ToArray(this ScopedApi<BinaryData> binaryData) => new(typeof(byte[]), binaryData.Invoke(nameof(BinaryData.ToArray)));
 

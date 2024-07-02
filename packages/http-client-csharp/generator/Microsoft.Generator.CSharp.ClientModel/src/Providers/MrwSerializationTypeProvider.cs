@@ -662,7 +662,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 { Implementation: EnumProvider enumProvider } =>
                     SerializeEnumProvider(enumProvider, type, value),
                 { Implementation: ModelProvider modelProvider } =>
-                    _utf8JsonWriterSnippet.WriteObjectValue(new TypeProviderSnippet(modelProvider, value), options: _mrwOptionsParameterSnippet),
+                    _utf8JsonWriterSnippet.WriteObjectValue(value.As(modelProvider.Type), options: _mrwOptionsParameterSnippet),
                 _ => throw new NotSupportedException($"Serialization of type {type.Name} is not supported.")
             };
         }
@@ -703,7 +703,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 var t when ValueTypeIsNumber(t) =>
                     _utf8JsonWriterSnippet.WriteNumberValue(value),
                 var t when t == typeof(object) =>
-                    _utf8JsonWriterSnippet.WriteObjectValue(new FrameworkTypeSnippet(valueType, value), _mrwOptionsParameterSnippet),
+                    _utf8JsonWriterSnippet.WriteObjectValue(value.As(valueType), _mrwOptionsParameterSnippet),
                 var t when t == typeof(string) || t == typeof(char) || t == typeof(Guid) =>
                     _utf8JsonWriterSnippet.WriteStringValue(value),
                 var t when t == typeof(bool) =>

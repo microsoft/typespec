@@ -14,7 +14,18 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public CSharpType Type { get; }
 
-        public TypeReferenceExpression(CSharpType type)
+        private static readonly Dictionary<CSharpType, TypeReferenceExpression> _typeCache = new Dictionary<CSharpType, TypeReferenceExpression>();
+        internal static TypeReferenceExpression FromType(CSharpType type)
+        {
+            if (!_typeCache.TryGetValue(type, out var result))
+            {
+                result = new TypeReferenceExpression(type);
+                _typeCache[type] = result;
+            }
+            return result;
+        }
+
+        private TypeReferenceExpression(CSharpType type)
         {
             if (!type.IsFrameworkType && type.Implementation is TypeProvider typeProvider)
             {

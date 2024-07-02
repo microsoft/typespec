@@ -24,10 +24,11 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         protected internal virtual bool IsEmptyExpression() => ReferenceEquals(this, Empty);
 
-        public static implicit operator ValueExpression(Type type) => new TypeReferenceExpression(type);
-        public static implicit operator ValueExpression(CSharpType type) => new TypeReferenceExpression(type);
+        public static implicit operator ValueExpression(Type type) => TypeReferenceExpression.FromType(type);
+        public static implicit operator ValueExpression(CSharpType type) => TypeReferenceExpression.FromType(type);
 
         public ScopedApi<T> As<T>() => new(this);
+        public ScopedApi As(CSharpType type) => new(type, this);
 
         public DictionaryExpression AsDictionary(CSharpType keyType, CSharpType valueType) => new(keyType, valueType, this);
         public DictionaryExpression AsDictionary(CSharpType dictionaryType) => new(dictionaryType, this);

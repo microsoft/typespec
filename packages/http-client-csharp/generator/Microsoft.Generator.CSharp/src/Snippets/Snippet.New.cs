@@ -64,9 +64,9 @@ namespace Microsoft.Generator.CSharp.Snippets
             public static ValueExpression Instance(ConstructorSignature ctorSignature, IReadOnlyDictionary<ValueExpression, ValueExpression>? properties = null) => Instance(ctorSignature, ctorSignature.Parameters.Select(p => (ValueExpression)p).ToArray(), properties);
             public static ValueExpression Instance(CSharpType type, IReadOnlyList<ValueExpression> arguments) => new NewInstanceExpression(type, arguments);
             public static ValueExpression Instance(CSharpType type, params ValueExpression[] arguments) => new NewInstanceExpression(type, arguments);
-            public static ValueExpression Instance(CSharpType type, IReadOnlyDictionary<ValueExpression, ValueExpression> properties) => new NewInstanceExpression(type, System.Array.Empty<ValueExpression>(), new ObjectInitializerExpression(properties));
-            public static TypedSnippet Instance(Type type, params ValueExpression[] arguments) => new FrameworkTypeSnippet(type, new NewInstanceExpression(type, arguments));
-            public static TypedSnippet Instance(Type type, IReadOnlyDictionary<ValueExpression, ValueExpression> properties) => new FrameworkTypeSnippet(type, new NewInstanceExpression(type, System.Array.Empty<ValueExpression>(), new ObjectInitializerExpression(properties)));
+            public static ValueExpression Instance(CSharpType type, IReadOnlyDictionary<ValueExpression, ValueExpression> properties) => new NewInstanceExpression(type, [], new ObjectInitializerExpression(properties));
+            public static ScopedApi Instance(Type type, params ValueExpression[] arguments) => new NewInstanceExpression(type, arguments).As(type);
+            public static ScopedApi Instance(Type type, IReadOnlyDictionary<ValueExpression, ValueExpression> properties) => new NewInstanceExpression(type, [], new ObjectInitializerExpression(properties)).As(type);
         }
     }
 }

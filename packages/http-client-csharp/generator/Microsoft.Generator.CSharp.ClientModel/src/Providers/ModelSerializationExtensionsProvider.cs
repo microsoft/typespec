@@ -392,7 +392,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             MethodSignature signature = GetWriteObjectValueMethodSignature(null, out value, out writer, out options);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                writer.WriteObjectValue(new ObjectSnippet(value), options)
+                writer.WriteObjectValue(value.As<object>(), options)
             },
             this);
         }
@@ -507,7 +507,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     new ForeachStatement("pair", new EnumerableSnippet(typeof(KeyValuePair<string, object>), enumerable), out var pair)
                     {
                         writer.WritePropertyName(pair.Property(nameof(KeyValuePair<string, object>.Key))),
-                        writer.WriteObjectValue(new ObjectSnippet(pair.Property(nameof(KeyValuePair<string, object>.Value))), options)
+                        writer.WriteObjectValue(pair.Property(nameof(KeyValuePair<string, object>.Value)).As<object>(), options)
                     },
                     writer.WriteEndObject(),
                     Break
@@ -518,7 +518,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     writer.WriteStartArray(),
                     new ForeachStatement("item", new EnumerableSnippet(typeof(object), objectEnumerable), out var item)
                     {
-                        writer.WriteObjectValue(new ObjectSnippet(item), options)
+                        writer.WriteObjectValue(item.As<object>(), options)
                     },
                     writer.WriteEndArray(),
                     Break

@@ -6,15 +6,13 @@ using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record ScopedApi<T>(ValueExpression Expression) : ValueExpression
+    public record ScopedApi(CSharpType Type, ValueExpression Original) : ValueExpression(Original)
     {
-        public CSharpType Type { get; } = typeof(T);
-
         internal override void Write(CodeWriter writer)
         {
-            Expression.Write(writer);
+            Original.Write(writer);
         }
 
-        protected internal override bool IsEmptyExpression() => Expression.IsEmptyExpression();
+        protected internal override bool IsEmptyExpression() => Original.IsEmptyExpression();
     }
 }

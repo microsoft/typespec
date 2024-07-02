@@ -21,7 +21,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
 
             var result = boolExpression.Or(right);
             using var writer = new CodeWriter();
-            result.Expression.Write(writer);
+            result.Write(writer);
 
             Assert.AreEqual("(||)", writer.ToString(false));
         }
@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
 
             var result = boolExpression.And(right);
             using var writer = new CodeWriter();
-            result.Expression.Write(writer);
+            result.Write(writer);
 
             Assert.AreEqual("(&&)", writer.ToString(false));
         }
@@ -164,7 +164,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
 
             var result = enumerableExpression.Any();
             using CodeWriter writer = new CodeWriter();
-            result.Expression.Write(writer);
+            result.Write(writer);
 
             Assert.AreEqual(".Any()", writer.ToString(false));
         }

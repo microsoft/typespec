@@ -17,9 +17,9 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static DictionaryExpression AsDictionary(this FieldProvider field, CSharpType keyType, CSharpType valueType) => new(keyType, valueType, field);
         public static DictionaryExpression AsDictionary(this ParameterProvider parameter, CSharpType keyType, CSharpType valueType) => new(keyType, valueType, parameter);
 
-        public static ValueExpression Static<T>() => new TypeReferenceExpression(typeof(T));
+        public static ValueExpression Static<T>() => TypeReferenceExpression.FromType(typeof(T));
         //overload needed since static types cannot be usd as type arguments
-        public static ValueExpression Static(Type type) => new TypeReferenceExpression(type);
+        public static ValueExpression Static(Type type) => TypeReferenceExpression.FromType(type);
 
         public static ValueExpression Identifier(string name) => new MemberExpression(null, name);
         public static MethodBodyStatement AsStatement(this IEnumerable<MethodBodyStatement> statements) => statements.ToArray();
@@ -48,7 +48,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ValueExpression NullCoalescing(ValueExpression left, ValueExpression right) => new BinaryOperatorExpression("??", left, right);
         // TO-DO: Migrate remaining class as part of output classes migration : https://github.com/Azure/autorest.csharp/issues/4198
         //public static ValueExpression EnumValue(EnumType type, EnumTypeValue value) => new MemberExpression(new TypeReference(type.Type), value.Declaration.Name);
-        public static ValueExpression FrameworkEnumValue<TEnum>(TEnum value) where TEnum : struct, Enum => new MemberExpression(new TypeReferenceExpression(typeof(TEnum)), Enum.GetName(value)!);
+        public static ValueExpression FrameworkEnumValue<TEnum>(TEnum value) where TEnum : struct, Enum => new MemberExpression(TypeReferenceExpression.FromType(typeof(TEnum)), Enum.GetName(value)!);
 
         public static ValueExpression RemoveAllNullConditional(ValueExpression expression)
             => expression switch

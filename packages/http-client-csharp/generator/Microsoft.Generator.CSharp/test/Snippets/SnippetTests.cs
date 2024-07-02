@@ -130,7 +130,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
             {
                 { Identifier("X"), Literal(100) },
                 { Identifier("Y"), Literal(200) }
-            }).Expression.Write(writer);
+            }).Write(writer);
             Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
@@ -138,7 +138,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
         public void ValidateFrameworkInstanceWithArguments()
         {
             using CodeWriter writer = new CodeWriter();
-            New.Instance(typeof(TestClass), [Literal(20)]).Expression.Write(writer);
+            New.Instance(typeof(TestClass), [Literal(20)]).Write(writer);
             Assert.AreEqual("new global::Microsoft.Generator.CSharp.Tests.Snippets.TestClass(20)", writer.ToString(false));
         }
 

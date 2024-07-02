@@ -63,7 +63,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             return Expression.Invoke(nameof(Utf8JsonWriter.FlushAsync), arguments, true);
         }
 
-        internal MethodBodyStatement WriteObjectValue(TypedSnippet value, ValueExpression? options = null)
+        internal MethodBodyStatement WriteObjectValue(ScopedApi value, ValueExpression? options = null)
              => ModelSerializationExtensionsSnippet.WriteObjectValue(this, value, options: options);
 
         internal MethodBodyStatement WriteStringValue(ValueExpression value, string? format)
