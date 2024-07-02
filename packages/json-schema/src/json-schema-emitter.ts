@@ -819,7 +819,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   // #region context emitters
   modelDeclarationContext(model: Model, name: string): Context {
-    if (this.#isStdType(model) && model.name === "object") {
+    if (this.#isStdType(model) && (model.name as any) === "object") {
       return {};
     }
 

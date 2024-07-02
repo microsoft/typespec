@@ -68,9 +68,19 @@ namespace UnbrandedTypeSpec.Models
             throw new NotImplementedException("Not implemented");
         }
 
-        BinaryData IPersistableModel<DerivedModelWithDiscriminatorA>.Write(ModelReaderWriterOptions options)
+        BinaryData IPersistableModel<DerivedModelWithDiscriminatorA>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            throw new NotImplementedException("Not implemented");
+            string format = options.Format == "W" ? ((IPersistableModel<DerivedModelWithDiscriminatorA>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options);
+                default:
+                    throw new FormatException($"The model {nameof(DerivedModelWithDiscriminatorA)} does not support writing '{options.Format}' format.");
+            }
         }
 
         DerivedModelWithDiscriminatorA IPersistableModel<DerivedModelWithDiscriminatorA>.Create(BinaryData data, ModelReaderWriterOptions options)

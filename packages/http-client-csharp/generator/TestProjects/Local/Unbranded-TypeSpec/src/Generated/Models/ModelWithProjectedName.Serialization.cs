@@ -65,9 +65,19 @@ namespace UnbrandedTypeSpec.Models
             throw new NotImplementedException("Not implemented");
         }
 
-        BinaryData IPersistableModel<ModelWithProjectedName>.Write(ModelReaderWriterOptions options)
+        BinaryData IPersistableModel<ModelWithProjectedName>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            throw new NotImplementedException("Not implemented");
+            string format = options.Format == "W" ? ((IPersistableModel<ModelWithProjectedName>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options);
+                default:
+                    throw new FormatException($"The model {nameof(ModelWithProjectedName)} does not support writing '{options.Format}' format.");
+            }
         }
 
         ModelWithProjectedName IPersistableModel<ModelWithProjectedName>.Create(BinaryData data, ModelReaderWriterOptions options)

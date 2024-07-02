@@ -40,7 +40,7 @@ export enum Token {
 
   ///////////////////////////////////////////////////////////////
   // Trivia
-  /**@internal */ __StartTrivia,
+  /** @internal */ __StartTrivia,
 
   SingleLineComment = __StartTrivia,
   MultiLineComment,
@@ -383,7 +383,7 @@ export function isTrivia(token: Token) {
   return token >= Token.__StartTrivia && token < Token.__EndTrivia;
 }
 
-export function isComment(token: Token) {
+export function isComment(token: Token): boolean {
   return token === Token.SingleLineComment || token === Token.MultiLineComment;
 }
 

@@ -14,6 +14,7 @@ import {
   setTypeSpecNamespace,
   typespecTypeToJson,
 } from "@typespec/compiler";
+import { createAssetEmitter } from "@typespec/compiler/emitter-framework";
 import { ValidatesRawJsonDecorator } from "../generated-defs/TypeSpec.JsonSchema.Private.js";
 import {
   BaseUriDecorator,
@@ -45,7 +46,7 @@ export type JsonSchemaDeclaration = Model | Union | Enum | Scalar;
 const jsonSchemaKey = createStateSymbol("JsonSchema");
 
 export async function $onEmit(context: EmitContext<JSONSchemaEmitterOptions>) {
-  const emitter = context.getAssetEmitter(JsonSchemaEmitter);
+  const emitter = createAssetEmitter(context.program, JsonSchemaEmitter as any, context);
 
   if (emitter.getOptions().emitAllModels) {
     emitter.emitProgram({ emitTypeSpecNamespace: false });

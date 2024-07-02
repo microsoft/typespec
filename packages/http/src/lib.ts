@@ -9,12 +9,6 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`HTTP verb already applied to ${"entityName"}`,
       },
     },
-    "http-verb-wrong-type": {
-      severity: "error",
-      messages: {
-        default: paramMessage`Cannot use @${"verb"} on a ${"entityKind"}`,
-      },
-    },
     "missing-path-param": {
       severity: "error",
       messages: {
