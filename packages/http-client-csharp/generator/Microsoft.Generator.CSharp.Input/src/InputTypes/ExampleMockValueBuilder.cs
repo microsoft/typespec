@@ -1,9 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using AutoRest.CSharp.Common.Input.InputTypes;
 
 namespace Microsoft.Generator.CSharp.Input
 {
@@ -63,10 +64,15 @@ namespace Microsoft.Generator.CSharp.Input
                     // when it is constant, it could have DefaultValue
                     value = InputExampleValue.Value(parameter.Type, parameter.DefaultValue.Value);
                 }
-                else if (parameter.Type is InputUnionType unionType && unionType.UnionItemTypes.First() is InputLiteralType literalType)
+                else if (parameter.Type is InputUnionType unionType && unionType.VariantTypes[0] is InputLiteralType literalType)
                 {
                     // or it could be a union of literal types
                     value = InputExampleValue.Value(parameter.Type, literalType.Value);
+                }
+                else if (parameter.Type is InputEnumType enumType && enumType.Values[0].Value is { } enumValue)
+                {
+                    // or it could be an enum of a few values
+                    value = InputExampleValue.Value(parameter.Type, enumValue);
                 }
                 else
                 {
@@ -95,24 +101,27 @@ namespace Microsoft.Generator.CSharp.Input
 
         private static InputExampleValue BuildExampleValue(InputType type, string? hint, bool useAllParameters, HashSet<InputModelType> visitedModels) => type switch
         {
-            InputList listType => BuildListExampleValue(listType, hint, useAllParameters, visitedModels),
-            InputDictionary dictionaryType => BuildDictionaryExampleValue(dictionaryType, hint, useAllParameters, visitedModels),
+            InputArrayType listType => BuildListExampleValue(listType, hint, useAllParameters, visitedModels),
+            InputDictionaryType dictionaryType => BuildDictionaryExampleValue(dictionaryType, hint, useAllParameters, visitedModels),
             InputEnumType enumType => BuildEnumExampleValue(enumType),
             InputPrimitiveType primitiveType => BuildPrimitiveExampleValue(primitiveType, hint),
             InputLiteralType literalType => InputExampleValue.Value(literalType, literalType.Value),
             InputModelType modelType => BuildModelExampleValue(modelType, useAllParameters, visitedModels),
-            InputUnionType unionType => BuildExampleValue(unionType.UnionItemTypes.First(), hint, useAllParameters, visitedModels),
+            InputUnionType unionType => BuildExampleValue(unionType.VariantTypes[0], hint, useAllParameters, visitedModels),
+            InputDateTimeType dateTimeType => BuildDateTimeExampleValue(dateTimeType),
+            InputDurationType durationType => BuildDurationExampleValue(durationType),
+            InputNullableType nullableType => BuildExampleValue(nullableType.Type, hint, useAllParameters, visitedModels),
             _ => InputExampleValue.Object(type, new Dictionary<string, InputExampleValue>())
         };
 
-        private static InputExampleValue BuildListExampleValue(InputList listType, string? hint, bool useAllParameters, HashSet<InputModelType> visitedModels)
+        private static InputExampleValue BuildListExampleValue(InputArrayType listType, string? hint, bool useAllParameters, HashSet<InputModelType> visitedModels)
         {
-            var exampleElementValue = BuildExampleValue(listType.ElementType, hint, useAllParameters, visitedModels);
+            var exampleElementValue = BuildExampleValue(listType.ValueType, hint, useAllParameters, visitedModels);
 
             return InputExampleValue.List(listType, new[] { exampleElementValue });
         }
 
-        private static InputExampleValue BuildDictionaryExampleValue(InputDictionary dictionaryType, string? hint, bool useAllParameters, HashSet<InputModelType> visitedModels)
+        private static InputExampleValue BuildDictionaryExampleValue(InputDictionaryType dictionaryType, string? hint, bool useAllParameters, HashSet<InputModelType> visitedModels)
         {
             var exampleValue = BuildExampleValue(dictionaryType.ValueType, hint, useAllParameters, visitedModels);
 
@@ -124,35 +133,48 @@ namespace Microsoft.Generator.CSharp.Input
 
         private static InputExampleValue BuildEnumExampleValue(InputEnumType enumType)
         {
-            var enumValue = enumType.AllowedValues.First();
+            var enumValue = enumType.Values[0];
             return InputExampleValue.Value(enumType, enumValue.Value);
         }
 
         private static InputExampleValue BuildPrimitiveExampleValue(InputPrimitiveType primitiveType, string? hint) => primitiveType.Kind switch
         {
-            InputTypeKind.Stream => InputExampleValue.Stream(primitiveType, "<filePath>"),
-            InputTypeKind.Boolean => InputExampleValue.Value(primitiveType, true),
-            InputTypeKind.Date => InputExampleValue.Value(primitiveType, "2022-05-10"),
-            InputTypeKind.DateTime => InputExampleValue.Value(primitiveType, "2022-05-10T14:57:31.2311892-04:00"),
-            InputTypeKind.DateTimeISO8601 => InputExampleValue.Value(primitiveType, "2022-05-10T18:57:31.2311892Z"),
-            InputTypeKind.DateTimeRFC1123 => InputExampleValue.Value(primitiveType, "Tue, 10 May 2022 18:57:31 GMT"),
-            InputTypeKind.DateTimeRFC3339 => InputExampleValue.Value(primitiveType, "2022-05-10T18:57:31.2311892Z"),
-            InputTypeKind.DateTimeRFC7231 => InputExampleValue.Value(primitiveType, "Tue, 10 May 2022 18:57:31 GMT"),
-            InputTypeKind.DateTimeUnix => InputExampleValue.Value(primitiveType, 1652209051),
-            InputTypeKind.Float32 => InputExampleValue.Value(primitiveType, 123.45f),
-            InputTypeKind.Float64 => InputExampleValue.Value(primitiveType, 123.45d),
-            InputTypeKind.Float128 => InputExampleValue.Value(primitiveType, 123.45m),
-            InputTypeKind.Guid => InputExampleValue.Value(primitiveType, "73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"),
-            InputTypeKind.Int32 => InputExampleValue.Value(primitiveType, 1234),
-            InputTypeKind.Int64 => InputExampleValue.Value(primitiveType, 1234L),
-            InputTypeKind.String => string.IsNullOrWhiteSpace(hint) ? InputExampleValue.Value(primitiveType, "<String>") : InputExampleValue.Value(primitiveType, $"<{hint}>"),
-            InputTypeKind.DurationISO8601 => InputExampleValue.Value(primitiveType, "PT1H23M45S"),
-            InputTypeKind.DurationConstant => InputExampleValue.Value(primitiveType, "01:23:45"),
-            InputTypeKind.Time => InputExampleValue.Value(primitiveType, "01:23:45"),
-            InputTypeKind.Uri => InputExampleValue.Value(primitiveType, "http://localhost:3000"),
-            InputTypeKind.DurationSeconds => InputExampleValue.Value(primitiveType, 10),
-            InputTypeKind.DurationSecondsFloat => InputExampleValue.Value(primitiveType, 10f),
+            InputPrimitiveTypeKind.Stream => InputExampleValue.Stream(primitiveType, "<filePath>"),
+            InputPrimitiveTypeKind.Boolean => InputExampleValue.Value(primitiveType, true),
+            InputPrimitiveTypeKind.PlainDate => InputExampleValue.Value(primitiveType, "2022-05-10"),
+            InputPrimitiveTypeKind.Float32 => InputExampleValue.Value(primitiveType, 123.45f),
+            InputPrimitiveTypeKind.Float64 => InputExampleValue.Value(primitiveType, 123.45d),
+            InputPrimitiveTypeKind.Float128 => InputExampleValue.Value(primitiveType, 123.45m),
+            InputPrimitiveTypeKind.Guid or InputPrimitiveTypeKind.Uuid => InputExampleValue.Value(primitiveType, "73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"),
+            InputPrimitiveTypeKind.Int8 => InputExampleValue.Value(primitiveType, (sbyte)123),
+            InputPrimitiveTypeKind.UInt8 => InputExampleValue.Value(primitiveType, (byte)123),
+            InputPrimitiveTypeKind.Int32 => InputExampleValue.Value(primitiveType, 1234),
+            InputPrimitiveTypeKind.Int64 => InputExampleValue.Value(primitiveType, 1234L),
+            InputPrimitiveTypeKind.SafeInt => InputExampleValue.Value(primitiveType, 1234L),
+            InputPrimitiveTypeKind.String => string.IsNullOrWhiteSpace(hint) ? InputExampleValue.Value(primitiveType, "<String>") : InputExampleValue.Value(primitiveType, $"<{hint}>"),
+            InputPrimitiveTypeKind.PlainTime => InputExampleValue.Value(primitiveType, "01:23:45"),
+            InputPrimitiveTypeKind.Uri or InputPrimitiveTypeKind.Url => InputExampleValue.Value(primitiveType, "http://localhost:3000"),
             _ => InputExampleValue.Object(primitiveType, new Dictionary<string, InputExampleValue>())
+        };
+
+        private static InputExampleValue BuildDateTimeExampleValue(InputDateTimeType dateTimeType) => dateTimeType.Encode switch
+        {
+            DateTimeKnownEncoding.Rfc7231 => InputExampleValue.Value(dateTimeType.WireType, "Tue, 10 May 2022 18:57:31 GMT"),
+            DateTimeKnownEncoding.Rfc3339 => InputExampleValue.Value(dateTimeType.WireType, "2022-05-10T18:57:31.2311892Z"),
+            DateTimeKnownEncoding.UnixTimestamp => InputExampleValue.Value(dateTimeType.WireType, 1652209051),
+            _ => InputExampleValue.Null(dateTimeType)
+        };
+
+        private static InputExampleValue BuildDurationExampleValue(InputDurationType durationType) => durationType.Encode switch
+        {
+            DurationKnownEncoding.Iso8601 => InputExampleValue.Value(durationType.WireType, "PT1H23M45S"),
+            DurationKnownEncoding.Seconds => durationType.WireType.Kind switch
+            {
+                InputPrimitiveTypeKind.Int32 => InputExampleValue.Value(durationType.WireType, 10),
+                InputPrimitiveTypeKind.Float or InputPrimitiveTypeKind.Float32 => InputExampleValue.Value(durationType.WireType, 10f),
+                _ => InputExampleValue.Value(durationType.WireType, 3.141592)
+            },
+            _ => InputExampleValue.Null(durationType)
         };
 
         private static InputExampleValue BuildModelExampleValue(InputModelType model, bool useAllParameters, HashSet<InputModelType> visitedModels)
@@ -164,9 +186,9 @@ namespace Microsoft.Generator.CSharp.Input
             var result = InputExampleValue.Object(model, dict);
             visitedModels.Add(model);
             // if this model has a discriminator, we should return a derived type
-            if (model.DiscriminatorPropertyName != null)
+            if (model.DiscriminatorProperty != null)
             {
-                var derived = model.DerivedModels.FirstOrDefault();
+                var derived = model.DiscriminatedSubtypes.Values.FirstOrDefault();
                 if (derived is null)
                 {
                     return InputExampleValue.Null(model);

@@ -1,17 +1,17 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Input
 {
     public sealed class InputLiteralType : InputType
     {
-        public InputLiteralType(string name, InputType literalValueType, object value, bool isNullable) : base(name, isNullable)
+        public InputLiteralType(InputType valueType, object value) : base("Literal")
         {
-            LiteralValueType = literalValueType;
+            ValueType = valueType;
             Value = value;
         }
 
-        public InputType LiteralValueType { get; }
+        public InputType ValueType { get; }
         public object Value { get; }
     }
 }

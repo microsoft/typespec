@@ -4,7 +4,7 @@ title: "[F] normalizeSlashes"
 
 ---
 ```ts
-normalizeSlashes(path): string
+function normalizeSlashes(path): string
 ```
 
 Normalize path separators, converting `\` into `/`.

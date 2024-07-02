@@ -4,7 +4,7 @@ title: "[F] $includeInapplicableMetadataInPayload"
 
 ---
 ```ts
-$includeInapplicableMetadataInPayload(
+function $includeInapplicableMetadataInPayload(
    context, 
    entity, 
    value): void
@@ -19,8 +19,8 @@ decorator.
 | Parameter | Type | Description |
 | :------ | :------ | :------ |
 | `context` | `DecoratorContext` | - |
-| `entity` | `Type` | Target model, namespace, or model property. If applied to a<br />              model or namespace, applies recursively to child models,<br />              namespaces, and model properties unless overridden by<br />              applying this decorator to a child. |
-| `value` | `boolean` | `true` to include inapplicable metadata in payload, false to<br />              exclude it. |
+| `entity` | `Type` | <p>Target model, namespace, or model property. If applied to a</p><p>              model or namespace, applies recursively to child models,</p><p>              namespaces, and model properties unless overridden by</p><p>              applying this decorator to a child.</p> |
+| `value` | `boolean` | <p>`true` to include inapplicable metadata in payload, false to</p><p>              exclude it.</p> |
 
 ## Returns
 

@@ -86,6 +86,7 @@ export function run(
   const finalOptions: SpawnSyncOptionsWithStringEncoding = {
     encoding: "utf-8",
     stdio: "inherit",
+    shell: process.platform === "win32",
     ...(options ?? {}),
   };
 

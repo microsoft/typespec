@@ -4,7 +4,7 @@ title: "[F] setStatusCode"
 
 ---
 ```ts
-setStatusCode(
+function setStatusCode(
    program, 
    entity, 
    codes): void
@@ -15,7 +15,7 @@ setStatusCode(
 | Parameter | Type |
 | :------ | :------ |
 | `program` | `Program` |
-| `entity` | `ModelProperty` \| `Model` |
+| `entity` | `Model` \| `ModelProperty` |
 | `codes` | `string`[] |
 
 ## Returns

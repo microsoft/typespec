@@ -4,7 +4,7 @@ title: "[F] scopeNavigationToNamespace"
 
 ---
 ```ts
-scopeNavigationToNamespace<T>(
+function scopeNavigationToNamespace<T>(
    namespace, 
    listeners, 
    options): T
@@ -16,7 +16,7 @@ Scope the current navigation to the given namespace.
 
 | Type parameter |
 | :------ |
-| `T` extends `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` |
+| `T` *extends* `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` |
 
 ## Parameters
 

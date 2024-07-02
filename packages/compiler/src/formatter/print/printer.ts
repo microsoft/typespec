@@ -1,6 +1,11 @@
 import type { AstPath, Doc, Printer } from "prettier";
 import { builders } from "prettier/doc";
-import { isIdentifierContinue, isIdentifierStart, utf16CodeUnits } from "../../core/charcode.js";
+import {
+  CharCode,
+  isIdentifierContinue,
+  isIdentifierStart,
+  utf16CodeUnits,
+} from "../../core/charcode.js";
 import { compilerAssert } from "../../core/diagnostics.js";
 import { Keywords } from "../../core/scanner.js";
 import {
@@ -86,7 +91,19 @@ import { commentHandler } from "./comment-handler.js";
 import { needsParens } from "./needs-parens.js";
 import { DecorableNode, PrettierChildPrint, TypeSpecPrettierOptions } from "./types.js";
 import { util } from "./util.js";
-const { align, breakParent, group, hardline, ifBreak, indent, join, line, softline } = builders;
+const {
+  align,
+  breakParent,
+  group,
+  hardline,
+  ifBreak,
+  indent,
+  join,
+  line,
+  softline,
+  literalline,
+  markAsRoot,
+} = builders;
 
 const { isNextLineEmpty } = util as any;
 
@@ -362,6 +379,7 @@ export function printNode(
       return printDoc(path as AstPath<DocNode>, options, print);
     case SyntaxKind.DocText:
     case SyntaxKind.DocParamTag:
+    case SyntaxKind.DocPropTag:
     case SyntaxKind.DocTemplateTag:
     case SyntaxKind.DocReturnsTag:
     case SyntaxKind.DocErrorsTag:
@@ -682,13 +700,16 @@ function printCallOrDecoratorArgs(
   }
 
   // So that decorator with single object arguments have ( and { hugging.
-  // @deco({
+  // @deco(#{
   //   value: "foo"
   // })
   const shouldHug =
     node.arguments.length === 1 &&
     (node.arguments[0].kind === SyntaxKind.ModelExpression ||
-      node.arguments[0].kind === SyntaxKind.StringLiteral);
+      node.arguments[0].kind === SyntaxKind.ObjectLiteral ||
+      node.arguments[0].kind === SyntaxKind.ArrayLiteral ||
+      node.arguments[0].kind === SyntaxKind.StringLiteral ||
+      node.arguments[0].kind === SyntaxKind.StringTemplateExpression);
 
   if (shouldHug) {
     return [
@@ -1636,7 +1657,28 @@ function printStringLiteral(
   options: TypeSpecPrettierOptions
 ): Doc {
   const node = path.node;
-  return getRawText(node, options);
+  const multiline = isMultiline(node, options);
+
+  const raw = getRawText(node, options);
+  if (multiline) {
+    const lines = splitLines(raw.slice(3));
+    const whitespaceIndent = lines[lines.length - 1].length - 3;
+    const newLines = trimMultilineString(lines, whitespaceIndent);
+    return [`"""`, indent(markAsRoot(newLines))];
+  } else {
+    return raw;
+  }
+}
+
+function isMultiline(
+  node: StringLiteralNode | StringTemplateExpressionNode,
+  options: TypeSpecPrettierOptions
+) {
+  return (
+    options.originalText[node.pos] &&
+    options.originalText[node.pos + 1] === `"` &&
+    options.originalText[node.pos + 2] === `"`
+  );
 }
 
 function printNumberLiteral(
@@ -1870,14 +1912,79 @@ export function printStringTemplateExpression(
   print: PrettierChildPrint
 ) {
   const node = path.node;
-  const content = [
-    getRawText(node.head, options),
-    path.map((span: AstPath<StringTemplateSpanNode>) => {
-      const expression = span.call(print, "expression");
-      return [expression, getRawText(span.node.literal, options)];
-    }, "spans"),
-  ];
-  return content;
+  const multiline = isMultiline(node, options);
+  const rawHead = getRawText(node.head, options);
+  if (multiline) {
+    const lastSpan = node.spans[node.spans.length - 1];
+    const lastLines = splitLines(getRawText(lastSpan.literal, options));
+    const whitespaceIndent = lastLines[lastLines.length - 1].length - 3;
+    const content = [
+      trimMultilineString(splitLines(rawHead.slice(3)), whitespaceIndent),
+      path.map((span: AstPath<StringTemplateSpanNode>) => {
+        const expression = span.call(print, "expression");
+        const spanRawText = getRawText(span.node.literal, options);
+        const spanLines = splitLines(spanRawText);
+        return [
+          expression,
+          spanLines[0],
+          literalline,
+          trimMultilineString(spanLines.slice(1), whitespaceIndent),
+        ];
+      }, "spans"),
+    ];
+
+    return [`"""`, indent(markAsRoot([content]))];
+  } else {
+    const content = [
+      rawHead,
+      path.map((span: AstPath<StringTemplateSpanNode>) => {
+        const expression = span.call(print, "expression");
+        return [expression, getRawText(span.node.literal, options)];
+      }, "spans"),
+    ];
+    return content;
+  }
+}
+
+function splitLines(text: string): string[] {
+  const lines = [];
+  let start = 0;
+  let pos = 0;
+
+  while (pos < text.length) {
+    const ch = text.charCodeAt(pos);
+    switch (ch) {
+      case CharCode.CarriageReturn:
+        if (text.charCodeAt(pos + 1) === CharCode.LineFeed) {
+          lines.push(text.slice(start, pos));
+          start = pos;
+          pos++;
+        } else {
+          lines.push(text.slice(start, pos));
+          start = pos;
+        }
+        break;
+      case CharCode.LineFeed:
+        lines.push(text.slice(start, pos));
+        start = pos;
+        break;
+    }
+    pos++;
+  }
+
+  lines.push(text.slice(start));
+  return lines;
+}
+
+function trimMultilineString(lines: string[], whitespaceIndent: number): Doc[] {
+  const newLines = [];
+  for (let i = 0; i < lines.length; i++) {
+    newLines.push(lines[i].slice(whitespaceIndent));
+    if (i < lines.length - 1) {
+      newLines.push(literalline);
+    }
+  }
+  return newLines;
 }
 
 function printItemList<T extends Node>(

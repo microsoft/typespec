@@ -4,7 +4,7 @@ title: "[F] createRule"
 
 ---
 ```ts
-createRule<N, T>(definition): LinterRuleDefinition<N, T>
+function createRule<N, T>(definition): LinterRuleDefinition<N, T>
 ```
 
 Create a new linter rule.
@@ -13,8 +13,8 @@ Create a new linter rule.
 
 | Type parameter |
 | :------ |
-| `N` extends `string` |
-| `T` extends [`DiagnosticMessages`](../interfaces/DiagnosticMessages.md) |
+| `N` *extends* `string` |
+| `T` *extends* [`DiagnosticMessages`](../interfaces/DiagnosticMessages.md) |
 
 ## Parameters
 

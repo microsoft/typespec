@@ -4,7 +4,7 @@ title: "[F] $overload"
 
 ---
 ```ts
-$overload(
+function $overload(
    context, 
    target, 
    overloadbase): void

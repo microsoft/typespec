@@ -4,7 +4,7 @@ title: "[F] $bodyRoot"
 
 ---
 ```ts
-$bodyRoot(context, target): void
+function $bodyRoot(context, target): void
 ```
 
 ## Parameters

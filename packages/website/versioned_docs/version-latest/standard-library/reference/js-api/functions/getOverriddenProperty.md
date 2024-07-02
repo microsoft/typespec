@@ -4,7 +4,7 @@ title: "[F] getOverriddenProperty"
 
 ---
 ```ts
-getOverriddenProperty(property): ModelProperty | undefined
+function getOverriddenProperty(property): ModelProperty | undefined
 ```
 
 Gets the property from the nearest base type that is overridden by the

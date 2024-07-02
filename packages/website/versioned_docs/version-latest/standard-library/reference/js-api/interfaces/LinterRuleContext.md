@@ -7,7 +7,7 @@ title: "[I] LinterRuleContext"
 
 | Type parameter |
 | :------ |
-| `DM` extends [`DiagnosticMessages`](DiagnosticMessages.md) |
+| `DM` *extends* [`DiagnosticMessages`](DiagnosticMessages.md) |
 
 ## Properties
 
@@ -27,7 +27,7 @@ reportDiagnostic<M>(diag): void
 
 | Type parameter |
 | :------ |
-| `M` extends `string` \| `number` \| `symbol` |
+| `M` *extends* `string` \| `number` \| `symbol` |
 
 #### Parameters
 

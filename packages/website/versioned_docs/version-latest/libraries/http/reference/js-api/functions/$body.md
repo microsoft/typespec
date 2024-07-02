@@ -4,7 +4,7 @@ title: "[F] $body"
 
 ---
 ```ts
-$body(context, target): void
+function $body(context, target): void
 ```
 
 ## Parameters

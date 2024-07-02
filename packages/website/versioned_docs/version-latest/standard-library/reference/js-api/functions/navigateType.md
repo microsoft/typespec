@@ -4,7 +4,7 @@ title: "[F] navigateType"
 
 ---
 ```ts
-navigateType(
+function navigateType(
    type, 
    listeners, 
    options): void

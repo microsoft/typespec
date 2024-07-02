@@ -13,6 +13,7 @@ import {
   $minContains,
   $minProperties,
   $multipleOf,
+  $oneOf,
   $prefixItems,
   $uniqueItems,
 } from "@typespec/json-schema";
@@ -30,6 +31,7 @@ import type {
   MinContainsDecorator,
   MinPropertiesDecorator,
   MultipleOfDecorator,
+  OneOfDecorator,
   PrefixItemsDecorator,
   UniqueItemsDecorator,
 } from "./TypeSpec.JsonSchema.js";
@@ -38,6 +40,7 @@ type Decorators = {
   $jsonSchema: JsonSchemaDecorator;
   $baseUri: BaseUriDecorator;
   $id: IdDecorator;
+  $oneOf: OneOfDecorator;
   $multipleOf: MultipleOfDecorator;
   $contains: ContainsDecorator;
   $minContains: MinContainsDecorator;
@@ -57,6 +60,7 @@ const _: Decorators = {
   $jsonSchema,
   $baseUri,
   $id,
+  $oneOf,
   $multipleOf,
   $contains,
   $minContains,

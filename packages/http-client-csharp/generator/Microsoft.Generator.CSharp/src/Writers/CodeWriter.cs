@@ -2,151 +2,64 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Microsoft.CodeAnalysis.CSharp;
 using System.Linq;
 using System.Text;
-using System.Runtime.CompilerServices;
-using static Microsoft.Generator.CSharp.ValidationType;
-using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.CodeAnalysis;
-using static Microsoft.Generator.CSharp.Expressions.Snippets;
-using Microsoft.Generator.CSharp.Models;
+using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Statements;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp
 {
-    public sealed class CodeWriter
+    internal sealed partial class CodeWriter : IDisposable
     {
-        private const int DefaultLength = 1024;
-        private static readonly string _newLine = "\n";
-        private static readonly string _braceNewLine = "{\n";
+        private const char _newLine = '\n';
+        private const char _space = ' ';
 
         private readonly HashSet<string> _usingNamespaces = new HashSet<string>();
 
-        private readonly Stack<CodeWriterScope> _scopes;
+        private readonly Stack<CodeScope> _scopes;
         private string? _currentNamespace;
-        private char[] _builder;
-        private int _length;
+        private UnsafeBufferSequence _builder;
+        private bool _atBeginningOfLine;
         private bool _writingXmlDocumentation;
 
         internal CodeWriter()
         {
-            _builder = ArrayPool<char>.Shared.Rent(DefaultLength);
+            _builder = new UnsafeBufferSequence(1024);
 
-            _scopes = new Stack<CodeWriterScope>();
-            _scopes.Push(new CodeWriterScope(this, "", false));
+            _scopes = new Stack<CodeScope>();
+            _scopes.Push(new CodeScope(this, "", false, 0));
+            _atBeginningOfLine = true;
         }
 
-        public CodeWriterScope Scope(FormattableString line, string start = "{", string end = "}", bool newLine = true, CodeWriterScopeDeclarations? scopeDeclarations = null)
+        public CodeScope Scope(FormattableString line, string start = "{", string end = "}", bool newLine = true)
         {
-            ValidateDeclarations(scopeDeclarations);
-            CodeWriterScope codeWriterScope = new CodeWriterScope(this, end, newLine);
-            _scopes.Push(codeWriterScope);
+            CodeScope codeWriterScope = new CodeScope(this, end, newLine, _scopes.Peek().Depth + 1);
             WriteLine(line);
             WriteRawLine(start);
-            AddDeclarationsToScope(scopeDeclarations);
+            _scopes.Push(codeWriterScope);
             return codeWriterScope;
         }
 
-        public CodeWriterScope Scope()
+        public CodeScope Scope()
         {
             return ScopeRaw();
         }
 
-        private void ValidateDeclarations(CodeWriterScopeDeclarations? scopeDeclarations)
-        {
-            if (scopeDeclarations == null)
-            {
-                return;
-            }
-
-            foreach (var declarationName in scopeDeclarations.Names)
-            {
-                if (!IsAvailable(declarationName))
-                {
-                    throw new InvalidOperationException($"Variable with name '{declarationName}' is declared already.");
-                }
-            }
-        }
-
-        private void AddDeclarationsToScope(CodeWriterScopeDeclarations? scopeDeclarations)
-        {
-            if (scopeDeclarations == null)
-            {
-                return;
-            }
-
-            var currentScope = _scopes.Peek();
-
-            foreach (var declarationName in scopeDeclarations.Names)
-            {
-                foreach (var scope in _scopes)
-                {
-                    scope.AllDefinedIdentifiers.Add(declarationName);
-                }
-
-                currentScope.Identifiers.Add(declarationName);
-            }
-        }
-
-        private CodeWriterScope ScopeRaw(string start = "{", string end = "}", bool newLine = true)
+        internal CodeScope ScopeRaw(string start = "{", string end = "}", bool newLine = true)
         {
             WriteRawLine(start);
-            CodeWriterScope codeWriterScope = new CodeWriterScope(this, end, newLine);
+            CodeScope codeWriterScope = new CodeScope(this, end, newLine, _scopes.Peek().Depth + 1);
             _scopes.Push(codeWriterScope);
             return codeWriterScope;
         }
 
-        private static void AppendTypeWithShortNames(CSharpType type, StringBuilder sb)
-        {
-            sb.Append(type.TryGetCSharpFriendlyName(out var keywordName) ? keywordName : type.Name);
-
-            if (type.Arguments.Any())
-            {
-                sb.Append("{");
-                foreach (var typeArgument in type.Arguments)
-                {
-                    AppendTypeWithShortNames(typeArgument, sb);
-                    sb.Append(",");
-                }
-                sb.Remove(sb.Length - 1, 1);
-                sb.Append("}");
-            }
-
-            if (type is { IsNullable: true, IsValueType: true })
-            {
-                sb.Append("?");
-            }
-        }
-
-        private CodeWriter WriteXmlDocumentationParametersExceptions(Type exceptionType, IReadOnlyCollection<Parameter> parameters, string reason)
-        {
-            if (parameters.Count == 0)
-            {
-                return this;
-            }
-
-            var formatBuilder = new StringBuilder();
-            for (var i = 0; i < parameters.Count - 2; ++i)
-            {
-                formatBuilder.Append("<paramref name=\"{").Append(i).Append("}\"/>, ");
-            }
-
-            if (parameters.Count > 1)
-            {
-                formatBuilder.Append("<paramref name=\"{").Append(parameters.Count - 2).Append("}\"/> or ");
-            }
-
-            formatBuilder.Append("<paramref name=\"{").Append(parameters.Count - 1).Append("}\"/>");
-            formatBuilder.Append(reason);
-
-            var description = FormattableStringFactory.Create(formatBuilder.ToString(), parameters.Select(p => (object)p.Name).ToArray());
-            return WriteXmlDocumentationException(exceptionType, description);
-        }
-
-        public CodeWriterScope SetNamespace(string @namespace)
+        public CodeScope SetNamespace(string @namespace)
         {
             _currentNamespace = @namespace;
             WriteLine($"namespace {@namespace}");
@@ -228,7 +141,12 @@ namespace Microsoft.Generator.CSharp
                         expression.Write(this);
                         break;
                     case var _ when isLiteralFormat:
-                        WriteLiteral(argument);
+                        Literal(argument).Write(this);
+                        break;
+                    case DateTimeOffset dto:
+                        //windows and linux us different default dto ToString so we need to be explicit here
+                        //using 02/03/0001 04:05:06 +00:00
+                        AppendRaw(dto.ToString("MM/dd/yyyy HH:mm:ss zzz"));
                         break;
                     default:
                         string? s = argument?.ToString();
@@ -256,38 +174,65 @@ namespace Microsoft.Generator.CSharp
             return this;
         }
 
-        /// <summary>
-        /// A wrapper around <see cref="CodeWriterExtensionMethods.WriteMethod(CodeWriter, CSharpMethod)"/> to allow for writing method body statements.
-        /// This method will call the extension method <see cref="CodeWriterExtensionMethods.WriteMethod(CodeWriter, CSharpMethod)"/> of the plugin <see cref="CodeModelPlugin"/> with the current instance of <see cref="CodeWriter"/>
-        /// and attempt to write <paramref name="method"/>.
-        /// </summary>
-        /// <param name="method">The <see cref="CSharpMethod"/> to write.</param>
-        public void WriteMethod(CSharpMethod method)
+        public void WriteMethod(MethodProvider method)
         {
-            CodeModelPlugin.Instance.CodeWriterExtensionMethods.WriteMethod(this, method);
-        }
+            ArgumentNullException.ThrowIfNull(method, nameof(method));
 
-        public void WriteProperty(PropertyDeclaration property)
-        {
-            if (!CurrentLine.IsEmpty)
+            WriteXmlDocs(method.XmlDocs);
+
+            if (method.BodyStatements is { } body)
             {
-                WriteLine();
-            }
-
-            if (property.Description is not null)
-            {
-                WriteXmlDocumentationSummary(property.Description);
-            }
-
-            // TODO -- should write parameter xml doc if this is an IndexerDeclaration: https://github.com/microsoft/typespec/issues/3276
-
-            if (property.Exceptions is not null)
-            {
-                foreach (var (exceptionType, description) in property.Exceptions)
+                using (WriteMethodDeclaration(method.Signature))
                 {
-                    WriteXmlDocumentationException(exceptionType, description);
+                    body.Write(this);
                 }
             }
+            else if (method.BodyExpression is { } expression)
+            {
+                using (WriteMethodDeclarationNoScope(method.Signature))
+                {
+                    AppendRaw(" => ");
+                    expression.Write(this);
+                    WriteRawLine(";");
+                }
+            }
+        }
+
+        internal void WriteXmlDocs(XmlDocProvider? docs)
+        {
+            if (docs is null)
+                return;
+
+            if (docs.Inherit is not null)
+            {
+                docs.Inherit.Write(this);
+                return; //skip all other docs
+            }
+
+            if (docs.Summary is not null)
+            {
+                docs.Summary.Write(this);
+            }
+
+            foreach (var param in docs.Params)
+            {
+                param.Write(this);
+            }
+
+            foreach (var exception in docs.Exceptions)
+            {
+                exception.Write(this);
+            }
+
+            if (docs.Returns is not null)
+            {
+                docs.Returns.Write(this);
+            }
+        }
+
+        public void WriteProperty(PropertyProvider property)
+        {
+            WriteXmlDocs(property.XmlDocs);
 
             var modifiers = property.Modifiers;
             AppendRawIf("public ", modifiers.HasFlag(MethodSignatureModifiers.Public))
@@ -304,7 +249,7 @@ namespace Microsoft.Generator.CSharp
             {
                 Append($"{property.ExplicitInterface}.");
             }
-            if (property is IndexerDeclaration indexer)
+            if (property is IndexerProvider indexer)
             {
                 Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {indexer.IndexerParameter.Name}]");
             }
@@ -320,9 +265,10 @@ namespace Microsoft.Generator.CSharp
                     AppendRaw(";");
                     break;
                 case AutoPropertyBody(var hasSetter, var setterModifiers, var initialization):
-                    AppendRaw("{ get;");
+                    AppendRaw(" { get;");
                     if (hasSetter)
                     {
+                        AppendRaw(" ");
                         WritePropertyAccessorModifiers(setterModifiers);
                         AppendRaw("set;");
                     }
@@ -335,15 +281,16 @@ namespace Microsoft.Generator.CSharp
                     break;
                 case MethodPropertyBody(var getter, var setter, var setterModifiers):
                     WriteLine();
-                    WriteRawLine("{");
-                    // write getter
-                    WriteMethodPropertyAccessor("get", getter);
-                    // write setter
-                    if (setter is not null)
+                    using (ScopeRaw(newLine: false))
                     {
-                        WriteMethodPropertyAccessor("set", setter, setterModifiers);
+                        // write getter
+                        WriteMethodPropertyAccessor("get", getter);
+                        // write setter
+                        if (setter is not null)
+                        {
+                            WriteMethodPropertyAccessor("set", setter, setterModifiers);
+                        }
                     }
-                    AppendRaw("}");
                     break;
                 default:
                     throw new InvalidOperationException($"Unhandled property body type {property.Body}");
@@ -354,13 +301,11 @@ namespace Microsoft.Generator.CSharp
             void WriteMethodPropertyAccessor(string name, MethodBodyStatement body, MethodSignatureModifiers modifiers = MethodSignatureModifiers.None)
             {
                 WritePropertyAccessorModifiers(modifiers);
-                WriteRawLine(name);
-                WriteRawLine("{");
-                using (AmbientScope())
+                WriteLine($"{name}");
+                using (Scope())
                 {
                     body.Write(this);
                 }
-                WriteRawLine("}");
             }
 
             void WritePropertyAccessorModifiers(MethodSignatureModifiers modifiers)
@@ -401,43 +346,32 @@ namespace Microsoft.Generator.CSharp
             return this;
         }
 
-        public void WriteParameter(Parameter clientParameter)
+        public void WriteParameter(ParameterProvider parameter)
         {
-            if (clientParameter.Attributes.Any())
+            if (parameter.Attributes.Count > 0)
             {
-                AppendRaw("[");
-                foreach (var attribute in clientParameter.Attributes)
+                parameter.Attributes[0].Write(this);
+                for (int i = 1; i < parameter.Attributes.Count; i++)
                 {
-                    Append($"{attribute.Type}, ");
+                    AppendRaw(" ");
+                    parameter.Attributes[i].Write(this);
                 }
-                RemoveTrailingComma();
-                AppendRaw("]");
             }
 
-            AppendRawIf("out ", clientParameter.IsOut);
-            AppendRawIf("ref ", clientParameter.IsRef);
+            AppendRawIf("out ", parameter.IsOut);
+            AppendRawIf("ref ", parameter.IsRef);
 
-            Append($"{clientParameter.Type} {clientParameter.Name:D}");
-            if (clientParameter.DefaultValue != null)
+            Append($"{parameter.Type} {parameter.Name:D}");
+            if (parameter.DefaultValue != null)
             {
                 AppendRaw(" = ");
-                clientParameter.DefaultValue.Write(this);
+                parameter.DefaultValue.Write(this);
             }
-
-            AppendRaw(",");
         }
 
-        public CodeWriter WriteField(FieldDeclaration field)
+        public CodeWriter WriteField(FieldProvider field)
         {
-            if (!CurrentLine.IsEmpty)
-            {
-                WriteLine();
-            }
-
-            if (field.Description != null)
-            {
-                WriteXmlDocumentationSummary(field.Description);
-            }
+            WriteXmlDocs(field.XmlDocs);
 
             var modifiers = field.Modifiers;
 
@@ -446,7 +380,14 @@ namespace Microsoft.Generator.CSharp
                 .AppendRawIf("static ", modifiers.HasFlag(FieldModifiers.Static))
                 .AppendRawIf("readonly ", modifiers.HasFlag(FieldModifiers.ReadOnly));
 
-            Append($"{field.Type} {field.Name:I}");
+            if (field.Declaration.HasBeenDeclared)
+            {
+                Append($"{field.Type} {field.Declaration:I}");
+            }
+            else
+            {
+                Append($"{field.Type} {field.Declaration:D}");
+            }
 
             if (field.InitializationValue != null &&
                 (modifiers.HasFlag(FieldModifiers.Const) || modifiers.HasFlag(FieldModifiers.Static)))
@@ -456,259 +397,6 @@ namespace Microsoft.Generator.CSharp
             }
 
             return WriteLine($";");
-        }
-
-        public CodeWriter WriteParameterNullChecks(IReadOnlyCollection<Parameter> parameters)
-        {
-            foreach (Parameter parameter in parameters)
-            {
-                WriteVariableAssignmentWithNullCheck(parameter.Name, parameter);
-            }
-
-            WriteLine();
-            return this;
-        }
-
-        public void WriteVariableAssignmentWithNullCheck(string variableName, Parameter parameter)
-        {
-            var assignToSelf = parameter.Name == variableName;
-            if (parameter.Initializer != null)
-            {
-                if (assignToSelf)
-                {
-                    WriteLine($"{variableName:I} ??= {parameter.Initializer};");
-                }
-                else
-                {
-                    WriteLine($"{variableName:I} = {parameter.Name:I} ?? {parameter.Initializer};");
-                }
-            }
-            else if (parameter.Validation != ValidationType.None)
-            {
-                if (assignToSelf)
-                {
-                    using (Scope($"if ({parameter.Name:I} == null)"))
-                    {
-                        WriteLine($"throw new {typeof(ArgumentNullException)}(nameof({parameter.Name:I}));");
-                    }
-                }
-                else
-                {
-                    WriteLine($"{variableName:I} = {parameter.Name:I} ?? throw new {typeof(ArgumentNullException)}(nameof({parameter.Name:I}));");
-                }
-            }
-            else if (!assignToSelf)
-            {
-                WriteLine($"{variableName:I} = {parameter.Name:I};");
-            }
-        }
-
-        public CodeWriter WriteParametersValidation(IEnumerable<Parameter> parameters)
-        {
-            foreach (Parameter parameter in parameters)
-            {
-                WriteParameterValidation(parameter);
-            }
-
-            WriteLine();
-            return this;
-        }
-
-        private CodeWriter WriteParameterValidation(Parameter parameter)
-        {
-            if (parameter.Validation == None && parameter.Initializer != null)
-            {
-                return WriteLine($"{parameter.Name:I} ??= {parameter.Initializer};");
-            }
-
-            var validationStatement = Argument.ValidateParameter(parameter);
-
-            validationStatement.Write(this);
-
-            return this;
-        }
-
-        public CodeWriter WriteXmlDocumentationInheritDoc(CSharpType? crefType = null)
-            => crefType == null
-                ? WriteLine($"/// <inheritdoc />")
-                : WriteLine($"/// <inheritdoc cref=\"{crefType}\"/>");
-
-        public CodeWriter WriteXmlDocumentationSummary(FormattableString? text)
-        {
-            return WriteXmlDocumentation("summary", text);
-        }
-
-        public CodeWriter WriteXmlDocumentation(string tag, FormattableString? text)
-        {
-            return WriteDocumentationLines($"<{tag}>", $"</{tag}>", text);
-        }
-
-        public CodeWriter WriteXmlDocumentationParameters(IEnumerable<Parameter> parameters)
-        {
-            foreach (var parameter in parameters)
-            {
-                WriteXmlDocumentationParameter(parameter);
-            }
-
-            return this;
-        }
-
-        public CodeWriter WriteXmlDocumentationParameter(string name, FormattableString? text)
-        {
-            return WriteDocumentationLines($"<param name=\"{name}\">", $"</param>", text);
-        }
-
-        /// <summary>
-        /// Writes XML documentation for a parameter of a method using a "param" tag.
-        /// </summary>
-        /// <param name="writer">Writer to which code is written to.</param>
-        /// <param name="parameter">The definition of the parameter, including name and description.</param>
-        /// <returns></returns>
-        public CodeWriter WriteXmlDocumentationParameter(Parameter parameter)
-        {
-            return WriteXmlDocumentationParameter(parameter.Name, parameter.Description);
-        }
-
-        public CodeWriter WriteXmlDocumentationException(CSharpType exception, FormattableString? description)
-        {
-            return WriteDocumentationLines($"<exception cref=\"{exception}\">", $"</exception>", description);
-        }
-
-        public CodeWriter WriteXmlDocumentationReturns(FormattableString text)
-        {
-            return WriteDocumentationLines($"<returns>", $"</returns>", text);
-        }
-
-        internal CodeWriter WriteXmlDocumentationInclude(string filename, MethodSignature methodSignature, out string memberId)
-        {
-            var sb = new StringBuilder();
-            sb.Append(methodSignature.Name).Append("(");
-            foreach (var parameter in methodSignature.Parameters)
-            {
-                AppendTypeWithShortNames(parameter.Type, sb);
-                sb.Append(",");
-            }
-
-            sb.Remove(sb.Length - 1, 1);
-            sb.Append(")");
-
-            memberId = sb.ToString();
-            return WriteRawLine($"/// <include file=\"{filename}\" path=\"doc/members/member[@name='{memberId}']/*\" />");
-        }
-
-        public CodeWriter WriteXmlDocumentationRequiredParametersException(IEnumerable<Parameter> parameters)
-        {
-            return WriteXmlDocumentationParametersExceptions(typeof(ArgumentNullException), parameters.Where(p => p.Validation is AssertNotNull or AssertNotNullOrEmpty).ToArray(), " is null.");
-        }
-
-        public CodeWriter WriteXmlDocumentationNonEmptyParametersException(IEnumerable<Parameter> parameters)
-        {
-            return WriteXmlDocumentationParametersExceptions(typeof(ArgumentException), parameters.Where(p => p.Validation == AssertNotNullOrEmpty).ToArray(), " is an empty string, and was expected to be non-empty.");
-        }
-
-        public CodeWriter WriteDocumentationLines(FormattableString startTag, FormattableString endTag, FormattableString? text)
-            => AppendXmlDocumentation(startTag, endTag, text ?? $"");
-
-        internal CodeWriter WriteRawXmlDocumentation(FormattableString? content)
-        {
-            if (content is null)
-                return this;
-
-            var lines = content.ToString().Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-            var xmlLines = string.Join('\n', lines.Select(l => "/// " + l));
-            AppendRaw(xmlLines);
-            WriteLine();
-            return this;
-        }
-
-        internal CodeWriter AppendXmlDocumentation(FormattableString startTag, FormattableString endTag, FormattableString content)
-        {
-            const string xmlDoc = "/// ";
-            const string xmlDocNewLine = "\n/// ";
-
-            var commentStart = _length;
-            AppendRaw(CurrentLine.IsEmpty ? xmlDoc : xmlDocNewLine);
-
-            var startTagStart = _length;
-            Append(startTag);
-            _writingXmlDocumentation = true;
-
-            var contentStart = _length;
-            if (content.Format.Length > 0)
-            {
-                Append(content);
-            }
-            var contentEnd = _length;
-
-            _writingXmlDocumentation = false;
-            Append(endTag);
-
-            if (contentStart == contentEnd)
-            {
-                var startTagSpan = WrittenText.Slice(startTagStart + 1, contentStart - startTagStart - 1);
-                var endTagSpan = WrittenText.Slice(contentEnd + 2);
-
-                if (startTagSpan.SequenceEqual(endTagSpan))
-                {
-                    // Remove empty tags
-                    _length = commentStart;
-                }
-                else
-                {
-                    WriteLine();
-                }
-
-                return this;
-            }
-
-            WriteLine();
-            var contentSpan = _builder.AsSpan(contentStart, contentEnd - contentStart);
-
-            var lastLineBreak = contentSpan.LastIndexOf(_newLine);
-            if (lastLineBreak == -1)
-            {
-                // Add spaces and dot to match existing formatting
-                if (contentEnd > contentStart)
-                {
-                    if (contentSpan[^1] != ' ')
-                    {
-                        InsertRaw(contentSpan[^1] == '.' ? " " : ". ", contentEnd);
-                    }
-                    else
-                    {
-                        var trimmedContentSpan = contentSpan.TrimEnd();
-                        if (trimmedContentSpan[^1] != '.')
-                        {
-                            InsertRaw(".", contentStart + trimmedContentSpan.Length);
-                        }
-                    }
-
-                    if (contentSpan[0] != ' ')
-                    {
-                        InsertRaw(" ", contentStart);
-                    }
-                }
-                return this;
-            }
-
-            if (lastLineBreak != contentSpan.Length)
-            {
-                InsertRaw(xmlDocNewLine, contentEnd);
-            }
-
-            while (lastLineBreak != -1)
-            {
-                InsertRaw(xmlDoc, lastLineBreak + contentStart + 1);
-                contentSpan = contentSpan.Slice(0, lastLineBreak);
-                lastLineBreak = contentSpan.LastIndexOf(_newLine);
-            }
-
-            if (contentSpan.Length > 0)
-            {
-                InsertRaw(xmlDocNewLine, contentStart);
-            }
-
-            return this;
         }
 
         internal string GetTemporaryVariable(string s)
@@ -739,7 +427,7 @@ namespace Microsoft.Generator.CSharp
                 }
             }
 
-            foreach (CodeWriterScope codeWriterScope in _scopes)
+            foreach (CodeScope codeWriterScope in _scopes)
             {
                 if (codeWriterScope.Identifiers.Contains(s))
                 {
@@ -808,17 +496,28 @@ namespace Microsoft.Generator.CSharp
                         AppendTypeForCRef(argument);
                     }
 
-                    AppendRaw(",");
+                    if (i < arguments.Count - 1)
+                        AppendRaw(",");
                 }
-                RemoveTrailingComma();
             }
         }
 
         private void AppendType(CSharpType type, bool isDeclaration, bool writeTypeNameOnly)
         {
+            if (type.IsArray && type.FrameworkType.GetGenericArguments().Any())
+            {
+                AppendType(type.FrameworkType.GetElementType()!, isDeclaration, writeTypeNameOnly);
+                AppendRaw("[]");
+                return;
+            }
+
             if (type.TryGetCSharpFriendlyName(out var keywordName))
             {
                 AppendRaw(keywordName);
+                if (type.FrameworkType.IsGenericParameter && type.IsNullable)
+                {
+                    AppendRaw("?");
+                }
             }
             else if (isDeclaration && !type.IsFrameworkType)
             {
@@ -841,12 +540,14 @@ namespace Microsoft.Generator.CSharp
             if (type.Arguments.Any())
             {
                 AppendRaw(_writingXmlDocumentation ? "{" : "<");
-                foreach (var typeArgument in type.Arguments)
+                for (int i = 0; i < type.Arguments.Count; i++)
                 {
-                    AppendType(typeArgument, false, writeTypeNameOnly);
-                    AppendRaw(_writingXmlDocumentation ? "," : ", ");
+                    AppendType(type.Arguments[i], false, writeTypeNameOnly);
+                    if (i != type.Arguments.Count - 1)
+                    {
+                        AppendRaw(_writingXmlDocumentation ? "," : ", ");
+                    }
                 }
-                RemoveTrailingComma();
                 AppendRaw(_writingXmlDocumentation ? "}" : ">");
             }
 
@@ -856,140 +557,61 @@ namespace Microsoft.Generator.CSharp
             }
         }
 
-        public CodeWriter WriteLiteral(object? o)
-        {
-            return AppendRaw(o switch
-            {
-                null => "null",
-                string s => SyntaxFactory.Literal(s).ToString(),
-                int i => SyntaxFactory.Literal(i).ToString(),
-                long l => SyntaxFactory.Literal(l).ToString(),
-                decimal d => SyntaxFactory.Literal(d).ToString(),
-                double d => SyntaxFactory.Literal(d).ToString(),
-                float f => SyntaxFactory.Literal(f).ToString(),
-                char c => SyntaxFactory.Literal(c).ToString(),
-                bool b => b ? "true" : "false",
-                BinaryData bd => bd.ToArray().Length == 0 ? "new byte[] { }" : SyntaxFactory.Literal(bd.ToString()).ToString(),
-                _ => throw new NotImplementedException()
-            });
-        }
-
         public CodeWriter WriteLine(FormattableString formattableString)
         {
             Append(formattableString);
-            WriteLine();
-
-            return this;
+            return WriteLine();
         }
 
-        public CodeWriter WriteLine()
-        {
-            WriteRawLine(string.Empty);
-
-            return this;
-        }
-
-        private ReadOnlySpan<char> WrittenText => _builder.AsSpan(0, _length);
-
-        private ReadOnlySpan<char> PreviousLine
-        {
-            get
-            {
-                var writtenText = WrittenText;
-
-                var indexOfNewLine = writtenText.LastIndexOf(_newLine);
-                if (indexOfNewLine == -1)
-                {
-                    return Span<char>.Empty;
-                }
-
-                var writtenTextBeforeLastLine = writtenText.Slice(0, indexOfNewLine);
-                var indexOfPreviousNewLine = writtenTextBeforeLastLine.LastIndexOf(_newLine);
-                if (indexOfPreviousNewLine == -1)
-                {
-                    return writtenText.Slice(0, indexOfNewLine + 1);
-                }
-
-                return writtenText.Slice(indexOfPreviousNewLine + 1, indexOfNewLine - indexOfPreviousNewLine);
-            }
-        }
-
-        private ReadOnlySpan<char> CurrentLine
-        {
-            get
-            {
-                var writtenText = WrittenText;
-
-                var indexOfNewLine = writtenText.LastIndexOf(_newLine);
-                if (indexOfNewLine == -1)
-                {
-                    return writtenText;
-                }
-
-                return writtenText.Slice(indexOfNewLine + 1);
-            }
-        }
-
-        private void EnsureSpace(int space)
-        {
-            if (_builder.Length - _length < space)
-            {
-                var newBuilder = ArrayPool<char>.Shared.Rent(Math.Max(_builder.Length + space, _builder.Length * 2));
-                _builder.AsSpan().CopyTo(newBuilder);
-
-                ArrayPool<char>.Shared.Return(_builder);
-                _builder = newBuilder;
-            }
-        }
+        public CodeWriter WriteLine() => AppendRawChar(_newLine);
 
         public CodeWriter WriteRawLine(string str)
         {
             AppendRaw(str);
-
-            var previousLine = PreviousLine;
-
-            if (CurrentLine.IsEmpty &&
-                (previousLine.SequenceEqual(_newLine) || previousLine.EndsWith(_braceNewLine)))
-            {
-                return this;
-            }
-
-            AppendRaw(_newLine);
-
-            return this;
+            return WriteLine();
         }
 
         public CodeWriter AppendRaw(string str) => AppendRaw(str.AsSpan());
 
-        private CodeWriter AppendRaw(ReadOnlySpan<char> span) => InsertRaw(span, _length);
-
-        private CodeWriter InsertRaw(ReadOnlySpan<char> span, int position, bool skipNewLineCheck = false)
+        private CodeWriter AppendRawChar(char c)
         {
-            Debug.Assert(0 <= position);
-            Debug.Assert(position <= _length);
-
-            if (!skipNewLineCheck)
-            {
-                var newLineSpan = "\r\n".AsSpan();
-                var newLineIndex = span.IndexOf(newLineSpan);
-                while (newLineIndex != -1)
-                {
-                    InsertRaw(span.Slice(0, newLineIndex), position, skipNewLineCheck: true);
-                    position += newLineIndex;
-                    span = span.Slice(newLineIndex + 1);
-                    newLineIndex = span.IndexOf(newLineSpan);
-                }
-            }
-
-            EnsureSpace(span.Length);
-            if (position < _length)
-            {
-                Array.Copy(_builder, position, _builder, span.Length + position, _length - position);
-            }
-
-            span.CopyTo(_builder.AsSpan(position));
-            _length += span.Length;
+            var destination = _builder.GetSpan(1);
+            destination[0] = c;
+            _builder.Advance(1);
+            _atBeginningOfLine = true;
             return this;
+        }
+
+        private CodeWriter AppendRaw(ReadOnlySpan<char> span)
+        {
+            if (span.Length == 0 )
+                return this;
+
+            AddSpaces(span);
+
+            var destination = _builder.GetSpan(span.Length);
+            span.CopyTo(destination);
+            _builder.Advance(span.Length);
+
+            _atBeginningOfLine = span[span.Length - 1] == _newLine;
+            return this;
+        }
+
+        private void AddSpaces(ReadOnlySpan<char> span)
+        {
+            // pre-processor directives do not need indentation
+            if (span[0] == '#')
+            {
+                return;
+            }
+
+            int spaces = _atBeginningOfLine ? (_scopes.Peek().Depth) * 4 : 0;
+            if (spaces == 0)
+                return;
+
+            var destination = _builder.GetSpan(spaces);
+            destination.Slice(0, spaces).Fill(_space);
+            _builder.Advance(spaces);
         }
 
         internal CodeWriter WriteIdentifier(string identifier)
@@ -1021,7 +643,6 @@ namespace Microsoft.Generator.CSharp
             }
 
             declaration.SetActualName(GetTemporaryVariable(declaration.RequestedName));
-            _scopes.Peek().Declarations.Add(declaration);
             return WriteDeclaration(declaration.ActualName);
         }
 
@@ -1039,25 +660,9 @@ namespace Microsoft.Generator.CSharp
 
         public IDisposable WriteMethodDeclarationNoScope(MethodSignatureBase methodBase, params string[] disabledWarnings)
         {
-            if (methodBase.Attributes is { } attributes)
+            foreach (var attribute in methodBase.Attributes)
             {
-                foreach (var attribute in attributes)
-                {
-                    if (attribute.Arguments.Any())
-                    {
-                        Append($"[{attribute.Type}(");
-                        foreach (var argument in attribute.Arguments)
-                        {
-                            argument.Write(this);
-                        }
-                        RemoveTrailingComma();
-                        WriteRawLine(")]");
-                    }
-                    else
-                    {
-                        WriteLine($"[{attribute.Type}]");
-                    }
-                }
+                attribute.Write(this);
             }
 
             foreach (var disabledWarning in disabledWarnings)
@@ -1078,13 +683,26 @@ namespace Microsoft.Generator.CSharp
                     .AppendRawIf("new ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.New))
                     .AppendRawIf("async ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Async));
 
-                if (method.ReturnType != null)
+                var isImplicitOrExplicit = methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Implicit) || methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
+                if (!isImplicitOrExplicit)
                 {
-                    Append($"{method.ReturnType} ");
+                    if (method.ReturnType != null)
+                    {
+                        Append($"{method.ReturnType} ");
+                    }
+                    else
+                    {
+                        AppendRaw("void ");
+                    }
                 }
-                else
+
+                AppendRawIf("implicit ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Implicit))
+                    .AppendRawIf("explicit ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Explicit))
+                    .AppendRawIf("operator ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Operator));
+
+                if (isImplicitOrExplicit)
                 {
-                    AppendRaw("void ");
+                    AppendIf($"{method.ReturnType}", method.ReturnType is not null);
                 }
 
                 if (method.ExplicitInterface is not null)
@@ -1097,11 +715,14 @@ namespace Microsoft.Generator.CSharp
                 if (method?.GenericArguments != null)
                 {
                     AppendRaw("<");
-                    foreach (var argument in method.GenericArguments)
+                    for (int i = 0; i < method.GenericArguments.Count; i++)
                     {
-                        Append($"{argument:D},");
+                        Append($"{method.GenericArguments[i]}");
+                        if (i != method.GenericArguments.Count - 1)
+                        {
+                            AppendRaw(", ");
+                        }
                     }
-                    RemoveTrailingComma();
                     AppendRaw(">");
                 }
             }
@@ -1115,21 +736,25 @@ namespace Microsoft.Generator.CSharp
 
             var outerScope = AmbientScope();
 
-            foreach (var parameter in methodBase.Parameters)
+            for (int i = 0; i < methodBase.Parameters.Count; i++)
             {
-                WriteParameter(parameter);
+                WriteParameter(methodBase.Parameters[i]);
+                if (i != methodBase.Parameters.Count - 1)
+                {
+                    AppendRaw(", ");
+                }
             }
-
-            RemoveTrailingComma();
             Append($")");
 
             if (methodBase is MethodSignature { GenericParameterConstraints: { } constraints })
             {
-                WriteLine();
-                foreach (var constraint in constraints)
+                using (ScopeRaw(string.Empty, string.Empty, false))
                 {
-                    constraint.Write(this);
-                    AppendRaw(" ");
+                    foreach (var constraint in constraints)
+                    {
+                        constraint.Write(this);
+                        AppendRaw(" ");
+                    }
                 }
             }
 
@@ -1140,12 +765,16 @@ namespace Microsoft.Generator.CSharp
                 if (!isBase || arguments.Any())
                 {
                     AppendRaw(isBase ? ": base(" : ": this(");
-                    foreach (var argument in arguments)
+                    var iterator = arguments.GetEnumerator();
+                    if (iterator.MoveNext())
                     {
-                        argument.Write(this);
-                        AppendRaw(", ");
+                        iterator.Current.Write(this);
+                        while (iterator.MoveNext())
+                        {
+                            AppendRaw(", ");
+                            iterator.Current.Write(this);
+                        }
                     }
-                    RemoveTrailingComma();
                     AppendRaw(")");
                 }
             }
@@ -1166,17 +795,18 @@ namespace Microsoft.Generator.CSharp
 
         public string ToString(bool header)
         {
-            if (_length == 0)
-            {
+            var reader = _builder.ExtractReader();
+            var totalLength = reader.Length;
+            if (totalLength == 0)
                 return string.Empty;
-            }
-            var builder = new StringBuilder(_length);
+
+            var builder = new StringBuilder((int)totalLength);
             IEnumerable<string> namespaces = _usingNamespaces
                 .OrderByDescending(ns => ns.StartsWith("System"))
                 .ThenBy(ns => ns, StringComparer.Ordinal);
             if (header)
             {
-                string licenseString = CodeModelPlugin.Instance.CodeWriterExtensionMethods.LicenseString;
+                string licenseString = CodeModelPlugin.Instance.LicenseString;
                 if (!string.IsNullOrEmpty(licenseString))
                 {
                     builder.Append(licenseString);
@@ -1201,127 +831,33 @@ namespace Microsoft.Generator.CSharp
                 }
             }
 
-            // Normalize newlines
-            var spanLines = _builder.AsSpan(0, _length).EnumerateLines();
-            int lineCount = 0;
-            foreach (var line in spanLines)
-            {
-                builder.Append(line.TrimEnd());
-                builder.Append(_newLine);
-                lineCount++;
-            }
-            // Remove last new line if there are more than 1
-            if (lineCount > 1)
-            {
-                builder.Remove(builder.Length - _newLine.Length, _newLine.Length);
-            }
+            reader.CopyTo(builder, default);
             return builder.ToString();
         }
 
-        public sealed class CodeWriterScope : IDisposable
-        {
-            private readonly CodeWriter _writer;
-            private readonly string? _end;
-            private readonly bool _newLine;
-
-            internal HashSet<string> Identifiers { get; } = new();
-
-            internal HashSet<string> AllDefinedIdentifiers { get; } = new();
-
-            internal List<CodeWriterDeclaration> Declarations { get; } = new();
-
-            internal CodeWriterScope(CodeWriter writer, string? end, bool newLine)
-            {
-                _writer = writer;
-                _end = end;
-                _newLine = newLine;
-            }
-
-            public void Dispose()
-            {
-                if (_writer != null)
-                {
-                    _writer.PopScope(this);
-                    foreach (var declaration in Declarations)
-                    {
-                        declaration.SetActualName(null);
-                    }
-
-                    Declarations.Clear();
-
-                    if (_end != null)
-                    {
-                        _writer.TrimNewLines();
-                        _writer.AppendRaw(_end);
-                    }
-
-                    if (_newLine)
-                    {
-                        _writer.WriteLine();
-                    }
-                }
-            }
-        }
-
-        private void TrimNewLines()
-        {
-            while (PreviousLine.SequenceEqual(_newLine) &&
-                CurrentLine.IsEmpty)
-            {
-                _length--;
-            }
-        }
-
-        private void PopScope(CodeWriterScope expected)
+        private void PopScope(CodeScope expected)
         {
             var actual = _scopes.Pop();
             Debug.Assert(actual == expected);
         }
 
-        private int? FindLastNonWhitespaceCharacterIndex()
+        public CodeScope AmbientScope()
         {
-            var text = WrittenText;
-            for (int i = text.Length - 1; i >= 0; i--)
-            {
-                if (char.IsWhiteSpace(text[i]))
-                {
-                    continue;
-                }
-
-                return i;
-            }
-
-            return null;
-        }
-
-        public void RemoveTrailingCharacter()
-        {
-            int? lastCharIndex = FindLastNonWhitespaceCharacterIndex();
-            if (lastCharIndex.HasValue)
-            {
-                _length = lastCharIndex.Value;
-            }
-        }
-
-        public void RemoveTrailingComma()
-        {
-            int? lastCharIndex = FindLastNonWhitespaceCharacterIndex();
-            if (lastCharIndex.HasValue && WrittenText[lastCharIndex.Value] == ',')
-            {
-                _length = lastCharIndex.Value;
-            }
-        }
-
-        public CodeWriterScope AmbientScope()
-        {
-            var codeWriterScope = new CodeWriterScope(this, null, false);
+            var codeWriterScope = new CodeScope(this, null, false, _scopes.Peek().Depth);
             _scopes.Push(codeWriterScope);
             return codeWriterScope;
         }
 
         internal void Append(CodeWriterDeclaration declaration)
         {
-            WriteIdentifier(declaration.ActualName);
+            if (declaration.HasBeenDeclared)
+            {
+                WriteIdentifier(declaration.ActualName);
+            }
+            else
+            {
+                WriteDeclaration(declaration);
+            }
         }
 
         internal void WriteTypeModifiers(TypeSignatureModifiers modifiers)
@@ -1329,25 +865,35 @@ namespace Microsoft.Generator.CSharp
             AppendRawIf("public ", modifiers.HasFlag(TypeSignatureModifiers.Public))
                 .AppendRawIf("internal ", modifiers.HasFlag(TypeSignatureModifiers.Internal))
                 .AppendRawIf("private ", modifiers.HasFlag(TypeSignatureModifiers.Private))
+                .AppendRawIf("readonly ", modifiers.HasFlag(TypeSignatureModifiers.ReadOnly))
                 .AppendRawIf("static ", modifiers.HasFlag(TypeSignatureModifiers.Static))
                 .AppendRawIf("sealed ", modifiers.HasFlag(TypeSignatureModifiers.Sealed))
                 .AppendRawIf("partial ", modifiers.HasFlag(TypeSignatureModifiers.Partial)); // partial must be the last to write otherwise compiler will complain
+
+            AppendRawIf("class ", modifiers.HasFlag(TypeSignatureModifiers.Class))
+                .AppendRawIf("struct ", modifiers.HasFlag(TypeSignatureModifiers.Struct))
+                .AppendRawIf("enum ", modifiers.HasFlag(TypeSignatureModifiers.Enum))
+                .AppendRawIf("interface ", modifiers.HasFlag(TypeSignatureModifiers.Interface));
         }
 
         public void WriteTypeArguments(IEnumerable<CSharpType>? typeArguments)
         {
-            if (typeArguments is null)
+            if (typeArguments is null || !typeArguments.Any())
             {
                 return;
             }
 
             AppendRaw("<");
-            foreach (var argument in typeArguments)
+            var iterator = typeArguments.GetEnumerator();
+            if (iterator.MoveNext())
             {
-                Append($"{argument}, ");
+                Append($"{iterator.Current}");
+                while (iterator.MoveNext())
+                {
+                    AppendRaw(", ");
+                    Append($"{iterator.Current}");
+                }
             }
-
-            RemoveTrailingComma();
             AppendRaw(">");
         }
 
@@ -1356,29 +902,41 @@ namespace Microsoft.Generator.CSharp
             if (useSingleLine)
             {
                 AppendRaw("(");
-                foreach (var argument in arguments)
+                var iterator = arguments.GetEnumerator();
+                if (iterator.MoveNext())
                 {
-                    argument.Write(this);
-                    AppendRaw(", ");
+                    iterator.Current.Write(this);
+                    while (iterator.MoveNext())
+                    {
+                        AppendRaw(", ");
+                        iterator.Current.Write(this);
+                    }
                 }
-
-                RemoveTrailingComma();
                 AppendRaw(")");
             }
             else
             {
-                WriteRawLine("(");
-                foreach (var argument in arguments)
+                AppendRaw("(");
+                var iterator = arguments.GetEnumerator();
+                if (iterator.MoveNext())
                 {
-                    AppendRaw("\t");
-                    argument.Write(this);
-                    WriteRawLine(",");
+                    using (ScopeRaw(string.Empty, string.Empty, false))
+                    {
+                        iterator.Current.Write(this);
+                        while (iterator.MoveNext())
+                        {
+                            WriteRawLine(",");
+                            iterator.Current.Write(this);
+                        }
+                    }
                 }
-
-                RemoveTrailingCharacter();
-                RemoveTrailingComma();
                 AppendRaw(")");
             }
+        }
+
+        public void Dispose()
+        {
+            _builder?.Dispose();
         }
     }
 }

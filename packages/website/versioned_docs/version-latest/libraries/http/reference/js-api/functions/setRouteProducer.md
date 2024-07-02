@@ -4,7 +4,7 @@ title: "[F] setRouteProducer"
 
 ---
 ```ts
-setRouteProducer(
+function setRouteProducer(
    program, 
    operation, 
    routeProducer): void

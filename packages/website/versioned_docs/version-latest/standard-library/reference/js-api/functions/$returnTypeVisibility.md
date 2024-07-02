@@ -4,7 +4,7 @@ title: "[F] $returnTypeVisibility"
 
 ---
 ```ts
-$returnTypeVisibility(
+function $returnTypeVisibility(
    context, 
    target, ...
    visibilities): void

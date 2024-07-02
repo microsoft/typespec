@@ -4,7 +4,7 @@ title: "[F] interpolatePath"
 
 ---
 ```ts
-interpolatePath(pathTemplate, predefinedVariables): string
+function interpolatePath(pathTemplate, predefinedVariables): string
 ```
 
 Interpolate a path template

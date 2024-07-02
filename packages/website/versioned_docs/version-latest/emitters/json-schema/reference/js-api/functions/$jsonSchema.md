@@ -4,7 +4,7 @@ title: "[F] $jsonSchema"
 
 ---
 ```ts
-$jsonSchema(
+function $jsonSchema(
    context, 
    target, 
    baseUri?): void

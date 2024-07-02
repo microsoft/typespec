@@ -1,5 +1,5 @@
 import { mergeClasses } from "@fluentui/react-components";
-import { ReactNode, useState } from "react";
+import { useState, type ReactNode } from "react";
 import style from "./split-pane.module.css";
 
 export interface SashProps {

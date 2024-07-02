@@ -4,7 +4,7 @@ title: "[F] resolveOptions"
 
 ---
 ```ts
-resolveOptions(context): ResolvedOpenAPI3EmitterOptions
+function resolveOptions(context): ResolvedOpenAPI3EmitterOptions
 ```
 
 ## Parameters

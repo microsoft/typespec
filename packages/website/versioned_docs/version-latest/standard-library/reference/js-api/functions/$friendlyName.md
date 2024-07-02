@@ -4,7 +4,7 @@ title: "[F] $friendlyName"
 
 ---
 ```ts
-$friendlyName(
+function $friendlyName(
    context, 
    target, 
    name, 

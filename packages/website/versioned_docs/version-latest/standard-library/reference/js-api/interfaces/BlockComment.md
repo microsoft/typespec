@@ -11,7 +11,7 @@ title: "[I] BlockComment"
 
 | Property | Modifier | Type | Description | Inherited from |
 | :------ | :------ | :------ | :------ | :------ |
-| `end` | `readonly` | `number` | The ending position measured in UTF-16 code units from the start of the<br />full string. Exclusive. | [`TextRange`](TextRange.md).`end` |
+| `end` | `readonly` | `number` | The ending position measured in UTF-16 code units from the start of the full string. Exclusive. | [`TextRange`](TextRange.md).`end` |
 | `kind` | `readonly` | `BlockComment` | - | - |
 | `parsedAsDocs?` | `readonly` | `boolean` | If that comment was parsed as a doc comment. If parserOptions.docs=false this will always be false. | - |
-| `pos` | `readonly` | `number` | The starting position of the ranger measured in UTF-16 code units from the<br />start of the full string. Inclusive. | [`TextRange`](TextRange.md).`pos` |
+| `pos` | `readonly` | `number` | The starting position of the ranger measured in UTF-16 code units from the start of the full string. Inclusive. | [`TextRange`](TextRange.md).`pos` |

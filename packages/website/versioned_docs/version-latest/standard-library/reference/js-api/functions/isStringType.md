@@ -4,7 +4,7 @@ title: "[F] isStringType"
 
 ---
 ```ts
-isStringType(program, target): target is Scalar
+function isStringType(program, target): target is Scalar
 ```
 
 ## Parameters

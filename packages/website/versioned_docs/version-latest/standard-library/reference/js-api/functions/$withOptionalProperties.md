@@ -4,7 +4,7 @@ title: "[F] $withOptionalProperties"
 
 ---
 ```ts
-$withOptionalProperties(context, target): void
+function $withOptionalProperties(context, target): void
 ```
 
 ## Parameters

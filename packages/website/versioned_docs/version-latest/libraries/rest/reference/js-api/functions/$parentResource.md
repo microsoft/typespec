@@ -4,7 +4,7 @@ title: "[F] $parentResource"
 
 ---
 ```ts
-$parentResource(
+function $parentResource(
    context, 
    target, 
    parent): void

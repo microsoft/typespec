@@ -10,6 +10,6 @@ title: "[I] ServerHost"
 | `applyEdit` | `readonly` | (`paramOrEdit`: `WorkspaceEdit` \| `ApplyWorkspaceEditParams`) => `Promise`<`ApplyWorkspaceEditResult`\> |
 | `compilerHost` | `readonly` | [`CompilerHost`](CompilerHost.md) |
 | `getOpenDocumentByURL` | `readonly` | (`url`: `string`) => `undefined` \| `TextDocument` |
-| `log` | `readonly` | (`message`: `string`) => `void` |
+| `log` | `readonly` | (`log`: [`ServerLog`](ServerLog.md)) => `void` |
 | `sendDiagnostics` | `readonly` | (`params`: `PublishDiagnosticsParams`) => `void` |
 | `throwInternalErrors?` | `readonly` | `boolean` |

@@ -4,7 +4,7 @@ title: "[F] getProperty"
 
 ---
 ```ts
-getProperty(type, propertyName): ModelProperty | undefined
+function getProperty(type, propertyName): ModelProperty | undefined
 ```
 
 ## Parameters

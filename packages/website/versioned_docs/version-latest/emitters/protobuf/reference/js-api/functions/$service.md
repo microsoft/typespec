@@ -4,7 +4,7 @@ title: "[F] $service"
 
 ---
 ```ts
-$service(ctx, target): void
+function $service(ctx, target): void
 ```
 
 Decorate an interface as a service, indicating that it represents a Protobuf `service` declaration.

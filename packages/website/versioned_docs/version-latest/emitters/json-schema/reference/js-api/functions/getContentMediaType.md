@@ -4,7 +4,7 @@ title: "[F] getContentMediaType"
 
 ---
 ```ts
-getContentMediaType(program, target): string
+function getContentMediaType(program, target): string
 ```
 
 ## Parameters

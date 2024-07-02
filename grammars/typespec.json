@@ -228,7 +228,7 @@
     },
     "doc-comment-param": {
       "name": "comment.block.tsp",
-      "match": "(?x)((@)(?:param|template))\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)\\b",
+      "match": "(?x)((@)(?:param|template|prop))\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)\\b",
       "captures": {
         "1": {
           "name": "keyword.tag.tspdoc"

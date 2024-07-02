@@ -4,7 +4,7 @@ title: "[F] getDeprecationDetails"
 
 ---
 ```ts
-getDeprecationDetails(program, typeOrNode): DeprecationDetails | undefined
+function getDeprecationDetails(program, typeOrNode): DeprecationDetails | undefined
 ```
 
 Returns complete deprecation details for the given type or node

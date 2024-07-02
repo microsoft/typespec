@@ -13,8 +13,8 @@ Resolved instance of a linter rule that will run.
 
 | Type parameter |
 | :------ |
-| `N` extends `string` |
-| `DM` extends [`DiagnosticMessages`](DiagnosticMessages.md) |
+| `N` *extends* `string` |
+| `DM` *extends* [`DiagnosticMessages`](DiagnosticMessages.md) |
 
 ## Properties
 

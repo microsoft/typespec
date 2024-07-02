@@ -4,7 +4,7 @@ title: "[F] getMinContains"
 
 ---
 ```ts
-getMinContains(program, target): any
+function getMinContains(program, target): any
 ```
 
 ## Parameters

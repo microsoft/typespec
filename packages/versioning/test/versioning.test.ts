@@ -1,28 +1,29 @@
 import {
-  Enum,
-  Interface,
-  IntrinsicType,
-  Model,
-  Namespace,
-  Operation,
-  Program,
-  ProjectionApplication,
-  Scalar,
-  Type,
-  Union,
   projectProgram,
+  type Enum,
+  type Interface,
+  type IntrinsicType,
+  type Model,
+  type Namespace,
+  type Operation,
+  type Program,
+  type ProjectionApplication,
+  type Scalar,
+  type Type,
+  type Union,
 } from "@typespec/compiler";
 import {
-  BasicTestRunner,
   createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  type BasicTestRunner,
 } from "@typespec/compiler/testing";
 import { deepStrictEqual, fail, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { Version } from "../src/types.js";
+import { buildVersionProjections, indexTimeline } from "../src/projection.js";
+import type { Version } from "../src/types.js";
 import { VersioningTimeline } from "../src/versioning-timeline.js";
-import { buildVersionProjections, getVersions, indexTimeline } from "../src/versioning.js";
+import { getVersions } from "../src/versioning.js";
 import { createVersioningTestHost } from "./test-host.js";
 import {
   assertHasMembers,
@@ -247,6 +248,37 @@ describe("versioning: logic", () => {
       );
     });
 
+    it("can be added after parent", async () => {
+      const {
+        source,
+        projections: [v1, v2],
+      } = await versionedModel(
+        ["v1", "v2"],
+        `@added(Versions.v1)
+        model Test {
+          a: int32;
+          @added(Versions.v2)
+          b: NewThing;
+        }
+
+        @added(Versions.v2)
+        model NewThing {
+          val: string;
+        }
+        `
+      );
+      assertHasProperties(v1, ["a"]);
+      assertHasProperties(v2, ["a", "b"]);
+
+      assertModelProjectsTo(
+        [
+          [v1, "v1"],
+          [v2, "v2"],
+        ],
+        source
+      );
+    });
+
     it("can be removed", async () => {
       const {
         source,
@@ -270,6 +302,65 @@ describe("versioning: logic", () => {
       assertHasProperties(v2, ["a", "c", "nested"]);
       assertHasProperties(v2.properties.get("nested")!.type as Model, ["d"]);
       assertHasProperties(v3, ["a"]);
+      assertModelProjectsTo(
+        [
+          [v1, "v1"],
+          [v2, "v2"],
+          [v3, "v3"],
+        ],
+        source
+      );
+    });
+
+    it("can be removed respecting model versioning with explicit versions", async () => {
+      const {
+        source,
+        projections: [v2, v3, v4],
+      } = await versionedModel(
+        ["v2", "v3", "v4"],
+        `@added(Versions.v2)
+        model Test {
+          a: int32;
+          @removed(Versions.v3)
+          @added(Versions.v4)
+          b: int32;
+        }
+        `
+      );
+
+      assertHasProperties(v2, ["a", "b"]);
+      assertHasProperties(v3, ["a"]);
+      assertHasProperties(v4, ["a", "b"]);
+
+      assertModelProjectsTo(
+        [
+          [v2, "v2"],
+          [v3, "v3"],
+          [v4, "v4"],
+        ],
+        source
+      );
+    });
+
+    it("can be removed respecting model versioning with implicit versions", async () => {
+      const {
+        source,
+        projections: [v1, v2, v3],
+      } = await versionedModel(
+        ["v1", "v2", "v3"],
+        `model Test {
+          a: int32;
+          @removed(Versions.v2)
+          @added(Versions.v3)
+          b: int32;
+        }
+        `
+      );
+
+      assertHasProperties(v1, ["a", "b"]);
+      assertHasProperties(v2, ["a"]);
+      assertHasProperties(v3, ["a", "b"]);
+
       assertModelProjectsTo(
         [
           [v1, "v1"],
@@ -1360,6 +1451,34 @@ describe("versioning: logic", () => {
         [
           [v1, "v1"],
           [v2, "v2"],
+        ],
+        source
+      );
+    });
+
+    it("can be removed respecting interface versioning", async () => {
+      const {
+        source,
+        projections: [v2, v3, v4],
+      } = await versionedInterface(
+        ["v2", "v3", "v4"],
+        `@added(Versions.v2)
+        interface Test {
+          allVersions(): void;
+          @removed(Versions.v3) 
+          @added(Versions.v4)
+          foo(): void;
+        }
+        `
+      );
+      assertHasOperations(v2, ["allVersions", "foo"]);
+      assertHasOperations(v3, ["allVersions"]);
+      assertHasOperations(v4, ["allVersions", "foo"]);
+      assertInterfaceProjectsTo(
+        [
+          [v2, "v2"],
+          [v3, "v3"],
+          [v4, "v4"],
         ],
         source
       );

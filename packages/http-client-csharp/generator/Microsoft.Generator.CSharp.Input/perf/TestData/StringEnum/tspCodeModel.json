@@ -1,0 +1,60 @@
+{
+  "Enums": [
+    {
+      "$id": "14",
+      "Kind": "Enum",
+      "Name": "StringFixedEnum",
+      "EnumValueType": "String",
+      "AllowedValues": [
+        {
+          "$id": "15",
+          "Name": "One",
+          "Value": "1"
+        },
+        {
+          "$id": "16",
+          "Name": "Two",
+          "Value": "2"
+        },
+        {
+          "$id": "17",
+          "Name": "Four",
+          "Value": "4"
+        }
+      ],
+      "Namespace": "",
+      "Description": "Simple enum",
+      "IsExtensible": false,
+      "IsNullable": true,
+      "Usage": "RoundTrip"
+    },
+    {
+      "$id": "18",
+      "Kind": "Enum",
+      "Name": "StringExtensibleEnum",
+      "EnumValueType": "String",
+      "AllowedValues": [
+        {
+          "$id": "19",
+          "Name": "One",
+          "Value": "1"
+        },
+        {
+          "$id": "20",
+          "Name": "Two",
+          "Value": "2"
+        },
+        {
+          "$id": "21",
+          "Name": "Four",
+          "Value": "4"
+        }
+      ],
+      "Namespace": "",
+      "Description": "Extensible enum",
+      "IsExtensible": true,
+      "IsNullable": true,
+      "Usage": "RoundTrip"
+    }
+  ]
+}

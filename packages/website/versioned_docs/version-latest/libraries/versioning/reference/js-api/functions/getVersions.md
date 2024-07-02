@@ -4,7 +4,7 @@ title: "[F] getVersions"
 
 ---
 ```ts
-getVersions(p, t): [Namespace, VersionMap] | []
+function getVersions(p, t): [Namespace, VersionMap] | []
 ```
 
 ## Parameters

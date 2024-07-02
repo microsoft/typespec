@@ -4,7 +4,7 @@ title: "[F] isTemplateInstance"
 
 ---
 ```ts
-isTemplateInstance(type): type is TemplatedType & Object
+function isTemplateInstance(type): type is TemplatedType & Object
 ```
 
 Check the given type is a finished template instance.

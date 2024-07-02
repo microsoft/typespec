@@ -1,8 +1,8 @@
-export { FooterItem, FooterItemProps } from "./footer-item.js";
+export { FooterItem, type FooterItemProps } from "./footer-item.js";
 export {
   FooterVersionItem,
-  FooterVersionItemProps,
-  VersionSelectorProps,
-  VersionSelectorVersion,
+  type FooterVersionItemProps,
+  type VersionSelectorProps,
+  type VersionSelectorVersion,
 } from "./footer-version-item.js";
-export { Footer, FooterProps } from "./footer.js";
+export { Footer, type FooterProps } from "./footer.js";

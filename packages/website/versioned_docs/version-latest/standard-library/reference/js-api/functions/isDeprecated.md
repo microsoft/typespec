@@ -4,7 +4,7 @@ title: "[F] isDeprecated"
 
 ---
 ```ts
-isDeprecated(program, type): boolean
+function isDeprecated(program, type): boolean
 ```
 
 Check if the given type is deprecated

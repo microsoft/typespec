@@ -6,7 +6,7 @@ title: "[F] getSourceLocation"
 ## getSourceLocation(target, options)
 
 ```ts
-getSourceLocation(target, options?): SourceLocation
+function getSourceLocation(target, options?): SourceLocation
 ```
 
 ### Parameters
@@ -23,7 +23,7 @@ getSourceLocation(target, options?): SourceLocation
 ## getSourceLocation(target, options)
 
 ```ts
-getSourceLocation(target, options?): undefined
+function getSourceLocation(target, options?): undefined
 ```
 
 ### Parameters
@@ -40,7 +40,7 @@ getSourceLocation(target, options?): undefined
 ## getSourceLocation(target, options)
 
 ```ts
-getSourceLocation(target, options?): SourceLocation | undefined
+function getSourceLocation(target, options?): SourceLocation | undefined
 ```
 
 ### Parameters

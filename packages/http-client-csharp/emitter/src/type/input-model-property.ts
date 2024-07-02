@@ -11,4 +11,5 @@ export interface InputModelProperty {
   IsRequired: boolean;
   IsReadOnly: boolean;
   IsDiscriminator?: boolean;
+  FlattenedNames?: string[];
 }

@@ -47,5 +47,10 @@ type Node:
   | ProjectionModelPropertyNode
   | ProjectionModelSpreadPropertyNode
   | ProjectionStatementNode
-  | ProjectionNode;
+  | ProjectionNode
+  | ObjectLiteralNode
+  | ObjectLiteralPropertyNode
+  | ObjectLiteralSpreadPropertyNode
+  | ScalarConstructorNode
+  | ArrayLiteralNode;
 ```

@@ -4,7 +4,7 @@ title: "[F] resolveAuthentication"
 
 ---
 ```ts
-resolveAuthentication(service): HttpServiceAuthentication
+function resolveAuthentication(service): HttpServiceAuthentication
 ```
 
 Compute the authentication for a given service.

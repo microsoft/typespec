@@ -45,14 +45,14 @@ import {
   WorkspaceEdit,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver/node.js";
-import { CharCode, codePointBefore, isIdentifierContinue } from "../core/charcode.js";
+import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
 import { ResolveModuleHost, resolveModule } from "../core/index.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
-import { getNodeAtPosition, visitChildren } from "../core/parser.js";
+import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import { ensureTrailingDirectorySeparator, getDirectoryPath } from "../core/path-utils.js";
 import type { Program } from "../core/program.js";
 import { skipTrivia, skipWhiteSpace } from "../core/scanner.js";
@@ -67,6 +67,7 @@ import {
   DiagnosticTarget,
   IdentifierNode,
   Node,
+  PositionDetail,
   SourceFile,
   SyntaxKind,
   TextRange,
@@ -91,6 +92,7 @@ import {
   SemanticTokenKind,
   Server,
   ServerHost,
+  ServerLog,
   ServerSourceFile,
   ServerWorkspaceFolder,
 } from "./types.js";
@@ -104,6 +106,7 @@ export function createServer(host: ServerHost): Server {
   // a file change.
   const fileSystemCache = createFileSystemCache({
     fileService,
+    log,
   });
   const compilerHost = createCompilerHost();
 
@@ -120,7 +123,7 @@ export function createServer(host: ServerHost): Server {
 
   let workspaceFolders: ServerWorkspaceFolder[] = [];
   let isInitialized = false;
-  let pendingMessages: string[] = [];
+  let pendingMessages: ServerLog[] = [];
 
   return {
     get pendingMessages() {
@@ -235,17 +238,17 @@ export function createServer(host: ServerHost): Server {
       ];
     }
 
-    log("Workspace Folders", workspaceFolders);
+    log({ level: "info", message: `Workspace Folders`, detail: workspaceFolders });
     return { capabilities };
   }
 
   function initialized(params: InitializedParams): void {
     isInitialized = true;
-    log("Initialization complete.");
+    log({ level: "info", message: "Initialization complete." });
   }
 
   async function workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent) {
-    log("Workspace Folders Changed", e);
+    log({ level: "info", message: "Workspace Folders Changed", detail: e });
     const map = new Map(workspaceFolders.map((f) => [f.uri, f]));
     for (const folder of e.removed) {
       map.delete(folder.uri);
@@ -257,7 +260,7 @@ export function createServer(host: ServerHost): Server {
       });
     }
     workspaceFolders = Array.from(map.values());
-    log("Workspace Folders", workspaceFolders);
+    log({ level: "info", message: `Workspace Folders`, detail: workspaceFolders });
   }
 
   function watchedFilesChanged(params: DidChangeWatchedFilesParams) {
@@ -382,6 +385,7 @@ export function createServer(host: ServerHost): Server {
         // we report diagnostics with no location on the document that changed to
         // trigger.
         diagDocument = document;
+        log({ level: "debug", message: `Diagnostic with no location: ${each.message}` });
       }
 
       if (!diagDocument || !fileService.upToDate(diagDocument)) {
@@ -670,7 +674,7 @@ export function createServer(host: ServerHost): Server {
     const result = await compileService.compile(params.textDocument);
     if (result) {
       const { script, document, program } = result;
-      const node = getCompletionNodeAtPosition(script, document.offsetAt(params.position));
+      const posDetail = getCompletionNodeAtPosition(script, document.offsetAt(params.position));
 
       return await resolveCompletion(
         {
@@ -679,7 +683,7 @@ export function createServer(host: ServerHost): Server {
           completions,
           params,
         },
-        node
+        posDetail
       );
     }
 
@@ -882,14 +886,9 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  function log(message: string, details: any = undefined) {
-    message = `[${new Date().toLocaleTimeString()}] ${message}`;
-    if (details) {
-      message += ": " + JSON.stringify(details, undefined, 2);
-    }
-
+  function log(log: ServerLog) {
     if (!isInitialized) {
-      pendingMessages.push(message);
+      pendingMessages.push(log);
       return;
     }
 
@@ -898,7 +897,7 @@ export function createServer(host: ServerHost): Server {
     }
 
     pendingMessages = [];
-    host.log(message);
+    host.log(log);
   }
 
   function sendDiagnostics(document: TextDocument, diagnostics: VSDiagnostic[]) {
@@ -1076,21 +1075,6 @@ export function getCompletionNodeAtPosition(
   script: TypeSpecScriptNode,
   position: number,
   filter: (node: Node) => boolean = (node: Node) => true
-): Node | undefined {
-  const realNode = getNodeAtPosition(script, position, filter);
-  if (realNode?.kind === SyntaxKind.StringLiteral) {
-    return realNode;
-  }
-  // If we're not immediately after an identifier character, then advance
-  // the position past any trivia. This is done because a zero-width
-  // inserted missing identifier that the user is now trying to complete
-  // starts after the trivia following the cursor.
-  const cp = codePointBefore(script.file.text, position);
-  if (!cp || !isIdentifierContinue(cp)) {
-    const newPosition = skipTrivia(script.file.text, position);
-    if (newPosition !== position) {
-      return getNodeAtPosition(script, newPosition, filter);
-    }
-  }
-  return realNode;
+): PositionDetail {
+  return getNodeAtPositionDetail(script, position, filter);
 }

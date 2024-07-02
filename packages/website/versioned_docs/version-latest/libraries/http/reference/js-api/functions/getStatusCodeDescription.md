@@ -4,7 +4,7 @@ title: "[F] getStatusCodeDescription"
 
 ---
 ```ts
-getStatusCodeDescription(statusCode): 
+function getStatusCodeDescription(statusCode): 
   | undefined
   | "Informational"
   | "Successful"

@@ -4,7 +4,7 @@ title: "[F] defineLinter"
 
 ---
 ```ts
-defineLinter(def): LinterDefinition
+function defineLinter(def): LinterDefinition
 ```
 
 ## Parameters

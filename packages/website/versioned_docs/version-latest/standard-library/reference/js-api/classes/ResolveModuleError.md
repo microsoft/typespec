@@ -9,7 +9,7 @@ title: "[C] ResolveModuleError"
 
 ## Constructors
 
-### new ResolveModuleError(code, message)
+### new ResolveModuleError()
 
 ```ts
 new ResolveModuleError(code, message): ResolveModuleError
@@ -39,7 +39,7 @@ new ResolveModuleError(code, message): ResolveModuleError
 | `message` | `public` | `string` | - | `Error.message` |
 | `name` | `public` | `string` | - | `Error.name` |
 | `stack?` | `public` | `string` | - | `Error.stack` |
-| `prepareStackTrace?` | `static` | (`err`: `Error`, `stackTraces`: `CallSite`[]) => `any` | Optional override for formatting stack traces<br /><br />**See**<br />https://v8.dev/docs/stack-trace-api#customizing-stack-traces | `Error.prepareStackTrace` |
+| `prepareStackTrace?` | `static` | (`err`: `Error`, `stackTraces`: `CallSite`[]) => `any` | <p>Optional override for formatting stack traces</p><p>**See**</p><p>https://v8.dev/docs/stack-trace-api#customizing-stack-traces</p> | `Error.prepareStackTrace` |
 | `stackTraceLimit` | `static` | `number` | - | `Error.stackTraceLimit` |
 
 ## Methods

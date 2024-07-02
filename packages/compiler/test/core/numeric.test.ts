@@ -22,7 +22,7 @@ describe("parsing", () => {
 
   describe("invalid number", () => {
     // cspell: ignore babc
-    it.each(["0babc", "0xGHI", "0o999", "a123", "1d.3"])("%s", (a) => {
+    it.each(["0babc", "0xGHI", "0o999", "a123", "1d.3", "1.2.3"])("%s", (a) => {
       expect(() => Numeric(a)).toThrow(`Invalid numeric value: ${a}`);
     });
   });
@@ -39,6 +39,24 @@ describe("parsing", () => {
     it("simple decimal", () => {
       expectNumericData("123.456", 123456n, 3);
     });
+
+    describe("decimal with trailing zeros", () => {
+      it.each([
+        ["1.0", 1n, 1],
+        ["10", 10n, 2],
+        ["10.0", 10n, 2],
+        ["10.00000", 10n, 2],
+        ["100.0", 100n, 3],
+        ["100", 100n, 3],
+        ["1000.0", 1000n, 4],
+        ["1000000000", 1000000000n, 10],
+        ["1000000000.0", 1000000000n, 10],
+        ["1000000000.00000", 1000000000n, 10],
+      ])(`%s`, (a, b, c) => {
+        expectNumericData(a, b, c);
+      });
+    });
+
     it("negative decimal", () => {
       expectNumericData("-123.456", 123456n, 3, -1);
     });

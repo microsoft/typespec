@@ -44,6 +44,7 @@ Available ruleSets:
 - [`@head`](#@head)
 - [`@header`](#@header)
 - [`@includeInapplicableMetadataInPayload`](#@includeinapplicablemetadatainpayload)
+- [`@multipartBody`](#@multipartbody)
 - [`@patch`](#@patch)
 - [`@path`](#@path)
 - [`@post`](#@post)
@@ -272,6 +273,32 @@ Specify if inapplicable metadata should be included in the payload for the given
 | ----- | ----------------- | --------------------------------------------------------------- |
 | value | `valueof boolean` | If true, inapplicable metadata will be included in the payload. |
 
+#### `@multipartBody`
+
+```typespec
+@TypeSpec.Http.multipartBody
+```
+
+##### Target
+
+`ModelProperty`
+
+##### Parameters
+
+None
+
+##### Examples
+
+```tsp
+op upload(
+  @header `content-type`: "multipart/form-data",
+  @multipartBody body: {
+    fullName: HttpPart<string>;
+    headShots: HttpPart<Image>[];
+  },
+): void;
+```
+
 #### `@patch`
 
 Specify the HTTP verb for the target operation to be `PATCH`.
@@ -458,8 +485,8 @@ namespace PetStore;
 
 ```typespec
 @server("https://{region}.foo.com", "Regional endpoint", {
-@doc("Region name")
-region?: string = "westus",
+  @doc("Region name")
+  region?: string = "westus",
 })
 ```
 
@@ -509,8 +536,13 @@ None
 ##### Examples
 
 ```typespec
-op read(): {@statusCode: 200, @body pet: Pet}
-op create(): {@statusCode: 201 | 202}
+op read(): {
+  @statusCode _: 200;
+  @body pet: Pet;
+};
+op create(): {
+  @statusCode _: 201 | 202;
+};
 ```
 
 #### `@useAuth`

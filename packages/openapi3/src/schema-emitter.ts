@@ -325,24 +325,17 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return props;
   }
 
-  #isBytesKeptRaw(type: Type) {
-    const program = this.emitter.getProgram();
-    return (
-      type.kind === "Scalar" && type.name === "bytes" && getEncode(program, type) === undefined
-    );
-  }
-
   modelPropertyLiteral(prop: ModelProperty): EmitterOutput<object> {
     const program = this.emitter.getProgram();
     const isMultipart = this.#getContentType().startsWith("multipart/");
     if (isMultipart) {
-      if (this.#isBytesKeptRaw(prop.type) && getEncode(program, prop) === undefined) {
+      if (isBytesKeptRaw(program, prop.type) && getEncode(program, prop) === undefined) {
         return { type: "string", format: "binary" };
       }
       if (
         prop.type.kind === "Model" &&
         isArrayModelType(program, prop.type) &&
-        this.#isBytesKeptRaw(prop.type.indexer.value)
+        isBytesKeptRaw(program, prop.type.indexer.value)
       ) {
         return { type: "array", items: { type: "string", format: "binary" } };
       }
@@ -352,13 +345,20 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       referenceContext:
         isMultipart &&
         (prop.type.kind !== "Union" ||
-          ![...prop.type.variants.values()].some((x) => this.#isBytesKeptRaw(x.type)))
+          ![...prop.type.variants.values()].some((x) => isBytesKeptRaw(program, x.type)))
           ? { contentType: "application/json" }
           : {},
     });
 
     if (refSchema.kind !== "code") {
-      throw new Error("Unexpected non-code result from emit reference");
+      reportDiagnostic(program, {
+        code: "invalid-model-property",
+        format: {
+          type: prop.type.kind,
+        },
+        target: prop,
+      });
+      return {};
     }
 
     const isRef = refSchema.value instanceof Placeholder || "$ref" in refSchema.value;
@@ -494,7 +494,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         continue;
       }
 
-      if (isMultipart && this.#isBytesKeptRaw(variant.type)) {
+      if (isMultipart && isBytesKeptRaw(program, variant.type)) {
         schemaMembers.push({ schema: { type: "string", format: "binary" }, type: variant.type });
         continue;
       }
@@ -1011,4 +1011,8 @@ export function getDefaultValue(program: Program, defaultType: Value): any {
         target: defaultType,
       });
   }
+}
+
+export function isBytesKeptRaw(program: Program, type: Type) {
+  return type.kind === "Scalar" && type.name === "bytes" && getEncode(program, type) === undefined;
 }

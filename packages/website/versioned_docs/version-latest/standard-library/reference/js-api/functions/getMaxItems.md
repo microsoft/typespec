@@ -4,7 +4,7 @@ title: "[F] getMaxItems"
 
 ---
 ```ts
-getMaxItems(program, target): number | undefined
+function getMaxItems(program, target): number | undefined
 ```
 
 ## Parameters

@@ -24,7 +24,7 @@ If there is a projected name it returns that one otherwise return the original n
 
 | Parameter | Type |
 | :------ | :------ |
-| `target` | [`Type`](../type-aliases/Type.md) & `Object` |
+| `target` | [`Type`](../type-aliases/Type.md) & `object` |
 
 #### Returns
 

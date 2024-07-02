@@ -4,7 +4,7 @@ title: "[F] $minValueExclusive"
 
 ---
 ```ts
-$minValueExclusive(
+function $minValueExclusive(
    context, 
    target, 
    value): void
@@ -15,8 +15,8 @@ $minValueExclusive(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
-| `target` | [`Scalar`](../interfaces/Scalar.md) \| [`ModelProperty`](../interfaces/ModelProperty.md) |
-| `value` | `number` |
+| `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
+| `value` | [`Numeric`](../interfaces/Numeric.md) |
 
 ## Returns
 

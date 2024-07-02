@@ -4,7 +4,7 @@ title: "[F] isIntrinsicType"
 
 ---
 ```ts
-isIntrinsicType(
+function isIntrinsicType(
    program, 
    type, 
    kind): boolean

@@ -4,7 +4,7 @@ title: "[F] skipTrivia"
 
 ---
 ```ts
-skipTrivia(
+function skipTrivia(
    input, 
    position, 
    endPosition): number
@@ -12,12 +12,14 @@ skipTrivia(
 
 ## Parameters
 
-| Parameter | Type | Default value |
-| :------ | :------ | :------ |
-| `input` | `string` | `undefined` |
-| `position` | `number` | `undefined` |
-| `endPosition` | `number` | `input.length` |
+| Parameter | Type | Default value | Description |
+| :------ | :------ | :------ | :------ |
+| `input` | `string` | `undefined` |  |
+| `position` | `number` | `undefined` |  |
+| `endPosition` | `number` | `input.length` | exclude |
 
 ## Returns
 
 `number`
+
+return === endPosition (or input.length) means not found non-trivia until endPosition - 1

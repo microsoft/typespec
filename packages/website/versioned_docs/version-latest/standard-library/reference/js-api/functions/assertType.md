@@ -4,7 +4,7 @@ title: "[F] assertType"
 
 ---
 ```ts
-assertType<TKind>(
+function assertType<TKind>(
    typeDescription, 
    t, ...
    kinds): asserts t is Type & Object
@@ -16,30 +16,31 @@ Assert that the input type has one of the kinds provided
 
 | Type parameter |
 | :------ |
-| `TKind` extends (
-  \| `"Scalar"`
-  \| `"ModelProperty"`
-  \| `"Model"`
-  \| `"Interface"`
+| `TKind` *extends* (
+  \| `"Boolean"`
+  \| `"Decorator"`
   \| `"Enum"`
   \| `"EnumMember"`
-  \| `"TemplateParameter"`
+  \| `"FunctionParameter"`
+  \| `"Function"`
+  \| `"Interface"`
+  \| `"Intrinsic"`
+  \| `"Model"`
+  \| `"ModelProperty"`
   \| `"Namespace"`
-  \| `"Operation"`
-  \| `"String"`
   \| `"Number"`
-  \| `"Boolean"`
+  \| `"Object"`
+  \| `"Operation"`
+  \| `"Projection"`
+  \| `"Scalar"`
+  \| `"ScalarConstructor"`
+  \| `"String"`
   \| `"StringTemplate"`
   \| `"StringTemplateSpan"`
+  \| `"TemplateParameter"`
   \| `"Tuple"`
   \| `"Union"`
-  \| `"UnionVariant"`
-  \| `"Intrinsic"`
-  \| `"Function"`
-  \| `"Decorator"`
-  \| `"FunctionParameter"`
-  \| `"Object"`
-  \| `"Projection"`)[] |
+  \| `"UnionVariant"`)[] |
 
 ## Parameters
 

@@ -51,7 +51,7 @@ export type EmitterRefDoc = {
 
 export type LinterRefDoc = {
   /** List of rulesets provided. */
-  readonly ruleSets?: LinterRuleSetRefDoc[];
+  readonly ruleSets: LinterRuleSetRefDoc[];
   readonly rules: LinterRuleRefDoc[];
 };
 

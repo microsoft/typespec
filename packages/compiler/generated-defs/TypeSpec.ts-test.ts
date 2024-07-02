@@ -35,6 +35,7 @@ import {
   $visibility,
   $withDefaultKeyVisibility,
   $withOptionalProperties,
+  $withPickedProperties,
   $withUpdateableProperties,
   $withVisibility,
   $withoutDefaultValues,
@@ -76,6 +77,7 @@ import type {
   VisibilityDecorator,
   WithDefaultKeyVisibilityDecorator,
   WithOptionalPropertiesDecorator,
+  WithPickedPropertiesDecorator,
   WithUpdateablePropertiesDecorator,
   WithVisibilityDecorator,
   WithoutDefaultValuesDecorator,
@@ -88,6 +90,7 @@ type Decorators = {
   $withOptionalProperties: WithOptionalPropertiesDecorator;
   $withUpdateableProperties: WithUpdateablePropertiesDecorator;
   $withoutOmittedProperties: WithoutOmittedPropertiesDecorator;
+  $withPickedProperties: WithPickedPropertiesDecorator;
   $withoutDefaultValues: WithoutDefaultValuesDecorator;
   $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator;
   $summary: SummaryDecorator;
@@ -131,6 +134,7 @@ const _: Decorators = {
   $withOptionalProperties,
   $withUpdateableProperties,
   $withoutOmittedProperties,
+  $withPickedProperties,
   $withoutDefaultValues,
   $withDefaultKeyVisibility,
   $summary,

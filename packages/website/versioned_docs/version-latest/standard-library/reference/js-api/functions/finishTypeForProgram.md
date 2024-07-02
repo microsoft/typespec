@@ -4,14 +4,14 @@ title: "[F] finishTypeForProgram"
 
 ---
 ```ts
-finishTypeForProgram<T>(program, typeDef): T
+function finishTypeForProgram<T>(program, typeDef): T
 ```
 
 ## Type parameters
 
 | Type parameter |
 | :------ |
-| `T` extends [`Type`](../type-aliases/Type.md) |
+| `T` *extends* [`Type`](../type-aliases/Type.md) |
 
 ## Parameters
 

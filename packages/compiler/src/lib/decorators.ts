@@ -31,6 +31,7 @@ import type {
   VisibilityDecorator,
   WithDefaultKeyVisibilityDecorator,
   WithOptionalPropertiesDecorator,
+  WithPickedPropertiesDecorator,
   WithUpdateablePropertiesDecorator,
   WithVisibilityDecorator,
   WithoutDefaultValuesDecorator,
@@ -877,6 +878,29 @@ export const $withoutOmittedProperties: WithoutOmittedPropertiesDecorator = (
 
   // Remove all properties to be omitted
   filterModelPropertiesInPlace(target, (prop) => !omitNames.has(prop.name));
+};
+
+// -- @withPickedProperties decorator ----------------------
+
+export const $withPickedProperties: WithPickedPropertiesDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  pickedProperties: Type
+) => {
+  // Get the property or properties to pick
+  const pickedNames = new Set<string>();
+  if (pickedProperties.kind === "String") {
+    pickedNames.add(pickedProperties.value);
+  } else if (pickedProperties.kind === "Union") {
+    for (const variant of pickedProperties.variants.values()) {
+      if (variant.type.kind === "String") {
+        pickedNames.add(variant.type.value);
+      }
+    }
+  }
+
+  // Remove all properties not picked
+  filterModelPropertiesInPlace(target, (prop) => pickedNames.has(prop.name));
 };
 
 // -- @withoutDefaultValues decorator ----------------------

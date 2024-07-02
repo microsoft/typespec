@@ -4,7 +4,7 @@ title: "[F] checkFormatCadl"
 
 ---
 ```ts
-checkFormatCadl(code, prettierConfig?): Promise<boolean>
+function checkFormatCadl(code, prettierConfig?): Promise<boolean>
 ```
 
 ## Parameters

@@ -4,7 +4,7 @@ title: "[F] getRouteOptionsForNamespace"
 
 ---
 ```ts
-getRouteOptionsForNamespace(program, namespace): RouteOptions | undefined
+function getRouteOptionsForNamespace(program, namespace): RouteOptions | undefined
 ```
 
 ## Parameters
