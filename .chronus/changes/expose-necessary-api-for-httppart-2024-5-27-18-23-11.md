@@ -4,4 +4,4 @@ packages:
   - "@typespec/http"
 ---
 
-Expose API for HttpPart
+Expose `getHttpPart` and types functions
