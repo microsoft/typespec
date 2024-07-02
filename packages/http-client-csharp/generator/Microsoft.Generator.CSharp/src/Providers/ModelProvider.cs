@@ -53,18 +53,27 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _declarationModifiers;
 
-        protected override PropertyProvider[] BuildProperties()
+        private IReadOnlyDictionary<InputModelProperty, PropertyProvider>? _propertiesCache;
+        internal IReadOnlyDictionary<InputModelProperty, PropertyProvider> PropertiesCache => _propertiesCache ??= BuildPropertiesCache();
+
+        private IReadOnlyDictionary<InputModelProperty, PropertyProvider> BuildPropertiesCache()
         {
             var propertiesCount = _inputModel.Properties.Count;
-            var propertyDeclarations = new PropertyProvider[propertiesCount];
+            var cache = new Dictionary<InputModelProperty, PropertyProvider>(propertiesCount);
 
             for (int i = 0; i < propertiesCount; i++)
             {
-                var property = _inputModel.Properties[i];
-                propertyDeclarations[i] = new PropertyProvider(property);
+                var inputProperty = _inputModel.Properties[i];
+                var property = new PropertyProvider(inputProperty);
+                cache.Add(inputProperty, property);
             }
 
-            return propertyDeclarations;
+            return cache;
+        }
+
+        protected override PropertyProvider[] BuildProperties()
+        {
+            return PropertiesCache.Values.ToArray();
         }
 
         protected override MethodProvider[] BuildConstructors()
@@ -101,17 +110,13 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             List<ParameterProvider> constructorParameters = new List<ParameterProvider>();
 
-            foreach (var property in _inputModel.Properties)
+            foreach (var (inputProperty, property) in PropertiesCache)
             {
-                CSharpType propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(property.Type);
-                if (_isStruct || (property is { IsRequired: true, IsDiscriminator: false } && !propertyType.IsLiteral))
+                if (_isStruct || (inputProperty is { IsRequired: true, IsDiscriminator: false } && !property.Type.IsLiteral))
                 {
-                    if (!property.IsReadOnly)
+                    if (!inputProperty.IsReadOnly)
                     {
-                        constructorParameters.Add(new ParameterProvider(property)
-                        {
-                            Type = propertyType.InputType
-                        });
+                        constructorParameters.Add(property.InputParameter);
                     }
                 }
             }
@@ -123,6 +128,8 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             List<MethodBodyStatement> methodBodyStatements = new();
 
+            var parameterNames = parameters.ToHashSet();
+
             Dictionary<string, ParameterProvider> parameterMap = parameters.ToDictionary(
                 parameter => parameter.Name,
                 parameter => parameter);
@@ -130,19 +137,17 @@ namespace Microsoft.Generator.CSharp.Providers
             foreach (var property in Properties)
             {
                 ValueExpression? initializationValue = null;
+                var parameter = property.InputParameter;
 
-                if (parameterMap.TryGetValue(property.Name.ToVariableName(), out var parameter) || _isStruct)
+                if (parameterNames.Contains(parameter) || _isStruct)
                 {
-                    if (parameter != null)
-                    {
-                        initializationValue = parameter;
+                    initializationValue = parameter;
 
-                        if (CSharpType.RequiresToList(parameter.Type, property.Type))
-                        {
-                            initializationValue = parameter.Type.IsNullable ?
-                                Linq.ToList(new NullConditionalExpression(initializationValue)) :
-                                Linq.ToList(initializationValue);
-                        }
+                    if (CSharpType.RequiresToList(parameter.Type, property.Type))
+                    {
+                        initializationValue= parameter.Type.IsNullable
+                            ? Linq.ToList(new NullConditionalExpression(initializationValue))
+                            : Linq.ToList(initializationValue);
                     }
                 }
                 else if (initializationValue == null && property.Type.IsCollection)
