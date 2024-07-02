@@ -13,3 +13,5 @@ $testProjectsLocalDir = Join-Path $repoRoot 'generator' 'TestProjects' 'Local'
 
 $unbrandedTypespecTestProject = Join-Path $testProjectsLocalDir "Unbranded-TypeSpec"
 Invoke "npx tsp compile $unbrandedTypespecTestProject/Unbranded-TypeSpec.tsp --trace @typespec/http-client-csharp --emit @typespec/http-client-csharp --option @typespec/http-client-csharp.emitter-output-dir=$unbrandedTypespecTestProject --option @typespec/http-client-csharp.save-inputs=true"
+
+Invoke "dotnet build $repoRoot/generator/TestProjects/Local/Unbranded-TypeSpec/src/UnbrandedTypeSpec.csproj"
