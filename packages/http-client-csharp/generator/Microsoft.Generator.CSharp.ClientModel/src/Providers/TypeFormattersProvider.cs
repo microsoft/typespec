@@ -264,7 +264,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 signature,
                 new SwitchExpression(format,
                 [
-                    new(Literal("U"), DateTimeOffsetSnippets.FromUnixTimeSeconds(LongSnippet.Parse(value, invariantCulture))),
+                    new(Literal("U"), DateTimeOffsetSnippets.FromUnixTimeSeconds(LongSnippets.Parse(value, invariantCulture))),
                     SwitchCaseExpression.Default(DateTimeOffsetSnippets.Parse(value, invariantCulture, new MemberExpression(typeof(DateTimeStyles), nameof(DateTimeStyles.AssumeUniversal))))
                 ]),
                 this);

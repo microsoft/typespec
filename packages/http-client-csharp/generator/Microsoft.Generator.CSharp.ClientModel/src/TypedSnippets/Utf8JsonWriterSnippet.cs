@@ -12,8 +12,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
     internal sealed record Utf8JsonWriterSnippet(ValueExpression Expression) : TypedSnippet<Utf8JsonWriter>(Expression)
     {
-        public LongSnippet BytesCommitted => new(Property(nameof(Utf8JsonWriter.BytesCommitted)));
-        public LongSnippet BytesPending => new(Property(nameof(Utf8JsonWriter.BytesPending)));
+        public ScopedApi<long> BytesCommitted => Property(nameof(Utf8JsonWriter.BytesCommitted)).As<long>();
+        public ScopedApi<long> BytesPending => Property(nameof(Utf8JsonWriter.BytesPending)).As<long>();
 
         public MethodBodyStatement WriteStartObject() => Invoke(nameof(Utf8JsonWriter.WriteStartObject)).Terminate();
         public MethodBodyStatement WriteEndObject() => Invoke(nameof(Utf8JsonWriter.WriteEndObject)).Terminate();

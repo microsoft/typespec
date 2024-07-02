@@ -38,7 +38,7 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static ScopedApi<bool> Bool(bool value) => value ? True : False;
         public static ScopedApi<int> Int(int value) => new(Literal(value));
-        public static LongSnippet Long(long value) => new(Literal(value));
+        public static ScopedApi<long> Long(long value) => new(Literal(value));
         public static ValueExpression Float(float value) => Literal(value);
         public static ValueExpression Double(double value) => Literal(value);
         public static ScopedApi<T> Checked<T>(ScopedApi<T> value) where T : struct => new KeywordExpression("checked", value).As<T>();

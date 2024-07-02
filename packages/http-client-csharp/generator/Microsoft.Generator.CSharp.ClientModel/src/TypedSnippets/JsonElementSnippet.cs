@@ -75,10 +75,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             return invocation.As<bool>();
         }
 
-        public ScopedApi<bool> TryGetInt64(out LongSnippet longValue)
+        public ScopedApi<bool> TryGetInt64(out ScopedApi<long> longValue)
         {
             var longValueDeclaration = new VariableExpression(typeof(long), "longValue");
-            longValue = new LongSnippet(longValueDeclaration);
+            longValue = longValueDeclaration.As<long>();
             var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetInt64), [new DeclarationExpression(longValueDeclaration, true)], null, false);
             return invocation.As<bool>();
         }

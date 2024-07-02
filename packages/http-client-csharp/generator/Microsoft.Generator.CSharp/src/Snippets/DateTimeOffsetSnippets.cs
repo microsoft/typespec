@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static StringSnippet InvokeToString(this ScopedApi<DateTimeOffset> dtoExpression, StringSnippet format, ValueExpression formatProvider)
             => new(dtoExpression.Invoke(nameof(DateTimeOffset.ToString), [format, formatProvider]));
 
-        public static LongSnippet ToUnixTimeSeconds(this ScopedApi<DateTimeOffset> dtoExpression)
+        public static ScopedApi<long> ToUnixTimeSeconds(this ScopedApi<DateTimeOffset> dtoExpression)
             => new(dtoExpression.Invoke(nameof(DateTimeOffset.ToUnixTimeSeconds)));
 
         public static ScopedApi<DateTimeOffset> ToUniversalTime(this ScopedApi<DateTimeOffset> dtoExpression)
