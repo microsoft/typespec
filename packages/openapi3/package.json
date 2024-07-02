@@ -2,7 +2,7 @@
   "name": "@typespec/openapi3",
   "version": "0.57.0",
   "author": "Microsoft Corporation",
-  "description": "TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding",
+  "description": "TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding and converting OpenAPI3 to TypeSpec",
   "homepage": "https://typespec.io",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
@@ -16,6 +16,9 @@
   "keywords": [
     "typespec"
   ],
+  "bin": {
+    "tsp-openapi3": "cmd/tsp-openapi3.js"
+  },
   "type": "module",
   "main": "dist/src/index.js",
   "tspMain": "lib/main.tsp",
@@ -34,7 +37,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "npm run gen-extern-signature && tsc -p . && npm run lint-typespec-library",
+    "build": "npm run gen-version && npm run gen-extern-signature && tsc -p . && npm run lint-typespec-library",
     "watch": "tsc -p . --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
@@ -44,7 +47,9 @@
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
-    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/emitters/openapi3/reference"
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/emitters/openapi3/reference",
+    "regen-specs": "cross-env RECORD=true vitest run",
+    "gen-version": "node scripts/generate-version.js"
   },
   "files": [
     "lib/*.tsp",
@@ -52,6 +57,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
+    "@readme/openapi-parser": "~2.6.0",
     "yaml": "~2.4.5"
   },
   "peerDependencies": {
@@ -62,6 +68,7 @@
   },
   "devDependencies": {
     "@types/node": "~18.11.19",
+    "@types/yargs": "~17.0.32",
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/library-linter": "workspace:~",
@@ -72,6 +79,7 @@
     "@vitest/coverage-v8": "^1.6.0",
     "@vitest/ui": "^1.6.0",
     "c8": "^10.1.2",
+    "cross-env": "~7.0.3",
     "rimraf": "~5.0.7",
     "typescript": "~5.5.3",
     "vitest": "^1.6.0"
