@@ -58,8 +58,8 @@
   "dependencies": {
     "@typespec/compiler": "workspace:~",
     "picocolors": "~1.0.1",
-    "prettier": "~3.2.5",
-    "yaml": "~2.4.2",
+    "prettier": "~3.3.2",
+    "yaml": "~2.4.5",
     "yargs": "~17.7.2"
   },
   "devDependencies": {
@@ -69,12 +69,12 @@
     "@typespec/prettier-plugin-typespec": "workspace:~",
     "@vitest/coverage-v8": "^1.6.0",
     "@vitest/ui": "^1.6.0",
-    "c8": "^9.1.0",
+    "c8": "^10.1.2",
     "rimraf": "~5.0.7",
     "source-map-support": "~0.5.21",
-    "typedoc": "^0.25.13",
-    "typedoc-plugin-markdown": "^4.0.2",
-    "typescript": "~5.4.5",
+    "typedoc": "^0.26.3",
+    "typedoc-plugin-markdown": "^4.1.1",
+    "typescript": "~5.5.3",
     "vitest": "^1.6.0"
   }
 }

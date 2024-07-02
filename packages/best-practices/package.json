@@ -48,9 +48,9 @@
     "@typespec/compiler": "workspace:~",
     "@vitest/coverage-v8": "^1.6.0",
     "@vitest/ui": "^1.6.0",
-    "c8": "^9.1.0",
+    "c8": "^10.1.2",
     "rimraf": "~5.0.7",
-    "typescript": "~5.4.5",
+    "typescript": "~5.5.3",
     "vitest": "^1.6.0"
   }
 }
