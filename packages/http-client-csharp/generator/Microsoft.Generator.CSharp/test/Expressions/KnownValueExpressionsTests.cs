@@ -17,11 +17,11 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         {
             var left = ValueExpression.Empty;
             var right = ValueExpression.Empty;
-            var boolExpression = new BoolSnippet(left);
+            var boolExpression = left.As<bool>();
 
             var result = boolExpression.Or(right);
             using var writer = new CodeWriter();
-            result.Expression.Write(writer);
+            result.Write(writer);
 
             Assert.AreEqual("(||)", writer.ToString(false));
         }
@@ -31,11 +31,11 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         {
             var left = ValueExpression.Empty;
             var right = ValueExpression.Empty;
-            var boolExpression = new BoolSnippet(left);
+            var boolExpression = left.As<bool>();
 
             var result = boolExpression.And(right);
             using var writer = new CodeWriter();
-            result.Expression.Write(writer);
+            result.Write(writer);
 
             Assert.AreEqual("(&&)", writer.ToString(false));
         }
@@ -101,7 +101,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
             var valueType = new CSharpType(t2);
             var untypedValue = ValueExpression.Empty;
 
-            var dictionaryExpression = new DictionarySnippet(t1, t2, untypedValue);
+            var dictionaryExpression = untypedValue.AsDictionary(t1, t2);
 
             Assert.AreEqual(keyType, dictionaryExpression.KeyType);
             Assert.AreEqual(valueType, dictionaryExpression.ValueType);
@@ -113,7 +113,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         {
             var keyType = new CSharpType(typeof(int));
             var valueType = new CSharpType(typeof(string));
-            var dictionaryExpression = new DictionarySnippet(keyType, valueType, ValueExpression.Empty);
+            var dictionaryExpression = ValueExpression.Empty.AsDictionary(keyType, valueType);
 
             var key = ValueExpression.Empty;
             var value = ValueExpression.Empty;
@@ -164,7 +164,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
 
             var result = enumerableExpression.Any();
             using CodeWriter writer = new CodeWriter();
-            result.Expression.Write(writer);
+            result.Write(writer);
 
             Assert.AreEqual(".Any()", writer.ToString(false));
         }

@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 
         public static readonly ModelReaderWriterOptionsSnippet Wire = Provider.WireOptions;
 
-        public static MethodBodyStatement WriteObjectValue(Utf8JsonWriterSnippet snippet, TypedSnippet value, ValueExpression? options = null)
+        public static MethodBodyStatement WriteObjectValue(Utf8JsonWriterSnippet snippet, ScopedApi value, ValueExpression? options = null)
         {
             var parameters = options is null
                 ? new ValueExpression[] { value }

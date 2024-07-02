@@ -37,7 +37,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             new("options", $"The client options for reading and writing models.", typeof(ModelReaderWriterOptions));
         private readonly Utf8JsonWriterSnippet _utf8JsonWriterSnippet;
         private readonly ModelReaderWriterOptionsSnippet _mrwOptionsParameterSnippet;
-        private readonly BoolSnippet _isNotEqualToWireConditionSnippet;
+        private readonly ScopedApi<bool> _isNotEqualToWireConditionSnippet;
         private readonly CSharpType _privateAdditionalPropertiesPropertyType = typeof(IDictionary<string, BinaryData>);
         private readonly CSharpType _jsonModelTInterface;
         private readonly CSharpType? _jsonModelObjectInterface;
@@ -645,12 +645,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var propertyType = propertyProvider.Type;
             var propertySerialization = propertyProvider.WireInfo;
             var propertyName = propertySerialization?.SerializedName ?? propertyProvider.Name;
-            BoolSnippet propertyIsInitialized;
+            ScopedApi<bool> propertyIsInitialized;
 
             if (propertyType.IsCollection && !propertyType.IsReadOnlyMemory && isPropRequired)
             {
                 propertyIsInitialized = propertyMemberExpression.NotEqual(Null)
-                    .And(OptionalSnippet.IsCollectionDefined(new StringSnippet(propertyMemberExpression)));
+                    .And(OptionalSnippet.IsCollectionDefined(propertyMemberExpression));
             }
             else
             {
@@ -678,7 +678,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 { IsDictionary: true } =>
                     CreateDictionarySerializationStatement(
-                        new DictionarySnippet(serializationType.Arguments[0], serializationType.Arguments[1], value),
+                        value.AsDictionary(serializationType),
                         serializationFormat),
                 { IsList: true } or { IsArray: true } =>
                     CreateListSerializationStatement(GetEnumerableExpression(value, serializationType), serializationFormat),
@@ -688,7 +688,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             };
 
         private MethodBodyStatement CreateDictionarySerializationStatement(
-            DictionarySnippet dictionary,
+            DictionaryExpression dictionary,
             SerializationFormat serializationFormat)
         {
             return new[]
@@ -734,7 +734,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 { Implementation: EnumProvider enumProvider } =>
                     SerializeEnumProvider(enumProvider, type, value),
                 { Implementation: ModelProvider modelProvider } =>
-                    _utf8JsonWriterSnippet.WriteObjectValue(new TypeProviderSnippet(modelProvider, value), options: _mrwOptionsParameterSnippet),
+                    _utf8JsonWriterSnippet.WriteObjectValue(value.As(modelProvider.Type), options: _mrwOptionsParameterSnippet),
                 _ => throw new NotSupportedException($"Serialization of type {type.Name} is not supported.")
             };
         }
@@ -775,7 +775,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 var t when ValueTypeIsNumber(t) =>
                     _utf8JsonWriterSnippet.WriteNumberValue(value),
                 var t when t == typeof(object) =>
-                    _utf8JsonWriterSnippet.WriteObjectValue(new FrameworkTypeSnippet(valueType, value), _mrwOptionsParameterSnippet),
+                    _utf8JsonWriterSnippet.WriteObjectValue(value.As(valueType), _mrwOptionsParameterSnippet),
                 var t when t == typeof(string) || t == typeof(char) || t == typeof(Guid) =>
                     _utf8JsonWriterSnippet.WriteStringValue(value),
                 var t when t == typeof(bool) =>
@@ -791,7 +791,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 var t when t == typeof(BinaryData) =>
                     SerializeBinaryData(valueType, serializationFormat, value),
                 var t when t == typeof(Stream) =>
-                    _utf8JsonWriterSnippet.WriteBinaryData(BinaryDataSnippet.FromStream(value, false)),
+                    _utf8JsonWriterSnippet.WriteBinaryData(BinaryDataSnippets.FromStream(value, false)),
                 _ => throw new NotSupportedException($"Type {nameof(valueType)} serialization is not supported.")
             };
         }
@@ -811,8 +811,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var format = serializationFormat.ToFormatSpecifier();
             return serializationFormat switch
             {
-                SerializationFormat.Duration_Seconds => _utf8JsonWriterSnippet.WriteNumberValue(ConvertSnippet.InvokeToInt32(new TimeSpanSnippet(value).InvokeToString(format))),
-                SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double => _utf8JsonWriterSnippet.WriteNumberValue(ConvertSnippet.InvokeToDouble(new TimeSpanSnippet(value).InvokeToString(format))),
+                SerializationFormat.Duration_Seconds => _utf8JsonWriterSnippet.WriteNumberValue(ConvertSnippets.InvokeToInt32(value.As<TimeSpan>().InvokeToString(format))),
+                SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double => _utf8JsonWriterSnippet.WriteNumberValue(ConvertSnippets.InvokeToDouble(value.As<TimeSpan>().InvokeToString(format))),
                 SerializationFormat.DateTime_Unix => _utf8JsonWriterSnippet.WriteNumberValue(value, format),
                 _ => format is not null ? _utf8JsonWriterSnippet.WriteStringValue(value, format) : _utf8JsonWriterSnippet.WriteStringValue(value)
             };
@@ -822,9 +822,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             if (serializationFormat is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url)
             {
-                return _utf8JsonWriterSnippet.WriteBase64StringValue(new BinaryDataSnippet(value).ToArray(), serializationFormat.ToFormatSpecifier());
+                return _utf8JsonWriterSnippet.WriteBase64StringValue(value.As<BinaryData>().ToArray(), serializationFormat.ToFormatSpecifier());
             }
-            return _utf8JsonWriterSnippet.WriteBinaryData(new BinaryDataSnippet(value));
+            return _utf8JsonWriterSnippet.WriteBinaryData(value);
         }
 
         private static EnumerableSnippet GetEnumerableExpression(ValueExpression expression, CSharpType enumerableType)
@@ -845,8 +845,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             MethodBodyStatement writePropertySerializationStatement)
         {
             var isDefinedCondition = propertyType.IsCollection && !propertyType.IsReadOnlyMemory
-                ? OptionalSnippet.IsCollectionDefined(new StringSnippet(propertyMemberExpression))
-                : OptionalSnippet.IsDefined(new StringSnippet(propertyMemberExpression));
+                ? OptionalSnippet.IsCollectionDefined(propertyMemberExpression)
+                : OptionalSnippet.IsDefined(propertyMemberExpression);
             var condition = isReadOnly ? _isNotEqualToWireConditionSnippet.And(isDefinedCondition) : isDefinedCondition;
 
             return new IfStatement(condition) { writePropertySerializationStatement };
@@ -864,7 +864,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             var rawDataMemberExp = new MemberExpression(null, _rawDataField.Name);
-            var rawDataDictionaryExp = new DictionarySnippet(_rawDataField.Type.Arguments[0], _rawDataField.Type.Arguments[1], rawDataMemberExp);
+            var rawDataDictionaryExp = rawDataMemberExp.AsDictionary(_rawDataField.Type);
             var forEachStatement = new ForeachStatement("item", rawDataDictionaryExp, out KeyValuePairSnippet item)
             {
                 _utf8JsonWriterSnippet.WritePropertyName(item.Key),

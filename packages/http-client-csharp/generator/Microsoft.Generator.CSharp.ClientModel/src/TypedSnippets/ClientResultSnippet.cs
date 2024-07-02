@@ -12,7 +12,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
     internal sealed record ClientResultSnippet(ValueExpression Expression) : TypedSnippet<ClientResult>(Expression)
     {
         public ValueExpression Value => Property(nameof(ClientResult<object>.Value));
-        public BinaryDataSnippet Content => throw new InvalidOperationException("Result does not have a Content property");
+        public ScopedApi<BinaryData> Content => throw new InvalidOperationException("Result does not have a Content property");
         public StreamSnippet ContentStream => throw new InvalidOperationException("Result does not have a ContentStream property");
 
         public static ClientResultSnippet FromResponse(PipelineResponseSnippet response)

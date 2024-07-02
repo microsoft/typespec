@@ -27,7 +27,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
             for (var i = 0; i < baseTypes.Length; i++)
             {
-                if (baseTypes[i] is OptionalProvider)
+                if (baseTypes[i] is OptionalDefinition)
                 {
                     baseTypes[i] = systemOptionalProvider;
                 }

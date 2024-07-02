@@ -30,17 +30,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public ValueExpression GetInt16() => Expression.Invoke(nameof(JsonElement.GetInt16));
         public ValueExpression GetInt32() => Expression.Invoke(nameof(JsonElement.GetInt32));
         public ValueExpression GetInt64() => Expression.Invoke(nameof(JsonElement.GetInt64));
-        public StringSnippet GetRawText() => new(Expression.Invoke(nameof(JsonElement.GetRawText)));
+        public ScopedApi<string> GetRawText() => Expression.Invoke(nameof(JsonElement.GetRawText)).As<string>();
         public ValueExpression GetSingle() => Expression.Invoke(nameof(JsonElement.GetSingle));
-        public StringSnippet GetString() => new(Expression.Invoke(nameof(JsonElement.GetString)));
+        public ScopedApi<string> GetString() => Expression.Invoke(nameof(JsonElement.GetString)).As<string>();
 
-        public BoolSnippet ValueKindEqualsNull()
+        public ScopedApi<bool> ValueKindEqualsNull()
             => new(new BinaryOperatorExpression("==", Property(nameof(JsonElement.ValueKind)), FrameworkEnumValue(JsonValueKind.Null)));
 
-        public BoolSnippet ValueKindNotEqualsUndefined()
+        public ScopedApi<bool> ValueKindNotEqualsUndefined()
             => new(new BinaryOperatorExpression("!=", Property(nameof(JsonElement.ValueKind)), FrameworkEnumValue(JsonValueKind.Undefined)));
 
-        public BoolSnippet ValueKindEqualsString()
+        public ScopedApi<bool> ValueKindEqualsString()
             => new(new BinaryOperatorExpression("==", Property(nameof(JsonElement.ValueKind)), FrameworkEnumValue(JsonValueKind.String)));
 
         public MethodBodyStatement WriteTo(ValueExpression writer) => Expression.Invoke(nameof(JsonElement.WriteTo), [writer], false).Terminate();
@@ -59,28 +59,28 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public ValueExpression GetTimeSpan(string? format)
             => ModelSerializationExtensionsSnippet.GetTimeSpan(this, format);
 
-        public BoolSnippet TryGetProperty(string propertyName, out JsonElementSnippet discriminator)
+        public ScopedApi<bool> TryGetProperty(string propertyName, out JsonElementSnippet discriminator)
         {
             var discriminatorDeclaration = new VariableExpression(typeof(JsonElement), "discriminator");
             discriminator = new JsonElementSnippet(discriminatorDeclaration);
             var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetProperty), [Literal(propertyName), new DeclarationExpression(discriminatorDeclaration, true)], null, false);
-            return new BoolSnippet(invocation);
+            return invocation.As<bool>();
         }
 
-        public BoolSnippet TryGetInt32(out IntSnippet intValue)
+        public ScopedApi<bool> TryGetInt32(out ScopedApi<int> intValue)
         {
             var intValueDeclaration = new VariableExpression(typeof(int), "intValue");
-            intValue = new IntSnippet(intValueDeclaration);
+            intValue = intValueDeclaration.As<int>();
             var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetInt32), [new DeclarationExpression(intValueDeclaration, true)], null, false);
-            return new BoolSnippet(invocation);
+            return invocation.As<bool>();
         }
 
-        public BoolSnippet TryGetInt64(out LongSnippet longValue)
+        public ScopedApi<bool> TryGetInt64(out ScopedApi<long> longValue)
         {
             var longValueDeclaration = new VariableExpression(typeof(long), "longValue");
-            longValue = new LongSnippet(longValueDeclaration);
+            longValue = longValueDeclaration.As<long>();
             var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetInt64), [new DeclarationExpression(longValueDeclaration, true)], null, false);
-            return new BoolSnippet(invocation);
+            return invocation.As<bool>();
         }
     }
 }

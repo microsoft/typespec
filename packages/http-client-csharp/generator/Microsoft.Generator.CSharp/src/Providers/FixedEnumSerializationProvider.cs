@@ -98,7 +98,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 var enumField = _enumType.Fields[i];
                 var enumValue = _enumType.Members[i];
-                BoolSnippet condition;
+                ScopedApi<bool> condition;
                 if (_enumType.IsStringValueType)
                 {
                     // when the values are strings, we compare them case-insensitively

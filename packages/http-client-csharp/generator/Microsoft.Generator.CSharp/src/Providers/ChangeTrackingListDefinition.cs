@@ -13,7 +13,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    internal sealed class ChangeTrackingListProvider : TypeProvider
+    internal sealed class ChangeTrackingListDefinition : TypeProvider
     {
         private class ChangeTrackingListTemplate<T> { }
 
@@ -28,10 +28,10 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly CSharpType _iListOfT;
         private readonly CSharpType _iReadOnlyListOfT;
 
-        private BoolSnippet IsUndefined { get; } = new BoolSnippet(new MemberExpression(This, "IsUndefined"));
+        private ScopedApi<bool> IsUndefined { get; } = new(This.Property("IsUndefined"));
         private IndexableExpression EnsureList { get; init; }
 
-        public ChangeTrackingListProvider()
+        public ChangeTrackingListDefinition()
         {
             _t = typeof(ChangeTrackingListTemplate<>).GetGenericArguments()[0];
             _iListOfT = new CSharpType(typeof(IList<>), _t);
@@ -61,7 +61,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var iListSignature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [iList]);
             var iListBody = new MethodBodyStatement[]
             {
-                new IfStatement(iList.AsExpression.NotEqual(Null))
+                new IfStatement(iList.NotEqual(Null))
                 {
                     _innerList.Assign(iList).Terminate()
                 }
@@ -71,7 +71,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var iReadOnlyListSignature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [iReadOnlyList]);
             var iReadOnlyListBody = new MethodBodyStatement[]
             {
-                new IfStatement(iReadOnlyList.AsExpression.NotEqual(Null))
+                new IfStatement(iReadOnlyList.NotEqual(Null))
                 {
                     _innerList.Assign(Linq.ToList(iReadOnlyList)).Terminate()
                 }
@@ -130,7 +130,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private PropertyProvider BuildIndexer()
         {
             var indexParam = new ParameterProvider("index", $"The inner list.", typeof(int));
-            return new IndexerProvider(null, MethodSignatureModifiers.Public, _t, indexParam, new MethodPropertyBody(
+            return new IndexPropertyProvider(null, MethodSignatureModifiers.Public, _t, indexParam, new MethodPropertyBody(
                 new MethodBodyStatement[]
                 {
                     new IfStatement(IsUndefined)

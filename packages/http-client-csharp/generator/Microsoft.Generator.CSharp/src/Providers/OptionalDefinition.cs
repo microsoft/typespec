@@ -5,12 +5,13 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    public class OptionalProvider : TypeProvider
+    public class OptionalDefinition : TypeProvider
     {
         private class ListTemplate<T> { }
 
@@ -20,7 +21,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly CSharpType _genericChangeTrackingList;
         private readonly CSharpType _genericChangeTrackingDictionary;
 
-        public OptionalProvider()
+        public OptionalDefinition()
         {
             _genericChangeTrackingList = CodeModelPlugin.Instance.TypeFactory.ListInitializationType;
             _genericChangeTrackingDictionary = CodeModelPlugin.Instance.TypeFactory.DictionaryInitializationType;
@@ -75,7 +76,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetIsDefinedSignature(valueParam);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                Return(valueParam.AsExpression.NotEqual(Null))
+                Return(valueParam.NotEqual(Null))
             },
             this);
         }
@@ -86,7 +87,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetIsDefinedSignature(valueParam);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                Return(valueParam.AsExpression.NotEqual(Null))
+                Return(valueParam.NotEqual(Null))
             },
             this);
         }

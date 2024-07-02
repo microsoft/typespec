@@ -49,10 +49,10 @@ namespace Microsoft.Generator.CSharp
             [
                 ..BuildEnums(),
                 ..BuildModels(),
-                new ChangeTrackingListProvider(),
-                new ChangeTrackingDictionaryProvider(),
-                new ArgumentProvider(),
-                new OptionalProvider(),
+                new ChangeTrackingListDefinition(),
+                new ChangeTrackingDictionaryDefinition(),
+                new ArgumentDefinition(),
+                new OptionalDefinition(),
             ];
         }
     }

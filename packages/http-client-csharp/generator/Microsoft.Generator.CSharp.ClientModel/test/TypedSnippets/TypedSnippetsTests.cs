@@ -112,14 +112,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         [Test]
         public void OptionalSnippet_IsCollectionDefined()
         {
-            var member = new StringSnippet(new MemberExpression(null, "collection"));
+            var member = new MemberExpression(null, "collection").As<string>();
 
             var result = OptionalSnippet.IsCollectionDefined(member);
 
             Assert.IsNotNull(result);
-            var expression = result.Expression;
-            Assert.IsNotNull(expression);
-            var invoke = expression as InvokeStaticMethodExpression;
+            var invoke = result.Original as InvokeInstanceMethodExpression;
             Assert.IsNotNull(invoke);
             Assert.AreEqual("IsCollectionDefined", invoke?.MethodName);
         }
@@ -127,14 +125,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         [Test]
         public void OptionalSnippet_IsDefined()
         {
-            var member = new StringSnippet(new MemberExpression(null, "mock"));
+            var member = new MemberExpression(null, "mock").As<string>();
 
             var result = OptionalSnippet.IsDefined(member);
 
             Assert.IsNotNull(result);
-            var expression = result.Expression;
-            Assert.IsNotNull(expression);
-            var invoke = expression as InvokeStaticMethodExpression;
+            var invoke = result.Original as InvokeInstanceMethodExpression;
             Assert.IsNotNull(invoke);
             Assert.AreEqual("IsDefined", invoke?.MethodName);
         }

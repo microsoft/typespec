@@ -100,7 +100,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 this);
 
             var charValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(char));
-            var value = new CharSnippet(charValueParameter);
+            var value = charValueParameter.AsExpression.As<char>();
             var writeStringChar = new MethodProvider(
                 new MethodSignature(
                     Name: WriteStringValueMethodName,
@@ -200,7 +200,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: typeof(byte[]),
                 Description: null, ReturnDescription: null);
             var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
-            var format = new StringSnippet(_formatParameter);
             var body = new MethodBodyStatement[]
             {
                 new IfStatement(element.ValueKindEqualsNull())
@@ -208,10 +207,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Return(Null)
                 },
                 MethodBodyStatement.EmptyLine,
-                Return(new SwitchExpression(format,
+                Return(new SwitchExpression(_formatParameter,
                     new SwitchCaseExpression(Literal("U"), FromBase64UrlString(GetRequiredString(element))),
                     new SwitchCaseExpression(Literal("D"), element.GetBytesFromBase64()),
-                    SwitchCaseExpression.Default(ThrowExpression(New.ArgumentException(format, new FormattableStringExpression("Format is not supported: '{0}'", [format]))))
+                    SwitchCaseExpression.Default(ThrowExpression(New.ArgumentException(_formatParameter, new FormattableStringExpression("Format is not supported: '{0}'", [_formatParameter]))))
                     ))
             };
 
@@ -227,11 +226,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: typeof(DateTimeOffset),
                 Description: null, ReturnDescription: null);
             var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
-            var format = new StringSnippet(_formatParameter);
-            var body = new SwitchExpression(format,
-                SwitchCaseExpression.When(Literal("U"), element.ValueKind.Equal(JsonValueKindSnippet.Number), DateTimeOffsetSnippet.FromUnixTimeSeconds(element.GetInt64())),
+            var body = new SwitchExpression(_formatParameter,
+                SwitchCaseExpression.When(Literal("U"), element.ValueKind.Equal(JsonValueKindSnippet.Number), DateTimeOffsetSnippets.FromUnixTimeSeconds(element.GetInt64())),
                 // relying on the param check of the inner call to throw ArgumentNullException if GetString() returns null
-                SwitchCaseExpression.Default(ParseDateTimeOffset(element.GetString(), format))
+                SwitchCaseExpression.Default(ParseDateTimeOffset(element.GetString(), _formatParameter))
                 );
 
             return new MethodProvider(signature, body, this);
@@ -265,12 +263,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 element.ValueKindEqualsString(),
                 new MethodBodyStatement[]
                 {
-                    Declare("text", element.GetString(), out var text),
-                    new IfStatement(text.Equal(Null).Or(text.Length.NotEqual(Literal(1))))
+                    Declare("text", element.GetString(), out ScopedApi<string> text),
+                    new IfStatement(text.Equal(Null).Or(text.Length().NotEqual(Literal(1))))
                     {
                         Throw(New.NotSupportedException(new FormattableStringExpression("Cannot convert \\\"{0}\\\" to a char", [text])))
                     },
-                    Return(text[0])
+                    Return(text.Index(Int(0)))
                 },
                 Throw(New.NotSupportedException(new FormattableStringExpression("Cannot convert {0} to a char", [element.ValueKind])))
                 );
@@ -307,7 +305,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
             var body = new MethodBodyStatement[]
             {
-                Declare("value", element.GetString(), out var value),
+                Declare("value", element.GetString(), out ScopedApi<string> value),
                 new IfStatement(value.Equal(Null))
                 {
                     Throw(New.InvalidOperationException(new FormattableStringExpression("The requested operation requires an element of type 'String', but the target element has type '{0}'.", [element.ValueKind])))
@@ -333,7 +331,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Description: null, ReturnDescription: null);
             var writer = new Utf8JsonWriterSnippet(ScmKnownParameters.Utf8JsonWriter);
             var value = (ValueExpression)valueParameter;
-            var format = new StringSnippet(_formatParameter);
             var body = new MethodBodyStatement[]
             {
                 new IfStatement(value.Equal(Null))
@@ -341,7 +338,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     writer.WriteNullValue(),
                     Return()
                 },
-                new SwitchStatement(format)
+                new SwitchStatement(_formatParameter)
                 {
                     new(Literal("U"), new MethodBodyStatement[]
                     {
@@ -353,7 +350,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         writer.WriteBase64StringValue(value),
                         Break
                     }),
-                    SwitchCaseStatement.Default(Throw(New.ArgumentException(format, new FormattableStringExpression("Format is not supported: '{0}'", [format]))))
+                    SwitchCaseStatement.Default(Throw(New.ArgumentException(_formatParameter, new FormattableStringExpression("Format is not supported: '{0}'", [_formatParameter]))))
                 }
             };
 
@@ -370,13 +367,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
             var writer = new Utf8JsonWriterSnippet(ScmKnownParameters.Utf8JsonWriter);
-            var value = new DateTimeOffsetSnippet(valueParameter);
-            var format = new StringSnippet(_formatParameter);
+            var value = valueParameter.As<DateTimeOffset>();
             var body = new MethodBodyStatement[]
             {
-                new IfStatement(format.NotEqual(Literal("U")))
+                new IfStatement(_formatParameter.NotEqual(Literal("U")))
                 {
-                    Throw(New.ArgumentOutOfRangeException(format, "Only 'U' format is supported when writing a DateTimeOffset as a Number.")),
+                    Throw(New.ArgumentOutOfRangeException(_formatParameter, "Only 'U' format is supported when writing a DateTimeOffset as a Number.")),
                 },
                 writer.WriteNumberValue(value.ToUnixTimeSeconds())
             };
@@ -392,7 +388,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             MethodSignature signature = GetWriteObjectValueMethodSignature(null, out value, out writer, out options);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                writer.WriteObjectValue(new ObjectSnippet(value), options)
+                writer.WriteObjectValue(value.As<object>(), options)
             },
             this);
         }
@@ -453,7 +449,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 BuildWriteObjectValueSwitchCase(typeof(double), "d", d => new MethodBodyStatement[]
                 {
                     new IfElseStatement(
-                        DoubleSnippet.IsNan(d),
+                        DoubleSnippets.IsNan(d),
                         writer.WriteStringValue(Literal("NaN")),
                         writer.WriteNumberValue(d)),
                     Break
@@ -507,7 +503,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     new ForeachStatement("pair", new EnumerableSnippet(typeof(KeyValuePair<string, object>), enumerable), out var pair)
                     {
                         writer.WritePropertyName(pair.Property(nameof(KeyValuePair<string, object>.Key))),
-                        writer.WriteObjectValue(new ObjectSnippet(pair.Property(nameof(KeyValuePair<string, object>.Value))), options)
+                        writer.WriteObjectValue(pair.Property(nameof(KeyValuePair<string, object>.Value)).As<object>(), options)
                     },
                     writer.WriteEndObject(),
                     Break
@@ -518,7 +514,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     writer.WriteStartArray(),
                     new ForeachStatement("item", new EnumerableSnippet(typeof(object), objectEnumerable), out var item)
                     {
-                        writer.WriteObjectValue(new ObjectSnippet(item), options)
+                        writer.WriteObjectValue(item.As<object>(), options)
                     },
                     writer.WriteEndArray(),
                     Break

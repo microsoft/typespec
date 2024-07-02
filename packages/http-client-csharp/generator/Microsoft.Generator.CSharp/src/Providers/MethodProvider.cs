@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
-using static Microsoft.Generator.CSharp.Snippets.ArgumentSnippet;
+using static Microsoft.Generator.CSharp.Snippets.ArgumentSnippets;
 
 namespace Microsoft.Generator.CSharp.Providers
 {

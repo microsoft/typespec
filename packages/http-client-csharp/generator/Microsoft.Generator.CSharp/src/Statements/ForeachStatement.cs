@@ -45,7 +45,7 @@ namespace Microsoft.Generator.CSharp.Statements
             item = new VariableExpression(enumerable.ItemType, Item);
         }
 
-        public ForeachStatement(string itemName, DictionarySnippet dictionary, out KeyValuePairSnippet item)
+        public ForeachStatement(string itemName, DictionaryExpression dictionary, out KeyValuePairSnippet item)
             : this(null, new CodeWriterDeclaration(itemName), dictionary, false)
         {
             var variable = new VariableExpression(KeyValuePairSnippet.GetType(dictionary.KeyType, dictionary.ValueType), Item);

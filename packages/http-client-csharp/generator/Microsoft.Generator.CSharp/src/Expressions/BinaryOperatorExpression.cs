@@ -9,9 +9,9 @@ namespace Microsoft.Generator.CSharp.Expressions
         {
             writer.AppendRaw("(");
             Left.Write(writer);
-            writer.AppendRawIf(" ", !ReferenceEquals(Left, Empty));
+            writer.AppendRawIf(" ", !Left.IsEmptyExpression());
             writer.AppendRaw(Operator);
-            writer.AppendRawIf(" ", !ReferenceEquals(Right, Empty));
+            writer.AppendRawIf(" ", !Right.IsEmptyExpression());
             Right.Write(writer);
             writer.AppendRaw(")");
         }

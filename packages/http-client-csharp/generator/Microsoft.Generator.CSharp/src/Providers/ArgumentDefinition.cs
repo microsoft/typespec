@@ -9,12 +9,12 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
-using static Microsoft.Generator.CSharp.Snippets.ArgumentSnippet;
+using static Microsoft.Generator.CSharp.Snippets.ArgumentSnippets;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    internal class ArgumentProvider : TypeProvider
+    internal class ArgumentDefinition : TypeProvider
     {
         private class Template<T> { }
 
@@ -26,7 +26,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly ParameterProvider _nameParam = new ParameterProvider("name", $"The name.", typeof(string));
         private readonly CSharpType _nullableT;
 
-        public ArgumentProvider()
+        public ArgumentDefinition()
         {
             _nullableT = _t.WithNullable(true);
         }
@@ -83,7 +83,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetSignature("AssertNull", [value, _nameParam, message], [_t]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                new IfStatement(value.AsExpression.NotEqual(Null))
+                new IfStatement(value.NotEqual(Null))
                 {
                     ThrowArgumentException(NullCoalescing(message, Literal("Value must be null.")))
                 }
@@ -122,7 +122,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetSignature("AssertEnumDefined", [enumType, value, _nameParam]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                new IfStatement(Not(new BoolSnippet(new InvokeStaticMethodExpression(typeof(Enum), "IsDefined", [enumType, value]))))
+                new IfStatement(Not(Static<Enum>().Invoke("IsDefined", [enumType, value])))
                 {
                     ThrowArgumentException(new FormattableStringExpression("Value not defined for {0}.", [new MemberExpression(enumType, "FullName")]))
                 }
@@ -164,7 +164,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetSignature("AssertNotDefault", [valueParamWithRef, _nameParam], [_t], whereExpressions);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                new IfStatement(new BoolSnippet(value.Invoke("Equals", Default)))
+                new IfStatement(value.Invoke("Equals", Default))
                 {
                     ThrowArgumentException("Value cannot be empty.")
                 }
@@ -176,11 +176,10 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             var valueParam = new ParameterProvider("value", $"The value.", typeof(string));
             var signature = GetSignature(AssertNotNullOrWhiteSpaceMethodName, [valueParam, _nameParam]);
-            var value = new StringSnippet(valueParam);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 AssertNotNullSnippet(valueParam),
-                new IfStatement(StringSnippet.IsNullOrWhiteSpace(value))
+                new IfStatement(StringSnippets.IsNullOrWhiteSpace(valueParam.As<string>()))
                 {
                     ThrowArgumentException("Value cannot be empty or contain only white-space characters.")
                 }
@@ -192,11 +191,10 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             var valueParam = new ParameterProvider("value", $"The value.", typeof(string));
             var signature = GetSignature(AssertNotNullOrEmptyMethodName, [valueParam, _nameParam]);
-            var value = new StringSnippet(valueParam);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 AssertNotNullSnippet(valueParam),
-                new IfStatement(value.Length.Equal(Literal(0)))
+                new IfStatement(valueParam.As<string>().Length().Equal(Literal(0)))
                 {
                     ThrowArgumentException("Value cannot be an empty string.")
                 }
@@ -221,7 +219,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     ThrowArgumentException(throwMessage)
                 },
                 UsingDeclare("e", new CSharpType(typeof(IEnumerator<>), _t), value.Invoke("GetEnumerator"), out var eVar),
-                new IfStatement(Not(new BoolSnippet(eVar.Invoke("MoveNext"))))
+                new IfStatement(Not(eVar.Invoke("MoveNext")))
                 {
                     ThrowArgumentException(throwMessage)
                 }
@@ -229,7 +227,7 @@ namespace Microsoft.Generator.CSharp.Providers
             this);
         }
 
-        private static BoolSnippet IsCollectionEmpty(ParameterProvider valueParam, VariableExpression collection)
+        private static ScopedApi<bool> IsCollectionEmpty(ParameterProvider valueParam, VariableExpression collection)
         {
             return valueParam.AsExpression.Is(new DeclarationExpression(collection)).And(new MemberExpression(collection, "Count").Equal(Literal(0)));
         }
@@ -247,7 +245,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetSignature(AssertNotNullMethodName, [value, _nameParam], [_t], [Where.Struct(_t)]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                new IfStatement(Not(new BoolSnippet(new MemberExpression(value, "HasValue"))))
+                new IfStatement(Not(value.Property("HasValue")))
                 {
                     Throw(New.ArgumentNullException(_nameParam, false))
                 }

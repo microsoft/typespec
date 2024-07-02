@@ -30,11 +30,16 @@ namespace Microsoft.Generator.CSharp.Snippets
             return Declare(variableRef, value);
         }
 
-        public static MethodBodyStatement Declare(string name, BinaryDataSnippet value, out BinaryDataSnippet variable)
-            => Declare(name, value, d => new BinaryDataSnippet(d), out variable);
+        public static MethodBodyStatement Declare(string name, ScopedApi<BinaryData> value, out ScopedApi<BinaryData> variable)
+            => Declare(name, value, out variable);
 
-        public static MethodBodyStatement Declare(string name, DictionarySnippet value, out DictionarySnippet variable)
-            => Declare(name, value, d => new DictionarySnippet(value.KeyType, value.ValueType, d), out variable);
+        public static MethodBodyStatement Declare(string name, DictionaryExpression value, out DictionaryExpression variable)
+        {
+            var declaration = new CodeWriterDeclaration(name);
+            var variableExpression = new VariableExpression(value.Type, declaration);
+            variable = variableExpression.AsDictionary(value.KeyType, value.ValueType);
+            return new DeclarationExpression(variableExpression).Assign(value).Terminate();
+        }
 
         public static MethodBodyStatement Declare(string name, EnumerableSnippet value, out EnumerableSnippet variable)
             => Declare(name, value, d => new EnumerableSnippet(value.ItemType, d), out variable);
@@ -42,8 +47,8 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement Declare(string name, ListSnippet value, out ListSnippet variable)
             => Declare(name, value, d => new ListSnippet(value.ItemType, d), out variable);
 
-        public static MethodBodyStatement Declare(string name, StringSnippet value, out StringSnippet variable)
-            => Declare(name, value, d => new StringSnippet(d), out variable);
+        public static MethodBodyStatement Declare(string name, ScopedApi<string> value, out ScopedApi<string> variable)
+            => Declare(name, value, out variable);
 
         public static MethodBodyStatement Declare(string name, StreamReaderSnippet value, out StreamReaderSnippet variable)
             => Declare(name, value, d => new StreamReaderSnippet(d), out variable);
@@ -55,10 +60,17 @@ namespace Microsoft.Generator.CSharp.Snippets
             return Declare(declaration, value);
         }
 
+        public static MethodBodyStatement Declare<T>(string name, ScopedApi<T> value, out VariableExpression variable)
+        {
+            var declaration = new VariableExpression(value.Type, name);
+            variable = declaration;
+            return Declare(declaration, value);
+        }
+
         public static MethodBodyStatement Declare(VariableExpression variable, ValueExpression value)
             => new DeclarationExpression(variable).Assign(value).Terminate();
 
-        private static MethodBodyStatement UsingDeclare<T>(string name, T value, Func<ValueExpression, T> factory, out T variable) where T : TypedSnippet
+        private static MethodBodyStatement UsingDeclare<T>(string name, T value, Func<VariableExpression, T> factory, out T variable) where T : TypedSnippet
         {
             var declaration = new CodeWriterDeclaration(name);
             var variableExpression = new VariableExpression(value.Type, declaration);
@@ -66,11 +78,19 @@ namespace Microsoft.Generator.CSharp.Snippets
             return UsingDeclare(variableExpression, value);
         }
 
-        private static MethodBodyStatement Declare<T>(string name, T value, Func<ValueExpression, T> factory, out T variable) where T : TypedSnippet
+        private static MethodBodyStatement Declare<T>(string name, T value, Func<VariableExpression, T> factory, out T variable) where T : TypedSnippet
         {
             var declaration = new CodeWriterDeclaration(name);
             var variableExpression = new VariableExpression(value.Type, declaration);
             variable = factory(variableExpression);
+            return new DeclarationExpression(variableExpression).Assign(value).Terminate();
+        }
+
+        private static MethodBodyStatement Declare<T>(string name, ScopedApi<T> value, out ScopedApi<T> variable)
+        {
+            var declaration = new CodeWriterDeclaration(name);
+            var variableExpression = new VariableExpression(value.Type, declaration);
+            variable = new(variableExpression);
             return new DeclarationExpression(variableExpression).Assign(value).Terminate();
         }
     }

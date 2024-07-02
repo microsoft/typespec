@@ -497,7 +497,16 @@ namespace Microsoft.Generator.CSharp.Primitives
             return type;
         }
 
-        public static implicit operator CSharpType(Type type) => new CSharpType(type);
+        private static readonly Dictionary<Type, CSharpType> _cache = new();
+        public static implicit operator CSharpType(Type type)
+        {
+            if (!_cache.TryGetValue(type, out var result))
+            {
+                result = new CSharpType(type);
+                _cache[type] = result;
+            }
+            return result;
+        }
 
         public sealed override string ToString()
         {
