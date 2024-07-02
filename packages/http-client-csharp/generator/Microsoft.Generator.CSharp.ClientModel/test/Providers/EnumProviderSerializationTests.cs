@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
@@ -14,9 +15,9 @@ using Moq;
 using Moq.Protected;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.Tests.Providers
+namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 {
-    public class EnumProviderTests
+    public class EnumProviderSerializationTests
     {
         internal const string NewLine = "\n";
 

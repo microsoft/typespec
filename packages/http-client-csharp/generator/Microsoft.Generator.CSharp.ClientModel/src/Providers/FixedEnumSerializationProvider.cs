@@ -7,11 +7,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp.Providers
+namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     /// <summary>
     /// This defines a class with extension methods for enums to convert an enum to its underlying value, or from its underlying value to an instance of the enum
@@ -44,7 +45,8 @@ namespace Microsoft.Generator.CSharp.Providers
         private bool NeedsSerializationMethod()
         {
             // fixed enum with int based types, we do not write a method for serialization because it was embedded in the definition
-            if (_enumType is { IsExtensible: false, IsIntValueType: true })
+            bool isIntValueType = _enumType.ValueType.Equals(typeof(int)) || _enumType.ValueType.Equals(typeof(long));
+            if (!_enumType.IsExtensible && isIntValueType)
                 return false;
 
             // otherwise we need a serialization method with the name of `ToSerial{UnderlyingTypeName}`
@@ -98,7 +100,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 var enumField = _enumType.Fields[i];
                 var enumValue = _enumType.Members[i];
                 BoolSnippet condition;
-                if (_enumType.IsStringValueType)
+                if (_enumType.ValueType.Equals(typeof(string)))
                 {
                     // when the values are strings, we compare them case-insensitively
                     // this is either
@@ -130,7 +132,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public ValueExpression ToSerial(ValueExpression enumExpression)
         {
-            if (_enumType.IsIntValueType)
+            if (_enumType.ValueType.Equals(typeof(int)) || _enumType.ValueType.Equals(typeof(long)))
             {
                 // when the fixed enum is implemented as int, we cast to the value
                 return enumExpression.CastTo(_enumType.ValueType);

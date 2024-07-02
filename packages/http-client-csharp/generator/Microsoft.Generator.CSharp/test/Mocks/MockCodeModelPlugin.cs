@@ -22,7 +22,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
         public override TypeFactory TypeFactory => new MockTypeFactory();
         public override OutputLibrary OutputLibrary => throw new NotImplementedException();
-        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(TypeProvider provider, InputType inputModel) => throw new NotImplementedException();
+        // override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(TypeProvider provider, InputType inputModel) => throw new NotImplementedException();
         public override string LicenseString => "// License string";
     }
 }

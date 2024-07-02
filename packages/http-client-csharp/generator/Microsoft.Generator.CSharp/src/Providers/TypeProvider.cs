@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
@@ -97,8 +98,9 @@ namespace Microsoft.Generator.CSharp.Providers
         private IReadOnlyList<TypeProvider>? _nestedTypes;
         public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypes();
 
-        private IReadOnlyList<TypeProvider>? _serializationProviders;
-        public virtual IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
+        //private IReadOnlyList<TypeProvider>? _serializationProviders;
+        //public virtual IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
+        public virtual IReadOnlyList<TypeProvider> SerializationProviders => CodeModelPlugin.Instance.TypeFactory.GetSerializationTypeProviders(this, null);
 
         protected virtual CSharpType[] BuildTypeArguments() => Array.Empty<CSharpType>();
 

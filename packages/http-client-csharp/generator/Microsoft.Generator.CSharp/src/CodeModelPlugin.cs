@@ -40,23 +40,5 @@ namespace Microsoft.Generator.CSharp
         public InputLibrary InputLibrary => _inputLibrary.Value;
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
         public virtual IReadOnlyList<MetadataReference> AdditionalMetadataReferences => Array.Empty<MetadataReference>();
-
-        /// <summary>
-        /// Returns the serialization type providers for the given model type provider.
-        /// </summary>
-        /// <param name="provider">The model type provider.</param>
-        /// <param name="inputModel">The input model.</param>
-        public virtual IReadOnlyList<TypeProvider> GetSerializationTypeProviders(TypeProvider provider, InputType inputMoedl)
-        {
-            if (provider is EnumProvider { IsExtensible: true } fixedProvider)
-            {
-                return [new ExtensibleEnumSerializationProvider(fixedProvider)];
-            }
-            else if (provider is EnumProvider { IsExtensible: false } extensibleProvider)
-            {
-                return [new FixedEnumSerializationProvider(extensibleProvider)];
-            }
-            return Array.Empty<TypeProvider>();
-        }
     }
 }

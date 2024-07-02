@@ -647,15 +647,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             CSharpType type,
             ValueExpression value)
         {
+            //FIX - have to cast EnumProvider here to FixedEnumSerializationProvider or ExtensibleEnumSerializationProvider
             var enumerableSnippet = new EnumerableSnippet(type, value.NullableStructValue(type));
             if ((EnumIsIntValueType(enumProvider) && !enumProvider.IsExtensible) || EnumIsNumericValueType(enumProvider))
             {
-                return _utf8JsonWriterSnippet.WriteNumberValue(enumProvider.ToSerial(enumerableSnippet));
+                return _utf8JsonWriterSnippet.WriteNumberValue((new FixedEnumSerializationProvider(enumProvider)).ToSerial(enumerableSnippet));
             }
             else
             {
-                return _utf8JsonWriterSnippet.WriteStringValue(enumProvider.ToSerial(enumerableSnippet));
+                return _utf8JsonWriterSnippet.WriteStringValue((new ExtensibleEnumSerializationProvider(enumProvider)).ToSerial(enumerableSnippet));
             }
+            throw new NotImplementedException();
         }
 
         private MethodBodyStatement SerializeValueType(

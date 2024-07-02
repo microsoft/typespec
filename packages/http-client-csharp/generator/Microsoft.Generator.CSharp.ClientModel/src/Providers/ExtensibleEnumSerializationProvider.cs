@@ -4,9 +4,10 @@
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Providers;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp.Providers
+namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     /// <summary>
     /// This defines a class with extension methods for enums to convert an enum to its underlying value, or from its underlying value to an instance of the enum
@@ -29,7 +30,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public ValueExpression ToSerial(ValueExpression enumExpression)
         {
-            var serialMethodName = _enumType.IsStringValueType ? nameof(object.ToString) : $"ToSerial{_enumType.ValueType.Name}";
+            var serialMethodName = _enumType.ValueType.Equals(typeof(string)) ? nameof(object.ToString) : $"ToSerial{_enumType.ValueType.Name}";
             return enumExpression.Invoke(serialMethodName);
         }
 

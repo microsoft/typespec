@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 
@@ -71,6 +72,24 @@ namespace Microsoft.Generator.CSharp.ClientModel
         {
             // TO-DO: Determine what the correct type is for Page: https://github.com/Azure/autorest.csharp/issues/4166
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Returns the serialization type providers for the given model type provider.
+        /// </summary>
+        /// <param name="provider">The model type provider.</param>
+        /// <param name="inputModel">The input model.</param>
+        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(TypeProvider provider, InputType? type)
+        {
+            if (provider is EnumProvider { IsExtensible: true } fixedProvider)
+            {
+                return [new ExtensibleEnumSerializationProvider(fixedProvider)];
+            }
+            else if (provider is EnumProvider { IsExtensible: false } extensibleProvider)
+            {
+                return [new FixedEnumSerializationProvider(extensibleProvider)];
+            }
+            return Array.Empty<TypeProvider>();
         }
     }
 }

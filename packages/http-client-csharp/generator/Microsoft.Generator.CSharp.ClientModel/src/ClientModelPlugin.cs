@@ -33,14 +33,14 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         /// <param name="provider">The model type provider.</param>
         /// <param name="inputModel">The input model.</param>
-        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(TypeProvider provider, InputType inputType)
+        public IReadOnlyList<TypeProvider> GetSerializationTypeProviders(TypeProvider provider, InputType? inputType)
         {
             switch (inputType)
             {
                 case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
                     return [new MrwSerializationTypeProvider(provider, inputModel)];
                 default:
-                    return base.GetSerializationTypeProviders(provider, inputType);
+                    return TypeFactory.GetSerializationTypeProviders(provider, inputType);
             }
         }
 
