@@ -105,7 +105,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
         // This test validates the json model serialization write method object declaration is built correctly
         [Test]
-        public void BuildJsonModelWriteMethodObjectDeclaration()
+        public void TestBuildJsonModelWriteMethodObjectDeclaration()
         {
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, true);
             var mockModelTypeProvider = new ModelProvider(inputModel);
@@ -218,7 +218,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
         // This test validates the PersistableModel serialization write method object declaration is built correctly
         [Test]
-        public void BuildPersistableModelWriteMethodObjectDeclaration()
+        public void TestBuildPersistableModelWriteMethodObjectDeclaration()
         {
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, true);
             var mockModelTypeProvider = new ModelProvider(inputModel);
@@ -272,7 +272,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             Assert.AreEqual(expectedReturnType, methodSignature?.ReturnType);
         }
 
-        // This test validates the I model get format method is built correctly
+        // This test validates the persistable model get format method is built correctly
         [Test]
         public void TestBuildPersistableModelGetFormatMethod()
         {
@@ -294,6 +294,41 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             var methodBody = method?.BodyExpression;
             Assert.IsNotNull(methodBody);
+        }
+
+        // This test validates the persistable model get format method object declaration is built correctly
+        [Test]
+        public void TestBuildPersistableModelGetFormatMethodObjectDeclaration()
+        {
+            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, true);
+            var mockModelTypeProvider = new ModelProvider(inputModel);
+            var jsonMrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider, inputModel);
+            var method = jsonMrwSerializationTypeProvider.BuildPersistableModelGetFormatFromOptionsObjectDeclaration();
+
+            Assert.IsNotNull(method);
+
+            var expectedInterface = new CSharpType(typeof(IPersistableModel<object>));
+            var methodSignature = method?.Signature as MethodSignature;
+            Assert.IsNotNull(methodSignature);
+            Assert.AreEqual("GetFormatFromOptions", methodSignature?.Name);
+            Assert.AreEqual(expectedInterface, methodSignature?.ExplicitInterface);
+            Assert.AreEqual(1, methodSignature?.Parameters.Count);
+            var expectedReturnType = new CSharpType(typeof(string));
+            Assert.AreEqual(expectedReturnType, methodSignature?.ReturnType);
+
+            // Check method modifiers
+            var expectedModifiers = MethodSignatureModifiers.None;
+            Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers, "Method modifiers do not match the expected value.");
+
+
+            // Validate body
+            var methodBody = method?.BodyStatements;
+            Assert.IsNull(methodBody);
+            var bodyExpression = method?.BodyExpression as InvokeInstanceMethodExpression;
+            Assert.IsNotNull(bodyExpression);
+            Assert.AreEqual("GetFormatFromOptions", bodyExpression?.MethodName);
+            Assert.IsNotNull(bodyExpression?.InstanceReference);
+            Assert.AreEqual(1, bodyExpression?.Arguments.Count);
         }
 
         [Test]

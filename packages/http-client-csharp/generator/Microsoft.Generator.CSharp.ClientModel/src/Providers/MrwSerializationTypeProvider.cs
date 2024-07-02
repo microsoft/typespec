@@ -182,6 +182,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 methods.Add(BuildJsonModelWriteMethodObjectDeclaration());
                 methods.Add(BuildPersistableModelWriteMethodObjectDeclaration());
+                methods.Add(BuildPersistableModelGetFormatFromOptionsObjectDeclaration());
             }
 
             return [.. methods];
@@ -381,10 +382,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         internal MethodProvider BuildPersistableModelGetFormatFromOptionsMethod()
         {
             ValueExpression jsonWireFormat = SystemSnippet.JsonFormatSerialization;
-            // ModelReaderWriterFormat IPersistableModel<T>.GetFormatFromOptions(ModelReaderWriterOptions options)
+            // string IPersistableModel<T>.GetFormatFromOptions(ModelReaderWriterOptions options)
             return new MethodProvider
             (
-                new MethodSignature(nameof(IPersistableModel<object>.GetFormatFromOptions), null, MethodSignatureModifiers.None, typeof(string), null, new[] { _serializationOptionsParameter }, ExplicitInterface: _persistableModelTInterface),
+                new MethodSignature(nameof(IPersistableModel<object>.GetFormatFromOptions), null, MethodSignatureModifiers.None, typeof(string), null, [_serializationOptionsParameter], ExplicitInterface: _persistableModelTInterface),
                 jsonWireFormat,
                 this
             );
@@ -402,6 +403,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             (
                 new MethodSignature(GetObjectInstanceMethodName, null, modifiers, typeof(object), null, [returnTypeParam]),
                 BuildGetObjectInstanceMethodBody(returnTypeParam),
+                this
+            );
+        }
+
+        /// Builds the <see cref="IPersistableModel{object}"/> GetFormatFromOptions method for the model object.
+        /// </summary>
+        internal MethodProvider BuildPersistableModelGetFormatFromOptionsObjectDeclaration()
+        {
+            ValueExpression jsonWireFormat = SystemSnippet.JsonFormatSerialization;
+            var castToT = This.CastTo(_persistableModelTInterface);
+
+            // string IPersistableModel<object>.GetFormatFromOptions(ModelReaderWriterOptions options) => ((IPersistableModel<T>)this).GetFormatFromOptions(options);
+            return new MethodProvider
+            (
+                new MethodSignature(nameof(IPersistableModel<object>.GetFormatFromOptions), null, MethodSignatureModifiers.None, typeof(string), null, [_serializationOptionsParameter], ExplicitInterface: _persistableModelObjectInterface),
+                castToT.Invoke(nameof(IPersistableModel<object>.GetFormatFromOptions), [_serializationOptionsParameter]),
                 this
             );
         }

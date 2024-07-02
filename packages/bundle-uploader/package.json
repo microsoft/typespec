@@ -37,8 +37,8 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@azure/identity": "~4.2.1",
-    "@azure/storage-blob": "~12.18.0",
+    "@azure/identity": "~4.3.0",
+    "@azure/storage-blob": "~12.23.0",
     "@pnpm/find-workspace-packages": "^6.0.9",
     "@typespec/bundler": "workspace:~",
     "json5": "^2.2.3",
@@ -50,9 +50,9 @@
     "@types/semver": "^7.5.8",
     "@vitest/coverage-v8": "^1.6.0",
     "@vitest/ui": "^1.6.0",
-    "c8": "^9.1.0",
+    "c8": "^10.1.2",
     "rimraf": "~5.0.7",
-    "typescript": "~5.4.5",
+    "typescript": "~5.5.3",
     "vitest": "^1.6.0"
   }
 }
