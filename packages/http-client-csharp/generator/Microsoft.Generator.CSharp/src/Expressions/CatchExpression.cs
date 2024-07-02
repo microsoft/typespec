@@ -16,6 +16,7 @@ namespace Microsoft.Generator.CSharp.Expressions
                 Exception.Write(writer);
                 writer.WriteRawLine(")");
             }
+
             using (writer.Scope())
             {
                 Body.Write(writer);
