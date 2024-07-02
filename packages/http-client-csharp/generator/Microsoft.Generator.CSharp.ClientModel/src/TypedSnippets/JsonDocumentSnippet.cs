@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.IO;
 using System.Text.Json;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
@@ -15,9 +16,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public static JsonDocumentSnippet ParseValue(ValueExpression reader) => new(InvokeStatic(nameof(JsonDocument.ParseValue), reader));
         public static JsonDocumentSnippet Parse(ValueExpression json) => new(InvokeStatic(nameof(JsonDocument.Parse), json));
         public static JsonDocumentSnippet Parse(ScopedApi<BinaryData> binaryData) => new(InvokeStatic(nameof(JsonDocument.Parse), binaryData));
-        public static JsonDocumentSnippet Parse(StreamSnippet stream) => new(InvokeStatic(nameof(JsonDocument.Parse), stream));
+        public static JsonDocumentSnippet Parse(ScopedApi<Stream> stream) => new(InvokeStatic(nameof(JsonDocument.Parse), stream));
 
-        public static JsonDocumentSnippet Parse(StreamSnippet stream, bool async)
+        public static JsonDocumentSnippet Parse(ScopedApi<Stream> stream, bool async)
         {
             // Sync and async methods have different set of parameters
             return async

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.IO;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
@@ -23,7 +24,7 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static ValueExpression ToMemory(this ScopedApi<BinaryData> binaryData) => binaryData.Invoke(nameof(BinaryData.ToMemory));
 
-        public static StreamSnippet ToStream(this ScopedApi<BinaryData> binaryData) => new(binaryData.Invoke(nameof(BinaryData.ToStream)));
+        public static ScopedApi<Stream> ToStream(this ScopedApi<BinaryData> binaryData) => new(binaryData.Invoke(nameof(BinaryData.ToStream)));
 
         public static ScopedApi<BinaryData> FromBytes(ValueExpression data)
             => Static<BinaryData>().Invoke(nameof(BinaryData.FromBytes), data).As<BinaryData>();

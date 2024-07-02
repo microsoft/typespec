@@ -17,9 +17,6 @@ namespace Microsoft.Generator.CSharp.Snippets
             return UsingDeclare(variable, value);
         }
 
-        public static MethodBodyStatement UsingDeclare(string name, StreamSnippet value, out StreamSnippet variable)
-            => UsingDeclare(name, value, d => new StreamSnippet(d), out variable);
-
         public static MethodBodyStatement UsingDeclare(VariableExpression variable, ValueExpression value)
             => new DeclarationExpression(variable, false, true).Assign(value).Terminate();
 
@@ -71,6 +68,14 @@ namespace Microsoft.Generator.CSharp.Snippets
             var variableExpression = new VariableExpression(value.Type, declaration);
             variable = factory(variableExpression);
             return new DeclarationExpression(variableExpression).Assign(value).Terminate();
+        }
+
+        public static MethodBodyStatement UsingDeclare<T>(string name, ScopedApi<T> value, out ScopedApi<T> variable)
+        {
+            var declaration = new CodeWriterDeclaration(name);
+            var variableExpression = new VariableExpression(value.Type, declaration);
+            variable = new(variableExpression);
+            return UsingDeclare(variableExpression, value);
         }
 
         public static MethodBodyStatement Declare<T>(string name, ScopedApi<T> value, out ScopedApi<T> variable)

@@ -3,6 +3,7 @@
 
 using System;
 using System.ClientModel;
+using System.IO;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
@@ -13,7 +14,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
     {
         public ValueExpression Value => Property(nameof(ClientResult<object>.Value));
         public ScopedApi<BinaryData> Content => throw new InvalidOperationException("Result does not have a Content property");
-        public StreamSnippet ContentStream => throw new InvalidOperationException("Result does not have a ContentStream property");
+        public ScopedApi<Stream> ContentStream => throw new InvalidOperationException("Result does not have a ContentStream property");
 
         public static ClientResultSnippet FromResponse(PipelineResponseSnippet response)
             => new(InvokeStatic(nameof(ClientResult.FromResponse), response));

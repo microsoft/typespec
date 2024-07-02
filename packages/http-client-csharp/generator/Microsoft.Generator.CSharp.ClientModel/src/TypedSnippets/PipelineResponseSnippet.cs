@@ -3,6 +3,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.IO;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
 
@@ -12,7 +13,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
     {
         public ScopedApi<BinaryData> Content => new(Property(nameof(PipelineResponse.Content)));
 
-        public StreamSnippet ContentStream => new(Property(nameof(PipelineResponse.ContentStream)));
+        public ScopedApi<Stream> ContentStream => new(Property(nameof(PipelineResponse.ContentStream)));
 
         public ScopedApi<bool> IsError => new(Property(nameof(PipelineResponse.IsError)));
     }
