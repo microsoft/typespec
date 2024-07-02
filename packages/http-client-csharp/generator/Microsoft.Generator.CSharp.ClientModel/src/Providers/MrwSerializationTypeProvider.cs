@@ -30,6 +30,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private const string PrivateAdditionalPropertiesPropertyName = "_serializedAdditionalRawData";
         private const string JsonModelWriteCoreMethodName = "JsonModelWriteCore";
         private const string PersistableModelWriteCoreMethodName = "PersistableModelWriteCore";
+        private const string PersistableModelCreateCoreMethodName = "PersistableModelCreateCore";
         private const string WriteAction = "writing";
         private const string ReadAction = "reading";
         private const string AdditionalRawDataVarName = "serializedAdditionalRawData";
@@ -38,6 +39,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             new("options", $"The client options for reading and writing models.", typeof(ModelReaderWriterOptions));
         private readonly ParameterProvider _jsonElementDeserializationParam =
             new("element", $"The JSON element to deserialize", typeof(JsonElement));
+        private readonly ParameterProvider _dataParameter = new("data", $"The data to parse.", typeof(BinaryData));
         private readonly Utf8JsonWriterSnippet _utf8JsonWriterSnippet;
         private readonly ModelReaderWriterOptionsSnippet _mrwOptionsParameterSnippet;
         private readonly JsonElementSnippet _jsonElementParameterSnippet;
@@ -171,6 +173,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 BuildPersistableModelWriteMethod(),
                 BuildPersistableModelWriteCoreMethod(),
                 BuildPersistableModelCreateMethod(),
+                BuildPersistableModelCreateCoreMethod(),
                 BuildPersistableModelGetFormatFromOptionsMethod(),
                 //cast operators
                 BuildImplicitToBinaryContent(),
@@ -182,6 +185,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 methods.Add(BuildJsonModelWriteMethodObjectDeclaration());
                 methods.Add(BuildPersistableModelWriteMethodObjectDeclaration());
                 methods.Add(BuildPersistableModelGetFormatFromOptionsObjectDeclaration());
+                methods.Add(BuildPersistableModelCreateMethodObjectDeclaration());
             }
 
             return [.. methods];
@@ -271,6 +275,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         /// <summary>
+        /// Builds the <see cref="IPersistableModel{T}"/> create method for the model object.
+        /// </summary>
+        internal MethodProvider BuildPersistableModelCreateMethodObjectDeclaration()
+        {
+            // object IPersistableModel<object>.Create(BinaryData data, ModelReaderWriterOptions options) => ((IPersistableModel<T>)this).Create(data, options);
+            var castToT = This.CastTo(_persistableModelTInterface);
+            var returnType = typeof(object);
+            return new MethodProvider
+            (
+              new MethodSignature(nameof(IPersistableModel<object>.Create), null, MethodSignatureModifiers.None, returnType, null, [_dataParameter, _serializationOptionsParameter], ExplicitInterface: _persistableModelObjectInterface),
+              castToT.Invoke(nameof(IPersistableModel<object>.Create), [_dataParameter, _serializationOptionsParameter]),
+              this
+            );
+        }
+
+        /// <summary>
         /// Builds the <see cref="IJsonModel{T}"/> write core method for the model.
         /// </summary>
         internal MethodProvider BuildJsonModelWriteCoreMethod()
@@ -306,6 +326,27 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             (
               new MethodSignature(PersistableModelWriteCoreMethodName, null, modifiers, returnType, null, [ _serializationOptionsParameter]),
               BuildPersistableModelWriteCoreMethodBody(),
+              this
+            );
+        }
+
+        /// <summary>
+        /// Builds the <see cref="IPersistableModel{T}"/> create core method for the model.
+        /// </summary>
+        internal MethodProvider BuildPersistableModelCreateCoreMethod()
+        {
+            MethodSignatureModifiers modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+            if (_shouldOverrideMethods)
+            {
+                modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
+            }
+
+            var typeOfT = GetModelArgumentType(_jsonModelTInterface);
+            // T PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+            return new MethodProvider
+            (
+              new MethodSignature(PersistableModelCreateCoreMethodName, null, modifiers, typeOfT, null, [_dataParameter, _serializationOptionsParameter]),
+              BuildPersistableModelCreateCoreMethodBody(),
               this
             );
         }
@@ -365,13 +406,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         internal MethodProvider BuildPersistableModelCreateMethod()
         {
             ParameterProvider dataParameter = new("data", $"The data to parse.", typeof(BinaryData));
-            // IPersistableModel<T>.Create(BinaryData data, ModelReaderWriterOptions options)
+            // IPersistableModel<T>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
             var typeOfT = GetModelArgumentType(_persistableModelTInterface);
             return new MethodProvider
             (
-                new MethodSignature(nameof(IPersistableModel<object>.Create), null, MethodSignatureModifiers.None, typeOfT, null, new[] { dataParameter, _serializationOptionsParameter }, ExplicitInterface: _persistableModelTInterface),
-                // Throw a not implemented exception until this method body is implemented https://github.com/microsoft/typespec/issues/3330
-                Throw(New.NotImplementedException(Literal("Not implemented"))),
+                new MethodSignature(nameof(IPersistableModel<object>.Create), null, MethodSignatureModifiers.None, typeOfT, null, [dataParameter, _serializationOptionsParameter], ExplicitInterface: _persistableModelTInterface),
+                This.Invoke(PersistableModelCreateCoreMethodName, [dataParameter, _serializationOptionsParameter]),
                 this
             );
         }
@@ -526,6 +566,29 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 new SwitchStatement(format, [switchCase, defaultCase])
             ];
         }
+
+        private MethodBodyStatement[] BuildPersistableModelCreateCoreMethodBody()
+        {
+            var switchCase = new SwitchCaseStatement(
+                ModelReaderWriterOptionsSnippet.JsonFormat,
+                new MethodBodyStatement[]
+                {
+                    new UsingScopeStatement(typeof(JsonDocument), "document", JsonDocumentSnippet.Parse(_dataParameter), out var jsonDocumentVar)
+                    {
+                        Return(TypeProviderSnippet.Deserialize(_model, new JsonDocumentSnippet(jsonDocumentVar).RootElement, _serializationOptionsParameter))
+                    },
+               });
+            var typeOfT = _persistableModelTInterface.Arguments[0];
+            var defaultCase = SwitchCaseStatement.Default(
+                ThrowValidationFailException(_mrwOptionsParameterSnippet.Format, typeOfT, ReadAction));
+
+            return
+            [
+                GetConcreteFormat(_mrwOptionsParameterSnippet, _persistableModelTInterface, out VariableExpression format),
+                new SwitchStatement(format, [switchCase, defaultCase])
+            ];
+        }
+
         private MethodBodyStatement CallBaseJsonModelWriteCore()
         {
             // base.<JsonModelWriteCore>()
