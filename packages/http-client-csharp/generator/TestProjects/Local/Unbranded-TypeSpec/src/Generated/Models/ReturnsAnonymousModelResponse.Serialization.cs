@@ -58,13 +58,8 @@ namespace UnbrandedTypeSpec.Models
             throw new NotImplementedException("Not implemented");
         }
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual ReturnsAnonymousModelResponse JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        internal static ReturnsAnonymousModelResponse DeserializeReturnsAnonymousModelResponse(JsonElement element, ModelReaderWriterOptions options)
         {
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            JsonElement element = document.RootElement;
-
             if (element.ValueKind == JsonValueKind.Null)
             {
                 return null;
@@ -103,24 +98,6 @@ namespace UnbrandedTypeSpec.Models
         }
 
         string IPersistableModel<ReturnsAnonymousModelResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        private static object GetObjectInstance(Type returnType)
-        {
-            PersistableModelProxyAttribute attribute = Attribute.GetCustomAttribute(returnType, typeof(PersistableModelProxyAttribute), false) as PersistableModelProxyAttribute;
-            Type typeToActivate = attribute is null ? returnType : attribute.ProxyType;
-
-            if (returnType.IsAbstract && attribute is null)
-            {
-                throw new InvalidOperationException($"{returnType.Name} must be decorated with {nameof(PersistableModelProxyAttribute)} to be used with {nameof(ModelReaderWriter)}.");
-            }
-
-            object obj = Activator.CreateInstance(typeToActivate, true);
-            if (obj is null)
-            {
-                throw new InvalidOperationException($"Unable to create instance of {typeToActivate.Name}.");
-            }
-            return obj;
-        }
 
         /// <param name="returnsAnonymousModelResponse"> The <see cref="ReturnsAnonymousModelResponse"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(ReturnsAnonymousModelResponse returnsAnonymousModelResponse)
