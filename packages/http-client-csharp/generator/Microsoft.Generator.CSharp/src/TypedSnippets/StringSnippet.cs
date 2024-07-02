@@ -9,7 +9,7 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public sealed record StringSnippet(ValueExpression Expression) : TypedSnippet<string>(Expression)
     {
-        public ValueExpression Length => Property(nameof(string.Length));
+        public ScopedApi<int> Length => Property(nameof(string.Length)).As<int>();
 
         public static ScopedApi<bool> Equals(StringSnippet left, StringSnippet right, StringComparison comparisonType)
             => new(InvokeStatic(nameof(string.Equals), [left, right, Snippet.FrameworkEnumValue(comparisonType)]));

@@ -67,10 +67,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             return invocation.As<bool>();
         }
 
-        public ScopedApi<bool> TryGetInt32(out IntSnippet intValue)
+        public ScopedApi<bool> TryGetInt32(out ScopedApi<int> intValue)
         {
             var intValueDeclaration = new VariableExpression(typeof(int), "intValue");
-            intValue = new IntSnippet(intValueDeclaration);
+            intValue = intValueDeclaration.As<int>();
             var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetInt32), [new DeclarationExpression(intValueDeclaration, true)], null, false);
             return invocation.As<bool>();
         }

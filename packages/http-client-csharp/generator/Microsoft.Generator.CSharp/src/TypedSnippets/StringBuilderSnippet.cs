@@ -8,7 +8,7 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public sealed record StringBuilderSnippet(ValueExpression Expression) : TypedSnippet<StringBuilder>(Expression)
     {
-        public IntSnippet Length => new(Property(nameof(StringBuilder.Length)));
+        public ScopedApi<int> Length => new(Property(nameof(StringBuilder.Length)));
 
         public StringBuilderSnippet Append(StringSnippet value) => new(Expression.Invoke(nameof(StringBuilder.Append), value));
 
