@@ -13,9 +13,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     public class RestClientProvider : TypeProvider
     {
-        public InputClient InputClient { get; }
+        private readonly InputClient _inputClient;
 
-        public override string RelativeFilePath => Path.Combine("src", "Generated", $"{Name}.RestInternal.cs");
+        public override string RelativeFilePath => Path.Combine("src", "Generated", $"{Name}.RestClient.cs");
 
         public override string Name { get; }
 
@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public RestClientProvider(InputClient inputClient)
         {
-            InputClient = inputClient;
+            _inputClient = inputClient;
             Name = inputClient.Name.ToCleanName();
             PipelineField = new FieldProvider(FieldModifiers.Private, typeof(ClientPipeline), "_pipeline");
         }
@@ -37,7 +37,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             List<MethodProvider> methods = new List<MethodProvider>();
 
-            foreach (var operation in InputClient.Operations)
+            foreach (var operation in _inputClient.Operations)
             {
                 methods.Add(BuildCreateMessageMethod(operation));
             }

@@ -131,7 +131,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Return(new InvokeStaticMethodExpression(
                     typeof(ClientResult),
                     nameof(ClientResult.FromResponse),
-                    client.PipelineField.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
+                    client.RestClientProvider.PipelineField.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
             ];
 
             var protocolMethod = new MethodProvider(methodSignature, methodBody, _enclosingType);
