@@ -8,11 +8,12 @@ using System.IO;
 using System.Xml;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
-using static Microsoft.Generator.CSharp.Snippets.Snippet;
 using static Microsoft.Generator.CSharp.ClientModel.Snippets.TypeFormattersSnippet;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
@@ -165,29 +166,30 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Declare("numWholeOrPartialInputBlocks", new IntSnippet(new BinaryOperatorExpression("/", new KeywordExpression("checked", new BinaryOperatorExpression("+", valueLength, Int(2))), Int(3))), out var numWholeOrPartialInputBlocks),
                 Declare("size", new IntSnippet(new KeywordExpression("checked", new BinaryOperatorExpression("*", numWholeOrPartialInputBlocks, Int(4)))), out var size),
             };
-            var output = new VariableExpression(typeof(char[]), "output");
+            var outputVar = new VariableExpression(typeof(char[]), "output");
+            var output = new IndexableExpression(outputVar);
             body.Add(new MethodBodyStatement[]
             {
-                Declare(output, New.Array(typeof(char), size)),
-                EmptyLineStatement,
+                Declare(outputVar, New.Array(typeof(char), size)),
+                MethodBodyStatement.EmptyLine,
                 Declare("numBase64Chars", new IntSnippet(new InvokeStaticMethodExpression(typeof(Convert), nameof(Convert.ToBase64CharArray), [value, Int(0), valueLength, output, Int(0)])), out var numBase64Chars),
-                EmptyLineStatement,
+                MethodBodyStatement.EmptyLine,
                 Declare("i", Int(0), out var i),
-                new ForStatement(null, LessThan(i, numBase64Chars), new UnaryOperatorExpression("++", i, true))
+                new ForStatement(null, i.LessThan(numBase64Chars), new UnaryOperatorExpression("++", i, true))
                 {
-                    Declare("ch", new CharSnippet(new IndexerExpression(output, i)), out var ch),
-                    new IfElseStatement(new IfStatement(Equal(ch, Literal('+')))
+                    Declare("ch", new CharSnippet(output[i]), out var ch),
+                    new IfElseStatement(new IfStatement(ch.Equal(Literal('+')))
                     {
-                        new IndexerExpression(output, i).Assign(Literal('-')).Terminate()
-                    }, new IfElseStatement(new IfStatement(Equal(ch, Literal('/')))
+                        output[i].Assign(Literal('-')).Terminate()
+                    }, new IfElseStatement(new IfStatement(ch.Equal(Literal('/')))
                     {
-                        new IndexerExpression(output, i).Assign(Literal('_')).Terminate()
-                    }, new IfStatement(Equal(ch, Literal('=')))
+                        output[i].Assign(Literal('_')).Terminate()
+                    }, new IfStatement(ch.Equal(Literal('=')))
                     {
                         Break
                     }))
                 },
-                EmptyLineStatement,
+                MethodBodyStatement.EmptyLine,
                 Return(New.Instance(typeof(string), output, Int(0), i))
             });
 
@@ -215,29 +217,30 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     SwitchCaseExpression.Default(ThrowExpression(New.InvalidOperationException(Literal("Malformed input"))))
                 })), out var paddingCharsToAdd)
             };
-            var output = new VariableExpression(typeof(char[]), "output");
+            var outputVar = new VariableExpression(typeof(char[]), "output");
+            var output = new IndexableExpression(outputVar);
             var outputLength = output.Property("Length");
             body.Add(new MethodBodyStatement[]
             {
-                Declare(output, New.Array(typeof(char), new BinaryOperatorExpression("+", value.Length, paddingCharsToAdd))),
+                Declare(outputVar, New.Array(typeof(char), new BinaryOperatorExpression("+", value.Length, paddingCharsToAdd))),
                 Declare("i", Int(0), out var i),
-                new ForStatement(null, LessThan(i, value.Length), new UnaryOperatorExpression("++", i, true))
+                new ForStatement(null, i.LessThan(value.Length), new UnaryOperatorExpression("++", i, true))
                 {
-                    Declare("ch", value.Index(i), out var ch),
-                    new IfElseStatement(new IfStatement(Equal(ch, Literal('-')))
+                    Declare("ch", value[i], out var ch),
+                    new IfElseStatement(new IfStatement(ch.Equal(Literal('-')))
                     {
-                        new IndexerExpression(output, i).Assign(Literal('+')).Terminate()
-                    }, new IfElseStatement(new IfStatement(Equal(ch, Literal('_')))
+                        output[i].Assign(Literal('+')).Terminate()
+                    }, new IfElseStatement(new IfStatement(ch.Equal(Literal('_')))
                     {
-                        new IndexerExpression(output, i).Assign(Literal('/')).Terminate()
-                    }, new IndexerExpression(output, i).Assign(ch).Terminate()))
+                        output[i].Assign(Literal('/')).Terminate()
+                    }, output[i].Assign(ch).Terminate()))
                 },
-                EmptyLineStatement,
-                new ForStatement(null, LessThan(i, outputLength), new UnaryOperatorExpression("++", i, true))
+                MethodBodyStatement.EmptyLine,
+                new ForStatement(null, i.LessThan(outputLength), new UnaryOperatorExpression("++", i, true))
                 {
-                    new IndexerExpression(output, i).Assign(Literal('=')).Terminate()
+                    output[i].Assign(Literal('=')).Terminate()
                 },
-                EmptyLineStatement,
+                MethodBodyStatement.EmptyLine,
                 Return(new InvokeStaticMethodExpression(typeof(Convert), nameof(Convert.FromBase64CharArray), new[] { output, Int(0), outputLength }))
             });
 
@@ -312,10 +315,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 new SwitchCaseExpression(new DeclarationExpression(typeof(bool), "b", out var b), TypeFormattersSnippet.ToString(b)),
                 new SwitchCaseExpression(GetTypePattern(new CSharpType[] {typeof(int),typeof(float), typeof(double), typeof(long), typeof(decimal)}), value.CastTo(typeof(IFormattable)).Invoke(nameof(IFormattable.ToString), _defaultNumberFormatField, _invariantCultureExpression)),
                 // TODO -- figure out how to write this line
-                SwitchCaseExpression.When(new DeclarationExpression(typeof(byte[]), "b", out var bytes), NotEqual(format, Null), TypeFormattersSnippet.ToString(bytes, format)),
+                SwitchCaseExpression.When(new DeclarationExpression(typeof(byte[]), "b", out var bytes), format.NotEqual(Null), TypeFormattersSnippet.ToString(bytes, format)),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(IEnumerable<string>), "s", out var enumerable), StringSnippet.Join(Literal(","), enumerable)),
-                SwitchCaseExpression.When(new DeclarationExpression(typeof(DateTimeOffset), "dateTime", out var dateTime), NotEqual(format, Null), TypeFormattersSnippet.ToString(dateTime, format)),
-                SwitchCaseExpression.When(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpan), NotEqual(format, Null), TypeFormattersSnippet.ToString(timeSpan, format)),
+                SwitchCaseExpression.When(new DeclarationExpression(typeof(DateTimeOffset), "dateTime", out var dateTime), format.NotEqual(Null), TypeFormattersSnippet.ToString(dateTime, format)),
+                SwitchCaseExpression.When(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpan), format.NotEqual(Null), TypeFormattersSnippet.ToString(timeSpan, format)),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpanNoFormat), new InvokeStaticMethodExpression(typeof(XmlConvert), nameof(XmlConvert.ToString), [timeSpanNoFormat])),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(Guid), "guid", out var guid), guid.Invoke("ToString")),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(BinaryData), "binaryData", out var binaryData), ConvertToString(new BinaryDataSnippet(binaryData).ToArray(), format)),

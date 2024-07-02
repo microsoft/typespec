@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using NUnit.Framework;
 
@@ -63,7 +64,7 @@ namespace Microsoft.Generator.CSharp.Tests.OutputTypes
                 throw new NotImplementedException();
             }
 
-            public override MethodProviderCollection? CreateMethodProviders(InputOperation operation, TypeProvider enclosingType)
+            public override MethodProviderCollection CreateMethodProviders(InputOperation operation, TypeProvider enclosingType)
             {
                 throw new NotImplementedException();
             }

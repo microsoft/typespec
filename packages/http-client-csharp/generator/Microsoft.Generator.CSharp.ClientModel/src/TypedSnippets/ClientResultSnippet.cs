@@ -4,11 +4,12 @@
 using System;
 using System.ClientModel;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal sealed record ClientResultSnippet(ValueExpression Untyped) : TypedSnippet<ClientResult>(Untyped)
+    internal sealed record ClientResultSnippet(ValueExpression Expression) : TypedSnippet<ClientResult>(Expression)
     {
         public ValueExpression Value => Property(nameof(ClientResult<object>.Value));
         public BinaryDataSnippet Content => throw new InvalidOperationException("Result does not have a Content property");
@@ -29,6 +30,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public ClientResultSnippet FromValue(CSharpType explicitValueType, ValueExpression value)
             => new(new InvokeStaticMethodExpression(typeof(ClientResult), nameof(ClientResult.FromValue), new[] { value, this }, new[] { explicitValueType }));
 
-        public PipelineResponseSnippet GetRawResponse() => new(Untyped.Invoke(nameof(ClientResult<object>.GetRawResponse)));
+        public PipelineResponseSnippet GetRawResponse() => new(Expression.Invoke(nameof(ClientResult<object>.GetRawResponse)));
     }
 }

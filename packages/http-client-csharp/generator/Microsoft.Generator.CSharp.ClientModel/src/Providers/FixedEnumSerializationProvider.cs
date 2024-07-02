@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
-using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
@@ -114,7 +114,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 else
                 {
                     // when the values are not strings (it should be numbers), we just compare them using `==` operator, like `value == <the value>`
-                    condition = Equal(value, Literal(enumValue.Value));
+                    condition = value.Equal(Literal(enumValue.Value));
                 }
                 deserializationBody.Add(new IfStatement(condition)
                     {

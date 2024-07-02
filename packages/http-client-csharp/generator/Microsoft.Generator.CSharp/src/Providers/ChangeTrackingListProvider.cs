@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
@@ -28,7 +29,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly CSharpType _iReadOnlyListOfT;
 
         private BoolSnippet IsUndefined { get; } = new BoolSnippet(new MemberExpression(This, "IsUndefined"));
-        private InvokeInstanceMethodExpression EnsureList { get; init; }
+        private IndexableExpression EnsureList { get; init; }
 
         public ChangeTrackingListProvider()
         {
@@ -42,7 +43,7 @@ namespace Microsoft.Generator.CSharp.Providers
             _innerList = new VariableExpression(_iListOfT, _innerListField.Declaration);
             _tArray = typeof(ChangeTrackingListTemplate<>).GetGenericArguments()[0].MakeArrayType();
             _tParam = new ParameterProvider("item", $"The item.", _t);
-            EnsureList = This.Invoke(_ensureListSignature);
+            EnsureList = new(This.Invoke(_ensureListSignature));
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
@@ -60,7 +61,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var iListSignature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [iList]);
             var iListBody = new MethodBodyStatement[]
             {
-                new IfStatement(NotEqual(iList, Null))
+                new IfStatement(iList.AsExpression.NotEqual(Null))
                 {
                     _innerList.Assign(iList).Terminate()
                 }
@@ -70,7 +71,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var iReadOnlyListSignature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [iReadOnlyList]);
             var iReadOnlyListBody = new MethodBodyStatement[]
             {
-                new IfStatement(NotEqual(iReadOnlyList, Null))
+                new IfStatement(iReadOnlyList.AsExpression.NotEqual(Null))
                 {
                     _innerList.Assign(Linq.ToList(iReadOnlyList)).Terminate()
                 }
@@ -78,7 +79,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             return
             [
-                new MethodProvider(new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, Array.Empty<ParameterProvider>()), EmptyStatement, this),
+                new MethodProvider(new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, Array.Empty<ParameterProvider>()), MethodBodyStatement.Empty, this),
                 new MethodProvider(iListSignature, iListBody, this),
                 new MethodProvider(iReadOnlyListSignature, iReadOnlyListBody, this)
             ];
@@ -102,7 +103,7 @@ namespace Microsoft.Generator.CSharp.Providers
         protected override PropertyProvider[] BuildProperties() =>
             new[]
             {
-                new PropertyProvider(null, MethodSignatureModifiers.Public, typeof(bool), "IsUndefined", new ExpressionPropertyBody(Equal(_innerList, Null))),
+                new PropertyProvider(null, MethodSignatureModifiers.Public, typeof(bool), "IsUndefined", new ExpressionPropertyBody(_innerList.Equal(Null))),
                 BuildCount(),
                 BuildIsReadOnly(),
                 BuildIndexer()
@@ -136,7 +137,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     {
                         Throw(New.Instance(typeof(ArgumentOutOfRangeException), Nameof(_indexParam)))
                     },
-                    Return(new ArrayElementExpression(EnsureList, _indexParam)),
+                    Return(EnsureList[_indexParam]),
                 },
                 new MethodBodyStatement[]
                 {
@@ -144,7 +145,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     {
                         Throw(New.Instance(typeof(ArgumentOutOfRangeException), Nameof(_indexParam)))
                     },
-                    new ArrayElementExpression(EnsureList, _indexParam).Assign(new KeywordExpression("value", null)).Terminate()
+                    EnsureList[_indexParam].Assign(Value).Terminate()
                 }));
         }
 

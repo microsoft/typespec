@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -7,7 +7,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Moq;
+using Microsoft.Generator.CSharp.Primitives;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.OutputTypes

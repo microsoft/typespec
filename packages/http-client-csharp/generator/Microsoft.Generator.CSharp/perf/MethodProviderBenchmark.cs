@@ -3,10 +3,10 @@
 
 using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
-using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Perf
 {
@@ -111,7 +111,7 @@ namespace Microsoft.Generator.CSharp.Perf
                     index++;
                 }
             }
-            statements[index] = EmptyLineStatement;
+            statements[index] = MethodBodyStatement.EmptyLine;
             index++;
 
             statements[index] = bodyStatements;
@@ -132,7 +132,7 @@ namespace Microsoft.Generator.CSharp.Perf
                 }
             }
             if (wroteValidation)
-                statements.Add(EmptyLineStatement);
+                statements.Add(MethodBodyStatement.EmptyLine);
 
             statements.Add(original);
             return statements;
@@ -150,7 +150,7 @@ namespace Microsoft.Generator.CSharp.Perf
                 }
             }
             if (wroteValidation)
-                yield return EmptyLineStatement;
+                yield return MethodBodyStatement.EmptyLine;
         }
 
         private IReadOnlyList<MethodBodyStatement> GetValidationStatements()
@@ -166,7 +166,7 @@ namespace Microsoft.Generator.CSharp.Perf
                 }
             }
             if (wroteValidation)
-                statements.Add(EmptyLineStatement);
+                statements.Add(MethodBodyStatement.EmptyLine);
             return statements;
         }
     }

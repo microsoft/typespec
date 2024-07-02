@@ -8,13 +8,15 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
+using Microsoft.Generator.CSharp.ClientModel.Providers;
+using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
-using Microsoft.Generator.CSharp.ClientModel.Providers;
-using Microsoft.Generator.CSharp.Expressions;
+using System.Text.Json;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 {
@@ -103,7 +105,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
         // This test validates the json model serialization write method object declaration is built correctly
         [Test]
-        public void BuildJsonModelWriteMethodObjectDeclaration()
+        public void TestBuildJsonModelWriteMethodObjectDeclaration()
         {
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, true);
             var mockModelTypeProvider = new ModelProvider(inputModel);
@@ -157,9 +159,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             Assert.AreEqual(expectedReturnType, methodSignature?.ReturnType);
         }
 
-        // This test validates the I model serialization write method is built correctly
+        // This test validates the PersistableModel serialization write method is built correctly
         [Test]
-        public void TestBuildPersistableModelWriteMethodMethod()
+        public void TestBuildPersistableModelWriteMethod()
         {
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
             var mockModelTypeProvider = new ModelProvider(inputModel);
@@ -176,6 +178,177 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             Assert.AreEqual(1, methodSignature?.Parameters.Count);
             var expectedReturnType = new CSharpType(typeof(BinaryData));
             Assert.AreEqual(expectedReturnType, methodSignature?.ReturnType);
+        }
+
+        // This test validates the persistable model serialization write core method is built correctly
+        [Test]
+        public void TestBuildPersistableModelWriteCoreMethod()
+        {
+            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var mockModelTypeProvider = new ModelProvider(inputModel);
+            var jsonMrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider, inputModel);
+            var method = jsonMrwSerializationTypeProvider.BuildPersistableModelWriteCoreMethod();
+
+            Assert.IsNotNull(method);
+
+            var methodSignature = method?.Signature as MethodSignature;
+            Assert.IsNotNull(methodSignature);
+            Assert.AreEqual("PersistableModelWriteCore", methodSignature?.Name);
+            Assert.IsNull(methodSignature?.ExplicitInterface);
+            Assert.AreEqual(1, methodSignature?.Parameters.Count);
+            Assert.AreEqual(new CSharpType(typeof(BinaryData)), methodSignature?.ReturnType);
+
+            // Check method modifiers
+            var expectedModifiers = MethodSignatureModifiers.Protected;
+            if (mockModelTypeProvider.Inherits != null)
+            {
+                expectedModifiers |= MethodSignatureModifiers.Override;
+            }
+            else
+            {
+                expectedModifiers |= MethodSignatureModifiers.Virtual;
+            }
+            Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers, "Method modifiers do not match the expected value.");
+
+
+            // Validate body
+            var methodBody = method?.BodyStatements;
+            Assert.IsNotNull(methodBody);
+        }
+
+        // This test validates the PersistableModel serialization write method object declaration is built correctly
+        [Test]
+        public void TestBuildPersistableModelWriteMethodObjectDeclaration()
+        {
+            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, true);
+            var mockModelTypeProvider = new ModelProvider(inputModel);
+            var jsonMrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider, inputModel);
+            var method = jsonMrwSerializationTypeProvider.BuildPersistableModelWriteMethodObjectDeclaration();
+
+            Assert.IsNotNull(method);
+
+            var methodSignature = method?.Signature as MethodSignature;
+            Assert.IsNotNull(methodSignature);
+            Assert.AreEqual("Write", methodSignature?.Name);
+
+            var explicitInterface = new CSharpType(typeof(IPersistableModel<object>));
+            Assert.AreEqual(explicitInterface, methodSignature?.ExplicitInterface);
+            Assert.AreEqual(1, methodSignature?.Parameters.Count);
+            Assert.AreEqual(new CSharpType(typeof(BinaryData)), methodSignature?.ReturnType);
+
+            // Check method modifiers
+            var expectedModifiers = MethodSignatureModifiers.None;
+            Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers, "Method modifiers do not match the expected value.");
+
+
+            // Validate body
+            var methodBody = method?.BodyStatements;
+            Assert.IsNull(methodBody);
+            var bodyExpression = method?.BodyExpression as InvokeInstanceMethodExpression;
+            Assert.IsNotNull(bodyExpression);
+            Assert.AreEqual("Write", bodyExpression?.MethodName);
+            Assert.IsNotNull(bodyExpression?.InstanceReference);
+            Assert.AreEqual(1, bodyExpression?.Arguments.Count);
+        }
+
+        // This test validates the PersistableModel serialization create method is built correctly
+        [Test]
+        public void TestBuildPersistableModelCreateMethod()
+        {
+            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var mockModelTypeProvider = new ModelProvider(inputModel);
+            var jsonMrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider, inputModel);
+            var method = jsonMrwSerializationTypeProvider.BuildPersistableModelCreateMethod();
+
+            Assert.IsNotNull(method);
+
+            var expectedJsonInterface = new CSharpType(typeof(IPersistableModel<object>), mockModelTypeProvider.Type);
+            var methodSignature = method?.Signature as MethodSignature;
+            Assert.IsNotNull(methodSignature);
+            Assert.AreEqual("Create", methodSignature?.Name);
+            Assert.AreEqual(expectedJsonInterface, methodSignature?.ExplicitInterface);
+            Assert.AreEqual(2, methodSignature?.Parameters.Count);
+            Assert.AreEqual(mockModelTypeProvider.Type, methodSignature?.ReturnType);
+
+            // Validate body
+            var methodBody = method?.BodyStatements;
+            Assert.IsNull(methodBody);
+            var bodyExpression = method?.BodyExpression as InvokeInstanceMethodExpression;
+            Assert.IsNotNull(bodyExpression);
+            Assert.AreEqual("PersistableModelCreateCore", bodyExpression?.MethodName);
+            Assert.IsNotNull(bodyExpression?.InstanceReference);
+            Assert.AreEqual(2, bodyExpression?.Arguments.Count);
+        }
+
+        // This test validates the persistable model serialization create core method is built correctly
+        [Test]
+        public void TestBuildPersistableModelCreateCoreMethod()
+        {
+            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var mockModelTypeProvider = new ModelProvider(inputModel);
+            var jsonMrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider, inputModel);
+            var method = jsonMrwSerializationTypeProvider.BuildPersistableModelCreateCoreMethod();
+
+            Assert.IsNotNull(method);
+
+            var methodSignature = method?.Signature as MethodSignature;
+            Assert.IsNotNull(methodSignature);
+            Assert.AreEqual("PersistableModelCreateCore", methodSignature?.Name);
+            Assert.IsNull(methodSignature?.ExplicitInterface);
+            Assert.AreEqual(2, methodSignature?.Parameters.Count);
+            Assert.AreEqual(mockModelTypeProvider.Type, methodSignature?.ReturnType);
+
+            // Check method modifiers
+            var expectedModifiers = MethodSignatureModifiers.Protected;
+            if (mockModelTypeProvider.Inherits != null)
+            {
+                expectedModifiers |= MethodSignatureModifiers.Override;
+            }
+            else
+            {
+                expectedModifiers |= MethodSignatureModifiers.Virtual;
+            }
+            Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers, "Method modifiers do not match the expected value.");
+
+
+            // Validate body
+            var methodBody = method?.BodyStatements;
+            Assert.IsNotNull(methodBody);
+        }
+
+        // This test validates the PersistableModel serialization Create method object declaration is built correctly
+        [Test]
+        public void BuildPersistableModelCreateMethodObjectDeclaration()
+        {
+            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, true);
+            var mockModelTypeProvider = new ModelProvider(inputModel);
+            var jsonMrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider, inputModel);
+            var method = jsonMrwSerializationTypeProvider.BuildPersistableModelCreateMethodObjectDeclaration();
+
+            Assert.IsNotNull(method);
+
+            var methodSignature = method?.Signature as MethodSignature;
+            Assert.IsNotNull(methodSignature);
+            Assert.AreEqual("Create", methodSignature?.Name);
+
+            var explicitInterface = new CSharpType(typeof(IPersistableModel<object>));
+            Assert.AreEqual(explicitInterface, methodSignature?.ExplicitInterface);
+            Assert.AreEqual(2, methodSignature?.Parameters.Count);
+            Assert.AreEqual(new CSharpType(typeof(object)), methodSignature?.ReturnType);
+
+            // Check method modifiers
+            var expectedModifiers = MethodSignatureModifiers.None;
+            Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers, "Method modifiers do not match the expected value.");
+
+
+            // Validate body
+            var methodBody = method?.BodyStatements;
+            Assert.IsNull(methodBody);
+            var bodyExpression = method?.BodyExpression as InvokeInstanceMethodExpression;
+            Assert.IsNotNull(bodyExpression);
+            Assert.AreEqual("Create", bodyExpression?.MethodName);
+            Assert.IsNotNull(bodyExpression?.InstanceReference);
+            Assert.AreEqual(2, bodyExpression?.Arguments.Count);
         }
 
         // This test validates the I model deserialization create method is built correctly
@@ -199,7 +372,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             Assert.AreEqual(expectedReturnType, methodSignature?.ReturnType);
         }
 
-        // This test validates the I model get format method is built correctly
+        // This test validates the persistable model get format method is built correctly
         [Test]
         public void TestBuildPersistableModelGetFormatMethod()
         {
@@ -221,6 +394,41 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             var methodBody = method?.BodyExpression;
             Assert.IsNotNull(methodBody);
+        }
+
+        // This test validates the persistable model get format method object declaration is built correctly
+        [Test]
+        public void TestBuildPersistableModelGetFormatMethodObjectDeclaration()
+        {
+            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, true);
+            var mockModelTypeProvider = new ModelProvider(inputModel);
+            var jsonMrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider, inputModel);
+            var method = jsonMrwSerializationTypeProvider.BuildPersistableModelGetFormatFromOptionsObjectDeclaration();
+
+            Assert.IsNotNull(method);
+
+            var expectedInterface = new CSharpType(typeof(IPersistableModel<object>));
+            var methodSignature = method?.Signature as MethodSignature;
+            Assert.IsNotNull(methodSignature);
+            Assert.AreEqual("GetFormatFromOptions", methodSignature?.Name);
+            Assert.AreEqual(expectedInterface, methodSignature?.ExplicitInterface);
+            Assert.AreEqual(1, methodSignature?.Parameters.Count);
+            var expectedReturnType = new CSharpType(typeof(string));
+            Assert.AreEqual(expectedReturnType, methodSignature?.ReturnType);
+
+            // Check method modifiers
+            var expectedModifiers = MethodSignatureModifiers.None;
+            Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers, "Method modifiers do not match the expected value.");
+
+
+            // Validate body
+            var methodBody = method?.BodyStatements;
+            Assert.IsNull(methodBody);
+            var bodyExpression = method?.BodyExpression as InvokeInstanceMethodExpression;
+            Assert.IsNotNull(bodyExpression);
+            Assert.AreEqual("GetFormatFromOptions", bodyExpression?.MethodName);
+            Assert.IsNotNull(bodyExpression?.InstanceReference);
+            Assert.AreEqual(1, bodyExpression?.Arguments.Count);
         }
 
         [Test]
@@ -284,6 +492,32 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             var emptyCtor = ctors[1];
             Assert.AreEqual(MethodSignatureModifiers.Internal, emptyCtor.Signature.Modifiers);
             Assert.AreEqual(0, emptyCtor.Signature.Parameters.Count);
+        }
+
+        [Test]
+        public void TestBuildBuildDeserializationMethod()
+        {
+            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var model = new ModelProvider(inputModel);
+            var provider = new MrwSerializationTypeProvider(model, inputModel);
+
+            // Assert
+            Assert.IsNotNull(provider);
+
+            var deserializationMethod = provider.BuildDeserializationMethod();
+            Assert.IsNotNull(deserializationMethod);
+
+            var signature = deserializationMethod?.Signature as MethodSignature;
+            Assert.IsNotNull(signature);
+            Assert.AreEqual($"Deserialize{model.Name}", signature?.Name);
+            Assert.AreEqual(2, signature?.Parameters.Count);
+            Assert.AreEqual(new CSharpType(typeof(JsonElement)), signature?.Parameters[0].Type);
+            Assert.AreEqual(new CSharpType(typeof(ModelReaderWriterOptions)), signature?.Parameters[1].Type);
+            Assert.AreEqual(model.Type, signature?.ReturnType);
+            Assert.AreEqual(MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static, signature?.Modifiers);
+
+            var methodBody = deserializationMethod?.BodyStatements;
+            Assert.IsNotNull(methodBody);
         }
     }
 }

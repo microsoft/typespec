@@ -9,30 +9,30 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal sealed record JsonElementSnippet(ValueExpression Untyped) : TypedSnippet<JsonElement>(Untyped)
+    internal sealed record JsonElementSnippet(ValueExpression Expression) : TypedSnippet<JsonElement>(Expression)
     {
         public JsonValueKindSnippet ValueKind => new(Property(nameof(JsonElement.ValueKind)));
-        public EnumerableSnippet EnumerateArray() => new(typeof(JsonElement), Untyped.Invoke(nameof(JsonElement.EnumerateArray)));
-        public EnumerableSnippet EnumerateObject() => new(typeof(JsonProperty), Untyped.Invoke(nameof(JsonElement.EnumerateObject)));
-        public JsonElementSnippet this[int index] => new(new IndexerExpression(Untyped, Int(index)));
-        public JsonElementSnippet GetProperty(string propertyName) => new(Untyped.Invoke(nameof(JsonElement.GetProperty), Literal(propertyName)));
+        public EnumerableSnippet EnumerateArray() => new(typeof(JsonElement), Expression.Invoke(nameof(JsonElement.EnumerateArray)));
+        public EnumerableSnippet EnumerateObject() => new(typeof(JsonProperty), Expression.Invoke(nameof(JsonElement.EnumerateObject)));
+        public JsonElementSnippet this[int index] => new(new IndexerExpression(Expression, Int(index)));
+        public JsonElementSnippet GetProperty(string propertyName) => new(Expression.Invoke(nameof(JsonElement.GetProperty), Literal(propertyName)));
 
-        public ValueExpression InvokeClone() => Untyped.Invoke(nameof(JsonElement.Clone));
-        public ValueExpression GetArrayLength() => Untyped.Invoke(nameof(JsonElement.GetArrayLength));
-        public ValueExpression GetBoolean() => Untyped.Invoke(nameof(JsonElement.GetBoolean));
-        public ValueExpression GetBytesFromBase64() => Untyped.Invoke(nameof(JsonElement.GetBytesFromBase64));
-        public ValueExpression GetDateTime() => Untyped.Invoke(nameof(JsonElement.GetDateTime));
-        public ValueExpression GetDecimal() => Untyped.Invoke(nameof(JsonElement.GetDecimal));
-        public ValueExpression GetDouble() => Untyped.Invoke(nameof(JsonElement.GetDouble));
-        public ValueExpression GetGuid() => Untyped.Invoke(nameof(JsonElement.GetGuid));
-        public ValueExpression GetSByte() => Untyped.Invoke(nameof(JsonElement.GetSByte));
-        public ValueExpression GetByte() => Untyped.Invoke(nameof(JsonElement.GetByte));
-        public ValueExpression GetInt16() => Untyped.Invoke(nameof(JsonElement.GetInt16));
-        public ValueExpression GetInt32() => Untyped.Invoke(nameof(JsonElement.GetInt32));
-        public ValueExpression GetInt64() => Untyped.Invoke(nameof(JsonElement.GetInt64));
-        public StringSnippet GetRawText() => new(Untyped.Invoke(nameof(JsonElement.GetRawText)));
-        public ValueExpression GetSingle() => Untyped.Invoke(nameof(JsonElement.GetSingle));
-        public StringSnippet GetString() => new(Untyped.Invoke(nameof(JsonElement.GetString)));
+        public ValueExpression InvokeClone() => Expression.Invoke(nameof(JsonElement.Clone));
+        public ValueExpression GetArrayLength() => Expression.Invoke(nameof(JsonElement.GetArrayLength));
+        public ValueExpression GetBoolean() => Expression.Invoke(nameof(JsonElement.GetBoolean));
+        public ValueExpression GetBytesFromBase64() => Expression.Invoke(nameof(JsonElement.GetBytesFromBase64));
+        public ValueExpression GetDateTime() => Expression.Invoke(nameof(JsonElement.GetDateTime));
+        public ValueExpression GetDecimal() => Expression.Invoke(nameof(JsonElement.GetDecimal));
+        public ValueExpression GetDouble() => Expression.Invoke(nameof(JsonElement.GetDouble));
+        public ValueExpression GetGuid() => Expression.Invoke(nameof(JsonElement.GetGuid));
+        public ValueExpression GetSByte() => Expression.Invoke(nameof(JsonElement.GetSByte));
+        public ValueExpression GetByte() => Expression.Invoke(nameof(JsonElement.GetByte));
+        public ValueExpression GetInt16() => Expression.Invoke(nameof(JsonElement.GetInt16));
+        public ValueExpression GetInt32() => Expression.Invoke(nameof(JsonElement.GetInt32));
+        public ValueExpression GetInt64() => Expression.Invoke(nameof(JsonElement.GetInt64));
+        public StringSnippet GetRawText() => new(Expression.Invoke(nameof(JsonElement.GetRawText)));
+        public ValueExpression GetSingle() => Expression.Invoke(nameof(JsonElement.GetSingle));
+        public StringSnippet GetString() => new(Expression.Invoke(nameof(JsonElement.GetString)));
 
         public BoolSnippet ValueKindEqualsNull()
             => new(new BinaryOperatorExpression("==", Property(nameof(JsonElement.ValueKind)), FrameworkEnumValue(JsonValueKind.Null)));
@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public BoolSnippet ValueKindEqualsString()
             => new(new BinaryOperatorExpression("==", Property(nameof(JsonElement.ValueKind)), FrameworkEnumValue(JsonValueKind.String)));
 
-        public MethodBodyStatement WriteTo(ValueExpression writer) => Untyped.Invoke(nameof(JsonElement.WriteTo), [writer], false).Terminate();
+        public MethodBodyStatement WriteTo(ValueExpression writer) => Expression.Invoke(nameof(JsonElement.WriteTo), [writer], false).Terminate();
 
         public ValueExpression GetBytesFromBase64(string? format)
             => ModelSerializationExtensionsSnippet.GetBytesFromBase64(this, format);

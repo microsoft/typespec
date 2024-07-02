@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 using Microsoft.Generator.CSharp.Expressions;
-using Microsoft.Generator.CSharp.Snippets;
 
-namespace Microsoft.Generator.CSharp.TypedSnippets
+namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record ObjectSnippet(ValueExpression Untyped) : TypedSnippet<object>(Untyped)
+    public sealed record ObjectSnippet(ValueExpression Expression) : TypedSnippet<object>(Expression)
     {
     }
 }

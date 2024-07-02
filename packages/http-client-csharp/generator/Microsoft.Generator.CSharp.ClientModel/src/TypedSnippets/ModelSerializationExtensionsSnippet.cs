@@ -9,7 +9,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal sealed record ModelSerializationExtensionsSnippet(ValueExpression Untyped) : TypedSnippet<ModelSerializationExtensionsProvider>(Untyped)
+    internal sealed record ModelSerializationExtensionsSnippet(ValueExpression Expression) : TypedSnippet<ModelSerializationExtensionsProvider>(Expression)
     {
         private const string WriteStringValueMethodName = "WriteStringValue";
         private const string WriteBase64StringValueMethodName = "WriteBase64StringValue";
@@ -33,17 +33,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             var parameters = options is null
                 ? new ValueExpression[] { value }
                 : new ValueExpression[] { value, options };
-            return snippet.Untyped.Invoke(WriteObjectValueMethodName, parameters, [value.Type], false).Terminate();
+            return snippet.Expression.Invoke(WriteObjectValueMethodName, parameters, [value.Type], false).Terminate();
         }
 
         public static MethodBodyStatement WriteStringValue(Utf8JsonWriterSnippet snippet, ValueExpression value, string? format)
-            => snippet.Untyped.Invoke(WriteStringValueMethodName, [value, Literal(format)]).Terminate();
+            => snippet.Invoke(WriteStringValueMethodName, [value, Literal(format)]).Terminate();
 
         public static MethodBodyStatement WriteNumberValue(Utf8JsonWriterSnippet snippet, ValueExpression value, string? format)
-            => snippet.Untyped.Invoke(WriteNumberValueMethodName, [value, Literal(format)]).Terminate();
+            => snippet.Invoke(WriteNumberValueMethodName, [value, Literal(format)]).Terminate();
 
         public static MethodBodyStatement WriteBase64StringValue(Utf8JsonWriterSnippet snippet, ValueExpression value, string? format)
-            => snippet.Untyped.Invoke(WriteBase64StringValueMethodName, [value, Literal(format)]).Terminate();
+            => snippet.Invoke(WriteBase64StringValueMethodName, [value, Literal(format)]).Terminate();
 
         public static ValueExpression GetObject(JsonElementSnippet element)
             => new InvokeStaticMethodExpression(Provider.Type, GetObjectMethodName, [element], CallAsExtension: true);
@@ -61,7 +61,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             => new InvokeStaticMethodExpression(Provider.Type, GetCharMethodName, [element], CallAsExtension: true);
 
         public static MethodBodyStatement ThrowNonNullablePropertyIsNull(JsonPropertySnippet property)
-            => property.Untyped.Invoke(ThrowNonNullablePropertyIsNullMethodName).Terminate();
+            => property.Invoke(ThrowNonNullablePropertyIsNullMethodName).Terminate();
 
         public static ValueExpression GetRequiredString(JsonElementSnippet element)
             => new InvokeStaticMethodExpression(Provider.Type, GetRequiredStringMethodName, [element], CallAsExtension: true);
