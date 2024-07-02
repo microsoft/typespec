@@ -61,7 +61,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), provider.Type);
             _persistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
             _rawDataField = BuildRawDataField();
-            _shouldOverrideMethods = _model.Inherits != null && _model.Inherits is { IsFrameworkType: false, Implementation: TypeProvider };
+            _shouldOverrideMethods = _model.Inherits is { IsFrameworkType: false, Implementation: TypeProvider };
             _utf8JsonWriterSnippet = new Utf8JsonWriterSnippet(_utf8JsonWriterParameter);
             _mrwOptionsParameterSnippet = new ModelReaderWriterOptionsSnippet(_serializationOptionsParameter);
             _isNotEqualToWireConditionSnippet = _mrwOptionsParameterSnippet.Format.NotEqual(ModelReaderWriterOptionsSnippet.WireFormat);
@@ -483,15 +483,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             List<ParameterProvider> constructorParameters = new List<ParameterProvider>();
             bool shouldAddRawDataField = _rawDataField != null;
 
-            foreach (var property in _inputModel.Properties)
+            foreach (var property in _model.Properties)
             {
-                var parameter = new ParameterProvider(property);
-                constructorParameters.Add(parameter);
-
-                if (shouldAddRawDataField && string.Equals(parameter.Name, _rawDataField?.Name, StringComparison.OrdinalIgnoreCase))
-                {
-                    shouldAddRawDataField = false;
-                }
+                constructorParameters.Add(property.Parameter);
             }
 
             // Append the raw data field if it doesn't already exist in the constructor parameters

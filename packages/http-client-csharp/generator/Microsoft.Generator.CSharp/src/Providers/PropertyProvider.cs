@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -24,6 +25,12 @@ namespace Microsoft.Generator.CSharp.Providers
         public XmlDocProvider XmlDocs { get; }
         public PropertyWireInformation? WireInfo { get; }
 
+        private Lazy<ParameterProvider> _parameter;
+        private Lazy<ParameterProvider> _inputParameter;
+
+        public ParameterProvider Parameter => _parameter.Value;
+        public ParameterProvider InputParameter => _inputParameter.Value;
+
         public PropertyProvider(InputModelProperty inputProperty)
         {
             var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
@@ -39,6 +46,8 @@ namespace Microsoft.Generator.CSharp.Providers
             XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);
             XmlDocs = GetXmlDocs();
             WireInfo = new PropertyWireInformation(inputProperty);
+
+            InitializeParameter(Name, FormattableStringHelpers.FromString(inputProperty.Description), Type, GetParameterValidation(inputProperty, Type));
         }
 
         public PropertyProvider(
@@ -59,6 +68,54 @@ namespace Microsoft.Generator.CSharp.Providers
             ExplicitInterface = explicitInterface;
             XmlDocs = GetXmlDocs();
             WireInfo = wireInfo;
+
+            InitializeParameter(Name, description ?? FormattableStringHelpers.Empty, Type, ParameterValidationType.None);
+        }
+
+        [MemberNotNull(nameof(_parameter))]
+        [MemberNotNull(nameof(_inputParameter))]
+        private void InitializeParameter(string propertyName, FormattableString description, CSharpType propertyType, ParameterValidationType validation)
+        {
+            var parameterName = propertyName.FirstCharToLowerCase();
+            _parameter = new(() => new ParameterProvider(parameterName, description, propertyType));
+            _inputParameter = new(() => BuildParameter(parameterName, description, propertyType.InputType, validation));
+        }
+
+        private static ParameterProvider BuildParameter(string name, FormattableString description, CSharpType type, ParameterValidationType validation)
+        {
+            return new(name, description, type)
+            {
+                Validation = validation
+            };
+        }
+
+        private static ParameterValidationType GetParameterValidation(InputModelProperty property, CSharpType propertyType)
+        {
+            // We do not validate a parameter when it is a value type (struct or int, etc)
+            if (propertyType.IsValueType)
+            {
+                return ParameterValidationType.None;
+            }
+
+            // or it is readonly
+            if (property.IsReadOnly)
+            {
+                return ParameterValidationType.None;
+            }
+
+            // or it is optional
+            if (!property.IsRequired)
+            {
+                return ParameterValidationType.None;
+            }
+
+            // or it is nullable
+            if (propertyType.IsNullable)
+            {
+                return ParameterValidationType.None;
+            }
+
+            return ParameterValidationType.AssertNotNull;
         }
 
         private XmlDocProvider GetXmlDocs()

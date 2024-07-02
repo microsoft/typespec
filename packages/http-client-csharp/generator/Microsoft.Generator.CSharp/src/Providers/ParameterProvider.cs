@@ -25,14 +25,6 @@ namespace Microsoft.Generator.CSharp.Providers
         public bool IsOut { get; }
         internal IReadOnlyList<AttributeStatement> Attributes { get; } = Array.Empty<AttributeStatement>();
 
-        public ParameterProvider(InputModelProperty inputProperty)
-        {
-            Name = inputProperty.Name.ToVariableName();
-            Description = FormattableStringHelpers.FromString(inputProperty.Description);
-            Type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
-            Validation = GetParameterValidation(inputProperty, Type);
-        }
-
         /// <summary>
         /// Creates a <see cref="ParameterProvider"/> from an <see cref="InputParameter"/>.
         /// </summary>
@@ -61,35 +53,6 @@ namespace Microsoft.Generator.CSharp.Providers
             IsOut = isOut;
             DefaultValue = defaultValue;
             Attributes = attributes ?? Array.Empty<AttributeStatement>();
-        }
-
-        private ParameterValidationType GetParameterValidation(InputModelProperty property, CSharpType propertyType)
-        {
-            // We do not validate a parameter when it is a value type (struct or int, etc)
-            if (propertyType.IsValueType)
-            {
-                return ParameterValidationType.None;
-            }
-
-            // or it is readonly
-            if (property.IsReadOnly)
-            {
-                return ParameterValidationType.None;
-            }
-
-            // or it is optional
-            if (!property.IsRequired)
-            {
-                return ParameterValidationType.None;
-            }
-
-            // or it is nullable
-            if (propertyType.IsNullable)
-            {
-                return ParameterValidationType.None;
-            }
-
-            return ParameterValidationType.AssertNotNull;
         }
 
         public override bool Equals(object? obj)
