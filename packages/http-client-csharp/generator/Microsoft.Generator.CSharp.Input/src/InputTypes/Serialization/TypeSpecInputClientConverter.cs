@@ -37,7 +37,6 @@ namespace Microsoft.Generator.CSharp.Input
             string? name = null;
             string? description = null;
             IReadOnlyList<InputOperation>? operations = null;
-            bool creatable = false;
             IReadOnlyList<InputParameter>? parameters = null;
             string? parent = null;
 
@@ -46,7 +45,6 @@ namespace Microsoft.Generator.CSharp.Input
                 var isKnownProperty = reader.TryReadString(nameof(InputClient.Name), ref name)
                     || reader.TryReadString(nameof(InputClient.Description), ref description)
                     || reader.TryReadWithConverter(nameof(InputClient.Operations), options, ref operations)
-                    || reader.TryReadBoolean(nameof(InputClient.Creatable), ref creatable)
                     || reader.TryReadWithConverter(nameof(InputClient.Parameters), options, ref parameters)
                     || reader.TryReadString(nameof(InputClient.Parent), ref parent);
 
@@ -59,7 +57,6 @@ namespace Microsoft.Generator.CSharp.Input
             client.Name = name ?? throw new JsonException("InputClient must have name");
             client.Description = description ?? throw new JsonException("InputClient must have description");
             client.Operations = operations ?? Array.Empty<InputOperation>();
-            client.Creatable = creatable;
             client.Parameters = parameters ?? Array.Empty<InputParameter>();
             client.Parent = parent;
 

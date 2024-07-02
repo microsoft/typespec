@@ -11,6 +11,5 @@ export interface InputClient {
   Operations: InputOperation[];
   Protocol?: Protocols;
   Parent?: string;
-  Creatable: boolean;
   Parameters?: InputParameter[];
 }

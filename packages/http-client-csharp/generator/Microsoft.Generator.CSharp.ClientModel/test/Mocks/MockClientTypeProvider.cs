@@ -8,7 +8,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 {
     internal class MockClientTypeProvider : ClientProvider
     {
-        public MockClientTypeProvider() : base(new InputClient("TestClient", "TestClient description", [], true, [], null))
+        public MockClientTypeProvider() : base(new InputClient("TestClient", "TestClient description", [], [], null))
         {
         }
     }
