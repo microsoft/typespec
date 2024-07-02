@@ -34,7 +34,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private const string ReadAction = "reading";
         private const string AdditionalRawDataVarName = "serializedAdditionalRawData";
         private readonly ParameterProvider _utf8JsonWriterParameter = new("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
-        private readonly ParameterProvider _utf8JsonReaderParameter = new("reader", $"The JSON reader.", typeof(Utf8JsonReader), isRef: true);
         private readonly ParameterProvider _serializationOptionsParameter =
             new("options", $"The client options for reading and writing models.", typeof(ModelReaderWriterOptions));
         private readonly ParameterProvider _jsonElementDeserializationParam =
