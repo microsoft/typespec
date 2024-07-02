@@ -394,6 +394,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             Assert.AreEqual(0, emptyCtor.Signature.Parameters.Count);
         }
 
+        [Test]
         public void TestBuildBuildDeserializationMethod()
         {
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);

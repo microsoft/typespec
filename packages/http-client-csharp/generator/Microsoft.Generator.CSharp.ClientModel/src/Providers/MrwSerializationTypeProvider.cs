@@ -391,6 +391,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             );
         }
 
+        /// <summary>
         /// Builds the <see cref="IPersistableModel{object}"/> GetFormatFromOptions method for the model object.
         /// </summary>
         internal MethodProvider BuildPersistableModelGetFormatFromOptionsObjectDeclaration()
