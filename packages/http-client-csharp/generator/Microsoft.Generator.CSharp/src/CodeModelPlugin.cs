@@ -18,14 +18,23 @@ namespace Microsoft.Generator.CSharp
     public abstract class CodeModelPlugin
     {
         private static CodeModelPlugin? _instance;
-        internal static CodeModelPlugin Instance => _instance ?? throw new InvalidOperationException("CodeModelPlugin is not initialized");
+        internal static CodeModelPlugin Instance
+        {
+            get
+            {
+                return _instance ?? throw new InvalidOperationException("CodeModelPlugin is not initialized");
+            }
+            set
+            {
+                _instance = value;
+            }
+        }
 
         public Configuration Configuration { get; }
 
         [ImportingConstructor]
         public CodeModelPlugin(GeneratorContext context)
         {
-            _instance = this;
             Configuration = context.Configuration;
             _inputLibrary = new(() => new InputLibrary(Instance.Configuration.OutputDirectory));
         }

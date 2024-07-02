@@ -31,6 +31,7 @@ export type NetEmitterOptions = {
   "generate-test-project"?: boolean;
   "use-model-reader-writer"?: boolean;
   "disable-xml-docs"?: boolean;
+  "plugin-name"?: string;
 } & SdkEmitterOptions;
 
 export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
@@ -103,6 +104,7 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
     },
     "use-model-reader-writer": { type: "boolean", nullable: true },
     "disable-xml-docs": { type: "boolean", nullable: true },
+    "plugin-name": { type: "string", nullable: true },
   },
   required: [],
 };
@@ -127,6 +129,7 @@ const defaultOptions = {
   logLevel: LoggerLevel.INFO,
   flavor: undefined,
   "generate-test-project": false,
+  "plugin-name": "ClientModelPlugin"
 };
 
 export function resolveOptions(context: EmitContext<NetEmitterOptions>) {

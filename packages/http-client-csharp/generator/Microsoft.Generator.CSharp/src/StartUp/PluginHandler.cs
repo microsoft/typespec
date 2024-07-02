@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 
@@ -9,18 +10,36 @@ namespace Microsoft.Generator.CSharp
 {
     internal class PluginHandler
     {
-        public void LoadPlugin(string outputDirectory)
+        public void LoadPlugin(CommandLineOptions options)
         {
             using DirectoryCatalog directoryCatalog = new(AppContext.BaseDirectory);
             using (CompositionContainer container = new(directoryCatalog))
             {
-                container.ComposeExportedValue(new GeneratorContext(Configuration.Load(outputDirectory)));
-                var plugin = container.GetExportedValue<CodeModelPlugin>();
-                if (plugin == null)
+                container.ComposeExportedValue(new GeneratorContext(Configuration.Load(options.OutputDirectory)));
+                container.ComposeParts(this);
+                bool loaded = false;
+                foreach (var plugin in Plugins!)
                 {
-                    throw new InvalidOperationException($"Cannot find exported value in current directory {AppContext.BaseDirectory}.");
+                    if (plugin.Metadata.PluginName == options.PluginName)
+                    {
+                        CodeModelPlugin.Instance = plugin.Value;
+                        loaded = true;
+                    }
+                }
+
+                if (!loaded)
+                {
+                    throw new InvalidOperationException($"Plugin {options.PluginName} not found.");
                 }
             }
         }
+
+        [ImportMany]
+        public IEnumerable<Lazy<CodeModelPlugin, IMetadata>>? Plugins { get; set; }
+    }
+
+    public interface IMetadata
+    {
+        string PluginName { get; }
     }
 }
