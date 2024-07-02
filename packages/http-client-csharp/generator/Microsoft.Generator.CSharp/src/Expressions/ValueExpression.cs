@@ -27,14 +27,42 @@ namespace Microsoft.Generator.CSharp.Expressions
         public static implicit operator ValueExpression(Type type) => TypeReferenceExpression.FromType(type);
         public static implicit operator ValueExpression(CSharpType type) => TypeReferenceExpression.FromType(type);
 
-        public ScopedApi<T> As<T>() => new(this);
-        public ScopedApi As(CSharpType type) => new(type, this);
+        private readonly Dictionary<CSharpType, ScopedApi> _typeCache = new();
+        public ScopedApi<T> As<T>()
+        {
+            if (this is ScopedApi<T> scopedApi)
+            {
+                return scopedApi;
+            }
+
+            if (!_typeCache.TryGetValue(typeof(T), out var result))
+            {
+                result = new ScopedApi<T>(this);
+                _typeCache[typeof(T)] = result;
+            }
+            return (ScopedApi<T>)result;
+        }
+
+        public ScopedApi As(CSharpType type)
+        {
+            if (this is ScopedApi scopedApi && scopedApi.Type.Equals(type))
+            {
+                return scopedApi;
+            }
+
+            if (!_typeCache.TryGetValue(type, out var result))
+            {
+                result = new ScopedApi(type, this);
+                _typeCache[type] = result;
+            }
+            return result;
+        }
 
         public DictionaryExpression AsDictionary(CSharpType keyType, CSharpType valueType) => new(keyType, valueType, this);
         public DictionaryExpression AsDictionary(CSharpType dictionaryType) => new(dictionaryType, this);
 
         public ValueExpression NullableStructValue(CSharpType candidateType) => candidateType is { IsNullable: true, IsValueType: true } ? new MemberExpression(this, nameof(Nullable<int>.Value)) : this;
-        public StringSnippet InvokeToString() => new(Invoke(nameof(ToString)));
+        public ScopedApi<string> InvokeToString() => Invoke(nameof(ToString)).As<string>();
         public ValueExpression InvokeGetType() => Invoke(nameof(GetType));
         public ValueExpression InvokeGetHashCode() => Invoke(nameof(GetHashCode));
 

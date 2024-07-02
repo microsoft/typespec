@@ -83,7 +83,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetSignature("AssertNull", [value, _nameParam, message], [_t]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                new IfStatement(value.AsExpression.NotEqual(Null))
+                new IfStatement(value.NotEqual(Null))
                 {
                     ThrowArgumentException(NullCoalescing(message, Literal("Value must be null.")))
                 }
@@ -176,11 +176,10 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             var valueParam = new ParameterProvider("value", $"The value.", typeof(string));
             var signature = GetSignature(AssertNotNullOrWhiteSpaceMethodName, [valueParam, _nameParam]);
-            var value = new StringSnippet(valueParam);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 AssertNotNullSnippet(valueParam),
-                new IfStatement(StringSnippet.IsNullOrWhiteSpace(value))
+                new IfStatement(StringSnippets.IsNullOrWhiteSpace(valueParam.As<string>()))
                 {
                     ThrowArgumentException("Value cannot be empty or contain only white-space characters.")
                 }
@@ -192,11 +191,10 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             var valueParam = new ParameterProvider("value", $"The value.", typeof(string));
             var signature = GetSignature(AssertNotNullOrEmptyMethodName, [valueParam, _nameParam]);
-            var value = new StringSnippet(valueParam);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 AssertNotNullSnippet(valueParam),
-                new IfStatement(value.Length.Equal(Literal(0)))
+                new IfStatement(valueParam.As<string>().Length().Equal(Literal(0)))
                 {
                     ThrowArgumentException("Value cannot be an empty string.")
                 }

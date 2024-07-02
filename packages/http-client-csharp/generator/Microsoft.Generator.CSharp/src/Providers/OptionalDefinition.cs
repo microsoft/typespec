@@ -76,7 +76,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetIsDefinedSignature(valueParam);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                Return(valueParam.AsExpression.NotEqual(Null))
+                Return(valueParam.NotEqual(Null))
             },
             this);
         }
@@ -87,7 +87,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetIsDefinedSignature(valueParam);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                Return(valueParam.AsExpression.NotEqual(Null))
+                Return(valueParam.NotEqual(Null))
             },
             this);
         }

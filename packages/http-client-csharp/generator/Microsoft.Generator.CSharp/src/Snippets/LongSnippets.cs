@@ -8,10 +8,10 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public static class LongSnippets
     {
-        public static StringSnippet InvokeToString(this ScopedApi<long> longExpression, ValueExpression formatProvider)
-            => new(longExpression.Invoke(nameof(long.ToString), formatProvider));
+        public static ScopedApi<string> InvokeToString(this ScopedApi<long> longExpression, ValueExpression formatProvider)
+            => longExpression.Invoke(nameof(long.ToString), formatProvider).As<string>();
 
-        public static ScopedApi<long> Parse(StringSnippet value, ValueExpression formatProvider)
+        public static ScopedApi<long> Parse(ValueExpression value, ValueExpression formatProvider)
             => Static<long>().Invoke(nameof(long.Parse), [value, formatProvider]).As<long>();
     }
 }

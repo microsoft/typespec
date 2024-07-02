@@ -10,9 +10,9 @@ namespace Microsoft.Generator.CSharp.Snippets
     {
         public ScopedApi<int> Length => new(Property(nameof(StringBuilder.Length)));
 
-        public StringBuilderSnippet Append(StringSnippet value) => new(Expression.Invoke(nameof(StringBuilder.Append), value));
+        public StringBuilderSnippet Append(ScopedApi<string> value) => new(Expression.Invoke(nameof(StringBuilder.Append), value));
 
-        public StringBuilderSnippet AppendLine(StringSnippet value) => new(Expression.Invoke(nameof(StringBuilder.AppendLine), value));
+        public StringBuilderSnippet AppendLine(ScopedApi<string> value) => new(Expression.Invoke(nameof(StringBuilder.AppendLine), value));
 
         public StringBuilderSnippet Append(ValueExpression value) => new(Expression.Invoke(nameof(StringBuilder.Append), value));
 

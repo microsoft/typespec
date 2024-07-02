@@ -7,6 +7,6 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public static class CharSnippets
     {
-        public static StringSnippet InvokeToString(this ScopedApi<char> charExpression, ValueExpression cultureInfo) => new(charExpression.Invoke(nameof(char.ToString), cultureInfo));
+        public static ScopedApi<string> InvokeToString(this ScopedApi<char> charExpression, ValueExpression cultureInfo) => charExpression.Invoke(nameof(char.ToString), cultureInfo).As<string>();
     }
 }

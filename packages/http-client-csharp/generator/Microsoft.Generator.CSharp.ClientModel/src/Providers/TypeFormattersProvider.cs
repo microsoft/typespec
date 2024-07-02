@@ -72,13 +72,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             };
             var dateTimeValue = (ValueExpression)dateTimeParameter;
             var dateTimeValueKind = dateTimeValue.Property(nameof(DateTime.Kind));
-            var format = new StringSnippet(formatParameter);
             var sdkName = "Generated clients require";
             var toStringDateTime = new MethodProvider(
                 dateTimeSignature,
                 new SwitchExpression(dateTimeValueKind,
                 [
-                    new(new MemberExpression(typeof(DateTimeKind), nameof(DateTimeKind.Utc)), TypeFormattersSnippet.ToString(dateTimeValue.CastTo(typeof(DateTimeOffset)), format)),
+                    new(new MemberExpression(typeof(DateTimeKind), nameof(DateTimeKind.Utc)), TypeFormattersSnippet.ToString(dateTimeValue.CastTo(typeof(DateTimeOffset)), formatParameter)),
                     SwitchCaseExpression.Default(ThrowExpression(New.NotSupportedException(new FormattableStringExpression($"DateTime {{0}} has a Kind of {{1}}. {sdkName} it to be UTC. You can call DateTime.SpecifyKind to change Kind property value to DateTimeKind.Utc.", [dateTimeValue, dateTimeValueKind]))))
                 ]),
                 this);
@@ -89,17 +88,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Parameters = [dateTimeOffsetParameter, formatParameter]
             };
             var dateTimeOffsetValue = dateTimeOffsetParameter.As<DateTimeOffset>();
-            var roundtripZFormat = new StringSnippet(_roundtripZFormatField);
             var toStringDateTimeOffset = new MethodProvider(
                 dateTimeOffsetSignature,
-                new SwitchExpression(format,
+                new SwitchExpression(formatParameter,
                 [
                     new(Literal("D"), dateTimeOffsetValue.InvokeToString(Literal("yyyy-MM-dd"), _invariantCultureExpression)),
                     new(Literal("U"), dateTimeOffsetValue.ToUnixTimeSeconds().InvokeToString(_invariantCultureExpression)),
-                    new(Literal("O"), dateTimeOffsetValue.ToUniversalTime().InvokeToString(roundtripZFormat, _invariantCultureExpression)),
-                    new(Literal("o"), dateTimeOffsetValue.ToUniversalTime().InvokeToString(roundtripZFormat, _invariantCultureExpression)),
+                    new(Literal("O"), dateTimeOffsetValue.ToUniversalTime().InvokeToString(_roundtripZFormatField, _invariantCultureExpression)),
+                    new(Literal("o"), dateTimeOffsetValue.ToUniversalTime().InvokeToString(_roundtripZFormatField, _invariantCultureExpression)),
                     new(Literal("R"), dateTimeOffsetValue.InvokeToString(Literal("r"), _invariantCultureExpression)),
-                    SwitchCaseExpression.Default(dateTimeOffsetValue.InvokeToString(format, _invariantCultureExpression))
+                    SwitchCaseExpression.Default(dateTimeOffsetValue.InvokeToString(formatParameter, _invariantCultureExpression))
                 ]),
                 this);
 
@@ -111,10 +109,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var timeSpanValue = new TimeSpanSnippet(timeSpanParameter);
             var toStringTimeSpan = new MethodProvider(
                 timeSpanSignature,
-                new SwitchExpression(format,
+                new SwitchExpression(formatParameter,
                 [
                     new(Literal("P"), new InvokeStaticMethodExpression(typeof(XmlConvert), nameof(XmlConvert.ToString), [timeSpanValue])),
-                    SwitchCaseExpression.Default(timeSpanValue.InvokeToString(format, _invariantCultureExpression))
+                    SwitchCaseExpression.Default(timeSpanValue.InvokeToString(formatParameter, _invariantCultureExpression))
                 ]),
                 this);
 
@@ -126,11 +124,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var byteArrayValue = (ValueExpression)byteArrayParameter;
             var toStringByteArray = new MethodProvider(
                 byteArraySignature,
-                new SwitchExpression(format,
+                new SwitchExpression(formatParameter,
                 [
                     new(Literal("U"), ToBase64UrlString(byteArrayValue)),
                     new(Literal("D"), new InvokeStaticMethodExpression(typeof(Convert), nameof(Convert.ToBase64String), [byteArrayValue])),
-                    SwitchCaseExpression.Default(ThrowExpression(New.ArgumentException(format, new FormattableStringExpression("Format is not supported: '{0}'", [format]))))
+                    SwitchCaseExpression.Default(ThrowExpression(New.ArgumentException(formatParameter, new FormattableStringExpression("Format is not supported: '{0}'", [formatParameter]))))
                 ]),
                 this);
 
@@ -204,11 +202,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Modifiers: _methodModifiers,
                 ReturnType: typeof(byte[]),
                 Description: null, ReturnDescription: null);
-            var value = new StringSnippet(valueParameter);
 
             var body = new List<MethodBodyStatement>
             {
-                Declare("paddingCharsToAdd", new SwitchExpression(new BinaryOperatorExpression("%", value.Length, Literal(4)),
+                Declare("paddingCharsToAdd", new SwitchExpression(new BinaryOperatorExpression("%", valueParameter.As<string>().Length(), Literal(4)),
                 [
                     new SwitchCaseExpression(Int(0), Int(0)),
                     new SwitchCaseExpression(Int(2), Int(2)),
@@ -221,11 +218,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var outputLength = output.Property("Length");
             body.Add(new MethodBodyStatement[]
             {
-                Declare(outputVar, New.Array(typeof(char), value.Length.Add(paddingCharsToAdd.As<int>()))),
+                Declare(outputVar, New.Array(typeof(char), valueParameter.As<string>().Length().Add(paddingCharsToAdd.As<int>()))),
                 Declare("i", Int(0), out var i),
-                new ForStatement(null, i.LessThan(value.Length), i.Increment())
+                new ForStatement(null, i.LessThan(valueParameter.As<string>().Length()), i.Increment())
                 {
-                    Declare("ch", value[i], out var ch),
+                    Declare("ch", valueParameter.As<string>().Index(i), out var ch),
                     new IfElseStatement(new IfStatement(ch.Equal(Literal('-')))
                     {
                         output[i].Assign(Literal('+')).Terminate()
@@ -257,15 +254,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: typeof(DateTimeOffset),
                 Description: null, ReturnDescription: null);
 
-            var value = new StringSnippet(valueParameter);
-            var format = new StringSnippet(formatParameter);
             var invariantCulture = new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture));
             return new MethodProvider(
                 signature,
-                new SwitchExpression(format,
+                new SwitchExpression(formatParameter,
                 [
-                    new(Literal("U"), DateTimeOffsetSnippets.FromUnixTimeSeconds(LongSnippets.Parse(value, invariantCulture))),
-                    SwitchCaseExpression.Default(DateTimeOffsetSnippets.Parse(value, invariantCulture, new MemberExpression(typeof(DateTimeStyles), nameof(DateTimeStyles.AssumeUniversal))))
+                    new(Literal("U"), DateTimeOffsetSnippets.FromUnixTimeSeconds(LongSnippets.Parse(valueParameter, invariantCulture))),
+                    SwitchCaseExpression.Default(DateTimeOffsetSnippets.Parse(valueParameter, invariantCulture, new MemberExpression(typeof(DateTimeStyles), nameof(DateTimeStyles.AssumeUniversal))))
                 ]),
                 this);
         }
@@ -281,14 +276,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: typeof(TimeSpan),
                 Description: null, ReturnDescription: null);
 
-            var value = new StringSnippet(valueParameter);
-            var format = new StringSnippet(formatParameter);
             return new MethodProvider(
                 signature,
-                new SwitchExpression(format,
+                new SwitchExpression(formatParameter,
                 [
-                    new(Literal("P"), Static(typeof(XmlConvert)).Invoke(nameof(XmlConvert.ToTimeSpan), [value])),
-                    SwitchCaseExpression.Default(TimeSpanSnippet.ParseExact(value, format, new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture))))
+                    new(Literal("P"), Static(typeof(XmlConvert)).Invoke(nameof(XmlConvert.ToTimeSpan), [valueParameter])),
+                    SwitchCaseExpression.Default(TimeSpanSnippet.ParseExact(valueParameter, formatParameter, new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture))))
                 ]),
                 this);
         }
@@ -306,7 +299,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Description: null, ReturnDescription: null);
 
             var value = (ValueExpression)valueParameter;
-            var format = new StringSnippet(formatParameter);
             var body = new SwitchExpression(value,
             [
                 new SwitchCaseExpression(Null, Literal("null")),
@@ -314,13 +306,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 new SwitchCaseExpression(new DeclarationExpression(typeof(bool), "b", out var b), TypeFormattersSnippet.ToString(b)),
                 new SwitchCaseExpression(GetTypePattern([typeof(int),typeof(float), typeof(double), typeof(long), typeof(decimal)]), value.CastTo(typeof(IFormattable)).Invoke(nameof(IFormattable.ToString), _defaultNumberFormatField, _invariantCultureExpression)),
                 // TODO -- figure out how to write this line
-                SwitchCaseExpression.When(new DeclarationExpression(typeof(byte[]), "b", out var bytes), format.NotEqual(Null), TypeFormattersSnippet.ToString(bytes, format)),
-                new SwitchCaseExpression(new DeclarationExpression(typeof(IEnumerable<string>), "s", out var enumerable), StringSnippet.Join(Literal(","), enumerable)),
-                SwitchCaseExpression.When(new DeclarationExpression(typeof(DateTimeOffset), "dateTime", out var dateTime), format.NotEqual(Null), TypeFormattersSnippet.ToString(dateTime, format)),
-                SwitchCaseExpression.When(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpan), format.NotEqual(Null), TypeFormattersSnippet.ToString(timeSpan, format)),
+                SwitchCaseExpression.When(new DeclarationExpression(typeof(byte[]), "b", out var bytes), formatParameter.NotEqual(Null), TypeFormattersSnippet.ToString(bytes, formatParameter)),
+                new SwitchCaseExpression(new DeclarationExpression(typeof(IEnumerable<string>), "s", out var enumerable), StringSnippets.Join(Literal(","), enumerable)),
+                SwitchCaseExpression.When(new DeclarationExpression(typeof(DateTimeOffset), "dateTime", out var dateTime), formatParameter.NotEqual(Null), TypeFormattersSnippet.ToString(dateTime, formatParameter)),
+                SwitchCaseExpression.When(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpan), formatParameter.NotEqual(Null), TypeFormattersSnippet.ToString(timeSpan, formatParameter)),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpanNoFormat), Static<XmlConvert>().Invoke(nameof(XmlConvert.ToString), [timeSpanNoFormat])),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(Guid), "guid", out var guid), guid.Invoke("ToString")),
-                new SwitchCaseExpression(new DeclarationExpression(typeof(BinaryData), "binaryData", out var binaryData), ConvertToString(binaryData.As<BinaryData>().ToArray(), format)),
+                new SwitchCaseExpression(new DeclarationExpression(typeof(BinaryData), "binaryData", out var binaryData), ConvertToString(binaryData.As<BinaryData>().ToArray(), formatParameter)),
                 SwitchCaseExpression.Default(value.InvokeToString())
             ]);
 

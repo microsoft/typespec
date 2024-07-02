@@ -30,9 +30,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public ValueExpression GetInt16() => Expression.Invoke(nameof(JsonElement.GetInt16));
         public ValueExpression GetInt32() => Expression.Invoke(nameof(JsonElement.GetInt32));
         public ValueExpression GetInt64() => Expression.Invoke(nameof(JsonElement.GetInt64));
-        public StringSnippet GetRawText() => new(Expression.Invoke(nameof(JsonElement.GetRawText)));
+        public ScopedApi<string> GetRawText() => Expression.Invoke(nameof(JsonElement.GetRawText)).As<string>();
         public ValueExpression GetSingle() => Expression.Invoke(nameof(JsonElement.GetSingle));
-        public StringSnippet GetString() => new(Expression.Invoke(nameof(JsonElement.GetString)));
+        public ScopedApi<string> GetString() => Expression.Invoke(nameof(JsonElement.GetString)).As<string>();
 
         public ScopedApi<bool> ValueKindEqualsNull()
             => new(new BinaryOperatorExpression("==", Property(nameof(JsonElement.ValueKind)), FrameworkEnumValue(JsonValueKind.Null)));

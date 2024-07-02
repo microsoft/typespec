@@ -24,7 +24,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
         public void ValidateString()
         {
             using CodeWriter writer = new CodeWriter();
-            Literal("testing").Expression.Write(writer);
+            Literal("testing").Write(writer);
             Assert.AreEqual("\"testing\"", writer.ToString(false));
         }
 
@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
         public void ValidateStringU8()
         {
             using CodeWriter writer = new CodeWriter();
-            LiteralU8("testing").Expression.Write(writer);
+            LiteralU8("testing").Write(writer);
             Assert.AreEqual("\"testing\"u8", writer.ToString(false));
         }
 

@@ -9,6 +9,6 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public sealed record EnvironmentSnippets(ValueExpression Expression) : TypedSnippet(typeof(Environment), Expression)
     {
-        public static StringSnippet NewLine() => new(Static(typeof(Environment)).Property(nameof(Environment.NewLine)));
+        public static ScopedApi<string> NewLine() => Static(typeof(Environment)).Property(nameof(Environment.NewLine)).As<string>();
     }
 }

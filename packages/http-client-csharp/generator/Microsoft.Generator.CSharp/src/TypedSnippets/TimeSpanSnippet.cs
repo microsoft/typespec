@@ -8,9 +8,9 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public sealed record TimeSpanSnippet(ValueExpression Expression) : TypedSnippet<TimeSpan>(Expression)
     {
-        public StringSnippet InvokeToString(string? format) => new(Expression.Invoke(nameof(TimeSpan.ToString), [Snippet.Literal(format)]));
-        public StringSnippet InvokeToString(ValueExpression format, ValueExpression formatProvider)
-            => new(Expression.Invoke(nameof(TimeSpan.ToString), new[] { format, formatProvider }));
+        public ScopedApi<string> InvokeToString(string? format) => Expression.Invoke(nameof(TimeSpan.ToString), [Snippet.Literal(format)]).As<string>();
+        public ScopedApi<string> InvokeToString(ValueExpression format, ValueExpression formatProvider)
+            => Expression.Invoke(nameof(TimeSpan.ToString), [format, formatProvider]).As<string>();
 
         public static TimeSpanSnippet FromSeconds(ValueExpression value) => new(InvokeStatic(nameof(TimeSpan.FromSeconds), value));
 

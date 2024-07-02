@@ -61,7 +61,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var iListSignature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [iList]);
             var iListBody = new MethodBodyStatement[]
             {
-                new IfStatement(iList.AsExpression.NotEqual(Null))
+                new IfStatement(iList.NotEqual(Null))
                 {
                     _innerList.Assign(iList).Terminate()
                 }
@@ -71,7 +71,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var iReadOnlyListSignature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [iReadOnlyList]);
             var iReadOnlyListBody = new MethodBodyStatement[]
             {
-                new IfStatement(iReadOnlyList.AsExpression.NotEqual(Null))
+                new IfStatement(iReadOnlyList.NotEqual(Null))
                 {
                     _innerList.Assign(Linq.ToList(iReadOnlyList)).Terminate()
                 }

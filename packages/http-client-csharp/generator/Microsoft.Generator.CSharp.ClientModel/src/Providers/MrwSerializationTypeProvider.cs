@@ -578,7 +578,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (propertyType.IsCollection && !propertyType.IsReadOnlyMemory && isPropRequired)
             {
                 propertyIsInitialized = propertyMemberExpression.NotEqual(Null)
-                    .And(OptionalSnippet.IsCollectionDefined(new StringSnippet(propertyMemberExpression)));
+                    .And(OptionalSnippet.IsCollectionDefined(propertyMemberExpression));
             }
             else
             {
@@ -773,8 +773,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             MethodBodyStatement writePropertySerializationStatement)
         {
             var isDefinedCondition = propertyType.IsCollection && !propertyType.IsReadOnlyMemory
-                ? OptionalSnippet.IsCollectionDefined(new StringSnippet(propertyMemberExpression))
-                : OptionalSnippet.IsDefined(new StringSnippet(propertyMemberExpression));
+                ? OptionalSnippet.IsCollectionDefined(propertyMemberExpression)
+                : OptionalSnippet.IsDefined(propertyMemberExpression);
             var condition = isReadOnly ? _isNotEqualToWireConditionSnippet.And(isDefinedCondition) : isDefinedCondition;
 
             return new IfStatement(condition) { writePropertySerializationStatement };

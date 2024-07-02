@@ -47,8 +47,8 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement Declare(string name, ListSnippet value, out ListSnippet variable)
             => Declare(name, value, d => new ListSnippet(value.ItemType, d), out variable);
 
-        public static MethodBodyStatement Declare(string name, StringSnippet value, out StringSnippet variable)
-            => Declare(name, value, d => new StringSnippet(d), out variable);
+        public static MethodBodyStatement Declare(string name, ScopedApi<string> value, out ScopedApi<string> variable)
+            => Declare(name, value, out variable);
 
         public static MethodBodyStatement Declare(string name, StreamReaderSnippet value, out StreamReaderSnippet variable)
             => Declare(name, value, d => new StreamReaderSnippet(d), out variable);

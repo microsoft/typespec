@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using NUnit.Framework;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Tests.Expressions
 {
@@ -71,6 +72,30 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
             var expected = TypeReferenceExpression.FromType(t2);
 
             Assert.AreNotEqual(expected, result);
+        }
+
+        [Test]
+        public void MultipleAsSameObject()
+        {
+            ValueExpression exp = Int(1);
+            var scopedApi1 = exp.As<int>();
+            var scopedApi2 = exp.As<int>();
+            Assert.IsTrue(ReferenceEquals(scopedApi1, scopedApi2));
+            Assert.IsTrue(ReferenceEquals(exp, scopedApi1));
+
+            var scopedApi3 = exp.As(typeof(int));
+            Assert.IsTrue(ReferenceEquals(exp, scopedApi3));
+
+            var scopedApi4 = exp.As(new CSharpType(typeof(int)));
+            Assert.IsTrue(ReferenceEquals(exp, scopedApi4));
+
+            var scopedString1 = exp.As<string>();
+            var scopedString2 = exp.As<string>();
+            Assert.IsTrue(ReferenceEquals(scopedString1, scopedString2));
+            Assert.IsFalse(ReferenceEquals(exp, scopedString1));
+
+            var scopedString3 = exp.As(typeof(string));
+            Assert.IsTrue(ReferenceEquals(scopedString1, scopedString3));
         }
 
         public static IEnumerable<TestCaseData> CSharpTypeOperatorEqualsTestCases

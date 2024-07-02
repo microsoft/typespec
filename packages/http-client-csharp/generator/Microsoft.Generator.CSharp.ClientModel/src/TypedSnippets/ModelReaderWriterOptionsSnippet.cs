@@ -12,8 +12,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
     internal sealed record ModelReaderWriterOptionsSnippet(ValueExpression Expression) : TypedSnippet<ModelReaderWriterOptions>(Expression)
     {
         public ValueExpression Format => new MemberExpression(this, nameof(ModelReaderWriterOptions.Format));
-        internal static StringSnippet WireFormat => Literal("W");
-        internal static StringSnippet JsonFormat => Literal("J");
+        internal static ScopedApi<string> WireFormat => Literal("W");
+        internal static ScopedApi<string> JsonFormat => Literal("J");
         internal static ModelReaderWriterOptionsSnippet InitializeWireOptions => new(New.Instance(typeof(ModelReaderWriterOptions), Wire));
     }
 }

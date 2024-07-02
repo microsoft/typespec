@@ -15,12 +15,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         private const string IsDefinedMethodName = "IsDefined";
         private const string IsCollectionDefinedMethodName = "IsCollectionDefined";
 
-        public static ScopedApi<bool> IsCollectionDefined(TypedSnippet collection)
+        public static ScopedApi<bool> IsCollectionDefined(ValueExpression collection)
         {
             return Static<OptionalDefinition>().Invoke(IsCollectionDefinedMethodName, [collection]).As<bool>();
         }
 
-        public static ScopedApi<bool> IsDefined(TypedSnippet value)
+        public static ScopedApi<bool> IsDefined(ValueExpression value)
         {
             return Static<OptionalDefinition>().Invoke(IsDefinedMethodName, [value]).As<bool>();
         }

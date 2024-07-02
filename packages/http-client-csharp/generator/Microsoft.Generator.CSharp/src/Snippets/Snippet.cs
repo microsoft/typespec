@@ -64,8 +64,8 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static ValueExpression Literal(object? value) => new LiteralExpression(value);
 
-        public static StringSnippet Literal(string? value) => new(value is null ? Null : new LiteralExpression(value));
-        public static StringSnippet LiteralU8(string value) => new(new UnaryOperatorExpression("u8", new LiteralExpression(value), true));
+        public static ScopedApi<string> Literal(string? value) => new(value is null ? Null : new LiteralExpression(value));
+        public static ScopedApi<string> LiteralU8(string value) => new(new UnaryOperatorExpression("u8", new LiteralExpression(value), true));
 
         public static ScopedApi<bool> Not(ValueExpression operand) => new(new UnaryOperatorExpression("!", operand, false));
 
@@ -99,5 +99,8 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static ValueExpression Invoke(this FieldProvider field, string methodName, IEnumerable<ValueExpression> parameters, bool isAsync, bool configureAwait)
             => new InvokeInstanceMethodExpression(field, methodName, [.. parameters], null, isAsync, configureAwait);
+
+        public static ScopedApi<bool> NotEqual(this ParameterProvider parameter, ValueExpression other)
+            => new BinaryOperatorExpression("!=", parameter, other).As<bool>();
     }
 }

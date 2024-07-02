@@ -15,14 +15,14 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ScopedApi<DateTimeOffset> FromUnixTimeSeconds(ValueExpression expression)
             => Static<DateTimeOffset>().Invoke(nameof(DateTimeOffset.FromUnixTimeSeconds), expression).As<DateTimeOffset>();
 
-        public static StringSnippet InvokeToString(this ScopedApi<DateTimeOffset> dtoExpression, StringSnippet format, ValueExpression formatProvider)
-            => new(dtoExpression.Invoke(nameof(DateTimeOffset.ToString), [format, formatProvider]));
+        public static ScopedApi<string> InvokeToString(this ScopedApi<DateTimeOffset> dtoExpression, ValueExpression format, ValueExpression formatProvider)
+            => dtoExpression.Invoke(nameof(DateTimeOffset.ToString), [format, formatProvider]).As<string>();
 
         public static ScopedApi<long> ToUnixTimeSeconds(this ScopedApi<DateTimeOffset> dtoExpression)
-            => new(dtoExpression.Invoke(nameof(DateTimeOffset.ToUnixTimeSeconds)));
+            => dtoExpression.Invoke(nameof(DateTimeOffset.ToUnixTimeSeconds)).As<long>();
 
         public static ScopedApi<DateTimeOffset> ToUniversalTime(this ScopedApi<DateTimeOffset> dtoExpression)
-            => new(dtoExpression.Invoke(nameof(DateTimeOffset.ToUniversalTime)));
+            => dtoExpression.Invoke(nameof(DateTimeOffset.ToUniversalTime)).As<DateTimeOffset>();
 
         public static ScopedApi<DateTimeOffset> Parse(string s) => Parse(Literal(s));
 

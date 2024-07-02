@@ -128,22 +128,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
 
-            var value = new StringSnippet(valueParameter);
             var pathBuilder = new StringBuilderSnippet(PathBuilderProperty);
             MethodBodyStatement body = new MethodBodyStatement[]
             {
                 MethodBodyStatement.Empty,
                 new IfStatement(escapeParameter)
                 {
-                    value.Assign(new InvokeStaticMethodExpression(typeof(Uri), nameof(Uri.EscapeDataString), [value.Expression])).Terminate()
+                    valueParameter.Assign(new InvokeStaticMethodExpression(typeof(Uri), nameof(Uri.EscapeDataString), [valueParameter])).Terminate()
                 },
                 MethodBodyStatement.Empty,
-                new IfStatement(pathBuilder.Length.GreaterThan(Int(0)).And(pathBuilder[pathBuilder.Length.Minus(Int(1))].Equal(Literal('/'))).And(value[Int(0)].Equal(Literal('/'))))
+                new IfStatement(pathBuilder.Length.GreaterThan(Int(0)).And(pathBuilder[pathBuilder.Length.Minus(Int(1))].Equal(Literal('/'))).And(valueParameter.As<string>().Index(Int(0)).Equal(Literal('/'))))
                 {
                     pathBuilder.Remove(pathBuilder.Length.Minus(Int(1)), Int(1)).Terminate()
                 },
                 MethodBodyStatement.Empty,
-                pathBuilder.Append(value).Terminate(),
+                pathBuilder.Append(valueParameter).Terminate(),
                 UriBuilderPath.Assign(pathBuilder.Expression.InvokeToString()).Terminate()
             };
 
@@ -179,7 +178,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
             var convertToStringExpression = ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
-            var body = new InvokeInstanceMethodExpression(null, _appendPathMethodName, [convertToStringExpression.Expression, escapeParameter], null, false);
+            var body = new InvokeInstanceMethodExpression(null, _appendPathMethodName, [convertToStringExpression, escapeParameter], null, false);
 
             return new(signature, body, this);
         }
@@ -194,12 +193,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var signature = new MethodSignature(
                 Name: _appendQueryMethodName,
                 Modifiers: MethodSignatureModifiers.Public,
-                Parameters: new[] { nameParameter, valueParameter, escapeParameter },
+                Parameters: [nameParameter, valueParameter, escapeParameter],
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
 
-            var name = new StringSnippet(nameParameter);
-            var value = new StringSnippet(valueParameter);
             var queryBuilder = new StringBuilderSnippet(QueryBuilderProperty);
             var body = new MethodBodyStatement[]
             {
@@ -211,12 +208,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 MethodBodyStatement.Empty,
                 new IfStatement(escapeParameter)
                 {
-                    value.Assign(new InvokeStaticMethodExpression(typeof(Uri), nameof(Uri.EscapeDataString), new[] { value.Expression })).Terminate()
+                    valueParameter.Assign(new InvokeStaticMethodExpression(typeof(Uri), nameof(Uri.EscapeDataString), [valueParameter])).Terminate()
                 },
                 MethodBodyStatement.Empty,
-                queryBuilder.Append(name).Terminate(),
+                queryBuilder.Append(nameParameter).Terminate(),
                 queryBuilder.Append(Literal('=')).Terminate(),
-                queryBuilder.Append(value).Terminate()
+                queryBuilder.Append(valueParameter).Terminate()
             };
 
             return
@@ -253,7 +250,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
             var convertToStringExpression = ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
-            var body = new InvokeInstanceMethodExpression(null, _appendQueryMethodName, [nameParameter, convertToStringExpression.Expression, escapeParameter], null, false);
+            var body = new InvokeInstanceMethodExpression(null, _appendQueryMethodName, [nameParameter, convertToStringExpression, escapeParameter], null, false);
 
             return new(signature, body, this);
         }
@@ -285,16 +282,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 GenericArguments: new[] { _t },
                 Description: null, ReturnDescription: null);
 
-            var name = new StringSnippet(nameParameter);
             var value = new EnumerableSnippet(_t, valueParameter);
-            var delimiter = new StringSnippet(delimiterParameter);
 
             var v = new VariableExpression(_t, "v");
-            var convertToStringExpression = ConvertToString(v, hasFormat ? new StringSnippet(formatParameter).Expression : null);
+            var convertToStringExpression = ConvertToString(v, hasFormat ? formatParameter : (ValueExpression?)null);
             var body = new[]
             {
-                Declare("stringValues", value.Select(new StringSnippet(new FuncExpression([v.Declaration], convertToStringExpression))), out var stringValues),
-               new InvokeInstanceMethodExpression(null, _appendQueryMethodName, [name.Expression, StringSnippet.Join(delimiter, stringValues), escapeParameter], null, false).Terminate()
+                Declare("stringValues", value.Select(new FuncExpression([v.Declaration], convertToStringExpression).As<string>()), out var stringValues),
+               new InvokeInstanceMethodExpression(null, _appendQueryMethodName, [nameParameter, StringSnippets.Join(delimiterParameter, stringValues), escapeParameter], null, false).Terminate()
         };
 
             return new(signature, body, this);

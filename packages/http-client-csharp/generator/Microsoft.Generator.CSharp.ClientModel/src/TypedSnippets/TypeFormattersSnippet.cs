@@ -20,25 +20,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         private static TypeFormattersProvider? _provider;
         private static TypeFormattersProvider Provider => _provider ??= new();
 
-        public static StringSnippet ToString(ValueExpression value)
-            => new(new InvokeStaticMethodExpression(Provider.Type, ToStringMethodName, new[] { value }));
+        public static ScopedApi<string> ToString(ValueExpression value)
+            => new(new InvokeStaticMethodExpression(Provider.Type, ToStringMethodName, [value]));
 
-        public static StringSnippet ToString(ValueExpression value, ValueExpression format)
-            => new(new InvokeStaticMethodExpression(Provider.Type, ToStringMethodName, new[] { value, format }));
+        public static ScopedApi<string> ToString(ValueExpression value, ValueExpression format)
+            => new(new InvokeStaticMethodExpression(Provider.Type, ToStringMethodName, [value, format]));
 
-        public static StringSnippet ToBase64UrlString(ValueExpression value)
-            => new(new InvokeStaticMethodExpression(Provider.Type, ToBase64UrlStringMethodName, new[] { value }));
+        public static ScopedApi<string> ToBase64UrlString(ValueExpression value)
+            => new(new InvokeStaticMethodExpression(Provider.Type, ToBase64UrlStringMethodName, [value]));
 
         public static ValueExpression FromBase64UrlString(ValueExpression value)
-            => new InvokeStaticMethodExpression(Provider.Type, FromBase64UrlStringMethodName, new[] { value });
+            => new InvokeStaticMethodExpression(Provider.Type, FromBase64UrlStringMethodName, [value]);
 
         public static ScopedApi<DateTimeOffset> ParseDateTimeOffset(ValueExpression value, ValueExpression format)
-            => new(new InvokeStaticMethodExpression(Provider.Type, ParseDateTimeOffsetMethodName, new[] { value, format }));
+            => new(new InvokeStaticMethodExpression(Provider.Type, ParseDateTimeOffsetMethodName, [value, format]));
 
         public static TimeSpanSnippet ParseTimeSpan(ValueExpression value, ValueExpression format)
-            => new(new InvokeStaticMethodExpression(Provider.Type, ParseTimeSpanMethodName, new[] { value, format }));
+            => new(new InvokeStaticMethodExpression(Provider.Type, ParseTimeSpanMethodName, [value, format]));
 
-        public static StringSnippet ConvertToString(ValueExpression value, ValueExpression? format = null)
+        public static ScopedApi<string> ConvertToString(ValueExpression value, ValueExpression? format = null)
         {
             var arguments = format != null
                 ? new[] { value, format }
