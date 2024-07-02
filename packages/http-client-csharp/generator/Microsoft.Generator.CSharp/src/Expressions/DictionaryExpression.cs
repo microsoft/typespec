@@ -9,17 +9,20 @@ using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record DictionaryExpression(CSharpType KeyType, CSharpType ValueType, ValueExpression Original) : ValueExpression(Original)
+    public sealed record DictionaryExpression(KeyValuePairType KeyValuePair, ValueExpression Original) : ValueExpression(Original)
     {
-        public CSharpType Type { get; } = new(typeof(Dictionary<,>), KeyType, ValueType);
+        public CSharpType KeyType => KeyValuePair.KeyType;
+        public CSharpType ValueType => KeyValuePair.ValueType;
+
+        public CSharpType Type { get; } = new(typeof(Dictionary<,>), KeyValuePair.KeyType, KeyValuePair.ValueType);
 
         public DictionaryExpression(CSharpType dictionaryType, ValueExpression original)
-            : this(CheckNewInstance(dictionaryType), dictionaryType.Arguments[1], original)
+            : this(new KeyValuePairType(CheckNewInstance(dictionaryType), dictionaryType.Arguments[1]), original)
         {
         }
 
         public DictionaryExpression(NewInstanceExpression newInstance)
-            : this(CheckNewInstance(newInstance.Type), newInstance.Type!.Arguments[1], newInstance)
+            : this(new KeyValuePairType(CheckNewInstance(newInstance.Type), newInstance.Type!.Arguments[1]), newInstance)
         {
         }
 
@@ -41,7 +44,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         public MethodBodyStatement Add(ValueExpression key, ValueExpression value)
             => Invoke(nameof(Dictionary<object, object>.Add), [key, value]).Terminate();
 
-        public MethodBodyStatement Add(KeyValuePairSnippet pair)
+        public MethodBodyStatement Add(ValueExpression pair)
             => Invoke(nameof(Dictionary<object, object>.Add), pair).Terminate();
 
         public ValueExpression this[ValueExpression key] => new IndexerExpression(this, key);

@@ -15,8 +15,8 @@ namespace Microsoft.Generator.CSharp.Snippets
     {
         public static ScopedApi<T> As<T>(this ParameterProvider parameter) => new(parameter);
         public static ScopedApi<T> As<T>(this PropertyProvider property) => new(property);
-        public static DictionaryExpression AsDictionary(this FieldProvider field, CSharpType keyType, CSharpType valueType) => new(keyType, valueType, field);
-        public static DictionaryExpression AsDictionary(this ParameterProvider parameter, CSharpType keyType, CSharpType valueType) => new(keyType, valueType, parameter);
+        public static DictionaryExpression AsDictionary(this FieldProvider field, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), field);
+        public static DictionaryExpression AsDictionary(this ParameterProvider parameter, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), parameter);
 
         public static ValueExpression Static<T>() => TypeReferenceExpression.FromType(typeof(T));
         //overload needed since static types cannot be usd as type arguments

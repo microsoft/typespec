@@ -622,7 +622,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new[]
             {
                 _utf8JsonWriterSnippet.WriteStartObject(),
-                new ForeachStatement("item", dictionary, out KeyValuePairSnippet keyValuePair)
+                new ForeachStatement("item", dictionary, out KeyValuePairExpression keyValuePair)
                 {
                     _utf8JsonWriterSnippet.WritePropertyName(keyValuePair.Key),
                     TypeRequiresNullCheckInSerialization(keyValuePair.ValueType) ?
@@ -793,7 +793,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             var rawDataMemberExp = new MemberExpression(null, _rawDataField.Name);
             var rawDataDictionaryExp = rawDataMemberExp.AsDictionary(_rawDataField.Type);
-            var forEachStatement = new ForeachStatement("item", rawDataDictionaryExp, out KeyValuePairSnippet item)
+            var forEachStatement = new ForeachStatement("item", rawDataDictionaryExp, out KeyValuePairExpression item)
             {
                 _utf8JsonWriterSnippet.WritePropertyName(item.Key),
                 CreateSerializationStatement(_rawDataField.Type.Arguments[1], item.Value, SerializationFormat.Default),

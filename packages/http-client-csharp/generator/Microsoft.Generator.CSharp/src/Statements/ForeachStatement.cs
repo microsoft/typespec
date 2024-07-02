@@ -45,11 +45,11 @@ namespace Microsoft.Generator.CSharp.Statements
             item = new VariableExpression(enumerable.ItemType, Item);
         }
 
-        public ForeachStatement(string itemName, DictionaryExpression dictionary, out KeyValuePairSnippet item)
+        public ForeachStatement(string itemName, DictionaryExpression dictionary, out KeyValuePairExpression item)
             : this(null, new CodeWriterDeclaration(itemName), dictionary, false)
         {
-            var variable = new VariableExpression(KeyValuePairSnippet.GetType(dictionary.KeyType, dictionary.ValueType), Item);
-            item = new KeyValuePairSnippet(dictionary.KeyType, dictionary.ValueType, variable);
+            var variable = new VariableExpression(dictionary.KeyValuePair, Item);
+            item = new(dictionary.KeyValuePair, variable);
         }
 
         public void Add(MethodBodyStatement statement) => _body.Add(statement);

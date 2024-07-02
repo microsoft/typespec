@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.Expressions
             return new ScopedApi(type, this);
         }
 
-        public DictionaryExpression AsDictionary(CSharpType keyType, CSharpType valueType) => new(keyType, valueType, this);
+        public DictionaryExpression AsDictionary(CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), this);
         public DictionaryExpression AsDictionary(CSharpType dictionaryType) => new(dictionaryType, this);
 
         public ValueExpression NullableStructValue(CSharpType candidateType) => candidateType is { IsNullable: true, IsValueType: true } ? new MemberExpression(this, nameof(Nullable<int>.Value)) : this;
@@ -61,13 +61,13 @@ namespace Microsoft.Generator.CSharp.Expressions
             => new MemberExpression(nullConditional ? new NullConditionalExpression(this) : this, propertyName);
 
         public InvokeInstanceMethodExpression Invoke(string methodName)
-            => new InvokeInstanceMethodExpression(this, methodName, Array.Empty<ValueExpression>(), null, false);
+            => new InvokeInstanceMethodExpression(this, methodName, [], null, false);
 
         public InvokeInstanceMethodExpression Invoke(string methodName, ValueExpression arg)
-            => new InvokeInstanceMethodExpression(this, methodName, new[] { arg }, null, false);
+            => new InvokeInstanceMethodExpression(this, methodName, [arg], null, false);
 
         public InvokeInstanceMethodExpression Invoke(string methodName, ValueExpression arg1, ValueExpression arg2)
-            => new InvokeInstanceMethodExpression(this, methodName, new[] { arg1, arg2 }, null, false);
+            => new InvokeInstanceMethodExpression(this, methodName, [arg1, arg2], null, false);
 
         public InvokeInstanceMethodExpression Invoke(string methodName, IReadOnlyList<ValueExpression> arguments)
             => new InvokeInstanceMethodExpression(this, methodName, arguments, null, false);

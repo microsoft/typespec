@@ -85,7 +85,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             var dictionaryParam = new ParameterProvider("dictionary", $"The inner dictionary.", _IReadOnlyDictionary);
             DictionaryExpression dictionary = dictionaryParam.AsDictionary(_tKey, _tValue);
-            var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, new[] { dictionaryParam });
+            var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [dictionaryParam]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(dictionary.Equal(Null))

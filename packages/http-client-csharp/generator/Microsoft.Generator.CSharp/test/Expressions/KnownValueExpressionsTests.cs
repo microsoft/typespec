@@ -145,7 +145,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
             var valueType = new CSharpType(t2);
             var untypedValue = ValueExpression.Empty;
 
-            var keyValuePairExpression = new KeyValuePairSnippet(keyType, valueType, untypedValue);
+            var keyValuePairExpression = new KeyValuePairExpression(new KeyValuePairType(keyType, valueType), untypedValue);
             var expectedKey = new MemberExpression(keyValuePairExpression, nameof(KeyValuePair<string, string>.Key));
             var expectedValue = new MemberExpression(keyValuePairExpression, nameof(KeyValuePair<string, string>.Value));
 
