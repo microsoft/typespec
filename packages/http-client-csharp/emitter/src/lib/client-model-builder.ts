@@ -250,7 +250,7 @@ export function createModelForService(
       clientDesc = getDoc(program, container) ?? "";
     }
 
-    const inputClient : InputClient = {
+    const inputClient: InputClient = {
       Name: getClientName(client),
       Description: clientDesc,
       Operations: [],
