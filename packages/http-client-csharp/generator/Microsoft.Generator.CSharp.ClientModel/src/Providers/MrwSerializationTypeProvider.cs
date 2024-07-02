@@ -29,7 +29,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private const string PrivateAdditionalPropertiesPropertyDescription = "Keeps track of any properties unknown to the library.";
         private const string PrivateAdditionalPropertiesPropertyName = "_serializedAdditionalRawData";
         private const string JsonModelWriteCoreMethodName = "JsonModelWriteCore";
-        private const string GetObjectInstanceMethodName = "GetObjectInstance";
         private const string PersistableModelWriteCoreMethodName = "PersistableModelWriteCore";
         private const string WriteAction = "writing";
         private const string ReadAction = "reading";

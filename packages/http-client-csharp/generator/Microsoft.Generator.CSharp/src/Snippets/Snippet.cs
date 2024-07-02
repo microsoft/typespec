@@ -35,7 +35,6 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ValueExpression Double(double value) => Literal(value);
 
         public static ValueExpression Nameof(ValueExpression expression) => new InvokeInstanceMethodExpression(null, "nameof", new[] { expression }, null, false);
-        public static ValueExpression TypeOf(ValueExpression expression) => new InvokeInstanceMethodExpression(null, "typeof", new[] { expression }, null, false);
         public static ValueExpression ThrowExpression(ValueExpression expression) => new KeywordExpression("throw", expression);
 
         public static ValueExpression NullCoalescing(ValueExpression left, ValueExpression right) => new BinaryOperatorExpression("??", left, right);
