@@ -1,0 +1,206 @@
+openapi: 3.0.0
+info:
+  title: Widget Service
+  version: 0.0.0
+tags:
+  - name: Widgets
+paths:
+  /widgets:
+    get:
+      tags:
+        - Widgets
+      operationId: Widgets_list
+      parameters: []
+      responses:
+        "200":
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Widget"
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags:
+        - Widgets
+      operationId: Widgets_create
+      parameters: []
+      responses:
+        "200":
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Widget"
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WidgetCreate"
+  /widgets/{id}:
+    get:
+      tags:
+        - Widgets
+      operationId: Widgets_read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Widget"
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    patch:
+      tags:
+        - Widgets
+      operationId: Widgets_update
+      parameters:
+        - $ref: "#/components/parameters/Widget.id"
+      responses:
+        "200":
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Widget"
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WidgetUpdate"
+    delete:
+      tags:
+        - Widgets
+      operationId: Widgets_delete
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: "There is no content to send for this request, but the headers may be useful. "
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /widgets/{id}/analyze:
+    post:
+      tags:
+        - Widgets
+      operationId: Widgets_analyze
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: string
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  parameters:
+    Widget.id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+    Widget:
+      type: object
+      required:
+        - id
+        - weight
+        - color
+      properties:
+        id:
+          type: string
+        weight:
+          type: integer
+          format: int32
+        color:
+          type: string
+          enum:
+            - red
+            - blue
+    WidgetCreate:
+      type: object
+      required:
+        - weight
+        - color
+      properties:
+        weight:
+          type: integer
+          format: int32
+        color:
+          type: string
+          enum:
+            - red
+            - blue
+    WidgetUpdate:
+      type: object
+      properties:
+        weight:
+          type: integer
+          format: int32
+        color:
+          type: string
+          enum:
+            - red
+            - blue

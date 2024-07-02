@@ -1,6 +1,6 @@
 # @typespec/openapi3
 
-TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding
+TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding and converting OpenAPI3 to TypeSpec
 
 ## Install
 

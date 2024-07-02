@@ -1,5 +1,5 @@
 import { Diagnostic, Service } from "@typespec/compiler";
-import { ExtensionKey } from "@typespec/openapi";
+import { Contact, ExtensionKey, License } from "@typespec/openapi";
 
 export type Extensions = {
   [key in ExtensionKey]?: any;
@@ -96,6 +96,9 @@ export interface OpenAPI3Info extends Extensions {
   description?: string;
   termsOfService?: string;
   version: string;
+  contact?: Contact;
+  license?: License;
+  summary?: string;
 }
 
 export interface OpenAPI3Server {
@@ -668,6 +671,8 @@ export type OpenAPI3Operation = Extensions & {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface Ref<T> {
   $ref: string;
+  description?: string;
+  summary?: string;
 }
 
 export type Refable<T> = Ref<T> | T;
