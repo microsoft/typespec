@@ -111,5 +111,8 @@ namespace UnbrandedTypeSpec.Models
 
         /// <summary> required nullable collection. </summary>
         public IList<int> RequiredNullableList { get; set; }
+
+        /// <summary> optional discriminated set. </summary>
+        public BaseModelWithDiscriminator OptionalDiscriminatedSet { get; set; }
     }
 }

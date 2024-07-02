@@ -13,7 +13,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    public sealed class ModelProvider : TypeProvider
+    public class ModelProvider : TypeProvider
     {
         private readonly InputModelType _inputModel;
         public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
@@ -37,12 +37,17 @@ namespace Microsoft.Generator.CSharp.Providers
                 _declarationModifiers |= TypeSignatureModifiers.Internal;
             }
 
-            bool isAbstract = inputModel.DiscriminatorProperty is not null && inputModel.DiscriminatorValue is null;
+            bool isAbstract = inputModel.DiscriminatorProperty is not null;
             if (isAbstract)
             {
                 _declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
 
+            Inherits = _inputModel.BaseModel != null
+                ? CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(_inputModel.BaseModel)
+                : null;
+
+            _discriminator = new(BuildDiscriminator);
             _isStruct = inputModel.ModelAsStruct;
         }
 
@@ -53,18 +58,95 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _declarationModifiers;
 
-        protected override PropertyProvider[] BuildProperties()
+        private IReadOnlyDictionary<InputModelProperty, PropertyProvider>? _propertiesCache;
+        private IReadOnlyDictionary<InputModelProperty, PropertyProvider> BuildPropertiesCache()
         {
+            if (_propertiesCache != null)
+            {
+                return _propertiesCache;
+            }
+
+            // get all the properties from my base type
+            var propertiesOnBase = new HashSet<string>();
+
+            if (Inherits is { IsFrameworkType: false, Implementation: TypeProvider baseType })
+            {
+                foreach (var property in baseType.Properties)
+                {
+                    propertiesOnBase.Add(property.Name);
+                }
+            }
+
+            var cache = new Dictionary<InputModelProperty, PropertyProvider>(_inputModel.Properties.Count);
+            _propertiesCache = cache;
             var propertiesCount = _inputModel.Properties.Count;
-            var propertyDeclarations = new PropertyProvider[propertiesCount];
 
             for (int i = 0; i < propertiesCount; i++)
             {
-                var property = _inputModel.Properties[i];
-                propertyDeclarations[i] = new PropertyProvider(property);
+                var inputProperty = _inputModel.Properties[i];
+                var property = new PropertyProvider(inputProperty);
+                if (!propertiesOnBase.Contains(property.Name))
+                {
+                    cache.Add(inputProperty, property);
+                }
             }
 
-            return propertyDeclarations;
+            return _propertiesCache;
+        }
+
+        private readonly Lazy<ModelDiscriminator?> _discriminator;
+        public ModelDiscriminator? Discriminator => _discriminator.Value;
+
+        protected virtual ModelDiscriminator? BuildDiscriminator()
+        {
+            var inputDiscriminatorProperty = _inputModel.DiscriminatorProperty;
+
+            if (inputDiscriminatorProperty != null)
+            {
+                // I am a base model in a discriminated set, build the implementated types
+                var discriminatorProperty = BuildPropertiesCache()[inputDiscriminatorProperty];
+
+                return new ModelDiscriminator(
+                    discriminatorProperty,
+                    inputDiscriminatorProperty.SerializedName,
+                    BuildDiscriminatedSubtypes(_inputModel.DiscriminatedSubtypes),
+                    _inputModel.DiscriminatorValue
+                    );
+            }
+            else
+            {
+                // I am a derived model in a discriminator or I do not have a discriminator
+                // find the discriminator in my direct parent
+                if (Inherits is not { IsFrameworkType: false, Implementation: ModelProvider parent } || parent.Discriminator == null)
+                {
+                    // I do not have a discriminator
+                    return null;
+                }
+
+                return new ModelDiscriminator(
+                    parent.Discriminator.DiscriminatorProperty,
+                    parent.Discriminator.DiscriminatorSerializedName,
+                    BuildDiscriminatedSubtypes(_inputModel.DiscriminatedSubtypes),
+                    _inputModel.DiscriminatorValue
+                    );
+            }
+
+            static IReadOnlyDictionary<string, CSharpType> BuildDiscriminatedSubtypes(IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes)
+            {
+                var implementations = new Dictionary<string, CSharpType>(discriminatedSubtypes.Count);
+
+                foreach (var (value, derived) in discriminatedSubtypes)
+                {
+                    implementations.Add(value, CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(derived));
+                }
+
+                return implementations;
+            }
+        }
+
+        protected override PropertyProvider[] BuildProperties()
+        {
+            return BuildPropertiesCache().Values.ToArray();
         }
 
         protected override MethodProvider[] BuildConstructors()

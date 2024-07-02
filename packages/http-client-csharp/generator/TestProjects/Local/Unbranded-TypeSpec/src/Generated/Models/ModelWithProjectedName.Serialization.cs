@@ -11,21 +11,21 @@ using System.Text.Json;
 namespace UnbrandedTypeSpec.Models
 {
     /// <summary></summary>
-    public partial class ProjectedModel : IJsonModel<ProjectedModel>
+    public partial class ModelWithProjectedName : IJsonModel<ModelWithProjectedName>
     {
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
-        internal ProjectedModel(string name, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        internal ModelWithProjectedName(string name, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             Name = name;
             _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
-        internal ProjectedModel()
+        internal ModelWithProjectedName()
         {
         }
 
-        void IJsonModel<ProjectedModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void IJsonModel<ModelWithProjectedName>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
             JsonModelWriteCore(writer, options);
@@ -36,10 +36,10 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<ProjectedModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<ModelWithProjectedName>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
-                throw new FormatException($"The model {nameof(ProjectedModel)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(ModelWithProjectedName)} does not support writing '{format}' format.");
             }
             writer.WritePropertyName("name"u8);
             writer.WriteStringValue(Name);
@@ -60,41 +60,41 @@ namespace UnbrandedTypeSpec.Models
             }
         }
 
-        ProjectedModel IJsonModel<ProjectedModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        ModelWithProjectedName IJsonModel<ModelWithProjectedName>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
             throw new NotImplementedException("Not implemented");
         }
 
-        BinaryData IPersistableModel<ProjectedModel>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<ModelWithProjectedName>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<ProjectedModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<ModelWithProjectedName>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
                     return ModelReaderWriter.Write(this, options);
                 default:
-                    throw new FormatException($"The model {nameof(ProjectedModel)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(ModelWithProjectedName)} does not support writing '{options.Format}' format.");
             }
         }
 
-        ProjectedModel IPersistableModel<ProjectedModel>.Create(BinaryData data, ModelReaderWriterOptions options)
+        ModelWithProjectedName IPersistableModel<ModelWithProjectedName>.Create(BinaryData data, ModelReaderWriterOptions options)
         {
             throw new NotImplementedException("Not implemented");
         }
 
-        string IPersistableModel<ProjectedModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<ModelWithProjectedName>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        /// <param name="projectedModel"> The <see cref="ProjectedModel"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(ProjectedModel projectedModel)
+        /// <param name="modelWithProjectedName"> The <see cref="ModelWithProjectedName"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(ModelWithProjectedName modelWithProjectedName)
         {
             throw new NotImplementedException("Not implemented");
         }
 
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ProjectedModel"/> from. </param>
-        public static explicit operator ProjectedModel(ClientResult result)
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ModelWithProjectedName"/> from. </param>
+        public static explicit operator ModelWithProjectedName(ClientResult result)
         {
             throw new NotImplementedException("Not implemented");
         }

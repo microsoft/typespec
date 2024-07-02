@@ -39,7 +39,9 @@ namespace Microsoft.Generator.CSharp.Primitives
             writer.WriteTypeModifiers(_provider.DeclarationModifiers); // class, struct, enum and interface is written as modifiers in this part
             writer.Append($"{_provider.Type:D}")
                 .AppendRawIf(" : ", _provider.Inherits != null || _provider.Implements.Any())
-                .AppendIf($"{_provider.Inherits},", _provider.Inherits != null);
+                .AppendIf($"{_provider.Inherits}", _provider.Inherits != null);
+
+            writer.AppendRawIf(", ", _provider.Inherits != null && _provider.Implements.Count > 0);
 
             for (int i = 0; i < _provider.Implements.Count; i++)
             {
