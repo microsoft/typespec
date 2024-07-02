@@ -2,16 +2,15 @@
 // Licensed under the MIT License.
 
 using System.IO;
-using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record StreamReaderSnippet(ValueExpression Expression) : TypedSnippet<StreamReader>(Expression)
+    public static class StreamReaderSnippets
     {
-        public ScopedApi<string> ReadToEnd(bool async)
+        public static ScopedApi<string> ReadToEnd(this ScopedApi<StreamReader> srExpression, bool async)
         {
             var methodName = async ? nameof(StreamReader.ReadToEndAsync) : nameof(StreamReader.ReadToEnd);
-            return new(Expression.Invoke(methodName, [], async));
+            return srExpression.Invoke(methodName, [], async).As<string>();
         }
     }
 }

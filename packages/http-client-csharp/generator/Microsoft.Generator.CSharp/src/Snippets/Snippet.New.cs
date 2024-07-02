@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.Snippets
 
             public static ListSnippet List(CSharpType elementType) => new(elementType, Instance(new CSharpType(typeof(List<>), elementType)));
 
-            public static StreamReaderSnippet StreamReader(ValueExpression stream) => new(Instance(typeof(StreamReader), stream));
+            public static ScopedApi<StreamReader> StreamReader(ValueExpression stream) => Instance(typeof(StreamReader), stream).As<StreamReader>();
 
             public static ScopedApi<TimeSpan> TimeSpan(int hours, int minutes, int seconds) => Instance(typeof(TimeSpan), Int(hours), Int(minutes), Int(seconds)).As<TimeSpan>();
 
