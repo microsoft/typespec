@@ -160,6 +160,10 @@ function* emitRawServerOperation(
 
     const defaultBodyTypeName = operationNameCase.pascalCase + "RequestBody";
 
+    if (body.bodyKind === "multipart") {
+      throw new UnimplementedError(`new form of multipart requests`);
+    }
+
     const bodyNameCase = parseCase(body.parameter?.name ?? defaultBodyTypeName);
 
     const bodyTypeName = emitTypeReference(
