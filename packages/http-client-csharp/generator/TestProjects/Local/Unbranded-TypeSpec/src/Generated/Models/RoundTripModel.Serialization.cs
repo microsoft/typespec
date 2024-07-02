@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -275,9 +276,19 @@ namespace UnbrandedTypeSpec.Models
             throw new NotImplementedException("Not implemented");
         }
 
-        BinaryData IPersistableModel<RoundTripModel>.Write(ModelReaderWriterOptions options)
+        BinaryData IPersistableModel<RoundTripModel>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            throw new NotImplementedException("Not implemented");
+            string format = options.Format == "W" ? ((IPersistableModel<RoundTripModel>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options);
+                default:
+                    throw new FormatException($"The model {nameof(RoundTripModel)} does not support writing '{options.Format}' format.");
+            }
         }
 
         RoundTripModel IPersistableModel<RoundTripModel>.Create(BinaryData data, ModelReaderWriterOptions options)
@@ -286,5 +297,17 @@ namespace UnbrandedTypeSpec.Models
         }
 
         string IPersistableModel<RoundTripModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="roundTripModel"> The <see cref="RoundTripModel"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(RoundTripModel roundTripModel)
+        {
+            throw new NotImplementedException("Not implemented");
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="RoundTripModel"/> from. </param>
+        public static explicit operator RoundTripModel(ClientResult result)
+        {
+            throw new NotImplementedException("Not implemented");
+        }
     }
 }

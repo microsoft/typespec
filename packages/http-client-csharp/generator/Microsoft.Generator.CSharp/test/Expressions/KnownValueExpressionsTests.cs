@@ -3,10 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
-using Microsoft.Generator.CSharp.Statements;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Expressions
@@ -16,25 +15,29 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         [Test]
         public void BinaryOperatorExpressionWithOrOperator()
         {
-            var left = new ValueExpression();
-            var right = new ValueExpression();
+            var left = ValueExpression.Empty;
+            var right = ValueExpression.Empty;
             var boolExpression = new BoolSnippet(left);
 
             var result = boolExpression.Or(right);
+            using var writer = new CodeWriter();
+            result.Expression.Write(writer);
 
-            Assert.AreEqual(new BinaryOperatorExpression("||", boolExpression, right), result.Untyped);
+            Assert.AreEqual("(||)", writer.ToString(false));
         }
 
         [Test]
         public void BinaryOperatorExpressionWithAndOperator()
         {
-            var left = new ValueExpression();
-            var right = new ValueExpression();
+            var left = ValueExpression.Empty;
+            var right = ValueExpression.Empty;
             var boolExpression = new BoolSnippet(left);
 
             var result = boolExpression.And(right);
+            using var writer = new CodeWriter();
+            result.Expression.Write(writer);
 
-            Assert.AreEqual(new BinaryOperatorExpression("&&", boolExpression, right), result.Untyped);
+            Assert.AreEqual("(&&)", writer.ToString(false));
         }
 
         [TestCase(typeof(int))]
@@ -53,23 +56,26 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         public void ListExpression(Type T)
         {
             var itemType = new CSharpType(T);
-            var untypedValue = new ValueExpression();
+            var untypedValue = ValueExpression.Empty;
 
             var listExpression = new ListSnippet(itemType, untypedValue);
 
+            using var writer = new CodeWriter();
+            listExpression.Expression.Write(writer);
+
             Assert.AreEqual(itemType, listExpression.ItemType);
-            Assert.AreEqual(untypedValue, listExpression.Untyped);
+            Assert.AreEqual("", writer.ToString(false));
         }
 
         [Test]
         public void ListExpressionAddItem()
         {
-            var item = new ValueExpression();
-            var listExpression = new ListSnippet(new CSharpType(typeof(int)), new ValueExpression());
+            var item = ValueExpression.Empty;
+            var listExpression = new ListSnippet(new CSharpType(typeof(int)), ValueExpression.Empty);
 
             var result = listExpression.Add(item);
 
-            var expectedStatement = listExpression.Untyped.Invoke("Add", item).Terminate();
+            var expectedStatement = listExpression.Invoke("Add", item).Terminate();
 
             Assert.AreEqual(expectedStatement.ToString(), result.ToString());
         }
@@ -93,7 +99,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         {
             var keyType = new CSharpType(t1);
             var valueType = new CSharpType(t2);
-            var untypedValue = new ValueExpression();
+            var untypedValue = ValueExpression.Empty;
 
             var dictionaryExpression = new DictionarySnippet(t1, t2, untypedValue);
 
@@ -107,13 +113,13 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         {
             var keyType = new CSharpType(typeof(int));
             var valueType = new CSharpType(typeof(string));
-            var dictionaryExpression = new DictionarySnippet(keyType, valueType, new ValueExpression());
+            var dictionaryExpression = new DictionarySnippet(keyType, valueType, ValueExpression.Empty);
 
-            var key = new ValueExpression();
-            var value = new ValueExpression();
+            var key = ValueExpression.Empty;
+            var value = ValueExpression.Empty;
             var result = dictionaryExpression.Add(key, value);
 
-            var expectedStatement = dictionaryExpression.Untyped.Invoke(nameof(Dictionary<object, object>.Add), key, value).Terminate();
+            var expectedStatement = dictionaryExpression.Invoke(nameof(Dictionary<object, object>.Add), key, value).Terminate();
 
             Assert.AreEqual(expectedStatement.ToString(), result.ToString());
         }
@@ -137,11 +143,11 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         {
             var keyType = new CSharpType(t1);
             var valueType = new CSharpType(t2);
-            var untypedValue = new ValueExpression();
+            var untypedValue = ValueExpression.Empty;
 
             var keyValuePairExpression = new KeyValuePairSnippet(keyType, valueType, untypedValue);
-            var expectedKey = new MemberExpression(keyValuePairExpression.Untyped, nameof(KeyValuePair<string, string>.Key));
-            var expectedValue = new MemberExpression(keyValuePairExpression.Untyped, nameof(KeyValuePair<string, string>.Value));
+            var expectedKey = new MemberExpression(keyValuePairExpression, nameof(KeyValuePair<string, string>.Key));
+            var expectedValue = new MemberExpression(keyValuePairExpression, nameof(KeyValuePair<string, string>.Value));
 
             Assert.AreEqual(expectedKey, keyValuePairExpression.Key);
             Assert.AreEqual(expectedValue, keyValuePairExpression.Value);
@@ -153,21 +159,14 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         public void EnumerableExpressionWithAnyMethodCall()
         {
             var itemType = new CSharpType(typeof(int));
-            var untypedValue = new ValueExpression();
+            var untypedValue = ValueExpression.Empty;
             var enumerableExpression = new EnumerableSnippet(itemType, untypedValue);
 
             var result = enumerableExpression.Any();
+            using CodeWriter writer = new CodeWriter();
+            result.Expression.Write(writer);
 
-            var expectedExpression = new BoolSnippet(
-                new InvokeStaticMethodExpression(
-                    typeof(Enumerable),
-                    nameof(Enumerable.Any),
-                    new[] { untypedValue },
-                    CallAsExtension: true
-                )
-            );
-
-            Assert.AreEqual(expectedExpression.Untyped.ToString(), result.Untyped.ToString());
+            Assert.AreEqual(".Any()", writer.ToString(false));
         }
     }
 }

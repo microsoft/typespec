@@ -4,5 +4,4 @@
 export interface LiteralTypeContext {
   ModelName: string;
   PropertyName: string;
-  Namespace?: string;
 }

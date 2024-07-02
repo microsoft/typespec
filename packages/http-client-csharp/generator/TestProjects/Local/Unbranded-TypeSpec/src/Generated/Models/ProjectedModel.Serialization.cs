@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -64,9 +65,19 @@ namespace UnbrandedTypeSpec.Models
             throw new NotImplementedException("Not implemented");
         }
 
-        BinaryData IPersistableModel<ProjectedModel>.Write(ModelReaderWriterOptions options)
+        BinaryData IPersistableModel<ProjectedModel>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            throw new NotImplementedException("Not implemented");
+            string format = options.Format == "W" ? ((IPersistableModel<ProjectedModel>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options);
+                default:
+                    throw new FormatException($"The model {nameof(ProjectedModel)} does not support writing '{options.Format}' format.");
+            }
         }
 
         ProjectedModel IPersistableModel<ProjectedModel>.Create(BinaryData data, ModelReaderWriterOptions options)
@@ -75,5 +86,17 @@ namespace UnbrandedTypeSpec.Models
         }
 
         string IPersistableModel<ProjectedModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="projectedModel"> The <see cref="ProjectedModel"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(ProjectedModel projectedModel)
+        {
+            throw new NotImplementedException("Not implemented");
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ProjectedModel"/> from. </param>
+        public static explicit operator ProjectedModel(ClientResult result)
+        {
+            throw new NotImplementedException("Not implemented");
+        }
     }
 }

@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -64,9 +65,19 @@ namespace UnbrandedTypeSpec.Models
             throw new NotImplementedException("Not implemented");
         }
 
-        BinaryData IPersistableModel<Friend>.Write(ModelReaderWriterOptions options)
+        BinaryData IPersistableModel<Friend>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            throw new NotImplementedException("Not implemented");
+            string format = options.Format == "W" ? ((IPersistableModel<Friend>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options);
+                default:
+                    throw new FormatException($"The model {nameof(Friend)} does not support writing '{options.Format}' format.");
+            }
         }
 
         Friend IPersistableModel<Friend>.Create(BinaryData data, ModelReaderWriterOptions options)
@@ -75,5 +86,17 @@ namespace UnbrandedTypeSpec.Models
         }
 
         string IPersistableModel<Friend>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="friend"> The <see cref="Friend"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(Friend friend)
+        {
+            throw new NotImplementedException("Not implemented");
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Friend"/> from. </param>
+        public static explicit operator Friend(ClientResult result)
+        {
+            throw new NotImplementedException("Not implemented");
+        }
     }
 }

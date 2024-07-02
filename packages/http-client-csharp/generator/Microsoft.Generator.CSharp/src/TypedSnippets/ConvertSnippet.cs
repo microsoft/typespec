@@ -5,7 +5,7 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record ConvertSnippet(ValueExpression Untyped) : TypedSnippet(typeof(Convert), Untyped)
+    public sealed record ConvertSnippet(ValueExpression Expression) : TypedSnippet(typeof(Convert), Expression)
     {
         public static InvokeStaticMethodExpression InvokeToDouble(ValueExpression arg)
             => new InvokeStaticMethodExpression(typeof(Convert), nameof(Convert.ToDouble), arg);

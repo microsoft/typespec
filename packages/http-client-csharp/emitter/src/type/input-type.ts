@@ -74,7 +74,7 @@ export interface InputModelType extends InputTypeBase {
   Kind: "model";
   Properties: InputModelProperty[];
   Name: string;
-  Namespace?: string;
+  CrossLanguageDefinitionId: string;
   Access?: AccessFlags;
   Usage: string; // TODO -- replace this with UsageFlags in TCGC
   AdditionalProperties?: InputType;
@@ -91,9 +91,9 @@ export function isInputModelType(type: InputType): type is InputModelType {
 export interface InputEnumType extends InputTypeBase {
   Kind: "enum";
   Name: string;
+  CrossLanguageDefinitionId: string;
   ValueType: InputPrimitiveType;
   Values: InputEnumTypeValue[];
-  Namespace?: string;
   Accessibility?: string;
   Deprecated?: string;
   IsExtensible: boolean;

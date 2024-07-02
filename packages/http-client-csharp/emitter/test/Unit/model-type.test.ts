@@ -158,7 +158,7 @@ op test(@body input: Pet): Pet;
         Type: {
           Kind: "enum",
           Name: "PetKind",
-          Namespace: "Azure.Csharp.Testing",
+          CrossLanguageDefinitionId: "Azure.Csharp.Testing.PetKind",
           Description: "The pet kind",
           Accessibility: undefined,
           Deprecated: undefined,
@@ -279,7 +279,7 @@ op test(@body input: Pet): Pet;
         Type: {
           Kind: "enum",
           Name: "PetKind",
-          Namespace: "Azure.Csharp.Testing",
+          CrossLanguageDefinitionId: "Azure.Csharp.Testing.PetKind",
           Accessibility: undefined,
           Deprecated: undefined,
           Description: "The pet kind",

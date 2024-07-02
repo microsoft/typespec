@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Snippets
@@ -13,9 +14,9 @@ namespace Microsoft.Generator.CSharp.Snippets
     /// Return type doesn't affect how expression is written, but helps creating strong-typed helpers to create value expressions.
     /// </summary>
     /// <param name="Type">Type expected to be returned by value expression.</param>
-    /// <param name="Untyped"></param>
+    /// <param name="Expression"></param>
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
-    public abstract record TypedSnippet(CSharpType Type, ValueExpression Untyped)
+    public abstract record TypedSnippet(CSharpType Type, ValueExpression Expression)
     {
         public virtual ValueExpression Property(string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(this) : this, propertyName);
@@ -34,15 +35,24 @@ namespace Microsoft.Generator.CSharp.Snippets
             throw new InvalidOperationException($"Expression with return type {typed.Type.Name} is cast to type {type.Name}");
         }
 
-        public static implicit operator ValueExpression(TypedSnippet typed) => typed.Untyped;
+        public static implicit operator ValueExpression(TypedSnippet typed) => typed.Expression;
 
         private MethodBodyStatement? _terminated;
         public MethodBodyStatement Terminate() => _terminated ??= new ExpressionStatement(this);
 
+        public BoolSnippet Equal(ValueExpression other) => new(new BinaryOperatorExpression("==", this, other));
+
+        public BoolSnippet NotEqual(ValueExpression other) => new(new BinaryOperatorExpression("!=", this, other));
+
+        public InvokeInstanceMethodExpression Invoke(string methodName, params ValueExpression[] args)
+            => new InvokeInstanceMethodExpression(this, methodName, [..args], null, false);
+
+        public ValueExpression AndExpr(ValueExpression other) => new BinaryOperatorExpression("and", this, other);
+
         private string GetDebuggerDisplay()
         {
             using CodeWriter writer = new CodeWriter();
-            Untyped.Write(writer);
+            Expression.Write(writer);
             return writer.ToString(false);
         }
     }

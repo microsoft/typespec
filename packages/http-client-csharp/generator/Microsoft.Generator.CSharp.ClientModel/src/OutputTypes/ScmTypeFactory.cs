@@ -1,9 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
+using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.ClientModel
@@ -18,59 +21,10 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         /// <param name="operation">The input operation to create methods for.</param>
         /// <param name="enclosingType">The enclosing type of the operation.</param>
-        public override MethodProviderCollection? CreateMethodProviders(InputOperation operation, TypeProvider enclosingType)
-        {
-            if (_operations.TryGetValue(operation, out var methods))
-            {
-                return methods;
-            }
+        public override MethodProviderCollection CreateMethodProviders(InputOperation operation, TypeProvider enclosingType) => new ScmMethodProviderCollection(operation, enclosingType);
 
-            methods = GetOperationKind(operation).ToString() switch
-            {
-                "Default" => MethodProviderCollection.DefaultCSharpMethodCollection(operation, enclosingType),
-                _ => null,
-            };
+        public virtual CSharpType MatchConditionsType() => typeof(PipelineMessageClassifier);
 
-            _operations.Add(operation, methods);
-            return methods;
-        }
-
-        /// <summary>
-        /// Returns the <see cref="InputOperationKinds"/> of the given operation.
-        /// By default, the operation kind is <see cref="InputOperationKinds.Default"/>.
-        /// </summary>
-        private static InputOperationKinds GetOperationKind(InputOperation operation)
-        {
-            return operation switch
-            {
-                { LongRunning: { } } => InputOperationKinds.LongRunning,
-                { Paging: { } } => InputOperationKinds.Paging,
-                _ => InputOperationKinds.Default,
-            };
-        }
-
-        public virtual CSharpType MatchConditionsType()
-        {
-            // TO-DO: Determine what the correct type is for MatchConditions: https://github.com/Azure/autorest.csharp/issues/4166
-            throw new NotImplementedException();
-        }
-
-        public virtual CSharpType RequestConditionsType()
-        {
-            // TO-DO: Determine what the correct type is for RequestConditions: https://github.com/Azure/autorest.csharp/issues/4166
-            throw new NotImplementedException();
-        }
-
-        public virtual CSharpType TokenCredentialType()
-        {
-            // TO-DO: Determine what the correct type is for TokenCredential: https://github.com/Azure/autorest.csharp/issues/4166
-            throw new NotImplementedException();
-        }
-
-        public virtual CSharpType PageResponseType()
-        {
-            // TO-DO: Determine what the correct type is for Page: https://github.com/Azure/autorest.csharp/issues/4166
-            throw new NotImplementedException();
-        }
+        public virtual CSharpType TokenCredentialType() => typeof(ApiKeyCredential);
     }
 }

@@ -5,8 +5,8 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record CharSnippet(ValueExpression Untyped) : TypedSnippet<char>(Untyped)
+    public sealed record CharSnippet(ValueExpression Expression) : TypedSnippet<char>(Expression)
     {
-        public StringSnippet InvokeToString(ValueExpression cultureInfo) => new(Untyped.Invoke(nameof(char.ToString), cultureInfo));
+        public StringSnippet InvokeToString(ValueExpression cultureInfo) => new(Expression.Invoke(nameof(char.ToString), cultureInfo));
     }
 }
