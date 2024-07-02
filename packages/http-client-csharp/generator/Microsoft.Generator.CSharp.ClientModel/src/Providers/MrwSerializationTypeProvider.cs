@@ -41,7 +41,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly ParameterProvider _dataParameter = new("data", $"The data to parse.", typeof(BinaryData));
         private readonly Utf8JsonWriterSnippet _utf8JsonWriterSnippet;
         private readonly ModelReaderWriterOptionsSnippet _mrwOptionsParameterSnippet;
-        private readonly JsonElementSnippet _jsonElementParameterSnippet;
         private readonly BoolSnippet _isNotEqualToWireConditionSnippet;
         private readonly CSharpType _privateAdditionalPropertiesPropertyType = typeof(IDictionary<string, BinaryData>);
         private readonly CSharpType _jsonModelTInterface;
@@ -69,7 +68,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _shouldOverrideMethods = _model.Inherits != null && _model.Inherits is { IsFrameworkType: false, Implementation: TypeProvider };
             _utf8JsonWriterSnippet = new Utf8JsonWriterSnippet(_utf8JsonWriterParameter);
             _mrwOptionsParameterSnippet = new ModelReaderWriterOptionsSnippet(_serializationOptionsParameter);
-            _jsonElementParameterSnippet = new JsonElementSnippet(_jsonElementDeserializationParam);
             _isNotEqualToWireConditionSnippet = _mrwOptionsParameterSnippet.Format.NotEqual(ModelReaderWriterOptionsSnippet.WireFormat);
 
             Name = provider.Name;
