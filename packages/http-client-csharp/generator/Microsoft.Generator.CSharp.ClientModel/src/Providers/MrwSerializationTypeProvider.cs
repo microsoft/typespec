@@ -634,7 +634,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         private MethodBodyStatement CreateListSerializationStatement(
-            EnumerableSnippet array,
+            ScopedApi array,
             SerializationFormat serializationFormat)
         {
             return new[]
@@ -672,7 +672,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             CSharpType type,
             ValueExpression value)
         {
-            var enumerableSnippet = new EnumerableSnippet(type, value.NullableStructValue(type));
+            var enumerableSnippet = new ScopedApi(type, value.NullableStructValue(type));
             if ((EnumIsIntValueType(enumProvider) && !enumProvider.IsExtensible) || EnumIsNumericValueType(enumProvider))
             {
                 return _utf8JsonWriterSnippet.WriteNumberValue(enumProvider.ToSerial(enumerableSnippet));
@@ -755,12 +755,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return _utf8JsonWriterSnippet.WriteBinaryData(value);
         }
 
-        private static EnumerableSnippet GetEnumerableExpression(ValueExpression expression, CSharpType enumerableType)
+        private static ScopedApi GetEnumerableExpression(ValueExpression expression, CSharpType enumerableType)
         {
             CSharpType itemType = enumerableType.IsReadOnlyMemory ? new CSharpType(typeof(ReadOnlySpan<>), enumerableType.Arguments[0]) :
                 enumerableType.ElementType;
 
-            return new EnumerableSnippet(itemType, expression);
+            return new ScopedApi(new CSharpType(typeof(IEnumerable<>), itemType), expression);
         }
 
         private static bool IsRequiredOrNonNullableValueType(CSharpType propertyType, bool isRequired)

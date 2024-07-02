@@ -279,16 +279,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Modifiers: MethodSignatureModifiers.Public,
                 Parameters: parameters,
                 ReturnType: null,
-                GenericArguments: new[] { _t },
+                GenericArguments: [_t],
                 Description: null, ReturnDescription: null);
 
-            var value = new EnumerableSnippet(_t, valueParameter);
+            var value = new ScopedApi(_t, valueParameter);
 
             var v = new VariableExpression(_t, "v");
             var convertToStringExpression = ConvertToString(v, hasFormat ? formatParameter : (ValueExpression?)null);
+            var selector = new FuncExpression([v.Declaration], convertToStringExpression).As<string>();
             var body = new[]
             {
-                Declare("stringValues", value.Select(new FuncExpression([v.Declaration], convertToStringExpression).As<string>()), out var stringValues),
+                Declare("stringValues", value.Select(selector), out var stringValues),
                new InvokeInstanceMethodExpression(null, _appendQueryMethodName, [nameParameter, StringSnippets.Join(delimiterParameter, stringValues), escapeParameter], null, false).Terminate()
         };
 

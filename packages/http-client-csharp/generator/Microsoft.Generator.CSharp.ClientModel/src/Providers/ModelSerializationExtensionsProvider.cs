@@ -500,7 +500,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 BuildWriteObjectValueSwitchCase(typeof(IEnumerable<KeyValuePair<string, object>>), "enumerable", enumerable => new MethodBodyStatement[]
                 {
                     writer.WriteStartObject(),
-                    new ForeachStatement("pair", new EnumerableSnippet(typeof(KeyValuePair<string, object>), enumerable), out var pair)
+                    new ForeachStatement("pair", enumerable.As<IEnumerable<KeyValuePair<string, object>>>(), out var pair)
                     {
                         writer.WritePropertyName(pair.Property(nameof(KeyValuePair<string, object>.Key))),
                         writer.WriteObjectValue(pair.Property(nameof(KeyValuePair<string, object>.Value)).As<object>(), options)
@@ -512,7 +512,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 BuildWriteObjectValueSwitchCase(typeof(IEnumerable<object>), "objectEnumerable", objectEnumerable => new MethodBodyStatement[]
                 {
                     writer.WriteStartArray(),
-                    new ForeachStatement("item", new EnumerableSnippet(typeof(object), objectEnumerable), out var item)
+                    new ForeachStatement("item", objectEnumerable.As<IEnumerable<object>>(), out var item)
                     {
                         writer.WriteObjectValue(item.As<object>(), options)
                     },

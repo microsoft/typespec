@@ -50,7 +50,8 @@ namespace Microsoft.Generator.CSharp.Expressions
         public DictionaryExpression AsDictionary(CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), this);
         public DictionaryExpression AsDictionary(CSharpType dictionaryType) => new(dictionaryType, this);
 
-        public ValueExpression NullableStructValue(CSharpType candidateType) => candidateType is { IsNullable: true, IsValueType: true } ? new MemberExpression(this, nameof(Nullable<int>.Value)) : this;
+        public ValueExpression NullableStructValue(CSharpType candidateType)
+            => candidateType is { IsNullable: true, IsValueType: true } ? new MemberExpression(this, nameof(Nullable<int>.Value)) : this;
         public ScopedApi<string> InvokeToString() => Invoke(nameof(ToString)).As<string>();
         public ValueExpression InvokeGetType() => Invoke(nameof(GetType));
         public ValueExpression InvokeGetHashCode() => Invoke(nameof(GetHashCode));
@@ -73,19 +74,19 @@ namespace Microsoft.Generator.CSharp.Expressions
             => new InvokeInstanceMethodExpression(this, methodName, arguments, null, false);
 
         public InvokeInstanceMethodExpression Invoke(MethodSignature method)
-            => new InvokeInstanceMethodExpression(this, method.Name, method.Parameters.Select(p => (ValueExpression)p).ToList(), null, method.Modifiers.HasFlag(MethodSignatureModifiers.Async));
+            => new InvokeInstanceMethodExpression(this, method.Name, [.. method.Parameters], null, method.Modifiers.HasFlag(MethodSignatureModifiers.Async));
 
         public InvokeInstanceMethodExpression Invoke(MethodSignature method, IReadOnlyList<ValueExpression> arguments, bool addConfigureAwaitFalse = true)
             => new InvokeInstanceMethodExpression(this, method.Name, arguments, null, method.Modifiers.HasFlag(MethodSignatureModifiers.Async), AddConfigureAwaitFalse: addConfigureAwaitFalse);
 
         public InvokeInstanceMethodExpression Invoke(string methodName, bool async)
-            => new InvokeInstanceMethodExpression(this, methodName, Array.Empty<ValueExpression>(), null, async);
+            => new InvokeInstanceMethodExpression(this, methodName, [], null, async);
 
         public InvokeInstanceMethodExpression Invoke(string methodName, IReadOnlyList<ValueExpression> arguments, bool async)
             => new InvokeInstanceMethodExpression(this, methodName, arguments, null, async);
 
-        public InvokeInstanceMethodExpression Invoke(string methodName, IReadOnlyList<ValueExpression> arguments, IReadOnlyList<CSharpType>? typeArguments, bool callAsAsync, bool addConfigureAwaitFalse = true)
-            => new InvokeInstanceMethodExpression(this, methodName, arguments, typeArguments, callAsAsync, addConfigureAwaitFalse);
+        public InvokeInstanceMethodExpression Invoke(string methodName, IReadOnlyList<ValueExpression> arguments, IReadOnlyList<CSharpType>? typeArguments, bool callAsAsync, bool addConfigureAwaitFalse = true, CSharpType? extensionType = null)
+            => new InvokeInstanceMethodExpression(this, methodName, arguments, typeArguments, callAsAsync, addConfigureAwaitFalse, extensionType);
 
         public CastExpression CastTo(CSharpType to) => new CastExpression(this, to);
 

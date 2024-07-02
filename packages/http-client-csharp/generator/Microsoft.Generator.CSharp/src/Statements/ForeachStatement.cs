@@ -33,16 +33,16 @@ namespace Microsoft.Generator.CSharp.Statements
             item = new VariableExpression(itemType, Item);
         }
 
-        public ForeachStatement(string itemName, EnumerableSnippet enumerable, out VariableExpression item)
+        public ForeachStatement(string itemName, ScopedApi enumerable, out VariableExpression item)
             : this(null, new CodeWriterDeclaration(itemName), enumerable, false)
         {
-            item = new VariableExpression(enumerable.ItemType, Item);
+            item = new VariableExpression(enumerable.Type.Arguments[0], Item);
         }
 
-        public ForeachStatement(string itemName, EnumerableSnippet enumerable, bool isAsync, out VariableExpression item)
+        public ForeachStatement(string itemName, ScopedApi enumerable, bool isAsync, out VariableExpression item)
             : this(null, new CodeWriterDeclaration(itemName), enumerable, isAsync)
         {
-            item = new VariableExpression(enumerable.ItemType, Item);
+            item = new VariableExpression(enumerable.Type.Arguments[0], Item);
         }
 
         public ForeachStatement(string itemName, DictionaryExpression dictionary, out KeyValuePairExpression item)

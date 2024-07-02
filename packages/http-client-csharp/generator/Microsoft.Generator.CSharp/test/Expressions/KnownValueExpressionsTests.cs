@@ -160,7 +160,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         {
             var itemType = new CSharpType(typeof(int));
             var untypedValue = ValueExpression.Empty;
-            var enumerableExpression = new EnumerableSnippet(itemType, untypedValue);
+            var enumerableExpression = untypedValue.As(itemType);
 
             var result = enumerableExpression.Any();
             using CodeWriter writer = new CodeWriter();

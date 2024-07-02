@@ -76,8 +76,8 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement Return() => new KeywordExpression("return", null).Terminate();
         public static MethodBodyStatement Throw(ValueExpression expression) => new KeywordExpression("throw", expression).Terminate();
 
-        public static EnumerableSnippet ArrayEmpty(CSharpType arrayItemType)
-            => new(arrayItemType, new InvokeStaticMethodExpression(typeof(Array), nameof(Array.Empty), Array.Empty<ValueExpression>(), new[] { arrayItemType }));
+        public static ValueExpression ArrayEmpty(CSharpType arrayItemType)
+            => Static<Array>().Invoke(nameof(Array.Empty), [], [arrayItemType], false);
 
         public static AssignmentExpression Assign(this ValueExpression to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
         public static AssignmentExpression Assign(this ParameterProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
@@ -92,8 +92,8 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static InvokeInstanceMethodExpression Invoke(this ParameterProvider parameter, string methodName, ValueExpression arg)
             => new InvokeInstanceMethodExpression(parameter, methodName, [arg], null, false);
 
-        public static InvokeInstanceMethodExpression Invoke(this ParameterProvider parameter, string methodName)
-            => new InvokeInstanceMethodExpression(parameter, methodName, Array.Empty<ValueExpression>(), null, false);
+        public static InvokeInstanceMethodExpression Invoke(this ParameterProvider parameter, string methodName, CSharpType? extensionType = null)
+            => new InvokeInstanceMethodExpression(parameter, methodName, Array.Empty<ValueExpression>(), null, false, ExtensionType: extensionType);
 
         public static ValueExpression Property(this ParameterProvider parameter, string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(parameter) : parameter, propertyName);

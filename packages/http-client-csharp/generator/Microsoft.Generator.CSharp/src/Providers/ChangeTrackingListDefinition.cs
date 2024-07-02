@@ -73,7 +73,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 new IfStatement(iReadOnlyList.NotEqual(Null))
                 {
-                    _innerList.Assign(Linq.ToList(iReadOnlyList)).Terminate()
+                    _innerList.Assign(iReadOnlyList.ToList()).Terminate()
                 }
             };
 
