@@ -24,6 +24,7 @@ namespace Microsoft.Generator.CSharp
                     {
                         CodeModelPlugin.Instance = plugin.Value;
                         loaded = true;
+                        break;
                     }
                 }
 
