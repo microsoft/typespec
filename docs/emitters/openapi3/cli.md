@@ -1,5 +1,5 @@
 ---
-title: Guide
+title: OpenAPI3 to TypeSpec
 ---
 
 # tsp-openapi3 CLI
