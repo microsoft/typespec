@@ -140,9 +140,15 @@ model ModelWithRequiredNullableProperties {
   requiredFixedEnum: StringFixedEnum | null;
 }
 
+@doc("A simple base model")
+model FriendBase {
+  @doc("base property")
+  baseProperty?: string;
+}
+
 @doc("this is not a friendly model but with a friendly name")
 @friendlyName("Friend")
-model NotFriend {
+model NotFriend extends FriendBase {
   @doc("name of the NotFriend")
   name: string;
 }

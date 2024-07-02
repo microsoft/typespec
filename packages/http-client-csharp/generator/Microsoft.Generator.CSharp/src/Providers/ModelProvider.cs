@@ -43,6 +43,10 @@ namespace Microsoft.Generator.CSharp.Providers
                 _declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
 
+            Inherits = _inputModel.BaseModel != null
+                ? CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(_inputModel.BaseModel)
+                : null;
+
             _isStruct = inputModel.ModelAsStruct;
         }
 
