@@ -19,18 +19,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public override string Name { get; }
 
-        public FieldProvider PipelineField { get; }
+        internal ClientProvider ClientProvider { get; }
 
         public RestClientProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
             Name = inputClient.Name.ToCleanName();
-            PipelineField = new FieldProvider(FieldModifiers.Private, typeof(ClientPipeline), "_pipeline");
-        }
-
-        protected override FieldProvider[] BuildFields()
-        {
-            return [PipelineField];
+            ClientProvider = new ClientProvider(inputClient);
         }
 
         protected override MethodProvider[] BuildMethods()
@@ -47,7 +42,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodProvider BuildCreateMessageMethod(InputOperation operation)
         {
-            var methodProvider = (ScmMethodProviderCollection)ClientModelPlugin.Instance.TypeFactory.CreateMethodProviders(operation, this);
+            var methodProvider = (ScmMethodProviderCollection)ClientModelPlugin.Instance.TypeFactory.CreateMethodProviders(operation, ClientProvider);
 
             var methodModifier = MethodSignatureModifiers.Internal;
             var methodSignature = new MethodSignature(

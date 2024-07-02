@@ -13,6 +13,8 @@ namespace UnbrandedTypeSpec
     /// <summary></summary>
     public partial class UnbrandedTypeSpecClient
     {
+        private ClientPipeline _pipeline;
+
         /// <summary> This is a sample typespec project. </summary>
         public UnbrandedTypeSpecClient()
         {

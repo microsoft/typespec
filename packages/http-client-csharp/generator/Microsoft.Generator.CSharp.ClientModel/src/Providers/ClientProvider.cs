@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
@@ -20,13 +21,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public override string Name { get; }
 
-        public RestClientProvider RestClientProvider { get; }
-
         public ClientProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
             Name = inputClient.Name.ToCleanName();
-            RestClientProvider = new RestClientProvider(inputClient);
+            PipelineField = new FieldProvider(FieldModifiers.Private, typeof(ClientPipeline), "_pipeline");
+        }
+
+        public FieldProvider PipelineField { get; }
+
+        protected override FieldProvider[] BuildFields()
+        {
+            return [PipelineField];
         }
 
         protected override MethodProvider[] BuildConstructors()
@@ -35,7 +41,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             [
                 new MethodProvider(
                     new ConstructorSignature(Type, $"{_inputClient.Description}", MethodSignatureModifiers.Public, []),
-                    new MethodBodyStatement[] { RestClientProvider.PipelineField.Assign(ClientPipelineSnippet.Create()).Terminate() },
+                    new MethodBodyStatement[] { PipelineField.Assign(ClientPipelineSnippet.Create()).Terminate() },
                     this)
             ];
         }

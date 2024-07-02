@@ -11,8 +11,6 @@ namespace UnbrandedTypeSpec
     /// <summary></summary>
     public partial class UnbrandedTypeSpecClient
     {
-        private ClientPipeline _pipeline;
-
         internal PipelineMessage CreateSayHiRequest(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
             throw new NotImplementedException("Method not implemented.");
