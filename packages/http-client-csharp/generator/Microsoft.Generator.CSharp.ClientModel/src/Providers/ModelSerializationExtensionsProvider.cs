@@ -453,7 +453,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 BuildWriteObjectValueSwitchCase(typeof(double), "d", d => new MethodBodyStatement[]
                 {
                     new IfElseStatement(
-                        DoubleSnippet.IsNan(d),
+                        DoubleSnippets.IsNan(d),
                         writer.WriteStringValue(Literal("NaN")),
                         writer.WriteNumberValue(d)),
                     Break
