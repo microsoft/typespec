@@ -11,7 +11,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
     internal sealed record JsonElementSnippet(ValueExpression Expression) : TypedSnippet<JsonElement>(Expression)
     {
-        public JsonValueKindSnippet ValueKind => new(Property(nameof(JsonElement.ValueKind)));
+        public ScopedApi<JsonValueKind> ValueKind => Property(nameof(JsonElement.ValueKind)).As<JsonValueKind>();
         public EnumerableSnippet EnumerateArray() => new(typeof(JsonElement), Expression.Invoke(nameof(JsonElement.EnumerateArray)));
         public EnumerableSnippet EnumerateObject() => new(typeof(JsonProperty), Expression.Invoke(nameof(JsonElement.EnumerateObject)));
         public JsonElementSnippet this[int index] => new(new IndexerExpression(Expression, Int(index)));

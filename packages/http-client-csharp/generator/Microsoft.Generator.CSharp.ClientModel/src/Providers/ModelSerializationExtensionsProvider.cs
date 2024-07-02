@@ -152,8 +152,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
             var body = new SwitchStatement(element.ValueKind)
             {
-                new(JsonValueKindSnippet.String, Return(element.GetString())),
-                new(JsonValueKindSnippet.Number, new MethodBodyStatement[]
+                new(JsonValueKindSnippets.String, Return(element.GetString())),
+                new(JsonValueKindSnippets.Number, new MethodBodyStatement[]
                 {
                     new IfStatement(element.TryGetInt32(out var intValue))
                     {
@@ -165,10 +165,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     },
                     Return(element.GetDouble())
                 }),
-                new(JsonValueKindSnippet.True, Return(True)),
-                new(JsonValueKindSnippet.False, Return(False)),
-                new([JsonValueKindSnippet.Undefined, JsonValueKindSnippet.Null], Return(Null)),
-                new(JsonValueKindSnippet.Object, new MethodBodyStatement[]
+                new(JsonValueKindSnippets.True, Return(True)),
+                new(JsonValueKindSnippets.False, Return(False)),
+                new([JsonValueKindSnippets.Undefined, JsonValueKindSnippets.Null], Return(Null)),
+                new(JsonValueKindSnippets.Object, new MethodBodyStatement[]
                 {
                     Declare("dictionary", New.Dictionary(typeof(string), typeof(object)), out var dictionary),
                     new ForeachStatement("jsonProperty", element.EnumerateObject(), out var jsonProperty)
@@ -177,7 +177,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     },
                     Return(dictionary)
                 }),
-                new(JsonValueKindSnippet.Array, new MethodBodyStatement[]
+                new(JsonValueKindSnippets.Array, new MethodBodyStatement[]
                 {
                     Declare("list", New.List(typeof(object)), out var list),
                     new ForeachStatement("item", element.EnumerateArray(), out var item)
@@ -227,7 +227,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Description: null, ReturnDescription: null);
             var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
             var body = new SwitchExpression(_formatParameter,
-                SwitchCaseExpression.When(Literal("U"), element.ValueKind.Equal(JsonValueKindSnippet.Number), DateTimeOffsetSnippets.FromUnixTimeSeconds(element.GetInt64())),
+                SwitchCaseExpression.When(Literal("U"), element.ValueKind.Equal(JsonValueKindSnippets.Number), DateTimeOffsetSnippets.FromUnixTimeSeconds(element.GetInt64())),
                 // relying on the param check of the inner call to throw ArgumentNullException if GetString() returns null
                 SwitchCaseExpression.Default(ParseDateTimeOffset(element.GetString(), _formatParameter))
                 );
