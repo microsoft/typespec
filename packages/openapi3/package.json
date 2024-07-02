@@ -58,9 +58,7 @@
   ],
   "dependencies": {
     "@readme/openapi-parser": "~2.6.0",
-    "@typespec/prettier-plugin-typespec": "workspace:~",
-    "yaml": "~2.4.5",
-    "yargs": "~17.7.2"
+    "yaml": "~2.4.5"
   },
   "peerDependencies": {
     "@typespec/compiler": "workspace:~",
@@ -83,7 +81,6 @@
     "c8": "^10.1.2",
     "cross-env": "~7.0.3",
     "rimraf": "~5.0.7",
-    "ts-node": "~10.9.2",
     "typescript": "~5.5.3",
     "vitest": "^1.6.0"
   }
