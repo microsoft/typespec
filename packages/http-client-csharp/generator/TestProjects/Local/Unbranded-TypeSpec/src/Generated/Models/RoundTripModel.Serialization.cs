@@ -276,9 +276,7 @@ namespace UnbrandedTypeSpec.Models
             throw new NotImplementedException("Not implemented");
         }
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual RoundTripModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        internal static RoundTripModel DeserializeRoundTripModel(JsonElement element, ModelReaderWriterOptions options)
         {
             throw new NotImplementedException("Not implemented");
         }
@@ -310,7 +308,7 @@ namespace UnbrandedTypeSpec.Models
                 case "J":
                     using (JsonDocument document = JsonDocument.Parse(data))
                     {
-                        return RoundTripModel.DeserializeRoundTripModel(document.RootElement, options);
+                        return DeserializeRoundTripModel(document.RootElement, options);
                     }
                 default:
                     throw new FormatException($"The model {nameof(RoundTripModel)} does not support reading '{options.Format}' format.");

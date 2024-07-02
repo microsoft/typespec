@@ -29,18 +29,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private const string PrivateAdditionalPropertiesPropertyDescription = "Keeps track of any properties unknown to the library.";
         private const string PrivateAdditionalPropertiesPropertyName = "_serializedAdditionalRawData";
         private const string JsonModelWriteCoreMethodName = "JsonModelWriteCore";
-        private const string JsonModelCreateCoreMethodName = "JsonModelCreateCore";
         private const string PersistableModelWriteCoreMethodName = "PersistableModelWriteCore";
         private const string PersistableModelCreateCoreMethodName = "PersistableModelCreateCore";
         private const string WriteAction = "writing";
         private const string ReadAction = "reading";
         private readonly ParameterProvider _utf8JsonWriterParameter = new("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
-        private readonly ParameterProvider _utf8JsonReaderParameter = new("reader", $"The JSON reader.", typeof(Utf8JsonReader), isRef: true);
         private readonly ParameterProvider _serializationOptionsParameter =
             new("options", $"The client options for reading and writing models.", typeof(ModelReaderWriterOptions));
+        private readonly ParameterProvider _jsonElementDeserializationParam =
+            new("element", $"The JSON element to deserialize", typeof(JsonElement));
         private readonly ParameterProvider _dataParameter = new("data", $"The data to parse.", typeof(BinaryData));
         private readonly Utf8JsonWriterSnippet _utf8JsonWriterSnippet;
         private readonly ModelReaderWriterOptionsSnippet _mrwOptionsParameterSnippet;
+        private readonly JsonElementSnippet _jsonElementParameterSnippet;
         private readonly BoolSnippet _isNotEqualToWireConditionSnippet;
         private readonly CSharpType _privateAdditionalPropertiesPropertyType = typeof(IDictionary<string, BinaryData>);
         private readonly CSharpType _jsonModelTInterface;
@@ -68,6 +69,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _shouldOverrideMethods = _model.Inherits != null && _model.Inherits is { IsFrameworkType: false, Implementation: TypeProvider };
             _utf8JsonWriterSnippet = new Utf8JsonWriterSnippet(_utf8JsonWriterParameter);
             _mrwOptionsParameterSnippet = new ModelReaderWriterOptionsSnippet(_serializationOptionsParameter);
+            _jsonElementParameterSnippet = new JsonElementSnippet(_jsonElementDeserializationParam);
             _isNotEqualToWireConditionSnippet = _mrwOptionsParameterSnippet.Format.NotEqual(ModelReaderWriterOptionsSnippet.WireFormat);
 
             Name = provider.Name;
@@ -162,8 +164,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 // Add JsonModel serialization methods
                 BuildJsonModelWriteMethod(jsonModelWriteCoreMethod),
                 jsonModelWriteCoreMethod,
+                 // Add JsonModel deserialization methods
                 BuildJsonModelCreateMethod(),
-                BuildJsonModelCreateCoreMethod(),
+                BuildDeserializationMethod(),
                 // Add PersistableModel serialization methods
                 BuildPersistableModelWriteMethod(),
                 BuildPersistableModelWriteCoreMethod(),
@@ -366,14 +369,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// <summary>
         /// Builds the deserialization method for the model.
         /// </summary>
-        internal MethodProvider BuildJsonModelCreateCoreMethod()
+        internal MethodProvider BuildDeserializationMethod()
         {
-            var signatureModifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+            var methodName = $"Deserialize{_model.Name}";
+            var signatureModifiers = MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static;
 
-            // T JsonModelCreateCore(JsonElement element, ModelReaderWriterOptions options)
+            // internal static T DeserializeT(JsonElement element, ModelReaderWriterOptions options)
             return new MethodProvider
             (
-              new MethodSignature(JsonModelCreateCoreMethodName, null, signatureModifiers, _model.Type, null, [_utf8JsonReaderParameter, _serializationOptionsParameter]),
+              new MethodSignature(methodName, null, signatureModifiers, _model.Type, null, [_jsonElementDeserializationParam, _serializationOptionsParameter]),
               Throw(New.NotImplementedException(Literal("Not implemented"))),
               this
             );

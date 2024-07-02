@@ -136,7 +136,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 var decl = new CodeWriterDeclaration(parameter.Name);
                 decl.SetActualName(parameter.Name);
-                parameter._asVariable = new VariableExpression(parameter.Type, decl, parameter.IsRef);
+                parameter._asVariable = new VariableExpression(parameter.Type, decl);
             }
 
             return parameter._asVariable;

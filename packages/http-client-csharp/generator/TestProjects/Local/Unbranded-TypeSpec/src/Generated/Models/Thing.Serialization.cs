@@ -136,9 +136,7 @@ namespace UnbrandedTypeSpec.Models
             throw new NotImplementedException("Not implemented");
         }
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual Thing JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        internal static Thing DeserializeThing(JsonElement element, ModelReaderWriterOptions options)
         {
             throw new NotImplementedException("Not implemented");
         }
@@ -170,7 +168,7 @@ namespace UnbrandedTypeSpec.Models
                 case "J":
                     using (JsonDocument document = JsonDocument.Parse(data))
                     {
-                        return Thing.DeserializeThing(document.RootElement, options);
+                        return DeserializeThing(document.RootElement, options);
                     }
                 default:
                     throw new FormatException($"The model {nameof(Thing)} does not support reading '{options.Format}' format.");

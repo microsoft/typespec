@@ -65,9 +65,7 @@ namespace UnbrandedTypeSpec.Models
             throw new NotImplementedException("Not implemented");
         }
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual Friend JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        internal static Friend DeserializeFriend(JsonElement element, ModelReaderWriterOptions options)
         {
             throw new NotImplementedException("Not implemented");
         }
@@ -99,7 +97,7 @@ namespace UnbrandedTypeSpec.Models
                 case "J":
                     using (JsonDocument document = JsonDocument.Parse(data))
                     {
-                        return Friend.DeserializeFriend(document.RootElement, options);
+                        return DeserializeFriend(document.RootElement, options);
                     }
                 default:
                     throw new FormatException($"The model {nameof(Friend)} does not support reading '{options.Format}' format.");
