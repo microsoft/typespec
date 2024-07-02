@@ -129,7 +129,7 @@ const defaultOptions = {
   logLevel: LoggerLevel.INFO,
   flavor: undefined,
   "generate-test-project": false,
-  "plugin-name": "ClientModelPlugin"
+  "plugin-name": "ClientModelPlugin",
 };
 
 export function resolveOptions(context: EmitContext<NetEmitterOptions>) {

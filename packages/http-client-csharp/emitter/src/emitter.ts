@@ -156,7 +156,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
             options["plugin-name"],
             newProjectOption,
             existingProjectOption,
-            debugFlag
+            debugFlag,
           ],
           { stdio: "inherit" }
         );
