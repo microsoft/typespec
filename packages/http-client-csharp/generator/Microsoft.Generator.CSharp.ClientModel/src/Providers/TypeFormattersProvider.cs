@@ -106,13 +106,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 Parameters = [timeSpanParameter, formatParameter]
             };
-            var timeSpanValue = new TimeSpanSnippet(timeSpanParameter);
             var toStringTimeSpan = new MethodProvider(
                 timeSpanSignature,
                 new SwitchExpression(formatParameter,
                 [
-                    new(Literal("P"), new InvokeStaticMethodExpression(typeof(XmlConvert), nameof(XmlConvert.ToString), [timeSpanValue])),
-                    SwitchCaseExpression.Default(timeSpanValue.InvokeToString(formatParameter, _invariantCultureExpression))
+                    new(Literal("P"), new InvokeStaticMethodExpression(typeof(XmlConvert), nameof(XmlConvert.ToString), [timeSpanParameter])),
+                    SwitchCaseExpression.Default(timeSpanParameter.As<TimeSpan>().InvokeToString(formatParameter, _invariantCultureExpression))
                 ]),
                 this);
 
@@ -281,7 +280,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 new SwitchExpression(formatParameter,
                 [
                     new(Literal("P"), Static(typeof(XmlConvert)).Invoke(nameof(XmlConvert.ToTimeSpan), [valueParameter])),
-                    SwitchCaseExpression.Default(TimeSpanSnippet.ParseExact(valueParameter, formatParameter, new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture))))
+                    SwitchCaseExpression.Default(TimeSpanSnippets.ParseExact(valueParameter, formatParameter, new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture))))
                 ]),
                 this);
         }

@@ -56,7 +56,7 @@ namespace Microsoft.Generator.CSharp.Snippets
 
             public static StreamReaderSnippet StreamReader(ValueExpression stream) => new(Instance(typeof(StreamReader), stream));
 
-            public static TimeSpanSnippet TimeSpan(int hours, int minutes, int seconds) => new(Instance(typeof(TimeSpan), Int(hours), Int(minutes), Int(seconds)));
+            public static ScopedApi<TimeSpan> TimeSpan(int hours, int minutes, int seconds) => Instance(typeof(TimeSpan), Int(hours), Int(minutes), Int(seconds)).As<TimeSpan>();
 
             public static ValueExpression Anonymous(ValueExpression key, ValueExpression value) => Anonymous(new Dictionary<ValueExpression, ValueExpression> { [key] = value });
             public static ValueExpression Anonymous(IReadOnlyDictionary<ValueExpression, ValueExpression> properties) => new NewInstanceExpression(null, [], new ObjectInitializerExpression(properties));

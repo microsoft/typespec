@@ -27,7 +27,6 @@ namespace Microsoft.Generator.CSharp.Expressions
         public static implicit operator ValueExpression(Type type) => TypeReferenceExpression.FromType(type);
         public static implicit operator ValueExpression(CSharpType type) => TypeReferenceExpression.FromType(type);
 
-        private readonly Dictionary<CSharpType, ScopedApi> _typeCache = new();
         public ScopedApi<T> As<T>()
         {
             if (this is ScopedApi<T> scopedApi)
@@ -35,12 +34,7 @@ namespace Microsoft.Generator.CSharp.Expressions
                 return scopedApi;
             }
 
-            if (!_typeCache.TryGetValue(typeof(T), out var result))
-            {
-                result = new ScopedApi<T>(this);
-                _typeCache[typeof(T)] = result;
-            }
-            return (ScopedApi<T>)result;
+            return new ScopedApi<T>(this);
         }
 
         public ScopedApi As(CSharpType type)
@@ -50,12 +44,7 @@ namespace Microsoft.Generator.CSharp.Expressions
                 return scopedApi;
             }
 
-            if (!_typeCache.TryGetValue(type, out var result))
-            {
-                result = new ScopedApi(type, this);
-                _typeCache[type] = result;
-            }
-            return result;
+            return new ScopedApi(type, this);
         }
 
         public DictionaryExpression AsDictionary(CSharpType keyType, CSharpType valueType) => new(keyType, valueType, this);

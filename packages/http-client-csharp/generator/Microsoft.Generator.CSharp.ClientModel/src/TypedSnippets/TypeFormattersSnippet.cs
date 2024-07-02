@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public static ScopedApi<DateTimeOffset> ParseDateTimeOffset(ValueExpression value, ValueExpression format)
             => new(new InvokeStaticMethodExpression(Provider.Type, ParseDateTimeOffsetMethodName, [value, format]));
 
-        public static TimeSpanSnippet ParseTimeSpan(ValueExpression value, ValueExpression format)
+        public static ScopedApi<TimeSpan> ParseTimeSpan(ValueExpression value, ValueExpression format)
             => new(new InvokeStaticMethodExpression(Provider.Type, ParseTimeSpanMethodName, [value, format]));
 
         public static ScopedApi<string> ConvertToString(ValueExpression value, ValueExpression? format = null)

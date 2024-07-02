@@ -77,6 +77,8 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         [Test]
         public void MultipleAsSameObject()
         {
+            //since the original expression is a scoped int casting back
+            //should use the same object
             ValueExpression exp = Int(1);
             var scopedApi1 = exp.As<int>();
             var scopedApi2 = exp.As<int>();
@@ -89,13 +91,19 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
             var scopedApi4 = exp.As(new CSharpType(typeof(int)));
             Assert.IsTrue(ReferenceEquals(exp, scopedApi4));
 
+            //since the original expression is not a scoped string casting back
+            //should use a different object
             var scopedString1 = exp.As<string>();
             var scopedString2 = exp.As<string>();
-            Assert.IsTrue(ReferenceEquals(scopedString1, scopedString2));
+            Assert.IsFalse(ReferenceEquals(scopedString1, scopedString2));
             Assert.IsFalse(ReferenceEquals(exp, scopedString1));
 
             var scopedString3 = exp.As(typeof(string));
-            Assert.IsTrue(ReferenceEquals(scopedString1, scopedString3));
+            Assert.IsFalse(ReferenceEquals(scopedString1, scopedString3));
+
+            //double cast should use the same object
+            var scopedString4 = scopedString1.As<string>();
+            Assert.IsTrue(ReferenceEquals(scopedString1, scopedString4));
         }
 
         public static IEnumerable<TestCaseData> CSharpTypeOperatorEqualsTestCases
