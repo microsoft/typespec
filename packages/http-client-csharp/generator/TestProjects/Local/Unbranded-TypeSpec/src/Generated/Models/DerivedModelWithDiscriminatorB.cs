@@ -5,7 +5,7 @@
 namespace UnbrandedTypeSpec.Models
 {
     /// <summary> Deriver model with discriminator property. </summary>
-    public partial class DerivedModelWithDiscriminatorB
+    public partial class DerivedModelWithDiscriminatorB : BaseModelWithDiscriminator
     {
         /// <summary> Initializes a new instance of <see cref="DerivedModelWithDiscriminatorB"/>. </summary>
         /// <param name="requiredInt"> Required int. </param>
@@ -13,9 +13,6 @@ namespace UnbrandedTypeSpec.Models
         {
             RequiredInt = requiredInt;
         }
-
-        /// <summary> Discriminator. </summary>
-        internal string DiscriminatorProperty { get; set; } = "B";
 
         /// <summary> Required int. </summary>
         public int RequiredInt { get; set; }

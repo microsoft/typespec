@@ -8,7 +8,7 @@ using UnbrandedTypeSpec;
 namespace UnbrandedTypeSpec.Models
 {
     /// <summary> Deriver model with discriminator property. </summary>
-    public partial class DerivedModelWithDiscriminatorA
+    public partial class DerivedModelWithDiscriminatorA : BaseModelWithDiscriminator
     {
         /// <summary> Initializes a new instance of <see cref="DerivedModelWithDiscriminatorA"/>. </summary>
         /// <param name="requiredString"> Required string. </param>
@@ -19,9 +19,6 @@ namespace UnbrandedTypeSpec.Models
 
             RequiredString = requiredString;
         }
-
-        /// <summary> Discriminator. </summary>
-        internal string DiscriminatorProperty { get; set; } = "A";
 
         /// <summary> Required string. </summary>
         public string RequiredString { get; set; }

@@ -43,6 +43,10 @@ namespace Microsoft.Generator.CSharp.Providers
                 _declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
 
+            Inherits = _inputModel.BaseModel != null
+                ? CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(_inputModel.BaseModel)
+                : null;
+
             _discriminator = new(BuildDiscriminator);
             _isStruct = inputModel.ModelAsStruct;
         }
@@ -62,6 +66,17 @@ namespace Microsoft.Generator.CSharp.Providers
                 return _propertiesCache;
             }
 
+            // get all the properties from my base type
+            var propertiesOnBase = new HashSet<string>();
+
+            if (Inherits is { IsFrameworkType: false, Implementation: TypeProvider baseType })
+            {
+                foreach (var property in baseType.Properties)
+                {
+                    propertiesOnBase.Add(property.Name);
+                }
+            }
+
             var cache = new Dictionary<InputModelProperty, PropertyProvider>(_inputModel.Properties.Count);
             _propertiesCache = cache;
             var propertiesCount = _inputModel.Properties.Count;
@@ -70,7 +85,10 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 var inputProperty = _inputModel.Properties[i];
                 var property = new PropertyProvider(inputProperty);
-                cache.Add(inputProperty, property);
+                if (!propertiesOnBase.Contains(property.Name))
+                {
+                    cache.Add(inputProperty, property);
+                }
             }
 
             return _propertiesCache;
