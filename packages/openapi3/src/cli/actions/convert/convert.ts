@@ -7,7 +7,7 @@ import { ConvertCliArgs } from "./args.js";
 import { generateMain } from "./generators/generate-main.js";
 import { transform } from "./transforms/transforms.js";
 
-export async function convertAction(host: CliHost, args: ConvertCliArgs & { path: string }) {
+export async function convertAction(host: CliHost, args: ConvertCliArgs) {
   // attempt to read the file
   const fullPath = resolvePath(process.cwd(), args.path);
   const model = await parseOpenApiFile(fullPath);

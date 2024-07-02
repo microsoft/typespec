@@ -1,32 +1,89 @@
-import yargs from "yargs";
-import { packageVersion } from "../version.js";
+import { parseArgs } from "util";
+import { ConvertCliArgs } from "./actions/convert/args.js";
 import { convertAction } from "./actions/convert/convert.js";
-import { withCliHost } from "./utils.js";
+import { createCliHost } from "./utils.js";
 
 export async function main() {
-  await yargs(process.argv.slice(2))
-    .help()
-    .strict()
-    .parserConfiguration({ "boolean-negation": false, "greedy-arrays": true })
-    .command(
-      "convert <path>",
-      "Convert OpenAPI3 source to TypeSpec.",
-      (cmd) => {
-        return cmd
-          .positional("path", {
-            description: "The path to the OpenAPI3 file in JSON or YAML format.",
-            type: "string",
-            demandOption: true,
-          })
-          .option("output-dir", {
-            type: "string",
-            description:
-              "The output directory for generated TypeSpec files. Will be created if it does not exist.",
-            demandOption: true,
-          });
+  const cliArgs = parseCliArgs();
+  const host = createCliHost();
+
+  return convertAction(host, cliArgs);
+}
+
+const cliUsage = `tsp-openapi3 <path/to/openapi3/file> --output-dir <path/to/output/directory>`;
+
+function parseCliArgs(): ConvertCliArgs {
+  const options = parseArgs({
+    args: process.argv.slice(2),
+    options: {
+      help: {
+        type: "boolean",
       },
-      withCliHost((host, args) => convertAction(host, args))
+      "output-dir": {
+        type: "string",
+      },
+    },
+    allowPositionals: true,
+  });
+
+  // Show help first
+  if (options.values.help) {
+    displayHelp();
+    process.exit(0);
+  }
+
+  const diagnostics: string[] = [];
+  if (!options.values["output-dir"]) {
+    diagnostics.push("Missing required argument: --output-dir");
+  }
+  if (!options.positionals.length) {
+    diagnostics.push("Missing required positional argument: <path>");
+  } else if (options.positionals.length !== 1) {
+    diagnostics.push(
+      `Incorrect number of positional arguments provided for path: got ${options.positionals.length}, need 1`
+    );
+  }
+
+  if (diagnostics.length > 0) {
+    // eslint-disable-next-line no-console
+    console.log(cliUsage);
+    // eslint-disable-next-line no-console
+    console.log(`\n${diagnostics.join("\n")}`);
+    process.exit(1);
+  }
+
+  return {
+    "output-dir": options.values["output-dir"]!,
+    path: options.positionals[0],
+  };
+}
+
+function displayHelp() {
+  // eslint-disable-next-line no-console
+  const log = console.log;
+  log(cliUsage);
+  log(`\nConvert OpenAPI3 to TypeSpec`);
+  log(`\nPositionals:`);
+  log(
+    padArgumentUsage(
+      "path",
+      "The path to the OpenAPI3 file in JSON or YAML format.",
+      "[string] [required]"
     )
-    .version(packageVersion)
-    .demandCommand(1, "You must use one of the supported commands.").argv;
+  );
+  log(`\nOptions:`);
+  log(padArgumentUsage("--help", "Show help.", "[boolean]"));
+  log(
+    padArgumentUsage(
+      "--output-dir",
+      "The output directory for generated TypeSpec files. Will be created if it does not exist.",
+      "[string] [required]"
+    )
+  );
+}
+
+function padArgumentUsage(name: string, description: string, type: string) {
+  // Assume 80 col width
+  // 14 for name, 20 for type, leaves 40 (with spacing) for description
+  return `  ${name.padEnd(14)} ${description.padEnd(40)} ${type.padStart(20)}`;
 }

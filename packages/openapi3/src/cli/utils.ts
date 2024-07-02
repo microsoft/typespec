@@ -5,12 +5,12 @@ export function withCliHost<T extends CliHostArgs>(
   fn: (host: CliHost, args: T) => void | Promise<void>
 ): (args: T) => void | Promise<void> {
   return (args: T) => {
-    const host = createCliHost(args);
+    const host = createCliHost();
     return fn(host, args);
   };
 }
 
-export function createCliHost(options: CliHostArgs): CliHost {
+export function createCliHost(): CliHost {
   const logger = createConsoleLogger();
   return {
     ...NodeHost,

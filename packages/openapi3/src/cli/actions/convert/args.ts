@@ -1,4 +1,4 @@
 export interface ConvertCliArgs {
-  "output-dir"?: string;
-  args?: string[];
+  "output-dir": string;
+  path: string;
 }
