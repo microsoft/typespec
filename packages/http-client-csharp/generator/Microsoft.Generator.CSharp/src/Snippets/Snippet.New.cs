@@ -52,7 +52,7 @@ namespace Microsoft.Generator.CSharp.Snippets
             public static DictionaryExpression Dictionary(CSharpType keyType, CSharpType valueType, IReadOnlyDictionary<ValueExpression, ValueExpression> values)
                 => new(new NewInstanceExpression(new CSharpType(typeof(Dictionary<,>), keyType, valueType), [], new DictionaryInitializerExpression(values)));
 
-            public static ListSnippet List(CSharpType elementType) => new(elementType, Instance(new CSharpType(typeof(List<>), elementType)));
+            public static ScopedApi<List<T>> List<T>() => Instance(typeof(List<T>)).As<List<T>>();
 
             public static ScopedApi<StreamReader> StreamReader(ValueExpression stream) => Instance(typeof(StreamReader), stream).As<StreamReader>();
 

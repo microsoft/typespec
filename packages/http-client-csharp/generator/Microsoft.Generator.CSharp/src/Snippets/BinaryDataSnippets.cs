@@ -14,7 +14,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ScopedApi ToObjectFromJson(this ScopedApi<BinaryData> binaryData, Type responseType)
             => binaryData.Invoke(nameof(BinaryData.ToObjectFromJson), [], [new CSharpType(responseType)], false).As(responseType);
 
-        public static ListSnippet ToArray(this ScopedApi<BinaryData> binaryData) => new(typeof(byte[]), binaryData.Invoke(nameof(BinaryData.ToArray)));
+        public static ScopedApi<byte[]> ToArray(this ScopedApi<BinaryData> binaryData) => binaryData.Invoke(nameof(BinaryData.ToArray)).As<byte[]>();
 
         public static ScopedApi<BinaryData> FromStream(ValueExpression stream, bool async)
         {

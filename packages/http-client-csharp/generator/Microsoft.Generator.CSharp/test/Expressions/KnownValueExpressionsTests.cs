@@ -58,12 +58,12 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
             var itemType = new CSharpType(T);
             var untypedValue = ValueExpression.Empty;
 
-            var listExpression = new ListSnippet(itemType, untypedValue);
+            var listExpression = new ListExpression(itemType, untypedValue);
 
             using var writer = new CodeWriter();
-            listExpression.Expression.Write(writer);
+            listExpression.Write(writer);
 
-            Assert.AreEqual(itemType, listExpression.ItemType);
+            Assert.AreEqual(itemType, listExpression.ElementType);
             Assert.AreEqual("", writer.ToString(false));
         }
 
@@ -71,7 +71,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         public void ListExpressionAddItem()
         {
             var item = ValueExpression.Empty;
-            var listExpression = new ListSnippet(new CSharpType(typeof(int)), ValueExpression.Empty);
+            var listExpression = new ListExpression(new CSharpType(typeof(int)), ValueExpression.Empty);
 
             var result = listExpression.Add(item);
 

@@ -179,7 +179,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }),
                 new(JsonValueKindSnippets.Array, new MethodBodyStatement[]
                 {
-                    Declare("list", New.List(typeof(object)), out var list),
+                    Declare("list", New.List<object>(), out var list),
                     new ForeachStatement("item", element.EnumerateArray(), out var item)
                     {
                         list.Add(item.Invoke("GetObject"))

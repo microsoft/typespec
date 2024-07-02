@@ -38,9 +38,6 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement Declare(string name, EnumerableSnippet value, out EnumerableSnippet variable)
             => Declare(name, value, d => new EnumerableSnippet(value.ItemType, d), out variable);
 
-        public static MethodBodyStatement Declare(string name, ListSnippet value, out ListSnippet variable)
-            => Declare(name, value, d => new ListSnippet(value.ItemType, d), out variable);
-
         public static MethodBodyStatement Declare(string name, TypedSnippet value, out VariableExpression variable)
         {
             var declaration = new VariableExpression(value.Type, name);
