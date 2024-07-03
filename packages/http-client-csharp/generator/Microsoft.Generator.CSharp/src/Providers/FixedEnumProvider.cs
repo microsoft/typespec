@@ -71,10 +71,10 @@ namespace Microsoft.Generator.CSharp.Providers
 
             // otherwise we call the corresponding extension method to convert the value
             CSharpType? serializationType = SerializationProviders.FirstOrDefault()?.Type;
-            return new InvokeStaticMethodExpression(serializationType, $"ToSerial{ValueType.Name}", [enumExpression], CallAsExtension: true);
+            return enumExpression.Invoke($"ToSerial{ValueType.Name}");
         }
 
         public override ValueExpression ToEnum(ValueExpression valueExpression)
-            => new InvokeStaticMethodExpression(SerializationProviders.FirstOrDefault()?.Type, $"To{Type.Name}", [valueExpression], CallAsExtension: true);
+            => valueExpression.Invoke($"To{Type.Name}");
     }
 }

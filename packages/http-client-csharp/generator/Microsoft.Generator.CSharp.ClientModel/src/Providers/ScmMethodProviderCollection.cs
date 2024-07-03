@@ -66,10 +66,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ? [Return(This.Invoke(methodSignature.Name, [.. ConvenienceMethodParameters, Null], null, isAsync, isAsync))]
                 : [
                     Declare("result", typeof(ClientResult), This.Invoke(methodSignature.Name, [.. ConvenienceMethodParameters, Null], null, isAsync, isAsync), out var result),
-                    Return(new InvokeStaticMethodExpression(
-                        typeof(ClientResult),
-                        nameof(ClientResult.FromValue),
-                        [result.CastTo(_bodyParameter.Type), result.Invoke("GetRawResponse")])),
+                    Return(Static<ClientResult>().Invoke(nameof(ClientResult.FromValue), [result.CastTo(_bodyParameter.Type), result.Invoke("GetRawResponse")])),
                 ];
 
             var convenienceMethod = new MethodProvider(methodSignature, methodBody, _enclosingType);
@@ -128,10 +125,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             MethodBodyStatement[] methodBody =
             [
                 UsingDeclare("message", typeof(PipelineMessage), This.Invoke(CreateRequestMethodName, [.. MethodParameters, ScmKnownParameters.RequestOptions]), out var message),
-                Return(new InvokeStaticMethodExpression(
-                    typeof(ClientResult),
-                    nameof(ClientResult.FromResponse),
-                    client.PipelineField.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
+                Return(Static<ClientResult>().Invoke(nameof(ClientResult.FromResponse), client.PipelineField.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
             ];
 
             var protocolMethod = new MethodProvider(methodSignature, methodBody, _enclosingType);

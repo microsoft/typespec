@@ -249,7 +249,7 @@ namespace Microsoft.Generator.CSharp
             {
                 Append($"{property.ExplicitInterface}.");
             }
-            if (property is IndexerProvider indexer)
+            if (property is IndexPropertyProvider indexer)
             {
                 Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {indexer.IndexerParameter.Name}]");
             }
@@ -852,6 +852,7 @@ namespace Microsoft.Generator.CSharp
         {
             if (declaration.HasBeenDeclared)
             {
+                AppendRawIf("ref ", declaration.IsRef);
                 WriteIdentifier(declaration.ActualName);
             }
             else
