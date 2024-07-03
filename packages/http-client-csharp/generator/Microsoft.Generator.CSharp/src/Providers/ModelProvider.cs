@@ -84,8 +84,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 : _inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
                     ? MethodSignatureModifiers.Public
                     : MethodSignatureModifiers.Internal;
-            var (baseConstructor, constructorInitializer) = BuildConstructorInitializer();
-            var constructorParameters = BuildConstructorParameters(baseConstructor?.Parameters ?? []);
+            var (constructorParameters, constructorInitializer) = BuildConstructorParameters();
 
             var constructor = new MethodProvider(
                 signature: new ConstructorSignature(
@@ -103,39 +102,19 @@ namespace Microsoft.Generator.CSharp.Providers
             return [constructor];
         }
 
-        private (ConstructorSignature? BaseSignature, ConstructorInitializer? Initializer) BuildConstructorInitializer()
+        private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildConstructorParameters()
         {
-            // find the constructor on the base type
-            if (Inherits is not { IsFrameworkType: false, Implementation: TypeProvider baseType })
-            {
-                return (null, null);
-            }
-
-            if (baseType.Constructors.Count == 0)
-            {
-                return (null, null);
-            }
-
-            // we cannot know which ctor to call, but in our implemenation, there should only be one
-            var ctor = baseType.Constructors[0];
-            if (ctor.Signature is not ConstructorSignature ctorSignature || ctorSignature.Parameters.Count == 0)
-            {
-                return (null, null);
-            }
-            // construct the initializer using the parameters from base signature
-            var initializer = new ConstructorInitializer(true, ctorSignature.Parameters);
-
-            return (ctorSignature, initializer);
-        }
-
-        private IReadOnlyList<ParameterProvider> BuildConstructorParameters(IReadOnlyList<ParameterProvider> baseParameters)
-        {
+            var baseConstructor = GetBaseConstructor(Inherits);
+            var baseParameters = baseConstructor?.Parameters ?? [];
             var parameterCapacity = baseParameters.Count + _inputModel.Properties.Count;
             var parameterNames = baseParameters.Select(p => p.Name).ToHashSet();
             var constructorParameters = new List<ParameterProvider>(parameterCapacity);
 
             // add the base parameters
             constructorParameters.AddRange(baseParameters);
+
+            // construct the initializer using the parameters from base signature
+            var constructorInitializer = new ConstructorInitializer(true, baseParameters);
 
             foreach (var property in _inputModel.Properties)
             {
@@ -156,7 +135,30 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
             }
 
-            return constructorParameters;
+            return (constructorParameters, constructorInitializer);
+
+            static ConstructorSignature? GetBaseConstructor(CSharpType? baseType)
+            {
+                // find the constructor on the base type
+                if (baseType is not { IsFrameworkType: false, Implementation: TypeProvider baseModel })
+                {
+                    return null;
+                }
+
+                if (baseModel.Constructors.Count == 0)
+                {
+                    return null;
+                }
+
+                // we cannot know which ctor to call, but in our implemenation, there should only be one
+                var ctor = baseModel.Constructors[0];
+                if (ctor.Signature is not ConstructorSignature ctorSignature)
+                {
+                    return null;
+                }
+
+                return ctorSignature;
+            }
         }
 
         private MethodBodyStatement GetPropertyInitializers(IReadOnlyList<ParameterProvider> parameters)

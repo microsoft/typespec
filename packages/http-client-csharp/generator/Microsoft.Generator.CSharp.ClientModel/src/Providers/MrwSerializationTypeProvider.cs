@@ -468,8 +468,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// <returns>The constructed serialization constructor.</returns>
         internal MethodProvider BuildSerializationConstructor()
         {
-            var (baseCtor, initializer) = BuildConstructorInitializer();
-            var serializationCtorParameters = BuildSerializationConstructorParameters(baseCtor?.Parameters ?? []);
+            var (serializationCtorParameters, serializationCtorInitializer) = BuildSerializationConstructorParameters();
 
             return new MethodProvider(
                 signature: new ConstructorSignature(
@@ -477,7 +476,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     $"Initializes a new instance of {Type:C}",
                     MethodSignatureModifiers.Internal,
                     serializationCtorParameters,
-                    Initializer: initializer),
+                    Initializer: serializationCtorInitializer),
                 bodyStatements: new MethodBodyStatement[]
                 {
                     GetPropertyInitializers(serializationCtorParameters)
@@ -956,40 +955,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return baseType.SerializationProviders.FirstOrDefault(s => s is MrwSerializationTypeProvider) as MrwSerializationTypeProvider;
         }
 
-        private (ConstructorSignature? BaseSignature, ConstructorInitializer? Initializer) BuildConstructorInitializer()
-        {
-            // find the constructor on the base type
-            if (_baseSerializationProvider == null || _baseSerializationProvider.Constructors.Count == 0)
-            {
-                return (null, null);
-            }
-
-            // we cannot know which ctor to call, but in our implemenation, it should only be one
-            var ctor = _baseSerializationProvider.Constructors[0];
-            if (ctor.Signature is not ConstructorSignature ctorSignature || ctorSignature.Parameters.Count == 0)
-            {
-                return (null, null);
-            }
-            // construct the initializer using the parameters from base signature
-            var initializer = new ConstructorInitializer(true, ctorSignature.Parameters);
-
-            return (ctorSignature, initializer);
-        }
-
         /// <summary>
         /// Builds the parameters for the serialization constructor by iterating through the input model properties.
         /// It then adds raw data field to the constructor if it doesn't already exist in the list of constructed parameters.
         /// </summary>
         /// <returns>The list of parameters for the serialization parameter.</returns>
-        private List<ParameterProvider> BuildSerializationConstructorParameters(IReadOnlyList<ParameterProvider> baseParameters)
+        private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildSerializationConstructorParameters()
         {
-            var parameterNames = baseParameters.Select(p => p.Name).ToHashSet();
+            var baseConstructor = GetBaseConstructor(_baseSerializationProvider);
+            var baseParameters = baseConstructor?.Parameters ?? [];
             var parameterCapacity = baseParameters.Count + _inputModel.Properties.Count;
+            var parameterNames = baseParameters.Select(p => p.Name).ToHashSet();
             var constructorParameters = new List<ParameterProvider>(parameterCapacity);
             bool shouldAddRawDataField = _rawDataField != null;
 
             // add the base parameters
             constructorParameters.AddRange(baseParameters);
+
+            // construct the initializer using the parameters from base signature
+            var constructorInitializer = new ConstructorInitializer(true, baseParameters);
 
             foreach (var property in _inputModel.Properties)
             {
@@ -1009,7 +993,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     _rawDataField.Type));
             }
 
-            return constructorParameters;
+            return (constructorParameters, constructorInitializer);
+
+            static ConstructorSignature? GetBaseConstructor(TypeProvider? baseProvider)
+            {
+                // find the constructor on the base type
+                if (baseProvider == null || baseProvider.Constructors.Count == 0)
+                {
+                    return null;
+                }
+
+                // we cannot know which ctor to call, but in our implemenation, it should only be one
+                var ctor = baseProvider.Constructors[0];
+                if (ctor.Signature is not ConstructorSignature ctorSignature || ctorSignature.Parameters.Count == 0)
+                {
+                    return null;
+                }
+
+                return ctorSignature;
+            }
         }
 
         private MethodProvider BuildEmptyConstructor()
