@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
@@ -14,7 +15,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public static ScopedApi<BinaryContent> Create(ValueExpression serializable)
             => Static<BinaryContent>().Invoke(nameof(BinaryContent.Create), serializable).As<BinaryContent>();
 
-        public static ScopedApi<BinaryContent> Create(ValueExpression serializable, ModelReaderWriterOptionsSnippet options, CSharpType? typeArgument = null)
+        public static ScopedApi<BinaryContent> Create(ValueExpression serializable, ScopedApi<ModelReaderWriterOptions> options, CSharpType? typeArgument = null)
             => Static<BinaryContent>().Invoke(nameof(BinaryContent.Create), [serializable, options], typeArgument != null ? [typeArgument] : null, false).As<BinaryContent>();
     }
 }

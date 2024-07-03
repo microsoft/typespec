@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly ParameterProvider _serializationOptionsParameter =
             new("options", $"The client options for reading and writing models.", typeof(ModelReaderWriterOptions));
         private readonly Utf8JsonWriterSnippet _utf8JsonWriterSnippet;
-        private readonly ModelReaderWriterOptionsSnippet _mrwOptionsParameterSnippet;
+        private readonly ScopedApi<ModelReaderWriterOptions> _mrwOptionsParameterSnippet;
         private readonly ScopedApi<bool> _isNotEqualToWireConditionSnippet;
         private readonly CSharpType _privateAdditionalPropertiesPropertyType = typeof(IDictionary<string, BinaryData>);
         private readonly CSharpType _jsonModelTInterface;
@@ -62,8 +62,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _rawDataField = BuildRawDataField();
             _shouldOverrideMethods = _model.Inherits != null && _model.Inherits is { IsFrameworkType: false, Implementation: TypeProvider };
             _utf8JsonWriterSnippet = new Utf8JsonWriterSnippet(_utf8JsonWriterParameter);
-            _mrwOptionsParameterSnippet = new ModelReaderWriterOptionsSnippet(_serializationOptionsParameter);
-            _isNotEqualToWireConditionSnippet = _mrwOptionsParameterSnippet.Format.NotEqual(ModelReaderWriterOptionsSnippet.WireFormat);
+            _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
+            _isNotEqualToWireConditionSnippet = _mrwOptionsParameterSnippet.Format().NotEqual(ModelReaderWriterOptionsSnippets.WireFormat);
 
             Name = provider.Name;
             Namespace = provider.Namespace;
@@ -458,7 +458,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             MethodBodyStatement[] statements =
             [
                 GetConcreteFormat(_mrwOptionsParameterSnippet, modelInterface, out VariableExpression format),
-                new IfStatement(format.NotEqual(ModelReaderWriterOptionsSnippet.JsonFormat))
+                new IfStatement(format.NotEqual(ModelReaderWriterOptionsSnippets.JsonFormat))
                 {
                     ThrowValidationFailException(format, modelInterface.Arguments[0], action)
                 },
@@ -467,14 +467,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return statements;
         }
 
-        private MethodBodyStatement GetConcreteFormat(ModelReaderWriterOptionsSnippet options, CSharpType iModelTInterface, out VariableExpression format)
+        private MethodBodyStatement GetConcreteFormat(ScopedApi<ModelReaderWriterOptions> options, CSharpType iModelTInterface, out VariableExpression format)
         {
             var cast = This.CastTo(iModelTInterface);
             var invokeGetFormatFromOptions = cast.Invoke(nameof(IPersistableModel<object>.GetFormatFromOptions), options);
             var condition = new TernaryConditionalExpression(
-                options.Format.Equal(ModelReaderWriterOptionsSnippet.WireFormat),
+                options.Format().Equal(ModelReaderWriterOptionsSnippets.WireFormat),
                 invokeGetFormatFromOptions,
-                options.Format);
+                options.Format());
             var reference = new VariableExpression(typeof(string), "format");
             format = reference;
             return Declare(reference, condition);

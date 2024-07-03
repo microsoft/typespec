@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.ClientModel.Primitives;
 using System.Text.Json;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
@@ -27,7 +28,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         private static ModelSerializationExtensionsProvider? _provider;
         private static ModelSerializationExtensionsProvider Provider => _provider ??= new();
 
-        public static readonly ModelReaderWriterOptionsSnippet Wire = Provider.WireOptions;
+        public static readonly ScopedApi<ModelReaderWriterOptions> Wire = Provider.WireOptions;
 
         public static MethodBodyStatement WriteObjectValue(Utf8JsonWriterSnippet snippet, ScopedApi value, ValueExpression? options = null)
         {

@@ -3,6 +3,7 @@
 
 using System;
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -79,10 +80,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         {
             var arg = Snippet.This;
             ScopedApi<BinaryContent> result;
-            ModelReaderWriterOptionsSnippet? options = null;
+            ScopedApi<ModelReaderWriterOptions>? options = null;
             if (withOptions)
             {
-                options = new ModelReaderWriterOptionsSnippet(new MemberExpression(null, "w"));
+                options = new MemberExpression(null, "w").As<ModelReaderWriterOptions>();
             }
 
             result = options != null ? BinaryContentSnippets.Create(arg, options) : BinaryContentSnippets.Create(arg);

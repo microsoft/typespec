@@ -51,8 +51,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private const string _wireOptionsName = "WireOptions";
         private readonly FieldProvider _wireOptionsField;
 
-        private ModelReaderWriterOptionsSnippet? _wireOptions;
-        public ModelReaderWriterOptionsSnippet WireOptions => _wireOptions ??= new ModelReaderWriterOptionsSnippet(new MemberExpression(Type, _wireOptionsName));
+        private ScopedApi<ModelReaderWriterOptions>? _wireOptions;
+        public ScopedApi<ModelReaderWriterOptions> WireOptions => _wireOptions ??= Static<ModelSerializationExtensionsProvider>().Property(_wireOptionsName).As<ModelReaderWriterOptions>();
 
         public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 

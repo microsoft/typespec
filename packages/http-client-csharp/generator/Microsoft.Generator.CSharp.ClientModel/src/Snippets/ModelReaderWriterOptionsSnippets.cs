@@ -9,11 +9,11 @@ using static Microsoft.Generator.CSharp.ClientModel.Snippets.ModelSerializationE
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal sealed record ModelReaderWriterOptionsSnippet(ValueExpression Expression) : TypedSnippet<ModelReaderWriterOptions>(Expression)
+    internal static class ModelReaderWriterOptionsSnippets
     {
-        public ValueExpression Format => new MemberExpression(this, nameof(ModelReaderWriterOptions.Format));
+        public static ValueExpression Format(this ScopedApi<ModelReaderWriterOptions> mrwOptions) => mrwOptions.Property(nameof(ModelReaderWriterOptions.Format));
         internal static ScopedApi<string> WireFormat => Literal("W");
         internal static ScopedApi<string> JsonFormat => Literal("J");
-        internal static ModelReaderWriterOptionsSnippet InitializeWireOptions => new(New.Instance(typeof(ModelReaderWriterOptions), Wire));
+        internal static ScopedApi<ModelReaderWriterOptions> InitializeWireOptions => New.Instance(typeof(ModelReaderWriterOptions), Wire).As<ModelReaderWriterOptions>();
     }
 }
