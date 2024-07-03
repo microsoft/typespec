@@ -16,6 +16,7 @@ import {
 } from "@fluentui/react-components";
 import { ArrowUploadFilled } from "@fluentui/react-icons";
 import { Editor, useMonacoModel, usePlaygroundContext } from "@typespec/playground/react";
+import { useState } from "react";
 import { parse } from "yaml";
 import style from "./import-openapi3.module.css";
 
@@ -40,8 +41,9 @@ export const ImportToolbarButton = () => {
   );
 };
 const ImportOpenAPI3MenuItem = () => {
+  const [open, setOpen] = useState(false);
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={(event, data) => setOpen(data.open)}>
       <DialogTrigger disableButtonEnhancement>
         <MenuItem>From OpenAPI 3 spec</MenuItem>
       </DialogTrigger>
@@ -49,7 +51,7 @@ const ImportOpenAPI3MenuItem = () => {
         <DialogBody>
           <DialogTitle>Settings</DialogTitle>
           <DialogContent>
-            <ImportOpenAPI3 />
+            <ImportOpenAPI3 onImport={() => setOpen(false)} />
           </DialogContent>
         </DialogBody>
       </DialogSurface>
@@ -57,33 +59,36 @@ const ImportOpenAPI3MenuItem = () => {
   );
 };
 
-const ImportOpenAPI3 = () => {
+const ImportOpenAPI3 = ({ onImport }: { onImport: () => void }) => {
+  const [error, setError] = useState<string | null>(null);
   const model = useMonacoModel("openapi3.yaml");
   const context = usePlaygroundContext();
 
   const importSpec = async () => {
     const content = model.getValue();
 
-    console.log("will import", content);
     const openapi3 = await import("@typespec/openapi3");
 
     const yaml = parse(content);
-    const tsp = await openapi3.convertOpenAPI3Document(yaml);
-    console.log("Tsp", tsp);
-    context.setContent(tsp);
+    try {
+      const tsp = await openapi3.convertOpenAPI3Document(yaml);
+      context.setContent(tsp);
+      onImport();
+    } catch (e: any) {
+      setError(e.toString());
+    }
   };
   return (
     <div>
       <h3>Import openapi3 document</h3>
 
       <div className={style["import-editor-container"]}>
-        <Editor model={model} options={{}} />
+        <Editor model={model} options={{ minimap: { enabled: false } }} />
       </div>
-      <DialogTrigger disableButtonEnhancement>
-        <Button appearance="primary" className="import-btn" onClick={importSpec}>
-          Import
-        </Button>
-      </DialogTrigger>
+      {error && <div className={style["error"]}>{error}</div>}
+      <Button appearance="primary" className="import-btn" onClick={importSpec}>
+        Import
+      </Button>
     </div>
   );
 };
