@@ -8,8 +8,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
     internal static class PipelineMessageSnippets
     {
-        public static PipelineRequestSnippet Request(this ScopedApi<PipelineMessage> pipelineMessage)
-            => new(pipelineMessage.Property(nameof(PipelineMessage.Request)));
+        public static ScopedApi<PipelineRequest> Request(this ScopedApi<PipelineMessage> pipelineMessage)
+            => pipelineMessage.Property(nameof(PipelineMessage.Request)).As<PipelineRequest>();
 
         public static PipelineResponseSnippet Response(this ScopedApi<PipelineMessage> pipelineMessage)
             => new(pipelineMessage.Property(nameof(PipelineMessage.Response)));
