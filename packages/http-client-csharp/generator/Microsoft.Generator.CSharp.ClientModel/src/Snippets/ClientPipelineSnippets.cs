@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
@@ -21,8 +22,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public static PipelineResponseSnippet ProcessMessage(this ScopedApi<ClientPipeline> pipeline, ValueExpression message, RequestOptionsSnippet? requestOptions, bool isAsync)
             => new(pipeline.Invoke(isAsync ? _processMessageAsync : _processMessage, [message, requestOptions ?? Null], isAsync));
 
-        public static ClientResultSnippet ProcessHeadAsBoolMessage(this ScopedApi<ClientPipeline> pipeline, ValueExpression message, RequestOptionsSnippet? requestContext, bool isAsync)
-            => new(pipeline.Invoke(isAsync ? _processHeadAsBoolMessageAsync : _processHeadAsBoolMessage, [message, requestContext ?? Null], isAsync));
+        public static ScopedApi<ClientResult> ProcessHeadAsBoolMessage(this ScopedApi<ClientPipeline> pipeline, ValueExpression message, RequestOptionsSnippet? requestContext, bool isAsync)
+            => pipeline.Invoke(isAsync ? _processHeadAsBoolMessageAsync : _processHeadAsBoolMessage, [message, requestContext ?? Null], isAsync).As<ClientResult>();
 
         public static ScopedApi<ClientPipeline> Create() => Static<ClientPipeline>().Invoke(nameof(ClientPipeline.Create)).As<ClientPipeline>();
     }

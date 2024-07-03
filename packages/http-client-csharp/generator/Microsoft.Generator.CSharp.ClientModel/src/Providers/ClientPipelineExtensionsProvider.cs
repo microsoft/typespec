@@ -96,11 +96,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     new SwitchCaseStatement(ValueExpression.Empty.GreaterThanOrEqual(Literal(200)).AndExpr(ValueExpression.Empty.LessThan(Literal(300))), new MethodBodyStatement[]
                     {
-                        Return(ClientResultSnippet.FromValue(typeof(bool), True, response))
+                        Return(ClientResultSnippets.FromValue(typeof(bool), True, response))
                     }),
                     new SwitchCaseStatement(ValueExpression.Empty.GreaterThanOrEqual(Literal(400)).AndExpr(ValueExpression.Empty.LessThan(Literal(500))), new MethodBodyStatement[]
                     {
-                        Return(ClientResultSnippet.FromValue(typeof(bool), False, response))
+                        Return(ClientResultSnippets.FromValue(typeof(bool), False, response))
                     }),
                     new SwitchCaseStatement(Array.Empty<ValueExpression>(), new MethodBodyStatement[]
                     {
