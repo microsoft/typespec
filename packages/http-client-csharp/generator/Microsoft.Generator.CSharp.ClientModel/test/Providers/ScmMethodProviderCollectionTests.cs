@@ -55,12 +55,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         {
             var methodCollection = new ScmMethodProviderCollection(inputOperation, new MockClientTypeProvider());
             Assert.IsNotNull(methodCollection);
-            Assert.AreEqual(5, methodCollection.Count);
+            Assert.AreEqual(4, methodCollection.Count);
 
             var method = methodCollection![0];
             var signature = method.Signature;
             Assert.IsNotNull(signature);
-            Assert.AreEqual($"Create{inputOperation.Name.ToCleanName()}Request", signature.Name);
+            Assert.AreEqual(inputOperation.Name.ToCleanName(), signature.Name);
 
             var parameters = signature.Parameters;
             Assert.IsNotNull(parameters);

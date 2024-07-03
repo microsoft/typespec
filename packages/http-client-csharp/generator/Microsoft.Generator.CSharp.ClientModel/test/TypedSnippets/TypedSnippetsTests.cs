@@ -3,6 +3,7 @@
 
 using System;
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -52,12 +53,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         public void JsonSerializerSnippet_Serialize()
         {
             var writerParam = new ParameterProvider("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
-            var writer = new Utf8JsonWriterSnippet(writerParam);
-            var jsonDocVar = new VariableExpression(typeof(JsonDocument), "jsonDocument");
-            InvokeStaticMethodExpression result = JsonSerializerSnippet.Serialize(writer, new JsonDocumentSnippet(jsonDocVar).RootElement);
+            var writer = writerParam.As<Utf8JsonWriter>();
+            var jsonDocVar = new VariableExpression(typeof(JsonDocument), "jsonDocument").As<JsonDocument>();
+            InvokeMethodExpression result = JsonSerializerSnippets.Serialize(writer, jsonDocVar.RootElement());
 
-            Assert.IsNotNull(result.MethodType);
-            Assert.AreEqual(new CSharpType(typeof(JsonSerializer)), result.MethodType);
             Assert.AreEqual(nameof(JsonSerializer.Serialize), result.MethodName);
 
         }
@@ -66,13 +65,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         public void JsonSerializerSnippet_Deserialize()
         {
             var readerParam = new ParameterProvider("reader", $"The JSON reader.", typeof(Utf8JsonWriter));
-            var reader = new Utf8JsonWriterSnippet(readerParam);
+            var reader = readerParam.As<Utf8JsonWriter>();
             var jsonDocVar = new VariableExpression(typeof(JsonDocument), "jsonDocument");
-            var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
-            InvokeStaticMethodExpression result = JsonSerializerSnippet.Deserialize(element, typeof(object));
+            var element = ScmKnownParameters.JsonElement.As<JsonElement>();
+            InvokeMethodExpression result = JsonSerializerSnippets.Deserialize(element, typeof(object));
 
-            Assert.IsNotNull(result.MethodType);
-            Assert.AreEqual(new CSharpType(typeof(JsonSerializer)), result.MethodType);
             Assert.AreEqual(nameof(JsonSerializer.Deserialize), result.MethodName);
 
         }
@@ -82,19 +79,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         public void BinaryContentSnippet_InvokeStatic(bool withOptions)
         {
             var arg = Snippet.This;
-            BinaryContentSnippet result;
-            ModelReaderWriterOptionsSnippet? options = null;
+            ScopedApi<BinaryContent> result;
+            ScopedApi<ModelReaderWriterOptions>? options = null;
             if (withOptions)
             {
-                options = new ModelReaderWriterOptionsSnippet(new MemberExpression(null, "w"));
+                options = new MemberExpression(null, "w").As<ModelReaderWriterOptions>();
             }
 
-            result = options != null ? BinaryContentSnippet.Create(arg, options) : BinaryContentSnippet.Create(arg);
+            result = options != null ? BinaryContentSnippets.Create(arg, options) : BinaryContentSnippets.Create(arg);
 
             Assert.IsNotNull(result);
-            var untyped = result.Expression as InvokeStaticMethodExpression;
+            var untyped = result.Original as InvokeMethodExpression;
             Assert.IsNotNull(untyped);
-            Assert.AreEqual(new CSharpType(typeof(BinaryContent)), untyped?.MethodType);
             Assert.AreEqual(nameof(BinaryContent.Create), untyped?.MethodName);
 
             if (withOptions)
@@ -112,14 +108,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         [Test]
         public void OptionalSnippet_IsCollectionDefined()
         {
-            var member = new StringSnippet(new MemberExpression(null, "collection"));
+            var member = new MemberExpression(null, "collection").As<string>();
 
-            var result = OptionalSnippet.IsCollectionDefined(member);
+            var result = OptionalSnippets.IsCollectionDefined(member);
 
             Assert.IsNotNull(result);
-            var expression = result.Expression;
-            Assert.IsNotNull(expression);
-            var invoke = expression as InvokeStaticMethodExpression;
+            var invoke = result.Original as InvokeMethodExpression;
             Assert.IsNotNull(invoke);
             Assert.AreEqual("IsCollectionDefined", invoke?.MethodName);
         }
@@ -127,14 +121,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         [Test]
         public void OptionalSnippet_IsDefined()
         {
-            var member = new StringSnippet(new MemberExpression(null, "mock"));
+            var member = new MemberExpression(null, "mock").As<string>();
 
-            var result = OptionalSnippet.IsDefined(member);
+            var result = OptionalSnippets.IsDefined(member);
 
             Assert.IsNotNull(result);
-            var expression = result.Expression;
-            Assert.IsNotNull(expression);
-            var invoke = expression as InvokeStaticMethodExpression;
+            var invoke = result.Original as InvokeMethodExpression;
             Assert.IsNotNull(invoke);
             Assert.AreEqual("IsDefined", invoke?.MethodName);
         }
