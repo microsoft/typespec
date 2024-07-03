@@ -47,16 +47,17 @@ namespace Microsoft.Generator.CSharp.Snippets
             public static IndexableExpression Array(CSharpType? elementType, bool isInline, params ValueExpression[] items) => new(new NewArrayExpression(elementType, new ArrayInitializerExpression(items, isInline)));
             public static IndexableExpression Array(CSharpType? elementType, ValueExpression size) => new(new NewArrayExpression(elementType, Size: size));
 
-            public static DictionarySnippet Dictionary(CSharpType keyType, CSharpType valueType)
-                => new(keyType, valueType, new NewInstanceExpression(new CSharpType(typeof(Dictionary<,>), keyType, valueType), []));
-            public static DictionarySnippet Dictionary(CSharpType keyType, CSharpType valueType, IReadOnlyDictionary<ValueExpression, ValueExpression> values)
-                => new(keyType, valueType, new NewInstanceExpression(new CSharpType(typeof(Dictionary<,>), keyType, valueType), [], new DictionaryInitializerExpression(values)));
+            public static DictionaryExpression Dictionary(CSharpType keyType, CSharpType valueType)
+                => new(new NewInstanceExpression(new CSharpType(typeof(Dictionary<,>), keyType, valueType), []));
+            public static DictionaryExpression Dictionary(CSharpType keyType, CSharpType valueType, IReadOnlyDictionary<ValueExpression, ValueExpression> values)
+                => new(new NewInstanceExpression(new CSharpType(typeof(Dictionary<,>), keyType, valueType), [], new DictionaryInitializerExpression(values)));
 
-            public static ListSnippet List(CSharpType elementType) => new(elementType, Instance(new CSharpType(typeof(List<>), elementType)));
+            public static ScopedApi<List<T>> List<T>() => Instance(typeof(List<T>)).As<List<T>>();
+            public static ScopedApi List(CSharpType elementType) => Instance(new CSharpType(typeof(List<>), elementType)).As(new CSharpType(typeof(List<>), elementType));
 
-            public static StreamReaderSnippet StreamReader(ValueExpression stream) => new(Instance(typeof(StreamReader), stream));
+            public static ScopedApi<StreamReader> StreamReader(ValueExpression stream) => Instance(typeof(StreamReader), stream).As<StreamReader>();
 
-            public static TimeSpanSnippet TimeSpan(int hours, int minutes, int seconds) => new(Instance(typeof(TimeSpan), Int(hours), Int(minutes), Int(seconds)));
+            public static ScopedApi<TimeSpan> TimeSpan(int hours, int minutes, int seconds) => Instance(typeof(TimeSpan), Int(hours), Int(minutes), Int(seconds)).As<TimeSpan>();
 
             public static ValueExpression Anonymous(ValueExpression key, ValueExpression value) => Anonymous(new Dictionary<ValueExpression, ValueExpression> { [key] = value });
             public static ValueExpression Anonymous(IReadOnlyDictionary<ValueExpression, ValueExpression> properties) => new NewInstanceExpression(null, [], new ObjectInitializerExpression(properties));
@@ -64,9 +65,9 @@ namespace Microsoft.Generator.CSharp.Snippets
             public static ValueExpression Instance(ConstructorSignature ctorSignature, IReadOnlyDictionary<ValueExpression, ValueExpression>? properties = null) => Instance(ctorSignature, ctorSignature.Parameters.Select(p => (ValueExpression)p).ToArray(), properties);
             public static ValueExpression Instance(CSharpType type, IReadOnlyList<ValueExpression> arguments) => new NewInstanceExpression(type, arguments);
             public static ValueExpression Instance(CSharpType type, params ValueExpression[] arguments) => new NewInstanceExpression(type, arguments);
-            public static ValueExpression Instance(CSharpType type, IReadOnlyDictionary<ValueExpression, ValueExpression> properties) => new NewInstanceExpression(type, System.Array.Empty<ValueExpression>(), new ObjectInitializerExpression(properties));
-            public static TypedSnippet Instance(Type type, params ValueExpression[] arguments) => new FrameworkTypeSnippet(type, new NewInstanceExpression(type, arguments));
-            public static TypedSnippet Instance(Type type, IReadOnlyDictionary<ValueExpression, ValueExpression> properties) => new FrameworkTypeSnippet(type, new NewInstanceExpression(type, System.Array.Empty<ValueExpression>(), new ObjectInitializerExpression(properties)));
+            public static ValueExpression Instance(CSharpType type, IReadOnlyDictionary<ValueExpression, ValueExpression> properties) => new NewInstanceExpression(type, [], new ObjectInitializerExpression(properties));
+            public static ScopedApi Instance(Type type, params ValueExpression[] arguments) => new NewInstanceExpression(type, arguments).As(type);
+            public static ScopedApi Instance(Type type, IReadOnlyDictionary<ValueExpression, ValueExpression> properties) => new NewInstanceExpression(type, [], new ObjectInitializerExpression(properties)).As(type);
         }
     }
 }

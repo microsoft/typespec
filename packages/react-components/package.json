@@ -1,0 +1,71 @@
+{
+  "name": "@typespec/react-components",
+  "version": "0.57.0",
+  "private": true,
+  "author": "Microsoft Corporation",
+  "description": "TypeSpec library for emitting an html view of the program.",
+  "homepage": "https://typespec.io",
+  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "keywords": [
+    "typespec"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "clean": "rimraf ./dist ./temp",
+    "build": "vite build",
+    "watch": "vite build --watch",
+    "test": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix"
+  },
+  "files": [
+    "dist/**",
+    "!dist/test/**"
+  ],
+  "dependencies": {
+    "@fluentui/react-components": "~9.54.2",
+    "@fluentui/react-icons": "^2.0.247",
+    "react": "~18.3.1",
+    "react-dom": "~18.3.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.7",
+    "@testing-library/dom": "^10.2.0",
+    "@testing-library/jest-dom": "^6.4.6",
+    "@testing-library/react": "^16.0.0",
+    "@types/node": "~18.11.19",
+    "@types/react": "~18.3.3",
+    "@types/react-dom": "~18.3.0",
+    "@vitejs/plugin-react": "~4.3.1",
+    "@vitest/coverage-v8": "^1.6.0",
+    "@vitest/ui": "^1.6.0",
+    "c8": "^10.1.2",
+    "rimraf": "~5.0.7",
+    "typescript": "~5.5.3",
+    "vite": "^5.3.2",
+    "vite-plugin-checker": "^0.7.0",
+    "vite-plugin-dts": "^3.9.1",
+    "vitest": "^1.6.0"
+  }
+}

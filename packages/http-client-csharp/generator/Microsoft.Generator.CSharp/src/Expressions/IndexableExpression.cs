@@ -6,7 +6,7 @@ using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public record IndexableExpression(ValueExpression Inner) : ValueExpression
+    public record IndexableExpression(ValueExpression Original) : ValueExpression(Original)
     {
         public IndexableExpression(CSharpType type, string name) : this(new VariableExpression(type, name))
         {
@@ -16,7 +16,7 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         internal override void Write(CodeWriter writer)
         {
-            Inner.Write(writer);
+            Original.Write(writer);
         }
     }
 }

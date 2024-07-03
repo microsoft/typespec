@@ -98,7 +98,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 var enumField = _enumType.Fields[i];
                 var enumValue = _enumType.Members[i];
-                BoolSnippet condition;
+                ScopedApi<bool> condition;
                 if (_enumType.IsStringValueType)
                 {
                     // when the values are strings, we compare them case-insensitively
@@ -108,7 +108,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     // string.Equals(value, "<the value>", StringComparison.InvariantCultureIgnoreCase)
                     condition = new(enumValue.Value is string strValue && strValue.All(char.IsAscii)
                                 ? stringComparer.Invoke(nameof(IEqualityComparer<string>.Equals), value, Literal(strValue))
-                                : new InvokeStaticMethodExpression(_enumType.ValueType, nameof(object.Equals), [value, Literal(enumValue.Value), FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)]));
+                                : Static(_enumType.ValueType).Invoke(nameof(object.Equals), [value, Literal(enumValue.Value), FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)]));
                 }
                 else
                 {
