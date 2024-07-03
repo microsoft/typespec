@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -19,7 +19,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void TestInitialize()
         {
-            string ns = "sample.namespace";
+            string ns = "Sample";
             string? unknownStringProperty = "unknownPropertyValue";
             bool? unknownBoolProp = false;
 
