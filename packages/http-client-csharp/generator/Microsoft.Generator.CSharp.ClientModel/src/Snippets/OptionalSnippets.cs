@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -10,7 +9,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal sealed record OptionalSnippet(ValueExpression Expression) : TypedSnippet<SystemOptionalProvider>(Expression)
+    internal static class OptionalSnippets
     {
         private const string IsDefinedMethodName = "IsDefined";
         private const string IsCollectionDefinedMethodName = "IsCollectionDefined";
@@ -25,7 +24,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             return Static<OptionalDefinition>().Invoke(IsDefinedMethodName, [value]).As<bool>();
         }
 
-        public static ValueExpression FallBackToChangeTrackingCollection(TypedSnippet collection, CSharpType? paramType)
+        public static ValueExpression FallBackToChangeTrackingCollection(ScopedApi collection, CSharpType? paramType)
         {
             if (!collection.Type.IsCollection || collection.Type.IsReadOnlyMemory)
             {

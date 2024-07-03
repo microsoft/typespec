@@ -110,7 +110,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         {
             var member = new MemberExpression(null, "collection").As<string>();
 
-            var result = OptionalSnippet.IsCollectionDefined(member);
+            var result = OptionalSnippets.IsCollectionDefined(member);
 
             Assert.IsNotNull(result);
             var invoke = result.Original as InvokeInstanceMethodExpression;
@@ -123,7 +123,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         {
             var member = new MemberExpression(null, "mock").As<string>();
 
-            var result = OptionalSnippet.IsDefined(member);
+            var result = OptionalSnippets.IsDefined(member);
 
             Assert.IsNotNull(result);
             var invoke = result.Original as InvokeInstanceMethodExpression;
