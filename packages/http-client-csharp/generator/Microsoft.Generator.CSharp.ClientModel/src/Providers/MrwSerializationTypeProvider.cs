@@ -515,7 +515,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             MethodBodyStatement rawDataDictionaryDeclaration = MethodBodyStatement.Empty;
             MethodBodyStatement assignRawData = MethodBodyStatement.Empty;
 
-            // recusively get the raw data field from myself and all the base
+            // recursively get the raw data field from myself and all the base
             var rawDataField = _rawDataField;
             var baseSerialization = _baseSerializationProvider;
             while (rawDataField == null)
@@ -1003,7 +1003,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     return null;
                 }
 
-                // we cannot know which ctor to call, but in our implemenation, it should only be one
+                // we cannot know which ctor to call, but in our implementation, it should only be one
                 var ctor = baseProvider.Constructors[0];
                 if (ctor.Signature is not ConstructorSignature ctorSignature || ctorSignature.Parameters.Count == 0)
                 {
