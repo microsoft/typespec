@@ -1,6 +1,7 @@
 {
   "name": "@typespec/react-components",
   "version": "0.57.0",
+  "private": true,
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting an html view of the program.",
   "homepage": "https://typespec.io",
