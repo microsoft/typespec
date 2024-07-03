@@ -51,8 +51,8 @@
     "@typespec/compiler": "workspace:~"
   },
   "dependencies": {
-    "@fluentui/react-components": "~9.52.0",
-    "@fluentui/react-icons": "^2.0.240",
+    "@fluentui/react-components": "~9.54.2",
+    "@fluentui/react-icons": "^2.0.247",
     "@fluentui/react-list-preview": "^0.2.8",
     "react": "~18.3.1",
     "react-dom": "~18.3.1",
@@ -68,14 +68,14 @@
     "@types/react-dom": "~18.3.0",
     "@typespec/compiler": "workspace:~",
     "@typespec/react-components": "workspace:~",
-    "@vitejs/plugin-react": "~4.2.1",
+    "@vitejs/plugin-react": "~4.3.1",
     "@vitest/coverage-v8": "^1.6.0",
     "@vitest/ui": "^1.6.0",
     "c8": "^10.1.2",
     "rimraf": "~5.0.7",
     "typescript": "~5.5.3",
-    "vite": "^5.2.11",
-    "vite-plugin-checker": "^0.6.4",
+    "vite": "^5.3.2",
+    "vite-plugin-checker": "^0.7.0",
     "vite-plugin-dts": "^3.9.1",
     "vitest": "^1.6.0"
   }
