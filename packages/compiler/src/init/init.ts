@@ -49,12 +49,18 @@ export async function initTypeSpecProject(
     // eslint-disable-next-line no-console
     console.log(template.description);
   }
-  const { name } = await prompts([
+  const { name, includeGitIgnore } = await prompts([
     {
       type: "text",
       name: "name",
       message: `Project name`,
       initial: folderName,
+    },
+    {
+      type: "confirm",
+      name: "includeGitIgnore",
+      message: "Do you want to generate a .gitignore file?",
+      initial: true,
     },
   ]);
 
@@ -67,6 +73,7 @@ export async function initTypeSpecProject(
     directory,
     folderName,
     parameters,
+    includeGitIgnore,
   });
 
   await scaffoldNewProject(host, scaffoldingConfig);

@@ -1,8 +1,12 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { InitTemplate } from "../../src/init/init-template.js";
-import { makeScaffoldingConfig, scaffoldNewProject } from "../../src/init/scaffold.js";
-import { TestHost, createTestHost, resolveVirtualPath } from "../../src/testing/index.js";
+import {
+  makeScaffoldingConfig,
+  ScaffoldingConfig,
+  scaffoldNewProject,
+} from "../../src/init/scaffold.js";
+import { createTestHost, resolveVirtualPath, TestHost } from "../../src/testing/index.js";
 
 describe("compiler: init: templates", () => {
   let testHost: TestHost;
@@ -14,7 +18,10 @@ describe("compiler: init: templates", () => {
     return testHost.fs.get(resolveVirtualPath(path));
   }
 
-  async function runTemplate(overrides: Partial<InitTemplate>): Promise<void> {
+  async function runTemplate(
+    overrides: Partial<InitTemplate>,
+    configOverrides?: Partial<ScaffoldingConfig>
+  ): Promise<void> {
     const template: InitTemplate = {
       title: "Test Template",
       description: "This is only a test.",
@@ -26,6 +33,7 @@ describe("compiler: init: templates", () => {
         name: "test-template",
         folderName: "test-template",
         template,
+        ...configOverrides,
       })
     );
   }
@@ -44,5 +52,15 @@ describe("compiler: init: templates", () => {
 
       strictEqual(getOutputFile("main.tsp")!, 'import "foo";\nimport "bar";\n');
     });
+  });
+
+  it("can generate .gitignore file by default", async () => {
+    await runTemplate({});
+    strictEqual(typeof getOutputFile(".gitignore"), "string");
+  });
+
+  it("can exclude .gitignore file", async () => {
+    await runTemplate({}, { includeGitIgnore: false });
+    strictEqual(typeof getOutputFile(".gitignore"), "undefined");
   });
 });

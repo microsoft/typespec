@@ -43,6 +43,11 @@ export interface ScaffoldingConfig {
   libraries: InitTemplateLibrarySpec[];
 
   /**
+   * Whether to generate a .gitignore file.
+   */
+  includeGitIgnore: boolean;
+
+  /**
    * Custom parameters provided in the tempalates.
    */
   parameters: Record<string, any>;
@@ -67,6 +72,7 @@ export function makeScaffoldingConfig(
     directory: config.directory ?? "",
     folderName: config.folderName ?? "",
     parameters: config.parameters ?? {},
+    includeGitIgnore: config.includeGitIgnore ?? true,
     ...config,
   };
 }
@@ -81,6 +87,7 @@ export async function scaffoldNewProject(host: CompilerHost, config: Scaffolding
   await writePackageJson(host, config);
   await writeConfig(host, config);
   await writeMain(host, config);
+  await writeGitIgnore(host, config);
   await writeFiles(host, config);
 }
 
@@ -161,6 +168,24 @@ async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {
   const content = lines.join("\n");
 
   return host.writeFile(joinPaths(config.directory, "main.tsp"), await formatTypeSpec(content));
+}
+
+const defaultGitIgnore = `
+# MacOS
+.DS_Store
+
+# Default TypeSpec output
+tsp-output/
+
+# Dependency directories
+node_modules/
+`.trim();
+async function writeGitIgnore(host: CompilerHost, config: ScaffoldingConfig) {
+  if (!config.includeGitIgnore || isFileSkipGeneration(".gitignore", config.template.files ?? [])) {
+    return;
+  }
+
+  return host.writeFile(joinPaths(config.directory, ".gitignore"), defaultGitIgnore);
 }
 
 async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {
