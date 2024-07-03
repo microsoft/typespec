@@ -91,7 +91,7 @@ export function run(
     ...(options ?? {}),
   };
 
-  const proc = spawnSync(useShell?`"${command}"`:command, commandArgs, finalOptions);
+  const proc = spawnSync(useShell ? `"${command}"` : command, commandArgs, finalOptions);
   logger.trace(inspect(proc, { depth: null }));
 
   if (proc.error) {
