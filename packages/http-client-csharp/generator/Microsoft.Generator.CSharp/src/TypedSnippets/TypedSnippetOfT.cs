@@ -5,11 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
 #pragma warning disable SA1649 // File name should match first type name
-    public abstract record TypedSnippet<T>(ValueExpression Untyped) : TypedSnippet(typeof(T), ValidateType(Untyped, typeof(T)))
+    public abstract record TypedSnippet<T>(ValueExpression Expression) : TypedSnippet(typeof(T), ValidateType(Expression, typeof(T)))
 #pragma warning restore SA1649 // File name should match first type name
     {
         protected static MemberExpression StaticProperty(string name) => new(typeof(T), name);
@@ -42,20 +43,20 @@ namespace Microsoft.Generator.CSharp.Snippets
             => new(typeof(T), methodName, arguments, CallAsAsync: async);
 
         protected InvokeStaticMethodExpression InvokeExtension(CSharpType extensionType, string methodName)
-            => new(extensionType, methodName, new[] { Untyped }, CallAsAsync: false, CallAsExtension: true);
+            => new(extensionType, methodName, new[] { Expression }, CallAsAsync: false, CallAsExtension: true);
 
         protected InvokeStaticMethodExpression InvokeExtension(CSharpType extensionType, string methodName, ValueExpression arg)
-            => new(extensionType, methodName, new[] { Untyped, arg }, CallAsAsync: false, CallAsExtension: true);
+            => new(extensionType, methodName, new[] { Expression, arg }, CallAsAsync: false, CallAsExtension: true);
 
         protected InvokeStaticMethodExpression InvokeExtension(CSharpType extensionType, string methodName, ValueExpression arg1, ValueExpression arg2)
-            => new(extensionType, methodName, new[] { Untyped, arg1, arg2 }, CallAsAsync: false, CallAsExtension: true);
+            => new(extensionType, methodName, new[] { Expression, arg1, arg2 }, CallAsAsync: false, CallAsExtension: true);
 
         protected InvokeStaticMethodExpression InvokeExtension(CSharpType extensionType, string methodName, IEnumerable<ValueExpression> arguments, bool async)
-            => new(extensionType, methodName, arguments.Prepend(Untyped).ToArray(), CallAsAsync: async, CallAsExtension: true);
+            => new(extensionType, methodName, arguments.Prepend(Expression).ToArray(), CallAsAsync: async, CallAsExtension: true);
 
-        private static ValueExpression ValidateType(ValueExpression untyped, Type type)
+        private static ValueExpression ValidateType(ValueExpression expression, Type type)
         {
-            return untyped;
+            return expression;
         }
     }
 }

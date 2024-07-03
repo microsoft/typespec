@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Expressions

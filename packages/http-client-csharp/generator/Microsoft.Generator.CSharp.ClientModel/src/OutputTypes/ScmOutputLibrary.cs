@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Providers;
 
@@ -11,13 +12,15 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private static TypeProvider[] BuildClients()
         {
             var inputClients = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
-            var clients = new TypeProvider[inputClients.Count];
-            for (int i = 0; i < clients.Length; i++)
+            var clients = new List<TypeProvider>();
+
+            foreach (var inputClient in inputClients)
             {
-                clients[i] = new ClientProvider(inputClients[i]);
+                clients.Add(new RestClientProvider(inputClient));
+                clients.Add(new ClientProvider(inputClient));
             }
 
-            return clients;
+            return clients.ToArray();
         }
 
         protected override TypeProvider[] BuildTypeProviders()
@@ -37,7 +40,10 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 ..baseTypes,
                 ..BuildClients(),
                 new ModelSerializationExtensionsProvider(),
-                new TypeFormattersProvider()
+                new TypeFormattersProvider(),
+                new ClientPipelineExtensionsProvider(),
+                new ErrorResultProvider(),
+                new ClientUriBuilderProvider(),
             ];
         }
     }

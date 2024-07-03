@@ -5,7 +5,7 @@ import {
   expectDiagnostics,
 } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import {
   getAuthentication,
   getHeaderFieldName,
@@ -726,7 +726,7 @@ describe("http: decorators", () => {
         @test namespace Foo {}
       `)) as { Foo: Namespace };
 
-      deepStrictEqual(getAuthentication(runner.program, Foo), {
+      expect(getAuthentication(runner.program, Foo)).toEqual({
         options: [
           {
             schemes: [
@@ -734,6 +734,7 @@ describe("http: decorators", () => {
                 id: "BasicAuth",
                 type: "http",
                 scheme: "basic",
+                model: expect.objectContaining({ kind: "Model" }),
               },
             ],
           },
@@ -749,11 +750,17 @@ describe("http: decorators", () => {
         @test namespace Foo {}
       `)) as { Foo: Namespace };
 
-      deepStrictEqual(getAuthentication(runner.program, Foo), {
+      expect(getAuthentication(runner.program, Foo)).toEqual({
         options: [
           {
             schemes: [
-              { id: "MyAuth", description: "My custom basic auth", type: "http", scheme: "basic" },
+              {
+                id: "MyAuth",
+                description: "My custom basic auth",
+                type: "http",
+                scheme: "basic",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
             ],
           },
         ],
@@ -766,7 +773,7 @@ describe("http: decorators", () => {
         @test namespace Foo {}
       `)) as { Foo: Namespace };
 
-      deepStrictEqual(getAuthentication(runner.program, Foo), {
+      expect(getAuthentication(runner.program, Foo)).toEqual({
         options: [
           {
             schemes: [
@@ -774,6 +781,7 @@ describe("http: decorators", () => {
                 id: "BearerAuth",
                 type: "http",
                 scheme: "bearer",
+                model: expect.objectContaining({ kind: "Model" }),
               },
             ],
           },
@@ -787,7 +795,7 @@ describe("http: decorators", () => {
         @test namespace Foo {}
       `)) as { Foo: Namespace };
 
-      deepStrictEqual(getAuthentication(runner.program, Foo), {
+      expect(getAuthentication(runner.program, Foo)).toEqual({
         options: [
           {
             schemes: [
@@ -796,6 +804,7 @@ describe("http: decorators", () => {
                 type: "apiKey",
                 in: "header",
                 name: "x-my-header",
+                model: expect.objectContaining({ kind: "Model" }),
               },
             ],
           },
@@ -815,7 +824,7 @@ describe("http: decorators", () => {
         @test namespace Foo {}
       `)) as { Foo: Namespace };
 
-      deepStrictEqual(getAuthentication(runner.program, Foo), {
+      expect(getAuthentication(runner.program, Foo)).toEqual({
         options: [
           {
             schemes: [
@@ -830,6 +839,7 @@ describe("http: decorators", () => {
                     scopes: [{ value: "read" }, { value: "write" }],
                   },
                 ],
+                model: expect.objectContaining({ kind: "Model" }),
               },
             ],
           },
@@ -849,7 +859,7 @@ describe("http: decorators", () => {
         @test namespace Foo {}
       `)) as { Foo: Namespace };
 
-      deepStrictEqual(getAuthentication(runner.program, Foo), {
+      expect(getAuthentication(runner.program, Foo)).toEqual({
         options: [
           {
             schemes: [
@@ -864,6 +874,7 @@ describe("http: decorators", () => {
                     scopes: [{ value: "read" }, { value: "write" }],
                   },
                 ],
+                model: expect.objectContaining({ kind: "Model" }),
               },
             ],
           },
@@ -877,13 +888,14 @@ describe("http: decorators", () => {
         @test namespace Foo {}
       `)) as { Foo: Namespace };
 
-      deepStrictEqual(getAuthentication(runner.program, Foo), {
+      expect(getAuthentication(runner.program, Foo)).toEqual({
         options: [
           {
             schemes: [
               {
                 id: "NoAuth",
                 type: "noAuth",
+                model: expect.objectContaining({ kind: "Model" }),
               },
             ],
           },
@@ -897,13 +909,27 @@ describe("http: decorators", () => {
         @test namespace Foo {}
       `)) as { Foo: Namespace };
 
-      deepStrictEqual(getAuthentication(runner.program, Foo), {
+      expect(getAuthentication(runner.program, Foo)).toEqual({
         options: [
           {
-            schemes: [{ id: "BasicAuth", type: "http", scheme: "basic" }],
+            schemes: [
+              {
+                id: "BasicAuth",
+                type: "http",
+                scheme: "basic",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
+            ],
           },
           {
-            schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }],
+            schemes: [
+              {
+                id: "BearerAuth",
+                type: "http",
+                scheme: "bearer",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
+            ],
           },
         ],
       });
@@ -915,12 +941,22 @@ describe("http: decorators", () => {
         @test namespace Foo {}
       `)) as { Foo: Namespace };
 
-      deepStrictEqual(getAuthentication(runner.program, Foo), {
+      expect(getAuthentication(runner.program, Foo)).toEqual({
         options: [
           {
             schemes: [
-              { id: "BasicAuth", type: "http", scheme: "basic" },
-              { id: "BearerAuth", type: "http", scheme: "bearer" },
+              {
+                id: "BasicAuth",
+                type: "http",
+                scheme: "basic",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
+              {
+                id: "BearerAuth",
+                type: "http",
+                scheme: "bearer",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
             ],
           },
         ],
@@ -933,10 +969,17 @@ describe("http: decorators", () => {
         @test namespace Foo {}
       `)) as { Foo: Namespace };
 
-      deepStrictEqual(getAuthentication(runner.program, Foo), {
+      expect(getAuthentication(runner.program, Foo)).toEqual({
         options: [
           {
-            schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }],
+            schemes: [
+              {
+                id: "BearerAuth",
+                type: "http",
+                scheme: "bearer",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
+            ],
           },
           {
             schemes: [
@@ -945,8 +988,14 @@ describe("http: decorators", () => {
                 type: "apiKey",
                 in: "header",
                 name: "x-my-header",
+                model: expect.objectContaining({ kind: "Model" }),
               },
-              { id: "BasicAuth", type: "http", scheme: "basic" },
+              {
+                id: "BasicAuth",
+                type: "http",
+                scheme: "basic",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
             ],
           },
         ],
@@ -963,13 +1012,27 @@ describe("http: decorators", () => {
         }
       `)) as { Foo: Namespace };
 
-      deepStrictEqual(getAuthentication(runner.program, Foo.interfaces.get("Bar")!), {
+      expect(getAuthentication(runner.program, Foo.interfaces.get("Bar")!)).toEqual({
         options: [
           {
-            schemes: [{ id: "BasicAuth", type: "http", scheme: "basic" }],
+            schemes: [
+              {
+                id: "BasicAuth",
+                type: "http",
+                scheme: "basic",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
+            ],
           },
           {
-            schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }],
+            schemes: [
+              {
+                id: "BearerAuth",
+                type: "http",
+                scheme: "bearer",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
+            ],
           },
         ],
       });
@@ -985,12 +1048,22 @@ describe("http: decorators", () => {
         }
       `)) as { Foo: Namespace };
 
-      deepStrictEqual(getAuthentication(runner.program, Foo.operations.get("bar")!), {
+      expect(getAuthentication(runner.program, Foo.operations.get("bar")!)).toEqual({
         options: [
           {
             schemes: [
-              { id: "BasicAuth", type: "http", scheme: "basic" },
-              { id: "BearerAuth", type: "http", scheme: "bearer" },
+              {
+                id: "BasicAuth",
+                type: "http",
+                scheme: "basic",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
+              {
+                id: "BearerAuth",
+                type: "http",
+                scheme: "bearer",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
             ],
           },
         ],

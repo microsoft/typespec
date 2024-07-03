@@ -3,15 +3,16 @@
 
 using System;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record BinaryDataSnippet(ValueExpression Untyped) : TypedSnippet<BinaryData>(Untyped)
+    public sealed record BinaryDataSnippet(ValueExpression Expression) : TypedSnippet<BinaryData>(Expression)
     {
         private static readonly CSharpType _binaryDataType = typeof(BinaryData);
 
         public FrameworkTypeSnippet ToObjectFromJson(Type responseType)
-            => new(responseType, new InvokeInstanceMethodExpression(Untyped, nameof(BinaryData.ToObjectFromJson), Array.Empty<ValueExpression>(), new[] { new CSharpType(responseType) }, false));
+            => new(responseType, new InvokeInstanceMethodExpression(Expression, nameof(BinaryData.ToObjectFromJson), Array.Empty<ValueExpression>(), new[] { new CSharpType(responseType) }, false));
 
         public static BinaryDataSnippet FromStream(StreamSnippet stream, bool async)
         {
@@ -25,11 +26,11 @@ namespace Microsoft.Generator.CSharp.Snippets
             return new(new InvokeStaticMethodExpression(_binaryDataType, methodName, stream, callAsAsync: async));
         }
 
-        public ValueExpression ToMemory() => Untyped.Invoke(nameof(BinaryData.ToMemory));
+        public ValueExpression ToMemory() => Expression.Invoke(nameof(BinaryData.ToMemory));
 
-        public StreamSnippet ToStream() => new(Untyped.Invoke(nameof(BinaryData.ToStream)));
+        public StreamSnippet ToStream() => new(Expression.Invoke(nameof(BinaryData.ToStream)));
 
-        public ListSnippet ToArray() => new(typeof(byte[]), Untyped.Invoke(nameof(BinaryData.ToArray)));
+        public ListSnippet ToArray() => new(typeof(byte[]), Expression.Invoke(nameof(BinaryData.ToArray)));
 
         public static BinaryDataSnippet FromBytes(ValueExpression data)
             => new(new InvokeStaticMethodExpression(_binaryDataType, nameof(BinaryData.FromBytes), data));
@@ -39,8 +40,5 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static BinaryDataSnippet FromString(ValueExpression data)
             => new(new InvokeStaticMethodExpression(_binaryDataType, nameof(BinaryData.FromString), data));
-
-        //public static implicit operator ValueExpression(BinaryDataExpression binaryData)
-        //    => binaryData.Untyped;
     }
 }

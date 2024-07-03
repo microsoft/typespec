@@ -3,15 +3,7 @@ import {
   getLibraryName,
   getSdkModel,
 } from "@azure-tools/typespec-client-generator-core";
-import {
-  Enum,
-  EnumMember,
-  Model,
-  ModelProperty,
-  Namespace,
-  Operation,
-  Scalar,
-} from "@typespec/compiler";
+import { Enum, EnumMember, Model, ModelProperty, Operation, Scalar } from "@typespec/compiler";
 import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputParameter } from "../type/input-parameter.js";
@@ -45,20 +37,6 @@ export function getTypeName(
     return templateName;
   }
   return name;
-}
-
-export function getFullNamespaceString(namespace: Namespace | undefined): string {
-  if (!namespace || !namespace.name) {
-    return "";
-  }
-
-  let namespaceString: string = namespace.name;
-  let current: Namespace | undefined = namespace.namespace;
-  while (current && current.name) {
-    namespaceString = `${current.name}.${namespaceString}`;
-    current = current.namespace;
-  }
-  return namespaceString;
 }
 
 export function createContentTypeOrAcceptParameter(
