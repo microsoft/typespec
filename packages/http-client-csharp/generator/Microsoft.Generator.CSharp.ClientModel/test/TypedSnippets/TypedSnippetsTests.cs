@@ -82,19 +82,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         public void BinaryContentSnippet_InvokeStatic(bool withOptions)
         {
             var arg = Snippet.This;
-            BinaryContentSnippet result;
+            ScopedApi<BinaryContent> result;
             ModelReaderWriterOptionsSnippet? options = null;
             if (withOptions)
             {
                 options = new ModelReaderWriterOptionsSnippet(new MemberExpression(null, "w"));
             }
 
-            result = options != null ? BinaryContentSnippet.Create(arg, options) : BinaryContentSnippet.Create(arg);
+            result = options != null ? BinaryContentSnippets.Create(arg, options) : BinaryContentSnippets.Create(arg);
 
             Assert.IsNotNull(result);
-            var untyped = result.Expression as InvokeStaticMethodExpression;
+            var untyped = result.Original as InvokeInstanceMethodExpression;
             Assert.IsNotNull(untyped);
-            Assert.AreEqual(new CSharpType(typeof(BinaryContent)), untyped?.MethodType);
             Assert.AreEqual(nameof(BinaryContent.Create), untyped?.MethodName);
 
             if (withOptions)
