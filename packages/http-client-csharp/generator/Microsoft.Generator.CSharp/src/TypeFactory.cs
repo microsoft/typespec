@@ -14,10 +14,10 @@ namespace Microsoft.Generator.CSharp
 {
     public abstract class TypeFactory
     {
-        private ChangeTrackingListProvider? _changeTrackingListProvider;
-        private ChangeTrackingDictionaryProvider? _changeTrackingDictionaryProvider;
-        private ChangeTrackingListProvider ChangeTrackingListProvider => _changeTrackingListProvider ??= new();
-        private ChangeTrackingDictionaryProvider ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
+        private ChangeTrackingListDefinition? _changeTrackingListProvider;
+        private ChangeTrackingDictionaryDefinition? _changeTrackingDictionaryProvider;
+        private ChangeTrackingListDefinition ChangeTrackingListProvider => _changeTrackingListProvider ??= new();
+        private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
 
         private readonly IDictionary<InputType, CSharpType> _typeCache = new Dictionary<InputType, CSharpType>();
 
