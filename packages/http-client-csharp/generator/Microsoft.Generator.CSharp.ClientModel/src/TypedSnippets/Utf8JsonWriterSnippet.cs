@@ -46,9 +46,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
                 (
                     "NET6_0_OR_GREATER",
                     WriteRawValue(value),
-                    new UsingScopeStatement(typeof(JsonDocument), "document", JsonDocumentSnippet.Parse(value), out var jsonDocumentVar)
+                    new UsingScopeStatement(typeof(JsonDocument), "document", JsonDocumentSnippets.Parse(value), out var jsonDocumentVar)
                     {
-                        JsonSerializerSnippet.Serialize(this, new JsonDocumentSnippet(jsonDocumentVar).RootElement).Terminate()
+                        JsonSerializerSnippet.Serialize(this, jsonDocumentVar.As<JsonDocument>().RootElement()).Terminate()
                     }
                 );
 
