@@ -96,7 +96,7 @@ describe("openapi: decorators", () => {
       });
     });
 
-    it("emit diagnostics when passing non string extension key", async () => {
+    it("emit diagnostics when passing non string extension key on a non-namespace", async () => {
       const diagnostics = await runner.diagnose(`
         @extension(123, "Bar")
         @test
@@ -110,7 +110,7 @@ describe("openapi: decorators", () => {
       });
     });
 
-    it("emit diagnostics when passing extension key not starting with `x-`", async () => {
+    it("emit diagnostics when passing extension key not starting with `x-` on a non-namespace", async () => {
       const diagnostics = await runner.diagnose(`
         @extension("foo", "Bar")
         @test
