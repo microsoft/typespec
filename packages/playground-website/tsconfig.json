@@ -14,7 +14,8 @@
     "jsx": "react-jsx",
     "checkJs": true,
     "allowJs": true,
-    "lib": ["DOM", "ES2022"]
+    "lib": ["DOM", "ES2022"],
+    "types": ["vite/client"]
   },
   "include": [
     "src/**/*.ts",

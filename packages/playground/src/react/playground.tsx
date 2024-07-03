@@ -60,6 +60,9 @@ export interface PlaygroundProps {
 
   onFileBug?: () => void;
 
+  /** Additional buttons to show up in the command bar */
+  commandBarButtons?: ReactNode;
+
   /** Playground links */
   links?: PlaygroundLinks;
 
@@ -254,8 +257,18 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     [setVerticalPaneSizes]
   );
 
+  const playgroundContext = useMemo(() => {
+    return {
+      host,
+      setContent: (val: string) => {
+        typespecModel.setValue(val);
+        setContent(val);
+      },
+    };
+  }, [host, setContent]);
+
   return (
-    <PlaygroundContextProvider value={{ host }}>
+    <PlaygroundContextProvider value={playgroundContext}>
       <div className={style["layout"]}>
         <SplitPane sizes={verticalPaneSizes} onChange={onVerticalPaneSizeChange} split="horizontal">
           <Pane>
@@ -273,6 +286,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
                   saveCode={saveCode}
                   formatCode={formatCode}
                   fileBug={props.onFileBug ? fileBug : undefined}
+                  commandBarButtons={props.commandBarButtons}
                   documentationUrl={props.links?.documentationUrl}
                 />
                 <TypeSpecEditor
