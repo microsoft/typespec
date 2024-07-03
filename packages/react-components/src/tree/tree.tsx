@@ -55,7 +55,7 @@ export function Tree<T extends TreeNode>({
       expand(current);
       current = parentMap.get(current);
     }
-  }, [expand, selectedKey]);
+  }, [expand, selectedKey, parentMap]);
   const activateRow = useCallback(
     (row: TreeRow<TreeNode>) => {
       setFocusedIndex(row.index);
