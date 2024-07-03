@@ -1,6 +1,7 @@
 {
-  "name": "@typespec/html-program-viewer",
+  "name": "@typespec/react-components",
   "version": "0.57.0",
+  "private": true,
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting an html view of the program.",
   "homepage": "https://typespec.io",
@@ -17,14 +18,11 @@
     "typespec"
   ],
   "type": "module",
-  "main": "dist/emitter/index.js",
+  "main": "dist/index.js",
   "exports": {
     ".": {
-      "default": "./dist/emitter/index.js"
-    },
-    "./react": {
-      "types": "./dist/react/index.d.ts",
-      "default": "./dist/react/index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./style.css": "./dist/style.css"
   },
@@ -33,9 +31,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "pnpm build:react && pnpm build:emitter",
-    "build:react": "vite build",
-    "build:emitter": "vite build --config vite.emitter.config.ts",
+    "build": "vite build",
     "watch": "vite build --watch",
     "test": "vitest run",
     "test:ui": "vitest --ui",
@@ -47,16 +43,11 @@
     "dist/**",
     "!dist/test/**"
   ],
-  "peerDependencies": {
-    "@typespec/compiler": "workspace:~"
-  },
   "dependencies": {
     "@fluentui/react-components": "~9.54.2",
     "@fluentui/react-icons": "^2.0.247",
-    "@fluentui/react-list-preview": "^0.2.8",
     "react": "~18.3.1",
-    "react-dom": "~18.3.1",
-    "react-hotkeys-hook": "^4.5.0"
+    "react-dom": "~18.3.1"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",
@@ -66,8 +57,6 @@
     "@types/node": "~18.11.19",
     "@types/react": "~18.3.3",
     "@types/react-dom": "~18.3.0",
-    "@typespec/compiler": "workspace:~",
-    "@typespec/react-components": "workspace:~",
     "@vitejs/plugin-react": "~4.3.1",
     "@vitest/coverage-v8": "^1.6.0",
     "@vitest/ui": "^1.6.0",

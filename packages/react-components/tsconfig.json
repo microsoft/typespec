@@ -1,6 +1,5 @@
 {
   "extends": "../../tsconfig.base.json",
-  "references": [{ "path": "../compiler/tsconfig.json" }],
   "compilerOptions": {
     "incremental": false,
     "composite": false,
@@ -8,6 +7,7 @@
     "moduleResolution": "NodeNext",
     "sourceMap": false,
     "resolveJsonModule": true,
+    "noEmit": true,
     "skipLibCheck": true,
     "verbatimModuleSyntax": true,
     "jsx": "react-jsx",
