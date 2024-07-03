@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             return new InvokeStaticMethodExpression(typeof(JsonSerializer), nameof(JsonSerializer.Serialize), arguments);
         }
 
-        public static InvokeStaticMethodExpression Deserialize(JsonElementSnippet element, CSharpType serializationType, ValueExpression? options = null)
+        public static InvokeStaticMethodExpression Deserialize(ScopedApi<JsonElement> element, CSharpType serializationType, ValueExpression? options = null)
         {
             ValueExpression[] arguments = options is null
                 ? [element.GetRawText()]

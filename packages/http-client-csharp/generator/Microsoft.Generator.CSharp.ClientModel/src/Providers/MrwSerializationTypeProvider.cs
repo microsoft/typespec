@@ -699,7 +699,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return valueType switch
             {
                 var t when t == typeof(JsonElement) =>
-                    new JsonElementSnippet(value).WriteTo(_utf8JsonWriterSnippet),
+                    value.As<JsonElement>().WriteTo(_utf8JsonWriterSnippet),
                 var t when ValueTypeIsNumber(t) =>
                     _utf8JsonWriterSnippet.WriteNumberValue(value),
                 var t when t == typeof(object) =>

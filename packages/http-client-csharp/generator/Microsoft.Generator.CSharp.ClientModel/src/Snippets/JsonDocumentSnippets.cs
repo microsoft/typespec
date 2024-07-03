@@ -12,7 +12,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
     internal static class JsonDocumentSnippets
     {
-        public static JsonElementSnippet RootElement(this ScopedApi<JsonDocument> document) => new(document.Property(nameof(JsonDocument.RootElement)));
+        public static ScopedApi<JsonElement> RootElement(this ScopedApi<JsonDocument> document) => document.Property(nameof(JsonDocument.RootElement)).As<JsonElement>();
 
         public static ScopedApi<JsonDocument> ParseValue(ValueExpression reader) => Static<JsonDocument>().Invoke(nameof(JsonDocument.ParseValue), reader).As<JsonDocument>();
         public static ScopedApi<JsonDocument> Parse(ValueExpression json) => Static<JsonDocument>().Invoke(nameof(JsonDocument.Parse), json).As<JsonDocument>();

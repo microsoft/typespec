@@ -11,7 +11,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
     internal sealed record JsonPropertySnippet(ValueExpression Expression) : TypedSnippet<JsonProperty>(Expression)
     {
         public ScopedApi<string> Name => Property(nameof(JsonProperty.Name)).As<string>();
-        public JsonElementSnippet Value => new(Property(nameof(JsonProperty.Value)));
+        public ScopedApi<JsonElement> Value => Property(nameof(JsonProperty.Value)).As<JsonElement>();
 
         public ScopedApi<bool> NameEquals(string value) => new(Expression.Invoke(nameof(JsonProperty.NameEquals), LiteralU8(value)));
     }

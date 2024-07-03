@@ -149,8 +149,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: typeof(object),
                 ReturnDescription: null,
                 Parameters: [ScmKnownParameters.JsonElement]);
-            var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
-            var body = new SwitchStatement(element.ValueKind)
+            var element = ScmKnownParameters.JsonElement.As<JsonElement>();
+            var body = new SwitchStatement(element.ValueKind())
             {
                 new(JsonValueKindSnippets.String, Return(element.GetString())),
                 new(JsonValueKindSnippets.Number, new MethodBodyStatement[]
@@ -173,7 +173,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Declare("dictionary", New.Dictionary(typeof(string), typeof(object)), out var dictionary),
                     new ForeachStatement("jsonProperty", element.EnumerateObject(), out var jsonProperty)
                     {
-                        dictionary.Add(jsonProperty.Property(nameof(JsonProperty.Name)), new JsonElementSnippet(jsonProperty.Property(nameof(JsonProperty.Value))).Invoke("GetObject"))
+                        dictionary.Add(jsonProperty.Property(nameof(JsonProperty.Name)), jsonProperty.Property(nameof(JsonProperty.Value)).Invoke("GetObject"))
                     },
                     Return(dictionary)
                 }),
@@ -186,7 +186,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     },
                     Return(list.ToArray())
                 }),
-                SwitchCaseStatement.Default(Throw(New.NotSupportedException(new FormattableStringExpression("Not supported value kind {0}", [element.ValueKind]))))
+                SwitchCaseStatement.Default(Throw(New.NotSupportedException(new FormattableStringExpression("Not supported value kind {0}", [element.ValueKind()]))))
             };
             return new MethodProvider(signature, body, this);
         }
@@ -199,7 +199,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Parameters: [ScmKnownParameters.JsonElement, _formatParameter],
                 ReturnType: typeof(byte[]),
                 Description: null, ReturnDescription: null);
-            var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
+            var element = ScmKnownParameters.JsonElement.As<JsonElement>();
             var body = new MethodBodyStatement[]
             {
                 new IfStatement(element.ValueKindEqualsNull())
@@ -225,9 +225,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Parameters: [ScmKnownParameters.JsonElement, _formatParameter],
                 ReturnType: typeof(DateTimeOffset),
                 Description: null, ReturnDescription: null);
-            var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
+            var element = ScmKnownParameters.JsonElement.As<JsonElement>();
             var body = new SwitchExpression(_formatParameter,
-                SwitchCaseExpression.When(Literal("U"), element.ValueKind.Equal(JsonValueKindSnippets.Number), DateTimeOffsetSnippets.FromUnixTimeSeconds(element.GetInt64())),
+                SwitchCaseExpression.When(Literal("U"), element.ValueKind().Equal(JsonValueKindSnippets.Number), DateTimeOffsetSnippets.FromUnixTimeSeconds(element.GetInt64())),
                 // relying on the param check of the inner call to throw ArgumentNullException if GetString() returns null
                 SwitchCaseExpression.Default(ParseDateTimeOffset(element.GetString(), _formatParameter))
                 );
@@ -243,7 +243,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Parameters: [ScmKnownParameters.JsonElement, _formatParameter],
                 ReturnType: typeof(TimeSpan),
                 Description: null, ReturnDescription: null);
-            var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
+            var element = ScmKnownParameters.JsonElement.As<JsonElement>();
             // relying on the param check of the inner call to throw ArgumentNullException if GetString() returns null
             var body = ParseTimeSpan(element.GetString(), _formatParameter);
 
@@ -258,7 +258,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Parameters: [ScmKnownParameters.JsonElement],
                 ReturnType: typeof(char),
                 Description: null, ReturnDescription: null);
-            var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
+            var element = ScmKnownParameters.JsonElement.As<JsonElement>();
             var body = new IfElseStatement(
                 element.ValueKindEqualsString(),
                 new MethodBodyStatement[]
@@ -270,7 +270,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     },
                     Return(text.Index(Int(0)))
                 },
-                Throw(New.NotSupportedException(new FormattableStringExpression("Cannot convert {0} to a char", [element.ValueKind])))
+                Throw(New.NotSupportedException(new FormattableStringExpression("Cannot convert {0} to a char", [element.ValueKind()])))
                 );
 
             return new MethodProvider(signature, body, this);
@@ -302,13 +302,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Parameters: [ScmKnownParameters.JsonElement],
                 ReturnType: typeof(string),
                 Description: null, ReturnDescription: null);
-            var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
+            var element = ScmKnownParameters.JsonElement.As<JsonElement>();
             var body = new MethodBodyStatement[]
             {
                 Declare("value", element.GetString(), out ScopedApi<string> value),
                 new IfStatement(value.Equal(Null))
                 {
-                    Throw(New.InvalidOperationException(new FormattableStringExpression("The requested operation requires an element of type 'String', but the target element has type '{0}'.", [element.ValueKind])))
+                    Throw(New.InvalidOperationException(new FormattableStringExpression("The requested operation requires an element of type 'String', but the target element has type '{0}'.", [element.ValueKind()])))
                 },
                 Return(value)
             };
@@ -430,7 +430,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 // JsonElement case
                 BuildWriteObjectValueSwitchCase(typeof(JsonElement), "json", json => new MethodBodyStatement[]
                 {
-                    new JsonElementSnippet(json).WriteTo(writer),
+                    json.As<JsonElement>().WriteTo(writer),
                     Break
                 }),
                 // int case

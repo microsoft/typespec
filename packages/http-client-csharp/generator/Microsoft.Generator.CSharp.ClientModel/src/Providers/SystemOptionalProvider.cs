@@ -27,7 +27,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                Snippet.Return(new JsonElementSnippet(valueParam).ValueKindNotEqualsUndefined())
+                Snippet.Return(valueParam.As<JsonElement>().ValueKindNotEqualsUndefined())
             }, this);
         }
 
