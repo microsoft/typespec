@@ -61,7 +61,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public static ValueExpression GetChar(ScopedApi<JsonElement> element)
             => new InvokeStaticMethodExpression(Provider.Type, GetCharMethodName, [element], CallAsExtension: true);
 
-        public static MethodBodyStatement ThrowNonNullablePropertyIsNull(JsonPropertySnippet property)
+        public static MethodBodyStatement ThrowNonNullablePropertyIsNull(ScopedApi<JsonProperty> property)
             => property.Invoke(ThrowNonNullablePropertyIsNullMethodName).Terminate();
 
         public static ValueExpression GetRequiredString(ScopedApi<JsonElement> element)

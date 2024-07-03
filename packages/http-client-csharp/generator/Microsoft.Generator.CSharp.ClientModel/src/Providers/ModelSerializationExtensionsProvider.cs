@@ -288,8 +288,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     new AttributeStatement(typeof(ConditionalAttribute), Literal("DEBUG"))
                 ],
                 Description: null, ReturnDescription: null);
-            var property = new JsonPropertySnippet(_propertyParameter);
-            var body = Throw(New.JsonException(new FormattableStringExpression("A property '{0}' defined as non-nullable but received as null from the service. This exception only happens in DEBUG builds of the library and would be ignored in the release build", [property.Name])));
+            var property = _propertyParameter.As<JsonProperty>();
+            var body = Throw(New.JsonException(new FormattableStringExpression("A property '{0}' defined as non-nullable but received as null from the service. This exception only happens in DEBUG builds of the library and would be ignored in the release build", [property.Name()])));
 
             return new MethodProvider(signature, body, this);
         }
