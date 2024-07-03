@@ -37,7 +37,7 @@ namespace Microsoft.Generator.CSharp.Expressions
                 {
                     if (!_cache.TryGetValue(type.FrameworkType, out var result))
                     {
-                        result = (TypeProvider)Activator.CreateInstance(type.FrameworkType)!;
+                        result = (TypeProvider)Activator.CreateInstance(type.FrameworkType, true)!;
                         _cache[type.FrameworkType] = result;
                     }
                     Type = _cache[type.FrameworkType].Type;

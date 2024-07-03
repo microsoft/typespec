@@ -5,12 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
-using static Microsoft.Generator.CSharp.ClientModel.Snippets.TypeFormattersSnippet;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
@@ -177,7 +177,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Parameters: parameters,
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
-            var convertToStringExpression = ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
+            var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
             var body = new InvokeInstanceMethodExpression(null, _appendPathMethodName, [convertToStringExpression, escapeParameter], null, false);
 
             return new(signature, body, this);
@@ -249,7 +249,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Parameters: parameters,
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
-            var convertToStringExpression = ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
+            var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
             var body = new InvokeInstanceMethodExpression(null, _appendQueryMethodName, [nameParameter, convertToStringExpression, escapeParameter], null, false);
 
             return new(signature, body, this);
@@ -285,7 +285,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var value = new ScopedApi(_t, valueParameter);
 
             var v = new VariableExpression(_t, "v");
-            var convertToStringExpression = ConvertToString(v, hasFormat ? formatParameter : (ValueExpression?)null);
+            var convertToStringExpression = TypeFormattersSnippets.ConvertToString(v, hasFormat ? formatParameter : (ValueExpression?)null);
             var selector = new FuncExpression([v.Declaration], convertToStringExpression).As<string>();
             var body = new[]
             {

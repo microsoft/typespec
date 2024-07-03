@@ -64,8 +64,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public static ValueExpression GetTimeSpan(this ScopedApi<JsonElement> jsonElement, string? format)
             => jsonElement.GetTimeSpan(format);
 
-        public static ValueExpression GetRequiredString(this ScopedApi<JsonElement> element)
-            => element.Invoke(GetRequiredStringMethodName);
+        public static ScopedApi<string> GetRequiredString(this ScopedApi<JsonElement> element)
+            => element.Invoke(GetRequiredStringMethodName).As<string>();
 
         public static ScopedApi<bool> TryGetProperty(this ScopedApi<JsonElement> jsonElement, string propertyName, out ScopedApi<JsonElement> discriminator)
         {

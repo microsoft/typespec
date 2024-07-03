@@ -15,7 +15,6 @@ using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.ClientModel.Snippets.ModelSerializationExtensionsSnippets;
-using static Microsoft.Generator.CSharp.ClientModel.Snippets.TypeFormattersSnippet;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
@@ -70,7 +69,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     ReturnType: null,
                     Parameters: [ScmKnownParameters.Utf8JsonWriter, dateTimeOffsetValueParameter, _formatParameter],
                     Description: null, ReturnDescription: null),
-                writer.WriteStringValue(TypeFormattersSnippet.ToString(dateTimeOffsetValueParameter, _formatParameter)),
+                writer.WriteStringValue(TypeFormattersSnippets.ToString(dateTimeOffsetValueParameter, _formatParameter)),
                 this);
 
             var dateTimeValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(DateTime));
@@ -81,7 +80,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     ReturnType: null,
                     Parameters: [ScmKnownParameters.Utf8JsonWriter, dateTimeValueParameter, _formatParameter],
                     Description: null, ReturnDescription: null),
-                writer.WriteStringValue(TypeFormattersSnippet.ToString(dateTimeValueParameter, _formatParameter)),
+                writer.WriteStringValue(TypeFormattersSnippets.ToString(dateTimeValueParameter, _formatParameter)),
                 this);
 
             var timeSpanValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(TimeSpan));
@@ -92,7 +91,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     ReturnType: null,
                     Parameters: [ScmKnownParameters.Utf8JsonWriter, timeSpanValueParameter, _formatParameter],
                     Description: null, ReturnDescription: null),
-                writer.WriteStringValue(TypeFormattersSnippet.ToString(timeSpanValueParameter, _formatParameter)),
+                writer.WriteStringValue(TypeFormattersSnippets.ToString(timeSpanValueParameter, _formatParameter)),
                 this);
 
             var charValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(char));
@@ -204,7 +203,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 },
                 MethodBodyStatement.EmptyLine,
                 Return(new SwitchExpression(_formatParameter,
-                    new SwitchCaseExpression(Literal("U"), FromBase64UrlString(element.GetRequiredString())),
+                    new SwitchCaseExpression(Literal("U"), TypeFormattersSnippets.FromBase64UrlString(element.GetRequiredString())),
                     new SwitchCaseExpression(Literal("D"), element.GetBytesFromBase64()),
                     SwitchCaseExpression.Default(ThrowExpression(New.ArgumentException(_formatParameter, new FormattableStringExpression("Format is not supported: '{0}'", [_formatParameter]))))
                     ))
@@ -225,7 +224,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var body = new SwitchExpression(_formatParameter,
                 SwitchCaseExpression.When(Literal("U"), element.ValueKind().Equal(JsonValueKindSnippets.Number), DateTimeOffsetSnippets.FromUnixTimeSeconds(element.GetInt64())),
                 // relying on the param check of the inner call to throw ArgumentNullException if GetString() returns null
-                SwitchCaseExpression.Default(ParseDateTimeOffset(element.GetString(), _formatParameter))
+                SwitchCaseExpression.Default(TypeFormattersSnippets.ParseDateTimeOffset(element.GetString(), _formatParameter))
                 );
 
             return new MethodProvider(signature, body, this);
@@ -241,7 +240,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Description: null, ReturnDescription: null);
             var element = ScmKnownParameters.JsonElement.As<JsonElement>();
             // relying on the param check of the inner call to throw ArgumentNullException if GetString() returns null
-            var body = ParseTimeSpan(element.GetString(), _formatParameter);
+            var body = TypeFormattersSnippets.ParseTimeSpan(element.GetString(), _formatParameter);
 
             return new MethodProvider(signature, body, this);
         }
@@ -338,7 +337,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     new(Literal("U"), new MethodBodyStatement[]
                     {
-                        writer.WriteStringValue(ToBase64UrlString(value)),
+                        writer.WriteStringValue(TypeFormattersSnippets.ToBase64UrlString(value.As<byte[]>())),
                         Break
                     }),
                     new(Literal("D"), new MethodBodyStatement[]
