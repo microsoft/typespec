@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private ParameterProvider _requestOptionsParam;
         private ScopedApi<ClientPipeline> _pipeline;
         private ScopedApi<PipelineMessage> _message;
-        private RequestOptionsSnippet _options;
+        private ScopedApi<RequestOptions> _options;
 
         public ClientPipelineExtensionsDefinition()
         {
@@ -41,7 +41,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _requestOptionsParam = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(RequestOptions));
             _pipeline = _pipelineParam.As<ClientPipeline>();
             _message = _messageParam.As<PipelineMessage>();
-            _options = new RequestOptionsSnippet(_requestOptionsParam);
+            _options = _requestOptionsParam.As<RequestOptions>();
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
