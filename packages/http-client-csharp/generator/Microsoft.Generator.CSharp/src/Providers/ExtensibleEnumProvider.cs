@@ -184,8 +184,8 @@ namespace Microsoft.Generator.CSharp.Providers
             var valueField = new VariableExpression(ValueType.WithNullable(!ValueType.IsValueType), _valueField.Declaration);
             var otherValue = ((ValueExpression)otherParameter).Property(_valueField.Name);
             var equalsExpressionBody = IsStringValueType
-                            ? new InvokeStaticMethodExpression(ValueType, nameof(object.Equals), [valueField, otherValue, FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)])
-                            : new InvokeStaticMethodExpression(ValueType, nameof(object.Equals), [valueField, otherValue]);
+                            ? Static(ValueType).Invoke(nameof(object.Equals), [valueField, otherValue, FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)])
+                            : Static(ValueType).Invoke(nameof(object.Equals), [valueField, otherValue]);
             methods.Add(new(equalsSignature, equalsExpressionBody, this));
 
             var getHashCodeSignature = new MethodSignature(

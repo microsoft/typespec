@@ -29,22 +29,24 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
         public void ConvertSnippet_InvokeToDouble()
         {
             var arg = Snippet.Literal("2.0");
-            InvokeStaticMethodExpression result = ConvertSnippet.InvokeToDouble(arg);
+            InvokeMethodExpression result = ConvertSnippets.InvokeToDouble(arg);
 
-            Assert.IsNotNull(result.MethodType);
-            Assert.AreEqual(new CSharpType(typeof(Convert)), result.MethodType);
             Assert.AreEqual(nameof(Convert.ToDouble), result.MethodName);
+            using CodeWriter writer = new CodeWriter();
+            result.Write(writer);
+            Assert.AreEqual("global::System.Convert.ToDouble(\"2.0\")", writer.ToString(false));
         }
 
         [Test]
         public void ConvertSnippet_InvokeToInt32()
         {
             var arg = Snippet.Literal("2");
-            InvokeStaticMethodExpression result = ConvertSnippet.InvokeToInt32(arg);
+            InvokeMethodExpression result = ConvertSnippets.InvokeToInt32(arg);
 
-            Assert.IsNotNull(result.MethodType);
-            Assert.AreEqual(new CSharpType(typeof(Convert)), result.MethodType);
             Assert.AreEqual(nameof(Convert.ToInt32), result.MethodName);
+            using CodeWriter writer = new CodeWriter();
+            result.Write(writer);
+            Assert.AreEqual("global::System.Convert.ToInt32(\"2\")", writer.ToString(false));
         }
 
         [Test]
@@ -54,7 +56,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
             var p = new ParameterProvider("p1", $"p1", new CSharpType(typeof(bool)));
 
 
-            ArgumentSnippet.AssertNotNull(p).Write(writer);
+            ArgumentSnippets.AssertNotNull(p).Write(writer);
             Assert.AreEqual("global::sample.namespace.Argument.AssertNotNull(p1, nameof(p1));\n", writer.ToString(false));
         }
     }

@@ -192,11 +192,12 @@ namespace Microsoft.Generator.CSharp.Statements
             return s;
         }
 
-        private const string SeeCref = "<see ";
+        private const string SeeCrefStart = "<see ";
+        private const string SeeCrefEnd = "</see>";
         private static bool SkipValidTag(ref ReadOnlySpan<char> span, ref int i)
         {
             var slice = span.Slice(i);
-            if (slice.StartsWith(SeeCref.AsSpan(), StringComparison.Ordinal))
+            if (slice.StartsWith(SeeCrefStart.AsSpan(), StringComparison.Ordinal) || slice.StartsWith(SeeCrefEnd.AsSpan(), StringComparison.Ordinal))
             {
                 i += slice.IndexOf('>');
                 return true;
