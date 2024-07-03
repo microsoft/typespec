@@ -36,7 +36,7 @@ export function Tree<T extends TreeNode>({
   selectionMode = "none",
 }: TreeProps<T>) {
   const id = useId();
-  const { expanded, toggleExpand, expand, collapse, renderSignal } = useTreeControls({
+  const { expanded, toggleExpand, expand, collapse } = useTreeControls({
     onSetExpanded,
   });
   const [focusedIndex, setFocusedIndex] = useState(-1);
@@ -44,7 +44,7 @@ export function Tree<T extends TreeNode>({
 
   const rows = useMemo(
     () => getTreeRowsForNode(expanded, toggleExpand, tree),
-    [renderSignal, toggleExpand, tree]
+    [expanded, toggleExpand, tree]
   );
   const parentMap = useMemo(() => computeParent(tree), [tree]);
 

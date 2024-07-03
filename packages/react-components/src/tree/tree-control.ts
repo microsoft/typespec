@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 
 export interface TreeControls {
-  readonly renderSignal: number;
   readonly expanded: Set<string>;
   expand(key: string): void;
   collapse(key: string): void;
@@ -46,7 +45,7 @@ export function useTreeControls({ onSetExpanded }: TreeControlsOptions): TreeCon
   );
 
   return useMemo(
-    () => ({ expanded, toggleExpand, expand, collapse, renderSignal: rerender }),
+    () => ({ expanded: new Set(expanded), toggleExpand, expand, collapse }),
     [expanded, toggleExpand, expand, collapse, expanded, rerender]
   );
 }

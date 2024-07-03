@@ -1,10 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
-  "references": [
-    { "path": "../compiler/tsconfig.json" },
-    { "path": "../rest/tsconfig.json" },
-    { "path": "../openapi/tsconfig.json" }
-  ],
+  "references": [{ "path": "../compiler/tsconfig.json" }],
   "compilerOptions": {
     "incremental": false,
     "composite": false,
@@ -12,8 +8,6 @@
     "moduleResolution": "NodeNext",
     "sourceMap": false,
     "resolveJsonModule": true,
-    "outDir": "dist",
-    "rootDir": ".",
     "skipLibCheck": true,
     "verbatimModuleSyntax": true,
     "jsx": "react-jsx",
