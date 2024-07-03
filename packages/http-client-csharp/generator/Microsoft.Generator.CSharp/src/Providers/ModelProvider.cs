@@ -150,7 +150,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     return null;
                 }
 
-                // we cannot know which ctor to call, but in our implemenation, there should only be one
+                // we cannot know which ctor to call, but in our implementation, there should only be one
                 var ctor = baseModel.Constructors[0];
                 if (ctor.Signature is not ConstructorSignature ctorSignature)
                 {
