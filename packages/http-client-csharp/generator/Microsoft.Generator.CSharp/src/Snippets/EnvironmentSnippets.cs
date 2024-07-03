@@ -2,12 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Generator.CSharp.Expressions;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record EnvironmentSnippets(ValueExpression Expression) : TypedSnippet(typeof(Environment), Expression)
+    public static class EnvironmentSnippets
     {
         public static ScopedApi<string> NewLine() => Static(typeof(Environment)).Property(nameof(Environment.NewLine)).As<string>();
     }

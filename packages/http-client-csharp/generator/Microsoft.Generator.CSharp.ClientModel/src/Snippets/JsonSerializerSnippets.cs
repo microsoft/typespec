@@ -9,7 +9,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal sealed record JsonSerializerSnippets(ValueExpression Expression) : TypedSnippet(typeof(JsonSerializer), Expression)
+    internal static class JsonSerializerSnippets
     {
         public static InvokeInstanceMethodExpression Serialize(ValueExpression writer, ValueExpression value, ValueExpression? options = null)
         {

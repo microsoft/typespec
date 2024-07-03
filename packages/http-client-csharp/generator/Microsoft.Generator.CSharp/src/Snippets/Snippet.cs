@@ -60,9 +60,6 @@ namespace Microsoft.Generator.CSharp.Snippets
                 _ => expression
             };
 
-        public static TypedSnippet RemoveAllNullConditional(TypedSnippet snippet)
-            => snippet with { Expression = RemoveAllNullConditional(snippet.Expression) };
-
         public static ValueExpression Literal(object? value) => new LiteralExpression(value);
 
         public static ScopedApi<string> Literal(string? value) => new(value is null ? Null : new LiteralExpression(value));
@@ -82,7 +79,6 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static AssignmentExpression Assign(this ValueExpression to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
         public static AssignmentExpression Assign(this ParameterProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
         public static AssignmentExpression Assign(this FieldProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
-        public static AssignmentExpression Assign(this TypedSnippet to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
         public static AssignmentExpression Assign(this PropertyProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
 
         public static MethodBodyStatement InvokeConsoleWriteLine(ValueExpression expression)
