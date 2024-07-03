@@ -109,7 +109,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 timeSpanSignature,
                 new SwitchExpression(formatParameter,
                 [
-                    new(Literal("P"), new InvokeStaticMethodExpression(typeof(XmlConvert), nameof(XmlConvert.ToString), [timeSpanParameter])),
+                    new(Literal("P"), Static<XmlConvert>().Invoke(nameof(XmlConvert.ToString), [timeSpanParameter])),
                     SwitchCaseExpression.Default(timeSpanParameter.As<TimeSpan>().InvokeToString(formatParameter, _invariantCultureExpression))
                 ]),
                 this);
@@ -125,7 +125,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 new SwitchExpression(formatParameter,
                 [
                     new(Literal("U"), TypeFormattersSnippets.ToBase64UrlString(byteArrayValue.As<byte[]>())),
-                    new(Literal("D"), new InvokeStaticMethodExpression(typeof(Convert), nameof(Convert.ToBase64String), [byteArrayValue])),
+                    new(Literal("D"), Static(typeof(Convert)).Invoke(nameof(Convert.ToBase64String), [byteArrayValue])),
                     SwitchCaseExpression.Default(ThrowExpression(New.ArgumentException(formatParameter, new FormattableStringExpression("Format is not supported: '{0}'", [formatParameter]))))
                 ]),
                 this);

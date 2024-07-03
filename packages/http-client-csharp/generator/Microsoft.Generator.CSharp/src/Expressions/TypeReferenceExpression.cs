@@ -11,12 +11,16 @@ namespace Microsoft.Generator.CSharp.Expressions
     public sealed record TypeReferenceExpression : ValueExpression
     {
         private static readonly Dictionary<Type, TypeProvider> _cache = new Dictionary<Type, TypeProvider>();
+        private static readonly TypeReferenceExpression _nullType = new((CSharpType?)null);
 
-        public CSharpType Type { get; }
+        public CSharpType? Type { get; }
 
         private static readonly Dictionary<CSharpType, TypeReferenceExpression> _typeCache = new Dictionary<CSharpType, TypeReferenceExpression>();
-        internal static TypeReferenceExpression FromType(CSharpType type)
+        internal static TypeReferenceExpression FromType(CSharpType? type)
         {
+            if (type is null)
+                return _nullType;
+
             if (!_typeCache.TryGetValue(type, out var result))
             {
                 result = new TypeReferenceExpression(type);
@@ -25,9 +29,13 @@ namespace Microsoft.Generator.CSharp.Expressions
             return result;
         }
 
-        private TypeReferenceExpression(CSharpType type)
+        private TypeReferenceExpression(CSharpType? type)
         {
-            if (!type.IsFrameworkType && type.Implementation is TypeProvider typeProvider)
+            if (type is null)
+            {
+                Type = type;
+            }
+            else if (!type.IsFrameworkType && type.Implementation is TypeProvider typeProvider)
             {
                 Type = typeProvider.Type;
             }
@@ -51,7 +59,7 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         internal override void Write(CodeWriter writer)
         {
-            writer.Append($"{Type}");
+            writer.AppendIf($"{Type}", Type is not null);
         }
     }
 }

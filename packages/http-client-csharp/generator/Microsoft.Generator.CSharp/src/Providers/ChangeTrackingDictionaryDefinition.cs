@@ -174,7 +174,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return new PropertyProvider(null, MethodSignatureModifiers.Public, new CSharpType(typeof(ICollection<>), _tValue), "Values",
                 new ExpressionPropertyBody(new TernaryConditionalExpression(
                     IsUndefined,
-                    new InvokeStaticMethodExpression(typeof(Array), "Empty", Array.Empty<ValueExpression>(), new[] { _tValue }),
+                    Static(typeof(Array)).Invoke("Empty", [], [_tValue], false),
                     new MemberExpression(EnsureDictionary, "Values"))));
         }
 
@@ -183,7 +183,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return new PropertyProvider(null, MethodSignatureModifiers.Public, new CSharpType(typeof(ICollection<>), _tKey), "Keys",
                 new ExpressionPropertyBody(new TernaryConditionalExpression(
                     IsUndefined,
-                    new InvokeStaticMethodExpression(typeof(Array), "Empty", Array.Empty<ValueExpression>(), new[] { _tKey }),
+                    Static(typeof(Array)).Invoke("Empty", [], [_tKey], false),
                     new MemberExpression(EnsureDictionary, "Keys"))));
         }
 
@@ -384,7 +384,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 new IfStatement(IsUndefined)
                 {
                     new DeclareLocalFunctionStatement(new CodeWriterDeclaration("enumerateEmpty"), Array.Empty<ParameterProvider>(), _IEnumerator, new KeywordExpression("yield", new KeywordExpression("break", null)).Terminate()),
-                    Return(new InvokeStaticMethodExpression(null, "enumerateEmpty", Array.Empty<ValueExpression>()))
+                    Return(Static().Invoke("enumerateEmpty", Array.Empty<ValueExpression>()))
                 },
                 Return(EnsureDictionary.Invoke("GetEnumerator"))
             },

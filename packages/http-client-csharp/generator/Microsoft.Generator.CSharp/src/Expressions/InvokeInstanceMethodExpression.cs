@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
@@ -24,7 +25,7 @@ namespace Microsoft.Generator.CSharp.Expressions
                 writer.UseNamespace(ExtensionType.Namespace);
 
             writer.AppendRawIf("await ", CallAsAsync);
-            if (InstanceReference != null)
+            if (InstanceReference != null && !ReferenceEquals(InstanceReference, Static()))
             {
                 InstanceReference.Write(writer);
                 writer.AppendRaw(".");

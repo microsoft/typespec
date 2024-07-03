@@ -22,6 +22,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         //overload needed since static types cannot be usd as type arguments
         public static ValueExpression Static(Type type) => TypeReferenceExpression.FromType(type);
         public static ValueExpression Static(CSharpType type) => TypeReferenceExpression.FromType(type);
+        public static ValueExpression Static() => TypeReferenceExpression.FromType(null);
 
         public static ValueExpression Identifier(string name) => new MemberExpression(null, name);
         public static MethodBodyStatement AsStatement(this IEnumerable<MethodBodyStatement> statements) => statements.ToArray();
@@ -83,7 +84,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static AssignmentExpression Assign(this PropertyProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
 
         public static MethodBodyStatement InvokeConsoleWriteLine(ValueExpression expression)
-            => new InvokeStaticMethodExpression(typeof(Console), nameof(Console.WriteLine), expression).Terminate();
+            => Static(typeof(Console)).Invoke(nameof(Console.WriteLine), expression).Terminate();
 
         // TO-DO: Migrate code from autorest as part of output classes migration : https://github.com/Azure/autorest.csharp/issues/4198
         public static InvokeInstanceMethodExpression Invoke(this ParameterProvider parameter, string methodName, ValueExpression arg)

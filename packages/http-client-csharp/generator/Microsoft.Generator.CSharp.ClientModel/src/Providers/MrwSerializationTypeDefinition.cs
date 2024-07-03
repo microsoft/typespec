@@ -554,7 +554,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             var switchCase = new SwitchCaseStatement(
                 ModelReaderWriterOptionsSnippets.JsonFormat,
-                Return(new InvokeStaticMethodExpression(typeof(ModelReaderWriter), nameof(ModelReaderWriter.Write), [This, _mrwOptionsParameterSnippet])));
+                Return(Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Write), [This, _mrwOptionsParameterSnippet])));
             var typeOfT = _persistableModelTInterface.Arguments[0];
             var defaultCase = SwitchCaseStatement.Default(
                 ThrowValidationFailException(_mrwOptionsParameterSnippet.Format(), typeOfT, WriteAction));
@@ -852,7 +852,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 { Implementation: EnumProvider enumProvider } =>
                     enumProvider.ToEnum(GetValueTypeDeserializationExpression(enumProvider.ValueType.FrameworkType, jsonElement, serializationFormat)),
                 { Implementation: ModelProvider modelProvider } =>
-                    new InvokeStaticMethodExpression(modelProvider.Type, $"Deserialize{modelProvider.Name}", [jsonElement, _mrwOptionsParameterSnippet]),
+                    Static(modelProvider.Type).Invoke($"Deserialize{modelProvider.Name}", [jsonElement, _mrwOptionsParameterSnippet]),
                 _ => throw new InvalidOperationException($"Unable to deserialize type {valueType}")
             };
 
@@ -1223,7 +1223,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Type t when t == typeof(Uri) =>
                     New.Instance(valueType, element.GetString()),
                 Type t when t == typeof(IPAddress) =>
-                    new InvokeStaticMethodExpression(typeof(IPAddress), nameof(IPAddress.Parse), element.GetString()),
+                    Static<IPAddress>().Invoke(nameof(IPAddress.Parse), element.GetString()),
                 Type t when t == typeof(BinaryData) =>
                     format is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
                         ? BinaryDataSnippets.FromBytes(element.GetBytesFromBase64(format.ToFormatSpecifier()))

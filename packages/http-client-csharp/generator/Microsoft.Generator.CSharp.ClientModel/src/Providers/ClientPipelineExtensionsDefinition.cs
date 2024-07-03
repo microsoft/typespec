@@ -168,7 +168,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 MethodBodyStatement.EmptyLine,
                 new IfStatement(_message.Response().IsError().And(new BinaryOperatorExpression("&", _options.Property("ErrorOptions", true), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
                 {
-                    Throw(new InvokeStaticMethodExpression(typeof(ClientResultException), nameof(ClientResultException.CreateAsync), [_message.Response()], CallAsAsync: true))
+                    Throw(Static<ClientResultException>().Invoke(nameof(ClientResultException.CreateAsync), [_message.Response()], true))
                 },
                 MethodBodyStatement.EmptyLine,
                 Declare("response", typeof(PipelineResponse), new TernaryConditionalExpression(_message.BufferResponse(), _message.Response(), _message.ExtractResponse()), out var response),

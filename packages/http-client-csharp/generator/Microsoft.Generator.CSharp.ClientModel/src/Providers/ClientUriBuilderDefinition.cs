@@ -134,7 +134,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 MethodBodyStatement.Empty,
                 new IfStatement(escapeParameter)
                 {
-                    valueParameter.Assign(new InvokeStaticMethodExpression(typeof(Uri), nameof(Uri.EscapeDataString), [valueParameter])).Terminate()
+                    valueParameter.Assign(Static<Uri>().Invoke(nameof(Uri.EscapeDataString), [valueParameter])).Terminate()
                 },
                 MethodBodyStatement.Empty,
                 new IfStatement(pathBuilder.Length().GreaterThan(Int(0)).And(pathBuilder.Index(pathBuilder.Length().Minus(Int(1))).Equal(Literal('/'))).And(valueParameter.As<string>().Index(Int(0)).Equal(Literal('/'))))
@@ -208,7 +208,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 MethodBodyStatement.Empty,
                 new IfStatement(escapeParameter)
                 {
-                    valueParameter.Assign(new InvokeStaticMethodExpression(typeof(Uri), nameof(Uri.EscapeDataString), [valueParameter])).Terminate()
+                    valueParameter.Assign(Static<Uri>().Invoke(nameof(Uri.EscapeDataString), [valueParameter])).Terminate()
                 },
                 MethodBodyStatement.Empty,
                 queryBuilder.Append(nameParameter).Terminate(),
