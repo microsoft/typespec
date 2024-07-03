@@ -218,3 +218,16 @@ it(
     Token.string(`  """`),
   ])
 );
+
+it(
+  `const a = #{name: "abc"};`,
+  tokenizeTo([
+    Token.keyword("const"),
+    Token.identifier("a"),
+    Token.default("= #{"),
+    Token.identifier("name"),
+    Token.default(":"),
+    Token.stringQuoted("abc"),
+    Token.default("};"),
+  ])
+);

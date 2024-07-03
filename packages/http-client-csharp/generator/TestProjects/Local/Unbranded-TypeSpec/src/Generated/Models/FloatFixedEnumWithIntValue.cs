@@ -4,10 +4,14 @@
 
 namespace UnbrandedTypeSpec.Models
 {
+    /// <summary> float fixed enum. </summary>
     public enum FloatFixedEnumWithIntValue
     {
+        /// <summary> One. </summary>
         One = 1,
+        /// <summary> Two. </summary>
         Two = 2,
+        /// <summary> Four. </summary>
         Four = 4
     }
 }

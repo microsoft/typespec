@@ -301,12 +301,14 @@ function createOAPIEmitter(
       service.type,
       options.omitUnreachableTypes
     );
-    schemaEmitter = context.getAssetEmitter(
+    schemaEmitter = createAssetEmitter(
+      program,
       class extends OpenAPI3SchemaEmitter {
         constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>) {
           super(emitter, metadataInfo, visibilityUsage, options);
         }
-      } as any
+      } as any,
+      context
     );
 
     const securitySchemes = getOpenAPISecuritySchemes(allHttpAuthentications);
@@ -1814,6 +1816,14 @@ function createOAPIEmitter(
   }
 
   function getOpenAPI3Scheme(auth: HttpAuth): OpenAPI3SecurityScheme | undefined {
+    const scheme = getOpenAPI3SchemeInternal(auth);
+
+    if (scheme) {
+      attachExtensions(program, auth.model, scheme);
+    }
+    return scheme;
+  }
+  function getOpenAPI3SchemeInternal(auth: HttpAuth): OpenAPI3SecurityScheme | undefined {
     switch (auth.type) {
       case "http":
         return { type: "http", scheme: auth.scheme, description: auth.description };

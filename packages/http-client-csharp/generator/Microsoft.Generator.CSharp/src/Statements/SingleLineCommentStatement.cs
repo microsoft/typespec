@@ -5,8 +5,15 @@ using System;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record SingleLineCommentStatement(FormattableString Message) : MethodBodyStatement
+    public sealed class SingleLineCommentStatement : MethodBodyStatement
     {
+        public FormattableString Message { get; }
+
+        public SingleLineCommentStatement(FormattableString message)
+        {
+            Message = message;
+        }
+
         public SingleLineCommentStatement(string message) : this(FormattableStringHelpers.FromString(message))
         { }
     }

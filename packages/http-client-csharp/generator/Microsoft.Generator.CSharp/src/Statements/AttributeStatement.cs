@@ -4,11 +4,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record AttributeStatement(CSharpType Type, IReadOnlyList<ValueExpression> Arguments) : MethodBodyStatement
+    public sealed class AttributeStatement : MethodBodyStatement
     {
+        public CSharpType Type { get; }
+        public IReadOnlyList<ValueExpression> Arguments { get; }
+
+        public AttributeStatement(CSharpType type, IReadOnlyList<ValueExpression> arguments)
+        {
+            Type = type;
+            Arguments = arguments;
+        }
+
         public AttributeStatement(CSharpType type, params ValueExpression[] arguments) : this(type, (IReadOnlyList<ValueExpression>)arguments) { }
 
         internal override void Write(CodeWriter writer)

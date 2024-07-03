@@ -10,20 +10,20 @@ namespace Microsoft.Generator.CSharp.Input.Tests
         [Test]
         public void TestCustomKind()
         {
-            var customKind = new OperationKinds("CustomKind");
+            var customKind = new InputOperationKinds("CustomKind");
             Assert.IsTrue("CustomKind" == customKind);
         }
 
         [Test]
         public void TestEquals()
         {
-            Assert.IsTrue("Default" == OperationKinds.Default);
-            Assert.IsTrue("LongRunning" == OperationKinds.LongRunning);
-            Assert.IsTrue("Paging" == OperationKinds.Paging);
+            Assert.IsTrue("Default" == InputOperationKinds.Default);
+            Assert.IsTrue("LongRunning" == InputOperationKinds.LongRunning);
+            Assert.IsTrue("Paging" == InputOperationKinds.Paging);
 
-            Assert.IsFalse(OperationKinds.Default == OperationKinds.LongRunning);
-            Assert.IsFalse(OperationKinds.LongRunning == OperationKinds.Paging);
-            Assert.IsFalse(OperationKinds.Paging == OperationKinds.Default);
+            Assert.IsFalse(InputOperationKinds.Default == InputOperationKinds.LongRunning);
+            Assert.IsFalse(InputOperationKinds.LongRunning == InputOperationKinds.Paging);
+            Assert.IsFalse(InputOperationKinds.Paging == InputOperationKinds.Default);
         }
 
     }
