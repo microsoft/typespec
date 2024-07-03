@@ -104,7 +104,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     }),
                     new SwitchCaseStatement(Array.Empty<ValueExpression>(), new MethodBodyStatement[]
                     {
-                        Return(new NewInstanceExpression(ErrorResultSnippet.ErrorResultType.MakeGenericType([typeof(bool)]), [response, new NewInstanceExpression(typeof(ClientResultException), [response])]))
+                        Return(new NewInstanceExpression(ErrorResultSnippets.ErrorResultType.MakeGenericType([typeof(bool)]), [response, new NewInstanceExpression(typeof(ClientResultException), [response])]))
                     })
                 }),
             };
