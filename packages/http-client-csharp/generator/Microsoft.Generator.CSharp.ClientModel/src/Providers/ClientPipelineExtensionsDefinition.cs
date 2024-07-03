@@ -16,11 +16,11 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
-    internal class ClientPipelineExtensionsProvider : TypeProvider
+    internal class ClientPipelineExtensionsDefinition : TypeProvider
     {
-        private static readonly Lazy<ClientPipelineExtensionsProvider> _instance = new(() => new ClientPipelineExtensionsProvider());
+        private static readonly Lazy<ClientPipelineExtensionsDefinition> _instance = new(() => new ClientPipelineExtensionsDefinition());
 
-        public static ClientPipelineExtensionsProvider Instance => _instance.Value;
+        public static ClientPipelineExtensionsDefinition Instance => _instance.Value;
 
         private const string _processMessageAsync = "ProcessMessageAsync";
         private const string _processMessage = "ProcessMessage";
@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private PipelineMessageSnippet _message;
         private RequestOptionsSnippet _options;
 
-        public ClientPipelineExtensionsProvider()
+        public ClientPipelineExtensionsDefinition()
         {
             _pipelineParam = new ParameterProvider("pipeline", FormattableStringHelpers.Empty, typeof(ClientPipeline));
             _messageParam = new ParameterProvider("message", FormattableStringHelpers.Empty, typeof(PipelineMessage));

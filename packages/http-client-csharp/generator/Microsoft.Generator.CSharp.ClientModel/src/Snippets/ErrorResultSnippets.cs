@@ -8,7 +8,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
     internal static class ErrorResultSnippets
     {
-        private static readonly ErrorResultProvider _errorResultProvider = new();
+        private static readonly ErrorResultDefinition _errorResultProvider = new();
 
         public static CSharpType ErrorResultType => _errorResultProvider.Type;
     }

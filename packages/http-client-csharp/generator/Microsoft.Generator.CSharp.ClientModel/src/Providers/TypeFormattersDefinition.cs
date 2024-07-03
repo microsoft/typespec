@@ -17,7 +17,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
-    internal sealed class TypeFormattersProvider : TypeProvider
+    internal sealed class TypeFormattersDefinition : TypeProvider
     {
         private readonly ValueExpression _invariantCultureExpression = new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture));
         private const string ToStringMethodName = "ToString";
@@ -27,7 +27,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private const string ParseTimeSpanMethodName = "ParseTimeSpan";
         private const string ConvertToStringMethodName = "ConvertToString";
 
-        internal TypeFormattersProvider()
+        internal TypeFormattersDefinition()
         {
         }
 

@@ -15,7 +15,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
-    internal sealed class ClientUriBuilderProvider : TypeProvider
+    internal sealed class ClientUriBuilderDefinition : TypeProvider
     {
         protected override TypeSignatureModifiers GetDeclarationModifiers()
         {

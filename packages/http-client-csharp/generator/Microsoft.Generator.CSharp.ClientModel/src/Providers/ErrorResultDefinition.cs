@@ -13,7 +13,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
-    internal class ErrorResultProvider : TypeProvider
+    internal class ErrorResultDefinition : TypeProvider
     {
         private class ErrorResultTemplate<T> { }
 
@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private VariableExpression _response;
         private VariableExpression _exception;
 
-        public ErrorResultProvider()
+        public ErrorResultDefinition()
         {
             _responseField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, typeof(PipelineResponse), "_response");
             _exceptionField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, typeof(ClientResultException), "_exception");

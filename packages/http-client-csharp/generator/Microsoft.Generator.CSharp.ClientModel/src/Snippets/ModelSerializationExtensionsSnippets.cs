@@ -24,7 +24,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         private const string GetTimeSpanMethodName = "GetTimeSpan";
         private const string WireOptionsName = "WireOptions";
 
-        public static readonly ScopedApi<ModelReaderWriterOptions> Wire = Static<ModelSerializationExtensionsProvider>().Property(WireOptionsName).As<ModelReaderWriterOptions>();
+        public static readonly ScopedApi<ModelReaderWriterOptions> Wire = Static<ModelSerializationExtensionsDefinition>().Property(WireOptionsName).As<ModelReaderWriterOptions>();
 
         public static MethodBodyStatement WriteObjectValue(Utf8JsonWriterSnippet snippet, ScopedApi value, ValueExpression? options = null)
         {
@@ -43,19 +43,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public static MethodBodyStatement WriteBase64StringValue(Utf8JsonWriterSnippet snippet, ValueExpression value, string? format)
             => snippet.Invoke(WriteBase64StringValueMethodName, [value, Literal(format)]).Terminate();
 
-        public static ValueExpression GetObject(this ScopedApi<ModelSerializationExtensionsProvider> provider, ScopedApi<JsonElement> element)
+        public static ValueExpression GetObject(this ScopedApi<ModelSerializationExtensionsDefinition> provider, ScopedApi<JsonElement> element)
             => provider.Invoke(GetObjectMethodName, [element]);
 
-        public static ValueExpression GetBytesFromBase64(this ScopedApi<ModelSerializationExtensionsProvider> provider, ScopedApi<JsonElement> element, string? format)
+        public static ValueExpression GetBytesFromBase64(this ScopedApi<ModelSerializationExtensionsDefinition> provider, ScopedApi<JsonElement> element, string? format)
             => provider.Invoke(GetBytesFromBase64MethodName, [element, Literal(format)]);
 
-        public static ValueExpression GetDateTimeOffset(this ScopedApi<ModelSerializationExtensionsProvider> provider, ScopedApi<JsonElement> element, string? format)
+        public static ValueExpression GetDateTimeOffset(this ScopedApi<ModelSerializationExtensionsDefinition> provider, ScopedApi<JsonElement> element, string? format)
             => provider.Invoke(GetDateTimeOffsetMethodName, [element, Literal(format)]);
 
-        public static ValueExpression GetTimeSpan(this ScopedApi<ModelSerializationExtensionsProvider> provider, ScopedApi<JsonElement> element, string? format)
+        public static ValueExpression GetTimeSpan(this ScopedApi<ModelSerializationExtensionsDefinition> provider, ScopedApi<JsonElement> element, string? format)
             => provider.Invoke(GetTimeSpanMethodName, [element, Literal(format)]);
 
-        public static ValueExpression GetChar(this ScopedApi<ModelSerializationExtensionsProvider> provider, ScopedApi<JsonElement> element)
+        public static ValueExpression GetChar(this ScopedApi<ModelSerializationExtensionsDefinition> provider, ScopedApi<JsonElement> element)
             => provider.Invoke(GetCharMethodName, [element]);
     }
 }

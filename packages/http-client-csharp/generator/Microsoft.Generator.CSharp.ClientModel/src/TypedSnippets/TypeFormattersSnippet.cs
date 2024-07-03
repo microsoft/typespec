@@ -8,7 +8,7 @@ using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal sealed record TypeFormattersSnippet(ValueExpression Expression) : TypedSnippet<TypeFormattersProvider>(Expression)
+    internal sealed record TypeFormattersSnippet(ValueExpression Expression) : TypedSnippet<TypeFormattersDefinition>(Expression)
     {
         private const string ToStringMethodName = "ToString";
         private const string ToBase64UrlStringMethodName = "ToBase64UrlString";
@@ -17,8 +17,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         private const string ParseTimeSpanMethodName = "ParseTimeSpan";
         private const string ConvertToStringMethodName = "ConvertToString";
 
-        private static TypeFormattersProvider? _provider;
-        private static TypeFormattersProvider Provider => _provider ??= new();
+        private static TypeFormattersDefinition? _provider;
+        private static TypeFormattersDefinition Provider => _provider ??= new();
 
         public static ScopedApi<string> ToString(ValueExpression value)
             => new(new InvokeStaticMethodExpression(Provider.Type, ToStringMethodName, [value]));

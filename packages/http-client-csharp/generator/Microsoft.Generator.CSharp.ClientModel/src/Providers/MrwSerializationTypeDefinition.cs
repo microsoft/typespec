@@ -24,7 +24,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     /// <summary>
     /// This class provides the set of serialization models, methods, and interfaces for a given model.
     /// </summary>
-    internal sealed class MrwSerializationTypeProvider : TypeProvider
+    internal sealed class MrwSerializationTypeDefinition : TypeProvider
     {
         private const string PrivateAdditionalPropertiesPropertyDescription = "Keeps track of any properties unknown to the library.";
         private const string PrivateAdditionalPropertiesPropertyName = "_serializedAdditionalRawData";
@@ -49,7 +49,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         // Flag to determine if the model should override the serialization methods
         private readonly bool _shouldOverrideMethods;
 
-        public MrwSerializationTypeProvider(TypeProvider provider, InputModelType inputModel)
+        public MrwSerializationTypeDefinition(TypeProvider provider, InputModelType inputModel)
         {
             _model = provider;
             _inputModel = inputModel;
