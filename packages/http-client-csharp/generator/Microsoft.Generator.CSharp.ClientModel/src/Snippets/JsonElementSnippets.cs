@@ -50,19 +50,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             => jsonElement.Invoke(nameof(JsonElement.WriteTo), [writer], false).Terminate();
 
         public static ValueExpression GetBytesFromBase64(this ScopedApi<JsonElement> jsonElement, string? format)
-            => jsonElement.GetBytesFromBase64(format);
+            => jsonElement.Invoke(nameof(JsonElement.GetBytesFromBase64), format is null ? [] : [Literal(format)]);
 
         public static ValueExpression GetObject(this ScopedApi<JsonElement> jsonElement)
-            => jsonElement.GetObject();
+            => jsonElement.Invoke("GetObject");
 
         public static ValueExpression GetChar(this ScopedApi<JsonElement> jsonElement)
-            => jsonElement.GetChar();
+            => jsonElement.Invoke("GetChar");
 
         public static ValueExpression GetDateTimeOffset(this ScopedApi<JsonElement> jsonElement, string? format)
-            => jsonElement.GetDateTimeOffset(format);
+            => jsonElement.Invoke(nameof(JsonElement.GetDateTimeOffset), format is null ? [] : [Literal(format)]);
 
         public static ValueExpression GetTimeSpan(this ScopedApi<JsonElement> jsonElement, string? format)
-            => jsonElement.GetTimeSpan(format);
+            => jsonElement.Invoke("GetTimeSpan", format is null ? [] : [Literal(format)]);
 
         public static ScopedApi<string> GetRequiredString(this ScopedApi<JsonElement> element)
             => element.Invoke(GetRequiredStringMethodName).As<string>();

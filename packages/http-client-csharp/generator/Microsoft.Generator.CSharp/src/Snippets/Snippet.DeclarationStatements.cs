@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
@@ -35,10 +34,10 @@ namespace Microsoft.Generator.CSharp.Snippets
             return new DeclarationExpression(variableExpression).Assign(value).Terminate();
         }
 
-        public static MethodBodyStatement Declare(string name, ScopedApi value, out VariableExpression variable)
+        public static MethodBodyStatement Declare(string name, ScopedApi value, out ScopedApi variable)
         {
             var declaration = new VariableExpression(value.Type, name);
-            variable = declaration;
+            variable = declaration.As(value.Type);
             return Declare(declaration, value);
         }
 

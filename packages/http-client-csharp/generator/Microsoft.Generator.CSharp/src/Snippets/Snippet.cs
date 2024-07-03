@@ -21,6 +21,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ValueExpression Static<T>() => TypeReferenceExpression.FromType(typeof(T));
         //overload needed since static types cannot be usd as type arguments
         public static ValueExpression Static(Type type) => TypeReferenceExpression.FromType(type);
+        public static ValueExpression Static(CSharpType type) => TypeReferenceExpression.FromType(type);
 
         public static ValueExpression Identifier(string name) => new MemberExpression(null, name);
         public static MethodBodyStatement AsStatement(this IEnumerable<MethodBodyStatement> statements) => statements.ToArray();
