@@ -1816,6 +1816,14 @@ function createOAPIEmitter(
   }
 
   function getOpenAPI3Scheme(auth: HttpAuth): OpenAPI3SecurityScheme | undefined {
+    const scheme = getOpenAPI3SchemeInternal(auth);
+
+    if (scheme) {
+      attachExtensions(program, auth.model, scheme);
+    }
+    return scheme;
+  }
+  function getOpenAPI3SchemeInternal(auth: HttpAuth): OpenAPI3SecurityScheme | undefined {
     switch (auth.type) {
       case "http":
         return { type: "http", scheme: auth.scheme, description: auth.description };
