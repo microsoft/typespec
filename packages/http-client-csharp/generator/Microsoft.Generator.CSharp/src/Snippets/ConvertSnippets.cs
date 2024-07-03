@@ -9,10 +9,10 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public static class ConvertSnippets
     {
-        public static InvokeInstanceMethodExpression InvokeToDouble(ValueExpression arg)
+        public static InvokeMethodExpression InvokeToDouble(ValueExpression arg)
             => Static(typeof(Convert)).Invoke(nameof(Convert.ToDouble), arg);
 
-        public static InvokeInstanceMethodExpression InvokeToInt32(ValueExpression arg)
+        public static InvokeMethodExpression InvokeToInt32(ValueExpression arg)
             => Static(typeof(Convert)).Invoke(nameof(Convert.ToInt32), arg);
     }
 }

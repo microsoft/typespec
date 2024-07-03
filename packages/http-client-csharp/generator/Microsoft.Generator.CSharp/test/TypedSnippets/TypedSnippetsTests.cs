@@ -29,7 +29,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
         public void ConvertSnippet_InvokeToDouble()
         {
             var arg = Snippet.Literal("2.0");
-            InvokeInstanceMethodExpression result = ConvertSnippets.InvokeToDouble(arg);
+            InvokeMethodExpression result = ConvertSnippets.InvokeToDouble(arg);
 
             Assert.AreEqual(nameof(Convert.ToDouble), result.MethodName);
             using CodeWriter writer = new CodeWriter();
@@ -41,7 +41,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
         public void ConvertSnippet_InvokeToInt32()
         {
             var arg = Snippet.Literal("2");
-            InvokeInstanceMethodExpression result = ConvertSnippets.InvokeToInt32(arg);
+            InvokeMethodExpression result = ConvertSnippets.InvokeToInt32(arg);
 
             Assert.AreEqual(nameof(Convert.ToInt32), result.MethodName);
             using CodeWriter writer = new CodeWriter();

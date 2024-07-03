@@ -11,7 +11,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
     internal static class JsonSerializerSnippets
     {
-        public static InvokeInstanceMethodExpression Serialize(ValueExpression writer, ValueExpression value, ValueExpression? options = null)
+        public static InvokeMethodExpression Serialize(ValueExpression writer, ValueExpression value, ValueExpression? options = null)
         {
             var arguments = options is null
                 ? [writer, value]
@@ -19,7 +19,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             return Static(typeof(JsonSerializer)).Invoke(nameof(JsonSerializer.Serialize), arguments);
         }
 
-        public static InvokeInstanceMethodExpression Deserialize(ScopedApi<JsonElement> element, CSharpType serializationType, ValueExpression? options = null)
+        public static InvokeMethodExpression Deserialize(ScopedApi<JsonElement> element, CSharpType serializationType, ValueExpression? options = null)
         {
             ValueExpression[] arguments = options is null
                 ? [element.GetRawText()]

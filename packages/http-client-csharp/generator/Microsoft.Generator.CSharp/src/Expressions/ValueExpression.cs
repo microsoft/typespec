@@ -61,32 +61,32 @@ namespace Microsoft.Generator.CSharp.Expressions
         public ValueExpression Property(string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(this) : this, propertyName);
 
-        public InvokeInstanceMethodExpression Invoke(string methodName)
-            => new InvokeInstanceMethodExpression(this, methodName, [], null, false);
+        public InvokeMethodExpression Invoke(string methodName)
+            => new InvokeMethodExpression(this, methodName, [], null, false);
 
-        public InvokeInstanceMethodExpression Invoke(string methodName, ValueExpression arg)
-            => new InvokeInstanceMethodExpression(this, methodName, [arg], null, false);
+        public InvokeMethodExpression Invoke(string methodName, ValueExpression arg)
+            => new InvokeMethodExpression(this, methodName, [arg], null, false);
 
-        public InvokeInstanceMethodExpression Invoke(string methodName, ValueExpression arg1, ValueExpression arg2)
-            => new InvokeInstanceMethodExpression(this, methodName, [arg1, arg2], null, false);
+        public InvokeMethodExpression Invoke(string methodName, ValueExpression arg1, ValueExpression arg2)
+            => new InvokeMethodExpression(this, methodName, [arg1, arg2], null, false);
 
-        public InvokeInstanceMethodExpression Invoke(string methodName, IReadOnlyList<ValueExpression> arguments)
-            => new InvokeInstanceMethodExpression(this, methodName, arguments, null, false);
+        public InvokeMethodExpression Invoke(string methodName, IReadOnlyList<ValueExpression> arguments)
+            => new InvokeMethodExpression(this, methodName, arguments, null, false);
 
-        public InvokeInstanceMethodExpression Invoke(MethodSignature method)
-            => new InvokeInstanceMethodExpression(this, method.Name, [.. method.Parameters], null, method.Modifiers.HasFlag(MethodSignatureModifiers.Async));
+        public InvokeMethodExpression Invoke(MethodSignature method)
+            => new InvokeMethodExpression(this, method.Name, [.. method.Parameters], null, method.Modifiers.HasFlag(MethodSignatureModifiers.Async));
 
-        public InvokeInstanceMethodExpression Invoke(MethodSignature method, IReadOnlyList<ValueExpression> arguments, bool addConfigureAwaitFalse = true)
-            => new InvokeInstanceMethodExpression(this, method.Name, arguments, null, method.Modifiers.HasFlag(MethodSignatureModifiers.Async), AddConfigureAwaitFalse: addConfigureAwaitFalse);
+        public InvokeMethodExpression Invoke(MethodSignature method, IReadOnlyList<ValueExpression> arguments, bool addConfigureAwaitFalse = true)
+            => new InvokeMethodExpression(this, method.Name, arguments, null, method.Modifiers.HasFlag(MethodSignatureModifiers.Async), AddConfigureAwaitFalse: addConfigureAwaitFalse);
 
-        public InvokeInstanceMethodExpression Invoke(string methodName, bool async)
-            => new InvokeInstanceMethodExpression(this, methodName, [], null, async);
+        public InvokeMethodExpression Invoke(string methodName, bool async)
+            => new InvokeMethodExpression(this, methodName, [], null, async);
 
-        public InvokeInstanceMethodExpression Invoke(string methodName, IReadOnlyList<ValueExpression> arguments, bool async)
-            => new InvokeInstanceMethodExpression(this, methodName, arguments, null, async);
+        public InvokeMethodExpression Invoke(string methodName, IReadOnlyList<ValueExpression> arguments, bool async)
+            => new InvokeMethodExpression(this, methodName, arguments, null, async);
 
-        public InvokeInstanceMethodExpression Invoke(string methodName, IReadOnlyList<ValueExpression> arguments, IReadOnlyList<CSharpType>? typeArguments, bool callAsAsync, bool addConfigureAwaitFalse = true, CSharpType? extensionType = null)
-            => new InvokeInstanceMethodExpression(this, methodName, arguments, typeArguments, callAsAsync, addConfigureAwaitFalse, extensionType);
+        public InvokeMethodExpression Invoke(string methodName, IReadOnlyList<ValueExpression> arguments, IReadOnlyList<CSharpType>? typeArguments, bool callAsAsync, bool addConfigureAwaitFalse = true, CSharpType? extensionType = null)
+            => new InvokeMethodExpression(this, methodName, arguments, typeArguments, callAsAsync, addConfigureAwaitFalse, extensionType);
 
         public CastExpression CastTo(CSharpType to) => new CastExpression(this, to);
 

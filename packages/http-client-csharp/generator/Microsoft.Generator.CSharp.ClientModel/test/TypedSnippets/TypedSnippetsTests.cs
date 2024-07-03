@@ -55,7 +55,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var writerParam = new ParameterProvider("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
             var writer = writerParam.As<Utf8JsonWriter>();
             var jsonDocVar = new VariableExpression(typeof(JsonDocument), "jsonDocument").As<JsonDocument>();
-            InvokeInstanceMethodExpression result = JsonSerializerSnippets.Serialize(writer, jsonDocVar.RootElement());
+            InvokeMethodExpression result = JsonSerializerSnippets.Serialize(writer, jsonDocVar.RootElement());
 
             Assert.AreEqual(nameof(JsonSerializer.Serialize), result.MethodName);
 
@@ -68,7 +68,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var reader = readerParam.As<Utf8JsonWriter>();
             var jsonDocVar = new VariableExpression(typeof(JsonDocument), "jsonDocument");
             var element = ScmKnownParameters.JsonElement.As<JsonElement>();
-            InvokeInstanceMethodExpression result = JsonSerializerSnippets.Deserialize(element, typeof(object));
+            InvokeMethodExpression result = JsonSerializerSnippets.Deserialize(element, typeof(object));
 
             Assert.AreEqual(nameof(JsonSerializer.Deserialize), result.MethodName);
 
@@ -89,7 +89,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             result = options != null ? BinaryContentSnippets.Create(arg, options) : BinaryContentSnippets.Create(arg);
 
             Assert.IsNotNull(result);
-            var untyped = result.Original as InvokeInstanceMethodExpression;
+            var untyped = result.Original as InvokeMethodExpression;
             Assert.IsNotNull(untyped);
             Assert.AreEqual(nameof(BinaryContent.Create), untyped?.MethodName);
 
@@ -113,7 +113,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var result = OptionalSnippets.IsCollectionDefined(member);
 
             Assert.IsNotNull(result);
-            var invoke = result.Original as InvokeInstanceMethodExpression;
+            var invoke = result.Original as InvokeMethodExpression;
             Assert.IsNotNull(invoke);
             Assert.AreEqual("IsCollectionDefined", invoke?.MethodName);
         }
@@ -126,7 +126,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var result = OptionalSnippets.IsDefined(member);
 
             Assert.IsNotNull(result);
-            var invoke = result.Original as InvokeInstanceMethodExpression;
+            var invoke = result.Original as InvokeMethodExpression;
             Assert.IsNotNull(invoke);
             Assert.AreEqual("IsDefined", invoke?.MethodName);
         }

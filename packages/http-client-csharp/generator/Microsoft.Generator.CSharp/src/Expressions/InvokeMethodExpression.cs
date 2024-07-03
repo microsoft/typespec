@@ -8,7 +8,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record InvokeInstanceMethodExpression(
+    public sealed record InvokeMethodExpression(
         ValueExpression? InstanceReference,
         string MethodName,
         IReadOnlyList<ValueExpression> Arguments,
@@ -17,7 +17,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         bool AddConfigureAwaitFalse = true,
         CSharpType? ExtensionType = null) : ValueExpression
     {
-        public InvokeInstanceMethodExpression(ValueExpression? instanceReference, string methodName, IReadOnlyList<ValueExpression> arguments) : this(instanceReference, methodName, arguments, null, false) { }
+        public InvokeMethodExpression(ValueExpression? instanceReference, string methodName, IReadOnlyList<ValueExpression> arguments) : this(instanceReference, methodName, arguments, null, false) { }
 
         internal override void Write(CodeWriter writer)
         {
