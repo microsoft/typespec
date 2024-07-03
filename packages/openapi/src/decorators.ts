@@ -68,7 +68,7 @@ export const $extension: ExtensionDecorator = (
   }
 
   if (entity.kind === "Namespace") {
-    setNamespaceExtension(context.program, entity, extensionName, data);
+    setExtension(context.program, entity, extensionName, data);
   } else {
     setExtension(context.program, entity, extensionName as ExtensionKey, data);
   }
@@ -77,27 +77,7 @@ export const $extension: ExtensionDecorator = (
 export function setExtension(
   program: Program,
   entity: Type,
-  extensionName: ExtensionKey,
-  data: unknown
-) {
-  const openApiExtensions = program.stateMap(openApiExtensionKey);
-  const typeExtensions = openApiExtensions.get(entity) ?? new Map<string, any>();
-  typeExtensions.set(extensionName, data);
-
-  openApiExtensions.set(entity, typeExtensions);
-}
-
-/**
- * sets an extension for a namespace.
- * @param program the global program
- * @param entity the namespace
- * @param extensionName the name of the extension
- * @param data the data to set
- */
-export function setNamespaceExtension(
-  program: Program,
-  entity: Namespace,
-  extensionName: string,
+  extensionName: ExtensionKey | string,
   data: unknown
 ) {
   const openApiExtensions = program.stateMap(openApiExtensionKey);
