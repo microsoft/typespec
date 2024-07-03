@@ -56,9 +56,19 @@ namespace UnbrandedTypeSpec.Models
             }
         }
 
-        BaseModelWithoutRequired IJsonModel<BaseModelWithoutRequired>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        BaseModelWithoutRequired IJsonModel<BaseModelWithoutRequired>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
+
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BaseModelWithoutRequired JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            throw new NotImplementedException("Not implemented");
+            string format = options.Format == "W" ? ((IPersistableModel<BaseModelWithoutRequired>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(BaseModelWithoutRequired)} does not support reading '{format}' format.");
+            }
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeBaseModelWithoutRequired(document.RootElement, options);
         }
 
         internal static BaseModelWithoutRequired DeserializeBaseModelWithoutRequired(JsonElement element, ModelReaderWriterOptions options)

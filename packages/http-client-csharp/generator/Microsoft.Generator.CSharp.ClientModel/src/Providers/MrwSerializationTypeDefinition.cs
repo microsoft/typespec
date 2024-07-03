@@ -58,7 +58,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private MethodProvider? _serializationConstructor;
         // Flag to determine if the model should override the serialization methods
         private readonly bool _shouldOverrideMethods;
-        private readonly MrwSerializationTypeProvider? _baseSerializationProvider;
+        private readonly MrwSerializationTypeDefinition? _baseSerializationProvider;
 
         public MrwSerializationTypeDefinition(TypeProvider provider, InputModelType inputModel)
         {
@@ -374,9 +374,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
 
-            var typeOfT = GetModelArgumentType(_jsonModelTInterface);
+            var typeOfT = GetModelArgumentType(_persistableModelTInterface);
             // return type of this method may not be T, because this could be an override method
-            var returnType = GetReturnType(_baseSerializationProvider) ?? typeOfT;
+            var returnType = GetOverriddenMethodReturnType(_baseSerializationProvider, PersistableModelCreateCoreMethodName) ?? typeOfT;
             // T PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
             return new MethodProvider
             (
@@ -384,20 +384,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 BuildPersistableModelCreateCoreMethodBody(),
                 this
             );
+        }
 
-            static CSharpType? GetReturnType(MrwSerializationTypeProvider? baseSerializationProvider)
+        private static CSharpType? GetOverriddenMethodReturnType(TypeProvider? baseProvider, string methodName)
+        {
+            // find the method with the same name on this provider, and return its return type if any
+            if (baseProvider == null)
             {
-                // find the method with the same name on this provider, and return its return type if any
-                if (baseSerializationProvider == null)
-                    return null;
-
-                var method = baseSerializationProvider.Methods.FirstOrDefault(m => m.Signature.Name == PersistableModelCreateCoreMethodName);
-
-                if (method == null)
-                    return null;
-
-                return ((MethodSignature)method.Signature).ReturnType;
+                return null;
             }
+
+            // find the method on the base provider type
+            // here we are only doing this by name, in the future, to be more precise, maybe we need to add a parameter list to find the override base method
+            var method = baseProvider.Methods.FirstOrDefault(m => m.Signature.Name == methodName);
+
+            if (method == null)
+            {
+                return null;
+            }
+
+            return ((MethodSignature)method.Signature).ReturnType;
         }
 
         /// <summary>
@@ -410,7 +416,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new MethodProvider
             (
                 new MethodSignature(nameof(IJsonModel<object>.Create), null, MethodSignatureModifiers.None, typeOfT, null, [_utf8JsonReaderParameter, _serializationOptionsParameter], ExplicitInterface: _jsonModelTInterface),
-                This.Invoke(JsonModelCreateCoreMethodName, [_utf8JsonReaderParameter, _serializationOptionsParameter]),
+                _shouldOverrideMethods
+                    ? This.Invoke(JsonModelCreateCoreMethodName, [_utf8JsonReaderParameter, _serializationOptionsParameter]).CastTo(typeOfT)
+                    : This.Invoke(JsonModelCreateCoreMethodName, [_utf8JsonReaderParameter, _serializationOptionsParameter]),
                 this
             );
         }
@@ -425,6 +433,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
+
+            var typeOfT = GetModelArgumentType(_jsonModelTInterface);
+            // return type of this method may not be T, because this could be an override method
+            var returnType = GetOverriddenMethodReturnType(_baseSerializationProvider, PersistableModelCreateCoreMethodName) ?? typeOfT;
+
             var methodBody = new MethodBodyStatement[]
             {
                 CreateValidateJsonFormat( _persistableModelTInterface, ReadAction),
@@ -437,7 +450,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // T JsonModelCreateCore(ref reader, ModelReaderWriterOptions options)
             return new MethodProvider
             (
-              new MethodSignature(JsonModelCreateCoreMethodName, null, modifiers, _model.Type, null, [_utf8JsonReaderParameter, _serializationOptionsParameter]),
+              new MethodSignature(JsonModelCreateCoreMethodName, null, modifiers, returnType, null, [_utf8JsonReaderParameter, _serializationOptionsParameter]),
               methodBody,
               this
             );
@@ -1001,7 +1014,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ? new IfElseStatement(arrayItemVar.ValueKindEqualsNull(), assignNull, deserializeValue)
                 : deserializeValue;
 
-        private static MrwSerializationTypeProvider? FindSerializationOnBase(TypeProvider model)
+        private static MrwSerializationTypeDefinition? FindSerializationOnBase(TypeProvider model)
         {
             if (model.Inherits is not { IsFrameworkType: false, Implementation: TypeProvider baseType })
             {
@@ -1014,7 +1027,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             // finds the first MrwSerializationTypeProvider in serialization providers
-            return baseType.SerializationProviders.FirstOrDefault(s => s is MrwSerializationTypeProvider) as MrwSerializationTypeProvider;
+            return baseType.SerializationProviders.OfType<MrwSerializationTypeDefinition>().FirstOrDefault();
         }
 
         /// <summary>
