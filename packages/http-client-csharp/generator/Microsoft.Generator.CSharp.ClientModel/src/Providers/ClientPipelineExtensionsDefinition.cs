@@ -18,10 +18,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     internal class ClientPipelineExtensionsDefinition : TypeProvider
     {
-        private static readonly Lazy<ClientPipelineExtensionsDefinition> _instance = new(() => new ClientPipelineExtensionsDefinition());
-
-        public static ClientPipelineExtensionsDefinition Instance => _instance.Value;
-
         private const string _processMessageAsync = "ProcessMessageAsync";
         private const string _processMessage = "ProcessMessage";
         private const string _processHeadAsBoolMessageAsync = "ProcessHeadAsBoolMessageAsync";

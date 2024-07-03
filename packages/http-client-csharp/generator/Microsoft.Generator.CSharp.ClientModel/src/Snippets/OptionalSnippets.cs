@@ -24,7 +24,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             return Static<OptionalDefinition>().Invoke(IsDefinedMethodName, [value]).As<bool>();
         }
 
-        public static ValueExpression FallBackToChangeTrackingCollection(ScopedApi collection, CSharpType? paramType)
+        public static ValueExpression FallBackToChangeTrackingCollection(VariableExpression collection, CSharpType? paramType)
         {
             if (!collection.Type.IsCollection || collection.Type.IsReadOnlyMemory)
             {

@@ -21,11 +21,6 @@ namespace UnbrandedTypeSpec
             _pipeline = ClientPipeline.Create();
         }
 
-        internal PipelineMessage CreateSayHiRequest(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] Return hi
         /// <list type="bullet">
@@ -100,11 +95,6 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
             return await SayHiAsync(headParameter, queryParameter, optionalQuery, null).ConfigureAwait(false);
-        }
-
-        internal PipelineMessage CreateHelloAgainRequest(string p1, string p2, BinaryContent content, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary>
@@ -187,11 +177,6 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
-        internal PipelineMessage CreateNoContentTypeRequest(string p1, string p2, BinaryContent content, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] Return hi again
         /// <list type="bullet">
@@ -272,11 +257,6 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
-        internal PipelineMessage CreateHelloDemo2Request(RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] Return hi in demo2
         /// <list type="bullet">
@@ -323,11 +303,6 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> HelloDemo2Async()
         {
             return await HelloDemo2Async(null).ConfigureAwait(false);
-        }
-
-        internal PipelineMessage CreateCreateLiteralRequest(BinaryContent content, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary>
@@ -390,11 +365,6 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
-        internal PipelineMessage CreateHelloLiteralRequest(RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] Send literal parameters
         /// <list type="bullet">
@@ -441,11 +411,6 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> HelloLiteralAsync()
         {
             return await HelloLiteralAsync(null).ConfigureAwait(false);
-        }
-
-        internal PipelineMessage CreateTopActionRequest(DateTimeOffset action, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary>
@@ -512,11 +477,6 @@ namespace UnbrandedTypeSpec
             return await TopActionAsync(action, null).ConfigureAwait(false);
         }
 
-        internal PipelineMessage CreateTopAction2Request(RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] top level method2
         /// <list type="bullet">
@@ -563,11 +523,6 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> TopAction2Async()
         {
             return await TopAction2Async(null).ConfigureAwait(false);
-        }
-
-        internal PipelineMessage CreatePatchActionRequest(BinaryContent content, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary>
@@ -630,11 +585,6 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
-        internal PipelineMessage CreateAnonymousBodyRequest(BinaryContent content, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] body parameter without body decorator
         /// <list type="bullet">
@@ -693,11 +643,6 @@ namespace UnbrandedTypeSpec
 
             ClientResult result = await AnonymousBodyAsync(Thing, null).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
-        }
-
-        internal PipelineMessage CreateFriendlyModelRequest(BinaryContent content, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary>
@@ -760,11 +705,6 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
 
-        internal PipelineMessage CreateAddTimeHeaderRequest(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] addTimeHeader
         /// <list type="bullet">
@@ -815,11 +755,6 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> AddTimeHeaderAsync(DateTimeOffset repeatabilityFirstSent)
         {
             return await AddTimeHeaderAsync(repeatabilityFirstSent, null).ConfigureAwait(false);
-        }
-
-        internal PipelineMessage CreateProjectedNameModelRequest(BinaryContent content, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary>
@@ -882,11 +817,6 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
         }
 
-        internal PipelineMessage CreateReturnsAnonymousModelRequest(RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] return anonymous model
         /// <list type="bullet">
@@ -935,11 +865,6 @@ namespace UnbrandedTypeSpec
             return await ReturnsAnonymousModelAsync(null).ConfigureAwait(false);
         }
 
-        internal PipelineMessage CreateGetUnknownValueRequest(RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] get extensible enum
         /// <list type="bullet">
@@ -986,11 +911,6 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> GetUnknownValueAsync()
         {
             return await GetUnknownValueAsync(null).ConfigureAwait(false);
-        }
-
-        internal PipelineMessage CreateInternalProtocolRequest(BinaryContent content, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary>
@@ -1053,11 +973,6 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
-        internal PipelineMessage CreateStillConvenientRequest(RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one
         /// <list type="bullet">
@@ -1104,11 +1019,6 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> StillConvenientAsync()
         {
             return await StillConvenientAsync(null).ConfigureAwait(false);
-        }
-
-        internal PipelineMessage CreateHeadAsBooleanRequest(string id, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary>

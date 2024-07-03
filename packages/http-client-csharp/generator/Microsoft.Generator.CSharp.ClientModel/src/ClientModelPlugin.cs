@@ -13,6 +13,8 @@ using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
+    [Export(typeof(CodeModelPlugin))]
+    [ExportMetadata("PluginName", nameof(ClientModelPlugin))]
     public class ClientModelPlugin : CodeModelPlugin
     {
         private static ClientModelPlugin? _instance;
