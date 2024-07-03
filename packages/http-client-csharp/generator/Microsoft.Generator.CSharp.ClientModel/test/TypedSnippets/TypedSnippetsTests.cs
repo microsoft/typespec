@@ -54,10 +54,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var writerParam = new ParameterProvider("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
             var writer = new Utf8JsonWriterSnippet(writerParam);
             var jsonDocVar = new VariableExpression(typeof(JsonDocument), "jsonDocument").As<JsonDocument>();
-            InvokeStaticMethodExpression result = JsonSerializerSnippet.Serialize(writer, jsonDocVar.RootElement());
+            InvokeInstanceMethodExpression result = JsonSerializerSnippets.Serialize(writer, jsonDocVar.RootElement());
 
-            Assert.IsNotNull(result.MethodType);
-            Assert.AreEqual(new CSharpType(typeof(JsonSerializer)), result.MethodType);
             Assert.AreEqual(nameof(JsonSerializer.Serialize), result.MethodName);
 
         }
@@ -69,10 +67,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var reader = new Utf8JsonWriterSnippet(readerParam);
             var jsonDocVar = new VariableExpression(typeof(JsonDocument), "jsonDocument");
             var element = ScmKnownParameters.JsonElement.As<JsonElement>();
-            InvokeStaticMethodExpression result = JsonSerializerSnippet.Deserialize(element, typeof(object));
+            InvokeInstanceMethodExpression result = JsonSerializerSnippets.Deserialize(element, typeof(object));
 
-            Assert.IsNotNull(result.MethodType);
-            Assert.AreEqual(new CSharpType(typeof(JsonSerializer)), result.MethodType);
             Assert.AreEqual(nameof(JsonSerializer.Deserialize), result.MethodName);
 
         }
