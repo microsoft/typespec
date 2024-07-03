@@ -356,13 +356,29 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             var typeOfT = GetModelArgumentType(_jsonModelTInterface);
+            // return type of this method may not be T, because this could be an override method
+            var returnType = GetReturnType(_baseSerializationProvider) ?? typeOfT;
             // T PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
             return new MethodProvider
             (
-              new MethodSignature(PersistableModelCreateCoreMethodName, null, modifiers, typeOfT, null, [_dataParameter, _serializationOptionsParameter]),
-              BuildPersistableModelCreateCoreMethodBody(),
-              this
+                new MethodSignature(PersistableModelCreateCoreMethodName, null, modifiers, returnType, null, [_dataParameter, _serializationOptionsParameter]),
+                BuildPersistableModelCreateCoreMethodBody(),
+                this
             );
+
+            static CSharpType? GetReturnType(MrwSerializationTypeProvider? baseSerializationProvider)
+            {
+                // find the method with the same name on this provider, and return its return type if any
+                if (baseSerializationProvider == null)
+                    return null;
+
+                var method = baseSerializationProvider.Methods.FirstOrDefault(m => m.Signature.Name == PersistableModelCreateCoreMethodName);
+
+                if (method == null)
+                    return null;
+
+                return ((MethodSignature)method.Signature).ReturnType;
+            }
         }
 
         /// <summary>
@@ -425,7 +441,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new MethodProvider
             (
                 new MethodSignature(nameof(IPersistableModel<object>.Create), null, MethodSignatureModifiers.None, typeOfT, null, [dataParameter, _serializationOptionsParameter], ExplicitInterface: _persistableModelTInterface),
-                This.Invoke(PersistableModelCreateCoreMethodName, [dataParameter, _serializationOptionsParameter]),
+                _shouldOverrideMethods
+                    ? This.Invoke(PersistableModelCreateCoreMethodName, [dataParameter, _serializationOptionsParameter]).CastTo(typeOfT)
+                    : This.Invoke(PersistableModelCreateCoreMethodName, [dataParameter, _serializationOptionsParameter]),
                 this
             );
         }

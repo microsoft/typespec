@@ -111,11 +111,11 @@ namespace UnbrandedTypeSpec.Models
             }
         }
 
-        ModelWithBaseModelWithoutRequired IPersistableModel<ModelWithBaseModelWithoutRequired>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+        ModelWithBaseModelWithoutRequired IPersistableModel<ModelWithBaseModelWithoutRequired>.Create(BinaryData data, ModelReaderWriterOptions options) => (ModelWithBaseModelWithoutRequired)PersistableModelCreateCore(data, options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected override ModelWithBaseModelWithoutRequired PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        protected override BaseModelWithoutRequired PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<ModelWithBaseModelWithoutRequired>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
