@@ -68,7 +68,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             MethodSignature signature = GetProcessHeadAsBoolMessageSignature(false);
             var responseVariable = new VariableExpression(typeof(PipelineResponse), "response");
-            var response = new PipelineResponseSnippet(responseVariable);
+            var response = responseVariable.As<PipelineResponse>();
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new DeclarationExpression(responseVariable, false).Assign(_pipeline.ProcessMessage(_message, _options, false)).Terminate(),
@@ -80,7 +80,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             MethodSignature signature = GetProcessHeadAsBoolMessageSignature(true);
             var responseVariable = new VariableExpression(typeof(PipelineResponse), "response");
-            var response = new PipelineResponseSnippet(responseVariable);
+            var response = responseVariable.As<PipelineResponse>();
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new DeclarationExpression(responseVariable, false).Assign(_pipeline.ProcessMessage(_message, _options, true)).Terminate(),
@@ -88,7 +88,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }, this);
         }
 
-        private MethodBodyStatement GetProcessHeadAsBoolMessageBody(PipelineResponseSnippet response)
+        private MethodBodyStatement GetProcessHeadAsBoolMessageBody(ScopedApi<PipelineResponse> response)
         {
             return new MethodBodyStatement[]
             {
@@ -135,7 +135,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 _pipeline.Invoke(nameof(ClientPipeline.Send), [_message]).Terminate(),
                 MethodBodyStatement.EmptyLine,
-                new IfStatement(_message.Response().IsError.And(new BinaryOperatorExpression("&", _options.Property("ErrorOptions", true), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
+                new IfStatement(_message.Response().IsError().And(new BinaryOperatorExpression("&", _options.Property("ErrorOptions", true), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
                 {
                     Throw(New.Instance(typeof(ClientResultException), _message.Response()))
                 },
@@ -170,7 +170,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 _pipeline.Invoke(nameof(ClientPipeline.SendAsync), [_message], true).Terminate(),
                 MethodBodyStatement.EmptyLine,
-                new IfStatement(_message.Response().IsError.And(new BinaryOperatorExpression("&", _options.Property("ErrorOptions", true), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
+                new IfStatement(_message.Response().IsError().And(new BinaryOperatorExpression("&", _options.Property("ErrorOptions", true), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
                 {
                     Throw(new InvokeStaticMethodExpression(typeof(ClientResultException), nameof(ClientResultException.CreateAsync), [_message.Response()], CallAsAsync: true))
                 },

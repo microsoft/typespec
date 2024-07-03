@@ -11,13 +11,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public static ScopedApi<PipelineRequest> Request(this ScopedApi<PipelineMessage> pipelineMessage)
             => pipelineMessage.Property(nameof(PipelineMessage.Request)).As<PipelineRequest>();
 
-        public static PipelineResponseSnippet Response(this ScopedApi<PipelineMessage> pipelineMessage)
-            => new(pipelineMessage.Property(nameof(PipelineMessage.Response)));
+        public static ScopedApi<PipelineResponse> Response(this ScopedApi<PipelineMessage> pipelineMessage)
+            => pipelineMessage.Property(nameof(PipelineMessage.Response)).As<PipelineResponse>();
 
         public static ScopedApi<bool> BufferResponse(this ScopedApi<PipelineMessage> pipelineMessage)
             => pipelineMessage.Property(nameof(PipelineMessage.BufferResponse)).As<bool>();
 
-        public static PipelineResponseSnippet ExtractResponse(this ScopedApi<PipelineMessage> pipelineMessage)
-            => new(pipelineMessage.Invoke(nameof(PipelineMessage.ExtractResponse), []));
+        public static ScopedApi<PipelineResponse> ExtractResponse(this ScopedApi<PipelineMessage> pipelineMessage)
+            => pipelineMessage.Invoke(nameof(PipelineMessage.ExtractResponse), []).As<PipelineResponse>();
     }
 }
