@@ -14,7 +14,7 @@ using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
-using static Microsoft.Generator.CSharp.ClientModel.Snippets.ModelSerializationExtensionsSnippet;
+using static Microsoft.Generator.CSharp.ClientModel.Snippets.ModelSerializationExtensionsSnippets;
 using static Microsoft.Generator.CSharp.ClientModel.Snippets.TypeFormattersSnippet;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -50,10 +50,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private const string _wireOptionsName = "WireOptions";
         private readonly FieldProvider _wireOptionsField;
-
-        private ScopedApi<ModelReaderWriterOptions>? _wireOptions;
-        public ScopedApi<ModelReaderWriterOptions> WireOptions => _wireOptions ??= Static<ModelSerializationExtensionsProvider>().Property(_wireOptionsName).As<ModelReaderWriterOptions>();
-
         public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         public override string Name => "ModelSerializationExtensions";
@@ -208,7 +204,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 },
                 MethodBodyStatement.EmptyLine,
                 Return(new SwitchExpression(_formatParameter,
-                    new SwitchCaseExpression(Literal("U"), FromBase64UrlString(GetRequiredString(element))),
+                    new SwitchCaseExpression(Literal("U"), FromBase64UrlString(element.GetRequiredString())),
                     new SwitchCaseExpression(Literal("D"), element.GetBytesFromBase64()),
                     SwitchCaseExpression.Default(ThrowExpression(New.ArgumentException(_formatParameter, new FormattableStringExpression("Format is not supported: '{0}'", [_formatParameter]))))
                     ))
@@ -410,7 +406,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             cases.Add(
                 BuildWriteObjectValueSwitchCase(new CSharpType(typeof(IJsonModel<>), _t), "jsonModel", jsonModel => new MethodBodyStatement[]
                 {
-                    jsonModel.Invoke(nameof(IJsonModel<object>.Write), writer, NullCoalescing(options, ModelSerializationExtensionsSnippet.Wire)).Terminate(),
+                    jsonModel.Invoke(nameof(IJsonModel<object>.Write), writer, NullCoalescing(options, ModelSerializationExtensionsSnippets.Wire)).Terminate(),
                     Break
                 }));
             cases.AddRange(new[]

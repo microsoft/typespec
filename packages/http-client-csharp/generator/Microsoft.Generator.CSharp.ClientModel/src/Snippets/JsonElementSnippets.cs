@@ -12,6 +12,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
     internal static class JsonElementSnippets
     {
+        private const string GetRequiredStringMethodName = "GetRequiredString";
+
         public static ScopedApi<JsonValueKind> ValueKind(this ScopedApi<JsonElement> jsonElement) => jsonElement.Property(nameof(JsonElement.ValueKind)).As<JsonValueKind>();
         public static ScopedApi<IEnumerable<JsonElement>> EnumerateArray(this ScopedApi<JsonElement> jsonElement) => jsonElement.Invoke(nameof(JsonElement.EnumerateArray)).As<IEnumerable<JsonElement>>();
         public static ScopedApi<IEnumerable<JsonProperty>> EnumerateObject(this ScopedApi<JsonElement> jsonElement) => jsonElement.Invoke(nameof(JsonElement.EnumerateObject)).As<IEnumerable<JsonProperty>>();
@@ -48,18 +50,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             => jsonElement.Invoke(nameof(JsonElement.WriteTo), [writer], false).Terminate();
 
         public static ValueExpression GetBytesFromBase64(this ScopedApi<JsonElement> jsonElement, string? format)
-            => ModelSerializationExtensionsSnippet.GetBytesFromBase64(jsonElement, format);
+            => jsonElement.GetBytesFromBase64(format);
 
         public static ValueExpression GetObject(this ScopedApi<JsonElement> jsonElement)
-            => ModelSerializationExtensionsSnippet.GetObject(jsonElement);
+            => jsonElement.GetObject();
 
         public static ValueExpression GetChar(this ScopedApi<JsonElement> jsonElement)
-            => ModelSerializationExtensionsSnippet.GetChar(jsonElement);
+            => jsonElement.GetChar();
+
         public static ValueExpression GetDateTimeOffset(this ScopedApi<JsonElement> jsonElement, string? format)
-            => ModelSerializationExtensionsSnippet.GetDateTimeOffset(jsonElement, format);
+            => jsonElement.GetDateTimeOffset(format);
 
         public static ValueExpression GetTimeSpan(this ScopedApi<JsonElement> jsonElement, string? format)
-            => ModelSerializationExtensionsSnippet.GetTimeSpan(jsonElement, format);
+            => jsonElement.GetTimeSpan(format);
+
+        public static ValueExpression GetRequiredString(this ScopedApi<JsonElement> element)
+            => element.Invoke(GetRequiredStringMethodName);
 
         public static ScopedApi<bool> TryGetProperty(this ScopedApi<JsonElement> jsonElement, string propertyName, out ScopedApi<JsonElement> discriminator)
         {

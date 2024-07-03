@@ -4,8 +4,8 @@
 using System.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
+using static Microsoft.Generator.CSharp.ClientModel.Snippets.ModelSerializationExtensionsSnippets;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
-using static Microsoft.Generator.CSharp.ClientModel.Snippets.ModelSerializationExtensionsSnippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {

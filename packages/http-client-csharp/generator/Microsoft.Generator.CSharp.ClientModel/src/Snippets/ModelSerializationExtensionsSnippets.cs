@@ -11,7 +11,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal sealed record ModelSerializationExtensionsSnippet(ValueExpression Expression) : TypedSnippet<ModelSerializationExtensionsProvider>(Expression)
+    internal static class ModelSerializationExtensionsSnippets
     {
         private const string WriteStringValueMethodName = "WriteStringValue";
         private const string WriteBase64StringValueMethodName = "WriteBase64StringValue";
@@ -22,13 +22,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         private const string GetBytesFromBase64MethodName = "GetBytesFromBase64";
         private const string GetDateTimeOffsetMethodName = "GetDateTimeOffset";
         private const string GetTimeSpanMethodName = "GetTimeSpan";
-        private const string ThrowNonNullablePropertyIsNullMethodName = "ThrowNonNullablePropertyIsNull";
-        private const string GetRequiredStringMethodName = "GetRequiredString";
+        private const string WireOptionsName = "WireOptions";
 
-        private static ModelSerializationExtensionsProvider? _provider;
-        private static ModelSerializationExtensionsProvider Provider => _provider ??= new();
-
-        public static readonly ScopedApi<ModelReaderWriterOptions> Wire = Provider.WireOptions;
+        public static readonly ScopedApi<ModelReaderWriterOptions> Wire = Static<ModelSerializationExtensionsProvider>().Property(WireOptionsName).As<ModelReaderWriterOptions>();
 
         public static MethodBodyStatement WriteObjectValue(Utf8JsonWriterSnippet snippet, ScopedApi value, ValueExpression? options = null)
         {
@@ -47,25 +43,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public static MethodBodyStatement WriteBase64StringValue(Utf8JsonWriterSnippet snippet, ValueExpression value, string? format)
             => snippet.Invoke(WriteBase64StringValueMethodName, [value, Literal(format)]).Terminate();
 
-        public static ValueExpression GetObject(ScopedApi<JsonElement> element)
-            => new InvokeStaticMethodExpression(Provider.Type, GetObjectMethodName, [element], CallAsExtension: true);
+        public static ValueExpression GetObject(this ScopedApi<ModelSerializationExtensionsProvider> provider, ScopedApi<JsonElement> element)
+            => provider.Invoke(GetObjectMethodName, [element]);
 
-        public static ValueExpression GetBytesFromBase64(ScopedApi<JsonElement> element, string? format)
-            => new InvokeStaticMethodExpression(Provider.Type, GetBytesFromBase64MethodName, [element, Literal(format)], CallAsExtension: true);
+        public static ValueExpression GetBytesFromBase64(this ScopedApi<ModelSerializationExtensionsProvider> provider, ScopedApi<JsonElement> element, string? format)
+            => provider.Invoke(GetBytesFromBase64MethodName, [element, Literal(format)]);
 
-        public static ValueExpression GetDateTimeOffset(ScopedApi<JsonElement> element, string? format)
-            => new InvokeStaticMethodExpression(Provider.Type, GetDateTimeOffsetMethodName, [element, Literal(format)], CallAsExtension: true);
+        public static ValueExpression GetDateTimeOffset(this ScopedApi<ModelSerializationExtensionsProvider> provider, ScopedApi<JsonElement> element, string? format)
+            => provider.Invoke(GetDateTimeOffsetMethodName, [element, Literal(format)]);
 
-        public static ValueExpression GetTimeSpan(ScopedApi<JsonElement> element, string? format)
-            => new InvokeStaticMethodExpression(Provider.Type, GetTimeSpanMethodName, [element, Literal(format)], CallAsExtension: true);
+        public static ValueExpression GetTimeSpan(this ScopedApi<ModelSerializationExtensionsProvider> provider, ScopedApi<JsonElement> element, string? format)
+            => provider.Invoke(GetTimeSpanMethodName, [element, Literal(format)]);
 
-        public static ValueExpression GetChar(ScopedApi<JsonElement> element)
-            => new InvokeStaticMethodExpression(Provider.Type, GetCharMethodName, [element], CallAsExtension: true);
-
-        public static MethodBodyStatement ThrowNonNullablePropertyIsNull(ScopedApi<JsonProperty> property)
-            => property.Invoke(ThrowNonNullablePropertyIsNullMethodName).Terminate();
-
-        public static ValueExpression GetRequiredString(ScopedApi<JsonElement> element)
-            => new InvokeStaticMethodExpression(Provider.Type, GetRequiredStringMethodName, [element], CallAsExtension: true);
+        public static ValueExpression GetChar(this ScopedApi<ModelSerializationExtensionsProvider> provider, ScopedApi<JsonElement> element)
+            => provider.Invoke(GetCharMethodName, [element]);
     }
 }

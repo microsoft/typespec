@@ -64,15 +64,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         }
 
         internal MethodBodyStatement WriteObjectValue(ScopedApi value, ValueExpression? options = null)
-             => ModelSerializationExtensionsSnippet.WriteObjectValue(this, value, options: options);
+             => ModelSerializationExtensionsSnippets.WriteObjectValue(this, value, options: options);
 
         internal MethodBodyStatement WriteStringValue(ValueExpression value, string? format)
-            => ModelSerializationExtensionsSnippet.WriteStringValue(this, value, format);
+            => ModelSerializationExtensionsSnippets.WriteStringValue(this, value, format);
 
         internal MethodBodyStatement WriteBase64StringValue(ValueExpression value, string? format)
-            => ModelSerializationExtensionsSnippet.WriteBase64StringValue(this, value, format);
+            => ModelSerializationExtensionsSnippets.WriteBase64StringValue(this, value, format);
 
         internal MethodBodyStatement WriteNumberValue(ValueExpression value, string? format)
-            => ModelSerializationExtensionsSnippet.WriteNumberValue(this, value, format);
+            => ModelSerializationExtensionsSnippets.WriteNumberValue(this, value, format);
     }
 }
