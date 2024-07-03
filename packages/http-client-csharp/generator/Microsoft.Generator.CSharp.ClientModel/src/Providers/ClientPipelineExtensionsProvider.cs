@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private ParameterProvider _pipelineParam;
         private ParameterProvider _messageParam;
         private ParameterProvider _requestOptionsParam;
-        private ClientPipelineSnippet _pipeline;
+        private ScopedApi<ClientPipeline> _pipeline;
         private PipelineMessageSnippet _message;
         private RequestOptionsSnippet _options;
 
@@ -39,7 +39,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _pipelineParam = new ParameterProvider("pipeline", FormattableStringHelpers.Empty, typeof(ClientPipeline));
             _messageParam = new ParameterProvider("message", FormattableStringHelpers.Empty, typeof(PipelineMessage));
             _requestOptionsParam = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(RequestOptions));
-            _pipeline = new ClientPipelineSnippet(_pipelineParam);
+            _pipeline = _pipelineParam.As<ClientPipeline>();
             _message = new PipelineMessageSnippet(_messageParam);
             _options = new RequestOptionsSnippet(_requestOptionsParam);
         }
@@ -168,7 +168,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var clientErrorNoThrow = FrameworkEnumValue(ClientErrorBehaviors.NoThrow);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                _pipeline.Expression.Invoke(nameof(ClientPipeline.SendAsync), [_message], true).Terminate(),
+                _pipeline.Invoke(nameof(ClientPipeline.SendAsync), [_message], true).Terminate(),
                 MethodBodyStatement.EmptyLine,
                 new IfStatement(_message.Response.IsError.And(new BinaryOperatorExpression("&", _options.Property("ErrorOptions", true), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
                 {
