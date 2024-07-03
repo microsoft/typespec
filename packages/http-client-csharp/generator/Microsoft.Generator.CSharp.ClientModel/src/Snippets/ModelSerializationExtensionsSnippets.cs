@@ -26,21 +26,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 
         public static readonly ScopedApi<ModelReaderWriterOptions> Wire = Static<ModelSerializationExtensionsDefinition>().Property(WireOptionsName).As<ModelReaderWriterOptions>();
 
-        public static MethodBodyStatement WriteObjectValue(Utf8JsonWriterSnippet snippet, ScopedApi value, ValueExpression? options = null)
+        public static MethodBodyStatement WriteObjectValue(ScopedApi<Utf8JsonWriter> snippet, ScopedApi value, ValueExpression? options = null)
         {
             var parameters = options is null
                 ? new ValueExpression[] { value }
                 : new ValueExpression[] { value, options };
-            return snippet.Expression.Invoke(WriteObjectValueMethodName, parameters, [value.Type], false).Terminate();
+            return snippet.Invoke(WriteObjectValueMethodName, parameters, [value.Type], false).Terminate();
         }
 
-        public static MethodBodyStatement WriteStringValue(Utf8JsonWriterSnippet snippet, ValueExpression value, string? format)
+        public static MethodBodyStatement WriteStringValue(ScopedApi<Utf8JsonWriter> snippet, ValueExpression value, string? format)
             => snippet.Invoke(WriteStringValueMethodName, [value, Literal(format)]).Terminate();
 
-        public static MethodBodyStatement WriteNumberValue(Utf8JsonWriterSnippet snippet, ValueExpression value, string? format)
+        public static MethodBodyStatement WriteNumberValue(ScopedApi<Utf8JsonWriter> snippet, ValueExpression value, string? format)
             => snippet.Invoke(WriteNumberValueMethodName, [value, Literal(format)]).Terminate();
 
-        public static MethodBodyStatement WriteBase64StringValue(Utf8JsonWriterSnippet snippet, ValueExpression value, string? format)
+        public static MethodBodyStatement WriteBase64StringValue(ScopedApi<Utf8JsonWriter> snippet, ValueExpression value, string? format)
             => snippet.Invoke(WriteBase64StringValueMethodName, [value, Literal(format)]).Terminate();
 
         public static ValueExpression GetObject(this ScopedApi<ModelSerializationExtensionsDefinition> provider, ScopedApi<JsonElement> element)

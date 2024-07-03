@@ -53,7 +53,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         public void JsonSerializerSnippet_Serialize()
         {
             var writerParam = new ParameterProvider("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
-            var writer = new Utf8JsonWriterSnippet(writerParam);
+            var writer = writerParam.As<Utf8JsonWriter>();
             var jsonDocVar = new VariableExpression(typeof(JsonDocument), "jsonDocument").As<JsonDocument>();
             InvokeInstanceMethodExpression result = JsonSerializerSnippets.Serialize(writer, jsonDocVar.RootElement());
 
@@ -65,7 +65,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         public void JsonSerializerSnippet_Deserialize()
         {
             var readerParam = new ParameterProvider("reader", $"The JSON reader.", typeof(Utf8JsonWriter));
-            var reader = new Utf8JsonWriterSnippet(readerParam);
+            var reader = readerParam.As<Utf8JsonWriter>();
             var jsonDocVar = new VariableExpression(typeof(JsonDocument), "jsonDocument");
             var element = ScmKnownParameters.JsonElement.As<JsonElement>();
             InvokeInstanceMethodExpression result = JsonSerializerSnippets.Deserialize(element, typeof(object));

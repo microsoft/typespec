@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly ParameterProvider _utf8JsonWriterParameter = new("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
         private readonly ParameterProvider _serializationOptionsParameter =
             new("options", $"The client options for reading and writing models.", typeof(ModelReaderWriterOptions));
-        private readonly Utf8JsonWriterSnippet _utf8JsonWriterSnippet;
+        private readonly ScopedApi<Utf8JsonWriter> _utf8JsonWriterSnippet;
         private readonly ScopedApi<ModelReaderWriterOptions> _mrwOptionsParameterSnippet;
         private readonly ScopedApi<bool> _isNotEqualToWireConditionSnippet;
         private readonly CSharpType _privateAdditionalPropertiesPropertyType = typeof(IDictionary<string, BinaryData>);
@@ -61,7 +61,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _persistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
             _rawDataField = BuildRawDataField();
             _shouldOverrideMethods = _model.Inherits != null && _model.Inherits is { IsFrameworkType: false, Implementation: TypeProvider };
-            _utf8JsonWriterSnippet = new Utf8JsonWriterSnippet(_utf8JsonWriterParameter);
+            _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
             _isNotEqualToWireConditionSnippet = _mrwOptionsParameterSnippet.Format().NotEqual(ModelReaderWriterOptionsSnippets.WireFormat);
 

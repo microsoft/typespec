@@ -60,7 +60,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override MethodProvider[] BuildMethods()
         {
-            var writer = new Utf8JsonWriterSnippet(ScmKnownParameters.Utf8JsonWriter);
+            var writer = ScmKnownParameters.Utf8JsonWriter.As<Utf8JsonWriter>();
             var dateTimeOffsetValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(DateTimeOffset));
             var writeStringDateTimeOffset = new MethodProvider(
                 new MethodSignature(
@@ -324,7 +324,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Parameters: [ScmKnownParameters.Utf8JsonWriter, valueParameter, _formatParameter],
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
-            var writer = new Utf8JsonWriterSnippet(ScmKnownParameters.Utf8JsonWriter);
+            var writer = ScmKnownParameters.Utf8JsonWriter.As<Utf8JsonWriter>();
             var value = (ValueExpression)valueParameter;
             var body = new MethodBodyStatement[]
             {
@@ -361,7 +361,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Parameters: [ScmKnownParameters.Utf8JsonWriter, valueParameter, _formatParameter],
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
-            var writer = new Utf8JsonWriterSnippet(ScmKnownParameters.Utf8JsonWriter);
+            var writer = ScmKnownParameters.Utf8JsonWriter.As<Utf8JsonWriter>();
             var value = valueParameter.As<DateTimeOffset>();
             var body = new MethodBodyStatement[]
             {
@@ -378,7 +378,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private MethodProvider BuildWriteObjectValueMethodProvider()
         {
             ValueExpression value;
-            Utf8JsonWriterSnippet writer;
+            ScopedApi<Utf8JsonWriter> writer;
             ValueExpression options;
             MethodSignature signature = GetWriteObjectValueMethodSignature(null, out value, out writer, out options);
             return new MethodProvider(signature, new MethodBodyStatement[]
@@ -391,7 +391,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private MethodProvider BuildWriteObjectValueMethodGeneric()
         {
             ValueExpression value;
-            Utf8JsonWriterSnippet writer;
+            ScopedApi<Utf8JsonWriter> writer;
             ValueExpression options;
             MethodSignature signature = GetWriteObjectValueMethodSignature(_t, out value, out writer, out options);
             List<SwitchCaseStatement> cases = new List<SwitchCaseStatement>
@@ -535,7 +535,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
         }
 
-        private MethodSignature GetWriteObjectValueMethodSignature(CSharpType? genericArgument, out ValueExpression value, out Utf8JsonWriterSnippet writer, out ValueExpression options)
+        private MethodSignature GetWriteObjectValueMethodSignature(CSharpType? genericArgument, out ValueExpression value, out ScopedApi<Utf8JsonWriter> writer, out ValueExpression options)
         {
             var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, genericArgument ?? typeof(object));
             var optionsParameter = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions), DefaultOf(new CSharpType(typeof(ModelReaderWriterOptions)).WithNullable(true)));
@@ -549,7 +549,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Parameters: parameters,
                 GenericArguments: genericArgument != null ? new[] { genericArgument } : null);
             value = (ValueExpression)valueParameter;
-            writer = new Utf8JsonWriterSnippet(ScmKnownParameters.Utf8JsonWriter);
+            writer = ScmKnownParameters.Utf8JsonWriter.As<Utf8JsonWriter>();
             options = optionsParameter;
             return signature;
         }
