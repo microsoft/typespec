@@ -16,7 +16,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         private const string _processHeadAsBoolMessageAsync = "ProcessHeadAsBoolMessageAsync";
         private const string _processHeadAsBoolMessage = "ProcessHeadAsBoolMessage";
 
-        public static PipelineMessageSnippet CreateMessage(this ScopedApi<ClientPipeline> pipeline, RequestOptionsSnippet requestOptions, ValueExpression responseClassifier)
+        public static ScopedApi<PipelineMessage> CreateMessage(this ScopedApi<ClientPipeline> pipeline, RequestOptionsSnippet requestOptions, ValueExpression responseClassifier)
             => new(pipeline.Invoke(nameof(ClientPipeline.CreateMessage), requestOptions, responseClassifier));
 
         public static PipelineResponseSnippet ProcessMessage(this ScopedApi<ClientPipeline> pipeline, ValueExpression message, RequestOptionsSnippet? requestOptions, bool isAsync)
