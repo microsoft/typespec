@@ -11,21 +11,21 @@ using System.Text.Json;
 namespace UnbrandedTypeSpec.Models
 {
     /// <summary></summary>
-    public partial class Friend : IJsonModel<Friend>
+    public partial class BaseModelWithRequired : IJsonModel<BaseModelWithRequired>
     {
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
-        internal Friend(string name, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        internal BaseModelWithRequired(int @required, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
-            Name = name;
+            Required = @required;
             _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
-        internal Friend()
+        internal BaseModelWithRequired()
         {
         }
 
-        void IJsonModel<Friend>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void IJsonModel<BaseModelWithRequired>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
             JsonModelWriteCore(writer, options);
@@ -36,13 +36,13 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<Friend>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<BaseModelWithRequired>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
-                throw new FormatException($"The model {nameof(Friend)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(BaseModelWithRequired)} does not support writing '{format}' format.");
             }
-            writer.WritePropertyName("name"u8);
-            writer.WriteStringValue(Name);
+            writer.WritePropertyName("required"u8);
+            writer.WriteNumberValue(Required);
             if (options.Format != "W" && _serializedAdditionalRawData != null)
             {
                 foreach (var item in _serializedAdditionalRawData)
@@ -60,25 +60,25 @@ namespace UnbrandedTypeSpec.Models
             }
         }
 
-        Friend IJsonModel<Friend>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        BaseModelWithRequired IJsonModel<BaseModelWithRequired>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
             throw new NotImplementedException("Not implemented");
         }
 
-        internal static Friend DeserializeFriend(JsonElement element, ModelReaderWriterOptions options)
+        internal static BaseModelWithRequired DeserializeBaseModelWithRequired(JsonElement element, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
             {
                 return null;
             }
-            string name = default;
+            int @required = default;
             IDictionary<string, BinaryData> serializedAdditionalRawData = default;
             Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
-                if (prop.NameEquals("name"u8))
+                if (prop.NameEquals("required"u8))
                 {
-                    name = prop.Value.GetString();
+                    @required = prop.Value.GetInt32();
                     continue;
                 }
                 if (options.Format != "W")
@@ -87,53 +87,53 @@ namespace UnbrandedTypeSpec.Models
                 }
             }
             serializedAdditionalRawData = rawDataDictionary;
-            return new Friend(name, serializedAdditionalRawData);
+            return new BaseModelWithRequired(@required, serializedAdditionalRawData);
         }
 
-        BinaryData IPersistableModel<Friend>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<BaseModelWithRequired>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<Friend>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<BaseModelWithRequired>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
                     return ModelReaderWriter.Write(this, options);
                 default:
-                    throw new FormatException($"The model {nameof(Friend)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(BaseModelWithRequired)} does not support writing '{options.Format}' format.");
             }
         }
 
-        Friend IPersistableModel<Friend>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+        BaseModelWithRequired IPersistableModel<BaseModelWithRequired>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual Friend PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        protected virtual BaseModelWithRequired PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<Friend>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<BaseModelWithRequired>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
                     using (JsonDocument document = JsonDocument.Parse(data))
                     {
-                        return DeserializeFriend(document.RootElement, options);
+                        return DeserializeBaseModelWithRequired(document.RootElement, options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(Friend)} does not support reading '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(BaseModelWithRequired)} does not support reading '{options.Format}' format.");
             }
         }
 
-        string IPersistableModel<Friend>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<BaseModelWithRequired>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        /// <param name="friend"> The <see cref="Friend"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(Friend friend)
+        /// <param name="baseModelWithRequired"> The <see cref="BaseModelWithRequired"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(BaseModelWithRequired baseModelWithRequired)
         {
             throw new NotImplementedException("Not implemented");
         }
 
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Friend"/> from. </param>
-        public static explicit operator Friend(ClientResult result)
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="BaseModelWithRequired"/> from. </param>
+        public static explicit operator BaseModelWithRequired(ClientResult result)
         {
             throw new NotImplementedException("Not implemented");
         }

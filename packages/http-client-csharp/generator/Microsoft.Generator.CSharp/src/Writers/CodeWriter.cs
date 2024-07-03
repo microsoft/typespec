@@ -764,7 +764,7 @@ namespace Microsoft.Generator.CSharp
 
                 if (!isBase || arguments.Any())
                 {
-                    AppendRaw(isBase ? ": base(" : ": this(");
+                    AppendRaw(isBase ? " : base(" : " : this(");
                     var iterator = arguments.GetEnumerator();
                     if (iterator.MoveNext())
                     {
