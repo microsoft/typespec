@@ -138,10 +138,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             protocolMethod.XmlDocs!.Exceptions.Add(new(typeof(ClientResultException), "Service returned a non-success status code.", []));
             List<XmlDocStatement> listItems =
             [
-                new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This protocol method allows explicit creation of the request and processing of the response for advanced scenarios."])),
+                new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."]))
             ];
-            // TODO -- add the link back when https://github.com/microsoft/typespec/issues/3727 is resolved
-            //listItems.Add(new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."])));
             XmlDocStatement listXmlDoc = new XmlDocStatement("<list type=\"bullet\">", "</list>", [], innerStatements: [.. listItems]);
             protocolMethod.XmlDocs.Summary = new XmlDocSummaryStatement([$"[Protocol Method] {_operation.Description}"], listXmlDoc);
             return protocolMethod;
