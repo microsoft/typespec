@@ -85,7 +85,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     ? MethodSignatureModifiers.Public
                     : MethodSignatureModifiers.Internal;
             var (baseConstructor, constructorInitializer) = BuildConstructorInitializer();
-            var constructorParameters = BuildConstructorParameters(baseConstructor);
+            var constructorParameters = BuildConstructorParameters(baseConstructor?.Parameters ?? []);
 
             var constructor = new MethodProvider(
                 signature: new ConstructorSignature(
@@ -128,19 +128,14 @@ namespace Microsoft.Generator.CSharp.Providers
             return (ctorSignature, initializer);
         }
 
-        private IReadOnlyList<ParameterProvider> BuildConstructorParameters(ConstructorSignature? baseConstructor)
+        private IReadOnlyList<ParameterProvider> BuildConstructorParameters(IReadOnlyList<ParameterProvider> baseParameters)
         {
-            var baseParameters = baseConstructor?.Parameters ?? Array.Empty<ParameterProvider>();
             var parameterCapacity = baseParameters.Count + _inputModel.Properties.Count;
-            var parameterNames = new HashSet<string>(parameterCapacity);
-            var constructorParameters = new List<ParameterProvider>(baseParameters.Count + _inputModel.Properties.Count);
+            var parameterNames = baseParameters.Select(p => p.Name).ToHashSet();
+            var constructorParameters = new List<ParameterProvider>(parameterCapacity);
 
             // add the base parameters
-            foreach (var parameter in baseParameters)
-            {
-                parameterNames.Add(parameter.Name);
-                constructorParameters.Add(parameter);
-            }
+            constructorParameters.AddRange(baseParameters);
 
             foreach (var property in _inputModel.Properties)
             {
