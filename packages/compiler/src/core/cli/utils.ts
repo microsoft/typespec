@@ -83,14 +83,15 @@ export function run(
     command += ".cmd";
   }
 
+  const useShell = process.platform === "win32";
   const finalOptions: SpawnSyncOptionsWithStringEncoding = {
     encoding: "utf-8",
     stdio: "inherit",
-    shell: process.platform === "win32",
+    shell: useShell,
     ...(options ?? {}),
   };
 
-  const proc = spawnSync(command, commandArgs, finalOptions);
+  const proc = spawnSync(useShell?`"${command}"`:command, commandArgs, finalOptions);
   logger.trace(inspect(proc, { depth: null }));
 
   if (proc.error) {
