@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [TestCaseSource(nameof(DefaultCSharpMethodCollectionTestCases))]
         public void TestRestClientMethods(InputOperation inputOperation)
         {
-            var inputClient = new InputClient("TestClient", "TestClient description", new[] { inputOperation }, true, new List<InputParameter>(), null);
+            var inputClient = new InputClient("TestClient", "TestClient description", new[] { inputOperation }, new List<InputParameter>(), null);
             var restClientProvider = new RestClientProvider(inputClient);
             MethodProviderSetUp(inputOperation, restClientProvider.ClientProvider);
 

@@ -1,8 +1,7 @@
 import { TestHost } from "@typespec/compiler/testing";
-import assert, { deepStrictEqual } from "assert";
+import { strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
-import { InputArrayType, InputEnumType } from "../../src/type/input-type.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
@@ -28,17 +27,10 @@ describe("Test GetInputType for array", () => {
     const context = createEmitterContext(program);
     const sdkContext = createNetSdkContext(context);
     const root = createModel(sdkContext);
-    deepStrictEqual(root.Clients[0].Operations[0].Parameters[0].Type.Kind, "array");
-    deepStrictEqual(
-      {
-        Kind: "array",
-        ValueType: {
-          Kind: "string",
-          Encode: undefined,
-        },
-      } as InputArrayType,
-      root.Clients[0].Operations[0].Parameters[0].Type
-    );
+    const type = root.Clients[0].Operations[0].Parameters[0].Type;
+    strictEqual(type.Kind, "array");
+    strictEqual(type.CrossLanguageDefinitionId, "TypeSpec.Array");
+    strictEqual(type.ValueType.Kind, "string");
   });
 
   it("array as response", async () => {
@@ -51,17 +43,10 @@ describe("Test GetInputType for array", () => {
     const context = createEmitterContext(program);
     const sdkContext = createNetSdkContext(context);
     const root = createModel(sdkContext);
-    deepStrictEqual(root.Clients[0].Operations[0].Responses[0].BodyType?.Kind, "array");
-    deepStrictEqual(
-      {
-        Kind: "array",
-        ValueType: {
-          Kind: "string",
-          Encode: undefined,
-        },
-      } as InputArrayType,
-      root.Clients[0].Operations[0].Responses[0].BodyType
-    );
+    const bodyType = root.Clients[0].Operations[0].Responses[0].BodyType;
+    strictEqual(bodyType?.Kind, "array");
+    strictEqual(bodyType.CrossLanguageDefinitionId, "TypeSpec.Array");
+    strictEqual(bodyType.ValueType.Kind, "string");
   });
 });
 
@@ -96,48 +81,24 @@ describe("Test GetInputType for enum", () => {
     const context = createEmitterContext(program);
     const sdkContext = createNetSdkContext(context);
     const root = createModel(sdkContext);
-    deepStrictEqual(
-      {
-        Kind: "enum",
-        Name: "SimpleEnum",
-        CrossLanguageDefinitionId: "Azure.Csharp.Testing.SimpleEnum",
-        Accessibility: undefined,
-        Deprecated: undefined,
-        Description: "fixed string enum",
-        ValueType: {
-          Kind: "string",
-          Encode: undefined,
-        },
-        Values: [
-          {
-            Name: "One",
-            Value: "1",
-            Description: "Enum value one",
-          },
-          {
-            Name: "Two",
-            Value: "2",
-            Description: "Enum value two",
-          },
-          {
-            Name: "Four",
-            Value: "4",
-            Description: "Enum value four",
-          },
-        ],
-        IsExtensible: false,
-        Usage: "Input",
-      } as InputEnumType,
-      root.Clients[0].Operations[0].Parameters[0].Type,
-      `Enum type is not correct, got ${JSON.stringify(
-        root.Clients[0].Operations[0].Parameters[0].Type
-      )}`
-    );
-    const type = root.Clients[0].Operations[0].Parameters[0].Type as InputEnumType;
-    assert(type.ValueType !== undefined);
-    deepStrictEqual(type.Name, "SimpleEnum");
-    deepStrictEqual(type.IsExtensible, false);
+    const type = root.Clients[0].Operations[0].Parameters[0].Type;
+    strictEqual(type.Kind, "enum");
+    strictEqual(type.Name, "SimpleEnum");
+    strictEqual(type.IsExtensible, false);
+    strictEqual(type.Description, "fixed string enum");
+    strictEqual(type.CrossLanguageDefinitionId, "Azure.Csharp.Testing.SimpleEnum");
+    strictEqual(type.Accessibility, undefined);
+    strictEqual(type.ValueType.Kind, "string");
+    strictEqual(type.Values.length, 3);
+    strictEqual(type.Values[0].Name, "One");
+    strictEqual(type.Values[0].Value, "1");
+    strictEqual(type.Values[1].Name, "Two");
+    strictEqual(type.Values[1].Value, "2");
+    strictEqual(type.Values[2].Name, "Four");
+    strictEqual(type.Values[2].Value, "4");
+    strictEqual(type.Usage, "Input");
   });
+
   it("Fixed int enum", async () => {
     const program = await typeSpecCompile(
       `
@@ -162,47 +123,22 @@ describe("Test GetInputType for enum", () => {
     const context = createEmitterContext(program);
     const sdkContext = createNetSdkContext(context);
     const root = createModel(sdkContext);
-    deepStrictEqual(
-      {
-        Kind: "enum",
-        Name: "FixedIntEnum",
-        CrossLanguageDefinitionId: "Azure.Csharp.Testing.FixedIntEnum",
-        Accessibility: undefined,
-        Deprecated: undefined,
-        Description: "Fixed int enum",
-        ValueType: {
-          Kind: "int32",
-          Encode: undefined,
-        },
-        Values: [
-          {
-            Name: "One",
-            Value: 1,
-            Description: "Enum value one",
-          },
-          {
-            Name: "Two",
-            Value: 2,
-            Description: "Enum value two",
-          },
-          {
-            Name: "Four",
-            Value: 4,
-            Description: "Enum value four",
-          },
-        ],
-        IsExtensible: false,
-        Usage: "Input",
-      } as InputEnumType,
-      root.Clients[0].Operations[0].Parameters[0].Type,
-      `Enum type is not correct, got ${JSON.stringify(
-        root.Clients[0].Operations[0].Parameters[0].Type
-      )}`
-    );
-    const type = root.Clients[0].Operations[0].Parameters[0].Type as InputEnumType;
-    assert(type.ValueType !== undefined);
-    deepStrictEqual(type.Name, "FixedIntEnum");
-    deepStrictEqual(type.IsExtensible, false);
+    const type = root.Clients[0].Operations[0].Parameters[0].Type;
+    strictEqual(type.Kind, "enum");
+    strictEqual(type.Name, "FixedIntEnum");
+    strictEqual(type.CrossLanguageDefinitionId, "Azure.Csharp.Testing.FixedIntEnum");
+    strictEqual(type.Accessibility, undefined);
+    strictEqual(type.Description, "Fixed int enum");
+    strictEqual(type.ValueType.Kind, "int32");
+    strictEqual(type.Values.length, 3);
+    strictEqual(type.Values[0].Name, "One");
+    strictEqual(type.Values[0].Value, 1);
+    strictEqual(type.Values[1].Name, "Two");
+    strictEqual(type.Values[1].Value, 2);
+    strictEqual(type.Values[2].Name, "Four");
+    strictEqual(type.Values[2].Value, 4);
+    strictEqual(type.IsExtensible, false);
+    strictEqual(type.Usage, "Input");
   });
 
   it("fixed enum", async () => {
@@ -221,34 +157,21 @@ describe("Test GetInputType for enum", () => {
     const context = createEmitterContext(program);
     const sdkContext = createNetSdkContext(context);
     const root = createModel(sdkContext);
-    deepStrictEqual(
-      {
-        Kind: "enum",
-        Name: "FixedEnum",
-        CrossLanguageDefinitionId: "Azure.Csharp.Testing.FixedEnum",
-        Accessibility: undefined,
-        Deprecated: undefined,
-        Description: "Fixed enum",
-        ValueType: {
-          Kind: "string",
-          Encode: undefined,
-        },
-        Values: [
-          { Name: "One", Value: "1", Description: undefined },
-          { Name: "Two", Value: "2", Description: undefined },
-          { Name: "Four", Value: "4", Description: undefined },
-        ],
-        IsExtensible: false,
-        Usage: "Input",
-      } as InputEnumType,
-      root.Clients[0].Operations[0].Parameters[0].Type,
-      `Enum type is not correct, got ${JSON.stringify(
-        root.Clients[0].Operations[0].Parameters[0].Type
-      )}`
-    );
-    const type = root.Clients[0].Operations[0].Parameters[0].Type as InputEnumType;
-    assert(type.ValueType !== undefined);
-    deepStrictEqual(type.Name, "FixedEnum");
-    deepStrictEqual((type as InputEnumType).IsExtensible, false);
+    const type = root.Clients[0].Operations[0].Parameters[0].Type;
+    strictEqual(type.Kind, "enum");
+    strictEqual(type.Name, "FixedEnum");
+    strictEqual(type.CrossLanguageDefinitionId, "Azure.Csharp.Testing.FixedEnum");
+    strictEqual(type.Accessibility, undefined);
+    strictEqual(type.Description, "Fixed enum");
+    strictEqual(type.ValueType.Kind, "string");
+    strictEqual(type.Values.length, 3);
+    strictEqual(type.Values[0].Name, "One");
+    strictEqual(type.Values[0].Value, "1");
+    strictEqual(type.Values[1].Name, "Two");
+    strictEqual(type.Values[1].Value, "2");
+    strictEqual(type.Values[2].Name, "Four");
+    strictEqual(type.Values[2].Value, "4");
+    strictEqual(type.Usage, "Input");
+    strictEqual(type.IsExtensible, false);
   });
 });

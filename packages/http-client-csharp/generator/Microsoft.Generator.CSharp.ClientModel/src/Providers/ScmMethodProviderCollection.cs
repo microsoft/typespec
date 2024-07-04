@@ -66,10 +66,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ? [Return(This.Invoke(methodSignature.Name, [.. ConvenienceMethodParameters, Null], null, isAsync, isAsync))]
                 : [
                     Declare("result", typeof(ClientResult), This.Invoke(methodSignature.Name, [.. ConvenienceMethodParameters, Null], null, isAsync, isAsync), out var result),
-                    Return(new InvokeStaticMethodExpression(
-                        typeof(ClientResult),
-                        nameof(ClientResult.FromValue),
-                        [result.CastTo(_bodyParameter.Type), result.Invoke("GetRawResponse")])),
+                    Return(Static<ClientResult>().Invoke(nameof(ClientResult.FromValue), [result.CastTo(_bodyParameter.Type), result.Invoke("GetRawResponse")])),
                 ];
 
             var convenienceMethod = new MethodProvider(methodSignature, methodBody, _enclosingType);
@@ -128,16 +125,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             MethodBodyStatement[] methodBody =
             [
                 UsingDeclare("message", typeof(PipelineMessage), This.Invoke(CreateRequestMethodName, [.. MethodParameters, ScmKnownParameters.RequestOptions]), out var message),
-                Return(new InvokeStaticMethodExpression(
-                    typeof(ClientResult),
-                    nameof(ClientResult.FromResponse),
-                    client.PipelineField.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
+                Return(Static<ClientResult>().Invoke(nameof(ClientResult.FromResponse), client.PipelineField.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
             ];
 
             var protocolMethod = new MethodProvider(methodSignature, methodBody, _enclosingType);
             protocolMethod.XmlDocs!.Exceptions.Add(new(typeof(ClientResultException), "Service returned a non-success status code.", []));
-            List<XmlDocStatement> listItems = new List<XmlDocStatement>();
-            listItems.Add(new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."])));
+            List<XmlDocStatement> listItems =
+            [
+                new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."]))
+            ];
             XmlDocStatement listXmlDoc = new XmlDocStatement("<list type=\"bullet\">", "</list>", [], innerStatements: [.. listItems]);
             protocolMethod.XmlDocs.Summary = new XmlDocSummaryStatement([$"[Protocol Method] {_operation.Description}"], listXmlDoc);
             return protocolMethod;

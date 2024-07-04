@@ -26,11 +26,11 @@ namespace Microsoft.Generator.CSharp.ClientModel
         protected override TypeProvider[] BuildTypeProviders()
         {
             var baseTypes = base.BuildTypeProviders();
-            var systemOptionalProvider = new SystemOptionalProvider();
+            var systemOptionalProvider = new SystemOptionalDefinition();
 
             for (var i = 0; i < baseTypes.Length; i++)
             {
-                if (baseTypes[i] is OptionalProvider)
+                if (baseTypes[i] is OptionalDefinition)
                 {
                     baseTypes[i] = systemOptionalProvider;
                 }
@@ -39,11 +39,11 @@ namespace Microsoft.Generator.CSharp.ClientModel
             return [
                 ..baseTypes,
                 ..BuildClients(),
-                new ModelSerializationExtensionsProvider(),
-                new TypeFormattersProvider(),
-                new ClientPipelineExtensionsProvider(),
-                new ErrorResultProvider(),
-                new ClientUriBuilderProvider(),
+                new ModelSerializationExtensionsDefinition(),
+                new TypeFormattersDefinition(),
+                new ClientPipelineExtensionsDefinition(),
+                new ErrorResultDefinition(),
+                new ClientUriBuilderDefinition(),
             ];
         }
     }
