@@ -53,7 +53,7 @@ describe("openapi: decorators", () => {
       });
     });
 
-    it("apply extension on namespace", async () => {
+    it("apply extension on an info object", async () => {
       const { Service } = (await runner.compile(`
         alias sample = {
           "contact": {
@@ -96,7 +96,7 @@ describe("openapi: decorators", () => {
       });
     });
 
-    it("emit diagnostics when passing non string extension key on a non-namespace", async () => {
+    it("emit diagnostics when passing non string extension key", async () => {
       const diagnostics = await runner.diagnose(`
         @extension(123, "Bar")
         @test
@@ -110,7 +110,7 @@ describe("openapi: decorators", () => {
       });
     });
 
-    it("emit diagnostics when passing extension key not starting with `x-` on a non-namespace", async () => {
+    it("emit diagnostics when passing extension key not starting with `x-`", async () => {
       const diagnostics = await runner.diagnose(`
         @extension("foo", "Bar")
         @test
