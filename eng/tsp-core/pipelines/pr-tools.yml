@@ -44,7 +44,7 @@ extends:
                       --destination \$web \
                       --account-name "cadlplayground" \
                       --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
-                      --source "./packages/playground-website/dist/" \
+                      --source "./packages/playground-website/dist/web/" \
                       --overwrite
 
               - task: AzureCLI@1

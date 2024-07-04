@@ -20,13 +20,14 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist-dev/src/index.d.ts",
-      "default": "./dist-dev/src/index.js"
+      "types": "./dist/lib/src/index.d.ts",
+      "default": "./dist/lib/index.js"
     },
     "./samples": {
       "types": "./samples/dist/samples.d.ts",
       "default": "./samples/dist/samples.js"
-    }
+    },
+    "./style.css": "./dist/lib/style.css"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -34,7 +35,8 @@
   "scripts": {
     "clean": "rimraf ./dist ./dist-dev ./temp ./samples/dist",
     "build-samples": "node ./samples/build.js",
-    "build": "npm run build-samples && tsc -p . && vite build 2>&1",
+    "build": "npm run build-samples && pnpm build:lib && vite build 2>&1",
+    "build:lib": "vite build --config vite.lib.config.ts",
     "preview": "npm run build && vite preview",
     "start": "vite",
     "test": "vitest run",
@@ -84,6 +86,7 @@
     "rollup-plugin-visualizer": "~5.12.0",
     "typescript": "~5.5.3",
     "vite": "^5.3.2",
+    "vite-plugin-dts": "^3.9.1",
     "vitest": "^1.6.0"
   }
 }

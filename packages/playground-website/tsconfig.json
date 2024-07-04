@@ -18,8 +18,7 @@
     "types": ["vite/client"]
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
+    "src/",
     "test/**/*.ts",
     "e2e/**/*.ts",
     "vite.config.ts",
