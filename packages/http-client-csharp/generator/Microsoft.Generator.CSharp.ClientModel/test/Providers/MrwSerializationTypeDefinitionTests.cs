@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
                 .Returns<InputType>(inputType => inputType switch
                 {
                     InputModelType modelType => new ModelProvider(modelType).Type, // the part of determining base model needs this
-                    _ => typeof(int)
+                    _ => typeof(object)
                 });
             // initialize the mock singleton instance of the plugin
             _mockPlugin = typeof(CodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
