@@ -66,7 +66,6 @@ export const $extension: ExtensionDecorator = (
   if (diagnostics.length > 0) {
     context.program.reportDiagnostics(diagnostics);
   }
-
   setExtension(context.program, entity, extensionName as ExtensionKey, data);
 };
 
@@ -77,7 +76,7 @@ export function setInfo(program: Program, entity: Namespace, data: AdditionalInf
 export function setExtension(
   program: Program,
   entity: Type,
-  extensionName: ExtensionKey | string,
+  extensionName: ExtensionKey,
   data: unknown
 ) {
   const openApiExtensions = program.stateMap(openApiExtensionKey);
@@ -165,8 +164,7 @@ export const $info: InfoDecorator = (
 };
 
 export function getInfo(program: Program, entity: Namespace): AdditionalInfo | undefined {
-  const info = program.stateMap(infoKey).get(entity);
-  return info;
+  return program.stateMap(infoKey).get(entity);
 }
 
 /** Resolve the info entry by merging data specified with `@service`, `@summary` and `@info`. */
