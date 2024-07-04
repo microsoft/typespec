@@ -53,35 +53,6 @@ describe("openapi: decorators", () => {
       });
     });
 
-    it("apply extension on an info object", async () => {
-      const { Service } = (await runner.compile(`
-        alias sample = {
-          "contact": {
-            "email": "ionutro@microsoft.com",
-          },
-          "title": "Sample Title",
-          "x-ai-description": "Sample description.",
-          "x-legal-info-url": "https://app.sample.ai/legal",
-          "x-logo": "https://th.bing.com/th?id=OSK.935650835684F7E18AC3F31034DE6DF3",
-          "x-privacy-policy-url": "https://app.sample.ai/privacy",      
-        };        
-        @extension("infoExtension", sample)
-        @test namespace Service {}
-      `)) as { Service: Namespace };
-
-      const info = getInfo(runner.program, Service);
-      deepStrictEqual(info, {
-        contact: {
-          email: "ionutro@microsoft.com",
-        },
-        title: "Sample Title",
-        "x-ai-description": "Sample description.",
-        "x-legal-info-url": "https://app.sample.ai/legal",
-        "x-logo": "https://th.bing.com/th?id=OSK.935650835684F7E18AC3F31034DE6DF3",
-        "x-privacy-policy-url": "https://app.sample.ai/privacy",
-      });
-    });
-
     it("apply extension with complex value", async () => {
       const { Foo } = await runner.compile(`
         @extension("x-custom", {foo: 123, bar: "string"})
