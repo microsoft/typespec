@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
@@ -248,7 +249,7 @@ namespace Microsoft.Generator.CSharp
             {
                 Append($"{property.ExplicitInterface}.");
             }
-            if (property is IndexerProvider indexer)
+            if (property is IndexPropertyProvider indexer)
             {
                 Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {indexer.IndexerParameter.Name}]");
             }
@@ -701,7 +702,7 @@ namespace Microsoft.Generator.CSharp
 
                 if (isImplicitOrExplicit)
                 {
-                    Append($"{method.ReturnType}");
+                    AppendIf($"{method.ReturnType}", method.ReturnType is not null);
                 }
 
                 if (method.ExplicitInterface is not null)
@@ -851,6 +852,7 @@ namespace Microsoft.Generator.CSharp
         {
             if (declaration.HasBeenDeclared)
             {
+                AppendRawIf("ref ", declaration.IsRef);
                 WriteIdentifier(declaration.ActualName);
             }
             else

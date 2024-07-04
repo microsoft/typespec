@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using NUnit.Framework;
 
@@ -49,7 +50,7 @@ namespace Microsoft.Generator.CSharp.Tests.OutputTypes
         {
             get
             {
-                yield return new TestCaseData(new InputArrayType("sampleType", new InputPrimitiveType(InputPrimitiveTypeKind.Boolean), false), new CSharpType(typeof(InputArrayType), isNullable: false), false);
+                yield return new TestCaseData(new InputArrayType("sampleType", "TypeSpec.Array", new InputPrimitiveType(InputPrimitiveTypeKind.Boolean)), new CSharpType(typeof(InputArrayType), isNullable: false), false);
                 yield return new TestCaseData(new InputDictionaryType("sampleType", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.Int32)), new CSharpType(typeof(InputDictionaryType), isNullable: false), false);
                 yield return new TestCaseData(new InputPrimitiveType(InputPrimitiveTypeKind.String), new CSharpType(typeof(InputPrimitiveType), isNullable: false), false);
                 yield return new TestCaseData(new InputLiteralType(new InputPrimitiveType(InputPrimitiveTypeKind.String), "literal"), null, true);
@@ -63,7 +64,7 @@ namespace Microsoft.Generator.CSharp.Tests.OutputTypes
                 throw new NotImplementedException();
             }
 
-            public override MethodProviderCollection? CreateMethodProviders(InputOperation operation, TypeProvider enclosingType)
+            public override MethodProviderCollection CreateMethodProviders(InputOperation operation, TypeProvider enclosingType)
             {
                 throw new NotImplementedException();
             }

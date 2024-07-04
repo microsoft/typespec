@@ -52,7 +52,7 @@ namespace Microsoft.Generator.CSharp.Input
 
         private const string LiteralKind = "constant";
         private const string UnionKind = "union";
-        private const string ModelKind = "Model";
+        private const string ModelKind = "model";
         private const string EnumKind = "enum";
         private const string ArrayKind = "array";
         private const string DictionaryKind = "dict";
@@ -68,7 +68,7 @@ namespace Microsoft.Generator.CSharp.Input
             UnionKind => TypeSpecInputUnionTypeConverter.CreateInputUnionType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
             ModelKind => TypeSpecInputModelTypeConverter.CreateModelType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
             EnumKind => TypeSpecInputEnumTypeConverter.CreateEnumType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
-            ArrayKind => TypeSpecInputArrayTypeConverter.CreateListType(ref reader, id, options, _referenceHandler.CurrentResolver),
+            ArrayKind => TypeSpecInputArrayTypeConverter.CreateListType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
             DictionaryKind => TypeSpecInputDictionaryTypeConverter.CreateDictionaryType(ref reader, id, options, _referenceHandler.CurrentResolver),
             UtcDateTimeKind or OffsetDateTimeKind => TypeSpecInputDateTimeTypeConverter.CreateDateTimeType(ref reader, id, options, _referenceHandler.CurrentResolver),
             DurationKind => TypeSpecInputDurationTypeConverter.CreateDurationType(ref reader, id, options, _referenceHandler.CurrentResolver),

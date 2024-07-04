@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -7,7 +7,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Moq;
+using Microsoft.Generator.CSharp.Primitives;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.OutputTypes
@@ -387,6 +387,26 @@ namespace Microsoft.Generator.CSharp.Tests.OutputTypes
                 .ToString();
 
             Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void CacheFrameworkTypes()
+        {
+            CSharpType cSharpType1 = typeof(int);
+            CSharpType cSharpType2 = typeof(int);
+            Assert.IsTrue(ReferenceEquals(cSharpType1, cSharpType2));
+
+            CSharpType cSharpType3 = typeof(IList<int>);
+            CSharpType cSharpType4 = typeof(IList<int>);
+            Assert.IsTrue(ReferenceEquals(cSharpType3, cSharpType4));
+
+            CSharpType cSharpType5 = typeof(IDictionary<int, string>);
+            CSharpType cSharpType6 = typeof(IDictionary<int, string>);
+            Assert.IsTrue(ReferenceEquals(cSharpType5, cSharpType6));
+
+            CSharpType cSharpType7 = typeof(IList<int>);
+            CSharpType cSharpType8 = typeof(IList<string>);
+            Assert.IsFalse(ReferenceEquals(cSharpType7, cSharpType8));
         }
 
         [TestCaseSource(nameof(ValidateNullableTypesData))]
