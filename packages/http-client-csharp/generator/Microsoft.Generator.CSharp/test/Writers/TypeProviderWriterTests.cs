@@ -135,8 +135,8 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
 
         internal static readonly InputModelProperty RequiredIntProperty = new InputModelProperty("requiredInt", "requiredInt", "Required int, illustrating a value type property.", InputPrimitiveType.Int32, true, false, false);
 
-        internal static readonly InputModelProperty RequiredStringListProperty = new InputModelProperty("requiredStringList", "requiredStringList", "Required collection of strings, illustrating a collection of reference types.", new InputArrayType("requiredStringList", InputPrimitiveType.String, false), true, false, false);
+        internal static readonly InputModelProperty RequiredStringListProperty = new InputModelProperty("requiredStringList", "requiredStringList", "Required collection of strings, illustrating a collection of reference types.", new InputArrayType("requiredStringList", "TypeSpec.Array", InputPrimitiveType.String), true, false, false);
 
-        internal static readonly InputModelProperty RequiredIntListProperty = new InputModelProperty("requiredIntList", "requiredIntList", "Required collection of ints, illustrating a collection of value types.", new InputArrayType("requiredIntList", InputPrimitiveType.Int32, false), true, false, false);
+        internal static readonly InputModelProperty RequiredIntListProperty = new InputModelProperty("requiredIntList", "requiredIntList", "Required collection of ints, illustrating a collection of value types.", new InputArrayType("requiredIntList", "TypeSpec.Array", InputPrimitiveType.Int32), true, false, false);
     }
 }

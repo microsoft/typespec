@@ -46,7 +46,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
                     Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { Return(True) },
                 mockTypeProvider.Object);
-            var returnInstanceMethod = Return(new InvokeInstanceMethodExpression(null, barMethod.Signature.Name, [Bool(true), Bool(false), Bool(false)]));
+            var returnInstanceMethod = Return(new InvokeMethodExpression(null, barMethod.Signature.Name, [Bool(true), Bool(false), Bool(false)]));
             var fooMethod = new MethodProvider(
                 new MethodSignature(
                     Name: "Foo",

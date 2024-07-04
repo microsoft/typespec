@@ -107,7 +107,7 @@ namespace Microsoft.Generator.CSharp.Perf
             {
                 if (parameter.Validation != ParameterValidationType.None)
                 {
-                    statements[index] = ArgumentSnippet.ValidateParameter(parameter);
+                    statements[index] = ArgumentSnippets.ValidateParameter(parameter);
                     index++;
                 }
             }
@@ -127,7 +127,7 @@ namespace Microsoft.Generator.CSharp.Perf
             {
                 if (parameter.Validation != ParameterValidationType.None)
                 {
-                    statements.Add(ArgumentSnippet.ValidateParameter(parameter));
+                    statements.Add(ArgumentSnippets.ValidateParameter(parameter));
                     wroteValidation = true;
                 }
             }
@@ -145,7 +145,7 @@ namespace Microsoft.Generator.CSharp.Perf
             {
                 if (parameter.Validation != ParameterValidationType.None)
                 {
-                    yield return ArgumentSnippet.ValidateParameter(parameter);
+                    yield return ArgumentSnippets.ValidateParameter(parameter);
                     wroteValidation = true;
                 }
             }
@@ -161,7 +161,7 @@ namespace Microsoft.Generator.CSharp.Perf
             {
                 if (parameter.Validation != ParameterValidationType.None)
                 {
-                    statements.Add(ArgumentSnippet.ValidateParameter(parameter));
+                    statements.Add(ArgumentSnippets.ValidateParameter(parameter));
                     wroteValidation = true;
                 }
             }
