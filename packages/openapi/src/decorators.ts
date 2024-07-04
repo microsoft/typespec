@@ -70,7 +70,7 @@ export const $extension: ExtensionDecorator = (
   setExtension(context.program, entity, extensionName as ExtensionKey, data);
 };
 
-export function setInfo(program: Program, entity: Namespace, data: AdditionalInfo) {  
+export function setInfo(program: Program, entity: Namespace, data: AdditionalInfo) {
   program.stateMap(infoKey).set(entity, data);
 }
 
