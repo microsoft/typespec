@@ -4,4 +4,4 @@ packages:
   - "@typespec/openapi"
 ---
 
-Adds support for extending namespace with extensions
+Adds public function for setting info object
