@@ -48,16 +48,13 @@ export function getOperationId(program: Program, entity: Operation): string | un
 
 const openApiExtensionKey = createStateSymbol("openApiExtension");
 
-/** The extension name to be used to extend `@info`. */
-export const infoExtensionName = "infoExtension";
-
 export const $extension: ExtensionDecorator = (
   context: DecoratorContext,
   entity: Type,
   extensionName: string,
   value: TypeSpecValue
 ) => {
-  if (extensionName !== infoExtensionName && !isOpenAPIExtensionKey(extensionName)) {
+  if (!isOpenAPIExtensionKey(extensionName)) {
     reportDiagnostic(context.program, {
       code: "invalid-extension-key",
       format: { value: extensionName },
@@ -70,12 +67,12 @@ export const $extension: ExtensionDecorator = (
     context.program.reportDiagnostics(diagnostics);
   }
 
-  if (extensionName !== infoExtensionName) {
-    setExtension(context.program, entity, extensionName, data);
-  } else {
-    setExtension(context.program, entity, extensionName as ExtensionKey, data);
-  }
+  setExtension(context.program, entity, extensionName as ExtensionKey, data);
 };
+
+export function setInfo(program: Program, entity: Namespace, data: AdditionalInfo) {  
+  program.stateMap(infoKey).set(entity, data);
+}
 
 export function setExtension(
   program: Program,
@@ -91,16 +88,6 @@ export function setExtension(
 
 export function getExtensions(program: Program, entity: Type): ReadonlyMap<ExtensionKey, any> {
   return program.stateMap(openApiExtensionKey).get(entity) ?? new Map<ExtensionKey, any>();
-}
-
-/**
- * Gets the extensions for AdditionalInfo.
- * @param program global program
- * @param entity the namespace
- * @returns the extensions for the entity
- */
-export function getInfoExtensions(program: Program, entity: Namespace): ReadonlyMap<string, any> {
-  return program.stateMap(openApiExtensionKey).get(entity) ?? new Map<string, any>();
 }
 
 function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
@@ -174,24 +161,12 @@ export const $info: InfoDecorator = (
   if (data === undefined) {
     return;
   }
-  context.program.stateMap(infoKey).set(entity, data);
+  setInfo(context.program, entity, data);
 };
 
 export function getInfo(program: Program, entity: Namespace): AdditionalInfo | undefined {
   const info = program.stateMap(infoKey).get(entity);
-  const extensionsMap = getInfoExtensions(program, entity);
-  const extensions = extensionsMap.get(infoExtensionName);
-
-  /* The following info properties can be provided via extensions and should be overridden */
-  if (extensions && info) {
-    if (Object.prototype.hasOwnProperty.call(extensions, "contact")) {
-      info.contact = null;
-    }
-    if (Object.prototype.hasOwnProperty.call(extensions, "title")) {
-      info.title = null;
-    }
-  }
-  return omitUndefined({ ...info, ...extensions });
+  return info;
 }
 
 /** Resolve the info entry by merging data specified with `@service`, `@summary` and `@info`. */
