@@ -19,22 +19,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     internal class ScmMethodProviderCollection : MethodProviderCollection
     {
         private string _cleanOperationName;
-        private string _createRequestMethodName;
         private ParameterProvider? _bodyParameter;
+
+        public string CreateRequestMethodName;
 
         public ScmMethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
             : base(operation, enclosingType)
         {
             _cleanOperationName = operation.Name.ToCleanName();
-            _createRequestMethodName = "Create" + _cleanOperationName + "Request";
+            CreateRequestMethodName = "Create" + _cleanOperationName + "Request";
         }
 
         protected override IReadOnlyList<MethodProvider> BuildMethods()
         {
             return
             [
-                // TO-DO: Add Protocol and Convenience methods https://github.com/Azure/autorest.csharp/issues/4585, https://github.com/Azure/autorest.csharp/issues/4586
-                BuildCreateMessageMethod(),
                 BuildProtocolMethod(false),
                 BuildProtocolMethod(true),
                 BuildConvenienceMethod(false),
@@ -67,10 +66,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ? [Return(This.Invoke(methodSignature.Name, [.. ConvenienceMethodParameters, Null], null, isAsync, isAsync))]
                 : [
                     Declare("result", typeof(ClientResult), This.Invoke(methodSignature.Name, [.. ConvenienceMethodParameters, Null], null, isAsync, isAsync), out var result),
-                    Return(new InvokeStaticMethodExpression(
-                        typeof(ClientResult),
-                        nameof(ClientResult.FromValue),
-                        [result.CastTo(_bodyParameter.Type), result.Invoke("GetRawResponse")])),
+                    Return(Static<ClientResult>().Invoke(nameof(ClientResult.FromValue), [result.CastTo(_bodyParameter.Type), result.Invoke("GetRawResponse")])),
                 ];
 
             var convenienceMethod = new MethodProvider(methodSignature, methodBody, _enclosingType);
@@ -79,7 +75,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         private List<ParameterProvider>? _methodParameters;
-        private List<ParameterProvider> MethodParameters => _methodParameters ??= GetMethodParameters(false);
+        public List<ParameterProvider> MethodParameters => _methodParameters ??= GetMethodParameters(false);
 
         private List<ParameterProvider>? _convenienceMethodParameters;
         private List<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= GetMethodParameters(true);
@@ -128,17 +124,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
             MethodBodyStatement[] methodBody =
             [
-                UsingDeclare("message", typeof(PipelineMessage), This.Invoke(_createRequestMethodName, [.. MethodParameters, ScmKnownParameters.RequestOptions]), out var message),
-                Return(new InvokeStaticMethodExpression(
-                    typeof(ClientResult),
-                    nameof(ClientResult.FromResponse),
-                    client.PipelineField.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
+                UsingDeclare("message", typeof(PipelineMessage), This.Invoke(CreateRequestMethodName, [.. MethodParameters, ScmKnownParameters.RequestOptions]), out var message),
+                Return(Static<ClientResult>().Invoke(nameof(ClientResult.FromResponse), client.PipelineField.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
             ];
 
             var protocolMethod = new MethodProvider(methodSignature, methodBody, _enclosingType);
             protocolMethod.XmlDocs!.Exceptions.Add(new(typeof(ClientResultException), "Service returned a non-success status code.", []));
-            List<XmlDocStatement> listItems = new List<XmlDocStatement>();
-            listItems.Add(new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."])));
+            List<XmlDocStatement> listItems =
+            [
+                new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."]))
+            ];
             XmlDocStatement listXmlDoc = new XmlDocStatement("<list type=\"bullet\">", "</list>", [], innerStatements: [.. listItems]);
             protocolMethod.XmlDocs.Summary = new XmlDocSummaryStatement([$"[Protocol Method] {_operation.Description}"], listXmlDoc);
             return protocolMethod;
@@ -156,23 +151,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return response is null || response.BodyType is null
                 ? typeof(ClientResult)
                 : new CSharpType(typeof(ClientResult<>), ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(response.BodyType));
-        }
-
-        private MethodProvider BuildCreateMessageMethod()
-        {
-            // TO-DO: properly build method https://github.com/Azure/autorest.csharp/issues/4583
-
-            var methodModifier = MethodSignatureModifiers.Internal;
-            var methodSignature = new MethodSignature(
-                _createRequestMethodName,
-                FormattableStringHelpers.FromString(_operation.Description),
-                methodModifier,
-                typeof(PipelineMessage),
-                null,
-                Parameters: [.. MethodParameters, ScmKnownParameters.RequestOptions]);
-            var methodBody = Throw(New.NotImplementedException(Literal("Method not implemented.")));
-
-            return new MethodProvider(methodSignature, methodBody, _enclosingType);
         }
     }
 }

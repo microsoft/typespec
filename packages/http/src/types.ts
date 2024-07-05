@@ -55,6 +55,9 @@ export interface HttpAuthBase {
    * Optional description.
    */
   description?: string;
+
+  /** Model that defined the authentication */
+  readonly model: Model;
 }
 
 /**

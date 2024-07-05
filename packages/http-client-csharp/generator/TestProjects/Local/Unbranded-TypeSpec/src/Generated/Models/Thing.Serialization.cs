@@ -131,9 +131,165 @@ namespace UnbrandedTypeSpec.Models
             }
         }
 
-        Thing IJsonModel<Thing>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        Thing IJsonModel<Thing>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
+
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual Thing JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            throw new NotImplementedException("Not implemented");
+            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(Thing)} does not support reading '{format}' format.");
+            }
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeThing(document.RootElement, options);
+        }
+
+        internal static Thing DeserializeThing(JsonElement element, ModelReaderWriterOptions options)
+        {
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            string name = default;
+            BinaryData requiredUnion = default;
+            ThingRequiredLiteralString requiredLiteralString = default;
+            ThingRequiredLiteralInt requiredLiteralInt = default;
+            ThingRequiredLiteralFloat requiredLiteralFloat = default;
+            bool requiredLiteralBool = default;
+            ThingOptionalLiteralString optionalLiteralString = default;
+            ThingOptionalLiteralInt optionalLiteralInt = default;
+            ThingOptionalLiteralFloat optionalLiteralFloat = default;
+            bool optionalLiteralBool = default;
+            string requiredBadDescription = default;
+            IList<int> optionalNullableList = default;
+            IList<int> requiredNullableList = default;
+            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
+            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
+            foreach (var prop in element.EnumerateObject())
+            {
+                if (prop.NameEquals("name"u8))
+                {
+                    name = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("requiredUnion"u8))
+                {
+                    requiredUnion = BinaryData.FromString(prop.Value.GetRawText());
+                    continue;
+                }
+                if (prop.NameEquals("requiredLiteralString"u8))
+                {
+                    requiredLiteralString = new ThingRequiredLiteralString(prop.Value.GetString());
+                    continue;
+                }
+                if (prop.NameEquals("requiredLiteralInt"u8))
+                {
+                    requiredLiteralInt = new ThingRequiredLiteralInt(prop.Value.GetInt32());
+                    continue;
+                }
+                if (prop.NameEquals("requiredLiteralFloat"u8))
+                {
+                    requiredLiteralFloat = new ThingRequiredLiteralFloat(prop.Value.GetSingle());
+                    continue;
+                }
+                if (prop.NameEquals("requiredLiteralBool"u8))
+                {
+                    requiredLiteralBool = prop.Value.GetBoolean();
+                    continue;
+                }
+                if (prop.NameEquals("optionalLiteralString"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    optionalLiteralString = new ThingOptionalLiteralString(prop.Value.GetString());
+                    continue;
+                }
+                if (prop.NameEquals("optionalLiteralInt"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    optionalLiteralInt = new ThingOptionalLiteralInt(prop.Value.GetInt32());
+                    continue;
+                }
+                if (prop.NameEquals("optionalLiteralFloat"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    optionalLiteralFloat = new ThingOptionalLiteralFloat(prop.Value.GetSingle());
+                    continue;
+                }
+                if (prop.NameEquals("optionalLiteralBool"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    optionalLiteralBool = prop.Value.GetBoolean();
+                    continue;
+                }
+                if (prop.NameEquals("requiredBadDescription"u8))
+                {
+                    requiredBadDescription = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("optionalNullableList"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    List<int> array = new List<int>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        array.Add(item.GetInt32());
+                    }
+                    optionalNullableList = array;
+                    continue;
+                }
+                if (prop.NameEquals("requiredNullableList"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        requiredNullableList = new ChangeTrackingList<int>();
+                        continue;
+                    }
+                    List<int> array = new List<int>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        array.Add(item.GetInt32());
+                    }
+                    requiredNullableList = array;
+                    continue;
+                }
+                if (options.Format != "W")
+                {
+                    rawDataDictionary.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                }
+            }
+            serializedAdditionalRawData = rawDataDictionary;
+            return new Thing(
+                name,
+                requiredUnion,
+                requiredLiteralString,
+                requiredLiteralInt,
+                requiredLiteralFloat,
+                requiredLiteralBool,
+                optionalLiteralString,
+                optionalLiteralInt,
+                optionalLiteralFloat,
+                optionalLiteralBool,
+                requiredBadDescription,
+                optionalNullableList ?? new ChangeTrackingList<int>(),
+                requiredNullableList,
+                serializedAdditionalRawData);
         }
 
         BinaryData IPersistableModel<Thing>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
@@ -151,9 +307,23 @@ namespace UnbrandedTypeSpec.Models
             }
         }
 
-        Thing IPersistableModel<Thing>.Create(BinaryData data, ModelReaderWriterOptions options)
+        Thing IPersistableModel<Thing>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual Thing PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            throw new NotImplementedException("Not implemented");
+            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    using (JsonDocument document = JsonDocument.Parse(data))
+                    {
+                        return DeserializeThing(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(Thing)} does not support reading '{options.Format}' format.");
+            }
         }
 
         string IPersistableModel<Thing>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
