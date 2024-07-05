@@ -9,6 +9,7 @@ import {
   Operation,
   Program,
   StringLiteral,
+  SyntaxKind,
   Tuple,
   Type,
   Union,
@@ -362,53 +363,48 @@ function rangeDescription(start: number, end: number) {
   return undefined;
 }
 
-function setOperationVerb(program: Program, entity: Type, verb: HttpVerb): void {
-  if (entity.kind === "Operation") {
-    if (!program.stateMap(HttpStateKeys.verbs).has(entity)) {
-      program.stateMap(HttpStateKeys.verbs).set(entity, verb);
-    } else {
-      reportDiagnostic(program, {
-        code: "http-verb-duplicate",
-        format: { entityName: entity.name },
-        target: entity,
-      });
-    }
-  } else {
-    reportDiagnostic(program, {
-      code: "http-verb-wrong-type",
-      format: { verb, entityKind: entity.kind },
-      target: entity,
+function setOperationVerb(context: DecoratorContext, entity: Operation, verb: HttpVerb): void {
+  validateVerbUniqueOnNode(context, entity);
+  context.program.stateMap(HttpStateKeys.verbs).set(entity, verb);
+}
+
+function validateVerbUniqueOnNode(context: DecoratorContext, type: Operation) {
+  const verbDecorators = type.decorators.filter(
+    (x) =>
+      VERB_DECORATORS.includes(x.decorator) &&
+      x.node?.kind === SyntaxKind.DecoratorExpression &&
+      x.node?.parent === type.node
+  );
+
+  if (verbDecorators.length > 1) {
+    reportDiagnostic(context.program, {
+      code: "http-verb-duplicate",
+      format: { entityName: type.name },
+      target: context.decoratorTarget,
     });
+    return false;
   }
+  return true;
 }
 
 export function getOperationVerb(program: Program, entity: Type): HttpVerb | undefined {
   return program.stateMap(HttpStateKeys.verbs).get(entity);
 }
 
-export const $get: GetDecorator = (context: DecoratorContext, entity: Operation) => {
-  setOperationVerb(context.program, entity, "get");
-};
+function createVerbDecorator(verb: HttpVerb) {
+  return (context: DecoratorContext, entity: Operation) => {
+    setOperationVerb(context, entity, verb);
+  };
+}
 
-export const $put: PutDecorator = (context: DecoratorContext, entity: Operation) => {
-  setOperationVerb(context.program, entity, "put");
-};
+export const $get: GetDecorator = createVerbDecorator("get");
+export const $put: PutDecorator = createVerbDecorator("put");
+export const $post: PostDecorator = createVerbDecorator("post");
+export const $patch: PatchDecorator = createVerbDecorator("patch");
+export const $delete: DeleteDecorator = createVerbDecorator("delete");
+export const $head: HeadDecorator = createVerbDecorator("head");
 
-export const $post: PostDecorator = (context: DecoratorContext, entity: Operation) => {
-  setOperationVerb(context.program, entity, "post");
-};
-
-export const $patch: PatchDecorator = (context: DecoratorContext, entity: Operation) => {
-  setOperationVerb(context.program, entity, "patch");
-};
-
-export const $delete: DeleteDecorator = (context: DecoratorContext, entity: Operation) => {
-  setOperationVerb(context.program, entity, "delete");
-};
-
-export const $head: HeadDecorator = (context: DecoratorContext, entity: Operation) => {
-  setOperationVerb(context.program, entity, "head");
-};
+const VERB_DECORATORS = [$get, $head, $post, $put, $patch, $delete];
 
 export interface HttpServer {
   url: string;
@@ -588,7 +584,10 @@ function extractHttpAuthentication(
     return [result, diagnostics];
   }
   const description = getDoc(program, modelType);
-  const auth = result.type === "oauth2" ? extractOAuth2Auth(result) : result;
+  const auth =
+    result.type === "oauth2"
+      ? extractOAuth2Auth(modelType, result)
+      : { ...result, model: modelType };
   return [
     {
       ...auth,
@@ -599,7 +598,7 @@ function extractHttpAuthentication(
   ];
 }
 
-function extractOAuth2Auth(data: any): HttpAuth {
+function extractOAuth2Auth(modelType: Model, data: any): HttpAuth {
   // Validation of OAuth2Flow models in this function is minimal because the
   // type system already validates whether the model represents a flow
   // configuration.  This code merely avoids runtime errors.
@@ -612,6 +611,7 @@ function extractOAuth2Auth(data: any): HttpAuth {
   return {
     id: data.id,
     type: data.type,
+    model: modelType,
     flows: flows.map((flow: any) => {
       const scopes: Array<string> = flow.scopes ? flow.scopes : defaultScopes;
       return {
