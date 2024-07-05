@@ -88,15 +88,8 @@ namespace UnbrandedTypeSpec.Models
             writer.WriteObjectValue(RequiredModel, options);
             if (Optional.IsDefined(IntExtensibleEnum))
             {
-                if (IntExtensibleEnum != null)
-                {
-                    writer.WritePropertyName("intExtensibleEnum"u8);
-                    writer.WriteNumberValue(IntExtensibleEnum.Value.ToSerialInt32());
-                }
-                else
-                {
-                    writer.WriteNull("intExtensibleEnum"u8);
-                }
+                writer.WritePropertyName("intExtensibleEnum"u8);
+                writer.WriteNumberValue(IntExtensibleEnum.Value.ToSerialInt32());
             }
             if (Optional.IsCollectionDefined(IntExtensibleEnumCollection))
             {
@@ -110,27 +103,13 @@ namespace UnbrandedTypeSpec.Models
             }
             if (Optional.IsDefined(FloatExtensibleEnum))
             {
-                if (FloatExtensibleEnum != null)
-                {
-                    writer.WritePropertyName("floatExtensibleEnum"u8);
-                    writer.WriteNumberValue(FloatExtensibleEnum.Value.ToSerialSingle());
-                }
-                else
-                {
-                    writer.WriteNull("floatExtensibleEnum"u8);
-                }
+                writer.WritePropertyName("floatExtensibleEnum"u8);
+                writer.WriteNumberValue(FloatExtensibleEnum.Value.ToSerialSingle());
             }
             if (Optional.IsDefined(FloatExtensibleEnumWithIntValue))
             {
-                if (FloatExtensibleEnumWithIntValue != null)
-                {
-                    writer.WritePropertyName("floatExtensibleEnumWithIntValue"u8);
-                    writer.WriteNumberValue(FloatExtensibleEnumWithIntValue.Value.ToSerialSingle());
-                }
-                else
-                {
-                    writer.WriteNull("floatExtensibleEnumWithIntValue"u8);
-                }
+                writer.WritePropertyName("floatExtensibleEnumWithIntValue"u8);
+                writer.WriteNumberValue(FloatExtensibleEnumWithIntValue.Value.ToSerialSingle());
             }
             if (Optional.IsCollectionDefined(FloatExtensibleEnumCollection))
             {
@@ -144,27 +123,13 @@ namespace UnbrandedTypeSpec.Models
             }
             if (Optional.IsDefined(FloatFixedEnum))
             {
-                if (FloatFixedEnum != null)
-                {
-                    writer.WritePropertyName("floatFixedEnum"u8);
-                    writer.WriteNumberValue(FloatFixedEnum.Value.ToSerialSingle());
-                }
-                else
-                {
-                    writer.WriteNull("floatFixedEnum"u8);
-                }
+                writer.WritePropertyName("floatFixedEnum"u8);
+                writer.WriteNumberValue(FloatFixedEnum.Value.ToSerialSingle());
             }
             if (Optional.IsDefined(FloatFixedEnumWithIntValue))
             {
-                if (FloatFixedEnumWithIntValue != null)
-                {
-                    writer.WritePropertyName("floatFixedEnumWithIntValue"u8);
-                    writer.WriteNumberValue((int)FloatFixedEnumWithIntValue.Value);
-                }
-                else
-                {
-                    writer.WriteNull("floatFixedEnumWithIntValue"u8);
-                }
+                writer.WritePropertyName("floatFixedEnumWithIntValue"u8);
+                writer.WriteNumberValue((int)FloatFixedEnumWithIntValue.Value);
             }
             if (Optional.IsCollectionDefined(FloatFixedEnumCollection))
             {
@@ -178,15 +143,8 @@ namespace UnbrandedTypeSpec.Models
             }
             if (Optional.IsDefined(IntFixedEnum))
             {
-                if (IntFixedEnum != null)
-                {
-                    writer.WritePropertyName("intFixedEnum"u8);
-                    writer.WriteNumberValue((int)IntFixedEnum.Value);
-                }
-                else
-                {
-                    writer.WriteNull("intFixedEnum"u8);
-                }
+                writer.WritePropertyName("intFixedEnum"u8);
+                writer.WriteNumberValue((int)IntFixedEnum.Value);
             }
             if (Optional.IsCollectionDefined(IntFixedEnumCollection))
             {
@@ -200,15 +158,8 @@ namespace UnbrandedTypeSpec.Models
             }
             if (Optional.IsDefined(StringFixedEnum))
             {
-                if (StringFixedEnum != null)
-                {
-                    writer.WritePropertyName("stringFixedEnum"u8);
-                    writer.WriteStringValue(StringFixedEnum.Value.ToSerialString());
-                }
-                else
-                {
-                    writer.WriteNull("stringFixedEnum"u8);
-                }
+                writer.WritePropertyName("stringFixedEnum"u8);
+                writer.WriteStringValue(StringFixedEnum.Value.ToSerialString());
             }
             writer.WritePropertyName("requiredUnknown"u8);
 #if NET6_0_OR_GREATER
@@ -221,22 +172,15 @@ namespace UnbrandedTypeSpec.Models
 #endif
             if (Optional.IsDefined(OptionalUnknown))
             {
-                if (OptionalUnknown != null)
-                {
-                    writer.WritePropertyName("optionalUnknown"u8);
+                writer.WritePropertyName("optionalUnknown"u8);
 #if NET6_0_OR_GREATER
-                    writer.WriteRawValue(OptionalUnknown);
+                writer.WriteRawValue(OptionalUnknown);
 #else
-                    using (JsonDocument document = JsonDocument.Parse(OptionalUnknown))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
-                else
+                using (JsonDocument document = JsonDocument.Parse(OptionalUnknown))
                 {
-                    writer.WriteNull("optionalUnknown"u8);
+                    JsonSerializer.Serialize(writer, document.RootElement);
                 }
+#endif
             }
             writer.WritePropertyName("requiredRecordUnknown"u8);
             writer.WriteStartObject();

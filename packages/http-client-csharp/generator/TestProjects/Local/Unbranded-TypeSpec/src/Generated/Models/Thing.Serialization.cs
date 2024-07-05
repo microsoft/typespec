@@ -75,51 +75,23 @@ namespace UnbrandedTypeSpec.Models
             writer.WriteBooleanValue(RequiredLiteralBool);
             if (Optional.IsDefined(OptionalLiteralString))
             {
-                if (OptionalLiteralString != null)
-                {
-                    writer.WritePropertyName("optionalLiteralString"u8);
-                    writer.WriteStringValue(OptionalLiteralString.Value.ToString());
-                }
-                else
-                {
-                    writer.WriteNull("optionalLiteralString"u8);
-                }
+                writer.WritePropertyName("optionalLiteralString"u8);
+                writer.WriteStringValue(OptionalLiteralString.Value.ToString());
             }
             if (Optional.IsDefined(OptionalLiteralInt))
             {
-                if (OptionalLiteralInt != null)
-                {
-                    writer.WritePropertyName("optionalLiteralInt"u8);
-                    writer.WriteNumberValue(OptionalLiteralInt.Value.ToSerialInt32());
-                }
-                else
-                {
-                    writer.WriteNull("optionalLiteralInt"u8);
-                }
+                writer.WritePropertyName("optionalLiteralInt"u8);
+                writer.WriteNumberValue(OptionalLiteralInt.Value.ToSerialInt32());
             }
             if (Optional.IsDefined(OptionalLiteralFloat))
             {
-                if (OptionalLiteralFloat != null)
-                {
-                    writer.WritePropertyName("optionalLiteralFloat"u8);
-                    writer.WriteNumberValue(OptionalLiteralFloat.Value.ToSerialSingle());
-                }
-                else
-                {
-                    writer.WriteNull("optionalLiteralFloat"u8);
-                }
+                writer.WritePropertyName("optionalLiteralFloat"u8);
+                writer.WriteNumberValue(OptionalLiteralFloat.Value.ToSerialSingle());
             }
             if (Optional.IsDefined(OptionalLiteralBool))
             {
-                if (OptionalLiteralBool != null)
-                {
-                    writer.WritePropertyName("optionalLiteralBool"u8);
-                    writer.WriteBooleanValue(OptionalLiteralBool.Value);
-                }
-                else
-                {
-                    writer.WriteNull("optionalLiteralBool"u8);
-                }
+                writer.WritePropertyName("optionalLiteralBool"u8);
+                writer.WriteBooleanValue(OptionalLiteralBool.Value);
             }
             writer.WritePropertyName("requiredBadDescription"u8);
             writer.WriteStringValue(RequiredBadDescription);

@@ -1039,6 +1039,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 var propertySerializationFormat = propertyWireInfo?.SerializationFormat ?? SerializationFormat.Default;
                 var propertyIsReadOnly = propertyWireInfo?.IsReadOnly ?? false;
                 var propertyIsRequired = propertyWireInfo?.IsRequired ?? false;
+                var propertyIsNullable = propertyWireInfo?.IsNullable ?? false;
 
                 // Generate the serialization statements for the property
                 var writePropertySerializationStatements = new MethodBodyStatement[]
@@ -1048,7 +1049,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 };
 
                 // Wrap the serialization statement in a check for whether the property is defined
-                var wrapInIsDefinedStatement = WrapInIsDefined(property, propertyMember, propertyIsRequired, propertyIsReadOnly, writePropertySerializationStatements);
+                var wrapInIsDefinedStatement = WrapInIsDefined(property, propertyMember, propertyIsRequired, propertyIsReadOnly, propertyIsNullable, writePropertySerializationStatements);
                 if (propertyIsReadOnly && wrapInIsDefinedStatement is not IfStatement)
                 {
                     wrapInIsDefinedStatement = new IfStatement(_isNotEqualToWireConditionSnippet)
@@ -1074,12 +1075,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             MemberExpression propertyMemberExpression,
             bool propertyIsRequired,
             bool propertyIsReadOnly,
+            bool propertyIsNullable,
             MethodBodyStatement writePropertySerializationStatement)
         {
             var propertyType = propertyProvider.Type;
 
             // Create the first conditional statement to check if the property is defined
-            if (propertyType.IsNullable)
+            if (propertyIsNullable)
             {
                 writePropertySerializationStatement = CheckPropertyIsInitialized(
                 propertyProvider,

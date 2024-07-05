@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Name = inputProperty.Name.ToVariableName();
             Description = FormattableStringHelpers.FromString(inputProperty.Description);
             Type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
-            if (inputProperty is { IsRequired: false } && inputProperty.Type is not InputNullableType && !Type.IsCollection)
+            if (!inputProperty.IsRequired && !Type.IsCollection)
             {
                 Type = Type.WithNullable(true);
             }

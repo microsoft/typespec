@@ -28,9 +28,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public PropertyProvider(InputModelProperty inputProperty)
         {
             var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
-            // We represent property being optional by making it nullable (when it is a value type)
-            // Except in the case of collection where there is a special handling
-            if (inputProperty is { IsRequired: false } && inputProperty.Type is not InputNullableType && !propertyType.IsCollection)
+            if (!inputProperty.IsRequired && !propertyType.IsCollection)
             {
                 propertyType = propertyType.WithNullable(true);
             }
