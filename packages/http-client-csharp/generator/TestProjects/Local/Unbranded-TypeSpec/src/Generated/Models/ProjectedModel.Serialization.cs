@@ -42,7 +42,7 @@ namespace UnbrandedTypeSpec.Models
                 throw new FormatException($"The model {nameof(ProjectedModel)} does not support writing '{format}' format.");
             }
             writer.WritePropertyName("name"u8);
-            writer.WriteStringValue(name);
+            writer.WriteStringValue(Name);
             if (options.Format != "W" && _serializedAdditionalRawData != null)
             {
                 foreach (var item in _serializedAdditionalRawData)

@@ -35,11 +35,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return [PipelineField];
         }
 
-        protected override MethodProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
             return
             [
-                new MethodProvider(
+                new ConstructorProvider(
                     new ConstructorSignature(Type, $"{_inputClient.Description}", MethodSignatureModifiers.Public, []),
                     new MethodBodyStatement[] { PipelineField.Assign(ClientPipelineSnippets.Create()).Terminate() },
                     this)
