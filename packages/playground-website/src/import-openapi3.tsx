@@ -5,7 +5,6 @@ import {
   DialogContent,
   DialogSurface,
   DialogTitle,
-  DialogTrigger,
   Menu,
   MenuItem,
   MenuList,
@@ -21,41 +20,38 @@ import { parse } from "yaml";
 import style from "./import-openapi3.module.css";
 
 export const ImportToolbarButton = () => {
-  return (
-    <Menu persistOnItemClick>
-      <MenuTrigger disableButtonEnhancement>
-        <Tooltip content="Import" relationship="description" withArrow>
-          <ToolbarButton
-            appearance="subtle"
-            aria-label="File Bug Report"
-            icon={<ArrowUploadFilled />}
-          />
-        </Tooltip>
-      </MenuTrigger>
-      <MenuPopover>
-        <MenuList>
-          <ImportOpenAPI3MenuItem />
-        </MenuList>
-      </MenuPopover>
-    </Menu>
-  );
-};
-const ImportOpenAPI3MenuItem = () => {
   const [open, setOpen] = useState(false);
+
   return (
-    <Dialog open={open} onOpenChange={(event, data) => setOpen(data.open)}>
-      <DialogTrigger disableButtonEnhancement>
-        <MenuItem>From OpenAPI 3 spec</MenuItem>
-      </DialogTrigger>
-      <DialogSurface>
-        <DialogBody>
-          <DialogTitle>Settings</DialogTitle>
-          <DialogContent>
-            <ImportOpenAPI3 onImport={() => setOpen(false)} />
-          </DialogContent>
-        </DialogBody>
-      </DialogSurface>
-    </Dialog>
+    <>
+      <Menu>
+        <MenuTrigger disableButtonEnhancement>
+          <Tooltip content="Import" relationship="description" withArrow>
+            <ToolbarButton
+              appearance="subtle"
+              aria-label="File Bug Report"
+              icon={<ArrowUploadFilled />}
+            />
+          </Tooltip>
+        </MenuTrigger>
+        <MenuPopover>
+          <MenuList>
+            <MenuItem onClick={() => setOpen(true)}>From OpenAPI 3 spec</MenuItem>
+          </MenuList>
+        </MenuPopover>
+      </Menu>
+
+      <Dialog open={open} onOpenChange={(event, data) => setOpen(data.open)}>
+        <DialogSurface>
+          <DialogBody>
+            <DialogTitle>Settings</DialogTitle>
+            <DialogContent>
+              <ImportOpenAPI3 onImport={() => setOpen(false)} />
+            </DialogContent>
+          </DialogBody>
+        </DialogSurface>
+      </Dialog>
+    </>
   );
 };
 
