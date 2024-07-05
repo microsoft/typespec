@@ -9,6 +9,8 @@ using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
 
+#pragma warning disable MGC0001
+
 namespace Microsoft.Generator.CSharp.Snippets
 {
     public static partial class Snippet

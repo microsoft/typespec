@@ -20,4 +20,8 @@
     <ProjectReference Include="..\..\Microsoft.Generator.CSharp.Input\src\Microsoft.Generator.CSharp.Input.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Microsoft.Generator.CSharp.Analyzer\src\Microsoft.Generator.CSharp.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
 </Project>

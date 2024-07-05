@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+
+    <!-- Avoid ID conflicts with the package project. -->
+    <PackageId>*$(MSBuildProjectFile)*</PackageId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="C:\Users\dapzhang\Documents\workspace\typespec\packages\http-client-csharp\generator\../eng/images/packageIcon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="C:\Users\dapzhang\Documents\workspace\typespec\packages\http-client-csharp\generator\../eng/images/packageIcon.png" />
+  </ItemGroup>
+
+</Project>
