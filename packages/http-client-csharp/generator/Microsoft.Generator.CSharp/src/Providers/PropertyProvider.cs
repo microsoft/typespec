@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -15,6 +16,9 @@ namespace Microsoft.Generator.CSharp.Providers
     public class PropertyProvider
     {
         private VariableExpression? _variable;
+        private Lazy<ParameterProvider> _parameter;
+        private FieldProvider? _backingField;
+
         public FormattableString Description { get; }
         public XmlDocSummaryStatement XmlDocSummary { get; }
         public MethodSignatureModifiers Modifiers { get; }
@@ -25,6 +29,16 @@ namespace Microsoft.Generator.CSharp.Providers
         public XmlDocProvider XmlDocs { get; }
         public PropertyWireInformation? WireInfo { get; }
 
+        /// <summary>
+        /// Converts this property to a parameter.
+        /// </summary>
+        public ParameterProvider Parameter => _parameter.Value;
+
+        /// <summary>
+        /// Returns the backing field of this property if any.
+        /// </summary>
+        public FieldProvider? BackingField => _backingField;
+
         public PropertyProvider(InputModelProperty inputProperty)
         {
             var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
@@ -34,12 +48,14 @@ namespace Microsoft.Generator.CSharp.Providers
 
             Type = propertyType;
             Modifiers = MethodSignatureModifiers.Public;
-            Name = inputProperty.Name.FirstCharToUpperCase();
+            Name = inputProperty.Name.ToCleanName();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
             Description = string.IsNullOrEmpty(inputProperty.Description) ? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter) : $"{inputProperty.Description}";
             XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);
             XmlDocs = GetXmlDocs();
             WireInfo = new PropertyWireInformation(inputProperty);
+
+            InitializeParameter(Name, FormattableStringHelpers.FromString(inputProperty.Description), Type, GetParameterValidation(inputProperty, Type));
         }
 
         public PropertyProvider(
@@ -49,7 +65,8 @@ namespace Microsoft.Generator.CSharp.Providers
             string name,
             PropertyBody body,
             CSharpType? explicitInterface = null,
-            PropertyWireInformation? wireInfo = null)
+            PropertyWireInformation? wireInfo = null,
+            FieldProvider? backingField = null)
         {
             Description = description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter);
             XmlDocSummary = new XmlDocSummaryStatement([Description]);
@@ -60,6 +77,58 @@ namespace Microsoft.Generator.CSharp.Providers
             ExplicitInterface = explicitInterface;
             XmlDocs = GetXmlDocs();
             WireInfo = wireInfo;
+
+            InitializeParameter(Name, description ?? FormattableStringHelpers.Empty, Type, ParameterValidationType.None);
+            InitializeField(backingField);
+        }
+
+        [MemberNotNull(nameof(_parameter))]
+        private void InitializeParameter(string propertyName, FormattableString description, CSharpType propertyType, ParameterValidationType validation)
+        {
+            var parameterName = propertyName.ToVariableName();
+            _parameter = new(() => new ParameterProvider(parameterName, description, propertyType)
+            {
+                Validation = validation,
+                Property = this
+            });
+        }
+
+        private void InitializeField(FieldProvider? backingField)
+        {
+            if (backingField == null)
+                return;
+
+            _backingField = backingField;
+            backingField.Property = this;
+        }
+
+        private static ParameterValidationType GetParameterValidation(InputModelProperty property, CSharpType propertyType)
+        {
+            // We do not validate a parameter when it is a value type (struct or int, etc)
+            if (propertyType.IsValueType)
+            {
+                return ParameterValidationType.None;
+            }
+
+            // or it is readonly
+            if (property.IsReadOnly)
+            {
+                return ParameterValidationType.None;
+            }
+
+            // or it is optional
+            if (!property.IsRequired)
+            {
+                return ParameterValidationType.None;
+            }
+
+            // or it is nullable
+            if (propertyType.IsNullable)
+            {
+                return ParameterValidationType.None;
+            }
+
+            return ParameterValidationType.AssertNotNull;
         }
 
         public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());

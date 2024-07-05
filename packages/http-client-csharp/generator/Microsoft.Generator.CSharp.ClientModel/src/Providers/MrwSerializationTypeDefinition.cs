@@ -647,14 +647,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             foreach (var param in parameters)
             {
+                // TODO -- this should be checking the field property in the parameter
                 if (param.Name == _rawDataField?.Name.ToVariableName())
                 {
                     methodBodyStatements.Add(_rawDataField.Assign(param).Terminate());
                     continue;
                 }
 
+                if (param.Property == null)
+                {
+                    continue;
+                }
                 ValueExpression initializationValue = param;
-                var initializationStatement = param.AsPropertyExpression.Assign(initializationValue).Terminate();
+                var initializationStatement = param.Property.Assign(initializationValue).Terminate();
                 if (initializationStatement != null)
                 {
                     methodBodyStatements.Add(initializationStatement);
@@ -945,9 +950,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             List<ParameterProvider> constructorParameters = new List<ParameterProvider>();
             bool shouldAddRawDataField = _rawDataField != null;
 
-            foreach (var property in _inputModel.Properties)
+            foreach (var property in _model.Properties)
             {
-                var parameter = new ParameterProvider(property);
+                var parameter = property.Parameter;
                 constructorParameters.Add(parameter);
 
                 if (shouldAddRawDataField && string.Equals(parameter.Name, _rawDataField?.Name, StringComparison.OrdinalIgnoreCase))
