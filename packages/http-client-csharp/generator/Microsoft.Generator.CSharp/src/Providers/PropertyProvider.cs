@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             Type = propertyType;
             Modifiers = MethodSignatureModifiers.Public;
-            Name = inputProperty.Name.FirstCharToUpperCase();
+            Name = inputProperty.Name.ToCleanName();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
             Description = string.IsNullOrEmpty(inputProperty.Description) ? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter) : $"{inputProperty.Description}";
             XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);

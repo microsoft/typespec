@@ -7,6 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
@@ -15,9 +16,10 @@ namespace UnbrandedTypeSpec.Models
     {
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
-        internal Friend(string name, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        internal Friend(string name, string propertyWithUnfriendlyWireName, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             Name = name;
+            PropertyWithUnfriendlyWireName = propertyWithUnfriendlyWireName;
             _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
@@ -43,6 +45,11 @@ namespace UnbrandedTypeSpec.Models
             }
             writer.WritePropertyName("name"u8);
             writer.WriteStringValue(Name);
+            if (Optional.IsDefined(PropertyWithUnfriendlyWireName))
+            {
+                writer.WritePropertyName("property-with-unfriendly-wire-name"u8);
+                writer.WriteStringValue(PropertyWithUnfriendlyWireName);
+            }
             if (options.Format != "W" && _serializedAdditionalRawData != null)
             {
                 foreach (var item in _serializedAdditionalRawData)
@@ -82,6 +89,7 @@ namespace UnbrandedTypeSpec.Models
                 return null;
             }
             string name = default;
+            string propertyWithUnfriendlyWireName = default;
             IDictionary<string, BinaryData> serializedAdditionalRawData = default;
             Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
@@ -91,13 +99,18 @@ namespace UnbrandedTypeSpec.Models
                     name = prop.Value.GetString();
                     continue;
                 }
+                if (prop.NameEquals("propertyWithUnfriendlyWireName"u8))
+                {
+                    propertyWithUnfriendlyWireName = prop.Value.GetString();
+                    continue;
+                }
                 if (options.Format != "W")
                 {
                     rawDataDictionary.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
             serializedAdditionalRawData = rawDataDictionary;
-            return new Friend(name, serializedAdditionalRawData);
+            return new Friend(name, propertyWithUnfriendlyWireName, serializedAdditionalRawData);
         }
 
         BinaryData IPersistableModel<Friend>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);

@@ -145,6 +145,9 @@ model ModelWithRequiredNullableProperties {
 model NotFriend {
   @doc("name of the NotFriend")
   name: string;
+
+  @doc("property with unfriendly wire name")
+  `property-with-unfriendly-wire-name`?: string;
 }
 
 @doc("this is a model with a projected name")

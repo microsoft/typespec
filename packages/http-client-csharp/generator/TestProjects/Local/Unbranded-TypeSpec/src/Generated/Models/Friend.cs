@@ -22,5 +22,8 @@ namespace UnbrandedTypeSpec.Models
 
         /// <summary> name of the NotFriend. </summary>
         public string Name { get; set; }
+
+        /// <summary> property with unfriendly wire name. </summary>
+        public string PropertyWithUnfriendlyWireName { get; set; }
     }
 }

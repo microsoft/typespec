@@ -29,7 +29,7 @@ namespace Microsoft.Generator.CSharp.Primitives
             SerializationFormat = CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputModelProperty.Type);
             IsRequired = inputModelProperty.IsRequired;
             IsReadOnly = inputModelProperty.IsReadOnly;
-            SerializedName = inputModelProperty.SerializedName.FirstCharToUpperCase();
+            SerializedName = inputModelProperty.SerializedName;
         }
     }
 }
