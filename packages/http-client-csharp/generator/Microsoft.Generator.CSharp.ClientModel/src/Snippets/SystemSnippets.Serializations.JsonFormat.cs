@@ -5,8 +5,8 @@ using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal static partial class SystemSnippets
+    internal static partial class SystemSnippet
     {
-        internal static StringSnippet JsonFormatSerialization = Snippet.Literal("J");
+        internal static ScopedApi<string> JsonFormatSerialization = Snippet.Literal("J");
     }
 }

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
@@ -36,56 +37,18 @@ namespace Microsoft.Generator.CSharp
             _atBeginningOfLine = true;
         }
 
-        public CodeScope Scope(FormattableString line, string start = "{", string end = "}", bool newLine = true, CodeWriterScopeDeclarations? scopeDeclarations = null)
+        public CodeScope Scope(FormattableString line, string start = "{", string end = "}", bool newLine = true)
         {
-            ValidateDeclarations(scopeDeclarations);
             CodeScope codeWriterScope = new CodeScope(this, end, newLine, _scopes.Peek().Depth + 1);
-            _scopes.Push(codeWriterScope);
             WriteLine(line);
             WriteRawLine(start);
-            AddDeclarationsToScope(scopeDeclarations);
+            _scopes.Push(codeWriterScope);
             return codeWriterScope;
         }
 
         public CodeScope Scope()
         {
             return ScopeRaw();
-        }
-
-        private void ValidateDeclarations(CodeWriterScopeDeclarations? scopeDeclarations)
-        {
-            if (scopeDeclarations == null)
-            {
-                return;
-            }
-
-            foreach (var declarationName in scopeDeclarations.Names)
-            {
-                if (!IsAvailable(declarationName))
-                {
-                    throw new InvalidOperationException($"Variable with name '{declarationName}' is declared already.");
-                }
-            }
-        }
-
-        private void AddDeclarationsToScope(CodeWriterScopeDeclarations? scopeDeclarations)
-        {
-            if (scopeDeclarations == null)
-            {
-                return;
-            }
-
-            var currentScope = _scopes.Peek();
-
-            foreach (var declarationName in scopeDeclarations.Names)
-            {
-                foreach (var scope in _scopes)
-                {
-                    scope.AllDefinedIdentifiers.Add(declarationName);
-                }
-
-                currentScope.Identifiers.Add(declarationName);
-            }
         }
 
         internal CodeScope ScopeRaw(string start = "{", string end = "}", bool newLine = true)
@@ -179,6 +142,11 @@ namespace Microsoft.Generator.CSharp
                         break;
                     case var _ when isLiteralFormat:
                         Literal(argument).Write(this);
+                        break;
+                    case DateTimeOffset dto:
+                        //windows and linux us different default dto ToString so we need to be explicit here
+                        //using 02/03/0001 04:05:06 +00:00
+                        AppendRaw(dto.ToString("MM/dd/yyyy HH:mm:ss zzz"));
                         break;
                     default:
                         string? s = argument?.ToString();
@@ -281,7 +249,7 @@ namespace Microsoft.Generator.CSharp
             {
                 Append($"{property.ExplicitInterface}.");
             }
-            if (property is IndexerProvider indexer)
+            if (property is IndexPropertyProvider indexer)
             {
                 Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {indexer.IndexerParameter.Name}]");
             }
@@ -675,7 +643,6 @@ namespace Microsoft.Generator.CSharp
             }
 
             declaration.SetActualName(GetTemporaryVariable(declaration.RequestedName));
-            _scopes.Peek().Declarations.Add(declaration);
             return WriteDeclaration(declaration.ActualName);
         }
 
@@ -735,7 +702,7 @@ namespace Microsoft.Generator.CSharp
 
                 if (isImplicitOrExplicit)
                 {
-                    Append($"{method.ReturnType}");
+                    AppendIf($"{method.ReturnType}", method.ReturnType is not null);
                 }
 
                 if (method.ExplicitInterface is not null)
@@ -883,7 +850,15 @@ namespace Microsoft.Generator.CSharp
 
         internal void Append(CodeWriterDeclaration declaration)
         {
-            WriteIdentifier(declaration.ActualName);
+            if (declaration.HasBeenDeclared)
+            {
+                AppendRawIf("ref ", declaration.IsRef);
+                WriteIdentifier(declaration.ActualName);
+            }
+            else
+            {
+                WriteDeclaration(declaration);
+            }
         }
 
         internal void WriteTypeModifiers(TypeSignatureModifiers modifiers)

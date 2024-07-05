@@ -3,8 +3,9 @@
 
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
-using static Microsoft.Generator.CSharp.Snippets.Snippet;
+using static Microsoft.Generator.CSharp.Snippets.ArgumentSnippets;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
@@ -100,11 +101,11 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 if (parameter.Validation != ParameterValidationType.None)
                 {
-                    statements[index] = Argument.ValidateParameter(parameter);
+                    statements[index] = ValidateParameter(parameter);
                     index++;
                 }
             }
-            statements[index] = EmptyLineStatement;
+            statements[index] = MethodBodyStatement.EmptyLine;
             index++;
 
             statements[index] = bodyStatements;
@@ -115,8 +116,8 @@ namespace Microsoft.Generator.CSharp.Providers
         private XmlDocProvider? BuildXmlDocs(Dictionary<ParameterValidationType, List<ParameterProvider>>? paramHash)
         {
             var docs = new XmlDocProvider();
-            if (Signature.SummaryText is not null)
-                docs.Summary = new XmlDocSummaryStatement([Signature.SummaryText]);
+            if (Signature.Description is not null)
+                docs.Summary = new XmlDocSummaryStatement([Signature.Description]);
 
             foreach (var parameter in Signature.Parameters)
             {

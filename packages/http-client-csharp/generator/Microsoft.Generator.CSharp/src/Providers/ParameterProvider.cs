@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
@@ -127,6 +128,24 @@ namespace Microsoft.Generator.CSharp.Providers
             return $"Name: {Name}, Type: {Type}";
         }
 
-        // TO-DO: Migrate code from autorest as part of output classes migration : https://github.com/Azure/autorest.csharp/issues/4198
+        public static implicit operator VariableExpression(ParameterProvider parameter) => GetVariableExpression(parameter);
+
+        private static VariableExpression GetVariableExpression(ParameterProvider parameter)
+        {
+            if (parameter._asVariable == null)
+            {
+                var decl = new CodeWriterDeclaration(parameter.Name, parameter.IsRef);
+                decl.SetActualName(parameter.Name);
+                parameter._asVariable = new VariableExpression(parameter.Type, decl);
+            }
+
+            return parameter._asVariable;
+        }
+
+        private VariableExpression? _asVariable;
+        public VariableExpression AsExpression => _asVariable ??= this;
+
+        private MemberExpression? _asProperty;
+        public MemberExpression AsPropertyExpression => _asProperty ??= new MemberExpression(null, Name.FirstCharToUpperCase());
     }
 }

@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
@@ -25,10 +26,12 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 _modifiers |= TypeSignatureModifiers.Internal;
             }
-
-            Serialization = new FixedEnumSerializationProvider(this);
         }
 
+        protected override TypeProvider[] BuildSerializationProviders()
+        {
+            return new TypeProvider[] { new FixedEnumSerializationProvider(this) };
+        }
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
 
         // we have to build the values first, because the corresponding fieldDeclaration of the values might need all of the existing values to avoid name conflicts
@@ -67,10 +70,11 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             // otherwise we call the corresponding extension method to convert the value
-            return new InvokeStaticMethodExpression(Serialization?.Type, $"ToSerial{ValueType.Name}", [enumExpression], CallAsExtension: true);
+            CSharpType? serializationType = SerializationProviders.FirstOrDefault()?.Type;
+            return enumExpression.Invoke($"ToSerial{ValueType.Name}");
         }
 
         public override ValueExpression ToEnum(ValueExpression valueExpression)
-            => new InvokeStaticMethodExpression(Serialization?.Type, $"To{Type.Name}", [valueExpression], CallAsExtension: true);
+            => valueExpression.Invoke($"To{Type.Name}");
     }
 }

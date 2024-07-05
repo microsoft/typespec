@@ -31,8 +31,8 @@ import { InputOperationParameterKind } from "../type/input-operation-parameter-k
 import { InputOperation } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
 import {
+  InputArrayType,
   InputEnumType,
-  InputListType,
   InputModelType,
   InputType,
   isInputEnumType,
@@ -79,8 +79,8 @@ export function loadOperation(
     parameters.push(loadOperationParameter(sdkContext, p));
   }
 
-  if (typespecParameters.body?.parameter && !isVoidType(typespecParameters.body.type)) {
-    parameters.push(loadBodyParameter(sdkContext, typespecParameters.body?.parameter));
+  if (typespecParameters.body?.property && !isVoidType(typespecParameters.body.type)) {
+    parameters.push(loadBodyParameter(sdkContext, typespecParameters.body?.property));
   } else if (typespecParameters.body?.type && !isVoidType(typespecParameters.body.type)) {
     const effectiveBodyType = getEffectiveSchemaType(sdkContext, typespecParameters.body.type);
     if (effectiveBodyType.kind === "Model") {
@@ -245,7 +245,7 @@ export function loadOperation(
       IsContentType: isContentType,
       IsEndpoint: false,
       SkipUrlEncoding: false, //TODO: retrieve out value from extension
-      Explode: (inputType as InputListType).ElementType && format === "multi" ? true : false,
+      Explode: (inputType as InputArrayType).ValueType && format === "multi" ? true : false,
       Kind: kind,
       ArraySerializationDelimiter: format ? collectionFormatToDelimMap[format] : undefined,
     } as InputParameter;
