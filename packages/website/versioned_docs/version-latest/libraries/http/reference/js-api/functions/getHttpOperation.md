@@ -4,7 +4,7 @@ title: "[F] getHttpOperation"
 
 ---
 ```ts
-getHttpOperation(
+function getHttpOperation(
    program, 
    operation, 
    options?): [HttpOperation, readonly Diagnostic[]]

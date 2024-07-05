@@ -4,7 +4,7 @@ title: "[F] getKnownValues"
 
 ---
 ```ts
-getKnownValues(program, target): Enum | undefined
+function getKnownValues(program, target): Enum | undefined
 ```
 
 ## Parameters
@@ -12,7 +12,7 @@ getKnownValues(program, target): Enum | undefined
 | Parameter | Type |
 | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) |
-| `target` | [`Scalar`](../interfaces/Scalar.md) \| [`ModelProperty`](../interfaces/ModelProperty.md) |
+| `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
 
 ## Returns
 

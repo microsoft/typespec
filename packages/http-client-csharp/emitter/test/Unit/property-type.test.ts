@@ -2,9 +2,7 @@ import { TestHost } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
-import { InputPrimitiveTypeKind } from "../../src/type/input-primitive-type-kind.js";
-import { InputTypeKind } from "../../src/type/input-type-kind.js";
-import { InputEnumType, InputListType } from "../../src/type/input-type.js";
+import { InputArrayType, InputEnumType } from "../../src/type/input-type.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
@@ -30,18 +28,15 @@ describe("Test GetInputType for array", () => {
     const context = createEmitterContext(program);
     const sdkContext = createNetSdkContext(context);
     const root = createModel(sdkContext);
-    deepStrictEqual(root.Clients[0].Operations[0].Parameters[0].Type.Kind, InputTypeKind.Array);
+    deepStrictEqual(root.Clients[0].Operations[0].Parameters[0].Type.Kind, "array");
     deepStrictEqual(
       {
-        Kind: InputTypeKind.Array,
-        Name: InputTypeKind.Array,
-        ElementType: {
-          Kind: InputTypeKind.Primitive,
-          Name: InputPrimitiveTypeKind.String,
-          IsNullable: false,
+        Kind: "array",
+        ValueType: {
+          Kind: "string",
+          Encode: undefined,
         },
-        IsNullable: false,
-      } as InputListType,
+      } as InputArrayType,
       root.Clients[0].Operations[0].Parameters[0].Type
     );
   });
@@ -56,18 +51,15 @@ describe("Test GetInputType for array", () => {
     const context = createEmitterContext(program);
     const sdkContext = createNetSdkContext(context);
     const root = createModel(sdkContext);
-    deepStrictEqual(root.Clients[0].Operations[0].Responses[0].BodyType?.Kind, InputTypeKind.Array);
+    deepStrictEqual(root.Clients[0].Operations[0].Responses[0].BodyType?.Kind, "array");
     deepStrictEqual(
       {
-        Kind: InputTypeKind.Array,
-        Name: InputTypeKind.Array,
-        ElementType: {
-          Kind: InputTypeKind.Primitive,
-          Name: InputPrimitiveTypeKind.String,
-          IsNullable: false,
+        Kind: "array",
+        ValueType: {
+          Kind: "string",
+          Encode: undefined,
         },
-        IsNullable: false,
-      } as InputListType,
+      } as InputArrayType,
       root.Clients[0].Operations[0].Responses[0].BodyType
     );
   });
@@ -106,14 +98,17 @@ describe("Test GetInputType for enum", () => {
     const root = createModel(sdkContext);
     deepStrictEqual(
       {
-        Kind: InputTypeKind.Enum,
+        Kind: "enum",
         Name: "SimpleEnum",
-        Namespace: "Azure.Csharp.Testing",
+        CrossLanguageDefinitionId: "Azure.Csharp.Testing.SimpleEnum",
         Accessibility: undefined,
         Deprecated: undefined,
         Description: "fixed string enum",
-        EnumValueType: "String",
-        AllowedValues: [
+        ValueType: {
+          Kind: "string",
+          Encode: undefined,
+        },
+        Values: [
           {
             Name: "One",
             Value: "1",
@@ -131,7 +126,6 @@ describe("Test GetInputType for enum", () => {
           },
         ],
         IsExtensible: false,
-        IsNullable: false,
         Usage: "Input",
       } as InputEnumType,
       root.Clients[0].Operations[0].Parameters[0].Type,
@@ -140,7 +134,7 @@ describe("Test GetInputType for enum", () => {
       )}`
     );
     const type = root.Clients[0].Operations[0].Parameters[0].Type as InputEnumType;
-    assert(type.EnumValueType !== undefined);
+    assert(type.ValueType !== undefined);
     deepStrictEqual(type.Name, "SimpleEnum");
     deepStrictEqual(type.IsExtensible, false);
   });
@@ -170,14 +164,17 @@ describe("Test GetInputType for enum", () => {
     const root = createModel(sdkContext);
     deepStrictEqual(
       {
-        Kind: InputTypeKind.Enum,
+        Kind: "enum",
         Name: "FixedIntEnum",
-        Namespace: "Azure.Csharp.Testing",
+        CrossLanguageDefinitionId: "Azure.Csharp.Testing.FixedIntEnum",
         Accessibility: undefined,
         Deprecated: undefined,
         Description: "Fixed int enum",
-        EnumValueType: "Int32",
-        AllowedValues: [
+        ValueType: {
+          Kind: "int32",
+          Encode: undefined,
+        },
+        Values: [
           {
             Name: "One",
             Value: 1,
@@ -195,7 +192,6 @@ describe("Test GetInputType for enum", () => {
           },
         ],
         IsExtensible: false,
-        IsNullable: false,
         Usage: "Input",
       } as InputEnumType,
       root.Clients[0].Operations[0].Parameters[0].Type,
@@ -204,7 +200,7 @@ describe("Test GetInputType for enum", () => {
       )}`
     );
     const type = root.Clients[0].Operations[0].Parameters[0].Type as InputEnumType;
-    assert(type.EnumValueType !== undefined);
+    assert(type.ValueType !== undefined);
     deepStrictEqual(type.Name, "FixedIntEnum");
     deepStrictEqual(type.IsExtensible, false);
   });
@@ -227,20 +223,22 @@ describe("Test GetInputType for enum", () => {
     const root = createModel(sdkContext);
     deepStrictEqual(
       {
-        Kind: InputTypeKind.Enum,
+        Kind: "enum",
         Name: "FixedEnum",
-        Namespace: "Azure.Csharp.Testing",
+        CrossLanguageDefinitionId: "Azure.Csharp.Testing.FixedEnum",
         Accessibility: undefined,
         Deprecated: undefined,
         Description: "Fixed enum",
-        EnumValueType: "String",
-        AllowedValues: [
+        ValueType: {
+          Kind: "string",
+          Encode: undefined,
+        },
+        Values: [
           { Name: "One", Value: "1", Description: undefined },
           { Name: "Two", Value: "2", Description: undefined },
           { Name: "Four", Value: "4", Description: undefined },
         ],
         IsExtensible: false,
-        IsNullable: false,
         Usage: "Input",
       } as InputEnumType,
       root.Clients[0].Operations[0].Parameters[0].Type,
@@ -249,7 +247,7 @@ describe("Test GetInputType for enum", () => {
       )}`
     );
     const type = root.Clients[0].Operations[0].Parameters[0].Type as InputEnumType;
-    assert(type.EnumValueType !== undefined);
+    assert(type.ValueType !== undefined);
     deepStrictEqual(type.Name, "FixedEnum");
     deepStrictEqual((type as InputEnumType).IsExtensible, false);
   });

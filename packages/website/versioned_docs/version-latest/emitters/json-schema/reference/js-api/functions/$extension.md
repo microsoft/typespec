@@ -4,7 +4,7 @@ title: "[F] $extension"
 
 ---
 ```ts
-$extension(
+function $extension(
    context, 
    target, 
    key, 

@@ -1,6 +1,7 @@
 import { FileEvent } from "vscode-languageserver";
 import { SourceFile } from "../core/types.js";
 import { FileService } from "./file-service.js";
+import { ServerLog } from "./types.js";
 
 export interface FileSystemCache {
   get(path: string): Promise<CachedFile | CachedError | undefined>;
@@ -27,8 +28,10 @@ export interface CachedError {
 }
 export function createFileSystemCache({
   fileService,
+  log,
 }: {
   fileService: FileService;
+  log: (log: ServerLog) => void;
 }): FileSystemCache {
   const cache = new Map<string, CachedFile | CachedError>();
   let changes: FileEvent[] = [];
@@ -36,10 +39,29 @@ export function createFileSystemCache({
     async get(path: string) {
       for (const change of changes) {
         const path = await fileService.fileURLToRealPath(change.uri);
+        log({
+          level: "trace",
+          message: `FileSystemCache entry with key '${path}' removed`,
+        });
         cache.delete(path);
       }
       changes = [];
-      return cache.get(path);
+      const r = cache.get(path);
+      if (!r) {
+        let callstack: string | undefined;
+        try {
+          const target: any = {};
+          // some browser doesn't support Error.captureStackTrace (i.e. Firefox)
+          if (typeof Error.captureStackTrace === "function") {
+            Error.captureStackTrace(target);
+            callstack = target.stack.substring("Error\n".length);
+          }
+        } catch {
+          // just ignore the error, we don't want tracing error to impact normal functionality
+        }
+        log({ level: "trace", message: `FileSystemCache miss for ${path}`, detail: callstack });
+      }
+      return r;
     },
     set(path: string, entry: CachedFile | CachedError) {
       cache.set(path, entry);

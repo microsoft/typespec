@@ -61,27 +61,27 @@
     "@typespec/protobuf": "workspace:~",
     "@typespec/rest": "workspace:~",
     "@typespec/versioning": "workspace:~",
-    "es-module-shims": "~1.9.0",
-    "react": "~18.2.0",
-    "react-dom": "~18.2.0"
+    "es-module-shims": "~1.10.0",
+    "react": "~18.3.1",
+    "react-dom": "~18.3.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.4",
-    "@playwright/test": "^1.43.1",
+    "@babel/core": "^7.24.7",
+    "@playwright/test": "^1.45.0",
     "@types/debounce": "~1.2.4",
     "@types/node": "~18.11.19",
-    "@types/react": "~18.2.78",
-    "@types/react-dom": "~18.2.25",
+    "@types/react": "~18.3.3",
+    "@types/react-dom": "~18.3.0",
     "@types/swagger-ui": "~3.52.4",
-    "@vitejs/plugin-react": "~4.2.1",
-    "@vitest/coverage-v8": "^1.5.0",
-    "@vitest/ui": "^1.5.0",
-    "c8": "^9.1.0",
+    "@vitejs/plugin-react": "~4.3.1",
+    "@vitest/coverage-v8": "^1.6.0",
+    "@vitest/ui": "^1.6.0",
+    "c8": "^10.1.2",
     "cross-env": "~7.0.3",
-    "rimraf": "~5.0.5",
+    "rimraf": "~5.0.7",
     "rollup-plugin-visualizer": "~5.12.0",
-    "typescript": "~5.4.5",
-    "vite": "^5.2.8",
-    "vitest": "^1.5.0"
+    "typescript": "~5.5.3",
+    "vite": "^5.3.2",
+    "vitest": "^1.6.0"
   }
 }

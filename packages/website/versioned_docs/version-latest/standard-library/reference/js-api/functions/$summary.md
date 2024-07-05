@@ -4,7 +4,7 @@ title: "[F] $summary"
 
 ---
 ```ts
-$summary(
+function $summary(
    context, 
    target, 
    summary): void

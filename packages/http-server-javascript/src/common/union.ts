@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 import { Union, UnionVariant } from "@typespec/compiler";
 import { JsContext, Module, PartialUnionSynthetic } from "../ctx.js";
 import { parseCase } from "../util/case.js";

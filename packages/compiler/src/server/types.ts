@@ -39,12 +39,19 @@ import {
 import { TextDocument, TextEdit } from "vscode-languageserver-textdocument";
 import type { CompilerHost, Program, SourceFile, TypeSpecScriptNode } from "../core/index.js";
 
+export type ServerLogLevel = "trace" | "debug" | "info" | "warning" | "error";
+export interface ServerLog {
+  level: ServerLogLevel;
+  message: string;
+  detail?: unknown;
+}
+
 export interface ServerHost {
   readonly compilerHost: CompilerHost;
   readonly throwInternalErrors?: boolean;
   readonly getOpenDocumentByURL: (url: string) => TextDocument | undefined;
   readonly sendDiagnostics: (params: PublishDiagnosticsParams) => void;
-  readonly log: (message: string) => void;
+  readonly log: (log: ServerLog) => void;
   readonly applyEdit: (
     paramOrEdit: ApplyWorkspaceEditParams | WorkspaceEdit
   ) => Promise<ApplyWorkspaceEditResult>;
@@ -57,7 +64,7 @@ export interface CompileResult {
 }
 
 export interface Server {
-  readonly pendingMessages: readonly string[];
+  readonly pendingMessages: readonly ServerLog[];
   readonly workspaceFolders: readonly ServerWorkspaceFolder[];
   compile(document: TextDocument | TextDocumentIdentifier): Promise<CompileResult | undefined>;
   initialize(params: InitializeParams): Promise<InitializeResult>;
@@ -81,7 +88,7 @@ export interface Server {
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
   getCodeActions(params: CodeActionParams): Promise<CodeAction[]>;
   executeCommand(params: ExecuteCommandParams): Promise<void>;
-  log(message: string, details?: any): void;
+  log(log: ServerLog): void;
 }
 
 export interface ServerSourceFile extends SourceFile {

@@ -58,6 +58,19 @@ describe("compiler: operations", () => {
     );
   });
 
+  describe("js special words for parameter names", () => {
+    it.each(["constructor", "toString"])("%s", async (name) => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test op a(${name}: string): void;
+        `
+      );
+      const { a } = (await testHost.compile("main.tsp")) as { a: Operation };
+      ok(a.parameters.properties.has(name));
+    });
+  });
+
   it("can decorate operation parameters independently", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",

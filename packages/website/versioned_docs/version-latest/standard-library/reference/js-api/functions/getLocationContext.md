@@ -4,7 +4,7 @@ title: "[F] getLocationContext"
 
 ---
 ```ts
-getLocationContext(program, type): LocationContext
+function getLocationContext(program, type): LocationContext
 ```
 
 ## Parameters

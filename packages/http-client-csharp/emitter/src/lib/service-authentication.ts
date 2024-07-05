@@ -5,7 +5,7 @@ import { Authentication } from "@typespec/http";
 import { InputApiKeyAuth } from "../type/input-api-key-auth.js";
 import { InputAuth } from "../type/input-auth.js";
 import { InputOAuth2Auth } from "../type/input-oauth2-auth.js";
-import { logger } from "./logger.js";
+import { Logger } from "./logger.js";
 
 export function processServiceAuthentication(authentication: Authentication): InputAuth {
   const auth = {} as InputAuth;
@@ -30,7 +30,9 @@ export function processServiceAuthentication(authentication: Authentication): In
         case "http":
           const schemeOrApiKeyPrefix = scheme.scheme;
           if (schemeOrApiKeyPrefix === "basic") {
-            logger.warn(`{schemeOrApiKeyPrefix} auth method is currently not supported.`);
+            Logger.getInstance().warn(
+              `{schemeOrApiKeyPrefix} auth method is currently not supported.`
+            );
           } else if (schemeOrApiKeyPrefix === "bearer") {
             auth.ApiKey = {
               Name: "Authorization",

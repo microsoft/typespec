@@ -4,7 +4,7 @@ title: "[F] $server"
 
 ---
 ```ts
-$server(
+function $server(
    context, 
    target, 
    url, 

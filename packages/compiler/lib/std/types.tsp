@@ -54,6 +54,18 @@ model OmitProperties<Source, Keys extends string> {
 }
 
 /**
+ * Represents a collection of properties with only the specified keys included.
+ *
+ * @template Source An object whose properties are spread.
+ * @template Keys The property keys to include.
+ */
+@doc("The template for picking properties.")
+@withPickedProperties(Keys)
+model PickProperties<Source, Keys extends string> {
+  ...Source;
+}
+
+/**
  * Represents a collection of properties with default values omitted.
  *
  * @template Source An object whose spread property defaults are all omitted.

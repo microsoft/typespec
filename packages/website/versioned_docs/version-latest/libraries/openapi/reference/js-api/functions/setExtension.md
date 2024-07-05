@@ -4,7 +4,7 @@ title: "[F] setExtension"
 
 ---
 ```ts
-setExtension(
+function setExtension(
    program, 
    entity, 
    extensionName, 
@@ -17,7 +17,7 @@ setExtension(
 | :------ | :------ |
 | `program` | `Program` |
 | `entity` | `Type` |
-| `extensionName` | \`x-${string}\` |
+| `extensionName` | \`x-$\{string\}\` |
 | `data` | `unknown` |
 
 ## Returns

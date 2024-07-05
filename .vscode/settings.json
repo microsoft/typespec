@@ -10,6 +10,7 @@
     "**/node_modules/**": true,
     "packages/compiler/templates/__snapshots__/**": true,
     "packages/website/versioned_docs/**": true,
+    "packages/http-client-csharp/**/Generated/**": true,
     "packages/samples/scratch/**": false // Those files are in gitignore but we still want to search for them
   },
   "files.exclude": {

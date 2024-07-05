@@ -16,8 +16,6 @@ configuration:
           - isIssue
           - isOpen
           - hasLabel:
-              label: No-Recent-Activity
-          - hasLabel:
               label: needs-info
           - noActivitySince:
               days: 14
@@ -56,7 +54,7 @@ configuration:
           - assignTo:
               users: []
           - addLabel:
-              label: needs-triage
+              label: needs-area
           - removeLabel:
               label: needs-info
 onFailure:

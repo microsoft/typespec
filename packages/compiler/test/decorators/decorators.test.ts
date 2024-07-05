@@ -782,6 +782,43 @@ describe("compiler: built-in decorators", () => {
     });
   });
 
+  describe("@withPickedProperties", () => {
+    it("picks a model property when given a string literal", async () => {
+      const { TestModel } = await runner.compile(
+        `
+        model OriginalModel {
+          pickMe: string;
+          notMe: string;
+        }
+
+        @test
+        model TestModel is PickProperties<OriginalModel, "pickMe"> {
+        }`
+      );
+
+      const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
+      deepStrictEqual(properties, ["pickMe"]);
+    });
+
+    it("picks model properties when given a union containing strings", async () => {
+      const { TestModel } = await runner.compile(
+        `
+        model OriginalModel {
+          pickMe: string;
+          pickMeToo: string;
+          notMe: string;
+        }
+
+        @test
+        model TestModel is PickProperties<OriginalModel, "pickMe" | "pickMeToo"> {
+        }`
+      );
+
+      const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
+      deepStrictEqual(properties, ["pickMe", "pickMeToo"]);
+    });
+  });
+
   describe("@withDefaultKeyVisibility", () => {
     it("sets the default visibility on a key property when not already present", async () => {
       const { TestModel } = (await runner.compile(

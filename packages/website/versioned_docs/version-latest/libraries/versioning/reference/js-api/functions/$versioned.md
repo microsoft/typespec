@@ -4,7 +4,7 @@ title: "[F] $versioned"
 
 ---
 ```ts
-$versioned(
+function $versioned(
    context, 
    target, 
    versions): void

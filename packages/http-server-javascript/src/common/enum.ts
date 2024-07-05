@@ -1,7 +1,10 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 import { Enum } from "@typespec/compiler";
 import { JsContext } from "../ctx.js";
-import { emitDocumentation } from "./documentation.js";
 import { parseCase } from "../util/case.js";
+import { emitDocumentation } from "./documentation.js";
 
 /**
  * Emit an enum declaration.

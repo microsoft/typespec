@@ -4,7 +4,7 @@ title: "[F] isComment"
 
 ---
 ```ts
-isComment(token): boolean
+function isComment(token): boolean
 ```
 
 ## Parameters

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 import { ModelProperty, Type } from "@typespec/compiler";
 import {
   HttpOperation,
@@ -10,23 +13,21 @@ import {
 import { createOrGetModuleForNamespace } from "../../common/namespace.js";
 import { emitTypeReference, isValueLiteralType } from "../../common/reference.js";
 import { parseTemplateForScalar } from "../../common/scalar.js";
-import { SerializableType, requireSerialization } from "../../common/serialization/index.js";
+import {
+  SerializableType,
+  isSerializationRequired,
+  requireSerialization,
+} from "../../common/serialization/index.js";
 import { Module, completePendingDeclarations, createModule } from "../../ctx.js";
-import { bifilter } from "../../util/bifilter.js";
 import { parseCase } from "../../util/case.js";
 import { UnimplementedError } from "../../util/error.js";
 import { getAllProperties } from "../../util/extends.js";
-import { indent } from "../../util/indent.js";
+import { bifilter, indent } from "../../util/iter.js";
 import { keywordSafe } from "../../util/keywords.js";
 import { HttpContext } from "../feature.js";
 
 import { module as routerHelpers } from "../../helpers/router.js";
-import {
-  PreciseType,
-  differentiateTypes,
-  isPreciseType,
-  writeCodeTree,
-} from "../../util/differentiate.js";
+import { differentiateUnion, writeCodeTree } from "../../util/differentiate.js";
 
 const DEFAULT_CONTENT_TYPE = "application/json";
 
@@ -159,6 +160,10 @@ function* emitRawServerOperation(
 
     const defaultBodyTypeName = operationNameCase.pascalCase + "RequestBody";
 
+    if (body.bodyKind === "multipart") {
+      throw new UnimplementedError(`new form of multipart requests`);
+    }
+
     const bodyNameCase = parseCase(body.parameter?.name ?? defaultBodyTypeName);
 
     const bodyTypeName = emitTypeReference(
@@ -282,7 +287,7 @@ function* emitRawServerOperation(
   yield* indent(indent(paramLines));
   yield `  );`, yield "";
 
-  yield* indent(emitResultProcessing(ctx, op.returnType));
+  yield* indent(emitResultProcessing(ctx, op.returnType, module));
 
   yield "}";
 
@@ -297,35 +302,20 @@ function* emitRawServerOperation(
  * @param ctx - The HTTP emitter context.
  * @param split - The SplitReturnType instance representing the return type of the operation.
  */
-function* emitResultProcessing(ctx: HttpContext, t: Type): Iterable<string> {
+function* emitResultProcessing(ctx: HttpContext, t: Type, module: Module): Iterable<string> {
   if (t.kind !== "Union") {
     // Single target type
-    yield* emitResultProcessingForType(ctx, t);
+    yield* emitResultProcessingForType(ctx, t, module);
   } else {
-    // Union target, we need to make a decision tree to determine which type was actually returned and process it.
-    for (const variant of t.variants.values()) {
-      if (!isPreciseType(variant.type)) {
-        throw new UnimplementedError(
-          `imprecise type '${variant.type.kind}' as union variant in operation result`
-        );
-      }
-    }
-
-    const codeTree = differentiateTypes(
-      ctx,
-      new Map(
-        [...t.variants].map(([, variant]) => [
-          variant.type as PreciseType,
-          emitResultProcessingForType(ctx, variant.type),
-        ])
-      )
-    );
+    const codeTree = differentiateUnion(ctx, t);
 
     yield* writeCodeTree(ctx, codeTree, {
       subject: "result",
       referenceModelProperty(p) {
         return "result." + parseCase(p.name).camelCase;
       },
+      // We mapped the output directly in the code tree input, so we can just return it.
+      renderResult: (t) => emitResultProcessingForType(ctx, t, module),
     });
   }
 }
@@ -336,7 +326,11 @@ function* emitResultProcessing(ctx: HttpContext, t: Type): Iterable<string> {
  * @param ctx - The HTTP emitter context.
  * @param target - The target type to emit processing code for.
  */
-function* emitResultProcessingForType(ctx: HttpContext, target: Type): Iterable<string> {
+function* emitResultProcessingForType(
+  ctx: HttpContext,
+  target: Type,
+  module: Module
+): Iterable<string> {
   if (target.kind !== "Model") {
     throw new UnimplementedError(`result processing for type kind '${target.kind}'`);
   }
@@ -362,73 +356,32 @@ function* emitResultProcessingForType(ctx: HttpContext, target: Type): Iterable<
 
   if (body) {
     const bodyCase = parseCase(body.name);
-    yield `response.end(JSON.stringify(result.${bodyCase.camelCase}));`;
+    const serializationRequired = isSerializationRequired(ctx, body.type, "application/json");
+    requireSerialization(ctx, body.type, "application/json");
+    if (serializationRequired) {
+      const typeReference = emitTypeReference(ctx, body.type, body, module, {
+        requireDeclaration: true,
+      });
+      yield `response.end(JSON.stringify(${typeReference}.toJsonObject(result.${bodyCase.camelCase})))`;
+    } else {
+      yield `response.end(JSON.stringify(result.${bodyCase.camelCase}));`;
+    }
   } else {
     if (allMetadataIsRemoved) {
       yield `response.end();`;
     } else {
-      yield `response.end(JSON.stringify(result));`;
+      const serializationRequired = isSerializationRequired(ctx, target, "application/json");
+      requireSerialization(ctx, target, "application/json");
+      if (serializationRequired) {
+        const typeReference = emitTypeReference(ctx, target, target, module, {
+          requireDeclaration: true,
+        });
+        yield `response.end(JSON.stringify(${typeReference}.toJsonObject(result as ${typeReference})));`;
+      } else {
+        yield `response.end(JSON.stringify(result));`;
+      }
     }
   }
-}
-
-/**
- * Represents a decision tree for processing the result of an operation.
- */
-type OutputDecisionTree =
-  | OutputDecisionTreeResult
-  | OutputDecisionTreeSwitch
-  | OutputDecisionTreeIfChain;
-
-/**
- * Represents a position in the decision tree where a type is known.
- */
-interface OutputDecisionTreeResult {
-  kind: "result";
-  type: Type;
-}
-
-type JsValue = string | number;
-
-/**
- * Represents a position in the decision tree where a switch statement may be used to reach a new node.
- */
-interface OutputDecisionTreeSwitch {
-  kind: "switch";
-  path: [string, ...string[]];
-  values: Map<JsValue, OutputDecisionTree>;
-  default?: OutputDecisionTree;
-}
-
-/**
- * Represents a position in the decision tree where an if-else chain may be used to reach a new node.
- */
-interface OutputDecisionTreeIfChain {
-  kind: "if-chain";
-  path: [string, ...string[]];
-  conditions: Map<OdtCondition, OutputDecisionTree>;
-  else?: OutputDecisionTree;
-}
-
-/**
- * A condition that may be used in an if-else chain.
- */
-type OdtCondition = OdtExactCondition | OdtRangeCondition;
-
-/**
- * A condition that matches an exact value.
- */
-interface OdtExactCondition {
-  kind: "exact";
-  value: JsValue;
-}
-
-/**
- * A condition that matches a numerical range.
- */
-interface OdtRangeCondition {
-  kind: "range";
-  bounds: [number, number];
 }
 
 /**

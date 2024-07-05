@@ -4,7 +4,7 @@ title: "[F] getParentTemplateNode"
 
 ---
 ```ts
-getParentTemplateNode(node): Node & TemplateDeclarationNode | undefined
+function getParentTemplateNode(node): Node & TemplateDeclarationNode | undefined
 ```
 
 Lookup and find the node

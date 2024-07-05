@@ -4,7 +4,7 @@ title: "[F] resolveRequestVisibility"
 
 ---
 ```ts
-resolveRequestVisibility(
+function resolveRequestVisibility(
    program, 
    operation, 
    verb): Visibility

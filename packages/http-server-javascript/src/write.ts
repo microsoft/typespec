@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 import { resolvePath } from "@typespec/compiler";
 import { JsContext, Module, isModule } from "./ctx.js";
 
@@ -8,7 +11,7 @@ import * as prettier from "prettier";
 
 import { EOL } from "os";
 import path from "path";
-import { bifilter } from "./util/bifilter.js";
+import { bifilter } from "./util/iter.js";
 
 /**
  * Writes the tree of modules to the output directory.

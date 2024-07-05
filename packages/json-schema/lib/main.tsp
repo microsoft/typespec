@@ -31,6 +31,11 @@ extern dec baseUri(target: Reflection.Namespace, baseUri: valueof string);
 extern dec id(target: unknown, id: valueof string);
 
 /**
+ * Specify that `oneOf` should be used instead of `anyOf` for that union.
+ */
+extern dec oneOf(target: Reflection.Union | Reflection.ModelProperty);
+
+/**
  * Specify that the numeric type must be a multiple of some numeric value.
  *
  * @param value The numeric type must be a multiple of this value.

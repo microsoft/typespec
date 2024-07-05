@@ -4,7 +4,7 @@ title: "[F] isArrayModelType"
 
 ---
 ```ts
-isArrayModelType(program, type): type is ArrayModelType
+function isArrayModelType(program, type): type is ArrayModelType
 ```
 
 ## Parameters

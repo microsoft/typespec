@@ -1,7 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -9,6 +10,24 @@ namespace Microsoft.Generator.CSharp.Input
 {
     internal static class Utf8JsonReaderExtensions
     {
+        public static bool TryReadReferenceId(this ref Utf8JsonReader reader, ref string? id)
+        {
+            if (reader.TokenType != JsonTokenType.PropertyName)
+            {
+                throw new JsonException();
+            }
+
+            if (reader.GetString() != "$id")
+            {
+                return false;
+            }
+
+            reader.Read();
+            id = reader.GetString() ?? throw new JsonException();
+            reader.Read();
+            return true;
+        }
+
         public static bool TryReadReferenceId(this ref Utf8JsonReader reader, ref bool isFirstProperty, ref string? value)
         {
             if (reader.TokenType != JsonTokenType.PropertyName)
@@ -110,24 +129,6 @@ namespace Microsoft.Generator.CSharp.Input
             return true;
         }
 
-        public static bool TryReadPrimitiveType(this ref Utf8JsonReader reader, string propertyName, ref InputPrimitiveType? value)
-        {
-            if (reader.TokenType != JsonTokenType.PropertyName)
-            {
-                throw new JsonException();
-            }
-
-            if (reader.GetString() != propertyName)
-            {
-                return false;
-            }
-
-            reader.Read();
-            value = TypeSpecInputTypeConverter.CreatePrimitiveType(reader.GetString(), false) ?? throw new JsonException();
-            reader.Read();
-            return true;
-        }
-
         public static bool TryReadWithConverter<T>(this ref Utf8JsonReader reader, string propertyName, JsonSerializerOptions options, ref T? value)
         {
             if (reader.TokenType != JsonTokenType.PropertyName)
@@ -142,6 +143,35 @@ namespace Microsoft.Generator.CSharp.Input
 
             reader.Read();
             value = reader.ReadWithConverter<T>(options);
+            return true;
+        }
+
+        public static bool TryReadWithConverter<T>(this ref Utf8JsonReader reader, string propertyName, JsonSerializerOptions options, ref IReadOnlyList<T>? value)
+        {
+            if (reader.TokenType != JsonTokenType.PropertyName)
+            {
+                throw new JsonException();
+            }
+
+            if (reader.GetString() != propertyName)
+            {
+                return false;
+            }
+
+            reader.Read();
+            var result = new List<T>();
+            if (reader.TokenType != JsonTokenType.StartArray)
+            {
+                throw new JsonException();
+            }
+            reader.Read();
+            while (reader.TokenType != JsonTokenType.EndArray)
+            {
+                var item = reader.ReadWithConverter<T>(options);
+                result.Add(item ?? throw new JsonException());
+            }
+            reader.Read();
+            value = result;
             return true;
         }
 
@@ -173,7 +203,7 @@ namespace Microsoft.Generator.CSharp.Input
 
             reader.Read();
             var idRef = reader.GetString() ?? throw new JsonException("$ref can't be null");
-            var result = (T)resolver.ResolveReference(idRef ?? throw new JsonException());
+            var result = (T)resolver.ResolveReference(idRef);
 
             reader.Read();
             if (reader.TokenType != JsonTokenType.EndObject)

@@ -4,7 +4,7 @@ title: "[F] formatIdentifier"
 
 ---
 ```ts
-formatIdentifier(sv): string
+function formatIdentifier(sv): string
 ```
 
 ## Parameters

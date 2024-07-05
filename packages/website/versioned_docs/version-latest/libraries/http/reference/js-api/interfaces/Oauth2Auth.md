@@ -16,7 +16,7 @@ For more information about OAuth 2.0, see oauth.net and RFC 6749.
 
 | Type parameter |
 | :------ |
-| `TFlows` extends [`OAuth2Flow`](../type-aliases/OAuth2Flow.md)[] |
+| `TFlows` *extends* [`OAuth2Flow`](../type-aliases/OAuth2Flow.md)[] |
 
 ## Properties
 

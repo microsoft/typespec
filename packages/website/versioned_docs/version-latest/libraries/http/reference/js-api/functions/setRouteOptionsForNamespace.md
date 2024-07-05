@@ -4,7 +4,7 @@ title: "[F] setRouteOptionsForNamespace"
 
 ---
 ```ts
-setRouteOptionsForNamespace(
+function setRouteOptionsForNamespace(
    program, 
    namespace, 
    options): void

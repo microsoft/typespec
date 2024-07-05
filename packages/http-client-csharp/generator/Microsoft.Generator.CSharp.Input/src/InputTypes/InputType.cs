@@ -1,43 +1,54 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
+
+using AutoRest.CSharp.Common.Input.InputTypes;
 
 namespace Microsoft.Generator.CSharp.Input
 {
     /// <summary>
     /// Represents an input type to the generator.
     /// </summary>
-    /// <param name="Name">The name of the input type.</param>
-    /// <param name="IsNullable">Flag to determine if the type is nullable.</param>
     public abstract class InputType
     {
-        protected InputType(string name, bool isNullable)
+        /// <summary>
+        /// Construct a new <see cref="InputType"/> instance
+        /// </summary>
+        /// <param name="name">The name of the input type.</param>
+        protected InputType(string name)
         {
             Name = name;
-            IsNullable = isNullable;
         }
 
-        public string Name { get; }
-        public bool IsNullable { get; }
+        public string Name { get; internal set; }
 
         internal InputType GetCollectionEquivalent(InputType inputType)
         {
             switch (this)
             {
-                case InputList listType:
-                    return new InputList(
+                case InputArrayType listType:
+                    return new InputArrayType(
                         listType.Name,
-                        listType.ElementType.GetCollectionEquivalent(inputType),
-                        listType.IsEmbeddingsVector,
-                        listType.IsNullable);
-                case InputDictionary dictionaryType:
-                    return new InputDictionary(
+                        listType.ValueType.GetCollectionEquivalent(inputType),
+                        listType.IsEmbeddingsVector);
+                case InputDictionaryType dictionaryType:
+                    return new InputDictionaryType(
                         dictionaryType.Name,
                         dictionaryType.KeyType,
-                        dictionaryType.ValueType.GetCollectionEquivalent(inputType),
-                        dictionaryType.IsNullable);
+                        dictionaryType.ValueType.GetCollectionEquivalent(inputType));
                 default:
                     return inputType;
             }
         }
+        public InputType WithNullable(bool isNullable)
+        {
+            if (isNullable)
+                return new InputNullableType(this);
+            return this;
+        }
+        public InputType GetImplementType() => this switch
+        {
+            InputNullableType nullableType => nullableType.Type,
+            _ => this
+        };
     }
 }

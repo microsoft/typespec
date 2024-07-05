@@ -4,7 +4,7 @@ title: "[F] getParentResource"
 
 ---
 ```ts
-getParentResource(program, resourceType): Model | undefined
+function getParentResource(program, resourceType): Model | undefined
 ```
 
 ## Parameters

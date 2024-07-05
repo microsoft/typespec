@@ -95,6 +95,7 @@ When true, emit all references as json schema files, even if the referenced type
 - [`@minContains`](#@mincontains)
 - [`@minProperties`](#@minproperties)
 - [`@multipleOf`](#@multipleof)
+- [`@oneOf`](#@oneof)
 - [`@prefixItems`](#@prefixitems)
 - [`@uniqueItems`](#@uniqueitems)
 
@@ -347,6 +348,22 @@ Specify that the numeric type must be a multiple of some numeric value.
 | Name  | Type              | Description                                        |
 | ----- | ----------------- | -------------------------------------------------- |
 | value | `valueof numeric` | The numeric type must be a multiple of this value. |
+
+#### `@oneOf`
+
+Specify that `oneOf` should be used instead of `anyOf` for that union.
+
+```typespec
+@TypeSpec.JsonSchema.oneOf
+```
+
+##### Target
+
+`Union | ModelProperty`
+
+##### Parameters
+
+None
 
 #### `@prefixItems`
 

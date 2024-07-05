@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 import { DiagnosticTarget, NoTarget, Program, Scalar, formatDiagnostic } from "@typespec/compiler";
 import { JsContext } from "../ctx.js";
 import { reportDiagnostic } from "../lib.js";

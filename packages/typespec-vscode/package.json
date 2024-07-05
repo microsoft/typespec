@@ -1,6 +1,6 @@
 {
   "name": "typespec-vscode",
-  "version": "0.56.0",
+  "version": "0.57.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",
@@ -25,7 +25,7 @@
   "type": "module",
   "main": "./dist/src/extension.cjs",
   "engines": {
-    "vscode": "^1.88.0"
+    "vscode": "^1.90.0"
   },
   "activationEvents": [
     "onLanguage:typespec",
@@ -59,13 +59,24 @@
     ],
     "configuration": [
       {
-        "title": "TypeSpec Language Server Path",
+        "title": "TypeSpec",
         "properties": {
           "typespec.tsp-server.path": {
             "type": "string",
             "default": "",
             "description": "Path to `tsp-server` command that runs the TypeSpec language server.\n\nIf not specified, then `tsp-server` found on PATH is used.\n\nExample (User): /usr/local/bin/tsp-server\nExample (Workspace): ${workspaceFolder}/node_modules/@typespec/compiler",
             "scope": "machine-overridable"
+          },
+          "typespec.trace.server": {
+            "scope": "window",
+            "type": "string",
+            "enum": [
+              "off",
+              "messages",
+              "verbose"
+            ],
+            "default": "off",
+            "description": "Define whether/how the TypeSpec language server should send traces to client. For the traces to show properly in vscode Output, make sure 'Log Level' is also set to 'Trace' so that they won't be filtered at client side, which can be set through 'Developer: Set Log Level...' command."
           }
         }
       }
@@ -92,6 +103,11 @@
       {
         "command": "typespec.restartServer",
         "title": "Restart TypeSpec server",
+        "category": "TypeSpec"
+      },
+      {
+        "command": "typespec.showOutputChannel",
+        "title": "Show Output Channel",
         "category": "TypeSpec"
       }
     ],
@@ -124,21 +140,21 @@
     "deploy": "vsce publish"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "~25.0.7",
+    "@rollup/plugin-commonjs": "~26.0.1",
     "@rollup/plugin-node-resolve": "~15.2.3",
     "@rollup/plugin-typescript": "~11.1.6",
     "@types/node": "~18.11.19",
-    "@types/vscode": "~1.88.0",
+    "@types/vscode": "~1.90.0",
     "@typespec/compiler": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
-    "@vitest/coverage-v8": "^1.5.0",
-    "@vitest/ui": "^1.5.0",
-    "@vscode/vsce": "~2.25.0",
-    "c8": "^9.1.0",
-    "rimraf": "~5.0.5",
-    "rollup": "~4.14.3",
-    "typescript": "~5.4.5",
-    "vitest": "^1.5.0",
+    "@vitest/coverage-v8": "^1.6.0",
+    "@vitest/ui": "^1.6.0",
+    "@vscode/vsce": "~2.29.0",
+    "c8": "^10.1.2",
+    "rimraf": "~5.0.7",
+    "rollup": "~4.18.0",
+    "typescript": "~5.5.3",
+    "vitest": "^1.6.0",
     "vscode-languageclient": "~9.0.1"
   }
 }

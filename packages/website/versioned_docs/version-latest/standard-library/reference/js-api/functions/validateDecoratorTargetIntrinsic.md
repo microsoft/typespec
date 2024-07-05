@@ -4,7 +4,7 @@ title: "[F] validateDecoratorTargetIntrinsic"
 
 ---
 ```ts
-validateDecoratorTargetIntrinsic(
+function validateDecoratorTargetIntrinsic(
    context, 
    target, 
    decoratorName, 
@@ -16,7 +16,7 @@ validateDecoratorTargetIntrinsic(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
-| `target` | [`Scalar`](../interfaces/Scalar.md) \| [`ModelProperty`](../interfaces/ModelProperty.md) |
+| `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
 | `decoratorName` | `string` |
 | `expectedType` | [`IntrinsicScalarName`](../type-aliases/IntrinsicScalarName.md) \| [`IntrinsicScalarName`](../type-aliases/IntrinsicScalarName.md)[] |
 

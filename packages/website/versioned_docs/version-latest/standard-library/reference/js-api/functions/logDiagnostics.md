@@ -4,7 +4,7 @@ title: "[F] logDiagnostics"
 
 ---
 ```ts
-logDiagnostics(diagnostics, logger): void
+function logDiagnostics(diagnostics, logger): void
 ```
 
 ## Parameters

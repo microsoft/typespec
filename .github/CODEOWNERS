@@ -1,13 +1,13 @@
+# Catch all
+*                                            @bterlson @markcowl @allenjzhang @timotheeguerin
+
 ######################
 # CSharp
 ######################
-/packages/http-client-csharp/                @m-nash
-/packages/http-client-csharp-generator/      @m-nash
+/packages/http-client-csharp/                @m-nash @JoshLove-msft
 
 ######################
 # Emiter Shared
 ######################
 /eng/emitters/                               @m-nash
 
-# Catch all
-*                                            @bterlson @markcowl @allenjzhang @timotheeguerin

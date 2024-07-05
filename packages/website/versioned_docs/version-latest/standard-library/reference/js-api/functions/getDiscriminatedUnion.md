@@ -4,7 +4,7 @@ title: "[F] getDiscriminatedUnion"
 
 ---
 ```ts
-getDiscriminatedUnion(type, discriminator): [DiscriminatedUnion, readonly Diagnostic[]]
+function getDiscriminatedUnion(type, discriminator): [DiscriminatedUnion, readonly Diagnostic[]]
 ```
 
 ## Parameters

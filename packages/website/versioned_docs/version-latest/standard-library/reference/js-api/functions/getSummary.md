@@ -4,7 +4,7 @@ title: "[F] getSummary"
 
 ---
 ```ts
-getSummary(program, type): string | undefined
+function getSummary(program, type): string | undefined
 ```
 
 ## Parameters

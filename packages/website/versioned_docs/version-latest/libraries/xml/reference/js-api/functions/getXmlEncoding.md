@@ -4,7 +4,7 @@ title: "[F] getXmlEncoding"
 
 ---
 ```ts
-getXmlEncoding(program, type): XmlEncodeData | undefined
+function getXmlEncoding(program, type): XmlEncodeData | undefined
 ```
 
 Resolve how the given type should be encoded in XML.
@@ -15,7 +15,7 @@ This will return the default encoding for each types.(e.g. TypeSpec.Xml.Encoding
 | Parameter | Type | Description |
 | :------ | :------ | :------ |
 | `program` | `Program` |  |
-| `type` | `Scalar` \| `ModelProperty` |  |
+| `type` | `ModelProperty` \| `Scalar` |  |
 
 ## Returns
 

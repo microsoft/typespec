@@ -4,7 +4,7 @@ title: "[T] StatusCode"
 
 ---
 ```ts
-type StatusCode: \${number}\ | "*";
+type StatusCode: `${number}` | "*";
 ```
 
 ## Deprecated

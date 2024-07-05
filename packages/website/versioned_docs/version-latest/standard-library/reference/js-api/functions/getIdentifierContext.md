@@ -4,7 +4,7 @@ title: "[F] getIdentifierContext"
 
 ---
 ```ts
-getIdentifierContext(id): IdentifierContext
+function getIdentifierContext(id): IdentifierContext
 ```
 
 ## Parameters

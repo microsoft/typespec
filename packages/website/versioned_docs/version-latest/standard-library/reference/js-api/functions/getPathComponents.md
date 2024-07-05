@@ -4,7 +4,7 @@ title: "[F] getPathComponents"
 
 ---
 ```ts
-getPathComponents(path, currentDirectory): string[]
+function getPathComponents(path, currentDirectory): string[]
 ```
 
 Parse a path into an array containing a root component (at index 0) and zero or more path

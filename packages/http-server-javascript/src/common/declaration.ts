@@ -1,9 +1,12 @@
-import { JsContext, DeclarationType, Module } from "../ctx.js";
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
+import { DeclarationType, JsContext, Module } from "../ctx.js";
 import { emitEnum } from "./enum.js";
-import { emitModel } from "./model.js";
-import { emitUnion } from "./union.js";
 import { emitInterface } from "./interface.js";
+import { emitModel } from "./model.js";
 import { emitScalar } from "./scalar.js";
+import { emitUnion } from "./union.js";
 
 /**
  * Emit a declaration for a module based on its type.
@@ -43,11 +46,7 @@ export function* emitDeclaration(
       break;
     }
     default: {
-      throw new Error(
-        `UNREACHABLE: Unhandled type kind: ${
-          (type satisfies never as any).kind
-        }`
-      );
+      throw new Error(`UNREACHABLE: Unhandled type kind: ${(type satisfies never as any).kind}`);
     }
   }
 }

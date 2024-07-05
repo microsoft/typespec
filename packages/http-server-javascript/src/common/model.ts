@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 import {
   Model,
   getFriendlyName,
@@ -6,7 +9,7 @@ import {
 } from "@typespec/compiler";
 import { JsContext, Module } from "../ctx.js";
 import { parseCase } from "../util/case.js";
-import { indent } from "../util/indent.js";
+import { indent } from "../util/iter.js";
 import { KEYWORDS } from "../util/keywords.js";
 import { getFullyQualifiedTypeName } from "../util/name.js";
 import { asArrayType, getArrayElementName, getRecordValueName } from "../util/pluralism.js";

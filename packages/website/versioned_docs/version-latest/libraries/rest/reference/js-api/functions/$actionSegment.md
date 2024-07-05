@@ -4,7 +4,7 @@ title: "[F] $actionSegment"
 
 ---
 ```ts
-$actionSegment(
+function $actionSegment(
    context, 
    target, 
    value): void

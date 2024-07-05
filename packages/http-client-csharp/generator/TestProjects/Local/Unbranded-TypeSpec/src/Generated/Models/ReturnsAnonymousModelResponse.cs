@@ -4,12 +4,11 @@
 
 namespace UnbrandedTypeSpec.Models
 {
+    /// <summary> The ReturnsAnonymousModelResponse. </summary>
     public partial class ReturnsAnonymousModelResponse
     {
-        // Add Constructors
-
-        // Add Methods
-
-        // Add Nested Type
+        internal ReturnsAnonymousModelResponse()
+        {
+        }
     }
 }

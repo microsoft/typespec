@@ -4,11 +4,11 @@ title: "[T] MarshalledValue"
 
 ---
 ```ts
-type MarshalledValue<Type>: Type extends StringLiteral ? string : Type extends NumericLiteral ? number : Type extends BooleanLiteral ? boolean : Type;
+type MarshalledValue<Value>: Value extends StringValue ? string : Value extends NumericValue ? number | Numeric : Value extends BooleanValue ? boolean : Value extends ObjectValue ? Record<string, unknown> : Value extends ArrayValue ? unknown[] : Value extends EnumValue ? EnumMember : Value extends NullValue ? null : Value extends ScalarValue ? Value : Value;
 ```
 
 ## Type parameters
 
 | Type parameter |
 | :------ |
-| `Type` |
+| `Value` |

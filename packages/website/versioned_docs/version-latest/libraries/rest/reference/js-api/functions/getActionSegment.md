@@ -4,7 +4,7 @@ title: "[F] getActionSegment"
 
 ---
 ```ts
-getActionSegment(program, entity): string | undefined
+function getActionSegment(program, entity): string | undefined
 ```
 
 ## Parameters

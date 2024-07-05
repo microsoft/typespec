@@ -4,15 +4,19 @@ title: "[F] getFirstAncestor"
 
 ---
 ```ts
-getFirstAncestor(node, test): Node | undefined
+function getFirstAncestor(
+   node, 
+   test, 
+   includeSelf): Node | undefined
 ```
 
 ## Parameters
 
-| Parameter | Type |
-| :------ | :------ |
-| `node` | [`Node`](../type-aliases/Node.md) |
-| `test` | [`NodeCallback`](../type-aliases/NodeCallback.md)<`boolean`\> |
+| Parameter | Type | Default value |
+| :------ | :------ | :------ |
+| `node` | [`Node`](../type-aliases/Node.md) | `undefined` |
+| `test` | [`NodeCallback`](../type-aliases/NodeCallback.md)<`boolean`\> | `undefined` |
+| `includeSelf` | `boolean` | `false` |
 
 ## Returns
 

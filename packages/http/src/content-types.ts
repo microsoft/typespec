@@ -3,6 +3,7 @@ import { getHeaderFieldName } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
 
 /**
+ * @deprecated Use `OperationProperty.kind === 'contentType'` instead.
  * Check if the given model property is the content type header.
  * @param program Program
  * @param property Model property.
@@ -39,6 +40,8 @@ export function getContentTypes(property: ModelProperty): [string[], readonly Di
     }
 
     return diagnostics.wrap(contentTypes);
+  } else if (property.type.kind === "Scalar" && property.type.name === "string") {
+    return [["*/*"], []];
   }
 
   return [[], [createDiagnostic({ code: "content-type-string", target: property })]];

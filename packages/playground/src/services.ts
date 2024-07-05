@@ -1,15 +1,15 @@
 import {
-  DiagnosticTarget,
-  NoTarget,
-  ServerHost,
   TypeSpecLanguageConfiguration,
+  type DiagnosticTarget,
+  type NoTarget,
+  type ServerHost,
 } from "@typespec/compiler";
 import * as monaco from "monaco-editor";
 import * as lsp from "vscode-languageserver";
 import { DocumentHighlightKind, FormattingOptions } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { LspToMonaco } from "./lsp/lsp-to-monaco.js";
-import { BrowserHost } from "./types.js";
+import type { BrowserHost } from "./types.js";
 
 function getIndentAction(
   value: "none" | "indent" | "indentOutdent" | "outdent"
@@ -55,8 +55,31 @@ export async function registerMonacoLanguage(host: BrowserHost) {
       return model ? textDocumentForModel(model) : undefined;
     },
     sendDiagnostics() {},
-    // eslint-disable-next-line no-console
-    log: console.log,
+    log: (log) => {
+      switch (log.level) {
+        case "error":
+          // eslint-disable-next-line no-console
+          console.error(log);
+          break;
+        case "warning":
+          // eslint-disable-next-line no-console
+          console.warn(log);
+          break;
+        case "info":
+          // eslint-disable-next-line no-console
+          console.info(log);
+          break;
+        case "debug":
+          // corresponding to Verbose LogLevel in Edge/Chrome which is off by default
+          // eslint-disable-next-line no-console
+          console.debug(log);
+          break;
+        case "trace":
+        default:
+          // just skip traces in playground
+          break;
+      }
+    },
     applyEdit(param) {
       return Promise.resolve({ applied: false });
     },

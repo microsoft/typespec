@@ -4,7 +4,7 @@ title: "[F] $projectedName"
 
 ---
 ```ts
-$projectedName(
+function $projectedName(
    context, 
    target, 
    targetName, 

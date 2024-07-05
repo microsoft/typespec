@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 import { JSONSchemaType, createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 import { JsEmitterFeature, JsEmitterFeatureOptionsSchema } from "./feature.js";
 
@@ -78,6 +81,19 @@ export const $lib = createTypeSpecLibrary({
       severity: "error",
       messages: {
         default: "JavaScript cannot accurately represent this numeric constant.",
+      },
+    },
+    "undifferentiable-union-variant": {
+      severity: "error",
+      messages: {
+        default:
+          "Union variant cannot be differentiated from other variants of the union an an ambiguous context.",
+      },
+    },
+    "name-conflict": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Name ${"name"} conflicts with a prior declaration and must be unique.`,
       },
     },
   },

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 import { Operation, Type } from "@typespec/compiler";
 import {
   HttpOperation,
@@ -12,9 +15,8 @@ import {
 } from "../../common/namespace.js";
 import { emitTypeReference } from "../../common/reference.js";
 import { Module, createModule } from "../../ctx.js";
-import { bifilter } from "../../util/bifilter.js";
 import { ReCase, parseCase } from "../../util/case.js";
-import { indent } from "../../util/indent.js";
+import { bifilter, indent } from "../../util/iter.js";
 import { keywordSafe } from "../../util/keywords.js";
 import { HttpContext } from "../feature.js";
 

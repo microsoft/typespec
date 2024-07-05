@@ -14,6 +14,7 @@ import {
   setTypeSpecNamespace,
   typespecTypeToJson,
 } from "@typespec/compiler";
+import { createAssetEmitter } from "@typespec/compiler/emitter-framework";
 import { ValidatesRawJsonDecorator } from "../generated-defs/TypeSpec.JsonSchema.Private.js";
 import {
   BaseUriDecorator,
@@ -29,6 +30,7 @@ import {
   MinContainsDecorator,
   MinPropertiesDecorator,
   MultipleOfDecorator,
+  OneOfDecorator,
   PrefixItemsDecorator,
   UniqueItemsDecorator,
 } from "../generated-defs/TypeSpec.JsonSchema.js";
@@ -44,7 +46,7 @@ export type JsonSchemaDeclaration = Model | Union | Enum | Scalar;
 const jsonSchemaKey = createStateSymbol("JsonSchema");
 
 export async function $onEmit(context: EmitContext<JSONSchemaEmitterOptions>) {
-  const emitter = context.getAssetEmitter(JsonSchemaEmitter);
+  const emitter = createAssetEmitter(context.program, JsonSchemaEmitter as any, context);
 
   if (emitter.getOptions().emitAllModels) {
     emitter.emitProgram({ emitTypeSpecNamespace: false });
@@ -143,6 +145,15 @@ export const $id: IdDecorator = (context: DecoratorContext, target: Type, value:
 
 export function getId(program: Program, target: Type) {
   return program.stateMap(idKey).get(target);
+}
+
+const oneOfKey = createStateSymbol("JsonSchema.oneOf");
+export const $oneOf: OneOfDecorator = (context: DecoratorContext, target: Type) => {
+  context.program.stateMap(oneOfKey).set(target, true);
+};
+
+export function isOneOf(program: Program, target: Type) {
+  return program.stateMap(oneOfKey).has(target);
 }
 
 const containsKey = createStateSymbol("JsonSchema.contains");

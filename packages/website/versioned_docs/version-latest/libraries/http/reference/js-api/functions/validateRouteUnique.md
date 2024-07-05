@@ -4,7 +4,7 @@ title: "[F] validateRouteUnique"
 
 ---
 ```ts
-validateRouteUnique(
+function validateRouteUnique(
    program, 
    diagnostics, 
    operations): void

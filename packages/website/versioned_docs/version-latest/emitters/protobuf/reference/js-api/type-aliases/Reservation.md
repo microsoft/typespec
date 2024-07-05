@@ -4,5 +4,5 @@ title: "[T] Reservation"
 
 ---
 ```ts
-type Reservation: string | number | [number, number] & Object;
+type Reservation: string | number | [number, number] & object;
 ```

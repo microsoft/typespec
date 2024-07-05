@@ -4,11 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Generator.CSharp.Expressions;
 using Moq;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
-using static Microsoft.Generator.CSharp.Expressions.ExtensibleSnippets;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
@@ -16,30 +13,12 @@ namespace Microsoft.Generator.CSharp.Tests
     public class ConfigurationTests
     {
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-        private readonly string _mocksFolder = "./mocks";
+        private readonly string _mocksFolder = "./Mocks";
 
         // Validates that the configuration is initialized correctly given input
         [Test]
         public void TestInitialize()
         {
-            // mock api types
-            var mockApiTypes = new Mock<ApiTypes>()
-            {
-                CallBase = true
-            };
-
-            var mockExtensibleSnippets = new Mock<ExtensibleSnippets>()
-            {
-                CallBase = true
-            };
-
-            mockApiTypes.SetupGet(p => p.ChangeTrackingListType).Returns(typeof(IList<>));
-            mockApiTypes.SetupGet(p => p.ChangeTrackingDictionaryType).Returns(typeof(IDictionary<string, string>));
-            mockApiTypes.SetupGet(p => p.EndPointSampleValue).Returns("Sample");
-
-            var modelSnippets = new Mock<ModelSnippets>().Object;
-            mockExtensibleSnippets.SetupGet(p => p.Model).Returns(modelSnippets);
-
             string ns = "sample.namespace";
             string? unknownStringProperty = "unknownPropertyValue";
             bool? unknownBoolProp = false;

@@ -5,9 +5,9 @@ dictionaries:
   - node
   - typescript
 words:
+  - AQID
   - atrule
   - autorest
-  - AQID
   - azsdk
   - azsdkengsys
   - azurecr
@@ -27,12 +27,15 @@ words:
   - createsorreplacesresource
   - createsorupdatesresource
   - CRUDL
+  - dbaeumer
   - debouncer
   - destructures
   - devdiv
+  - Diagnoser
   - dogfood
   - eastus
   - ecmarkup
+  - esbenp
   - esbuild
   - espt
   - ESRP
@@ -40,6 +43,7 @@ words:
   - genproto
   - globby
   - Infima
+  - inlines
   - inmemory
   - instanceid
   - interner
@@ -47,9 +51,9 @@ words:
   - jsyaml
   - keyer
   - lifecyle
+  - LINUXNEXTVMIMAGE
   - LINUXOS
   - LINUXVMIMAGE
-  - LINUXNEXTVMIMAGE
   - lzutf
   - MACVMIMAGE
   - mocharc
@@ -64,6 +68,7 @@ words:
   - noreferrer
   - nostdlib
   - npmjs
+  - nupkg
   - oapi
   - OIDC
   - oneds
@@ -73,13 +78,14 @@ words:
   - onwarn
   - openapi
   - openapiv
+  - Perfolizer
   - picocolors
   - prismjs
   - proto
   - protobuf
   - protoc
-  - pwsh
   - psscriptanalyzer
+  - pwsh
   - recase
   - regen
   - respecify
@@ -92,7 +98,10 @@ words:
   - ssvs
   - strs
   - syncpack
+  - TCGC
+  - triaging
   - TRYIT
+  - tsdoc
   - TSES
   - tspd
   - tspwebsitepr
@@ -104,6 +113,7 @@ words:
   - unassignable
   - Uncapitalize
   - undifferentiable
+  - uncollapsed
   - uninstantiated
   - unioned
   - unparented
@@ -112,20 +122,17 @@ words:
   - unrepresentable
   - unsourced
   - unversioned
+  - VITE
+  - vitest
   - vsix
   - VSSDK
+  - Vsts
   - vswhere
   - westus
   - WINDOWSVMIMAGE
   - witemple
   - xlarge
   - xplat
-  - TCGC
-  - VITE
-  - uncollapsed
-  - nupkg
-  - Vsts
-  - tsdoc
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
@@ -140,12 +147,13 @@ ignorePaths:
   - packages/compiler/test/formatter/scenarios/**
   - pnpm-lock.yaml
   - "**/*.mp4"
-  - ".git/**"
-  - ".gitignore"
-  - ".vscode/**"
-  - ".editorconfig"
+  - .git/**
+  - .gitignore
+  - .vscode/**
+  - .editorconfig
   - .github/CODEOWNERS
   - packages/samples/test/output/**
+  - "**/BenchmarkDotNet.Artifacts/**"
 useGitignore: true
 enableGlobDot: true
 enableFiletypes:

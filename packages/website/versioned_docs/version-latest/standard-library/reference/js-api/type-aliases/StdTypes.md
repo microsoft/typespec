@@ -4,7 +4,7 @@ title: "[T] StdTypes"
 
 ---
 ```ts
-type StdTypes: Object & Record<IntrinsicScalarName, Scalar>;
+type StdTypes: object & Record<IntrinsicScalarName, Scalar>;
 ```
 
 ## Type declaration

@@ -4,7 +4,7 @@ title: "[F] getPattern"
 
 ---
 ```ts
-getPattern(program, target): string | undefined
+function getPattern(program, target): string | undefined
 ```
 
 Gets the pattern regular expression associated with a given type, if one has been set.

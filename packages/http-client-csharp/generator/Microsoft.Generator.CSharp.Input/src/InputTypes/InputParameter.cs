@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Input
@@ -12,7 +12,6 @@ namespace Microsoft.Generator.CSharp.Input
             InputType type,
             RequestLocation location,
             InputConstant? defaultValue,
-            InputParameter? groupedBy,
             InputOperationParameterKind kind,
             bool isRequired,
             bool isApiVersion,
@@ -30,7 +29,6 @@ namespace Microsoft.Generator.CSharp.Input
             Type = type;
             Location = location;
             DefaultValue = defaultValue;
-            GroupedBy = groupedBy;
             Kind = kind;
             IsRequired = isRequired;
             IsApiVersion = isApiVersion;
@@ -43,33 +41,12 @@ namespace Microsoft.Generator.CSharp.Input
             HeaderCollectionPrefix = headerCollectionPrefix;
         }
 
-        public InputParameter() : this(
-            name: string.Empty,
-            nameInRequest: string.Empty,
-            description: null,
-            type: InputPrimitiveType.Object,
-            location: RequestLocation.None,
-            defaultValue: null,
-            groupedBy: null,
-            kind: InputOperationParameterKind.Method,
-            isRequired: false,
-            isApiVersion: false,
-            isResourceParameter: false,
-            isContentType: false,
-            isEndpoint: false,
-            skipUrlEncoding: false,
-            explode: false,
-            arraySerializationDelimiter: null,
-            headerCollectionPrefix: null)
-        { }
-
         public string Name { get; }
         public string NameInRequest { get; }
         public string? Description { get; }
         public InputType Type { get; }
         public RequestLocation Location { get; }
         public InputConstant? DefaultValue { get; }
-        public InputParameter? GroupedBy { get; }
         public InputOperationParameterKind Kind { get; }
         public bool IsRequired { get; }
         public bool IsApiVersion { get; }

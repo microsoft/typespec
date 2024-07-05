@@ -55,6 +55,12 @@ steps:
 
   - checkout: self
 
+  - task: NodeTool@0
+    displayName: Install Node.js
+    retryCountOnTaskFailure: 3
+    inputs:
+      versionSpec: ${{ parameters.NodeVersion }}
+
   - ${{ parameters.AdditionalInitializeSteps }}
 
   - task: PowerShell@2

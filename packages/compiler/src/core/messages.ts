@@ -252,6 +252,7 @@ const diagnostics = {
       default: "Invalid identifier.",
       tag: "Invalid tag name. Use backticks around code if this was not meant to be a tag.",
       param: "Invalid parameter name.",
+      prop: "Invalid property name.",
       templateParam: "Invalid template parameter name.",
     },
   },

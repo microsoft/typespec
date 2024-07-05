@@ -4,7 +4,7 @@ title: "[F] navigateProgram"
 
 ---
 ```ts
-navigateProgram(
+function navigateProgram(
    program, 
    listeners, 
    options): void

@@ -4,7 +4,7 @@ title: "[F] $reserve"
 
 ---
 ```ts
-$reserve(
+function $reserve(
    context, 
    target, ...
    reservations): void

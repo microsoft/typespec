@@ -77,6 +77,17 @@ export type WithoutOmittedPropertiesDecorator = (
 ) => void;
 
 /**
+ * Returns the model with only the given properties included.
+ *
+ * @param pick List of properties to include
+ */
+export type WithPickedPropertiesDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  pick: Type
+) => void;
+
+/**
  * Returns the model with any default values removed.
  */
 export type WithoutDefaultValuesDecorator = (context: DecoratorContext, target: Model) => void;
@@ -192,8 +203,8 @@ export type ServiceDecorator = (
  * ```typespec
  * @error
  * model PetStoreError {
- * code: string;
- * message: string;
+ *   code: string;
+ *   message: string;
  * }
  * ```
  */
@@ -415,8 +426,8 @@ export type TagDecorator = (
  * ```typespec
  * @friendlyName("{name}List", T)
  * model List<Item> {
- * value: Item[];
- * nextLink: string;
+ *   value: Item[];
+ *   nextLink: string;
  * }
  * ```
  */
@@ -437,8 +448,8 @@ export type FriendlyNameDecorator = (
  * scalar ErrorCode extends string;
  *
  * enum KnownErrorCode {
- * NotFound,
- * Invalid,
+ *   NotFound,
+ *   Invalid,
  * }
  * ```
  */
@@ -455,7 +466,7 @@ export type KnownValuesDecorator = (
  * @example
  * ```typespec
  * model Pet {
- * @key id: string;
+ *   @key id: string;
  * }
  * ```
  */
@@ -494,8 +505,8 @@ export type OverloadDecorator = (
  * @example
  * ```typespec
  * model Certificate {
- * @projectedName("json", "exp")
- * expireAt: int32;
+ *   @projectedName("json", "exp")
+ *   expireAt: int32;
  * }
  * ```
  */
@@ -514,16 +525,16 @@ export type ProjectedNameDecorator = (
  * @example
  * ```typespec
  * model Certificate {
- * @encodedName("application/json", "exp")
- * @encodedName("application/xml", "expiry")
- * expireAt: int32;
+ *   @encodedName("application/json", "exp")
+ *   @encodedName("application/xml", "expiry")
+ *   expireAt: int32;
  * }
  * ```
  * @example Invalid values
  *
  * ```typespec
  * @encodedName("application/merge-patch+json", "exp")
- * ^ error cannot use subtype
+ *              ^ error cannot use subtype
  * ```
  */
 export type EncodedNameDecorator = (
@@ -581,12 +592,12 @@ export type DiscriminatorDecorator = (
  * @example
  * ```typespec
  * model Dog {
- * // the service will generate an ID, so you don't need to send it.
- * @visibility("read") id: int32;
- * // the service will store this secret name, but won't ever return it
- * @visibility("create", "update") secretName: string;
- * // the regular name is always present
- * name: string;
+ *   // the service will generate an ID, so you don't need to send it.
+ *   @visibility("read") id: int32;
+ *   // the service will store this secret name, but won't ever return it
+ *   @visibility("create", "update") secretName: string;
+ *   // the regular name is always present
+ *   name: string;
  * }
  * ```
  */
@@ -611,9 +622,9 @@ export type VisibilityDecorator = (
  * @example
  * ```typespec
  * model Dog {
- * @visibility("read") id: int32;
- * @visibility("create", "update") secretName: string;
- * name: string;
+ *   @visibility("read") id: int32;
+ *   @visibility("create", "update") secretName: string;
+ *   name: string;
  * }
  *
  * // The spread operator will copy all the properties of Dog into DogRead,
@@ -624,14 +635,14 @@ export type VisibilityDecorator = (
  * // properties are kept.
  * @withVisibility("create", "update")
  * model DogCreateOrUpdate {
- * ...Dog;
+ *   ...Dog;
  * }
  *
  * // In this case the id and name properties are kept and the secretName property
  * // is removed.
  * @withVisibility("read")
  * model DogRead {
- * ...Dog;
+ *   ...Dog;
  * }
  * ```
  */

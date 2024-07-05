@@ -4,7 +4,7 @@ title: "[F] $withoutDefaultValues"
 
 ---
 ```ts
-$withoutDefaultValues(context, target): void
+function $withoutDefaultValues(context, target): void
 ```
 
 ## Parameters

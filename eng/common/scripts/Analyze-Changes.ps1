@@ -74,6 +74,11 @@ class TreeNode {
 
         # if anything in first level is not 'packages', return true
         foreach ($child in $this.Children) {
+            # skip .prettierignore, .prettierrc.json, cspell.yaml, esling.config.json since these are all covered by github actions globally
+            if ($child.Name -in @('.prettierignore', '.prettierrc.json', 'cspell.yaml', 'esling.config.json')) {
+                continue
+            }
+
             if ($child.Name -ne 'packages') {
                 return $true
             }
@@ -115,7 +120,7 @@ function Get-ActiveVariables($changes) {
     }
 
     # set global flag to run all if common files are changed
-    $runAll = $root.PathExists('eng/common')
+    $runAll = $root.PathExists('eng/common') -or $root.PathExists('vitest.config.ts')
 
     # set global isolated package flag to run if any eng/emiters files changed
     $runIsolated = $root.PathExists('eng/emitters')

@@ -4,7 +4,7 @@ title: "[F] resolveModule"
 
 ---
 ```ts
-resolveModule(
+function resolveModule(
    host, 
    name, 
 options): Promise<ModuleResolutionResult>

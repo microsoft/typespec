@@ -1,9 +1,11 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 import { Interface, Operation, Type, UnionVariant, isErrorModel } from "@typespec/compiler";
 import { JsContext, Module, PathCursor } from "../ctx.js";
-import { bifilter } from "../util/bifilter.js";
 import { parseCase } from "../util/case.js";
 import { getAllProperties } from "../util/extends.js";
-import { indent } from "../util/indent.js";
+import { bifilter, indent } from "../util/iter.js";
 import { emitDocumentation } from "./documentation.js";
 import { emitTypeReference, isValueLiteralType } from "./reference.js";
 import { emitUnionType } from "./union.js";
@@ -20,7 +22,7 @@ export function* emitInterface(ctx: JsContext, iface: Interface, module: Module)
 
   yield* emitDocumentation(ctx, iface);
   yield `export interface ${name}<Context = unknown> {`;
-  yield* emitOperationGroup(ctx, iface.operations.values(), module);
+  yield* indent(emitOperationGroup(ctx, iface.operations.values(), module));
   yield "}";
   yield "";
 }
@@ -67,8 +69,6 @@ export function* emitOperation(ctx: JsContext, op: Operation, module: Module): I
 
   const params: string[] = [];
 
-  const documentation = emitDocumentation(ctx, op);
-
   for (const param of getAllProperties(op.parameters)) {
     // If the type is a value literal, then we consider it a _setting_ and not a parameter.
     // This allows us to exclude metadata parameters (such as contentType) from the generated interface.
@@ -86,6 +86,8 @@ export function* emitOperation(ctx: JsContext, op: Operation, module: Module): I
 
   const paramsDeclarationLine = params.join(", ");
 
+  yield* emitDocumentation(ctx, op);
+
   if (hasOptions) {
     const optionsTypeName = opNameCase.pascalCase + "Options";
 
@@ -93,17 +95,14 @@ export function* emitOperation(ctx: JsContext, op: Operation, module: Module): I
 
     // TODO/witemple: how to extract parameter documentation?
 
-    yield* indent(documentation);
-
     const paramsFragment = params.length > 0 ? `${paramsDeclarationLine}, ` : "";
 
     // prettier-ignore
-    yield `  ${opName}(ctx: Context, ${paramsFragment}options?: ${optionsTypeName}): ${returnType};`;
+    yield `${opName}(ctx: Context, ${paramsFragment}options?: ${optionsTypeName}): ${returnType};`;
     yield "";
   } else {
-    yield* indent(documentation);
     // prettier-ignore
-    yield `  ${opName}(ctx: Context, ${paramsDeclarationLine}): ${returnType};`;
+    yield `${opName}(ctx: Context, ${paramsDeclarationLine}): ${returnType};`;
     yield "";
   }
 }

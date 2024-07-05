@@ -7,7 +7,7 @@ title: "[I] DecoratorParamDefinition"
 
 | Type parameter |
 | :------ |
-| `K` extends [`TypeKind`](../type-aliases/TypeKind.md) |
+| `K` *extends* [`TypeKind`](../type-aliases/TypeKind.md) |
 
 ## Properties
 
