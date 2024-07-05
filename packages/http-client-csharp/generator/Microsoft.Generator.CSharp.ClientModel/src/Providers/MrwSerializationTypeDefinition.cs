@@ -151,6 +151,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var FieldProvider = new FieldProvider(
                 modifiers: FieldModifiers.Private,
                 type: _privateAdditionalRawDataPropertyType,
+                description: FormattableStringHelpers.FromString(PrivateAdditionalPropertiesPropertyDescription),
                 name: PrivateAdditionalPropertiesPropertyName);
 
             return FieldProvider;
@@ -343,7 +344,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
             return new MethodProvider
             (
-              new MethodSignature(PersistableModelWriteCoreMethodName, null, modifiers, returnType, null, [ _serializationOptionsParameter]),
+              new MethodSignature(PersistableModelWriteCoreMethodName, null, modifiers, returnType, null, [_serializationOptionsParameter]),
               BuildPersistableModelWriteCoreMethodBody(),
               this
             );
@@ -647,23 +648,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             foreach (var param in parameters)
             {
-                // TODO -- this should be checking the field property in the parameter
-                if (param.Name == _rawDataField?.Name.ToVariableName())
+                if (param.Field != null)
                 {
-                    methodBodyStatements.Add(_rawDataField.Assign(param).Terminate());
+                    // in our current implementation, this should only be the raw data field
+                    methodBodyStatements.Add(param.Field.Assign(param).Terminate());
+                    continue;
+                }
+                else if (param.Property != null)
+                {
+                    methodBodyStatements.Add(param.Property.Assign(param).Terminate());
                     continue;
                 }
 
-                if (param.Property == null)
-                {
-                    continue;
-                }
-                ValueExpression initializationValue = param;
-                var initializationStatement = param.Property.Assign(initializationValue).Terminate();
-                if (initializationStatement != null)
-                {
-                    methodBodyStatements.Add(initializationStatement);
-                }
+                // in other cases, this parameter is not constructed from property or a field, we just skip it.
             }
 
             return methodBodyStatements;
@@ -954,20 +951,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 var parameter = property.Parameter;
                 constructorParameters.Add(parameter);
-
-                if (shouldAddRawDataField && string.Equals(parameter.Name, _rawDataField?.Name, StringComparison.OrdinalIgnoreCase))
-                {
-                    shouldAddRawDataField = false;
-                }
             }
 
             // Append the raw data field if it doesn't already exist in the constructor parameters
             if (shouldAddRawDataField && _rawDataField != null)
             {
-                constructorParameters.Add(new ParameterProvider(
-                    _rawDataField.Name.ToVariableName(),
-                    FormattableStringHelpers.FromString(PrivateAdditionalPropertiesPropertyDescription),
-                    _rawDataField.Type));
+                constructorParameters.Add(_rawDataField.Parameter);
             }
 
             return constructorParameters;
