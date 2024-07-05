@@ -43,28 +43,28 @@ namespace UnbrandedTypeSpec.Models
             {
                 throw new FormatException($"The model {nameof(ModelWithRequiredNullableProperties)} does not support writing '{format}' format.");
             }
-            if (RequiredNullablePrimitive != null)
+            if (requiredNullablePrimitive != null)
             {
                 writer.WritePropertyName("requiredNullablePrimitive"u8);
-                writer.WriteNumberValue(RequiredNullablePrimitive.Value);
+                writer.WriteNumberValue(requiredNullablePrimitive.Value);
             }
             else
             {
                 writer.WriteNull("requiredNullablePrimitive"u8);
             }
-            if (RequiredExtensibleEnum != null)
+            if (requiredExtensibleEnum != null)
             {
                 writer.WritePropertyName("requiredExtensibleEnum"u8);
-                writer.WriteStringValue(RequiredExtensibleEnum.Value.ToString());
+                writer.WriteStringValue(requiredExtensibleEnum.Value.ToString());
             }
             else
             {
                 writer.WriteNull("requiredExtensibleEnum"u8);
             }
-            if (RequiredFixedEnum != null)
+            if (requiredFixedEnum != null)
             {
                 writer.WritePropertyName("requiredFixedEnum"u8);
-                writer.WriteStringValue(RequiredFixedEnum.Value.ToSerialString());
+                writer.WriteStringValue(requiredFixedEnum.Value.ToSerialString());
             }
             else
             {

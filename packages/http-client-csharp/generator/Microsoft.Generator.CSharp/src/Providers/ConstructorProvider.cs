@@ -12,21 +12,21 @@ namespace Microsoft.Generator.CSharp.Providers
     /// <summary>
     /// Represents a C# method consisting of a signature, body, and expression.
     /// </summary>
-    public sealed class MethodProvider
+    public sealed class ConstructorProvider
     {
-        public MethodSignature Signature { get; }
+        public ConstructorSignature Signature { get; }
         public MethodBodyStatement? BodyStatements { get; }
         public ValueExpression? BodyExpression { get; }
         public XmlDocProvider? XmlDocs { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MethodProvider"/> class with a body statement and method signature.
+        /// Initializes a new instance of the <see cref="ConstructorProvider"/> class with a body statement and method signature.
         /// </summary>
         /// <param name="signature">The method signature.</param>
         /// <param name="bodyStatements">The method body.</param>
         /// <param name="enclosingType">The enclosing type.</param>
         /// <param name="xmlDocProvider">The XML documentation provider.</param>
-        public MethodProvider(MethodSignature signature, MethodBodyStatement bodyStatements, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default)
+        public ConstructorProvider(ConstructorSignature signature, MethodBodyStatement bodyStatements, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default)
         {
             Signature = signature;
             bool skipParamValidation = !signature.Modifiers.HasFlag(MethodSignatureModifiers.Public);
@@ -36,13 +36,13 @@ namespace Microsoft.Generator.CSharp.Providers
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MethodProvider"/> class with a body expression and method signature.
+        /// Initializes a new instance of the <see cref="ConstructorProvider"/> class with a body expression and method signature.
         /// </summary>
         /// <param name="signature">The method signature.</param>
         /// <param name="bodyExpression">The method body expression.</param>
         /// <param name="enclosingType">The enclosing type.</param>
         /// <param name="xmlDocProvider">The XML documentation provider.</param>
-        public MethodProvider(MethodSignature signature, ValueExpression bodyExpression, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default)
+        public ConstructorProvider(ConstructorSignature signature, ValueExpression bodyExpression, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default)
         {
             Signature = signature;
             BodyExpression = bodyExpression;
@@ -131,9 +131,6 @@ namespace Microsoft.Generator.CSharp.Providers
                     docs.Exceptions.Add(new XmlDocExceptionStatement(kvp.Key, kvp.Value));
                 }
             }
-
-            if (Signature.ReturnDescription is not null)
-                docs.Returns = new XmlDocReturnsStatement(Signature.ReturnDescription);
 
             return docs;
         }

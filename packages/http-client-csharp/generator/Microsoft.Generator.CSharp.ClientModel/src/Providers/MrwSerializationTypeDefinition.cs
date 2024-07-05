@@ -55,7 +55,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly InputModelType _inputModel;
         private readonly FieldProvider? _rawDataField;
         private readonly bool _isStruct;
-        private MethodProvider? _serializationConstructor;
+        private ConstructorProvider? _serializationConstructor;
         // Flag to determine if the model should override the serialization methods
         private readonly bool _shouldOverrideMethods;
 
@@ -81,7 +81,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
-        private MethodProvider SerializationConstructor => _serializationConstructor ??= BuildSerializationConstructor();
+        private ConstructorProvider SerializationConstructor => _serializationConstructor ??= BuildSerializationConstructor();
 
         public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
         public override string Name { get; }
@@ -96,9 +96,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return _rawDataField != null ? [_rawDataField] : Array.Empty<FieldProvider>();
         }
 
-        protected override MethodProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
-            List<MethodProvider> constructors = new List<MethodProvider>();
+            List<ConstructorProvider> constructors = new();
             bool serializationCtorParamsMatch = false;
             bool ctorWithNoParamsExist = false;
 
@@ -497,11 +497,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// Builds the serialization constructor for the model.
         /// </summary>
         /// <returns>The constructed serialization constructor.</returns>
-        internal MethodProvider BuildSerializationConstructor()
+        internal ConstructorProvider BuildSerializationConstructor()
         {
             var serializationCtorParameters = BuildSerializationConstructorParameters();
 
-            return new MethodProvider(
+            return new ConstructorProvider(
                 signature: new ConstructorSignature(
                     Type,
                     $"Initializes a new instance of {Type:C}",
@@ -968,10 +968,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return constructorParameters;
         }
 
-        private MethodProvider BuildEmptyConstructor()
+        private ConstructorProvider BuildEmptyConstructor()
         {
             var accessibility = _isStruct ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Internal;
-            return new MethodProvider(
+            return new ConstructorProvider(
                 signature: new ConstructorSignature(Type, $"Initializes a new instance of {Type:C} for deserialization.", accessibility, Array.Empty<ParameterProvider>()),
                 bodyStatements: new MethodBodyStatement(),
                 this);

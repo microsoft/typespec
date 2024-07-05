@@ -55,41 +55,41 @@ namespace UnbrandedTypeSpec.Models
                 throw new FormatException($"The model {nameof(Thing)} does not support writing '{format}' format.");
             }
             writer.WritePropertyName("name"u8);
-            writer.WriteStringValue(Name);
+            writer.WriteStringValue(name);
             writer.WritePropertyName("requiredUnion"u8);
 #if NET6_0_OR_GREATER
-            writer.WriteRawValue(RequiredUnion);
+            writer.WriteRawValue(requiredUnion);
 #else
-            using (JsonDocument document = JsonDocument.Parse(RequiredUnion))
+            using (JsonDocument document = JsonDocument.Parse(requiredUnion))
             {
                 JsonSerializer.Serialize(writer, document.RootElement);
             }
 #endif
             writer.WritePropertyName("requiredLiteralString"u8);
-            writer.WriteStringValue(RequiredLiteralString.ToString());
+            writer.WriteStringValue(requiredLiteralString.ToString());
             writer.WritePropertyName("requiredLiteralInt"u8);
-            writer.WriteNumberValue(RequiredLiteralInt.ToSerialInt32());
+            writer.WriteNumberValue(requiredLiteralInt.ToSerialInt32());
             writer.WritePropertyName("requiredLiteralFloat"u8);
-            writer.WriteNumberValue(RequiredLiteralFloat.ToSerialSingle());
+            writer.WriteNumberValue(requiredLiteralFloat.ToSerialSingle());
             writer.WritePropertyName("requiredLiteralBool"u8);
-            writer.WriteBooleanValue(RequiredLiteralBool);
+            writer.WriteBooleanValue(requiredLiteralBool);
             writer.WritePropertyName("optionalLiteralString"u8);
-            writer.WriteStringValue(OptionalLiteralString.ToString());
+            writer.WriteStringValue(optionalLiteralString.ToString());
             writer.WritePropertyName("optionalLiteralInt"u8);
-            writer.WriteNumberValue(OptionalLiteralInt.ToSerialInt32());
+            writer.WriteNumberValue(optionalLiteralInt.ToSerialInt32());
             writer.WritePropertyName("optionalLiteralFloat"u8);
-            writer.WriteNumberValue(OptionalLiteralFloat.ToSerialSingle());
+            writer.WriteNumberValue(optionalLiteralFloat.ToSerialSingle());
             writer.WritePropertyName("optionalLiteralBool"u8);
-            writer.WriteBooleanValue(OptionalLiteralBool);
+            writer.WriteBooleanValue(optionalLiteralBool);
             writer.WritePropertyName("requiredBadDescription"u8);
-            writer.WriteStringValue(RequiredBadDescription);
-            if (Optional.IsCollectionDefined(OptionalNullableList))
+            writer.WriteStringValue(requiredBadDescription);
+            if (Optional.IsCollectionDefined(optionalNullableList))
             {
-                if (OptionalNullableList != null)
+                if (optionalNullableList != null)
                 {
                     writer.WritePropertyName("optionalNullableList"u8);
                     writer.WriteStartArray();
-                    foreach (var item in OptionalNullableList)
+                    foreach (var item in optionalNullableList)
                     {
                         writer.WriteNumberValue(item);
                     }
@@ -100,11 +100,11 @@ namespace UnbrandedTypeSpec.Models
                     writer.WriteNull("optionalNullableList"u8);
                 }
             }
-            if (RequiredNullableList != null && Optional.IsCollectionDefined(RequiredNullableList))
+            if (requiredNullableList != null && Optional.IsCollectionDefined(requiredNullableList))
             {
                 writer.WritePropertyName("requiredNullableList"u8);
                 writer.WriteStartArray();
-                foreach (var item in RequiredNullableList)
+                foreach (var item in requiredNullableList)
                 {
                     writer.WriteNumberValue(item);
                 }

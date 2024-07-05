@@ -66,96 +66,96 @@ namespace UnbrandedTypeSpec.Models
                 throw new FormatException($"The model {nameof(RoundTripModel)} does not support writing '{format}' format.");
             }
             writer.WritePropertyName("requiredString"u8);
-            writer.WriteStringValue(RequiredString);
+            writer.WriteStringValue(requiredString);
             writer.WritePropertyName("requiredInt"u8);
-            writer.WriteNumberValue(RequiredInt);
+            writer.WriteNumberValue(requiredInt);
             writer.WritePropertyName("requiredCollection"u8);
             writer.WriteStartArray();
-            foreach (var item in RequiredCollection)
+            foreach (var item in requiredCollection)
             {
                 writer.WriteStringValue(item.ToSerialString());
             }
             writer.WriteEndArray();
             writer.WritePropertyName("requiredDictionary"u8);
             writer.WriteStartObject();
-            foreach (var item in RequiredDictionary)
+            foreach (var item in requiredDictionary)
             {
                 writer.WritePropertyName(item.Key);
                 writer.WriteStringValue(item.Value.ToString());
             }
             writer.WriteEndObject();
             writer.WritePropertyName("requiredModel"u8);
-            writer.WriteObjectValue(RequiredModel, options);
+            writer.WriteObjectValue<Thing>(requiredModel, options);
             writer.WritePropertyName("intExtensibleEnum"u8);
-            writer.WriteNumberValue(IntExtensibleEnum.ToSerialInt32());
-            if (Optional.IsCollectionDefined(IntExtensibleEnumCollection))
+            writer.WriteNumberValue(intExtensibleEnum.ToSerialInt32());
+            if (Optional.IsCollectionDefined(intExtensibleEnumCollection))
             {
                 writer.WritePropertyName("intExtensibleEnumCollection"u8);
                 writer.WriteStartArray();
-                foreach (var item in IntExtensibleEnumCollection)
+                foreach (var item in intExtensibleEnumCollection)
                 {
                     writer.WriteNumberValue(item.ToSerialInt32());
                 }
                 writer.WriteEndArray();
             }
             writer.WritePropertyName("floatExtensibleEnum"u8);
-            writer.WriteNumberValue(FloatExtensibleEnum.ToSerialSingle());
+            writer.WriteNumberValue(floatExtensibleEnum.ToSerialSingle());
             writer.WritePropertyName("floatExtensibleEnumWithIntValue"u8);
-            writer.WriteNumberValue(FloatExtensibleEnumWithIntValue.ToSerialSingle());
-            if (Optional.IsCollectionDefined(FloatExtensibleEnumCollection))
+            writer.WriteNumberValue(floatExtensibleEnumWithIntValue.ToSerialSingle());
+            if (Optional.IsCollectionDefined(floatExtensibleEnumCollection))
             {
                 writer.WritePropertyName("floatExtensibleEnumCollection"u8);
                 writer.WriteStartArray();
-                foreach (var item in FloatExtensibleEnumCollection)
+                foreach (var item in floatExtensibleEnumCollection)
                 {
                     writer.WriteNumberValue(item.ToSerialSingle());
                 }
                 writer.WriteEndArray();
             }
             writer.WritePropertyName("floatFixedEnum"u8);
-            writer.WriteNumberValue(FloatFixedEnum.ToSerialSingle());
+            writer.WriteNumberValue(floatFixedEnum.ToSerialSingle());
             writer.WritePropertyName("floatFixedEnumWithIntValue"u8);
-            writer.WriteNumberValue((int)FloatFixedEnumWithIntValue);
-            if (Optional.IsCollectionDefined(FloatFixedEnumCollection))
+            writer.WriteNumberValue((int)floatFixedEnumWithIntValue);
+            if (Optional.IsCollectionDefined(floatFixedEnumCollection))
             {
                 writer.WritePropertyName("floatFixedEnumCollection"u8);
                 writer.WriteStartArray();
-                foreach (var item in FloatFixedEnumCollection)
+                foreach (var item in floatFixedEnumCollection)
                 {
                     writer.WriteNumberValue(item.ToSerialSingle());
                 }
                 writer.WriteEndArray();
             }
             writer.WritePropertyName("intFixedEnum"u8);
-            writer.WriteNumberValue((int)IntFixedEnum);
-            if (Optional.IsCollectionDefined(IntFixedEnumCollection))
+            writer.WriteNumberValue((int)intFixedEnum);
+            if (Optional.IsCollectionDefined(intFixedEnumCollection))
             {
                 writer.WritePropertyName("intFixedEnumCollection"u8);
                 writer.WriteStartArray();
-                foreach (var item in IntFixedEnumCollection)
+                foreach (var item in intFixedEnumCollection)
                 {
                     writer.WriteNumberValue((int)item);
                 }
                 writer.WriteEndArray();
             }
             writer.WritePropertyName("stringFixedEnum"u8);
-            writer.WriteStringValue(StringFixedEnum.ToSerialString());
+            writer.WriteStringValue(stringFixedEnum.ToSerialString());
             writer.WritePropertyName("requiredUnknown"u8);
 #if NET6_0_OR_GREATER
-            writer.WriteRawValue(RequiredUnknown);
+            writer.WriteRawValue(requiredUnknown);
 #else
-            using (JsonDocument document = JsonDocument.Parse(RequiredUnknown))
+            using (JsonDocument document = JsonDocument.Parse(requiredUnknown))
             {
                 JsonSerializer.Serialize(writer, document.RootElement);
             }
 #endif
-            if (Optional.IsDefined(OptionalUnknown))
+            if (Optional.IsDefined(optionalUnknown))
             {
                 writer.WritePropertyName("optionalUnknown"u8);
 #if NET6_0_OR_GREATER
-                writer.WriteRawValue(OptionalUnknown);
+                writer.WriteRawValue(optionalUnknown);
 #else
-                using (JsonDocument document = JsonDocument.Parse(OptionalUnknown))
+                using (JsonDocument document = JsonDocument.Parse(optionalUnknown))
                 {
                     JsonSerializer.Serialize(writer, document.RootElement);
                 }
@@ -163,7 +163,7 @@ namespace UnbrandedTypeSpec.Models
             }
             writer.WritePropertyName("requiredRecordUnknown"u8);
             writer.WriteStartObject();
-            foreach (var item in RequiredRecordUnknown)
+            foreach (var item in requiredRecordUnknown)
             {
                 writer.WritePropertyName(item.Key);
                 if (item.Value == null)
@@ -181,11 +181,11 @@ namespace UnbrandedTypeSpec.Models
 #endif
             }
             writer.WriteEndObject();
-            if (Optional.IsCollectionDefined(OptionalRecordUnknown))
+            if (Optional.IsCollectionDefined(optionalRecordUnknown))
             {
                 writer.WritePropertyName("optionalRecordUnknown"u8);
                 writer.WriteStartObject();
-                foreach (var item in OptionalRecordUnknown)
+                foreach (var item in optionalRecordUnknown)
                 {
                     writer.WritePropertyName(item.Key);
                     if (item.Value == null)
@@ -208,7 +208,7 @@ namespace UnbrandedTypeSpec.Models
             {
                 writer.WritePropertyName("readOnlyRequiredRecordUnknown"u8);
                 writer.WriteStartObject();
-                foreach (var item in ReadOnlyRequiredRecordUnknown)
+                foreach (var item in readOnlyRequiredRecordUnknown)
                 {
                     writer.WritePropertyName(item.Key);
                     if (item.Value == null)
@@ -227,11 +227,11 @@ namespace UnbrandedTypeSpec.Models
                 }
                 writer.WriteEndObject();
             }
-            if (options.Format != "W" && Optional.IsCollectionDefined(ReadOnlyOptionalRecordUnknown))
+            if (options.Format != "W" && Optional.IsCollectionDefined(readOnlyOptionalRecordUnknown))
             {
                 writer.WritePropertyName("readOnlyOptionalRecordUnknown"u8);
                 writer.WriteStartObject();
-                foreach (var item in ReadOnlyOptionalRecordUnknown)
+                foreach (var item in readOnlyOptionalRecordUnknown)
                 {
                     writer.WritePropertyName(item.Key);
                     if (item.Value == null)
@@ -251,9 +251,9 @@ namespace UnbrandedTypeSpec.Models
                 writer.WriteEndObject();
             }
             writer.WritePropertyName("modelWithRequiredNullable"u8);
-            writer.WriteObjectValue(ModelWithRequiredNullable, options);
+            writer.WriteObjectValue<ModelWithRequiredNullableProperties>(modelWithRequiredNullable, options);
             writer.WritePropertyName("requiredBytes"u8);
-            writer.WriteBase64StringValue(RequiredBytes.ToArray(), "D");
+            writer.WriteBase64StringValue(requiredBytes.ToArray(), "D");
             if (options.Format != "W" && _serializedAdditionalRawData != null)
             {
                 foreach (var item in _serializedAdditionalRawData)

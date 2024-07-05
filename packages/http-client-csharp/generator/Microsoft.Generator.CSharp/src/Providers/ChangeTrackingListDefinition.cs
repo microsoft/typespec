@@ -55,7 +55,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public override string Name => "ChangeTrackingList";
 
-        protected override MethodProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
             var iList = new ParameterProvider("innerList", $"The inner list.", _iListOfT);
             var iListSignature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [iList]);
@@ -79,9 +79,9 @@ namespace Microsoft.Generator.CSharp.Providers
 
             return
             [
-                new MethodProvider(new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, Array.Empty<ParameterProvider>()), MethodBodyStatement.Empty, this),
-                new MethodProvider(iListSignature, iListBody, this),
-                new MethodProvider(iReadOnlyListSignature, iReadOnlyListBody, this)
+                new ConstructorProvider(new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, Array.Empty<ParameterProvider>()), MethodBodyStatement.Empty, this),
+                new ConstructorProvider(iListSignature, iListBody, this),
+                new ConstructorProvider(iReadOnlyListSignature, iReadOnlyListBody, this)
             ];
         }
 

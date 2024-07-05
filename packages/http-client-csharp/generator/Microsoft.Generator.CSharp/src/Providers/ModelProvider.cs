@@ -68,11 +68,11 @@ namespace Microsoft.Generator.CSharp.Providers
             return propertyDeclarations;
         }
 
-        protected override MethodProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
             if (_inputModel.IsUnknownDiscriminatorModel)
             {
-                return Array.Empty<MethodProvider>();
+                return [];
             }
 
             // Build the initialization constructor
@@ -83,7 +83,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     : MethodSignatureModifiers.Internal;
             var constructorParameters = BuildConstructorParameters();
 
-            var constructor = new MethodProvider(
+            var constructor = new ConstructorProvider(
                 signature: new ConstructorSignature(
                     Type,
                     $"Initializes a new instance of {Type:C}",
