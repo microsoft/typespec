@@ -17,11 +17,5 @@
     "lib": ["DOM", "ES2022"],
     "types": ["vite/client"]
   },
-  "include": [
-    "src/",
-    "test/**/*.ts",
-    "e2e/**/*.ts",
-    "vite.config.ts",
-    "samples/dist/samples.ts"
-  ]
+  "include": ["src/", "test/**/*.ts", "e2e/**/*.ts", "vite.config.ts", "samples/dist/samples.ts"]
 }
