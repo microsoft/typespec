@@ -250,15 +250,14 @@ export function createModelForService(
       clientDesc = getDoc(program, container) ?? "";
     }
 
-    const inputClient = {
+    const inputClient: InputClient = {
       Name: getClientName(client),
       Description: clientDesc,
       Operations: [],
       Protocol: {},
-      Creatable: client.kind === ClientKind.SdkClient,
       Parent: parent === undefined ? undefined : getClientName(parent),
       Parameters: urlParameters,
-    } as InputClient;
+    };
     for (const op of operations) {
       const httpOperation = ignoreDiagnostics(getHttpOperation(program, op));
       const inputOperation: InputOperation = loadOperation(
