@@ -24,6 +24,7 @@ export function parseCase(name: string): ReCase {
   for (let i = 0; i < name.length; i++) {
     const char = name[i];
 
+    // cSpell:ignore presponse
     // Special case acronym handling. We want to treat acronyms as a single component,
     // but we also want the last capitalized letter in an all caps sequence to start a new
     // component if the next letter is lower case.
@@ -37,10 +38,7 @@ export function parseCase(name: string): ReCase {
       // If we're in an acronym, we need to check if the next character is lower case.
       // If it is, then this is the start of a new component.
       const acronymRestart =
-        inAcronym &&
-        /[A-Z]/.test(char) &&
-        i + 1 < name.length &&
-        /[^A-Z]/.test(name[i + 1]);
+        inAcronym && /[A-Z]/.test(char) && i + 1 < name.length && /[^A-Z]/.test(name[i + 1]);
 
       if (currentComponent.length > 0 && (acronymRestart || !inAcronym)) {
         components.push(currentComponent.trim());
@@ -126,9 +124,7 @@ function recase(components: readonly string[]): ReCase {
     get camelCase() {
       return components
         .map((component, index) =>
-          index === 0
-            ? component
-            : component[0].toUpperCase() + component.slice(1)
+          index === 0 ? component : component[0].toUpperCase() + component.slice(1)
         )
         .join("");
     },

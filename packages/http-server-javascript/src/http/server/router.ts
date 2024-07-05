@@ -318,7 +318,7 @@ function* emitRouteOperationDispatchMultiple(
   route: string,
   backends: Map<OperationContainer, [ReCase, string]>
 ): Iterable<string> {
-  // TODO/wtemple - Only supporting differentiation by content-type for now. We could maybe do something in the future
+  // TODO/witemple - Only supporting differentiation by content-type for now. We could maybe do something in the future
   // that is more sophisticated, allowing differentiation by arbitrary headers or even path parameters, but content-type
   // is the most common case of differentiation that I've seen.
   const usedContentTypes = new Set<string>();

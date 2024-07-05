@@ -36,11 +36,11 @@
     "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/http-server-javascript/reference"
   },
   "devDependencies": {
-    "@types/node": "^20.11.6",
+    "@types/node": "~18.11.19",
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
     "typescript": "~5.4.5",
     "prettier": "~3.2.5",
-    "tsx": "^4.7.3"
+    "tsx": "~4.16.0"
   }
 }

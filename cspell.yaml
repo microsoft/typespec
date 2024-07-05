@@ -12,6 +12,7 @@ words:
   - azsdkengsys
   - azurecr
   - azuresdk
+  - bifilter
   - blockful
   - blockless
   - cadl
@@ -27,6 +28,7 @@ words:
   - createsorupdatesresource
   - CRUDL
   - debouncer
+  - destructures
   - devdiv
   - dogfood
   - eastus
@@ -78,6 +80,7 @@ words:
   - protoc
   - pwsh
   - psscriptanalyzer
+  - recase
   - regen
   - respecify
   - rpaas
@@ -100,10 +103,13 @@ words:
   - uitestresults
   - unassignable
   - Uncapitalize
+  - undifferentiable
   - uninstantiated
   - unioned
+  - unparented
   - unprefixed
   - unprojected
+  - unrepresentable
   - unsourced
   - unversioned
   - vsix
@@ -111,6 +117,7 @@ words:
   - vswhere
   - westus
   - WINDOWSVMIMAGE
+  - witemple
   - xlarge
   - xplat
   - TCGC

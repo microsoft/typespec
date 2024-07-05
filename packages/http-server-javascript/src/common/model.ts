@@ -76,9 +76,9 @@ export function* emitModel(
 
     yield* indent(emitDocumentation(ctx, field));
 
-    const qmark = field.optional ? "?" : "";
+    const questionMark = field.optional ? "?" : "";
 
-    yield `  ${name}${qmark}: ${typeReference};`;
+    yield `  ${name}${questionMark}: ${typeReference};`;
     yield "";
   }
 
@@ -89,11 +89,11 @@ export function* emitModel(
 export function emitModelLiteral(ctx: JsContext, model: Model, module: Module): string {
   const properties = [...model.properties.values()].map((prop) => {
     const nameCase = parseCase(prop.name);
-    const qmark = prop.optional ? "?" : "";
+    const questionMark = prop.optional ? "?" : "";
 
     const name = KEYWORDS.has(nameCase.camelCase) ? `_${nameCase.camelCase}` : nameCase.camelCase;
 
-    return `${name}${qmark}: ${emitTypeReference(ctx, prop.type, prop, module)}`;
+    return `${name}${questionMark}: ${emitTypeReference(ctx, prop.type, prop, module)}`;
   });
 
   return `{ ${properties.join("; ")} }`;
