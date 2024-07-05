@@ -21,10 +21,7 @@ export default defineConfig({
 
     rollupOptions: {
       external: (id) => {
-        return (
-          id.includes("/node_modules/") ||
-          !(id.startsWith(__dirname) || id.startsWith("./") || id.startsWith("../"))
-        );
+        return id.includes("/node_modules/") || !(id.startsWith(__dirname) || id.startsWith("."));
       },
     },
   },
