@@ -59,6 +59,9 @@ importers:
       eslint-plugin-import:
         specifier: ^2.29.1
         version: 2.29.1(@typescript-eslint/parser@7.15.0)(eslint@8.57.0)
+      eslint-plugin-react-hooks:
+        specifier: ^4.6.2
+        version: 4.6.2(eslint@8.57.0)
       eslint-plugin-unicorn:
         specifier: ^54.0.0
         version: 54.0.0(eslint@8.57.0)
@@ -91,7 +94,7 @@ importers:
         version: 7.15.0(eslint@8.57.0)(typescript@5.5.3)
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
+        version: 1.6.0(@types/node@18.11.19)
       yaml:
         specifier: ~2.4.5
         version: 2.4.5
@@ -123,7 +126,7 @@ importers:
         version: 5.5.3
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
 
   packages/bundle-uploader:
     dependencies:
@@ -172,7 +175,7 @@ importers:
         version: 5.5.3
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
 
   packages/bundler:
     dependencies:
@@ -233,7 +236,7 @@ importers:
         version: 5.3.3(@types/node@18.11.19)
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
 
   packages/compiler:
     dependencies:
@@ -327,7 +330,7 @@ importers:
         version: 5.5.3
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
       vscode-oniguruma:
         specifier: ~2.0.1
         version: 2.0.1
@@ -373,7 +376,7 @@ importers:
         version: 5.5.3
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
 
   packages/html-program-viewer:
     dependencies:
@@ -452,7 +455,7 @@ importers:
         version: 3.9.1(@types/node@18.11.19)(typescript@5.5.3)(vite@5.3.3)
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
 
   packages/http:
     devDependencies:
@@ -485,7 +488,7 @@ importers:
         version: 5.5.3
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
 
   packages/internal-build-utils:
     dependencies:
@@ -534,7 +537,7 @@ importers:
         version: 5.5.3
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
 
   packages/json-schema:
     dependencies:
@@ -580,7 +583,7 @@ importers:
         version: 5.5.3
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
 
   packages/library-linter:
     devDependencies:
@@ -607,7 +610,7 @@ importers:
         version: 5.5.3
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
 
   packages/monarch:
     dependencies:
@@ -677,7 +680,7 @@ importers:
         version: 5.5.3
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
 
   packages/openapi3:
     dependencies:
@@ -735,7 +738,7 @@ importers:
         version: 5.5.3
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
 
   packages/playground:
     dependencies:
@@ -965,7 +968,7 @@ importers:
         version: 5.3.3(@types/node@18.11.19)
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
 
   packages/prettier-plugin-typespec:
     dependencies:
@@ -996,7 +999,7 @@ importers:
         version: 4.18.0
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
+        version: 1.6.0(@types/node@18.11.19)
 
   packages/protobuf:
     devDependencies:
@@ -1032,7 +1035,7 @@ importers:
         version: 5.5.3
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
 
   packages/react-components:
     dependencies:
@@ -1099,7 +1102,7 @@ importers:
         version: 3.9.1(@types/node@18.11.19)(typescript@5.5.3)(vite@5.3.3)
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
 
   packages/rest:
     devDependencies:
@@ -1135,7 +1138,7 @@ importers:
         version: 5.5.3
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
 
   packages/samples:
     dependencies:
@@ -1193,7 +1196,7 @@ importers:
         version: 5.5.3
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
 
   packages/spec:
     devDependencies:
@@ -1282,7 +1285,7 @@ importers:
         version: 5.5.3
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
 
   packages/typespec-vs:
     devDependencies:
@@ -1339,7 +1342,7 @@ importers:
         version: 5.5.3
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
       vscode-languageclient:
         specifier: ~9.0.1
         version: 9.0.1
@@ -1375,7 +1378,7 @@ importers:
         version: 5.5.3
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
 
   packages/website:
     dependencies:
@@ -1547,7 +1550,7 @@ importers:
         version: 5.5.3
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
 
 packages:
 
@@ -9032,7 +9035,7 @@ packages:
       dom-accessibility-api: 0.6.3
       lodash: 4.17.21
       redent: 3.0.0
-      vitest: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
+      vitest: 1.6.0(@types/node@18.11.19)
     dev: true
 
   /@testing-library/jest-dom@6.4.6(vitest@1.6.0):
@@ -9064,7 +9067,7 @@ packages:
       dom-accessibility-api: 0.6.3
       lodash: 4.17.21
       redent: 3.0.0
-      vitest: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+      vitest: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
     dev: true
 
   /@testing-library/react@16.0.0(@testing-library/dom@10.2.0)(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1):
@@ -9753,7 +9756,7 @@ packages:
       std-env: 3.7.0
       strip-literal: 2.1.0
       test-exclude: 6.0.0
-      vitest: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+      vitest: 1.6.0(@types/node@18.11.19)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -9800,7 +9803,7 @@ packages:
       pathe: 1.1.2
       picocolors: 1.0.1
       sirv: 2.0.4
-      vitest: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)
+      vitest: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
     dev: true
 
   /@vitest/utils@1.6.0:
@@ -13161,6 +13164,15 @@ packages:
       - supports-color
     dev: true
 
+  /eslint-plugin-react-hooks@4.6.2(eslint@8.57.0):
+    resolution: {integrity: sha512-QzliNJq4GinDBcD8gPB5v0wh6g8q3SUi6EFF0x8N/BL9PoVs0atuGc47ozMRyOWAKdwaZ5OnbOEa3WR+dSGKuQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0
+    dependencies:
+      eslint: 8.57.0
+    dev: true
+
   /eslint-plugin-unicorn@54.0.0(eslint@8.57.0):
     resolution: {integrity: sha512-XxYLRiYtAWiAjPv6z4JREby1TAE2byBC7wlh0V4vWDCpccOSU1KovWV//jqPXF6bq3WKxqX9rdjoRQ1EhdmNdQ==}
     engines: {node: '>=18.18'}
@@ -13203,7 +13215,7 @@ packages:
     dependencies:
       '@typescript-eslint/utils': 7.15.0(eslint@8.57.0)(typescript@5.5.3)
       eslint: 8.57.0
-      vitest: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)
+      vitest: 1.6.0(@types/node@18.11.19)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -21535,7 +21547,7 @@ packages:
       fsevents: 2.3.3
     dev: true
 
-  /vitest@1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0):
+  /vitest@1.6.0(@types/node@18.11.19):
     resolution: {integrity: sha512-H5r/dN06swuFnzNFhq/dnz37bPXnq8xB2xB5JOVk8K09rUtoeNN+LHWkoQ0A/i3hvbUKKcCei9KpbxqHMLhLLA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -21565,7 +21577,6 @@ packages:
       '@vitest/runner': 1.6.0
       '@vitest/snapshot': 1.6.0
       '@vitest/spy': 1.6.0
-      '@vitest/ui': 1.6.0(vitest@1.6.0)
       '@vitest/utils': 1.6.0
       acorn-walk: 8.3.2
       chai: 4.4.1
@@ -21579,7 +21590,7 @@ packages:
       strip-literal: 2.1.0
       tinybench: 2.6.0
       tinypool: 0.8.3
-      vite: 5.2.11(@types/node@18.11.19)
+      vite: 5.3.3(@types/node@18.11.19)
       vite-node: 1.6.0(@types/node@18.11.19)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
@@ -21637,7 +21648,7 @@ packages:
       strip-literal: 2.1.0
       tinybench: 2.6.0
       tinypool: 0.8.3
-      vite: 5.3.3(@types/node@18.11.19)
+      vite: 5.2.11(@types/node@18.11.19)
       vite-node: 1.6.0(@types/node@18.11.19)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:

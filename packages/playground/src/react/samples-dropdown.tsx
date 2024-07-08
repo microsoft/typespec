@@ -23,7 +23,7 @@ export const SamplesDropdown: FunctionComponent<SamplesDropdownProps> = ({
         onSelectedSampleNameChange(evt.target.value);
       }
     },
-    [onSelectedSampleNameChange]
+    [onSelectedSampleNameChange, samples]
   );
   return (
     <Select
