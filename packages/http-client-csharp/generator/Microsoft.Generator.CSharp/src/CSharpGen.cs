@@ -34,22 +34,8 @@ namespace Microsoft.Generator.CSharp
             Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));
             List<Task> generateFilesTasks = new();
 
-            var visitors = output.GetOutputLibraryVisitors();
-            // var types = new List<TypeProvider>();
-            // foreach (var type in output.TypeProviders)
-            // {
-            //     foreach (var visitor in visitors ?? [])
-            //     {
-            //         var newType = visitor.Visit(type);
-            //         if (newType != null)
-            //         {
-            //             types.Add(newType);
-            //         }
-            //     }
-            // }
-
             // visit the entire library before generating files
-            foreach (var visitor in visitors ?? [])
+            foreach (var visitor in output.GetOutputLibraryVisitors() ?? [])
             {
                 visitor.Visit(output);
             }
