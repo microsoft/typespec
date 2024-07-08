@@ -265,7 +265,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
         setContent(val);
       },
     };
-  }, [host, setContent]);
+  }, [host, setContent, typespecModel]);
 
   return (
     <PlaygroundContextProvider value={playgroundContext}>
