@@ -222,22 +222,6 @@ namespace Microsoft.Generator.CSharp
             return new string(span);
         }
 
-        public static string FirstCharToLowerCase(this string str)
-        {
-            if (string.IsNullOrEmpty(str))
-                return str;
-
-            var strSpan = str.AsSpan();
-
-            if (char.IsLower(strSpan[0]))
-                return str;
-
-            Span<char> span = stackalloc char[strSpan.Length];
-            strSpan.CopyTo(span);
-            span[0] = char.ToLower(span[0]);
-            return new string(span);
-        }
-
         public static IEnumerable<string> SplitByCamelCase(this string camelCase)
         {
             var humanizedString = HumanizedCamelCaseRegex.Replace(camelCase, "$1");

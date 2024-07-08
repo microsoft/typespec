@@ -709,7 +709,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             foreach (var property in _model.Properties)
             {
-                var parameterName = property.Name.FirstCharToLowerCase();
+                var parameterName = property.Name.ToVariableName();
                 if (parameterDict.TryGetValue(parameterName, out var parameter))
                 {
                     ValueExpression initializationValue = parameter;
@@ -1070,7 +1070,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             return (constructorParameters, constructorInitializer);
 
-            static ConstructorSignature? GetBaseConstructor(TypeProvider? baseProvider)
+            static ConstructorSignature? GetBaseConstructor(MrwSerializationTypeDefinition? baseProvider)
             {
                 // find the constructor on the base type
                 if (baseProvider == null || baseProvider.Constructors.Count == 0)
@@ -1078,8 +1078,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     return null;
                 }
 
-                // we cannot know which ctor to call, but in our implementation, it should only be one
-                var ctor = baseProvider.Constructors[0];
+                // we cannot know exactly which ctor to call, but in our implementation, it should always be the one with most parameters
+                var ctor = baseProvider.Constructors.OrderByDescending(c => c.Signature.Parameters.Count).First();
                 if (ctor.Signature is not ConstructorSignature ctorSignature || ctorSignature.Parameters.Count == 0)
                 {
                     return null;
