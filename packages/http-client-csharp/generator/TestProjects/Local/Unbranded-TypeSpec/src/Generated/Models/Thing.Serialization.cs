@@ -16,7 +16,7 @@ namespace UnbrandedTypeSpec.Models
     {
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
-        internal Thing(string name, BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, ThingOptionalLiteralString optionalLiteralString, ThingOptionalLiteralInt optionalLiteralInt, ThingOptionalLiteralFloat optionalLiteralFloat, bool optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, ModelWithBaseModelWithoutRequired baseWithoutRequired, ModelWithBaseModelWithRequired baseWithRequired, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        internal Thing(string name, BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, ThingOptionalLiteralString optionalLiteralString, ThingOptionalLiteralInt optionalLiteralInt, ThingOptionalLiteralFloat optionalLiteralFloat, bool optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, ModelWithBaseModelWithoutRequired baseWithoutRequired, ModelWithBaseModelWithRequired baseWithRequired, BaseModelWithDiscriminator optionalDiscriminatedSet, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             Name = name;
             RequiredUnion = requiredUnion;
@@ -33,6 +33,7 @@ namespace UnbrandedTypeSpec.Models
             RequiredNullableList = requiredNullableList;
             BaseWithoutRequired = baseWithoutRequired;
             BaseWithRequired = baseWithRequired;
+            OptionalDiscriminatedSet = optionalDiscriminatedSet;
             _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
@@ -126,6 +127,11 @@ namespace UnbrandedTypeSpec.Models
                 writer.WritePropertyName("baseWithRequired"u8);
                 writer.WriteObjectValue(BaseWithRequired, options);
             }
+            if (Optional.IsDefined(OptionalDiscriminatedSet))
+            {
+                writer.WritePropertyName("optionalDiscriminatedSet"u8);
+                writer.WriteObjectValue(OptionalDiscriminatedSet, options);
+            }
             if (options.Format != "W" && _serializedAdditionalRawData != null)
             {
                 foreach (var item in _serializedAdditionalRawData)
@@ -179,6 +185,7 @@ namespace UnbrandedTypeSpec.Models
             IList<int> requiredNullableList = default;
             ModelWithBaseModelWithoutRequired baseWithoutRequired = default;
             ModelWithBaseModelWithRequired baseWithRequired = default;
+            BaseModelWithDiscriminator optionalDiscriminatedSet = default;
             IDictionary<string, BinaryData> serializedAdditionalRawData = default;
             Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
@@ -301,6 +308,15 @@ namespace UnbrandedTypeSpec.Models
                     baseWithRequired = ModelWithBaseModelWithRequired.DeserializeModelWithBaseModelWithRequired(prop.Value, options);
                     continue;
                 }
+                if (prop.NameEquals("optionalDiscriminatedSet"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    optionalDiscriminatedSet = BaseModelWithDiscriminator.DeserializeBaseModelWithDiscriminator(prop.Value, options);
+                    continue;
+                }
                 if (options.Format != "W")
                 {
                     rawDataDictionary.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
@@ -323,6 +339,7 @@ namespace UnbrandedTypeSpec.Models
                 requiredNullableList,
                 baseWithoutRequired,
                 baseWithRequired,
+                optionalDiscriminatedSet,
                 serializedAdditionalRawData);
         }
 

@@ -86,6 +86,32 @@ union StringExtensibleEnum {
   Four: "4",
 }
 
+@discriminator("discriminatorProperty")
+@doc("Base model with discriminator property.")
+model BaseModelWithDiscriminator {
+  @doc("Optional property on base")
+  optionalPropertyOnBase?: string;
+
+  @doc("Required property on base")
+  requiredPropertyOnBase: int32;
+}
+
+@doc("Deriver model with discriminator property.")
+model DerivedModelWithDiscriminatorA extends BaseModelWithDiscriminator {
+  discriminatorProperty: "A";
+
+  @doc("Required string.")
+  requiredString: string;
+}
+
+@doc("Deriver model with discriminator property.")
+model DerivedModelWithDiscriminatorB extends BaseModelWithDiscriminator {
+  discriminatorProperty: "B";
+
+  @doc("Required int.")
+  requiredInt: int32;
+}
+
 @doc("A model with a few properties of literal types")
 model Thing {
   @doc("name of the Thing")
@@ -132,6 +158,9 @@ model Thing {
 
   @doc("the derived model with its base with required properties")
   baseWithRequired?: ModelWithBaseModelWithRequired;
+  
+  @doc("optional discriminated set")
+  optionalDiscriminatedSet?: BaseModelWithDiscriminator;
 }
 
 @doc("A model with a few required nullable properties")
@@ -184,7 +213,7 @@ model NotFriend {
 }
 
 @doc("this is a model with a projected name")
-@projectedName("client", "ProjectedModel")
+@clientName("client", "ProjectedModel")
 model ModelWithProjectedName {
   @doc("name of the ModelWithProjectedName")
   name: string;

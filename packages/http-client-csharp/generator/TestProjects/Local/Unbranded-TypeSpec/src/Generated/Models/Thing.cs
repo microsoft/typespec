@@ -117,5 +117,8 @@ namespace UnbrandedTypeSpec.Models
 
         /// <summary> the derived model with its base with required properties. </summary>
         public ModelWithBaseModelWithRequired BaseWithRequired { get; set; }
+
+        /// <summary> optional discriminated set. </summary>
+        public BaseModelWithDiscriminator OptionalDiscriminatedSet { get; set; }
     }
 }
