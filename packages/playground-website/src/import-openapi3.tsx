@@ -76,7 +76,7 @@ const ImportOpenAPI3 = ({ onImport }: { onImport: () => void }) => {
   };
   return (
     <div>
-      <h3>Import openapi3 document</h3>
+      <h3>Import OpenAPI3.0 document</h3>
 
       <div className={style["import-editor-container"]}>
         <Editor model={model} options={{ minimap: { enabled: false } }} />
