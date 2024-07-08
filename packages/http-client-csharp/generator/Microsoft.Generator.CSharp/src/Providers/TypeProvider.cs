@@ -12,6 +12,17 @@ namespace Microsoft.Generator.CSharp.Providers
     public abstract class TypeProvider
     {
         protected string? _deprecated;
+        private TypeProvider _innerProvider;
+
+        protected TypeProvider()
+        {
+            _innerProvider = this;
+        }
+
+        internal void Replace(TypeProvider newType)
+        {
+            _innerProvider = newType;
+        }
 
         /// <summary>
         /// Gets the relative file path where the generated file will be stored.
@@ -23,9 +34,9 @@ namespace Microsoft.Generator.CSharp.Providers
         protected virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
 
         private XmlDocProvider? _xmlDocs;
-        public XmlDocProvider XmlDocs => _xmlDocs ??= BuildXmlDocs();
+        public XmlDocProvider XmlDocs => _xmlDocs ??= _innerProvider.BuildXmlDocs();
 
-        internal virtual Type? SerializeAs => null;
+        internal virtual Type? SerializeAs => _innerProvider == this ? null : _innerProvider.SerializeAs;
 
         public string? Deprecated => _deprecated;
 
@@ -36,7 +47,18 @@ namespace Microsoft.Generator.CSharp.Providers
             isNullable: false);
 
         private TypeSignatureModifiers? _declarationModifiers;
-        public TypeSignatureModifiers DeclarationModifiers => _declarationModifiers ??= GetDeclarationModifiersInternal();
+
+        public TypeSignatureModifiers DeclarationModifiers
+        {
+            get
+            {
+                if (_innerProvider == this)
+                {
+                    return _declarationModifiers ??= GetDeclarationModifiersInternal();
+                }
+                return _innerProvider.DeclarationModifiers;
+            }
+        }
 
         protected virtual TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.None;
         private TypeSignatureModifiers GetDeclarationModifiersInternal()
@@ -71,35 +93,160 @@ namespace Microsoft.Generator.CSharp.Providers
             return modifiers;
         }
 
-        public CSharpType? Inherits { get; protected init; }
+        public CSharpType? Inherits
+        {
+            get => _innerProvider == this ? _inherits : _innerProvider.Inherits;
+            protected set
+            {
+                if (_innerProvider == this)
+                {
+                    _inherits = value;
+                }
+                else
+                {
+                    _innerProvider.Inherits = value;
+                }
+            }
+        }
 
-        public virtual WhereExpression? WhereClause { get; protected init; }
+        private CSharpType? _inherits;
+
+        public virtual WhereExpression? WhereClause
+        {
+            get => _innerProvider == this ? _whereClause : _innerProvider.WhereClause;
+            protected set
+            {
+                if (_innerProvider == this)
+                {
+                    _whereClause = value;
+                }
+                else
+                {
+                    _innerProvider.WhereClause = value;
+                }
+            }
+        }
+        private WhereExpression? _whereClause;
 
         private CSharpType[]? _typeArguments;
-        protected internal virtual IReadOnlyList<CSharpType> TypeArguments => _typeArguments ??= BuildTypeArguments();
 
-        public virtual TypeProvider? DeclaringTypeProvider { get; protected init; }
+        protected internal virtual IReadOnlyList<CSharpType> TypeArguments
+        {
+            get
+            {
+                if (this == _innerProvider)
+                {
+                    return _typeArguments ??= BuildTypeArguments();
+                }
+                return _innerProvider.TypeArguments;
+            }
+        }
+
+        public virtual TypeProvider? DeclaringTypeProvider
+        {
+            get => _innerProvider == this ? _declaringTypeProvider : _innerProvider.DeclaringTypeProvider;
+            protected set
+            {
+                if (_innerProvider == this)
+                {
+                    _declaringTypeProvider = value;
+                }
+                else
+                {
+                    _innerProvider.DeclaringTypeProvider = value;
+                }
+            }
+        }
+
+        private TypeProvider? _declaringTypeProvider;
 
         private IReadOnlyList<CSharpType>? _implements;
-        public IReadOnlyList<CSharpType> Implements => _implements ??= BuildImplements();
+
+        public IReadOnlyList<CSharpType> Implements
+        {
+            get
+            {
+                if (this == _innerProvider)
+                {
+                    return _implements ??= BuildImplements();
+                }
+                return _innerProvider.Implements;
+            }
+        }
 
         private IReadOnlyList<PropertyProvider>? _properties;
-        public IReadOnlyList<PropertyProvider> Properties => _properties ??= BuildProperties();
+
+        public IReadOnlyList<PropertyProvider> Properties
+        {
+            get
+            {
+                if (this == _innerProvider)
+                {
+                    return _properties ??= BuildProperties();
+                }
+
+                return _innerProvider.Properties;
+            }
+        }
 
         private IReadOnlyList<MethodProvider>? _methods;
-        public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethods();
+
+        public IReadOnlyList<MethodProvider> Methods
+        {
+            get
+            {
+                if (this == _innerProvider)
+                {
+                    return _methods ??= BuildMethods();
+                }
+                return _innerProvider.Methods;
+            }
+        }
 
         private IReadOnlyList<MethodProvider>? _constructors;
-        public IReadOnlyList<MethodProvider> Constructors => _constructors ??= BuildConstructors();
+
+        public IReadOnlyList<MethodProvider> Constructors
+        {
+            get
+            {
+                if (this == _innerProvider)
+                {
+                    return _constructors ??= BuildConstructors();
+                }
+                return _innerProvider.Constructors;
+            }
+        }
 
         private IReadOnlyList<FieldProvider>? _fields;
-        public IReadOnlyList<FieldProvider> Fields => _fields ??= BuildFields();
+        public IReadOnlyList<FieldProvider> Fields => _fields ??= _innerProvider.BuildFields();
 
         private IReadOnlyList<TypeProvider>? _nestedTypes;
-        public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypes();
+
+        public IReadOnlyList<TypeProvider> NestedTypes
+        {
+            get
+            {
+                if (this == _innerProvider)
+                {
+                    return _nestedTypes ??= BuildNestedTypes();
+                }
+                return _innerProvider.NestedTypes;
+            }
+        }
 
         private IReadOnlyList<TypeProvider>? _serializationProviders;
-        public virtual IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
+
+        public virtual IReadOnlyList<TypeProvider> SerializationProviders
+        {
+            get
+            {
+                if (this == _innerProvider)
+                {
+                    return _serializationProviders ??= BuildSerializationProviders();
+                }
+                return _innerProvider.SerializationProviders;
+            }
+        }
 
         protected virtual CSharpType[] BuildTypeArguments() => Array.Empty<CSharpType>();
 

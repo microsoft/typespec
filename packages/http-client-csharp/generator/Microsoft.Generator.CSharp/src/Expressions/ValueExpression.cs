@@ -53,6 +53,8 @@ namespace Microsoft.Generator.CSharp.Expressions
         public InvokeInstanceMethodExpression Invoke(MethodSignature method, IReadOnlyList<ValueExpression> arguments, bool addConfigureAwaitFalse = true)
             => new InvokeInstanceMethodExpression(this, method.Name, arguments, null, method.Modifiers.HasFlag(MethodSignatureModifiers.Async), AddConfigureAwaitFalse: addConfigureAwaitFalse);
 
+        public InvokeInstanceMethodSignatureExpression InvokeSignature(MethodSignature method, IReadOnlyList<ValueExpression> arguments, bool addConfigureAwaitFalse = true)
+            => new InvokeInstanceMethodSignatureExpression(this, method, arguments, null, method.Modifiers.HasFlag(MethodSignatureModifiers.Async), AddConfigureAwaitFalse: addConfigureAwaitFalse);
         public InvokeInstanceMethodExpression Invoke(string methodName, bool async)
             => new InvokeInstanceMethodExpression(this, methodName, Array.Empty<ValueExpression>(), null, async);
 

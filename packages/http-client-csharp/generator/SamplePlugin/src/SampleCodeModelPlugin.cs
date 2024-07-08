@@ -13,6 +13,8 @@ using Microsoft.Generator.CSharp.Providers;
 
 namespace SamplePlugin
 {
+    [Export(typeof(CodeModelPlugin))]
+    [ExportMetadata("PluginName", nameof(SampleCodeModelPlugin))]
     public class SampleCodeModelPlugin : ClientModelPlugin
     {
         private static SampleCodeModelPlugin? _instance;
@@ -23,6 +25,8 @@ namespace SamplePlugin
         public override SamplePluginTypeFactory TypeFactory { get; }
 
         public override IReadOnlyList<MetadataReference> AdditionalMetadataReferences => [MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location)];
+
+        public override OutputLibrary OutputLibrary { get; } = new SamplePluginOutputLibrary();
 
         [ImportingConstructor]
         public SampleCodeModelPlugin(GeneratorContext context)

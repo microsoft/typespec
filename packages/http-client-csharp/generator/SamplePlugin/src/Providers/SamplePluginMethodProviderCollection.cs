@@ -35,7 +35,7 @@ namespace SamplePlugin.Providers
             foreach (var method in methods)
             {
                 // Only add tracing to protocol methods. Convenience methods will call into protocol methods.
-                if (method is not ClientMethodProvider { IsProtocol: true })
+                if (method is not ScmMethodProvider { IsProtocol: true })
                 {
                     updatedMethods.Add(method);
                     continue;
@@ -46,7 +46,7 @@ namespace SamplePlugin.Providers
 
                 var ex = new VariableExpression(typeof(Exception), "ex");
                 var decl = new DeclarationExpression(ex);
-                updatedMethods.Add(new MethodProvider(
+                updatedMethods.Add(new ScmMethodProvider(
                     convertedMethod.Signature,
                     new TryCatchFinallyStatement(
                         new[] {
@@ -66,7 +66,7 @@ namespace SamplePlugin.Providers
         }
 
         private MethodProvider GetExpressionBodiedTestMethod() =>
-            new ClientMethodProvider(
+            new ScmMethodProvider(
                 new MethodSignature(
                     $"TestExpressionBodyConversion{ToTitleCase(Operation.Name)}",
                     $"Test expression body conversion.",

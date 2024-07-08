@@ -8,7 +8,7 @@
     "Debug-Plugin-Test-TypeSpec": {
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../generator/artifacts/bin/SamplePlugin/Debug/net8.0/Microsoft.Generator.CSharp.exe",
-      "commandLineArgs": "$(SolutionDir)/TestProjects/Plugin/Unbranded-TypeSpec -p SamplePlugin"
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Plugin/Unbranded-TypeSpec -p SampleCodeModelPlugin"
     }
   }
 }

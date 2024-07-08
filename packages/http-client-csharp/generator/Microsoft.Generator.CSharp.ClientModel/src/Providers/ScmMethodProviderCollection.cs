@@ -64,16 +64,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Parameters: ConvenienceMethodParameters);
             var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
             MethodBodyStatement[] methodBody = _bodyParameter is null
-                ? [Return(This.Invoke(methodSignature.Name, [.. ConvenienceMethodParameters, Null], null, isAsync, isAsync))]
+                ? [Return(This.InvokeSignature(methodSignature, [.. ConvenienceMethodParameters, Null], isAsync))]
                 : [
-                    Declare("result", typeof(ClientResult), This.Invoke(methodSignature.Name, [.. ConvenienceMethodParameters, Null], null, isAsync, isAsync), out var result),
+                    Declare("result", typeof(ClientResult), This.InvokeSignature(methodSignature, [.. ConvenienceMethodParameters, Null], isAsync), out var result),
                     Return(new InvokeStaticMethodExpression(
                         typeof(ClientResult),
                         nameof(ClientResult.FromValue),
                         [result.CastTo(_bodyParameter.Type), result.Invoke("GetRawResponse")])),
                 ];
 
-            var convenienceMethod = new ClientMethodProvider(methodSignature, methodBody, EnclosingType);
+            var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType);
             convenienceMethod.XmlDocs!.Exceptions.Add(new(typeof(ClientResultException), "Service returned a non-success status code.", []));
             return convenienceMethod;
         }
@@ -136,7 +136,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ];
 
             var protocolMethod =
-                new ClientMethodProvider(methodSignature, methodBody, EnclosingType) { IsProtocol = true };
+                new ScmMethodProvider(methodSignature, methodBody, EnclosingType) { IsProtocol = true };
             protocolMethod.XmlDocs!.Exceptions.Add(new(typeof(ClientResultException), "Service returned a non-success status code.", []));
             List<XmlDocStatement> listItems = new List<XmlDocStatement>();
             listItems.Add(new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."])));

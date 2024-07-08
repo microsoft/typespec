@@ -81,6 +81,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
         public override string Name { get; }
+
         public override string Namespace { get; }
 
         /// <summary>

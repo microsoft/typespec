@@ -33,8 +33,11 @@ namespace UnbrandedTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult SayHi(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
+        public virtual ClientResult FooSayHi(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
+            Argument.AssertNotNull(headParameter, nameof(headParameter));
+            Argument.AssertNotNull(queryParameter, nameof(queryParameter));
+
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
@@ -65,8 +68,11 @@ namespace UnbrandedTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> SayHiAsync(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
+        public virtual async Task<ClientResult> FooSayHiAsync(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
+            Argument.AssertNotNull(headParameter, nameof(headParameter));
+            Argument.AssertNotNull(queryParameter, nameof(queryParameter));
+
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
@@ -96,12 +102,15 @@ namespace UnbrandedTypeSpec
         /// <param name="optionalQuery"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult SayHi(string headParameter, string queryParameter, string optionalQuery)
+        public virtual ClientResult FooSayHi(string headParameter, string queryParameter, string optionalQuery)
         {
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
-            return SayHi(headParameter, queryParameter, optionalQuery, null);
+            Argument.AssertNotNull(headParameter, nameof(headParameter));
+            Argument.AssertNotNull(queryParameter, nameof(queryParameter));
+
+            return FooSayHi(headParameter, queryParameter, optionalQuery, null);
         }
 
         /// <summary> Return hi. </summary>
@@ -110,17 +119,20 @@ namespace UnbrandedTypeSpec
         /// <param name="optionalQuery"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> SayHiAsync(string headParameter, string queryParameter, string optionalQuery)
+        public virtual async Task<ClientResult> FooSayHiAsync(string headParameter, string queryParameter, string optionalQuery)
         {
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
-            return await SayHiAsync(headParameter, queryParameter, optionalQuery, null).ConfigureAwait(false);
+            Argument.AssertNotNull(headParameter, nameof(headParameter));
+            Argument.AssertNotNull(queryParameter, nameof(queryParameter));
+
+            return await FooSayHiAsync(headParameter, queryParameter, optionalQuery, null).ConfigureAwait(false);
         }
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionSayHi()
+        public int FooTestExpressionBodyConversionSayHi()
         {
             try
             {
@@ -150,8 +162,11 @@ namespace UnbrandedTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/> or <paramref name="p2"/> is null. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult HelloAgain(string p1, string p2, BinaryContent content, RequestOptions options)
+        public virtual ClientResult FooHelloAgain(string p1, string p2, BinaryContent content, RequestOptions options)
         {
+            Argument.AssertNotNull(p1, nameof(p1));
+            Argument.AssertNotNull(p2, nameof(p2));
+
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
 
@@ -182,8 +197,11 @@ namespace UnbrandedTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/> or <paramref name="p2"/> is null. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> HelloAgainAsync(string p1, string p2, BinaryContent content, RequestOptions options)
+        public virtual async Task<ClientResult> FooHelloAgainAsync(string p1, string p2, BinaryContent content, RequestOptions options)
         {
+            Argument.AssertNotNull(p1, nameof(p1));
+            Argument.AssertNotNull(p2, nameof(p2));
+
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
 
@@ -213,13 +231,17 @@ namespace UnbrandedTypeSpec
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult HelloAgain(string p1, string p2, RoundTripModel action)
+        public virtual ClientResult FooHelloAgain(string p1, string p2, RoundTripModel action)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
             Argument.AssertNotNull(action, nameof(action));
 
-            ClientResult result = HelloAgain(p1, p2, action, null);
+            Argument.AssertNotNull(p1, nameof(p1));
+            Argument.AssertNotNull(p2, nameof(p2));
+            Argument.AssertNotNull(action, nameof(action));
+
+            ClientResult result = FooHelloAgain(p1, p2, action, null);
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
@@ -229,19 +251,23 @@ namespace UnbrandedTypeSpec
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> HelloAgainAsync(string p1, string p2, RoundTripModel action)
+        public virtual async Task<ClientResult> FooHelloAgainAsync(string p1, string p2, RoundTripModel action)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
             Argument.AssertNotNull(action, nameof(action));
 
-            ClientResult result = await HelloAgainAsync(p1, p2, action, null).ConfigureAwait(false);
+            Argument.AssertNotNull(p1, nameof(p1));
+            Argument.AssertNotNull(p2, nameof(p2));
+            Argument.AssertNotNull(action, nameof(action));
+
+            ClientResult result = await FooHelloAgainAsync(p1, p2, action, null).ConfigureAwait(false);
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionHelloAgain()
+        public int FooTestExpressionBodyConversionHelloAgain()
         {
             try
             {
@@ -271,8 +297,11 @@ namespace UnbrandedTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/> or <paramref name="p2"/> is null. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult NoContentType(string p1, string p2, BinaryContent content, RequestOptions options)
+        public virtual ClientResult FooNoContentType(string p1, string p2, BinaryContent content, RequestOptions options)
         {
+            Argument.AssertNotNull(p1, nameof(p1));
+            Argument.AssertNotNull(p2, nameof(p2));
+
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
 
@@ -303,8 +332,11 @@ namespace UnbrandedTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/> or <paramref name="p2"/> is null. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> NoContentTypeAsync(string p1, string p2, BinaryContent content, RequestOptions options)
+        public virtual async Task<ClientResult> FooNoContentTypeAsync(string p1, string p2, BinaryContent content, RequestOptions options)
         {
+            Argument.AssertNotNull(p1, nameof(p1));
+            Argument.AssertNotNull(p2, nameof(p2));
+
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
 
@@ -334,13 +366,17 @@ namespace UnbrandedTypeSpec
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult NoContentType(string p1, string p2, RoundTripModel action)
+        public virtual ClientResult FooNoContentType(string p1, string p2, RoundTripModel action)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
             Argument.AssertNotNull(action, nameof(action));
 
-            ClientResult result = NoContentType(p1, p2, action, null);
+            Argument.AssertNotNull(p1, nameof(p1));
+            Argument.AssertNotNull(p2, nameof(p2));
+            Argument.AssertNotNull(action, nameof(action));
+
+            ClientResult result = FooNoContentType(p1, p2, action, null);
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
@@ -350,19 +386,23 @@ namespace UnbrandedTypeSpec
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> NoContentTypeAsync(string p1, string p2, RoundTripModel action)
+        public virtual async Task<ClientResult> FooNoContentTypeAsync(string p1, string p2, RoundTripModel action)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
             Argument.AssertNotNull(action, nameof(action));
 
-            ClientResult result = await NoContentTypeAsync(p1, p2, action, null).ConfigureAwait(false);
+            Argument.AssertNotNull(p1, nameof(p1));
+            Argument.AssertNotNull(p2, nameof(p2));
+            Argument.AssertNotNull(action, nameof(action));
+
+            ClientResult result = await FooNoContentTypeAsync(p1, p2, action, null).ConfigureAwait(false);
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionNoContentType()
+        public int FooTestExpressionBodyConversionNoContentType()
         {
             try
             {
@@ -388,7 +428,7 @@ namespace UnbrandedTypeSpec
         /// <summary> Return hi in demo2. </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult HelloDemo2(RequestOptions options)
+        public virtual ClientResult FooHelloDemo2(RequestOptions options)
         {
             try
             {
@@ -410,7 +450,7 @@ namespace UnbrandedTypeSpec
         /// <summary> Return hi in demo2. </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> HelloDemo2Async(RequestOptions options)
+        public virtual async Task<ClientResult> FooHelloDemo2Async(RequestOptions options)
         {
             try
             {
@@ -431,21 +471,21 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Return hi in demo2. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult HelloDemo2()
+        public virtual ClientResult FooHelloDemo2()
         {
-            return HelloDemo2(null);
+            return FooHelloDemo2(null);
         }
 
         /// <summary> Return hi in demo2. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> HelloDemo2Async()
+        public virtual async Task<ClientResult> FooHelloDemo2Async()
         {
-            return await HelloDemo2Async(null).ConfigureAwait(false);
+            return await FooHelloDemo2Async(null).ConfigureAwait(false);
         }
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionHelloDemo2()
+        public int FooTestExpressionBodyConversionHelloDemo2()
         {
             try
             {
@@ -472,7 +512,7 @@ namespace UnbrandedTypeSpec
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult CreateLiteral(BinaryContent content, RequestOptions options)
+        public virtual ClientResult FooCreateLiteral(BinaryContent content, RequestOptions options)
         {
             try
             {
@@ -495,7 +535,7 @@ namespace UnbrandedTypeSpec
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> CreateLiteralAsync(BinaryContent content, RequestOptions options)
+        public virtual async Task<ClientResult> FooCreateLiteralAsync(BinaryContent content, RequestOptions options)
         {
             try
             {
@@ -518,11 +558,13 @@ namespace UnbrandedTypeSpec
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult CreateLiteral(Thing body)
+        public virtual ClientResult FooCreateLiteral(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = CreateLiteral(body, null);
+            Argument.AssertNotNull(body, nameof(body));
+
+            ClientResult result = FooCreateLiteral(body, null);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -530,17 +572,19 @@ namespace UnbrandedTypeSpec
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> CreateLiteralAsync(Thing body)
+        public virtual async Task<ClientResult> FooCreateLiteralAsync(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = await CreateLiteralAsync(body, null).ConfigureAwait(false);
+            Argument.AssertNotNull(body, nameof(body));
+
+            ClientResult result = await FooCreateLiteralAsync(body, null).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionCreateLiteral()
+        public int FooTestExpressionBodyConversionCreateLiteral()
         {
             try
             {
@@ -566,7 +610,7 @@ namespace UnbrandedTypeSpec
         /// <summary> Send literal parameters. </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult HelloLiteral(RequestOptions options)
+        public virtual ClientResult FooHelloLiteral(RequestOptions options)
         {
             try
             {
@@ -588,7 +632,7 @@ namespace UnbrandedTypeSpec
         /// <summary> Send literal parameters. </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> HelloLiteralAsync(RequestOptions options)
+        public virtual async Task<ClientResult> FooHelloLiteralAsync(RequestOptions options)
         {
             try
             {
@@ -609,21 +653,21 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Send literal parameters. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult HelloLiteral()
+        public virtual ClientResult FooHelloLiteral()
         {
-            return HelloLiteral(null);
+            return FooHelloLiteral(null);
         }
 
         /// <summary> Send literal parameters. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> HelloLiteralAsync()
+        public virtual async Task<ClientResult> FooHelloLiteralAsync()
         {
-            return await HelloLiteralAsync(null).ConfigureAwait(false);
+            return await FooHelloLiteralAsync(null).ConfigureAwait(false);
         }
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionHelloLiteral()
+        public int FooTestExpressionBodyConversionHelloLiteral()
         {
             try
             {
@@ -651,8 +695,10 @@ namespace UnbrandedTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="action"/> is null. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult TopAction(DateTimeOffset action, RequestOptions options)
+        public virtual ClientResult FooTopAction(DateTimeOffset action, RequestOptions options)
         {
+            Argument.AssertNotNull(action, nameof(action));
+
             Argument.AssertNotNull(action, nameof(action));
 
             try
@@ -679,8 +725,10 @@ namespace UnbrandedTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="action"/> is null. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> TopActionAsync(DateTimeOffset action, RequestOptions options)
+        public virtual async Task<ClientResult> FooTopActionAsync(DateTimeOffset action, RequestOptions options)
         {
+            Argument.AssertNotNull(action, nameof(action));
+
             Argument.AssertNotNull(action, nameof(action));
 
             try
@@ -706,27 +754,31 @@ namespace UnbrandedTypeSpec
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="action"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult TopAction(DateTimeOffset action)
+        public virtual ClientResult FooTopAction(DateTimeOffset action)
         {
             Argument.AssertNotNull(action, nameof(action));
 
-            return TopAction(action, null);
+            Argument.AssertNotNull(action, nameof(action));
+
+            return FooTopAction(action, null);
         }
 
         /// <summary> top level method. </summary>
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="action"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> TopActionAsync(DateTimeOffset action)
+        public virtual async Task<ClientResult> FooTopActionAsync(DateTimeOffset action)
         {
             Argument.AssertNotNull(action, nameof(action));
 
-            return await TopActionAsync(action, null).ConfigureAwait(false);
+            Argument.AssertNotNull(action, nameof(action));
+
+            return await FooTopActionAsync(action, null).ConfigureAwait(false);
         }
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionTopAction()
+        public int FooTestExpressionBodyConversionTopAction()
         {
             try
             {
@@ -752,7 +804,7 @@ namespace UnbrandedTypeSpec
         /// <summary> top level method2. </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult TopAction2(RequestOptions options)
+        public virtual ClientResult FooTopAction2(RequestOptions options)
         {
             try
             {
@@ -774,7 +826,7 @@ namespace UnbrandedTypeSpec
         /// <summary> top level method2. </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> TopAction2Async(RequestOptions options)
+        public virtual async Task<ClientResult> FooTopAction2Async(RequestOptions options)
         {
             try
             {
@@ -795,21 +847,21 @@ namespace UnbrandedTypeSpec
 
         /// <summary> top level method2. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult TopAction2()
+        public virtual ClientResult FooTopAction2()
         {
-            return TopAction2(null);
+            return FooTopAction2(null);
         }
 
         /// <summary> top level method2. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> TopAction2Async()
+        public virtual async Task<ClientResult> FooTopAction2Async()
         {
-            return await TopAction2Async(null).ConfigureAwait(false);
+            return await FooTopAction2Async(null).ConfigureAwait(false);
         }
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionTopAction2()
+        public int FooTestExpressionBodyConversionTopAction2()
         {
             try
             {
@@ -836,7 +888,7 @@ namespace UnbrandedTypeSpec
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult PatchAction(BinaryContent content, RequestOptions options)
+        public virtual ClientResult FooPatchAction(BinaryContent content, RequestOptions options)
         {
             try
             {
@@ -859,7 +911,7 @@ namespace UnbrandedTypeSpec
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> PatchActionAsync(BinaryContent content, RequestOptions options)
+        public virtual async Task<ClientResult> FooPatchActionAsync(BinaryContent content, RequestOptions options)
         {
             try
             {
@@ -882,11 +934,13 @@ namespace UnbrandedTypeSpec
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult PatchAction(Thing body)
+        public virtual ClientResult FooPatchAction(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = PatchAction(body, null);
+            Argument.AssertNotNull(body, nameof(body));
+
+            ClientResult result = FooPatchAction(body, null);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -894,17 +948,19 @@ namespace UnbrandedTypeSpec
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> PatchActionAsync(Thing body)
+        public virtual async Task<ClientResult> FooPatchActionAsync(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = await PatchActionAsync(body, null).ConfigureAwait(false);
+            Argument.AssertNotNull(body, nameof(body));
+
+            ClientResult result = await FooPatchActionAsync(body, null).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionPatchAction()
+        public int FooTestExpressionBodyConversionPatchAction()
         {
             try
             {
@@ -931,7 +987,7 @@ namespace UnbrandedTypeSpec
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult AnonymousBody(BinaryContent content, RequestOptions options)
+        public virtual ClientResult FooAnonymousBody(BinaryContent content, RequestOptions options)
         {
             try
             {
@@ -954,7 +1010,7 @@ namespace UnbrandedTypeSpec
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> AnonymousBodyAsync(BinaryContent content, RequestOptions options)
+        public virtual async Task<ClientResult> FooAnonymousBodyAsync(BinaryContent content, RequestOptions options)
         {
             try
             {
@@ -977,11 +1033,13 @@ namespace UnbrandedTypeSpec
         /// <param name="Thing"> A model with a few properties of literal types. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="Thing"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult AnonymousBody(Thing Thing)
+        public virtual ClientResult FooAnonymousBody(Thing Thing)
         {
             Argument.AssertNotNull(Thing, nameof(Thing));
 
-            ClientResult result = AnonymousBody(Thing, null);
+            Argument.AssertNotNull(Thing, nameof(Thing));
+
+            ClientResult result = FooAnonymousBody(Thing, null);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -989,17 +1047,19 @@ namespace UnbrandedTypeSpec
         /// <param name="Thing"> A model with a few properties of literal types. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="Thing"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> AnonymousBodyAsync(Thing Thing)
+        public virtual async Task<ClientResult> FooAnonymousBodyAsync(Thing Thing)
         {
             Argument.AssertNotNull(Thing, nameof(Thing));
 
-            ClientResult result = await AnonymousBodyAsync(Thing, null).ConfigureAwait(false);
+            Argument.AssertNotNull(Thing, nameof(Thing));
+
+            ClientResult result = await FooAnonymousBodyAsync(Thing, null).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionAnonymousBody()
+        public int FooTestExpressionBodyConversionAnonymousBody()
         {
             try
             {
@@ -1026,7 +1086,7 @@ namespace UnbrandedTypeSpec
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult FriendlyModel(BinaryContent content, RequestOptions options)
+        public virtual ClientResult FooFriendlyModel(BinaryContent content, RequestOptions options)
         {
             try
             {
@@ -1049,7 +1109,7 @@ namespace UnbrandedTypeSpec
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> FriendlyModelAsync(BinaryContent content, RequestOptions options)
+        public virtual async Task<ClientResult> FooFriendlyModelAsync(BinaryContent content, RequestOptions options)
         {
             try
             {
@@ -1072,11 +1132,13 @@ namespace UnbrandedTypeSpec
         /// <param name="Friend"> this is not a friendly model but with a friendly name. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="Friend"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult FriendlyModel(Friend Friend)
+        public virtual ClientResult FooFriendlyModel(Friend Friend)
         {
             Argument.AssertNotNull(Friend, nameof(Friend));
 
-            ClientResult result = FriendlyModel(Friend, null);
+            Argument.AssertNotNull(Friend, nameof(Friend));
+
+            ClientResult result = FooFriendlyModel(Friend, null);
             return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
 
@@ -1084,17 +1146,19 @@ namespace UnbrandedTypeSpec
         /// <param name="Friend"> this is not a friendly model but with a friendly name. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="Friend"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> FriendlyModelAsync(Friend Friend)
+        public virtual async Task<ClientResult> FooFriendlyModelAsync(Friend Friend)
         {
             Argument.AssertNotNull(Friend, nameof(Friend));
 
-            ClientResult result = await FriendlyModelAsync(Friend, null).ConfigureAwait(false);
+            Argument.AssertNotNull(Friend, nameof(Friend));
+
+            ClientResult result = await FooFriendlyModelAsync(Friend, null).ConfigureAwait(false);
             return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionFriendlyModel()
+        public int FooTestExpressionBodyConversionFriendlyModel()
         {
             try
             {
@@ -1121,7 +1185,7 @@ namespace UnbrandedTypeSpec
         /// <param name="repeatabilityFirstSent"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult AddTimeHeader(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
+        public virtual ClientResult FooAddTimeHeader(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
         {
             try
             {
@@ -1144,7 +1208,7 @@ namespace UnbrandedTypeSpec
         /// <param name="repeatabilityFirstSent"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> AddTimeHeaderAsync(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
+        public virtual async Task<ClientResult> FooAddTimeHeaderAsync(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
         {
             try
             {
@@ -1166,22 +1230,22 @@ namespace UnbrandedTypeSpec
         /// <summary> addTimeHeader. </summary>
         /// <param name="repeatabilityFirstSent"></param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult AddTimeHeader(DateTimeOffset repeatabilityFirstSent)
+        public virtual ClientResult FooAddTimeHeader(DateTimeOffset repeatabilityFirstSent)
         {
-            return AddTimeHeader(repeatabilityFirstSent, null);
+            return FooAddTimeHeader(repeatabilityFirstSent, null);
         }
 
         /// <summary> addTimeHeader. </summary>
         /// <param name="repeatabilityFirstSent"></param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> AddTimeHeaderAsync(DateTimeOffset repeatabilityFirstSent)
+        public virtual async Task<ClientResult> FooAddTimeHeaderAsync(DateTimeOffset repeatabilityFirstSent)
         {
-            return await AddTimeHeaderAsync(repeatabilityFirstSent, null).ConfigureAwait(false);
+            return await FooAddTimeHeaderAsync(repeatabilityFirstSent, null).ConfigureAwait(false);
         }
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionAddTimeHeader()
+        public int FooTestExpressionBodyConversionAddTimeHeader()
         {
             try
             {
@@ -1208,7 +1272,7 @@ namespace UnbrandedTypeSpec
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult ProjectedNameModel(BinaryContent content, RequestOptions options)
+        public virtual ClientResult FooProjectedNameModel(BinaryContent content, RequestOptions options)
         {
             try
             {
@@ -1231,7 +1295,7 @@ namespace UnbrandedTypeSpec
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ProjectedNameModelAsync(BinaryContent content, RequestOptions options)
+        public virtual async Task<ClientResult> FooProjectedNameModelAsync(BinaryContent content, RequestOptions options)
         {
             try
             {
@@ -1254,11 +1318,13 @@ namespace UnbrandedTypeSpec
         /// <param name="ProjectedModel"> this is a model with a projected name. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="ProjectedModel"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult ProjectedNameModel(ProjectedModel ProjectedModel)
+        public virtual ClientResult FooProjectedNameModel(ProjectedModel ProjectedModel)
         {
             Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
 
-            ClientResult result = ProjectedNameModel(ProjectedModel, null);
+            Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
+
+            ClientResult result = FooProjectedNameModel(ProjectedModel, null);
             return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
         }
 
@@ -1266,17 +1332,19 @@ namespace UnbrandedTypeSpec
         /// <param name="ProjectedModel"> this is a model with a projected name. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="ProjectedModel"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> ProjectedNameModelAsync(ProjectedModel ProjectedModel)
+        public virtual async Task<ClientResult> FooProjectedNameModelAsync(ProjectedModel ProjectedModel)
         {
             Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
 
-            ClientResult result = await ProjectedNameModelAsync(ProjectedModel, null).ConfigureAwait(false);
+            Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
+
+            ClientResult result = await FooProjectedNameModelAsync(ProjectedModel, null).ConfigureAwait(false);
             return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
         }
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionProjectedNameModel()
+        public int FooTestExpressionBodyConversionProjectedNameModel()
         {
             try
             {
@@ -1302,7 +1370,7 @@ namespace UnbrandedTypeSpec
         /// <summary> return anonymous model. </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult ReturnsAnonymousModel(RequestOptions options)
+        public virtual ClientResult FooReturnsAnonymousModel(RequestOptions options)
         {
             try
             {
@@ -1324,7 +1392,7 @@ namespace UnbrandedTypeSpec
         /// <summary> return anonymous model. </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ReturnsAnonymousModelAsync(RequestOptions options)
+        public virtual async Task<ClientResult> FooReturnsAnonymousModelAsync(RequestOptions options)
         {
             try
             {
@@ -1345,21 +1413,21 @@ namespace UnbrandedTypeSpec
 
         /// <summary> return anonymous model. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult ReturnsAnonymousModel()
+        public virtual ClientResult FooReturnsAnonymousModel()
         {
-            return ReturnsAnonymousModel(null);
+            return FooReturnsAnonymousModel(null);
         }
 
         /// <summary> return anonymous model. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> ReturnsAnonymousModelAsync()
+        public virtual async Task<ClientResult> FooReturnsAnonymousModelAsync()
         {
-            return await ReturnsAnonymousModelAsync(null).ConfigureAwait(false);
+            return await FooReturnsAnonymousModelAsync(null).ConfigureAwait(false);
         }
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionReturnsAnonymousModel()
+        public int FooTestExpressionBodyConversionReturnsAnonymousModel()
         {
             try
             {
@@ -1385,7 +1453,7 @@ namespace UnbrandedTypeSpec
         /// <summary> get extensible enum. </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult GetUnknownValue(RequestOptions options)
+        public virtual ClientResult FooGetUnknownValue(RequestOptions options)
         {
             try
             {
@@ -1407,7 +1475,7 @@ namespace UnbrandedTypeSpec
         /// <summary> get extensible enum. </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> GetUnknownValueAsync(RequestOptions options)
+        public virtual async Task<ClientResult> FooGetUnknownValueAsync(RequestOptions options)
         {
             try
             {
@@ -1428,21 +1496,21 @@ namespace UnbrandedTypeSpec
 
         /// <summary> get extensible enum. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult GetUnknownValue()
+        public virtual ClientResult FooGetUnknownValue()
         {
-            return GetUnknownValue(null);
+            return FooGetUnknownValue(null);
         }
 
         /// <summary> get extensible enum. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> GetUnknownValueAsync()
+        public virtual async Task<ClientResult> FooGetUnknownValueAsync()
         {
-            return await GetUnknownValueAsync(null).ConfigureAwait(false);
+            return await FooGetUnknownValueAsync(null).ConfigureAwait(false);
         }
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionGetUnknownValue()
+        public int FooTestExpressionBodyConversionGetUnknownValue()
         {
             try
             {
@@ -1469,7 +1537,7 @@ namespace UnbrandedTypeSpec
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult InternalProtocol(BinaryContent content, RequestOptions options)
+        public virtual ClientResult FooInternalProtocol(BinaryContent content, RequestOptions options)
         {
             try
             {
@@ -1492,7 +1560,7 @@ namespace UnbrandedTypeSpec
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> InternalProtocolAsync(BinaryContent content, RequestOptions options)
+        public virtual async Task<ClientResult> FooInternalProtocolAsync(BinaryContent content, RequestOptions options)
         {
             try
             {
@@ -1515,11 +1583,13 @@ namespace UnbrandedTypeSpec
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult InternalProtocol(Thing body)
+        public virtual ClientResult FooInternalProtocol(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = InternalProtocol(body, null);
+            Argument.AssertNotNull(body, nameof(body));
+
+            ClientResult result = FooInternalProtocol(body, null);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -1527,17 +1597,19 @@ namespace UnbrandedTypeSpec
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> InternalProtocolAsync(Thing body)
+        public virtual async Task<ClientResult> FooInternalProtocolAsync(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = await InternalProtocolAsync(body, null).ConfigureAwait(false);
+            Argument.AssertNotNull(body, nameof(body));
+
+            ClientResult result = await FooInternalProtocolAsync(body, null).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionInternalProtocol()
+        public int FooTestExpressionBodyConversionInternalProtocol()
         {
             try
             {
@@ -1563,7 +1635,7 @@ namespace UnbrandedTypeSpec
         /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult StillConvenient(RequestOptions options)
+        public virtual ClientResult FooStillConvenient(RequestOptions options)
         {
             try
             {
@@ -1585,7 +1657,7 @@ namespace UnbrandedTypeSpec
         /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> StillConvenientAsync(RequestOptions options)
+        public virtual async Task<ClientResult> FooStillConvenientAsync(RequestOptions options)
         {
             try
             {
@@ -1606,21 +1678,21 @@ namespace UnbrandedTypeSpec
 
         /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult StillConvenient()
+        public virtual ClientResult FooStillConvenient()
         {
-            return StillConvenient(null);
+            return FooStillConvenient(null);
         }
 
         /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> StillConvenientAsync()
+        public virtual async Task<ClientResult> FooStillConvenientAsync()
         {
-            return await StillConvenientAsync(null).ConfigureAwait(false);
+            return await FooStillConvenientAsync(null).ConfigureAwait(false);
         }
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionStillConvenient()
+        public int FooTestExpressionBodyConversionStillConvenient()
         {
             try
             {
@@ -1648,8 +1720,10 @@ namespace UnbrandedTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult HeadAsBoolean(string id, RequestOptions options)
+        public virtual ClientResult FooHeadAsBoolean(string id, RequestOptions options)
         {
+            Argument.AssertNotNull(id, nameof(id));
+
             Argument.AssertNotNull(id, nameof(id));
 
             try
@@ -1676,8 +1750,10 @@ namespace UnbrandedTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> HeadAsBooleanAsync(string id, RequestOptions options)
+        public virtual async Task<ClientResult> FooHeadAsBooleanAsync(string id, RequestOptions options)
         {
+            Argument.AssertNotNull(id, nameof(id));
+
             Argument.AssertNotNull(id, nameof(id));
 
             try
@@ -1703,27 +1779,31 @@ namespace UnbrandedTypeSpec
         /// <param name="id"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult HeadAsBoolean(string id)
+        public virtual ClientResult FooHeadAsBoolean(string id)
         {
             Argument.AssertNotNull(id, nameof(id));
 
-            return HeadAsBoolean(id, null);
+            Argument.AssertNotNull(id, nameof(id));
+
+            return FooHeadAsBoolean(id, null);
         }
 
         /// <summary> head as boolean. </summary>
         /// <param name="id"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> HeadAsBooleanAsync(string id)
+        public virtual async Task<ClientResult> FooHeadAsBooleanAsync(string id)
         {
             Argument.AssertNotNull(id, nameof(id));
 
-            return await HeadAsBooleanAsync(id, null).ConfigureAwait(false);
+            Argument.AssertNotNull(id, nameof(id));
+
+            return await FooHeadAsBooleanAsync(id, null).ConfigureAwait(false);
         }
 
         /// <summary> Test expression body conversion. </summary>
         /// <returns> Returns an int. </returns>
-        public int TestExpressionBodyConversionHeadAsBoolean()
+        public int FooTestExpressionBodyConversionHeadAsBoolean()
         {
             try
             {

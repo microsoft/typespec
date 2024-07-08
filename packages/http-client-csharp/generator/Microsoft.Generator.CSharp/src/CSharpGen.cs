@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -33,16 +34,32 @@ namespace Microsoft.Generator.CSharp
             Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));
             List<Task> generateFilesTasks = new();
 
-            foreach (var outputType in output.TypeProviders)
+            var visitors = output.GetOutputLibraryVisitors();
+            var types = new List<TypeProvider>();
+            foreach (var type in output.TypeProviders)
             {
-                var writer = CodeModelPlugin.Instance.GetWriter(outputType);
+                foreach (var visitor in visitors ?? [])
+                {
+                    var newType = visitor.Visit(type);
+                    if (newType != null)
+                    {
+                        types.Add(newType);
+                    }
+                }
+            }
+
+            foreach (var outputType in types)
+            {
+                var clonedType = new ClonedTypeProvider(outputType, output.GetOutputLibraryVisitors());
+                var writer = CodeModelPlugin.Instance.GetWriter(clonedType);
                 generateFilesTasks.Add(workspace.AddGeneratedFile(writer.Write()));
 
-                foreach (var serialization in outputType.SerializationProviders)
+                foreach (var serialization in clonedType.SerializationProviders)
                 {
                     writer = CodeModelPlugin.Instance.GetWriter(serialization);
                     generateFilesTasks.Add(workspace.AddGeneratedFile(writer.Write()));
                 }
+                outputType.Replace(clonedType);
             }
 
             // Add all the generated files to the workspace

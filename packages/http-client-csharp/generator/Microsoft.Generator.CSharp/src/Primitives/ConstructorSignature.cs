@@ -17,12 +17,16 @@ namespace Microsoft.Generator.CSharp.Primitives
     /// <param name="Parameters">The parameters of the constructor.</param>
     /// <param name="Attributes">The attributes of the constructor.</param>
     /// <param name="Initializer">The initializer of the constructor.</param>
-    public sealed record ConstructorSignature(
+    public sealed class ConstructorSignature(
         CSharpType Type,
         FormattableString? Description,
         MethodSignatureModifiers Modifiers,
         IReadOnlyList<ParameterProvider> Parameters,
         IReadOnlyList<AttributeStatement>? Attributes = null,
         ConstructorInitializer? Initializer = null)
-        : MethodSignatureBase(Type.Name, Description, null, Modifiers, Parameters, Attributes ?? Array.Empty<AttributeStatement>());
+        : MethodSignatureBase(Type.Name, Description, null, Modifiers, Parameters, Attributes ?? Array.Empty<AttributeStatement>(), null)
+    {
+        public ConstructorInitializer? Initializer { get; } = Initializer;
+        public CSharpType Type { get; } = Type;
+    }
 }

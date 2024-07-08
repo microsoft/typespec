@@ -67,10 +67,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             var dateTimeParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(DateTime));
             var formatParameter = new ParameterProvider("format", FormattableStringHelpers.Empty, typeof(string));
-            var dateTimeSignature = boolSignature with
-            {
-                Parameters = [dateTimeParameter, formatParameter]
-            };
+            var dateTimeSignature = new MethodSignature(
+                Name: ToStringMethodName,
+                Parameters: [dateTimeParameter, formatParameter],
+                Modifiers: _methodModifiers,
+                ReturnType: typeof(string),
+                Description: null, ReturnDescription: null);
             var dateTimeValue = (ValueExpression)dateTimeParameter;
             var dateTimeValueKind = dateTimeValue.Property(nameof(DateTime.Kind));
             var format = new StringSnippet(formatParameter);
@@ -85,10 +87,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 this);
 
             var dateTimeOffsetParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(DateTimeOffset));
-            var dateTimeOffsetSignature = boolSignature with
-            {
-                Parameters = [dateTimeOffsetParameter, formatParameter]
-            };
+            var dateTimeOffsetSignature = new MethodSignature(
+                Name: ToStringMethodName,
+                Parameters: [dateTimeOffsetParameter, formatParameter],
+                Modifiers: _methodModifiers,
+                ReturnType: typeof(string),
+                Description: null, ReturnDescription: null);
             var dateTimeOffsetValue = new DateTimeOffsetSnippet(dateTimeOffsetParameter);
             var roundtripZFormat = new StringSnippet(_roundtripZFormatField);
             var toStringDateTimeOffset = new MethodProvider(
@@ -105,10 +109,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 this);
 
             var timeSpanParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(TimeSpan));
-            var timeSpanSignature = boolSignature with
-            {
-                Parameters = [timeSpanParameter, formatParameter]
-            };
+            var timeSpanSignature = new MethodSignature(
+                Name: ToStringMethodName,
+                Parameters: [timeSpanParameter, formatParameter],
+                Modifiers: _methodModifiers,
+                ReturnType: typeof(string),
+                Description: null, ReturnDescription: null);
+
             var timeSpanValue = new TimeSpanSnippet(timeSpanParameter);
             var toStringTimeSpan = new MethodProvider(
                 timeSpanSignature,
@@ -120,10 +127,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 this);
 
             var byteArrayParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(byte[]));
-            var byteArraySignature = boolSignature with
-            {
-                Parameters = [byteArrayParameter, formatParameter]
-            };
+            var byteArraySignature = new MethodSignature(
+                Name: ToStringMethodName,
+                Parameters: [byteArrayParameter, formatParameter],
+                Modifiers: _methodModifiers,
+                ReturnType: typeof(string),
+                Description: null, ReturnDescription: null);
+
             var byteArrayValue = (ValueExpression)byteArrayParameter;
             var toStringByteArray = new MethodProvider(
                 byteArraySignature,

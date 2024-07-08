@@ -55,5 +55,7 @@ namespace Microsoft.Generator.CSharp
                 new OptionalProvider(),
             ];
         }
+
+        protected internal virtual OutputLibraryVisitor[]? GetOutputLibraryVisitors() => null;
     }
 }
