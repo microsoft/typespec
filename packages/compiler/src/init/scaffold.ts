@@ -45,7 +45,7 @@ export interface ScaffoldingConfig {
   /**
    * Whether to generate a .gitignore file.
    */
-  includeGitIgnore: boolean;
+  includeGitignore: boolean;
 
   /**
    * Custom parameters provided in the tempalates.
@@ -72,7 +72,7 @@ export function makeScaffoldingConfig(
     directory: config.directory ?? "",
     folderName: config.folderName ?? "",
     parameters: config.parameters ?? {},
-    includeGitIgnore: config.includeGitIgnore ?? true,
+    includeGitignore: config.includeGitignore ?? true,
     ...config,
   };
 }
@@ -176,12 +176,13 @@ const defaultGitIgnore = `
 
 # Default TypeSpec output
 tsp-output/
+dist/
 
 # Dependency directories
 node_modules/
 `.trim();
 async function writeGitIgnore(host: CompilerHost, config: ScaffoldingConfig) {
-  if (!config.includeGitIgnore || isFileSkipGeneration(".gitignore", config.template.files ?? [])) {
+  if (!config.includeGitignore || isFileSkipGeneration(".gitignore", config.template.files ?? [])) {
     return;
   }
 
