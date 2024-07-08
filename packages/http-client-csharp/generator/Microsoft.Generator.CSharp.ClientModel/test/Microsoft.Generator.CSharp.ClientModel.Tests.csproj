@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\..\TestProjects\ProjFiles\TestProjects.Local.Tests.csproj" />
     <ProjectReference Include="..\src\Microsoft.Generator.CSharp.ClientModel.csproj" />
   </ItemGroup>
 

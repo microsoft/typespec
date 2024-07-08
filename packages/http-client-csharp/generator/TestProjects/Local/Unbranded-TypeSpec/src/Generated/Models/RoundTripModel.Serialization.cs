@@ -647,13 +647,15 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="roundTripModel"> The <see cref="RoundTripModel"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(RoundTripModel roundTripModel)
         {
-            throw new NotImplementedException("Not implemented");
+            return BinaryContent.Create(roundTripModel, ModelSerializationExtensions.WireOptions);
         }
 
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="RoundTripModel"/> from. </param>
         public static explicit operator RoundTripModel(ClientResult result)
         {
-            throw new NotImplementedException("Not implemented");
+            using PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content);
+            return DeserializeRoundTripModel(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }
