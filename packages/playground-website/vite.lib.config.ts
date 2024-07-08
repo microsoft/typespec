@@ -21,7 +21,11 @@ export default defineConfig({
 
     rollupOptions: {
       external: (id) => {
-        return id.includes("/node_modules/") || !(id.startsWith(__dirname) || id.startsWith("."));
+        const normalized = id.replace(/\\/g, "/");
+        return (
+          normalized.includes("/node_modules/") ||
+          !(normalized.startsWith(__dirname) || normalized.startsWith("."))
+        );
       },
     },
   },
