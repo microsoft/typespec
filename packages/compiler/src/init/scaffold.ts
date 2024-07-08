@@ -87,7 +87,7 @@ export async function scaffoldNewProject(host: CompilerHost, config: Scaffolding
   await writePackageJson(host, config);
   await writeConfig(host, config);
   await writeMain(host, config);
-  await writeGitIgnore(host, config);
+  await writeGitignore(host, config);
   await writeFiles(host, config);
 }
 
@@ -170,7 +170,7 @@ async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {
   return host.writeFile(joinPaths(config.directory, "main.tsp"), await formatTypeSpec(content));
 }
 
-const defaultGitIgnore = `
+const defaultGitignore = `
 # MacOS
 .DS_Store
 
@@ -181,12 +181,12 @@ dist/
 # Dependency directories
 node_modules/
 `.trim();
-async function writeGitIgnore(host: CompilerHost, config: ScaffoldingConfig) {
+async function writeGitignore(host: CompilerHost, config: ScaffoldingConfig) {
   if (!config.includeGitignore || isFileSkipGeneration(".gitignore", config.template.files ?? [])) {
     return;
   }
 
-  return host.writeFile(joinPaths(config.directory, ".gitignore"), defaultGitIgnore);
+  return host.writeFile(joinPaths(config.directory, ".gitignore"), defaultGitignore);
 }
 
 async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {
