@@ -159,7 +159,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   );
   useEffect(() => {
     updateTypeSpec(props.defaultContent ?? "");
-  }, [props.defaultContent, updateTypeSpec]);
+  }, []);
 
   useEffect(() => {
     if (selectedSampleName && props.samples) {
