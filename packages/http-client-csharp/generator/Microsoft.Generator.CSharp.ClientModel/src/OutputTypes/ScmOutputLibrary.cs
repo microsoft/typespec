@@ -9,9 +9,42 @@ namespace Microsoft.Generator.CSharp.ClientModel
 {
     public class ScmOutputLibrary : OutputLibrary
     {
-        protected override IReadOnlyList<TypeProvider> BuildTypes()
+        private static TypeProvider[] BuildClients()
         {
-            return [.. base.BuildTypes(), ModelSerializationExtensionsProvider.Instance, TypeFormattersProvider.Instance];
+            var inputClients = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
+            var clients = new List<TypeProvider>();
+
+            foreach (var inputClient in inputClients)
+            {
+                clients.Add(new RestClientProvider(inputClient));
+                clients.Add(new ClientProvider(inputClient));
+            }
+
+            return clients.ToArray();
+        }
+
+        protected override TypeProvider[] BuildTypeProviders()
+        {
+            var baseTypes = base.BuildTypeProviders();
+            var systemOptionalProvider = new SystemOptionalDefinition();
+
+            for (var i = 0; i < baseTypes.Length; i++)
+            {
+                if (baseTypes[i] is OptionalDefinition)
+                {
+                    baseTypes[i] = systemOptionalProvider;
+                }
+            }
+
+            return [
+                ..baseTypes,
+                ..BuildClients(),
+                new ModelSerializationExtensionsDefinition(),
+                new TypeFormattersDefinition(),
+                new ClientPipelineExtensionsDefinition(),
+                new ErrorResultDefinition(),
+                new ClientUriBuilderDefinition(),
+            ];
         }
     }
 }

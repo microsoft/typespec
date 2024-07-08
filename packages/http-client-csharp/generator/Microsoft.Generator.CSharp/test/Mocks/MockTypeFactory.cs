@@ -4,13 +4,14 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
     internal class MockTypeFactory : TypeFactory
     {
-        public override MethodProviderCollection? CreateMethodProviders(InputOperation operation, TypeProvider enclosingType)
+        public override MethodProviderCollection CreateMethodProviders(InputOperation operation, TypeProvider enclosingType)
         {
             throw new NotImplementedException();
         }
@@ -20,7 +21,7 @@ namespace Microsoft.Generator.CSharp.Tests
             throw new NotImplementedException();
         }
 
-        public override CSharpType CreateCSharpType(InputType input)
+        protected override CSharpType CreateCSharpTypeCore(InputType input)
         {
             throw new NotImplementedException();
         }

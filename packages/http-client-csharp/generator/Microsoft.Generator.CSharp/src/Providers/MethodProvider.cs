@@ -3,8 +3,9 @@
 
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
-using static Microsoft.Generator.CSharp.Snippets.Snippet;
+using static Microsoft.Generator.CSharp.Snippets.ArgumentSnippets;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
@@ -100,11 +101,11 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 if (parameter.Validation != ParameterValidationType.None)
                 {
-                    statements[index] = Argument.ValidateParameter(parameter);
+                    statements[index] = ValidateParameter(parameter);
                     index++;
                 }
             }
-            statements[index] = EmptyLineStatement;
+            statements[index] = MethodBodyStatement.EmptyLine;
             index++;
 
             statements[index] = bodyStatements;

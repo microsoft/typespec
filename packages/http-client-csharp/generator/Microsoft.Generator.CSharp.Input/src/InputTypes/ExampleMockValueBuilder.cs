@@ -101,7 +101,7 @@ namespace Microsoft.Generator.CSharp.Input
 
         private static InputExampleValue BuildExampleValue(InputType type, string? hint, bool useAllParameters, HashSet<InputModelType> visitedModels) => type switch
         {
-            InputListType listType => BuildListExampleValue(listType, hint, useAllParameters, visitedModels),
+            InputArrayType listType => BuildListExampleValue(listType, hint, useAllParameters, visitedModels),
             InputDictionaryType dictionaryType => BuildDictionaryExampleValue(dictionaryType, hint, useAllParameters, visitedModels),
             InputEnumType enumType => BuildEnumExampleValue(enumType),
             InputPrimitiveType primitiveType => BuildPrimitiveExampleValue(primitiveType, hint),
@@ -114,9 +114,9 @@ namespace Microsoft.Generator.CSharp.Input
             _ => InputExampleValue.Object(type, new Dictionary<string, InputExampleValue>())
         };
 
-        private static InputExampleValue BuildListExampleValue(InputListType listType, string? hint, bool useAllParameters, HashSet<InputModelType> visitedModels)
+        private static InputExampleValue BuildListExampleValue(InputArrayType listType, string? hint, bool useAllParameters, HashSet<InputModelType> visitedModels)
         {
-            var exampleElementValue = BuildExampleValue(listType.ElementType, hint, useAllParameters, visitedModels);
+            var exampleElementValue = BuildExampleValue(listType.ValueType, hint, useAllParameters, visitedModels);
 
             return InputExampleValue.List(listType, new[] { exampleElementValue });
         }
@@ -186,9 +186,9 @@ namespace Microsoft.Generator.CSharp.Input
             var result = InputExampleValue.Object(model, dict);
             visitedModels.Add(model);
             // if this model has a discriminator, we should return a derived type
-            if (model.DiscriminatorPropertyName != null)
+            if (model.DiscriminatorProperty != null)
             {
-                var derived = model.DerivedModels.FirstOrDefault();
+                var derived = model.DiscriminatedSubtypes.Values.FirstOrDefault();
                 if (derived is null)
                 {
                     return InputExampleValue.Null(model);

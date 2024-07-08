@@ -5,49 +5,54 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
     public static partial class Snippet
     {
-        private class PrivateEmptyLineStatement : MethodBodyStatement
-        {
-            internal override void Write(CodeWriter writer)
-            {
-                writer.WriteLine();
-            }
-        }
+        public static ScopedApi<T> As<T>(this ParameterProvider parameter) => new(parameter);
+        public static ScopedApi<T> As<T>(this PropertyProvider property) => new(property);
+        public static DictionaryExpression AsDictionary(this FieldProvider field, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), field);
+        public static DictionaryExpression AsDictionary(this ParameterProvider parameter, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), parameter);
 
-        public static readonly MethodBodyStatement EmptyStatement = new();
-        public static readonly MethodBodyStatement EmptyLineStatement = new PrivateEmptyLineStatement();
+        public static ValueExpression Static<T>() => TypeReferenceExpression.FromType(typeof(T));
+        //overload needed since static types cannot be usd as type arguments
+        public static ValueExpression Static(Type type) => TypeReferenceExpression.FromType(type);
+        public static ValueExpression Static(CSharpType type) => TypeReferenceExpression.FromType(type);
+        public static ValueExpression Static() => TypeReferenceExpression.FromType(null);
 
-        public static ExtensibleSnippets Extensible => CodeModelPlugin.Instance.ExtensibleSnippets;
+        public static ValueExpression Identifier(string name) => new MemberExpression(null, name);
         public static MethodBodyStatement AsStatement(this IEnumerable<MethodBodyStatement> statements) => statements.ToArray();
 
         public static ValueExpression Dash { get; } = new KeywordExpression("_", null);
 
         public static ValueExpression DefaultOf(CSharpType type) => type is { IsValueType: true, IsNullable: false } ? Default.CastTo(type) : Null.CastTo(type);
 
+        public static ValueExpression Value { get; } = new KeywordExpression("value", null);
         public static ValueExpression Default { get; } = new KeywordExpression("default", null);
         public static ValueExpression Null { get; } = new KeywordExpression("null", null);
         public static ValueExpression This { get; } = new KeywordExpression("this", null);
-        public static BoolSnippet True { get; } = new(new KeywordExpression("true", null));
-        public static BoolSnippet False { get; } = new(new KeywordExpression("false", null));
+        public static ValueExpression Base { get; } = new KeywordExpression("base", null);
+        public static ScopedApi<bool> True { get; } = new(new KeywordExpression("true", null));
+        public static ScopedApi<bool> False { get; } = new(new KeywordExpression("false", null));
 
-        public static BoolSnippet Bool(bool value) => value ? True : False;
-        public static IntSnippet Int(int value) => new(Literal(value));
-        public static LongSnippet Long(long value) => new(Literal(value));
+        public static ScopedApi<bool> Bool(bool value) => value ? True : False;
+        public static ScopedApi<int> Int(int value) => new(Literal(value));
+        public static ScopedApi<long> Long(long value) => new(Literal(value));
         public static ValueExpression Float(float value) => Literal(value);
         public static ValueExpression Double(double value) => Literal(value);
+        public static ScopedApi<T> Checked<T>(ScopedApi<T> value) where T : struct => new KeywordExpression("checked", value).As<T>();
 
-        public static ValueExpression Nameof(ValueExpression expression) => new InvokeInstanceMethodExpression(null, "nameof", new[] { expression }, null, false);
+        public static ValueExpression Nameof(ValueExpression expression) => new InvokeMethodExpression(null, "nameof", new[] { expression }, null, false);
         public static ValueExpression ThrowExpression(ValueExpression expression) => new KeywordExpression("throw", expression);
 
         public static ValueExpression NullCoalescing(ValueExpression left, ValueExpression right) => new BinaryOperatorExpression("??", left, right);
         // TO-DO: Migrate remaining class as part of output classes migration : https://github.com/Azure/autorest.csharp/issues/4198
         //public static ValueExpression EnumValue(EnumType type, EnumTypeValue value) => new MemberExpression(new TypeReference(type.Type), value.Declaration.Name);
-        public static ValueExpression FrameworkEnumValue<TEnum>(TEnum value) where TEnum : struct, Enum => new MemberExpression(new TypeReferenceExpression(typeof(TEnum)), Enum.GetName(value)!);
+        public static ValueExpression FrameworkEnumValue<TEnum>(TEnum value) where TEnum : struct, Enum => new MemberExpression(TypeReferenceExpression.FromType(typeof(TEnum)), Enum.GetName(value)!);
 
         public static ValueExpression RemoveAllNullConditional(ValueExpression expression)
             => expression switch
@@ -57,64 +62,44 @@ namespace Microsoft.Generator.CSharp.Snippets
                 _ => expression
             };
 
-        public static TypedSnippet RemoveAllNullConditional(TypedSnippet expression)
-            => expression with { Untyped = RemoveAllNullConditional(expression.Untyped) };
-
         public static ValueExpression Literal(object? value) => new LiteralExpression(value);
 
-        public static StringSnippet Literal(string? value) => new(value is null ? Null : new LiteralExpression(value));
-        public static StringSnippet LiteralU8(string value) => new(new UnaryOperatorExpression("u8", new LiteralExpression(value), true));
+        public static ScopedApi<string> Literal(string? value) => new(value is null ? Null : new LiteralExpression(value));
+        public static ScopedApi<string> LiteralU8(string value) => new(new UnaryOperatorExpression("u8", new LiteralExpression(value), true));
 
-        public static BoolSnippet GreaterThan(ValueExpression left, ValueExpression right) => new(new BinaryOperatorExpression(">", left, right));
-        public static BoolSnippet LessThan(ValueExpression left, ValueExpression right) => new(new BinaryOperatorExpression("<", left, right));
-        public static BoolSnippet Equal(ValueExpression left, ValueExpression right) => new(new BinaryOperatorExpression("==", left, right));
-        public static BoolSnippet NotEqual(ValueExpression left, ValueExpression right) => new(new BinaryOperatorExpression("!=", left, right));
+        public static ScopedApi<bool> Not(ValueExpression operand) => new(new UnaryOperatorExpression("!", operand, false));
 
-        public static BoolSnippet Is(ValueExpression left, ValueExpression right)
-            => new(new BinaryOperatorExpression("is", left, right));
+        public static MethodBodyStatement Continue => new KeywordExpression("continue", null).Terminate();
+        public static MethodBodyStatement Break => new KeywordExpression("break", null).Terminate();
+        public static MethodBodyStatement Return(ValueExpression expression) => new KeywordExpression("return", expression).Terminate();
+        public static MethodBodyStatement Return() => new KeywordExpression("return", null).Terminate();
+        public static MethodBodyStatement Throw(ValueExpression expression) => new KeywordExpression("throw", expression).Terminate();
 
-        public static BoolSnippet Or(BoolSnippet left, BoolSnippet right) => new(new BinaryOperatorExpression("||", left.Untyped, right.Untyped));
-        public static BoolSnippet And(BoolSnippet left, BoolSnippet right) => new(new BinaryOperatorExpression("&&", left.Untyped, right.Untyped));
-        public static BoolSnippet Not(BoolSnippet operand) => new(new UnaryOperatorExpression("!", operand, false));
+        public static ValueExpression ArrayEmpty(CSharpType arrayItemType)
+            => Static<Array>().Invoke(nameof(Array.Empty), [], [arrayItemType], false);
 
-        public static KeywordStatement Continue => new("continue", null);
-        public static KeywordStatement Break => new("break", null);
-        public static KeywordStatement Return(ValueExpression expression) => new("return", expression);
-        public static KeywordStatement Return() => new("return", null);
-        public static KeywordStatement Throw(ValueExpression expression) => new("throw", expression);
-
-        public static EnumerableSnippet InvokeArrayEmpty(CSharpType arrayItemType)
-            => new(arrayItemType, new InvokeStaticMethodExpression(typeof(Array), nameof(Array.Empty), Array.Empty<ValueExpression>(), new[] { arrayItemType }));
-
-        public static StreamSnippet InvokeFileOpenRead(string filePath)
-            => new(new InvokeStaticMethodExpression(typeof(System.IO.File), nameof(System.IO.File.OpenRead), [Literal(filePath)]));
-        public static StreamSnippet InvokeFileOpenWrite(string filePath)
-            => new(new InvokeStaticMethodExpression(typeof(System.IO.File), nameof(System.IO.File.OpenWrite), [Literal(filePath)]));
-
-        public static MethodBodyStatement InvokeCustomSerializationMethod(string methodName, Utf8JsonWriterSnippet utf8JsonWriter)
-            => new InvokeInstanceMethodStatement(null, methodName, utf8JsonWriter);
-
-        public static MethodBodyStatement InvokeCustomBicepSerializationMethod(string methodName, StringBuilderSnippet stringBuilder)
-            => new InvokeInstanceMethodStatement(null, methodName, stringBuilder);
-
-        public static MethodBodyStatement InvokeCustomDeserializationMethod(string methodName, JsonPropertySnippet jsonProperty, VariableReferenceSnippet variable)
-            => new InvokeStaticMethodStatement(null, methodName, new ValueExpression[] { jsonProperty, new KeywordExpression("ref", variable) });
-
-        public static AssignValueIfNullStatement AssignIfNull(ValueExpression variable, ValueExpression expression) => new(variable, expression);
-        public static AssignValueStatement Assign(ValueExpression variable, ValueExpression expression) => new(variable, expression);
-
-        public static MethodBodyStatement AssignOrReturn(ValueExpression? variable, ValueExpression expression)
-            => variable != null ? Assign(variable, expression) : Return(expression);
+        public static AssignmentExpression Assign(this ValueExpression to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
+        public static AssignmentExpression Assign(this ParameterProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
+        public static AssignmentExpression Assign(this FieldProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
+        public static AssignmentExpression Assign(this PropertyProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
 
         public static MethodBodyStatement InvokeConsoleWriteLine(ValueExpression expression)
-            => new InvokeStaticMethodStatement(typeof(Console), nameof(Console.WriteLine), expression);
+            => Static(typeof(Console)).Invoke(nameof(Console.WriteLine), expression).Terminate();
 
-        private static BoolSnippet Is<T>(T value, string name, Func<ValueExpression, T> factory, out T variable) where T : TypedSnippet
-        {
-            var declaration = new CodeWriterDeclaration(name);
-            var variableRef = new VariableReferenceSnippet(value.Type, declaration);
-            variable = factory(variableRef);
-            return new(new BinaryOperatorExpression("is", value, new DeclarationExpression(variableRef.Type, variableRef.Declaration, false)));
-        }
+        // TO-DO: Migrate code from autorest as part of output classes migration : https://github.com/Azure/autorest.csharp/issues/4198
+        public static InvokeMethodExpression Invoke(this ParameterProvider parameter, string methodName, ValueExpression arg)
+            => new InvokeMethodExpression(parameter, methodName, [arg], null, false);
+
+        public static InvokeMethodExpression Invoke(this ParameterProvider parameter, string methodName, CSharpType? extensionType = null)
+            => new InvokeMethodExpression(parameter, methodName, Array.Empty<ValueExpression>(), null, false, ExtensionType: extensionType);
+
+        public static ValueExpression Property(this ParameterProvider parameter, string propertyName, bool nullConditional = false)
+            => new MemberExpression(nullConditional ? new NullConditionalExpression(parameter) : parameter, propertyName);
+
+        public static ValueExpression Invoke(this FieldProvider field, string methodName, IEnumerable<ValueExpression> parameters, bool isAsync, bool configureAwait)
+            => new InvokeMethodExpression(field, methodName, [.. parameters], null, isAsync, configureAwait);
+
+        public static ScopedApi<bool> NotEqual(this ParameterProvider parameter, ValueExpression other)
+            => new BinaryOperatorExpression("!=", parameter, other).As<bool>();
     }
 }

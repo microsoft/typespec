@@ -19,7 +19,7 @@
      "Description": "accept"
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "",
    "Description": "The Thing_requiredLiteralString",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -40,7 +40,7 @@
      "Description": "123"
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "",
    "Description": "The Thing_requiredLiteralInt",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -61,7 +61,7 @@
      "Description": "1.23"
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "",
    "Description": "The Thing_requiredLiteralFloat",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -82,7 +82,7 @@
      "Description": "reject"
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "",
    "Description": "The Thing_optionalLiteralString",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -103,7 +103,7 @@
      "Description": "456"
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "",
    "Description": "The Thing_optionalLiteralInt",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -124,7 +124,7 @@
      "Description": "4.56"
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "",
    "Description": "The Thing_optionalLiteralFloat",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -133,6 +133,7 @@
    "$id": "20",
    "Kind": "enum",
    "Name": "StringFixedEnum",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.StringFixedEnum",
    "ValueType": {
     "$id": "21",
     "Kind": "string"
@@ -154,7 +155,6 @@
      "Value": "4"
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
    "Description": "Simple enum",
    "IsExtensible": false,
    "Usage": "RoundTrip"
@@ -163,6 +163,7 @@
    "$id": "25",
    "Kind": "enum",
    "Name": "StringExtensibleEnum",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.StringExtensibleEnum",
    "ValueType": {
     "$id": "26",
     "Kind": "string"
@@ -184,7 +185,6 @@
      "Value": "4"
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
    "Description": "Extensible enum",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -193,6 +193,7 @@
    "$id": "30",
    "Kind": "enum",
    "Name": "IntExtensibleEnum",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.IntExtensibleEnum",
    "ValueType": {
     "$id": "31",
     "Kind": "int32"
@@ -214,7 +215,6 @@
      "Value": 4
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
    "Description": "Int based extensible enum",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -223,6 +223,7 @@
    "$id": "35",
    "Kind": "enum",
    "Name": "FloatExtensibleEnum",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.FloatExtensibleEnum",
    "ValueType": {
     "$id": "36",
     "Kind": "float32"
@@ -244,7 +245,6 @@
      "Value": 4.4
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
    "Description": "Float based extensible enum",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -253,6 +253,7 @@
    "$id": "40",
    "Kind": "enum",
    "Name": "FloatExtensibleEnumWithIntValue",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.FloatExtensibleEnumWithIntValue",
    "ValueType": {
     "$id": "41",
     "Kind": "float32"
@@ -274,7 +275,6 @@
      "Value": 4
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
    "Description": "float fixed enum",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -283,6 +283,7 @@
    "$id": "45",
    "Kind": "enum",
    "Name": "FloatFixedEnum",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.FloatFixedEnum",
    "ValueType": {
     "$id": "46",
     "Kind": "float32"
@@ -304,7 +305,6 @@
      "Value": 4.4
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
    "Description": "float fixed enum",
    "IsExtensible": false,
    "Usage": "RoundTrip"
@@ -313,6 +313,7 @@
    "$id": "50",
    "Kind": "enum",
    "Name": "FloatFixedEnumWithIntValue",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.FloatFixedEnumWithIntValue",
    "ValueType": {
     "$id": "51",
     "Kind": "int32"
@@ -334,7 +335,6 @@
      "Value": 4
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
    "Description": "float fixed enum",
    "IsExtensible": false,
    "Usage": "RoundTrip"
@@ -343,6 +343,7 @@
    "$id": "55",
    "Kind": "enum",
    "Name": "IntFixedEnum",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.IntFixedEnum",
    "ValueType": {
     "$id": "56",
     "Kind": "int32"
@@ -364,7 +365,6 @@
      "Value": 4
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
    "Description": "int fixed enum",
    "IsExtensible": false,
    "Usage": "RoundTrip"
@@ -373,11 +373,11 @@
  "Models": [
   {
    "$id": "60",
-   "Kind": "Model",
+   "Kind": "model",
    "Name": "Thing",
-   "Namespace": "UnbrandedTypeSpec",
-   "Description": "A model with a few properties of literal types",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.Thing",
    "Usage": "RoundTrip",
+   "Description": "A model with a few properties of literal types",
    "Properties": [
     {
      "$id": "61",
@@ -407,12 +407,13 @@
        },
        {
         "$id": "66",
-        "Kind": "Array",
+        "Kind": "array",
         "Name": "Array",
-        "ElementType": {
+        "ValueType": {
          "$id": "67",
          "Kind": "string"
-        }
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array"
        },
        {
         "$id": "68",
@@ -575,12 +576,13 @@
       "Kind": "nullable",
       "Type": {
        "$id": "91",
-       "Kind": "Array",
+       "Kind": "array",
        "Name": "Array",
-       "ElementType": {
+       "ValueType": {
         "$id": "92",
         "Kind": "int32"
-       }
+       },
+       "CrossLanguageDefinitionId": "TypeSpec.Array"
       }
      },
      "IsRequired": false,
@@ -596,12 +598,13 @@
       "Kind": "nullable",
       "Type": {
        "$id": "95",
-       "Kind": "Array",
+       "Kind": "array",
        "Name": "Array",
-       "ElementType": {
+       "ValueType": {
         "$id": "96",
         "Kind": "int32"
-       }
+       },
+       "CrossLanguageDefinitionId": "TypeSpec.Array"
       }
      },
      "IsRequired": true,
@@ -611,11 +614,11 @@
   },
   {
    "$id": "97",
-   "Kind": "Model",
+   "Kind": "model",
    "Name": "RoundTripModel",
-   "Namespace": "UnbrandedTypeSpec",
-   "Description": "this is a roundtrip model",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel",
    "Usage": "RoundTrip",
+   "Description": "this is a roundtrip model",
    "Properties": [
     {
      "$id": "98",
@@ -648,11 +651,12 @@
      "Description": "Required collection of enums",
      "Type": {
       "$id": "103",
-      "Kind": "Array",
-      "Name": "Array",
-      "ElementType": {
+      "Kind": "array",
+      "Name": "ArrayStringFixedEnum",
+      "ValueType": {
        "$ref": "20"
-      }
+      },
+      "CrossLanguageDefinitionId": "TypeSpec.Array"
      },
      "IsRequired": true,
      "IsReadOnly": false
@@ -664,8 +668,7 @@
      "Description": "Required dictionary of enums",
      "Type": {
       "$id": "105",
-      "Kind": "Dictionary",
-      "Name": "Dictionary",
+      "Kind": "dict",
       "KeyType": {
        "$id": "106",
        "Kind": "string"
@@ -706,11 +709,12 @@
      "Description": "this is a collection of int based extensible enum",
      "Type": {
       "$id": "110",
-      "Kind": "Array",
-      "Name": "Array",
-      "ElementType": {
+      "Kind": "array",
+      "Name": "ArrayIntExtensibleEnum",
+      "ValueType": {
        "$ref": "30"
-      }
+      },
+      "CrossLanguageDefinitionId": "TypeSpec.Array"
      },
      "IsRequired": false,
      "IsReadOnly": false
@@ -744,11 +748,12 @@
      "Description": "this is a collection of float based extensible enum",
      "Type": {
       "$id": "114",
-      "Kind": "Array",
-      "Name": "Array",
-      "ElementType": {
+      "Kind": "array",
+      "Name": "ArrayFloatExtensibleEnum",
+      "ValueType": {
        "$ref": "35"
-      }
+      },
+      "CrossLanguageDefinitionId": "TypeSpec.Array"
      },
      "IsRequired": false,
      "IsReadOnly": false
@@ -782,11 +787,12 @@
      "Description": "this is a collection of float based fixed enum",
      "Type": {
       "$id": "118",
-      "Kind": "Array",
-      "Name": "Array",
-      "ElementType": {
+      "Kind": "array",
+      "Name": "ArrayFloatFixedEnum",
+      "ValueType": {
        "$ref": "45"
-      }
+      },
+      "CrossLanguageDefinitionId": "TypeSpec.Array"
      },
      "IsRequired": false,
      "IsReadOnly": false
@@ -809,11 +815,12 @@
      "Description": "this is a collection of int based fixed enum",
      "Type": {
       "$id": "121",
-      "Kind": "Array",
-      "Name": "Array",
-      "ElementType": {
+      "Kind": "array",
+      "Name": "ArrayIntFixedEnum",
+      "ValueType": {
        "$ref": "55"
-      }
+      },
+      "CrossLanguageDefinitionId": "TypeSpec.Array"
      },
      "IsRequired": false,
      "IsReadOnly": false
@@ -860,8 +867,7 @@
      "Description": "required record of unknown",
      "Type": {
       "$id": "128",
-      "Kind": "Dictionary",
-      "Name": "Dictionary",
+      "Kind": "dict",
       "KeyType": {
        "$id": "129",
        "Kind": "string"
@@ -881,8 +887,7 @@
      "Description": "optional record of unknown",
      "Type": {
       "$id": "132",
-      "Kind": "Dictionary",
-      "Name": "Dictionary",
+      "Kind": "dict",
       "KeyType": {
        "$id": "133",
        "Kind": "string"
@@ -902,8 +907,7 @@
      "Description": "required readonly record of unknown",
      "Type": {
       "$id": "136",
-      "Kind": "Dictionary",
-      "Name": "Dictionary",
+      "Kind": "dict",
       "KeyType": {
        "$id": "137",
        "Kind": "string"
@@ -923,8 +927,7 @@
      "Description": "optional readonly record of unknown",
      "Type": {
       "$id": "140",
-      "Kind": "Dictionary",
-      "Name": "Dictionary",
+      "Kind": "dict",
       "KeyType": {
        "$id": "141",
        "Kind": "string"
@@ -944,11 +947,11 @@
      "Description": "this is a model with required nullable properties",
      "Type": {
       "$id": "144",
-      "Kind": "Model",
+      "Kind": "model",
       "Name": "ModelWithRequiredNullableProperties",
-      "Namespace": "UnbrandedTypeSpec",
-      "Description": "A model with a few required nullable properties",
+      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithRequiredNullableProperties",
       "Usage": "RoundTrip",
+      "Description": "A model with a few required nullable properties",
       "Properties": [
        {
         "$id": "145",
@@ -1021,11 +1024,11 @@
   },
   {
    "$id": "154",
-   "Kind": "Model",
+   "Kind": "model",
    "Name": "Friend",
-   "Namespace": "UnbrandedTypeSpec",
-   "Description": "this is not a friendly model but with a friendly name",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.NotFriend",
    "Usage": "RoundTrip",
+   "Description": "this is not a friendly model but with a friendly name",
    "Properties": [
     {
      "$id": "155",
@@ -1043,11 +1046,11 @@
   },
   {
    "$id": "157",
-   "Kind": "Model",
+   "Kind": "model",
    "Name": "ProjectedModel",
-   "Namespace": "UnbrandedTypeSpec",
-   "Description": "this is a model with a projected name",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithProjectedName",
    "Usage": "RoundTrip",
+   "Description": "this is a model with a projected name",
    "Properties": [
     {
      "$id": "158",
@@ -1065,9 +1068,9 @@
   },
   {
    "$id": "160",
-   "Kind": "Model",
+   "Kind": "model",
    "Name": "ReturnsAnonymousModelResponse",
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.returnsAnonymousModel.Response.anonymous",
    "Usage": "Output",
    "Properties": []
   }
@@ -1091,8 +1094,7 @@
        "NameInRequest": "unbrandedTypeSpecUrl",
        "Type": {
         "$id": "164",
-        "Kind": "uri",
-        "IsNullable": false
+        "Kind": "url"
        },
        "Location": "Uri",
        "IsApiVersion": false,
@@ -1164,8 +1166,7 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "172",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -1309,8 +1310,7 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "186",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -1427,8 +1427,7 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "196",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -1453,8 +1452,7 @@
        "NameInRequest": "Content-Type",
        "Type": {
         "$id": "199",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -1518,8 +1516,7 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "204",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -1597,8 +1594,7 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "210",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -1623,8 +1619,7 @@
        "NameInRequest": "Content-Type",
        "Type": {
         "$id": "213",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -1778,8 +1773,7 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "230",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -1863,8 +1857,7 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "238",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -1925,8 +1918,7 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "243",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2004,8 +1996,7 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "249",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2030,8 +2021,7 @@
        "NameInRequest": "Content-Type",
        "Type": {
         "$id": "252",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2113,8 +2103,7 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "258",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2139,8 +2128,7 @@
        "NameInRequest": "Content-Type",
        "Type": {
         "$id": "261",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2222,8 +2210,7 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "267",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2248,8 +2235,7 @@
        "NameInRequest": "Content-Type",
        "Type": {
         "$id": "270",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2335,8 +2321,7 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "278",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2409,8 +2394,7 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "284",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2435,8 +2419,7 @@
        "NameInRequest": "Content-Type",
        "Type": {
         "$id": "287",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2500,8 +2483,7 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "292",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2562,8 +2544,7 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "297",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2642,8 +2623,7 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "304",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2668,8 +2648,7 @@
        "NameInRequest": "Content-Type",
        "Type": {
         "$id": "307",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2733,8 +2712,7 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "312",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2807,8 +2785,7 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "319",
-        "Kind": "string",
-        "IsNullable": false
+        "Kind": "string"
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2851,7 +2828,6 @@
    "Protocol": {
     "$id": "322"
    },
-   "Creatable": true,
    "Parameters": [
     {
      "$ref": "163"

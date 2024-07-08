@@ -25,11 +25,11 @@ namespace Microsoft.Generator.CSharp.Input
         {
             switch (this)
             {
-                case InputListType listType:
-                    return new InputListType(
+                case InputArrayType listType:
+                    return new InputArrayType(
                         listType.Name,
-                        listType.ElementType.GetCollectionEquivalent(inputType),
-                        listType.IsEmbeddingsVector);
+                        listType.CrossLanguageDefinitionId,
+                        listType.ValueType.GetCollectionEquivalent(inputType));
                 case InputDictionaryType dictionaryType:
                     return new InputDictionaryType(
                         dictionaryType.Name,

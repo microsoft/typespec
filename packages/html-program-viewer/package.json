@@ -17,25 +17,26 @@
     "typespec"
   ],
   "type": "module",
-  "main": "dist/src/index.js",
+  "main": "dist/emitter/index.js",
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+      "default": "./dist/emitter/index.js"
     },
-    "./testing": {
-      "types": "./dist/src/testing/index.d.ts",
-      "default": "./dist/src/testing/index.js"
-    }
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "default": "./dist/react/index.js"
+    },
+    "./style.css": "./dist/style.css"
   },
-  "tspMain": "dist/src/index.js",
   "engines": {
     "node": ">=14.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p .",
-    "watch": "tsc -p . --watch",
+    "build": "pnpm build:react && pnpm build:emitter",
+    "build:react": "vite build",
+    "build:emitter": "vite build --config vite.emitter.config.ts",
+    "watch": "vite build --watch",
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
@@ -43,7 +44,6 @@
     "lint:fix": "eslint . --fix"
   },
   "files": [
-    "lib/*.tsp",
     "dist/**",
     "!dist/test/**"
   ],
@@ -51,23 +51,32 @@
     "@typespec/compiler": "workspace:~"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.4",
-    "prettier": "~3.2.5",
+    "@fluentui/react-components": "~9.54.2",
+    "@fluentui/react-icons": "^2.0.247",
+    "@fluentui/react-list-preview": "^0.2.8",
     "react": "~18.3.1",
     "react-dom": "~18.3.1",
-    "react-is": "~18.3.1"
+    "react-hotkeys-hook": "^4.5.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.5",
+    "@babel/core": "^7.24.7",
+    "@testing-library/dom": "^10.2.0",
+    "@testing-library/jest-dom": "^6.4.6",
+    "@testing-library/react": "^16.0.0",
     "@types/node": "~18.11.19",
-    "@types/react": "~18.3.2",
+    "@types/react": "~18.3.3",
     "@types/react-dom": "~18.3.0",
     "@typespec/compiler": "workspace:~",
+    "@typespec/react-components": "workspace:~",
+    "@vitejs/plugin-react": "~4.3.1",
     "@vitest/coverage-v8": "^1.6.0",
     "@vitest/ui": "^1.6.0",
-    "c8": "^9.1.0",
+    "c8": "^10.1.2",
     "rimraf": "~5.0.7",
-    "typescript": "~5.4.5",
+    "typescript": "~5.5.3",
+    "vite": "^5.3.2",
+    "vite-plugin-checker": "^0.7.0",
+    "vite-plugin-dts": "^3.9.1",
     "vitest": "^1.6.0"
   }
 }

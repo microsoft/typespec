@@ -20,7 +20,7 @@ namespace Microsoft.Generator.CSharp.Input
                     new TypeSpecInputNamespaceConverter(referenceHandler),
                     new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
                     new TypeSpecInputTypeConverter(referenceHandler),
-                    new TypeSpecInputListTypeConverter(referenceHandler),
+                    new TypeSpecInputArrayTypeConverter(referenceHandler),
                     new TypeSpecInputDictionaryTypeConverter(referenceHandler),
                     new TypeSpecInputEnumTypeConverter(referenceHandler),
                     new TypeSpecInputEnumTypeValueConverter(referenceHandler),

@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
@@ -106,7 +107,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var valueField = (ValueExpression)_valueField;
             var body = new MethodBodyStatement[]
             {
-                Assign(valueField, valueParameter)
+                valueField.Assign(valueParameter).Terminate()
             };
 
             return [new MethodProvider(signature, body, this)];
@@ -161,7 +162,12 @@ namespace Microsoft.Generator.CSharp.Providers
 
             // writes the method:
             // public override bool Equals(object obj) => obj is EnumType other && Equals(other);
-            methods.Add(new(equalsSignature, And(Is(objParameter, new DeclarationExpression(Type, "other", out var other)), new BoolSnippet(new InvokeInstanceMethodExpression(null, nameof(object.Equals), [other]))), this));
+            methods.Add(new(
+                equalsSignature,
+                objParameter.AsExpression
+                    .Is(new DeclarationExpression(Type, "other", out var other))
+                    .And(This.Invoke(nameof(Equals), [other])),
+                this));
 
             var otherParameter = new ParameterProvider("other", $"The instance to compare.", Type);
             equalsSignature = equalsSignature with
@@ -175,11 +181,11 @@ namespace Microsoft.Generator.CSharp.Providers
             // public bool Equals(EnumType other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
             // or
             // public bool Equals(EnumType other) => int/float.Equals(_value, other._value);
-            var valueField = new VariableReferenceSnippet(ValueType.WithNullable(!ValueType.IsValueType), _valueField.Declaration);
+            var valueField = new VariableExpression(ValueType.WithNullable(!ValueType.IsValueType), _valueField.Declaration);
             var otherValue = ((ValueExpression)otherParameter).Property(_valueField.Name);
             var equalsExpressionBody = IsStringValueType
-                            ? new InvokeStaticMethodExpression(ValueType, nameof(object.Equals), [valueField, otherValue, FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)])
-                            : new InvokeStaticMethodExpression(ValueType, nameof(object.Equals), [valueField, otherValue]);
+                            ? Static(ValueType).Invoke(nameof(object.Equals), [valueField, otherValue, FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)])
+                            : Static(ValueType).Invoke(nameof(object.Equals), [valueField, otherValue]);
             methods.Add(new(equalsSignature, equalsExpressionBody, this));
 
             var getHashCodeSignature = new MethodSignature(
@@ -192,12 +198,15 @@ namespace Microsoft.Generator.CSharp.Providers
 
             // writes the method:
             // for string
-            // public override int GetHashCode() => _value?.GetHashCode() ?? 0;
+            // public override int GetHashCode() => StringComparer.InvariantCultureIgnoreCase.GetHashCode(_value);
             // for others
             // public override int GetHashCode() => _value.GetHashCode();
             var getHashCodeExpressionBody = IsStringValueType
-                            ? NullCoalescing(valueField.NullConditional().InvokeGetHashCode(), Int(0))
-                            : valueField.Untyped.InvokeGetHashCode();
+                            ? new TernaryConditionalExpression(
+                                valueField.As<bool>().NotEqual(Null),
+                                Static<StringComparer>().Property(nameof(StringComparer.InvariantCultureIgnoreCase)).Invoke(nameof(StringComparer.GetHashCode), valueField),
+                                Int(0))
+                            : valueField.InvokeGetHashCode();
             methods.Add(new(getHashCodeSignature, getHashCodeExpressionBody, this, XmlDocProvider.InheritDocs));
 
             var toStringSignature = new MethodSignature(
@@ -215,7 +224,7 @@ namespace Microsoft.Generator.CSharp.Providers
             // public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
             ValueExpression toStringExpressionBody = IsStringValueType
                             ? valueField
-                            : valueField.Untyped.Invoke(nameof(object.ToString), new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture)));
+                            : valueField.Invoke(nameof(object.ToString), new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture)));
             methods.Add(new(toStringSignature, toStringExpressionBody, this, XmlDocProvider.InheritDocs));
 
             // for string-based extensible enums, we are using `ToString` as its serialization

@@ -16,7 +16,7 @@ export default (props: { spec: string }) => {
       });
     }
     uiInstance.current.specActions.updateSpec(props.spec);
-  }, [uiRef.current, props.spec]);
+  }, [props.spec]);
 
   return <div ref={uiRef}></div>;
 };

@@ -7,13 +7,14 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
-using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
-using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
+    [Export(typeof(CodeModelPlugin))]
+    [ExportMetadata("PluginName", nameof(ClientModelPlugin))]
     public class ClientModelPlugin : CodeModelPlugin
     {
         private static ClientModelPlugin? _instance;
@@ -26,8 +27,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         public override ScmTypeFactory TypeFactory { get; }
 
-        public override ExtensibleSnippets ExtensibleSnippets { get; }
-
         public override IReadOnlyList<MetadataReference> AdditionalMetadataReferences => [MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location)];
 
         /// <summary>
@@ -35,15 +34,15 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         /// <param name="provider">The model type provider.</param>
         /// <param name="inputModel">The input model.</param>
-        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelProvider provider, InputModelType inputModel)
+        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(TypeProvider provider, InputType inputType)
         {
-            if (inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
+            switch (inputType)
             {
-                // Add MRW serialization type provider
-                return [new MrwSerializationTypeProvider(provider, inputModel)];
+                case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
+                    return [new MrwSerializationTypeDefinition(provider, inputModel)];
+                default:
+                    return base.GetSerializationTypeProviders(provider, inputType);
             }
-
-            return Array.Empty<TypeProvider>();
         }
 
         [ImportingConstructor]
@@ -51,7 +50,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
             : base(context)
         {
             TypeFactory = new ScmTypeFactory();
-            ExtensibleSnippets = new SystemExtensibleSnippets();
             _instance = this;
         }
     }

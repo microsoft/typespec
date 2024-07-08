@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
@@ -16,19 +17,13 @@ namespace Microsoft.Generator.CSharp.Providers
     public sealed class ModelProvider : TypeProvider
     {
         private readonly InputModelType _inputModel;
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
         public override string Name { get; }
         public override string Namespace { get; }
         protected override FormattableString Description { get; }
 
         private readonly bool _isStruct;
         private readonly TypeSignatureModifiers _declarationModifiers;
-
-        /// <summary>
-        /// The serializations providers for the model provider.
-        /// </summary>
-        public IReadOnlyList<TypeProvider> SerializationProviders { get; } = Array.Empty<TypeProvider>();
-
-        protected override string GetFileName() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
         public ModelProvider(InputModelType inputModel)
         {
@@ -38,20 +33,23 @@ namespace Microsoft.Generator.CSharp.Providers
             Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : $"The {Name}.";
             _declarationModifiers = TypeSignatureModifiers.Partial |
                 (inputModel.ModelAsStruct ? TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct : TypeSignatureModifiers.Class);
-            if (inputModel.Accessibility == "internal")
+            if (inputModel.Access == "internal")
             {
                 _declarationModifiers |= TypeSignatureModifiers.Internal;
             }
 
-            bool isAbstract = inputModel.DiscriminatorPropertyName is not null && inputModel.DiscriminatorValue is null;
+            bool isAbstract = inputModel.DiscriminatorProperty is not null && inputModel.DiscriminatorValue is null;
             if (isAbstract)
             {
                 _declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
 
-            SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputModel);
-
             _isStruct = inputModel.ModelAsStruct;
+        }
+
+        protected override TypeProvider[] BuildSerializationProviders()
+        {
+            return CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputModel).ToArray();
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _declarationModifiers;
@@ -138,13 +136,13 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     if (parameter != null)
                     {
-                        initializationValue = new ParameterReferenceSnippet(parameter);
+                        initializationValue = parameter;
 
                         if (CSharpType.RequiresToList(parameter.Type, property.Type))
                         {
                             initializationValue = parameter.Type.IsNullable ?
-                                Linq.ToList(new NullConditionalExpression(initializationValue)) :
-                                Linq.ToList(initializationValue);
+                                new NullConditionalExpression(initializationValue).ToList() :
+                                initializationValue.ToList();
                         }
                     }
                 }
@@ -156,7 +154,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
                 if (initializationValue != null)
                 {
-                    methodBodyStatements.Add(Assign(new MemberExpression(null, property.Name), initializationValue));
+                    methodBodyStatements.Add(property.Assign(initializationValue).Terminate());
                 }
             }
 

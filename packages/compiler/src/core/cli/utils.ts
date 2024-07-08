@@ -83,14 +83,23 @@ export function run(
     command += ".cmd";
   }
 
+  const useShell = process.platform === "win32";
+  const hasSpace = command.includes(" ");
+  let commandToSpawn = command;
+  if (useShell && hasSpace) {
+    // for command having space (which should be a path), we need to wrap it into " for it to be executed properly in shell
+    // but for short command like 'npm', we shouldn't wrap it which would trigger error
+    commandToSpawn = `"${command}"`;
+    logger.trace(`Command to spawn updated to: ${commandToSpawn}\n`);
+  }
   const finalOptions: SpawnSyncOptionsWithStringEncoding = {
     encoding: "utf-8",
     stdio: "inherit",
-    shell: process.platform === "win32",
+    shell: useShell,
     ...(options ?? {}),
   };
 
-  const proc = spawnSync(command, commandArgs, finalOptions);
+  const proc = spawnSync(commandToSpawn, commandArgs, finalOptions);
   logger.trace(inspect(proc, { depth: null }));
 
   if (proc.error) {

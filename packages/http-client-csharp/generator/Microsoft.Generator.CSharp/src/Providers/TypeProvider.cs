@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
@@ -12,11 +13,11 @@ namespace Microsoft.Generator.CSharp.Providers
     {
         protected string? _deprecated;
 
-        private string? _fileName;
-
-        public string FileName => _fileName ??= GetFileName();
-        protected virtual string GetFileName() => $"{Name}.cs";
-
+        /// <summary>
+        /// Gets the relative file path where the generated file will be stored.
+        /// This path is relative to the project's root directory.
+        /// </summary>
+        public abstract string RelativeFilePath { get; }
         public abstract string Name { get; }
         public virtual string Namespace => CodeModelPlugin.Instance.Configuration.Namespace;
         protected virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
@@ -97,6 +98,9 @@ namespace Microsoft.Generator.CSharp.Providers
         private IReadOnlyList<TypeProvider>? _nestedTypes;
         public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypes();
 
+        private IReadOnlyList<TypeProvider>? _serializationProviders;
+        public virtual IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
+
         protected virtual CSharpType[] BuildTypeArguments() => Array.Empty<CSharpType>();
 
         protected virtual PropertyProvider[] BuildProperties() => Array.Empty<PropertyProvider>();
@@ -110,6 +114,8 @@ namespace Microsoft.Generator.CSharp.Providers
         protected virtual MethodProvider[] BuildConstructors() => Array.Empty<MethodProvider>();
 
         protected virtual TypeProvider[] BuildNestedTypes() => Array.Empty<TypeProvider>();
+
+        protected virtual TypeProvider[] BuildSerializationProviders() => Array.Empty<TypeProvider>();
 
         protected virtual XmlDocProvider BuildXmlDocs()
         {
