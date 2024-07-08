@@ -60,7 +60,7 @@ describe("compiler: init: templates", () => {
   });
 
   it("can exclude .gitignore file", async () => {
-    await runTemplate({}, { includeGitIgnore: false });
+    await runTemplate({}, { includeGitignore: false });
     strictEqual(typeof getOutputFile(".gitignore"), "undefined");
   });
 });
