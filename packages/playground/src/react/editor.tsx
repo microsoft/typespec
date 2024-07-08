@@ -28,7 +28,7 @@ export const Editor: FunctionComponent<EditorProps> = ({ model, options, actions
       ...options,
     });
     onMount?.({ editor: editorRef.current });
-  }, []);
+  }, [model, onMount, options]);
 
   useEffect(() => {
     editor.setTheme(options.theme ?? "typespec");

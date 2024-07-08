@@ -37,7 +37,7 @@ const EntityUI: FunctionComponent<EntityUIProps> = ({ entity }) => {
 const TypeUI: FunctionComponent<{ type: Type }> = ({ type }) => {
   const nav = useTreeNavigatorOptional();
 
-  const navToType = useCallback(() => nav?.navToType(type), [nav?.navToType, type]);
+  const navToType = useCallback(() => nav?.navToType(type), [nav, type]);
   return (
     <div className={style["type-ui"]}>
       <div className={style["type-ui-header"]} onClick={nav && navToType}>
@@ -54,7 +54,7 @@ const NamedTypeRef: FunctionComponent<{ type: NamedType }> = ({ type }) => {
 
   const navToType = useCallback(() => {
     nav?.navToType(type);
-  }, [nav?.navToType, type]);
+  }, [nav, type]);
   return (
     <a className={style["named-type-ref"]} onClick={nav && navToType}>
       {getTypeName(type)}
