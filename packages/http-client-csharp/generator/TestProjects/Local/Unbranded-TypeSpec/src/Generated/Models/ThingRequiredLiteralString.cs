@@ -8,6 +8,7 @@ using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
+    /// <summary> The Thing_requiredLiteralString. </summary>
     public readonly partial struct ThingRequiredLiteralString : IEquatable<ThingRequiredLiteralString>
     {
         private readonly string _value;
@@ -48,8 +49,10 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="other"> The instance to compare. </param>
         public bool Equals(ThingRequiredLiteralString other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
 
-        public override int GetHashCode() => _value?.GetHashCode() ?? 0;
+        /// <inheritdoc/>
+        public override int GetHashCode() => _value != null ? StringComparer.InvariantCultureIgnoreCase.GetHashCode(_value) : 0;
 
+        /// <inheritdoc/>
         public override string ToString() => _value;
     }
 }

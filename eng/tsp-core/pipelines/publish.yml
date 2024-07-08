@@ -89,7 +89,7 @@ extends:
                       --destination $web ^
                       --account-name "cadlplayground" ^
                       --destination-path / ^
-                      --source "./packages/playground-website/dist/" ^
+                      --source "./packages/playground-website/dist/web/" ^
                       --overwrite
 
             templateContext:

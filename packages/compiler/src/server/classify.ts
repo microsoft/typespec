@@ -219,6 +219,11 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
       case SyntaxKind.ScalarConstructor:
         classify(node.id, SemanticTokenKind.Function);
         break;
+      case SyntaxKind.UsingStatement:
+        if (node.name.kind === SyntaxKind.Identifier) {
+          classify(node.name, SemanticTokenKind.Namespace);
+        }
+        break;
       case SyntaxKind.EnumStatement:
         classify(node.id, SemanticTokenKind.Enum);
         break;

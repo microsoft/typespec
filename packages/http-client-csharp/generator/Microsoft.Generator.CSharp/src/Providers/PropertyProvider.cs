@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 
@@ -14,13 +14,16 @@ namespace Microsoft.Generator.CSharp.Providers
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public class PropertyProvider
     {
-        public IReadOnlyList<FormattableString> Description { get; }
+        private VariableExpression? _variable;
+        public FormattableString Description { get; }
+        public XmlDocSummaryStatement XmlDocSummary { get; }
         public MethodSignatureModifiers Modifiers { get; }
         public CSharpType Type { get; }
         public string Name { get; }
         public PropertyBody Body { get; }
         public CSharpType? ExplicitInterface { get; }
         public XmlDocProvider XmlDocs { get; }
+        public PropertyWireInformation? WireInfo { get; }
 
         public PropertyProvider(InputModelProperty inputProperty)
         {
@@ -31,22 +34,35 @@ namespace Microsoft.Generator.CSharp.Providers
 
             Type = propertyType;
             Modifiers = MethodSignatureModifiers.Public;
-            Description = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, !propHasSetter);
             Name = inputProperty.Name.FirstCharToUpperCase();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
+            Description = string.IsNullOrEmpty(inputProperty.Description) ? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter) : $"{inputProperty.Description}";
+            XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);
             XmlDocs = GetXmlDocs();
+            WireInfo = new PropertyWireInformation(inputProperty);
         }
 
-        public PropertyProvider(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType type, string name, PropertyBody body, CSharpType? explicitInterface = null)
+        public PropertyProvider(
+            FormattableString? description,
+            MethodSignatureModifiers modifiers,
+            CSharpType type,
+            string name,
+            PropertyBody body,
+            CSharpType? explicitInterface = null,
+            PropertyWireInformation? wireInfo = null)
         {
-            Description = [description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter)];
+            Description = description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter);
+            XmlDocSummary = new XmlDocSummaryStatement([Description]);
             Modifiers = modifiers;
             Type = type;
             Name = name;
             Body = body;
             ExplicitInterface = explicitInterface;
             XmlDocs = GetXmlDocs();
+            WireInfo = wireInfo;
         }
+
+        public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
 
         private XmlDocProvider GetXmlDocs()
         {
@@ -54,7 +70,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             return new XmlDocProvider()
             {
-                Summary = new XmlDocSummaryStatement(Description),
+                Summary = XmlDocSummary,
             };
         }
 
@@ -111,5 +127,9 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return $"Name: {Name}, Type: {Type}";
         }
+
+        private MemberExpression? _asMember;
+        public static implicit operator MemberExpression(PropertyProvider property)
+            => property._asMember ??= new MemberExpression(null, property.Name);
     }
 }

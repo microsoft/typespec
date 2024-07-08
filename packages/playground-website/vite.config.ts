@@ -2,7 +2,7 @@ import { definePlaygroundViteConfig } from "@typespec/playground/vite";
 import { execSync } from "child_process";
 import { visualizer } from "rollup-plugin-visualizer";
 import { defineConfig, loadEnv } from "vite";
-import { TypeSpecPlaygroundConfig } from "./src/index.js";
+import { TypeSpecPlaygroundConfig } from "./src/config.js";
 
 function getCommit() {
   return execSync("git rev-parse HEAD").toString().trim();
@@ -23,6 +23,8 @@ export default defineConfig(({ mode }) => {
     },
     skipBundleLibraries: !useLocalLibraries,
   });
+
+  config.build!.outDir = "dist/web";
 
   config.plugins!.push(
     visualizer({
