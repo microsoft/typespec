@@ -1,12 +1,60 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
     public abstract class OutputLibraryVisitor
     {
+        internal void Visit(OutputLibrary outputLibrary)
+        {
+            var types = new List<TypeProvider>();
+            foreach (var typeProvider in outputLibrary.TypeProviders)
+            {
+                var type = Visit(typeProvider);
+                if (type != null)
+                {
+                    types.Add(type);
+
+                    var methods = new List<MethodProvider>();
+                    foreach (var methodProvider in typeProvider.Methods)
+                    {
+                        var method = Visit(typeProvider, methodProvider);
+                        if (method != null)
+                        {
+                            methods.Add(method);
+                        }
+                    }
+
+                    var properties = new List<PropertyProvider>();
+                    foreach (var propertyProvider in typeProvider.Properties)
+                    {
+                        var property = Visit(typeProvider, propertyProvider);
+                        if (property != null)
+                        {
+                            properties.Add(property);
+                        }
+                    }
+
+                    var fields = new List<FieldProvider>();
+                    foreach (var fieldProvider in typeProvider.Fields)
+                    {
+                        var field = Visit(typeProvider, fieldProvider);
+                        if (field != null)
+                        {
+                            fields.Add(field);
+                        }
+                    }
+                    type.Methods = methods;
+                    type.Properties = properties;
+                    type.Fields = fields;
+                }
+            }
+            outputLibrary.TypeProviders = types;
+        }
+
         public virtual TypeProvider? Visit(TypeProvider typeProvider)
         {
             return typeProvider;
@@ -20,6 +68,11 @@ namespace Microsoft.Generator.CSharp
         public virtual PropertyProvider? Visit(TypeProvider typeProvider, PropertyProvider propertyProvider)
         {
             return propertyProvider;
+        }
+
+        public virtual FieldProvider? Visit(TypeProvider typeProvider, FieldProvider fieldProvider)
+        {
+            return fieldProvider;
         }
     }
 }

@@ -42,27 +42,29 @@ namespace SamplePlugin.Providers
                 }
 
                 // Convert to a method with a body statement so we can add tracing.
-                var convertedMethod = method.ToBodyStatementMethodProvider();
-
+                method.ConvertToBodyStatementMethodProvider();
                 var ex = new VariableExpression(typeof(Exception), "ex");
                 var decl = new DeclarationExpression(ex);
-                updatedMethods.Add(new ScmMethodProvider(
-                    convertedMethod.Signature,
-                    new TryCatchFinallyStatement(
-                        new[] {
-                        InvokeConsoleWriteLine(Literal($"Entering method {convertedMethod.Signature.Name}.")),  convertedMethod.BodyStatements! },
-                        new CatchExpression(
-                            decl,
-                            new[]
-                            {
-                                InvokeConsoleWriteLine(new FormattableStringExpression($"An exception was thrown in method {convertedMethod.Signature.Name}: {{0}}", new[] {ex})),
-                                Throw()
-                            }),
-                        InvokeConsoleWriteLine(Literal($"Exiting method {convertedMethod.Signature.Name}."))),
-                    EnclosingType));
+                var statements = new TryCatchFinallyStatement(
+                    new[]
+                    {
+                        InvokeConsoleWriteLine(Literal($"Entering method {method.Signature.Name}.")),
+                        method.BodyStatements!
+                    },
+                    new CatchExpression(
+                        decl,
+                        new[]
+                        {
+                            InvokeConsoleWriteLine(new FormattableStringExpression(
+                                $"An exception was thrown in method {method.Signature.Name}: {{0}}", new[] { ex })),
+                            Throw()
+                        }),
+                    InvokeConsoleWriteLine(Literal($"Exiting method {method.Signature.Name}.")));
+
+                method.Update(bodyStatements: statements);
             }
 
-            return updatedMethods;
+            return methods;
         }
 
         private MethodProvider GetExpressionBodiedTestMethod() =>

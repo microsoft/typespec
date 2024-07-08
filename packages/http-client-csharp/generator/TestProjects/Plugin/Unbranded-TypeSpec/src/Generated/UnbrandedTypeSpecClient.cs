@@ -26,21 +26,23 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> Return hi. </summary>
+        /// <summary>
+        /// [Protocol Method] Return hi
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="headParameter"></param>
         /// <param name="queryParameter"></param>
         /// <param name="optionalQuery"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FooSayHi(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
-            Argument.AssertNotNull(headParameter, nameof(headParameter));
-            Argument.AssertNotNull(queryParameter, nameof(queryParameter));
-
-            Argument.AssertNotNull(headParameter, nameof(headParameter));
-            Argument.AssertNotNull(queryParameter, nameof(queryParameter));
-
             try
             {
                 System.Console.WriteLine("Entering method SayHi.");
@@ -61,21 +63,23 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        /// <summary> Return hi. </summary>
+        /// <summary>
+        /// [Protocol Method] Return hi
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="headParameter"></param>
         /// <param name="queryParameter"></param>
         /// <param name="optionalQuery"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FooSayHiAsync(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
-            Argument.AssertNotNull(headParameter, nameof(headParameter));
-            Argument.AssertNotNull(queryParameter, nameof(queryParameter));
-
-            Argument.AssertNotNull(headParameter, nameof(headParameter));
-            Argument.AssertNotNull(queryParameter, nameof(queryParameter));
-
             try
             {
                 System.Console.WriteLine("Entering method SayHiAsync.");
@@ -107,9 +111,6 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
-            Argument.AssertNotNull(headParameter, nameof(headParameter));
-            Argument.AssertNotNull(queryParameter, nameof(queryParameter));
-
             return FooSayHi(headParameter, queryParameter, optionalQuery, null);
         }
 
@@ -121,9 +122,6 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> FooSayHiAsync(string headParameter, string queryParameter, string optionalQuery)
         {
-            Argument.AssertNotNull(headParameter, nameof(headParameter));
-            Argument.AssertNotNull(queryParameter, nameof(queryParameter));
-
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
@@ -155,21 +153,23 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> Return hi again. </summary>
+        /// <summary>
+        /// [Protocol Method] Return hi again
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/> or <paramref name="p2"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FooHelloAgain(string p1, string p2, BinaryContent content, RequestOptions options)
         {
-            Argument.AssertNotNull(p1, nameof(p1));
-            Argument.AssertNotNull(p2, nameof(p2));
-
-            Argument.AssertNotNull(p1, nameof(p1));
-            Argument.AssertNotNull(p2, nameof(p2));
-
             try
             {
                 System.Console.WriteLine("Entering method HelloAgain.");
@@ -190,21 +190,23 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        /// <summary> Return hi again. </summary>
+        /// <summary>
+        /// [Protocol Method] Return hi again
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/> or <paramref name="p2"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FooHelloAgainAsync(string p1, string p2, BinaryContent content, RequestOptions options)
         {
-            Argument.AssertNotNull(p1, nameof(p1));
-            Argument.AssertNotNull(p2, nameof(p2));
-
-            Argument.AssertNotNull(p1, nameof(p1));
-            Argument.AssertNotNull(p2, nameof(p2));
-
             try
             {
                 System.Console.WriteLine("Entering method HelloAgainAsync.");
@@ -237,10 +239,6 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(p2, nameof(p2));
             Argument.AssertNotNull(action, nameof(action));
 
-            Argument.AssertNotNull(p1, nameof(p1));
-            Argument.AssertNotNull(p2, nameof(p2));
-            Argument.AssertNotNull(action, nameof(action));
-
             ClientResult result = FooHelloAgain(p1, p2, action, null);
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
@@ -253,10 +251,6 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> FooHelloAgainAsync(string p1, string p2, RoundTripModel action)
         {
-            Argument.AssertNotNull(p1, nameof(p1));
-            Argument.AssertNotNull(p2, nameof(p2));
-            Argument.AssertNotNull(action, nameof(action));
-
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
             Argument.AssertNotNull(action, nameof(action));
@@ -290,21 +284,23 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> Return hi again. </summary>
+        /// <summary>
+        /// [Protocol Method] Return hi again
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/> or <paramref name="p2"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FooNoContentType(string p1, string p2, BinaryContent content, RequestOptions options)
         {
-            Argument.AssertNotNull(p1, nameof(p1));
-            Argument.AssertNotNull(p2, nameof(p2));
-
-            Argument.AssertNotNull(p1, nameof(p1));
-            Argument.AssertNotNull(p2, nameof(p2));
-
             try
             {
                 System.Console.WriteLine("Entering method NoContentType.");
@@ -325,21 +321,23 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        /// <summary> Return hi again. </summary>
+        /// <summary>
+        /// [Protocol Method] Return hi again
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/> or <paramref name="p2"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FooNoContentTypeAsync(string p1, string p2, BinaryContent content, RequestOptions options)
         {
-            Argument.AssertNotNull(p1, nameof(p1));
-            Argument.AssertNotNull(p2, nameof(p2));
-
-            Argument.AssertNotNull(p1, nameof(p1));
-            Argument.AssertNotNull(p2, nameof(p2));
-
             try
             {
                 System.Console.WriteLine("Entering method NoContentTypeAsync.");
@@ -372,10 +370,6 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(p2, nameof(p2));
             Argument.AssertNotNull(action, nameof(action));
 
-            Argument.AssertNotNull(p1, nameof(p1));
-            Argument.AssertNotNull(p2, nameof(p2));
-            Argument.AssertNotNull(action, nameof(action));
-
             ClientResult result = FooNoContentType(p1, p2, action, null);
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
@@ -388,10 +382,6 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> FooNoContentTypeAsync(string p1, string p2, RoundTripModel action)
         {
-            Argument.AssertNotNull(p1, nameof(p1));
-            Argument.AssertNotNull(p2, nameof(p2));
-            Argument.AssertNotNull(action, nameof(action));
-
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
             Argument.AssertNotNull(action, nameof(action));
@@ -425,8 +415,16 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> Return hi in demo2. </summary>
+        /// <summary>
+        /// [Protocol Method] Return hi in demo2
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FooHelloDemo2(RequestOptions options)
         {
@@ -447,8 +445,16 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        /// <summary> Return hi in demo2. </summary>
+        /// <summary>
+        /// [Protocol Method] Return hi in demo2
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FooHelloDemo2Async(RequestOptions options)
         {
@@ -508,9 +514,17 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> Create with literal value. </summary>
+        /// <summary>
+        /// [Protocol Method] Create with literal value
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FooCreateLiteral(BinaryContent content, RequestOptions options)
         {
@@ -531,9 +545,17 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        /// <summary> Create with literal value. </summary>
+        /// <summary>
+        /// [Protocol Method] Create with literal value
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FooCreateLiteralAsync(BinaryContent content, RequestOptions options)
         {
@@ -562,8 +584,6 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            Argument.AssertNotNull(body, nameof(body));
-
             ClientResult result = FooCreateLiteral(body, null);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
@@ -574,8 +594,6 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> FooCreateLiteralAsync(Thing body)
         {
-            Argument.AssertNotNull(body, nameof(body));
-
             Argument.AssertNotNull(body, nameof(body));
 
             ClientResult result = await FooCreateLiteralAsync(body, null).ConfigureAwait(false);
@@ -607,8 +625,16 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> Send literal parameters. </summary>
+        /// <summary>
+        /// [Protocol Method] Send literal parameters
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FooHelloLiteral(RequestOptions options)
         {
@@ -629,8 +655,16 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        /// <summary> Send literal parameters. </summary>
+        /// <summary>
+        /// [Protocol Method] Send literal parameters
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FooHelloLiteralAsync(RequestOptions options)
         {
@@ -690,17 +724,21 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> top level method. </summary>
+        /// <summary>
+        /// [Protocol Method] top level method
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="action"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="action"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FooTopAction(DateTimeOffset action, RequestOptions options)
         {
-            Argument.AssertNotNull(action, nameof(action));
-
-            Argument.AssertNotNull(action, nameof(action));
-
             try
             {
                 System.Console.WriteLine("Entering method TopAction.");
@@ -720,17 +758,21 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        /// <summary> top level method. </summary>
+        /// <summary>
+        /// [Protocol Method] top level method
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="action"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="action"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FooTopActionAsync(DateTimeOffset action, RequestOptions options)
         {
-            Argument.AssertNotNull(action, nameof(action));
-
-            Argument.AssertNotNull(action, nameof(action));
-
             try
             {
                 System.Console.WriteLine("Entering method TopActionAsync.");
@@ -758,8 +800,6 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(action, nameof(action));
 
-            Argument.AssertNotNull(action, nameof(action));
-
             return FooTopAction(action, null);
         }
 
@@ -769,8 +809,6 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> FooTopActionAsync(DateTimeOffset action)
         {
-            Argument.AssertNotNull(action, nameof(action));
-
             Argument.AssertNotNull(action, nameof(action));
 
             return await FooTopActionAsync(action, null).ConfigureAwait(false);
@@ -801,8 +839,16 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> top level method2. </summary>
+        /// <summary>
+        /// [Protocol Method] top level method2
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FooTopAction2(RequestOptions options)
         {
@@ -823,8 +869,16 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        /// <summary> top level method2. </summary>
+        /// <summary>
+        /// [Protocol Method] top level method2
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FooTopAction2Async(RequestOptions options)
         {
@@ -884,9 +938,17 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> top level patch. </summary>
+        /// <summary>
+        /// [Protocol Method] top level patch
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FooPatchAction(BinaryContent content, RequestOptions options)
         {
@@ -907,9 +969,17 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        /// <summary> top level patch. </summary>
+        /// <summary>
+        /// [Protocol Method] top level patch
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FooPatchActionAsync(BinaryContent content, RequestOptions options)
         {
@@ -938,8 +1008,6 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            Argument.AssertNotNull(body, nameof(body));
-
             ClientResult result = FooPatchAction(body, null);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
@@ -950,8 +1018,6 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> FooPatchActionAsync(Thing body)
         {
-            Argument.AssertNotNull(body, nameof(body));
-
             Argument.AssertNotNull(body, nameof(body));
 
             ClientResult result = await FooPatchActionAsync(body, null).ConfigureAwait(false);
@@ -983,9 +1049,17 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> body parameter without body decorator. </summary>
+        /// <summary>
+        /// [Protocol Method] body parameter without body decorator
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FooAnonymousBody(BinaryContent content, RequestOptions options)
         {
@@ -1006,9 +1080,17 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        /// <summary> body parameter without body decorator. </summary>
+        /// <summary>
+        /// [Protocol Method] body parameter without body decorator
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FooAnonymousBodyAsync(BinaryContent content, RequestOptions options)
         {
@@ -1037,8 +1119,6 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(Thing, nameof(Thing));
 
-            Argument.AssertNotNull(Thing, nameof(Thing));
-
             ClientResult result = FooAnonymousBody(Thing, null);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
@@ -1049,8 +1129,6 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> FooAnonymousBodyAsync(Thing Thing)
         {
-            Argument.AssertNotNull(Thing, nameof(Thing));
-
             Argument.AssertNotNull(Thing, nameof(Thing));
 
             ClientResult result = await FooAnonymousBodyAsync(Thing, null).ConfigureAwait(false);
@@ -1082,9 +1160,17 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> Model can have its friendly name. </summary>
+        /// <summary>
+        /// [Protocol Method] Model can have its friendly name
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FooFriendlyModel(BinaryContent content, RequestOptions options)
         {
@@ -1105,9 +1191,17 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        /// <summary> Model can have its friendly name. </summary>
+        /// <summary>
+        /// [Protocol Method] Model can have its friendly name
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FooFriendlyModelAsync(BinaryContent content, RequestOptions options)
         {
@@ -1136,8 +1230,6 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(Friend, nameof(Friend));
 
-            Argument.AssertNotNull(Friend, nameof(Friend));
-
             ClientResult result = FooFriendlyModel(Friend, null);
             return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
@@ -1148,8 +1240,6 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> FooFriendlyModelAsync(Friend Friend)
         {
-            Argument.AssertNotNull(Friend, nameof(Friend));
-
             Argument.AssertNotNull(Friend, nameof(Friend));
 
             ClientResult result = await FooFriendlyModelAsync(Friend, null).ConfigureAwait(false);
@@ -1181,9 +1271,17 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> addTimeHeader. </summary>
+        /// <summary>
+        /// [Protocol Method] addTimeHeader
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="repeatabilityFirstSent"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FooAddTimeHeader(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
         {
@@ -1204,9 +1302,17 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        /// <summary> addTimeHeader. </summary>
+        /// <summary>
+        /// [Protocol Method] addTimeHeader
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="repeatabilityFirstSent"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FooAddTimeHeaderAsync(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
         {
@@ -1268,9 +1374,17 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> Model can have its projected name. </summary>
+        /// <summary>
+        /// [Protocol Method] Model can have its projected name
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FooProjectedNameModel(BinaryContent content, RequestOptions options)
         {
@@ -1291,9 +1405,17 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        /// <summary> Model can have its projected name. </summary>
+        /// <summary>
+        /// [Protocol Method] Model can have its projected name
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FooProjectedNameModelAsync(BinaryContent content, RequestOptions options)
         {
@@ -1322,8 +1444,6 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
 
-            Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
-
             ClientResult result = FooProjectedNameModel(ProjectedModel, null);
             return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
         }
@@ -1334,8 +1454,6 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> FooProjectedNameModelAsync(ProjectedModel ProjectedModel)
         {
-            Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
-
             Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
 
             ClientResult result = await FooProjectedNameModelAsync(ProjectedModel, null).ConfigureAwait(false);
@@ -1367,8 +1485,16 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> return anonymous model. </summary>
+        /// <summary>
+        /// [Protocol Method] return anonymous model
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FooReturnsAnonymousModel(RequestOptions options)
         {
@@ -1389,8 +1515,16 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        /// <summary> return anonymous model. </summary>
+        /// <summary>
+        /// [Protocol Method] return anonymous model
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FooReturnsAnonymousModelAsync(RequestOptions options)
         {
@@ -1450,8 +1584,16 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> get extensible enum. </summary>
+        /// <summary>
+        /// [Protocol Method] get extensible enum
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FooGetUnknownValue(RequestOptions options)
         {
@@ -1472,8 +1614,16 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        /// <summary> get extensible enum. </summary>
+        /// <summary>
+        /// [Protocol Method] get extensible enum
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FooGetUnknownValueAsync(RequestOptions options)
         {
@@ -1533,9 +1683,17 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
+        /// <summary>
+        /// [Protocol Method] When set protocol false and convenient true, then the protocol method should be internal
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FooInternalProtocol(BinaryContent content, RequestOptions options)
         {
@@ -1556,9 +1714,17 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
+        /// <summary>
+        /// [Protocol Method] When set protocol false and convenient true, then the protocol method should be internal
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FooInternalProtocolAsync(BinaryContent content, RequestOptions options)
         {
@@ -1587,8 +1753,6 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            Argument.AssertNotNull(body, nameof(body));
-
             ClientResult result = FooInternalProtocol(body, null);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
@@ -1599,8 +1763,6 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> FooInternalProtocolAsync(Thing body)
         {
-            Argument.AssertNotNull(body, nameof(body));
-
             Argument.AssertNotNull(body, nameof(body));
 
             ClientResult result = await FooInternalProtocolAsync(body, null).ConfigureAwait(false);
@@ -1632,8 +1794,16 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
+        /// <summary>
+        /// [Protocol Method] When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FooStillConvenient(RequestOptions options)
         {
@@ -1654,8 +1824,16 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
+        /// <summary>
+        /// [Protocol Method] When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FooStillConvenientAsync(RequestOptions options)
         {
@@ -1715,17 +1893,21 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> head as boolean. </summary>
+        /// <summary>
+        /// [Protocol Method] head as boolean.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="id"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FooHeadAsBoolean(string id, RequestOptions options)
         {
-            Argument.AssertNotNull(id, nameof(id));
-
-            Argument.AssertNotNull(id, nameof(id));
-
             try
             {
                 System.Console.WriteLine("Entering method HeadAsBoolean.");
@@ -1745,17 +1927,21 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        /// <summary> head as boolean. </summary>
+        /// <summary>
+        /// [Protocol Method] head as boolean.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="id"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FooHeadAsBooleanAsync(string id, RequestOptions options)
         {
-            Argument.AssertNotNull(id, nameof(id));
-
-            Argument.AssertNotNull(id, nameof(id));
-
             try
             {
                 System.Console.WriteLine("Entering method HeadAsBooleanAsync.");
@@ -1783,8 +1969,6 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(id, nameof(id));
 
-            Argument.AssertNotNull(id, nameof(id));
-
             return FooHeadAsBoolean(id, null);
         }
 
@@ -1794,8 +1978,6 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> FooHeadAsBooleanAsync(string id)
         {
-            Argument.AssertNotNull(id, nameof(id));
-
             Argument.AssertNotNull(id, nameof(id));
 
             return await FooHeadAsBooleanAsync(id, null).ConfigureAwait(false);

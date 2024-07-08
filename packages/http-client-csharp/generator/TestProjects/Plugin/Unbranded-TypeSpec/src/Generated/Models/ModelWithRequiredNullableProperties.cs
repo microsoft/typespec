@@ -2,29 +2,180 @@
 
 #nullable disable
 
+using System;
+using System.ClientModel;
+using System.ClientModel.Primitives;
+using System.Collections.Generic;
+using System.Text.Json;
+
 namespace UnbrandedTypeSpec.Models
 {
-    /// <summary> A model with a few required nullable properties. </summary>
-    public partial class ModelWithRequiredNullableProperties
+    /// <summary></summary>
+    public partial class ModelWithRequiredNullableProperties : IJsonModel<ModelWithRequiredNullableProperties>
     {
-        /// <summary> Initializes a new instance of <see cref="ModelWithRequiredNullableProperties"/>. </summary>
-        /// <param name="requiredNullablePrimitive"> required nullable primitive type. </param>
-        /// <param name="requiredExtensibleEnum"> required nullable extensible enum type. </param>
-        /// <param name="requiredFixedEnum"> required nullable fixed enum type. </param>
-        public ModelWithRequiredNullableProperties(int? requiredNullablePrimitive, StringExtensibleEnum? requiredExtensibleEnum, StringFixedEnum? requiredFixedEnum)
+        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
+
+        internal ModelWithRequiredNullableProperties(int? requiredNullablePrimitive, StringExtensibleEnum? requiredExtensibleEnum, StringFixedEnum? requiredFixedEnum, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             RequiredNullablePrimitive = requiredNullablePrimitive;
             RequiredExtensibleEnum = requiredExtensibleEnum;
             RequiredFixedEnum = requiredFixedEnum;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
-        /// <summary> required nullable primitive type. </summary>
-        public int? RequiredNullablePrimitive { get; set; }
+        internal ModelWithRequiredNullableProperties()
+        {
+        }
 
-        /// <summary> required nullable extensible enum type. </summary>
-        public StringExtensibleEnum? RequiredExtensibleEnum { get; set; }
+        void IJsonModel<ModelWithRequiredNullableProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            writer.WriteStartObject();
+            JsonModelWriteCore(writer, options);
+            writer.WriteEndObject();
+        }
 
-        /// <summary> required nullable fixed enum type. </summary>
-        public StringFixedEnum? RequiredFixedEnum { get; set; }
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ModelWithRequiredNullableProperties>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(ModelWithRequiredNullableProperties)} does not support writing '{format}' format.");
+            }
+            if (RequiredNullablePrimitive != null)
+            {
+                writer.WritePropertyName("requiredNullablePrimitive"u8);
+                writer.WriteNumberValue(RequiredNullablePrimitive.Value);
+            }
+            else
+            {
+                writer.WriteNull("requiredNullablePrimitive"u8);
+            }
+            if (RequiredExtensibleEnum != null)
+            {
+                writer.WritePropertyName("requiredExtensibleEnum"u8);
+                writer.WriteStringValue(RequiredExtensibleEnum.Value.ToString());
+            }
+            else
+            {
+                writer.WriteNull("requiredExtensibleEnum"u8);
+            }
+            if (RequiredFixedEnum != null)
+            {
+                writer.WritePropertyName("requiredFixedEnum"u8);
+                writer.WriteStringValue(RequiredFixedEnum.Value.ToSerialString());
+            }
+            else
+            {
+                writer.WriteNull("requiredFixedEnum"u8);
+            }
+            if (options.Format != "W" && _serializedAdditionalRawData != null)
+            {
+                foreach (var item in _serializedAdditionalRawData)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
+        }
+
+        ModelWithRequiredNullableProperties IJsonModel<ModelWithRequiredNullableProperties>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        {
+            throw new NotImplementedException("Not implemented");
+        }
+
+        internal static ModelWithRequiredNullableProperties DeserializeModelWithRequiredNullableProperties(JsonElement element, ModelReaderWriterOptions options)
+        {
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            int? requiredNullablePrimitive = default;
+            StringExtensibleEnum? requiredExtensibleEnum = default;
+            StringFixedEnum? requiredFixedEnum = default;
+            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
+            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
+            foreach (var prop in element.EnumerateObject())
+            {
+                if (prop.NameEquals("requiredNullablePrimitive"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        requiredNullablePrimitive = null;
+                        continue;
+                    }
+                    requiredNullablePrimitive = prop.Value.GetInt32();
+                    continue;
+                }
+                if (prop.NameEquals("requiredExtensibleEnum"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        requiredExtensibleEnum = null;
+                        continue;
+                    }
+                    requiredExtensibleEnum = new StringExtensibleEnum(prop.Value.GetString());
+                    continue;
+                }
+                if (prop.NameEquals("requiredFixedEnum"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        requiredFixedEnum = null;
+                        continue;
+                    }
+                    requiredFixedEnum = prop.Value.GetString().ToStringFixedEnum();
+                    continue;
+                }
+                if (options.Format != "W")
+                {
+                    rawDataDictionary.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                }
+            }
+            serializedAdditionalRawData = rawDataDictionary;
+            return new ModelWithRequiredNullableProperties(requiredNullablePrimitive, requiredExtensibleEnum, requiredFixedEnum, serializedAdditionalRawData);
+        }
+
+        BinaryData IPersistableModel<ModelWithRequiredNullableProperties>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ModelWithRequiredNullableProperties>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options);
+                default:
+                    throw new FormatException($"The model {nameof(ModelWithRequiredNullableProperties)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        ModelWithRequiredNullableProperties IPersistableModel<ModelWithRequiredNullableProperties>.Create(BinaryData data, ModelReaderWriterOptions options)
+        {
+            throw new NotImplementedException("Not implemented");
+        }
+
+        string IPersistableModel<ModelWithRequiredNullableProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="modelWithRequiredNullableProperties"> The <see cref="ModelWithRequiredNullableProperties"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(ModelWithRequiredNullableProperties modelWithRequiredNullableProperties)
+        {
+            throw new NotImplementedException("Not implemented");
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ModelWithRequiredNullableProperties"/> from. </param>
+        public static explicit operator ModelWithRequiredNullableProperties(ClientResult result)
+        {
+            throw new NotImplementedException("Not implemented");
+        }
     }
 }

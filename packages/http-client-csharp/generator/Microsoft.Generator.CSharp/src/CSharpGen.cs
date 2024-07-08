@@ -35,31 +35,35 @@ namespace Microsoft.Generator.CSharp
             List<Task> generateFilesTasks = new();
 
             var visitors = output.GetOutputLibraryVisitors();
-            var types = new List<TypeProvider>();
-            foreach (var type in output.TypeProviders)
+            // var types = new List<TypeProvider>();
+            // foreach (var type in output.TypeProviders)
+            // {
+            //     foreach (var visitor in visitors ?? [])
+            //     {
+            //         var newType = visitor.Visit(type);
+            //         if (newType != null)
+            //         {
+            //             types.Add(newType);
+            //         }
+            //     }
+            // }
+
+            // visit the entire library before generating files
+            foreach (var visitor in visitors ?? [])
             {
-                foreach (var visitor in visitors ?? [])
-                {
-                    var newType = visitor.Visit(type);
-                    if (newType != null)
-                    {
-                        types.Add(newType);
-                    }
-                }
+                visitor.Visit(output);
             }
 
-            foreach (var outputType in types)
+            foreach (var outputType in output.TypeProviders)
             {
-                var clonedType = new ClonedTypeProvider(outputType, output.GetOutputLibraryVisitors());
-                var writer = CodeModelPlugin.Instance.GetWriter(clonedType);
+                var writer = CodeModelPlugin.Instance.GetWriter(outputType);
                 generateFilesTasks.Add(workspace.AddGeneratedFile(writer.Write()));
 
-                foreach (var serialization in clonedType.SerializationProviders)
+                foreach (var serialization in outputType.SerializationProviders)
                 {
                     writer = CodeModelPlugin.Instance.GetWriter(serialization);
                     generateFilesTasks.Add(workspace.AddGeneratedFile(writer.Write()));
                 }
-                outputType.Replace(clonedType);
             }
 
             // Add all the generated files to the workspace

@@ -32,11 +32,15 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial;
 
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+        public override string RelativeFilePath
+        {
+            get => _relativeFilePath ??= Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+            protected internal set => _relativeFilePath = value;
+        }
+        private string? _relativeFilePath;
+        public override string Namespace { get; protected internal set; }
 
-        public override string Namespace { get; }
-
-        public override string Name { get; }
+        public override string Name { get; protected internal set; }
 
         /// <summary>
         /// Returns if this enum type needs an extension method for serialization

@@ -15,10 +15,10 @@ namespace Microsoft.Generator.CSharp.Providers
     public class MethodProvider
     {
         private readonly TypeProvider _enclosingType;
-        public MethodSignatureBase Signature { get; }
-        public MethodBodyStatement? BodyStatements { get; }
-        public ValueExpression? BodyExpression { get; }
-        public XmlDocProvider? XmlDocs { get; }
+        public MethodSignatureBase Signature { get; internal set; }
+        public MethodBodyStatement? BodyStatements { get; internal set; }
+        public ValueExpression? BodyExpression { get; internal set; }
+        public XmlDocProvider? XmlDocs { get; internal set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MethodProvider"/> class with a body statement and method signature.
@@ -52,27 +52,42 @@ namespace Microsoft.Generator.CSharp.Providers
             _enclosingType = enclosingType;
         }
 
+        public void Update(MethodSignatureBase? signature = default, MethodBodyStatement? bodyStatements = default, ValueExpression? bodyExpression = default, XmlDocProvider? xmlDocProvider = default)
+        {
+            if (signature != default)
+            {
+                Signature = signature;
+            }
+            if (bodyStatements != default)
+            {
+                BodyStatements = bodyStatements;
+            }
+            if (bodyExpression != default)
+            {
+                BodyExpression = bodyExpression;
+            }
+            if (xmlDocProvider != default)
+            {
+                XmlDocs = xmlDocProvider;
+            }
+        }
+
         /// <summary>
         /// Converts an expression-based method provider to a method provider with <see cref="BodyStatements"/> populated. If the instance already has body statements, it is returned as is.
         /// </summary>
-        /// <returns>An instance of a <see cref="MethodProvider"/> with <see cref="BodyStatements"/> populated.</returns>
-        public MethodProvider ToBodyStatementMethodProvider()
+        public void ConvertToBodyStatementMethodProvider()
         {
             if (BodyExpression != null)
             {
-                MethodBodyStatement methodBody;
                 if (BodyExpression is KeywordExpression { Keyword: "throw" } keywordExpression)
                 {
-                    methodBody = keywordExpression.Terminate();
+                    BodyStatements = keywordExpression.Terminate();
                 }
                 else
                 {
-                    methodBody = new KeywordExpression("return", BodyExpression).Terminate();
+                    BodyStatements = new KeywordExpression("return", BodyExpression).Terminate();
                 }
-                return new MethodProvider(Signature, methodBody, _enclosingType, XmlDocs);
             }
-
-            return this;
         }
 
         private static bool IsMethodPublic(TypeSignatureModifiers typeModifiers, MethodSignatureModifiers methodModifiers)

@@ -79,10 +79,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
         private MethodProvider SerializationConstructor => _serializationConstructor ??= BuildSerializationConstructor();
 
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
-        public override string Name { get; }
+        public override string RelativeFilePath
+        {
+            get => _relativeFilePath ??= Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+            protected set => _relativeFilePath = value;
+        }
+        private string? _relativeFilePath;
+        public override string Name { get; protected set; }
 
-        public override string Namespace { get; }
+        public override string Namespace { get; protected set; }
 
         /// <summary>
         /// Builds the fields for the model by adding the raw data field for serialization.

@@ -39,10 +39,15 @@ namespace Microsoft.Generator.CSharp.Providers
         internal bool IsFloatValueType { get; }
         internal bool IsStringValueType { get; }
         internal bool IsNumericValueType { get; }
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
-        public override string Name { get; }
-        public override string Namespace { get; }
-        protected override FormattableString Description { get; }
+        public override string RelativeFilePath
+        {
+            get => _relativeFilePath ??= Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+            protected internal set => _relativeFilePath = value;
+        }
+        private string? _relativeFilePath;
+        public override string Name { get; protected internal set; }
+        public override string Namespace { get; protected internal set; }
+        protected internal override FormattableString Description { get; internal set; }
 
         private IReadOnlyList<EnumTypeMember>? _members;
         public IReadOnlyList<EnumTypeMember> Members => _members ??= BuildMembers();

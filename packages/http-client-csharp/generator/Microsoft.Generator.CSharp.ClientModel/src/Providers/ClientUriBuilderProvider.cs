@@ -22,9 +22,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return TypeSignatureModifiers.Internal;
         }
 
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+        public override string RelativeFilePath
+        {
+            get => _relativeFilePath ??= Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+            protected set => _relativeFilePath = value;
+        }
+        private string? _relativeFilePath;
 
-        public override string Name => "ClientUriBuilder";
+        public override string Name { get; protected set; } = "ClientUriBuilder";
 
         private readonly FieldProvider _uriBuilderField = new(FieldModifiers.Private, typeof(UriBuilder), "_uriBuilder");
         private readonly FieldProvider _pathBuilderField = new(FieldModifiers.Private, typeof(StringBuilder), "_pathBuilder");

@@ -54,9 +54,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private ModelReaderWriterOptionsSnippet? _wireOptions;
         public ModelReaderWriterOptionsSnippet WireOptions => _wireOptions ??= new ModelReaderWriterOptionsSnippet(new MemberExpression(Type, _wireOptionsName));
 
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+        public override string RelativeFilePath
+        {
+            get => _relativeFilePath ??= Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+            protected set => _relativeFilePath = value;
+        }
+        private string? _relativeFilePath;
 
-        public override string Name => "ModelSerializationExtensions";
+        public override string Name { get; protected set; } = "ModelSerializationExtensions";
 
         protected override FieldProvider[] BuildFields()
         {

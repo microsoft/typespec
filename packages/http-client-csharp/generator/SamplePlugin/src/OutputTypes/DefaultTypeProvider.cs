@@ -7,7 +7,7 @@ namespace SamplePlugin
 {
     public class DefaultTypeProvider : TypeProvider
     {
-        public override string RelativeFilePath => "DefaultTypeProvider.cs";
-        public override string Name => "DefaultTypeProvider";
+        public override string RelativeFilePath { get; protected set; } = "DefaultTypeProvider.cs";
+        public override string Name { get; protected set; } = "DefaultTypeProvider";
     }
 }

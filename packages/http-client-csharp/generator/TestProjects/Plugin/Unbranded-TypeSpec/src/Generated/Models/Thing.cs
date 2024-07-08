@@ -3,113 +3,317 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
-    /// <summary> A model with a few properties of literal types. </summary>
-    public partial class Thing
+    /// <summary></summary>
+    public partial class Thing : IJsonModel<Thing>
     {
-        /// <summary> Initializes a new instance of <see cref="Thing"/>. </summary>
-        /// <param name="name"> name of the Thing. </param>
-        /// <param name="requiredUnion"> required Union. </param>
-        /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
-        /// <param name="requiredNullableList"> required nullable collection. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/> or <paramref name="requiredBadDescription"/> is null. </exception>
-        public Thing(string name, BinaryData requiredUnion, string requiredBadDescription, IEnumerable<int> requiredNullableList)
-        {
-            Argument.AssertNotNull(name, nameof(name));
-            Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
-            Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
+        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
+        internal Thing(string name, BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, ThingOptionalLiteralString optionalLiteralString, ThingOptionalLiteralInt optionalLiteralInt, ThingOptionalLiteralFloat optionalLiteralFloat, bool optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        {
             Name = name;
             RequiredUnion = requiredUnion;
+            RequiredLiteralString = requiredLiteralString;
+            RequiredLiteralInt = requiredLiteralInt;
+            RequiredLiteralFloat = requiredLiteralFloat;
+            RequiredLiteralBool = requiredLiteralBool;
+            OptionalLiteralString = optionalLiteralString;
+            OptionalLiteralInt = optionalLiteralInt;
+            OptionalLiteralFloat = optionalLiteralFloat;
+            OptionalLiteralBool = optionalLiteralBool;
             RequiredBadDescription = requiredBadDescription;
-            OptionalNullableList = new ChangeTrackingList<int>();
-            RequiredNullableList = requiredNullableList?.ToList();
+            OptionalNullableList = optionalNullableList;
+            RequiredNullableList = requiredNullableList;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
-        /// <summary> name of the Thing. </summary>
-        public string Name { get; set; }
+        internal Thing()
+        {
+        }
 
-        /// <summary>
-        /// required Union
-        /// <para> To assign an object to this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
-        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
-        /// <para>
-        /// <remarks>
-        /// Supported types:
-        /// <list type="bullet">
-        /// <item>
-        /// <description> <see cref="string"/>. </description>
-        /// </item>
-        /// <item>
-        /// <description> <see cref="IList{T}"/> where <c>T</c> is of type <see cref="string"/>. </description>
-        /// </item>
-        /// <item>
-        /// <description> <see cref="int"/>. </description>
-        /// </item>
-        /// </list>
-        /// </remarks>
-        /// </para>
-        /// <para>
-        /// Examples:
-        /// <list type="bullet">
-        /// <item>
-        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
-        /// <description> Creates a payload of "foo". </description>
-        /// </item>
-        /// <item>
-        /// <term> BinaryData.FromString("\"foo\""). </term>
-        /// <description> Creates a payload of "foo". </description>
-        /// </item>
-        /// <item>
-        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
-        /// <description> Creates a payload of { "key": "value" }. </description>
-        /// </item>
-        /// <item>
-        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
-        /// <description> Creates a payload of { "key": "value" }. </description>
-        /// </item>
-        /// </list>
-        /// </para>
-        /// </summary>
-        public BinaryData RequiredUnion { get; set; }
+        void IJsonModel<Thing>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            writer.WriteStartObject();
+            JsonModelWriteCore(writer, options);
+            writer.WriteEndObject();
+        }
 
-        /// <summary> required literal string. </summary>
-        public ThingRequiredLiteralString RequiredLiteralString { get; } = "accept";
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(Thing)} does not support writing '{format}' format.");
+            }
+            writer.WritePropertyName("name"u8);
+            writer.WriteStringValue(Name);
+            writer.WritePropertyName("requiredUnion"u8);
+#if NET6_0_OR_GREATER
+            writer.WriteRawValue(RequiredUnion);
+#else
+            using (JsonDocument document = JsonDocument.Parse(RequiredUnion))
+            {
+                JsonSerializer.Serialize(writer, document.RootElement);
+            }
+#endif
+            writer.WritePropertyName("requiredLiteralString"u8);
+            writer.WriteStringValue(RequiredLiteralString.ToString());
+            writer.WritePropertyName("requiredLiteralInt"u8);
+            writer.WriteNumberValue(RequiredLiteralInt.ToSerialInt32());
+            writer.WritePropertyName("requiredLiteralFloat"u8);
+            writer.WriteNumberValue(RequiredLiteralFloat.ToSerialSingle());
+            writer.WritePropertyName("requiredLiteralBool"u8);
+            writer.WriteBooleanValue(RequiredLiteralBool);
+            writer.WritePropertyName("optionalLiteralString"u8);
+            writer.WriteStringValue(OptionalLiteralString.ToString());
+            writer.WritePropertyName("optionalLiteralInt"u8);
+            writer.WriteNumberValue(OptionalLiteralInt.ToSerialInt32());
+            writer.WritePropertyName("optionalLiteralFloat"u8);
+            writer.WriteNumberValue(OptionalLiteralFloat.ToSerialSingle());
+            writer.WritePropertyName("optionalLiteralBool"u8);
+            writer.WriteBooleanValue(OptionalLiteralBool);
+            writer.WritePropertyName("requiredBadDescription"u8);
+            writer.WriteStringValue(RequiredBadDescription);
+            if (Optional.IsCollectionDefined(OptionalNullableList))
+            {
+                if (OptionalNullableList != null)
+                {
+                    writer.WritePropertyName("optionalNullableList"u8);
+                    writer.WriteStartArray();
+                    foreach (var item in OptionalNullableList)
+                    {
+                        writer.WriteNumberValue(item);
+                    }
+                    writer.WriteEndArray();
+                }
+                else
+                {
+                    writer.WriteNull("optionalNullableList"u8);
+                }
+            }
+            if (RequiredNullableList != null && Optional.IsCollectionDefined(RequiredNullableList))
+            {
+                writer.WritePropertyName("requiredNullableList"u8);
+                writer.WriteStartArray();
+                foreach (var item in RequiredNullableList)
+                {
+                    writer.WriteNumberValue(item);
+                }
+                writer.WriteEndArray();
+            }
+            else
+            {
+                writer.WriteNull("requiredNullableList"u8);
+            }
+            if (options.Format != "W" && _serializedAdditionalRawData != null)
+            {
+                foreach (var item in _serializedAdditionalRawData)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
+        }
 
-        /// <summary> required literal int. </summary>
-        public ThingRequiredLiteralInt RequiredLiteralInt { get; } = 123;
+        Thing IJsonModel<Thing>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        {
+            throw new NotImplementedException("Not implemented");
+        }
 
-        /// <summary> required literal float. </summary>
-        public ThingRequiredLiteralFloat RequiredLiteralFloat { get; } = 1.23F;
+        internal static Thing DeserializeThing(JsonElement element, ModelReaderWriterOptions options)
+        {
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            string name = default;
+            BinaryData requiredUnion = default;
+            ThingRequiredLiteralString requiredLiteralString = default;
+            ThingRequiredLiteralInt requiredLiteralInt = default;
+            ThingRequiredLiteralFloat requiredLiteralFloat = default;
+            bool requiredLiteralBool = default;
+            ThingOptionalLiteralString optionalLiteralString = default;
+            ThingOptionalLiteralInt optionalLiteralInt = default;
+            ThingOptionalLiteralFloat optionalLiteralFloat = default;
+            bool optionalLiteralBool = default;
+            string requiredBadDescription = default;
+            IList<int> optionalNullableList = default;
+            IList<int> requiredNullableList = default;
+            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
+            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
+            foreach (var prop in element.EnumerateObject())
+            {
+                if (prop.NameEquals("name"u8))
+                {
+                    name = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("requiredUnion"u8))
+                {
+                    requiredUnion = BinaryData.FromString(prop.Value.GetRawText());
+                    continue;
+                }
+                if (prop.NameEquals("requiredLiteralString"u8))
+                {
+                    requiredLiteralString = new ThingRequiredLiteralString(prop.Value.GetString());
+                    continue;
+                }
+                if (prop.NameEquals("requiredLiteralInt"u8))
+                {
+                    requiredLiteralInt = new ThingRequiredLiteralInt(prop.Value.GetInt32());
+                    continue;
+                }
+                if (prop.NameEquals("requiredLiteralFloat"u8))
+                {
+                    requiredLiteralFloat = new ThingRequiredLiteralFloat(prop.Value.GetSingle());
+                    continue;
+                }
+                if (prop.NameEquals("requiredLiteralBool"u8))
+                {
+                    requiredLiteralBool = prop.Value.GetBoolean();
+                    continue;
+                }
+                if (prop.NameEquals("optionalLiteralString"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    optionalLiteralString = new ThingOptionalLiteralString(prop.Value.GetString());
+                    continue;
+                }
+                if (prop.NameEquals("optionalLiteralInt"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    optionalLiteralInt = new ThingOptionalLiteralInt(prop.Value.GetInt32());
+                    continue;
+                }
+                if (prop.NameEquals("optionalLiteralFloat"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    optionalLiteralFloat = new ThingOptionalLiteralFloat(prop.Value.GetSingle());
+                    continue;
+                }
+                if (prop.NameEquals("optionalLiteralBool"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    optionalLiteralBool = prop.Value.GetBoolean();
+                    continue;
+                }
+                if (prop.NameEquals("requiredBadDescription"u8))
+                {
+                    requiredBadDescription = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("optionalNullableList"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    List<int> array = new List<int>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        array.Add(item.GetInt32());
+                    }
+                    optionalNullableList = array;
+                    continue;
+                }
+                if (prop.NameEquals("requiredNullableList"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        requiredNullableList = new ChangeTrackingList<int>();
+                        continue;
+                    }
+                    List<int> array = new List<int>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        array.Add(item.GetInt32());
+                    }
+                    requiredNullableList = array;
+                    continue;
+                }
+                if (options.Format != "W")
+                {
+                    rawDataDictionary.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                }
+            }
+            serializedAdditionalRawData = rawDataDictionary;
+            return new Thing(
+                name,
+                requiredUnion,
+                requiredLiteralString,
+                requiredLiteralInt,
+                requiredLiteralFloat,
+                requiredLiteralBool,
+                optionalLiteralString,
+                optionalLiteralInt,
+                optionalLiteralFloat,
+                optionalLiteralBool,
+                requiredBadDescription,
+                optionalNullableList ?? new ChangeTrackingList<int>(),
+                requiredNullableList,
+                serializedAdditionalRawData);
+        }
 
-        /// <summary> required literal bool. </summary>
-        public bool RequiredLiteralBool { get; } = false;
+        BinaryData IPersistableModel<Thing>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
-        /// <summary> optional literal string. </summary>
-        public ThingOptionalLiteralString OptionalLiteralString { get; set; }
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options);
+                default:
+                    throw new FormatException($"The model {nameof(Thing)} does not support writing '{options.Format}' format.");
+            }
+        }
 
-        /// <summary> optional literal int. </summary>
-        public ThingOptionalLiteralInt OptionalLiteralInt { get; set; }
+        Thing IPersistableModel<Thing>.Create(BinaryData data, ModelReaderWriterOptions options)
+        {
+            throw new NotImplementedException("Not implemented");
+        }
 
-        /// <summary> optional literal float. </summary>
-        public ThingOptionalLiteralFloat OptionalLiteralFloat { get; set; }
+        string IPersistableModel<Thing>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        /// <summary> optional literal bool. </summary>
-        public bool OptionalLiteralBool { get; set; }
+        /// <param name="thing"> The <see cref="Thing"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(Thing thing)
+        {
+            throw new NotImplementedException("Not implemented");
+        }
 
-        /// <summary> description with xml &lt;|endoftext|&gt;. </summary>
-        public string RequiredBadDescription { get; set; }
-
-        /// <summary> optional nullable collection. </summary>
-        public IList<int> OptionalNullableList { get; set; }
-
-        /// <summary> required nullable collection. </summary>
-        public IList<int> RequiredNullableList { get; set; }
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Thing"/> from. </param>
+        public static explicit operator Thing(ClientResult result)
+        {
+            throw new NotImplementedException("Not implemented");
+        }
     }
 }

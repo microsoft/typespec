@@ -17,9 +17,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     {
         private readonly InputClient _inputClient;
 
-        public override string RelativeFilePath => Path.Combine("src", "Generated", $"{Name}.cs");
+        public override string RelativeFilePath
+        {
+            get => _relativeFilePath ??= Path.Combine("src", "Generated", $"{Name}.cs");
+            protected set => _relativeFilePath = value;
+        }
+        private string? _relativeFilePath;
 
-        public override string Name { get; }
+        public override string Name { get; protected set; }
 
         public ClientProvider(InputClient inputClient)
         {

@@ -13,7 +13,17 @@ namespace Microsoft.Generator.CSharp
         }
 
         private IReadOnlyList<TypeProvider>? _typeProviders;
-        public IReadOnlyList<TypeProvider> TypeProviders => _typeProviders ??= BuildTypeProviders();
+        public IReadOnlyList<TypeProvider> TypeProviders
+        {
+            get
+            {
+                return _typeProviders ??= BuildTypeProviders();
+            }
+            internal set
+            {
+                _typeProviders = value;
+            }
+        }
 
         private static TypeProvider[] BuildEnums()
         {

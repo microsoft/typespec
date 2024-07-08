@@ -21,24 +21,9 @@ namespace SamplePlugin
             {
                 return methodProvider;
             }
-            var newSig = new MethodSignature(
-                $"Foo{methodProvider.Signature.Name}",
-                methodProvider.Signature.Description,
-                methodProvider.Signature.Modifiers,
-                methodProvider.Signature.ReturnType,
-                methodProvider.Signature is MethodSignature signature ? signature.ReturnDescription : null,
-                methodProvider.Signature.Parameters,
-                methodProvider.Signature.Attributes,
-                methodProvider.Signature is MethodSignature argSig ? argSig.GenericArguments : null,
-                methodProvider.Signature is MethodSignature genSig ? genSig.GenericParameterConstraints : null,
-                methodProvider.Signature is MethodSignature exp ? exp.ExplicitInterface : null,
-                methodProvider.Signature.NonDocumentComment);
-            methodProvider.Signature.Replace(newSig);
 
-            return
-                methodProvider.BodyStatements != null
-                    ? new MethodProvider(newSig, methodProvider.BodyStatements, typeProvider, methodProvider.XmlDocs)
-                    : new MethodProvider(newSig, methodProvider.BodyExpression!, typeProvider, methodProvider.XmlDocs);
+            methodProvider.Signature.Update(name: $"Foo{methodProvider.Signature.Name}");
+            return methodProvider;
         }
     }
 }
