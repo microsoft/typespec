@@ -794,27 +794,27 @@ namespace UnbrandedTypeSpec
         }
 
         /// <summary> Model can have its projected name. </summary>
-        /// <param name="ProjectedModel"> this is a model with a projected name. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="ProjectedModel"/> is null. </exception>
+        /// <param name="ModelWithProjectedName"> this is a model with a projected name. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="ModelWithProjectedName"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult ProjectedNameModel(ProjectedModel ProjectedModel)
+        public virtual ClientResult ProjectedNameModel(ModelWithProjectedName ModelWithProjectedName)
         {
-            Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
+            Argument.AssertNotNull(ModelWithProjectedName, nameof(ModelWithProjectedName));
 
-            ClientResult result = ProjectedNameModel(ProjectedModel, null);
-            return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
+            ClientResult result = ProjectedNameModel(ModelWithProjectedName, null);
+            return ClientResult.FromValue((ModelWithProjectedName)result, result.GetRawResponse());
         }
 
         /// <summary> Model can have its projected name. </summary>
-        /// <param name="ProjectedModel"> this is a model with a projected name. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="ProjectedModel"/> is null. </exception>
+        /// <param name="ModelWithProjectedName"> this is a model with a projected name. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="ModelWithProjectedName"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> ProjectedNameModelAsync(ProjectedModel ProjectedModel)
+        public virtual async Task<ClientResult> ProjectedNameModelAsync(ModelWithProjectedName ModelWithProjectedName)
         {
-            Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
+            Argument.AssertNotNull(ModelWithProjectedName, nameof(ModelWithProjectedName));
 
-            ClientResult result = await ProjectedNameModelAsync(ProjectedModel, null).ConfigureAwait(false);
-            return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
+            ClientResult result = await ProjectedNameModelAsync(ModelWithProjectedName, null).ConfigureAwait(false);
+            return ClientResult.FromValue((ModelWithProjectedName)result, result.GetRawResponse());
         }
 
         /// <summary>

@@ -176,7 +176,7 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
 
             var expected = new StringBuilder()
                .Append(_header)
-               .Append("public String(): base(\"test\")")
+               .Append("public String() : base(\"test\")")
                .ToString();
             var result = codeWriter.ToString();
             Assert.AreEqual(expected, result);

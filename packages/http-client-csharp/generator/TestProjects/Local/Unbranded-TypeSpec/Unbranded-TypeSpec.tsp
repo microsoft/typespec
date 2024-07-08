@@ -86,6 +86,32 @@ union StringExtensibleEnum {
   Four: "4",
 }
 
+@discriminator("discriminatorProperty")
+@doc("Base model with discriminator property.")
+model BaseModelWithDiscriminator {
+  @doc("Optional property on base")
+  optionalPropertyOnBase?: string;
+
+  @doc("Required property on base")
+  requiredPropertyOnBase: int32;
+}
+
+@doc("Deriver model with discriminator property.")
+model DerivedModelWithDiscriminatorA extends BaseModelWithDiscriminator {
+  discriminatorProperty: "A";
+
+  @doc("Required string.")
+  requiredString: string;
+}
+
+@doc("Deriver model with discriminator property.")
+model DerivedModelWithDiscriminatorB extends BaseModelWithDiscriminator {
+  discriminatorProperty: "B";
+
+  @doc("Required int.")
+  requiredInt: int32;
+}
+
 @doc("A model with a few properties of literal types")
 model Thing {
   @doc("name of the Thing")
@@ -126,6 +152,15 @@ model Thing {
 
   @doc("required nullable collection")
   requiredNullableList: int32[] | null;
+
+  @doc("the derived model with its base without required properties")
+  baseWithoutRequired?: ModelWithBaseModelWithoutRequired;
+
+  @doc("the derived model with its base with required properties")
+  baseWithRequired?: ModelWithBaseModelWithRequired;
+  
+  @doc("optional discriminated set")
+  optionalDiscriminatedSet?: BaseModelWithDiscriminator;
 }
 
 @doc("A model with a few required nullable properties")
@@ -140,6 +175,36 @@ model ModelWithRequiredNullableProperties {
   requiredFixedEnum: StringFixedEnum | null;
 }
 
+@doc("This is a base model without any required properties")
+model BaseModelWithoutRequired {
+  @doc("optional property")
+  optional?: int32;
+}
+
+@doc("This is a model that extends BaseModelWithoutRequired")
+model ModelWithBaseModelWithoutRequired extends BaseModelWithoutRequired {
+  @doc("name of the ModelWithBaseModelWithoutRequired")
+  name: string;
+
+  @doc("address of the ModelWithBaseModelWithoutRequired")
+  address?: string;
+}
+
+@doc("This is a base model with required properties")
+model BaseModelWithRequired {
+  @doc("required property")
+  required: int32;
+}
+
+@doc("This is a model that extends BaseModelWithRequired")
+model ModelWithBaseModelWithRequired extends BaseModelWithRequired {
+  @doc("name of the ModelWithBaseModelWithRequired")
+  name: string;
+
+  @doc("address of the ModelWithBaseModelWithRequired")
+  address?: string;
+}
+
 @doc("this is not a friendly model but with a friendly name")
 @friendlyName("Friend")
 model NotFriend {
@@ -148,7 +213,7 @@ model NotFriend {
 }
 
 @doc("this is a model with a projected name")
-@projectedName("client", "ProjectedModel")
+@clientName("client", "ProjectedModel")
 model ModelWithProjectedName {
   @doc("name of the ModelWithProjectedName")
   name: string;

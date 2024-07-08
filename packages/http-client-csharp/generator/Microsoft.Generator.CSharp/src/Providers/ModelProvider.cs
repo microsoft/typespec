@@ -14,7 +14,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    public sealed class ModelProvider : TypeProvider
+    public class ModelProvider : TypeProvider
     {
         private readonly InputModelType _inputModel;
         public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
@@ -38,12 +38,17 @@ namespace Microsoft.Generator.CSharp.Providers
                 _declarationModifiers |= TypeSignatureModifiers.Internal;
             }
 
-            bool isAbstract = inputModel.DiscriminatorProperty is not null && inputModel.DiscriminatorValue is null;
+            bool isAbstract = inputModel.DiscriminatorProperty is not null;
             if (isAbstract)
             {
                 _declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
 
+            Inherits = _inputModel.BaseModel != null
+                ? CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(_inputModel.BaseModel)
+                : null;
+
+            _discriminator = new(BuildDiscriminator);
             _isStruct = inputModel.ModelAsStruct;
         }
 
@@ -54,18 +59,95 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _declarationModifiers;
 
-        protected override PropertyProvider[] BuildProperties()
+        private IReadOnlyDictionary<InputModelProperty, PropertyProvider>? _propertiesCache;
+        private IReadOnlyDictionary<InputModelProperty, PropertyProvider> BuildPropertiesCache()
         {
+            if (_propertiesCache != null)
+            {
+                return _propertiesCache;
+            }
+
+            // get all the properties from my base type
+            var propertiesOnBase = new HashSet<string>();
+
+            if (Inherits is { IsFrameworkType: false, Implementation: TypeProvider baseType })
+            {
+                foreach (var property in baseType.Properties)
+                {
+                    propertiesOnBase.Add(property.Name);
+                }
+            }
+
+            var cache = new Dictionary<InputModelProperty, PropertyProvider>(_inputModel.Properties.Count);
+            _propertiesCache = cache;
             var propertiesCount = _inputModel.Properties.Count;
-            var propertyDeclarations = new PropertyProvider[propertiesCount];
 
             for (int i = 0; i < propertiesCount; i++)
             {
-                var property = _inputModel.Properties[i];
-                propertyDeclarations[i] = new PropertyProvider(property);
+                var inputProperty = _inputModel.Properties[i];
+                var property = new PropertyProvider(inputProperty);
+                if (!propertiesOnBase.Contains(property.Name))
+                {
+                    cache.Add(inputProperty, property);
+                }
             }
 
-            return propertyDeclarations;
+            return _propertiesCache;
+        }
+
+        private readonly Lazy<ModelDiscriminator?> _discriminator;
+        public ModelDiscriminator? Discriminator => _discriminator.Value;
+
+        protected virtual ModelDiscriminator? BuildDiscriminator()
+        {
+            var inputDiscriminatorProperty = _inputModel.DiscriminatorProperty;
+
+            if (inputDiscriminatorProperty != null)
+            {
+                // I am a base model in a discriminated set, build the implementation types
+                var discriminatorProperty = BuildPropertiesCache()[inputDiscriminatorProperty];
+
+                return new ModelDiscriminator(
+                    discriminatorProperty,
+                    inputDiscriminatorProperty.SerializedName,
+                    BuildDiscriminatedSubtypes(_inputModel.DiscriminatedSubtypes),
+                    _inputModel.DiscriminatorValue
+                    );
+            }
+            else
+            {
+                // I am a derived model in a discriminator or I do not have a discriminator
+                // find the discriminator in my direct parent
+                if (Inherits is not { IsFrameworkType: false, Implementation: ModelProvider parent } || parent.Discriminator == null)
+                {
+                    // I do not have a discriminator
+                    return null;
+                }
+
+                return new ModelDiscriminator(
+                    parent.Discriminator.DiscriminatorProperty,
+                    parent.Discriminator.DiscriminatorSerializedName,
+                    BuildDiscriminatedSubtypes(_inputModel.DiscriminatedSubtypes),
+                    _inputModel.DiscriminatorValue
+                    );
+            }
+
+            static IReadOnlyDictionary<string, CSharpType> BuildDiscriminatedSubtypes(IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes)
+            {
+                var implementations = new Dictionary<string, CSharpType>(discriminatedSubtypes.Count);
+
+                foreach (var (value, derived) in discriminatedSubtypes)
+                {
+                    implementations.Add(value, CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(derived));
+                }
+
+                return implementations;
+            }
+        }
+
+        protected override PropertyProvider[] BuildProperties()
+        {
+            return BuildPropertiesCache().Values.ToArray();
         }
 
         protected override MethodProvider[] BuildConstructors()
@@ -81,14 +163,15 @@ namespace Microsoft.Generator.CSharp.Providers
                 : _inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
                     ? MethodSignatureModifiers.Public
                     : MethodSignatureModifiers.Internal;
-            var constructorParameters = BuildConstructorParameters();
+            var (constructorParameters, constructorInitializer) = BuildConstructorParameters();
 
             var constructor = new MethodProvider(
                 signature: new ConstructorSignature(
                     Type,
                     $"Initializes a new instance of {Type:C}",
                     accessibility,
-                    constructorParameters),
+                    constructorParameters,
+                    Initializer: constructorInitializer),
                 bodyStatements: new MethodBodyStatement[]
                 {
                     GetPropertyInitializers(constructorParameters)
@@ -98,9 +181,19 @@ namespace Microsoft.Generator.CSharp.Providers
             return [constructor];
         }
 
-        private IReadOnlyList<ParameterProvider> BuildConstructorParameters()
+        private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildConstructorParameters()
         {
-            List<ParameterProvider> constructorParameters = new List<ParameterProvider>();
+            var baseConstructor = GetBaseConstructor(Inherits);
+            var baseParameters = baseConstructor?.Parameters ?? [];
+            var parameterCapacity = baseParameters.Count + _inputModel.Properties.Count;
+            var parameterNames = baseParameters.Select(p => p.Name).ToHashSet();
+            var constructorParameters = new List<ParameterProvider>(parameterCapacity);
+
+            // add the base parameters
+            constructorParameters.AddRange(baseParameters);
+
+            // construct the initializer using the parameters from base signature
+            var constructorInitializer = new ConstructorInitializer(true, baseParameters);
 
             foreach (var property in _inputModel.Properties)
             {
@@ -109,15 +202,42 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     if (!property.IsReadOnly)
                     {
-                        constructorParameters.Add(new ParameterProvider(property)
+                        var parameter = new ParameterProvider(property)
                         {
                             Type = propertyType.InputType
-                        });
+                        };
+                        if (!parameterNames.Contains(parameter.Name))
+                        {
+                            constructorParameters.Add(parameter);
+                        }
                     }
                 }
             }
 
-            return constructorParameters;
+            return (constructorParameters, constructorInitializer);
+
+            static ConstructorSignature? GetBaseConstructor(CSharpType? baseType)
+            {
+                // find the constructor on the base type
+                if (baseType is not { IsFrameworkType: false, Implementation: TypeProvider baseModel })
+                {
+                    return null;
+                }
+
+                if (baseModel.Constructors.Count == 0)
+                {
+                    return null;
+                }
+
+                // we cannot know which ctor to call, but in our implementation, there should only be one
+                var ctor = baseModel.Constructors[0];
+                if (ctor.Signature is not ConstructorSignature ctorSignature)
+                {
+                    return null;
+                }
+
+                return ctorSignature;
+            }
         }
 
         private MethodBodyStatement GetPropertyInitializers(IReadOnlyList<ParameterProvider> parameters)

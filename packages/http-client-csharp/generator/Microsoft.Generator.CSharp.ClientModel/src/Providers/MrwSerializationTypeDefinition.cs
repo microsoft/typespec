@@ -58,6 +58,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private MethodProvider? _serializationConstructor;
         // Flag to determine if the model should override the serialization methods
         private readonly bool _shouldOverrideMethods;
+        private readonly MrwSerializationTypeDefinition? _baseSerializationProvider;
 
         public MrwSerializationTypeDefinition(TypeProvider provider, InputModelType inputModel)
         {
@@ -69,6 +70,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _jsonModelObjectInterface = _isStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
             _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), provider.Type);
             _persistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
+            _baseSerializationProvider = FindSerializationOnBase(_model);
             _rawDataField = BuildRawDataField();
             _shouldOverrideMethods = _model.Inherits != null && _model.Inherits is { IsFrameworkType: false, Implementation: TypeProvider };
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
@@ -148,8 +150,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 return null;
             }
 
+            // check if there is a raw data field on my base, if so, we do not have to have one here
+            if (_baseSerializationProvider?._rawDataField != null)
+            {
+                return null;
+            }
+
+            var modifiers = FieldModifiers.Private;
+            if (!_model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Sealed))
+            {
+                modifiers |= FieldModifiers.Protected;
+            }
+
             var FieldProvider = new FieldProvider(
-                modifiers: FieldModifiers.Private,
+                modifiers: modifiers,
                 type: _privateAdditionalRawDataPropertyType,
                 name: PrivateAdditionalPropertiesPropertyName);
 
@@ -343,7 +357,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
             return new MethodProvider
             (
-              new MethodSignature(PersistableModelWriteCoreMethodName, null, modifiers, returnType, null, [ _serializationOptionsParameter]),
+              new MethodSignature(PersistableModelWriteCoreMethodName, null, modifiers, returnType, null, [_serializationOptionsParameter]),
               BuildPersistableModelWriteCoreMethodBody(),
               this
             );
@@ -360,14 +374,36 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
 
-            var typeOfT = GetModelArgumentType(_jsonModelTInterface);
+            var typeOfT = GetModelArgumentType(_persistableModelTInterface);
+            // return type of this method may not be T, because this could be an override method
+            var returnType = GetOverriddenMethodReturnType(_baseSerializationProvider, PersistableModelCreateCoreMethodName) ?? typeOfT;
             // T PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
             return new MethodProvider
             (
-              new MethodSignature(PersistableModelCreateCoreMethodName, null, modifiers, typeOfT, null, [_dataParameter, _serializationOptionsParameter]),
-              BuildPersistableModelCreateCoreMethodBody(),
-              this
+                new MethodSignature(PersistableModelCreateCoreMethodName, null, modifiers, returnType, null, [_dataParameter, _serializationOptionsParameter]),
+                BuildPersistableModelCreateCoreMethodBody(),
+                this
             );
+        }
+
+        private static CSharpType? GetOverriddenMethodReturnType(TypeProvider? baseProvider, string methodName)
+        {
+            // find the method with the same name on this provider, and return its return type if any
+            if (baseProvider == null)
+            {
+                return null;
+            }
+
+            // find the method on the base provider type
+            // here we are only doing this by name, in the future, to be more precise, maybe we need to add a parameter list to find the override base method
+            var method = baseProvider.Methods.FirstOrDefault(m => m.Signature.Name == methodName);
+
+            if (method == null)
+            {
+                return null;
+            }
+
+            return ((MethodSignature)method.Signature).ReturnType;
         }
 
         /// <summary>
@@ -380,7 +416,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new MethodProvider
             (
                 new MethodSignature(nameof(IJsonModel<object>.Create), null, MethodSignatureModifiers.None, typeOfT, null, [_utf8JsonReaderParameter, _serializationOptionsParameter], ExplicitInterface: _jsonModelTInterface),
-                This.Invoke(JsonModelCreateCoreMethodName, [_utf8JsonReaderParameter, _serializationOptionsParameter]),
+                _shouldOverrideMethods
+                    ? This.Invoke(JsonModelCreateCoreMethodName, [_utf8JsonReaderParameter, _serializationOptionsParameter]).CastTo(typeOfT)
+                    : This.Invoke(JsonModelCreateCoreMethodName, [_utf8JsonReaderParameter, _serializationOptionsParameter]),
                 this
             );
         }
@@ -395,6 +433,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
+
+            var typeOfT = GetModelArgumentType(_jsonModelTInterface);
+            // return type of this method may not be T, because this could be an override method
+            var returnType = GetOverriddenMethodReturnType(_baseSerializationProvider, PersistableModelCreateCoreMethodName) ?? typeOfT;
+
             var methodBody = new MethodBodyStatement[]
             {
                 CreateValidateJsonFormat( _persistableModelTInterface, ReadAction),
@@ -407,7 +450,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // T JsonModelCreateCore(ref reader, ModelReaderWriterOptions options)
             return new MethodProvider
             (
-              new MethodSignature(JsonModelCreateCoreMethodName, null, modifiers, _model.Type, null, [_utf8JsonReaderParameter, _serializationOptionsParameter]),
+              new MethodSignature(JsonModelCreateCoreMethodName, null, modifiers, returnType, null, [_utf8JsonReaderParameter, _serializationOptionsParameter]),
               methodBody,
               this
             );
@@ -456,7 +499,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new MethodProvider
             (
                 new MethodSignature(nameof(IPersistableModel<object>.Create), null, MethodSignatureModifiers.None, typeOfT, null, [dataParameter, _serializationOptionsParameter], ExplicitInterface: _persistableModelTInterface),
-                This.Invoke(PersistableModelCreateCoreMethodName, [dataParameter, _serializationOptionsParameter]),
+                _shouldOverrideMethods
+                    ? This.Invoke(PersistableModelCreateCoreMethodName, [dataParameter, _serializationOptionsParameter]).CastTo(typeOfT)
+                    : This.Invoke(PersistableModelCreateCoreMethodName, [dataParameter, _serializationOptionsParameter]),
                 this
             );
         }
@@ -499,14 +544,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// <returns>The constructed serialization constructor.</returns>
         internal MethodProvider BuildSerializationConstructor()
         {
-            var serializationCtorParameters = BuildSerializationConstructorParameters();
+            var (serializationCtorParameters, serializationCtorInitializer) = BuildSerializationConstructorParameters();
 
             return new MethodProvider(
                 signature: new ConstructorSignature(
                     Type,
                     $"Initializes a new instance of {Type:C}",
                     MethodSignatureModifiers.Internal,
-                    serializationCtorParameters),
+                    serializationCtorParameters,
+                    Initializer: serializationCtorInitializer),
                 bodyStatements: new MethodBodyStatement[]
                 {
                     GetPropertyInitializers(serializationCtorParameters)
@@ -545,7 +591,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             MethodBodyStatement rawDataDictionaryDeclaration = MethodBodyStatement.Empty;
             MethodBodyStatement assignRawData = MethodBodyStatement.Empty;
 
-            if (_rawDataField != null)
+            // recursively get the raw data field from myself and all the base
+            var rawDataField = _rawDataField;
+            var baseSerialization = _baseSerializationProvider;
+            while (rawDataField == null)
+            {
+                if (baseSerialization == null)
+                {
+                    break;
+                }
+                rawDataField = baseSerialization._rawDataField;
+                baseSerialization = baseSerialization._baseSerializationProvider;
+            }
+
+            if (rawDataField != null)
             {
                 var rawDataType = new CSharpType(typeof(Dictionary<string, BinaryData>));
                 // IDictionary<string, BinaryData> serializedAdditionalRawData = default;
@@ -563,32 +622,34 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 assignRawData = additionalRawDataDictionary.Assign(rawDataDictionary).Terminate();
             }
 
+            var allProperties = GetAllProperties();
+
             // Build the deserialization statements for each property
             ForeachStatement deserializePropertiesForEachStatement = new("prop", _jsonElementParameterSnippet.EnumerateObject(), out var prop)
             {
-                BuildDeserializePropertiesStatements(prop.As<JsonProperty>(), rawDataDictionary)
+                BuildDeserializePropertiesStatements(allProperties, prop.As<JsonProperty>(), rawDataDictionary)
             };
 
             return
             [
                 new IfStatement(_jsonElementParameterSnippet.ValueKindEqualsNull()) { Return(Null) },
-                GetPropertyVariableDeclarations(),
+                GetPropertyVariableDeclarations(allProperties),
                 additionalRawDataDictionaryDeclaration,
                 rawDataDictionaryDeclaration,
                 deserializePropertiesForEachStatement,
                 assignRawData,
-                Return(New.Instance(_model.Type, GetSerializationCtorParameterValues(additionalRawDataDictionary)))
+                Return(New.Instance(_model.Type, GetSerializationCtorParameterValues(allProperties, additionalRawDataDictionary)))
             ];
         }
 
-        private MethodBodyStatement[] GetPropertyVariableDeclarations()
+        private MethodBodyStatement[] GetPropertyVariableDeclarations(IReadOnlyList<PropertyProvider> properties)
         {
-            var propertyCount = _model.Properties.Count;
+            var propertyCount = properties.Count;
             MethodBodyStatement[] propertyDeclarationStatements = new MethodBodyStatement[propertyCount];
 
             for (var i = 0; i < propertyCount; i++)
             {
-                var property = _model.Properties[i];
+                var property = properties[i];
                 var variableRef = property.AsVariableExpression;
                 propertyDeclarationStatements[i] = Declare(variableRef, Default);
             }
@@ -643,22 +704,24 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodBodyStatement GetPropertyInitializers(IReadOnlyList<ParameterProvider> parameters)
         {
+            var parameterDict = parameters.ToDictionary(p => p.Name, p => p);
             List<MethodBodyStatement> methodBodyStatements = new();
 
-            foreach (var param in parameters)
+            foreach (var property in _model.Properties)
             {
-                if (param.Name == _rawDataField?.Name.ToVariableName())
+                var parameterName = property.Name.ToVariableName();
+                if (parameterDict.TryGetValue(parameterName, out var parameter))
                 {
-                    methodBodyStatements.Add(_rawDataField.Assign(param).Terminate());
-                    continue;
-                }
-
-                ValueExpression initializationValue = param;
-                var initializationStatement = param.AsPropertyExpression.Assign(initializationValue).Terminate();
-                if (initializationStatement != null)
-                {
+                    ValueExpression initializationValue = parameter;
+                    var initializationStatement = property.Assign(initializationValue).Terminate();
                     methodBodyStatements.Add(initializationStatement);
                 }
+            }
+
+            if (_rawDataField != null)
+            {
+                var parameterName = _rawDataField.Name.ToVariableName();
+                methodBodyStatements.Add(_rawDataField.Assign(parameterDict[parameterName]).Terminate());
             }
 
             return methodBodyStatements;
@@ -669,9 +732,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// <paramref name="additionalRawDataDictionary"/> is the variable reference for the additional raw data dictionary.
         /// </summary>
         private ValueExpression[] GetSerializationCtorParameterValues(
+            IReadOnlyList<PropertyProvider> properties,
             VariableExpression? additionalRawDataDictionary)
         {
-            var propertyCount = _model.Properties.Count;
+            var propertyCount = properties.Count;
             var serializationCtorParametersCount = SerializationConstructor.Signature.Parameters.Count;
             ValueExpression[] serializationCtorParameters = new ValueExpression[serializationCtorParametersCount];
             var serializationCtorParameterValues = new Dictionary<string, ValueExpression>(propertyCount);
@@ -679,7 +743,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // Map property variable names to their corresponding parameter values
             for (var i = 0; i < propertyCount; i++)
             {
-                var property = _model.Properties[i];
+                var property = properties[i];
                 var propertyVarName = property.Name.ToVariableName();
                 var propertyVarRef = property.AsVariableExpression;
                 serializationCtorParameterValues[propertyVarName] = GetValueForSerializationConstructor(property, propertyVarRef, property.WireInfo);
@@ -695,7 +759,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             for (var i = 0; i < serializationCtorParametersCount; i++)
             {
                 var parameter = SerializationConstructor.Signature.Parameters[i];
-                var paramVarName = parameter.Name.ToVariableName();
+                var paramVarName = parameter.Name;
                 serializationCtorParameters[i] = serializationCtorParameterValues.TryGetValue(paramVarName, out var value) ? value : Default;
             }
 
@@ -723,14 +787,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         private List<MethodBodyStatement> BuildDeserializePropertiesStatements(
+            IReadOnlyList<PropertyProvider> properties,
             ScopedApi<JsonProperty> jsonProperty,
             DictionaryExpression? rawDataDictionary)
         {
             List<MethodBodyStatement> propertyDeserializationStatements = new();
             // Create each property's deserialization statement
-            for (var i = 0; i < _model.Properties.Count; i++)
+            for (var i = 0; i < properties.Count; i++)
             {
-                var property = _model.Properties[i];
+                var property = properties[i];
                 var propertyWireInfo = property.WireInfo;
                 var propertySerializationName = propertyWireInfo?.SerializedName ?? property.Name;
                 var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName.ToVariableName()))
@@ -752,6 +817,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             return propertyDeserializationStatements;
+        }
+
+        private IReadOnlyList<PropertyProvider> GetAllProperties()
+        {
+            var provider = _model;
+            var properties = new List<PropertyProvider>(provider.Properties);
+
+            while (provider.Inherits is { IsFrameworkType: false, Implementation: TypeProvider baseType })
+            {
+                provider = baseType;
+                properties.AddRange(provider.Properties);
+            }
+
+            return properties;
         }
 
         private MethodBodyStatement[] DeserializeProperty(
@@ -935,24 +1014,48 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ? new IfElseStatement(arrayItemVar.ValueKindEqualsNull(), assignNull, deserializeValue)
                 : deserializeValue;
 
+        private static MrwSerializationTypeDefinition? FindSerializationOnBase(TypeProvider model)
+        {
+            if (model.Inherits is not { IsFrameworkType: false, Implementation: TypeProvider baseType })
+            {
+                return null;
+            }
+
+            if (baseType.SerializationProviders.Count == 0)
+            {
+                return null;
+            }
+
+            // finds the first MrwSerializationTypeProvider in serialization providers
+            return baseType.SerializationProviders.OfType<MrwSerializationTypeDefinition>().FirstOrDefault();
+        }
+
         /// <summary>
         /// Builds the parameters for the serialization constructor by iterating through the input model properties.
         /// It then adds raw data field to the constructor if it doesn't already exist in the list of constructed parameters.
         /// </summary>
         /// <returns>The list of parameters for the serialization parameter.</returns>
-        private List<ParameterProvider> BuildSerializationConstructorParameters()
+        private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildSerializationConstructorParameters()
         {
-            List<ParameterProvider> constructorParameters = new List<ParameterProvider>();
+            var baseConstructor = GetBaseConstructor(_baseSerializationProvider);
+            var baseParameters = baseConstructor?.Parameters ?? [];
+            var parameterCapacity = baseParameters.Count + _inputModel.Properties.Count;
+            var parameterNames = baseParameters.Select(p => p.Name).ToHashSet();
+            var constructorParameters = new List<ParameterProvider>(parameterCapacity);
             bool shouldAddRawDataField = _rawDataField != null;
+
+            // add the base parameters
+            constructorParameters.AddRange(baseParameters);
+
+            // construct the initializer using the parameters from base signature
+            var constructorInitializer = new ConstructorInitializer(true, baseParameters);
 
             foreach (var property in _inputModel.Properties)
             {
                 var parameter = new ParameterProvider(property);
-                constructorParameters.Add(parameter);
-
-                if (shouldAddRawDataField && string.Equals(parameter.Name, _rawDataField?.Name, StringComparison.OrdinalIgnoreCase))
+                if (!parameterNames.Contains(parameter.Name))
                 {
-                    shouldAddRawDataField = false;
+                    constructorParameters.Add(parameter);
                 }
             }
 
@@ -965,7 +1068,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     _rawDataField.Type));
             }
 
-            return constructorParameters;
+            return (constructorParameters, constructorInitializer);
+
+            static ConstructorSignature? GetBaseConstructor(MrwSerializationTypeDefinition? baseProvider)
+            {
+                // find the constructor on the base type
+                if (baseProvider == null || baseProvider.Constructors.Count == 0)
+                {
+                    return null;
+                }
+
+                // we cannot know exactly which ctor to call, but in our implementation, it should always be the one with most parameters
+                var ctor = baseProvider.Constructors.OrderByDescending(c => c.Signature.Parameters.Count).First();
+                if (ctor.Signature is not ConstructorSignature ctorSignature || ctorSignature.Parameters.Count == 0)
+                {
+                    return null;
+                }
+
+                return ctorSignature;
+            }
         }
 
         private MethodProvider BuildEmptyConstructor()

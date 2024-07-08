@@ -33,7 +33,21 @@ namespace Microsoft.Generator.CSharp.Input
             id = id ?? throw new JsonException();
 
             // create an empty model to resolve circular references
-            var model = new InputModelType(name!, null!, null, null, null, InputModelTypeUsage.None, null!, null, null!, null, null, null!, null, false);
+            var model = new InputModelType(
+                name: name!,
+                crossLanguageDefinitionId: null!,
+                access: null,
+                deprecation: null,
+                description: null,
+                usage: InputModelTypeUsage.None,
+                properties: null!,
+                baseModel: null,
+                derivedModels: new List<InputModelType>(),
+                discriminatorValue: null,
+                discriminatorProperty: null,
+                discriminatedSubtypes: null!,
+                additionalProperties: null,
+                modelAsStruct: false);
             resolver.AddReference(id, model);
 
             string? crossLanguageDefinitionId = null;
