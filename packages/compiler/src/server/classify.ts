@@ -220,7 +220,6 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
         classify(node.id, SemanticTokenKind.Function);
         break;
       case SyntaxKind.UsingStatement:
-        console.log("Using", SyntaxKind[node.name.kind]);
         if (node.name.kind === SyntaxKind.Identifier) {
           classify(node.name, SemanticTokenKind.Namespace);
         }
