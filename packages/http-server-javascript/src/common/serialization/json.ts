@@ -21,7 +21,7 @@ import { parseCase } from "../../util/case.js";
 import { differentiateUnion, writeCodeTree } from "../../util/differentiate.js";
 import { UnimplementedError } from "../../util/error.js";
 import { indent } from "../../util/iter.js";
-import { emitTypeReference } from "../reference.js";
+import { emitTypeReference, escapeUnsafeChars } from "../reference.js";
 import { SerializableType, SerializationContext, requireSerialization } from "./index.js";
 
 /**
@@ -263,7 +263,7 @@ function transposeExpressionToJson(
 function literalToExpr(type: StringLiteral | BooleanLiteral | NumericLiteral): string {
   switch (type.kind) {
     case "String":
-      return JSON.stringify(type.value);
+      return escapeUnsafeChars(JSON.stringify(type.value));
     case "Number":
     case "Boolean":
       return String(type.value);
