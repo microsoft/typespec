@@ -12,6 +12,7 @@ import {
   Type,
   Union,
   UnionVariant,
+  compilerAssert,
   isArrayModelType,
   isRecordModelType,
 } from "@typespec/compiler";
@@ -20,7 +21,6 @@ import { createOrGetModuleForNamespace } from "./common/namespace.js";
 import { SerializableType } from "./common/serialization/index.js";
 import { emitUnion } from "./common/union.js";
 import { JsEmitterOptions } from "./lib.js";
-import { UnimplementedError } from "./util/error.js";
 import { OnceQueue } from "./util/once-queue.js";
 
 export type DeclarationType = Model | Enum | Union | Interface | Scalar;
@@ -157,10 +157,7 @@ export function completePendingDeclarations(ctx: JsContext): void {
     while (!ctx.typeQueue.isEmpty()) {
       const type = ctx.typeQueue.take()!;
 
-      if (!type.namespace) {
-        // TODO/witemple: when can this happen?
-        throw new UnimplementedError("no namespace for declaration type");
-      }
+      compilerAssert(type.namespace !== undefined, "no namespace for declaration type", type);
 
       const module = createOrGetModuleForNamespace(ctx, type.namespace);
 

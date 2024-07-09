@@ -181,7 +181,6 @@ function* emitRawServerOperation(
     yield "  }";
     yield "";
 
-    // TODO/witemple if the request errors, we need to reject these promises and handle the error with onInvalidRequest
     switch (contentType) {
       case "application/merge-patch+json":
       case "application/json": {
@@ -198,7 +197,6 @@ function* emitRawServerOperation(
         break;
       }
       case "multipart/form-data":
-        // TODO/witemple: this synchronously buffers the entire request body into memory -- not desirable, but will do for now.
         yield `const ${bodyName} = await new Promise(function parse${bodyNameCase.pascalCase}MultipartRequest(resolve, reject) {`;
         yield `  const boundary = request.headers["content-type"]?.split(";").find((s) => s.includes("boundary="))?.split("=", 2)[1];`;
         yield `  if (!boundary) {`;
@@ -218,7 +216,6 @@ function* emitRawServerOperation(
         yield `        headerText.split("\\r\\n").map((line) => line.split(": ", 2))`;
         yield "      ) as { [k: string]: string };";
         yield `      const name = headers["Content-Disposition"].split("name=\\"")[1].split("\\"")[0];`;
-        // TODO/witemple is this the right default content type for multipart?
         yield `      const contentType = headers["Content-Type"] ?? "text/plain";`;
         yield "";
         yield `      switch (contentType) {`;
@@ -404,7 +401,6 @@ function* emitHeaderParamBinding(
 
   if (!parameter.param.optional) {
     yield `if (${nameCase.camelCase} === undefined) {`;
-    // TODO/witemple: call invalid request handler somehow instead of throwing
     // prettier-ignore
     yield `  throw new Error("Invalid request: missing required header '${parameter.name}'.");`;
     yield "}";
@@ -425,8 +421,6 @@ function* emitQueryParamBinding(
   parameter: Extract<HttpOperationParameter, { type: "query" }>
 ): Iterable<string> {
   const nameCase = parseCase(parameter.param.name);
-
-  // TODO/witemple: handle complex query parameters with encodings such as CSV, multiple occurrence, etc.
 
   yield `const ${nameCase.camelCase} = __query_params.get(${JSON.stringify(parameter.name)});`;
 

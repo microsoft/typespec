@@ -130,7 +130,6 @@ words:
   - vswhere
   - westus
   - WINDOWSVMIMAGE
-  - witemple
   - xlarge
   - xplat
 ignorePaths:

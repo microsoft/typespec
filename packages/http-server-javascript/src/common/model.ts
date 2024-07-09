@@ -37,7 +37,6 @@ export function* emitModel(
     return;
   }
 
-  // TODO/witemple: this code is repeated elsewhere.
   const modelNameCase = parseCase(
     friendlyName
       ? friendlyName
@@ -50,12 +49,6 @@ export function* emitModel(
   if (model.name === "" && !altName) {
     throw new Error("UNREACHABLE: Anonymous model with no altName");
   }
-
-  // TODO/witemple - I used to split settings from fields here, but it's more trouble in
-  // JS than in rust.
-  // const [settings, fields] = bifilter(model.properties.values(), (f) =>
-  //   isValueLiteralType(f.type)
-  // ) as [(ModelProperty & { type: JsTypeSpecLiteralType })[], ModelProperty[]];
 
   yield* emitDocumentation(ctx, model);
 

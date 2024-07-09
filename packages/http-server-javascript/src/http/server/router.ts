@@ -320,9 +320,6 @@ function* emitRouteOperationDispatchMultiple(
   route: string,
   backends: Map<OperationContainer, [ReCase, string]>
 ): Iterable<string> {
-  // TODO/witemple - Only supporting differentiation by content-type for now. We could maybe do something in the future
-  // that is more sophisticated, allowing differentiation by arbitrary headers or even path parameters, but content-type
-  // is the most common case of differentiation that I've seen.
   const usedContentTypes = new Set<string>();
   const contentTypeMap = new Map<RouteOperation, string>();
 
@@ -576,12 +573,6 @@ function getRouteSegments(ctx: HttpContext, operation: HttpOperation): RouteSegm
   //  "/users" => ["/users"]
   //  "/users/{userId}" => ["/users/", {name: "userId"}]
   //  "/users/{userId}/posts/{postId}" => ["/users/", {name: "userId"}, "/posts/", {name: "postId"}]
-  //
-  //  TODO/witemple: can this work?
-  //  "/users/{userId}-{postId}" => ["/users/", {name: "userId"}, "-", {name: "postId"}]
-  //    - It will parse fine as a route segment in this library but will be very difficult to match in the router
-  //      implementation, since attempting to expand the parameter may greedily capture characters that are part of
-  //      the next segment.
 
   const segments: RouteSegment[] = [];
 

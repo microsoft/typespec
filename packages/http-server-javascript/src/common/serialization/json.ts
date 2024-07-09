@@ -217,8 +217,6 @@ function transposeExpressionToJson(
         return `${typeReference}.toJsonObject(${expr})`;
       }
     case "ModelProperty":
-      // TODO/witemple - pretty sure this isn't right. If the model property has additional encode/decode parameters we
-      // should have some way to prioritize them lower than the top level property that this originated from.
       return transposeExpressionToJson(ctx, type.type, expr, module);
     case "Intrinsic":
       switch (type.name) {
@@ -379,8 +377,6 @@ function transposeExpressionFromJson(
         return `${typeReference}.fromJsonObject(${expr})`;
       }
     case "ModelProperty":
-      // TODO/witemple - pretty sure this isn't right. If the model property has additional encode/decode parameters we
-      // should have some way to prioritize them lower than the top level property that this originated from.
       return transposeExpressionFromJson(ctx, type.type, expr, module);
     case "Intrinsic":
       switch (type.name) {

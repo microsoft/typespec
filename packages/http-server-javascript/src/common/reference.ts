@@ -101,7 +101,6 @@ export function emitTypeReference(
       if (effectiveModel.name === "") {
         // We might have seen the model before and synthesized a declaration for it already.
         if (ctx.syntheticNames.has(effectiveModel)) {
-          // TODO/witemple: I feel like I'm missing an import here.
           const name = ctx.syntheticNames.get(effectiveModel)!;
           module.imports.push({
             binder: [name],

@@ -59,8 +59,6 @@ export function* emitOperation(ctx: JsContext, op: Operation, module: Module): I
 
   const hasOptions = getAllProperties(op.parameters).some((p) => p.optional);
 
-  // const [successResult, _] = splitReturnType(ctx, op.returnType, module, opNameCase.pascalCase);
-
   const returnTypeReference = emitTypeReference(ctx, op.returnType, op, module, {
     altName: opNameCase.pascalCase + "Result",
   });
@@ -92,8 +90,6 @@ export function* emitOperation(ctx: JsContext, op: Operation, module: Module): I
     const optionsTypeName = opNameCase.pascalCase + "Options";
 
     emitOptionsType(ctx, op, module, optionsTypeName);
-
-    // TODO/witemple: how to extract parameter documentation?
 
     const paramsFragment = params.length > 0 ? `${paramsDeclarationLine}, ` : "";
 
@@ -139,9 +135,6 @@ export function emitOptionsType(
     "",
   ]);
 }
-
-// TODO/witemple - everything below relating to split return types was inherited from the
-// Rust emitter, and I'm not 100% sure it's actually necessary in the JS emitter.
 
 export interface SplitReturnTypeCommon {
   typeReference: string;
