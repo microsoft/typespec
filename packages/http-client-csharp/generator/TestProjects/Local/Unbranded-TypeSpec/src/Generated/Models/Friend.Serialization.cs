@@ -16,7 +16,7 @@ namespace UnbrandedTypeSpec.Models
     {
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
-        internal Friend(string name, string propertyWithUnfriendlyWireName, int propertyStartsWithUpperCaseLetterInTheWireName, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        internal Friend(string name, string propertyWithUnfriendlyWireName, int? propertyStartsWithUpperCaseLetterInTheWireName, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             Name = name;
             PropertyWithUnfriendlyWireName = propertyWithUnfriendlyWireName;
@@ -51,8 +51,11 @@ namespace UnbrandedTypeSpec.Models
                 writer.WritePropertyName("property-with-unfriendly-wire-name"u8);
                 writer.WriteStringValue(PropertyWithUnfriendlyWireName);
             }
-            writer.WritePropertyName("PropertyStartsWithUpperCaseLetterInTheWireName"u8);
-            writer.WriteNumberValue(PropertyStartsWithUpperCaseLetterInTheWireName);
+            if (Optional.IsDefined(PropertyStartsWithUpperCaseLetterInTheWireName))
+            {
+                writer.WritePropertyName("PropertyStartsWithUpperCaseLetterInTheWireName"u8);
+                writer.WriteNumberValue(PropertyStartsWithUpperCaseLetterInTheWireName.Value);
+            }
             if (options.Format != "W" && _serializedAdditionalRawData != null)
             {
                 foreach (var item in _serializedAdditionalRawData)
@@ -93,7 +96,7 @@ namespace UnbrandedTypeSpec.Models
             }
             string name = default;
             string propertyWithUnfriendlyWireName = default;
-            int propertyStartsWithUpperCaseLetterInTheWireName = default;
+            int? propertyStartsWithUpperCaseLetterInTheWireName = default;
             IDictionary<string, BinaryData> serializedAdditionalRawData = default;
             Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
@@ -105,6 +108,11 @@ namespace UnbrandedTypeSpec.Models
                 }
                 if (prop.NameEquals("propertyWithUnfriendlyWireName"u8))
                 {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        propertyWithUnfriendlyWireName = null;
+                        continue;
+                    }
                     propertyWithUnfriendlyWireName = prop.Value.GetString();
                     continue;
                 }
@@ -112,6 +120,7 @@ namespace UnbrandedTypeSpec.Models
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
+                        propertyStartsWithUpperCaseLetterInTheWireName = null;
                         continue;
                     }
                     propertyStartsWithUpperCaseLetterInTheWireName = prop.Value.GetInt32();

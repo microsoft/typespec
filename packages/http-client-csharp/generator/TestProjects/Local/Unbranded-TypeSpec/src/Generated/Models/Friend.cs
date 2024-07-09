@@ -27,6 +27,6 @@ namespace UnbrandedTypeSpec.Models
         public string PropertyWithUnfriendlyWireName { get; set; }
 
         /// <summary> this is a property with a wire name starting with an upper case letter. </summary>
-        public int PropertyStartsWithUpperCaseLetterInTheWireName { get; set; }
+        public int? PropertyStartsWithUpperCaseLetterInTheWireName { get; set; }
     }
 }

@@ -1064,7 +1064,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 };
 
                 // Wrap the serialization statement in a check for whether the property is defined
-                var wrapInIsDefinedStatement = WrapInIsDefined(property, property, propertyIsRequired, propertyIsReadOnly, writePropertySerializationStatements);
+                var wrapInIsDefinedStatement = WrapInIsDefined(property, property, propertyIsRequired, propertyIsReadOnly, propertyIsNullable, writePropertySerializationStatements);
                 if (propertyIsReadOnly && wrapInIsDefinedStatement is not IfStatement)
                 {
                     wrapInIsDefinedStatement = new IfStatement(_isNotEqualToWireConditionSnippet)
