@@ -87,8 +87,8 @@ namespace Microsoft.Generator.CSharp.Providers
         private IReadOnlyList<MethodProvider>? _methods;
         public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethods();
 
-        private IReadOnlyList<MethodProvider>? _constructors;
-        public IReadOnlyList<MethodProvider> Constructors => _constructors ??= BuildConstructors();
+        private IReadOnlyList<ConstructorProvider>? _constructors;
+        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= BuildConstructors();
 
         private IReadOnlyList<FieldProvider>? _fields;
         public IReadOnlyList<FieldProvider> Fields => _fields ??= BuildFields();
@@ -109,7 +109,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected virtual MethodProvider[] BuildMethods() => Array.Empty<MethodProvider>();
 
-        protected virtual MethodProvider[] BuildConstructors() => Array.Empty<MethodProvider>();
+        protected virtual ConstructorProvider[] BuildConstructors() => Array.Empty<ConstructorProvider>();
 
         protected virtual TypeProvider[] BuildNestedTypes() => Array.Empty<TypeProvider>();
 

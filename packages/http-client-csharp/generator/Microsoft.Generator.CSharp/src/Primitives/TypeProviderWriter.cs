@@ -156,7 +156,7 @@ namespace Microsoft.Generator.CSharp.Primitives
         {
             for (int i = 0; i < _provider.Constructors.Count; i++)
             {
-                writer.WriteMethod(_provider.Constructors[i]);
+                writer.WriteConstructor(_provider.Constructors[i]);
                 if (i < _provider.Constructors.Count - 1)
                 {
                     writer.WriteLine();

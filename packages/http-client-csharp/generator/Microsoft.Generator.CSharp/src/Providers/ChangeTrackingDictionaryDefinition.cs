@@ -71,7 +71,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return [_IDictionary, _IReadOnlyDictionary];
         }
 
-        protected override MethodProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
             return
             [
@@ -81,12 +81,12 @@ namespace Microsoft.Generator.CSharp.Providers
             ];
         }
 
-        private MethodProvider ConstructorWithReadOnlyDictionary()
+        private ConstructorProvider ConstructorWithReadOnlyDictionary()
         {
             var dictionaryParam = new ParameterProvider("dictionary", $"The inner dictionary.", _IReadOnlyDictionary);
             DictionaryExpression dictionary = dictionaryParam.AsDictionary(_tKey, _tValue);
             var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [dictionaryParam]);
-            return new MethodProvider(signature, new MethodBodyStatement[]
+            return new ConstructorProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(dictionary.Equal(Null))
                 {
@@ -101,11 +101,11 @@ namespace Microsoft.Generator.CSharp.Providers
             this);
         }
 
-        private MethodProvider ConstructorWithDictionary()
+        private ConstructorProvider ConstructorWithDictionary()
         {
             var dictionary = new ParameterProvider("dictionary", $"The inner dictionary.", _IDictionary);
             var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [dictionary]);
-            return new MethodProvider(signature, new MethodBodyStatement[]
+            return new ConstructorProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(dictionary.AsExpression.Equal(Null))
                 {
@@ -116,10 +116,10 @@ namespace Microsoft.Generator.CSharp.Providers
             this);
         }
 
-        private MethodProvider DefaultConstructor()
+        private ConstructorProvider DefaultConstructor()
         {
             var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, Array.Empty<ParameterProvider>());
-            return new MethodProvider(signature, Array.Empty<MethodBodyStatement>(), this);
+            return new ConstructorProvider(signature, Array.Empty<MethodBodyStatement>(), this);
         }
 
         protected override PropertyProvider[] BuildProperties()
