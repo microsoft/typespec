@@ -371,6 +371,19 @@ describe("compiler: built-in decorators", () => {
       strictEqual(getFriendlyName(runner.program, B), "BModel");
       strictEqual(getFriendlyName(runner.program, C), "TemplatedB");
     });
+
+    it(" @friendlyName doesn't carry over to derived models", async () => {
+      const { A, B } = await runner.compile(`
+        @test
+        @friendlyName("MyNameIsA")
+        model A<T> { t: T; }
+
+        @test
+        model B is A<string> { }
+        `);
+      strictEqual(getFriendlyName(runner.program, A), "MyNameIsA");
+      strictEqual(getFriendlyName(runner.program, B), undefined);
+    });
   });
 
   describe("@error", () => {
