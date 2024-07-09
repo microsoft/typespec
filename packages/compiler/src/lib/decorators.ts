@@ -19,7 +19,6 @@ import type {
   MinLengthDecorator,
   MinValueDecorator,
   MinValueExclusiveDecorator,
-  Node,
   OverloadDecorator,
   ParameterVisibilityDecorator,
   PatternDecorator,
@@ -81,9 +80,7 @@ import {
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program, ProjectedProgram } from "../core/program.js";
 import {
-  AugmentDecoratorStatementNode,
   DecoratorContext,
-  DecoratorExpressionNode,
   Enum,
   EnumMember,
   Interface,
@@ -92,7 +89,6 @@ import {
   Namespace,
   Operation,
   Scalar,
-  SyntaxKind,
   Type,
   Union,
 } from "../core/types.js";
@@ -1023,27 +1019,6 @@ export const $friendlyName: FriendlyNameDecorator = (
   friendlyName: string,
   sourceObject: Type | undefined
 ) => {
-  // workaround for current lack of functionality in compiler
-  // https://github.com/microsoft/typespec/issues/2717
-  if (target.kind === "Model" || target.kind === "Operation") {
-    if ((context.decoratorTarget as Node).kind === SyntaxKind.AugmentDecoratorStatement) {
-      if (
-        ignoreDiagnostics(
-          context.program.checker.resolveTypeReference(
-            (context.decoratorTarget as AugmentDecoratorStatementNode).targetType
-          )
-        )?.node !== target.node
-      ) {
-        return;
-      }
-    }
-    if ((context.decoratorTarget as Node).kind === SyntaxKind.DecoratorExpression) {
-      if ((context.decoratorTarget as DecoratorExpressionNode).parent !== target.node) {
-        return;
-      }
-    }
-  }
-
   // If an object was passed in, use it to format the friendly name
   if (sourceObject) {
     friendlyName = replaceTemplatedStringFromProperties(friendlyName, sourceObject);
