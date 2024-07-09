@@ -15,7 +15,6 @@
     "requiredLiteralInt": 123,
     "requiredLiteralFloat": 1.23,
     "requiredLiteralBool": false,
-    "optionalLiteralString": null,
     "optionalLiteralInt": 456,
     "optionalLiteralFloat": 4.56,
     "optionalLiteralBool": false,
