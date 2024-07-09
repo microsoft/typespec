@@ -81,6 +81,7 @@ const sidebars: SidebarsConfig = {
       items: [
         "language-basics/overview",
         "language-basics/built-in-types",
+        "language-basics/identifiers",
         "language-basics/imports",
         "language-basics/namespaces",
         "language-basics/decorators",
