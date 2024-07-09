@@ -2,7 +2,7 @@
   "name": "@typespec/monorepo",
   "version": "0.0.1",
   "private": true,
-  "packageManager": "pnpm@8.13.1",
+  "packageManager": "pnpm@9.5.0",
   "type": "module",
   "scripts": {
     "build": "pnpm build:all && pnpm check:eng && pnpm gen-compiler-extern-signature",
@@ -52,6 +52,7 @@
     "eslint": "^8.57.0",
     "eslint-plugin-deprecation": "^3.0.0",
     "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-unicorn": "^54.0.0",
     "eslint-plugin-vitest": "^0.5.4",
     "picocolors": "~1.0.1",

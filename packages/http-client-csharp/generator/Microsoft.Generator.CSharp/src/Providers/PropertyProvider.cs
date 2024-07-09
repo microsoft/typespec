@@ -36,6 +36,10 @@ namespace Microsoft.Generator.CSharp.Providers
         public PropertyProvider(InputModelProperty inputProperty)
         {
             var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
+            if (!inputProperty.IsRequired && !propertyType.IsCollection)
+            {
+                propertyType = propertyType.WithNullable(true);
+            }
             var serializationFormat = CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type);
             var propHasSetter = PropertyHasSetter(propertyType, inputProperty);
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;

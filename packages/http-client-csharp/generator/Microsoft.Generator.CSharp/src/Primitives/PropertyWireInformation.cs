@@ -10,14 +10,16 @@ namespace Microsoft.Generator.CSharp.Primitives
         public SerializationFormat SerializationFormat { get; }
         public bool IsRequired { get; }
         public bool IsReadOnly { get; }
+        public bool IsNullable { get; }
         public bool IsDiscriminator { get; }
         public string SerializedName { get; }
 
-        public PropertyWireInformation(SerializationFormat serializationFormat, bool isRequired, bool isReadOnly, bool isDiscriminator, string serializedName)
+        public PropertyWireInformation(SerializationFormat serializationFormat, bool isRequired, bool isReadOnly, bool isNullable, bool isDiscriminator, string serializedName)
         {
             SerializationFormat = serializationFormat;
             IsRequired = isRequired;
             IsReadOnly = isReadOnly;
+            IsNullable = isNullable;
             IsDiscriminator = isDiscriminator;
             SerializedName = serializedName;
         }
@@ -31,6 +33,7 @@ namespace Microsoft.Generator.CSharp.Primitives
             SerializationFormat = CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputModelProperty.Type);
             IsRequired = inputModelProperty.IsRequired;
             IsReadOnly = inputModelProperty.IsReadOnly;
+            IsNullable = inputModelProperty.Type is InputNullableType;
             IsDiscriminator = inputModelProperty.IsDiscriminator;
             SerializedName = inputModelProperty.SerializedName.FirstCharToUpperCase();
         }

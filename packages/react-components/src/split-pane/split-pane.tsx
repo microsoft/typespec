@@ -122,12 +122,12 @@ export const SplitPane: FunctionComponent<SplitPaneProps> = ({
 
       return res;
     },
-    [...resolvedPropSize, children.length, wrapSize]
+    [children, resolvedPropSize, wrapSize]
   );
 
   const sashPosSizes = useMemo(
     () => sizes.reduce((a, b) => [...a, a[a.length - 1] + b], [0]),
-    [...sizes]
+    [sizes]
   );
 
   const dragStart = useCallback(
@@ -185,7 +185,7 @@ export const SplitPane: FunctionComponent<SplitPaneProps> = ({
 
       updateSizes(nextSizes);
     },
-    [paneLimitSizes, onChange]
+    [splitAxis, sizes, paneLimitSizes, updateSizes]
   );
 
   const paneFollow = !(performanceMode && isDragging);

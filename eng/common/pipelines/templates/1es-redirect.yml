@@ -28,6 +28,10 @@ extends:
     settings:
       skipBuildTagsForGitHubPullRequests: true
     sdl:
+      codeql:
+        compiled:
+          enabled: false
+          justificationForDisabling: CodeQL times our pipelines out by running for 2+ hours before being force canceled.
       sourceAnalysisPool:
         name: azsdk-pool-mms-win-2022-general
         image: azsdk-pool-mms-win-2022-1espt

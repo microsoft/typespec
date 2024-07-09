@@ -87,7 +87,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             // Check method modifiers
             var expectedModifiers = MethodSignatureModifiers.Protected;
-            if (mockModelTypeProvider.Inherits != null)
+            if (mockModelTypeProvider.Type.BaseType != null)
             {
                 expectedModifiers |= MethodSignatureModifiers.Override;
             }
@@ -179,7 +179,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             // Check method modifiers
             var expectedModifiers = MethodSignatureModifiers.Protected;
-            if (mockModelTypeProvider.Inherits != null)
+            if (mockModelTypeProvider.Type.BaseType != null)
             {
                 expectedModifiers |= MethodSignatureModifiers.Override;
             }
@@ -272,7 +272,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             // Check method modifiers
             var expectedModifiers = MethodSignatureModifiers.Protected;
-            if (mockModelTypeProvider.Inherits != null)
+            if (mockModelTypeProvider.Type.BaseType != null)
             {
                 expectedModifiers |= MethodSignatureModifiers.Override;
             }
@@ -372,7 +372,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             // Check method modifiers
             var expectedModifiers = MethodSignatureModifiers.Protected;
-            if (mockModelTypeProvider.Inherits != null)
+            if (mockModelTypeProvider.Type.BaseType != null)
             {
                 expectedModifiers |= MethodSignatureModifiers.Override;
             }
