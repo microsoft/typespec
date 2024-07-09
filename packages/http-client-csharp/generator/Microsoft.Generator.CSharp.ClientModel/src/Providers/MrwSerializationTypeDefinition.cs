@@ -363,7 +363,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
             return new MethodProvider
             (
-              new MethodSignature(PersistableModelWriteCoreMethodName, null, modifiers, returnType, null, [ _serializationOptionsParameter]),
+              new MethodSignature(PersistableModelWriteCoreMethodName, null, modifiers, returnType, null, [_serializationOptionsParameter]),
               BuildPersistableModelWriteCoreMethodBody(),
               this
             );
