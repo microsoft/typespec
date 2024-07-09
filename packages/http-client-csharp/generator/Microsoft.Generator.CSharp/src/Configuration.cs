@@ -21,7 +21,8 @@ namespace Microsoft.Generator.CSharp
             OutputDirectory = null!;
             AdditionalConfigOptions = null!;
             LibraryName = null!;
-            Namespace = null!;
+            RootNamespace = null!;
+            ModelNamespace = null!;
         }
 
         private Configuration(
@@ -43,7 +44,8 @@ namespace Microsoft.Generator.CSharp
             GenerateTestProject = generateTestProject;
             LibraryName = libraryName;
             UseModelNamespace = useModelNamespace;
-            Namespace = libraryNamespace;
+            RootNamespace = libraryNamespace;
+            ModelNamespace = useModelNamespace ? $"{libraryNamespace}.Models" : libraryNamespace;
         }
 
         /// <summary>
@@ -60,8 +62,11 @@ namespace Microsoft.Generator.CSharp
             public const string UseModelNamespace = "use-model-namespace";
         }
 
-        /// Returns the singleton instance of the configuration.
-        public string Namespace { get; }
+        /// <summary> Gets the root namespace for the library. </summary>
+        public string RootNamespace { get; }
+
+        /// <summary> Gets the namespace for the models. </summary>
+        public string ModelNamespace { get; }
 
         internal string OutputDirectory { get; }
 

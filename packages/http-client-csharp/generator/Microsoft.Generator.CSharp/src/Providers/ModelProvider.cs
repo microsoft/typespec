@@ -8,6 +8,7 @@ using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -18,7 +19,6 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly InputModelType _inputModel;
         public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
         public override string Name { get; }
-        public override string Namespace { get; }
         protected override FormattableString Description { get; }
 
         private readonly bool _isStruct;
@@ -28,7 +28,6 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             _inputModel = inputModel;
             Name = inputModel.Name.ToCleanName();
-            Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
             Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : $"The {Name}.";
             _declarationModifiers = TypeSignatureModifiers.Partial |
                 (inputModel.ModelAsStruct ? TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct : TypeSignatureModifiers.Class);
@@ -45,6 +44,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
             _isStruct = inputModel.ModelAsStruct;
         }
+
+        protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
@@ -67,11 +68,11 @@ namespace Microsoft.Generator.CSharp.Providers
             return propertyDeclarations;
         }
 
-        protected override MethodProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
             if (_inputModel.IsUnknownDiscriminatorModel)
             {
-                return Array.Empty<MethodProvider>();
+                return [];
             }
 
             // Build the initialization constructor
@@ -82,7 +83,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     : MethodSignatureModifiers.Internal;
             var constructorParameters = BuildConstructorParameters();
 
-            var constructor = new MethodProvider(
+            var constructor = new ConstructorProvider(
                 signature: new ConstructorSignature(
                     Type,
                     $"Initializes a new instance of {Type:C}",
@@ -101,17 +102,18 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             List<ParameterProvider> constructorParameters = new List<ParameterProvider>();
 
-            foreach (var property in _inputModel.Properties)
+            foreach (var property in Properties)
             {
-                CSharpType propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(property.Type);
-                if (_isStruct || (property is { IsRequired: true, IsDiscriminator: false } && !propertyType.IsLiteral))
+                // we only add those properties with wire info indicating they are coming from specs.
+                if (property.WireInfo == null)
                 {
-                    if (!property.IsReadOnly)
+                    continue;
+                }
+                if (_isStruct || (property.WireInfo is { IsRequired: true, IsDiscriminator: false } && !property.Type.IsLiteral))
+                {
+                    if (!property.WireInfo.IsReadOnly)
                     {
-                        constructorParameters.Add(new ParameterProvider(property)
-                        {
-                            Type = propertyType.InputType
-                        });
+                        constructorParameters.Add(property.AsParameter.ToPublicInputParameter());
                     }
                 }
             }
@@ -140,8 +142,8 @@ namespace Microsoft.Generator.CSharp.Providers
                         if (CSharpType.RequiresToList(parameter.Type, property.Type))
                         {
                             initializationValue = parameter.Type.IsNullable ?
-                                Linq.ToList(new NullConditionalExpression(initializationValue)) :
-                                Linq.ToList(initializationValue);
+                                new NullConditionalExpression(initializationValue).ToList() :
+                                initializationValue.ToList();
                         }
                     }
                 }

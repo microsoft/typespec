@@ -27,15 +27,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             Debug.Assert(!enumType.IsExtensible);
 
             _enumType = enumType;
-            Namespace = _enumType.Namespace;
             Name = $"{_enumType.Name}Extensions";
         }
+
+        protected override string GetNamespace() => _enumType.Type.Namespace;
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial;
 
         public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
-
-        public override string Namespace { get; }
 
         public override string Name { get; }
 
@@ -100,8 +99,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 var enumField = _enumType.Fields[i];
                 var enumValue = _enumType.Members[i];
-                BoolSnippet condition;
-                if (_enumType.ValueType.Equals(typeof(string)))
+                ScopedApi<bool> condition;
+                if (_enumType.IsStringValueType)
                 {
                     // when the values are strings, we compare them case-insensitively
                     // this is either
@@ -110,7 +109,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     // string.Equals(value, "<the value>", StringComparison.InvariantCultureIgnoreCase)
                     condition = new(enumValue.Value is string strValue && strValue.All(char.IsAscii)
                                 ? stringComparer.Invoke(nameof(IEqualityComparer<string>.Equals), value, Literal(strValue))
-                                : new InvokeStaticMethodExpression(_enumType.ValueType, nameof(object.Equals), [value, Literal(enumValue.Value), FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)]));
+                                : Static(_enumType.ValueType).Invoke(nameof(object.Equals), [value, Literal(enumValue.Value), FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)]));
                 }
                 else
                 {
