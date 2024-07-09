@@ -301,7 +301,7 @@ const UNSAFE_CHAR_MAP: { [k: string]: string } = {
 };
 
 export function escapeUnsafeChars(s: string) {
-  return s.replace(/[<>\b\f\n\r\t\0\u2028\u2029]/g, (x) => UNSAFE_CHAR_MAP[x]);
+  return s.replace(/[<>/\\\b\f\n\r\t\0\u2028\u2029]/g, (x) => UNSAFE_CHAR_MAP[x]);
 }
 
 export type JsTypeSpecLiteralType = LiteralType | (IntrinsicType & { name: "null" });
