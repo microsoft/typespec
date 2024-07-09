@@ -10,6 +10,7 @@ using Microsoft.Generator.CSharp.Providers;
 using Moq.Protected;
 using Moq;
 using NUnit.Framework;
+using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp.Tests.Providers
 {
@@ -44,9 +45,15 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
-            var parameter = new ParameterProvider(collectionProperty);
-            Assert.AreEqual(collectionProperty.Name, parameter.Name);
-            Assert.AreEqual(expectedType, parameter.Type);
+            var property = new PropertyProvider(collectionProperty);
+            Assert.AreEqual(collectionProperty.Name.ToCleanName(), property.Name);
+            Assert.AreEqual(expectedType, property.Type);
+
+            // validate the parameter conversion
+            var propertyAsParam = property.AsParameter;
+            Assert.IsNotNull(propertyAsParam);
+            Assert.AreEqual(collectionProperty.Name.ToVariableName(), propertyAsParam.Name);
+            Assert.AreEqual(expectedType, propertyAsParam.Type);
         }
 
         private static IEnumerable<TestCaseData> CollectionPropertyTestCases()
@@ -55,7 +62,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             yield return new TestCaseData(
                 new CSharpType(typeof(IList<>), typeof(string)),
                 new InputModelProperty("readOnlyCollection", "readOnlyCollection", string.Empty,
-                    new InputArrayType("List", new InputPrimitiveType(InputPrimitiveTypeKind.String), false),
+                    new InputArrayType("List", "id", new InputPrimitiveType(InputPrimitiveTypeKind.String)),
                     true,
                     true,
                     false),
@@ -69,6 +76,24 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     true,
                     false),
                 new CSharpType(typeof(IReadOnlyDictionary<,>), typeof(string), typeof(int)));
+            // ReadOnlyMemory<byte> -> ReadOnlyMemory<byte>
+            yield return new TestCaseData(
+                new CSharpType(typeof(ReadOnlyMemory<>), typeof(byte)),
+                new InputModelProperty("readOnlyMemory", "readOnlyMemory", string.Empty,
+                    InputPrimitiveType.Base64,
+                    true,
+                    true,
+                    false),
+                new CSharpType(typeof(ReadOnlyMemory<>), typeof(byte)));
+            // string -> string
+            yield return new TestCaseData(
+                new CSharpType(typeof(string)),
+                new InputModelProperty("stringProperty", "stringProperty", string.Empty,
+                    new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                    true,
+                    true,
+                    false),
+                new CSharpType(typeof(string)));
         }
     }
 }
