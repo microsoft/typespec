@@ -11,7 +11,7 @@ using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp.ClientModel
+namespace Microsoft.Generator.CSharp.ClientModel.Primitives
 {
     internal static class ScmKnownParameters
     {

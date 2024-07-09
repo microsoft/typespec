@@ -79,7 +79,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             Assert.IsNotNull(method);
 
-            var methodSignature = method?.Signature as MethodSignature;
+            var methodSignature = method?.Signature;
             Assert.IsNotNull(methodSignature);
             Assert.AreEqual("JsonModelWriteCore", methodSignature?.Name);
             Assert.IsNull(methodSignature?.ExplicitInterface);
@@ -88,7 +88,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             // Check method modifiers
             var expectedModifiers = MethodSignatureModifiers.Protected;
-            if (mockModelTypeProvider.Inherits != null)
+            if (mockModelTypeProvider.Type.BaseType != null)
             {
                 expectedModifiers |= MethodSignatureModifiers.Override;
             }
@@ -115,7 +115,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             Assert.IsNotNull(method);
 
-            var methodSignature = method?.Signature as MethodSignature;
+            var methodSignature = method?.Signature;
             Assert.IsNotNull(methodSignature);
             Assert.AreEqual("Write", methodSignature?.Name);
 
@@ -151,7 +151,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             Assert.IsNotNull(method);
 
             var expectedJsonInterface = new CSharpType(typeof(IJsonModel<>), mockModelTypeProvider.Type);
-            var methodSignature = method?.Signature as MethodSignature;
+            var methodSignature = method?.Signature;
             Assert.IsNotNull(methodSignature);
             Assert.AreEqual("Create", methodSignature?.Name);
             Assert.AreEqual(expectedJsonInterface, methodSignature?.ExplicitInterface);
@@ -171,7 +171,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             Assert.IsNotNull(method);
 
-            var methodSignature = method?.Signature as MethodSignature;
+            var methodSignature = method?.Signature;
             Assert.IsNotNull(methodSignature);
             Assert.AreEqual("JsonModelCreateCore", methodSignature?.Name);
             Assert.IsNull(methodSignature?.ExplicitInterface);
@@ -180,7 +180,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             // Check method modifiers
             var expectedModifiers = MethodSignatureModifiers.Protected;
-            if (mockModelTypeProvider.Inherits != null)
+            if (mockModelTypeProvider.Type.BaseType != null)
             {
                 expectedModifiers |= MethodSignatureModifiers.Override;
             }
@@ -207,7 +207,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             Assert.IsNotNull(method);
 
-            var methodSignature = method?.Signature as MethodSignature;
+            var methodSignature = method?.Signature;
             Assert.IsNotNull(methodSignature);
             Assert.AreEqual("Create", methodSignature?.Name);
 
@@ -244,7 +244,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             Assert.IsNotNull(method);
 
             var expectedJsonInterface = new CSharpType(typeof(IPersistableModel<object>), mockModelTypeProvider.Type);
-            var methodSignature = method?.Signature as MethodSignature;
+            var methodSignature = method?.Signature;
             Assert.IsNotNull(methodSignature);
             Assert.AreEqual("Write", methodSignature?.Name);
             Assert.AreEqual(expectedJsonInterface, methodSignature?.ExplicitInterface);
@@ -264,7 +264,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             Assert.IsNotNull(method);
 
-            var methodSignature = method?.Signature as MethodSignature;
+            var methodSignature = method?.Signature;
             Assert.IsNotNull(methodSignature);
             Assert.AreEqual("PersistableModelWriteCore", methodSignature?.Name);
             Assert.IsNull(methodSignature?.ExplicitInterface);
@@ -273,7 +273,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             // Check method modifiers
             var expectedModifiers = MethodSignatureModifiers.Protected;
-            if (mockModelTypeProvider.Inherits != null)
+            if (mockModelTypeProvider.Type.BaseType != null)
             {
                 expectedModifiers |= MethodSignatureModifiers.Override;
             }
@@ -300,7 +300,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             Assert.IsNotNull(method);
 
-            var methodSignature = method?.Signature as MethodSignature;
+            var methodSignature = method?.Signature;
             Assert.IsNotNull(methodSignature);
             Assert.AreEqual("Write", methodSignature?.Name);
 
@@ -336,7 +336,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             Assert.IsNotNull(method);
 
             var expectedJsonInterface = new CSharpType(typeof(IPersistableModel<object>), mockModelTypeProvider.Type);
-            var methodSignature = method?.Signature as MethodSignature;
+            var methodSignature = method?.Signature;
             Assert.IsNotNull(methodSignature);
             Assert.AreEqual("Create", methodSignature?.Name);
             Assert.AreEqual(expectedJsonInterface, methodSignature?.ExplicitInterface);
@@ -364,7 +364,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             Assert.IsNotNull(method);
 
-            var methodSignature = method?.Signature as MethodSignature;
+            var methodSignature = method?.Signature;
             Assert.IsNotNull(methodSignature);
             Assert.AreEqual("PersistableModelCreateCore", methodSignature?.Name);
             Assert.IsNull(methodSignature?.ExplicitInterface);
@@ -373,7 +373,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             // Check method modifiers
             var expectedModifiers = MethodSignatureModifiers.Protected;
-            if (mockModelTypeProvider.Inherits != null)
+            if (mockModelTypeProvider.Type.BaseType != null)
             {
                 expectedModifiers |= MethodSignatureModifiers.Override;
             }
@@ -400,7 +400,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             Assert.IsNotNull(method);
 
-            var methodSignature = method?.Signature as MethodSignature;
+            var methodSignature = method?.Signature;
             Assert.IsNotNull(methodSignature);
             Assert.AreEqual("Create", methodSignature?.Name);
 
@@ -436,7 +436,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             Assert.IsNotNull(method);
 
             var expectedJsonInterface = new CSharpType(typeof(IPersistableModel<object>), mockModelTypeProvider.Type);
-            var methodSignature = method?.Signature as MethodSignature;
+            var methodSignature = method?.Signature;
             Assert.IsNotNull(methodSignature);
             Assert.AreEqual("Create", methodSignature?.Name);
             Assert.AreEqual(expectedJsonInterface, methodSignature?.ExplicitInterface);
@@ -457,7 +457,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             Assert.IsNotNull(method);
 
             var expectedJsonInterface = new CSharpType(typeof(IPersistableModel<object>), mockModelTypeProvider.Type);
-            var methodSignature = method?.Signature as MethodSignature;
+            var methodSignature = method?.Signature;
             Assert.IsNotNull(methodSignature);
             Assert.AreEqual("GetFormatFromOptions", methodSignature?.Name);
             Assert.AreEqual(expectedJsonInterface, methodSignature?.ExplicitInterface);
@@ -481,7 +481,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             Assert.IsNotNull(method);
 
             var expectedInterface = new CSharpType(typeof(IPersistableModel<object>));
-            var methodSignature = method?.Signature as MethodSignature;
+            var methodSignature = method?.Signature;
             Assert.IsNotNull(methodSignature);
             Assert.AreEqual("GetFormatFromOptions", methodSignature?.Name);
             Assert.AreEqual(expectedInterface, methodSignature?.ExplicitInterface);
@@ -513,7 +513,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             var constructor = MrwSerializationTypeProvider.BuildSerializationConstructor();
 
             Assert.IsNotNull(constructor);
-            var constructorSignature = constructor?.Signature as ConstructorSignature;
+            var constructorSignature = constructor?.Signature;
             Assert.IsNotNull(constructorSignature);
             Assert.AreEqual(1, constructorSignature?.Parameters.Count);
 
@@ -580,7 +580,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             var deserializationMethod = provider.BuildDeserializationMethod();
             Assert.IsNotNull(deserializationMethod);
 
-            var signature = deserializationMethod?.Signature as MethodSignature;
+            var signature = deserializationMethod?.Signature;
             Assert.IsNotNull(signature);
             Assert.AreEqual($"Deserialize{model.Name}", signature?.Name);
             Assert.AreEqual(2, signature?.Parameters.Count);
