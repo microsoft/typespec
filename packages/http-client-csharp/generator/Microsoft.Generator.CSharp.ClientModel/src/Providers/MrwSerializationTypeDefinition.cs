@@ -195,7 +195,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return [.. methods];
         }
 
-        internal MethodProvider BuildExplicitFromClientResult()
+        private MethodProvider BuildExplicitFromClientResult()
         {
             var result = new ParameterProvider("result", $"The {typeof(ClientResult):C} to deserialize the {Type:C} from.", typeof(ClientResult));
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
@@ -221,7 +221,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 this);
         }
 
-        internal MethodProvider BuildImplicitToBinaryContent()
+        private MethodProvider BuildImplicitToBinaryContent()
         {
             var model = new ParameterProvider(Type.Name.ToVariableName(), $"The {Type:C} to serialize into {typeof(BinaryContent):C}", Type);
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator;

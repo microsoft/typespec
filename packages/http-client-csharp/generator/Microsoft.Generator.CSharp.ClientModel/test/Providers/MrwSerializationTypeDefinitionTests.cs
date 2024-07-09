@@ -599,7 +599,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
             var mockModelTypeProvider = new ModelProvider(inputModel);
             var jsonMrwSerializationTypeProvider = new MrwSerializationTypeDefinition(mockModelTypeProvider, inputModel);
-            var method = jsonMrwSerializationTypeProvider.BuildImplicitToBinaryContent();
+            var methods = jsonMrwSerializationTypeProvider.Methods;
+
+            Assert.IsTrue(methods.Count > 0);
+
+            var method = methods.FirstOrDefault(m => m.Signature.Name == nameof(BinaryContent));
 
             Assert.IsNotNull(method);
 
@@ -624,7 +628,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
             var mockModelTypeProvider = new ModelProvider(inputModel);
             var jsonMrwSerializationTypeProvider = new MrwSerializationTypeDefinition(mockModelTypeProvider, inputModel);
-            var method = jsonMrwSerializationTypeProvider.BuildExplicitFromClientResult();
+            var methods = jsonMrwSerializationTypeProvider.Methods;
+
+            Assert.IsTrue(methods.Count > 0);
+
+            var method = methods.FirstOrDefault(m => m.Signature.Name == "MockInputModel");
 
             Assert.IsNotNull(method);
 

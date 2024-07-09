@@ -41,8 +41,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
         }
         protected abstract void VerifyModel(T model, string format);
         protected abstract void CompareModels(T model, T model2, string format);
-        protected abstract Task TestBinaryContentCast(T model, ModelReaderWriterOptions options);
-        protected abstract void TestClientResultCast(string serializedResponse);
         protected abstract string JsonPayload { get; }
         protected abstract string WirePayload { get; }
 
@@ -66,6 +64,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
         public void RoundTripWithModelInterfaceNonGeneric(string format)
             => RoundTripTest(format, new ModelInterfaceAsObjectStrategy<T>());
 
+        [TestCase("W")]
+        public void RoundTripWithModelCast(string format)
+            => RoundTripTest(format, new CastStrategy<T>());
+
         protected void RoundTripTest(string format, RoundTripStrategy<T> strategy)
         {
             string serviceResponse = format == "J" ? JsonPayload : WirePayload;
@@ -88,12 +90,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
 
             T model2 = (T)strategy.Read(roundTrip, ModelInstance, options);
             CompareModels(model, model2, format);
-
-            if (format == "W")
-            {
-                TestBinaryContentCast(model, options);
-                TestClientResultCast(expectedSerializedString);
-            }
         }
 
         private void AssertJsonEquivalency(string expected, string result)

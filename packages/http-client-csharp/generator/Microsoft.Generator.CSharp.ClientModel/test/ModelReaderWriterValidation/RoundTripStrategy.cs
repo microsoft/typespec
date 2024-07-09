@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.IO;
 using System.Text;
@@ -160,6 +161,61 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
         {
             var reader = new Utf8JsonReader(new BinaryData(Encoding.UTF8.GetBytes(payload)));
             return ((IJsonModel<object>)model).Create(ref reader, options);
+        }
+    }
+
+    public class CastStrategy<T> : RoundTripStrategy<T> where T : IPersistableModel<T>
+    {
+        public override bool IsExplicitJsonWrite => false;
+        public override bool IsExplicitJsonRead => false;
+
+        public override BinaryData Write(T model, ModelReaderWriterOptions options)
+        {
+            var modelType = model.GetType();
+            // find the implicit cast operator
+            var castOperator = modelType.GetMethod("op_Implicit", [modelType]) ?? throw new InvalidOperationException($"Implicit cast operator not found for {modelType.Name}");
+            object? parsedContent = castOperator?.Invoke(null, [model]);
+
+            if (parsedContent is BinaryContent content)
+            {
+                content.TryComputeLength(out var length);
+                using var stream = new MemoryStream((int)length);
+                content.WriteTo(stream, default);
+                if (stream.Position > int.MaxValue)
+                {
+                    return BinaryData.FromStream(stream);
+                }
+                else
+                {
+                    return new BinaryData(stream.GetBuffer().AsMemory(0, (int)stream.Position));
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException($"Unable to cast {modelType.Name} to BinaryContent.");
+            }
+        }
+
+        public override object Read(string payload, object model, ModelReaderWriterOptions options)
+        {
+            var responseWithBody = new MockPipelineResponse(200);
+            responseWithBody.SetContent(payload);
+
+            ClientResult result = ClientResult.FromResponse(responseWithBody);
+            var paramType = typeof(ClientResult);
+            var modelType = model.GetType();
+            var castOperator = modelType.GetMethod("op_Explicit", [paramType]);
+            object? parsedModel = castOperator?.Invoke(null, [result]);
+
+            // check if the parsed model is of type T
+            if (parsedModel is T)
+            {
+                return parsedModel;
+            }
+            else
+            {
+                throw new InvalidOperationException($"Unable to cast {paramType.Name} to {modelType.Name}.");
+            }
         }
     }
 }
