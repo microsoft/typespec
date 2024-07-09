@@ -46,7 +46,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             [
                 new MethodProvider(
                     new ConstructorSignature(Type, $"{_inputClient.Description}", MethodSignatureModifiers.Public, []),
-                    new MethodBodyStatement[] { PipelineField.Assign(ClientPipelineSnippet.Create()).Terminate() },
+                    new MethodBodyStatement[] { PipelineField.Assign(ClientPipelineSnippets.Create()).Terminate() },
                     this)
             ];
         }

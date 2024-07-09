@@ -4,16 +4,12 @@
 import { SdkContext } from "@azure-tools/typespec-client-generator-core";
 import { getDoc } from "@typespec/compiler";
 import { HttpServer } from "@typespec/http";
+import { getExtensions } from "@typespec/openapi";
 import { NetEmitterOptions } from "../options.js";
 import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputParameter } from "../type/input-parameter.js";
-import {
-  InputEnumType,
-  InputModelType,
-  InputPrimitiveType,
-  InputType,
-} from "../type/input-type.js";
+import { InputEnumType, InputModelType, InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
 import { getDefaultValue, getInputType } from "./model.js";
 
@@ -38,10 +34,9 @@ export function resolveServers(
       let defaultValue = undefined;
       const value = prop.default ? getDefaultValue(prop.default) : "";
       const inputType: InputType = isEndpoint
-        ? ({
-            Kind: "uri",
-            IsNullable: false,
-          } as InputPrimitiveType)
+        ? {
+            Kind: "url",
+          }
         : getInputType(context, prop, models, enums);
 
       if (value) {
@@ -61,7 +56,9 @@ export function resolveServers(
         IsContentType: false,
         IsRequired: true,
         IsEndpoint: isEndpoint,
-        SkipUrlEncoding: false,
+        SkipUrlEncoding:
+          // TODO: update this when https://github.com/Azure/typespec-azure/issues/1022 is resolved
+          getExtensions(context.program, prop).get("x-ms-skip-url-encoding") === true,
         Explode: false,
         Kind: InputOperationParameterKind.Client,
         DefaultValue: defaultValue,
@@ -77,8 +74,7 @@ export function resolveServers(
         Description: server.description,
         Type: {
           Kind: "string",
-          IsNullable: false,
-        } as InputPrimitiveType,
+        },
         Location: RequestLocation.Uri,
         IsApiVersion: false,
         IsResourceParameter: false,
@@ -91,8 +87,7 @@ export function resolveServers(
         DefaultValue: {
           Type: {
             Kind: "string",
-            IsNullable: false,
-          } as InputPrimitiveType,
+          },
           Value: server.url,
         } as InputConstant,
       };

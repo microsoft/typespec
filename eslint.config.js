@@ -1,6 +1,7 @@
 // @ts-check
 import eslint from "@eslint/js";
 import deprecation from "eslint-plugin-deprecation";
+import reactHooks from "eslint-plugin-react-hooks";
 import unicorn from "eslint-plugin-unicorn";
 import vitest from "eslint-plugin-vitest";
 import { dirname } from "path";
@@ -105,10 +106,20 @@ const testFilesConfig = tsEslint.config({
   },
 });
 
+const jsxFilesConfig = tsEslint.config({
+  files: ["**/*.tsx"],
+  plugins: { "react-hooks": reactHooks },
+  rules: {
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+  },
+});
+
 export const TypeSpecCommonEslintConfigs = [
   eslint.configs.recommended,
   ...tsEslint.configs.recommended,
   ...allFilesConfig,
+  ...jsxFilesConfig,
   ...testFilesConfig,
 ];
 

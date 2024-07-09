@@ -14,6 +14,14 @@ const FileViewerComponent = ({
   const [filename, setFilename] = useState<string>("");
   const [content, setContent] = useState<string>("");
 
+  const loadOutputFile = useCallback(
+    async (path: string) => {
+      const contents = await program.host.readFile("./tsp-output/" + path);
+      setContent(contents.text);
+    },
+    [program.host]
+  );
+
   useEffect(() => {
     if (outputFiles.length > 0) {
       const fileStillThere = outputFiles.find((x) => x === filename);
@@ -23,19 +31,14 @@ const FileViewerComponent = ({
     } else {
       setFilename("");
     }
-  }, [program, outputFiles]);
-
-  async function loadOutputFile(path: string) {
-    const contents = await program.host.readFile("./tsp-output/" + path);
-    setContent(contents.text);
-  }
+  }, [program, outputFiles, loadOutputFile, filename]);
 
   const handleTabSelection = useCallback(
     (newFilename: string) => {
       setFilename(newFilename);
       void loadOutputFile(newFilename);
     },
-    [setFilename]
+    [loadOutputFile]
   );
 
   if (outputFiles.length === 0) {

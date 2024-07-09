@@ -334,7 +334,7 @@ export function getStatusCodeDescription(statusCode: number | "*" | HttpStatusCo
     case 401:
       return "Access is unauthorized.";
     case 403:
-      return "Access is forbidden";
+      return "Access is forbidden.";
     case 404:
       return "The server cannot find the requested resource.";
     case 409:
@@ -584,7 +584,10 @@ function extractHttpAuthentication(
     return [result, diagnostics];
   }
   const description = getDoc(program, modelType);
-  const auth = result.type === "oauth2" ? extractOAuth2Auth(result) : result;
+  const auth =
+    result.type === "oauth2"
+      ? extractOAuth2Auth(modelType, result)
+      : { ...result, model: modelType };
   return [
     {
       ...auth,
@@ -595,7 +598,7 @@ function extractHttpAuthentication(
   ];
 }
 
-function extractOAuth2Auth(data: any): HttpAuth {
+function extractOAuth2Auth(modelType: Model, data: any): HttpAuth {
   // Validation of OAuth2Flow models in this function is minimal because the
   // type system already validates whether the model represents a flow
   // configuration.  This code merely avoids runtime errors.
@@ -608,6 +611,7 @@ function extractOAuth2Auth(data: any): HttpAuth {
   return {
     id: data.id,
     type: data.type,
+    model: modelType,
     flows: flows.map((flow: any) => {
       const scopes: Array<string> = flow.scopes ? flow.scopes : defaultScopes;
       return {

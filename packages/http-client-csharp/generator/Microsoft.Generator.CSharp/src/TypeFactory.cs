@@ -14,10 +14,10 @@ namespace Microsoft.Generator.CSharp
 {
     public abstract class TypeFactory
     {
-        private ChangeTrackingListProvider? _changeTrackingListProvider;
-        private ChangeTrackingDictionaryProvider? _changeTrackingDictionaryProvider;
-        private ChangeTrackingListProvider ChangeTrackingListProvider => _changeTrackingListProvider ??= new();
-        private ChangeTrackingDictionaryProvider ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
+        private ChangeTrackingListDefinition? _changeTrackingListProvider;
+        private ChangeTrackingDictionaryDefinition? _changeTrackingDictionaryProvider;
+        private ChangeTrackingListDefinition ChangeTrackingListProvider => _changeTrackingListProvider ??= new();
+        private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
 
         private readonly IDictionary<InputType, CSharpType> _typeCache = new Dictionary<InputType, CSharpType>();
 
@@ -32,15 +32,14 @@ namespace Microsoft.Generator.CSharp
         }
 
         /// <summary>
-        /// Factory method for creating a <see cref="CSharpType"/> based on an input type <paramref name="input"/>.
+        /// Factory method for creating a <see cref="CSharpType"/> based on an input type <paramref name="inputType"/>.
         /// </summary>
-        /// <param name="input">The <see cref="InputType"/> to convert.</param>
+        /// <param name="inputType">The <see cref="InputType"/> to convert.</param>
         /// <returns>An instance of <see cref="CSharpType"/>.</returns>
         protected virtual CSharpType CreateCSharpTypeCore(InputType inputType) => inputType switch
         {
             InputLiteralType literalType => CSharpType.FromLiteral(CreateCSharpType(literalType.ValueType), literalType.Value),
             InputUnionType unionType => CSharpType.FromUnion(unionType.VariantTypes.Select(CreateCSharpType).ToArray()),
-            InputArrayType { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), CreateCSharpType(listType.ValueType)),
             InputArrayType listType => new CSharpType(typeof(IList<>), CreateCSharpType(listType.ValueType)),
             InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), typeof(string), CreateCSharpType(dictionaryType.ValueType)),
             InputEnumType enumType => EnumProvider.Create(enumType).Type,

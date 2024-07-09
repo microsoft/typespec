@@ -53,6 +53,7 @@ const Token = {
     valueof: createToken("valueof", "keyword.other.tsp"),
     typeof: createToken("typeof", "keyword.other.tsp"),
     const: createToken("const", "keyword.other.tsp"),
+    using: createToken("using", "keyword.other.tsp"),
     other: (text: string) => createToken(text, "keyword.other.tsp"),
   },
 
@@ -252,6 +253,28 @@ function testColorization(description: string, tokenize: Tokenize) {
             ),
           ]);
         });
+      });
+    });
+
+    describe("using", () => {
+      it("single namespace", async () => {
+        const tokens = await tokenize("using foo;");
+        deepStrictEqual(tokens, [
+          Token.keywords.using,
+          Token.identifiers.type("foo"),
+          Token.punctuation.semicolon,
+        ]);
+      });
+
+      it("nested namespace", async () => {
+        const tokens = await tokenize("using foo.bar;");
+        deepStrictEqual(tokens, [
+          Token.keywords.using,
+          Token.identifiers.type("foo"),
+          Token.punctuation.accessor,
+          Token.identifiers.type("bar"),
+          Token.punctuation.semicolon,
+        ]);
       });
     });
 

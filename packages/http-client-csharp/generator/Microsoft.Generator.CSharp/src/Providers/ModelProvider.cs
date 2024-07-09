@@ -8,6 +8,7 @@ using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -147,8 +148,8 @@ namespace Microsoft.Generator.CSharp.Providers
                         if (CSharpType.RequiresToList(parameter.Type, property.Type))
                         {
                             initializationValue = parameter.Type.IsNullable ?
-                                Linq.ToList(new NullConditionalExpression(initializationValue)) :
-                                Linq.ToList(initializationValue);
+                                new NullConditionalExpression(initializationValue).ToList() :
+                                initializationValue.ToList();
                         }
                     }
                 }
