@@ -1,7 +1,7 @@
 import { NodeHost, compile, resolvePath } from "@typespec/compiler";
 import { expectDiagnosticEmpty, findTestPackageRoot } from "@typespec/compiler/testing";
 import { it } from "vitest";
-import { TypeSpecPlaygroundConfig } from "../src/index.js";
+import { TypeSpecPlaygroundConfig } from "../src/config.js";
 
 const samples = TypeSpecPlaygroundConfig.samples;
 const packageRoot = await findTestPackageRoot(import.meta.url);

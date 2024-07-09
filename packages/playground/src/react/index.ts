@@ -1,4 +1,5 @@
 export { usePlaygroundContext } from "./context/index.js";
+export { Editor, useMonacoModel, type EditorProps } from "./editor.js";
 export {
   Footer,
   FooterItem,

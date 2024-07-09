@@ -68,7 +68,7 @@ export function Tree<T extends TreeNode>({
         }
       }
     },
-    [selectedKey, toggleExpand, selectionMode]
+    [selectionMode, selectedKey, toggleExpand, expand, setSelectedKey]
   );
 
   const handleKeyDown = useCallback(

@@ -2,7 +2,7 @@ import { useColorMode } from "@docusaurus/theme-common";
 import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
 import versions from "@site/playground-versions.json" assert { type: "json" };
 import Layout from "@theme/Layout";
-import { TypeSpecPlaygroundConfig } from "@typespec/playground-website";
+import { ImportToolbarButton, TypeSpecPlaygroundConfig } from "@typespec/playground-website";
 import {
   Footer,
   FooterVersionItem,
@@ -15,6 +15,7 @@ import { FunctionComponent, useMemo } from "react";
 import { VersionData } from "./import-map";
 import { LoadingSpinner } from "./loading-spinner";
 
+import "@typespec/playground-website/style.css";
 import "@typespec/playground/styles.css";
 
 export const FluentLayout = ({ children }) => {
@@ -55,6 +56,7 @@ export const WebsitePlayground = ({ versionData }: WebsitePlaygroundProps) => {
       footer={<PlaygroundFooter versionData={versionData} />}
       fallback={<LoadingSpinner message="Loading libraries..." />}
       onFileBug={fileBugToGithub}
+      commandBarButtons={<ImportToolbarButton />}
     />
   );
 };
@@ -77,7 +79,7 @@ const PlaygroundFooter: FunctionComponent<PlaygroundFooterProps> = ({ versionDat
       latest: versionData.latest,
       onChange: changeVersion,
     };
-  }, []);
+  }, [versionData.resolved, versionData.latest]);
   return (
     <Footer>
       <FooterVersionItem versionSelector={versionSelectorProps} />
