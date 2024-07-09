@@ -17,7 +17,6 @@ namespace Microsoft.Generator.CSharp.Providers
     {
         private VariableExpression? _variable;
         private Lazy<ParameterProvider> _parameter;
-        private FieldProvider? _backingField;
 
         public FormattableString Description { get; }
         public XmlDocSummaryStatement XmlDocSummary { get; }
@@ -32,12 +31,7 @@ namespace Microsoft.Generator.CSharp.Providers
         /// <summary>
         /// Converts this property to a parameter.
         /// </summary>
-        public ParameterProvider Parameter => _parameter.Value;
-
-        /// <summary>
-        /// Returns the backing field of this property if any.
-        /// </summary>
-        public FieldProvider? BackingField => _backingField;
+        public ParameterProvider AsParameter => _parameter.Value;
 
         public PropertyProvider(InputModelProperty inputProperty)
         {
@@ -55,7 +49,7 @@ namespace Microsoft.Generator.CSharp.Providers
             XmlDocs = GetXmlDocs();
             WireInfo = new PropertyWireInformation(inputProperty);
 
-            InitializeParameter(Name, FormattableStringHelpers.FromString(inputProperty.Description), Type, GetParameterValidation(inputProperty, Type));
+            InitializeParameter(Name, FormattableStringHelpers.FromString(inputProperty.Description), Type);
         }
 
         public PropertyProvider(
@@ -65,8 +59,7 @@ namespace Microsoft.Generator.CSharp.Providers
             string name,
             PropertyBody body,
             CSharpType? explicitInterface = null,
-            PropertyWireInformation? wireInfo = null,
-            FieldProvider? backingField = null)
+            PropertyWireInformation? wireInfo = null)
         {
             Description = description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter);
             XmlDocSummary = new XmlDocSummaryStatement([Description]);
@@ -78,57 +71,14 @@ namespace Microsoft.Generator.CSharp.Providers
             XmlDocs = GetXmlDocs();
             WireInfo = wireInfo;
 
-            InitializeParameter(Name, description ?? FormattableStringHelpers.Empty, Type, ParameterValidationType.None);
-            InitializeField(backingField);
+            InitializeParameter(Name, description ?? FormattableStringHelpers.Empty, Type);
         }
 
         [MemberNotNull(nameof(_parameter))]
-        private void InitializeParameter(string propertyName, FormattableString description, CSharpType propertyType, ParameterValidationType validation)
+        private void InitializeParameter(string propertyName, FormattableString description, CSharpType propertyType)
         {
             var parameterName = propertyName.ToVariableName();
-            _parameter = new(() => new ParameterProvider(parameterName, description, propertyType)
-            {
-                Validation = validation,
-                Property = this
-            });
-        }
-
-        private void InitializeField(FieldProvider? backingField)
-        {
-            if (backingField == null)
-                return;
-
-            _backingField = backingField;
-            backingField.Property = this;
-        }
-
-        private static ParameterValidationType GetParameterValidation(InputModelProperty property, CSharpType propertyType)
-        {
-            // We do not validate a parameter when it is a value type (struct or int, etc)
-            if (propertyType.IsValueType)
-            {
-                return ParameterValidationType.None;
-            }
-
-            // or it is readonly
-            if (property.IsReadOnly)
-            {
-                return ParameterValidationType.None;
-            }
-
-            // or it is optional
-            if (!property.IsRequired)
-            {
-                return ParameterValidationType.None;
-            }
-
-            // or it is nullable
-            if (propertyType.IsNullable)
-            {
-                return ParameterValidationType.None;
-            }
-
-            return ParameterValidationType.AssertNotNull;
+            _parameter = new(() => new ParameterProvider(parameterName, description, propertyType, property: this));
         }
 
         public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());

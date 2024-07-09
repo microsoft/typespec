@@ -113,7 +113,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     if (!property.WireInfo.IsReadOnly)
                     {
-                        constructorParameters.Add(property.Parameter.Input);
+                        constructorParameters.Add(property.AsParameter.ToPublicInputParameter());
                     }
                 }
             }

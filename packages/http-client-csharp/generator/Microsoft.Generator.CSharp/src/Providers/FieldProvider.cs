@@ -24,14 +24,9 @@ namespace Microsoft.Generator.CSharp.Providers
         public CodeWriterDeclaration Declaration => _declaration ??= new CodeWriterDeclaration(Name);
 
         /// <summary>
-        /// This property tracks the corresponding property that this field is backing for.
-        /// </summary>
-        public PropertyProvider? Property { get; internal set; }
-
-        /// <summary>
         /// Converts this field to a parameter.
         /// </summary>
-        public ParameterProvider Parameter => _parameter.Value;
+        public ParameterProvider AsParameter => _parameter.Value;
 
         public FieldProvider(
             FieldModifiers modifiers,
@@ -53,10 +48,7 @@ namespace Microsoft.Generator.CSharp.Providers
         [MemberNotNull(nameof(_parameter))]
         private void InitializeParameter(string fieldName, FormattableString description, CSharpType fieldType)
         {
-            _parameter = new(() => new ParameterProvider(fieldName.ToVariableName(), description , fieldType)
-            {
-                Field = this
-            });
+            _parameter = new(() => new ParameterProvider(fieldName.ToVariableName(), description, fieldType, field: this));
         }
 
         private MemberExpression? _asMember;

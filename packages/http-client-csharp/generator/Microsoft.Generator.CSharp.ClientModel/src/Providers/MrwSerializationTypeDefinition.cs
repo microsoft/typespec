@@ -949,14 +949,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             foreach (var property in _model.Properties)
             {
-                var parameter = property.Parameter;
+                var parameter = property.AsParameter;
                 constructorParameters.Add(parameter);
             }
 
             // Append the raw data field if it doesn't already exist in the constructor parameters
             if (shouldAddRawDataField && _rawDataField != null)
             {
-                constructorParameters.Add(_rawDataField.Parameter);
+                constructorParameters.Add(_rawDataField.AsParameter);
             }
 
             return constructorParameters;

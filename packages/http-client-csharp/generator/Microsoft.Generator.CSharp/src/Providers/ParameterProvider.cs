@@ -28,12 +28,12 @@ namespace Microsoft.Generator.CSharp.Providers
         /// <summary>
         /// This property tracks which property this parameter is constructed from
         /// </summary>
-        public PropertyProvider? Property { get; internal set; }
+        public PropertyProvider? Property { get; }
 
         /// <summary>
         /// This property tracks which field this parameter is constructed from
         /// </summary>
-        public FieldProvider? Field { get; internal set; }
+        public FieldProvider? Field { get; }
 
         /// <summary>
         /// Creates a <see cref="ParameterProvider"/> from an <see cref="InputParameter"/>.
@@ -54,8 +54,12 @@ namespace Microsoft.Generator.CSharp.Providers
             ValueExpression? defaultValue = null,
             bool isRef = false,
             bool isOut = false,
-            IReadOnlyList<AttributeStatement>? attributes = null)
+            IReadOnlyList<AttributeStatement>? attributes = null,
+            PropertyProvider? property = null,
+            FieldProvider? field = null)
         {
+            Debug.Assert(!(property is not null && field is not null), "A parameter cannot be both a property and a field");
+
             Name = name;
             Type = type;
             Description = description;
@@ -63,13 +67,17 @@ namespace Microsoft.Generator.CSharp.Providers
             IsOut = isOut;
             DefaultValue = defaultValue;
             Attributes = attributes ?? Array.Empty<AttributeStatement>();
+            Property = property;
+            Field = field;
+            Validation = GetParameterValidation();
         }
 
         private ParameterProvider? _inputParameter;
         /// <summary>
-        /// Returns the input variant of this parameter.
+        /// Returns the public input variant of this parameter.
+        /// For example if the parameter is a <see cref="List{T}"/> it will be converted into an <see cref="IEnumerable{T}"/>.
         /// </summary>
-        public ParameterProvider Input => _inputParameter ??= BuildInputVariant();
+        public ParameterProvider ToPublicInputParameter() => _inputParameter ??= BuildInputVariant();
 
         private ParameterProvider BuildInputVariant()
         {
@@ -80,11 +88,11 @@ namespace Microsoft.Generator.CSharp.Providers
                 DefaultValue,
                 IsRef,
                 IsOut,
-                Attributes)
+                Attributes,
+                property: Property,
+                field: Field)
             {
                 Validation = Validation,
-                Property = Property,
-                Field = Field,
             };
         }
 
@@ -140,5 +148,29 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private VariableExpression? _asVariable;
         public VariableExpression AsExpression => _asVariable ??= this;
+
+        private ParameterValidationType GetParameterValidation()
+        {
+            if (Property is null || Property.WireInfo is null)
+                return ParameterValidationType.None;
+
+            // We do not validate a parameter when it is a value type (struct or int, etc)
+            if (Property.Type.IsValueType)
+                return ParameterValidationType.None;
+
+            // or it is readonly
+            if (Property.WireInfo.IsReadOnly)
+                return ParameterValidationType.None;
+
+            // or it is optional
+            if (!Property.WireInfo.IsRequired)
+                return ParameterValidationType.None;
+
+            // or it is nullable
+            if (Property.Type.IsNullable)
+                return ParameterValidationType.None;
+
+            return ParameterValidationType.AssertNotNull;
+        }
     }
 }
