@@ -1,8 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.ClientModel;
+using System;
+using System.ClientModel.Primitives;
 using System.IO;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using UnbrandedTypeSpec.Models;
 
@@ -46,6 +51,35 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
                 var parsedJson = JsonDocument.Parse(JsonPayload).RootElement;
                 Assert.AreEqual(parsedJson.GetProperty("extra").GetString(), rawData["extra"].ToObjectFromJson<string>());
             }
+        }
+
+        protected override async Task TestBinaryContentCast(ModelWithRequiredNullableProperties model, ModelReaderWriterOptions options)
+        {
+            using BinaryContent binaryContent = model;
+
+            Assert.IsNotNull(binaryContent);
+
+            using MemoryStream stream = new MemoryStream();
+            await binaryContent.WriteToAsync(stream, CancellationToken.None);
+            BinaryData serializedContent = ((IPersistableModel<object>)model).Write(options);
+
+            Assert.AreEqual(serializedContent.ToArray(), stream.ToArray());
+        }
+
+        public override void TestClientResultCast(string serializedResponse)
+        {
+            var responseWithBody = new MockPipelineResponse(200);
+            responseWithBody.SetContent(serializedResponse);
+            ClientResult result = ClientResult.FromResponse(responseWithBody);
+
+            ModelWithRequiredNullableProperties model = (ModelWithRequiredNullableProperties)result;
+            var parsedWireJson = JsonDocument.Parse(serializedResponse).RootElement;
+
+            Assert.IsNotNull(model);
+            Assert.AreEqual(parsedWireJson.GetProperty("requiredNullablePrimitive").GetInt32(), model.RequiredNullablePrimitive);
+            var requiredExtensibleEnumValue = parsedWireJson.GetProperty("requiredExtensibleEnum").GetString();
+            Assert.AreEqual(new StringExtensibleEnum(requiredExtensibleEnumValue), model.RequiredExtensibleEnum);
+            Assert.AreEqual(StringFixedEnum.One, model.RequiredFixedEnum);
         }
     }
 }

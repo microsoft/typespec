@@ -81,6 +81,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
         }
     }
 
+    public class ModelCastStrategy<T> : RoundTripStrategy<T> where T : IPersistableModel<T>
+    {
+        public override bool IsExplicitJsonWrite => false;
+        public override bool IsExplicitJsonRead => false;
+
+        public override BinaryData Write(T model, ModelReaderWriterOptions options)
+        {
+            return model.Write(options);
+        }
+
+        public override object Read(string payload, object model, ModelReaderWriterOptions options)
+        {
+            return ((IPersistableModel<T>)model).Create(new BinaryData(Encoding.UTF8.GetBytes(payload)), options);
+        }
+    }
+
     public class ModelInterfaceAsObjectStrategy<T> : RoundTripStrategy<T> where T : IPersistableModel<T>
     {
         public override bool IsExplicitJsonWrite => false;

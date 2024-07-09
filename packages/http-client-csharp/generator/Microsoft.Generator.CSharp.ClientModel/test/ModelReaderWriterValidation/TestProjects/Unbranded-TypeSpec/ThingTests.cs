@@ -1,8 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.ClientModel;
+using System;
+using System.ClientModel.Primitives;
 using System.IO;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using UnbrandedTypeSpec.Models;
 
@@ -66,6 +71,45 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
                 var parsedJson = JsonDocument.Parse(JsonPayload).RootElement;
                 Assert.AreEqual(parsedJson.GetProperty("extra").GetString(), rawData["extra"].ToObjectFromJson<string>());
             }
+        }
+
+        protected override async Task TestBinaryContentCast(Thing model, ModelReaderWriterOptions options)
+        {
+            using BinaryContent binaryContent = model;
+
+            Assert.IsNotNull(binaryContent);
+
+            using MemoryStream stream = new MemoryStream();
+            await binaryContent.WriteToAsync(stream, CancellationToken.None);
+            BinaryData serializedContent = ((IPersistableModel<object>)model).Write(options);
+
+            Assert.AreEqual(serializedContent.ToArray(), stream.ToArray());
+        }
+
+        public override void TestClientResultCast(string serializedResponse)
+        {
+            var responseWithBody = new MockPipelineResponse(200);
+            responseWithBody.SetContent(serializedResponse);
+            ClientResult result = ClientResult.FromResponse(responseWithBody);
+
+            Thing model = (Thing)result;
+            var parsedWireJson = JsonDocument.Parse(serializedResponse).RootElement;
+
+            Assert.IsNotNull(model);
+            Assert.IsNotNull(parsedWireJson);
+            Assert.AreEqual(parsedWireJson.GetProperty("name").GetString(), model.Name);
+            Assert.AreEqual("\"mockUnion\"", model.RequiredUnion.ToString());
+            Assert.AreEqual(parsedWireJson.GetProperty("requiredBadDescription").GetString(), model.RequiredBadDescription);
+            Assert.AreEqual(parsedWireJson.GetProperty("requiredNullableList").GetArrayLength(), model.RequiredNullableList.Count);
+            Assert.AreEqual(new ThingRequiredLiteralString(parsedWireJson.GetProperty("requiredLiteralString").GetString()), model.RequiredLiteralString);
+            Assert.AreEqual(new ThingRequiredLiteralInt(parsedWireJson.GetProperty("requiredLiteralInt").GetInt32()), model.RequiredLiteralInt);
+            Assert.AreEqual(new ThingRequiredLiteralFloat(parsedWireJson.GetProperty("requiredLiteralFloat").GetSingle()), model.RequiredLiteralFloat);
+            Assert.AreEqual(parsedWireJson.GetProperty("requiredLiteralBool").GetBoolean(), model.RequiredLiteralBool);
+            Assert.AreEqual(new ThingOptionalLiteralString(parsedWireJson.GetProperty("optionalLiteralString").GetString()), model.OptionalLiteralString);
+            Assert.AreEqual(new ThingOptionalLiteralInt(parsedWireJson.GetProperty("optionalLiteralInt").GetInt32()), model.OptionalLiteralInt);
+            Assert.AreEqual(new ThingOptionalLiteralFloat(parsedWireJson.GetProperty("optionalLiteralFloat").GetSingle()), model.OptionalLiteralFloat);
+            Assert.AreEqual(parsedWireJson.GetProperty("optionalLiteralBool").GetBoolean(), model.OptionalLiteralBool);
+            Assert.AreEqual(parsedWireJson.GetProperty("optionalNullableList").GetArrayLength(), model.OptionalNullableList.Count);
         }
     }
 }

@@ -208,9 +208,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 JsonDocumentSnippets.Parse(response.Property(nameof(PipelineResponse.Content)).As<BinaryData>()),
                 out var docVariable);
             // return DeserializeT(doc.RootElement, ModelSerializationExtensions.WireOptions);
-            var deserialize = Return(TypeProviderSnippets.Deserialize(
-                _model,
-                JsonDocumentSnippets.RootElement(docVariable.As<JsonDocument>()), ModelSerializationExtensionsSnippets.Wire));
+            var deserialize = Return(_model.Deserialize(docVariable.As<JsonDocument>().RootElement(), ModelSerializationExtensionsSnippets.Wire));
             var methodBody = new MethodBodyStatement[]
             {
                 responseDeclaration,

@@ -1,8 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.ClientModel;
+using System;
+using System.ClientModel.Primitives;
 using System.IO;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using UnbrandedTypeSpec.Models;
 
@@ -142,6 +147,71 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
                 var parsedJson = JsonDocument.Parse(JsonPayload).RootElement;
                 Assert.AreEqual(parsedJson.GetProperty("extra").GetString(), rawData["extra"].ToObjectFromJson<string>());
             }
+        }
+
+        protected override async Task TestBinaryContentCast(RoundTripModel model, ModelReaderWriterOptions options)
+        {
+            using BinaryContent binaryContent = model;
+
+            Assert.IsNotNull(binaryContent);
+
+            using MemoryStream stream = new MemoryStream();
+            await binaryContent.WriteToAsync(stream, CancellationToken.None);
+            BinaryData serializedContent = ((IPersistableModel<object>)model).Write(options);
+
+            Assert.AreEqual(serializedContent.ToArray(), stream.ToArray());
+        }
+
+        public override void TestClientResultCast(string serializedResponse)
+        {
+            var responseWithBody = new MockPipelineResponse(200);
+            responseWithBody.SetContent(serializedResponse);
+            ClientResult result = ClientResult.FromResponse(responseWithBody);
+
+            RoundTripModel model = (RoundTripModel)result;
+            var parsedWireJson = JsonDocument.Parse(serializedResponse).RootElement;
+
+            Assert.IsNotNull(model);
+            Assert.IsNotNull(parsedWireJson);
+
+            Assert.AreEqual(parsedWireJson.GetProperty("requiredString").GetString(), model.RequiredString);
+            Assert.AreEqual(parsedWireJson.GetProperty("requiredInt").GetInt32(), model.RequiredInt);
+            Assert.AreEqual(1, model.RequiredCollection.Count);
+            Assert.AreEqual(new IntExtensibleEnum(1), model.IntExtensibleEnum);
+            Assert.AreEqual(2, model.IntExtensibleEnumCollection.Count);
+            Assert.AreEqual(new FloatExtensibleEnum(1.1F), model.FloatExtensibleEnum);
+            Assert.AreEqual(new FloatExtensibleEnumWithIntValue(1), model.FloatExtensibleEnumWithIntValue);
+            Assert.AreEqual(2, model.FloatExtensibleEnumCollection.Count);
+            Assert.AreEqual(2, model.FloatFixedEnumCollection.Count);
+            Assert.AreEqual(FloatFixedEnum.OneDotOne, model.FloatFixedEnum);
+            Assert.AreEqual(FloatFixedEnumWithIntValue.One, model.FloatFixedEnumWithIntValue);
+            Assert.AreEqual(IntFixedEnum.One, model.IntFixedEnum);
+            Assert.AreEqual(2, model.IntFixedEnumCollection.Count);
+            Assert.AreEqual(StringFixedEnum.One, model.StringFixedEnum);
+            Assert.AreEqual("\"foo\"", model.RequiredUnknown.ToString());
+
+            var requiredRecord = model.RequiredRecordUnknown;
+            Assert.AreEqual(2, requiredRecord.Count);
+            Assert.AreEqual("\"foo\"", requiredRecord["recordKey1"].ToString());
+            Assert.AreEqual("\"bar\"", requiredRecord["recordKey2"].ToString());
+
+            var optionalRecord = model.OptionalRecordUnknown;
+            Assert.AreEqual(2, optionalRecord.Count);
+            Assert.AreEqual("\"foo\"", optionalRecord["recordKey1"].ToString());
+            Assert.AreEqual("\"bar\"", optionalRecord["recordKey2"].ToString());
+
+            var modelWithRequiredNullable = model.ModelWithRequiredNullable;
+            Assert.IsNull(modelWithRequiredNullable.RequiredNullablePrimitive);
+            Assert.AreEqual(new StringExtensibleEnum("Non-null value"), modelWithRequiredNullable.RequiredExtensibleEnum);
+            Assert.AreEqual(StringFixedEnum.One, modelWithRequiredNullable.RequiredFixedEnum);
+
+            Assert.AreEqual(new StringExtensibleEnum("EnumValue1"), model.RequiredDictionary["key1"]);
+            Assert.AreEqual(new StringExtensibleEnum("EnumValue2"), model.RequiredDictionary["key2"]);
+            var requiredModel = model.RequiredModel;
+            Assert.AreEqual("Example Thing", requiredModel.Name);
+            Assert.AreEqual("\"mockUnion\"", requiredModel.RequiredUnion.ToString());
+            Assert.AreEqual("This is a description with potentially problematic characters like < or >.", requiredModel.RequiredBadDescription);
+            Assert.AreEqual(3, requiredModel.RequiredNullableList.Count);
         }
     }
 }

@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidation
@@ -40,6 +41,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
         }
         protected abstract void VerifyModel(T model, string format);
         protected abstract void CompareModels(T model, T model2, string format);
+        protected abstract Task TestBinaryContentCast(T model, ModelReaderWriterOptions options);
+        public abstract void TestClientResultCast(string serializedResponse);
         protected abstract string JsonPayload { get; }
         protected abstract string WirePayload { get; }
 
@@ -85,6 +88,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
 
             T model2 = (T)strategy.Read(roundTrip, ModelInstance, options);
             CompareModels(model, model2, format);
+
+            if (format == "W")
+            {
+                TestBinaryContentCast(model, options);
+                TestClientResultCast(expectedSerializedString);
+            }
         }
 
         private void AssertJsonEquivalency(string expected, string result)
