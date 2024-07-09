@@ -3,6 +3,7 @@ import type { BrowserHost } from "../../types.js";
 
 export interface PlaygroundContext {
   readonly host: BrowserHost;
+  readonly setContent: (content: string) => void;
 }
 
 const PlaygroundContext = createContext<PlaygroundContext | undefined>(undefined);

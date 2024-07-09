@@ -4,6 +4,7 @@
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.Generator.CSharp.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -42,7 +43,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodProvider BuildCreateMessageMethod(InputOperation operation)
         {
-            var methodProvider = (ScmMethodProviderCollection)ClientModelPlugin.Instance.TypeFactory.CreateMethodProviders(operation, ClientProvider);
+            var methodProvider = (ScmMethodProviderCollection)ClientModelPlugin.Instance.TypeFactory.CreateMethods(operation, ClientProvider);
 
             var methodModifier = MethodSignatureModifiers.Internal;
             var methodSignature = new MethodSignature(

@@ -9,7 +9,7 @@ using System.Threading;
 using Microsoft.Generator.CSharp.Primitives;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.Tests.OutputTypes
+namespace Microsoft.Generator.CSharp.Tests.Primitives
 {
     internal class KnownParametersTests
     {
