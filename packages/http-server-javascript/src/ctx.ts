@@ -19,6 +19,7 @@ import { emitDeclaration } from "./common/declaration.js";
 import { createOrGetModuleForNamespace } from "./common/namespace.js";
 import { SerializableType } from "./common/serialization/index.js";
 import { emitUnion } from "./common/union.js";
+import { JsEmitterOptions } from "./lib.js";
 import { UnimplementedError } from "./util/error.js";
 import { OnceQueue } from "./util/once-queue.js";
 
@@ -55,6 +56,11 @@ export interface JsContext {
    * The TypeSpec Program that this emitter instance operates over.
    */
   program: Program;
+
+  /**
+   * The emitter options.
+   */
+  options: JsEmitterOptions;
 
   /**
    * The global (root) namespace of the program.

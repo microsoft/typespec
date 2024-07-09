@@ -24,7 +24,7 @@ import { UnimplementedError } from "../../util/error.js";
 import { getAllProperties } from "../../util/extends.js";
 import { bifilter, indent } from "../../util/iter.js";
 import { keywordSafe } from "../../util/keywords.js";
-import { HttpContext } from "../feature.js";
+import { HttpContext } from "../index.js";
 
 import { module as routerHelpers } from "../../helpers/router.js";
 import { differentiateUnion, writeCodeTree } from "../../util/differentiate.js";
@@ -164,12 +164,12 @@ function* emitRawServerOperation(
       throw new UnimplementedError(`new form of multipart requests`);
     }
 
-    const bodyNameCase = parseCase(body.parameter?.name ?? defaultBodyTypeName);
+    const bodyNameCase = parseCase(body.property?.name ?? defaultBodyTypeName);
 
     const bodyTypeName = emitTypeReference(
       ctx,
       body.type,
-      body.parameter?.type ?? operation.operation.node,
+      body.property?.type ?? operation.operation.node,
       module,
       { altName: defaultBodyTypeName }
     );
@@ -300,7 +300,8 @@ function* emitRawServerOperation(
  * This code handles writing the result of calling the business logic layer to the HTTP response object.
  *
  * @param ctx - The HTTP emitter context.
- * @param split - The SplitReturnType instance representing the return type of the operation.
+ * @param t - The return type of the operation.
+ * @param module - The module that the result processing code will be written to.
  */
 function* emitResultProcessing(ctx: HttpContext, t: Type, module: Module): Iterable<string> {
   if (t.kind !== "Union") {
@@ -325,6 +326,7 @@ function* emitResultProcessing(ctx: HttpContext, t: Type, module: Module): Itera
  *
  * @param ctx - The HTTP emitter context.
  * @param target - The target type to emit processing code for.
+ * @param module - The module that the result processing code will be written to.
  */
 function* emitResultProcessingForType(
   ctx: HttpContext,

@@ -4,7 +4,6 @@
 import { EmitContext, NoTarget, listServices } from "@typespec/compiler";
 import { visitAllTypes } from "./common/namespace.js";
 import { JsContext, Module, createModule, createPathCursor } from "./ctx.js";
-import { JsEmitterFeature, getFeatureHandler } from "./feature.js";
 import { JsEmitterOptions, reportDiagnostic } from "./lib.js";
 import { parseCase } from "./util/case.js";
 import { UnimplementedError } from "./util/error.js";
@@ -16,7 +15,7 @@ import { createModule as initializeHelperModule } from "./helpers/index.js";
 // #region features
 
 import { emitSerialization } from "./common/serialization/index.js";
-import "./http/feature.js";
+import { emitHttp } from "./http/index.js";
 
 // #endregion
 
@@ -68,6 +67,7 @@ export async function $onEmit(context: EmitContext<JsEmitterOptions>) {
 
   const jsCtx: JsContext = {
     program: context.program,
+    options: context.options,
     globalNamespace,
     service,
 
@@ -84,13 +84,7 @@ export async function $onEmit(context: EmitContext<JsEmitterOptions>) {
     serializations: createOnceQueue(),
   };
 
-  for (const [name, options] of Object.entries(context.options.features ?? {}) as [
-    keyof JsEmitterFeature,
-    any,
-  ][]) {
-    const handler = getFeatureHandler(name);
-    await handler(jsCtx, options);
-  }
+  await emitHttp(jsCtx);
 
   if (!context.options["omit-unreachable-types"]) {
     // Visit everything in the service namespace to ensure we emit a full `models` module and not just the subparts that

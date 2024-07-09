@@ -9,6 +9,7 @@ import {
   NumericLiteral,
   StringLiteral,
   Type,
+  compilerAssert,
   getEncode,
   getProjectedName,
   isArrayModelType,
@@ -221,19 +222,19 @@ function transposeExpressionToJson(
       return transposeExpressionToJson(ctx, type.type, expr, module);
     case "Intrinsic":
       switch (type.name) {
-        case "ErrorType":
-          throw new Error("UNREACHABLE: ErrorType in JSON deserialization");
         case "void":
           return "undefined";
         case "null":
           return "null";
+        case "ErrorType":
+          compilerAssert(false, "Encountered ErrorType in JSON serialization", type);
+          return expr;
         case "never":
         case "unknown":
-          return expr;
         default:
-          throw new Error(
-            `Unreachable: intrinsic type ${(type satisfies never as IntrinsicType).name}`
-          );
+          // Unhandled intrinsics will have been caught during type construction. We'll ignore this and
+          // just return the expr as-is.
+          return expr;
       }
     case "String":
     case "Number":

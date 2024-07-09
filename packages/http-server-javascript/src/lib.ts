@@ -2,10 +2,9 @@
 // Licensed under the MIT license.
 
 import { JSONSchemaType, createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
-import { JsEmitterFeature, JsEmitterFeatureOptionsSchema } from "./feature.js";
 
 export interface JsEmitterOptions {
-  features: JsEmitterFeature;
+  express?: boolean;
   "omit-unreachable-types": boolean;
   "no-format": boolean;
 }
@@ -14,7 +13,7 @@ const EmitterOptionsSchema: JSONSchemaType<JsEmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
-    features: JsEmitterFeatureOptionsSchema,
+    express: { type: "boolean", nullable: true, default: false },
     "omit-unreachable-types": {
       type: "boolean",
       default: false,

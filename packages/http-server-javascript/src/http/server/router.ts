@@ -18,7 +18,7 @@ import { Module, createModule } from "../../ctx.js";
 import { ReCase, parseCase } from "../../util/case.js";
 import { bifilter, indent } from "../../util/iter.js";
 import { keywordSafe } from "../../util/keywords.js";
-import { HttpContext } from "../feature.js";
+import { HttpContext } from "../index.js";
 
 import { module as routerHelper } from "../../helpers/router.js";
 import { reportDiagnostic } from "../../lib.js";
@@ -104,7 +104,7 @@ function* emitRouterDefinition(
   yield `   */`;
   yield `  dispatch(request: http.IncomingMessage, response: http.ServerResponse): void;`;
 
-  if (ctx.httpOptions.express) {
+  if (ctx.options.express) {
     yield "";
     yield `  /**`;
     yield `   * An Express middleware function that dispatches the request to the appropriate service based on the request path.`;
@@ -193,7 +193,7 @@ function* emitRouterDefinition(
   yield `  return {`;
   yield `    dispatch(request, response) { return dispatch({ request, response }, request, response, onRouteNotFound).catch((e) => onInternalError(e, request, response)); },`;
 
-  if (ctx.httpOptions.express) {
+  if (ctx.options.express) {
     yield `    expressMiddleware: function (request, response, next) { void dispatch({ request, response }, request, response, function () { next(); }).catch((e) => onInternalError(e, request, response)); },`;
   }
 
