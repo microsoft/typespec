@@ -34,14 +34,18 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         /// <param name="provider">The model type provider.</param>
         /// <param name="inputModel">The input model.</param>
-        public IReadOnlyList<TypeProvider> GetSerializationTypeProviders(TypeProvider provider, InputType? inputType)
+        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(TypeProvider provider, InputType? inputType)
         {
             switch (inputType)
             {
                 case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
                     return [new MrwSerializationTypeProvider(provider, inputModel)];
+                case object when (provider is EnumProvider enumProvider) && enumProvider.IsExtensible:
+                    return [new ExtensibleEnumSerializationProvider(enumProvider)];
+                case object when (provider is EnumProvider enumProvider):
+                    return [new FixedEnumSerializationProvider(enumProvider)];
                 default:
-                    return TypeFactory.GetSerializationTypeProviders(provider, inputType);
+                    return Array.Empty<TypeProvider>();
             }
         }
 

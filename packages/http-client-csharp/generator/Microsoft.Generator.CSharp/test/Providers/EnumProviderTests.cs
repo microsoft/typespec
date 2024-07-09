@@ -10,7 +10,6 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
-using Microsoft.Generator.CSharp.Snippets;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
@@ -64,37 +63,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             var value2 = fields[1].InitializationValue as LiteralExpression;
             Assert.IsNotNull(value2);
             Assert.AreEqual(2, value2?.Literal);
-
-            // int based fixed enum does not have serialization method therefore we only have one method
-            var serialization = enumType.SerializationProviders.FirstOrDefault();
-            Assert.IsNotNull(serialization);
-            Assert.AreEqual(1, serialization?.Methods.Count);
-
-            // validate the expression is working fine
-            using var writer = new CodeWriter();
-            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
-            if (enumType.IsExtensible)
-            {
-                var extensibleProvider = serialization as ExtensibleEnumSerializationProvider;
-                extensibleProvider?.ToSerial(enumVar).Write(writer);
-                writer.WriteLine();
-                extensibleProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
-            }
-            else
-            {
-                var fixedProvider = serialization as FixedEnumSerializationProvider;
-                fixedProvider?.ToSerial(enumVar).Write(writer);
-                writer.WriteLine();
-                fixedProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
-            }
-
-            var result = writer.ToString(false);
-            var builder = new StringBuilder();
-            builder.Append($"((int)e)").Append(NewLine)
-                .Append($"1.ToMockInputEnumExtensions()");
-            var expected = builder.ToString();
-
-            Assert.AreEqual(expected, result);
         }
 
         // Validates the float based fixed enum
@@ -117,37 +85,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             // non-int based enum does not initialization values.
             Assert.IsNull(fields[0].InitializationValue);
             Assert.IsNull(fields[1].InitializationValue);
-
-            // int float fixed enum has serialization method and deserialization method therefore we only have two methods
-            TypeProvider? serialization = enumType.SerializationProviders.FirstOrDefault();
-            Assert.IsNotNull(serialization);
-            Assert.AreEqual(2, serialization?.Methods.Count);
-
-            // validate the expression is working fine
-            using var writer = new CodeWriter();
-            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
-            if (enumType.IsExtensible)
-            {
-                var extensibleProvider = serialization as ExtensibleEnumSerializationProvider;
-                extensibleProvider?.ToSerial(enumVar).Write(writer);
-                writer.WriteLine();
-                extensibleProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
-            }
-            else
-            {
-                var fixedProvider = serialization as FixedEnumSerializationProvider;
-                fixedProvider?.ToSerial(enumVar).Write(writer);
-                writer.WriteLine();
-                fixedProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
-            }
-
-            var result = writer.ToString(false);
-            var builder = new StringBuilder();
-            builder.Append($"e.ToSerialSingle()").Append(NewLine)
-                .Append($"1F.ToMockInputEnumExtensions()");
-            var expected = builder.ToString();
-
-            Assert.AreEqual(expected, result);
         }
 
         // Validates the string based fixed enum
@@ -170,37 +107,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             // non-int based enum does not initialization values.
             Assert.IsNull(fields[0].InitializationValue);
             Assert.IsNull(fields[1].InitializationValue);
-
-            // int float fixed enum has serialization method and deserialization method therefore we only have two methods
-            var serialization = enumType.SerializationProviders.FirstOrDefault();
-            Assert.IsNotNull(serialization);
-            Assert.AreEqual(2, serialization?.Methods.Count);
-
-            // validate the expression is working fine
-            using var writer = new CodeWriter();
-            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
-            if (enumType.IsExtensible)
-            {
-                var extensibleProvider = serialization as ExtensibleEnumSerializationProvider;
-                extensibleProvider?.ToSerial(enumVar).Write(writer);
-                writer.WriteLine();
-                extensibleProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
-            }
-            else
-            {
-                var fixedProvider = serialization as FixedEnumSerializationProvider;
-                fixedProvider?.ToSerial(enumVar).Write(writer);
-                writer.WriteLine();
-                fixedProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
-            }
-
-            var result = writer.ToString(false);
-            var builder = new StringBuilder();
-            builder.Append($"e.ToSerialString()").Append(NewLine)
-                .Append($"\"1\".ToMockInputEnumExtensions()");
-            var expected = builder.ToString();
-
-            Assert.AreEqual(expected, result);
         }
 
         // Validates the int based extensible enum
@@ -243,36 +149,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.IsInstanceOf<AutoPropertyBody>(properties[1].Body);
             var propertyValue2 = (properties[1].Body as AutoPropertyBody)?.InitializationExpression;
             Assert.IsNotNull(propertyValue2);
-
-            // extensible enums do not have serialization
-            var serialization = enumType.SerializationProviders.FirstOrDefault();
-            Assert.IsNull(serialization);
-
-            // validate the expression is working fine
-            using var writer = new CodeWriter();
-            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
-            if (enumType.IsExtensible)
-            {
-                var extensibleProvider = serialization as ExtensibleEnumSerializationProvider;
-                extensibleProvider?.ToSerial(enumVar).Write(writer);
-                writer.WriteLine();
-                extensibleProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
-            }
-            else
-            {
-                var fixedProvider = serialization as FixedEnumSerializationProvider;
-                fixedProvider?.ToSerial(enumVar).Write(writer);
-                writer.WriteLine();
-                fixedProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
-            }
-
-            var result = writer.ToString(false);
-            var builder = new StringBuilder();
-            builder.Append($"e.ToSerialInt32()").Append(NewLine)
-                .Append($"new global::sample.namespace.Models.MockInputEnum(1)");
-            var expected = builder.ToString();
-
-            Assert.AreEqual(expected, result);
         }
 
         // Validates the float based extensible enum
@@ -315,36 +191,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.IsInstanceOf<AutoPropertyBody>(properties[1].Body);
             var propertyValue2 = (properties[1].Body as AutoPropertyBody)?.InitializationExpression;
             Assert.IsNotNull(propertyValue2);
-
-            // extensible enums do not have serialization
-            var serialization = enumType.SerializationProviders?.FirstOrDefault();
-            Assert.IsNull(serialization);
-
-            // validate the expression is working fine
-            using var writer = new CodeWriter();
-            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
-            if (enumType.IsExtensible)
-            {
-                var extensibleProvider = serialization as ExtensibleEnumSerializationProvider;
-                extensibleProvider?.ToSerial(enumVar).Write(writer);
-                writer.WriteLine();
-                extensibleProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
-            }
-            else
-            {
-                var fixedProvider = serialization as FixedEnumSerializationProvider;
-                fixedProvider?.ToSerial(enumVar).Write(writer);
-                writer.WriteLine();
-                fixedProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
-            }
-
-            var result = writer.ToString(false);
-            var builder = new StringBuilder();
-            builder.Append($"e.ToSerialSingle()").Append(NewLine)
-                .Append($"new global::sample.namespace.Models.MockInputEnum(1F)");
-            var expected = builder.ToString();
-
-            Assert.AreEqual(expected, result);
         }
 
         // Validates the string based extensible enum
@@ -387,36 +233,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.IsInstanceOf<AutoPropertyBody>(properties[1].Body);
             var propertyValue2 = (properties[1].Body as AutoPropertyBody)?.InitializationExpression;
             Assert.IsNotNull(propertyValue2);
-
-            // extensible enums do not have serialization
-            var serialization = enumType.SerializationProviders.FirstOrDefault();
-            Assert.IsNull(serialization);
-
-            // validate the expression is working fine
-            using var writer = new CodeWriter();
-            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
-            if (enumType.IsExtensible)
-            {
-                var extensibleProvider = serialization as ExtensibleEnumSerializationProvider;
-                extensibleProvider?.ToSerial(enumVar).Write(writer);
-                writer.WriteLine();
-                extensibleProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
-            }
-            else
-            {
-                var fixedProvider = serialization as FixedEnumSerializationProvider;
-                fixedProvider?.ToSerial(enumVar).Write(writer);
-                writer.WriteLine();
-                fixedProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
-            }
-
-            var result = writer.ToString(false);
-            var builder = new StringBuilder();
-            builder.Append($"e.ToString()").Append(NewLine)
-                .Append($"new global::sample.namespace.Models.MockInputEnum(\"1\")");
-            var expected = builder.ToString();
-
-            Assert.AreEqual(expected, result);
         }
     }
 }

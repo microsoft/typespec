@@ -15,9 +15,11 @@ namespace Microsoft.Generator.CSharp.Providers
     {
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
+        private readonly InputEnumType _inputType;
 
         internal FixedEnumProvider(InputEnumType input) : base(input)
         {
+            _inputType = input;
             _allowedValues = input.Values;
 
             // fixed enums are implemented by enum in C#
@@ -28,10 +30,10 @@ namespace Microsoft.Generator.CSharp.Providers
             }
         }
 
-        //protected override TypeProvider[] BuildSerializationProviders()
-        //{
-        //    return [new FixedEnumSerializationProvider(this) ];
-        //}
+        protected override TypeProvider[] BuildSerializationProviders()
+        {
+            return CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputType).ToArray();
+        }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
 

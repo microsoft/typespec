@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public ExtensibleEnumSerializationProvider(EnumProvider enumType)
         {
-            Debug.Assert(!enumType.IsExtensible);
+            Debug.Assert(enumType.IsExtensible);
 
             _enumType = enumType;
             Name = $"{_enumType.Name}Extensions";

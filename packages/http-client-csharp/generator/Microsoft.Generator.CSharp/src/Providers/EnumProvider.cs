@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return CodeModelPlugin.Instance.TypeFactory.GetSerializationTypeProviders(this, _inputType).ToArray();
+            return CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputType).ToArray();
         }
     }
 }
