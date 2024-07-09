@@ -169,30 +169,28 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
         public override bool IsExplicitJsonWrite => false;
         public override bool IsExplicitJsonRead => false;
 
+        private readonly Func<T, BinaryContent> _toBinaryContent;
+        private readonly Func<ClientResult, T> _fromResult;
+
+        public CastStrategy(Func<T, BinaryContent> toRequestContent, Func<ClientResult, T> fromResult)
+        {
+            _toBinaryContent = toRequestContent;
+            _fromResult = fromResult;
+        }
+
         public override BinaryData Write(T model, ModelReaderWriterOptions options)
         {
-            var modelType = model.GetType();
-            // find the implicit cast operator
-            var castOperator = modelType.GetMethod("op_Implicit", [modelType]) ?? throw new InvalidOperationException($"Implicit cast operator not found for {modelType.Name}");
-            object? parsedContent = castOperator?.Invoke(null, [model]);
-
-            if (parsedContent is BinaryContent content)
+            BinaryContent content = _toBinaryContent(model);
+            content.TryComputeLength(out var length);
+            using var stream = new MemoryStream((int)length);
+            content.WriteTo(stream, default);
+            if (stream.Position > int.MaxValue)
             {
-                content.TryComputeLength(out var length);
-                using var stream = new MemoryStream((int)length);
-                content.WriteTo(stream, default);
-                if (stream.Position > int.MaxValue)
-                {
-                    return BinaryData.FromStream(stream);
-                }
-                else
-                {
-                    return new BinaryData(stream.GetBuffer().AsMemory(0, (int)stream.Position));
-                }
+                return BinaryData.FromStream(stream);
             }
             else
             {
-                throw new InvalidOperationException($"Unable to cast {modelType.Name} to BinaryContent.");
+                return new BinaryData(stream.GetBuffer().AsMemory(0, (int)stream.Position));
             }
         }
 
@@ -202,20 +200,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
             responseWithBody.SetContent(payload);
 
             ClientResult result = ClientResult.FromResponse(responseWithBody);
-            var paramType = typeof(ClientResult);
-            var modelType = model.GetType();
-            var castOperator = modelType.GetMethod("op_Explicit", [paramType]);
-            object? parsedModel = castOperator?.Invoke(null, [result]);
-
-            // check if the parsed model is of type T
-            if (parsedModel is T)
-            {
-                return parsedModel;
-            }
-            else
-            {
-                throw new InvalidOperationException($"Unable to cast {paramType.Name} to {modelType.Name}.");
-            }
+            return _fromResult(result);
         }
     }
 }
