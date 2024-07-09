@@ -151,6 +151,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var FieldProvider = new FieldProvider(
                 modifiers: FieldModifiers.Private,
                 type: _privateAdditionalRawDataPropertyType,
+                description: FormattableStringHelpers.FromString(PrivateAdditionalPropertiesPropertyDescription),
                 name: PrivateAdditionalPropertiesPropertyName);
 
             return FieldProvider;
@@ -647,18 +648,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             foreach (var param in parameters)
             {
-                if (param.Name == _rawDataField?.Name.ToVariableName())
+                if (param.Field != null)
                 {
-                    methodBodyStatements.Add(_rawDataField.Assign(param).Terminate());
+                    // in our current implementation, this should only be the raw data field
+                    methodBodyStatements.Add(param.Field.Assign(param).Terminate());
+                    continue;
+                }
+                else if (param.Property != null)
+                {
+                    methodBodyStatements.Add(param.Property.Assign(param).Terminate());
                     continue;
                 }
 
-                ValueExpression initializationValue = param;
-                var initializationStatement = param.AsPropertyExpression.Assign(initializationValue).Terminate();
-                if (initializationStatement != null)
-                {
-                    methodBodyStatements.Add(initializationStatement);
-                }
+                // in other cases, this parameter is not constructed from property or a field, we just skip it.
             }
 
             return methodBodyStatements;
@@ -957,24 +959,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             List<ParameterProvider> constructorParameters = new List<ParameterProvider>();
             bool shouldAddRawDataField = _rawDataField != null;
 
-            foreach (var property in _inputModel.Properties)
+            foreach (var property in _model.Properties)
             {
-                var parameter = new ParameterProvider(property);
+                var parameter = property.AsParameter;
                 constructorParameters.Add(parameter);
-
-                if (shouldAddRawDataField && string.Equals(parameter.Name, _rawDataField?.Name, StringComparison.OrdinalIgnoreCase))
-                {
-                    shouldAddRawDataField = false;
-                }
             }
 
             // Append the raw data field if it doesn't already exist in the constructor parameters
             if (shouldAddRawDataField && _rawDataField != null)
             {
-                constructorParameters.Add(new ParameterProvider(
-                    _rawDataField.Name.ToVariableName(),
-                    FormattableStringHelpers.FromString(PrivateAdditionalPropertiesPropertyDescription),
-                    _rawDataField.Type));
+                constructorParameters.Add(_rawDataField.AsParameter);
             }
 
             return constructorParameters;

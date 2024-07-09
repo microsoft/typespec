@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -15,6 +16,8 @@ namespace Microsoft.Generator.CSharp.Providers
     public class PropertyProvider
     {
         private VariableExpression? _variable;
+        private Lazy<ParameterProvider> _parameter;
+
         public FormattableString Description { get; }
         public XmlDocSummaryStatement XmlDocSummary { get; }
         public MethodSignatureModifiers Modifiers { get; }
@@ -24,6 +27,11 @@ namespace Microsoft.Generator.CSharp.Providers
         public CSharpType? ExplicitInterface { get; }
         public XmlDocProvider XmlDocs { get; }
         public PropertyWireInformation? WireInfo { get; }
+
+        /// <summary>
+        /// Converts this property to a parameter.
+        /// </summary>
+        public ParameterProvider AsParameter => _parameter.Value;
 
         public PropertyProvider(InputModelProperty inputProperty)
         {
@@ -44,6 +52,8 @@ namespace Microsoft.Generator.CSharp.Providers
             XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);
             XmlDocs = GetXmlDocs();
             WireInfo = new PropertyWireInformation(inputProperty);
+
+            InitializeParameter(Name, FormattableStringHelpers.FromString(inputProperty.Description), Type);
         }
 
         public PropertyProvider(
@@ -64,6 +74,15 @@ namespace Microsoft.Generator.CSharp.Providers
             ExplicitInterface = explicitInterface;
             XmlDocs = GetXmlDocs();
             WireInfo = wireInfo;
+
+            InitializeParameter(Name, description ?? FormattableStringHelpers.Empty, Type);
+        }
+
+        [MemberNotNull(nameof(_parameter))]
+        private void InitializeParameter(string propertyName, FormattableString description, CSharpType propertyType)
+        {
+            var parameterName = propertyName.ToVariableName();
+            _parameter = new(() => new ParameterProvider(parameterName, description, propertyType, property: this));
         }
 
         public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
