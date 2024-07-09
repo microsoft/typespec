@@ -25,8 +25,6 @@ namespace Microsoft.Generator.CSharp.Providers
         private XmlDocProvider? _xmlDocs;
         public XmlDocProvider XmlDocs => _xmlDocs ??= BuildXmlDocs();
 
-        internal virtual Type? SerializeAs => null;
-
         public string? Deprecated => _deprecated;
 
         private CSharpType? _type;

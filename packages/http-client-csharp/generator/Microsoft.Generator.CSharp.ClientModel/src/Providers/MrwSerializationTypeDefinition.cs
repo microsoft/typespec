@@ -70,7 +70,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), provider.Type);
             _persistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
             _rawDataField = BuildRawDataField();
-            _shouldOverrideMethods = _model.Inherits != null && _model.Inherits is { IsFrameworkType: false, Implementation: TypeProvider };
+            _shouldOverrideMethods = _model.Inherits != null && _model.Inherits is { IsFrameworkType: false };
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
             _jsonElementParameterSnippet = _jsonElementDeserializationParam.As<JsonElement>();
@@ -888,18 +888,30 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private ValueExpression CreateDeserializeValueExpression(CSharpType valueType, SerializationFormat serializationFormat, ScopedApi<JsonElement> jsonElement) =>
             valueType switch
             {
-                { SerializeAs: { } serializeAs } =>
-                    new CastExpression(GetValueTypeDeserializationExpression(serializeAs, jsonElement, serializationFormat), valueType),
                 { IsFrameworkType: true } when valueType.FrameworkType == typeof(Nullable<>) =>
                     GetValueTypeDeserializationExpression(valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
                 { IsFrameworkType: true } =>
                     GetValueTypeDeserializationExpression(valueType.FrameworkType, jsonElement, serializationFormat),
-                { Implementation: EnumProvider enumProvider } =>
-                    enumProvider.ToEnum(GetValueTypeDeserializationExpression(enumProvider.ValueType.FrameworkType, jsonElement, serializationFormat)),
-                { Implementation: ModelProvider modelProvider } =>
-                    TypeProviderSnippets.Deserialize(modelProvider, jsonElement, _mrwOptionsParameterSnippet),
-                _ => throw new InvalidOperationException($"Unable to deserialize type {valueType}")
+                _ => SerializeModelOrEnum(valueType, serializationFormat, jsonElement)
             };
+
+        private ValueExpression SerializeModelOrEnum(CSharpType valueType, SerializationFormat serializationFormat, ScopedApi<JsonElement> jsonElement)
+        {
+            var provider = ClientModelPlugin.Instance.TypeFactory.GetProvider(valueType);
+            if (provider is null)
+                throw new InvalidOperationException($"Unable to deserialize type {valueType}");
+
+            if (valueType.IsEnum && provider is EnumProvider enumProvider)
+            {
+                return enumProvider.ToEnum(GetValueTypeDeserializationExpression(enumProvider.ValueType.FrameworkType, jsonElement, serializationFormat));
+            }
+            else
+            {
+                return provider.Deserialize(jsonElement, _mrwOptionsParameterSnippet);
+            }
+
+            throw new InvalidOperationException($"Unable to deserialize type {valueType}");
+        }
 
         private MethodBodyStatement CreateDeserializeDictionaryValueStatement(
             CSharpType dictionaryItemType,
@@ -1189,16 +1201,27 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             SerializationFormat serializationFormat,
             ValueExpression value)
         {
-            return type switch
+            if (type.IsFrameworkType)
             {
-                { SerializeAs: not null } or { IsFrameworkType: true } =>
-                    SerializeValueType(type, serializationFormat, value, type.SerializeAs ?? type.FrameworkType),
-                { Implementation: EnumProvider enumProvider } =>
-                    SerializeEnumProvider(enumProvider, type, value),
-                { Implementation: ModelProvider modelProvider } =>
-                    _utf8JsonWriterSnippet.WriteObjectValue(value.As(modelProvider.Type), options: _mrwOptionsParameterSnippet),
-                _ => throw new NotSupportedException($"Serialization of type {type.Name} is not supported.")
-            };
+                return SerializeValueType(type, serializationFormat, value, type.FrameworkType);
+            }
+            else
+            {
+                var provider = ClientModelPlugin.Instance.TypeFactory.GetProvider(type);
+                if (provider is null)
+                    throw new NotSupportedException($"Serialization of type {type.Name} is not supported.");
+
+                if (type.IsEnum && provider is EnumProvider enumProvider)
+                {
+                    return SerializeEnumProvider(enumProvider, type, value);
+                }
+                else
+                {
+                    return _utf8JsonWriterSnippet.WriteObjectValue(value.As(provider.Type), options: _mrwOptionsParameterSnippet);
+                }
+            }
+
+            throw new NotSupportedException($"Serialization of type {type.Name} is not supported.");
         }
 
         private MethodBodyStatement SerializeEnumProvider(
