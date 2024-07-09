@@ -100,7 +100,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 var enumField = _enumType.Fields[i];
                 var enumValue = _enumType.Members[i];
                 ScopedApi<bool> condition;
-                if (_enumType.IsStringValueType)
+                if (_enumType.ValueType.Equals(typeof(string)))
                 {
                     // when the values are strings, we compare them case-insensitively
                     // this is either
@@ -140,12 +140,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             // otherwise we call the corresponding extension method to convert the value
             CSharpType? serializationType = SerializationProviders.FirstOrDefault()?.Type;
-            return new InvokeStaticMethodExpression(serializationType, $"ToSerial{_enumType.ValueType.Name}", [enumExpression], CallAsExtension: true);
+            return enumExpression.Invoke($"ToSerial{_enumType.ValueType.Name}");
         }
 
         public ValueExpression ToEnum(ValueExpression valueExpression)
         {
-            return new InvokeStaticMethodExpression(SerializationProviders.FirstOrDefault()?.Type, $"To{Type.Name}", [valueExpression], CallAsExtension: true);
+            return valueExpression.Invoke($"To{Type.Name}");
         }
     }
 }

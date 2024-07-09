@@ -887,21 +887,24 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
         }
 
-        private ValueExpression CreateDeserializeValueExpression(CSharpType valueType, SerializationFormat serializationFormat, ScopedApi<JsonElement> jsonElement) =>
-            valueType switch
+        private ValueExpression CreateDeserializeValueExpression(CSharpType valueType, SerializationFormat serializationFormat, ScopedApi<JsonElement> jsonElement)
+        {
+            var provider = ClientModelPlugin.Instance.TypeFactory.GetProvider(valueType);
+            return valueType switch
             {
                 { IsFrameworkType: true } when valueType.FrameworkType == typeof(Nullable<>) =>
                     GetValueTypeDeserializationExpression(valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
                 { IsFrameworkType: true } =>
                     GetValueTypeDeserializationExpression(valueType.FrameworkType, jsonElement, serializationFormat),
-                { Implementation: EnumProvider enumProvider } =>
-                enumProvider.IsExtensible
-                    ? new ExtensibleEnumSerializationProvider(enumProvider).ToEnum(GetValueTypeDeserializationExpression(enumProvider.ValueType.FrameworkType, jsonElement, serializationFormat))
-                    : new FixedEnumSerializationProvider(enumProvider).ToEnum(GetValueTypeDeserializationExpression(enumProvider.ValueType.FrameworkType, jsonElement, serializationFormat)),
-                { Implementation: ModelProvider modelProvider } =>
-                    new InvokeStaticMethodExpression(modelProvider.Type, $"Deserialize{modelProvider.Name}", [jsonElement, _mrwOptionsParameterSnippet]),
+                _ when valueType.IsEnum && provider is EnumProvider enumProvider =>
+                    enumProvider.IsExtensible
+                        ? new ExtensibleEnumSerializationProvider(enumProvider).ToEnum(GetValueTypeDeserializationExpression(enumProvider.ValueType.FrameworkType, jsonElement, serializationFormat))
+                        : new FixedEnumSerializationProvider(enumProvider).ToEnum(GetValueTypeDeserializationExpression(enumProvider.ValueType.FrameworkType, jsonElement, serializationFormat)),
+                _ when provider is ModelProvider modelProvider =>
+                    Static(modelProvider.Type).Invoke($"Deserialize{modelProvider.Name}", [jsonElement, _mrwOptionsParameterSnippet]),
                 _ => throw new InvalidOperationException($"Unable to deserialize type {valueType}")
             };
+        }
 
         private ValueExpression SerializeModelOrEnum(CSharpType valueType, SerializationFormat serializationFormat, ScopedApi<JsonElement> jsonElement)
         {
@@ -911,7 +914,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             if (valueType.IsEnum && provider is EnumProvider enumProvider)
             {
-                return enumProvider.ToEnum(GetValueTypeDeserializationExpression(enumProvider.ValueType.FrameworkType, jsonElement, serializationFormat));
+                if (enumProvider.IsExtensible)
+                {
+                    return new ExtensibleEnumSerializationProvider(enumProvider).ToEnum(GetValueTypeDeserializationExpression(enumProvider.ValueType.FrameworkType, jsonElement, serializationFormat));
+                }
+                else
+                {
+                    return new FixedEnumSerializationProvider(enumProvider).ToEnum(GetValueTypeDeserializationExpression(enumProvider.ValueType.FrameworkType, jsonElement, serializationFormat));
+                }
             }
             else
             {
