@@ -32,7 +32,7 @@ export const ListTypeView = ({ nav, node }: ListTypeViewProps) => {
 const Item = ({ item, nav }: { nav: TreeNavigator; item: TypeGraphNode }) => {
   const select = useCallback(() => {
     nav.selectPath(item.id);
-  }, [nav.selectPath]);
+  }, [item.id, nav]);
   return (
     <ListItem onAction={select} className={style["item"]}>
       {item.name}

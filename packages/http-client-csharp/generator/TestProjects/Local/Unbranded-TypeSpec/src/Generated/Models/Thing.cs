@@ -92,16 +92,16 @@ namespace UnbrandedTypeSpec.Models
         public bool RequiredLiteralBool { get; } = false;
 
         /// <summary> optional literal string. </summary>
-        public ThingOptionalLiteralString OptionalLiteralString { get; set; }
+        public ThingOptionalLiteralString? OptionalLiteralString { get; set; }
 
         /// <summary> optional literal int. </summary>
-        public ThingOptionalLiteralInt OptionalLiteralInt { get; set; }
+        public ThingOptionalLiteralInt? OptionalLiteralInt { get; set; }
 
         /// <summary> optional literal float. </summary>
-        public ThingOptionalLiteralFloat OptionalLiteralFloat { get; set; }
+        public ThingOptionalLiteralFloat? OptionalLiteralFloat { get; set; }
 
         /// <summary> optional literal bool. </summary>
-        public bool OptionalLiteralBool { get; set; }
+        public bool? OptionalLiteralBool { get; set; }
 
         /// <summary> description with xml &lt;|endoftext|&gt;. </summary>
         public string RequiredBadDescription { get; set; }

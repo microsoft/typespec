@@ -24,13 +24,17 @@ export const OutputView: FunctionComponent<OutputViewProps> = ({
   fileViewers,
   editorOptions,
 }) => {
+  const resolvedViewers = useMemo(
+    () => resolveViewers(viewers, fileViewers),
+    [fileViewers, viewers]
+  );
+
   if (compilationState === undefined) {
     return <></>;
   }
   if ("internalCompilerError" in compilationState) {
     return <></>;
   }
-  const resolvedViewers = useMemo(() => resolveViewers(viewers, fileViewers), [viewers]);
   return (
     <OutputViewInternal
       compilationResult={compilationState}

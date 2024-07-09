@@ -10,7 +10,7 @@ import { fail, ok, strictEqual } from "assert";
 import { readdirSync } from "fs";
 import { mkdir, readFile, readdir, rm, writeFile } from "fs/promises";
 import { File, Suite, afterAll, beforeAll, it } from "vitest";
-import { convertAction } from "../../../src/cli/actions/convert/convert.js";
+import { convertAction } from "../../../src/cli/actions/convert/convert-file.js";
 
 const shouldUpdateSnapshots = process.env.RECORD === "true";
 

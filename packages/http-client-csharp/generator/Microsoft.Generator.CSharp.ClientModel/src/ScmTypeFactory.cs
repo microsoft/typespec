@@ -21,7 +21,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         /// <param name="operation">The input operation to create methods for.</param>
         /// <param name="enclosingType">The enclosing type of the operation.</param>
-        public override MethodProviderCollection CreateMethodProviders(InputOperation operation, TypeProvider enclosingType) => new ScmMethodProviderCollection(operation, enclosingType);
+        public override MethodProviderCollection CreateMethods(InputOperation operation, TypeProvider enclosingType) => new ScmMethodProviderCollection(operation, enclosingType);
 
         public virtual CSharpType MatchConditionsType() => typeof(PipelineMessageClassifier);
 
