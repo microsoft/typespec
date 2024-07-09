@@ -145,12 +145,6 @@ model ModelWithRequiredNullableProperties {
 model NotFriend {
   @doc("name of the NotFriend")
   name: string;
-
-  @doc("property with unfriendly wire name")
-  `property-with-unfriendly-wire-name`?: string;
-
-  @doc("this is a property with a wire name starting with an upper case letter")
-  PropertyStartsWithUpperCaseLetterInTheWireName?: int32;
 }
 
 @doc("this is a model with a projected name")

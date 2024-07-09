@@ -22,11 +22,5 @@ namespace UnbrandedTypeSpec.Models
 
         /// <summary> name of the NotFriend. </summary>
         public string Name { get; set; }
-
-        /// <summary> property with unfriendly wire name. </summary>
-        public string PropertyWithUnfriendlyWireName { get; set; }
-
-        /// <summary> this is a property with a wire name starting with an upper case letter. </summary>
-        public int? PropertyStartsWithUpperCaseLetterInTheWireName { get; set; }
     }
 }

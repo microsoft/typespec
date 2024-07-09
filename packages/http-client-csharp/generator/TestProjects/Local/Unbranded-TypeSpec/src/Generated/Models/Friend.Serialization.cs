@@ -7,7 +7,6 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
-using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
@@ -17,11 +16,9 @@ namespace UnbrandedTypeSpec.Models
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
-        internal Friend(string name, string propertyWithUnfriendlyWireName, int? propertyStartsWithUpperCaseLetterInTheWireName, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        internal Friend(string name, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             Name = name;
-            PropertyWithUnfriendlyWireName = propertyWithUnfriendlyWireName;
-            PropertyStartsWithUpperCaseLetterInTheWireName = propertyStartsWithUpperCaseLetterInTheWireName;
             _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
@@ -47,16 +44,6 @@ namespace UnbrandedTypeSpec.Models
             }
             writer.WritePropertyName("name"u8);
             writer.WriteStringValue(Name);
-            if (Optional.IsDefined(PropertyWithUnfriendlyWireName))
-            {
-                writer.WritePropertyName("property-with-unfriendly-wire-name"u8);
-                writer.WriteStringValue(PropertyWithUnfriendlyWireName);
-            }
-            if (Optional.IsDefined(PropertyStartsWithUpperCaseLetterInTheWireName))
-            {
-                writer.WritePropertyName("PropertyStartsWithUpperCaseLetterInTheWireName"u8);
-                writer.WriteNumberValue(PropertyStartsWithUpperCaseLetterInTheWireName.Value);
-            }
             if (options.Format != "W" && _serializedAdditionalRawData != null)
             {
                 foreach (var item in _serializedAdditionalRawData)
@@ -96,8 +83,6 @@ namespace UnbrandedTypeSpec.Models
                 return null;
             }
             string name = default;
-            string propertyWithUnfriendlyWireName = default;
-            int? propertyStartsWithUpperCaseLetterInTheWireName = default;
             IDictionary<string, BinaryData> serializedAdditionalRawData = default;
             Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
@@ -107,33 +92,13 @@ namespace UnbrandedTypeSpec.Models
                     name = prop.Value.GetString();
                     continue;
                 }
-                if (prop.NameEquals("propertyWithUnfriendlyWireName"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        propertyWithUnfriendlyWireName = null;
-                        continue;
-                    }
-                    propertyWithUnfriendlyWireName = prop.Value.GetString();
-                    continue;
-                }
-                if (prop.NameEquals("propertyStartsWithUpperCaseLetterInTheWireName"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        propertyStartsWithUpperCaseLetterInTheWireName = null;
-                        continue;
-                    }
-                    propertyStartsWithUpperCaseLetterInTheWireName = prop.Value.GetInt32();
-                    continue;
-                }
                 if (options.Format != "W")
                 {
                     rawDataDictionary.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
             serializedAdditionalRawData = rawDataDictionary;
-            return new Friend(name, propertyWithUnfriendlyWireName, propertyStartsWithUpperCaseLetterInTheWireName, serializedAdditionalRawData);
+            return new Friend(name, serializedAdditionalRawData);
         }
 
         BinaryData IPersistableModel<Friend>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
