@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
         protected abstract void VerifyModel(T model, string format);
         protected abstract void CompareModels(T model, T model2, string format);
         protected abstract Task TestBinaryContentCast(T model, ModelReaderWriterOptions options);
-        public abstract void TestClientResultCast(string serializedResponse);
+        protected abstract void TestClientResultCast(string serializedResponse);
         protected abstract string JsonPayload { get; }
         protected abstract string WirePayload { get; }
 

@@ -57,7 +57,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
             Assert.AreEqual(serializedContent.ToArray(), stream.ToArray());
         }
 
-        public override void TestClientResultCast(string serializedResponse)
+        protected override void TestClientResultCast(string serializedResponse)
         {
             var responseWithBody = new MockPipelineResponse(200);
             responseWithBody.SetContent(serializedResponse);
