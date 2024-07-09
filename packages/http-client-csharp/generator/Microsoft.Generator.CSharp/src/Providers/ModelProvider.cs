@@ -19,7 +19,6 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly InputModelType _inputModel;
         public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
         public override string Name { get; }
-        public override string Namespace { get; }
         protected override FormattableString Description { get; }
 
         private readonly bool _isStruct;
@@ -29,7 +28,6 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             _inputModel = inputModel;
             Name = inputModel.Name.ToCleanName();
-            Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
             Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : $"The {Name}.";
             _declarationModifiers = TypeSignatureModifiers.Partial |
                 (inputModel.ModelAsStruct ? TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct : TypeSignatureModifiers.Class);
@@ -46,6 +44,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
             _isStruct = inputModel.ModelAsStruct;
         }
+
+        protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
         protected override TypeProvider[] BuildSerializationProviders()
         {

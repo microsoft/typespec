@@ -19,21 +19,22 @@ namespace Microsoft.Generator.CSharp.Providers
         /// </summary>
         public abstract string RelativeFilePath { get; }
         public abstract string Name { get; }
-        public virtual string Namespace => CodeModelPlugin.Instance.Configuration.Namespace;
         protected virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
 
         private XmlDocProvider? _xmlDocs;
         public XmlDocProvider XmlDocs => _xmlDocs ??= BuildXmlDocs();
-
-        internal virtual Type? SerializeAs => null;
 
         public string? Deprecated => _deprecated;
 
         private CSharpType? _type;
         public CSharpType Type => _type ??= new(
             this,
-            arguments: TypeArguments,
-            isNullable: false);
+            GetNamespace(),
+            arguments: GetTypeArguments(),
+            isNullable: false,
+            baseType: GetBaseType());
+
+        protected virtual string GetNamespace() => CodeModelPlugin.Instance.Configuration.RootNamespace;
 
         private TypeSignatureModifiers? _declarationModifiers;
         public TypeSignatureModifiers DeclarationModifiers => _declarationModifiers ??= GetDeclarationModifiersInternal();
@@ -59,7 +60,7 @@ namespace Microsoft.Generator.CSharp.Providers
             // mask & (mask - 1) gives us 0 if mask is a power of 2, it means we have exactly one flag of above when the mask is a power of 2
             if ((mask & (mask - 1)) != 0)
             {
-                throw new InvalidOperationException($"Invalid modifier {modifiers} on TypeProvider {Namespace}.{Name}");
+                throw new InvalidOperationException($"Invalid modifier {modifiers} on TypeProvider {Type.Namespace}.{Name}");
             }
 
             // we always add partial when possible
@@ -71,12 +72,9 @@ namespace Microsoft.Generator.CSharp.Providers
             return modifiers;
         }
 
-        public CSharpType? Inherits { get; protected init; }
+        protected virtual CSharpType? GetBaseType() => null;
 
         public virtual WhereExpression? WhereClause { get; protected init; }
-
-        private CSharpType[]? _typeArguments;
-        protected internal virtual IReadOnlyList<CSharpType> TypeArguments => _typeArguments ??= BuildTypeArguments();
 
         public virtual TypeProvider? DeclaringTypeProvider { get; protected init; }
 
@@ -101,7 +99,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private IReadOnlyList<TypeProvider>? _serializationProviders;
         public virtual IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
 
-        protected virtual CSharpType[] BuildTypeArguments() => Array.Empty<CSharpType>();
+        protected virtual CSharpType[] GetTypeArguments() => Array.Empty<CSharpType>();
 
         protected virtual PropertyProvider[] BuildProperties() => Array.Empty<PropertyProvider>();
 
@@ -122,16 +120,6 @@ namespace Microsoft.Generator.CSharp.Providers
             var docs = new XmlDocProvider();
             docs.Summary = new XmlDocSummaryStatement([Description]);
             return docs;
-        }
-
-        public static string GetDefaultModelNamespace(string defaultNamespace)
-        {
-            if (CodeModelPlugin.Instance.Configuration.UseModelNamespace)
-            {
-                return $"{defaultNamespace}.Models";
-            }
-
-            return defaultNamespace;
         }
     }
 }

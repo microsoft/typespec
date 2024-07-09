@@ -29,7 +29,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             var mockParameter = new ParameterProvider("mockParam", $"mock description", typeof(bool), null);
             var mockTypeFactory = new Mock<ScmTypeFactory>() { };
             mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(new CSharpType(typeof(bool)));
-            mockTypeFactory.Setup(t => t.CreateCSharpParam(It.IsAny<InputParameter>())).Returns(mockParameter);
+            mockTypeFactory.Setup(t => t.CreateParameter(It.IsAny<InputParameter>())).Returns(mockParameter);
             _typeFactory = mockTypeFactory.Object;
 
             var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);

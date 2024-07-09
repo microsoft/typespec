@@ -5,7 +5,7 @@ using System;
 using Microsoft.Generator.CSharp.Providers;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.Tests.OutputTypes
+namespace Microsoft.Generator.CSharp.Tests
 {
     internal class OutputLibraryTests
     {

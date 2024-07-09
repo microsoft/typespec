@@ -56,24 +56,25 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public override string Name => "ChangeTrackingDictionary";
 
-        protected override CSharpType[] BuildTypeArguments()
+        protected override CSharpType[] GetTypeArguments()
         {
-            return new[] { _tKey, _tValue };
+            return [_tKey, _tValue];
         }
 
         protected override FieldProvider[] BuildFields()
         {
-            return new[] { _innerDictionaryField };
+            return [_innerDictionaryField];
         }
 
         protected override CSharpType[] BuildImplements()
         {
-            return new[] { _IDictionary, _IReadOnlyDictionary };
+            return [_IDictionary, _IReadOnlyDictionary];
         }
 
         protected override ConstructorProvider[] BuildConstructors()
         {
-            return [
+            return
+            [
                 DefaultConstructor(),
                 ConstructorWithDictionary(),
                 ConstructorWithReadOnlyDictionary()

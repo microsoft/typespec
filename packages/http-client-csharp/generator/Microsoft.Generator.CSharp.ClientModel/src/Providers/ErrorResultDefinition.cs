@@ -40,7 +40,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        protected override CSharpType[] BuildTypeArguments()
+        protected override CSharpType[] GetTypeArguments()
         {
             return [_t];
         }

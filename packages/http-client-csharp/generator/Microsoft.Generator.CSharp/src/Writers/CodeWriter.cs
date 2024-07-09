@@ -545,7 +545,7 @@ namespace Microsoft.Generator.CSharp
             }
             else if (isDeclaration && !type.IsFrameworkType)
             {
-                AppendRaw(type.Implementation.Name);
+                AppendRaw(type.Name);
             }
             else if (writeTypeNameOnly)
             {

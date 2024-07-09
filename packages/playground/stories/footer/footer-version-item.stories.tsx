@@ -31,7 +31,7 @@ const meta: Meta<typeof FooterVersionItem> = {
   title: "Components/Footer/FooterVersionItem",
   decorators: [
     (Story) => (
-      <PlaygroundContextProvider value={{ host: storyHost }}>
+      <PlaygroundContextProvider value={{ host: storyHost, setContent: () => null }}>
         <Footer>{Story()}</Footer>
       </PlaygroundContextProvider>
     ),

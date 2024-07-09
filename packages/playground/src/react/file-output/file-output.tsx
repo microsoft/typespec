@@ -23,24 +23,22 @@ export const FileOutput: FunctionComponent<FileOutputProps> = ({ filename, conte
   );
   const keys = Object.keys(resolvedViewers);
 
+  const [selected, setSelected] = useState<string>(keys[0]);
+
+  const handleSelected = useCallback((_: unknown, data: SelectOnChangeData) => {
+    setSelected(data.value);
+  }, []);
+
+  const selectedRender = useMemo(() => {
+    return resolvedViewers[selected].render;
+  }, [selected, resolvedViewers]);
+
   if (keys.length === 0) {
     return <>No viewers</>;
   } else if (keys.length === 1) {
     return resolvedViewers[keys[0]].render({ filename, content });
   }
 
-  const [selected, setSelected] = useState<string>(keys[0]);
-
-  const handleSelected = useCallback(
-    (_: unknown, data: SelectOnChangeData) => {
-      setSelected(data.value);
-    },
-    [selected]
-  );
-
-  const selectedRender = useMemo(() => {
-    return resolvedViewers[selected].render;
-  }, [selected, resolvedViewers]);
   return (
     <div className={style["file-output"]}>
       <div className={style["viewer-selector"]}>
