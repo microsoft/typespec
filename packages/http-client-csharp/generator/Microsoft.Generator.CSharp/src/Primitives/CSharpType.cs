@@ -57,6 +57,7 @@ namespace Microsoft.Generator.CSharp.Primitives
         internal bool IsIEnumerableOfT => _isIEnumerableOfT ??= TypeIsIEnumerableOfT();
         internal bool IsIAsyncEnumerableOfT => _isIAsyncEnumerableOfT ??= TypeIsIAsyncEnumerableOfT();
         internal bool ContainsBinaryData => _containsBinaryData ??= TypeContainsBinaryData();
+        public CSharpType? BaseType { get; }
 
         /// <summary>
         /// Constructs a <see cref="CSharpType"/> from a <see cref="Type"/>.
@@ -119,6 +120,7 @@ namespace Microsoft.Generator.CSharp.Primitives
             var declaringType = type.DeclaringType is not null && !type.IsGenericParameter ? new CSharpType(type.DeclaringType) : null;
 
             Initialize(name, isValueType, isEnum, isNullable, ns, declaringType, arguments, isPublic);
+            BaseType = type.BaseType ?? (CSharpType?)null;
         }
 
         [Conditional("DEBUG")]
@@ -134,7 +136,7 @@ namespace Microsoft.Generator.CSharp.Primitives
             }
         }
 
-        internal CSharpType(TypeProvider implementation, string providerNamespace, IReadOnlyList<CSharpType>? arguments = null, bool isNullable = false)
+        internal CSharpType(TypeProvider implementation, string providerNamespace, IReadOnlyList<CSharpType>? arguments = null, bool isNullable = false, CSharpType? baseType = null)
         {
             _arguments = arguments ?? [];
             var isPublic = implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) && Arguments.All(t => t.IsPublic);
@@ -145,12 +147,23 @@ namespace Microsoft.Generator.CSharp.Primitives
             var declaringType = implementation.DeclaringTypeProvider?.Type;
 
             Initialize(name, isValueType, isEnum, isNullable, ns, declaringType, arguments, isPublic);
+            BaseType = baseType;
         }
 
-        internal CSharpType(string name, string ns, bool isValueType, bool isEnum, bool isNullable, CSharpType? declaringType, IReadOnlyList<CSharpType>? args, bool isPublic)
+        internal CSharpType(
+            string name,
+            string ns,
+            bool isValueType,
+            bool isEnum,
+            bool isNullable,
+            CSharpType? declaringType,
+            IReadOnlyList<CSharpType>? args,
+            bool isPublic,
+            CSharpType? baseType = null)
         {
             _arguments = args ?? [];
             Initialize(name, isValueType, isEnum, isNullable, ns, declaringType, args, isPublic);
+            BaseType = baseType;
         }
 
         [MemberNotNull(nameof(_name))]

@@ -31,7 +31,8 @@ namespace Microsoft.Generator.CSharp.Providers
             this,
             GetNamespace(),
             arguments: GetTypeArguments(),
-            isNullable: false);
+            isNullable: false,
+            baseType: GetBaseType());
 
         protected virtual string GetNamespace() => CodeModelPlugin.Instance.Configuration.RootNamespace;
 
@@ -71,7 +72,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return modifiers;
         }
 
-        public CSharpType? Inherits { get; protected init; }
+        protected virtual CSharpType? GetBaseType() => null;
 
         public virtual WhereExpression? WhereClause { get; protected init; }
 

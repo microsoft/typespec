@@ -70,7 +70,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), provider.Type);
             _persistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
             _rawDataField = BuildRawDataField();
-            _shouldOverrideMethods = _model.Inherits != null && _model.Inherits is { IsFrameworkType: false };
+            _shouldOverrideMethods = _model.Type.BaseType != null && _model.Type.BaseType is { IsFrameworkType: false };
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
             _jsonElementParameterSnippet = _jsonElementDeserializationParam.As<JsonElement>();
