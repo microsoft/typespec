@@ -1,13 +1,8 @@
 import type { AstPath, Doc, Printer } from "prettier";
 import { builders } from "prettier/doc";
-import {
-  CharCode,
-  isIdentifierContinue,
-  isIdentifierStart,
-  utf16CodeUnits,
-} from "../../core/charcode.js";
+import { CharCode } from "../../core/charcode.js";
 import { compilerAssert } from "../../core/diagnostics.js";
-import { Keywords } from "../../core/scanner.js";
+import { printIdentifier as printIdentifierString } from "../../core/helpers/syntax-utils.js";
 import {
   AliasStatementNode,
   ArrayExpressionNode,
@@ -91,6 +86,7 @@ import { commentHandler } from "./comment-handler.js";
 import { needsParens } from "./needs-parens.js";
 import { DecorableNode, PrettierChildPrint, TypeSpecPrettierOptions } from "./types.js";
 import { util } from "./util.js";
+
 const {
   align,
   breakParent,
@@ -1270,39 +1266,7 @@ export function printModelProperty(
 }
 
 function printIdentifier(id: IdentifierNode, options: TypeSpecPrettierOptions) {
-  return printId(id.sv);
-}
-
-export function printId(sv: string) {
-  if (needBacktick(sv)) {
-    const escapedString = sv
-      .replace(/\\/g, "\\\\")
-      .replace(/\n/g, "\\n")
-      .replace(/\r/g, "\\r")
-      .replace(/\t/g, "\\t")
-      .replace(/`/g, "\\`");
-    return `\`${escapedString}\``;
-  } else {
-    return sv;
-  }
-}
-
-function needBacktick(sv: string) {
-  if (sv.length === 0) {
-    return false;
-  }
-  if (Keywords.has(sv)) {
-    return true;
-  }
-  let cp = sv.codePointAt(0)!;
-  if (!isIdentifierStart(cp)) {
-    return true;
-  }
-  let pos = 0;
-  do {
-    pos += utf16CodeUnits(cp);
-  } while (pos < sv.length && isIdentifierContinue((cp = sv.codePointAt(pos)!)));
-  return pos < sv.length;
+  return printIdentifierString(id.sv);
 }
 
 function isModelExpressionInBlock(
