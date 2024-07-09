@@ -138,7 +138,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             // Validate body
             var methodBody = method?.BodyStatements;
             Assert.IsNull(methodBody);
-            var bodyExpression = method?.BodyExpression as InvokeInstanceMethodExpression;
+            var bodyExpression = method?.BodyExpression as InvokeInstanceMethodByNameExpression;
             Assert.IsNotNull(bodyExpression);
             Assert.AreEqual("Write", bodyExpression?.MethodName);
             Assert.IsNotNull(bodyExpression?.InstanceReference);
@@ -251,7 +251,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             // Validate body
             var methodBody = method?.BodyStatements;
             Assert.IsNull(methodBody);
-            var bodyExpression = method?.BodyExpression as InvokeInstanceMethodExpression;
+            var bodyExpression = method?.BodyExpression as InvokeInstanceMethodByNameExpression;
             Assert.IsNotNull(bodyExpression);
             Assert.AreEqual("Write", bodyExpression?.MethodName);
             Assert.IsNotNull(bodyExpression?.InstanceReference);
@@ -331,7 +331,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             // Validate body
             var methodBody = method?.BodyStatements;
             Assert.IsNull(methodBody);
-            var bodyExpression = method?.BodyExpression as InvokeInstanceMethodExpression;
+            var bodyExpression = method?.BodyExpression as InvokeInstanceMethodByNameExpression;
             Assert.IsNotNull(bodyExpression);
             Assert.AreEqual("GetFormatFromOptions", bodyExpression?.MethodName);
             Assert.IsNotNull(bodyExpression?.InstanceReference);

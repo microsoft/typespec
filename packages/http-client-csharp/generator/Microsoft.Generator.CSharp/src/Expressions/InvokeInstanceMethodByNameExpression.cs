@@ -7,9 +7,9 @@ using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record InvokeInstanceMethodExpression(ValueExpression? InstanceReference, string MethodName, IReadOnlyList<ValueExpression> Arguments, IReadOnlyList<CSharpType>? TypeArguments, bool CallAsAsync, bool AddConfigureAwaitFalse = true) : ValueExpression
+    public sealed record InvokeInstanceMethodByNameExpression(ValueExpression? InstanceReference, string MethodName, IReadOnlyList<ValueExpression> Arguments, IReadOnlyList<CSharpType>? TypeArguments, bool CallAsAsync, bool AddConfigureAwaitFalse = true) : ValueExpression
     {
-        public InvokeInstanceMethodExpression(ValueExpression? instanceReference, string methodName, IReadOnlyList<ValueExpression> arguments) : this(instanceReference, methodName, arguments, null, false) { }
+        public InvokeInstanceMethodByNameExpression(ValueExpression? instanceReference, string methodName, IReadOnlyList<ValueExpression> arguments) : this(instanceReference, methodName, arguments, null, false) { }
 
         internal override void Write(CodeWriter writer)
         {

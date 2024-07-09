@@ -19,6 +19,6 @@ namespace Microsoft.Generator.CSharp.Snippets
         public MethodBodyStatement CopyTo(StreamSnippet destination) => Expression.Invoke(nameof(Stream.CopyTo), destination).Terminate();
 
         public ValueExpression Position => new MemberExpression(this, nameof(Stream.Position));
-        public ValueExpression GetBuffer => new InvokeInstanceMethodExpression(this, nameof(MemoryStream.GetBuffer), Array.Empty<ValueExpression>(), null, false);
+        public ValueExpression GetBuffer => new InvokeInstanceMethodByNameExpression(this, nameof(MemoryStream.GetBuffer), Array.Empty<ValueExpression>(), null, false);
     }
 }

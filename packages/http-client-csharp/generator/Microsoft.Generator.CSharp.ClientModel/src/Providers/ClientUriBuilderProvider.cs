@@ -185,7 +185,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
             var convertToStringExpression = ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
-            var body = new InvokeInstanceMethodExpression(null, _appendPathMethodName, new[] { convertToStringExpression.Expression, escapeParameter }, null, false);
+            var body = new InvokeInstanceMethodByNameExpression(null, _appendPathMethodName, new[] { convertToStringExpression.Expression, escapeParameter }, null, false);
 
             return new(signature, body, this);
         }
@@ -260,7 +260,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
             var convertToStringExpression = ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
-            var body = new InvokeInstanceMethodExpression(null, _appendQueryMethodName, new[] { nameParameter, convertToStringExpression.Expression, escapeParameter }, null, false);
+            var body = new InvokeInstanceMethodByNameExpression(null, _appendQueryMethodName, new[] { nameParameter, convertToStringExpression.Expression, escapeParameter }, null, false);
 
             return new(signature, body, this);
         }
@@ -302,7 +302,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var body = new[]
             {
                 Declare("stringValues", value.Select(new StringSnippet(new FuncExpression(new[] {v.Declaration}, convertToStringExpression))), out var stringValues),
-               new InvokeInstanceMethodExpression(null, _appendQueryMethodName, new[] { name.Expression, StringSnippet.Join(delimiter, stringValues), escape }, null, false).Terminate()
+               new InvokeInstanceMethodByNameExpression(null, _appendQueryMethodName, new[] { name.Expression, StringSnippet.Join(delimiter, stringValues), escape }, null, false).Terminate()
         };
 
             return new(signature, body, this);

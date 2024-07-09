@@ -44,8 +44,8 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public BoolSnippet NotEqual(ValueExpression other) => new(new BinaryOperatorExpression("!=", this, other));
 
-        public InvokeInstanceMethodExpression Invoke(string methodName, params ValueExpression[] args)
-            => new InvokeInstanceMethodExpression(this, methodName, [..args], null, false);
+        public InvokeInstanceMethodByNameExpression Invoke(string methodName, params ValueExpression[] args)
+            => new InvokeInstanceMethodByNameExpression(this, methodName, [..args], null, false);
 
         public ValueExpression AndExpr(ValueExpression other) => new BinaryOperatorExpression("and", this, other);
 

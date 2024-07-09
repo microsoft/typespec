@@ -24,9 +24,9 @@ namespace Microsoft.Generator.CSharp.Snippets
             => new(new InvokeStaticMethodExpression(typeof(string), nameof(string.Join), new[] { separator, values }));
 
         public StringSnippet Substring(ValueExpression startIndex)
-            => new(new InvokeInstanceMethodExpression(this, nameof(string.Substring), new[] { startIndex }, null, false));
+            => new(new InvokeInstanceMethodByNameExpression(this, nameof(string.Substring), new[] { startIndex }, null, false));
         public ValueExpression ToCharArray()
-            => new InvokeInstanceMethodExpression(this, nameof(string.ToCharArray), Array.Empty<ValueExpression>(), null, false);
+            => new InvokeInstanceMethodByNameExpression(this, nameof(string.ToCharArray), Array.Empty<ValueExpression>(), null, false);
 
         public CharSnippet this[ValueExpression index] => new(new IndexerExpression(this, index));
 

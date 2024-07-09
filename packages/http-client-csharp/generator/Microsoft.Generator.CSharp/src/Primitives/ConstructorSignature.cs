@@ -17,7 +17,7 @@ namespace Microsoft.Generator.CSharp.Primitives
     /// <param name="Parameters">The parameters of the constructor.</param>
     /// <param name="Attributes">The attributes of the constructor.</param>
     /// <param name="Initializer">The initializer of the constructor.</param>
-    public sealed class ConstructorSignature(
+    public sealed record ConstructorSignature(
         CSharpType Type,
         FormattableString? Description,
         MethodSignatureModifiers Modifiers,

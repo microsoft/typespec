@@ -63,7 +63,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         {
             var discriminatorDeclaration = new VariableExpression(typeof(JsonElement), "discriminator");
             discriminator = new JsonElementSnippet(discriminatorDeclaration);
-            var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetProperty), [Literal(propertyName), new DeclarationExpression(discriminatorDeclaration, true)], null, false);
+            var invocation = new InvokeInstanceMethodByNameExpression(this, nameof(JsonElement.TryGetProperty), [Literal(propertyName), new DeclarationExpression(discriminatorDeclaration, true)], null, false);
             return new BoolSnippet(invocation);
         }
 
@@ -71,7 +71,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         {
             var intValueDeclaration = new VariableExpression(typeof(int), "intValue");
             intValue = new IntSnippet(intValueDeclaration);
-            var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetInt32), [new DeclarationExpression(intValueDeclaration, true)], null, false);
+            var invocation = new InvokeInstanceMethodByNameExpression(this, nameof(JsonElement.TryGetInt32), [new DeclarationExpression(intValueDeclaration, true)], null, false);
             return new BoolSnippet(invocation);
         }
 
@@ -79,7 +79,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         {
             var longValueDeclaration = new VariableExpression(typeof(long), "longValue");
             longValue = new LongSnippet(longValueDeclaration);
-            var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetInt64), [new DeclarationExpression(longValueDeclaration, true)], null, false);
+            var invocation = new InvokeInstanceMethodByNameExpression(this, nameof(JsonElement.TryGetInt64), [new DeclarationExpression(longValueDeclaration, true)], null, false);
             return new BoolSnippet(invocation);
         }
     }

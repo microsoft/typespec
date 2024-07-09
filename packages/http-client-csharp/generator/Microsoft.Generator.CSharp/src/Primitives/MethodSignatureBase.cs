@@ -17,7 +17,7 @@ namespace Microsoft.Generator.CSharp.Primitives
     /// <param name="Modifiers">The modifiers of the method.</param>
     /// <param name="Parameters">The parameters of the method.</param>
     /// <param name="Attributes">The attributes of the method.</param>
-    public abstract class MethodSignatureBase
+    public abstract record MethodSignatureBase
     {
         public MethodSignatureBase(string name,
             FormattableString? description,
