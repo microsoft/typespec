@@ -102,17 +102,18 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             List<ParameterProvider> constructorParameters = new List<ParameterProvider>();
 
-            foreach (var property in _inputModel.Properties)
+            foreach (var property in Properties)
             {
-                CSharpType propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(property.Type);
-                if (_isStruct || (property is { IsRequired: true, IsDiscriminator: false } && !propertyType.IsLiteral))
+                // we only add those properties with wire info indicating they are coming from specs.
+                if (property.WireInfo == null)
                 {
-                    if (!property.IsReadOnly)
+                    continue;
+                }
+                if (_isStruct || (property.WireInfo is { IsRequired: true, IsDiscriminator: false } && !property.Type.IsLiteral))
+                {
+                    if (!property.WireInfo.IsReadOnly)
                     {
-                        constructorParameters.Add(new ParameterProvider(property)
-                        {
-                            Type = propertyType.InputType
-                        });
+                        constructorParameters.Add(property.AsParameter.ToPublicInputParameter());
                     }
                 }
             }
