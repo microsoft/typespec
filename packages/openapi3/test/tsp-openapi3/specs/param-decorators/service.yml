@@ -1,0 +1,72 @@
+openapi: 3.0.0
+info:
+  title: Parameter Decorators
+  version: 0.0.0
+tags: []
+paths:
+  /thing/{name}:
+    get:
+      operationId: Operations_getThing
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+            format: UUID
+            pattern: ^[a-zA-Z0-9-]{3,24}$
+        - name: count
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            maximum: 10
+      responses:
+        "200":
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Thing"
+    put:
+      operationId: Operations_putThing
+      parameters:
+        - $ref: "#/components/parameters/NameParameter"
+      responses:
+        "200":
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Thing"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Thing"
+components:
+  parameters:
+    NameParameter:
+      name: name
+      in: path
+      required: true
+      description: Name parameter
+      schema:
+        type: string
+        format: UUID
+        pattern: ^[a-zA-Z0-9-]{3,24}$
+  schemas:
+    Thing:
+      type: object
+      required:
+        - name
+        - id
+      properties:
+        name:
+          type: string
+        id:
+          type: string
+          format: UUID

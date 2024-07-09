@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
@@ -24,14 +25,15 @@ namespace Microsoft.Generator.CSharp.Providers
         public bool IsOut { get; }
         internal IReadOnlyList<AttributeStatement> Attributes { get; } = Array.Empty<AttributeStatement>();
 
-        public ParameterProvider(InputModelProperty inputProperty)
-        {
-            var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
-            Name = inputProperty.Name.ToVariableName();
-            Description = FormattableStringHelpers.FromString(inputProperty.Description);
-            Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
-            Validation = GetParameterValidation(inputProperty, Type);
-        }
+        /// <summary>
+        /// This property tracks which property this parameter is constructed from
+        /// </summary>
+        public PropertyProvider? Property { get; }
+
+        /// <summary>
+        /// This property tracks which field this parameter is constructed from
+        /// </summary>
+        public FieldProvider? Field { get; }
 
         /// <summary>
         /// Creates a <see cref="ParameterProvider"/> from an <see cref="InputParameter"/>.
@@ -52,8 +54,12 @@ namespace Microsoft.Generator.CSharp.Providers
             ValueExpression? defaultValue = null,
             bool isRef = false,
             bool isOut = false,
-            IReadOnlyList<AttributeStatement>? attributes = default)
+            IReadOnlyList<AttributeStatement>? attributes = null,
+            PropertyProvider? property = null,
+            FieldProvider? field = null)
         {
+            Debug.Assert(!(property is not null && field is not null), "A parameter cannot be both a property and a field");
+
             Name = name;
             Type = type;
             Description = description;
@@ -61,35 +67,33 @@ namespace Microsoft.Generator.CSharp.Providers
             IsOut = isOut;
             DefaultValue = defaultValue;
             Attributes = attributes ?? Array.Empty<AttributeStatement>();
+            Property = property;
+            Field = field;
+            Validation = GetParameterValidation();
         }
 
-        private ParameterValidationType GetParameterValidation(InputModelProperty property, CSharpType propertyType)
+        private ParameterProvider? _inputParameter;
+        /// <summary>
+        /// Returns the public input variant of this parameter.
+        /// For example if the parameter is a <see cref="List{T}"/> it will be converted into an <see cref="IEnumerable{T}"/>.
+        /// </summary>
+        public ParameterProvider ToPublicInputParameter() => _inputParameter ??= BuildInputVariant();
+
+        private ParameterProvider BuildInputVariant()
         {
-            // We do not validate a parameter when it is a value type (struct or int, etc)
-            if (propertyType.IsValueType)
+            return new(
+                Name,
+                Description,
+                Type.InputType,
+                DefaultValue,
+                IsRef,
+                IsOut,
+                Attributes,
+                property: Property,
+                field: Field)
             {
-                return ParameterValidationType.None;
-            }
-
-            // or it is readonly
-            if (property.IsReadOnly)
-            {
-                return ParameterValidationType.None;
-            }
-
-            // or it is optional
-            if (!property.IsRequired)
-            {
-                return ParameterValidationType.None;
-            }
-
-            // or it is nullable
-            if (propertyType.IsNullable)
-            {
-                return ParameterValidationType.None;
-            }
-
-            return ParameterValidationType.AssertNotNull;
+                Validation = Validation,
+            };
         }
 
         public override bool Equals(object? obj)
@@ -128,31 +132,45 @@ namespace Microsoft.Generator.CSharp.Providers
             return $"Name: {Name}, Type: {Type}";
         }
 
-        // TO-DO: Migrate code from autorest as part of output classes migration : https://github.com/Azure/autorest.csharp/issues/4198
-        public InvokeInstanceMethodExpression Invoke(string methodName, ValueExpression arg)
-            => new InvokeInstanceMethodExpression(this, methodName, [arg], null, false);
+        public static implicit operator VariableExpression(ParameterProvider parameter) => GetVariableExpression(parameter);
 
-        public InvokeInstanceMethodExpression Invoke(string methodName)
-            => new InvokeInstanceMethodExpression(this, methodName, Array.Empty<ValueExpression>(), null, false);
-
-        public ValueExpression Property(string propertyName, bool nullConditional = false)
-            => new MemberExpression(nullConditional ? new NullConditionalExpression(this) : this, propertyName);
-
-        private static readonly Dictionary<ParameterProvider, VariableExpression> _cache = new();
-        public static implicit operator VariableExpression(ParameterProvider parameter)
+        private static VariableExpression GetVariableExpression(ParameterProvider parameter)
         {
-            if (!_cache.TryGetValue(parameter, out var variable))
+            if (parameter._asVariable == null)
             {
-                var decl = new CodeWriterDeclaration(parameter.Name);
+                var decl = new CodeWriterDeclaration(parameter.Name, parameter.IsRef);
                 decl.SetActualName(parameter.Name);
-                variable = new VariableExpression(parameter.Type, decl);
-                _cache.Add(parameter, variable);
+                parameter._asVariable = new VariableExpression(parameter.Type, decl);
             }
 
-            return variable;
+            return parameter._asVariable;
         }
 
-        private MemberExpression? _asProperty;
-        public MemberExpression AsPropertyExpression => _asProperty ??= new MemberExpression(null, Name.FirstCharToUpperCase());
+        private VariableExpression? _asVariable;
+        public VariableExpression AsExpression => _asVariable ??= this;
+
+        private ParameterValidationType GetParameterValidation()
+        {
+            if (Property is null || Property.WireInfo is null)
+                return ParameterValidationType.None;
+
+            // We do not validate a parameter when it is a value type (struct or int, etc)
+            if (Property.Type.IsValueType)
+                return ParameterValidationType.None;
+
+            // or it is readonly
+            if (Property.WireInfo.IsReadOnly)
+                return ParameterValidationType.None;
+
+            // or it is optional
+            if (!Property.WireInfo.IsRequired)
+                return ParameterValidationType.None;
+
+            // or it is nullable
+            if (Property.Type.IsNullable)
+                return ParameterValidationType.None;
+
+            return ParameterValidationType.AssertNotNull;
+        }
     }
 }

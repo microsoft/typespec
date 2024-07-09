@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
@@ -25,15 +26,14 @@ namespace Microsoft.Generator.CSharp.Providers
             Debug.Assert(!enumType.IsExtensible);
 
             _enumType = enumType;
-            Namespace = _enumType.Namespace;
             Name = $"{_enumType.Name}Extensions";
         }
+
+        protected override string GetNamespace() => _enumType.Type.Namespace;
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial;
 
         public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
-
-        public override string Namespace { get; }
 
         public override string Name { get; }
 
@@ -97,7 +97,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 var enumField = _enumType.Fields[i];
                 var enumValue = _enumType.Members[i];
-                BoolSnippet condition;
+                ScopedApi<bool> condition;
                 if (_enumType.IsStringValueType)
                 {
                     // when the values are strings, we compare them case-insensitively
@@ -107,12 +107,12 @@ namespace Microsoft.Generator.CSharp.Providers
                     // string.Equals(value, "<the value>", StringComparison.InvariantCultureIgnoreCase)
                     condition = new(enumValue.Value is string strValue && strValue.All(char.IsAscii)
                                 ? stringComparer.Invoke(nameof(IEqualityComparer<string>.Equals), value, Literal(strValue))
-                                : new InvokeStaticMethodExpression(_enumType.ValueType, nameof(object.Equals), [value, Literal(enumValue.Value), FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)]));
+                                : Static(_enumType.ValueType).Invoke(nameof(object.Equals), [value, Literal(enumValue.Value), FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)]));
                 }
                 else
                 {
                     // when the values are not strings (it should be numbers), we just compare them using `==` operator, like `value == <the value>`
-                    condition = Equal(value, Literal(enumValue.Value));
+                    condition = value.Equal(Literal(enumValue.Value));
                 }
                 deserializationBody.Add(new IfStatement(condition)
                     {

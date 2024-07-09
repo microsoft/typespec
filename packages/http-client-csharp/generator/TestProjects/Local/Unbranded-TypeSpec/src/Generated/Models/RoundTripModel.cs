@@ -69,37 +69,37 @@ namespace UnbrandedTypeSpec.Models
         public Thing RequiredModel { get; set; }
 
         /// <summary> this is an int based extensible enum. </summary>
-        public IntExtensibleEnum IntExtensibleEnum { get; set; }
+        public IntExtensibleEnum? IntExtensibleEnum { get; set; }
 
         /// <summary> this is a collection of int based extensible enum. </summary>
         public IList<IntExtensibleEnum> IntExtensibleEnumCollection { get; }
 
         /// <summary> this is a float based extensible enum. </summary>
-        public FloatExtensibleEnum FloatExtensibleEnum { get; set; }
+        public FloatExtensibleEnum? FloatExtensibleEnum { get; set; }
 
         /// <summary> this is a float based extensible enum. </summary>
-        public FloatExtensibleEnumWithIntValue FloatExtensibleEnumWithIntValue { get; set; }
+        public FloatExtensibleEnumWithIntValue? FloatExtensibleEnumWithIntValue { get; set; }
 
         /// <summary> this is a collection of float based extensible enum. </summary>
         public IList<FloatExtensibleEnum> FloatExtensibleEnumCollection { get; }
 
         /// <summary> this is a float based fixed enum. </summary>
-        public FloatFixedEnum FloatFixedEnum { get; set; }
+        public FloatFixedEnum? FloatFixedEnum { get; set; }
 
         /// <summary> this is a float based fixed enum. </summary>
-        public FloatFixedEnumWithIntValue FloatFixedEnumWithIntValue { get; set; }
+        public FloatFixedEnumWithIntValue? FloatFixedEnumWithIntValue { get; set; }
 
         /// <summary> this is a collection of float based fixed enum. </summary>
         public IList<FloatFixedEnum> FloatFixedEnumCollection { get; }
 
         /// <summary> this is a int based fixed enum. </summary>
-        public IntFixedEnum IntFixedEnum { get; set; }
+        public IntFixedEnum? IntFixedEnum { get; set; }
 
         /// <summary> this is a collection of int based fixed enum. </summary>
         public IList<IntFixedEnum> IntFixedEnumCollection { get; }
 
         /// <summary> this is a string based fixed enum. </summary>
-        public StringFixedEnum StringFixedEnum { get; set; }
+        public StringFixedEnum? StringFixedEnum { get; set; }
 
         /// <summary>
         /// required unknown

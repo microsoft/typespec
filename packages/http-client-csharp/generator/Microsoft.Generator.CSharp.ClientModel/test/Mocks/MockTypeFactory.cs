@@ -4,18 +4,19 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests
 {
     internal class MockTypeFactory : ScmTypeFactory
     {
-        public override MethodProviderCollection? CreateMethodProviders(InputOperation operation, TypeProvider enclosingType)
+        public override MethodProviderCollection CreateMethods(InputOperation operation, TypeProvider enclosingType)
         {
             throw new NotImplementedException();
         }
 
-        public override ParameterProvider CreateCSharpParam(InputParameter parameter)
+        public override ParameterProvider CreateParameter(InputParameter parameter)
         {
             throw new NotImplementedException();
         }
@@ -26,10 +27,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         }
 
         public override CSharpType MatchConditionsType() => typeof(int);
-
-        public override CSharpType PageResponseType() => typeof(int);
-
-        public override CSharpType RequestConditionsType() => typeof(int);
 
         public override CSharpType TokenCredentialType() => typeof(int);
         public override CSharpType ListInitializationType => new CSharpType(typeof(List<>), arguments: typeof(int));
