@@ -8,11 +8,13 @@ import {
   Namespace,
   NoTarget,
   Type,
+  compilerAssert,
   getEffectiveModelType,
   getFriendlyName,
   isArrayModelType,
 } from "@typespec/compiler";
 import { JsContext, Module, isImportableType } from "../ctx.js";
+import { reportDiagnostic } from "../lib.js";
 import { parseCase } from "../util/case.js";
 import { asArrayType, getArrayElementName } from "../util/pluralism.js";
 import { emitModelLiteral, emitWellKnownModel, isWellKnownModel } from "./model.js";
@@ -150,8 +152,6 @@ export function emitTypeReference(
         throw new Error("UNREACHABLE: no parent namespace of named model in emitTypeReference");
       }
 
-      // TODO/witemple: I believe this is going to declare all template instances in the module of the template itself, which
-      // might not be desirable.
       const parentModule = createOrGetModuleForNamespace(ctx, effectiveModel.namespace);
 
       module.imports.push({
@@ -243,15 +243,21 @@ export function emitTypeReference(
           // only assignable from undefined or void itself.
           return "void";
         case "ErrorType":
-          throw new Error("UNREACHABLE: Encountered ErrorType in emitTypeReference");
+          compilerAssert(
+            false,
+            "ErrorType should not be encountered in emitTypeReference",
+            position === NoTarget ? type : position
+          );
+          return "unknown";
         case "unknown":
           return "unknown";
         default:
-          throw new Error(
-            `encountered unknown intrinsic type '${
-              (type satisfies never as IntrinsicType).name
-            }' in type graph"`
-          );
+          reportDiagnostic(ctx.program, {
+            code: "unrecognized-intrinsic",
+            format: { name: (type satisfies never as IntrinsicType).name },
+            target: position,
+          });
+          return "unknown";
       }
     case "Interface": {
       if (type.namespace === undefined) {

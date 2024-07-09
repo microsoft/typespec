@@ -34,6 +34,12 @@ export const $lib = createTypeSpecLibrary({
     options: EmitterOptionsSchema,
   },
   diagnostics: {
+    "unrecognized-intrinsic": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`unrecognized intrinsic '${"intrinsic"}' is treated as 'unknown'`,
+      },
+    },
     "unrecognized-scalar": {
       severity: "warning",
       messages: {

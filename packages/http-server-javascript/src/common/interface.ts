@@ -212,7 +212,6 @@ export function splitReturnType(
             kind: "union",
             variants: successVariants,
             typeReference: successTypeReference,
-            // target: module.cursor.resolveRelativeItemPath(successTypeReference),
             target: undefined,
           }
         : {

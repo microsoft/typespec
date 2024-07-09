@@ -90,15 +90,6 @@ function createScalarsMap(program: Program): Map<Scalar, string> {
     [program.resolveTypeReference("TypeSpec.plainDate"), "Date"],
     [program.resolveTypeReference("TypeSpec.plainTime"), "Date"],
     [program.resolveTypeReference("TypeSpec.utcDateTime"), "Date"],
-    // [program.resolveTypeReference("TypeSpec.offsetDateTime"), copy(vendoredModulePath("chrono", "DateTime"))],
-    // [
-    //   program.resolveTypeReference("TypeSpec.duration"),
-    //   copy(referenceVendoredHostPath("chrono", "Duration")),
-    // ],
-    // [
-    //   program.resolveTypeReference("TypeSpec.decimal"),
-    //   copy(referenceVendoredHostPath("bigdecimal", "BigDecimal")),
-    // ],
   ] as const;
 
   for (const [[type, diagnostics]] of entries) {

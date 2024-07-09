@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import { EOL } from "node:os";
 import path from "node:path";
 
-const HELPER_DECLARATION_PATH = path.resolve([".", "src", "helpers"].join(path.sep));
+const HELPER_DECLARATION_PATH = path.resolve(".", "src", "helpers");
 const HELPER_SRC_PATH = path.resolve([".", "helpers"].join(path.sep));
 
 console.log("Building JS server generator helpers.");

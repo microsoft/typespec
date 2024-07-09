@@ -81,8 +81,6 @@ export function createPolicyChain<
 
 /**
  * The type of an error encountered during request validation.
- *
- * TODO/witemple: Need to define shape of error object in a common location.
  */
 export type ValidationError = string;
 

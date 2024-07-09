@@ -23,6 +23,10 @@
   "type": "module",
   "main": "dist/src/index.js",
   "tspMain": "lib/main.tsp",
+  "exports": {
+    ".": "./dist/src/index.js",
+    "./testing": "./dist/src/testing/index.js"
+  },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
     "build": "npm run build:helpers && npm run build:src",
