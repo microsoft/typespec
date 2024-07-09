@@ -156,7 +156,7 @@ export const $info: InfoDecorator = (
   entity: Namespace,
   model: TypeSpecValue
 ) => {
-  const [data, diagnostics] = typespecTypeToJson<AdditionalInfo>(
+  const [data, diagnostics] = typespecTypeToJson<AdditionalInfo & Record<ExtensionKey, unknown>>(
     model,
     context.getArgumentTarget(0)!
   );
