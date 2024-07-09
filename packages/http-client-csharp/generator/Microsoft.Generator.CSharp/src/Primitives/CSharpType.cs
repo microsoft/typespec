@@ -134,20 +134,9 @@ namespace Microsoft.Generator.CSharp.Primitives
             }
         }
 
-        [Conditional("DEBUG")]
-        private static void ValidateArguments(TypeProvider implementation, IReadOnlyList<CSharpType>? arguments)
-        {
-            if (arguments == null)
-                return;
-
-            Debug.Assert(implementation.TypeArguments.Count == arguments.Count, $"the count of arguments given ({string.Join(", ", arguments.Select(a => a.ToString()))}) does not match the arguments in the definition {implementation.Name}");
-        }
-
         internal CSharpType(TypeProvider implementation, string providerNamespace, IReadOnlyList<CSharpType>? arguments = null, bool isNullable = false)
         {
-            ValidateArguments(implementation, arguments);
-
-            _arguments = arguments ?? implementation.TypeArguments;
+            _arguments = arguments ?? [];
             var isPublic = implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) && Arguments.All(t => t.IsPublic);
             var name = implementation.Name;
             var ns = providerNamespace;

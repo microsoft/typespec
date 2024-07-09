@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public CSharpType Type => _type ??= new(
             this,
             GetNamespace(),
-            arguments: TypeArguments,
+            arguments: GetTypeArguments(),
             isNullable: false);
 
         protected virtual string GetNamespace() => CodeModelPlugin.Instance.Configuration.RootNamespace;
@@ -75,9 +75,6 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public virtual WhereExpression? WhereClause { get; protected init; }
 
-        private CSharpType[]? _typeArguments;
-        protected internal virtual IReadOnlyList<CSharpType> TypeArguments => _typeArguments ??= BuildTypeArguments();
-
         public virtual TypeProvider? DeclaringTypeProvider { get; protected init; }
 
         private IReadOnlyList<CSharpType>? _implements;
@@ -101,7 +98,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private IReadOnlyList<TypeProvider>? _serializationProviders;
         public virtual IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
 
-        protected virtual CSharpType[] BuildTypeArguments() => Array.Empty<CSharpType>();
+        protected virtual CSharpType[] GetTypeArguments() => Array.Empty<CSharpType>();
 
         protected virtual PropertyProvider[] BuildProperties() => Array.Empty<PropertyProvider>();
 

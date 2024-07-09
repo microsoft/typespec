@@ -85,29 +85,28 @@ namespace Microsoft.Generator.CSharp.Providers
             ];
         }
 
-        protected override CSharpType[] BuildTypeArguments()
+        protected override CSharpType[] GetTypeArguments()
         {
-            return new[] { _t };
+            return [_t];
         }
 
         protected override CSharpType[] BuildImplements()
         {
-            return new[] { _iListOfT, _iReadOnlyListOfT };
+            return [_iListOfT, _iReadOnlyListOfT];
         }
 
         protected override FieldProvider[] BuildFields()
         {
-            return new[] { _innerListField };
+            return [_innerListField];
         }
 
         protected override PropertyProvider[] BuildProperties() =>
-            new[]
-            {
+            [
                 new PropertyProvider(null, MethodSignatureModifiers.Public, typeof(bool), "IsUndefined", new ExpressionPropertyBody(_innerList.Equal(Null))),
                 BuildCount(),
                 BuildIsReadOnly(),
                 BuildIndexer()
-            };
+            ];
 
         private PropertyProvider BuildIsReadOnly()
         {
