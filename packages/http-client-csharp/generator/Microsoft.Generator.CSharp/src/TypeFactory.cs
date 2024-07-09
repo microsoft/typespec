@@ -32,16 +32,6 @@ namespace Microsoft.Generator.CSharp
             return type;
         }
 
-        private static string GetDefaultModelNamespace()
-        {
-            if (CodeModelPlugin.Instance.Configuration.UseModelNamespace)
-            {
-                return $"{CodeModelPlugin.Instance.Configuration.Namespace}.Models";
-            }
-
-            return CodeModelPlugin.Instance.Configuration.Namespace;
-        }
-
         /// <summary>
         /// Factory method for creating a <see cref="CSharpType"/> based on an input type <paramref name="inputType"/>.
         /// </summary>
@@ -53,8 +43,8 @@ namespace Microsoft.Generator.CSharp
             InputUnionType unionType => CSharpType.FromUnion(unionType.VariantTypes.Select(CreateCSharpType).ToArray()),
             InputArrayType listType => new CSharpType(typeof(IList<>), CreateCSharpType(listType.ValueType)),
             InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), typeof(string), CreateCSharpType(dictionaryType.ValueType)),
-            InputEnumType enumType => new CSharpType(enumType.Name.ToCleanName(), true, true, false, GetDefaultModelNamespace(), null, null, enumType.Usage.HasFlag(InputModelTypeUsage.Input)),
-            InputModelType model => new CSharpType(model.Name.ToCleanName(), false, false, false, GetDefaultModelNamespace(), null, null, model.Usage.HasFlag(InputModelTypeUsage.Input)),
+            InputEnumType enumType => new CSharpType(enumType.Name.ToCleanName(), CodeModelPlugin.Instance.Configuration.ModelNamespace, true, true, false, null, null, enumType.Usage.HasFlag(InputModelTypeUsage.Input)),
+            InputModelType model => new CSharpType(model.Name.ToCleanName(), CodeModelPlugin.Instance.Configuration.ModelNamespace, false, false, false, null, null, model.Usage.HasFlag(InputModelTypeUsage.Input)),
             InputNullableType nullableType => CreateCSharpType(nullableType.Type).WithNullable(true),
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
@@ -133,7 +123,7 @@ namespace Microsoft.Generator.CSharp
         /// <returns>An instance of <see cref="MethodProviderCollection"/> containing the chain of methods
         /// associated with the input operation, or <c>null</c> if no methods are constructed.
         /// </returns>
-        public virtual MethodProviderCollection CreateMethod(InputOperation operation, TypeProvider enclosingType) => new(operation, enclosingType);
+        public virtual MethodProviderCollection CreateMethods(InputOperation operation, TypeProvider enclosingType) => new(operation, enclosingType);
 
         /// <summary>
         /// Factory method for retrieving the serialization format for a given input type.

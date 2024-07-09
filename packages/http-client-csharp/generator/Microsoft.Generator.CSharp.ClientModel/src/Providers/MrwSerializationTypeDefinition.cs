@@ -77,15 +77,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _isNotEqualToWireConditionSnippet = _mrwOptionsParameterSnippet.Format().NotEqual(ModelReaderWriterOptionsSnippets.WireFormat);
 
             Name = provider.Name;
-            Namespace = provider.Namespace;
         }
+
+        protected override string GetNamespace() => _model.Type.Namespace;
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
         private MethodProvider SerializationConstructor => _serializationConstructor ??= BuildSerializationConstructor();
 
         public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
         public override string Name { get; }
-        public override string Namespace { get; }
 
         /// <summary>
         /// Builds the fields for the model by adding the raw data field for serialization.

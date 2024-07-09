@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodProvider BuildCreateMessageMethod(InputOperation operation)
         {
-            var methodProvider = (ScmMethodProviderCollection)ClientModelPlugin.Instance.TypeFactory.CreateMethod(operation, ClientProvider);
+            var methodProvider = (ScmMethodProviderCollection)ClientModelPlugin.Instance.TypeFactory.CreateMethods(operation, ClientProvider);
 
             var methodModifier = MethodSignatureModifiers.Internal;
             var methodSignature = new MethodSignature(

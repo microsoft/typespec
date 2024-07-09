@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.Primitives
 
         private CodeFile Write(CodeWriter writer)
         {
-            using (writer.SetNamespace(_provider.Namespace))
+            using (writer.SetNamespace(_provider.Type.Namespace))
             {
                 WriteType(writer);
             }

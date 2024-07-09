@@ -27,7 +27,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 new InputPrimitiveType(InputPrimitiveTypeKind.String),
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
                 true);
-            var expected = new CSharpType("SampleType", true, true, false, "sample.namespace.Models", null, null, true);
+            var expected = new CSharpType("SampleType", "sample.namespace.Models", true, true, false, null, null, true);
 
             var actual = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input);
 
@@ -49,7 +49,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
                 true);
             var nullableInput = new InputNullableType(input);
-            var expected = new CSharpType("SampleType", true, true, true, "sample.namespace.Models", null, null, true);
+            var expected = new CSharpType("SampleType", "sample.namespace.Models", true, true, true, null, null, true);
 
             var actual = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(nullableInput);
 
@@ -70,7 +70,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 new InputPrimitiveType(InputPrimitiveTypeKind.String),
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
                 true);
-            var expected = new CSharpType("SampleType", true, true, false, "sample.namespace.Models", null, null, true);
+            var expected = new CSharpType("SampleType", "sample.namespace.Models", true, true, false, null, null, true);
 
             var enumProvider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);
 

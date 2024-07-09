@@ -143,15 +143,14 @@ namespace Microsoft.Generator.CSharp.Primitives
             Debug.Assert(implementation.TypeArguments.Count == arguments.Count, $"the count of arguments given ({string.Join(", ", arguments.Select(a => a.ToString()))}) does not match the arguments in the definition {implementation.Name}");
         }
 
-        internal CSharpType(TypeProvider implementation, IReadOnlyList<CSharpType>? arguments = null, bool isNullable = false)
+        internal CSharpType(TypeProvider implementation, string providerNamespace, IReadOnlyList<CSharpType>? arguments = null, bool isNullable = false)
         {
             ValidateArguments(implementation, arguments);
 
             _arguments = arguments ?? implementation.TypeArguments;
-            var isPublic = (implementation.DeclarationModifiers & TypeSignatureModifiers.Public) != 0
-                && Arguments.All(t => t.IsPublic);
+            var isPublic = implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) && Arguments.All(t => t.IsPublic);
             var name = implementation.Name;
-            var ns = implementation.Namespace;
+            var ns = providerNamespace;
             var isEnum = implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Enum);
             var isValueType = isEnum || implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             var declaringType = implementation.DeclaringTypeProvider?.Type;
@@ -159,7 +158,7 @@ namespace Microsoft.Generator.CSharp.Primitives
             Initialize(name, isValueType, isEnum, isNullable, ns, declaringType, arguments, isPublic);
         }
 
-        internal CSharpType(string? name, bool isValueType, bool isEnum, bool isNullable, string? ns, CSharpType? declaringType, IReadOnlyList<CSharpType>? args, bool isPublic)
+        internal CSharpType(string name, string ns, bool isValueType, bool isEnum, bool isNullable, CSharpType? declaringType, IReadOnlyList<CSharpType>? args, bool isPublic)
         {
             _arguments = args ?? [];
             Initialize(name, isValueType, isEnum, isNullable, ns, declaringType, args, isPublic);
@@ -172,8 +171,15 @@ namespace Microsoft.Generator.CSharp.Primitives
         [MemberNotNull(nameof(_namespace))]
         [MemberNotNull(nameof(_arguments))]
         [MemberNotNull(nameof(_isPublic))]
-        private void Initialize(string? name, bool isValueType, bool isEnum, bool isNullable, string? ns,
-            CSharpType? declaringType, IReadOnlyList<CSharpType>? args, bool isPublic)
+        private void Initialize(
+            string? name,
+            bool isValueType,
+            bool isEnum,
+            bool isNullable,
+            string? ns,
+            CSharpType? declaringType,
+            IReadOnlyList<CSharpType>? args,
+            bool isPublic)
         {
             _name = name ?? string.Empty;
             _isValueType = isValueType;
@@ -490,7 +496,7 @@ namespace Microsoft.Generator.CSharp.Primitives
         {
             var type = isNullable == IsNullable ? this : IsFrameworkType
                 ? new CSharpType(FrameworkType, Arguments, isNullable)
-                : new CSharpType(Name, IsValueType, IsEnum, isNullable, Namespace, DeclaringType, Arguments, IsPublic);
+                : new CSharpType(Name, Namespace, IsValueType, IsEnum, isNullable, DeclaringType, Arguments, IsPublic);
 
             type._literal = _literal;
             type._unionItemTypes = _unionItemTypes;
@@ -582,7 +588,7 @@ namespace Microsoft.Generator.CSharp.Primitives
             }
             else if (type is { IsFrameworkType: false, IsEnum: true })
             {
-                var literalType = new CSharpType(type.Name, type.IsValueType, true, type.IsNullable, type.Namespace, type.DeclaringType, type.Arguments, type.IsPublic)
+                var literalType = new CSharpType(type.Name, type.Namespace, type.IsValueType, true, type.IsNullable, type.DeclaringType, type.Arguments, type.IsPublic)
                 {
                     _literal = literalValue
                 };
@@ -615,7 +621,7 @@ namespace Microsoft.Generator.CSharp.Primitives
             }
             else
             {
-                return new CSharpType(Name, IsValueType, IsEnum, IsNullable, Namespace, DeclaringType, arguments, IsPublic);
+                return new CSharpType(Name, Namespace, IsValueType, IsEnum, IsNullable, DeclaringType, arguments, IsPublic);
             }
         }
     }

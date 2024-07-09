@@ -19,7 +19,6 @@ namespace Microsoft.Generator.CSharp.Providers
         /// </summary>
         public abstract string RelativeFilePath { get; }
         public abstract string Name { get; }
-        public virtual string Namespace => CodeModelPlugin.Instance.Configuration.Namespace;
         protected virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
 
         private XmlDocProvider? _xmlDocs;
@@ -30,8 +29,11 @@ namespace Microsoft.Generator.CSharp.Providers
         private CSharpType? _type;
         public CSharpType Type => _type ??= new(
             this,
+            GetNamespace(),
             arguments: TypeArguments,
             isNullable: false);
+
+        protected virtual string GetNamespace() => CodeModelPlugin.Instance.Configuration.RootNamespace;
 
         private TypeSignatureModifiers? _declarationModifiers;
         public TypeSignatureModifiers DeclarationModifiers => _declarationModifiers ??= GetDeclarationModifiersInternal();
@@ -57,7 +59,7 @@ namespace Microsoft.Generator.CSharp.Providers
             // mask & (mask - 1) gives us 0 if mask is a power of 2, it means we have exactly one flag of above when the mask is a power of 2
             if ((mask & (mask - 1)) != 0)
             {
-                throw new InvalidOperationException($"Invalid modifier {modifiers} on TypeProvider {Namespace}.{Name}");
+                throw new InvalidOperationException($"Invalid modifier {modifiers} on TypeProvider {Type.Namespace}.{Name}");
             }
 
             // we always add partial when possible
@@ -120,16 +122,6 @@ namespace Microsoft.Generator.CSharp.Providers
             var docs = new XmlDocProvider();
             docs.Summary = new XmlDocSummaryStatement([Description]);
             return docs;
-        }
-
-        public static string GetDefaultModelNamespace(string defaultNamespace)
-        {
-            if (CodeModelPlugin.Instance.Configuration.UseModelNamespace)
-            {
-                return $"{defaultNamespace}.Models";
-            }
-
-            return defaultNamespace;
         }
     }
 }
