@@ -26,5 +26,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             => pipeline.Invoke(isAsync ? _processHeadAsBoolMessageAsync : _processHeadAsBoolMessage, [message, requestContext ?? Null], isAsync).As<ClientResult>();
 
         public static ScopedApi<ClientPipeline> Create() => Static<ClientPipeline>().Invoke(nameof(ClientPipeline.Create)).As<ClientPipeline>();
+        public static ScopedApi<ClientPipeline> Create(params ValueExpression[] arguments)
+            => Static<ClientPipeline>().Invoke(nameof(ClientPipeline.Create), arguments).As<ClientPipeline>();
     }
 }

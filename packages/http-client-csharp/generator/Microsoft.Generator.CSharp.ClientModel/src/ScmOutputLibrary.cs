@@ -17,6 +17,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             foreach (var inputClient in inputClients)
             {
                 clients.Add(new RestClientProvider(inputClient));
+                // TO-DO: Implement client options https://github.com/microsoft/typespec/issues/3688
+                clients.Add(new ClientOptionsProvider(inputClient));
                 clients.Add(new ClientProvider(inputClient));
             }
 

@@ -386,10 +386,10 @@ namespace Microsoft.Generator.CSharp
             AppendRawIf("ref ", parameter.IsRef);
 
             Append($"{parameter.Type} {parameter.Name:D}");
-            if (parameter.DefaultValue != null)
+            if (parameter.InitializationValue != null)
             {
                 AppendRaw(" = ");
-                parameter.DefaultValue.Write(this);
+                parameter.InitializationValue.Write(this);
             }
         }
 

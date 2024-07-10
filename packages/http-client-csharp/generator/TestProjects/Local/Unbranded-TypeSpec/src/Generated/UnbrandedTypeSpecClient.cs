@@ -13,12 +13,38 @@ namespace UnbrandedTypeSpec
     /// <summary></summary>
     public partial class UnbrandedTypeSpecClient
     {
-        private ClientPipeline _pipeline;
+        private readonly ClientPipeline _pipeline;
+        private const string AuthorizationHeader = "my-api-key";
+        private readonly ApiKeyCredential _keyCredential;
+        private readonly Uri _endpoint;
 
-        /// <summary> This is a sample typespec project. </summary>
-        public UnbrandedTypeSpecClient()
+        /// <summary> Initializes a new instance of UnbrandedTypeSpecClient for mocking. </summary>
+        protected UnbrandedTypeSpecClient()
         {
-            _pipeline = ClientPipeline.Create();
+        }
+
+        /// <summary> Initializes a new instance of UnbrandedTypeSpecClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="credential"> A credential used to authenticate to the service. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
+        public UnbrandedTypeSpecClient(Uri endpoint, ApiKeyCredential credential): this(endpoint, credential, new UnbrandedTypeSpecClientOptions())
+        {
+        }
+
+        /// <summary> Initializes a new instance of UnbrandedTypeSpecClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="credential"> A credential used to authenticate to the service. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
+        public UnbrandedTypeSpecClient(Uri endpoint, ApiKeyCredential credential, UnbrandedTypeSpecClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
+            Argument.AssertNotNull(credential, nameof(credential));
+
+            options ??= new UnbrandedTypeSpecClientOptions();
+            _endpoint = endpoint;
+            _keyCredential = credential;
+            _pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[]{ ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(_keyCredential, AuthorizationHeader) }, Array.Empty<PipelinePolicy>());
         }
 
         /// <summary>

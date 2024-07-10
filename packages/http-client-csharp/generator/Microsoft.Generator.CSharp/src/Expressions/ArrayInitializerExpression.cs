@@ -22,14 +22,14 @@ namespace Microsoft.Generator.CSharp.Expressions
 
             if (IsInline)
             {
-                writer.AppendRaw("{");
+                writer.AppendRaw("{ ");
                 for (int i = 0; i < Elements.Count; i++)
                 {
                     Elements[i].Write(writer);
                     if (i < Elements.Count - 1)
                         writer.AppendRaw(", ");
                 }
-                writer.AppendRaw("}");
+                writer.AppendRaw(" }");
             }
             else
             {
