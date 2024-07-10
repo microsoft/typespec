@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public override string Name => _namedTypeSymbol.Name;
 
-        protected override string GetNamespace() => _namedTypeSymbol.ContainingNamespace.Name;
+        protected override string GetNamespace() => GetFullyQualifiedNameFromDisplayString(_namedTypeSymbol.ContainingNamespace);
 
         protected override PropertyProvider[] BuildProperties()
         {
@@ -147,8 +147,14 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             // Default to fully qualified name
+            return GetFullyQualifiedNameFromDisplayString(typeSymbol);
+        }
+
+        private static string GetFullyQualifiedNameFromDisplayString(ISymbol typeSymbol)
+        {
+            const string globalPrefix = "global::";
             var fullyQualifiedName = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            return fullyQualifiedName.StartsWith("global::") ? fullyQualifiedName.Substring("global::".Length) : fullyQualifiedName;
+            return fullyQualifiedName.StartsWith(globalPrefix, StringComparison.Ordinal) ? fullyQualifiedName.Substring(globalPrefix.Length) : fullyQualifiedName;
         }
     }
 }

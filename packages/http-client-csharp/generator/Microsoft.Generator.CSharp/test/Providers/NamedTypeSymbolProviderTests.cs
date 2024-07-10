@@ -45,6 +45,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         [Test]
         public void ValidateNamespace()
         {
+            Assert.AreEqual("Sample.Models", _namedTypeSymbolProvider.Type.Namespace);
             Assert.AreEqual(_namedSymbol.Type.Namespace, _namedTypeSymbolProvider.Type.Namespace);
         }
 
@@ -71,6 +72,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             public override string RelativeFilePath => ".";
 
             public override string Name => "NamedSymbol";
+
+            protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
             protected override PropertyProvider[] BuildProperties()
             {
