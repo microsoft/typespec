@@ -69,9 +69,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
         private class NamedSymbol : TypeProvider
         {
-            public override string RelativeFilePath => ".";
+            protected override string BuildRelativeFilePath() => ".";
 
-            public override string Name => "NamedSymbol";
+            protected override string BuildName() => "NamedSymbol";
 
             protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
@@ -89,10 +89,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
         private class PropertyType : TypeProvider
         {
-            public override string RelativeFilePath => ".";
-
-            public override string Name => "PropertyType";
-
             protected override PropertyProvider[] BuildProperties()
             {
                 return
@@ -100,6 +96,10 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     new PropertyProvider($"Foo property", MethodSignatureModifiers.Public, typeof(int), "Foo", new AutoPropertyBody(true)),
                 ];
             }
+
+            protected override string BuildRelativeFilePath() => ".";
+
+            protected override string BuildName()  => "PropertyType";
         }
 
         private static SyntaxTree GetTree(TypeProvider provider)

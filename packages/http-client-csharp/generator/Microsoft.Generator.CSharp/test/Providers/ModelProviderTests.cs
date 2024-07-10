@@ -18,10 +18,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         public void BuildProperties_ValidatePropertySetters(InputModelProperty inputModelProperty, CSharpType type, bool hasSetter)
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => type);
-            PropertyProvider? result = null;
-            mockTypeFactory.Setup(f => f.CreatePropertyProvider(It.IsAny<InputModelProperty>()))
-                .Callback<InputModelProperty>(p => result = new PropertyProvider(p))
-                .Returns(() => result!);
+
             var props = new[]
             {
                 inputModelProperty
@@ -128,11 +125,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     throw new ArgumentException("Unsupported input type.");
                 }
             });
-
-            PropertyProvider? result = null;
-            mockTypeFactory.Setup(f => f.CreatePropertyProvider(It.IsAny<InputModelProperty>()))
-                .Callback<InputModelProperty>(p => result = new PropertyProvider(p))
-                .Returns(() => result!);
 
             var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
 

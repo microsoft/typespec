@@ -100,12 +100,7 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
                 {
                     throw new ArgumentException("Unsupported input type.");
                 }
-            });
-
-            PropertyProvider? result = null;
-            mockTypeFactory.Setup(f => f.CreatePropertyProvider(It.IsAny<InputModelProperty>()))
-                .Callback<InputModelProperty>(p => result = new PropertyProvider(p))
-                .Returns(() => result!);
+            };
         }
 
         // common usages definitions

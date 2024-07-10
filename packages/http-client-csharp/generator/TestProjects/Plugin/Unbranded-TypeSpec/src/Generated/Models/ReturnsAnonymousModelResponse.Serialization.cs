@@ -7,6 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
@@ -127,13 +128,15 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="returnsAnonymousModelResponse"> The <see cref="ReturnsAnonymousModelResponse"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(ReturnsAnonymousModelResponse returnsAnonymousModelResponse)
         {
-            throw new NotImplementedException("Not implemented");
+            return BinaryContent.Create(returnsAnonymousModelResponse, ModelSerializationExtensions.WireOptions);
         }
 
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ReturnsAnonymousModelResponse"/> from. </param>
         public static explicit operator ReturnsAnonymousModelResponse(ClientResult result)
         {
-            throw new NotImplementedException("Not implemented");
+            using PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content);
+            return DeserializeReturnsAnonymousModelResponse(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }
