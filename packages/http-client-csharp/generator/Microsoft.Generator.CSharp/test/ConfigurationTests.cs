@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests
@@ -12,9 +11,6 @@ namespace Microsoft.Generator.CSharp.Tests
     // Tests for the Configuration class
     public class ConfigurationTests
     {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-        private readonly string _mocksFolder = "./Mocks";
-
         // Validates that the configuration is initialized correctly given input
         [Test]
         public void TestInitialize()
@@ -23,7 +19,7 @@ namespace Microsoft.Generator.CSharp.Tests
             string? unknownStringProperty = "unknownPropertyValue";
             bool? unknownBoolProp = false;
 
-            var configuration = Configuration.Load(_mocksFolder);
+            var configuration = Configuration.Load(MockHelpers.MocksFolder);
 
             var parsedNs = configuration.RootNamespace;
 
@@ -45,7 +41,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void TestInitialize_NoFileFound()
         {
-            var configFilePath = Path.Combine(_mocksFolder, "unknown_file.out");
+            var configFilePath = Path.Combine(MockHelpers.MocksFolder, "unknown_file.out");
             Assert.Throws<InvalidOperationException>(() => Configuration.Load(configFilePath));
         }
 
@@ -54,7 +50,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TestParseConfig_OutputFolder(string mockJson, bool throwsError)
         {
 
-            var expected = Path.GetFullPath(_mocksFolder);
+            var expected = Path.GetFullPath(MockHelpers.MocksFolder);
 
             if (throwsError)
             {
@@ -62,7 +58,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 return;
             }
 
-            var configuration = Configuration.Load(_mocksFolder, mockJson);
+            var configuration = Configuration.Load(MockHelpers.MocksFolder, mockJson);
 
             Assert.AreEqual(expected, configuration.OutputDirectory);
         }

@@ -12,7 +12,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [SetUp]
         public void SetUp()
         {
-            MockCodeModelPlugin.LoadMockPlugin();
+            MockHelpers.LoadMockPlugin();
         }
 
         [Test]
