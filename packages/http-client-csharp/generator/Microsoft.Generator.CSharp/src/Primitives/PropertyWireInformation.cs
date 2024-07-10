@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.Primitives
             IsReadOnly = inputModelProperty.IsReadOnly;
             IsNullable = inputModelProperty.Type is InputNullableType;
             IsDiscriminator = inputModelProperty.IsDiscriminator;
-            SerializedName = inputModelProperty.SerializedName.FirstCharToUpperCase();
+            SerializedName = inputModelProperty.SerializedName;
         }
     }
 }
