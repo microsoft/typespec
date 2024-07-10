@@ -491,6 +491,10 @@ importers:
         version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0(vitest@1.6.0))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/http-server-javascript:
+    dependencies:
+      prettier:
+        specifier: ~3.3.2
+        version: 3.3.2
     devDependencies:
       '@types/node':
         specifier: ~18.11.19
@@ -501,9 +505,6 @@ importers:
       '@typespec/http':
         specifier: workspace:~
         version: link:../http
-      prettier:
-        specifier: ~3.3.2
-        version: 3.3.2
       tsx:
         specifier: ^4.16.0
         version: 4.16.2

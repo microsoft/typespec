@@ -38,12 +38,18 @@
     "lint:fix": "eslint . --fix",
     "regen-docs": "echo Doc generation disabled for this package."
   },
+  "peerDependencies": {
+    "@typespec/compiler": "workspace:~",
+    "@typespec/http": "workspace:~"
+  },
+  "dependencies": {
+    "prettier": "~3.3.2"
+  },
   "devDependencies": {
     "@types/node": "~18.11.19",
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
     "typescript": "~5.5.3",
-    "prettier": "~3.3.2",
     "tsx": "^4.16.0"
   }
 }
