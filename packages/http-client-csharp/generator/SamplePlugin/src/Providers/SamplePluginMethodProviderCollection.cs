@@ -98,7 +98,7 @@ namespace SamplePlugin.Providers
                 }
                 else
                 {
-                    statements = new KeywordExpression("return", BodyExpression).Terminate();
+                    statements = new KeywordExpression("return", method.BodyExpression).Terminate();
                 }
                 method.Update(bodyStatements: statements);
             }

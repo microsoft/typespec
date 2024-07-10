@@ -8,7 +8,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 {
     internal class MockTypeProvider : TypeProvider
     {
-        public override string RelativeFilePath => throw new NotImplementedException();
-        public override string Name => throw new NotImplementedException();
+        protected override string BuildRelativeFilePath()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override string BuildName()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
