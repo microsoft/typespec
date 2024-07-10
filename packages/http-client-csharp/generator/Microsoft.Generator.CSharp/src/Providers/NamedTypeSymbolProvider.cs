@@ -147,8 +147,8 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             // Default to fully qualified name
-            var fqns = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            return fqns.StartsWith("global::") ? fqns.Substring("global::".Length) : fqns;
+            var fullyQualifiedName = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            return fullyQualifiedName.StartsWith("global::") ? fullyQualifiedName.Substring("global::".Length) : fullyQualifiedName;
         }
     }
 }
