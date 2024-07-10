@@ -116,52 +116,24 @@ namespace Microsoft.Generator.CSharp.Providers
         }
 
         private IReadOnlyList<PropertyProvider>? _properties;
-
-        public IReadOnlyList<PropertyProvider> Properties
-        {
-            get => _properties ??= BuildProperties();
-            private set => _properties = value;
-        }
+        public IReadOnlyList<PropertyProvider> Properties => _properties ??= BuildProperties();
 
         private IReadOnlyList<MethodProvider>? _methods;
-
-        public IReadOnlyList<MethodProvider> Methods
-        {
-            get => _methods ??= BuildMethods();
-            private set => _methods = value;
-        }
+        public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethods();
 
         private IReadOnlyList<ConstructorProvider>? _constructors;
 
-        public IReadOnlyList<ConstructorProvider> Constructors
-        {
-            get => _constructors ??= BuildConstructors();
-            private set => _constructors = value;
-        }
+        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= BuildConstructors();
 
         private IReadOnlyList<FieldProvider>? _fields;
-
-        public IReadOnlyList<FieldProvider> Fields
-        {
-            get => _fields ??= BuildFields();
-            private set => _fields = value;
-        }
+        public IReadOnlyList<FieldProvider> Fields => _fields ??= BuildFields();
 
         private IReadOnlyList<TypeProvider>? _nestedTypes;
-
-        public IReadOnlyList<TypeProvider> NestedTypes
-        {
-            get => _nestedTypes ??= BuildNestedTypes();
-            private set => _nestedTypes = value;
-        }
+        public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypes();
 
         private IReadOnlyList<TypeProvider>? _serializationProviders;
 
-        public virtual IReadOnlyList<TypeProvider> SerializationProviders
-        {
-            get => _serializationProviders ??= BuildSerializationProviders();
-            private set => _serializationProviders = value;
-        }
+        public virtual IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
 
         protected virtual CSharpType[] GetTypeArguments() => Array.Empty<CSharpType>();
 
@@ -199,11 +171,20 @@ namespace Microsoft.Generator.CSharp.Providers
             return defaultNamespace;
         }
 
-        public void Update(List<MethodProvider> methods, List<PropertyProvider> properties, List<FieldProvider> fields)
+        public void Update(List<MethodProvider>? methods = default, List<PropertyProvider>? properties = default, List<FieldProvider>? fields = default)
         {
-            Methods = methods;
-            Properties = properties;
-            Fields = fields;
+            if (methods != null)
+            {
+                _methods = methods;
+            }
+            if (properties != null)
+            {
+                _properties = properties;
+            }
+            if (fields != null)
+            {
+                _fields = fields;
+            }
         }
     }
 }

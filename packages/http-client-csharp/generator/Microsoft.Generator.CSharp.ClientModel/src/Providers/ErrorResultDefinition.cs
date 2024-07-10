@@ -40,6 +40,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildName() => "ErrorResult";
 
+        protected override CSharpType[] GetTypeArguments()
+        {
+            return [_t];
+        }
+
         protected override CSharpType[] BuildImplements()
         {
             return [new CSharpType(typeof(ClientResult<>), _t)];

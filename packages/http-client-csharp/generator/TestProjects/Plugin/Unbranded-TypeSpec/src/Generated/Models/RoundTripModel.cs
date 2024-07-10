@@ -3,687 +3,291 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
-using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
-    /// <summary></summary>
-    public partial class RoundTripModel : IJsonModel<RoundTripModel>
+    /// <summary> this is a roundtrip model. </summary>
+    public partial class RoundTripModel
     {
-        /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
-
-        internal RoundTripModel(string requiredString, int requiredInt, IList<StringFixedEnum> requiredCollection, IDictionary<string, StringExtensibleEnum> requiredDictionary, Thing requiredModel, IntExtensibleEnum? intExtensibleEnum, IList<IntExtensibleEnum> intExtensibleEnumCollection, FloatExtensibleEnum? floatExtensibleEnum, FloatExtensibleEnumWithIntValue? floatExtensibleEnumWithIntValue, IList<FloatExtensibleEnum> floatExtensibleEnumCollection, FloatFixedEnum? floatFixedEnum, FloatFixedEnumWithIntValue? floatFixedEnumWithIntValue, IList<FloatFixedEnum> floatFixedEnumCollection, IntFixedEnum? intFixedEnum, IList<IntFixedEnum> intFixedEnumCollection, StringFixedEnum? stringFixedEnum, BinaryData requiredUnknown, BinaryData optionalUnknown, IDictionary<string, BinaryData> requiredRecordUnknown, IDictionary<string, BinaryData> optionalRecordUnknown, IReadOnlyDictionary<string, BinaryData> readOnlyRequiredRecordUnknown, IReadOnlyDictionary<string, BinaryData> readOnlyOptionalRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, BinaryData requiredBytes, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        /// <summary> Initializes a new instance of <see cref="RoundTripModel"/>. </summary>
+        /// <param name="requiredString"> Required string, illustrating a reference type property. </param>
+        /// <param name="requiredInt"> Required int, illustrating a value type property. </param>
+        /// <param name="requiredCollection"> Required collection of enums. </param>
+        /// <param name="requiredDictionary"> Required dictionary of enums. </param>
+        /// <param name="requiredModel"> Required model. </param>
+        /// <param name="requiredUnknown"> required unknown. </param>
+        /// <param name="requiredRecordUnknown"> required record of unknown. </param>
+        /// <param name="modelWithRequiredNullable"> this is a model with required nullable properties. </param>
+        /// <param name="requiredBytes"> Required bytes. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="requiredString"/>, <paramref name="requiredCollection"/>, <paramref name="requiredDictionary"/>, <paramref name="requiredModel"/>, <paramref name="requiredUnknown"/>, <paramref name="requiredRecordUnknown"/>, <paramref name="modelWithRequiredNullable"/> or <paramref name="requiredBytes"/> is null. </exception>
+        public RoundTripModel(string requiredString, int requiredInt, IEnumerable<StringFixedEnum> requiredCollection, IDictionary<string, StringExtensibleEnum> requiredDictionary, Thing requiredModel, BinaryData requiredUnknown, IDictionary<string, BinaryData> requiredRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, BinaryData requiredBytes)
         {
+            Argument.AssertNotNull(requiredString, nameof(requiredString));
+            Argument.AssertNotNull(requiredCollection, nameof(requiredCollection));
+            Argument.AssertNotNull(requiredDictionary, nameof(requiredDictionary));
+            Argument.AssertNotNull(requiredModel, nameof(requiredModel));
+            Argument.AssertNotNull(requiredUnknown, nameof(requiredUnknown));
+            Argument.AssertNotNull(requiredRecordUnknown, nameof(requiredRecordUnknown));
+            Argument.AssertNotNull(modelWithRequiredNullable, nameof(modelWithRequiredNullable));
+            Argument.AssertNotNull(requiredBytes, nameof(requiredBytes));
+
             RequiredString = requiredString;
             RequiredInt = requiredInt;
-            RequiredCollection = requiredCollection;
+            RequiredCollection = requiredCollection.ToList();
             RequiredDictionary = requiredDictionary;
             RequiredModel = requiredModel;
-            IntExtensibleEnum = intExtensibleEnum;
-            IntExtensibleEnumCollection = intExtensibleEnumCollection;
-            FloatExtensibleEnum = floatExtensibleEnum;
-            FloatExtensibleEnumWithIntValue = floatExtensibleEnumWithIntValue;
-            FloatExtensibleEnumCollection = floatExtensibleEnumCollection;
-            FloatFixedEnum = floatFixedEnum;
-            FloatFixedEnumWithIntValue = floatFixedEnumWithIntValue;
-            FloatFixedEnumCollection = floatFixedEnumCollection;
-            IntFixedEnum = intFixedEnum;
-            IntFixedEnumCollection = intFixedEnumCollection;
-            StringFixedEnum = stringFixedEnum;
+            IntExtensibleEnumCollection = new ChangeTrackingList<IntExtensibleEnum>();
+            FloatExtensibleEnumCollection = new ChangeTrackingList<FloatExtensibleEnum>();
+            FloatFixedEnumCollection = new ChangeTrackingList<FloatFixedEnum>();
+            IntFixedEnumCollection = new ChangeTrackingList<IntFixedEnum>();
             RequiredUnknown = requiredUnknown;
-            OptionalUnknown = optionalUnknown;
             RequiredRecordUnknown = requiredRecordUnknown;
-            OptionalRecordUnknown = optionalRecordUnknown;
-            ReadOnlyRequiredRecordUnknown = readOnlyRequiredRecordUnknown;
-            ReadOnlyOptionalRecordUnknown = readOnlyOptionalRecordUnknown;
+            OptionalRecordUnknown = new ChangeTrackingDictionary<string, BinaryData>();
+            ReadOnlyRequiredRecordUnknown = new ChangeTrackingDictionary<string, BinaryData>();
+            ReadOnlyOptionalRecordUnknown = new ChangeTrackingDictionary<string, BinaryData>();
             ModelWithRequiredNullable = modelWithRequiredNullable;
             RequiredBytes = requiredBytes;
-            _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
-        internal RoundTripModel()
-        {
-        }
+        /// <summary> Required string, illustrating a reference type property. </summary>
+        public string RequiredString { get; set; }
 
-        void IJsonModel<RoundTripModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
-            writer.WriteEndObject();
-        }
+        /// <summary> Required int, illustrating a value type property. </summary>
+        public int RequiredInt { get; set; }
 
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<RoundTripModel>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(RoundTripModel)} does not support writing '{format}' format.");
-            }
-            writer.WritePropertyName("requiredString"u8);
-            writer.WriteStringValue(RequiredString);
-            writer.WritePropertyName("requiredInt"u8);
-            writer.WriteNumberValue(RequiredInt);
-            writer.WritePropertyName("requiredCollection"u8);
-            writer.WriteStartArray();
-            foreach (var item in RequiredCollection)
-            {
-                writer.WriteStringValue(item.ToSerialString());
-            }
-            writer.WriteEndArray();
-            writer.WritePropertyName("requiredDictionary"u8);
-            writer.WriteStartObject();
-            foreach (var item in RequiredDictionary)
-            {
-                writer.WritePropertyName(item.Key);
-                writer.WriteStringValue(item.Value.ToString());
-            }
-            writer.WriteEndObject();
-            writer.WritePropertyName("requiredModel"u8);
-            writer.WriteObjectValue(RequiredModel, options);
-            if (Optional.IsDefined(IntExtensibleEnum))
-            {
-                writer.WritePropertyName("intExtensibleEnum"u8);
-                writer.WriteNumberValue(IntExtensibleEnum.Value.ToSerialInt32());
-            }
-            if (Optional.IsCollectionDefined(IntExtensibleEnumCollection))
-            {
-                writer.WritePropertyName("intExtensibleEnumCollection"u8);
-                writer.WriteStartArray();
-                foreach (var item in IntExtensibleEnumCollection)
-                {
-                    writer.WriteNumberValue(item.ToSerialInt32());
-                }
-                writer.WriteEndArray();
-            }
-            if (Optional.IsDefined(FloatExtensibleEnum))
-            {
-                writer.WritePropertyName("floatExtensibleEnum"u8);
-                writer.WriteNumberValue(FloatExtensibleEnum.Value.ToSerialSingle());
-            }
-            if (Optional.IsDefined(FloatExtensibleEnumWithIntValue))
-            {
-                writer.WritePropertyName("floatExtensibleEnumWithIntValue"u8);
-                writer.WriteNumberValue(FloatExtensibleEnumWithIntValue.Value.ToSerialSingle());
-            }
-            if (Optional.IsCollectionDefined(FloatExtensibleEnumCollection))
-            {
-                writer.WritePropertyName("floatExtensibleEnumCollection"u8);
-                writer.WriteStartArray();
-                foreach (var item in FloatExtensibleEnumCollection)
-                {
-                    writer.WriteNumberValue(item.ToSerialSingle());
-                }
-                writer.WriteEndArray();
-            }
-            if (Optional.IsDefined(FloatFixedEnum))
-            {
-                writer.WritePropertyName("floatFixedEnum"u8);
-                writer.WriteNumberValue(FloatFixedEnum.Value.ToSerialSingle());
-            }
-            if (Optional.IsDefined(FloatFixedEnumWithIntValue))
-            {
-                writer.WritePropertyName("floatFixedEnumWithIntValue"u8);
-                writer.WriteNumberValue((int)FloatFixedEnumWithIntValue.Value);
-            }
-            if (Optional.IsCollectionDefined(FloatFixedEnumCollection))
-            {
-                writer.WritePropertyName("floatFixedEnumCollection"u8);
-                writer.WriteStartArray();
-                foreach (var item in FloatFixedEnumCollection)
-                {
-                    writer.WriteNumberValue(item.ToSerialSingle());
-                }
-                writer.WriteEndArray();
-            }
-            if (Optional.IsDefined(IntFixedEnum))
-            {
-                writer.WritePropertyName("intFixedEnum"u8);
-                writer.WriteNumberValue((int)IntFixedEnum.Value);
-            }
-            if (Optional.IsCollectionDefined(IntFixedEnumCollection))
-            {
-                writer.WritePropertyName("intFixedEnumCollection"u8);
-                writer.WriteStartArray();
-                foreach (var item in IntFixedEnumCollection)
-                {
-                    writer.WriteNumberValue((int)item);
-                }
-                writer.WriteEndArray();
-            }
-            if (Optional.IsDefined(StringFixedEnum))
-            {
-                writer.WritePropertyName("stringFixedEnum"u8);
-                writer.WriteStringValue(StringFixedEnum.Value.ToSerialString());
-            }
-            writer.WritePropertyName("requiredUnknown"u8);
-#if NET6_0_OR_GREATER
-            writer.WriteRawValue(RequiredUnknown);
-#else
-            using (JsonDocument document = JsonDocument.Parse(RequiredUnknown))
-            {
-                JsonSerializer.Serialize(writer, document.RootElement);
-            }
-#endif
-            if (Optional.IsDefined(OptionalUnknown))
-            {
-                writer.WritePropertyName("optionalUnknown"u8);
-#if NET6_0_OR_GREATER
-                writer.WriteRawValue(OptionalUnknown);
-#else
-                using (JsonDocument document = JsonDocument.Parse(OptionalUnknown))
-                {
-                    JsonSerializer.Serialize(writer, document.RootElement);
-                }
-#endif
-            }
-            writer.WritePropertyName("requiredRecordUnknown"u8);
-            writer.WriteStartObject();
-            foreach (var item in RequiredRecordUnknown)
-            {
-                writer.WritePropertyName(item.Key);
-                if (item.Value == null)
-                {
-                    writer.WriteNullValue();
-                    continue;
-                }
-#if NET6_0_OR_GREATER
-                writer.WriteRawValue(item.Value);
-#else
-                using (JsonDocument document = JsonDocument.Parse(item.Value))
-                {
-                    JsonSerializer.Serialize(writer, document.RootElement);
-                }
-#endif
-            }
-            writer.WriteEndObject();
-            if (Optional.IsCollectionDefined(OptionalRecordUnknown))
-            {
-                writer.WritePropertyName("optionalRecordUnknown"u8);
-                writer.WriteStartObject();
-                foreach (var item in OptionalRecordUnknown)
-                {
-                    writer.WritePropertyName(item.Key);
-                    if (item.Value == null)
-                    {
-                        writer.WriteNullValue();
-                        continue;
-                    }
-#if NET6_0_OR_GREATER
-                    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
-                writer.WriteEndObject();
-            }
-            if (options.Format != "W")
-            {
-                writer.WritePropertyName("readOnlyRequiredRecordUnknown"u8);
-                writer.WriteStartObject();
-                foreach (var item in ReadOnlyRequiredRecordUnknown)
-                {
-                    writer.WritePropertyName(item.Key);
-                    if (item.Value == null)
-                    {
-                        writer.WriteNullValue();
-                        continue;
-                    }
-#if NET6_0_OR_GREATER
-                    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
-                writer.WriteEndObject();
-            }
-            if (options.Format != "W" && Optional.IsCollectionDefined(ReadOnlyOptionalRecordUnknown))
-            {
-                writer.WritePropertyName("readOnlyOptionalRecordUnknown"u8);
-                writer.WriteStartObject();
-                foreach (var item in ReadOnlyOptionalRecordUnknown)
-                {
-                    writer.WritePropertyName(item.Key);
-                    if (item.Value == null)
-                    {
-                        writer.WriteNullValue();
-                        continue;
-                    }
-#if NET6_0_OR_GREATER
-                    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
-                writer.WriteEndObject();
-            }
-            writer.WritePropertyName("modelWithRequiredNullable"u8);
-            writer.WriteObjectValue(ModelWithRequiredNullable, options);
-            writer.WritePropertyName("requiredBytes"u8);
-            writer.WriteBase64StringValue(RequiredBytes.ToArray(), "D");
-            if (options.Format != "W" && _serializedAdditionalRawData != null)
-            {
-                foreach (var item in _serializedAdditionalRawData)
-                {
-                    writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-                    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
-            }
-        }
+        /// <summary> Required collection of enums. </summary>
+        public IList<StringFixedEnum> RequiredCollection { get; set; }
 
-        RoundTripModel IJsonModel<RoundTripModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
+        /// <summary> Required dictionary of enums. </summary>
+        public IDictionary<string, StringExtensibleEnum> RequiredDictionary { get; set; }
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual RoundTripModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<RoundTripModel>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(RoundTripModel)} does not support reading '{format}' format.");
-            }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeRoundTripModel(document.RootElement, options);
-        }
+        /// <summary> Required model. </summary>
+        public Thing RequiredModel { get; set; }
 
-        internal static RoundTripModel DeserializeRoundTripModel(JsonElement element, ModelReaderWriterOptions options)
-        {
-            if (element.ValueKind == JsonValueKind.Null)
-            {
-                return null;
-            }
-            string requiredString = default;
-            int requiredInt = default;
-            IList<StringFixedEnum> requiredCollection = default;
-            IDictionary<string, StringExtensibleEnum> requiredDictionary = default;
-            Thing requiredModel = default;
-            IntExtensibleEnum? intExtensibleEnum = default;
-            IList<IntExtensibleEnum> intExtensibleEnumCollection = default;
-            FloatExtensibleEnum? floatExtensibleEnum = default;
-            FloatExtensibleEnumWithIntValue? floatExtensibleEnumWithIntValue = default;
-            IList<FloatExtensibleEnum> floatExtensibleEnumCollection = default;
-            FloatFixedEnum? floatFixedEnum = default;
-            FloatFixedEnumWithIntValue? floatFixedEnumWithIntValue = default;
-            IList<FloatFixedEnum> floatFixedEnumCollection = default;
-            IntFixedEnum? intFixedEnum = default;
-            IList<IntFixedEnum> intFixedEnumCollection = default;
-            StringFixedEnum? stringFixedEnum = default;
-            BinaryData requiredUnknown = default;
-            BinaryData optionalUnknown = default;
-            IDictionary<string, BinaryData> requiredRecordUnknown = default;
-            IDictionary<string, BinaryData> optionalRecordUnknown = default;
-            IReadOnlyDictionary<string, BinaryData> readOnlyRequiredRecordUnknown = default;
-            IReadOnlyDictionary<string, BinaryData> readOnlyOptionalRecordUnknown = default;
-            ModelWithRequiredNullableProperties modelWithRequiredNullable = default;
-            BinaryData requiredBytes = default;
-            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
-            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
-            foreach (var prop in element.EnumerateObject())
-            {
-                if (prop.NameEquals("requiredString"u8))
-                {
-                    requiredString = prop.Value.GetString();
-                    continue;
-                }
-                if (prop.NameEquals("requiredInt"u8))
-                {
-                    requiredInt = prop.Value.GetInt32();
-                    continue;
-                }
-                if (prop.NameEquals("requiredCollection"u8))
-                {
-                    List<StringFixedEnum> array = new List<StringFixedEnum>();
-                    foreach (var item in prop.Value.EnumerateArray())
-                    {
-                        array.Add(item.GetString().ToStringFixedEnum());
-                    }
-                    requiredCollection = array;
-                    continue;
-                }
-                if (prop.NameEquals("requiredDictionary"u8))
-                {
-                    Dictionary<string, StringExtensibleEnum> dictionary = new Dictionary<string, StringExtensibleEnum>();
-                    foreach (var prop0 in prop.Value.EnumerateObject())
-                    {
-                        dictionary.Add(prop0.Name, new StringExtensibleEnum(prop0.Value.GetString()));
-                    }
-                    requiredDictionary = dictionary;
-                    continue;
-                }
-                if (prop.NameEquals("requiredModel"u8))
-                {
-                    requiredModel = Thing.DeserializeThing(prop.Value, options);
-                    continue;
-                }
-                if (prop.NameEquals("intExtensibleEnum"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        intExtensibleEnum = null;
-                        continue;
-                    }
-                    intExtensibleEnum = new IntExtensibleEnum(prop.Value.GetInt32());
-                    continue;
-                }
-                if (prop.NameEquals("intExtensibleEnumCollection"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        continue;
-                    }
-                    List<IntExtensibleEnum> array = new List<IntExtensibleEnum>();
-                    foreach (var item in prop.Value.EnumerateArray())
-                    {
-                        array.Add(new IntExtensibleEnum(item.GetInt32()));
-                    }
-                    intExtensibleEnumCollection = array;
-                    continue;
-                }
-                if (prop.NameEquals("floatExtensibleEnum"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        floatExtensibleEnum = null;
-                        continue;
-                    }
-                    floatExtensibleEnum = new FloatExtensibleEnum(prop.Value.GetSingle());
-                    continue;
-                }
-                if (prop.NameEquals("floatExtensibleEnumWithIntValue"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        floatExtensibleEnumWithIntValue = null;
-                        continue;
-                    }
-                    floatExtensibleEnumWithIntValue = new FloatExtensibleEnumWithIntValue(prop.Value.GetSingle());
-                    continue;
-                }
-                if (prop.NameEquals("floatExtensibleEnumCollection"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        continue;
-                    }
-                    List<FloatExtensibleEnum> array = new List<FloatExtensibleEnum>();
-                    foreach (var item in prop.Value.EnumerateArray())
-                    {
-                        array.Add(new FloatExtensibleEnum(item.GetSingle()));
-                    }
-                    floatExtensibleEnumCollection = array;
-                    continue;
-                }
-                if (prop.NameEquals("floatFixedEnum"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        floatFixedEnum = null;
-                        continue;
-                    }
-                    floatFixedEnum = prop.Value.GetSingle().ToFloatFixedEnum();
-                    continue;
-                }
-                if (prop.NameEquals("floatFixedEnumWithIntValue"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        floatFixedEnumWithIntValue = null;
-                        continue;
-                    }
-                    floatFixedEnumWithIntValue = prop.Value.GetInt32().ToFloatFixedEnumWithIntValue();
-                    continue;
-                }
-                if (prop.NameEquals("floatFixedEnumCollection"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        continue;
-                    }
-                    List<FloatFixedEnum> array = new List<FloatFixedEnum>();
-                    foreach (var item in prop.Value.EnumerateArray())
-                    {
-                        array.Add(item.GetSingle().ToFloatFixedEnum());
-                    }
-                    floatFixedEnumCollection = array;
-                    continue;
-                }
-                if (prop.NameEquals("intFixedEnum"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        intFixedEnum = null;
-                        continue;
-                    }
-                    intFixedEnum = prop.Value.GetInt32().ToIntFixedEnum();
-                    continue;
-                }
-                if (prop.NameEquals("intFixedEnumCollection"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        continue;
-                    }
-                    List<IntFixedEnum> array = new List<IntFixedEnum>();
-                    foreach (var item in prop.Value.EnumerateArray())
-                    {
-                        array.Add(item.GetInt32().ToIntFixedEnum());
-                    }
-                    intFixedEnumCollection = array;
-                    continue;
-                }
-                if (prop.NameEquals("stringFixedEnum"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        stringFixedEnum = null;
-                        continue;
-                    }
-                    stringFixedEnum = prop.Value.GetString().ToStringFixedEnum();
-                    continue;
-                }
-                if (prop.NameEquals("requiredUnknown"u8))
-                {
-                    requiredUnknown = BinaryData.FromString(prop.Value.GetRawText());
-                    continue;
-                }
-                if (prop.NameEquals("optionalUnknown"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        optionalUnknown = null;
-                        continue;
-                    }
-                    optionalUnknown = BinaryData.FromString(prop.Value.GetRawText());
-                    continue;
-                }
-                if (prop.NameEquals("requiredRecordUnknown"u8))
-                {
-                    Dictionary<string, BinaryData> dictionary = new Dictionary<string, BinaryData>();
-                    foreach (var prop0 in prop.Value.EnumerateObject())
-                    {
-                        if (prop0.Value.ValueKind == JsonValueKind.Null)
-                        {
-                            dictionary.Add(prop0.Name, null);
-                        }
-                        else
-                        {
-                            dictionary.Add(prop0.Name, BinaryData.FromString(prop0.Value.GetRawText()));
-                        }
-                    }
-                    requiredRecordUnknown = dictionary;
-                    continue;
-                }
-                if (prop.NameEquals("optionalRecordUnknown"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        continue;
-                    }
-                    Dictionary<string, BinaryData> dictionary = new Dictionary<string, BinaryData>();
-                    foreach (var prop0 in prop.Value.EnumerateObject())
-                    {
-                        if (prop0.Value.ValueKind == JsonValueKind.Null)
-                        {
-                            dictionary.Add(prop0.Name, null);
-                        }
-                        else
-                        {
-                            dictionary.Add(prop0.Name, BinaryData.FromString(prop0.Value.GetRawText()));
-                        }
-                    }
-                    optionalRecordUnknown = dictionary;
-                    continue;
-                }
-                if (prop.NameEquals("readOnlyRequiredRecordUnknown"u8))
-                {
-                    Dictionary<string, BinaryData> dictionary = new Dictionary<string, BinaryData>();
-                    foreach (var prop0 in prop.Value.EnumerateObject())
-                    {
-                        if (prop0.Value.ValueKind == JsonValueKind.Null)
-                        {
-                            dictionary.Add(prop0.Name, null);
-                        }
-                        else
-                        {
-                            dictionary.Add(prop0.Name, BinaryData.FromString(prop0.Value.GetRawText()));
-                        }
-                    }
-                    readOnlyRequiredRecordUnknown = dictionary;
-                    continue;
-                }
-                if (prop.NameEquals("readOnlyOptionalRecordUnknown"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        continue;
-                    }
-                    Dictionary<string, BinaryData> dictionary = new Dictionary<string, BinaryData>();
-                    foreach (var prop0 in prop.Value.EnumerateObject())
-                    {
-                        if (prop0.Value.ValueKind == JsonValueKind.Null)
-                        {
-                            dictionary.Add(prop0.Name, null);
-                        }
-                        else
-                        {
-                            dictionary.Add(prop0.Name, BinaryData.FromString(prop0.Value.GetRawText()));
-                        }
-                    }
-                    readOnlyOptionalRecordUnknown = dictionary;
-                    continue;
-                }
-                if (prop.NameEquals("modelWithRequiredNullable"u8))
-                {
-                    modelWithRequiredNullable = ModelWithRequiredNullableProperties.DeserializeModelWithRequiredNullableProperties(prop.Value, options);
-                    continue;
-                }
-                if (prop.NameEquals("requiredBytes"u8))
-                {
-                    requiredBytes = BinaryData.FromBytes(prop.Value.GetBytesFromBase64("D"));
-                    continue;
-                }
-                if (options.Format != "W")
-                {
-                    rawDataDictionary.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
-                }
-            }
-            serializedAdditionalRawData = rawDataDictionary;
-            return new RoundTripModel(
-                requiredString,
-                requiredInt,
-                requiredCollection,
-                requiredDictionary,
-                requiredModel,
-                intExtensibleEnum,
-                intExtensibleEnumCollection ?? new ChangeTrackingList<IntExtensibleEnum>(),
-                floatExtensibleEnum,
-                floatExtensibleEnumWithIntValue,
-                floatExtensibleEnumCollection ?? new ChangeTrackingList<FloatExtensibleEnum>(),
-                floatFixedEnum,
-                floatFixedEnumWithIntValue,
-                floatFixedEnumCollection ?? new ChangeTrackingList<FloatFixedEnum>(),
-                intFixedEnum,
-                intFixedEnumCollection ?? new ChangeTrackingList<IntFixedEnum>(),
-                stringFixedEnum,
-                requiredUnknown,
-                optionalUnknown,
-                requiredRecordUnknown,
-                optionalRecordUnknown ?? new ChangeTrackingDictionary<string, BinaryData>(),
-                readOnlyRequiredRecordUnknown,
-                readOnlyOptionalRecordUnknown ?? new ChangeTrackingDictionary<string, BinaryData>(),
-                modelWithRequiredNullable,
-                requiredBytes,
-                serializedAdditionalRawData);
-        }
+        /// <summary> this is an int based extensible enum. </summary>
+        public IntExtensibleEnum? IntExtensibleEnum { get; set; }
 
-        BinaryData IPersistableModel<RoundTripModel>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        /// <summary> this is a collection of int based extensible enum. </summary>
+        public IList<IntExtensibleEnum> IntExtensibleEnumCollection { get; set; }
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<RoundTripModel>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options);
-                default:
-                    throw new FormatException($"The model {nameof(RoundTripModel)} does not support writing '{options.Format}' format.");
-            }
-        }
+        /// <summary> this is a float based extensible enum. </summary>
+        public FloatExtensibleEnum? FloatExtensibleEnum { get; set; }
 
-        RoundTripModel IPersistableModel<RoundTripModel>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+        /// <summary> this is a float based extensible enum. </summary>
+        public FloatExtensibleEnumWithIntValue? FloatExtensibleEnumWithIntValue { get; set; }
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual RoundTripModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<RoundTripModel>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data))
-                    {
-                        return DeserializeRoundTripModel(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(RoundTripModel)} does not support reading '{options.Format}' format.");
-            }
-        }
+        /// <summary> this is a collection of float based extensible enum. </summary>
+        public IList<FloatExtensibleEnum> FloatExtensibleEnumCollection { get; set; }
 
-        string IPersistableModel<RoundTripModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        /// <summary> this is a float based fixed enum. </summary>
+        public FloatFixedEnum? FloatFixedEnum { get; set; }
 
-        /// <param name="roundTripModel"> The <see cref="RoundTripModel"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(RoundTripModel roundTripModel)
-        {
-            throw new NotImplementedException("Not implemented");
-        }
+        /// <summary> this is a float based fixed enum. </summary>
+        public FloatFixedEnumWithIntValue? FloatFixedEnumWithIntValue { get; set; }
 
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="RoundTripModel"/> from. </param>
-        public static explicit operator RoundTripModel(ClientResult result)
-        {
-            throw new NotImplementedException("Not implemented");
-        }
+        /// <summary> this is a collection of float based fixed enum. </summary>
+        public IList<FloatFixedEnum> FloatFixedEnumCollection { get; set; }
+
+        /// <summary> this is a int based fixed enum. </summary>
+        public IntFixedEnum? IntFixedEnum { get; set; }
+
+        /// <summary> this is a collection of int based fixed enum. </summary>
+        public IList<IntFixedEnum> IntFixedEnumCollection { get; set; }
+
+        /// <summary> this is a string based fixed enum. </summary>
+        public StringFixedEnum? StringFixedEnum { get; set; }
+
+        /// <summary>
+        /// required unknown
+        /// <para> To assign an object to this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
+        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
+        /// <description> Creates a payload of "foo". </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromString("\"foo\""). </term>
+        /// <description> Creates a payload of "foo". </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        public BinaryData RequiredUnknown { get; set; }
+
+        /// <summary>
+        /// optional unknown
+        /// <para> To assign an object to this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
+        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
+        /// <description> Creates a payload of "foo". </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromString("\"foo\""). </term>
+        /// <description> Creates a payload of "foo". </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        public BinaryData OptionalUnknown { get; set; }
+
+        /// <summary>
+        /// required record of unknown
+        /// <para> To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
+        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
+        /// <description> Creates a payload of "foo". </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromString("\"foo\""). </term>
+        /// <description> Creates a payload of "foo". </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        public IDictionary<string, BinaryData> RequiredRecordUnknown { get; set; }
+
+        /// <summary>
+        /// optional record of unknown
+        /// <para> To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
+        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
+        /// <description> Creates a payload of "foo". </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromString("\"foo\""). </term>
+        /// <description> Creates a payload of "foo". </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        public IDictionary<string, BinaryData> OptionalRecordUnknown { get; set; }
+
+        /// <summary>
+        /// required readonly record of unknown
+        /// <para> To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
+        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
+        /// <description> Creates a payload of "foo". </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromString("\"foo\""). </term>
+        /// <description> Creates a payload of "foo". </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        public IReadOnlyDictionary<string, BinaryData> ReadOnlyRequiredRecordUnknown { get; set; }
+
+        /// <summary>
+        /// optional readonly record of unknown
+        /// <para> To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
+        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
+        /// <description> Creates a payload of "foo". </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromString("\"foo\""). </term>
+        /// <description> Creates a payload of "foo". </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// </item>
+        /// <item>
+        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        public IReadOnlyDictionary<string, BinaryData> ReadOnlyOptionalRecordUnknown { get; set; }
+
+        /// <summary> this is a model with required nullable properties. </summary>
+        public ModelWithRequiredNullableProperties ModelWithRequiredNullable { get; set; }
+
+        /// <summary>
+        /// Required bytes
+        /// <para>
+        /// To assign a byte[] to this property use <see cref="BinaryData.FromBytes(byte[])"/>.
+        /// The byte[] will be serialized to a Base64 encoded string.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term> BinaryData.FromBytes(new byte[] { 1, 2, 3 }). </term>
+        /// <description> Creates a payload of "AQID". </description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        public BinaryData RequiredBytes { get; set; }
     }
 }

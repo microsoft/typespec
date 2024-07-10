@@ -54,22 +54,27 @@ namespace Microsoft.Generator.CSharp
             outputLibrary.TypeProviders = types;
         }
 
-        public virtual TypeProvider? Visit(TypeProvider typeProvider)
+        protected virtual TypeProvider? Visit(TypeProvider typeProvider)
         {
             return typeProvider;
         }
 
-        public virtual MethodProvider? Visit(TypeProvider typeProvider, MethodProvider methodProvider)
+        protected virtual ConstructorProvider? Visit(TypeProvider typeProvider, ConstructorProvider constructorProvider)
+        {
+            return constructorProvider;
+        }
+
+        protected virtual MethodProvider? Visit(TypeProvider typeProvider, MethodProvider methodProvider)
         {
             return methodProvider;
         }
 
-        public virtual PropertyProvider? Visit(TypeProvider typeProvider, PropertyProvider propertyProvider)
+        protected virtual PropertyProvider? Visit(TypeProvider typeProvider, PropertyProvider propertyProvider)
         {
             return propertyProvider;
         }
 
-        public virtual FieldProvider? Visit(TypeProvider typeProvider, FieldProvider fieldProvider)
+        protected virtual FieldProvider? Visit(TypeProvider typeProvider, FieldProvider fieldProvider)
         {
             return fieldProvider;
         }

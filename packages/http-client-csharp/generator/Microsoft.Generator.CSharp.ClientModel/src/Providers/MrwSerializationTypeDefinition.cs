@@ -82,7 +82,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
         private ConstructorProvider SerializationConstructor => _serializationConstructor ??= BuildSerializationConstructor();
 
-        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
 
         protected override string BuildName() => _model.Name;
 

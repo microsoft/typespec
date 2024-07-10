@@ -46,7 +46,7 @@ namespace UnbrandedTypeSpec
                 case >= 400 and < 500:
                     return ClientResult.FromValue(false, response);
                 default:
-                    return new UnbrandedTypeSpec.ErrorResult<bool>(response, new ClientResultException(response));
+                    return new ErrorResult<bool>(response, new ClientResultException(response));
             }
         }
 
@@ -60,7 +60,7 @@ namespace UnbrandedTypeSpec
                 case >= 400 and < 500:
                     return ClientResult.FromValue(false, response);
                 default:
-                    return new UnbrandedTypeSpec.ErrorResult<bool>(response, new ClientResultException(response));
+                    return new ErrorResult<bool>(response, new ClientResultException(response));
             }
         }
     }
