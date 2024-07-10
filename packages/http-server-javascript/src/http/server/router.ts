@@ -326,7 +326,7 @@ function* emitRouteOperationDispatchMultiple(
   for (const operation of operations) {
     const [httpOperation] = getHttpOperation(ctx.program, operation.operation);
     const operationContentType = httpOperation.parameters.parameters.find(
-      (param) => param.type === "header" && param.name === "content-type"
+      (param) => param.type === "header" && param.name.toLowerCase() === "content-type"
     )?.param.type;
 
     if (!operationContentType || operationContentType.kind !== "String") {
