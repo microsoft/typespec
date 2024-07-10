@@ -29,7 +29,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             var mockParameter = new ParameterProvider("mockParam", $"mock description", typeof(bool), null);
             var mockTypeFactory = new Mock<ScmTypeFactory>() { };
             mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(new CSharpType(typeof(bool)));
-            mockTypeFactory.Setup(t => t.CreateCSharpParam(It.IsAny<InputParameter>())).Returns(mockParameter);
+            mockTypeFactory.Setup(t => t.CreateParameter(It.IsAny<InputParameter>())).Returns(mockParameter);
             _typeFactory = mockTypeFactory.Object;
 
             var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
@@ -55,12 +55,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         {
             var methodCollection = new ScmMethodProviderCollection(inputOperation, new MockClientTypeProvider());
             Assert.IsNotNull(methodCollection);
-            Assert.AreEqual(5, methodCollection.Count);
+            Assert.AreEqual(4, methodCollection.Count);
 
             var method = methodCollection![0];
             var signature = method.Signature;
             Assert.IsNotNull(signature);
-            Assert.AreEqual($"Create{inputOperation.Name.ToCleanName()}Request", signature.Name);
+            Assert.AreEqual(inputOperation.Name.ToCleanName(), signature.Name);
 
             var parameters = signature.Parameters;
             Assert.IsNotNull(parameters);

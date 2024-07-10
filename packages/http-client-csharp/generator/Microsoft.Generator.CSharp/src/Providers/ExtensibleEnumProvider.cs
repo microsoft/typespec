@@ -92,7 +92,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return properties;
         }
 
-        protected override MethodProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
             var valueParameter = new ParameterProvider("value", $"The value.", ValueType)
             {
@@ -110,7 +110,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 valueField.Assign(valueParameter).Terminate()
             };
 
-            return [new MethodProvider(signature, body, this)];
+            return [new ConstructorProvider(signature, body, this)];
         }
 
         protected override MethodProvider[] BuildMethods()
@@ -184,8 +184,8 @@ namespace Microsoft.Generator.CSharp.Providers
             var valueField = new VariableExpression(ValueType.WithNullable(!ValueType.IsValueType), _valueField.Declaration);
             var otherValue = ((ValueExpression)otherParameter).Property(_valueField.Name);
             var equalsExpressionBody = IsStringValueType
-                            ? new InvokeStaticMethodExpression(ValueType, nameof(object.Equals), [valueField, otherValue, FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)])
-                            : new InvokeStaticMethodExpression(ValueType, nameof(object.Equals), [valueField, otherValue]);
+                            ? Static(ValueType).Invoke(nameof(object.Equals), [valueField, otherValue, FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)])
+                            : Static(ValueType).Invoke(nameof(object.Equals), [valueField, otherValue]);
             methods.Add(new(equalsSignature, equalsExpressionBody, this));
 
             var getHashCodeSignature = new MethodSignature(
@@ -198,11 +198,14 @@ namespace Microsoft.Generator.CSharp.Providers
 
             // writes the method:
             // for string
-            // public override int GetHashCode() => _value?.GetHashCode() ?? 0;
+            // public override int GetHashCode() => StringComparer.InvariantCultureIgnoreCase.GetHashCode(_value);
             // for others
             // public override int GetHashCode() => _value.GetHashCode();
             var getHashCodeExpressionBody = IsStringValueType
-                            ? NullCoalescing(valueField.NullConditional().InvokeGetHashCode(), Int(0))
+                            ? new TernaryConditionalExpression(
+                                valueField.As<bool>().NotEqual(Null),
+                                Static<StringComparer>().Property(nameof(StringComparer.InvariantCultureIgnoreCase)).Invoke(nameof(StringComparer.GetHashCode), valueField),
+                                Int(0))
                             : valueField.InvokeGetHashCode();
             methods.Add(new(getHashCodeSignature, getHashCodeExpressionBody, this, XmlDocProvider.InheritDocs));
 
