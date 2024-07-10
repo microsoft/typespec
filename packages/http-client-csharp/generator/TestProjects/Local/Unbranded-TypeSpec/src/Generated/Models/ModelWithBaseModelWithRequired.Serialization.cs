@@ -16,8 +16,6 @@ namespace UnbrandedTypeSpec.Models
     {
         internal ModelWithBaseModelWithRequired(int @required, IDictionary<string, BinaryData> serializedAdditionalRawData, string name, string address) : base(@required, serializedAdditionalRawData)
         {
-            Required = @required;
-            _serializedAdditionalRawData = serializedAdditionalRawData;
             Name = name;
             Address = address;
         }

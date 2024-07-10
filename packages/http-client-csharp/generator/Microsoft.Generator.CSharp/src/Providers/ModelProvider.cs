@@ -180,7 +180,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 ValueExpression? initializationValue = null;
 
-                if (parameterMap.TryGetValue(property.Name.ToVariableName(), out var parameter) || _isStruct)
+                if (parameterMap.TryGetValue(property.AsParameter.Name, out var parameter) || _isStruct)
                 {
                     if (parameter != null)
                     {
@@ -196,7 +196,6 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
                 else if (initializationValue == null && property.Type.IsCollection)
                 {
-                    // TO-DO: Properly initialize collection properties - https://github.com/microsoft/typespec/issues/3509
                     initializationValue = New.Instance(property.Type.PropertyInitializationType);
                 }
 

@@ -545,7 +545,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// <returns>The constructed serialization constructor.</returns>
         internal ConstructorProvider BuildSerializationConstructor()
         {
-            var (serializationCtorParameters, serializationCtorInitializer) = BuildSerializationConstructorParameters();
+            var (serializationCtorParameters, baseParameters, serializationCtorInitializer) = BuildSerializationConstructorParameters();
 
             return new ConstructorProvider(
                 signature: new ConstructorSignature(
@@ -556,7 +556,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Initializer: serializationCtorInitializer),
                 bodyStatements: new MethodBodyStatement[]
                 {
-                    GetPropertyInitializers(serializationCtorParameters)
+                    GetPropertyInitializers(serializationCtorParameters.Except(baseParameters))
                 },
                 this);
         }
@@ -703,7 +703,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 : MethodBodyStatement.Empty;
         }
 
-        private MethodBodyStatement GetPropertyInitializers(IReadOnlyList<ParameterProvider> parameters)
+        private MethodBodyStatement GetPropertyInitializers(IEnumerable<ParameterProvider> parameters)
         {
             var parameterDict = parameters.ToDictionary(p => p.Name, p => p);
             List<MethodBodyStatement> methodBodyStatements = new();
@@ -1059,14 +1059,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// It then adds raw data field to the constructor if it doesn't already exist in the list of constructed parameters.
         /// </summary>
         /// <returns>The list of parameters for the serialization parameter.</returns>
-        private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildSerializationConstructorParameters()
+        private (IReadOnlyList<ParameterProvider> Parameters, IReadOnlyList<ParameterProvider> BaseParameters, ConstructorInitializer? Initializer) BuildSerializationConstructorParameters()
         {
             var baseConstructor = GetBaseConstructor(_baseSerializationProvider);
             var baseParameters = baseConstructor?.Parameters ?? [];
             var parameterCapacity = baseParameters.Count + _inputModel.Properties.Count;
             var parameterNames = baseParameters.Select(p => p.Name).ToHashSet();
             var constructorParameters = new List<ParameterProvider>(parameterCapacity);
-            bool shouldAddRawDataField = _rawDataField != null;
 
             // add the base parameters
             constructorParameters.AddRange(baseParameters);
@@ -1081,12 +1080,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             // Append the raw data field if it doesn't already exist in the constructor parameters
-            if (shouldAddRawDataField && _rawDataField != null)
+            if (_rawDataField != null)
             {
                 constructorParameters.Add(_rawDataField.AsParameter);
             }
 
-            return (constructorParameters, constructorInitializer);
+            return (constructorParameters, baseParameters, constructorInitializer);
 
             static ConstructorSignature? GetBaseConstructor(MrwSerializationTypeDefinition? baseProvider)
             {

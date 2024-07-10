@@ -16,8 +16,6 @@ namespace UnbrandedTypeSpec.Models
     {
         internal ModelWithBaseModelWithoutRequired(int? optional, IDictionary<string, BinaryData> serializedAdditionalRawData, string name, string address) : base(optional, serializedAdditionalRawData)
         {
-            Optional = optional;
-            _serializedAdditionalRawData = serializedAdditionalRawData;
             Name = name;
             Address = address;
         }
