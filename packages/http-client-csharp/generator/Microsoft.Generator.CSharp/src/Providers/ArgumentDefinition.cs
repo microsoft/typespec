@@ -36,15 +36,6 @@ namespace Microsoft.Generator.CSharp.Providers
             return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }
 
-        public override string RelativeFilePath
-        {
-            get => _relativeFilePath ??= Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
-            protected internal set => _relativeFilePath = value;
-        }
-        private string? _relativeFilePath;
-
-        public override string Name { get; protected internal set; } = "Argument";
-
         private MethodSignature GetSignature(
             string name,
             IReadOnlyList<ParameterProvider> parameters,
@@ -62,6 +53,10 @@ namespace Microsoft.Generator.CSharp.Providers
                 GenericArguments: genericArguments,
                 GenericParameterConstraints: whereExpressions);
         }
+
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+
+        protected override string BuildName() => "Argument";
 
         protected override MethodProvider[] BuildMethods()
         {

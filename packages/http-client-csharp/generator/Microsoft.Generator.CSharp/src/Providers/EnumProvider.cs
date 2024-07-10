@@ -20,9 +20,9 @@ namespace Microsoft.Generator.CSharp.Providers
         protected EnumProvider(InputEnumType input)
         {
             _deprecated = input.Deprecated;
+            _input = input;
 
             IsExtensible = input.IsExtensible;
-            Name = input.Name.ToCleanName();
             Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
             ValueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input.ValueType);
             IsStringValueType = ValueType.Equals(typeof(string));
@@ -39,17 +39,15 @@ namespace Microsoft.Generator.CSharp.Providers
         internal bool IsFloatValueType { get; }
         internal bool IsStringValueType { get; }
         internal bool IsNumericValueType { get; }
-        public override string RelativeFilePath
-        {
-            get => _relativeFilePath ??= Path.Combine("src", "Generated", "Models", $"{Name}.cs");
-            protected internal set => _relativeFilePath = value;
-        }
-        private string? _relativeFilePath;
-        public override string Name { get; protected internal set; }
-        public override string Namespace { get; protected internal set; }
-        protected internal override FormattableString Description { get; internal set; }
+
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+
+        protected override string BuildName() => _input.Name.ToCleanName();
+        public override string Namespace { get; }
+        protected internal override FormattableString Description { get; }
 
         private IReadOnlyList<EnumTypeMember>? _members;
+        private readonly InputEnumType _input;
         public IReadOnlyList<EnumTypeMember> Members => _members ??= BuildMembers();
 
         protected abstract IReadOnlyList<EnumTypeMember> BuildMembers();

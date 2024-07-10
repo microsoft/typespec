@@ -17,26 +17,31 @@ namespace Microsoft.Generator.CSharp.Providers
         /// Gets the relative file path where the generated file will be stored.
         /// This path is relative to the project's root directory.
         /// </summary>
-        public abstract string RelativeFilePath { get; protected internal set; }
-        public abstract string Name { get; protected internal set; }
+        public string RelativeFilePath
+        {
+            get => _relativeFilePath ??= BuildRelativeFilePath();
+            private set => _relativeFilePath = value;
+        }
+        private string? _relativeFilePath;
 
-        public virtual string Namespace { get; protected internal set; } = CodeModelPlugin.Instance.Configuration.Namespace;
+        public string Name
+        {
+            get => _name ??= BuildName();
+            private set => _name = value;
+        }
 
-        protected internal virtual FormattableString Description { get; internal set; } = FormattableStringHelpers.Empty;
+        private string? _name;
+
+        public virtual string Namespace { get; } = CodeModelPlugin.Instance.Configuration.Namespace;
+
+        protected internal virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
 
         private XmlDocProvider? _xmlDocs;
 
         public XmlDocProvider XmlDocs
         {
-            get
-            {
-                _xmlDocs ??= BuildXmlDocs();
-                return _xmlDocs;
-            }
-            internal set
-            {
-                _xmlDocs = value;
-            }
+            get => _xmlDocs ??= BuildXmlDocs();
+            private set => _xmlDocs = value;
         }
 
         internal virtual Type? SerializeAs => null;
@@ -44,25 +49,18 @@ namespace Microsoft.Generator.CSharp.Providers
         public string? Deprecated
         {
             get => _deprecated;
-            internal set => _deprecated = value;
+            private set => _deprecated = value;
         }
 
         private CSharpType? _type;
 
         public CSharpType Type
         {
-            get
-            {
-                _type ??= new(
-                    this,
-                    arguments: TypeArguments,
-                    isNullable: false);
-                return _type;
-            }
-            internal set
-            {
-                _type = value;
-            }
+            get => _type ??= new(
+                this,
+                arguments: TypeArguments,
+                isNullable: false);
+            private set => _type = value;
         }
 
         private TypeSignatureModifiers? _declarationModifiers;
@@ -70,7 +68,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public TypeSignatureModifiers DeclarationModifiers
         {
             get => _declarationModifiers ??= GetDeclarationModifiersInternal();
-            internal set => _declarationModifiers = value;
+            private set => _declarationModifiers = value;
         }
 
         protected virtual TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.None;
@@ -106,26 +104,26 @@ namespace Microsoft.Generator.CSharp.Providers
             return modifiers;
         }
 
-        public CSharpType? Inherits { get; internal set; }
+        public CSharpType? Inherits { get; protected init;}
 
-        public virtual WhereExpression? WhereClause { get; internal set; }
+        public virtual WhereExpression? WhereClause { get; protected init; }
 
         private IReadOnlyList<CSharpType>? _typeArguments;
 
         protected internal virtual IReadOnlyList<CSharpType> TypeArguments
         {
             get => _typeArguments ??= BuildTypeArguments();
-            internal set => _typeArguments = value;
+            private set => _typeArguments = value;
         }
 
-        public virtual TypeProvider? DeclaringTypeProvider { get; internal set; }
+        public virtual TypeProvider? DeclaringTypeProvider { get; protected init; }
 
         private IReadOnlyList<CSharpType>? _implements;
 
         public IReadOnlyList<CSharpType> Implements
         {
             get => _implements ??= BuildImplements();
-            internal set => _implements = value;
+            private set => _implements = value;
         }
 
         private IReadOnlyList<PropertyProvider>? _properties;
@@ -133,7 +131,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public IReadOnlyList<PropertyProvider> Properties
         {
             get => _properties ??= BuildProperties();
-            internal set => _properties = value;
+            private set => _properties = value;
         }
 
         private IReadOnlyList<MethodProvider>? _methods;
@@ -141,7 +139,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public IReadOnlyList<MethodProvider> Methods
         {
             get => _methods ??= BuildMethods();
-            internal set => _methods = value;
+            private set => _methods = value;
         }
 
         private IReadOnlyList<MethodProvider>? _constructors;
@@ -149,7 +147,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public IReadOnlyList<MethodProvider> Constructors
         {
             get => _constructors ??= BuildConstructors();
-            internal set => _constructors = value;
+            private set => _constructors = value;
         }
 
         private IReadOnlyList<FieldProvider>? _fields;
@@ -157,7 +155,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public IReadOnlyList<FieldProvider> Fields
         {
             get => _fields ??= BuildFields();
-            internal set => _fields = value;
+            private set => _fields = value;
         }
 
         private IReadOnlyList<TypeProvider>? _nestedTypes;
@@ -165,7 +163,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public IReadOnlyList<TypeProvider> NestedTypes
         {
             get => _nestedTypes ??= BuildNestedTypes();
-            internal set => _nestedTypes = value;
+            private set => _nestedTypes = value;
         }
 
         private IReadOnlyList<TypeProvider>? _serializationProviders;
@@ -173,7 +171,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public virtual IReadOnlyList<TypeProvider> SerializationProviders
         {
             get => _serializationProviders ??= BuildSerializationProviders();
-            internal set => _serializationProviders = value;
+            private set => _serializationProviders = value;
         }
 
         protected virtual CSharpType[] BuildTypeArguments() => Array.Empty<CSharpType>();
@@ -199,6 +197,9 @@ namespace Microsoft.Generator.CSharp.Providers
             return docs;
         }
 
+        protected abstract string BuildRelativeFilePath();
+        protected abstract string BuildName();
+
         public static string GetDefaultModelNamespace(string defaultNamespace)
         {
             if (CodeModelPlugin.Instance.Configuration.UseModelNamespace)
@@ -207,6 +208,13 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             return defaultNamespace;
+        }
+
+        public void Update(List<MethodProvider> methods, List<PropertyProvider> properties, List<FieldProvider> fields)
+        {
+            Methods = methods;
+            Properties = properties;
+            Fields = fields;
         }
     }
 }

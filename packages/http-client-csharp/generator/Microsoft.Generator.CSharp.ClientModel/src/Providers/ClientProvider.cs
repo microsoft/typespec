@@ -17,23 +17,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     {
         private readonly InputClient _inputClient;
 
-        public override string RelativeFilePath
-        {
-            get => _relativeFilePath ??= Path.Combine("src", "Generated", $"{Name}.cs");
-            protected set => _relativeFilePath = value;
-        }
-        private string? _relativeFilePath;
-
-        public override string Name { get; protected set; }
-
         public ClientProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
-            Name = inputClient.Name.ToCleanName();
             PipelineField = new FieldProvider(FieldModifiers.Private, typeof(ClientPipeline), "_pipeline");
         }
 
         public FieldProvider PipelineField { get; }
+
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
+
+        protected override string BuildName() => _inputClient.Name.ToCleanName();
 
         protected override FieldProvider[] BuildFields()
         {

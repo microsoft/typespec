@@ -47,9 +47,8 @@ namespace Microsoft.Generator.CSharp
                             fields.Add(field);
                         }
                     }
-                    type.Methods = methods;
-                    type.Properties = properties;
-                    type.Fields = fields;
+
+                    type.Update(methods, properties, fields);
                 }
             }
             outputLibrary.TypeProviders = types;

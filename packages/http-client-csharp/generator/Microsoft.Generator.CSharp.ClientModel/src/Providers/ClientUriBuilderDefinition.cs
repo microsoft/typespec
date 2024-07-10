@@ -22,18 +22,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return TypeSignatureModifiers.Internal;
         }
 
-        public override string RelativeFilePath
-        {
-            get => _relativeFilePath ??= Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
-            protected set => _relativeFilePath = value;
-        }
-        private string? _relativeFilePath;
-
-        public override string Name { get; protected set; } = "ClientUriBuilder";
-
         private readonly FieldProvider _uriBuilderField = new(FieldModifiers.Private, typeof(UriBuilder), "_uriBuilder");
         private readonly FieldProvider _pathBuilderField = new(FieldModifiers.Private, typeof(StringBuilder), "_pathBuilder");
         private readonly FieldProvider _queryBuilderField = new(FieldModifiers.Private, typeof(StringBuilder), "_queryBuilder");
+
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+
+        protected override string BuildName() => "ClientUriBuilder";
 
         protected override FieldProvider[] BuildFields()
         {
@@ -183,7 +178,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
             var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
-            var body = new InvokeMethodExpression(null, _appendPathMethodName, [convertToStringExpression, escapeParameter], null, false);
+            var body = new InvokeMethodExpression(null, _appendPathMethodName, null, [convertToStringExpression, escapeParameter], null, false);
 
             return new(signature, body, this);
         }
@@ -255,7 +250,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
             var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
-            var body = new InvokeMethodExpression(null, _appendQueryMethodName, [nameParameter, convertToStringExpression, escapeParameter], null, false);
+            var body = new InvokeMethodExpression(null, _appendQueryMethodName, null, [nameParameter, convertToStringExpression, escapeParameter], null, false);
 
             return new(signature, body, this);
         }
@@ -295,7 +290,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var body = new[]
             {
                 Declare("stringValues", value.Select(selector), out var stringValues),
-               new InvokeMethodExpression(null, _appendQueryMethodName, [nameParameter, StringSnippets.Join(delimiterParameter, stringValues), escapeParameter], null, false).Terminate()
+               new InvokeMethodExpression(null, _appendQueryMethodName, null, [nameParameter, StringSnippets.Join(delimiterParameter, stringValues), escapeParameter], null, false).Terminate()
         };
 
             return new(signature, body, this);

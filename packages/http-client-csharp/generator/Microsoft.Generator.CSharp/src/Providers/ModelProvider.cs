@@ -17,17 +17,9 @@ namespace Microsoft.Generator.CSharp.Providers
     public sealed class ModelProvider : TypeProvider
     {
         private readonly InputModelType _inputModel;
+        public override string Namespace { get; }
 
-        public override string RelativeFilePath
-        {
-            get => _relativeFilePath ??= Path.Combine("src", "Generated", "Models", $"{Name}.cs");
-            protected internal set => _relativeFilePath = value;
-        }
-        private string? _relativeFilePath;
-
-        public override string Name { get; protected internal set; }
-        public override string Namespace { get; protected internal set; }
-        protected internal override FormattableString Description { get; internal set;}
+        protected internal override FormattableString Description { get;}
 
         private readonly bool _isStruct;
         private readonly TypeSignatureModifiers _declarationModifiers;
@@ -35,7 +27,6 @@ namespace Microsoft.Generator.CSharp.Providers
         public ModelProvider(InputModelType inputModel)
         {
             _inputModel = inputModel;
-            Name = inputModel.Name.ToCleanName();
             Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
             Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : $"The {Name}.";
             _declarationModifiers = TypeSignatureModifiers.Partial |
@@ -58,6 +49,10 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputModel).ToArray();
         }
+
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+
+        protected override string BuildName() => _inputModel.Name.ToCleanName();
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _declarationModifiers;
 

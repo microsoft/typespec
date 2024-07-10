@@ -51,13 +51,9 @@ namespace Microsoft.Generator.CSharp.Providers
             return TypeSignatureModifiers.Internal;
         }
 
-        public override string RelativeFilePath
-        {
-            get => _relativeFilePath ??= Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
-            protected internal set => _relativeFilePath = value;
-        }
-        private string? _relativeFilePath;
-        public override string Name { get; protected internal set; } = "ChangeTrackingList";
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+
+        protected override string BuildName() => "ChangeTrackingList";
 
         protected override MethodProvider[] BuildConstructors()
         {

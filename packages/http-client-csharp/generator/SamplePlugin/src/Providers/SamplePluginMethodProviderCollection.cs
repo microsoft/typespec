@@ -28,16 +28,14 @@ namespace SamplePlugin.Providers
             methods.AddRange(base.BuildMethods());
 
             // Add an expression bodied method to demonstrate that we can still inject tracing in these.
-            methods.Add(GetExpressionBodiedTestMethod());
 
-            var updatedMethods = new List<MethodProvider>();
+            methods.Add(GetExpressionBodiedTestMethod());
 
             foreach (var method in methods)
             {
                 // Only add tracing to protocol methods. Convenience methods will call into protocol methods.
                 if (method is not ScmMethodProvider { IsProtocol: true })
                 {
-                    updatedMethods.Add(method);
                     continue;
                 }
 

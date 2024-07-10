@@ -27,20 +27,15 @@ namespace Microsoft.Generator.CSharp.Providers
 
             _enumType = enumType;
             Namespace = _enumType.Namespace;
-            Name = $"{_enumType.Name}Extensions";
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial;
 
-        public override string RelativeFilePath
-        {
-            get => _relativeFilePath ??= Path.Combine("src", "Generated", "Models", $"{Name}.cs");
-            protected internal set => _relativeFilePath = value;
-        }
-        private string? _relativeFilePath;
-        public override string Namespace { get; protected internal set; }
+        public override string Namespace { get; }
 
-        public override string Name { get; protected internal set; }
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+
+        protected override string BuildName() => $"{_enumType.Name}Extensions";
 
         /// <summary>
         /// Returns if this enum type needs an extension method for serialization

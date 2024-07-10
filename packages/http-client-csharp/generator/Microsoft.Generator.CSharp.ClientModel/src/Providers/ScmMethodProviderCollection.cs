@@ -21,13 +21,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private string _cleanOperationName;
         private ParameterProvider? _bodyParameter;
 
-        public string CreateRequestMethodName;
+        private readonly string _createRequestMethodName;
 
         public ScmMethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
             : base(operation, enclosingType)
         {
             _cleanOperationName = operation.Name.ToCleanName();
-            CreateRequestMethodName = "Create" + _cleanOperationName + "Request";
+            _createRequestMethodName = "Create" + _cleanOperationName + "Request";
         }
 
         protected override IReadOnlyList<MethodProvider> BuildMethods()
@@ -39,6 +39,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 BuildConvenienceMethod(false),
                 BuildConvenienceMethod(true),
             ];
+        }
+
+        internal MethodProvider BuildCreateMessageMethod()
+        {
+            var methodModifier = MethodSignatureModifiers.Internal;
+            var methodSignature = new MethodSignature(
+                _createRequestMethodName,
+                FormattableStringHelpers.FromString(Operation.Description),
+                methodModifier,
+                typeof(PipelineMessage),
+                null,
+                Parameters: [.. MethodParameters, ScmKnownParameters.RequestOptions]);
+            var methodBody = Throw(New.NotImplementedException(Literal("Method not implemented.")));
+
+            return new MethodProvider(methodSignature, methodBody, EnclosingType);
         }
 
         private MethodProvider BuildConvenienceMethod(bool isAsync)
@@ -63,9 +78,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Parameters: ConvenienceMethodParameters);
             var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
             MethodBodyStatement[] methodBody = _bodyParameter is null
-                ? [Return(This.Invoke(methodSignature.Name, [.. ConvenienceMethodParameters, Null], null, isAsync, isAsync))]
+                ? [Return(This.Invoke(methodSignature, [.. ConvenienceMethodParameters, Null], isAsync))]
                 : [
-                    Declare("result", typeof(ClientResult), This.Invoke(methodSignature.Name, [.. ConvenienceMethodParameters, Null], null, isAsync, isAsync), out var result),
+                    Declare("result", typeof(ClientResult), This.Invoke(methodSignature, [.. ConvenienceMethodParameters, Null], isAsync), out var result),
                     Return(Static<ClientResult>().Invoke(nameof(ClientResult.FromValue), [result.CastTo(_bodyParameter.Type), result.Invoke("GetRawResponse")])),
                 ];
 
@@ -122,9 +137,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 $"The response returned from the service.",
                 Parameters: [.. MethodParameters, ScmKnownParameters.RequestOptions]);
             var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
+
             MethodBodyStatement[] methodBody =
             [
-                UsingDeclare("message", typeof(PipelineMessage), This.Invoke(CreateRequestMethodName, [.. MethodParameters, ScmKnownParameters.RequestOptions]), out var message),
+                UsingDeclare("message", typeof(PipelineMessage), This.Invoke((MethodSignature)BuildCreateMessageMethod().Signature, [.. MethodParameters, ScmKnownParameters.RequestOptions]), out var message),
                 Return(Static<ClientResult>().Invoke(nameof(ClientResult.FromResponse), client.PipelineField.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
             ];
 

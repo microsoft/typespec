@@ -76,22 +76,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _jsonElementParameterSnippet = _jsonElementDeserializationParam.As<JsonElement>();
             _isNotEqualToWireConditionSnippet = _mrwOptionsParameterSnippet.Format().NotEqual(ModelReaderWriterOptionsSnippets.WireFormat);
 
-            Name = provider.Name;
             Namespace = provider.Namespace;
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
         private MethodProvider SerializationConstructor => _serializationConstructor ??= BuildSerializationConstructor();
 
-        public override string RelativeFilePath
-        {
-            get => _relativeFilePath ??= Path.Combine("src", "Generated", "Models", $"{Name}.cs");
-            protected set => _relativeFilePath = value;
-        }
-        private string? _relativeFilePath;
-        public override string Name { get; protected set; }
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        public override string Namespace { get; protected set; }
+        protected override string BuildName() => _model.Name;
+
+        public override string Namespace { get; }
 
         /// <summary>
         /// Builds the fields for the model by adding the raw data field for serialization.
