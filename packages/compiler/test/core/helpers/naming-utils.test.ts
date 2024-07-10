@@ -33,6 +33,12 @@ describe("resolveTemplateInstanceName()", () => {
     return diagnostics;
   }
 
+  it("use friendly name if defined", async () => {
+    expect(
+      await computeName(`@friendlyName("Friendly{name}Custom", T) model Foo<T> {}`, "Foo<string>")
+    ).toEqual("FriendlystringCustom");
+  });
+
   describe("prefix capitalized template argument name in front of template name", () => {
     it.each([
       ["Foo<string>", "StringFoo"],
