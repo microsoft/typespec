@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             var mockConfiguration = new Mock<Configuration>() { };
             var mockGeneratorContext = new Mock<GeneratorContext>(mockConfiguration.Object);
             var mockPluginInstance = new Mock<ClientModelPlugin>(mockGeneratorContext.Object) { };
-            mockTypeFactory.Setup(factory => factory.CreateMethodProviders(inputOperation, typeProvider)).Returns(new ScmMethodProviderCollection(inputOperation, typeProvider));
+            mockTypeFactory.Setup(factory => factory.CreateMethods(inputOperation, typeProvider)).Returns(new ScmMethodProviderCollection(inputOperation, typeProvider));
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
         }
@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [TestCaseSource(nameof(DefaultCSharpMethodCollectionTestCases))]
         public void TestRestClientMethods(InputOperation inputOperation)
         {
-            var inputClient = new InputClient("TestClient", "TestClient description", new[] { inputOperation }, true, new List<InputParameter>(), null);
+            var inputClient = new InputClient("TestClient", "TestClient description", new[] { inputOperation }, new List<InputParameter>(), null);
             var restClientProvider = new RestClientProvider(inputClient);
             MethodProviderSetUp(inputOperation, restClientProvider.ClientProvider);
 

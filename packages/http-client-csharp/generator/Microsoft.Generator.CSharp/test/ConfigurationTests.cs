@@ -25,7 +25,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
             var configuration = Configuration.Load(_mocksFolder);
 
-            var parsedNs = configuration.Namespace;
+            var parsedNs = configuration.RootNamespace;
 
             Assert.AreEqual(ns, parsedNs);
             // get the unknown property from the configuration
@@ -96,7 +96,7 @@ namespace Microsoft.Generator.CSharp.Tests
             }
 
             var configuration = Configuration.Load(string.Empty, mockJson);
-            var ns = configuration.Namespace;
+            var ns = configuration.RootNamespace;
             var expected = "namespace";
 
             Assert.AreEqual(expected, ns);

@@ -1,0 +1,6 @@
+{
+  "requiredNullablePrimitive": 1,
+  "requiredExtensibleEnum": "Five",
+  "requiredFixedEnum": "1",
+  "extra": "stuff"
+}

@@ -14,9 +14,10 @@ namespace UnbrandedTypeSpec.Models
     /// <summary></summary>
     public partial class Thing : IJsonModel<Thing>
     {
+        /// <summary> Keeps track of any properties unknown to the library. </summary>
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
-        internal Thing(string name, BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, ThingOptionalLiteralString optionalLiteralString, ThingOptionalLiteralInt optionalLiteralInt, ThingOptionalLiteralFloat optionalLiteralFloat, bool optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        internal Thing(string name, BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, ThingOptionalLiteralString? optionalLiteralString, ThingOptionalLiteralInt? optionalLiteralInt, ThingOptionalLiteralFloat? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             Name = name;
             RequiredUnion = requiredUnion;
@@ -73,14 +74,26 @@ namespace UnbrandedTypeSpec.Models
             writer.WriteNumberValue(RequiredLiteralFloat.ToSerialSingle());
             writer.WritePropertyName("requiredLiteralBool"u8);
             writer.WriteBooleanValue(RequiredLiteralBool);
-            writer.WritePropertyName("optionalLiteralString"u8);
-            writer.WriteStringValue(OptionalLiteralString.ToString());
-            writer.WritePropertyName("optionalLiteralInt"u8);
-            writer.WriteNumberValue(OptionalLiteralInt.ToSerialInt32());
-            writer.WritePropertyName("optionalLiteralFloat"u8);
-            writer.WriteNumberValue(OptionalLiteralFloat.ToSerialSingle());
-            writer.WritePropertyName("optionalLiteralBool"u8);
-            writer.WriteBooleanValue(OptionalLiteralBool);
+            if (Optional.IsDefined(OptionalLiteralString))
+            {
+                writer.WritePropertyName("optionalLiteralString"u8);
+                writer.WriteStringValue(OptionalLiteralString.Value.ToString());
+            }
+            if (Optional.IsDefined(OptionalLiteralInt))
+            {
+                writer.WritePropertyName("optionalLiteralInt"u8);
+                writer.WriteNumberValue(OptionalLiteralInt.Value.ToSerialInt32());
+            }
+            if (Optional.IsDefined(OptionalLiteralFloat))
+            {
+                writer.WritePropertyName("optionalLiteralFloat"u8);
+                writer.WriteNumberValue(OptionalLiteralFloat.Value.ToSerialSingle());
+            }
+            if (Optional.IsDefined(OptionalLiteralBool))
+            {
+                writer.WritePropertyName("optionalLiteralBool"u8);
+                writer.WriteBooleanValue(OptionalLiteralBool.Value);
+            }
             writer.WritePropertyName("requiredBadDescription"u8);
             writer.WriteStringValue(RequiredBadDescription);
             if (Optional.IsCollectionDefined(OptionalNullableList))
@@ -131,9 +144,19 @@ namespace UnbrandedTypeSpec.Models
             }
         }
 
-        Thing IJsonModel<Thing>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        Thing IJsonModel<Thing>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
+
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual Thing JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            throw new NotImplementedException("Not implemented");
+            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(Thing)} does not support reading '{format}' format.");
+            }
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeThing(document.RootElement, options);
         }
 
         internal static Thing DeserializeThing(JsonElement element, ModelReaderWriterOptions options)
@@ -148,10 +171,10 @@ namespace UnbrandedTypeSpec.Models
             ThingRequiredLiteralInt requiredLiteralInt = default;
             ThingRequiredLiteralFloat requiredLiteralFloat = default;
             bool requiredLiteralBool = default;
-            ThingOptionalLiteralString optionalLiteralString = default;
-            ThingOptionalLiteralInt optionalLiteralInt = default;
-            ThingOptionalLiteralFloat optionalLiteralFloat = default;
-            bool optionalLiteralBool = default;
+            ThingOptionalLiteralString? optionalLiteralString = default;
+            ThingOptionalLiteralInt? optionalLiteralInt = default;
+            ThingOptionalLiteralFloat? optionalLiteralFloat = default;
+            bool? optionalLiteralBool = default;
             string requiredBadDescription = default;
             IList<int> optionalNullableList = default;
             IList<int> requiredNullableList = default;
@@ -193,6 +216,7 @@ namespace UnbrandedTypeSpec.Models
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
+                        optionalLiteralString = null;
                         continue;
                     }
                     optionalLiteralString = new ThingOptionalLiteralString(prop.Value.GetString());
@@ -202,6 +226,7 @@ namespace UnbrandedTypeSpec.Models
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
+                        optionalLiteralInt = null;
                         continue;
                     }
                     optionalLiteralInt = new ThingOptionalLiteralInt(prop.Value.GetInt32());
@@ -211,6 +236,7 @@ namespace UnbrandedTypeSpec.Models
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
+                        optionalLiteralFloat = null;
                         continue;
                     }
                     optionalLiteralFloat = new ThingOptionalLiteralFloat(prop.Value.GetSingle());
@@ -220,6 +246,7 @@ namespace UnbrandedTypeSpec.Models
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
+                        optionalLiteralBool = null;
                         continue;
                     }
                     optionalLiteralBool = prop.Value.GetBoolean();

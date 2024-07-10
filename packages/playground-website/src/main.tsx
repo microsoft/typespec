@@ -1,3 +1,4 @@
+import { MANIFEST } from "@typespec/compiler";
 import { registerMonacoDefaultWorkersForVite } from "@typespec/playground";
 import PlaygroundManifest from "@typespec/playground/manifest";
 import {
@@ -7,10 +8,9 @@ import {
   renderReactPlayground,
 } from "@typespec/playground/react";
 import { SwaggerUIViewer } from "@typespec/playground/react/viewers";
-import samples from "../samples/dist/samples.js";
-
-import { MANIFEST } from "@typespec/compiler";
 import "@typespec/playground/styles.css";
+import samples from "../samples/dist/samples.js";
+import { ImportToolbarButton } from "./import-openapi3.js";
 import "./style.css";
 
 registerMonacoDefaultWorkersForVite();
@@ -52,6 +52,7 @@ await renderReactPlayground({
     useShim: true,
   },
   footer: <PlaygroundFooter />,
+  commandBarButtons: <ImportToolbarButton />,
   onFileBug: () => {
     const bodyPayload = encodeURIComponent(`\n\n\n[Playground Link](${document.location.href})`);
     const url = `https://github.com/microsoft/typespec/issues/new?body=${bodyPayload}`;
