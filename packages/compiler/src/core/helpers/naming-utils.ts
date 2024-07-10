@@ -1,10 +1,8 @@
 import { getFriendlyName } from "../../lib/decorators.js";
+import { createDiagnostic } from "../messages.js";
 import { Program } from "../program.js";
-import { TemplatedType } from "../types.js";
-
-export interface TemplateInstanceNameOptions {
-  readonly ignoreFriendlyName?: string;
-}
+import { Diagnostic, Entity, TemplatedType, Type } from "../types.js";
+import { getEntityName } from "./type-name-utils.js";
 
 /**
  * Capitalize the first letter of a string.
@@ -14,27 +12,55 @@ function capitalize<S extends string>(str: S): Capitalize<S> {
 }
 
 /**
- * Resolve a name for a Template Instance.
+ * Resolve a name for a Template Instance in a PascalCase format joined by the template arguments names.
  */
 export function resolveTemplateInstanceName(
   program: Program,
-  type: TemplatedType,
-  options?: TemplateInstanceNameOptions
-): string | undefined {
-  const friendlyName = options?.ignoreFriendlyName ? undefined : getFriendlyName(program, type);
+  type: TemplatedType
+): [string | undefined, readonly Diagnostic[]] {
+  const friendlyName = getFriendlyName(program, type);
 
   if (friendlyName) {
-    return capitalize(friendlyName);
+    return [capitalize(friendlyName), []];
   }
 
+  const diagnostics: Diagnostic[] = [];
   const templateArguments = type.templateMapper?.args ?? [];
-  const prefix = templateArguments
-    .map((arg) => {
-      if ("name" in arg && typeof arg.name === "string" && arg.name !== "")
-        return capitalize(arg.name!);
-      return "";
-    })
-    .join("");
+  let prefix = "";
+  for (const arg of templateArguments) {
+    const name = getTemplateArgumentName(program, arg);
+    if (name) {
+      prefix += name;
+    } else {
+      diagnostics.push(
+        createDiagnostic({
+          code: "template-instance-unnameable",
+          format: {
+            templateName: type.name ?? "",
+            arg: getEntityName(arg),
+          },
+          target: type,
+        })
+      );
+    }
+  }
+  return [`${prefix}${type.name}`, diagnostics];
+}
 
-  return `${prefix}${type.name}`;
+function getTemplateArgumentName(program: Program, arg: Entity): string | undefined {
+  if (arg.entityKind === "Type") {
+    return getNameForType(program, arg);
+  }
+  return undefined;
+}
+
+function getNameForType(program: Program, type: Type): string | undefined {
+  if ("name" in type && typeof type.name === "string" && type.name !== "") {
+    if ("templateMapper" in type && type.templateMapper) {
+      return resolveTemplateInstanceName(program, type)[0];
+    } else {
+      return capitalize(type.name);
+    }
+  }
+  return undefined;
 }

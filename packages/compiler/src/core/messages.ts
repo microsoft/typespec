@@ -975,6 +975,13 @@ const diagnostics = {
     },
   },
 
+  "template-instance-unnameable": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Cannot resolve a name for template '${"templateName"}'. Argument '${"arg"}' doesn't have a name.`,
+    },
+  },
+
   // #region CLI
   "no-compatible-vs-installed": {
     severity: "error",
