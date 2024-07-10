@@ -10,7 +10,7 @@ import { UnimplementedError } from "./util/error.js";
 import { createOnceQueue } from "./util/once-queue.js";
 import { writeModuleTree } from "./write.js";
 
-import { createModule as initializeHelperModule } from "./helpers/index.js";
+import { createModule as initializeHelperModule } from "../generated-defs/helpers/index.js";
 
 // #region features
 

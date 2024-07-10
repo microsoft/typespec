@@ -20,7 +20,7 @@ import { bifilter, indent } from "../../util/iter.js";
 import { keywordSafe } from "../../util/keywords.js";
 import { HttpContext } from "../index.js";
 
-import { module as routerHelper } from "../../helpers/router.js";
+import { module as routerHelper } from "../../../generated-defs/helpers/router.js";
 import { reportDiagnostic } from "../../lib.js";
 import { UnimplementedError } from "../../util/error.js";
 

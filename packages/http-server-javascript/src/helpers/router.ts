@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import type * as http from "http";
+import type * as http from "node:http";
 
 /** A policy that can be applied to a route or a set of routes. */
 export interface Policy {

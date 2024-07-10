@@ -26,7 +26,7 @@ import { bifilter, indent } from "../../util/iter.js";
 import { keywordSafe } from "../../util/keywords.js";
 import { HttpContext } from "../index.js";
 
-import { module as routerHelpers } from "../../helpers/router.js";
+import { module as routerHelpers } from "../../../generated-defs/helpers/router.js";
 import { differentiateUnion, writeCodeTree } from "../../util/differentiate.js";
 
 const DEFAULT_CONTENT_TYPE = "application/json";

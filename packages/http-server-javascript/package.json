@@ -30,7 +30,7 @@
     "clean": "rimraf ./dist ./temp",
     "build": "npm run build:helpers && npm run build:src",
     "build:src": "tsc -p ./tsconfig.json",
-    "build:helpers": "tsc -p ./tsconfig.helpers.json && tsx ./build-helpers.ts",
+    "build:helpers": "tsx ./build-helpers.ts",
     "watch": "tsc -p . --watch",
     "test": "echo No tests specified",
     "test:ci": "echo No tests specified",

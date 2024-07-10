@@ -7,8 +7,8 @@ import fs from "node:fs/promises";
 import { EOL } from "node:os";
 import path from "node:path";
 
-const HELPER_DECLARATION_PATH = path.resolve(".", "src", "helpers");
-const HELPER_SRC_PATH = path.resolve(".", "helpers");
+const HELPER_DECLARATION_PATH = path.resolve("generated-defs", "helpers");
+const HELPER_SRC_PATH = path.resolve("src", "helpers");
 
 console.log("Building JS server generator helpers.");
 
@@ -25,7 +25,7 @@ async function* visitAllFiles(base: string): AsyncIterable<string> {
 }
 
 async function main() {
-  const allFiles = [];
+  const allFiles: string[] = [];
   const indices = new Map<string, string[]>();
 
   const ctxPath = path.resolve("src", "ctx.js");
