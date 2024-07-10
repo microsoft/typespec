@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public override string Name => _namedTypeSymbol.Name;
 
-        public override string Namespace => _namedTypeSymbol.ContainingNamespace.Name;
+        protected override string GetNamespace() => _namedTypeSymbol.ContainingNamespace.Name;
 
         protected override PropertyProvider[] BuildProperties()
         {
@@ -65,6 +65,23 @@ namespace Microsoft.Generator.CSharp.Providers
         private static CSharpType GetCSharpType(ITypeSymbol typeSymbol)
         {
             var fullyQualifiedName = GetFullyQualifiedName(typeSymbol);
+            var pieces = fullyQualifiedName.Split('.');
+
+            //if fully qualified name is in the namespace of the library being emitted find it from the outputlibrary
+            if (fullyQualifiedName.StartsWith(CodeModelPlugin.Instance.Configuration.RootNamespace, StringComparison.Ordinal))
+            {
+                return new CSharpType(
+                    typeSymbol.Name,
+                    string.Join('.', pieces.Take(pieces.Length - 1)),
+                    typeSymbol.IsValueType,
+                    typeSymbol.TypeKind == TypeKind.Enum,
+                    typeSymbol.NullableAnnotation == NullableAnnotation.Annotated,
+                    typeSymbol.ContainingType is not null ? GetCSharpType(typeSymbol.ContainingType) : null,
+                    typeSymbol is INamedTypeSymbol namedTypeSymbol ? namedTypeSymbol.TypeArguments.Select(GetCSharpType).ToArray() : null,
+                    typeSymbol.DeclaredAccessibility == Accessibility.Public,
+                    typeSymbol.BaseType is not null ? GetCSharpType(typeSymbol.BaseType) : null);
+            }
+
             var type = System.Type.GetType(fullyQualifiedName);
             if (type is null)
             {
@@ -130,7 +147,8 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             // Default to fully qualified name
-            return typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var fqns = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            return fqns.StartsWith("global::") ? fqns.Substring("global::".Length) : fqns;
         }
     }
 }

@@ -20,15 +20,18 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockCodeModelPlugin.LoadMockPlugin();
 
-            var provider = new NamedSymbol();
-            var writer = new TypeProviderWriter(provider);
-            var file = writer.Write();
-            var syntaxTree = CSharpSyntaxTree.ParseText(file.Content);
+            List<SyntaxTree> files =
+            [
+                GetTree(new NamedSymbol()),
+                GetTree(new PropertyType())
+            ];
+
             var compilation = CSharpCompilation.Create(
                 assemblyName: "TestAssembly",
-                syntaxTrees: [syntaxTree],
+                syntaxTrees: [.. files],
                 references: [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
             var iNamedSymbol = GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "NamedSymbol");
+
             _namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
             _namedSymbol = new NamedSymbol();
         }
@@ -42,7 +45,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         [Test]
         public void ValidateNamespace()
         {
-            Assert.AreEqual(_namedSymbol.Namespace, _namedTypeSymbolProvider.Namespace);
+            Assert.AreEqual(_namedSymbol.Type.Namespace, _namedTypeSymbolProvider.Type.Namespace);
         }
 
         [Test]
@@ -71,8 +74,36 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             protected override PropertyProvider[] BuildProperties()
             {
-                return [new PropertyProvider($"Id property", MethodSignatureModifiers.Public, typeof(string), "Id", new AutoPropertyBody(true))];
+                return
+                [
+                    new PropertyProvider($"IntProperty property", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true)),
+                    new PropertyProvider($"StringProperty property no setter", MethodSignatureModifiers.Public, typeof(string), "StringProperty", new AutoPropertyBody(false)),
+                    new PropertyProvider($"InternalStringProperty property no setter", MethodSignatureModifiers.Public, typeof(string), "InternalStringProperty", new AutoPropertyBody(false)),
+                    new PropertyProvider($"PropertyTypeProperty property", MethodSignatureModifiers.Public, new PropertyType().Type, "PropertyTypeProperty", new AutoPropertyBody(true)),
+                ];
             }
+        }
+
+        private class PropertyType : TypeProvider
+        {
+            public override string RelativeFilePath => ".";
+
+            public override string Name => "PropertyType";
+
+            protected override PropertyProvider[] BuildProperties()
+            {
+                return
+                [
+                    new PropertyProvider($"Foo property", MethodSignatureModifiers.Public, typeof(int), "Foo", new AutoPropertyBody(true)),
+                ];
+            }
+        }
+
+        private static SyntaxTree GetTree(TypeProvider provider)
+        {
+            var writer = new TypeProviderWriter(provider);
+            var file = writer.Write();
+            return CSharpSyntaxTree.ParseText(file.Content);
         }
 
         internal static INamedTypeSymbol? GetSymbol(INamespaceSymbol namespaceSymbol, string name)
