@@ -13,9 +13,10 @@ namespace UnbrandedTypeSpec.Models
     /// <summary></summary>
     public partial class ModelWithRequiredNullableProperties : IJsonModel<ModelWithRequiredNullableProperties>
     {
+        /// <summary> Keeps track of any properties unknown to the library. </summary>
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
-        internal ModelWithRequiredNullableProperties(int? requiredNullablePrimitive, StringExtensibleEnum? requiredExtensibleEnum, StringFixedEnum? requiredFixedEnum, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        internal ModelWithRequiredNullableProperties(int requiredNullablePrimitive, StringExtensibleEnum requiredExtensibleEnum, StringFixedEnum requiredFixedEnum, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             RequiredNullablePrimitive = requiredNullablePrimitive;
             RequiredExtensibleEnum = requiredExtensibleEnum;
@@ -43,33 +44,12 @@ namespace UnbrandedTypeSpec.Models
             {
                 throw new FormatException($"The model {nameof(ModelWithRequiredNullableProperties)} does not support writing '{format}' format.");
             }
-            if (RequiredNullablePrimitive != null)
-            {
-                writer.WritePropertyName("requiredNullablePrimitive"u8);
-                writer.WriteNumberValue(RequiredNullablePrimitive.Value);
-            }
-            else
-            {
-                writer.WriteNull("requiredNullablePrimitive"u8);
-            }
-            if (RequiredExtensibleEnum != null)
-            {
-                writer.WritePropertyName("requiredExtensibleEnum"u8);
-                writer.WriteStringValue(RequiredExtensibleEnum.Value.ToString());
-            }
-            else
-            {
-                writer.WriteNull("requiredExtensibleEnum"u8);
-            }
-            if (RequiredFixedEnum != null)
-            {
-                writer.WritePropertyName("requiredFixedEnum"u8);
-                writer.WriteStringValue(RequiredFixedEnum.Value.ToSerialString());
-            }
-            else
-            {
-                writer.WriteNull("requiredFixedEnum"u8);
-            }
+            writer.WritePropertyName("requiredNullablePrimitive"u8);
+            writer.WriteNumberValue(RequiredNullablePrimitive);
+            writer.WritePropertyName("requiredExtensibleEnum"u8);
+            writer.WriteStringValue(RequiredExtensibleEnum.ToString());
+            writer.WritePropertyName("requiredFixedEnum"u8);
+            writer.WriteStringValue(RequiredFixedEnum.ToSerialString());
             if (options.Format != "W" && _serializedAdditionalRawData != null)
             {
                 foreach (var item in _serializedAdditionalRawData)
@@ -108,40 +88,25 @@ namespace UnbrandedTypeSpec.Models
             {
                 return null;
             }
-            int? requiredNullablePrimitive = default;
-            StringExtensibleEnum? requiredExtensibleEnum = default;
-            StringFixedEnum? requiredFixedEnum = default;
+            int requiredNullablePrimitive = default;
+            StringExtensibleEnum requiredExtensibleEnum = default;
+            StringFixedEnum requiredFixedEnum = default;
             IDictionary<string, BinaryData> serializedAdditionalRawData = default;
             Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("requiredNullablePrimitive"u8))
                 {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        requiredNullablePrimitive = null;
-                        continue;
-                    }
                     requiredNullablePrimitive = prop.Value.GetInt32();
                     continue;
                 }
                 if (prop.NameEquals("requiredExtensibleEnum"u8))
                 {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        requiredExtensibleEnum = null;
-                        continue;
-                    }
                     requiredExtensibleEnum = new StringExtensibleEnum(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("requiredFixedEnum"u8))
                 {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        requiredFixedEnum = null;
-                        continue;
-                    }
                     requiredFixedEnum = prop.Value.GetString().ToStringFixedEnum();
                     continue;
                 }

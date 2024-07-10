@@ -14,8 +14,10 @@ namespace UnbrandedTypeSpec.Models
     /// <summary></summary>
     public partial class ModelWithBaseModelWithoutRequired : IJsonModel<ModelWithBaseModelWithoutRequired>
     {
-        internal ModelWithBaseModelWithoutRequired(int optional, IDictionary<string, BinaryData> serializedAdditionalRawData, string name, string address) : base(optional, serializedAdditionalRawData)
+        internal ModelWithBaseModelWithoutRequired(int? optional, IDictionary<string, BinaryData> serializedAdditionalRawData, string name, string address) : base(optional, serializedAdditionalRawData)
         {
+            Optional = optional;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
             Name = name;
             Address = address;
         }
@@ -73,7 +75,7 @@ namespace UnbrandedTypeSpec.Models
             }
             string name = default;
             string address = default;
-            int optional = default;
+            int? optional = default;
             IDictionary<string, BinaryData> serializedAdditionalRawData = default;
             Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
@@ -85,6 +87,11 @@ namespace UnbrandedTypeSpec.Models
                 }
                 if (prop.NameEquals("address"u8))
                 {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        address = null;
+                        continue;
+                    }
                     address = prop.Value.GetString();
                     continue;
                 }
@@ -92,6 +99,7 @@ namespace UnbrandedTypeSpec.Models
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
+                        optional = null;
                         continue;
                     }
                     optional = prop.Value.GetInt32();

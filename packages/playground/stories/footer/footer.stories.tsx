@@ -26,7 +26,7 @@ const meta: Meta<typeof Footer> = {
   component: Footer,
   decorators: [
     (Story) => (
-      <PlaygroundContextProvider value={{ host: storyHost }}>
+      <PlaygroundContextProvider value={{ host: storyHost, setContent: () => null }}>
         <Footer>{Story()}</Footer>
       </PlaygroundContextProvider>
     ),

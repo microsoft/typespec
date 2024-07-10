@@ -13,6 +13,7 @@ namespace UnbrandedTypeSpec.Models
     /// <summary></summary>
     public partial class BaseModelWithRequired : IJsonModel<BaseModelWithRequired>
     {
+        /// <summary> Keeps track of any properties unknown to the library. </summary>
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
         internal BaseModelWithRequired(int @required, IDictionary<string, BinaryData> serializedAdditionalRawData)

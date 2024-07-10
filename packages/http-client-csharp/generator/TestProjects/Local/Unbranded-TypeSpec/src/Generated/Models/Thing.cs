@@ -18,18 +18,19 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="requiredUnion"> required Union. </param>
         /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/> or <paramref name="requiredBadDescription"/> is null. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/>, <paramref name="requiredBadDescription"/> or <paramref name="requiredNullableList"/> is null. </exception>
         public Thing(string name, BinaryData requiredUnion, string requiredBadDescription, IEnumerable<int> requiredNullableList)
         {
             Argument.AssertNotNull(name, nameof(name));
             Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
             Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
+            Argument.AssertNotNull(requiredNullableList, nameof(requiredNullableList));
 
             Name = name;
             RequiredUnion = requiredUnion;
             RequiredBadDescription = requiredBadDescription;
             OptionalNullableList = new ChangeTrackingList<int>();
-            RequiredNullableList = requiredNullableList?.ToList();
+            RequiredNullableList = requiredNullableList.ToList();
         }
 
         /// <summary> name of the Thing. </summary>
@@ -92,25 +93,25 @@ namespace UnbrandedTypeSpec.Models
         public bool RequiredLiteralBool { get; } = false;
 
         /// <summary> optional literal string. </summary>
-        public ThingOptionalLiteralString OptionalLiteralString { get; set; }
+        public ThingOptionalLiteralString? OptionalLiteralString { get; set; }
 
         /// <summary> optional literal int. </summary>
-        public ThingOptionalLiteralInt OptionalLiteralInt { get; set; }
+        public ThingOptionalLiteralInt? OptionalLiteralInt { get; set; }
 
         /// <summary> optional literal float. </summary>
-        public ThingOptionalLiteralFloat OptionalLiteralFloat { get; set; }
+        public ThingOptionalLiteralFloat? OptionalLiteralFloat { get; set; }
 
         /// <summary> optional literal bool. </summary>
-        public bool OptionalLiteralBool { get; set; }
+        public bool? OptionalLiteralBool { get; set; }
 
         /// <summary> description with xml &lt;|endoftext|&gt;. </summary>
         public string RequiredBadDescription { get; set; }
 
         /// <summary> optional nullable collection. </summary>
-        public IList<int> OptionalNullableList { get; set; }
+        public IList<int> OptionalNullableList { get; }
 
         /// <summary> required nullable collection. </summary>
-        public IList<int> RequiredNullableList { get; set; }
+        public IList<int> RequiredNullableList { get; }
 
         /// <summary> the derived model with its base without required properties. </summary>
         public ModelWithBaseModelWithoutRequired BaseWithoutRequired { get; set; }

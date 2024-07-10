@@ -7,15 +7,17 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
     /// <summary></summary>
     public partial class BaseModelWithoutRequired : IJsonModel<BaseModelWithoutRequired>
     {
+        /// <summary> Keeps track of any properties unknown to the library. </summary>
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
-        internal BaseModelWithoutRequired(int optional, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        internal BaseModelWithoutRequired(int? optional, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             Optional = optional;
             _serializedAdditionalRawData = serializedAdditionalRawData;
@@ -37,8 +39,11 @@ namespace UnbrandedTypeSpec.Models
             {
                 throw new FormatException($"The model {nameof(BaseModelWithoutRequired)} does not support writing '{format}' format.");
             }
-            writer.WritePropertyName("optional"u8);
-            writer.WriteNumberValue(Optional);
+            if (UnbrandedTypeSpec.Optional.IsDefined(Optional))
+            {
+                writer.WritePropertyName("optional"u8);
+                writer.WriteNumberValue(Optional.Value);
+            }
             if (options.Format != "W" && _serializedAdditionalRawData != null)
             {
                 foreach (var item in _serializedAdditionalRawData)
@@ -77,7 +82,7 @@ namespace UnbrandedTypeSpec.Models
             {
                 return null;
             }
-            int optional = default;
+            int? optional = default;
             IDictionary<string, BinaryData> serializedAdditionalRawData = default;
             Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
@@ -86,6 +91,7 @@ namespace UnbrandedTypeSpec.Models
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
+                        optional = null;
                         continue;
                     }
                     optional = prop.Value.GetInt32();

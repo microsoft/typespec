@@ -58,7 +58,7 @@ export const Caret = ({ row }: { row: TreeRow<any> }) => {
       evt.stopPropagation();
       row.toggleExpand();
     },
-    [row.toggleExpand]
+    [row]
   );
   if (row.hasChildren) {
     return row.expanded ? (

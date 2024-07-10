@@ -198,6 +198,30 @@ namespace Microsoft.Generator.CSharp
             }
         }
 
+        public void WriteConstructor(ConstructorProvider ctor)
+        {
+            ArgumentNullException.ThrowIfNull(ctor, nameof(ctor));
+
+            WriteXmlDocs(ctor.XmlDocs);
+
+            if (ctor.BodyStatements is { } body)
+            {
+                using (WriteMethodDeclaration(ctor.Signature))
+                {
+                    body.Write(this);
+                }
+            }
+            else if (ctor.BodyExpression is { } expression)
+            {
+                using (WriteMethodDeclarationNoScope(ctor.Signature))
+                {
+                    AppendRaw(" => ");
+                    expression.Write(this);
+                    WriteRawLine(";");
+                }
+            }
+        }
+
         internal void WriteXmlDocs(XmlDocProvider? docs)
         {
             if (docs is null)
@@ -521,7 +545,7 @@ namespace Microsoft.Generator.CSharp
             }
             else if (isDeclaration && !type.IsFrameworkType)
             {
-                AppendRaw(type.Implementation.Name);
+                AppendRaw(type.Name);
             }
             else if (writeTypeNameOnly)
             {

@@ -31,13 +31,9 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         private TypeReferenceExpression(CSharpType? type)
         {
-            if (type is null)
+            if (type is null || !type.IsFrameworkType)
             {
                 Type = type;
-            }
-            else if (!type.IsFrameworkType && type.Implementation is TypeProvider typeProvider)
-            {
-                Type = typeProvider.Type;
             }
             else
             {

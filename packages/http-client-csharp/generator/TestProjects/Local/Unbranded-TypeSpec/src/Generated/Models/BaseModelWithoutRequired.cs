@@ -13,6 +13,6 @@ namespace UnbrandedTypeSpec.Models
         }
 
         /// <summary> optional property. </summary>
-        public int Optional { get; set; }
+        public int? Optional { get; set; }
     }
 }
