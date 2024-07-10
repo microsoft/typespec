@@ -136,17 +136,23 @@ namespace Microsoft.Generator.CSharp.Primitives
             }
         }
 
-        internal CSharpType(TypeProvider implementation, string providerNamespace, IReadOnlyList<CSharpType>? arguments = null, bool isNullable = false, CSharpType? baseType = null)
+        internal CSharpType(
+            TypeProvider implementation,
+            string providerNamespace,
+            IReadOnlyList<CSharpType>? arguments = null,
+            bool isNullable = false,
+            CSharpType? baseType = null,
+            bool? isEnum = null)
         {
             _arguments = arguments ?? [];
             var isPublic = implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) && Arguments.All(t => t.IsPublic);
             var name = implementation.Name;
             var ns = providerNamespace;
-            var isEnum = implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Enum);
-            var isValueType = isEnum || implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
+            var isProviderEnum = isEnum ?? implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Enum);
+            var isValueType = isProviderEnum || implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             var declaringType = implementation.DeclaringTypeProvider?.Type;
 
-            Initialize(name, isValueType, isEnum, isNullable, ns, declaringType, arguments, isPublic);
+            Initialize(name, isValueType, isProviderEnum, isNullable, ns, declaringType, arguments, isPublic);
             BaseType = baseType;
         }
 
@@ -448,11 +454,12 @@ namespace Microsoft.Generator.CSharp.Primitives
         /// <returns><c>true</c> if the types are equal, <c>false</c> otherwise.</returns>
         protected internal bool Equals(CSharpType other, bool ignoreNullable = false)
             => Name == other.Name &&
-               Namespace == other.Namespace &&
-               IsValueType == other.IsValueType &&
-               _type == other._type &&
-               Arguments.SequenceEqual(other.Arguments) &&
-               (ignoreNullable || IsNullable == other.IsNullable);
+                Namespace == other.Namespace &&
+                IsValueType == other.IsValueType &&
+                _type == other._type &&
+                Arguments.SequenceEqual(other.Arguments) &&
+                IsEnum == other.IsEnum &&
+                (ignoreNullable || IsNullable == other.IsNullable);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public sealed override bool Equals(object? obj)

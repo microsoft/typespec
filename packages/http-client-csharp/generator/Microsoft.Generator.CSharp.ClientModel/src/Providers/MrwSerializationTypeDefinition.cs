@@ -24,7 +24,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     /// <summary>
     /// This class provides the set of serialization models, methods, and interfaces for a given model.
     /// </summary>
-    internal sealed class MrwSerializationTypeDefinition : TypeProvider
+    internal class MrwSerializationTypeDefinition : TypeProvider
     {
         private const string PrivateAdditionalPropertiesPropertyDescription = "Keeps track of any properties unknown to the library.";
         private const string PrivateAdditionalPropertiesPropertyName = "_serializedAdditionalRawData";
@@ -200,9 +200,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             var result = new ParameterProvider("result", $"The {typeof(ClientResult):C} to deserialize the {Type:C} from.", typeof(ClientResult));
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
+            // using PipelineResponse response = result.GetRawResponse();
+            var responseDeclaration = UsingDeclare("response", typeof(PipelineResponse), result.Invoke(nameof(ClientResult.GetRawResponse)), out var response);
+            // using JsonDocument document = JsonDocument.Parse(response.Content);
+            var document = UsingDeclare(
+                "document",
+                typeof(JsonDocument),
+                JsonDocumentSnippets.Parse(response.Property(nameof(PipelineResponse.Content)).As<BinaryData>()),
+                out var docVariable);
+            // return DeserializeT(doc.RootElement, ModelSerializationExtensions.WireOptions);
+            var deserialize = Return(_model.Deserialize(docVariable.As<JsonDocument>().RootElement(), ModelSerializationExtensionsSnippets.Wire));
+            var methodBody = new MethodBodyStatement[]
+            {
+                responseDeclaration,
+                document,
+                deserialize
+            };
             return new MethodProvider(
                 new MethodSignature(Type.Name, null, modifiers, null, null, [result]),
-                Throw(New.NotImplementedException(Literal("Not implemented"))), //TODO https://github.com/microsoft/typespec/issues/3696
+                methodBody,
                 this);
         }
 
@@ -210,9 +226,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             var model = new ParameterProvider(Type.Name.ToVariableName(), $"The {Type:C} to serialize into {typeof(BinaryContent):C}", Type);
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator;
+            // return BinaryContent.Create(model, ModelSerializationExtensions.WireOptions);
+            var binaryContentMethod = Static(typeof(BinaryContent)).Invoke(nameof(BinaryContent.Create), [model, ModelSerializationExtensionsSnippets.Wire]);
             return new MethodProvider(
                 new MethodSignature(nameof(BinaryContent), null, modifiers, null, null, [model]),
-                Throw(New.NotImplementedException(Literal("Not implemented"))), //TODO https://github.com/microsoft/typespec/issues/3696
+                Return(binaryContentMethod),
                 this);
         }
 
@@ -1039,23 +1057,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             for (var i = 0; i < propertyCount; i++)
             {
                 var property = _model.Properties[i];
-                var propertyWireInfo = property.WireInfo;
-                var propertySerializationName = propertyWireInfo?.SerializedName ?? property.Name;
-                var propertyMember = new MemberExpression(null, propertySerializationName);
-                var propertySerializationFormat = propertyWireInfo?.SerializationFormat ?? SerializationFormat.Default;
-                var propertyIsReadOnly = propertyWireInfo?.IsReadOnly ?? false;
-                var propertyIsRequired = propertyWireInfo?.IsRequired ?? false;
-                var propertyIsNullable = propertyWireInfo?.IsNullable ?? false;
+                // we should only write those properties with a wire info. Those properties without wireinfo indicate they are not spec properties.
+                if (property.WireInfo is not { } wireInfo)
+                {
+                    continue;
+                }
+                var propertySerializationName = wireInfo.SerializedName;
+                var propertySerializationFormat = wireInfo.SerializationFormat;
+                var propertyIsReadOnly = wireInfo.IsReadOnly;
+                var propertyIsRequired = wireInfo.IsRequired;
+                var propertyIsNullable = wireInfo.IsNullable;
 
                 // Generate the serialization statements for the property
                 var writePropertySerializationStatements = new MethodBodyStatement[]
                 {
-                    _utf8JsonWriterSnippet.WritePropertyName(propertySerializationName.ToVariableName()),
-                    CreateSerializationStatement(property.Type, propertyMember, propertySerializationFormat)
+                    _utf8JsonWriterSnippet.WritePropertyName(propertySerializationName),
+                    CreateSerializationStatement(property.Type, property, propertySerializationFormat)
                 };
 
                 // Wrap the serialization statement in a check for whether the property is defined
-                var wrapInIsDefinedStatement = WrapInIsDefined(property, propertyMember, propertyIsRequired, propertyIsReadOnly, propertyIsNullable, writePropertySerializationStatements);
+                var wrapInIsDefinedStatement = WrapInIsDefined(property, property, propertyIsRequired, propertyIsReadOnly, propertyIsNullable, writePropertySerializationStatements);
                 if (propertyIsReadOnly && wrapInIsDefinedStatement is not IfStatement)
                 {
                     wrapInIsDefinedStatement = new IfStatement(_isNotEqualToWireConditionSnippet)

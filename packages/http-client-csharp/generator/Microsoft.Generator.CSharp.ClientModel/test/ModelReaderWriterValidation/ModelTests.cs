@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
@@ -40,6 +41,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
         }
         protected abstract void VerifyModel(T model, string format);
         protected abstract void CompareModels(T model, T model2, string format);
+        protected abstract T ToModel(ClientResult result);
+        protected abstract BinaryContent ToBinaryContent(T model);
         protected abstract string JsonPayload { get; }
         protected abstract string WirePayload { get; }
 
@@ -62,6 +65,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
         [TestCase("W")]
         public void RoundTripWithModelInterfaceNonGeneric(string format)
             => RoundTripTest(format, new ModelInterfaceAsObjectStrategy<T>());
+
+        [TestCase("W")]
+        public void RoundTripWithModelCast(string format)
+            => RoundTripTest(format, new CastStrategy<T>(ToBinaryContent, ToModel));
 
         protected void RoundTripTest(string format, RoundTripStrategy<T> strategy)
         {
