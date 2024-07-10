@@ -92,6 +92,7 @@ async function main() {
       "",
       "export let module: Module = undefined as any;",
       "",
+      "// prettier-ignore",
       "const lines = [",
       ...contents.split(/\r?\n/).map((line) => "  " + JSON.stringify(line) + ","),
       "];",

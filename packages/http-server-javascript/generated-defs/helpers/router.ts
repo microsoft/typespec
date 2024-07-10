@@ -5,6 +5,7 @@ import { Module } from "../../src/ctx.js";
 
 export let module: Module = undefined as any;
 
+// prettier-ignore
 const lines = [
   "// Copyright (c) Microsoft Corporation",
   "// Licensed under the MIT license.",
