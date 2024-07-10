@@ -1,4 +1,4 @@
-import { formatIdentifier } from "@typespec/compiler";
+import { printIdentifier } from "@typespec/compiler";
 import { OpenAPI3Components, OpenAPI3Parameter } from "../../../../types.js";
 import { TypeSpecModel, TypeSpecModelProperty } from "../interfaces.js";
 import { getParameterDecorators } from "../utils/decorators.js";
@@ -20,7 +20,7 @@ export function transformComponentParameters(
   for (const name of Object.keys(parameters)) {
     // Determine what the name of the parameter's model is since name may point at
     // a nested property.
-    const modelName = formatIdentifier(name.indexOf(".") < 0 ? name : name.split(".").shift()!);
+    const modelName = printIdentifier(name.indexOf(".") < 0 ? name : name.split(".").shift()!);
 
     // Check if model already exists; if not, create it
     let model = models.find((m) => m.name === modelName);
@@ -48,7 +48,7 @@ export function transformComponentParameters(
 
 function getModelPropertyFromParameter(parameter: OpenAPI3Parameter): TypeSpecModelProperty {
   return {
-    name: formatIdentifier(parameter.name),
+    name: printIdentifier(parameter.name),
     isOptional: !parameter.required,
     doc: parameter.description ?? parameter.schema.description,
     decorators: getParameterDecorators(parameter),
