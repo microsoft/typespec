@@ -21,7 +21,7 @@ namespace SamplePlugin
         /// </summary>
         /// <param name="operation">The input operation to create methods for.</param>
         /// <param name="enclosingType">The enclosing type of the operation.</param>
-        public override MethodProviderCollection CreateMethodProviders(InputOperation operation, TypeProvider enclosingType) => new SamplePluginMethodProviderCollection(operation, enclosingType);
+        public override MethodProviderCollection CreateMethods(InputOperation operation, TypeProvider enclosingType) => new SamplePluginMethodProviderCollection(operation, enclosingType);
 
         public override PropertyProvider CreatePropertyProvider(InputModelProperty inputModel) => new PluginPropertyProvider(inputModel);
     }

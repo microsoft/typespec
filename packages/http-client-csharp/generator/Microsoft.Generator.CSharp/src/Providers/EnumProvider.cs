@@ -23,7 +23,6 @@ namespace Microsoft.Generator.CSharp.Providers
             _input = input;
 
             IsExtensible = input.IsExtensible;
-            Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
             ValueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input.ValueType);
             IsStringValueType = ValueType.Equals(typeof(string));
             IsIntValueType = ValueType.Equals(typeof(int)) || ValueType.Equals(typeof(long));
@@ -43,7 +42,6 @@ namespace Microsoft.Generator.CSharp.Providers
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
         protected override string BuildName() => _input.Name.ToCleanName();
-        public override string Namespace { get; }
         protected internal override FormattableString Description { get; }
 
         private IReadOnlyList<EnumTypeMember>? _members;

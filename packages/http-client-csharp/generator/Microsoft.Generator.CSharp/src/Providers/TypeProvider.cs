@@ -32,8 +32,6 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private string? _name;
 
-        public virtual string Namespace { get; } = CodeModelPlugin.Instance.Configuration.Namespace;
-
         protected internal virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
 
         private XmlDocProvider? _xmlDocs;

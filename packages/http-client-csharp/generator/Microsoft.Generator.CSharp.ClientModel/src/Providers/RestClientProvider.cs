@@ -33,7 +33,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             foreach (var operation in _inputClient.Operations)
             {
-                var methodProvider = (ScmMethodProviderCollection)ClientModelPlugin.Instance.TypeFactory.CreateMethodProviders(operation, ClientProvider);
+                var methodProvider = (ScmMethodProviderCollection)ClientModelPlugin.Instance.TypeFactory.CreateMethods(operation, ClientProvider);
                 methods.Add(methodProvider.BuildCreateMessageMethod());
             }
 

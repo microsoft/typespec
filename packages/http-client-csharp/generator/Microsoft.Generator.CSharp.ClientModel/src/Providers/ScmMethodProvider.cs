@@ -10,11 +10,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     public class ScmMethodProvider : MethodProvider
     {
-        public ScmMethodProvider(MethodSignatureBase signature, MethodBodyStatement bodyStatements, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default) : base(signature, bodyStatements, enclosingType, xmlDocProvider)
+        public ScmMethodProvider(MethodSignature signature, MethodBodyStatement bodyStatements, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default) : base(signature, bodyStatements, enclosingType, xmlDocProvider)
         {
         }
 
-        public ScmMethodProvider(MethodSignatureBase signature, ValueExpression bodyExpression, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default) : base(signature, bodyExpression, enclosingType, xmlDocProvider)
+        public ScmMethodProvider(MethodSignature signature, ValueExpression bodyExpression, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default) : base(signature, bodyExpression, enclosingType, xmlDocProvider)
         {
         }
 
