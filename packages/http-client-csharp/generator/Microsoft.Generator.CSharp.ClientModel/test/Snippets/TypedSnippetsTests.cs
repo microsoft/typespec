@@ -1,53 +1,23 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using System.Text.Json;
 using Microsoft.Generator.CSharp.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
-using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
-using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests
 {
     public class TypedSnippetsTests
     {
-        private readonly string _mocksFolder = "Mocks";
-        private FieldInfo? _mockPlugin;
-
-        [SetUp]
-        public void Setup()
+        public TypedSnippetsTests()
         {
-            var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
-            var mockTypeFactory = new Mock<ScmTypeFactory>() { };
-            mockTypeFactory.Setup(t => t.ListInitializationType).Returns(new CSharpType(typeof(IList<>)));
-            mockTypeFactory.Setup(t => t.DictionaryInitializationType).Returns(new CSharpType(typeof(IDictionary<,>)));
-            // initialize the mock singleton instance of the plugin
-            _mockPlugin = typeof(CodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
-            // invoke the load method with the config file path
-            var loadMethod = typeof(Configuration).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic);
-            object[] parameters = new object[] { configFilePath, null! };
-            var config = loadMethod?.Invoke(null, parameters);
-            var mockGeneratorContext = new Mock<GeneratorContext>(config!);
-            var mockPluginInstance = new Mock<ClientModelPlugin>(mockGeneratorContext.Object) { };
-            mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
-
-            _mockPlugin?.SetValue(null, mockPluginInstance.Object);
-        }
-
-        [TearDown]
-        public void Teardown()
-        {
-            _mockPlugin?.SetValue(null, null);
+            MockHelpers.LoadMockPlugin();
         }
 
         [Test]

@@ -15,7 +15,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
     {
         public JsonModelCoreTests()
         {
-            MockClientModelPlugin.LoadMockPlugin(serializationExtension: (provider, inputType)
+            MockHelpers.LoadMockPlugin(getSerializationTypeProviders: (provider, inputType)
                 => inputType is InputModelType modeltype ? [new MockMrwProvider(provider, modeltype)] : []);
         }
 
