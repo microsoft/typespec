@@ -28,6 +28,7 @@ export function resolveTemplateInstanceName(
   const templateArguments = type.templateMapper?.args ?? [];
   let prefix = "";
   for (const arg of templateArguments) {
+    console.log("B");
     const name = getTemplateArgumentName(program, arg);
     if (name) {
       prefix += name;
@@ -44,7 +45,11 @@ export function resolveTemplateInstanceName(
       );
     }
   }
-  return [`${prefix}${type.name}`, diagnostics];
+
+  if (diagnostics.length > 0) {
+    return [undefined, diagnostics];
+  }
+  return [`${prefix}${type.name}`, []];
 }
 
 function getTemplateArgumentName(program: Program, arg: Entity): string | undefined {
