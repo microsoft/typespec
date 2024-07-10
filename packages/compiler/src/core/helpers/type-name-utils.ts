@@ -1,4 +1,3 @@
-import { printId } from "../../formatter/print/printer.js";
 import { isDefined } from "../../utils/misc.js";
 import { isTemplateInstance, isType, isValue } from "../type-utils.js";
 import type {
@@ -16,6 +15,7 @@ import type {
   Union,
   Value,
 } from "../types.js";
+import { printIdentifier } from "./syntax-utils.js";
 
 export interface TypeNameOptions {
   namespaceFilter?: (ns: Namespace) => boolean;
@@ -241,7 +241,7 @@ function getOperationName(op: Operation, options: TypeNameOptions | undefined) {
 }
 
 function getIdentifierName(name: string, options: TypeNameOptions | undefined) {
-  return options?.printable ? printId(name) : name;
+  return options?.printable ? printIdentifier(name) : name;
 }
 
 function getStringTemplateName(type: StringTemplate): string {
