@@ -1,11 +1,14 @@
-/* eslint-disable */
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+/* eslint no-console: "off" */
 
 import fs from "node:fs/promises";
 import { EOL } from "node:os";
 import path from "node:path";
 
 const HELPER_DECLARATION_PATH = path.resolve(".", "src", "helpers");
-const HELPER_SRC_PATH = path.resolve([".", "helpers"].join(path.sep));
+const HELPER_SRC_PATH = path.resolve(".", "helpers");
 
 console.log("Building JS server generator helpers.");
 
@@ -71,7 +74,7 @@ async function main() {
 
     let childModuleLines =
       childModules
-        ?.filter((m) => path.basename(m, ".ts") != "index")
+        ?.filter((m) => path.basename(m, ".ts") !== "index")
         .map((child) => {
           const childBase = path.basename(child, ".ts");
           return `  await import("./${childBase}.js").then((m) => m.createModule(module));`;
