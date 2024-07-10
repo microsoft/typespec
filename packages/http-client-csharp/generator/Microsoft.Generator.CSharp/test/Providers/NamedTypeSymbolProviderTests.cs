@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
         public NamedTypeSymbolProviderTests()
         {
-            MockCodeModelPlugin.LoadMockPlugin();
+            MockHelpers.LoadMockPlugin();
 
             List<SyntaxTree> files =
             [
