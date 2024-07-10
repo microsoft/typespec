@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
 
         public ArgumentSnippetsTests()
         {
-            MockCodeModelPlugin.LoadMockPlugin();
+            MockHelpers.LoadMockPlugin();
         }
 
         [Test]
@@ -24,7 +24,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
 
 
             ArgumentSnippets.AssertNotNull(p).Write(writer);
-            Assert.AreEqual("global::sample.namespace.Argument.AssertNotNull(p1, nameof(p1));\n", writer.ToString(false));
+            Assert.AreEqual("global::Sample.Argument.AssertNotNull(p1, nameof(p1));\n", writer.ToString(false));
         }
     }
 }

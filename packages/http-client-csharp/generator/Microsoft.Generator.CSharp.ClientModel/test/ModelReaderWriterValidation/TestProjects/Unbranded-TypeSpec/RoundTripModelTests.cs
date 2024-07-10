@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.ClientModel;
 using System.IO;
 using System.Text.Json;
 using NUnit.Framework;
@@ -12,6 +13,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
     {
         protected override string JsonPayload => File.ReadAllText(TestData.GetLocation("Unbranded-TypeSpec/TestData/RoundTripModel/RoundTripModel.json"));
         protected override string WirePayload => File.ReadAllText(TestData.GetLocation("Unbranded-TypeSpec/TestData/RoundTripModel/RoundTripModelWireFormat.json"));
+        protected override RoundTripModel ToModel(ClientResult result) => (RoundTripModel)result;
+        protected override BinaryContent ToBinaryContent(RoundTripModel model) => model;
 
         protected override void CompareModels(RoundTripModel model, RoundTripModel model2, string format)
         {

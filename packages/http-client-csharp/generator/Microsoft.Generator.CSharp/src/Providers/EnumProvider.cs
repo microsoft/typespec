@@ -55,5 +55,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public abstract ValueExpression ToEnum(ValueExpression valueExpression);
 
         protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
+
+        protected override bool GetIsEnum() => true;
     }
 }

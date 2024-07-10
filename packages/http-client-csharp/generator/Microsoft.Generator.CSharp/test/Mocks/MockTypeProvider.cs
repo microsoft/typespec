@@ -17,5 +17,6 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             throw new NotImplementedException();
         }
+        public static readonly TypeProvider Empty = new MockTypeProvider();
     }
 }

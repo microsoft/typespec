@@ -3,62 +3,31 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
-using Moq;
-using Moq.Protected;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Providers
 {
     public class ModelProviderTests
     {
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private GeneratorContext _generatorContext;
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private readonly string _configFilePath = Path.Combine(AppContext.BaseDirectory, "Mocks");
-        private FieldInfo? _mockPlugin;
-
-        [SetUp]
-        public void Setup()
-        {
-            // initialize the mock singleton instance of the plugin
-            _mockPlugin = typeof(CodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
-            _generatorContext = new GeneratorContext(Configuration.Load(_configFilePath));
-        }
-
-        [TearDown]
-        public void Teardown()
-        {
-            _mockPlugin?.SetValue(null, null);
-        }
-
         // Validates that the property body's setter is correctly set based on the property type
         [TestCaseSource(nameof(BuildProperties_ValidatePropertySettersTestCases))]
         public void BuildProperties_ValidatePropertySetters(InputModelProperty inputModelProperty, CSharpType type, bool hasSetter)
         {
-            var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext) { };
-            var mockTypeFactory = new Mock<TypeFactory>() { };
-            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(type);
-
+            MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => type);
             PropertyProvider? result = null;
             mockTypeFactory.Setup(f => f.CreatePropertyProvider(It.IsAny<InputModelProperty>()))
                 .Callback<InputModelProperty>(p => result = new PropertyProvider(p))
                 .Returns(() => result!);
-
-            mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
-            _mockPlugin?.SetValue(null, mockPluginInstance.Object);
-
             var props = new[]
             {
                 inputModelProperty
             };
 
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, props, null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, props, null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
             var modelTypeProvider = new ModelProvider(inputModel);
             var properties = modelTypeProvider.Properties;
 
@@ -92,7 +61,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 yield return new TestCaseData(
                     new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
                     new CSharpType(typeof(IList<string>), true),
-                    true);
+                    false);
                 // dictionary property
                 yield return new TestCaseData(
                     new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
@@ -102,7 +71,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 yield return new TestCaseData(
                     new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
                     new CSharpType(typeof(IDictionary<string, string>), true),
-                    true);
+                    false);
                 // primitive type property
                 yield return new TestCaseData(
                     new InputModelProperty("prop1", "prop1", "public", new InputPrimitiveType(InputPrimitiveTypeKind.String), false, false, false),
@@ -117,7 +86,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 yield return new TestCaseData(
                     new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
                     new CSharpType(typeof(ReadOnlyMemory<>)),
-                    true);
+                    false);
             }
         }
 
@@ -138,9 +107,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         [Test]
         public void BuildConstructor_ValidateConstructors()
         {
-            var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext) { };
-            var mockTypeFactory = new Mock<TypeFactory>() { };
-
             var properties = new List<InputModelProperty>{
                     new InputModelProperty("requiredString", "requiredString", "", InputPrimitiveType.String, true, false, false),
                     new InputModelProperty("OptionalInt", "optionalInt", "", InputPrimitiveType.Int32, false, false, false),
@@ -149,7 +115,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     new InputModelProperty("optionalUnknown", "optional unknown", "", InputPrimitiveType.Any, false, false, false),
              };
 
-            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns((InputType inputType) =>
+            MockHelpers.LoadMockPlugin(createCSharpTypeCore: (InputType inputType) =>
             {
                 // Lookup the inputType in the list and return the corresponding CSharpType
                 var inputModelProperty = properties.Where(prop => prop.Type.Name == inputType.Name).FirstOrDefault();
@@ -168,9 +134,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 .Callback<InputModelProperty>(p => result = new PropertyProvider(p))
                 .Returns(() => result!);
 
-            mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
-            _mockPlugin?.SetValue(null, mockPluginInstance.Object);
-
             var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
 
             var modelTypeProvider = new ModelProvider(inputModel);
@@ -187,15 +150,12 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         [Test]
         public void BuildModelAsStruct()
         {
-            var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext) { };
-            var mockTypeFactory = new Mock<TypeFactory>() { };
-
             var properties = new List<InputModelProperty>{
                     new InputModelProperty("requiredString", "requiredString", "", InputPrimitiveType.String, true, false, false),
                     new InputModelProperty("OptionalInt", "optionalInt", "", InputPrimitiveType.Int32, false, false, false),
              };
 
-            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns((InputType inputType) =>
+            MockHelpers.LoadMockPlugin(createCSharpTypeCore: (InputType inputType) =>
             {
                 // Lookup the inputType in the list and return the corresponding CSharpType
                 var inputModelProperty = properties.Where(prop => prop.Type.Name == inputType.Name).FirstOrDefault();
@@ -208,9 +168,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     throw new ArgumentException("Unsupported input type.");
                 }
             });
-
-            mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
-            _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
             var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, modelAsStruct: true);
 
