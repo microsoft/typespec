@@ -1,4 +1,4 @@
-import { formatIdentifier } from "@typespec/compiler";
+import { printIdentifier } from "@typespec/compiler";
 import {
   OpenAPI3Document,
   OpenAPI3Header,
@@ -217,7 +217,7 @@ export function generateResponseModelName(
   if (contentType) {
     modelName += convertContentType(contentType);
   }
-  return formatIdentifier(modelName + "Response");
+  return printIdentifier(modelName + "Response");
 }
 
 function convertContentType(contentType: string): string {

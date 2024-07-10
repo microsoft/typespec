@@ -1,4 +1,4 @@
-import { formatIdentifier } from "@typespec/compiler";
+import { printIdentifier } from "@typespec/compiler";
 import { OpenAPI3Components, OpenAPI3Schema } from "../../../../types.js";
 import {
   getArrayType,
@@ -28,7 +28,7 @@ export function transformComponentSchemas(
     const extendsParent = getModelExtends(schema);
     const isParent = getModelIs(schema);
     models.push({
-      name: formatIdentifier(name),
+      name: printIdentifier(name),
       decorators: [...getDecoratorsForSchema(schema)],
       doc: schema.description,
       properties: getModelPropertiesFromObjectSchema(schema),
@@ -89,7 +89,7 @@ function getModelPropertiesFromObjectSchema({
     const property = properties[name];
 
     modelProperties.push({
-      name: formatIdentifier(name),
+      name: printIdentifier(name),
       doc: property.description,
       schema: property,
       isOptional: !required.includes(name),
