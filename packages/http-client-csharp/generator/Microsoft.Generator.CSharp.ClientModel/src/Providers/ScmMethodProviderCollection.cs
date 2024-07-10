@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Generator.CSharp.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -104,13 +105,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     continue;
                 if (inputParam.Location == RequestLocation.Body)
                 {
-                    var parameter = isConvenience ? ClientModelPlugin.Instance.TypeFactory.CreateCSharpParam(inputParam) : ScmKnownParameters.BinaryContent;
+                    var parameter = isConvenience ? ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam) : ScmKnownParameters.BinaryContent;
                     _bodyParameter = parameter;
                     methodParameters.Add(parameter);
                 }
                 else
                 {
-                    methodParameters.Add(ClientModelPlugin.Instance.TypeFactory.CreateCSharpParam(inputParam));
+                    methodParameters.Add(ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam));
                 }
             }
             return methodParameters;

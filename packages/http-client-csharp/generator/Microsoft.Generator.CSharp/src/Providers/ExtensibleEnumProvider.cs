@@ -92,7 +92,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return properties;
         }
 
-        protected override MethodProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
             var valueParameter = new ParameterProvider("value", $"The value.", ValueType)
             {
@@ -110,7 +110,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 valueField.Assign(valueParameter).Terminate()
             };
 
-            return [new MethodProvider(signature, body, this)];
+            return [new ConstructorProvider(signature, body, this)];
         }
 
         protected override MethodProvider[] BuildMethods()

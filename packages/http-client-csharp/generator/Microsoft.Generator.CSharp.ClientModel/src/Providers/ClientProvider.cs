@@ -34,11 +34,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return [PipelineField];
         }
 
-        protected override MethodProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
             return
             [
-                new MethodProvider(
+                new ConstructorProvider(
                     new ConstructorSignature(Type, $"{_inputClient.Description}", MethodSignatureModifiers.Public, []),
                     new MethodBodyStatement[] { PipelineField.Assign(ClientPipelineSnippets.Create()).Terminate() },
                     this)
@@ -52,7 +52,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // Build methods for all the operations
             foreach (var operation in _inputClient.Operations)
             {
-                var methodCollection = ClientModelPlugin.Instance.TypeFactory.CreateMethodProviders(operation, this);
+                var methodCollection = ClientModelPlugin.Instance.TypeFactory.CreateMethods(operation, this);
                 if (methodCollection != null)
                 {
                     methods.AddRange(methodCollection);

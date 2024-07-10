@@ -53,15 +53,14 @@ namespace Microsoft.Generator.CSharp.Providers
         }
 
         private CSharpType? _type;
+        public CSharpType Type => _type ??= new(
+            this,
+            GetNamespace(),
+            arguments: GetTypeArguments(),
+            isNullable: false,
+            baseType: GetBaseType());
 
-        public CSharpType Type
-        {
-            get => _type ??= new(
-                this,
-                arguments: TypeArguments,
-                isNullable: false);
-            private set => _type = value;
-        }
+        protected virtual string GetNamespace() => CodeModelPlugin.Instance.Configuration.RootNamespace;
 
         private TypeSignatureModifiers? _declarationModifiers;
 
@@ -92,7 +91,7 @@ namespace Microsoft.Generator.CSharp.Providers
             // mask & (mask - 1) gives us 0 if mask is a power of 2, it means we have exactly one flag of above when the mask is a power of 2
             if ((mask & (mask - 1)) != 0)
             {
-                throw new InvalidOperationException($"Invalid modifier {modifiers} on TypeProvider {Namespace}.{Name}");
+                throw new InvalidOperationException($"Invalid modifier {modifiers} on TypeProvider {Type.Namespace}.{Name}");
             }
 
             // we always add partial when possible
@@ -104,17 +103,9 @@ namespace Microsoft.Generator.CSharp.Providers
             return modifiers;
         }
 
-        public CSharpType? Inherits { get; protected init;}
+        protected virtual CSharpType? GetBaseType() => null;
 
         public virtual WhereExpression? WhereClause { get; protected init; }
-
-        private IReadOnlyList<CSharpType>? _typeArguments;
-
-        protected internal virtual IReadOnlyList<CSharpType> TypeArguments
-        {
-            get => _typeArguments ??= BuildTypeArguments();
-            private set => _typeArguments = value;
-        }
 
         public virtual TypeProvider? DeclaringTypeProvider { get; protected init; }
 
@@ -142,9 +133,9 @@ namespace Microsoft.Generator.CSharp.Providers
             private set => _methods = value;
         }
 
-        private IReadOnlyList<MethodProvider>? _constructors;
+        private IReadOnlyList<ConstructorProvider>? _constructors;
 
-        public IReadOnlyList<MethodProvider> Constructors
+        public IReadOnlyList<ConstructorProvider> Constructors
         {
             get => _constructors ??= BuildConstructors();
             private set => _constructors = value;
@@ -174,7 +165,7 @@ namespace Microsoft.Generator.CSharp.Providers
             private set => _serializationProviders = value;
         }
 
-        protected virtual CSharpType[] BuildTypeArguments() => Array.Empty<CSharpType>();
+        protected virtual CSharpType[] GetTypeArguments() => Array.Empty<CSharpType>();
 
         protected virtual PropertyProvider[] BuildProperties() => Array.Empty<PropertyProvider>();
 
@@ -184,7 +175,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected virtual MethodProvider[] BuildMethods() => Array.Empty<MethodProvider>();
 
-        protected virtual MethodProvider[] BuildConstructors() => Array.Empty<MethodProvider>();
+        protected virtual ConstructorProvider[] BuildConstructors() => Array.Empty<ConstructorProvider>();
 
         protected virtual TypeProvider[] BuildNestedTypes() => Array.Empty<TypeProvider>();
 

@@ -32,9 +32,7 @@ namespace Microsoft.Generator.CSharp
             for (int i = 0; i < enums.Length; i++)
             {
                 var inputEnum = input.Enums[i];
-                var cSharpEnum = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputEnum);
-                TypeProvider enumType = cSharpEnum.Implementation;
-                enums[i] = enumType;
+                enums[i] = CodeModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
             }
             return enums;
         }
@@ -46,9 +44,7 @@ namespace Microsoft.Generator.CSharp
             for (int i = 0; i < models.Length; i++)
             {
                 var inputModel = input.Models[i];
-                var cSharpModel = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputModel);
-                TypeProvider modelType = cSharpModel.Implementation;
-                models[i] = modelType;
+                models[i] = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
             }
             return models;
         }

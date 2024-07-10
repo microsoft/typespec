@@ -67,14 +67,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return [UriBuilderProperty, PathBuilderProperty, QueryBuilderProperty];
         }
 
-        protected override MethodProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
             var signature = new ConstructorSignature(
                 Type: Type,
                 Modifiers: MethodSignatureModifiers.Public,
                 Parameters: Array.Empty<ParameterProvider>(),
                 Description: null);
-            return [new MethodProvider(signature, MethodBodyStatement.Empty, this)];
+            return [new ConstructorProvider(signature, MethodBodyStatement.Empty, this)];
         }
 
         protected override MethodProvider[] BuildMethods()

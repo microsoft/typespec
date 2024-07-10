@@ -26,12 +26,11 @@ namespace Microsoft.Generator.CSharp.Providers
             Debug.Assert(!enumType.IsExtensible);
 
             _enumType = enumType;
-            Namespace = _enumType.Namespace;
         }
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial;
+        protected override string GetNamespace() => _enumType.Type.Namespace;
 
-        public override string Namespace { get; }
+        protected override TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 

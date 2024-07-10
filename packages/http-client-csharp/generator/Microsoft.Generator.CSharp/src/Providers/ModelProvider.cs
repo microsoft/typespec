@@ -17,7 +17,6 @@ namespace Microsoft.Generator.CSharp.Providers
     public sealed class ModelProvider : TypeProvider
     {
         private readonly InputModelType _inputModel;
-        public override string Namespace { get; }
 
         protected internal override FormattableString Description { get;}
 
@@ -27,7 +26,6 @@ namespace Microsoft.Generator.CSharp.Providers
         public ModelProvider(InputModelType inputModel)
         {
             _inputModel = inputModel;
-            Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
             Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : $"The {Name}.";
             _declarationModifiers = TypeSignatureModifiers.Partial |
                 (inputModel.ModelAsStruct ? TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct : TypeSignatureModifiers.Class);
@@ -44,6 +42,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
             _isStruct = inputModel.ModelAsStruct;
         }
+
+        protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
@@ -70,11 +70,11 @@ namespace Microsoft.Generator.CSharp.Providers
             return propertyDeclarations;
         }
 
-        protected override MethodProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
             if (_inputModel.IsUnknownDiscriminatorModel)
             {
-                return Array.Empty<MethodProvider>();
+                return [];
             }
 
             // Build the initialization constructor
@@ -85,7 +85,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     : MethodSignatureModifiers.Internal;
             var constructorParameters = BuildConstructorParameters();
 
-            var constructor = new MethodProvider(
+            var constructor = new ConstructorProvider(
                 signature: new ConstructorSignature(
                     Type,
                     $"Initializes a new instance of {Type:C}",
@@ -104,17 +104,18 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             List<ParameterProvider> constructorParameters = new List<ParameterProvider>();
 
-            foreach (var property in _inputModel.Properties)
+            foreach (var property in Properties)
             {
-                CSharpType propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(property.Type);
-                if (_isStruct || (property is { IsRequired: true, IsDiscriminator: false } && !propertyType.IsLiteral))
+                // we only add those properties with wire info indicating they are coming from specs.
+                if (property.WireInfo == null)
                 {
-                    if (!property.IsReadOnly)
+                    continue;
+                }
+                if (_isStruct || (property.WireInfo is { IsRequired: true, IsDiscriminator: false } && !property.Type.IsLiteral))
+                {
+                    if (!property.WireInfo.IsReadOnly)
                     {
-                        constructorParameters.Add(new ParameterProvider(property)
-                        {
-                            Type = propertyType.InputType
-                        });
+                        constructorParameters.Add(property.AsParameter.ToPublicInputParameter());
                     }
                 }
             }
