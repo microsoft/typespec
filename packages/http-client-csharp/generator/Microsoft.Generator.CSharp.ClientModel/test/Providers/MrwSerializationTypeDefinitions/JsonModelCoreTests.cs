@@ -15,7 +15,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
     {
         public JsonModelCoreTests()
         {
-            MockClientModelPlugin.LoadMockPlugin();
+            MockClientModelPlugin.LoadMockPlugin(serializationExtension: (provider, inputType)
+                => inputType is InputModelType modeltype ? [new MockMrwProvider(provider, modeltype)] : []);
         }
 
         private class MockMrwProvider : MrwSerializationTypeDefinition
@@ -61,7 +62,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 null,
                 false);
 
-            var mrwProvider = new MockMrwProvider(new ModelProvider(inputModel), inputModel);
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
@@ -94,7 +95,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 null,
                 false);
 
-            var mrwProvider = new MockMrwProvider(new ModelProvider(inputModel), inputModel);
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
@@ -127,7 +128,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 null,
                 false);
 
-            var mrwProvider = new MockMrwProvider(new ModelProvider(inputModel), inputModel);
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
@@ -160,7 +161,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 null,
                 false);
 
-            var mrwProvider = new MockMrwProvider(new ModelProvider(inputModel), inputModel);
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);

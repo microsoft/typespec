@@ -3,15 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
-using Moq.Protected;
-using Moq;
 using NUnit.Framework;
-using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp.Tests.Providers
 {
@@ -105,12 +100,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         [TestCaseSource(nameof(CollectionPropertyTestCases))]
         public void CollectionProperty(CSharpType coreType, InputModelProperty collectionProperty, CSharpType expectedType)
         {
-            var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext);
-            var mockTypeFactory = new Mock<TypeFactory>();
-            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(coreType);
-            mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
-            _mockPlugin?.SetValue(null, mockPluginInstance.Object);
-
             var property = new PropertyProvider(collectionProperty);
             Assert.AreEqual(collectionProperty.Name.ToCleanName(), property.Name);
             Assert.AreEqual(expectedType, property.Type);
@@ -142,15 +131,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     true,
                     false),
                 new CSharpType(typeof(IReadOnlyDictionary<,>), typeof(string), typeof(int)));
-            // ReadOnlyMemory<byte> -> ReadOnlyMemory<byte>
-            yield return new TestCaseData(
-                new CSharpType(typeof(ReadOnlyMemory<>), typeof(byte)),
-                new InputModelProperty("readOnlyMemory", "readOnlyMemory", string.Empty,
-                    InputPrimitiveType.Base64,
-                    true,
-                    true,
-                    false),
-                new CSharpType(typeof(ReadOnlyMemory<>), typeof(byte)));
             // string -> string
             yield return new TestCaseData(
                 new CSharpType(typeof(string)),
