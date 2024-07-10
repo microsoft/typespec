@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -19,13 +19,13 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void TestInitialize()
         {
-            string ns = "sample.namespace";
+            string ns = "Sample";
             string? unknownStringProperty = "unknownPropertyValue";
             bool? unknownBoolProp = false;
 
             var configuration = Configuration.Load(_mocksFolder);
 
-            var parsedNs = configuration.Namespace;
+            var parsedNs = configuration.RootNamespace;
 
             Assert.AreEqual(ns, parsedNs);
             // get the unknown property from the configuration
@@ -96,7 +96,7 @@ namespace Microsoft.Generator.CSharp.Tests
             }
 
             var configuration = Configuration.Load(string.Empty, mockJson);
-            var ns = configuration.Namespace;
+            var ns = configuration.RootNamespace;
             var expected = "namespace";
 
             Assert.AreEqual(expected, ns);

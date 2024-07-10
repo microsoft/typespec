@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.ClientModel;
 using System.IO;
 using NUnit.Framework;
 using UnbrandedTypeSpec.Models;
@@ -11,6 +12,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
     {
         protected override string JsonPayload => File.ReadAllText(TestData.GetLocation("Unbranded-TypeSpec/TestData/Friend/Friend.json"));
         protected override string WirePayload => File.ReadAllText(TestData.GetLocation("Unbranded-TypeSpec/TestData/Friend/FriendWireFormat.json"));
+        protected override Friend ToModel(ClientResult result) => (Friend)result;
+        protected override BinaryContent ToBinaryContent(Friend model) => model;
 
         protected override void CompareModels(Friend model, Friend model2, string format)
         {

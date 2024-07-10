@@ -7,12 +7,14 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
     /// <summary></summary>
     public partial class ProjectedModel : IJsonModel<ProjectedModel>
     {
+        /// <summary> Keeps track of any properties unknown to the library. </summary>
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
         internal ProjectedModel(string name, IDictionary<string, BinaryData> serializedAdditionalRawData)
@@ -139,13 +141,15 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="projectedModel"> The <see cref="ProjectedModel"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(ProjectedModel projectedModel)
         {
-            throw new NotImplementedException("Not implemented");
+            return BinaryContent.Create(projectedModel, ModelSerializationExtensions.WireOptions);
         }
 
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ProjectedModel"/> from. </param>
         public static explicit operator ProjectedModel(ClientResult result)
         {
-            throw new NotImplementedException("Not implemented");
+            using PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content);
+            return DeserializeProjectedModel(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }

@@ -40,7 +40,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        protected override CSharpType[] BuildTypeArguments()
+        protected override CSharpType[] GetTypeArguments()
         {
             return [_t];
         }
@@ -55,18 +55,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return [_responseField, _exceptionField];
         }
 
-        protected override MethodProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
             return [BuildCtor()];
         }
 
-        private MethodProvider BuildCtor()
+        private ConstructorProvider BuildCtor()
         {
             var response = new ParameterProvider("response", FormattableStringHelpers.Empty, typeof(PipelineResponse));
             var exception = new ParameterProvider("exception", FormattableStringHelpers.Empty, typeof(ClientResultException));
             var baseInitializer = new ConstructorInitializer(true, new List<ValueExpression> { Default, response });
             var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [response, exception], Initializer: baseInitializer);
-            return new MethodProvider(signature, new MethodBodyStatement[]
+            return new ConstructorProvider(signature, new MethodBodyStatement[]
             {
                 _response.Assign(response).Terminate(),
                 _exception.Assign(exception).Terminate(),

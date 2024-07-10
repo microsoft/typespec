@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.Primitives
 
         private CodeFile Write(CodeWriter writer)
         {
-            using (writer.SetNamespace(_provider.Namespace))
+            using (writer.SetNamespace(_provider.Type.Namespace))
             {
                 WriteType(writer);
             }
@@ -38,8 +38,8 @@ namespace Microsoft.Generator.CSharp.Primitives
             }
             writer.WriteTypeModifiers(_provider.DeclarationModifiers); // class, struct, enum and interface is written as modifiers in this part
             writer.Append($"{_provider.Type:D}")
-                .AppendRawIf(" : ", _provider.Inherits != null || _provider.Implements.Any())
-                .AppendIf($"{_provider.Inherits},", _provider.Inherits != null);
+                .AppendRawIf(" : ", _provider.Type.BaseType != null || _provider.Implements.Any())
+                .AppendIf($"{_provider.Type.BaseType},", _provider.Type.BaseType != null);
 
             for (int i = 0; i < _provider.Implements.Count; i++)
             {
@@ -156,7 +156,7 @@ namespace Microsoft.Generator.CSharp.Primitives
         {
             for (int i = 0; i < _provider.Constructors.Count; i++)
             {
-                writer.WriteMethod(_provider.Constructors[i]);
+                writer.WriteConstructor(_provider.Constructors[i]);
                 if (i < _provider.Constructors.Count - 1)
                 {
                     writer.WriteLine();

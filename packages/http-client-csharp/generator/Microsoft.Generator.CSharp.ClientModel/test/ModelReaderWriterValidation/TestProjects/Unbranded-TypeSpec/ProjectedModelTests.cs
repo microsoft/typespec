@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.ClientModel;
 using System.IO;
 using NUnit.Framework;
 using UnbrandedTypeSpec.Models;
@@ -11,6 +12,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
     {
         protected override string JsonPayload => File.ReadAllText(TestData.GetLocation("Unbranded-TypeSpec/TestData/ProjectedModel/ProjectedModel.json"));
         protected override string WirePayload => File.ReadAllText(TestData.GetLocation("Unbranded-TypeSpec/TestData/ProjectedModel/ProjectedModelWireFormat.json"));
+        protected override ProjectedModel ToModel(ClientResult result) => (ProjectedModel)result;
+        protected override BinaryContent ToBinaryContent(ProjectedModel model) => model;
 
         protected override void CompareModels(ProjectedModel model, ProjectedModel model2, string format)
         {
