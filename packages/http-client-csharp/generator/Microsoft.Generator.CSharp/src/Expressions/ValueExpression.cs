@@ -61,6 +61,8 @@ namespace Microsoft.Generator.CSharp.Expressions
         public ValueExpression Property(string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(this) : this, propertyName);
 
+        public ValueExpression NullConditional(bool nullConditional = false) => nullConditional ? new NullConditionalExpression(this) : this;
+
         public InvokeMethodExpression Invoke(string methodName)
             => new InvokeMethodExpression(this, methodName, [], null, false);
 

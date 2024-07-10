@@ -141,9 +141,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
                         if (CSharpType.RequiresToList(parameter.Type, property.Type))
                         {
-                            initializationValue = parameter.Type.IsNullable ?
-                                new NullConditionalExpression(initializationValue).ToList() :
-                                initializationValue.ToList();
+                            initializationValue = initializationValue!.NullConditional(parameter.Type.IsNullable).ToList();
                         }
                     }
                 }
