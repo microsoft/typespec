@@ -54,5 +54,8 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputType).ToArray();
         }
+        protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
+
+        protected override bool GetIsEnum() => true;
     }
 }

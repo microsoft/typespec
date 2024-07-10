@@ -33,7 +33,10 @@ namespace Microsoft.Generator.CSharp.Providers
             GetNamespace(),
             arguments: GetTypeArguments(),
             isNullable: false,
-            baseType: GetBaseType());
+            baseType: GetBaseType(),
+            isEnum: GetIsEnum());
+
+        protected virtual bool GetIsEnum() => false;
 
         protected virtual string GetNamespace() => CodeModelPlugin.Instance.Configuration.RootNamespace;
 

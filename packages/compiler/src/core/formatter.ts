@@ -1,7 +1,6 @@
 import type { Options } from "prettier";
 import { check, format } from "prettier/standalone";
 import * as typespecPrettierPlugin from "../formatter/index.js";
-export { printId as formatIdentifier } from "../formatter/print/printer.js";
 
 export async function formatTypeSpec(code: string, prettierConfig?: Options): Promise<string> {
   const output = await format(code, {

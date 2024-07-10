@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests
 {
@@ -17,7 +18,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var method = stackFrame!.GetMethod();
             var callingClass = method!.DeclaringType;
             var nsSplit = callingClass!.Namespace!.Split('.');
-            var ns = nsSplit[nsSplit.Length - 1];
+            var ns = string.Join('/', nsSplit.Skip(5));
             var paramString = parameters is null ? string.Empty : $"({parameters})";
             return File.ReadAllText(Path.Combine(_assemblyLocation, ns, "TestData", callingClass.Name, $"{method.Name}{paramString}.cs"));
         }
