@@ -3,7 +3,7 @@ import { EmitContext, JSONSchemaType, resolvePath } from "@typespec/compiler";
 import { tspOutputFileName } from "./constants.js";
 import { LoggerLevel } from "./lib/log-level.js";
 
-export type NetEmitterOptions = {
+export interface NetEmitterOptions extends SdkEmitterOptions {
   "api-version"?: string;
   outputFile?: string;
   logFile?: string;
@@ -32,7 +32,7 @@ export type NetEmitterOptions = {
   "use-model-reader-writer"?: boolean;
   "disable-xml-docs"?: boolean;
   "plugin-name"?: string;
-} & SdkEmitterOptions;
+}
 
 export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
   type: "object",
