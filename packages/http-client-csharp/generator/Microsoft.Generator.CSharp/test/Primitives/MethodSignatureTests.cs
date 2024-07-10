@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection.Metadata;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -9,7 +10,7 @@ namespace Microsoft.Generator.CSharp.Tests.Primitives
     public class MethodSignatureTests
     {
         [Test]
-        public void EqualityDoesNotRequireSameInstance()
+        public void EqualityDoesNotRequireSameInstanceWhenUsingComparer()
         {
             var sig1 = new MethodSignature(
                 "Foo",
@@ -26,8 +27,13 @@ namespace Microsoft.Generator.CSharp.Tests.Primitives
                 new CSharpType(typeof(int)),
                 null,
                 Array.Empty<ParameterProvider>());
+            var set = new HashSet<MethodSignature>(MethodSignature.ParameterAndReturnTypeEqualityComparer)
+            {
+                sig1,
+                sig2
+            };
 
-            Assert.AreEqual(sig1, sig2);
+            Assert.AreEqual(1, set.Count);
         }
     }
 }

@@ -53,8 +53,8 @@ namespace Microsoft.Generator.CSharp.Primitives
                     return false;
                 }
 
-                var result = x.Name == x.Name
-                    && x.ReturnType == y.ReturnType
+                var result = x.Name == y.Name
+                    && Equals(x.ReturnType, y.ReturnType)
                     && x.Parameters.SequenceEqual(y.Parameters);
                 return result;
             }
