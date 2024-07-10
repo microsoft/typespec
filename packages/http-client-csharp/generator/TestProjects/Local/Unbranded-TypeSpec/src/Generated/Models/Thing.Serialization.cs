@@ -69,7 +69,7 @@ namespace UnbrandedTypeSpec.Models
             writer.WritePropertyName("requiredLiteralString"u8);
             writer.WriteStringValue(RequiredLiteralString.ToString());
             writer.WritePropertyName("requiredLiteralInt"u8);
-            writer.WriteNumberValue(RequiredLiteralInt.ToSerialInt32());
+            writer.WriteNumberValue((int)RequiredLiteralInt);
             writer.WritePropertyName("requiredLiteralFloat"u8);
             writer.WriteNumberValue(RequiredLiteralFloat.ToSerialSingle());
             writer.WritePropertyName("requiredLiteralBool"u8);
@@ -82,7 +82,7 @@ namespace UnbrandedTypeSpec.Models
             if (Optional.IsDefined(OptionalLiteralInt))
             {
                 writer.WritePropertyName("optionalLiteralInt"u8);
-                writer.WriteNumberValue(OptionalLiteralInt.Value.ToSerialInt32());
+                writer.WriteNumberValue((int)OptionalLiteralInt.Value);
             }
             if (Optional.IsDefined(OptionalLiteralFloat))
             {
@@ -194,17 +194,17 @@ namespace UnbrandedTypeSpec.Models
                 }
                 if (prop.NameEquals("requiredLiteralString"u8))
                 {
-                    requiredLiteralString = new ThingRequiredLiteralString(prop.Value.GetString());
+                    requiredLiteralString = new ThingRequiredLiteralStringExtensions(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("requiredLiteralInt"u8))
                 {
-                    requiredLiteralInt = new ThingRequiredLiteralInt(prop.Value.GetInt32());
+                    requiredLiteralInt = new ThingRequiredLiteralIntExtensions(prop.Value.GetInt32());
                     continue;
                 }
                 if (prop.NameEquals("requiredLiteralFloat"u8))
                 {
-                    requiredLiteralFloat = new ThingRequiredLiteralFloat(prop.Value.GetSingle());
+                    requiredLiteralFloat = new ThingRequiredLiteralFloatExtensions(prop.Value.GetSingle());
                     continue;
                 }
                 if (prop.NameEquals("requiredLiteralBool"u8))
@@ -219,7 +219,7 @@ namespace UnbrandedTypeSpec.Models
                         optionalLiteralString = null;
                         continue;
                     }
-                    optionalLiteralString = new ThingOptionalLiteralString(prop.Value.GetString());
+                    optionalLiteralString = new ThingOptionalLiteralStringExtensions(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("optionalLiteralInt"u8))
@@ -229,7 +229,7 @@ namespace UnbrandedTypeSpec.Models
                         optionalLiteralInt = null;
                         continue;
                     }
-                    optionalLiteralInt = new ThingOptionalLiteralInt(prop.Value.GetInt32());
+                    optionalLiteralInt = new ThingOptionalLiteralIntExtensions(prop.Value.GetInt32());
                     continue;
                 }
                 if (prop.NameEquals("optionalLiteralFloat"u8))
@@ -239,7 +239,7 @@ namespace UnbrandedTypeSpec.Models
                         optionalLiteralFloat = null;
                         continue;
                     }
-                    optionalLiteralFloat = new ThingOptionalLiteralFloat(prop.Value.GetSingle());
+                    optionalLiteralFloat = new ThingOptionalLiteralFloatExtensions(prop.Value.GetSingle());
                     continue;
                 }
                 if (prop.NameEquals("optionalLiteralBool"u8))

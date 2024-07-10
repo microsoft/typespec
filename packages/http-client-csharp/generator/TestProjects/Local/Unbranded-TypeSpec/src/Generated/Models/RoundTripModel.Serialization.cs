@@ -74,7 +74,7 @@ namespace UnbrandedTypeSpec.Models
             writer.WriteStartArray();
             foreach (var item in RequiredCollection)
             {
-                writer.WriteStringValue(item.ToSerialString());
+                writer.WriteStringValue(item.ToString());
             }
             writer.WriteEndArray();
             writer.WritePropertyName("requiredDictionary"u8);
@@ -90,7 +90,7 @@ namespace UnbrandedTypeSpec.Models
             if (Optional.IsDefined(IntExtensibleEnum))
             {
                 writer.WritePropertyName("intExtensibleEnum"u8);
-                writer.WriteNumberValue(IntExtensibleEnum.Value.ToSerialInt32());
+                writer.WriteNumberValue((int)IntExtensibleEnum.Value);
             }
             if (Optional.IsCollectionDefined(IntExtensibleEnumCollection))
             {
@@ -98,7 +98,7 @@ namespace UnbrandedTypeSpec.Models
                 writer.WriteStartArray();
                 foreach (var item in IntExtensibleEnumCollection)
                 {
-                    writer.WriteNumberValue(item.ToSerialInt32());
+                    writer.WriteNumberValue((int)item);
                 }
                 writer.WriteEndArray();
             }
@@ -160,7 +160,7 @@ namespace UnbrandedTypeSpec.Models
             if (Optional.IsDefined(StringFixedEnum))
             {
                 writer.WritePropertyName("stringFixedEnum"u8);
-                writer.WriteStringValue(StringFixedEnum.Value.ToSerialString());
+                writer.WriteStringValue(StringFixedEnum.Value.ToString());
             }
             writer.WritePropertyName("requiredUnknown"u8);
 #if NET6_0_OR_GREATER
@@ -357,7 +357,7 @@ namespace UnbrandedTypeSpec.Models
                     List<StringFixedEnum> array = new List<StringFixedEnum>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(item.GetString().ToStringFixedEnum());
+                        array.Add(item.GetString().ToStringFixedEnumExtensions());
                     }
                     requiredCollection = array;
                     continue;
@@ -367,7 +367,7 @@ namespace UnbrandedTypeSpec.Models
                     Dictionary<string, StringExtensibleEnum> dictionary = new Dictionary<string, StringExtensibleEnum>();
                     foreach (var prop0 in prop.Value.EnumerateObject())
                     {
-                        dictionary.Add(prop0.Name, new StringExtensibleEnum(prop0.Value.GetString()));
+                        dictionary.Add(prop0.Name, new StringExtensibleEnumExtensions(prop0.Value.GetString()));
                     }
                     requiredDictionary = dictionary;
                     continue;
@@ -384,7 +384,7 @@ namespace UnbrandedTypeSpec.Models
                         intExtensibleEnum = null;
                         continue;
                     }
-                    intExtensibleEnum = new IntExtensibleEnum(prop.Value.GetInt32());
+                    intExtensibleEnum = new IntExtensibleEnumExtensions(prop.Value.GetInt32());
                     continue;
                 }
                 if (prop.NameEquals("intExtensibleEnumCollection"u8))
@@ -396,7 +396,7 @@ namespace UnbrandedTypeSpec.Models
                     List<IntExtensibleEnum> array = new List<IntExtensibleEnum>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(new IntExtensibleEnum(item.GetInt32()));
+                        array.Add(new IntExtensibleEnumExtensions(item.GetInt32()));
                     }
                     intExtensibleEnumCollection = array;
                     continue;
@@ -408,7 +408,7 @@ namespace UnbrandedTypeSpec.Models
                         floatExtensibleEnum = null;
                         continue;
                     }
-                    floatExtensibleEnum = new FloatExtensibleEnum(prop.Value.GetSingle());
+                    floatExtensibleEnum = new FloatExtensibleEnumExtensions(prop.Value.GetSingle());
                     continue;
                 }
                 if (prop.NameEquals("floatExtensibleEnumWithIntValue"u8))
@@ -418,7 +418,7 @@ namespace UnbrandedTypeSpec.Models
                         floatExtensibleEnumWithIntValue = null;
                         continue;
                     }
-                    floatExtensibleEnumWithIntValue = new FloatExtensibleEnumWithIntValue(prop.Value.GetSingle());
+                    floatExtensibleEnumWithIntValue = new FloatExtensibleEnumWithIntValueExtensions(prop.Value.GetSingle());
                     continue;
                 }
                 if (prop.NameEquals("floatExtensibleEnumCollection"u8))
@@ -430,7 +430,7 @@ namespace UnbrandedTypeSpec.Models
                     List<FloatExtensibleEnum> array = new List<FloatExtensibleEnum>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(new FloatExtensibleEnum(item.GetSingle()));
+                        array.Add(new FloatExtensibleEnumExtensions(item.GetSingle()));
                     }
                     floatExtensibleEnumCollection = array;
                     continue;
@@ -442,7 +442,7 @@ namespace UnbrandedTypeSpec.Models
                         floatFixedEnum = null;
                         continue;
                     }
-                    floatFixedEnum = prop.Value.GetSingle().ToFloatFixedEnum();
+                    floatFixedEnum = prop.Value.GetSingle().ToFloatFixedEnumExtensions();
                     continue;
                 }
                 if (prop.NameEquals("floatFixedEnumWithIntValue"u8))
@@ -452,7 +452,7 @@ namespace UnbrandedTypeSpec.Models
                         floatFixedEnumWithIntValue = null;
                         continue;
                     }
-                    floatFixedEnumWithIntValue = prop.Value.GetInt32().ToFloatFixedEnumWithIntValue();
+                    floatFixedEnumWithIntValue = prop.Value.GetInt32().ToFloatFixedEnumWithIntValueExtensions();
                     continue;
                 }
                 if (prop.NameEquals("floatFixedEnumCollection"u8))
@@ -464,7 +464,7 @@ namespace UnbrandedTypeSpec.Models
                     List<FloatFixedEnum> array = new List<FloatFixedEnum>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(item.GetSingle().ToFloatFixedEnum());
+                        array.Add(item.GetSingle().ToFloatFixedEnumExtensions());
                     }
                     floatFixedEnumCollection = array;
                     continue;
@@ -476,7 +476,7 @@ namespace UnbrandedTypeSpec.Models
                         intFixedEnum = null;
                         continue;
                     }
-                    intFixedEnum = prop.Value.GetInt32().ToIntFixedEnum();
+                    intFixedEnum = prop.Value.GetInt32().ToIntFixedEnumExtensions();
                     continue;
                 }
                 if (prop.NameEquals("intFixedEnumCollection"u8))
@@ -488,7 +488,7 @@ namespace UnbrandedTypeSpec.Models
                     List<IntFixedEnum> array = new List<IntFixedEnum>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(item.GetInt32().ToIntFixedEnum());
+                        array.Add(item.GetInt32().ToIntFixedEnumExtensions());
                     }
                     intFixedEnumCollection = array;
                     continue;
@@ -500,7 +500,7 @@ namespace UnbrandedTypeSpec.Models
                         stringFixedEnum = null;
                         continue;
                     }
-                    stringFixedEnum = prop.Value.GetString().ToStringFixedEnum();
+                    stringFixedEnum = prop.Value.GetString().ToStringFixedEnumExtensions();
                     continue;
                 }
                 if (prop.NameEquals("requiredUnknown"u8))
