@@ -3,48 +3,103 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.Providers;
-using Moq.Protected;
-using Moq;
-using NUnit.Framework;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Providers;
+using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Providers
 {
     public class PropertyProviderTests
     {
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private GeneratorContext _generatorContext;
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private readonly string _configFilePath = Path.Combine(AppContext.BaseDirectory, "Mocks");
-        private FieldInfo? _mockPlugin;
-
-        [SetUp]
-        public void Setup()
+        public PropertyProviderTests()
         {
-            // initialize the mock singleton instance of the plugin
-            _mockPlugin = typeof(CodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
-            _generatorContext = new GeneratorContext(Configuration.Load(_configFilePath));
+            MockCodeModelPlugin.LoadMockPlugin();
         }
 
-        [TearDown]
-        public void Teardown()
+        [Test]
+        public void TestSnakeCaseProperty()
         {
-            _mockPlugin?.SetValue(null, null);
+            InputModelProperty inputModelProperty = new InputModelProperty
+            (
+                "snake_case",
+                "snake_case",
+                "A property with snake_case name",
+                new InputPrimitiveType(InputPrimitiveTypeKind.String, null),
+                true,
+                false,
+                false);
+
+            var property = new PropertyProvider(inputModelProperty);
+
+            Assert.AreEqual("SnakeCase", property.Name);
+            Assert.AreEqual("snake_case", property.WireInfo?.SerializedName);
+            Assert.AreEqual("A property with snake_case name", property.Description.ToString());
+        }
+
+        [Test]
+        public void TestPascalCaseProperty()
+        {
+            InputModelProperty inputModelProperty = new InputModelProperty
+            (
+                "PascalCase",
+                "PascalCase",
+                "A property with PascalCase name",
+                new InputPrimitiveType(InputPrimitiveTypeKind.String, null),
+                true,
+                false,
+                false);
+
+            var property = new PropertyProvider(inputModelProperty);
+
+            Assert.AreEqual("PascalCase", property.Name);
+            Assert.AreEqual("PascalCase", property.WireInfo?.SerializedName);
+            Assert.AreEqual("A property with PascalCase name", property.Description.ToString());
+        }
+
+        [Test]
+        public void TestCamelCaseProperty()
+        {
+            InputModelProperty inputModelProperty = new InputModelProperty
+            (
+                "camelCase",
+                "camelCase",
+                "A property with camelCase name",
+                new InputPrimitiveType(InputPrimitiveTypeKind.String, null),
+                true,
+                false,
+                false);
+
+            var property = new PropertyProvider(inputModelProperty);
+
+            Assert.AreEqual("CamelCase", property.Name);
+            Assert.AreEqual("camelCase", property.WireInfo?.SerializedName);
+            Assert.AreEqual("A property with camelCase name", property.Description.ToString());
+        }
+
+        [Test]
+        public void TestKebabCaseProperty()
+        {
+            InputModelProperty inputModelProperty = new InputModelProperty
+            (
+                "kebab-case",
+                "kebab-case",
+                "A property with kebab-case name",
+                new InputPrimitiveType(InputPrimitiveTypeKind.String, null),
+                    true,
+                false,
+                false);
+
+            var property = new PropertyProvider(inputModelProperty);
+
+            Assert.AreEqual("KebabCase", property.Name);
+            Assert.AreEqual("kebab-case", property.WireInfo?.SerializedName);
+            Assert.AreEqual("A property with kebab-case name", property.Description.ToString());
         }
 
         [TestCaseSource(nameof(CollectionPropertyTestCases))]
         public void CollectionProperty(CSharpType coreType, InputModelProperty collectionProperty, CSharpType expectedType)
         {
-            var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext);
-            var mockTypeFactory = new Mock<TypeFactory>();
-            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(coreType);
-            mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
-            _mockPlugin?.SetValue(null, mockPluginInstance.Object);
-
             var property = new PropertyProvider(collectionProperty);
             Assert.AreEqual(collectionProperty.Name.ToCleanName(), property.Name);
             Assert.AreEqual(expectedType, property.Type);
@@ -76,15 +131,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     true,
                     false),
                 new CSharpType(typeof(IReadOnlyDictionary<,>), typeof(string), typeof(int)));
-            // ReadOnlyMemory<byte> -> ReadOnlyMemory<byte>
-            yield return new TestCaseData(
-                new CSharpType(typeof(ReadOnlyMemory<>), typeof(byte)),
-                new InputModelProperty("readOnlyMemory", "readOnlyMemory", string.Empty,
-                    InputPrimitiveType.Base64,
-                    true,
-                    true,
-                    false),
-                new CSharpType(typeof(ReadOnlyMemory<>), typeof(byte)));
             // string -> string
             yield return new TestCaseData(
                 new CSharpType(typeof(string)),

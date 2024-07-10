@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
-using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -17,8 +16,9 @@ using Moq;
 using Moq.Protected;
 using NUnit.Framework;
 using System.Text.Json;
+using Microsoft.Generator.CSharp.ClientModel.Providers;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
+namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializationTypeDefinitions
 {
     internal class MrwSerializationTypeDefinitionTests
     {
