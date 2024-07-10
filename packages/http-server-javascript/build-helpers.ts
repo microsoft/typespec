@@ -4,7 +4,6 @@
 /* eslint no-console: "off" */
 
 import fs from "node:fs/promises";
-import { EOL } from "node:os";
 import path from "node:path";
 
 const HELPER_DECLARATION_PATH = path.resolve("generated-defs", "helpers");
@@ -115,7 +114,7 @@ async function main() {
       "  return module;",
       "}",
       "",
-    ].join(EOL);
+    ].join("\n");
 
     await fs.writeFile(targetPath, transformed);
   }
@@ -159,7 +158,7 @@ async function main() {
       "  return module;",
       "}",
       "",
-    ].join(EOL);
+    ].join("\n");
 
     await fs.writeFile(targetPath, transformed);
   }
