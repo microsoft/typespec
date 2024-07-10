@@ -5,20 +5,20 @@
 #nullable disable
 
 using System;
-using sample.namespace;
+using Sample;
 
-namespace sample.namespace.Models
+namespace Sample.Models
 {
     /// <summary> Test model. </summary>
     public partial class TestModel
     {
-        /// <summary> Initializes a new instance of <see cref="global::sample.namespace.Models.TestModel"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::Sample.Models.TestModel"/>. </summary>
         /// <param name="requiredString"> Required string, illustrating a reference type property. </param>
         /// <param name="requiredInt"> Required int, illustrating a value type property. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="requiredString"/> is null. </exception>
         public TestModel(string requiredString, int requiredInt)
         {
-            global::sample.namespace.Argument.AssertNotNull(requiredString, nameof(requiredString));
+            global::Sample.Argument.AssertNotNull(requiredString, nameof(requiredString));
 
             RequiredString = requiredString;
             RequiredInt = requiredInt;

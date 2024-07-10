@@ -184,7 +184,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             var result = writer.ToString(false);
             var builder = new StringBuilder();
             builder.Append($"e.ToSerialInt32()").Append(NewLine)
-                .Append($"new global::sample.namespace.Models.MockInputEnum(1)");
+                .Append($"new global::Sample.Models.MockInputEnum(1)");
             var expected = builder.ToString();
 
             Assert.AreEqual(expected, result);
@@ -241,7 +241,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             var result = writer.ToString(false);
             var builder = new StringBuilder();
             builder.Append($"e.ToSerialSingle()").Append(NewLine)
-                .Append($"new global::sample.namespace.Models.MockInputEnum(1F)");
+                .Append($"new global::Sample.Models.MockInputEnum(1F)");
             var expected = builder.ToString();
 
             Assert.AreEqual(expected, result);
@@ -298,7 +298,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             var result = writer.ToString(false);
             var builder = new StringBuilder();
             builder.Append($"e.ToString()").Append(NewLine)
-                .Append($"new global::sample.namespace.Models.MockInputEnum(\"1\")");
+                .Append($"new global::Sample.Models.MockInputEnum(\"1\")");
             var expected = builder.ToString();
 
             Assert.AreEqual(expected, result);

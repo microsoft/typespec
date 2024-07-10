@@ -348,13 +348,15 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="thing"> The <see cref="Thing"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(Thing thing)
         {
-            throw new NotImplementedException("Not implemented");
+            return BinaryContent.Create(thing, ModelSerializationExtensions.WireOptions);
         }
 
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Thing"/> from. </param>
         public static explicit operator Thing(ClientResult result)
         {
-            throw new NotImplementedException("Not implemented");
+            using PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content);
+            return DeserializeThing(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }

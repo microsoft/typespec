@@ -15,7 +15,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void TestInitialize()
         {
-            string ns = "sample.namespace";
+            string ns = "Sample";
             string? unknownStringProperty = "unknownPropertyValue";
             bool? unknownBoolProp = false;
 
