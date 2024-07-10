@@ -9,5 +9,6 @@ export {
   // eslint-disable-next-line deprecation/deprecation
   stringTemplateToString,
 } from "./string-template-utils.js";
+export { printIdentifier } from "./syntax-utils.js";
 export * from "./type-name-utils.js";
 export * from "./usage-resolver.js";
