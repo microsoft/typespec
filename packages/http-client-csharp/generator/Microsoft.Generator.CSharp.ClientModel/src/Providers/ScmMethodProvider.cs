@@ -18,6 +18,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
         }
 
-        public bool IsProtocol { get; set; }
+        public bool IsProtocol { get; init; }
     }
 }

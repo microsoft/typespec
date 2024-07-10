@@ -109,11 +109,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private IReadOnlyList<CSharpType>? _implements;
 
-        public IReadOnlyList<CSharpType> Implements
-        {
-            get => _implements ??= BuildImplements();
-            private set => _implements = value;
-        }
+        public IReadOnlyList<CSharpType> Implements => _implements ??= BuildImplements();
 
         private IReadOnlyList<PropertyProvider>? _properties;
         public IReadOnlyList<PropertyProvider> Properties => _properties ??= BuildProperties();
