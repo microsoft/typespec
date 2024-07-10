@@ -109,7 +109,7 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
   required: [],
 };
 
-const defaultOptions = {
+export const defaultOptions = {
   "api-version": "latest",
   outputFile: tspOutputFileName,
   logFile: "log.json",
