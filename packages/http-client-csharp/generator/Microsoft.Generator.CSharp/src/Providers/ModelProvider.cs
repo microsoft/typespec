@@ -112,7 +112,6 @@ namespace Microsoft.Generator.CSharp.Providers
             var baseConstructor = GetBaseConstructor(Type.BaseType);
             var baseParameters = baseConstructor?.Parameters ?? [];
             var parameterCapacity = baseParameters.Count + _inputModel.Properties.Count;
-            var parameterNames = baseParameters.Select(p => p.Name).ToHashSet();
             var constructorParameters = new List<ParameterProvider>(parameterCapacity);
 
             // add the base parameters
