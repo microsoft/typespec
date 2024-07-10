@@ -109,12 +109,19 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildConstructorParameters()
         {
-            var baseConstructor = GetBaseConstructor(Type.BaseType);
-            var baseParameters = baseConstructor?.Parameters ?? [];
-            var parameterCapacity = baseParameters.Count + _inputModel.Properties.Count;
+            // find the base model
+            var baseType = Type.BaseType;
+            var baseModel = baseType != null ? CodeModelPlugin.Instance.TypeFactory.GetProvider(baseType) : null;
+            var baseProperties = baseModel?.Properties ?? [];
+            var parameterCapacity = baseProperties.Count + Properties.Count;
+            var baseParameters = new List<ParameterProvider>(baseProperties.Count);
             var constructorParameters = new List<ParameterProvider>(parameterCapacity);
 
             // add the base parameters
+            foreach (var property in baseProperties)
+            {
+                AddInitializationParameters(baseParameters, property, _isStruct);
+            }
             constructorParameters.AddRange(baseParameters);
 
             // construct the initializer using the parameters from base signature
@@ -122,48 +129,25 @@ namespace Microsoft.Generator.CSharp.Providers
 
             foreach (var property in Properties)
             {
-                // we only add those properties with wire info indicating they are coming from specs.
-                if (property.WireInfo == null)
-                {
-                    continue;
-                }
-                if (_isStruct || (property.WireInfo is { IsRequired: true, IsDiscriminator: false } && !property.Type.IsLiteral))
-                {
-                    if (!property.WireInfo.IsReadOnly)
-                    {
-                        constructorParameters.Add(property.AsParameter.ToPublicInputParameter());
-                    }
-                }
+                AddInitializationParameters(constructorParameters, property, _isStruct);
             }
 
             return (constructorParameters, constructorInitializer);
 
-            static ConstructorSignature? GetBaseConstructor(CSharpType? baseType)
+            static void AddInitializationParameters(List<ParameterProvider> parameters, PropertyProvider property, bool isStruct)
             {
-                if (baseType == null)
+                // we only add those properties with wire info indicating they are coming from specs.
+                if (property.WireInfo is not { } wireInfo)
                 {
-                    return null;
+                    return;
                 }
-                // find the constructor on the base type
-                var baseModel = CodeModelPlugin.Instance.TypeFactory.GetProvider(baseType);
-                if (baseModel == null)
+                if (isStruct || (wireInfo is { IsRequired: true, IsDiscriminator: false } && !property.Type.IsLiteral))
                 {
-                    return null;
+                    if (!wireInfo.IsReadOnly)
+                    {
+                        parameters.Add(property.AsParameter.ToPublicInputParameter());
+                    }
                 }
-
-                if (baseModel.Constructors.Count == 0)
-                {
-                    return null;
-                }
-
-                // we cannot know which ctor to call, but in our implementation, there should only be one
-                var ctor = baseModel.Constructors[0];
-                if (ctor.Signature is not ConstructorSignature ctorSignature)
-                {
-                    return null;
-                }
-
-                return ctorSignature;
             }
         }
 

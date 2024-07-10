@@ -58,6 +58,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private ConstructorProvider? _serializationConstructor;
         // Flag to determine if the model should override the serialization methods
         private readonly bool _shouldOverrideMethods;
+        // TODO -- we should not be needing this if we resolve https://github.com/microsoft/typespec/issues/3796
         private readonly MrwSerializationTypeDefinition? _baseSerializationProvider;
 
         public MrwSerializationTypeDefinition(TypeProvider provider, InputModelType inputModel)
