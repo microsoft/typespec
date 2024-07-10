@@ -72,23 +72,5 @@ namespace Microsoft.Generator.CSharp.Providers
                 XmlDocs = xmlDocProvider;
             }
         }
-
-        /// <summary>
-        /// Converts an expression-based method provider to a method provider with <see cref="BodyStatements"/> populated. If the instance already has body statements, it is returned as is.
-        /// </summary>
-        public void ConvertToBodyStatementMethodProvider()
-        {
-            if (BodyExpression != null)
-            {
-                if (BodyExpression is KeywordExpression { Keyword: "throw" } keywordExpression)
-                {
-                    BodyStatements = keywordExpression.Terminate();
-                }
-                else
-                {
-                    BodyStatements = new KeywordExpression("return", BodyExpression).Terminate();
-                }
-            }
-        }
     }
 }

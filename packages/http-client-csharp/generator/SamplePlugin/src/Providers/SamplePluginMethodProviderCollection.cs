@@ -40,7 +40,7 @@ namespace SamplePlugin.Providers
                 }
 
                 // Convert to a method with a body statement so we can add tracing.
-                method.ConvertToBodyStatementMethodProvider();
+                ConvertToBodyStatementMethodProvider(method);
                 var ex = new VariableExpression(typeof(Exception), "ex");
                 var decl = new DeclarationExpression(ex);
                 var statements = new TryCatchFinallyStatement(
@@ -85,6 +85,23 @@ namespace SamplePlugin.Providers
             }
 
             return name;
+        }
+
+        private void ConvertToBodyStatementMethodProvider(MethodProvider method)
+        {
+            if (method.BodyExpression != null)
+            {
+                MethodBodyStatement statements;
+                if (method.BodyExpression is KeywordExpression { Keyword: "throw" } keywordExpression)
+                {
+                    statements = keywordExpression.Terminate();
+                }
+                else
+                {
+                    statements = new KeywordExpression("return", BodyExpression).Terminate();
+                }
+                method.Update(bodyStatements: statements);
+            }
         }
     }
 }
