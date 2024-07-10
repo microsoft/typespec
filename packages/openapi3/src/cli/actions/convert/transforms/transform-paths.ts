@@ -1,3 +1,4 @@
+import { formatIdentifier } from "@typespec/compiler";
 import {
   OpenAPI3Parameter,
   OpenAPI3PathItem,
@@ -30,7 +31,7 @@ export function transformPaths(paths: Record<string, OpenAPI3PathItem>): TypeSpe
       const tags = operation.tags?.map((t) => t) ?? [];
 
       operations.push({
-        name: operation.operationId!,
+        name: formatIdentifier(operation.operationId!),
         decorators: [
           ...getExtensions(operation),
           { name: "route", args: [route] },
@@ -57,7 +58,7 @@ function transformOperationParameter(
   }
 
   return {
-    name: parameter.name,
+    name: formatIdentifier(parameter.name),
     doc: parameter.description,
     decorators: getParameterDecorators(parameter),
     isOptional: !parameter.required,
