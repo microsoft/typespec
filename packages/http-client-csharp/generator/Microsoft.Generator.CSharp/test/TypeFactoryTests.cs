@@ -9,7 +9,8 @@ namespace Microsoft.Generator.CSharp.Tests
 {
     public class TypeFactoryTests
     {
-        public TypeFactoryTests()
+        [SetUp]
+        public void SetUp()
         {
             MockCodeModelPlugin.LoadMockPlugin();
         }
