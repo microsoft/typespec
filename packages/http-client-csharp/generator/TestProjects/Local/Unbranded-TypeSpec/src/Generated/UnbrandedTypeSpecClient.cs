@@ -148,32 +148,32 @@ namespace UnbrandedTypeSpec
         /// <summary> Return hi again. </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
-        /// <param name="RoundTripModel"> this is a roundtrip model. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="RoundTripModel"/> is null. </exception>
+        /// <param name="action"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult HelloAgain(string p1, string p2, RoundTripModel RoundTripModel)
+        public virtual ClientResult HelloAgain(string p1, string p2, RoundTripModel action)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
-            Argument.AssertNotNull(RoundTripModel, nameof(RoundTripModel));
+            Argument.AssertNotNull(action, nameof(action));
 
-            ClientResult result = HelloAgain(p1, p2, RoundTripModel, null);
+            ClientResult result = HelloAgain(p1, p2, action, null);
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
         /// <summary> Return hi again. </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
-        /// <param name="RoundTripModel"> this is a roundtrip model. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="RoundTripModel"/> is null. </exception>
+        /// <param name="action"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> HelloAgainAsync(string p1, string p2, RoundTripModel RoundTripModel)
+        public virtual async Task<ClientResult> HelloAgainAsync(string p1, string p2, RoundTripModel action)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
-            Argument.AssertNotNull(RoundTripModel, nameof(RoundTripModel));
+            Argument.AssertNotNull(action, nameof(action));
 
-            ClientResult result = await HelloAgainAsync(p1, p2, RoundTripModel, null).ConfigureAwait(false);
+            ClientResult result = await HelloAgainAsync(p1, p2, action, null).ConfigureAwait(false);
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
@@ -228,32 +228,32 @@ namespace UnbrandedTypeSpec
         /// <summary> Return hi again. </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
-        /// <param name="RoundTripModel"> this is a roundtrip model. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="RoundTripModel"/> is null. </exception>
+        /// <param name="action"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult NoContentType(string p1, string p2, RoundTripModel RoundTripModel)
+        public virtual ClientResult NoContentType(string p1, string p2, RoundTripModel action)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
-            Argument.AssertNotNull(RoundTripModel, nameof(RoundTripModel));
+            Argument.AssertNotNull(action, nameof(action));
 
-            ClientResult result = NoContentType(p1, p2, RoundTripModel, null);
+            ClientResult result = NoContentType(p1, p2, action, null);
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
         /// <summary> Return hi again. </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
-        /// <param name="RoundTripModel"> this is a roundtrip model. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="RoundTripModel"/> is null. </exception>
+        /// <param name="action"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> NoContentTypeAsync(string p1, string p2, RoundTripModel RoundTripModel)
+        public virtual async Task<ClientResult> NoContentTypeAsync(string p1, string p2, RoundTripModel action)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
-            Argument.AssertNotNull(RoundTripModel, nameof(RoundTripModel));
+            Argument.AssertNotNull(action, nameof(action));
 
-            ClientResult result = await NoContentTypeAsync(p1, p2, RoundTripModel, null).ConfigureAwait(false);
+            ClientResult result = await NoContentTypeAsync(p1, p2, action, null).ConfigureAwait(false);
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
@@ -342,26 +342,26 @@ namespace UnbrandedTypeSpec
         }
 
         /// <summary> Create with literal value. </summary>
-        /// <param name="Thing"> A model with a few properties of literal types. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="Thing"/> is null. </exception>
+        /// <param name="body"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult CreateLiteral(Thing Thing)
+        public virtual ClientResult CreateLiteral(Thing body)
         {
-            Argument.AssertNotNull(Thing, nameof(Thing));
+            Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = CreateLiteral(Thing, null);
+            ClientResult result = CreateLiteral(body, null);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> Create with literal value. </summary>
-        /// <param name="Thing"> A model with a few properties of literal types. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="Thing"/> is null. </exception>
+        /// <param name="body"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> CreateLiteralAsync(Thing Thing)
+        public virtual async Task<ClientResult> CreateLiteralAsync(Thing body)
         {
-            Argument.AssertNotNull(Thing, nameof(Thing));
+            Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = await CreateLiteralAsync(Thing, null).ConfigureAwait(false);
+            ClientResult result = await CreateLiteralAsync(body, null).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -562,26 +562,26 @@ namespace UnbrandedTypeSpec
         }
 
         /// <summary> top level patch. </summary>
-        /// <param name="Thing"> A model with a few properties of literal types. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="Thing"/> is null. </exception>
+        /// <param name="body"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult PatchAction(Thing Thing)
+        public virtual ClientResult PatchAction(Thing body)
         {
-            Argument.AssertNotNull(Thing, nameof(Thing));
+            Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = PatchAction(Thing, null);
+            ClientResult result = PatchAction(body, null);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> top level patch. </summary>
-        /// <param name="Thing"> A model with a few properties of literal types. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="Thing"/> is null. </exception>
+        /// <param name="body"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> PatchActionAsync(Thing Thing)
+        public virtual async Task<ClientResult> PatchActionAsync(Thing body)
         {
-            Argument.AssertNotNull(Thing, nameof(Thing));
+            Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = await PatchActionAsync(Thing, null).ConfigureAwait(false);
+            ClientResult result = await PatchActionAsync(body, null).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -950,26 +950,26 @@ namespace UnbrandedTypeSpec
         }
 
         /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
-        /// <param name="Thing"> A model with a few properties of literal types. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="Thing"/> is null. </exception>
+        /// <param name="body"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult InternalProtocol(Thing Thing)
+        public virtual ClientResult InternalProtocol(Thing body)
         {
-            Argument.AssertNotNull(Thing, nameof(Thing));
+            Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = InternalProtocol(Thing, null);
+            ClientResult result = InternalProtocol(body, null);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
-        /// <param name="Thing"> A model with a few properties of literal types. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="Thing"/> is null. </exception>
+        /// <param name="body"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> InternalProtocolAsync(Thing Thing)
+        public virtual async Task<ClientResult> InternalProtocolAsync(Thing body)
         {
-            Argument.AssertNotNull(Thing, nameof(Thing));
+            Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = await InternalProtocolAsync(Thing, null).ConfigureAwait(false);
+            ClientResult result = await InternalProtocolAsync(body, null).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 

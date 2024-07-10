@@ -18,19 +18,18 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="requiredUnion"> required Union. </param>
         /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/>, <paramref name="requiredBadDescription"/> or <paramref name="requiredNullableList"/> is null. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/> or <paramref name="requiredBadDescription"/> is null. </exception>
         public Thing(string name, BinaryData requiredUnion, string requiredBadDescription, IEnumerable<int> requiredNullableList)
         {
             Argument.AssertNotNull(name, nameof(name));
             Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
             Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
-            Argument.AssertNotNull(requiredNullableList, nameof(requiredNullableList));
 
             Name = name;
             RequiredUnion = requiredUnion;
             RequiredBadDescription = requiredBadDescription;
             OptionalNullableList = new ChangeTrackingList<int>();
-            RequiredNullableList = requiredNullableList.ToList();
+            RequiredNullableList = requiredNullableList?.ToList();
         }
 
         /// <summary> name of the Thing. </summary>
@@ -108,10 +107,10 @@ namespace UnbrandedTypeSpec.Models
         public string RequiredBadDescription { get; set; }
 
         /// <summary> optional nullable collection. </summary>
-        public IList<int> OptionalNullableList { get; }
+        public IList<int> OptionalNullableList { get; set; }
 
         /// <summary> required nullable collection. </summary>
-        public IList<int> RequiredNullableList { get; }
+        public IList<int> RequiredNullableList { get; set; }
 
         /// <summary> the derived model with its base without required properties. </summary>
         public ModelWithBaseModelWithoutRequired BaseWithoutRequired { get; set; }

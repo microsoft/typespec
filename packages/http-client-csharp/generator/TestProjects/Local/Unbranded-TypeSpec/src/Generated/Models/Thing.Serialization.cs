@@ -100,21 +100,35 @@ namespace UnbrandedTypeSpec.Models
             writer.WriteStringValue(RequiredBadDescription);
             if (Optional.IsCollectionDefined(OptionalNullableList))
             {
-                writer.WritePropertyName("optionalNullableList"u8);
+                if (OptionalNullableList != null)
+                {
+                    writer.WritePropertyName("optionalNullableList"u8);
+                    writer.WriteStartArray();
+                    foreach (var item in OptionalNullableList)
+                    {
+                        writer.WriteNumberValue(item);
+                    }
+                    writer.WriteEndArray();
+                }
+                else
+                {
+                    writer.WriteNull("optionalNullableList"u8);
+                }
+            }
+            if (RequiredNullableList != null && Optional.IsCollectionDefined(RequiredNullableList))
+            {
+                writer.WritePropertyName("requiredNullableList"u8);
                 writer.WriteStartArray();
-                foreach (var item in OptionalNullableList)
+                foreach (var item in RequiredNullableList)
                 {
                     writer.WriteNumberValue(item);
                 }
                 writer.WriteEndArray();
             }
-            writer.WritePropertyName("requiredNullableList"u8);
-            writer.WriteStartArray();
-            foreach (var item in RequiredNullableList)
+            else
             {
-                writer.WriteNumberValue(item);
+                writer.WriteNull("requiredNullableList"u8);
             }
-            writer.WriteEndArray();
             if (Optional.IsDefined(BaseWithoutRequired))
             {
                 writer.WritePropertyName("baseWithoutRequired"u8);
@@ -273,6 +287,11 @@ namespace UnbrandedTypeSpec.Models
                 }
                 if (prop.NameEquals("requiredNullableList"u8))
                 {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        requiredNullableList = new ChangeTrackingList<int>();
+                        continue;
+                    }
                     List<int> array = new List<int>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
