@@ -50,6 +50,9 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ValueExpression ThrowExpression(ValueExpression expression) => new KeywordExpression("throw", expression);
 
         public static ValueExpression NullCoalescing(ValueExpression left, ValueExpression right) => new BinaryOperatorExpression("??", left, right);
+
+        public static ScopedApi<T> NullConditional<T>(this ScopedApi<T> valueExpression, bool nullConditional = false) => nullConditional ? new NullConditionalExpression(valueExpression.Original).As<T>() : valueExpression;
+
         // TO-DO: Migrate remaining class as part of output classes migration : https://github.com/Azure/autorest.csharp/issues/4198
         //public static ValueExpression EnumValue(EnumType type, EnumTypeValue value) => new MemberExpression(new TypeReference(type.Type), value.Declaration.Name);
         public static ValueExpression FrameworkEnumValue<TEnum>(TEnum value) where TEnum : struct, Enum => new MemberExpression(TypeReferenceExpression.FromType(typeof(TEnum)), Enum.GetName(value)!);

@@ -13,6 +13,20 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
     public class KnownValueExpressionsTests
     {
         [Test]
+        public void NullConditionalOperatorNotChangeOriginalType()
+        {
+            VariableExpression original = new VariableExpression(typeof(int), "foo");
+
+            using CodeWriter writer = new();
+            var nullableExpression = original.As<int>().NullConditional(true);
+            nullableExpression.Write(writer);
+
+            Assert.NotNull(nullableExpression);
+            Assert.IsTrue(typeof(ScopedApi<int>) == nullableExpression.GetType());
+            Assert.AreEqual("foo?", writer.ToString(false));
+        }
+
+        [Test]
         public void BinaryOperatorExpressionWithOrOperator()
         {
             var left = ValueExpression.Empty;
