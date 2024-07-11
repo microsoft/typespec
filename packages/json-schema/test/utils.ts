@@ -15,7 +15,7 @@ export async function getHostForCadlFile(contents: string, decorators?: Record<s
     contents = `import "./dec.js";\n` + contents;
   }
   host.addTypeSpecFile("main.cadl", contents);
-  await host.compile("main.cadl", {
+  await host.compileAndDiagnose("main.cadl", {
     noEmit: false,
     outputDir: "cadl-output",
   });
