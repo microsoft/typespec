@@ -15,15 +15,15 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         [Test]
         public void NullConditionalOperatorNotChangeOriginalType()
         {
-            VariableExpression original = new VariableExpression(typeof(int), "foo");
+            var original = new VariableExpression(typeof(BinaryData), "foo");
 
+            var nullableExpression = original.As<BinaryData>().NullConditional(true);
+            var result = nullableExpression.ToMemory();
             using CodeWriter writer = new();
-            var nullableExpression = original.As<int>().NullConditional(true);
-            nullableExpression.Write(writer);
+            result.Write(writer);
 
-            Assert.NotNull(nullableExpression);
-            Assert.IsTrue(typeof(ScopedApi<int>) == nullableExpression.GetType());
-            Assert.AreEqual("foo?", writer.ToString(false));
+            Assert.AreEqual(typeof(ScopedApi<BinaryData>), nullableExpression.GetType());
+            Assert.AreEqual("foo?.ToMemory()", writer.ToString(false));
         }
 
         [Test]
