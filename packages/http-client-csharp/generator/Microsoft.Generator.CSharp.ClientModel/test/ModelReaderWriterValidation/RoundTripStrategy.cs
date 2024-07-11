@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.IO;
 using System.Text;
@@ -160,6 +161,46 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
         {
             var reader = new Utf8JsonReader(new BinaryData(Encoding.UTF8.GetBytes(payload)));
             return ((IJsonModel<object>)model).Create(ref reader, options);
+        }
+    }
+
+    public class CastStrategy<T> : RoundTripStrategy<T> where T : IPersistableModel<T>
+    {
+        public override bool IsExplicitJsonWrite => false;
+        public override bool IsExplicitJsonRead => false;
+
+        private readonly Func<T, BinaryContent> _toBinaryContent;
+        private readonly Func<ClientResult, T> _fromResult;
+
+        public CastStrategy(Func<T, BinaryContent> toRequestContent, Func<ClientResult, T> fromResult)
+        {
+            _toBinaryContent = toRequestContent;
+            _fromResult = fromResult;
+        }
+
+        public override BinaryData Write(T model, ModelReaderWriterOptions options)
+        {
+            BinaryContent content = _toBinaryContent(model);
+            content.TryComputeLength(out var length);
+            using var stream = new MemoryStream((int)length);
+            content.WriteTo(stream, default);
+            if (stream.Position > int.MaxValue)
+            {
+                return BinaryData.FromStream(stream);
+            }
+            else
+            {
+                return new BinaryData(stream.GetBuffer().AsMemory(0, (int)stream.Position));
+            }
+        }
+
+        public override object Read(string payload, object model, ModelReaderWriterOptions options)
+        {
+            var responseWithBody = new MockPipelineResponse(200);
+            responseWithBody.SetContent(payload);
+
+            ClientResult result = ClientResult.FromResponse(responseWithBody);
+            return _fromResult(result);
         }
     }
 }

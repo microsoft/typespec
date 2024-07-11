@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -14,7 +13,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
     {
         public PropertyProviderTests()
         {
-            MockCodeModelPlugin.LoadMockPlugin();
+            MockHelpers.LoadMockPlugin();
         }
 
         [Test]
