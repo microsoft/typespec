@@ -56,7 +56,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         public ValueExpression InvokeGetType() => Invoke(nameof(GetType));
         public ValueExpression InvokeGetHashCode() => Invoke(nameof(GetHashCode));
 
-        public ScopedApi<bool> InvokeEquals(ValueExpression other) => new(Invoke(nameof(Equals), other));
+        public ScopedApi<bool> InvokeEquals(ValueExpression other) => Invoke(nameof(Equals), other).As<bool>();
 
         public ValueExpression Property(string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(this) : this, propertyName);
@@ -90,16 +90,16 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public CastExpression CastTo(CSharpType to) => new CastExpression(this, to);
 
-        public ScopedApi<bool> GreaterThan(ValueExpression other) => new(new BinaryOperatorExpression(">", this, other));
-        public ScopedApi<bool> GreaterThanOrEqual(ValueExpression other) => new(new BinaryOperatorExpression(">=", this, other));
+        public ScopedApi<bool> GreaterThan(ValueExpression other) => new BinaryOperatorExpression(">", this, other).As<bool>();
+        public ScopedApi<bool> GreaterThanOrEqual(ValueExpression other) => new BinaryOperatorExpression(">=", this, other).As<bool>();
 
-        public ScopedApi<bool> LessThan(ValueExpression other) => new(new BinaryOperatorExpression("<", this, other));
+        public ScopedApi<bool> LessThan(ValueExpression other) => new BinaryOperatorExpression("<", this, other).As<bool>();
 
-        public ScopedApi<bool> Equal(ValueExpression other) => new(new BinaryOperatorExpression("==", this, other));
+        public ScopedApi<bool> Equal(ValueExpression other) => new BinaryOperatorExpression("==", this, other).As<bool>();
 
-        public ScopedApi<bool> NotEqual(ValueExpression other) => new(new BinaryOperatorExpression("!=", this, other));
+        public ScopedApi<bool> NotEqual(ValueExpression other) => new BinaryOperatorExpression("!=", this, other).As<bool>();
 
-        public ScopedApi<bool> Is(ValueExpression other) => new(new BinaryOperatorExpression("is", this, other));
+        public ScopedApi<bool> Is(ValueExpression other) => new BinaryOperatorExpression("is", this, other).As<bool>();
 
         public UnaryOperatorExpression Increment() => new UnaryOperatorExpression("++", this, true);
 
