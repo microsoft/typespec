@@ -1548,7 +1548,14 @@ export function createChecker(program: Program): Checker {
             ? finalMap.get(param.constraint.type)!
             : param.constraint;
 
-        if (isType(type) && param.constraint?.valueType) {
+        if (
+          isType(type) &&
+          param.constraint?.valueType &&
+          !(
+            param.constraint.type &&
+            ignoreDiagnostics(isTypeAssignableTo(type, param.constraint.type, type))
+          )
+        ) {
           const converted = legacy_tryTypeToValueCast(
             type,
             { kind: "argument", type: param.constraint.valueType },
