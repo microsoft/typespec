@@ -282,7 +282,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 GenericArguments: [_t],
                 Description: null, ReturnDescription: null);
 
-            var value = new ScopedApi(_t, valueParameter);
+            var value = valueParameter.As(_t);
 
             var v = new VariableExpression(_t, "v");
             var convertToStringExpression = TypeFormattersSnippets.ConvertToString(v, hasFormat ? formatParameter : (ValueExpression?)null);

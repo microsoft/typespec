@@ -21,9 +21,9 @@ namespace Microsoft.Generator.CSharp.Snippets
             => streamExpression.Invoke(nameof(Stream.CopyTo), destination).Terminate();
 
         public static ScopedApi<long> Position(this ScopedApi<Stream> streamExpression)
-            => new(streamExpression.Property(nameof(Stream.Position)));
+            => streamExpression.Property(nameof(Stream.Position)).As<long>();
 
         public static ScopedApi<byte[]> GetBuffer(this ScopedApi<Stream> streamExpression)
-            => new(streamExpression.Invoke(nameof(MemoryStream.GetBuffer), [], null, false));
+            => streamExpression.Invoke(nameof(MemoryStream.GetBuffer), [], null, false).As<byte[]>();
     }
 }
