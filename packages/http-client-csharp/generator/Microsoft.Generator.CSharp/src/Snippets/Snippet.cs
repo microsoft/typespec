@@ -48,7 +48,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ValueExpression Double(double value) => Literal(value);
         public static ScopedApi<T> Checked<T>(ScopedApi<T> value) where T : struct => new KeywordExpression("checked", value).As<T>();
 
-        public static ValueExpression Nameof(ValueExpression expression) => new InvokeMethodExpression(null, "nameof", new[] { expression }, null, false);
+        public static ValueExpression Nameof(ValueExpression expression) => new InvokeMethodExpression(null, "nameof", null, new[] { expression }, null, false);
         public static ValueExpression ThrowExpression(ValueExpression expression) => new KeywordExpression("throw", expression);
 
         public static ValueExpression NullCoalescing(ValueExpression left, ValueExpression right) => new BinaryOperatorExpression("??", left, right);
@@ -75,7 +75,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement Break => new KeywordExpression("break", null).Terminate();
         public static MethodBodyStatement Return(ValueExpression expression) => new KeywordExpression("return", expression).Terminate();
         public static MethodBodyStatement Return() => new KeywordExpression("return", null).Terminate();
-        public static MethodBodyStatement Throw(ValueExpression expression) => new KeywordExpression("throw", expression).Terminate();
+        public static MethodBodyStatement Throw(ValueExpression? expression = default) => new KeywordExpression("throw", expression).Terminate();
 
         public static ValueExpression ArrayEmpty(CSharpType arrayItemType)
             => Static<Array>().Invoke(nameof(Array.Empty), [], [arrayItemType], false);
@@ -90,16 +90,16 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         // TO-DO: Migrate code from autorest as part of output classes migration : https://github.com/Azure/autorest.csharp/issues/4198
         public static InvokeMethodExpression Invoke(this ParameterProvider parameter, string methodName, ValueExpression arg)
-            => new InvokeMethodExpression(parameter, methodName, [arg], null, false);
+            => new InvokeMethodExpression(parameter, methodName, null, [arg], null, false);
 
         public static InvokeMethodExpression Invoke(this ParameterProvider parameter, string methodName, CSharpType? extensionType = null)
-            => new InvokeMethodExpression(parameter, methodName, Array.Empty<ValueExpression>(), null, false, ExtensionType: extensionType);
+            => new InvokeMethodExpression(parameter, methodName, null, Array.Empty<ValueExpression>(), null, false, ExtensionType: extensionType);
 
         public static ValueExpression Property(this ParameterProvider parameter, string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(parameter) : parameter, propertyName);
 
         public static ValueExpression Invoke(this FieldProvider field, string methodName, IEnumerable<ValueExpression> parameters, bool isAsync, bool configureAwait)
-            => new InvokeMethodExpression(field, methodName, [.. parameters], null, isAsync, configureAwait);
+            => new InvokeMethodExpression(field, methodName, null, [.. parameters], null, isAsync, configureAwait);
 
         public static ScopedApi<bool> NotEqual(this ParameterProvider parameter, ValueExpression other)
             => new BinaryOperatorExpression("!=", parameter, other).As<bool>();
