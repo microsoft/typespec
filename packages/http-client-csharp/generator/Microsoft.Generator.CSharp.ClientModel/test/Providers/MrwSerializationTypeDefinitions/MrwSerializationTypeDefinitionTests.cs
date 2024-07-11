@@ -419,20 +419,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             var derivedModel = new InputModelType("mockDerivedModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip,
                 [], baseModel, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
             ((List<InputModelType>)baseModel.DerivedModels).Add(derivedModel);
-            //var mockBaseModelTypeProvider = new ModelProvider(baseModel);
             var derivedType = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(derivedModel);
             var baseType = derivedType.BaseType;
             var mockDerivedModelTypeProvider = ClientModelPlugin.Instance.TypeFactory.GetProvider(derivedType)!;
             Assert.IsNotNull(mockDerivedModelTypeProvider);
-            //var baseSerializationProviders = mockBaseModelTypeProvider.SerializationProviders;
             var derivedSerializationProviders = mockDerivedModelTypeProvider.SerializationProviders;
 
-            //Assert.AreEqual(1, baseSerializationProviders.Count);
             Assert.AreEqual(1, derivedSerializationProviders.Count);
 
-            //Assert.IsInstanceOf<MrwSerializationTypeDefinition>(baseSerializationProviders[0]);
             Assert.IsInstanceOf<MrwSerializationTypeDefinition>(derivedSerializationProviders[0]);
-            //var baseSerializationProvider = (MrwSerializationTypeDefinition)baseSerializationProviders[0];
             var derivedSerializationProvider = (MrwSerializationTypeDefinition)derivedSerializationProviders[0];
 
             var method = derivedSerializationProvider.BuildPersistableModelCreateCoreMethod();
