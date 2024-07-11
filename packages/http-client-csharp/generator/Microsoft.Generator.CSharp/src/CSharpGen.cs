@@ -33,6 +33,12 @@ namespace Microsoft.Generator.CSharp
             Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));
             List<Task> generateFilesTasks = new();
 
+            // visit the entire library before generating files
+            foreach (var visitor in output.GetOutputLibraryVisitors() ?? [])
+            {
+                visitor.Visit(output);
+            }
+
             foreach (var outputType in output.TypeProviders)
             {
                 var writer = CodeModelPlugin.Instance.GetWriter(outputType);

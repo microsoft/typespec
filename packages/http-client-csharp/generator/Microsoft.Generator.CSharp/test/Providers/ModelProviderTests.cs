@@ -58,7 +58,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 yield return new TestCaseData(
                     new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
                     new CSharpType(typeof(IList<string>), true),
-                    false);
+                    true);
                 // dictionary property
                 yield return new TestCaseData(
                     new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
@@ -68,7 +68,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 yield return new TestCaseData(
                     new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
                     new CSharpType(typeof(IDictionary<string, string>), true),
-                    false);
+                    true);
                 // primitive type property
                 yield return new TestCaseData(
                     new InputModelProperty("prop1", "prop1", "public", new InputPrimitiveType(InputPrimitiveTypeKind.String), false, false, false),
@@ -83,7 +83,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 yield return new TestCaseData(
                     new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
                     new CSharpType(typeof(ReadOnlyMemory<>)),
-                    false);
+                    true);
             }
         }
 

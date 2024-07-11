@@ -8,9 +8,15 @@ namespace Microsoft.Generator.CSharp.Tests
 {
     internal class MockTypeProvider : TypeProvider
     {
-        public static readonly TypeProvider Empty = new MockTypeProvider();
+        protected override string BuildRelativeFilePath()
+        {
+            throw new NotImplementedException();
+        }
 
-        public override string RelativeFilePath => throw new NotImplementedException();
-        public override string Name => throw new NotImplementedException();
+        protected override string BuildName()
+        {
+            throw new NotImplementedException();
+        }
+        public static readonly TypeProvider Empty = new MockTypeProvider();
     }
 }

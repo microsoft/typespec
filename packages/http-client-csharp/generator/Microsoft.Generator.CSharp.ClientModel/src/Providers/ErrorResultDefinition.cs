@@ -36,9 +36,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return TypeSignatureModifiers.Internal;
         }
 
-        public override string Name => "ErrorResult";
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+        protected override string BuildName() => "ErrorResult";
 
         protected override CSharpType[] GetTypeArguments()
         {
