@@ -178,19 +178,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
             var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
-            var body = new InvokeMethodExpression(null, _appendPathMethodName, null, [convertToStringExpression, escapeParameter], null, false);
+            var body = new InvokeMethodExpression(null, _appendPathMethodName, [convertToStringExpression, escapeParameter]);
 
             return new(signature, body, this);
         }
 
         private const string _appendQueryMethodName = "AppendQuery";
+        private MethodSignature? _appendQueryMethodSignature;
         private MethodProvider[] BuildAppendQueryMethods()
         {
             var nameParameter = new ParameterProvider("name", $"The name.", typeof(string));
             var valueParameter = new ParameterProvider("value", $"The value.", typeof(string));
             var escapeParameter = new ParameterProvider("escape", $"The escape.", typeof(bool));
 
-            var signature = new MethodSignature(
+            _appendQueryMethodSignature = new MethodSignature(
                 Name: _appendQueryMethodName,
                 Modifiers: MethodSignatureModifiers.Public,
                 Parameters: [nameParameter, valueParameter, escapeParameter],
@@ -218,7 +219,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             return
                 [
-                new MethodProvider(signature, body, this),
+                new MethodProvider(_appendQueryMethodSignature, body, this),
                 BuildAppendQueryMethod(typeof(bool), false, false),
                 BuildAppendQueryMethod(typeof(float), true, false),
                 BuildAppendQueryMethod(typeof(DateTimeOffset), true, true),
@@ -250,7 +251,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
             var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
-            var body = new InvokeMethodExpression(null, _appendQueryMethodName, null, [nameParameter, convertToStringExpression, escapeParameter], null, false);
+            var body = new InvokeMethodExpression(null, _appendQueryMethodName, [nameParameter, convertToStringExpression, escapeParameter]);
 
             return new(signature, body, this);
         }
@@ -290,7 +291,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var body = new[]
             {
                 Declare("stringValues", value.Select(selector), out var stringValues),
-               new InvokeMethodExpression(null, _appendQueryMethodName, null, [nameParameter, StringSnippets.Join(delimiterParameter, stringValues), escapeParameter], null, false).Terminate()
+               new InvokeMethodExpression(null, _appendQueryMethodName, [nameParameter, StringSnippets.Join(delimiterParameter, stringValues), escapeParameter]).Terminate()
         };
 
             return new(signature, body, this);

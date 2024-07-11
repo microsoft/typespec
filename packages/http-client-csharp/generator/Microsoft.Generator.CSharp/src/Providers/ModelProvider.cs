@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Providers
     {
         private readonly InputModelType _inputModel;
 
-        protected internal override FormattableString Description { get;}
+        protected override FormattableString Description { get;}
 
         private readonly bool _isStruct;
         private readonly TypeSignatureModifiers _declarationModifiers;

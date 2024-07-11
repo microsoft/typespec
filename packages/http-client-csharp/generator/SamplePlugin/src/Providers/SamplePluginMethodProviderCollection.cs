@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.ClientModel;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
@@ -22,19 +23,13 @@ namespace SamplePlugin.Providers
 
         protected override IReadOnlyList<MethodProvider> BuildMethods()
         {
-            var methods = new List<MethodProvider>();
-
             // Add the base methods.
-            methods.AddRange(base.BuildMethods());
-
-            // Add an expression bodied method to demonstrate that we can still inject tracing in these.
-
-            methods.Add(GetExpressionBodiedTestMethod());
+            var methods = base.BuildMethods();
 
             foreach (var method in methods)
             {
                 // Only add tracing to protocol methods. Convenience methods will call into protocol methods.
-                if (method is not ScmMethodProvider { IsProtocol: true })
+                if (!method.IsServiceCall())
                 {
                     continue;
                 }
@@ -62,29 +57,7 @@ namespace SamplePlugin.Providers
                 method.Update(bodyStatements: statements);
             }
 
-            return methods;
-        }
-
-        private MethodProvider GetExpressionBodiedTestMethod() =>
-            new ScmMethodProvider(
-                new MethodSignature(
-                    $"TestExpressionBodyConversion{ToTitleCase(Operation.Name)}",
-                    $"Test expression body conversion.",
-                    MethodSignatureModifiers.Public,
-                    typeof(int),
-                    $"Returns an int",
-                    Array.Empty<ParameterProvider>()),
-                Literal(42),
-                EnclosingType) { IsProtocol = true };
-
-        private string ToTitleCase(string name)
-        {
-            if (char.IsLetter(name[0]))
-            {
-                return char.ToUpper(name[0]) + name.Substring(1);
-            }
-
-            return name;
+            return [..methods];
         }
 
         private void ConvertToBodyStatementMethodProvider(MethodProvider method)
