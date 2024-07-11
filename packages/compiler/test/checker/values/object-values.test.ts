@@ -163,6 +163,12 @@ describe("(LEGACY) cast model to object value", () => {
     strictEqual(b.value, "bar");
   });
 
+  it("doesn't cast or emit diagnostic if constraint also allow models", async () => {
+    const entity = await compileValueOrType(`{a: string} | valueof {a: string}`, `{a: "b"}`);
+    strictEqual(entity.entityKind, "Type");
+    strictEqual(entity.kind, "Model");
+  });
+
   it("emit a warning diagnostic", async () => {
     const { diagnostics, pos } = await diagnoseUsage(`
       model Test<T extends valueof {a: string}> {}
