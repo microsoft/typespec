@@ -184,14 +184,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         private const string _appendQueryMethodName = "AppendQuery";
-        private MethodSignature? _appendQueryMethodSignature;
         private MethodProvider[] BuildAppendQueryMethods()
         {
             var nameParameter = new ParameterProvider("name", $"The name.", typeof(string));
             var valueParameter = new ParameterProvider("value", $"The value.", typeof(string));
             var escapeParameter = new ParameterProvider("escape", $"The escape.", typeof(bool));
 
-            _appendQueryMethodSignature = new MethodSignature(
+            var signature = new MethodSignature(
                 Name: _appendQueryMethodName,
                 Modifiers: MethodSignatureModifiers.Public,
                 Parameters: [nameParameter, valueParameter, escapeParameter],
@@ -219,7 +218,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             return
                 [
-                new MethodProvider(_appendQueryMethodSignature, body, this),
+                new MethodProvider(signature, body, this),
                 BuildAppendQueryMethod(typeof(bool), false, false),
                 BuildAppendQueryMethod(typeof(float), true, false),
                 BuildAppendQueryMethod(typeof(DateTimeOffset), true, true),
@@ -283,7 +282,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 GenericArguments: [_t],
                 Description: null, ReturnDescription: null);
 
-            var value = new ScopedApi(_t, valueParameter);
+            var value = valueParameter.As(_t);
 
             var v = new VariableExpression(_t, "v");
             var convertToStringExpression = TypeFormattersSnippets.ConvertToString(v, hasFormat ? formatParameter : (ValueExpression?)null);

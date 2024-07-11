@@ -14,6 +14,6 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ScopedApi<int> Multiply(this ScopedApi<int> intExpression, ScopedApi<int> value) => intExpression.Operator("*", value);
         public static ScopedApi<int> DivideBy(this ScopedApi<int> intExpression, ScopedApi<int> value) => intExpression.Operator("/", value);
 
-        private static ScopedApi<int> Operator(this ScopedApi<int> intExpression, string op, ScopedApi<int> other) => new(new BinaryOperatorExpression(op, intExpression, other));
+        private static ScopedApi<int> Operator(this ScopedApi<int> intExpression, string op, ScopedApi<int> other) => new BinaryOperatorExpression(op, intExpression, other).As<int>();
     }
 }

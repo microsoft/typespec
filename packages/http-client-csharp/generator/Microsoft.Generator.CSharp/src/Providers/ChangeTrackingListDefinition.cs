@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly CSharpType _iListOfT;
         private readonly CSharpType _iReadOnlyListOfT;
 
-        private ScopedApi<bool> IsUndefined { get; } = new(This.Property("IsUndefined"));
+        private ScopedApi<bool> IsUndefined { get; } = This.Property("IsUndefined").As<bool>();
         private IndexableExpression EnsureList { get; init; }
 
         public ChangeTrackingListDefinition()

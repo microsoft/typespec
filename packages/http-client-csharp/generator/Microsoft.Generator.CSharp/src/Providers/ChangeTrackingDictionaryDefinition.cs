@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly MethodSignature _ensureDictionarySignature;
 
         private IndexableExpression EnsureDictionary { get; init; }
-        private ScopedApi<bool> IsUndefined { get; } = new(This.Property("IsUndefined"));
+        private ScopedApi<bool> IsUndefined { get; } = This.Property("IsUndefined").As<bool>();
 
         public ChangeTrackingDictionaryDefinition()
         {

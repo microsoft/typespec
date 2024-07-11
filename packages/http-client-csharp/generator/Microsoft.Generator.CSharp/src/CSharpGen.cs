@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Generator.CSharp
 {
-    internal sealed class  CSharpGen
+    internal sealed class CSharpGen
     {
         private const string ConfigurationFileName = "Configuration.json";
         private const string CodeModelFileName = "tspCodeModel.json";
@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp
             List<Task> generateFilesTasks = new();
 
             // visit the entire library before generating files
-            foreach (var visitor in output.GetOutputLibraryVisitors())
+            foreach (var visitor in output.GetOutputLibraryVisitors() ?? [])
             {
                 visitor.Visit(output);
             }

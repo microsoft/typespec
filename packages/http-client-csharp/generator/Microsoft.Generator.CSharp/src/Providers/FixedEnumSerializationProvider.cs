@@ -104,9 +104,10 @@ namespace Microsoft.Generator.CSharp.Providers
                     // StringComparer.OrdinalIgnoreCase.Equals(value, "<the value>")
                     // or
                     // string.Equals(value, "<the value>", StringComparison.InvariantCultureIgnoreCase)
-                    condition = new(enumValue.Value is string strValue && strValue.All(char.IsAscii)
+                    condition = (enumValue.Value is string strValue && strValue.All(char.IsAscii)
                                 ? stringComparer.Invoke(nameof(IEqualityComparer<string>.Equals), value, Literal(strValue))
-                                : Static(_enumType.ValueType).Invoke(nameof(object.Equals), [value, Literal(enumValue.Value), FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)]));
+                                : Static(_enumType.ValueType).Invoke(nameof(Equals), [value, Literal(enumValue.Value), FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)]))
+                                .As<bool>();
                 }
                 else
                 {
