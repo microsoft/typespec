@@ -22,7 +22,7 @@ namespace Microsoft.Generator.CSharp.Snippets
             return Static<BinaryData>().Invoke(methodName, [stream], null, callAsAsync: async).As<BinaryData>();
         }
 
-        public static ValueExpression ToMemory(this ScopedApi<BinaryData> binaryData) => binaryData.Invoke(nameof(BinaryData.ToMemory));
+        public static ScopedApi<ReadOnlyMemory<byte>> ToMemory(this ScopedApi<BinaryData> binaryData) => new(binaryData.Invoke(nameof(BinaryData.ToMemory)));
 
         public static ScopedApi<Stream> ToStream(this ScopedApi<BinaryData> binaryData) => new(binaryData.Invoke(nameof(BinaryData.ToStream)));
 

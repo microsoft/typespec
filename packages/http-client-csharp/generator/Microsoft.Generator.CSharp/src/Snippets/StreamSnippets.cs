@@ -20,10 +20,10 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement CopyTo(this ScopedApi<Stream> streamExpression, ScopedApi<Stream> destination)
             => streamExpression.Invoke(nameof(Stream.CopyTo), destination).Terminate();
 
-        public static ValueExpression Position(this ScopedApi<Stream> streamExpression)
-            => streamExpression.Property(nameof(Stream.Position));
+        public static ScopedApi<long> Position(this ScopedApi<Stream> streamExpression)
+            => new(streamExpression.Property(nameof(Stream.Position)));
 
-        public static ValueExpression GetBuffer(this ScopedApi<Stream> streamExpression)
-            => streamExpression.Invoke(nameof(MemoryStream.GetBuffer), [], null, false);
+        public static ScopedApi<byte[]> GetBuffer(this ScopedApi<Stream> streamExpression)
+            => new(streamExpression.Invoke(nameof(MemoryStream.GetBuffer), [], null, false));
     }
 }
