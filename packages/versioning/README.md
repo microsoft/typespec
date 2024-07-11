@@ -118,7 +118,7 @@ model Foo {
   name: string;
 
   @madeOptional(Versions.v2)
-  nickname: string;
+  nickname?: string;
 }
 ```
 
