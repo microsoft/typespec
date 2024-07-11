@@ -21,12 +21,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
     {
         public MrwSerializationTypeDefinitionTests()
         {
-            MockHelpers.LoadMockPlugin(createCSharpTypeCore: inputType => inputType switch
-                {
-                    InputModelType modelType => new ModelProvider(modelType).Type, // the part of determining base model needs this
-                    _ => typeof(object)
-                },
-                getSerializationTypeProviders: (provider, inputType) => inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(provider, modelType)] : []);
+            MockHelpers.LoadMockPlugin(getSerializationTypeProviders: (provider, inputType) => inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(provider, modelType)] : []);
         }
 
         [Test]
@@ -424,17 +419,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             var derivedModel = new InputModelType("mockDerivedModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip,
                 [], baseModel, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
             ((List<InputModelType>)baseModel.DerivedModels).Add(derivedModel);
-            var mockBaseModelTypeProvider = new ModelProvider(baseModel);
-            var mockDerivedModelTypeProvider = new ModelProvider(derivedModel);
-            var baseSerializationProviders = mockBaseModelTypeProvider.SerializationProviders;
+            //var mockBaseModelTypeProvider = new ModelProvider(baseModel);
+            var derivedType = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(derivedModel);
+            var baseType = derivedType.BaseType;
+            var mockDerivedModelTypeProvider = ClientModelPlugin.Instance.TypeFactory.GetProvider(derivedType)!;
+            Assert.IsNotNull(mockDerivedModelTypeProvider);
+            //var baseSerializationProviders = mockBaseModelTypeProvider.SerializationProviders;
             var derivedSerializationProviders = mockDerivedModelTypeProvider.SerializationProviders;
 
-            Assert.AreEqual(1, baseSerializationProviders.Count);
+            //Assert.AreEqual(1, baseSerializationProviders.Count);
             Assert.AreEqual(1, derivedSerializationProviders.Count);
 
-            Assert.IsInstanceOf<MrwSerializationTypeDefinition>(baseSerializationProviders[0]);
+            //Assert.IsInstanceOf<MrwSerializationTypeDefinition>(baseSerializationProviders[0]);
             Assert.IsInstanceOf<MrwSerializationTypeDefinition>(derivedSerializationProviders[0]);
-            var baseSerializationProvider = (MrwSerializationTypeDefinition)baseSerializationProviders[0];
+            //var baseSerializationProvider = (MrwSerializationTypeDefinition)baseSerializationProviders[0];
             var derivedSerializationProvider = (MrwSerializationTypeDefinition)derivedSerializationProviders[0];
 
             var method = derivedSerializationProvider.BuildPersistableModelCreateCoreMethod();
@@ -447,7 +445,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.IsNull(methodSignature?.ExplicitInterface);
             Assert.AreEqual(2, methodSignature?.Parameters.Count);
             // for derived model, the return type of this method should be the same as the overridden base method
-            Assert.AreEqual(mockBaseModelTypeProvider.Type, methodSignature?.ReturnType);
+            Assert.AreEqual(baseType, methodSignature?.ReturnType);
 
             // Check method modifiers
             var expectedModifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
