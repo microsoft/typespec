@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
@@ -751,9 +752,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             for (var i = 0; i < _model.Properties.Count; i++)
             {
                 var property = _model.Properties[i];
-                var propertyWireInfo = property.WireInfo;
-                var propertySerializationName = propertyWireInfo?.SerializedName ?? property.Name;
-                var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName.ToVariableName()))
+                // we should only deserialize properties with a wire info. Those properties without wire info indicate they are not spec properties.
+                if (property.WireInfo is not { } wireInfo)
+                {
+                    continue;
+                }
+                var propertySerializationName = wireInfo.SerializedName;
+                var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName))
                 {
                     DeserializeProperty(property, jsonProperty)
                 };
