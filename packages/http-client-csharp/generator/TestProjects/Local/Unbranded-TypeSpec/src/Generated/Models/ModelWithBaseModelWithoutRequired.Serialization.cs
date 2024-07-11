@@ -151,13 +151,15 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="modelWithBaseModelWithoutRequired"> The <see cref="ModelWithBaseModelWithoutRequired"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(ModelWithBaseModelWithoutRequired modelWithBaseModelWithoutRequired)
         {
-            throw new NotImplementedException("Not implemented");
+            return BinaryContent.Create(modelWithBaseModelWithoutRequired, ModelSerializationExtensions.WireOptions);
         }
 
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ModelWithBaseModelWithoutRequired"/> from. </param>
         public static explicit operator ModelWithBaseModelWithoutRequired(ClientResult result)
         {
-            throw new NotImplementedException("Not implemented");
+            using PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content);
+            return DeserializeModelWithBaseModelWithoutRequired(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }

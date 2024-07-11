@@ -7,6 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
@@ -140,13 +141,15 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="baseModelWithRequired"> The <see cref="BaseModelWithRequired"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(BaseModelWithRequired baseModelWithRequired)
         {
-            throw new NotImplementedException("Not implemented");
+            return BinaryContent.Create(baseModelWithRequired, ModelSerializationExtensions.WireOptions);
         }
 
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="BaseModelWithRequired"/> from. </param>
         public static explicit operator BaseModelWithRequired(ClientResult result)
         {
-            throw new NotImplementedException("Not implemented");
+            using PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content);
+            return DeserializeBaseModelWithRequired(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }
