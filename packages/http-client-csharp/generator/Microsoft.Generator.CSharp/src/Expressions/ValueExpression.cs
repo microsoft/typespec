@@ -90,7 +90,7 @@ namespace Microsoft.Generator.CSharp.Expressions
             => new InvokeMethodExpression(this, methodName, []);
 
         public InvokeMethodExpression Invoke(string methodName, IReadOnlyList<ValueExpression> arguments, bool async)
-            => new InvokeMethodExpression(this, methodName, arguments);
+            => new InvokeMethodExpression(this, methodName, arguments) { CallAsAsync = async };
 
         public InvokeMethodExpression Invoke(string methodName, IReadOnlyList<ValueExpression> arguments, IReadOnlyList<CSharpType>? typeArguments, bool callAsAsync, bool addConfigureAwaitFalse = true, CSharpType? extensionType = null)
             => new InvokeMethodExpression(this, methodName, arguments)

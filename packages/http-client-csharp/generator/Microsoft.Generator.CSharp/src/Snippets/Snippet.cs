@@ -98,8 +98,15 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ValueExpression Property(this ParameterProvider parameter, string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(parameter) : parameter, propertyName);
 
-        public static ValueExpression Invoke(this FieldProvider field, string methodName, IEnumerable<ValueExpression> parameters, bool isAsync, bool configureAwait)
-            => new InvokeMethodExpression(field, methodName, [.. parameters]);
+        public static ValueExpression Invoke(this FieldProvider field,
+            string methodName,
+            IEnumerable<ValueExpression> parameters,
+            bool isAsync,
+            bool configureAwait)
+            => new InvokeMethodExpression(field, methodName, [.. parameters])
+            {
+                CallAsAsync = isAsync, AddConfigureAwaitFalse = configureAwait
+            };
 
         public static ScopedApi<bool> NotEqual(this ParameterProvider parameter, ValueExpression other)
             => new BinaryOperatorExpression("!=", parameter, other).As<bool>();
