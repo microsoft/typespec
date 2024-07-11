@@ -468,7 +468,7 @@ export function printCallExpression(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const args = printCallOrDecoratorArgs(path, options, print);
+  const args = printCallLikeArgs(path, options, print);
   return [path.call(print, "target"), args];
 }
 
@@ -622,7 +622,7 @@ export function printDecorator(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const args = printCallOrDecoratorArgs(path, options, print);
+  const args = printDecoratorArgs(path, options, print);
   return ["@", path.call(print, "target"), args];
 }
 
@@ -685,8 +685,8 @@ export function printDirective(
   return ["#", path.call(print, "target"), " ", args];
 }
 
-function printCallOrDecoratorArgs(
-  path: AstPath<DecoratorExpressionNode | CallExpressionNode>,
+function printDecoratorArgs(
+  path: AstPath<DecoratorExpressionNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
@@ -694,6 +694,16 @@ function printCallOrDecoratorArgs(
   if (node.arguments.length === 0) {
     return "";
   }
+
+  return printCallLikeArgs(path, options, print);
+}
+
+function printCallLikeArgs(
+  path: AstPath<DecoratorExpressionNode | CallExpressionNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const node = path.node;
 
   // So that decorator with single object arguments have ( and { hugging.
   // @deco(#{
