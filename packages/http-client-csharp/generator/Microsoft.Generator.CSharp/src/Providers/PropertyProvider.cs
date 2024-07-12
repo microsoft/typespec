@@ -101,7 +101,7 @@ namespace Microsoft.Generator.CSharp.Providers
         /// Returns true if the property has a setter.
         /// </summary>
         /// <param name="type">The <see cref="CSharpType"/> of the property.</param>
-        private bool PropertyHasSetter(CSharpType type, InputModelProperty inputProperty)
+        protected virtual bool PropertyHasSetter(CSharpType type, InputModelProperty inputProperty)
         {
             if (inputProperty.IsDiscriminator)
             {

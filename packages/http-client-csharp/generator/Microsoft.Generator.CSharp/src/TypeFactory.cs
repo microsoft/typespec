@@ -126,6 +126,13 @@ namespace Microsoft.Generator.CSharp
         public virtual MethodProviderCollection CreateMethods(InputOperation operation, TypeProvider enclosingType) => new(operation, enclosingType);
 
         /// <summary>
+        /// Factory method for creating a <see cref="PropertyProvider"/> based on an input property <paramref name="property"/>.
+        /// </summary>
+        /// <param name="property">The input model property.</param>
+        /// <returns>An instance of <see cref="PropertyProvider"/>.</returns>
+        public virtual PropertyProvider CreatePropertyProvider(InputModelProperty property) => new PropertyProvider(property);
+
+        /// <summary>
         /// Factory method for retrieving the serialization format for a given input type.
         /// </summary>
         /// <param name="input">The <see cref="InputType"/> to retrieve the serialization format for.</param>

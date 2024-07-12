@@ -65,7 +65,10 @@ export async function diagnoseValue(code: string, other?: string): Promise<reado
 export async function compileAndDiagnoseValueOrType(
   constraint: string,
   code: string,
-  other?: string
+  {
+    other,
+    disableDeprecatedSuppression,
+  }: { other?: string; disableDeprecatedSuppression?: boolean }
 ): Promise<[Type | Value | undefined, readonly Diagnostic[]]> {
   const host = await createTestHost();
   host.addJsFile("collect.js", {
@@ -78,7 +81,7 @@ export async function compileAndDiagnoseValueOrType(
       import "./collect.js";
       extern dec collect(target, value: ${constraint});
 
-      #suppress "deprecated" "for testing"
+      ${disableDeprecatedSuppression ? "" : `#suppress "deprecated" "for testing"`}
       @collect(${code})
       @test model Test {}
       ${other ?? ""}
@@ -99,7 +102,7 @@ export async function compileValueOrType(
   code: string,
   other?: string
 ): Promise<Value | Type> {
-  const [called, diagnostics] = await compileAndDiagnoseValueOrType(constraint, code, other);
+  const [called, diagnostics] = await compileAndDiagnoseValueOrType(constraint, code, { other });
   expectDiagnosticEmpty(diagnostics);
   ok(called, "Decorator was not called");
 
@@ -111,6 +114,6 @@ export async function diagnoseValueOrType(
   code: string,
   other?: string
 ): Promise<readonly Diagnostic[]> {
-  const [_, diagnostics] = await compileAndDiagnoseValueOrType(constraint, code, other);
+  const [_, diagnostics] = await compileAndDiagnoseValueOrType(constraint, code, { other });
   return diagnostics;
 }
