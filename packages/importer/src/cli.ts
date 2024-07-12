@@ -25,7 +25,11 @@ const args = parseArgs({
   allowPositionals: true,
 });
 
-const entrypoint = normalizePath(resolve(args.positionals[0]));
+const rawEntrypoint = args.positionals[0];
+const entrypoint =
+  rawEntrypoint.startsWith("http://") || rawEntrypoint.startsWith("https://")
+    ? rawEntrypoint
+    : normalizePath(resolve(rawEntrypoint));
 
 const program = await compile(ImporterHost, entrypoint);
 
