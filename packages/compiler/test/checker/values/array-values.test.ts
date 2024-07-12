@@ -1,8 +1,14 @@
 import { ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { isValue } from "../../../src/index.js";
-import { expectDiagnostics } from "../../../src/testing/index.js";
-import { compileValue, compileValueOrType, diagnoseUsage, diagnoseValue } from "./utils.js";
+import { expectDiagnosticEmpty, expectDiagnostics } from "../../../src/testing/index.js";
+import {
+  compileAndDiagnoseValueOrType,
+  compileValue,
+  compileValueOrType,
+  diagnoseUsage,
+  diagnoseValue,
+} from "./utils.js";
 
 it("no values", async () => {
   const object = await compileValue(`#[]`);
@@ -109,6 +115,17 @@ describe("(LEGACY) cast tuple to array value", () => {
         "Deprecated: Using a tuple as a value is deprecated. Use an array value instead(with #[]).",
       pos,
     });
+  });
+
+  it("doesn't cast or emit diagnostic if constraint also allow tuples", async () => {
+    const [entity, diagnostics] = await compileAndDiagnoseValueOrType(
+      `(valueof unknown) | unknown`,
+      `["foo"]`,
+      { disableDeprecatedSuppression: true }
+    );
+    expectDiagnosticEmpty(diagnostics);
+    strictEqual(entity?.entityKind, "Type");
+    strictEqual(entity.kind, "Tuple");
   });
 
   it("emit a error if element in tuple expression are not castable to value", async () => {

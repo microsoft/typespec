@@ -9,17 +9,16 @@ namespace Microsoft.Generator.CSharp.Input
     public sealed class InputArrayType : InputType
     {
         /// <summary>Creates an instance of <see cref="InputArrayType"/>.</summary>
-        /// <param name="Name">The name of the list type.</param>
-        /// <param name="ElementType">The element's <see cref="InputType"/>.</param>
-        /// <param name="IsEmbeddingsVector">Flag used to determine if the input list type is embedding vector.</param>
-        /// <param name="IsNullable">Flag used to determine if the input list type is nullable.</param>
-        public InputArrayType(string name, InputType valueType, bool isEmbeddingsVector) : base(name)
+        /// <param name="name">The name of the list type.</param>
+        /// <param name="crossLanguageDefinitionId">The crossLanguageDefinitionId of the list type. For a builtin array, it should be `TypeSpec.Array`.</param>
+        /// <param name="valueType">The element's <see cref="InputType"/>.</param>
+        public InputArrayType(string name, string crossLanguageDefinitionId, InputType valueType) : base(name)
         {
+            CrossLanguageDefinitionId = crossLanguageDefinitionId;
             ValueType = valueType;
-            IsEmbeddingsVector = isEmbeddingsVector;
         }
 
+        public string CrossLanguageDefinitionId { get; }
         public InputType ValueType { get; }
-        public bool IsEmbeddingsVector { get; }
     }
 }

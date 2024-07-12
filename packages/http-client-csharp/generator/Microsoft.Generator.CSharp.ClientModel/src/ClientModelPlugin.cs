@@ -8,10 +8,13 @@ using System.ComponentModel.Composition;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
+    [Export(typeof(CodeModelPlugin))]
+    [ExportMetadata("PluginName", nameof(ClientModelPlugin))]
     public class ClientModelPlugin : CodeModelPlugin
     {
         private static ClientModelPlugin? _instance;
@@ -36,7 +39,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             switch (inputType)
             {
                 case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
-                    return [new MrwSerializationTypeProvider(provider, inputModel)];
+                    return [new MrwSerializationTypeDefinition(provider, inputModel)];
                 default:
                     return base.GetSerializationTypeProviders(provider, inputType);
             }

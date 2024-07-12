@@ -6,10 +6,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
-using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
-using Moq;
 using NUnit.Framework;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -17,24 +16,17 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
 {
     public class StatementTests
     {
-        private readonly string _mocksFolder = "Mocks";
-
-        [OneTimeSetUp]
-        public void Setup()
+        public StatementTests()
         {
-            string outputFolder = "./outputFolder";
-            string projectPath = outputFolder;
-            var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
-            // initialize the singleton instance of the plugin
-            _ = new MockCodeModelPlugin(new GeneratorContext(Configuration.Load(configFilePath)));
+            MockHelpers.LoadMockPlugin();
         }
 
         [Test]
         public void CreateForStatement()
         {
-            var assignment = new AssignmentExpression(new DeclarationExpression(new CSharpType(typeof(BinaryData)), "responseParamName"), new ValueExpression());
-            var condition = new BoolSnippet(BoolSnippet.True);
-            var increment = new ValueExpression();
+            var assignment = new AssignmentExpression(new DeclarationExpression(new CSharpType(typeof(BinaryData)), "responseParamName"), ValueExpression.Empty);
+            var condition = True;
+            var increment = ValueExpression.Empty;
             var forStatement = new ForStatement(assignment, condition, increment);
 
             Assert.NotNull(forStatement);
@@ -44,9 +36,9 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void ForStatementWithAddMethod()
         {
-            var assignment = new AssignmentExpression(new DeclarationExpression(new CSharpType(typeof(BinaryData)), "responseParamName"), new ValueExpression());
-            var condition = new BoolSnippet(BoolSnippet.True);
-            var increment = new ValueExpression();
+            var assignment = new AssignmentExpression(new DeclarationExpression(new CSharpType(typeof(BinaryData)), "responseParamName"), ValueExpression.Empty);
+            var condition = True;
+            var increment = ValueExpression.Empty;
             var forStatement = new ForStatement(assignment, condition, increment);
             var statementToAdd = new MethodBodyStatement();
 
@@ -62,7 +54,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         {
             var itemType = new CSharpType(typeof(int));
             var itemName = "item";
-            var enumerable = new ValueExpression();
+            var enumerable = ValueExpression.Empty;
 
             var foreachStatement = new ForeachStatement(itemType, itemName, enumerable, isAsync: false, out var itemReference);
 
@@ -79,7 +71,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void ForeachStatementWithAddMethod()
         {
-            var foreachStatement = new ForeachStatement(new CSharpType(typeof(int)), "item", new ValueExpression(), isAsync: false, out var itemReference);
+            var foreachStatement = new ForeachStatement(new CSharpType(typeof(int)), "item", ValueExpression.Empty, isAsync: false, out var itemReference);
             var statementToAdd = new MethodBodyStatement();
 
             foreachStatement.Add(statementToAdd);
@@ -92,18 +84,19 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void IfStatementWithBoolExpression()
         {
-            var condition = new BoolSnippet(BoolSnippet.True);
+            var condition = True;
             var ifStatement = new IfStatement(condition);
 
-            Assert.NotNull(ifStatement);
-            Assert.AreEqual(condition.Untyped, ifStatement.Condition);
-            Assert.NotNull(ifStatement.Body);
+            using var writer = new CodeWriter();
+            ifStatement.Write(writer);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [Test]
         public void IfStatementWithAddMethod()
         {
-            var ifStatement = new IfStatement(BoolSnippet.True);
+            var ifStatement = new IfStatement(True);
             var statementToAdd = new MethodBodyStatement();
 
             ifStatement.Add(statementToAdd);
@@ -116,7 +109,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void IfStatementWithDefaultOptions()
         {
-            var condition = new BoolSnippet(BoolSnippet.True);
+            var condition = True;
             var ifStatement = new IfStatement(condition);
 
             Assert.IsFalse(ifStatement.Inline);
@@ -126,7 +119,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void IfStatementInlineOptionTrue()
         {
-            var condition = new BoolSnippet(BoolSnippet.True);
+            var condition = True;
             var ifStatement = new IfStatement(condition, inline: true);
 
             Assert.IsTrue(ifStatement.Inline);
@@ -135,7 +128,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void IfStatementAddBracesOptionFalse()
         {
-            var condition = new BoolSnippet(BoolSnippet.True);
+            var condition = True;
             var ifStatement = new IfStatement(condition, addBraces: false);
 
             Assert.IsFalse(ifStatement.AddBraces);
@@ -144,40 +137,40 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void IfElseStatementWithIfAndElse()
         {
-            var condition = new BoolSnippet(BoolSnippet.True);
+            var condition = True;
             var elseStatement = new MethodBodyStatement();
 
             var ifElseStatement = new IfElseStatement(new IfStatement(condition), elseStatement);
 
-            Assert.NotNull(ifElseStatement);
-            Assert.NotNull(ifElseStatement.If);
-            Assert.AreEqual(condition.Untyped, ifElseStatement.If.Condition);
-            Assert.AreEqual(elseStatement, ifElseStatement.Else);
+            using var writer = new CodeWriter();
+            ifElseStatement.Write(writer);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [Test]
         public void IfElseStatementWithConditionAndStatements()
         {
-            var condition = new BoolSnippet(BoolSnippet.True);
+            var condition = True;
             var ifStatement = new MethodBodyStatement();
             var elseStatement = new MethodBodyStatement();
 
             var ifElseStatement = new IfElseStatement(condition, ifStatement, elseStatement);
 
-            Assert.NotNull(ifElseStatement);
-            Assert.NotNull(ifElseStatement.If);
-            Assert.AreEqual(condition.Untyped, ifElseStatement.If.Condition);
-            Assert.AreEqual(elseStatement, ifElseStatement.Else);
+            using var writer = new CodeWriter();
+            ifElseStatement.Write(writer);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [Test]
         public void SwitchStatementWithSingleCase()
         {
-            var matchExpression = new ValueExpression();
+            var matchExpression = ValueExpression.Empty;
             var switchStatement = new SwitchStatement(matchExpression);
 
             var caseStatement = new MethodBodyStatement();
-            var switchCase = new SwitchCaseStatement(new ValueExpression(), caseStatement);
+            var switchCase = new SwitchCaseStatement(ValueExpression.Empty, caseStatement);
 
             switchStatement.Add(switchCase);
 
@@ -188,13 +181,13 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void SwitchStatementWithMultipleCases()
         {
-            var matchExpression = new ValueExpression();
+            var matchExpression = ValueExpression.Empty;
             var switchStatement = new SwitchStatement(matchExpression);
 
             var caseStatements = new List<SwitchCaseStatement>
             {
-                new SwitchCaseStatement(new ValueExpression(), new MethodBodyStatement()),
-                new SwitchCaseStatement(new ValueExpression(), new MethodBodyStatement())
+                new SwitchCaseStatement(ValueExpression.Empty, new MethodBodyStatement()),
+                new SwitchCaseStatement(ValueExpression.Empty, new MethodBodyStatement())
             };
 
             foreach (var switchCase in caseStatements)
@@ -208,13 +201,13 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void SwitchStatementEnumeratingCases()
         {
-            var matchExpression = new ValueExpression();
+            var matchExpression = ValueExpression.Empty;
             var switchStatement = new SwitchStatement(matchExpression);
 
             var caseStatements = new List<SwitchCaseStatement>
             {
-                new SwitchCaseStatement(new ValueExpression(), new MethodBodyStatement()),
-                new SwitchCaseStatement(new ValueExpression(), new MethodBodyStatement())
+                new SwitchCaseStatement(ValueExpression.Empty, new MethodBodyStatement()),
+                new SwitchCaseStatement(ValueExpression.Empty, new MethodBodyStatement())
             };
 
             foreach (var switchCase in caseStatements)
@@ -249,8 +242,6 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                 switchStatement.Add(switchCase);
             }
 
-            var mockTypeProvider = new Mock<TypeProvider>();
-
             // Create a method declaration statement
             var method = new MethodProvider(
                 new MethodSignature(
@@ -260,7 +251,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Parameters: [],
                     Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { fooDeclaration, switchStatement },
-                mockTypeProvider.Object);
+                MockTypeProvider.Empty);
 
             // Verify the expected behavior
             using var writer = new CodeWriter();
@@ -293,8 +284,6 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                 switchStatement.Add(switchCase);
             }
 
-            var mockTypeProvider = new Mock<TypeProvider>();
-
             // Create a method declaration statement
             var method = new MethodProvider(
                 new MethodSignature(
@@ -304,7 +293,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Parameters: [],
                     Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { fooDeclaration, switchStatement },
-                mockTypeProvider.Object);
+                MockTypeProvider.Empty);
 
             // Verify the expected behavior
             using var writer = new CodeWriter();
@@ -358,10 +347,12 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         public void TryCatchFinallyStatementWithMultipleCatches()
         {
             var tryStatement = new MethodBodyStatement();
+            var var1 = new DeclarationExpression(typeof(UnauthorizedAccessException), "ex1");
+            var var2 = new DeclarationExpression(typeof(Exception), "ex2");
             var catchStatements = new[]
             {
-                new CatchExpression(null, new MethodBodyStatement()),
-                new CatchExpression(null, new MethodBodyStatement())
+                new CatchExpression(var1, new MethodBodyStatement()),
+                new CatchExpression(var2, new MethodBodyStatement())
             };
             var finallyStatement = new MethodBodyStatement();
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, catchStatements, finallyStatement);
@@ -369,6 +360,24 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
             Assert.AreEqual(tryStatement, tryCatchFinally.Try);
             CollectionAssert.AreEqual(catchStatements, tryCatchFinally.Catches);
             Assert.AreEqual(finallyStatement, tryCatchFinally.Finally);
+
+            // Create a method declaration statement
+            var method = new MethodProvider(
+                new MethodSignature(
+                    Name: "Foo",
+                    Modifiers: MethodSignatureModifiers.Public,
+                    ReturnType: new CSharpType(typeof(bool)),
+                    Parameters: [],
+                    Description: null, ReturnDescription: null),
+                new MethodBodyStatement[] { tryCatchFinally },
+                MockTypeProvider.Empty);
+
+            // Verify the expected behavior
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            var expectedResult = Helpers.GetExpectedFromFile();
+            var test = writer.ToString(false);
+            Assert.AreEqual(expectedResult, test);
         }
 
         [Test]
@@ -383,7 +392,6 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
             var ifStatementBody = Declare(variableFoo, Int(2));
             var elseStatementBody = Declare(variableBar, Int(2));
             var ifElsePreprocessor = new IfElsePreprocessorStatement(condition, ifStatementBody, elseStatementBody);
-            var mockTypeProvider = new Mock<TypeProvider>();
 
             // Create a method declaration statement
             var method = new MethodProvider(
@@ -394,7 +402,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Parameters: [],
                     Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { xDeclaration, ifElsePreprocessor },
-                mockTypeProvider.Object);
+                MockTypeProvider.Empty);
 
             // Verify the expected behavior
             using var writer = new CodeWriter();

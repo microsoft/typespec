@@ -43,6 +43,11 @@ export interface ScaffoldingConfig {
   libraries: InitTemplateLibrarySpec[];
 
   /**
+   * Whether to generate a .gitignore file.
+   */
+  includeGitignore: boolean;
+
+  /**
    * Custom parameters provided in the tempalates.
    */
   parameters: Record<string, any>;
@@ -67,6 +72,7 @@ export function makeScaffoldingConfig(
     directory: config.directory ?? "",
     folderName: config.folderName ?? "",
     parameters: config.parameters ?? {},
+    includeGitignore: config.includeGitignore ?? true,
     ...config,
   };
 }
@@ -81,6 +87,7 @@ export async function scaffoldNewProject(host: CompilerHost, config: Scaffolding
   await writePackageJson(host, config);
   await writeConfig(host, config);
   await writeMain(host, config);
+  await writeGitignore(host, config);
   await writeFiles(host, config);
 }
 
@@ -97,21 +104,25 @@ async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
   if (isFileSkipGeneration("package.json", config.template.files ?? [])) {
     return;
   }
-  const dependencies: Record<string, string> = {};
+  const peerDependencies: Record<string, string> = {};
+  const devDependencies: Record<string, string> = {};
 
   if (!config.template.skipCompilerPackage) {
-    dependencies["@typespec/compiler"] = "latest";
+    peerDependencies["@typespec/compiler"] = "latest";
+    devDependencies["@typespec/compiler"] = "latest";
   }
 
   for (const library of config.libraries) {
-    dependencies[library.name] = await getLibraryVersion(library);
+    peerDependencies[library.name] = await getLibraryVersion(library);
+    devDependencies[library.name] = await getLibraryVersion(library);
   }
 
   const packageJson: NodePackage = {
     name: config.name,
     version: "0.1.0",
     type: "module",
-    dependencies,
+    peerDependencies,
+    devDependencies,
     private: true,
   };
 
@@ -161,6 +172,25 @@ async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {
   const content = lines.join("\n");
 
   return host.writeFile(joinPaths(config.directory, "main.tsp"), await formatTypeSpec(content));
+}
+
+const defaultGitignore = `
+# MacOS
+.DS_Store
+
+# Default TypeSpec output
+tsp-output/
+dist/
+
+# Dependency directories
+node_modules/
+`.trim();
+async function writeGitignore(host: CompilerHost, config: ScaffoldingConfig) {
+  if (!config.includeGitignore || isFileSkipGeneration(".gitignore", config.template.files ?? [])) {
+    return;
+  }
+
+  return host.writeFile(joinPaths(config.directory, ".gitignore"), defaultGitignore);
 }
 
 async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {

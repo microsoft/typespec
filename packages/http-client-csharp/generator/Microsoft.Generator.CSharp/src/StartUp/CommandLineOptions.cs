@@ -13,8 +13,10 @@ namespace Microsoft.Generator.CSharp
     {
         private const string OutputDirectoryOptionName = "DIRECTORY";
         private const string ShouldDebugOptionName = "debug";
+        private const string PluginNameOptionName = "pluginName";
         private const string CmdLineOutputDirectoryOptionHelpText = "The path to the directory containing the input files to the generator including the code model file and the configuration file for the generator.";
         private const string CmdLineDebugOptionHelpText = "Attempt to attach the debugger on execute.";
+        private const string CmdLinePluginOptionHelpText = "The name of the plugin to execute.";
 
         /// <summary>
         /// The command line option to specify the path to the directory containing the input files to the generator.
@@ -25,5 +27,8 @@ namespace Microsoft.Generator.CSharp
 
         [Option(longName: ShouldDebugOptionName, Required = false, Default = false, Hidden = true, HelpText = CmdLineDebugOptionHelpText)]
         public bool ShouldDebug { get; set; }
+
+        [Option(longName: PluginNameOptionName, shortName: 'p', Required = true, Hidden = false, HelpText = CmdLinePluginOptionHelpText)]
+        public string? PluginName { get; set; }
     }
 }

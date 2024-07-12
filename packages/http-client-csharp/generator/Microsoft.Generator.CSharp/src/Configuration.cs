@@ -15,6 +15,16 @@ namespace Microsoft.Generator.CSharp
     {
         private const string ConfigurationFileName = "Configuration.json";
 
+        // for mocking
+        protected Configuration()
+        {
+            OutputDirectory = null!;
+            AdditionalConfigOptions = null!;
+            LibraryName = null!;
+            RootNamespace = null!;
+            ModelNamespace = null!;
+        }
+
         private Configuration(
             string outputPath,
             Dictionary<string, BinaryData> additionalConfigOptions,
@@ -34,7 +44,8 @@ namespace Microsoft.Generator.CSharp
             GenerateTestProject = generateTestProject;
             LibraryName = libraryName;
             UseModelNamespace = useModelNamespace;
-            Namespace = libraryNamespace;
+            RootNamespace = libraryNamespace;
+            ModelNamespace = useModelNamespace ? $"{libraryNamespace}.Models" : libraryNamespace;
         }
 
         /// <summary>
@@ -51,8 +62,11 @@ namespace Microsoft.Generator.CSharp
             public const string UseModelNamespace = "use-model-namespace";
         }
 
-        /// Returns the singleton instance of the configuration.
-        public string Namespace { get; }
+        /// <summary> Gets the root namespace for the library. </summary>
+        public string RootNamespace { get; }
+
+        /// <summary> Gets the namespace for the models. </summary>
+        public string ModelNamespace { get; }
 
         internal string OutputDirectory { get; }
 

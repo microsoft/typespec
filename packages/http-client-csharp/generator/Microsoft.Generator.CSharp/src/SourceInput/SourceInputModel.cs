@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Customization;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using NuGet.Configuration;
 
@@ -78,7 +79,7 @@ namespace Microsoft.Generator.CSharp.SourceInput
 
         public INamedTypeSymbol? FindForType(string name)
         {
-            var ns = TypeProvider.GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
+            var ns = CodeModelPlugin.Instance.Configuration.ModelNamespace;
             var fullyQualifiedMetadataName = $"{ns}.{name}";
             if (!_nameMap.TryGetValue(name, out var type) &&
                 !_nameMap.TryGetValue(fullyQualifiedMetadataName, out type))
@@ -147,7 +148,7 @@ namespace Microsoft.Generator.CSharp.SourceInput
         private async Task<Compilation?> LoadBaselineContract()
         {
             string fullPath;
-            string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelPlugin.Instance.Configuration.ProjectDirectory, $"{CodeModelPlugin.Instance.Configuration.Namespace}.csproj"));
+            string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelPlugin.Instance.Configuration.ProjectDirectory, $"{CodeModelPlugin.Instance.Configuration.RootNamespace}.csproj"));
             if (!File.Exists(projectFilePath))
                 return null;
 
@@ -156,15 +157,15 @@ namespace Microsoft.Generator.CSharp.SourceInput
             if (baselineVersion is not null)
             {
                 var nugetGlobalPackageFolder = SettingsUtility.GetGlobalPackagesFolder(new NullSettings());
-                var nugetFolder = Path.Combine(nugetGlobalPackageFolder, CodeModelPlugin.Instance.Configuration.Namespace.ToLowerInvariant(), baselineVersion, "lib", "netstandard2.0");
-                fullPath = Path.Combine(nugetFolder, $"{CodeModelPlugin.Instance.Configuration.Namespace}.dll");
+                var nugetFolder = Path.Combine(nugetGlobalPackageFolder, CodeModelPlugin.Instance.Configuration.RootNamespace.ToLowerInvariant(), baselineVersion, "lib", "netstandard2.0");
+                fullPath = Path.Combine(nugetFolder, $"{CodeModelPlugin.Instance.Configuration.RootNamespace}.dll");
                 if (File.Exists(fullPath))
                 {
-                    return await GeneratedCodeWorkspace.CreatePreviousContractFromDll(Path.Combine(nugetFolder, $"{CodeModelPlugin.Instance.Configuration.Namespace}.xml"), fullPath);
+                    return await GeneratedCodeWorkspace.CreatePreviousContractFromDll(Path.Combine(nugetFolder, $"{CodeModelPlugin.Instance.Configuration.RootNamespace}.xml"), fullPath);
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Can't find Baseline contract assembly ({CodeModelPlugin.Instance.Configuration.Namespace}@{baselineVersion}) from Nuget Global Package Folder at {fullPath}. " +
+                    throw new InvalidOperationException($"Can't find Baseline contract assembly ({CodeModelPlugin.Instance.Configuration.RootNamespace}@{baselineVersion}) from Nuget Global Package Folder at {fullPath}. " +
                         $"Please make sure the baseline nuget package has been installed properly");
                 }
             }

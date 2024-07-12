@@ -201,9 +201,9 @@ export function fromSdkEnumType(
     const newInputEnumType: InputEnumType = {
       Kind: "enum",
       Name: enumName,
+      CrossLanguageDefinitionId: enumType.crossLanguageDefinitionId,
       ValueType: fromSdkBuiltInType(enumType.valueType),
       Values: enumType.values.map((v) => fromSdkEnumValueType(v)),
-      CrossLanguageDefinitionId: enumType.crossLanguageDefinitionId,
       Accessibility: getAccessOverride(
         context,
         enumType.__raw as any
@@ -364,11 +364,15 @@ function fromSdkArrayType(
 ): InputArrayType {
   return {
     Kind: "array",
+    Name: arrayType.name,
     ValueType: fromSdkType(arrayType.valueType, context, models, enums),
+    CrossLanguageDefinitionId: arrayType.crossLanguageDefinitionId,
   };
 }
 
 function fromUsageFlags(usage: UsageFlags): Usage {
+  if (usage & UsageFlags.JsonMergePatch) return Usage.None; // if the model is used in patch, we ignore the usage and defer to the logic of ours
+  usage = usage & (UsageFlags.Input | UsageFlags.Output); // trim off other flags
   if (usage === UsageFlags.Input) return Usage.Input;
   else if (usage === UsageFlags.Output) return Usage.Output;
   else if (usage === (UsageFlags.Input | UsageFlags.Output)) return Usage.RoundTrip;

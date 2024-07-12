@@ -3,7 +3,9 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.Statements
@@ -32,26 +34,38 @@ namespace Microsoft.Generator.CSharp.Statements
             item = new VariableExpression(itemType, Item);
         }
 
-        public ForeachStatement(string itemName, EnumerableSnippet enumerable, out VariableExpression item)
+        public ForeachStatement(string itemName, ScopedApi enumerable, out VariableExpression item)
             : this(null, new CodeWriterDeclaration(itemName), enumerable, false)
         {
-            item = new VariableExpression(enumerable.ItemType, Item);
+            item = new VariableExpression(enumerable.Type.Arguments[0], Item);
         }
 
-        public ForeachStatement(string itemName, EnumerableSnippet enumerable, bool isAsync, out VariableExpression item)
+        public ForeachStatement(string itemName, ScopedApi enumerable, bool isAsync, out VariableExpression item)
             : this(null, new CodeWriterDeclaration(itemName), enumerable, isAsync)
         {
-            item = new VariableExpression(enumerable.ItemType, Item);
+            item = new VariableExpression(enumerable.Type.Arguments[0], Item);
         }
 
-        public ForeachStatement(string itemName, DictionarySnippet dictionary, out KeyValuePairSnippet item)
+        public ForeachStatement(string itemName, DictionaryExpression dictionary, out KeyValuePairExpression item)
             : this(null, new CodeWriterDeclaration(itemName), dictionary, false)
         {
-            var variable = new VariableExpression(KeyValuePairSnippet.GetType(dictionary.KeyType, dictionary.ValueType), Item);
-            item = new KeyValuePairSnippet(dictionary.KeyType, dictionary.ValueType, variable);
+            var variable = new VariableExpression(dictionary.KeyValuePair, Item);
+            item = new(dictionary.KeyValuePair, variable);
         }
 
-        public void Add(MethodBodyStatement statement) => _body.Add(statement);
+        public static ForeachStatement Create<T>(string itemName, ScopedApi<IEnumerable<T>> enumerable, out ScopedApi<T> item)
+        {
+            var statement = new ForeachStatement(itemName, enumerable, out var variable);
+            item = variable.As<T>();
+            return statement;
+        }
+
+        public ForeachStatement Add(MethodBodyStatement statement)
+        {
+            _body.Add(statement);
+            return this;
+        }
+
         public IEnumerator<MethodBodyStatement> GetEnumerator() => _body.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_body).GetEnumerator();
 

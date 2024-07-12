@@ -25,12 +25,6 @@ export const EmitterOptionsForm: FunctionComponent<EmitterOptionsFormProps> = ({
   options,
   optionsChanged,
 }) => {
-  const emitterOptionsSchema = library.definition?.emitter?.options?.properties;
-  if (emitterOptionsSchema === undefined) {
-    return <>"No options"</>;
-  }
-  const entries = Object.entries(emitterOptionsSchema);
-
   const handleChange = useCallback(
     ({ name, value }: { name: string; value: unknown }) => {
       optionsChanged({
@@ -41,8 +35,15 @@ export const EmitterOptionsForm: FunctionComponent<EmitterOptionsFormProps> = ({
         },
       });
     },
-    [options, optionsChanged]
+    [library.name, options, optionsChanged]
   );
+
+  const emitterOptionsSchema = library.definition?.emitter?.options?.properties;
+  if (emitterOptionsSchema === undefined) {
+    return <>"No options"</>;
+  }
+  const entries = Object.entries(emitterOptionsSchema);
+
   return (
     <div className={style["form"]}>
       {entries.map(([key, value]) => {
@@ -90,7 +91,7 @@ const JsonSchemaPropertyInput: FunctionComponent<JsonSchemaPropertyInputProps> =
   const handleChange = useCallback(
     (_: unknown, data: RadioGroupOnChangeData | SwitchOnChangeData | InputOnChangeData) =>
       onChange({ name, value: "value" in data ? data.value : data.checked }),
-    [onChange]
+    [name, onChange]
   );
 
   switch (prop.type) {

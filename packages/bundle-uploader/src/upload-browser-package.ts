@@ -102,8 +102,7 @@ export class TypeSpecBundledPackageUploader {
     const blob = this.#container.getBlockBlobClient(
       normalizePath(join(pkgName, version, file.filename))
     );
-    const content = file.content;
-    await blob.upload(content, content.length, {
+    await blob.uploadData(Buffer.from(file.content), {
       blobHTTPHeaders: {
         blobContentType: "application/javascript; charset=utf-8",
       },

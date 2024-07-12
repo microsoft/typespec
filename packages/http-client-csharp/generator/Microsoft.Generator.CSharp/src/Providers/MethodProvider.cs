@@ -3,22 +3,21 @@
 
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
-using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
-using static Microsoft.Generator.CSharp.Snippets.Snippet;
-using static Microsoft.Generator.CSharp.Snippets.ArgumentSnippet;
+using static Microsoft.Generator.CSharp.Snippets.ArgumentSnippets;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
     /// <summary>
     /// Represents a C# method consisting of a signature, body, and expression.
     /// </summary>
-    public sealed class MethodProvider
+    public class MethodProvider
     {
-        public MethodSignatureBase Signature { get; }
-        public MethodBodyStatement? BodyStatements { get; }
-        public ValueExpression? BodyExpression { get; }
-        public XmlDocProvider? XmlDocs { get; }
+        public MethodSignature Signature { get; internal set; }
+        public MethodBodyStatement? BodyStatements { get; internal set;}
+        public ValueExpression? BodyExpression { get; internal set;}
+        public XmlDocProvider? XmlDocs { get; internal set;}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MethodProvider"/> class with a body statement and method signature.
@@ -27,13 +26,15 @@ namespace Microsoft.Generator.CSharp.Providers
         /// <param name="bodyStatements">The method body.</param>
         /// <param name="enclosingType">The enclosing type.</param>
         /// <param name="xmlDocProvider">The XML documentation provider.</param>
-        public MethodProvider(MethodSignatureBase signature, MethodBodyStatement bodyStatements, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default)
+        public MethodProvider(MethodSignature signature, MethodBodyStatement bodyStatements, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default)
         {
             Signature = signature;
             bool skipParamValidation = !signature.Modifiers.HasFlag(MethodSignatureModifiers.Public);
-            var paramHash = GetParamhash(skipParamValidation);
-            BodyStatements = GetBodyStatementWithValidation(bodyStatements, paramHash);
-            XmlDocs = xmlDocProvider ?? (IsMethodPublic(enclosingType.DeclarationModifiers, signature.Modifiers) ? BuildXmlDocs(paramHash) : null);
+            var paramHash = MethodProviderHelpers.GetParamhash(signature.Parameters, skipParamValidation);
+            BodyStatements = MethodProviderHelpers.GetBodyStatementWithValidation(signature.Parameters, bodyStatements, paramHash);
+            XmlDocs = xmlDocProvider ?? (MethodProviderHelpers.IsMethodPublic(enclosingType.DeclarationModifiers, signature.Modifiers)
+                ? MethodProviderHelpers.BuildXmlDocs(signature.Parameters, signature.Description, signature.ReturnDescription, paramHash)
+                : null);
         }
 
         /// <summary>
@@ -43,100 +44,33 @@ namespace Microsoft.Generator.CSharp.Providers
         /// <param name="bodyExpression">The method body expression.</param>
         /// <param name="enclosingType">The enclosing type.</param>
         /// <param name="xmlDocProvider">The XML documentation provider.</param>
-        public MethodProvider(MethodSignatureBase signature, ValueExpression bodyExpression, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default)
+        public MethodProvider(MethodSignature signature, ValueExpression bodyExpression, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default)
         {
             Signature = signature;
             BodyExpression = bodyExpression;
-            XmlDocs = xmlDocProvider ?? (IsMethodPublic(enclosingType.DeclarationModifiers, signature.Modifiers) ? BuildXmlDocs(null) : null);
+            XmlDocs = xmlDocProvider ?? (MethodProviderHelpers.IsMethodPublic(enclosingType.DeclarationModifiers, signature.Modifiers)
+                ? MethodProviderHelpers.BuildXmlDocs(signature.Parameters, signature.Description, signature.ReturnDescription, null)
+                : null);
         }
 
-        private static bool IsMethodPublic(TypeSignatureModifiers typeModifiers, MethodSignatureModifiers methodModifiers)
+        public void Update(MethodSignature? signature = default, MethodBodyStatement? bodyStatements = default, ValueExpression? bodyExpression = default, XmlDocProvider? xmlDocProvider = default)
         {
-            if (!typeModifiers.HasFlag(TypeSignatureModifiers.Public))
-                return false;
-
-            if (methodModifiers.HasFlag(MethodSignatureModifiers.Public) || (methodModifiers.HasFlag(MethodSignatureModifiers.Protected) && !methodModifiers.HasFlag(MethodSignatureModifiers.Private)))
-                return true;
-
-            return false;
-        }
-
-        private Dictionary<ParameterValidationType, List<ParameterProvider>>? GetParamhash(bool skipParamValidation)
-        {
-            Dictionary<ParameterValidationType, List<ParameterProvider>>? paramHash = null;
-            if (!skipParamValidation)
+            if (signature != default)
             {
-                paramHash = new();
-                foreach (var parameter in Signature.Parameters)
-                {
-                    if (parameter.Validation == ParameterValidationType.None)
-                        continue;
-
-                    if (!paramHash.ContainsKey(parameter.Validation))
-                        paramHash[parameter.Validation] = new List<ParameterProvider>();
-                    paramHash[parameter.Validation].Add(parameter);
-                }
+                Signature = signature;
             }
-            return paramHash;
-        }
-
-        private MethodBodyStatement GetBodyStatementWithValidation(MethodBodyStatement bodyStatements, Dictionary<ParameterValidationType, List<ParameterProvider>>? paramHash)
-        {
-            if (paramHash is null)
-                return bodyStatements;
-
-            int count = 0;
-            foreach (var kvp in paramHash)
+            if (bodyStatements != default)
             {
-                if (kvp.Key == ParameterValidationType.None)
-                    continue;
-                count += kvp.Value.Count;
+                BodyStatements = bodyStatements;
             }
-
-            if (count == 0)
-                return bodyStatements;
-
-            MethodBodyStatement[] statements = new MethodBodyStatement[count + 2];
-            int index = 0;
-            foreach (var parameter in Signature.Parameters)
+            if (bodyExpression != default)
             {
-                if (parameter.Validation != ParameterValidationType.None)
-                {
-                    statements[index] = ValidateParameter(parameter);
-                    index++;
-                }
+                BodyExpression = bodyExpression;
             }
-            statements[index] = EmptyLineStatement;
-            index++;
-
-            statements[index] = bodyStatements;
-
-            return statements;
-        }
-
-        private XmlDocProvider? BuildXmlDocs(Dictionary<ParameterValidationType, List<ParameterProvider>>? paramHash)
-        {
-            var docs = new XmlDocProvider();
-            if (Signature.Description is not null)
-                docs.Summary = new XmlDocSummaryStatement([Signature.Description]);
-
-            foreach (var parameter in Signature.Parameters)
+            if (xmlDocProvider != default)
             {
-                docs.Params.Add(new XmlDocParamStatement(parameter.Name, parameter.Description));
+                XmlDocs = xmlDocProvider;
             }
-
-            if (paramHash is not null)
-            {
-                foreach (var kvp in paramHash)
-                {
-                    docs.Exceptions.Add(new XmlDocExceptionStatement(kvp.Key, kvp.Value));
-                }
-            }
-
-            if (Signature is MethodSignature methodSignature && methodSignature.ReturnDescription is not null)
-                docs.Returns = new XmlDocReturnsStatement(methodSignature.ReturnDescription);
-
-            return docs;
         }
     }
 }

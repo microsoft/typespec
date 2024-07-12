@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using NUnit.Framework;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
@@ -23,7 +24,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
         public void ValidateString()
         {
             using CodeWriter writer = new CodeWriter();
-            Literal("testing").Untyped.Write(writer);
+            Literal("testing").Write(writer);
             Assert.AreEqual("\"testing\"", writer.ToString(false));
         }
 
@@ -31,7 +32,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
         public void ValidateStringU8()
         {
             using CodeWriter writer = new CodeWriter();
-            LiteralU8("testing").Untyped.Write(writer);
+            LiteralU8("testing").Write(writer);
             Assert.AreEqual("\"testing\"u8", writer.ToString(false));
         }
 
@@ -39,7 +40,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
         public void ValidateDictionary()
         {
             using CodeWriter writer = new CodeWriter();
-            New.Dictionary(typeof(string), typeof(int)).Untyped.Write(writer);
+            New.Dictionary(typeof(string), typeof(int)).Write(writer);
             Assert.AreEqual("new global::System.Collections.Generic.Dictionary<string, int>()", writer.ToString(false));
         }
 
@@ -51,7 +52,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
             {
                 { Literal("x"), Literal(1) },
                 { Literal("y"), Literal(2) }
-            }).Untyped.Write(writer);
+            }).Write(writer);
             Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
@@ -129,7 +130,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
             {
                 { Identifier("X"), Literal(100) },
                 { Identifier("Y"), Literal(200) }
-            }).Untyped.Write(writer);
+            }).Write(writer);
             Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
@@ -137,7 +138,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
         public void ValidateFrameworkInstanceWithArguments()
         {
             using CodeWriter writer = new CodeWriter();
-            New.Instance(typeof(TestClass), [Literal(20)]).Untyped.Write(writer);
+            New.Instance(typeof(TestClass), [Literal(20)]).Write(writer);
             Assert.AreEqual("new global::Microsoft.Generator.CSharp.Tests.Snippets.TestClass(20)", writer.ToString(false));
         }
 

@@ -83,6 +83,7 @@ const sidebars: SidebarsConfig = {
       items: [
         "language-basics/overview",
         "language-basics/built-in-types",
+        "language-basics/identifiers",
         "language-basics/imports",
         "language-basics/namespaces",
         "language-basics/decorators",
@@ -145,6 +146,7 @@ const sidebars: SidebarsConfig = {
         createLibraryReferenceStructure("emitters/json-schema", "JSON Schema", false, []),
         createLibraryReferenceStructure("emitters/openapi3", "OpenAPI3", false, [
           "emitters/openapi3/openapi",
+          "emitters/openapi3/cli",
           "emitters/openapi3/diagnostics",
         ]),
         createLibraryReferenceStructure("emitters/protobuf", "Protobuf", false, [

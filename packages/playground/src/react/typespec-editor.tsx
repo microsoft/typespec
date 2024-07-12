@@ -29,6 +29,7 @@ export const OutputEditor: FunctionComponent<{
   value: string;
   editorOptions?: PlaygroundEditorsOptions;
 }> = ({ filename, value, editorOptions }) => {
+  const model = useMonacoModel(filename);
   if (filename === "") {
     return null;
   }
@@ -40,7 +41,6 @@ export const OutputEditor: FunctionComponent<{
       enabled: false,
     },
   };
-  const model = useMonacoModel(filename);
   model.setValue(value);
   return <Editor model={model} options={options}></Editor>;
 };
