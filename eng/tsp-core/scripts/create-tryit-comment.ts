@@ -1,5 +1,3 @@
-import https from "https";
-
 const AZP_USERID = "azure-pipelines[bot]";
 const TRY_ID_COMMENT_IDENTIFIER = "_TSP_TRYIT_COMMENT_";
 main().catch((e) => {
@@ -81,55 +79,14 @@ async function writeComment(repo: string, prNumber: string, comment: string, ghA
 }
 
 async function request(method: string, url: string, data: any): Promise<string> {
-  const lib = https;
-  const value = new URL(url);
-
-  const params = {
+  const response = await fetch(url, {
     method,
-    host: value.host,
-    port: 443,
-    path: value.pathname,
     headers: {
       "User-Agent": "nodejs",
       ...data.headers,
+      Authorization: data.ghAuth,
     },
-  };
-
-  console.log("Params", params);
-
-  params.headers.Authorization = data.ghAuth;
-
-  return new Promise((resolve, reject) => {
-    const req = lib.request(params, (res) => {
-      const data: Buffer[] = [];
-
-      res.on("data", (chunk) => {
-        data.push(chunk);
-      });
-
-      res.on("end", () => {
-        if (res.statusCode && (res.statusCode < 200 || res.statusCode >= 300)) {
-          return reject(
-            new Error(
-              `Status Code: ${res.statusCode}, statusMessage: ${
-                res.statusMessage
-              }, headers: ${JSON.stringify(res.headers, null, 2)}, body: ${Buffer.concat(
-                data
-              ).toString()}`
-            )
-          );
-        } else {
-          resolve(Buffer.concat(data).toString());
-        }
-      });
-    });
-
-    req.on("error", reject);
-
-    if (data.body) {
-      req.write(data.body);
-    }
-
-    req.end();
   });
+
+  return response.text();
 }
