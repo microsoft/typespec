@@ -30,7 +30,6 @@ async function main() {
   const tryItComments = data.filter((x) => x.body.includes(TRY_ID_COMMENT_IDENTIFIER));
   console.log(`Found ${azoComments.length} Cadl Try It comment(s)`);
   if (tryItComments.length > 0) {
-    console.log("##vso[task.setvariable variable=SKIP_COMMENT;]true");
     return;
   }
 
