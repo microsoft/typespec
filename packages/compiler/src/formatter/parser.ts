@@ -25,7 +25,7 @@ export function parse(text: string, options: ParserOptions<any>): TypeSpecScript
  * This causes prettier to not know where comments belong.
  * https://github.com/microsoft/typespec/pull/2061
  */
-function flattenNamespaces(base: Node) {
+export function flattenNamespaces(base: Node) {
   visitChildren(base, (node) => {
     if (node.kind === SyntaxKind.NamespaceStatement) {
       let current = node;

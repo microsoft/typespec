@@ -512,6 +512,40 @@ importers:
         specifier: ~5.5.3
         version: 5.5.3
 
+  packages/importer:
+    dependencies:
+      '@typespec/compiler':
+        specifier: workspace:~
+        version: link:../compiler
+      picocolors:
+        specifier: ~1.0.1
+        version: 1.0.1
+    devDependencies:
+      '@types/node':
+        specifier: ~18.11.19
+        version: 18.11.19
+      '@vitest/coverage-v8':
+        specifier: ^1.6.0
+        version: 1.6.0(vitest@1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0))
+      '@vitest/ui':
+        specifier: ^1.6.0
+        version: 1.6.0(vitest@1.6.0)
+      c8:
+        specifier: ^10.1.2
+        version: 10.1.2
+      rimraf:
+        specifier: ~5.0.7
+        version: 5.0.7
+      typescript:
+        specifier: ~5.5.3
+        version: 5.5.3
+      vite:
+        specifier: ^5.3.2
+        version: 5.3.3(@types/node@18.11.19)(terser@5.30.0)
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0(vitest@1.6.0))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+
   packages/internal-build-utils:
     dependencies:
       '@pnpm/find-workspace-packages':
