@@ -22,8 +22,8 @@ extends:
           image: $(LINUXVMIMAGE)
           os: linux
         jobs:
-          - job: publish_playground
-            displayName: Publish playground
+          - job: tryit
+            displayName: Setup Try It
             variables:
               TYPESPEC_WEBSITE_BASE_PATH: "prs/$(System.PullRequest.PullRequestNumber)/"
             steps:
