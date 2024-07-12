@@ -43,8 +43,8 @@ namespace Microsoft.Generator.CSharp
             InputUnionType unionType => CSharpType.FromUnion(unionType.VariantTypes.Select(CreateCSharpType).ToArray()),
             InputArrayType listType => new CSharpType(typeof(IList<>), CreateCSharpType(listType.ValueType)),
             InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), typeof(string), CreateCSharpType(dictionaryType.ValueType)),
-            InputEnumType enumType => new CSharpType(enumType.Name.ToCleanName(), CodeModelPlugin.Instance.Configuration.ModelNamespace, true, true, false, null, null, enumType.Usage.HasFlag(InputModelTypeUsage.Input)),
-            InputModelType model => new CSharpType(model.Name.ToCleanName(), CodeModelPlugin.Instance.Configuration.ModelNamespace, false, false, false, null, null, model.Usage.HasFlag(InputModelTypeUsage.Input)),
+            InputEnumType enumType => CreateEnum(enumType).Type,
+            InputModelType model => CreateModel(model).Type,
             InputNullableType nullableType => CreateCSharpType(nullableType.Type).WithNullable(true),
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
@@ -88,7 +88,7 @@ namespace Microsoft.Generator.CSharp
         public TypeProvider CreateModel(InputModelType model)
         {
             var modelProvider = CreateModelCore(model);
-            _csharpToTypeProvider.Add(modelProvider.Type, modelProvider);
+            _csharpToTypeProvider.TryAdd(modelProvider.Type, modelProvider);
             return modelProvider;
         }
 
@@ -102,7 +102,7 @@ namespace Microsoft.Generator.CSharp
         public TypeProvider CreateEnum(InputEnumType enumType)
         {
             var enumProvider = CreateEnumCore(enumType);
-            _csharpToTypeProvider.Add(enumProvider.Type, enumProvider);
+            _csharpToTypeProvider.TryAdd(enumProvider.Type, enumProvider);
             return enumProvider;
         }
 
@@ -124,6 +124,13 @@ namespace Microsoft.Generator.CSharp
         /// associated with the input operation, or <c>null</c> if no methods are constructed.
         /// </returns>
         public virtual MethodProviderCollection CreateMethods(InputOperation operation, TypeProvider enclosingType) => new(operation, enclosingType);
+
+        /// <summary>
+        /// Factory method for creating a <see cref="PropertyProvider"/> based on an input property <paramref name="property"/>.
+        /// </summary>
+        /// <param name="property">The input model property.</param>
+        /// <returns>An instance of <see cref="PropertyProvider"/>.</returns>
+        public virtual PropertyProvider CreatePropertyProvider(InputModelProperty property) => new PropertyProvider(property);
 
         /// <summary>
         /// Factory method for retrieving the serialization format for a given input type.

@@ -17,9 +17,8 @@ namespace Microsoft.Generator.CSharp.Providers
     public sealed class ModelProvider : TypeProvider
     {
         private readonly InputModelType _inputModel;
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
-        public override string Name { get; }
-        protected override FormattableString Description { get; }
+
+        protected internal override FormattableString Description { get;}
 
         private readonly bool _isStruct;
         private readonly TypeSignatureModifiers _declarationModifiers;
@@ -27,7 +26,6 @@ namespace Microsoft.Generator.CSharp.Providers
         public ModelProvider(InputModelType inputModel)
         {
             _inputModel = inputModel;
-            Name = inputModel.Name.ToCleanName();
             Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : $"The {Name}.";
             _declarationModifiers = TypeSignatureModifiers.Partial |
                 (inputModel.ModelAsStruct ? TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct : TypeSignatureModifiers.Class);
@@ -52,6 +50,10 @@ namespace Microsoft.Generator.CSharp.Providers
             return CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputModel).ToArray();
         }
 
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+
+        protected override string BuildName() => _inputModel.Name.ToCleanName();
+
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _declarationModifiers;
 
         protected override PropertyProvider[] BuildProperties()
@@ -62,7 +64,7 @@ namespace Microsoft.Generator.CSharp.Providers
             for (int i = 0; i < propertiesCount; i++)
             {
                 var property = _inputModel.Properties[i];
-                propertyDeclarations[i] = new PropertyProvider(property);
+                propertyDeclarations[i] = CodeModelPlugin.Instance.TypeFactory.CreatePropertyProvider(property);
             }
 
             return propertyDeclarations;

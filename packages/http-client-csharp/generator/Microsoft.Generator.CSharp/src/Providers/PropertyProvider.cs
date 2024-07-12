@@ -44,7 +44,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var propHasSetter = PropertyHasSetter(propertyType, inputProperty);
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
 
-            Type = propertyType;
+            Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
             Modifiers = MethodSignatureModifiers.Public;
             Name = inputProperty.Name.ToCleanName();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
@@ -101,7 +101,7 @@ namespace Microsoft.Generator.CSharp.Providers
         /// Returns true if the property has a setter.
         /// </summary>
         /// <param name="type">The <see cref="CSharpType"/> of the property.</param>
-        private bool PropertyHasSetter(CSharpType type, InputModelProperty inputProperty)
+        protected virtual bool PropertyHasSetter(CSharpType type, InputModelProperty inputProperty)
         {
             if (inputProperty.IsDiscriminator)
             {

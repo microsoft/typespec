@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
 
         public ConvertSnippetsTests()
         {
-            MockCodeModelPlugin.LoadMockPlugin();
+            MockHelpers.LoadMockPlugin();
         }
 
         [Test]
