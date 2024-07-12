@@ -36,14 +36,24 @@ async function main() {
     return;
   }
 
-  const comment = [
+  const comment = makeComment(folderName, prNumber);
+  await writeComment(repo, prNumber, comment, ghAuth);
+}
+
+function makeComment(folderName: string, prNumber: string): string {
+  const links = [
+    `[🛝 Playground]( https://cadlplayground.z22.web.core.windows.net${folderName}/prs/${prNumber}/")`,
+    `[🌐 Website](https://tspwebsitepr.z22.web.core.windows.net${folderName}/prs/${prNumber}/)`,
+    `[📚 Next docs](https://tspwebsitepr.z22.web.core.windows.net${folderName}/prs/${prNumber}/docs/next.html)`,
+  ];
+
+  return [
     `<!-- ${TRY_ID_COMMENT_IDENTIFIER} -->`,
     `You can try these changes here`,
     "",
-    `| [🛝 Playground]( https://cadlplayground.z22.web.core.windows.net${folderName}/prs/${prNumber}/") | [🌐 Website](https://tspwebsitepr.z22.web.core.windows.net${folderName}/prs/${prNumber}/) |`,
-    "|---|---|",
+    `| ${links.join("|")} |`,
+    `| ${links.map(() => "---").join("|")} |`,
   ].join("\n");
-  await writeComment(repo, prNumber, comment, ghAuth);
 }
 
 async function listComments(repo: string, prNumber: string, ghAuth: string): Promise<any[]> {
