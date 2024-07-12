@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         public const string MocksFolder = "Mocks";
 
         public static void LoadMockPlugin(
-            Func<TypeProvider, InputType, IReadOnlyList<TypeProvider>>? getSerializationTypeProviders = null,
+            Func<InputType, IReadOnlyList<TypeProvider>>? getSerializationTypeProviders = null,
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<CSharpType>? matchConditionsType = null,
             Func<CSharpType>? tokenCredentialType = null,
