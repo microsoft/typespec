@@ -40,7 +40,7 @@ async function main() {
     `<!-- ${TRY_ID_COMMENT_IDENTIFIER} -->`,
     `You can try these changes here`,
     "",
-    `| [Playground]( https://cadlplayground.z22.web.core.windows.net${folderName}/prs/${prNumber}/") | [Website](https://tspwebsitepr.z22.web.core.windows.net${folderName}/prs/${prNumber}/) |`,
+    `| [🛝 Playground]( https://cadlplayground.z22.web.core.windows.net${folderName}/prs/${prNumber}/") | [🌐 Website](https://tspwebsitepr.z22.web.core.windows.net${folderName}/prs/${prNumber}/) |`,
     "|---|---|",
   ].join("\n");
   await writeComment(repo, prNumber, comment, ghAuth);
