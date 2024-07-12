@@ -72,7 +72,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _jsonModelObjectInterface = _isStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
             _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), provider.Type);
             _persistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
-            _baseSerializationProvider = FindSerializationOnBase(_model);
+            _baseSerializationProvider = FindSerializationOnBase(provider, inputModel);
             _rawDataField = BuildRawDataField();
             _shouldOverrideMethods = _model.Type.BaseType != null && _model.Type.BaseType is { IsFrameworkType: false };
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
@@ -846,9 +846,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private IReadOnlyList<PropertyProvider> GetAllProperties()
         {
             var provider = _model;
+            var inputModel = _inputModel;
             var properties = new List<PropertyProvider>(provider.Properties);
 
-            while ((provider = GetBaseProvider(provider)) != null)
+            while ((provider = GetBaseProvider(provider, inputModel)) != null)
             {
                 properties.AddRange(provider.Properties);
             }
@@ -856,14 +857,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return properties;
         }
 
-        private static TypeProvider? GetBaseProvider(TypeProvider provider)
+        private static TypeProvider? GetBaseProvider(TypeProvider provider, InputModelType inputModel)
         {
             var baseType = provider.Type.BaseType;
-            if (baseType == null)
+            var inputBaseModel = inputModel.BaseModel;
+            if (baseType == null || inputBaseModel == null)
             {
                 return null;
             }
-            var baseProvider = ClientModelPlugin.Instance.TypeFactory.GetProvider(baseType);
+            var baseProvider = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputBaseModel);
             return baseProvider;
         }
 
@@ -1060,9 +1062,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ? new IfElseStatement(arrayItemVar.ValueKindEqualsNull(), assignNull, deserializeValue)
                 : deserializeValue;
 
-        private static MrwSerializationTypeDefinition? FindSerializationOnBase(TypeProvider model)
+        private static MrwSerializationTypeDefinition? FindSerializationOnBase(TypeProvider model, InputModelType inputModel)
         {
-            var baseModel = GetBaseProvider(model);
+            var baseModel = GetBaseProvider(model, inputModel);
             if (baseModel == null)
             {
                 return null;
