@@ -1,32 +1,24 @@
-// @ts-check
-import { execSync } from "child_process";
 import https from "https";
 
 const AZP_USERID = "azure-pipelines[bot]";
-const TRY_ID_COMMENT_IDENTIFIER = "_CADL_TRYIT_COMMENT_";
+const TRY_ID_COMMENT_IDENTIFIER = "_TSP_TRYIT_COMMENT_";
 main().catch((e) => {
   console.error(e);
   // @ts-ignore
   process.exit(1);
 });
 
-/**
- * Retrieve github authentication header from the git config.
- * MUST have `persistCredentials: true` in the checkout step.
- */
-function getGithubAuthHeader(repo) {
-  const stdout = execSync(`git config --get http.https://github.com/${repo}.extraheader`)
-    .toString()
-    .trim();
-  const authHeader = stdout.split(": ")[1];
-  return authHeader;
-}
-
 async function main() {
   const folderName = process.argv.length > 2 ? `/${process.argv[2]}` : "";
   const repo = process.env["BUILD_REPOSITORY_ID"];
   const prNumber = process.env["SYSTEM_PULLREQUEST_PULLREQUESTNUMBER"];
   const ghToken = process.env.GH_TOKEN;
+  if (repo === undefined) {
+    throw new Error("BUILD_REPOSITORY_ID environment variable is not set");
+  }
+  if (prNumber === undefined) {
+    throw new Error("SYSTEM_PULLREQUEST_PULLREQUESTNUMBER environment variable is not set");
+  }
   if (ghToken === undefined) {
     throw new Error("GH_TOKEN environment variable is not set");
   }
@@ -46,20 +38,21 @@ async function main() {
 
   const comment = [
     `<!-- ${TRY_ID_COMMENT_IDENTIFIER} -->`,
-    `You can try these changes at https://cadlplayground.z22.web.core.windows.net${folderName}/prs/${prNumber}/`,
+    `You can try these changes here`,
     "",
-    `Check the website changes at https://tspwebsitepr.z22.web.core.windows.net${folderName}/prs/${prNumber}/`,
+    `| [Playground]( https://cadlplayground.z22.web.core.windows.net${folderName}/prs/${prNumber}/") | [Website](https://tspwebsitepr.z22.web.core.windows.net${folderName}/prs/${prNumber}/) |`,
+    "|---|---|",
   ].join("\n");
   await writeComment(repo, prNumber, comment, ghAuth);
 }
 
-async function listComments(repo, prNumber, ghAuth) {
+async function listComments(repo: string, prNumber: string, ghAuth: string): Promise<any[]> {
   const url = `https://api.github.com/repos/${repo}/issues/${prNumber}/comments?per_page=100`;
   const result = await request("GET", url, { ghAuth });
   return JSON.parse(result);
 }
 
-async function writeComment(repo, prNumber, comment, ghAuth) {
+async function writeComment(repo: string, prNumber: string, comment: string, ghAuth: string) {
   const url = `https://api.github.com/repos/${repo}/issues/${prNumber}/comments`;
   const body = {
     body: comment,
@@ -77,7 +70,7 @@ async function writeComment(repo, prNumber, comment, ghAuth) {
   console.log("Comment created", response);
 }
 
-async function request(method, url, data) {
+async function request(method: string, url: string, data: any): Promise<string> {
   const lib = https;
   const value = new URL(url);
 
@@ -98,7 +91,7 @@ async function request(method, url, data) {
 
   return new Promise((resolve, reject) => {
     const req = lib.request(params, (res) => {
-      const data = [];
+      const data: Buffer[] = [];
 
       res.on("data", (chunk) => {
         data.push(chunk);
