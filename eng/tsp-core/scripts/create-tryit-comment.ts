@@ -85,6 +85,7 @@ async function request(method: string, url: string, data: any): Promise<string> 
       ...data.headers,
       Authorization: data.ghAuth,
     },
+    body: data.body,
   });
 
   return response.text();
