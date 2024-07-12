@@ -3,6 +3,9 @@ import {
   getLocationContext,
   normalizePath,
   printTypeSpecNode,
+  SyntaxKind,
+  type ImportStatementNode,
+  type Statement,
   type TypeSpecScriptNode,
 } from "@typespec/compiler";
 import { resolve } from "path";
@@ -14,13 +17,13 @@ function log(...args: any[]) {
   // eslint-disable-next-line no-console
   console.log(...args);
 }
-const result = parseArgs({
+const args = parseArgs({
   options: {},
   args: process.argv.slice(2),
   allowPositionals: true,
 });
 
-const entrypoint = normalizePath(resolve(result.positionals[0]));
+const entrypoint = normalizePath(resolve(args.positionals[0]));
 
 const program = await compile(ImporterHost, entrypoint);
 
@@ -56,14 +59,60 @@ for (const file of program.sourceFiles.values()) {
   }
 }
 
-// console.log(
-//   "Source files:",
-//   sourceFiles.map((x) => x.file.path)
+const imports: Record<string, ImportStatementNode> = {};
+const statements: Statement[] = [];
 
 for (const file of sourceFiles) {
-  const result = await printTypeSpecNode(file);
-  console.log("Result:----\n", result);
+  let currentStatements = statements;
+  for (const statement of file.statements) {
+    switch (statement.kind) {
+      case SyntaxKind.ImportStatement:
+        if (!statement.path.value.startsWith(".")) {
+          imports[statement.path.value] = statement;
+        }
+        break;
+      case SyntaxKind.NamespaceStatement:
+        let current = statement;
+        const ids = [statement.id];
+        while (current.statements && "kind" in current.statements) {
+          current = current.statements;
+          ids.push(current.id);
+        }
+        if (current.statements === undefined) {
+          currentStatements = [];
+          statements.push({ ...current, statements: currentStatements, ...({ ids } as any) });
+        } else {
+          currentStatements.push({ ...current, ...({ ids } as any) });
+        }
+        break;
+      default:
+        currentStatements.push(statement);
+    }
+  }
 }
+
+const newSourceFile: TypeSpecScriptNode = {
+  kind: SyntaxKind.TypeSpecScript,
+  statements: [...Object.values(imports), ...statements],
+  comments: [],
+  file: undefined as any,
+  pos: 0,
+  end: 0,
+  parseOptions: sourceFiles[0].parseOptions,
+  // Binder items
+  usings: [],
+  inScopeNamespaces: [],
+  namespaces: [],
+  parseDiagnostics: [],
+  printable: true,
+  id: undefined as any,
+  flags: 0,
+  symbol: undefined as any,
+  locals: undefined as any,
+};
+
+const result = await printTypeSpecNode(newSourceFile);
+console.log("Result:----\n", result);
 
 if (errors.length > 0) {
   for (const error of errors) {
