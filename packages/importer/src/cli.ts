@@ -1,6 +1,8 @@
 import {
   compile,
   getLocationContext,
+  logDiagnostics,
+  NodeHost,
   normalizePath,
   printTypeSpecNode,
   SyntaxKind,
@@ -26,6 +28,11 @@ const args = parseArgs({
 const entrypoint = normalizePath(resolve(args.positionals[0]));
 
 const program = await compile(ImporterHost, entrypoint);
+
+if (program.hasError()) {
+  logDiagnostics(program.diagnostics, NodeHost.logSink);
+  process.exit(1);
+}
 
 const errors = [];
 const libraries = new Set<string>();
