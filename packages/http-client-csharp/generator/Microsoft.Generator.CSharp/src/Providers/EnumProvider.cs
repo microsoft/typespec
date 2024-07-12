@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -57,5 +58,10 @@ namespace Microsoft.Generator.CSharp.Providers
         protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
         protected override bool GetIsEnum() => true;
+
+        protected override TypeProvider[] BuildSerializationProviders()
+        {
+            return CodeModelPlugin.Instance.GetSerializationTypeProviders(_input).ToArray();
+        }
     }
 }
