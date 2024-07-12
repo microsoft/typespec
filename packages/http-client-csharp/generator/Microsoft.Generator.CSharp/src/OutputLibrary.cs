@@ -13,7 +13,11 @@ namespace Microsoft.Generator.CSharp
         }
 
         private IReadOnlyList<TypeProvider>? _typeProviders;
-        public IReadOnlyList<TypeProvider> TypeProviders => _typeProviders ??= BuildTypeProviders();
+        public IReadOnlyList<TypeProvider> TypeProviders
+        {
+            get => _typeProviders ??= BuildTypeProviders();
+            internal set => _typeProviders = value;
+        }
 
         private static TypeProvider[] BuildEnums()
         {
@@ -51,5 +55,7 @@ namespace Microsoft.Generator.CSharp
                 new OptionalDefinition(),
             ];
         }
+
+        protected internal virtual OutputLibraryVisitor[]? GetOutputLibraryVisitors() => null;
     }
 }
