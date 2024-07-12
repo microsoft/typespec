@@ -1,0 +1,89 @@
+{
+  "name": "@typespec/http-client-java",
+  "version": "0.1.0",
+  "description": "TypeSpec library for emitting Java client from the TypeSpec REST protocol binding",
+  "keywords": [
+    "TypeSpec"
+  ],
+  "author": "Microsoft Corporation",
+  "homepage": "https://github.com/Microsoft/typespec",
+  "readme": "https://github.com/Microsoft/typespec/blob/main/packages/http-client-java/README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Microsoft/typespec.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Microsoft/typespec/issues"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/src/emitter.js",
+  "exports": {
+    ".": "./dist/src/emitter.js",
+    "./testing": "./dist/src/testing/index.js"
+  },
+  "tspMain": "dist/src/emitter.js",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "clean": "rimraf ./dist ./temp",
+    "build": "tsc -p .",
+    "watch": "tsc -p . --watch",
+    "test": "mocha",
+    "test-official": "c8 mocha --forbid-only",
+    "lint": "eslint . --ext .ts --max-warnings=0",
+    "lint:fix": "eslint . --fix --ext .ts",
+    "format": "npm run -s prettier -- --write",
+    "check-format": "npm run prettier -- --check",
+    "prettier": "prettier --config ./.prettierrc.yaml **/*.ts"
+  },
+  "files": [
+    "lib/*.tsp",
+    "dist/**",
+    "!dist/test/**",
+    "target/emitter.jar"
+  ],
+  "peerDependencies": {
+    "@azure-tools/typespec-azure-core": ">=0.43.0 <1.0.0",
+    "@azure-tools/typespec-azure-resource-manager": ">=0.43.0 <1.0.0",
+    "@azure-tools/typespec-autorest": ">=0.43.0 <1.0.0",
+    "@azure-tools/typespec-azure-rulesets": ">=0.43.0 <1.0.0",
+    "@azure-tools/typespec-client-generator-core": ">=0.43.0 <1.0.0",
+    "@typespec/compiler": ">=0.57.0 <1.0.0",
+    "@typespec/http": ">=0.57.0 <1.0.0",
+    "@typespec/openapi": ">=0.57.0 <1.0.0",
+    "@typespec/rest": ">=0.57.0 <1.0.0",
+    "@typespec/versioning": ">=0.57.0 <1.0.0"
+  },
+  "dependencies": {
+    "@autorest/codemodel": "~4.20.0",
+    "js-yaml": "~4.1.0",
+    "lodash": "~4.17.21"
+  },
+  "devDependencies": {
+    "@azure-tools/typespec-azure-core": "0.43.0",
+    "@azure-tools/typespec-azure-resource-manager": "0.43.0",
+    "@azure-tools/typespec-autorest": "0.43.0",
+    "@azure-tools/typespec-azure-rulesets": "0.43.0",
+    "@azure-tools/typespec-client-generator-core": "0.43.0",
+    "@types/js-yaml": "~4.0.9",
+    "@types/lodash": "~4.17.1",
+    "@types/mocha": "~10.0.6",
+    "@types/node": "~20.12.10",
+    "@typescript-eslint/eslint-plugin": "~7.8.0",
+    "@typescript-eslint/parser": "~7.8.0",
+    "@typespec/compiler": "0.57.0",
+    "@typespec/http": "0.57.0",
+    "@typespec/openapi": "0.57.0",
+    "@typespec/rest": "0.57.0",
+    "@typespec/versioning": "0.57.0",
+    "c8": "~9.1.0",
+    "eslint": "~8.57.0",
+    "eslint-plugin-deprecation": "~2.0.0",
+    "mocha": "~10.4.0",
+    "prettier": "~3.2.5",
+    "rimraf": "~5.0.5",
+    "typescript": "~5.4.5"
+  }
+}
