@@ -350,7 +350,7 @@ describe("compiler: built-in decorators", () => {
 
   describe("@friendlyName", () => {
     it("applies @friendlyName on model", async () => {
-      const { A, B, C } = await runner.compile(`
+      const { A, B } = await runner.compile(`
         @test
         @friendlyName("MyNameIsA")
         model A { }
