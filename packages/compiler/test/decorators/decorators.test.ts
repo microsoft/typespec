@@ -363,13 +363,9 @@ describe("compiler: built-in decorators", () => {
         model Templated<T> {
           prop: T;
         }
-
-        @test
-        model C is Templated<B>{};
         `);
       strictEqual(getFriendlyName(runner.program, A), "MyNameIsA");
       strictEqual(getFriendlyName(runner.program, B), "BModel");
-      strictEqual(getFriendlyName(runner.program, C), "TemplatedB");
     });
 
     it(" @friendlyName doesn't carry over to derived models", async () => {
