@@ -13,13 +13,13 @@ namespace Microsoft.Generator.CSharp.Providers
     public class MethodProviderCollection : IReadOnlyList<MethodProvider>
     {
         private IReadOnlyList<MethodProvider>? _cSharpMethods;
-        protected readonly InputOperation _operation;
-        protected readonly TypeProvider _enclosingType;
+        protected InputOperation Operation { get; private init; }
+        protected TypeProvider EnclosingType { get; private init; }
 
         public MethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
         {
-            _operation = operation;
-            _enclosingType = enclosingType;
+            Operation = operation;
+            EnclosingType = enclosingType;
         }
 
         protected virtual IReadOnlyList<MethodProvider> BuildMethods() => [];

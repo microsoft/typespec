@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
@@ -75,8 +76,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
             _jsonElementParameterSnippet = _jsonElementDeserializationParam.As<JsonElement>();
             _isNotEqualToWireConditionSnippet = _mrwOptionsParameterSnippet.Format().NotEqual(ModelReaderWriterOptionsSnippets.WireFormat);
-
-            Name = provider.Name;
         }
 
         protected override string GetNamespace() => _model.Type.Namespace;
@@ -84,8 +83,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
         private ConstructorProvider SerializationConstructor => _serializationConstructor ??= BuildSerializationConstructor();
 
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
-        public override string Name { get; }
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
+
+        protected override string BuildName() => _model.Name;
 
         /// <summary>
         /// Builds the fields for the model by adding the raw data field for serialization.
@@ -751,9 +751,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             for (var i = 0; i < _model.Properties.Count; i++)
             {
                 var property = _model.Properties[i];
-                var propertyWireInfo = property.WireInfo;
-                var propertySerializationName = propertyWireInfo?.SerializedName ?? property.Name;
-                var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName.ToVariableName()))
+                // we should only deserialize properties with a wire info. Those properties without wire info indicate they are not spec properties.
+                if (property.WireInfo is not { } wireInfo)
+                {
+                    continue;
+                }
+                var propertySerializationName = wireInfo.SerializedName;
+                var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName))
                 {
                     DeserializeProperty(property, jsonProperty)
                 };
@@ -1246,7 +1250,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             CSharpType type,
             ValueExpression value)
         {
-            var enumerableSnippet = new ScopedApi(type, value.NullableStructValue(type));
+            var enumerableSnippet = value.NullableStructValue(type).As(type);
             if ((EnumIsIntValueType(enumProvider) && !enumProvider.IsExtensible) || EnumIsNumericValueType(enumProvider))
             {
                 return _utf8JsonWriterSnippet.WriteNumberValue(enumProvider.ToSerial(enumerableSnippet));
@@ -1397,7 +1401,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             CSharpType itemType = enumerableType.IsReadOnlyMemory ? new CSharpType(typeof(ReadOnlySpan<>), enumerableType.Arguments[0]) :
                 enumerableType.ElementType;
 
-            return new ScopedApi(new CSharpType(typeof(IEnumerable<>), itemType), expression);
+            return expression.As(new CSharpType(typeof(IEnumerable<>), itemType));
         }
 
         private static bool IsRequiredOrNonNullableValueType(CSharpType propertyType, bool isRequired)
