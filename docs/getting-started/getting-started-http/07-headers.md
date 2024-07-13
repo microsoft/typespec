@@ -1,5 +1,4 @@
 ---
-id: getting-started-http-07-headers
 title: Headers
 ---
 

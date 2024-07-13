@@ -1,5 +1,4 @@
 ---
-id: getting-started-http-01-setup
 title: Setup
 ---
 

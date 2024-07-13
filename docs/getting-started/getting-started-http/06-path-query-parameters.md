@@ -1,5 +1,4 @@
 ---
-id: getting-started-http-06-path-query-parameters
 title: Path and Query Parameters
 ---
 

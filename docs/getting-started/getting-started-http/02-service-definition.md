@@ -1,5 +1,4 @@
 ---
-id: getting-started-http-02-service-definition
 title: Service Definition and Metadata
 ---
 

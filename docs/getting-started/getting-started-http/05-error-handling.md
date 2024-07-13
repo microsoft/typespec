@@ -1,5 +1,4 @@
 ---
-id: getting-started-http-05-error-handling
 title: Error Handling
 ---
 

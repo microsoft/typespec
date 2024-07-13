@@ -1,5 +1,4 @@
 ---
-id: getting-started-http-04-resources-routes-status
 title: Resources, Routes, and Status Codes
 ---
 

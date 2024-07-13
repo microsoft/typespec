@@ -1,5 +1,4 @@
 ---
-id: getting-started-http-03-versioning
 title: Versioning
 ---
 

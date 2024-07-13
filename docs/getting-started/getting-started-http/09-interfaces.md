@@ -1,5 +1,4 @@
 ---
-id: getting-started-http-09-interfaces
 title: Interfaces
 ---
 

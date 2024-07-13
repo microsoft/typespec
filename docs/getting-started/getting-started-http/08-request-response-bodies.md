@@ -1,5 +1,4 @@
 ---
-id: getting-started-http-08-request-response-bodies
 title: Request and Response Bodies
 ---
 

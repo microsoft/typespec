@@ -1,5 +1,4 @@
 ---
-id: getting-started-http-11-summary
 title: Summary
 ---
 

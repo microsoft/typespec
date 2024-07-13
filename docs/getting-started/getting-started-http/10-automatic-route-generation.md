@@ -1,5 +1,4 @@
 ---
-id: getting-started-http-10-automatic-route-generation
 title: Resources and Routes
 ---
 
