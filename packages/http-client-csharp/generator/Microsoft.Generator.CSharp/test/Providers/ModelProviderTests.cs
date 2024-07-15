@@ -140,6 +140,21 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         }
 
         [Test]
+        public void BuildBaseType()
+        {
+            var inputBase = new InputModelType("baseModel", "baseModel", null, null, null, InputModelTypeUsage.Input, [], null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputDerived = new InputModelType("derivedModel", "derivedModel", null, null, null, InputModelTypeUsage.Input, [], inputBase, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            ((List<InputModelType>)inputBase.DerivedModels).Add(inputDerived);
+
+            MockHelpers.LoadMockPlugin();
+
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputBase);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputDerived);
+
+            Assert.AreEqual(baseModel.Type, derivedModel.Type.BaseType);
+        }
+
+        [Test]
         public void BuildModelAsStruct()
         {
             var properties = new List<InputModelProperty>{
