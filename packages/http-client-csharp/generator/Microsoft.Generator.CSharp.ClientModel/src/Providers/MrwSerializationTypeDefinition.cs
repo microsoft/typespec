@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
@@ -423,7 +422,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 return null;
             }
 
-            return ((MethodSignature)method.Signature).ReturnType;
+            return method.Signature.ReturnType;
         }
 
         /// <summary>
@@ -611,6 +610,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             MethodBodyStatement rawDataDictionaryDeclaration = MethodBodyStatement.Empty;
             MethodBodyStatement assignRawData = MethodBodyStatement.Empty;
 
+            // TODO -- This should be simplified if we have the canonical type of typeproviders: https://github.com/microsoft/typespec/issues/3796
             // recursively get the raw data field from myself and all the base
             var rawDataField = _rawDataField;
             var baseSerialization = _baseSerializationProvider;
@@ -1112,12 +1112,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
                 // we cannot know exactly which ctor to call, but in our implementation, it should always be the one with most parameters
                 var ctor = baseProvider.Constructors.OrderByDescending(c => c.Signature.Parameters.Count).First();
-                if (ctor.Signature is not ConstructorSignature ctorSignature || ctorSignature.Parameters.Count == 0)
+                if (ctor.Signature.Parameters.Count == 0)
                 {
                     return null;
                 }
 
-                return ctorSignature;
+                return ctor.Signature;
             }
         }
 
