@@ -3,8 +3,21 @@ import { OpenAPI3Encoding, OpenAPI3Responses, OpenAPI3Schema, Refable } from "..
 
 export interface TypeSpecProgram {
   serviceInfo: TypeSpecServiceInfo;
+  namespaces: Record<string, TypeSpecNamespace>;
   models: TypeSpecModel[];
   augmentations: TypeSpecAugmentation[];
+  operations: TypeSpecOperation[];
+}
+
+export interface TypeSpecDeclaration {
+  name: string;
+  doc?: string;
+  scope: string[];
+}
+
+export interface TypeSpecNamespace {
+  namespaces: Record<string, TypeSpecNamespace>;
+  models: TypeSpecModel[];
   operations: TypeSpecOperation[];
 }
 
@@ -27,9 +40,7 @@ export interface TypeSpecAugmentation extends TypeSpecDecorator {
   target: string;
 }
 
-export interface TypeSpecModel {
-  name: string;
-  doc?: string;
+export interface TypeSpecModel extends TypeSpecDeclaration {
   decorators: TypeSpecDecorator[];
   properties: TypeSpecModelProperty[];
   additionalProperties?: Refable<OpenAPI3Schema>;
@@ -60,7 +71,7 @@ export interface TypeSpecModelProperty {
   schema: Refable<OpenAPI3Schema>;
 }
 
-export interface TypeSpecOperation {
+export interface TypeSpecOperation extends TypeSpecDeclaration {
   name: string;
   doc?: string;
   decorators: TypeSpecDecorator[];

@@ -9,6 +9,7 @@ import {
 import { TypeSpecDecorator, TypeSpecModel, TypeSpecModelProperty } from "../interfaces.js";
 import { convertHeaderName } from "../utils/convert-header-name.js";
 import { getDecoratorsForSchema, getExtensions } from "../utils/decorators.js";
+import { getScopeAndName } from "../utils/get-scope-and-name.js";
 import { supportedHttpMethods } from "../utils/supported-http-methods.js";
 
 type OperationResponseInfo = {
@@ -86,10 +87,13 @@ function transformOperationResponses(
       decorators.push({ name: "error", args: [] });
     }
 
+    const scopeAndName = getScopeAndName(operationId!);
+
     if (!response.content) {
       // This is common when there is no actual request body, just a statusCode, e.g. for errors
       models.push({
-        name: generateResponseModelName(operationId, statusCode),
+        scope: scopeAndName.scope,
+        name: generateResponseModelName(scopeAndName.name, statusCode),
         decorators,
         properties: commonProperties,
         doc: response.description,
@@ -121,7 +125,8 @@ function transformOperationResponses(
         }
 
         models.push({
-          name: generateResponseModelName(operationId, statusCode, contentType),
+          scope: scopeAndName.scope,
+          name: generateResponseModelName(scopeAndName.name, statusCode, contentType),
           decorators,
           properties,
           doc: response.description,

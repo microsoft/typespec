@@ -10,6 +10,7 @@ import {
   TypeSpecRequestBody,
 } from "../interfaces.js";
 import { getExtensions, getParameterDecorators } from "../utils/decorators.js";
+import { getScopeAndName } from "../utils/get-scope-and-name.js";
 import { supportedHttpMethods } from "../utils/supported-http-methods.js";
 
 /**
@@ -30,7 +31,7 @@ export function transformPaths(paths: Record<string, OpenAPI3PathItem>): TypeSpe
       const tags = operation.tags?.map((t) => t) ?? [];
 
       operations.push({
-        name: operation.operationId!,
+        ...getScopeAndName(operation.operationId!),
         decorators: [
           ...getExtensions(operation),
           { name: "route", args: [route] },
