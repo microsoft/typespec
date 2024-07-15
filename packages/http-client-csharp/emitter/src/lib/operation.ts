@@ -3,24 +3,25 @@
 
 import { getLroMetadata } from "@azure-tools/typespec-azure-core";
 import {
-  SdkContext,
   getAccess,
   isApiVersion,
+  SdkContext,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
 } from "@azure-tools/typespec-client-generator-core";
 import {
+  getDeprecated,
+  getDoc,
+  getSummary,
+  isErrorModel,
   Model,
   ModelProperty,
   Namespace,
   Operation,
   Type,
-  getDeprecated,
-  getDoc,
-  getSummary,
-  isErrorModel,
 } from "@typespec/compiler";
 import { HttpOperation, HttpOperationParameter, HttpOperationResponse } from "@typespec/http";
+import { getExtensions } from "@typespec/openapi";
 import { getResourceOperation } from "@typespec/rest";
 import { NetEmitterOptions } from "../options.js";
 import { BodyMediaType, typeToBodyMediaType } from "../type/body-media-type.js";
@@ -45,7 +46,7 @@ import { OperationLongRunning } from "../type/operation-long-running.js";
 import { OperationPaging } from "../type/operation-paging.js";
 import { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation, requestLocationMap } from "../type/request-location.js";
-import { RequestMethod, parseHttpRequestMethod } from "../type/request-method.js";
+import { parseHttpRequestMethod, RequestMethod } from "../type/request-method.js";
 import { Usage } from "../type/usage.js";
 import { getExternalDocs, getOperationId, hasDecorator } from "./decorators.js";
 import { Logger } from "./logger.js";
@@ -82,10 +83,17 @@ export function loadOperation(
   if (typespecParameters.body?.property && !isVoidType(typespecParameters.body.type)) {
     parameters.push(loadBodyParameter(sdkContext, typespecParameters.body?.property));
   } else if (typespecParameters.body?.type && !isVoidType(typespecParameters.body.type)) {
-    const effectiveBodyType = getEffectiveSchemaType(sdkContext, typespecParameters.body.type);
-    if (effectiveBodyType.kind === "Model") {
+    const rawBodyType = typespecParameters.body.type;
+    if (rawBodyType.kind === "Model") {
+      const effectiveBodyType = getEffectiveSchemaType(
+        sdkContext,
+        typespecParameters.body.type
+      ) as Model;
       const bodyParameter = loadBodyParameter(sdkContext, effectiveBodyType);
-      if (effectiveBodyType.name === "") {
+      if (
+        effectiveBodyType.name === "" ||
+        rawBodyType.sourceModels.some((m) => m.usage === "spread")
+      ) {
         bodyParameter.Kind = InputOperationParameterKind.Spread;
       }
       // TODO: remove this after https://github.com/Azure/typespec-azure/issues/69 is resolved
@@ -244,7 +252,9 @@ export function loadOperation(
       IsResourceParameter: false,
       IsContentType: isContentType,
       IsEndpoint: false,
-      SkipUrlEncoding: false, //TODO: retrieve out value from extension
+      SkipUrlEncoding:
+        // TODO: update this when https://github.com/Azure/typespec-azure/issues/1022 is resolved
+        getExtensions(program, param).get("x-ms-skip-url-encoding") === true,
       Explode: (inputType as InputArrayType).ValueType && format === "multi" ? true : false,
       Kind: kind,
       ArraySerializationDelimiter: format ? collectionFormatToDelimMap[format] : undefined,
@@ -332,7 +342,7 @@ export function loadOperation(
       return undefined;
     }
 
-    let bodyType: InputType | undefined = undefined;
+    let bodyType = undefined;
     if (
       op.verb !== "delete" &&
       metadata.finalResult !== undefined &&

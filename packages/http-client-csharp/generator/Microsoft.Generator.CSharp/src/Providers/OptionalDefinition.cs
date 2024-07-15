@@ -34,9 +34,9 @@ namespace Microsoft.Generator.CSharp.Providers
             return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }
 
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        public override string Name => "Optional";
+        protected override string BuildName() => "Optional";
 
         protected override MethodProvider[] BuildMethods()
         {

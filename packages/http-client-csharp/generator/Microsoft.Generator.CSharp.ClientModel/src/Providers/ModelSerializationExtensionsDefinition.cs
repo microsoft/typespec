@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text.Json;
+using Microsoft.Generator.CSharp.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
@@ -49,9 +50,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private const string _wireOptionsName = "WireOptions";
         private readonly FieldProvider _wireOptionsField;
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        public override string Name => "ModelSerializationExtensions";
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+
+        protected override string BuildName() => "ModelSerializationExtensions";
 
         protected override FieldProvider[] BuildFields()
         {

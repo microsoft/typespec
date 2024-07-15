@@ -38,6 +38,6 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ScopedApi<StringBuilder> Remove(this ScopedApi<StringBuilder> sbExpression, ValueExpression startIndex, ValueExpression length)
             => sbExpression.Invoke(nameof(StringBuilder.Remove), [startIndex, length]).As<StringBuilder>();
 
-        public static ValueExpression Index(this ScopedApi<StringBuilder> sbExpression, ValueExpression index) => new IndexerExpression(sbExpression, index);
+        public static IndexerExpression Index(this ScopedApi<StringBuilder> sbExpression, ValueExpression index) => new IndexerExpression(sbExpression, index);
     }
 }

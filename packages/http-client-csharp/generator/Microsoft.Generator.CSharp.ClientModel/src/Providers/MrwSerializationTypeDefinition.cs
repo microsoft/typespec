@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
@@ -24,17 +25,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     /// <summary>
     /// This class provides the set of serialization models, methods, and interfaces for a given model.
     /// </summary>
-    internal sealed class MrwSerializationTypeDefinition : TypeProvider
+    internal class MrwSerializationTypeDefinition : TypeProvider
     {
         private const string PrivateAdditionalPropertiesPropertyDescription = "Keeps track of any properties unknown to the library.";
         private const string PrivateAdditionalPropertiesPropertyName = "_serializedAdditionalRawData";
         private const string JsonModelWriteCoreMethodName = "JsonModelWriteCore";
+        private const string JsonModelCreateCoreMethodName = "JsonModelCreateCore";
         private const string PersistableModelWriteCoreMethodName = "PersistableModelWriteCore";
         private const string PersistableModelCreateCoreMethodName = "PersistableModelCreateCore";
         private const string WriteAction = "writing";
         private const string ReadAction = "reading";
         private const string AdditionalRawDataVarName = "serializedAdditionalRawData";
         private readonly ParameterProvider _utf8JsonWriterParameter = new("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
+        private readonly ParameterProvider _utf8JsonReaderParameter = new("reader", $"The JSON reader.", typeof(Utf8JsonReader), isRef: true);
         private readonly ParameterProvider _serializationOptionsParameter =
             new("options", $"The client options for reading and writing models.", typeof(ModelReaderWriterOptions));
         private readonly ParameterProvider _jsonElementDeserializationParam =
@@ -53,37 +56,36 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly InputModelType _inputModel;
         private readonly FieldProvider? _rawDataField;
         private readonly bool _isStruct;
-        private MethodProvider? _serializationConstructor;
+        private ConstructorProvider? _serializationConstructor;
         // Flag to determine if the model should override the serialization methods
         private readonly bool _shouldOverrideMethods;
 
-        public MrwSerializationTypeDefinition(TypeProvider provider, InputModelType inputModel)
+        public MrwSerializationTypeDefinition(InputModelType inputModel)
         {
-            _model = provider;
+            _model = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
             _inputModel = inputModel;
-            _isStruct = provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
+            _isStruct = _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             // Initialize the serialization interfaces
-            _jsonModelTInterface = new CSharpType(typeof(IJsonModel<>), provider.Type);
+            _jsonModelTInterface = new CSharpType(typeof(IJsonModel<>), _model.Type);
             _jsonModelObjectInterface = _isStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
-            _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), provider.Type);
+            _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), _model.Type);
             _persistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
             _rawDataField = BuildRawDataField();
-            _shouldOverrideMethods = _model.Inherits != null && _model.Inherits is { IsFrameworkType: false, Implementation: TypeProvider };
+            _shouldOverrideMethods = _model.Type.BaseType != null && _model.Type.BaseType is { IsFrameworkType: false };
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
             _jsonElementParameterSnippet = _jsonElementDeserializationParam.As<JsonElement>();
             _isNotEqualToWireConditionSnippet = _mrwOptionsParameterSnippet.Format().NotEqual(ModelReaderWriterOptionsSnippets.WireFormat);
-
-            Name = provider.Name;
-            Namespace = provider.Namespace;
         }
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
-        private MethodProvider SerializationConstructor => _serializationConstructor ??= BuildSerializationConstructor();
+        protected override string GetNamespace() => _model.Type.Namespace;
 
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
-        public override string Name { get; }
-        public override string Namespace { get; }
+        protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
+        private ConstructorProvider SerializationConstructor => _serializationConstructor ??= BuildSerializationConstructor();
+
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
+
+        protected override string BuildName() => _model.Name;
 
         /// <summary>
         /// Builds the fields for the model by adding the raw data field for serialization.
@@ -94,9 +96,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return _rawDataField != null ? [_rawDataField] : Array.Empty<FieldProvider>();
         }
 
-        protected override MethodProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
-            List<MethodProvider> constructors = new List<MethodProvider>();
+            List<ConstructorProvider> constructors = new();
             bool serializationCtorParamsMatch = false;
             bool ctorWithNoParamsExist = false;
 
@@ -149,6 +151,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var FieldProvider = new FieldProvider(
                 modifiers: FieldModifiers.Private,
                 type: _privateAdditionalRawDataPropertyType,
+                description: FormattableStringHelpers.FromString(PrivateAdditionalPropertiesPropertyDescription),
                 name: PrivateAdditionalPropertiesPropertyName);
 
             return FieldProvider;
@@ -168,6 +171,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 jsonModelWriteCoreMethod,
                 // Add JsonModel deserialization methods
                 BuildJsonModelCreateMethod(),
+                BuildJsonModelCreateCoreMethod(),
                 BuildDeserializationMethod(),
                 // Add PersistableModel serialization methods
                 BuildPersistableModelWriteMethod(),
@@ -183,6 +187,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (_isStruct)
             {
                 methods.Add(BuildJsonModelWriteMethodObjectDeclaration());
+                methods.Add(BuildJsonModelCreateMethodObjectDeclaration());
                 methods.Add(BuildPersistableModelWriteMethodObjectDeclaration());
                 methods.Add(BuildPersistableModelGetFormatFromOptionsObjectDeclaration());
                 methods.Add(BuildPersistableModelCreateMethodObjectDeclaration());
@@ -195,9 +200,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             var result = new ParameterProvider("result", $"The {typeof(ClientResult):C} to deserialize the {Type:C} from.", typeof(ClientResult));
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
+            // using PipelineResponse response = result.GetRawResponse();
+            var responseDeclaration = UsingDeclare("response", typeof(PipelineResponse), result.Invoke(nameof(ClientResult.GetRawResponse)), out var response);
+            // using JsonDocument document = JsonDocument.Parse(response.Content);
+            var document = UsingDeclare(
+                "document",
+                typeof(JsonDocument),
+                JsonDocumentSnippets.Parse(response.Property(nameof(PipelineResponse.Content)).As<BinaryData>()),
+                out var docVariable);
+            // return DeserializeT(doc.RootElement, ModelSerializationExtensions.WireOptions);
+            var deserialize = Return(_model.Deserialize(docVariable.As<JsonDocument>().RootElement(), ModelSerializationExtensionsSnippets.Wire));
+            var methodBody = new MethodBodyStatement[]
+            {
+                responseDeclaration,
+                document,
+                deserialize
+            };
             return new MethodProvider(
                 new MethodSignature(Type.Name, null, modifiers, null, null, [result]),
-                Throw(New.NotImplementedException(Literal("Not implemented"))), //TODO https://github.com/microsoft/typespec/issues/3696
+                methodBody,
                 this);
         }
 
@@ -205,9 +226,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             var model = new ParameterProvider(Type.Name.ToVariableName(), $"The {Type:C} to serialize into {typeof(BinaryContent):C}", Type);
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator;
+            // return BinaryContent.Create(model, ModelSerializationExtensions.WireOptions);
+            var binaryContentMethod = Static(typeof(BinaryContent)).Invoke(nameof(BinaryContent.Create), [model, ModelSerializationExtensionsSnippets.Wire]);
             return new MethodProvider(
                 new MethodSignature(nameof(BinaryContent), null, modifiers, null, null, [model]),
-                Throw(New.NotImplementedException(Literal("Not implemented"))), //TODO https://github.com/microsoft/typespec/issues/3696
+                Return(binaryContentMethod),
                 this);
         }
 
@@ -254,6 +277,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             (
               new MethodSignature(nameof(IJsonModel<object>.Write), null, MethodSignatureModifiers.None, null, null, [_utf8JsonWriterParameter, _serializationOptionsParameter], ExplicitInterface: _jsonModelObjectInterface),
               castToT.Invoke(nameof(IJsonModel<object>.Write), [_utf8JsonWriterParameter, _serializationOptionsParameter]),
+              this
+            );
+        }
+
+        /// <summary>
+        /// Builds the <see cref="IJsonModel{T}"/> create method for the model object.
+        /// </summary>
+        internal MethodProvider BuildJsonModelCreateMethodObjectDeclaration()
+        {
+            // object IJsonModel<object>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => ((IJsonModel<T>)this).Create(ref reader, options);
+            var castToT = This.CastTo(_jsonModelTInterface);
+            return new MethodProvider
+            (
+              new MethodSignature(nameof(IJsonModel<object>.Create), null, MethodSignatureModifiers.None, typeof(object), null, [_utf8JsonReaderParameter, _serializationOptionsParameter], ExplicitInterface: _jsonModelObjectInterface),
+              castToT.Invoke(nameof(IJsonModel<object>.Create), [_utf8JsonReaderParameter, _serializationOptionsParameter]),
               this
             );
         }
@@ -324,7 +362,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
             return new MethodProvider
             (
-              new MethodSignature(PersistableModelWriteCoreMethodName, null, modifiers, returnType, null, [ _serializationOptionsParameter]),
+              new MethodSignature(PersistableModelWriteCoreMethodName, null, modifiers, returnType, null, [_serializationOptionsParameter]),
               BuildPersistableModelWriteCoreMethodBody(),
               this
             );
@@ -356,15 +394,41 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         internal MethodProvider BuildJsonModelCreateMethod()
         {
-            ParameterProvider utf8JsonReaderParameter = new("reader", $"The JSON reader.", typeof(Utf8JsonReader), isRef: true);
-            // T IJsonModel<T>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+            // T IJsonModel<T>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
             var typeOfT = GetModelArgumentType(_jsonModelTInterface);
             return new MethodProvider
             (
-                new MethodSignature(nameof(IJsonModel<object>.Create), null, MethodSignatureModifiers.None, typeOfT, null, new[] { utf8JsonReaderParameter, _serializationOptionsParameter }, ExplicitInterface: _jsonModelTInterface),
-                // Throw a not implemented exception until this method body is implemented https://github.com/microsoft/typespec/issues/3330
-                Throw(New.NotImplementedException(Literal("Not implemented"))),
+                new MethodSignature(nameof(IJsonModel<object>.Create), null, MethodSignatureModifiers.None, typeOfT, null, [_utf8JsonReaderParameter, _serializationOptionsParameter], ExplicitInterface: _jsonModelTInterface),
+                This.Invoke(JsonModelCreateCoreMethodName, [_utf8JsonReaderParameter, _serializationOptionsParameter]),
                 this
+            );
+        }
+
+        /// <summary>
+        /// Builds the <see cref="IJsonModel{T}"/> create core method for the model.
+        /// </summary>
+        internal MethodProvider BuildJsonModelCreateCoreMethod()
+        {
+            MethodSignatureModifiers modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+            if (_shouldOverrideMethods)
+            {
+                modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
+            }
+            var methodBody = new MethodBodyStatement[]
+            {
+                CreateValidateJsonFormat( _persistableModelTInterface, ReadAction),
+                // using var document = JsonDocument.ParseValue(ref reader);
+                UsingDeclare("document", typeof(JsonDocument), JsonDocumentSnippets.ParseValue(_utf8JsonReaderParameter), out var docVariable),
+                // return DeserializeT(doc.RootElement, options);
+                Return(TypeProviderSnippets.Deserialize(_model, JsonDocumentSnippets.RootElement(docVariable.As<JsonDocument>()), _mrwOptionsParameterSnippet))
+            };
+
+            // T JsonModelCreateCore(ref reader, ModelReaderWriterOptions options)
+            return new MethodProvider
+            (
+              new MethodSignature(JsonModelCreateCoreMethodName, null, modifiers, _model.Type, null, [_utf8JsonReaderParameter, _serializationOptionsParameter]),
+              methodBody,
+              this
             );
         }
 
@@ -452,11 +516,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// Builds the serialization constructor for the model.
         /// </summary>
         /// <returns>The constructed serialization constructor.</returns>
-        internal MethodProvider BuildSerializationConstructor()
+        internal ConstructorProvider BuildSerializationConstructor()
         {
             var serializationCtorParameters = BuildSerializationConstructorParameters();
 
-            return new MethodProvider(
+            return new ConstructorProvider(
                 signature: new ConstructorSignature(
                     Type,
                     $"Initializes a new instance of {Type:C}",
@@ -602,18 +666,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             foreach (var param in parameters)
             {
-                if (param.Name == _rawDataField?.Name.ToVariableName())
+                if (param.Field != null)
                 {
-                    methodBodyStatements.Add(_rawDataField.Assign(param).Terminate());
+                    // in our current implementation, this should only be the raw data field
+                    methodBodyStatements.Add(param.Field.Assign(param).Terminate());
+                    continue;
+                }
+                else if (param.Property != null)
+                {
+                    methodBodyStatements.Add(param.Property.Assign(param).Terminate());
                     continue;
                 }
 
-                ValueExpression initializationValue = param;
-                var initializationStatement = param.AsPropertyExpression.Assign(initializationValue).Terminate();
-                if (initializationStatement != null)
-                {
-                    methodBodyStatements.Add(initializationStatement);
-                }
+                // in other cases, this parameter is not constructed from property or a field, we just skip it.
             }
 
             return methodBodyStatements;
@@ -686,9 +751,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             for (var i = 0; i < _model.Properties.Count; i++)
             {
                 var property = _model.Properties[i];
-                var propertyWireInfo = property.WireInfo;
-                var propertySerializationName = propertyWireInfo?.SerializedName ?? property.Name;
-                var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName.ToVariableName()))
+                // we should only deserialize properties with a wire info. Those properties without wire info indicate they are not spec properties.
+                if (property.WireInfo is not { } wireInfo)
+                {
+                    continue;
+                }
+                var propertySerializationName = wireInfo.SerializedName;
+                var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName))
                 {
                     DeserializeProperty(property, jsonProperty)
                 };
@@ -843,18 +912,30 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private ValueExpression CreateDeserializeValueExpression(CSharpType valueType, SerializationFormat serializationFormat, ScopedApi<JsonElement> jsonElement) =>
             valueType switch
             {
-                { SerializeAs: { } serializeAs } =>
-                    new CastExpression(GetValueTypeDeserializationExpression(serializeAs, jsonElement, serializationFormat), valueType),
                 { IsFrameworkType: true } when valueType.FrameworkType == typeof(Nullable<>) =>
                     GetValueTypeDeserializationExpression(valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
                 { IsFrameworkType: true } =>
                     GetValueTypeDeserializationExpression(valueType.FrameworkType, jsonElement, serializationFormat),
-                { Implementation: EnumProvider enumProvider } =>
-                    enumProvider.ToEnum(GetValueTypeDeserializationExpression(enumProvider.ValueType.FrameworkType, jsonElement, serializationFormat)),
-                { Implementation: ModelProvider modelProvider } =>
-                    Static(modelProvider.Type).Invoke($"Deserialize{modelProvider.Name}", [jsonElement, _mrwOptionsParameterSnippet]),
-                _ => throw new InvalidOperationException($"Unable to deserialize type {valueType}")
+                _ => SerializeModelOrEnum(valueType, serializationFormat, jsonElement)
             };
+
+        private ValueExpression SerializeModelOrEnum(CSharpType valueType, SerializationFormat serializationFormat, ScopedApi<JsonElement> jsonElement)
+        {
+            var provider = ClientModelPlugin.Instance.TypeFactory.GetProvider(valueType);
+            if (provider is null)
+                throw new InvalidOperationException($"Unable to deserialize type {valueType}");
+
+            if (valueType.IsEnum && provider is EnumProvider enumProvider)
+            {
+                return enumProvider.ToEnum(GetValueTypeDeserializationExpression(enumProvider.ValueType.FrameworkType, jsonElement, serializationFormat));
+            }
+            else
+            {
+                return provider.Deserialize(jsonElement, _mrwOptionsParameterSnippet);
+            }
+
+            throw new InvalidOperationException($"Unable to deserialize type {valueType}");
+        }
 
         private MethodBodyStatement CreateDeserializeDictionaryValueStatement(
             CSharpType dictionaryItemType,
@@ -900,33 +981,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             List<ParameterProvider> constructorParameters = new List<ParameterProvider>();
             bool shouldAddRawDataField = _rawDataField != null;
 
-            foreach (var property in _inputModel.Properties)
+            foreach (var property in _model.Properties)
             {
-                var parameter = new ParameterProvider(property);
+                var parameter = property.AsParameter;
                 constructorParameters.Add(parameter);
-
-                if (shouldAddRawDataField && string.Equals(parameter.Name, _rawDataField?.Name, StringComparison.OrdinalIgnoreCase))
-                {
-                    shouldAddRawDataField = false;
-                }
             }
 
             // Append the raw data field if it doesn't already exist in the constructor parameters
             if (shouldAddRawDataField && _rawDataField != null)
             {
-                constructorParameters.Add(new ParameterProvider(
-                    _rawDataField.Name.ToVariableName(),
-                    FormattableStringHelpers.FromString(PrivateAdditionalPropertiesPropertyDescription),
-                    _rawDataField.Type));
+                constructorParameters.Add(_rawDataField.AsParameter);
             }
 
             return constructorParameters;
         }
 
-        private MethodProvider BuildEmptyConstructor()
+        private ConstructorProvider BuildEmptyConstructor()
         {
             var accessibility = _isStruct ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Internal;
-            return new MethodProvider(
+            return new ConstructorProvider(
                 signature: new ConstructorSignature(Type, $"Initializes a new instance of {Type:C} for deserialization.", accessibility, Array.Empty<ParameterProvider>()),
                 bodyStatements: new MethodBodyStatement(),
                 this);
@@ -988,22 +1061,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             for (var i = 0; i < propertyCount; i++)
             {
                 var property = _model.Properties[i];
-                var propertyWireInfo = property.WireInfo;
-                var propertySerializationName = propertyWireInfo?.SerializedName ?? property.Name;
-                var propertyMember = new MemberExpression(null, propertySerializationName);
-                var propertySerializationFormat = propertyWireInfo?.SerializationFormat ?? SerializationFormat.Default;
-                var propertyIsReadOnly = propertyWireInfo?.IsReadOnly ?? false;
-                var propertyIsRequired = propertyWireInfo?.IsRequired ?? false;
+                // we should only write those properties with a wire info. Those properties without wireinfo indicate they are not spec properties.
+                if (property.WireInfo is not { } wireInfo)
+                {
+                    continue;
+                }
+                var propertySerializationName = wireInfo.SerializedName;
+                var propertySerializationFormat = wireInfo.SerializationFormat;
+                var propertyIsReadOnly = wireInfo.IsReadOnly;
+                var propertyIsRequired = wireInfo.IsRequired;
+                var propertyIsNullable = wireInfo.IsNullable;
 
                 // Generate the serialization statements for the property
                 var writePropertySerializationStatements = new MethodBodyStatement[]
                 {
-                    _utf8JsonWriterSnippet.WritePropertyName(propertySerializationName.ToVariableName()),
-                    CreateSerializationStatement(property.Type, propertyMember, propertySerializationFormat)
+                    _utf8JsonWriterSnippet.WritePropertyName(propertySerializationName),
+                    CreateSerializationStatement(property.Type, property, propertySerializationFormat)
                 };
 
                 // Wrap the serialization statement in a check for whether the property is defined
-                var wrapInIsDefinedStatement = WrapInIsDefined(property, propertyMember, propertyIsRequired, propertyIsReadOnly, writePropertySerializationStatements);
+                var wrapInIsDefinedStatement = WrapInIsDefined(property, property, propertyIsRequired, propertyIsReadOnly, propertyIsNullable, writePropertySerializationStatements);
                 if (propertyIsReadOnly && wrapInIsDefinedStatement is not IfStatement)
                 {
                     wrapInIsDefinedStatement = new IfStatement(_isNotEqualToWireConditionSnippet)
@@ -1029,12 +1106,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             MemberExpression propertyMemberExpression,
             bool propertyIsRequired,
             bool propertyIsReadOnly,
+            bool propertyIsNullable,
             MethodBodyStatement writePropertySerializationStatement)
         {
             var propertyType = propertyProvider.Type;
 
             // Create the first conditional statement to check if the property is defined
-            if (propertyType.IsNullable)
+            if (propertyIsNullable)
             {
                 writePropertySerializationStatement = CheckPropertyIsInitialized(
                 propertyProvider,
@@ -1144,16 +1222,27 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             SerializationFormat serializationFormat,
             ValueExpression value)
         {
-            return type switch
+            if (type.IsFrameworkType)
             {
-                { SerializeAs: not null } or { IsFrameworkType: true } =>
-                    SerializeValueType(type, serializationFormat, value, type.SerializeAs ?? type.FrameworkType),
-                { Implementation: EnumProvider enumProvider } =>
-                    SerializeEnumProvider(enumProvider, type, value),
-                { Implementation: ModelProvider modelProvider } =>
-                    _utf8JsonWriterSnippet.WriteObjectValue(value.As(modelProvider.Type), options: _mrwOptionsParameterSnippet),
-                _ => throw new NotSupportedException($"Serialization of type {type.Name} is not supported.")
-            };
+                return SerializeValueType(type, serializationFormat, value, type.FrameworkType);
+            }
+            else
+            {
+                var provider = ClientModelPlugin.Instance.TypeFactory.GetProvider(type);
+                if (provider is null)
+                    throw new NotSupportedException($"Serialization of type {type.Name} is not supported.");
+
+                if (type.IsEnum && provider is EnumProvider enumProvider)
+                {
+                    return SerializeEnumProvider(enumProvider, type, value);
+                }
+                else
+                {
+                    return _utf8JsonWriterSnippet.WriteObjectValue(value.As(provider.Type), options: _mrwOptionsParameterSnippet);
+                }
+            }
+
+            throw new NotSupportedException($"Serialization of type {type.Name} is not supported.");
         }
 
         private MethodBodyStatement SerializeEnumProvider(
@@ -1161,7 +1250,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             CSharpType type,
             ValueExpression value)
         {
-            var enumerableSnippet = new ScopedApi(type, value.NullableStructValue(type));
+            var enumerableSnippet = value.NullableStructValue(type).As(type);
             if ((EnumIsIntValueType(enumProvider) && !enumProvider.IsExtensible) || EnumIsNumericValueType(enumProvider))
             {
                 return _utf8JsonWriterSnippet.WriteNumberValue(enumProvider.ToSerial(enumerableSnippet));
@@ -1312,7 +1401,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             CSharpType itemType = enumerableType.IsReadOnlyMemory ? new CSharpType(typeof(ReadOnlySpan<>), enumerableType.Arguments[0]) :
                 enumerableType.ElementType;
 
-            return new ScopedApi(new CSharpType(typeof(IEnumerable<>), itemType), expression);
+            return expression.As(new CSharpType(typeof(IEnumerable<>), itemType));
         }
 
         private static bool IsRequiredOrNonNullableValueType(CSharpType propertyType, bool isRequired)

@@ -48,7 +48,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         {
             var declaration = new CodeWriterDeclaration(name);
             var variableExpression = new VariableExpression(value.Type, declaration);
-            variable = new(variableExpression);
+            variable = variableExpression.As<T>();
             return UsingDeclare(variableExpression, value);
         }
 
@@ -56,7 +56,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         {
             var declaration = new CodeWriterDeclaration(name);
             var variableExpression = new VariableExpression(value.Type, declaration);
-            variable = new(variableExpression);
+            variable = variableExpression.As<T>();
             return new DeclarationExpression(variableExpression).Assign(value).Terminate();
         }
     }

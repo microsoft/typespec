@@ -12,14 +12,16 @@ namespace Microsoft.Generator.CSharp.Primitives
 
         public bool HasBeenDeclared => _actualName != null;
 
-        public CodeWriterDeclaration(string name)
+        public CodeWriterDeclaration(string name, bool isRef = false)
         {
             RequestedName = name;
+            IsRef = isRef;
         }
 
         public string RequestedName { get; }
 
         public string ActualName => _actualName ?? _debuggerName ?? throw new InvalidOperationException($"Declaration {RequestedName} is not initialized");
+        internal bool IsRef { get; }
 
         internal void SetActualName(string? actualName)
         {

@@ -56,12 +56,12 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
-        internal PipelineMessage CreateAnonymousBodyRequest(BinaryContent content, RequestOptions options)
+        internal PipelineMessage CreateAnonymousBodyRequest(RequestOptions options)
         {
             throw new NotImplementedException("Method not implemented.");
         }
 
-        internal PipelineMessage CreateFriendlyModelRequest(BinaryContent content, RequestOptions options)
+        internal PipelineMessage CreateFriendlyModelRequest(RequestOptions options)
         {
             throw new NotImplementedException("Method not implemented.");
         }
@@ -71,7 +71,7 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
-        internal PipelineMessage CreateProjectedNameModelRequest(BinaryContent content, RequestOptions options)
+        internal PipelineMessage CreateProjectedNameModelRequest(RequestOptions options)
         {
             throw new NotImplementedException("Method not implemented.");
         }
