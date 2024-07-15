@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Providers
     {
         private readonly InputModelType _inputModel;
 
-        protected internal override FormattableString Description { get;}
+        protected override FormattableString Description { get;}
 
         private readonly bool _isStruct;
         private readonly TypeSignatureModifiers _declarationModifiers;
@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputModel).ToArray();
+            return CodeModelPlugin.Instance.GetSerializationTypeProviders(_inputModel).ToArray();
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");

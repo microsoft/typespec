@@ -60,15 +60,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         // Flag to determine if the model should override the serialization methods
         private readonly bool _shouldOverrideMethods;
 
-        public MrwSerializationTypeDefinition(TypeProvider provider, InputModelType inputModel)
+        public MrwSerializationTypeDefinition(InputModelType inputModel)
         {
-            _model = provider;
+            _model = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
             _inputModel = inputModel;
-            _isStruct = provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
+            _isStruct = _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             // Initialize the serialization interfaces
-            _jsonModelTInterface = new CSharpType(typeof(IJsonModel<>), provider.Type);
+            _jsonModelTInterface = new CSharpType(typeof(IJsonModel<>), _model.Type);
             _jsonModelObjectInterface = _isStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
-            _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), provider.Type);
+            _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), _model.Type);
             _persistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
             _rawDataField = BuildRawDataField();
             _shouldOverrideMethods = _model.Type.BaseType != null && _model.Type.BaseType is { IsFrameworkType: false };

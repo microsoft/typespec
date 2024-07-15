@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -42,7 +43,7 @@ namespace Microsoft.Generator.CSharp.Providers
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
         protected override string BuildName() => _input.Name.ToCleanName();
-        protected internal override FormattableString Description { get; }
+        protected override FormattableString Description { get; }
 
         private IReadOnlyList<EnumTypeMember>? _members;
         private readonly InputEnumType _input;
@@ -57,5 +58,10 @@ namespace Microsoft.Generator.CSharp.Providers
         protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
         protected override bool GetIsEnum() => true;
+
+        protected override TypeProvider[] BuildSerializationProviders()
+        {
+            return [.. CodeModelPlugin.Instance.GetSerializationTypeProviders(_input)];
+        }
     }
 }
