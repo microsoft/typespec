@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             var configFilePath = Path.Combine(AppContext.BaseDirectory, MocksFolder);
             // initialize the singleton instance of the plugin
-            var mockPlugin = new Mock<CodeModelPlugin>(new GeneratorContext(Configuration.Load(configFilePath)));
+            var mockPlugin = new Mock<CodeModelPlugin>(new GeneratorContext(Configuration.Load(configFilePath))) { CallBase = true };
 
             var mockTypeFactory = new Mock<TypeFactory>() { CallBase = true };
 
