@@ -32,37 +32,10 @@ namespace Microsoft.Generator.CSharp.Primitives
         public IReadOnlyList<CSharpType>? GenericArguments { get; } = GenericArguments;
         public IReadOnlyList<WhereExpression>? GenericParameterConstraints { get; } = GenericParameterConstraints;
         public CSharpType? ExplicitInterface { get; } = ExplicitInterface;
-        public static IEqualityComparer<MethodSignature> ParameterAndReturnTypeEqualityComparer = new MethodSignatureParameterAndReturnTypeEqualityComparer();
 
         /// <summary>
         /// Gets the C# reference string for the method.
         /// </summary>
         public FormattableString GetCRef() => $"{Name}({Parameters.GetTypesFormattable()})";
-
-        private class MethodSignatureParameterAndReturnTypeEqualityComparer : IEqualityComparer<MethodSignature>
-        {
-            public bool Equals(MethodSignature? x, MethodSignature? y)
-            {
-                if (ReferenceEquals(x, y))
-                {
-                    return true;
-                }
-
-                if (x is null || y is null)
-                {
-                    return false;
-                }
-
-                var result = x.Name == y.Name
-                    && Equals(x.ReturnType, y.ReturnType)
-                    && x.Parameters.SequenceEqual(y.Parameters);
-                return result;
-            }
-
-            public int GetHashCode([DisallowNull] MethodSignature obj)
-            {
-                return HashCode.Combine(obj.Name, obj.ReturnType);
-            }
-        }
     }
 }

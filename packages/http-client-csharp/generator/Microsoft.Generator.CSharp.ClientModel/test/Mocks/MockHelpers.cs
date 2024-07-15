@@ -56,7 +56,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             object?[] parameters = [configFilePath, null];
             var config = loadMethod?.Invoke(null, parameters);
             var mockGeneratorContext = new Mock<GeneratorContext>(config!);
-            var mockPluginInstance = new Mock<ClientModelPlugin>(mockGeneratorContext.Object) { };
+            var mockPluginInstance = new Mock<ClientModelPlugin>(mockGeneratorContext.Object) { CallBase = true };
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
 
             if (getSerializationTypeProviders is not null)

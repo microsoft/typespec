@@ -11,6 +11,7 @@ namespace Microsoft.Generator.CSharp
         internal void Visit(OutputLibrary outputLibrary)
         {
             var types = new List<TypeProvider>();
+            // TODO add more things to visit, e.g Constructors, Parameters, etc - https://github.com/microsoft/typespec/issues/3825
             foreach (var typeProvider in outputLibrary.TypeProviders)
             {
                 var type = Visit(typeProvider);

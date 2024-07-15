@@ -59,14 +59,14 @@ namespace Microsoft.Generator.CSharp
         {
             if (inputType is InputEnumType enumType)
             {
-                var provider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(enumType);
+                var provider = Instance.TypeFactory.CreateEnum(enumType);
                 if (provider is EnumProvider { IsExtensible: false } enumProvider)
                 {
                     return [new FixedEnumSerializationProvider(enumProvider)];
                 }
             }
 
-            return Array.Empty<TypeProvider>();
+            return [];
         }
     }
 }

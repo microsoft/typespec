@@ -28,10 +28,6 @@ namespace Microsoft.Generator.CSharp.Providers
             }
         }
 
-        protected override TypeProvider[] BuildSerializationProviders()
-        {
-            return new TypeProvider[] { new FixedEnumSerializationProvider(this) };
-        }
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
 
         // we have to build the values first, because the corresponding fieldDeclaration of the values might need all of the existing values to avoid name conflicts
