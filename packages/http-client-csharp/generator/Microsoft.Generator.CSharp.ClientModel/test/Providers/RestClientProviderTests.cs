@@ -3,48 +3,20 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.Providers;
-using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 {
     internal class RestClientProviderTests
     {
-        private FieldInfo? _mockPlugin;
-
-        [SetUp]
-        public void Setup()
-        {
-            _mockPlugin = typeof(ClientModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
-        }
-
-        [TearDown]
-        public void Teardown()
-        {
-            _mockPlugin?.SetValue(null, null);
-        }
-
-        public void MethodProviderSetUp(InputOperation inputOperation, TypeProvider typeProvider)
-        {
-            var mockTypeFactory = new Mock<ScmTypeFactory>() { };
-            var mockConfiguration = new Mock<Configuration>() { };
-            var mockGeneratorContext = new Mock<GeneratorContext>(mockConfiguration.Object);
-            var mockPluginInstance = new Mock<ClientModelPlugin>(mockGeneratorContext.Object) { };
-            mockTypeFactory.Setup(factory => factory.CreateMethods(inputOperation, typeProvider)).Returns(new ScmMethodProviderCollection(inputOperation, typeProvider));
-            mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
-            _mockPlugin?.SetValue(null, mockPluginInstance.Object);
-        }
-
         [TestCaseSource(nameof(DefaultCSharpMethodCollectionTestCases))]
         public void TestRestClientMethods(InputOperation inputOperation)
         {
             var inputClient = new InputClient("TestClient", "TestClient description", new[] { inputOperation }, new List<InputParameter>(), null);
             var restClientProvider = new RestClientProvider(inputClient);
-            MethodProviderSetUp(inputOperation, restClientProvider.ClientProvider);
+            MockHelpers.LoadMockPlugin(createMethods: (inputOperation, typeProvider) => new ScmMethodProviderCollection(inputOperation, restClientProvider.ClientProvider));
 
             var methods = restClientProvider.Methods;
             Assert.IsNotNull(methods, "Methods should not be null.");

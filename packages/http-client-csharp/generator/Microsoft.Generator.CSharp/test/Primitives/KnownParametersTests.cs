@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -13,16 +11,10 @@ namespace Microsoft.Generator.CSharp.Tests.Primitives
 {
     internal class KnownParametersTests
     {
-        private readonly string _mocksFolder = "Mocks";
-
-        [OneTimeSetUp]
-        public void OneTimeSetup()
+        public KnownParametersTests()
         {
-            var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
-            // initialize the singleton instance of the plugin
-            _ = new MockCodeModelPlugin(new GeneratorContext(Configuration.Load(configFilePath)));
+            MockHelpers.LoadMockPlugin();
         }
-
 
         [Test]
         public void TestCancellationToken()

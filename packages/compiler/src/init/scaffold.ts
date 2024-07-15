@@ -104,21 +104,25 @@ async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
   if (isFileSkipGeneration("package.json", config.template.files ?? [])) {
     return;
   }
-  const dependencies: Record<string, string> = {};
+  const peerDependencies: Record<string, string> = {};
+  const devDependencies: Record<string, string> = {};
 
   if (!config.template.skipCompilerPackage) {
-    dependencies["@typespec/compiler"] = "latest";
+    peerDependencies["@typespec/compiler"] = "latest";
+    devDependencies["@typespec/compiler"] = "latest";
   }
 
   for (const library of config.libraries) {
-    dependencies[library.name] = await getLibraryVersion(library);
+    peerDependencies[library.name] = await getLibraryVersion(library);
+    devDependencies[library.name] = await getLibraryVersion(library);
   }
 
   const packageJson: NodePackage = {
     name: config.name,
     version: "0.1.0",
     type: "module",
-    dependencies,
+    peerDependencies,
+    devDependencies,
     private: true,
   };
 

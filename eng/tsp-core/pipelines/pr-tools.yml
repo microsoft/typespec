@@ -22,8 +22,8 @@ extends:
           image: $(LINUXVMIMAGE)
           os: linux
         jobs:
-          - job: publish_playground
-            displayName: Publish playground
+          - job: tryit
+            displayName: Setup Try It
             variables:
               TYPESPEC_WEBSITE_BASE_PATH: "prs/$(System.PullRequest.PullRequestNumber)/"
             steps:
@@ -60,7 +60,7 @@ extends:
                       --source "./packages/website/build/" \
                       --overwrite
 
-              - script: node eng/tsp-core/scripts/create-tryit-comment.js
+              - script: npx tsx eng/tsp-core/scripts/create-tryit-comment.ts
                 displayName: Check already commented
                 env:
                   GH_TOKEN: $(azuresdk-github-pat)
