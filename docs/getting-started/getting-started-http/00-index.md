@@ -1,5 +1,6 @@
 ---
 title: Getting Started with TypeSpec For Http
+pagination_next: getting-started/getting-started-http/setup # Explicitly needed as its also being the category page https://github.com/facebook/docusaurus/issues/6183
 ---
 
 # Getting Started with TypeSpec for HTTP
