@@ -71,3 +71,14 @@ it("uses doc generator for @ and */", () => {
 
   strictEqual(generateDocs("Hello, */World!"), `@doc("Hello, */World!")`);
 });
+
+it("supports multi-line with decorator", () => {
+  strictEqual(
+    generateDocs(["Hello,", "@World!"]),
+    `
+@doc("""
+Hello,
+@World!
+""")`.trim()
+  );
+});
