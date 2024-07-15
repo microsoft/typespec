@@ -55,7 +55,7 @@ const sidebars: SidebarsConfig = {
       items: [
         {
           type: "category",
-          label: "Http in TypeSpec",
+          label: "TypeSpec for Http",
           link: { type: "doc", id: "getting-started/getting-started-http/index" },
           items: [
             {
