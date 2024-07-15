@@ -14,10 +14,10 @@ namespace Microsoft.Generator.CSharp.Providers
     /// </summary>
     public class MethodProvider
     {
-        public MethodSignature Signature { get; internal set; }
-        public MethodBodyStatement? BodyStatements { get; internal set;}
-        public ValueExpression? BodyExpression { get; internal set;}
-        public XmlDocProvider? XmlDocs { get; internal set;}
+        public MethodSignature Signature { get; private set; }
+        public MethodBodyStatement? BodyStatements { get; private set;}
+        public ValueExpression? BodyExpression { get; private set;}
+        public XmlDocProvider? XmlDocs { get; private set;}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MethodProvider"/> class with a body statement and method signature.

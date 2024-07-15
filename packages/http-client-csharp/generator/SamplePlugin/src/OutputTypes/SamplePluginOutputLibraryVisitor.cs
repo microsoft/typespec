@@ -10,16 +10,6 @@ namespace SamplePlugin
 {
     public class SamplePluginOutputLibraryVisitor : OutputLibraryVisitor
     {
-        protected override TypeProvider Visit(TypeProvider typeProvider)
-        {
-            return typeProvider;
-        }
-
-        protected override PropertyProvider? Visit(TypeProvider typeProvider, PropertyProvider propertyProvider)
-        {
-            return propertyProvider;
-        }
-
         protected override MethodProvider Visit(TypeProvider typeProvider, MethodProvider methodProvider)
         {
             if (methodProvider is not ScmMethodProvider)

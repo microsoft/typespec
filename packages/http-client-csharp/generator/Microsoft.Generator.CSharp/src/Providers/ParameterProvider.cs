@@ -132,6 +132,9 @@ namespace Microsoft.Generator.CSharp.Providers
             return $"Name: {Name}, Type: {Type}";
         }
 
+        // TODO test case for changing the parameter name via the visitor to see if the variable expression is updated
+        // Same for properties and fields
+        // https://github.com/microsoft/typespec/issues/3813
         public static implicit operator VariableExpression(ParameterProvider parameter) => GetVariableExpression(parameter);
 
         private static VariableExpression GetVariableExpression(ParameterProvider parameter)

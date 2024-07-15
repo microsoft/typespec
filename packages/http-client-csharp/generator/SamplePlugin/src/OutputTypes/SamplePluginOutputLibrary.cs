@@ -7,6 +7,6 @@ namespace SamplePlugin
 {
     public class SamplePluginOutputLibrary : ScmOutputLibrary
     {
-        protected override OutputLibraryVisitor[]? GetOutputLibraryVisitors() => new OutputLibraryVisitor[] { new SamplePluginOutputLibraryVisitor()};
+        protected override OutputLibraryVisitor[] GetOutputLibraryVisitors() => [new SamplePluginOutputLibraryVisitor()];
     }
 }

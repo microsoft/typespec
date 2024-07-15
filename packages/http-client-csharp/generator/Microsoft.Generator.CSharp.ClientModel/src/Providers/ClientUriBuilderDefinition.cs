@@ -178,7 +178,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
             var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
-            var body = new InvokeMethodExpression(null, _appendPathMethodName, null, [convertToStringExpression, escapeParameter], null, false);
+            var body = new InvokeMethodExpression(null, _appendPathMethodName, [convertToStringExpression, escapeParameter]);
 
             return new(signature, body, this);
         }
@@ -250,7 +250,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
             var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
-            var body = new InvokeMethodExpression(null, _appendQueryMethodName, null, [nameParameter, convertToStringExpression, escapeParameter], null, false);
+            var body = new InvokeMethodExpression(null, _appendQueryMethodName, [nameParameter, convertToStringExpression, escapeParameter]);
 
             return new(signature, body, this);
         }
@@ -290,7 +290,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var body = new[]
             {
                 Declare("stringValues", value.Select(selector), out var stringValues),
-               new InvokeMethodExpression(null, _appendQueryMethodName, null, [nameParameter, StringSnippets.Join(delimiterParameter, stringValues), escapeParameter], null, false).Terminate()
+               new InvokeMethodExpression(null, _appendQueryMethodName, [nameParameter, StringSnippets.Join(delimiterParameter, stringValues), escapeParameter]).Terminate()
         };
 
             return new(signature, body, this);
