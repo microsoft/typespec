@@ -23,10 +23,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             Debug.Assert(enumType.IsExtensible);
 
             _enumType = enumType;
-            Name = $"{_enumType.Name}Extensions";
+            Name = $"{_enumType.Name}";
         }
 
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
 
         public override string Name { get; }
 
