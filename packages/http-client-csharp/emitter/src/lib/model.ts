@@ -297,9 +297,14 @@ export function navigateModels(
   models: Map<string, InputModelType>,
   enums: Map<string, InputEnumType>
 ) {
-  getAllModels(context).forEach((model) =>
-    model.kind === "model"
-      ? fromSdkModelType(model, context, models, enums)
-      : fromSdkEnumType(model, context, enums)
-  );
+  for (const type of getAllModels(context)) {
+    if (type.name === "") {
+      continue;
+    }
+    if (type.kind === "model") {
+      fromSdkModelType(type, context, models, enums);
+    } else {
+      fromSdkEnumType(type, context, enums);
+    }
+  }
 }

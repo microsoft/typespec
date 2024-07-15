@@ -36,7 +36,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
 
-        public override string Name { get; }
+        protected override string BuildName() => $"{_enumType.Name}Extensions";
 
         /// <summary>
         /// Returns if this enum type needs an extension method for serialization
@@ -107,9 +107,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     // StringComparer.OrdinalIgnoreCase.Equals(value, "<the value>")
                     // or
                     // string.Equals(value, "<the value>", StringComparison.InvariantCultureIgnoreCase)
-                    condition = new(enumValue.Value is string strValue && strValue.All(char.IsAscii)
+                    condition = (enumValue.Value is string strValue && strValue.All(char.IsAscii)
                                 ? stringComparer.Invoke(nameof(IEqualityComparer<string>.Equals), value, Literal(strValue))
-                                : Static(_enumType.ValueType).Invoke(nameof(object.Equals), [value, Literal(enumValue.Value), FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)]));
+                                : Static(_enumType.ValueType).Invoke(nameof(Equals), [value, Literal(enumValue.Value), FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)]))
+                                .As<bool>();
                 }
                 else
                 {

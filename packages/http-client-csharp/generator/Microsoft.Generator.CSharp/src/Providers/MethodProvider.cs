@@ -12,12 +12,12 @@ namespace Microsoft.Generator.CSharp.Providers
     /// <summary>
     /// Represents a C# method consisting of a signature, body, and expression.
     /// </summary>
-    public sealed class MethodProvider
+    public class MethodProvider
     {
-        public MethodSignature Signature { get; }
-        public MethodBodyStatement? BodyStatements { get; }
-        public ValueExpression? BodyExpression { get; }
-        public XmlDocProvider? XmlDocs { get; }
+        public MethodSignature Signature { get; private set; }
+        public MethodBodyStatement? BodyStatements { get; private set;}
+        public ValueExpression? BodyExpression { get; private set;}
+        public XmlDocProvider? XmlDocs { get; private set;}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MethodProvider"/> class with a body statement and method signature.
@@ -51,6 +51,26 @@ namespace Microsoft.Generator.CSharp.Providers
             XmlDocs = xmlDocProvider ?? (MethodProviderHelpers.IsMethodPublic(enclosingType.DeclarationModifiers, signature.Modifiers)
                 ? MethodProviderHelpers.BuildXmlDocs(signature.Parameters, signature.Description, signature.ReturnDescription, null)
                 : null);
+        }
+
+        public void Update(MethodSignature? signature = default, MethodBodyStatement? bodyStatements = default, ValueExpression? bodyExpression = default, XmlDocProvider? xmlDocProvider = default)
+        {
+            if (signature != default)
+            {
+                Signature = signature;
+            }
+            if (bodyStatements != default)
+            {
+                BodyStatements = bodyStatements;
+            }
+            if (bodyExpression != default)
+            {
+                BodyExpression = bodyExpression;
+            }
+            if (xmlDocProvider != default)
+            {
+                XmlDocs = xmlDocProvider;
+            }
         }
     }
 }

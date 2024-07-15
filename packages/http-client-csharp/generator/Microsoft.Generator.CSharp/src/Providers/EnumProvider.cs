@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 
@@ -24,9 +25,9 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             _inputType = input;
             _deprecated = input.Deprecated;
+            _input = input;
 
             IsExtensible = input.IsExtensible;
-            Name = input.Name.ToCleanName();
             ValueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input.ValueType);
             IsStringValueType = ValueType.Equals(typeof(string));
             IsIntValueType = ValueType.Equals(typeof(int)) || ValueType.Equals(typeof(long));
@@ -42,8 +43,10 @@ namespace Microsoft.Generator.CSharp.Providers
         internal bool IsFloatValueType { get; }
         internal bool IsStringValueType { get; }
         internal bool IsNumericValueType { get; }
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
-        public override string Name { get; }
+
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+
+        protected override string BuildName() => _input.Name.ToCleanName();
         protected override FormattableString Description { get; }
 
         public IReadOnlyList<EnumTypeMember> Members => _members ??= BuildMembers();

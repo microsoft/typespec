@@ -133,11 +133,13 @@ namespace Microsoft.Generator.CSharp.Providers
 
             methods.Add(new(equalitySignature, left.InvokeEquals(right), this));
 
-            var inequalitySignature = equalitySignature with
-            {
-                Name = "!=",
-                Description = $"Determines if two {Type:C} values are not the same.",
-            };
+            var inequalitySignature = new MethodSignature(
+                Name: "!=",
+                Description: $"Determines if two {Type:C} values are not the same.",
+                Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Operator,
+                ReturnType: typeof(bool),
+                ReturnDescription: null,
+                Parameters: [leftParameter, rightParameter]);
 
             methods.Add(new(inequalitySignature, Not(left.InvokeEquals(right)), this));
 
@@ -172,12 +174,14 @@ namespace Microsoft.Generator.CSharp.Providers
                 this));
 
             var otherParameter = new ParameterProvider("other", $"The instance to compare.", Type);
-            equalsSignature = equalsSignature with
-            {
-                Modifiers = MethodSignatureModifiers.Public,
-                Parameters = [otherParameter],
-                Attributes = Array.Empty<AttributeStatement>()
-            };
+            equalsSignature = new MethodSignature(
+                Name: nameof(object.Equals),
+                Description: null,
+                ReturnType: typeof(bool),
+                ReturnDescription: null,
+                Modifiers: MethodSignatureModifiers.Public,
+                Parameters: [otherParameter],
+                Attributes: Array.Empty<AttributeStatement>());
 
             // writes the method:
             // public bool Equals(EnumType other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);

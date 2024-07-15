@@ -21,6 +21,7 @@ namespace Microsoft.Generator.CSharp
         private Dictionary<CSharpType, TypeProvider> _csharpToTypeProvider = new Dictionary<CSharpType, TypeProvider>(new CSharpTypeComparer());
 
         private readonly IDictionary<InputType, CSharpType> _typeCache = new Dictionary<InputType, CSharpType>();
+        private readonly IDictionary<InputModelProperty, PropertyProvider> _propertyCache = new Dictionary<InputModelProperty, PropertyProvider>();
 
         public CSharpType CreateCSharpType(InputType inputType)
         {
@@ -124,6 +125,28 @@ namespace Microsoft.Generator.CSharp
         /// associated with the input operation, or <c>null</c> if no methods are constructed.
         /// </returns>
         public virtual MethodProviderCollection CreateMethods(InputOperation operation, TypeProvider enclosingType) => new(operation, enclosingType);
+
+        /// <summary>
+        /// Creates a <see cref="PropertyProvider"/> based on an input property <paramref name="property"/>.
+        /// </summary>
+        /// <param name="property">The input property.</param>
+        /// <returns>The property provider.</returns>
+        public PropertyProvider CreatePropertyProvider(InputModelProperty property)
+        {
+            if (_propertyCache.TryGetValue(property, out var propertyProvider))
+                return propertyProvider;
+
+            propertyProvider = CreatePropertyProviderCore(property);
+            _propertyCache.Add(property, propertyProvider);
+            return propertyProvider;
+        }
+
+        /// <summary>
+        /// Factory method for creating a <see cref="PropertyProvider"/> based on an input property <paramref name="property"/>.
+        /// </summary>
+        /// <param name="property">The input model property.</param>
+        /// <returns>An instance of <see cref="PropertyProvider"/>.</returns>
+        protected virtual PropertyProvider CreatePropertyProviderCore(InputModelProperty property) => new PropertyProvider(property);
 
         /// <summary>
         /// Factory method for retrieving the serialization format for a given input type.

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using System.Text;
 using Microsoft.Generator.CSharp.Primitives;
@@ -14,14 +13,9 @@ namespace Microsoft.Generator.CSharp.Tests.Primitives
 {
     internal class CSharpTypeTests
     {
-        private readonly string _mocksFolder = "Mocks";
-
-        [OneTimeSetUp]
-        public void Setup()
+        public CSharpTypeTests()
         {
-            var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
-            // initialize the singleton instance of the plugin
-            _ = new MockCodeModelPlugin(new GeneratorContext(Configuration.Load(configFilePath)));
+            MockHelpers.LoadMockPlugin();
         }
 
         [TestCase(typeof(int))]

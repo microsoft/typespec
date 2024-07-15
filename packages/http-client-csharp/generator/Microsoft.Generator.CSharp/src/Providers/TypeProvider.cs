@@ -18,14 +18,31 @@ namespace Microsoft.Generator.CSharp.Providers
         /// Gets the relative file path where the generated file will be stored.
         /// This path is relative to the project's root directory.
         /// </summary>
-        public abstract string RelativeFilePath { get; }
-        public abstract string Name { get; }
+        internal string RelativeFilePath => _relativeFilePath ??= BuildRelativeFilePath();
+
+        private string? _relativeFilePath;
+
+        public string Name => _name ??= BuildName();
+
+        private string? _name;
+
         protected virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
 
         private XmlDocProvider? _xmlDocs;
-        public XmlDocProvider XmlDocs => _xmlDocs ??= BuildXmlDocs();
 
-        public string? Deprecated => _deprecated;
+        public XmlDocProvider XmlDocs
+        {
+            get => _xmlDocs ??= BuildXmlDocs();
+            private set => _xmlDocs = value;
+        }
+
+        internal virtual Type? SerializeAs => null;
+
+        public string? Deprecated
+        {
+            get => _deprecated;
+            private set => _deprecated = value;
+        }
 
         private CSharpType? _type;
         public CSharpType Type => _type ??= new(
@@ -41,7 +58,12 @@ namespace Microsoft.Generator.CSharp.Providers
         protected virtual string GetNamespace() => CodeModelPlugin.Instance.Configuration.RootNamespace;
 
         private TypeSignatureModifiers? _declarationModifiers;
-        public TypeSignatureModifiers DeclarationModifiers => _declarationModifiers ??= GetDeclarationModifiersInternal();
+
+        public TypeSignatureModifiers DeclarationModifiers
+        {
+            get => _declarationModifiers ??= GetDeclarationModifiersInternal();
+            private set => _declarationModifiers = value;
+        }
 
         protected virtual TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.None;
         private TypeSignatureModifiers GetDeclarationModifiersInternal()
@@ -83,6 +105,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public virtual TypeProvider? DeclaringTypeProvider { get; protected init; }
 
         private IReadOnlyList<CSharpType>? _implements;
+
         public IReadOnlyList<CSharpType> Implements => _implements ??= BuildImplements();
 
         private IReadOnlyList<PropertyProvider>? _properties;
@@ -92,6 +115,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethods();
 
         private IReadOnlyList<ConstructorProvider>? _constructors;
+
         public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= BuildConstructors();
 
         private IReadOnlyList<FieldProvider>? _fields;
@@ -101,6 +125,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypes();
 
         private IReadOnlyList<TypeProvider>? _serializationProviders;
+
         public virtual IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
 
         protected virtual CSharpType[] GetTypeArguments() => Array.Empty<CSharpType>();
@@ -124,6 +149,25 @@ namespace Microsoft.Generator.CSharp.Providers
             var docs = new XmlDocProvider();
             docs.Summary = new XmlDocSummaryStatement([Description]);
             return docs;
+        }
+
+        protected abstract string BuildRelativeFilePath();
+        protected abstract string BuildName();
+
+        public void Update(List<MethodProvider>? methods = default, List<PropertyProvider>? properties = default, List<FieldProvider>? fields = default)
+        {
+            if (methods != null)
+            {
+                _methods = methods;
+            }
+            if (properties != null)
+            {
+                _properties = properties;
+            }
+            if (fields != null)
+            {
+                _fields = fields;
+            }
         }
     }
 }
