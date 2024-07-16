@@ -33,10 +33,10 @@ import {
   resolveModule,
 } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
-import { isImportStatement, parse, parseStandaloneTypeReference } from "./parser.js";
+import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
-import { createSourceFile } from "./source-file.js";
+import { loadSources } from "./source-loader.js";
 import { StateMap, StateSet, createStateAccessors } from "./state-accessors.js";
 import {
   CompilerHost,
@@ -56,7 +56,6 @@ import {
   Namespace,
   NoTarget,
   Node,
-  NodeFlags,
   ProjectionApplication,
   Projector,
   SourceFile,
@@ -206,22 +205,18 @@ export async function compile(
     await loadStandardLibrary();
   }
 
-  // Load additional imports prior to compilation
-  if (resolvedMain && options.additionalImports) {
-    const importScript = options.additionalImports.map((i) => `import "${i}";`).join("\n");
-    const sourceFile = createSourceFile(
-      importScript,
-      joinPaths(getDirectoryPath(resolvedMain), `__additional_imports`)
-    );
-    sourceFileLocationContexts.set(sourceFile, { type: "project" });
-    await loadTypeSpecScript(sourceFile);
-  }
-
-  if (resolvedMain) {
-    await loadMain(resolvedMain);
-  } else {
+  if (resolvedMain === undefined) {
     return program;
   }
+  await checkForCompilerVersionMismatch(resolvedMain);
+  const sourceResolution = await loadSources(host, resolvedMain, {
+    parseOptions: options.parseOptions,
+    additionalImports: options.additionalImports,
+    getCachedScript: (file) => oldProgram?.sourceFiles.get(file.path) ?? host.parseCache?.get(file),
+  });
+  program.sourceFiles = sourceResolution.sourceFiles;
+  program.jsSourceFiles = sourceResolution.jsSourceFiles;
+  program.reportDiagnostics(sourceResolution.diagnostics);
 
   const basedir = getDirectoryPath(resolvedMain);
 
@@ -374,62 +369,6 @@ export async function compile(
     }
   }
 
-  async function loadJsFile(
-    path: string,
-    locationContext: LocationContext,
-    diagnosticTarget: DiagnosticTarget | typeof NoTarget
-  ): Promise<JsSourceFileNode | undefined> {
-    const sourceFile = program.jsSourceFiles.get(path);
-    if (sourceFile !== undefined) {
-      return sourceFile;
-    }
-
-    const file = createSourceFile("", path);
-    sourceFileLocationContexts.set(file, locationContext);
-    const exports = await doIO(host.getJsImport, path, program.reportDiagnostic, {
-      diagnosticTarget,
-      jsDiagnosticTarget: { file, pos: 0, end: 0 },
-    });
-
-    if (!exports) {
-      return undefined;
-    }
-
-    return {
-      kind: SyntaxKind.JsSourceFile,
-      id: {
-        kind: SyntaxKind.Identifier,
-        sv: "",
-        pos: 0,
-        end: 0,
-        symbol: undefined!,
-        flags: NodeFlags.Synthetic,
-      },
-      esmExports: exports,
-      file,
-      namespaceSymbols: [],
-      symbol: undefined!,
-      pos: 0,
-      end: 0,
-      flags: NodeFlags.None,
-    };
-  }
-
-  /**
-   * Import the Javascript files decorator and lifecycle hooks.
-   */
-  async function importJsFile(
-    path: string,
-    locationContext: LocationContext,
-    diagnosticTarget: DiagnosticTarget | typeof NoTarget
-  ) {
-    const file = await loadJsFile(path, locationContext, diagnosticTarget);
-    if (file !== undefined) {
-      program.jsSourceFiles.set(path, file);
-      binder.bindJsSourceFile(file);
-    }
-  }
-
   async function loadTypeSpecScript(file: SourceFile): Promise<TypeSpecScriptNode> {
     // This is not a diagnostic because the compiler should never reuse the same path.
     // It's the caller's responsibility to use unique paths.
@@ -441,7 +380,6 @@ export async function compile(
     program.reportDiagnostics(script.parseDiagnostics);
     program.sourceFiles.set(file.path, script);
     binder.bindSourceFile(script);
-    await loadScriptImports(script);
     return script;
   }
 
@@ -455,73 +393,10 @@ export async function compile(
     return script;
   }
 
-  async function loadScriptImports(file: TypeSpecScriptNode) {
-    // collect imports
-    const basedir = getDirectoryPath(file.file.path);
-    await loadImports(
-      file.statements.filter(isImportStatement).map((x) => ({ path: x.path.value, target: x })),
-      basedir,
-      getSourceFileLocationContext(file.file)
-    );
-  }
-
   function getSourceFileLocationContext(sourcefile: SourceFile): LocationContext {
     const locationContext = sourceFileLocationContexts.get(sourcefile);
     compilerAssert(locationContext, "SourceFile should have a declaration locationContext.");
     return locationContext;
-  }
-
-  async function loadImports(
-    imports: Array<{ path: string; target: DiagnosticTarget | typeof NoTarget }>,
-    relativeTo: string,
-    locationContext: LocationContext
-  ) {
-    // collect imports
-    for (const { path, target } of imports) {
-      await loadImport(path, target, relativeTo, locationContext);
-    }
-  }
-
-  async function loadImport(
-    path: string,
-    target: DiagnosticTarget | typeof NoTarget,
-    relativeTo: string,
-    locationContext: LocationContext
-  ) {
-    const library = await resolveTypeSpecLibrary(path, relativeTo, target);
-    if (library === undefined) {
-      return;
-    }
-    if (library.type === "module") {
-      loadedLibraries.set(library.manifest.name, {
-        path: library.path,
-        manifest: library.manifest,
-      });
-      trace("import-resolution.library", `Loading library "${path}" from "${library.mainFile}"`);
-
-      const metadata = computeModuleMetadata(library);
-      locationContext = {
-        type: "library",
-        metadata,
-      };
-    }
-    const importFilePath = library.type === "module" ? library.mainFile : library.path;
-
-    const isDirectory = (await host.stat(importFilePath)).isDirectory();
-    if (isDirectory) {
-      return await loadDirectory(importFilePath, locationContext, target);
-    }
-
-    const sourceFileKind = host.getSourceFileKind(importFilePath);
-
-    switch (sourceFileKind) {
-      case "js":
-        return await importJsFile(importFilePath, locationContext, target);
-      case "typespec":
-        return await loadTypeSpecFile(importFilePath, locationContext, target);
-      default:
-        program.reportDiagnostic(createDiagnostic({ code: "invalid-import", target }));
-    }
   }
 
   async function loadEmitters(
@@ -848,26 +723,6 @@ export async function compile(
         return file.text;
       },
     };
-  }
-
-  /**
-   * Load the main file from the given path
-   * @param mainPath Absolute path to the main file.
-   */
-  async function loadMain(mainPath: string): Promise<void> {
-    await checkForCompilerVersionMismatch(mainPath);
-
-    const sourceFileKind = host.getSourceFileKind(mainPath);
-
-    const locationContext: LocationContext = { type: "project" };
-    switch (sourceFileKind) {
-      case "js":
-        return await importJsFile(mainPath, locationContext, NoTarget);
-      case "typespec":
-        return await loadTypeSpecFile(mainPath, locationContext, NoTarget);
-      default:
-        program.reportDiagnostic(createDiagnostic({ code: "invalid-main", target: NoTarget }));
-    }
   }
 
   // It's important that we use the compiler version that resolves locally
