@@ -135,19 +135,6 @@ export function loadOperation(
     }
   }
 
-  // TODO -- to be removed when adopt TCGC's getAllOperations
-  // fix the usage of body parameter
-  // we have to do this when there is an anonymous model in the body parameter, other cases are already handled by TCGC
-  const bodyParameter = parameters.find((value) => value.Location === RequestLocation.Body);
-  if (
-    bodyParameter &&
-    bodyParameter.Type &&
-    isInputModelType(bodyParameter.Type) &&
-    mediaTypes?.includes("multipart/form-data")
-  ) {
-    bodyParameter.Type.Usage |= UsageFlags.MultipartFormData;
-  }
-
   const requestMethod = parseHttpRequestMethod(verb);
   const generateProtocol: boolean = shouldGenerateProtocol(sdkContext, op);
   let generateConvenience: boolean = shouldGenerateConvenient(sdkContext, op);
