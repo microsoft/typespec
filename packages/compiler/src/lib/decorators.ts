@@ -96,6 +96,7 @@ import {
   Scalar,
   Type,
   Union,
+  UnionVariant,
   Value,
 } from "../core/types.js";
 
@@ -1440,7 +1441,7 @@ export interface OpExample extends ExampleOptions {
 const exampleKey = createStateSymbol("examples");
 export const $example: ExampleDecorator = (
   context: DecoratorContext,
-  target: Model | Scalar | Enum | Union | ModelProperty,
+  target: Model | Scalar | Enum | Union | ModelProperty | UnionVariant,
   _example: unknown,
   options?: unknown // TODO: change `options?: ExampleOptions` when tspd supports it
 ) => {
