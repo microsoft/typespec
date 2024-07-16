@@ -1,5 +1,5 @@
 import { Contact, License } from "@typespec/openapi";
-import { OpenAPI3Encoding, OpenAPI3Responses, OpenAPI3Schema, Refable } from "../../../types.js";
+import { OpenAPI3Encoding, OpenAPI3Schema, Refable } from "../../../types.js";
 
 export interface TypeSpecProgram {
   serviceInfo: TypeSpecServiceInfo;
@@ -78,7 +78,7 @@ export interface TypeSpecOperation extends TypeSpecDeclaration {
   operationId?: string;
   parameters: Refable<TypeSpecOperationParameter>[];
   requestBodies: TypeSpecRequestBody[];
-  responses: OpenAPI3Responses;
+  responseTypes: string[];
   tags: string[];
 }
 

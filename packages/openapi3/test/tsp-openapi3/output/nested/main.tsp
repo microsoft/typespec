@@ -21,6 +21,16 @@ namespace SubA {
     model Thing {
       name: string;
     }
+    /**
+     * The request has succeeded.
+     */
+    model doSomething200ApplicationJsonResponse {
+      @statusCode statusCode: 200;
+      @bodyRoot body: string;
+    }
+    @route("/sub/a/subsub") @post op doSomething(
+      @bodyRoot body: SubA.SubSubA.Thing,
+    ): doSomething200ApplicationJsonResponse;
   }
 }
 
@@ -37,7 +47,7 @@ namespace SubB {
   }
   @route("/sub/b") @post op doSomething(
     @bodyRoot body: SubB.Thing,
-  ): SubB.doSomething200ApplicationJsonResponse;
+  ): doSomething200ApplicationJsonResponse;
 }
 
 namespace SubC {
@@ -53,18 +63,5 @@ namespace SubC {
       thing: SubA.Thing;
       thing2: SubA.Thing;
     },
-  ): SubC.anotherOp200ApplicationJsonResponse;
-}
-
-namespace SubSubA {
-  /**
-   * The request has succeeded.
-   */
-  model doSomething200ApplicationJsonResponse {
-    @statusCode statusCode: 200;
-    @bodyRoot body: string;
-  }
-  @route("/sub/a/subsub") @post op doSomething(
-    @bodyRoot body: SubA.SubSubA.Thing,
-  ): SubSubA.doSomething200ApplicationJsonResponse;
+  ): anotherOp200ApplicationJsonResponse;
 }

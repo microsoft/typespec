@@ -1,11 +1,11 @@
 import { printIdentifier } from "@typespec/compiler";
 
-type ScopeAndName = { scope: string[]; name: string };
+type ScopeAndName = { scope: string[]; name: string; rawName: string };
 export function getScopeAndName(originalName: string): ScopeAndName {
-  const path = originalName.split(".").map(printIdentifier);
+  const path = originalName.split(".");
   const name = path.pop()!;
 
-  return { scope: path, name };
+  return { scope: path.map(printIdentifier), name: printIdentifier(name), rawName: name };
 }
 
 export function scopesMatch(a: string[], b: string[]): boolean {

@@ -31,7 +31,7 @@ paths:
                 - thing2
   /sub/a/subsub:
     post:
-      operationId: SubSubA.doSomething
+      operationId: SubA.SubSubA.doSomething
       parameters: []
       responses:
         "200":

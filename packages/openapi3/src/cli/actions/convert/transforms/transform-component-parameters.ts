@@ -1,3 +1,4 @@
+import { printIdentifier } from "@typespec/compiler";
 import { OpenAPI3Components, OpenAPI3Parameter } from "../../../../types.js";
 import { TypeSpecModel, TypeSpecModelProperty } from "../interfaces.js";
 import { getParameterDecorators } from "../utils/decorators.js";
@@ -57,7 +58,7 @@ function transformComponentParameter(
 
 function getModelPropertyFromParameter(parameter: OpenAPI3Parameter): TypeSpecModelProperty {
   return {
-    name: parameter.name,
+    name: printIdentifier(parameter.name),
     isOptional: !parameter.required,
     doc: parameter.description ?? parameter.schema.description,
     decorators: getParameterDecorators(parameter),

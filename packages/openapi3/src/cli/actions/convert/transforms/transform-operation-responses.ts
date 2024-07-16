@@ -1,5 +1,5 @@
+import { printIdentifier } from "@typespec/compiler";
 import {
-  OpenAPI3Document,
   OpenAPI3Header,
   OpenAPI3Responses,
   OpenAPI3Schema,
@@ -10,54 +10,18 @@ import { TypeSpecDecorator, TypeSpecModel, TypeSpecModelProperty } from "../inte
 import { convertHeaderName } from "../utils/convert-header-name.js";
 import { getDecoratorsForSchema, getExtensions } from "../utils/decorators.js";
 import { getScopeAndName } from "../utils/get-scope-and-name.js";
-import { supportedHttpMethods } from "../utils/supported-http-methods.js";
-
-type OperationResponseInfo = {
-  operationId: string;
-  operationResponses: OpenAPI3Responses;
-};
 
 /**
  * Transforms #/paths/{route}/{httpMethod}/responses into TypeSpec models.
- * Populates the provided `models` array in-place.
- * @param models
- * @param document
+ * @param operationId - Used to generate model names with scopes.
+ * @param operationResponses - The responses object for an operation.
  */
-export function transformAllOperationResponses(
-  models: TypeSpecModel[],
-  document: OpenAPI3Document
-): void {
-  const allOperationResponses = collectOpenAPI3OperationResponses(document);
-  for (const { operationId, operationResponses } of allOperationResponses) {
-    transformOperationResponses(models, operationId, operationResponses);
-  }
-}
-
-function collectOpenAPI3OperationResponses(document: OpenAPI3Document): OperationResponseInfo[] {
-  const allOperationResponses: OperationResponseInfo[] = [];
-  const paths = document.paths ?? {};
-  for (const route of Object.keys(paths)) {
-    const path = paths[route];
-    for (const verb of supportedHttpMethods) {
-      const operation = path[verb];
-      if (!operation) continue;
-
-      const operationResponses: OpenAPI3Responses = operation.responses ?? {};
-      allOperationResponses.push({
-        operationId: operation.operationId!,
-        operationResponses,
-      });
-    }
-  }
-
-  return allOperationResponses;
-}
-
-function transformOperationResponses(
-  models: TypeSpecModel[],
+export function collectOperationResponses(
   operationId: string,
   operationResponses: OpenAPI3Responses
-) {
+): TypeSpecModel[] {
+  const models: TypeSpecModel[] = [];
+
   const rootDecorators: TypeSpecDecorator[] = getExtensions(operationResponses);
   for (const statusCode of Object.keys(operationResponses)) {
     const response = operationResponses[statusCode];
@@ -65,7 +29,7 @@ function transformOperationResponses(
 
     if ("$ref" in response) {
       //TODO: Support for referencing #/components/responseBodies
-      return;
+      continue;
     }
 
     // These headers will be applied to all of the models for this operation/statusCode
@@ -93,7 +57,7 @@ function transformOperationResponses(
       // This is common when there is no actual request body, just a statusCode, e.g. for errors
       models.push({
         scope: scopeAndName.scope,
-        name: generateResponseModelName(scopeAndName.name, statusCode),
+        name: generateResponseModelName(scopeAndName.rawName, statusCode),
         decorators,
         properties: commonProperties,
         doc: response.description,
@@ -126,7 +90,7 @@ function transformOperationResponses(
 
         models.push({
           scope: scopeAndName.scope,
-          name: generateResponseModelName(scopeAndName.name, statusCode, contentType),
+          name: generateResponseModelName(scopeAndName.rawName, statusCode, contentType),
           decorators,
           properties,
           doc: response.description,
@@ -134,6 +98,8 @@ function transformOperationResponses(
       }
     }
   }
+
+  return models;
 }
 
 function convertHeaderToProperty(
@@ -221,7 +187,7 @@ export function generateResponseModelName(
   if (contentType) {
     modelName += convertContentType(contentType);
   }
-  return modelName + "Response";
+  return printIdentifier(modelName + "Response");
 }
 
 function convertContentType(contentType: string): string {

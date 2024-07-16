@@ -1,3 +1,4 @@
+import { printIdentifier } from "@typespec/compiler";
 import { OpenAPI3Components, OpenAPI3Schema } from "../../../../types.js";
 import {
   getArrayType,
@@ -97,7 +98,7 @@ function getModelPropertiesFromObjectSchema({
     const property = properties[name];
 
     modelProperties.push({
-      name,
+      name: printIdentifier(name),
       doc: property.description,
       schema: property,
       isOptional: !required.includes(name),
