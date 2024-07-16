@@ -10,6 +10,7 @@ import type {
   Scalar,
   Type,
   Union,
+  UnionVariant,
 } from "../src/index.js";
 
 /**
@@ -572,7 +573,7 @@ export type DiscriminatorDecorator = (
 ) => void;
 
 /**
- * Provide an example value for a type.
+ * Provide an example value for a data type.
  *
  * @param example Example value.
  * @param options Optional metadata for the example.
@@ -587,13 +588,13 @@ export type DiscriminatorDecorator = (
  */
 export type ExampleDecorator = (
   context: DecoratorContext,
-  target: Model | Enum | Scalar | Union | ModelProperty,
+  target: Model | Enum | Scalar | Union | ModelProperty | UnionVariant,
   example: unknown,
   options?: unknown
 ) => void;
 
 /**
- * Provide an example value for a type.
+ * Provide example values for an operation's parameters and corresponding return type.
  *
  * @param example Example value.
  * @param options Optional metadata for the example.
