@@ -10,6 +10,9 @@ namespace Microsoft.Generator.CSharp.Statements
         public XmlDocParamStatement(string paramName, FormattableString text)
             : base($"<param name=\"{paramName}\">", "</param>", [text])
         {
+            ParamName = paramName;
         }
+
+        public string ParamName { get; }
     }
 }

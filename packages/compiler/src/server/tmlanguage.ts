@@ -879,7 +879,7 @@ const usingStatement: BeginEndRule = {
     "1": { scope: "keyword.other.tsp" },
   },
   end: universalEnd,
-  patterns: [token, identifierExpression],
+  patterns: [token, identifierExpression, punctuationAccessor],
 };
 
 const decoratorDeclarationStatement: BeginEndRule = {

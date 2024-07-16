@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -20,10 +21,9 @@ namespace Microsoft.Generator.CSharp.Providers
         protected EnumProvider(InputEnumType input)
         {
             _deprecated = input.Deprecated;
+            _input = input;
 
             IsExtensible = input.IsExtensible;
-            Name = input.Name.ToCleanName();
-            Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
             ValueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input.ValueType);
             IsStringValueType = ValueType.Equals(typeof(string));
             IsIntValueType = ValueType.Equals(typeof(int)) || ValueType.Equals(typeof(long));
@@ -39,12 +39,14 @@ namespace Microsoft.Generator.CSharp.Providers
         internal bool IsFloatValueType { get; }
         internal bool IsStringValueType { get; }
         internal bool IsNumericValueType { get; }
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
-        public override string Name { get; }
-        public override string Namespace { get; }
+
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+
+        protected override string BuildName() => _input.Name.ToCleanName();
         protected override FormattableString Description { get; }
 
         private IReadOnlyList<EnumTypeMember>? _members;
+        private readonly InputEnumType _input;
         public IReadOnlyList<EnumTypeMember> Members => _members ??= BuildMembers();
 
         protected abstract IReadOnlyList<EnumTypeMember> BuildMembers();
@@ -52,5 +54,14 @@ namespace Microsoft.Generator.CSharp.Providers
         public abstract ValueExpression ToSerial(ValueExpression enumExpression);
 
         public abstract ValueExpression ToEnum(ValueExpression valueExpression);
+
+        protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
+
+        protected override bool GetIsEnum() => true;
+
+        protected override TypeProvider[] BuildSerializationProviders()
+        {
+            return [.. CodeModelPlugin.Instance.GetSerializationTypeProviders(_input)];
+        }
     }
 }

@@ -9,7 +9,6 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
-using Moq;
 using NUnit.Framework;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -17,16 +16,9 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
 {
     public class StatementTests
     {
-        private readonly string _mocksFolder = "Mocks";
-
-        [OneTimeSetUp]
-        public void Setup()
+        public StatementTests()
         {
-            string outputFolder = "./outputFolder";
-            string projectPath = outputFolder;
-            var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
-            // initialize the singleton instance of the plugin
-            _ = new MockCodeModelPlugin(new GeneratorContext(Configuration.Load(configFilePath)));
+            MockHelpers.LoadMockPlugin();
         }
 
         [Test]
@@ -250,8 +242,6 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                 switchStatement.Add(switchCase);
             }
 
-            var mockTypeProvider = new Mock<TypeProvider>();
-
             // Create a method declaration statement
             var method = new MethodProvider(
                 new MethodSignature(
@@ -261,7 +251,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Parameters: [],
                     Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { fooDeclaration, switchStatement },
-                mockTypeProvider.Object);
+                MockTypeProvider.Empty);
 
             // Verify the expected behavior
             using var writer = new CodeWriter();
@@ -294,8 +284,6 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                 switchStatement.Add(switchCase);
             }
 
-            var mockTypeProvider = new Mock<TypeProvider>();
-
             // Create a method declaration statement
             var method = new MethodProvider(
                 new MethodSignature(
@@ -305,7 +293,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Parameters: [],
                     Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { fooDeclaration, switchStatement },
-                mockTypeProvider.Object);
+                MockTypeProvider.Empty);
 
             // Verify the expected behavior
             using var writer = new CodeWriter();
@@ -359,10 +347,12 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         public void TryCatchFinallyStatementWithMultipleCatches()
         {
             var tryStatement = new MethodBodyStatement();
+            var var1 = new DeclarationExpression(typeof(UnauthorizedAccessException), "ex1");
+            var var2 = new DeclarationExpression(typeof(Exception), "ex2");
             var catchStatements = new[]
             {
-                new CatchExpression(null, new MethodBodyStatement()),
-                new CatchExpression(null, new MethodBodyStatement())
+                new CatchExpression(var1, new MethodBodyStatement()),
+                new CatchExpression(var2, new MethodBodyStatement())
             };
             var finallyStatement = new MethodBodyStatement();
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, catchStatements, finallyStatement);
@@ -370,6 +360,24 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
             Assert.AreEqual(tryStatement, tryCatchFinally.Try);
             CollectionAssert.AreEqual(catchStatements, tryCatchFinally.Catches);
             Assert.AreEqual(finallyStatement, tryCatchFinally.Finally);
+
+            // Create a method declaration statement
+            var method = new MethodProvider(
+                new MethodSignature(
+                    Name: "Foo",
+                    Modifiers: MethodSignatureModifiers.Public,
+                    ReturnType: new CSharpType(typeof(bool)),
+                    Parameters: [],
+                    Description: null, ReturnDescription: null),
+                new MethodBodyStatement[] { tryCatchFinally },
+                MockTypeProvider.Empty);
+
+            // Verify the expected behavior
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            var expectedResult = Helpers.GetExpectedFromFile();
+            var test = writer.ToString(false);
+            Assert.AreEqual(expectedResult, test);
         }
 
         [Test]
@@ -384,7 +392,6 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
             var ifStatementBody = Declare(variableFoo, Int(2));
             var elseStatementBody = Declare(variableBar, Int(2));
             var ifElsePreprocessor = new IfElsePreprocessorStatement(condition, ifStatementBody, elseStatementBody);
-            var mockTypeProvider = new Mock<TypeProvider>();
 
             // Create a method declaration statement
             var method = new MethodProvider(
@@ -395,7 +402,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Parameters: [],
                     Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { xDeclaration, ifElsePreprocessor },
-                mockTypeProvider.Object);
+                MockTypeProvider.Empty);
 
             // Verify the expected behavior
             using var writer = new CodeWriter();

@@ -21,16 +21,11 @@ namespace UnbrandedTypeSpec
             _pipeline = ClientPipeline.Create();
         }
 
-        internal PipelineMessage CreateSayHiRequest(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] Return hi
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -54,7 +49,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Return hi
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -102,16 +97,11 @@ namespace UnbrandedTypeSpec
             return await SayHiAsync(headParameter, queryParameter, optionalQuery, null).ConfigureAwait(false);
         }
 
-        internal PipelineMessage CreateHelloAgainRequest(string p1, string p2, BinaryContent content, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] Return hi again
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -135,7 +125,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Return hi again
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -187,16 +177,11 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
-        internal PipelineMessage CreateNoContentTypeRequest(string p1, string p2, BinaryContent content, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] Return hi again
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -220,7 +205,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Return hi again
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -272,16 +257,11 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
-        internal PipelineMessage CreateHelloDemo2Request(RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] Return hi in demo2
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -298,7 +278,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Return hi in demo2
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -325,16 +305,11 @@ namespace UnbrandedTypeSpec
             return await HelloDemo2Async(null).ConfigureAwait(false);
         }
 
-        internal PipelineMessage CreateCreateLiteralRequest(BinaryContent content, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] Create with literal value
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -352,7 +327,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Create with literal value
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -390,16 +365,11 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
-        internal PipelineMessage CreateHelloLiteralRequest(RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] Send literal parameters
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -416,7 +386,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Send literal parameters
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -443,16 +413,11 @@ namespace UnbrandedTypeSpec
             return await HelloLiteralAsync(null).ConfigureAwait(false);
         }
 
-        internal PipelineMessage CreateTopActionRequest(DateTimeOffset action, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] top level method
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -473,7 +438,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] top level method
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -512,16 +477,11 @@ namespace UnbrandedTypeSpec
             return await TopActionAsync(action, null).ConfigureAwait(false);
         }
 
-        internal PipelineMessage CreateTopAction2Request(RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] top level method2
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -538,7 +498,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] top level method2
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -565,16 +525,11 @@ namespace UnbrandedTypeSpec
             return await TopAction2Async(null).ConfigureAwait(false);
         }
 
-        internal PipelineMessage CreatePatchActionRequest(BinaryContent content, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] top level patch
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -592,7 +547,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] top level patch
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -630,26 +585,20 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
-        internal PipelineMessage CreateAnonymousBodyRequest(BinaryContent content, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] body parameter without body decorator
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult AnonymousBody(BinaryContent content, RequestOptions options)
+        public virtual ClientResult AnonymousBody(RequestOptions options)
         {
-            using PipelineMessage message = CreateAnonymousBodyRequest(content, options);
+            using PipelineMessage message = CreateAnonymousBodyRequest(options);
             return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
@@ -657,64 +606,47 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] body parameter without body decorator
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> AnonymousBodyAsync(BinaryContent content, RequestOptions options)
+        public virtual async Task<ClientResult> AnonymousBodyAsync(RequestOptions options)
         {
-            using PipelineMessage message = CreateAnonymousBodyRequest(content, options);
+            using PipelineMessage message = CreateAnonymousBodyRequest(options);
             return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> body parameter without body decorator. </summary>
-        /// <param name="Thing"> A model with a few properties of literal types. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="Thing"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult AnonymousBody(Thing Thing)
+        public virtual ClientResult AnonymousBody()
         {
-            Argument.AssertNotNull(Thing, nameof(Thing));
-
-            ClientResult result = AnonymousBody(Thing, null);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            return AnonymousBody(null);
         }
 
         /// <summary> body parameter without body decorator. </summary>
-        /// <param name="Thing"> A model with a few properties of literal types. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="Thing"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> AnonymousBodyAsync(Thing Thing)
+        public virtual async Task<ClientResult> AnonymousBodyAsync()
         {
-            Argument.AssertNotNull(Thing, nameof(Thing));
-
-            ClientResult result = await AnonymousBodyAsync(Thing, null).ConfigureAwait(false);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
-        }
-
-        internal PipelineMessage CreateFriendlyModelRequest(BinaryContent content, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
+            return await AnonymousBodyAsync(null).ConfigureAwait(false);
         }
 
         /// <summary>
         /// [Protocol Method] Model can have its friendly name
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult FriendlyModel(BinaryContent content, RequestOptions options)
+        public virtual ClientResult FriendlyModel(RequestOptions options)
         {
-            using PipelineMessage message = CreateFriendlyModelRequest(content, options);
+            using PipelineMessage message = CreateFriendlyModelRequest(options);
             return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
@@ -722,54 +654,38 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Model can have its friendly name
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> FriendlyModelAsync(BinaryContent content, RequestOptions options)
+        public virtual async Task<ClientResult> FriendlyModelAsync(RequestOptions options)
         {
-            using PipelineMessage message = CreateFriendlyModelRequest(content, options);
+            using PipelineMessage message = CreateFriendlyModelRequest(options);
             return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Model can have its friendly name. </summary>
-        /// <param name="Friend"> this is not a friendly model but with a friendly name. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="Friend"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult FriendlyModel(Friend Friend)
+        public virtual ClientResult FriendlyModel()
         {
-            Argument.AssertNotNull(Friend, nameof(Friend));
-
-            ClientResult result = FriendlyModel(Friend, null);
-            return ClientResult.FromValue((Friend)result, result.GetRawResponse());
+            return FriendlyModel(null);
         }
 
         /// <summary> Model can have its friendly name. </summary>
-        /// <param name="Friend"> this is not a friendly model but with a friendly name. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="Friend"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> FriendlyModelAsync(Friend Friend)
+        public virtual async Task<ClientResult> FriendlyModelAsync()
         {
-            Argument.AssertNotNull(Friend, nameof(Friend));
-
-            ClientResult result = await FriendlyModelAsync(Friend, null).ConfigureAwait(false);
-            return ClientResult.FromValue((Friend)result, result.GetRawResponse());
-        }
-
-        internal PipelineMessage CreateAddTimeHeaderRequest(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
+            return await FriendlyModelAsync(null).ConfigureAwait(false);
         }
 
         /// <summary>
         /// [Protocol Method] addTimeHeader
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -787,7 +703,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] addTimeHeader
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -817,26 +733,20 @@ namespace UnbrandedTypeSpec
             return await AddTimeHeaderAsync(repeatabilityFirstSent, null).ConfigureAwait(false);
         }
 
-        internal PipelineMessage CreateProjectedNameModelRequest(BinaryContent content, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] Model can have its projected name
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult ProjectedNameModel(BinaryContent content, RequestOptions options)
+        public virtual ClientResult ProjectedNameModel(RequestOptions options)
         {
-            using PipelineMessage message = CreateProjectedNameModelRequest(content, options);
+            using PipelineMessage message = CreateProjectedNameModelRequest(options);
             return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
@@ -844,54 +754,38 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] Model can have its projected name
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ProjectedNameModelAsync(BinaryContent content, RequestOptions options)
+        public virtual async Task<ClientResult> ProjectedNameModelAsync(RequestOptions options)
         {
-            using PipelineMessage message = CreateProjectedNameModelRequest(content, options);
+            using PipelineMessage message = CreateProjectedNameModelRequest(options);
             return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Model can have its projected name. </summary>
-        /// <param name="ProjectedModel"> this is a model with a projected name. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="ProjectedModel"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult ProjectedNameModel(ProjectedModel ProjectedModel)
+        public virtual ClientResult ProjectedNameModel()
         {
-            Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
-
-            ClientResult result = ProjectedNameModel(ProjectedModel, null);
-            return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
+            return ProjectedNameModel(null);
         }
 
         /// <summary> Model can have its projected name. </summary>
-        /// <param name="ProjectedModel"> this is a model with a projected name. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="ProjectedModel"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> ProjectedNameModelAsync(ProjectedModel ProjectedModel)
+        public virtual async Task<ClientResult> ProjectedNameModelAsync()
         {
-            Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
-
-            ClientResult result = await ProjectedNameModelAsync(ProjectedModel, null).ConfigureAwait(false);
-            return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
-        }
-
-        internal PipelineMessage CreateReturnsAnonymousModelRequest(RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
+            return await ProjectedNameModelAsync(null).ConfigureAwait(false);
         }
 
         /// <summary>
         /// [Protocol Method] return anonymous model
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -908,7 +802,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] return anonymous model
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -935,16 +829,11 @@ namespace UnbrandedTypeSpec
             return await ReturnsAnonymousModelAsync(null).ConfigureAwait(false);
         }
 
-        internal PipelineMessage CreateGetUnknownValueRequest(RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] get extensible enum
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -961,7 +850,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] get extensible enum
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -988,16 +877,11 @@ namespace UnbrandedTypeSpec
             return await GetUnknownValueAsync(null).ConfigureAwait(false);
         }
 
-        internal PipelineMessage CreateInternalProtocolRequest(BinaryContent content, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] When set protocol false and convenient true, then the protocol method should be internal
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -1015,7 +899,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] When set protocol false and convenient true, then the protocol method should be internal
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -1053,16 +937,11 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
-        internal PipelineMessage CreateStillConvenientRequest(RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -1079,7 +958,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -1106,16 +985,11 @@ namespace UnbrandedTypeSpec
             return await StillConvenientAsync(null).ConfigureAwait(false);
         }
 
-        internal PipelineMessage CreateHeadAsBooleanRequest(string id, RequestOptions options)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
         /// <summary>
         /// [Protocol Method] head as boolean.
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>
@@ -1136,7 +1010,7 @@ namespace UnbrandedTypeSpec
         /// [Protocol Method] head as boolean.
         /// <list type="bullet">
         /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
         /// </item>
         /// </list>
         /// </summary>

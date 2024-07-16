@@ -28,8 +28,8 @@ namespace Microsoft.Generator.CSharp.Input
                 case InputArrayType listType:
                     return new InputArrayType(
                         listType.Name,
-                        listType.ValueType.GetCollectionEquivalent(inputType),
-                        listType.IsEmbeddingsVector);
+                        listType.CrossLanguageDefinitionId,
+                        listType.ValueType.GetCollectionEquivalent(inputType));
                 case InputDictionaryType dictionaryType:
                     return new InputDictionaryType(
                         dictionaryType.Name,

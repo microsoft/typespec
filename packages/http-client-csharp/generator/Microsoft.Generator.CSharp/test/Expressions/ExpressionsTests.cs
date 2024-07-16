@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.IO;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -15,17 +13,9 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
 {
     internal class ExpressionsTests
     {
-        private readonly string _mocksFolder = "Mocks";
-
-        [OneTimeSetUp]
-        public void Setup()
+        public ExpressionsTests()
         {
-            string outputFolder = "./outputFolder";
-            string projectPath = outputFolder;
-
-            var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
-            // initialize the singleton instance of the plugin
-            _ = new MockCodeModelPlugin(new GeneratorContext(Configuration.Load(configFilePath)));
+            MockHelpers.LoadMockPlugin();
         }
 
         [Test]
@@ -46,7 +36,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
                     Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { Return(True) },
                 mockTypeProvider.Object);
-            var returnInstanceMethod = Return(new InvokeInstanceMethodExpression(null, barMethod.Signature.Name, [Bool(true), Bool(false), Bool(false)]));
+            var returnInstanceMethod = Return(new InvokeMethodExpression(null, barMethod.Signature.Name, [Bool(true), Bool(false), Bool(false)]));
             var fooMethod = new MethodProvider(
                 new MethodSignature(
                     Name: "Foo",

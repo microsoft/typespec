@@ -14,8 +14,6 @@ namespace Microsoft.Generator.CSharp.Tests
 {
     public class CSharpGenTests
     {
-        private readonly string _mocksFolder = "./Mocks";
-
         // Validates that the output path is parsed correctly when provided
         [Test]
         public void TestGetOutputPath_OutputPathProvided()
@@ -48,7 +46,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TestCSharpGen_ValidPlugin()
         {
             // mock plugin
-            var mockPlugin = new Mock<CodeModelPlugin>(new GeneratorContext(Configuration.Load(_mocksFolder)))
+            var mockPlugin = new Mock<CodeModelPlugin>(new GeneratorContext(Configuration.Load(MockHelpers.MocksFolder)))
             {
                 CallBase = true
             };
@@ -62,7 +60,7 @@ namespace Microsoft.Generator.CSharp.Tests
             mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(new CSharpType(typeof(IList<>)));
             mockPlugin.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
 
-            var configFilePath = Path.Combine(_mocksFolder, "Configuration.json");
+            var configFilePath = Path.Combine(MockHelpers.MocksFolder, "Configuration.json");
             var csharpGen = new CSharpGen().ExecuteAsync();
 
             Assert.IsNotNull(csharpGen);

@@ -983,6 +983,18 @@ export function createChecker(program: Program): Checker {
     kind: "argument" | "assignment";
     type: Type;
   }
+
+  function canTryLegacyCast(
+    target: Type,
+    constraint: MixedParameterConstraint | undefined
+  ): constraint is MixedParameterConstraint &
+    Required<Pick<MixedParameterConstraint, "valueType">> {
+    return Boolean(
+      constraint?.valueType &&
+        !(constraint.type && ignoreDiagnostics(isTypeAssignableTo(target, constraint.type, target)))
+    );
+  }
+
   /**
    * Gets a type or value depending on the node and current constraint.
    * For nodes that can be both type or values(e.g. string), the value will be returned if the constraint expect a value of that type even if the constrain also allows the type.
@@ -998,7 +1010,7 @@ export function createChecker(program: Program): Checker {
     if (entity === null) {
       return entity;
     } else if (isType(entity)) {
-      if (valueConstraint) {
+      if (canTryLegacyCast(entity, constraint?.constraint)) {
         return legacy_tryTypeToValueCast(entity, valueConstraint, node);
       } else {
         return entity;
@@ -1560,7 +1572,7 @@ export function createChecker(program: Program): Checker {
             ? finalMap.get(param.constraint.type)!
             : param.constraint;
 
-        if (isType(type) && param.constraint?.valueType) {
+        if (isType(type) && canTryLegacyCast(type, param.constraint)) {
           const converted = legacy_tryTypeToValueCast(
             type,
             { kind: "argument", type: param.constraint.valueType },
@@ -4664,6 +4676,8 @@ export function createChecker(program: Program): Checker {
       const parentType = getTypeName(overriddenProp.type);
       const newPropType = getTypeName(newProp.type);
 
+      let invalid = false;
+
       if (!isAssignable) {
         reportCheckerDiagnostic(
           createDiagnostic({
@@ -4672,8 +4686,22 @@ export function createChecker(program: Program): Checker {
             target: diagnosticTarget ?? newProp,
           })
         );
-        return;
+        invalid = true;
       }
+
+      if (!overriddenProp.optional && newProp.optional) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "override-property-mismatch",
+            messageId: "disallowedOptionalOverride",
+            format: { propName: overriddenProp.name },
+            target: diagnosticTarget ?? newProp,
+          })
+        );
+        invalid = true;
+      }
+
+      if (invalid) return;
     }
 
     properties.set(newProp.name, newProp);

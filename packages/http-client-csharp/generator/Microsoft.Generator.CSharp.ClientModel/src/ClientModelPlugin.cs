@@ -13,6 +13,8 @@ using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
+    [Export(typeof(CodeModelPlugin))]
+    [ExportMetadata("PluginName", nameof(ClientModelPlugin))]
     public class ClientModelPlugin : CodeModelPlugin
     {
         private static ClientModelPlugin? _instance;
@@ -28,18 +30,17 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public override IReadOnlyList<MetadataReference> AdditionalMetadataReferences => [MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location)];
 
         /// <summary>
-        /// Returns the serialization type providers for the given model type provider.
+        /// Returns the serialization type providers for the given input type.
         /// </summary>
-        /// <param name="provider">The model type provider.</param>
-        /// <param name="inputModel">The input model.</param>
-        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(TypeProvider provider, InputType inputType)
+        /// <param name="inputType">The input type.</param>
+        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(InputType inputType)
         {
             switch (inputType)
             {
                 case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
-                    return [new MrwSerializationTypeProvider(provider, inputModel)];
+                    return [new MrwSerializationTypeDefinition(inputModel)];
                 default:
-                    return base.GetSerializationTypeProviders(provider, inputType);
+                    return base.GetSerializationTypeProviders(inputType);
             }
         }
 

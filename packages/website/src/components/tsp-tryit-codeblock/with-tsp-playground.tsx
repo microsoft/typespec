@@ -96,7 +96,7 @@ const PlaygroundTryItLinkInternal = ({
           emitter: compilerOptions.emit?.[0],
         })
     );
-  }, [storage, compilerOptions, content]);
+  }, [storage, compilerOptions, content, baseUrl]);
 
   return <a {...props} href={playgroundLink}></a>;
 };

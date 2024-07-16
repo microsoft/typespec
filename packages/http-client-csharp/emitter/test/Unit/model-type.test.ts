@@ -1,5 +1,5 @@
 import { TestHost } from "@typespec/compiler/testing";
-import assert, { deepStrictEqual, strictEqual } from "assert";
+import assert, { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import { InputModelProperty } from "../../src/type/input-model-property.js";
@@ -426,35 +426,16 @@ op op5(@body body: ExtendsFooArray): ExtendsFooArray;
     assert(extendsFooModel !== undefined);
     assert(extendsFooArrayModel !== undefined);
     // assert the inherited dictionary type is expected
-    deepStrictEqual(
-      {
-        Kind: "any",
-        Encode: undefined,
-      },
-      extendsUnknownModel.AdditionalProperties
-    );
-    deepStrictEqual(
-      {
-        Kind: "string",
-        Encode: undefined,
-      },
-      extendsStringModel.AdditionalProperties
-    );
-    deepStrictEqual(
-      {
-        Kind: "int32",
-        Encode: undefined,
-      },
-      extendsInt32Model.AdditionalProperties
-    );
-    deepStrictEqual(fooModel, extendsFooModel.AdditionalProperties);
-    deepStrictEqual(
-      {
-        Kind: "array",
-        ValueType: fooModel,
-      },
-      extendsFooArrayModel.AdditionalProperties
-    );
+    strictEqual(extendsUnknownModel.AdditionalProperties?.Kind, "any");
+
+    strictEqual(extendsStringModel.AdditionalProperties?.Kind, "string");
+
+    strictEqual(extendsInt32Model.AdditionalProperties?.Kind, "int32");
+
+    deepStrictEqual(extendsFooModel.AdditionalProperties, fooModel);
+
+    strictEqual(extendsFooArrayModel.AdditionalProperties?.Kind, "array");
+    deepStrictEqual(extendsFooArrayModel.AdditionalProperties.ValueType, fooModel);
   });
 });
 
@@ -538,35 +519,16 @@ op op5(@body body: IsFooArray): IsFooArray;
     assert(isFooModel !== undefined);
     assert(isFooArrayModel !== undefined);
     // assert the inherited dictionary type is expected
-    deepStrictEqual(
-      {
-        Kind: "any",
-        Encode: undefined,
-      },
-      isUnknownModel.AdditionalProperties
-    );
-    deepStrictEqual(
-      {
-        Kind: "string",
-        Encode: undefined,
-      },
-      isStringModel.AdditionalProperties
-    );
-    deepStrictEqual(
-      {
-        Kind: "int32",
-        Encode: undefined,
-      },
-      isInt32Model.AdditionalProperties
-    );
-    deepStrictEqual(fooModel, isFooModel.AdditionalProperties);
-    deepStrictEqual(
-      {
-        Kind: "array",
-        ValueType: fooModel,
-      },
-      isFooArrayModel.AdditionalProperties
-    );
+    strictEqual(isUnknownModel.AdditionalProperties?.Kind, "any");
+
+    strictEqual(isStringModel.AdditionalProperties?.Kind, "string");
+
+    strictEqual(isInt32Model.AdditionalProperties?.Kind, "int32");
+
+    deepStrictEqual(isFooModel.AdditionalProperties, fooModel);
+
+    strictEqual(isFooArrayModel.AdditionalProperties?.Kind, "array");
+    deepStrictEqual(isFooArrayModel.AdditionalProperties.ValueType, fooModel);
   });
 });
 
@@ -598,7 +560,6 @@ op op1(): void;
     const root = createModel(sdkContext);
     const models = root.Models;
     const isEmptyModel = models.find((m) => m.Name === "Empty");
-    assert(isEmptyModel !== undefined);
-    // assert the inherited dictionary type is expected
+    ok(isEmptyModel);
   });
 });

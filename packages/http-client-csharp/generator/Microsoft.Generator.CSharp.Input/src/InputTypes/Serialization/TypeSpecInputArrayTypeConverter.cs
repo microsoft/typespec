@@ -17,19 +17,22 @@ namespace Microsoft.Generator.CSharp.Input
         }
 
         public override InputArrayType? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.ReadReferenceAndResolve<InputArrayType>(_referenceHandler.CurrentResolver) ?? CreateListType(ref reader, null, options, _referenceHandler.CurrentResolver);
+            => reader.ReadReferenceAndResolve<InputArrayType>(_referenceHandler.CurrentResolver) ?? CreateListType(ref reader, null, null, options, _referenceHandler.CurrentResolver);
 
         public override void Write(Utf8JsonWriter writer, InputArrayType value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        public static InputArrayType CreateListType(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
+        public static InputArrayType CreateListType(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             var isFirstProperty = id == null;
-            InputType? elementType = null;
+            string? crossLanguageDefinitionId = null;
+            InputType? valueType = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadWithConverter(nameof(InputArrayType.ValueType), options, ref elementType);
+                    || reader.TryReadString(nameof(InputArrayType.Name), ref name)
+                    || reader.TryReadString(nameof(InputArrayType.CrossLanguageDefinitionId), ref crossLanguageDefinitionId)
+                    || reader.TryReadWithConverter(nameof(InputArrayType.ValueType), options, ref valueType);
 
                 if (!isKnownProperty)
                 {
@@ -37,8 +40,8 @@ namespace Microsoft.Generator.CSharp.Input
                 }
             }
 
-            elementType = elementType ?? throw new JsonException("List must have element type");
-            var listType = new InputArrayType("Array", elementType, false);
+            valueType = valueType ?? throw new JsonException("List must have element type");
+            var listType = new InputArrayType(name ?? "Array", crossLanguageDefinitionId ?? string.Empty, valueType);
             if (id != null)
             {
                 resolver.AddReference(id, listType);

@@ -3,7 +3,7 @@ import { EmitContext, JSONSchemaType, resolvePath } from "@typespec/compiler";
 import { tspOutputFileName } from "./constants.js";
 import { LoggerLevel } from "./lib/log-level.js";
 
-export type NetEmitterOptions = {
+export interface NetEmitterOptions extends SdkEmitterOptions {
   "api-version"?: string;
   outputFile?: string;
   logFile?: string;
@@ -31,7 +31,8 @@ export type NetEmitterOptions = {
   "generate-test-project"?: boolean;
   "use-model-reader-writer"?: boolean;
   "disable-xml-docs"?: boolean;
-} & SdkEmitterOptions;
+  "plugin-name"?: string;
+}
 
 export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
   type: "object",
@@ -103,11 +104,12 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
     },
     "use-model-reader-writer": { type: "boolean", nullable: true },
     "disable-xml-docs": { type: "boolean", nullable: true },
+    "plugin-name": { type: "string", nullable: true },
   },
   required: [],
 };
 
-const defaultOptions = {
+export const defaultOptions = {
   "api-version": "latest",
   outputFile: tspOutputFileName,
   logFile: "log.json",
@@ -127,6 +129,7 @@ const defaultOptions = {
   logLevel: LoggerLevel.INFO,
   flavor: undefined,
   "generate-test-project": false,
+  "plugin-name": "ClientModelPlugin",
 };
 
 export function resolveOptions(context: EmitContext<NetEmitterOptions>) {

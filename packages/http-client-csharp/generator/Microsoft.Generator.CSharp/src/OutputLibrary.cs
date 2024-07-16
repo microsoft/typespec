@@ -13,7 +13,11 @@ namespace Microsoft.Generator.CSharp
         }
 
         private IReadOnlyList<TypeProvider>? _typeProviders;
-        public IReadOnlyList<TypeProvider> TypeProviders => _typeProviders ??= BuildTypeProviders();
+        public IReadOnlyList<TypeProvider> TypeProviders
+        {
+            get => _typeProviders ??= BuildTypeProviders();
+            internal set => _typeProviders = value;
+        }
 
         private static TypeProvider[] BuildEnums()
         {
@@ -22,9 +26,7 @@ namespace Microsoft.Generator.CSharp
             for (int i = 0; i < enums.Length; i++)
             {
                 var inputEnum = input.Enums[i];
-                var cSharpEnum = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputEnum);
-                TypeProvider enumType = cSharpEnum.Implementation;
-                enums[i] = enumType;
+                enums[i] = CodeModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
             }
             return enums;
         }
@@ -36,9 +38,7 @@ namespace Microsoft.Generator.CSharp
             for (int i = 0; i < models.Length; i++)
             {
                 var inputModel = input.Models[i];
-                var cSharpModel = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputModel);
-                TypeProvider modelType = cSharpModel.Implementation;
-                models[i] = modelType;
+                models[i] = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
             }
             return models;
         }
@@ -49,11 +49,14 @@ namespace Microsoft.Generator.CSharp
             [
                 ..BuildEnums(),
                 ..BuildModels(),
-                new ChangeTrackingListProvider(),
-                new ChangeTrackingDictionaryProvider(),
-                new ArgumentProvider(),
-                new OptionalProvider(),
+                new ChangeTrackingListDefinition(),
+                new ChangeTrackingDictionaryDefinition(),
+                new ArgumentDefinition(),
+                new OptionalDefinition(),
             ];
         }
+
+        // TODO - make this more additive instead of replace https://github.com/microsoft/typespec/issues/3827
+        protected internal virtual OutputLibraryVisitor[] GetOutputLibraryVisitors() => [];
     }
 }

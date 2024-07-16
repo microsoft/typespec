@@ -47,6 +47,7 @@
     "@typespec/compiler": "workspace:~",
     "@typespec/html-program-viewer": "workspace:~",
     "@typespec/http": "workspace:~",
+    "@typespec/http-server-javascript": "workspace:~",
     "@typespec/json-schema": "workspace:~",
     "@typespec/openapi": "workspace:~",
     "@typespec/openapi3": "workspace:~",
@@ -61,7 +62,7 @@
     "autorest": "~3.7.1",
     "cross-env": "~7.0.3",
     "rimraf": "~5.0.7",
-    "typescript": "~5.4.5",
+    "typescript": "~5.5.3",
     "vitest": "^1.6.0"
   }
 }

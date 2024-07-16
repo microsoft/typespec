@@ -14,12 +14,14 @@ namespace Microsoft.Generator.CSharp
 {
     public abstract class TypeFactory
     {
-        private ChangeTrackingListProvider? _changeTrackingListProvider;
-        private ChangeTrackingDictionaryProvider? _changeTrackingDictionaryProvider;
-        private ChangeTrackingListProvider ChangeTrackingListProvider => _changeTrackingListProvider ??= new();
-        private ChangeTrackingDictionaryProvider ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
+        private ChangeTrackingListDefinition? _changeTrackingListProvider;
+        private ChangeTrackingDictionaryDefinition? _changeTrackingDictionaryProvider;
+        private ChangeTrackingListDefinition ChangeTrackingListProvider => _changeTrackingListProvider ??= new();
+        private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
+        private Dictionary<CSharpType, TypeProvider> _csharpToTypeProvider = new Dictionary<CSharpType, TypeProvider>(new CSharpTypeComparer());
 
         private readonly IDictionary<InputType, CSharpType> _typeCache = new Dictionary<InputType, CSharpType>();
+        private readonly IDictionary<InputModelProperty, PropertyProvider> _propertyCache = new Dictionary<InputModelProperty, PropertyProvider>();
 
         public CSharpType CreateCSharpType(InputType inputType)
         {
@@ -32,19 +34,18 @@ namespace Microsoft.Generator.CSharp
         }
 
         /// <summary>
-        /// Factory method for creating a <see cref="CSharpType"/> based on an input type <paramref name="input"/>.
+        /// Factory method for creating a <see cref="CSharpType"/> based on an input type <paramref name="inputType"/>.
         /// </summary>
-        /// <param name="input">The <see cref="InputType"/> to convert.</param>
+        /// <param name="inputType">The <see cref="InputType"/> to convert.</param>
         /// <returns>An instance of <see cref="CSharpType"/>.</returns>
         protected virtual CSharpType CreateCSharpTypeCore(InputType inputType) => inputType switch
         {
             InputLiteralType literalType => CSharpType.FromLiteral(CreateCSharpType(literalType.ValueType), literalType.Value),
             InputUnionType unionType => CSharpType.FromUnion(unionType.VariantTypes.Select(CreateCSharpType).ToArray()),
-            InputArrayType { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), CreateCSharpType(listType.ValueType)),
             InputArrayType listType => new CSharpType(typeof(IList<>), CreateCSharpType(listType.ValueType)),
             InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), typeof(string), CreateCSharpType(dictionaryType.ValueType)),
-            InputEnumType enumType => EnumProvider.Create(enumType).Type,
-            InputModelType model => new ModelProvider(model).Type,
+            InputEnumType enumType => CreateEnum(enumType).Type,
+            InputModelType model => CreateModel(model).Type,
             InputNullableType nullableType => CreateCSharpType(nullableType.Type).WithNullable(true),
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
@@ -81,11 +82,39 @@ namespace Microsoft.Generator.CSharp
         };
 
         /// <summary>
+        /// Factory method for creating a <see cref="TypeProvider"/> based on an <see cref="InputModelType"> <paramref name="model"/>.
+        /// </summary>
+        /// <param name="model">The <see cref="InputModelType"/> to convert.</param>
+        /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
+        public TypeProvider CreateModel(InputModelType model)
+        {
+            var modelProvider = CreateModelCore(model);
+            _csharpToTypeProvider.TryAdd(modelProvider.Type, modelProvider);
+            return modelProvider;
+        }
+
+        protected virtual TypeProvider CreateModelCore(InputModelType model) => new ModelProvider(model);
+
+        /// <summary>
+        /// Factory method for creating a <see cref="TypeProvider"/> based on an <see cref="InputEnumType"> <paramref name="enumType"/>.
+        /// </summary>
+        /// <param name="enumType">The <see cref="InputEnumType"/> to convert.</param>
+        /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
+        public TypeProvider CreateEnum(InputEnumType enumType)
+        {
+            var enumProvider = CreateEnumCore(enumType);
+            _csharpToTypeProvider.TryAdd(enumProvider.Type, enumProvider);
+            return enumProvider;
+        }
+
+        protected virtual TypeProvider CreateEnumCore(InputEnumType enumType) => EnumProvider.Create(enumType);
+
+        /// <summary>
         /// Factory method for creating a <see cref="ParameterProvider"/> based on an input parameter <paramref name="parameter"/>.
         /// </summary>
         /// <param name="parameter">The <see cref="InputParameter"/> to convert.</param>
         /// <returns>An instance of <see cref="ParameterProvider"/>.</returns>
-        public virtual ParameterProvider CreateCSharpParam(InputParameter parameter) => new ParameterProvider(parameter);
+        public virtual ParameterProvider CreateParameter(InputParameter parameter) => new ParameterProvider(parameter);
 
         /// <summary>
         /// Factory method for creating a <see cref="MethodProviderCollection"/> based on an input operation <paramref name="operation"/>.
@@ -95,7 +124,29 @@ namespace Microsoft.Generator.CSharp
         /// <returns>An instance of <see cref="MethodProviderCollection"/> containing the chain of methods
         /// associated with the input operation, or <c>null</c> if no methods are constructed.
         /// </returns>
-        public virtual MethodProviderCollection CreateMethodProviders(InputOperation operation, TypeProvider enclosingType) => new(operation, enclosingType);
+        public virtual MethodProviderCollection CreateMethods(InputOperation operation, TypeProvider enclosingType) => new(operation, enclosingType);
+
+        /// <summary>
+        /// Creates a <see cref="PropertyProvider"/> based on an input property <paramref name="property"/>.
+        /// </summary>
+        /// <param name="property">The input property.</param>
+        /// <returns>The property provider.</returns>
+        public PropertyProvider CreatePropertyProvider(InputModelProperty property)
+        {
+            if (_propertyCache.TryGetValue(property, out var propertyProvider))
+                return propertyProvider;
+
+            propertyProvider = CreatePropertyProviderCore(property);
+            _propertyCache.Add(property, propertyProvider);
+            return propertyProvider;
+        }
+
+        /// <summary>
+        /// Factory method for creating a <see cref="PropertyProvider"/> based on an input property <paramref name="property"/>.
+        /// </summary>
+        /// <param name="property">The input model property.</param>
+        /// <returns>An instance of <see cref="PropertyProvider"/>.</returns>
+        protected virtual PropertyProvider CreatePropertyProviderCore(InputModelProperty property) => new PropertyProvider(property);
 
         /// <summary>
         /// Factory method for retrieving the serialization format for a given input type.
@@ -151,5 +202,34 @@ namespace Microsoft.Generator.CSharp
         /// The initialization type of dictionary properties. This type should implement both <see cref="IDictionary{TKey, TValue}"/> and <see cref="IReadOnlyDictionary{TKey, TValue}"/>.
         /// </summary>
         public virtual CSharpType DictionaryInitializationType => ChangeTrackingDictionaryProvider.Type;
+
+        private class CSharpTypeComparer : IEqualityComparer<CSharpType>
+        {
+            public bool Equals(CSharpType? x, CSharpType? y)
+            {
+                if (ReferenceEquals(x, y))
+                    return true;
+                if (x is null || y is null)
+                    return false;
+                return x.Equals(y, true);
+            }
+
+            public int GetHashCode(CSharpType obj)
+            {
+                var hashCode = new HashCode();
+                foreach (var arg in obj.Arguments)
+                {
+                    hashCode.Add(arg);
+                }
+                return HashCode.Combine(obj.Name, obj.Namespace, obj.IsValueType, obj.IsFrameworkType ? obj.FrameworkType : null, hashCode.ToHashCode());
+            }
+        }
+
+        public TypeProvider? GetProvider(CSharpType type)
+        {
+            if (_csharpToTypeProvider.TryGetValue(type, out var provider))
+                return provider;
+            return null;
+        }
     }
 }

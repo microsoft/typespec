@@ -26,17 +26,15 @@ namespace Microsoft.Generator.CSharp.Providers
             Debug.Assert(!enumType.IsExtensible);
 
             _enumType = enumType;
-            Namespace = _enumType.Namespace;
-            Name = $"{_enumType.Name}Extensions";
         }
+
+        protected override string GetNamespace() => _enumType.Type.Namespace;
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial;
 
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        public override string Namespace { get; }
-
-        public override string Name { get; }
+        protected override string BuildName() => $"{_enumType.Name}Extensions";
 
         /// <summary>
         /// Returns if this enum type needs an extension method for serialization
@@ -98,7 +96,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 var enumField = _enumType.Fields[i];
                 var enumValue = _enumType.Members[i];
-                BoolSnippet condition;
+                ScopedApi<bool> condition;
                 if (_enumType.IsStringValueType)
                 {
                     // when the values are strings, we compare them case-insensitively
@@ -106,9 +104,10 @@ namespace Microsoft.Generator.CSharp.Providers
                     // StringComparer.OrdinalIgnoreCase.Equals(value, "<the value>")
                     // or
                     // string.Equals(value, "<the value>", StringComparison.InvariantCultureIgnoreCase)
-                    condition = new(enumValue.Value is string strValue && strValue.All(char.IsAscii)
+                    condition = (enumValue.Value is string strValue && strValue.All(char.IsAscii)
                                 ? stringComparer.Invoke(nameof(IEqualityComparer<string>.Equals), value, Literal(strValue))
-                                : new InvokeStaticMethodExpression(_enumType.ValueType, nameof(object.Equals), [value, Literal(enumValue.Value), FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)]));
+                                : Static(_enumType.ValueType).Invoke(nameof(Equals), [value, Literal(enumValue.Value), FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)]))
+                                .As<bool>();
                 }
                 else
                 {

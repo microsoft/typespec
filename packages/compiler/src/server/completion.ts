@@ -23,6 +23,7 @@ import {
   compilerAssert,
   getFirstAncestor,
   positionInRange,
+  printIdentifier,
 } from "../core/index.js";
 import {
   getAnyExtensionFromPath,
@@ -31,7 +32,6 @@ import {
   hasTrailingDirectorySeparator,
   resolvePath,
 } from "../core/path-utils.js";
-import { printId } from "../formatter/print/printer.js";
 import { findProjectRoot, loadFile, resolveTspMain } from "../utils/misc.js";
 import { getSymbolDetails } from "./type-details.js";
 
@@ -435,7 +435,7 @@ function addIdentifierCompletion(
           }
         : undefined,
       kind,
-      insertText: printId(key) + (suffix ?? ""),
+      insertText: printIdentifier(key) + (suffix ?? ""),
     };
     if (deprecated) {
       // hide these deprecated items to discourage the usage
