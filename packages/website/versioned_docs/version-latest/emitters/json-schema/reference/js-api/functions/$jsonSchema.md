@@ -13,7 +13,7 @@ function $jsonSchema(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Type` |
 | `baseUri`? | `string` |

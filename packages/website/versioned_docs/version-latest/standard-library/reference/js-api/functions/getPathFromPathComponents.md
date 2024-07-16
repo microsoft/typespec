@@ -17,7 +17,7 @@ getPathFromPathComponents(["/", "path", "to", "file.ext"]) === "/path/to/file.ex
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `pathComponents` | readonly `string`[] |
 
 ## Returns

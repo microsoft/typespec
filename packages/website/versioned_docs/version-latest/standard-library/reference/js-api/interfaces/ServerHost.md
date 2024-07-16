@@ -6,7 +6,7 @@ title: "[I] ServerHost"
 ## Properties
 
 | Property | Modifier | Type |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `applyEdit` | `readonly` | (`paramOrEdit`: `WorkspaceEdit` \| `ApplyWorkspaceEditParams`) => `Promise`<`ApplyWorkspaceEditResult`\> |
 | `compilerHost` | `readonly` | [`CompilerHost`](CompilerHost.md) |
 | `getOpenDocumentByURL` | `readonly` | (`url`: `string`) => `undefined` \| `TextDocument` |

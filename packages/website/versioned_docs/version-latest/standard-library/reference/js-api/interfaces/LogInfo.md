@@ -6,7 +6,7 @@ title: "[I] LogInfo"
 ## Properties
 
 | Property | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `code?` | `string` |
 | `level` | [`LogLevel`](../type-aliases/LogLevel.md) |
 | `message` | `string` |

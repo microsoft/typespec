@@ -192,7 +192,7 @@ model PetStoreError {
 ### `@errorsDoc` {#@errorsDoc}
 
 Attach a documentation string to describe the error return types of an operation.
-If an operation returns a union of success and errors it only describe the errors. See `@errorsDoc` for success documentation.
+If an operation returns a union of success and errors it only describes the errors. See `@returnsDoc` for success documentation.
 ```typespec
 @errorsDoc(doc: valueof string)
 ```
@@ -209,8 +209,36 @@ If an operation returns a union of success and errors it only describe the error
 #### Examples
 
 ```typespec
-@errorsDoc("Returns doc")
+@errorsDoc("Errors doc")
 op get(): Pet | NotFound;
+```
+
+
+### `@example` {#@example}
+
+Provide an example value for a data type.
+```typespec
+@example(example: valueof unknown, options?: valueof ExampleOptions)
+```
+
+#### Target
+
+`Model | Enum | Scalar | Union | ModelProperty | UnionVariant`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| example | `valueof unknown` | Example value. |
+| options | [valueof `ExampleOptions`](./built-in-data-types.md#ExampleOptions) | Optional metadata for the example. |
+
+#### Examples
+
+```tsp
+@example(#{name: "Fluffy", age: 2})
+model Pet {
+ name: string;
+ age: int32;
+}
 ```
 
 
@@ -570,6 +598,31 @@ scalar distance is float64;
 ```
 
 
+### `@opExample` {#@opExample}
+
+Provide example values for an operation's parameters and corresponding return type.
+```typespec
+@opExample(example: valueof OperationExample, options?: valueof ExampleOptions)
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| example | [valueof `OperationExample`](./built-in-data-types.md#OperationExample) | Example value. |
+| options | [valueof `ExampleOptions`](./built-in-data-types.md#ExampleOptions) | Optional metadata for the example. |
+
+#### Examples
+
+```tsp
+@example(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+op createPet(pet: Pet): Pet;
+```
+
+
 ### `@overload` {#@overload}
 
 Specify this operation is an overload of the given operation.
@@ -679,7 +732,7 @@ model Certificate {
 ### `@returnsDoc` {#@returnsDoc}
 
 Attach a documentation string to describe the successful return types of an operation.
-If an operation returns a union of success and errors it only describe the success. See `@errorsDoc` for error documentation.
+If an operation returns a union of success and errors it only describes the success. See `@errorsDoc` for error documentation.
 ```typespec
 @returnsDoc(doc: valueof string)
 ```

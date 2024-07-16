@@ -10,7 +10,7 @@ function createChecker(program): Checker
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 
 ## Returns

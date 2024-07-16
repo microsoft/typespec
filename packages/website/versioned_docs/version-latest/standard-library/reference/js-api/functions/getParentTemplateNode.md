@@ -12,7 +12,7 @@ Lookup and find the node
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `node` | [`Node`](../type-aliases/Node.md) | Node |
 
 ## Returns

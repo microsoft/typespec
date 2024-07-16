@@ -13,7 +13,7 @@ function skipContinuousIdentifier(
 ## Parameters
 
 | Parameter | Type | Default value |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `input` | `string` | `undefined` |
 | `position` | `number` | `undefined` |
 | `isBackward` | `boolean` | `false` |

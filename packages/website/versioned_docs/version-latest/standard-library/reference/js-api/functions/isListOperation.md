@@ -10,7 +10,7 @@ function isListOperation(program, target): boolean
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `target` | [`Operation`](../interfaces/Operation.md) |
 

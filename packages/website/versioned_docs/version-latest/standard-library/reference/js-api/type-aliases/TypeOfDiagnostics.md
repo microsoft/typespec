@@ -7,8 +7,8 @@ title: "[T] TypeOfDiagnostics"
 type TypeOfDiagnostics<T>: T extends DiagnosticMap<infer D> ? D : never;
 ```
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` *extends* [`DiagnosticMap`](DiagnosticMap.md)<`any`\> |
