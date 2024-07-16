@@ -543,7 +543,7 @@ model OperationExample {
 }
 
 /**
- * Provide an example value for a type.
+ * Provide example values for an operation's parameters and corresponding return type.
  *
  * @param example Example value.
  * @param options Optional metadata for the example.
