@@ -216,14 +216,14 @@ op get(): Pet | NotFound;
 
 ### `@example` {#@example}
 
-Provide an example value for a type.
+Provide an example value for a data type.
 ```typespec
 @example(example: valueof unknown, options?: valueof ExampleOptions)
 ```
 
 #### Target
 
-`Model | Enum | Scalar | Union | ModelProperty`
+`Model | Enum | Scalar | Union | ModelProperty | UnionVariant`
 
 #### Parameters
 | Name | Type | Description |
@@ -600,7 +600,7 @@ scalar distance is float64;
 
 ### `@opExample` {#@opExample}
 
-Provide an example value for a type.
+Provide example values for an operation's parameters and corresponding return type.
 ```typespec
 @opExample(example: valueof OperationExample, options?: valueof ExampleOptions)
 ```

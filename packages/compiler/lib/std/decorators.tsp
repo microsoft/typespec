@@ -526,7 +526,7 @@ model ExampleOptions {
  * ```
  */
 extern dec example(
-  target: Model | Enum | Scalar | Union | ModelProperty,
+  target: Model | Enum | Scalar | Union | ModelProperty | UnionVariant,
   example: valueof unknown,
   options?: valueof ExampleOptions
 );
