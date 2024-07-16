@@ -510,7 +510,7 @@ model ExampleOptions {
 }
 
 /**
- * Provide an example value for a type.
+ * Provide an example value for a data type.
  *
  * @param example Example value.
  * @param options Optional metadata for the example.
