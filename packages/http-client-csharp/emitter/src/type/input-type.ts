@@ -2,16 +2,13 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import {
+  AccessFlags,
   SdkBuiltInKinds,
   UsageFlags,
-  AccessFlags
 } from "@azure-tools/typespec-client-generator-core";
+import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler";
 import { InputEnumTypeValue } from "./input-enum-type-value.js";
 import { InputModelProperty } from "./input-model-property.js";
-import {
-  DateTimeKnownEncoding,
-  DurationKnownEncoding
-} from "@typespec/compiler";
 
 interface InputTypeBase {
   Kind: string;
@@ -133,8 +130,6 @@ export interface InputDictionaryType extends InputTypeBase {
   ValueType: InputType;
 }
 
-export function isInputDictionaryType(
-  type: InputType
-): type is InputDictionaryType {
+export function isInputDictionaryType(type: InputType): type is InputDictionaryType {
   return type.Kind === "dict";
 }

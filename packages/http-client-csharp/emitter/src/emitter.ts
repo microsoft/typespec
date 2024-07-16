@@ -4,14 +4,14 @@
 import { createSdkContext, UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import {
   EmitContext,
-  Program,
   getDirectoryPath,
   joinPaths,
   logDiagnostics,
+  Program,
   resolvePath,
 } from "@typespec/compiler";
 
-import { SpawnOptions, spawn } from "child_process";
+import { spawn, SpawnOptions } from "child_process";
 import fs, { statSync } from "fs";
 import { PreserveType, stringifyRefs } from "json-serialize-refs";
 import { dirname } from "path";
@@ -212,20 +212,20 @@ async function execAsync(
 
 function convertUsageNumbersToStrings(this: any, key: string, value: any): any {
   if (this["Kind"] === "model" || this["Kind"] === "enum") {
-      if (key === "Usage" && typeof value === "number") {
-          if (value === 0) {
-              return "None";
-          }
-          const result: string[] = [];
-          for (const prop in UsageFlags) {
-              if (!isNaN(Number(prop))) {
-                  if ((value & Number(prop)) !== 0) {
-                      result.push(UsageFlags[prop]);
-                  }
-              }
-          }
-          return result.join(",");
+    if (key === "Usage" && typeof value === "number") {
+      if (value === 0) {
+        return "None";
       }
+      const result: string[] = [];
+      for (const prop in UsageFlags) {
+        if (!isNaN(Number(prop))) {
+          if ((value & Number(prop)) !== 0) {
+            result.push(UsageFlags[prop]);
+          }
+        }
+      }
+      return result.join(",");
+    }
   }
 
   return value;
