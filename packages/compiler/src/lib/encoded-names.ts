@@ -39,13 +39,6 @@ export function $encodedName(
   existing.set(mimeType, name);
 }
 
-/**
- * @internal
- */
-export function getEncodedNames(program: Program, target: Type): Map<string, string> | undefined {
-  return program.stateMap(encodedNameKey).get(target);
-}
-
 function getEncodedName(program: Program, target: Type, mimeType: string): string | undefined {
   const mimeTypeObj = parseMimeType(mimeType);
   if (mimeTypeObj === undefined) {
@@ -54,7 +47,7 @@ function getEncodedName(program: Program, target: Type, mimeType: string): strin
   const resolvedMimeType = mimeTypeObj?.suffix
     ? `${mimeTypeObj.type}/${mimeTypeObj.suffix}`
     : mimeType;
-  return getEncodedNames(program, target)?.get(resolvedMimeType);
+  return program.stateMap(encodedNameKey).get(target)?.get(resolvedMimeType);
 }
 
 /**

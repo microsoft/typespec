@@ -1319,58 +1319,6 @@ describe("compiler: built-in decorators", () => {
       });
     });
 
-    describe("error when use on discriminator", () => {
-      it("emit error when use on base property", async () => {
-        const diagnostics = await runner.diagnose(`
-          @discriminator("kind")
-          model Cert {
-            @encodedName("application/json", "k")
-            kind: string;
-          }
-        `);
-
-        expectDiagnostics(diagnostics, {
-          code: "discriminator-encodedname",
-        });
-      });
-
-      it("emit error when use on derived model property", async () => {
-        const diagnostics = await runner.diagnose(`
-          @discriminator("kind")
-          model Base {
-            kind: string;
-          }
-
-          model Child extends Base {
-            @encodedName("application/json", "k")
-            kind: "child";
-          }
-        `);
-
-        expectDiagnostics(diagnostics, {
-          code: "discriminator-encodedname",
-        });
-      });
-
-      it("emit error when use on union variant property", async () => {
-        const diagnostics = await runner.diagnose(`
-          @discriminator("kind")
-          union Base {
-            child: Child
-          }
-
-          model Child {
-            @encodedName("application/json", "k")
-            kind: "child";
-          }
-        `);
-
-        expectDiagnostics(diagnostics, {
-          code: "discriminator-encodedname",
-        });
-      });
-    });
-
     it("resolve explicit encoded name", async () => {
       const { expireAt } = (await runner.compile(`
         model Cert {
