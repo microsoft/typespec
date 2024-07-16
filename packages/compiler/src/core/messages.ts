@@ -876,6 +876,12 @@ const diagnostics = {
       duplicate: paramMessage`Same encoded name '${"name"}' is used for 2 members '${"mimeType"}'`,
     },
   },
+  "discriminator-encodedname": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Discriminator property '${"discriminator"}' cannot be use an different encoded name.`,
+    },
+  },
 
   /**
    * Service
