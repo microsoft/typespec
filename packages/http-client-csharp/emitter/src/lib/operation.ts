@@ -39,7 +39,6 @@ import {
   InputType,
   isInputEnumType,
   isInputLiteralType,
-  isInputModelType,
   isInputUnionType,
 } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
