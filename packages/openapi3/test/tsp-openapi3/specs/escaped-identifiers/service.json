@@ -61,6 +61,9 @@
         "properties": {
           "id": {
             "type": "string"
+          },
+          "escaped-property": {
+            "type": "string"
           }
         }
       }
