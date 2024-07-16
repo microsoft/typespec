@@ -22,7 +22,7 @@
    "CrossLanguageDefinitionId": "",
    "Description": "The Thing_requiredLiteralString",
    "IsExtensible": true,
-   "Usage": "RoundTrip"
+   "Usage": "Input"
   },
   {
    "$id": "5",
@@ -43,7 +43,7 @@
    "CrossLanguageDefinitionId": "",
    "Description": "The Thing_requiredLiteralInt",
    "IsExtensible": true,
-   "Usage": "RoundTrip"
+   "Usage": "Input"
   },
   {
    "$id": "8",
@@ -64,7 +64,7 @@
    "CrossLanguageDefinitionId": "",
    "Description": "The Thing_requiredLiteralFloat",
    "IsExtensible": true,
-   "Usage": "RoundTrip"
+   "Usage": "Input"
   },
   {
    "$id": "11",
@@ -85,7 +85,7 @@
    "CrossLanguageDefinitionId": "",
    "Description": "The Thing_optionalLiteralString",
    "IsExtensible": true,
-   "Usage": "RoundTrip"
+   "Usage": "Input"
   },
   {
    "$id": "14",
@@ -106,7 +106,7 @@
    "CrossLanguageDefinitionId": "",
    "Description": "The Thing_optionalLiteralInt",
    "IsExtensible": true,
-   "Usage": "RoundTrip"
+   "Usage": "Input"
   },
   {
    "$id": "17",
@@ -127,7 +127,7 @@
    "CrossLanguageDefinitionId": "",
    "Description": "The Thing_optionalLiteralFloat",
    "IsExtensible": true,
-   "Usage": "RoundTrip"
+   "Usage": "Input"
   },
   {
    "$id": "20",
@@ -157,7 +157,7 @@
    ],
    "Description": "Simple enum",
    "IsExtensible": false,
-   "Usage": "RoundTrip"
+   "Usage": "Input,Output"
   },
   {
    "$id": "25",
@@ -187,7 +187,7 @@
    ],
    "Description": "Extensible enum",
    "IsExtensible": true,
-   "Usage": "RoundTrip"
+   "Usage": "Input,Output"
   },
   {
    "$id": "30",
@@ -217,7 +217,7 @@
    ],
    "Description": "Int based extensible enum",
    "IsExtensible": true,
-   "Usage": "RoundTrip"
+   "Usage": "Input,Output"
   },
   {
    "$id": "35",
@@ -247,7 +247,7 @@
    ],
    "Description": "Float based extensible enum",
    "IsExtensible": true,
-   "Usage": "RoundTrip"
+   "Usage": "Input,Output"
   },
   {
    "$id": "40",
@@ -277,7 +277,7 @@
    ],
    "Description": "float fixed enum",
    "IsExtensible": true,
-   "Usage": "RoundTrip"
+   "Usage": "Input,Output"
   },
   {
    "$id": "45",
@@ -307,7 +307,7 @@
    ],
    "Description": "float fixed enum",
    "IsExtensible": false,
-   "Usage": "RoundTrip"
+   "Usage": "Input,Output"
   },
   {
    "$id": "50",
@@ -337,7 +337,7 @@
    ],
    "Description": "float fixed enum",
    "IsExtensible": false,
-   "Usage": "RoundTrip"
+   "Usage": "Input,Output"
   },
   {
    "$id": "55",
@@ -367,7 +367,7 @@
    ],
    "Description": "int fixed enum",
    "IsExtensible": false,
-   "Usage": "RoundTrip"
+   "Usage": "Input,Output"
   },
   {
    "$id": "60",
@@ -502,7 +502,7 @@
    "Kind": "model",
    "Name": "Thing",
    "CrossLanguageDefinitionId": "UnbrandedTypeSpec.Thing",
-   "Usage": "RoundTrip",
+   "Usage": "Input,Output",
    "Description": "A model with a few properties of literal types",
    "Properties": [
     {
@@ -743,7 +743,7 @@
    "Kind": "model",
    "Name": "RoundTripModel",
    "CrossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel",
-   "Usage": "RoundTrip",
+   "Usage": "Input,Output",
    "Description": "this is a roundtrip model",
    "Properties": [
     {
@@ -1076,7 +1076,7 @@
       "Kind": "model",
       "Name": "ModelWithRequiredNullableProperties",
       "CrossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithRequiredNullableProperties",
-      "Usage": "RoundTrip",
+      "Usage": "Input,Output",
       "Description": "A model with a few required nullable properties",
       "Properties": [
        {
@@ -1151,100 +1151,48 @@
   {
    "$id": "172",
    "Kind": "model",
-   "Name": "Friend",
-   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.NotFriend",
-   "Usage": "Output",
-   "Description": "this is not a friendly model but with a friendly name",
+   "Name": "AnonymousBodyRequest",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.anonymousBody.Request.anonymous",
+   "Usage": "Spread",
    "Properties": [
     {
      "$id": "173",
      "Name": "name",
      "SerializedName": "name",
-     "Description": "name of the NotFriend",
+     "Description": "name of the Thing",
      "Type": {
       "$id": "174",
       "Kind": "string"
      },
      "IsRequired": true,
      "IsReadOnly": false
-    }
-   ]
-  },
-  {
-   "$id": "175",
-   "Kind": "model",
-   "Name": "ProjectedModel",
-   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithProjectedName",
-   "Usage": "Output",
-   "Description": "this is a model with a projected name",
-   "Properties": [
-    {
-     "$id": "176",
-     "Name": "name",
-     "SerializedName": "name",
-     "Description": "name of the ModelWithProjectedName",
-     "Type": {
-      "$id": "177",
-      "Kind": "string"
-     },
-     "IsRequired": true,
-     "IsReadOnly": false
-    }
-   ]
-  },
-  {
-   "$id": "178",
-   "Kind": "model",
-   "Name": "ReturnsAnonymousModelResponse",
-   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.returnsAnonymousModel.Response.anonymous",
-   "Usage": "Output",
-   "Properties": []
-  },
-  {
-   "$id": "179",
-   "Kind": "model",
-   "Name": "AnonymousBodyRequest",
-   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.anonymousBody.Request.anonymous",
-   "Usage": "Input",
-   "Properties": [
-    {
-     "$id": "180",
-     "Name": "name",
-     "SerializedName": "name",
-     "Description": "name of the Thing",
-     "Type": {
-      "$id": "181",
-      "Kind": "string"
-     },
-     "IsRequired": true,
-     "IsReadOnly": false
     },
     {
-     "$id": "182",
+     "$id": "175",
      "Name": "requiredUnion",
      "SerializedName": "requiredUnion",
      "Description": "required Union",
      "Type": {
-      "$id": "183",
+      "$id": "176",
       "Kind": "union",
       "Name": "ThingRequiredUnion",
       "VariantTypes": [
        {
-        "$id": "184",
+        "$id": "177",
         "Kind": "string"
        },
        {
-        "$id": "185",
+        "$id": "178",
         "Kind": "array",
         "Name": "Array",
         "ValueType": {
-         "$id": "186",
+         "$id": "179",
          "Kind": "string"
         },
         "CrossLanguageDefinitionId": "TypeSpec.Array"
        },
        {
-        "$id": "187",
+        "$id": "180",
         "Kind": "int32"
        }
       ]
@@ -1253,12 +1201,12 @@
      "IsReadOnly": false
     },
     {
-     "$id": "188",
+     "$id": "181",
      "Name": "requiredLiteralString",
      "SerializedName": "requiredLiteralString",
      "Description": "required literal string",
      "Type": {
-      "$id": "189",
+      "$id": "182",
       "Kind": "constant",
       "ValueType": {
        "$ref": "60"
@@ -1269,12 +1217,12 @@
      "IsReadOnly": false
     },
     {
-     "$id": "190",
+     "$id": "183",
      "Name": "requiredLiteralInt",
      "SerializedName": "requiredLiteralInt",
      "Description": "required literal int",
      "Type": {
-      "$id": "191",
+      "$id": "184",
       "Kind": "constant",
       "ValueType": {
        "$ref": "63"
@@ -1285,12 +1233,12 @@
      "IsReadOnly": false
     },
     {
-     "$id": "192",
+     "$id": "185",
      "Name": "requiredLiteralFloat",
      "SerializedName": "requiredLiteralFloat",
      "Description": "required literal float",
      "Type": {
-      "$id": "193",
+      "$id": "186",
       "Kind": "constant",
       "ValueType": {
        "$ref": "66"
@@ -1301,15 +1249,15 @@
      "IsReadOnly": false
     },
     {
-     "$id": "194",
+     "$id": "187",
      "Name": "requiredLiteralBool",
      "SerializedName": "requiredLiteralBool",
      "Description": "required literal bool",
      "Type": {
-      "$id": "195",
+      "$id": "188",
       "Kind": "constant",
       "ValueType": {
-       "$id": "196",
+       "$id": "189",
        "Kind": "boolean"
       },
       "Value": false
@@ -1318,12 +1266,12 @@
      "IsReadOnly": false
     },
     {
-     "$id": "197",
+     "$id": "190",
      "Name": "optionalLiteralString",
      "SerializedName": "optionalLiteralString",
      "Description": "optional literal string",
      "Type": {
-      "$id": "198",
+      "$id": "191",
       "Kind": "constant",
       "ValueType": {
        "$ref": "69"
@@ -1334,12 +1282,12 @@
      "IsReadOnly": false
     },
     {
-     "$id": "199",
+     "$id": "192",
      "Name": "optionalLiteralInt",
      "SerializedName": "optionalLiteralInt",
      "Description": "optional literal int",
      "Type": {
-      "$id": "200",
+      "$id": "193",
       "Kind": "constant",
       "ValueType": {
        "$ref": "72"
@@ -1350,12 +1298,12 @@
      "IsReadOnly": false
     },
     {
-     "$id": "201",
+     "$id": "194",
      "Name": "optionalLiteralFloat",
      "SerializedName": "optionalLiteralFloat",
      "Description": "optional literal float",
      "Type": {
-      "$id": "202",
+      "$id": "195",
       "Kind": "constant",
       "ValueType": {
        "$ref": "75"
@@ -1366,15 +1314,15 @@
      "IsReadOnly": false
     },
     {
-     "$id": "203",
+     "$id": "196",
      "Name": "optionalLiteralBool",
      "SerializedName": "optionalLiteralBool",
      "Description": "optional literal bool",
      "Type": {
-      "$id": "204",
+      "$id": "197",
       "Kind": "constant",
       "ValueType": {
-       "$id": "205",
+       "$id": "198",
        "Kind": "boolean"
       },
       "Value": true
@@ -1383,31 +1331,31 @@
      "IsReadOnly": false
     },
     {
-     "$id": "206",
+     "$id": "199",
      "Name": "requiredBadDescription",
      "SerializedName": "requiredBadDescription",
      "Description": "description with xml <|endoftext|>",
      "Type": {
-      "$id": "207",
+      "$id": "200",
       "Kind": "string"
      },
      "IsRequired": true,
      "IsReadOnly": false
     },
     {
-     "$id": "208",
+     "$id": "201",
      "Name": "optionalNullableList",
      "SerializedName": "optionalNullableList",
      "Description": "optional nullable collection",
      "Type": {
-      "$id": "209",
+      "$id": "202",
       "Kind": "nullable",
       "Type": {
-       "$id": "210",
+       "$id": "203",
        "Kind": "array",
        "Name": "Array",
        "ValueType": {
-        "$id": "211",
+        "$id": "204",
         "Kind": "int32"
        },
        "CrossLanguageDefinitionId": "TypeSpec.Array"
@@ -1417,19 +1365,19 @@
      "IsReadOnly": false
     },
     {
-     "$id": "212",
+     "$id": "205",
      "Name": "requiredNullableList",
      "SerializedName": "requiredNullableList",
      "Description": "required nullable collection",
      "Type": {
-      "$id": "213",
+      "$id": "206",
       "Kind": "nullable",
       "Type": {
-       "$id": "214",
+       "$id": "207",
        "Kind": "array",
        "Name": "Array",
        "ValueType": {
-        "$id": "215",
+        "$id": "208",
         "Kind": "int32"
        },
        "CrossLanguageDefinitionId": "TypeSpec.Array"
@@ -1441,19 +1389,19 @@
    ]
   },
   {
-   "$id": "216",
+   "$id": "209",
    "Kind": "model",
    "Name": "FriendlyModelRequest",
    "CrossLanguageDefinitionId": "UnbrandedTypeSpec.friendlyModel.Request.anonymous",
-   "Usage": "Input",
+   "Usage": "Spread",
    "Properties": [
     {
-     "$id": "217",
+     "$id": "210",
      "Name": "name",
      "SerializedName": "name",
      "Description": "name of the NotFriend",
      "Type": {
-      "$id": "218",
+      "$id": "211",
       "Kind": "string"
      },
      "IsRequired": true,
@@ -1462,25 +1410,77 @@
    ]
   },
   {
-   "$id": "219",
+   "$id": "212",
    "Kind": "model",
-   "Name": "ProjectedNameModelRequest",
-   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.projectedNameModel.Request.anonymous",
-   "Usage": "Input",
+   "Name": "Friend",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.NotFriend",
+   "Usage": "Output",
+   "Description": "this is not a friendly model but with a friendly name",
    "Properties": [
     {
-     "$id": "220",
+     "$id": "213",
      "Name": "name",
      "SerializedName": "name",
-     "Description": "name of the ModelWithProjectedName",
+     "Description": "name of the NotFriend",
      "Type": {
-      "$id": "221",
+      "$id": "214",
       "Kind": "string"
      },
      "IsRequired": true,
      "IsReadOnly": false
     }
    ]
+  },
+  {
+   "$id": "215",
+   "Kind": "model",
+   "Name": "ProjectedNameModelRequest",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.projectedNameModel.Request.anonymous",
+   "Usage": "Spread",
+   "Properties": [
+    {
+     "$id": "216",
+     "Name": "name",
+     "SerializedName": "name",
+     "Description": "name of the ModelWithProjectedName",
+     "Type": {
+      "$id": "217",
+      "Kind": "string"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "218",
+   "Kind": "model",
+   "Name": "ProjectedModel",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithProjectedName",
+   "Usage": "Output",
+   "Description": "this is a model with a projected name",
+   "Properties": [
+    {
+     "$id": "219",
+     "Name": "name",
+     "SerializedName": "name",
+     "Description": "name of the ModelWithProjectedName",
+     "Type": {
+      "$id": "220",
+      "Kind": "string"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "221",
+   "Kind": "model",
+   "Name": "ReturnsAnonymousModelResponse",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.returnsAnonymousModel.Response.anonymous",
+   "Usage": "Output",
+   "Properties": []
   }
  ],
  "Clients": [
@@ -2489,11 +2489,10 @@
       },
       {
        "$id": "317",
-       "Name": "Thing",
-       "NameInRequest": "Thing",
-       "Description": "A model with a few properties of literal types",
+       "Name": "AnonymousBodyRequest",
+       "NameInRequest": "",
        "Type": {
-        "$ref": "78"
+        "$ref": "172"
        },
        "Location": "Body",
        "IsRequired": true,
@@ -2596,11 +2595,10 @@
       },
       {
        "$id": "326",
-       "Name": "Friend",
-       "NameInRequest": "NotFriend",
-       "Description": "this is not a friendly model but with a friendly name",
+       "Name": "FriendlyModelRequest",
+       "NameInRequest": "",
        "Type": {
-        "$ref": "172"
+        "$ref": "209"
        },
        "Location": "Body",
        "IsRequired": true,
@@ -2670,7 +2668,7 @@
         200
        ],
        "BodyType": {
-        "$ref": "172"
+        "$ref": "212"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -2780,11 +2778,10 @@
       },
       {
        "$id": "343",
-       "Name": "ProjectedModel",
-       "NameInRequest": "ModelWithProjectedName",
-       "Description": "this is a model with a projected name",
+       "Name": "ProjectedNameModelRequest",
+       "NameInRequest": "",
        "Type": {
-        "$ref": "175"
+        "$ref": "215"
        },
        "Location": "Body",
        "IsRequired": true,
@@ -2854,7 +2851,7 @@
         200
        ],
        "BodyType": {
-        "$ref": "175"
+        "$ref": "218"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -2918,7 +2915,7 @@
         200
        ],
        "BodyType": {
-        "$ref": "178"
+        "$ref": "221"
        },
        "BodyMediaType": "Json",
        "Headers": [],

@@ -13,18 +13,8 @@ namespace UnbrandedTypeSpec.Models
     /// <summary> The AnonymousBodyRequest. </summary>
     public partial class AnonymousBodyRequest
     {
-        /// <summary> Initializes a new instance of <see cref="AnonymousBodyRequest"/>. </summary>
-        /// <param name="name"> name of the Thing. </param>
-        /// <param name="requiredUnion"> required Union. </param>
-        /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
-        /// <param name="requiredNullableList"> required nullable collection. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/> or <paramref name="requiredBadDescription"/> is null. </exception>
-        public AnonymousBodyRequest(string name, BinaryData requiredUnion, string requiredBadDescription, IEnumerable<int> requiredNullableList)
+        internal AnonymousBodyRequest(string name, BinaryData requiredUnion, string requiredBadDescription, IEnumerable<int> requiredNullableList)
         {
-            Argument.AssertNotNull(name, nameof(name));
-            Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
-            Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
-
             Name = name;
             RequiredUnion = requiredUnion;
             RequiredBadDescription = requiredBadDescription;

@@ -9,9 +9,13 @@ namespace Microsoft.Generator.CSharp.Input
     public enum InputModelTypeUsage
     {
         None = 0,
-        Input = 1,
-        Output = 2,
-        Json = 4,
-        RoundTrip = Input | Output,
+        Input = 2,
+        Output = 4,
+        ApiVersionEnum = 8,
+        JsonMergePatch = 16,
+        MultipartFormData = 32,
+        Spread = 64,
+        Error = 128,
+        Json = 256
     }
 }
