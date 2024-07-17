@@ -21,8 +21,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private ScmOutputLibrary? _scmOutputLibrary;
         public override OutputLibrary OutputLibrary => _scmOutputLibrary ??= new();
 
-        public override TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
-
         public override ScmTypeFactory TypeFactory { get; } = new();
 
         public override IReadOnlyList<MetadataReference> AdditionalMetadataReferences => [MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location)];
