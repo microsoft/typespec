@@ -147,7 +147,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             foreach (var p in orderedParameters)
             {
-                var field = GetFieldByConsructorParameterName(p.Name);
+                var field = GetFieldByConstructorParameterName(p.Name);
                 // handle options parameter
                 if (p == _clientOptionsParameter)
                 {
@@ -317,7 +317,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return clientParameters;
         }
 
-        private FieldProvider? GetFieldByConsructorParameterName(string parameterName)
+        private FieldProvider? GetFieldByConstructorParameterName(string parameterName)
         {
             return _ctorParametersNamesToFields.TryGetValue(parameterName, out var field) ? field : null;
         }
