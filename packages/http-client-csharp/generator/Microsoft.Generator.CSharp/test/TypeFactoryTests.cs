@@ -99,5 +99,25 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.IsNotNull(actual);
             Assert.AreEqual(expected, actual);
         }
+
+        [Test]
+        public void CreateSameEnum()
+        {
+            var input = new InputEnumType(
+                "sampleType",
+                "sampleType",
+                "public",
+                null,
+                "sampleType description",
+                InputModelTypeUsage.Input,
+                new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
+                false);
+            var expected = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);
+
+            var actual = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);
+
+            Assert.IsTrue(ReferenceEquals(expected, actual));
+        }
     }
 }
