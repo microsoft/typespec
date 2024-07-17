@@ -339,7 +339,9 @@ op returnsAnonymousModel(): {
 @get
 @route("/unknown-value")
 @doc("get extensible enum")
-op getUnknownValue(): DaysOfWeekExtensibleEnum;
+op getUnknownValue(): {
+  @body body: DaysOfWeekExtensibleEnum;
+};
 
 @doc("When set protocol false and convenient true, then the protocol method should be internal")
 @route("internalProtocol")
