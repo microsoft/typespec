@@ -220,7 +220,7 @@ describe("Test Usage", () => {
     const fooAlias = root.Models.find((model) => model.Name === "TestRequest");
 
     ok(fooAlias);
-    strictEqual(fooAlias.Usage, UsageFlags.Input | UsageFlags.Spread);
+    strictEqual(fooAlias.Usage, UsageFlags.Spread);
   });
 
   it("Test the usage of body parameter of azure core operation.", async () => {

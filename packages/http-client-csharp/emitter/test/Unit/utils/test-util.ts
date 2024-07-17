@@ -132,8 +132,5 @@ export function createNetSdkContext(
   program: EmitContext<NetEmitterOptions>
 ): SdkContext<NetEmitterOptions> {
   Logger.initialize(program.program, LoggerLevel.INFO);
-  const sdkContext = createSdkContext(program, "@azure-tools/typespec-azure");
-  // initialize TCGC
-  getAllModels(sdkContext);
-  return sdkContext;
+  return createSdkContext(program, "@azure-tools/typespec-azure");
 }
