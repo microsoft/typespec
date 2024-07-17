@@ -7,23 +7,22 @@ title: "[F] cadlTypeToJson"
 function cadlTypeToJson<T>(typespecType, target): [T | undefined, Diagnostic[]]
 ```
 
-## Type parameters
+Convert a TypeSpec type to a serializable Json object.
+Emits diagnostics if the given type is invalid
 
-| Type parameter |
-| :------ |
+## Type Parameters
+
+| Type Parameter |
+| ------ |
 | `T` |
 
 ## Parameters
 
-| Parameter | Type |
-| :------ | :------ |
-| `typespecType` | [`TypeSpecValue`](../type-aliases/TypeSpecValue.md) |
-| `target` | [`DiagnosticTarget`](../type-aliases/DiagnosticTarget.md) |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `typespecType` | [`TypeSpecValue`](../type-aliases/TypeSpecValue.md) | The type to convert to Json data |
+| `target` | [`DiagnosticTarget`](../type-aliases/DiagnosticTarget.md) | The diagnostic target in case of errors. |
 
 ## Returns
 
 [`T` \| `undefined`, [`Diagnostic`](../interfaces/Diagnostic.md)[]]
-
-## Deprecated
-
-use typespecTypeToJson

@@ -10,7 +10,7 @@ function getContentMediaType(program, target): string
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `target` | `Type` |
 

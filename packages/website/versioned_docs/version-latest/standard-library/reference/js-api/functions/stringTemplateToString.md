@@ -10,7 +10,7 @@ function stringTemplateToString(stringTemplate): [string, readonly Diagnostic[]]
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `stringTemplate` | [`StringTemplate`](../interfaces/StringTemplate.md) |
 
 ## Returns

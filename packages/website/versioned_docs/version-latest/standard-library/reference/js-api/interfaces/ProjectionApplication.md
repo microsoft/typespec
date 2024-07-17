@@ -6,7 +6,7 @@ title: "[I] ProjectionApplication"
 ## Properties
 
 | Property | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `arguments` | [`DecoratorArgumentValue`](../type-aliases/DecoratorArgumentValue.md)[] |
 | `direction?` | `"to"` \| `"from"` |
 | `projectionName` | `string` |

@@ -12,7 +12,7 @@ Check if the given property should be unwrapped in the XML containing node.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `target` | `ModelProperty` |
 

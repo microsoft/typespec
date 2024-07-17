@@ -16,9 +16,10 @@ The client must send this token in the Authorization header when making requests
 
 ## Properties
 
-| Property | Type | Description | Inherited from |
-| :------ | :------ | :------ | :------ |
-| `description?` | `string` | Optional description. | [`HttpAuthBase`](HttpAuthBase.md).`description` |
-| `id` | `string` | Id of the authentication scheme. | [`HttpAuthBase`](HttpAuthBase.md).`id` |
-| `scheme` | `"bearer"` | - | - |
-| `type` | `"http"` | - | - |
+| Property | Modifier | Type | Description | Inherited from |
+| ------ | ------ | ------ | ------ | ------ |
+| `description?` | `public` | `string` | Optional description. | [`HttpAuthBase`](HttpAuthBase.md).`description` |
+| `id` | `public` | `string` | Id of the authentication scheme. | [`HttpAuthBase`](HttpAuthBase.md).`id` |
+| `model` | `readonly` | `Model` | Model that defined the authentication | [`HttpAuthBase`](HttpAuthBase.md).`model` |
+| `scheme` | `public` | `"bearer"` | - | - |
+| `type` | `public` | `"http"` | - | - |

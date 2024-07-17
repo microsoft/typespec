@@ -9,10 +9,10 @@ function createTypeSpecLibrary<T, E, State>(lib): TypeSpecLibrary<T, E, State>
 
 Create a new TypeSpec library definition.
 
-## Type parameters
+## Type Parameters
 
-| Type parameter | Value |
-| :------ | :------ |
+| Type Parameter | Default type |
+| ------ | ------ |
 | `T` *extends* `object` | - |
 | `E` *extends* `Record`<`string`, `any`\> | - |
 | `State` *extends* `string` | `never` |
@@ -20,7 +20,7 @@ Create a new TypeSpec library definition.
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `lib` | `Readonly`<[`TypeSpecLibraryDef`](../interfaces/TypeSpecLibraryDef.md)<`T`, `E`, `State`\>\> | Library definition. |
 
 ## Returns

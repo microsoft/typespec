@@ -10,7 +10,7 @@ function createSourceFile(text, path): SourceFile
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `text` | `string` |
 | `path` | `string` |
 

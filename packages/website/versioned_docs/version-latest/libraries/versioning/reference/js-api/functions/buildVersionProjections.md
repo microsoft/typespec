@@ -10,7 +10,7 @@ function buildVersionProjections(program, rootNs): VersionProjections[]
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `rootNs` | `Namespace` |
 

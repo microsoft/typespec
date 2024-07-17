@@ -12,7 +12,7 @@ Check if the given type is an `HttpFile`
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `type` | `Type` |
 
