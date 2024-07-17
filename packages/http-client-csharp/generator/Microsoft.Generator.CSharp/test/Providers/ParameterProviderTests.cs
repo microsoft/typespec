@@ -38,36 +38,24 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.AreEqual(areEqual, result);
         }
 
-        [TestCaseSource(nameof(DefaultValueTestCases))]
-        public void DefaultValue(InputParameter inputParameter, bool isCollectionType)
+        [TestCaseSource(nameof(InitializationValueTestCases))]
+        public void InitializationValue(InputParameter inputParameter, bool isCollectionType)
         {
             var provider = new ParameterProvider(inputParameter);
             var parsedValue = inputParameter.DefaultValue?.Value;
 
-            if (parsedValue?.GetType() == typeof(int))
+            if (parsedValue?.GetType() == typeof(object))
             {
-                Assert.AreEqual(Literal(parsedValue).As<int>(), provider.DefaultValue);
-            }
-            else if (parsedValue?.GetType() == typeof(string))
-            {
-                Assert.AreEqual(Literal(parsedValue).As<string>(), provider.DefaultValue);
-            }
-            else if (parsedValue?.GetType() == typeof(char))
-            {
-                Assert.AreEqual(Literal(parsedValue), provider.DefaultValue);
-            }
-            else if (parsedValue?.GetType() == typeof(bool))
-            {
-                Assert.AreEqual(Bool(true), provider.DefaultValue);
-            }
-            else if (parsedValue?.GetType() == typeof(object))
-            {
-                Assert.IsNull(provider.DefaultValue);
+                Assert.IsNull(provider.InitializationValue);
             }
             else if (isCollectionType)
             {
                 CSharpType valueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.DefaultValue!.Type);
-                Assert.AreEqual(New.Instance(valueType), provider.DefaultValue);
+                Assert.AreEqual(New.Instance(valueType), provider.InitializationValue);
+            }
+            else
+            {
+                Assert.AreEqual(Literal(parsedValue), provider.InitializationValue);
             }
         }
 
@@ -95,14 +83,14 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                false);
         }
 
-        private static IEnumerable<TestCaseData> DefaultValueTestCases()
+        private static IEnumerable<TestCaseData> InitializationValueTestCases()
         {
             // int primitive type
             yield return new TestCaseData(
                 new InputParameter(
-                    "mockParam",
-                    "mockParam description",
-                    "mockParam",
+                    "param",
+                    "param description",
+                    "param",
                     new InputPrimitiveType(InputPrimitiveTypeKind.Int32),
                     RequestLocation.None,
                     defaultValue: new InputConstant(1, InputPrimitiveType.Int32),
@@ -111,9 +99,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             // string primitive type
             yield return new TestCaseData(
                 new InputParameter(
-                    "mockParam",
-                    "mockParam description",
-                    "mockParam",
+                    "param",
+                    "param description",
+                    "param",
                     new InputPrimitiveType(InputPrimitiveTypeKind.String),
                     RequestLocation.None,
                     defaultValue: new InputConstant("mockValue", InputPrimitiveType.String),
@@ -122,9 +110,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             // char primitive type
             yield return new TestCaseData(
                 new InputParameter(
-                    "mockParam",
-                    "mockParam description",
-                    "mockParam",
+                    "param",
+                    "param description",
+                    "param",
                     new InputPrimitiveType(InputPrimitiveTypeKind.Char),
                     RequestLocation.None,
                     defaultValue: new InputConstant('a', InputPrimitiveType.Char),
@@ -133,9 +121,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             // bool primitive type
             yield return new TestCaseData(
                 new InputParameter(
-                    "mockParam",
-                    "mockParam description",
-                    "mockParam",
+                    "param",
+                    "param description",
+                    "param",
                     new InputPrimitiveType(InputPrimitiveTypeKind.Boolean),
                     RequestLocation.None,
                     defaultValue: new InputConstant(true, InputPrimitiveType.Boolean),
@@ -144,9 +132,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             // list of string type
             yield return new TestCaseData(
                 new InputParameter(
-                    "mockParam",
-                    "mockParam description",
-                    "mockParam",
+                    "param",
+                    "param description",
+                    "param",
                     new InputArrayType("test", "test", new InputPrimitiveType(InputPrimitiveTypeKind.String)),
                     RequestLocation.None,
                     defaultValue: new InputConstant(null, new InputArrayType("test", "test", new InputPrimitiveType(InputPrimitiveTypeKind.String))),
@@ -155,9 +143,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             // unknown type
             yield return new TestCaseData(
                 new InputParameter(
-                    "mockParam",
-                    "mockParam description",
-                    "mockParam",
+                    "param",
+                    "param description",
+                    "param",
                     new InputPrimitiveType(InputPrimitiveTypeKind.Any),
                     RequestLocation.None,
                     defaultValue: new InputConstant(new object(), new InputPrimitiveType(InputPrimitiveTypeKind.Any)),

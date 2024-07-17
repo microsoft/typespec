@@ -17,7 +17,6 @@ namespace Microsoft.Generator.CSharp.Providers
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public sealed class ParameterProvider : IEquatable<ParameterProvider>
     {
-        private Lazy<FieldProvider> _field;
         public string Name { get; }
         public FormattableString Description { get; }
         public CSharpType Type { get; init; }
@@ -26,20 +25,11 @@ namespace Microsoft.Generator.CSharp.Providers
         /// The default value of the parameter.
         /// </summary>
         public ValueExpression? DefaultValue { get; init; }
-
-        /// <summary>
-        /// The value the parameter is initialized with.
-        /// </summary>
         public ValueExpression? InitializationValue { get; init; }
         public ParameterValidationType Validation { get; init; } = ParameterValidationType.None;
         public bool IsRef { get; }
         public bool IsOut { get; }
         internal IReadOnlyList<AttributeStatement> Attributes { get; } = Array.Empty<AttributeStatement>();
-
-        /// <summary>
-        /// Converts this parameter to a field.
-        /// </summary>
-        public FieldProvider AsField => _field.Value;
 
         /// <summary>
         /// This property tracks which property this parameter is constructed from.
@@ -61,21 +51,21 @@ namespace Microsoft.Generator.CSharp.Providers
             Description = FormattableStringHelpers.FromString(inputParameter.Description) ?? FormattableStringHelpers.Empty;
             Type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
             Validation = inputParameter.IsRequired ? ParameterValidationType.AssertNotNull : ParameterValidationType.None;
-            DefaultValue = GetParameterDefaultValue(inputParameter);
-            InitializeField(Name, Type);
+            InitializationValue = GetParameterInitializationValue(inputParameter);
+            DefaultValue = inputParameter.IsRequired ? null : InitializationValue;
         }
 
         public ParameterProvider(
             string name,
             FormattableString description,
             CSharpType type,
-            ValueExpression? initializationValue = null,
+            ValueExpression? defaultValue = null,
             bool isRef = false,
             bool isOut = false,
             IReadOnlyList<AttributeStatement>? attributes = null,
             PropertyProvider? property = null,
             FieldProvider? field = null,
-            ValueExpression? defaultValue = null)
+            ValueExpression? initializationValue = null)
         {
             Debug.Assert(!(property is not null && field is not null), "A parameter cannot be both a property and a field");
 
@@ -90,15 +80,6 @@ namespace Microsoft.Generator.CSharp.Providers
             Field = field;
             Validation = GetParameterValidation();
             InitializationValue = initializationValue;
-            InitializeField(Name, Type);
-        }
-
-        [MemberNotNull(nameof(_field))]
-        private void InitializeField(string paramName, CSharpType paramType)
-        {
-            _field = Field != null
-                ? new(() => Field)
-                : new(() => new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, paramType, "_" + paramName.ToVariableName()));
         }
 
         private ParameterProvider? _inputParameter;
@@ -205,7 +186,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return ParameterValidationType.AssertNotNull;
         }
 
-        private static ValueExpression? GetParameterDefaultValue(InputParameter inputParameter)
+        private static ValueExpression? GetParameterInitializationValue(InputParameter inputParameter)
         {
             if (inputParameter.DefaultValue is null)
             {
@@ -224,32 +205,10 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 // handle default values for framework types
                 var normalizedValue = Convert.ChangeType(defaultValue, valueType.FrameworkType);
-                return GetLiteralValue(normalizedValue);
+                return Literal(normalizedValue);
             }
 
             return null;
-        }
-
-        private static ValueExpression? GetLiteralValue(object? value)
-        {
-            if (value == null)
-            {
-                return null;
-            }
-
-            return value switch
-            {
-                string s => Literal(s),
-                int i => Int(i),
-                long l => Long(l),
-                decimal d => Literal(d),
-                double d => Double(d),
-                float f => Float(f),
-                char c => Literal(c),
-                bool b => Bool(b),
-                BinaryData bd => Literal(bd),
-                _ => null
-            };
         }
     }
 }
