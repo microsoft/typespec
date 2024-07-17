@@ -108,13 +108,13 @@ configuration:
                   label: eng
           - if:
               - filesMatchPattern:
-                  pattern: packages/playground.*
+                  pattern: packages/playground/.*
             then:
               - addLabel:
                   label: ui:playground
           - if:
               - filesMatchPattern:
-                  pattern: packages/html-program-viewer.*
+                  pattern: packages/html-program-viewer/.*
             then:
               - addLabel:
                   label: ui:type-graph-viewer

@@ -184,8 +184,8 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
   "emitter:service:csharp": [],
   "emitter:service:js": [],
   eng: ["eng/", ".github/"],
-  "ui:playground": ["packages/playground"],
-  "ui:type-graph-viewer": ["packages/html-program-viewer"],
+  "ui:playground": ["packages/playground/"],
+  "ui:type-graph-viewer": ["packages/html-program-viewer/"],
 };
 
 export default defineConfig({
