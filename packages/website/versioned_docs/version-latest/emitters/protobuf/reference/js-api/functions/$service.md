@@ -12,7 +12,7 @@ Decorate an interface as a service, indicating that it represents a Protobuf `se
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `ctx` | `DecoratorContext` | decorator context |
 | `target` | `Interface` | the decorated interface |
 

@@ -10,7 +10,7 @@ function getExtensions(program, target): ExtensionRecord[]
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `target` | `Type` |
 

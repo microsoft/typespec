@@ -1,5 +1,95 @@
 # Change Log - @typespec/compiler
 
+## 0.58.0
+
+### Bug Fixes
+
+- [#3623](https://github.com/microsoft/typespec/pull/3623) Fix crash of language server on firefox
+- [#3516](https://github.com/microsoft/typespec/pull/3516) Deprecate getAssetEmitter and recommend calling `createAssetEmitter` directly
+- [#3767](https://github.com/microsoft/typespec/pull/3767) Fix semantic highlighting of using of single namespace
+- [#3824](https://github.com/microsoft/typespec/pull/3824) Do not cast model expression to object value if the constraint is allowing the type
+- [#3577](https://github.com/microsoft/typespec/pull/3577) Fix formatting of object and array literal in decorator to hug parenthesis
+- [#3823](https://github.com/microsoft/typespec/pull/3823) Fix formatting of scalar constructor called with no args
+- [#3743](https://github.com/microsoft/typespec/pull/3743) Fix 'typespec vs install' command on windows
+- [#3605](https://github.com/microsoft/typespec/pull/3605) Fix templates initialized on node 22
+
+### Bump dependencies
+
+- [#3718](https://github.com/microsoft/typespec/pull/3718) Dependency updates July 2024
+
+### Features
+
+- [#3699](https://github.com/microsoft/typespec/pull/3699) Moved compiler dependencies to peer and dev for scaffolded projects.
+- [#3572](https://github.com/microsoft/typespec/pull/3572) Add new `@example` and `@opExample` decorator to provide examples on types and operations.
+
+  ```tsp
+  @example(#{
+    id: "some",
+    date: utcDateTime.fromISO("2020-01-01T00:00:00Z"),
+    timeout: duration.fromISO("PT1M"),
+  })
+  model Foo {
+    id: string;
+    date: utcDateTime;
+  
+    @encode("seconds", int32) timeout: duration;
+  }
+  ```
+  
+  ```tsp
+  @opExample(
+    #{
+      parameters: #{
+        pet: #{
+          id: "some",
+          name: "Fluffy",
+          dob: plainDate.fromISO("2020-01-01"),
+        },
+      },
+      returnType: #{
+        id: "some",
+        name: "Fluffy",
+        dob: plainDate.fromISO("2020-01-01"),
+      },
+    },
+    #{ title: "First", description: "Show creating a pet" }
+  )
+  op createPet(pet: Pet): Pet;
+  ```
+- [#3751](https://github.com/microsoft/typespec/pull/3751) Adds option to `tsp init` to generate .gitignore file
+
+### Breaking Changes
+
+- [#3793](https://github.com/microsoft/typespec/pull/3793) Do not carry over `@friendlyName` with `model is` or `op is`
+
+  ```tsp
+  @friendlyName("Abc{T}", T)
+  model Foo<T> {}
+  
+  model Bar is Foo<string>;
+  
+  // This can be changed to
+  model Abcstring is Foo<string>;
+  ```
+- [#3659](https://github.com/microsoft/typespec/pull/3659) Disallows overriding a required inherited property with an optional property.
+
+In previous versions of TypeSpec, it was possible to override a required property with an optional property. This is no longer allowed. This change may result in errors in your code if you were relying on this bug, but specifications that used this behavior are likely to have been exposed to errors resulting from incoherent type checking behavior.
+
+The following example demonstrates the behavior that is no longer allowed:
+
+```tsp
+model Base {
+  example: string;
+}
+
+model Child extends Base {
+  example?: string;
+}
+```
+
+In this example, the `Child` model overrides the `example` property from the `Base` model with an optional property. This is no longer allowed.
+
+
 ## 0.57.0
 
 

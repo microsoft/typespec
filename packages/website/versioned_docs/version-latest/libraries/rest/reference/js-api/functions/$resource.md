@@ -21,7 +21,7 @@ name of `widgets`.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Model` |
 | `collectionName` | `string` |

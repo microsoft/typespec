@@ -12,7 +12,7 @@ Check if the given arg is a Numeric
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `arg` | `unknown` |
 
 ## Returns

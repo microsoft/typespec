@@ -6,7 +6,7 @@ title: "[I] Sym"
 ## Properties
 
 | Property | Modifier | Type | Description |
-| :------ | :------ | :------ | :------ |
+| ------ | ------ | ------ | ------ |
 | `declarations` | `readonly` | readonly [`Node`](../type-aliases/Node.md)[] | Nodes which contribute to this declaration |
 | `exports?` | `readonly` | `SymbolTable` | Externally visible symbols contained inside this symbol. E.g. all declarations in a namespace, or members of an enum. |
 | `flags` | `readonly` | [`SymbolFlags`](../enumerations/SymbolFlags.md) | - |

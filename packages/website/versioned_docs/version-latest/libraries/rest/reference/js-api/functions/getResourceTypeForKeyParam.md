@@ -10,7 +10,7 @@ function getResourceTypeForKeyParam(program, param): Model | undefined
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `param` | `ModelProperty` |
 

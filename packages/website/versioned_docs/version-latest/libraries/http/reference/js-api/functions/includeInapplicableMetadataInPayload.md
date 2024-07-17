@@ -13,7 +13,7 @@ inapplicable metadata.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `property` | `ModelProperty` |
 

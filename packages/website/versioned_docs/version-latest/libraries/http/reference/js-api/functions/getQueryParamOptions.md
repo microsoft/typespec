@@ -10,7 +10,7 @@ function getQueryParamOptions(program, entity): QueryParameterOptions
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `entity` | `Type` |
 
