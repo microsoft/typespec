@@ -1,3 +1,4 @@
+import { printIdentifier } from "@typespec/compiler";
 import { OpenAPI3Components, OpenAPI3Schema } from "../../../../types.js";
 import {
   getArrayType,
@@ -8,6 +9,7 @@ import {
 } from "../generators/generate-types.js";
 import { TypeSpecModel, TypeSpecModelProperty } from "../interfaces.js";
 import { getDecoratorsForSchema } from "../utils/decorators.js";
+import { getScopeAndName } from "../utils/get-scope-and-name.js";
 
 /**
  * Transforms #/components/schemas into TypeSpec models.
@@ -24,20 +26,28 @@ export function transformComponentSchemas(
 
   for (const name of Object.keys(schemas)) {
     const schema = schemas[name];
-    const extendsParent = getModelExtends(schema);
-    const isParent = getModelIs(schema);
-    models.push({
-      name: name.replace(/-/g, "_"),
-      decorators: [...getDecoratorsForSchema(schema)],
-      doc: schema.description,
-      properties: getModelPropertiesFromObjectSchema(schema),
-      additionalProperties:
-        typeof schema.additionalProperties === "object" ? schema.additionalProperties : undefined,
-      extends: extendsParent,
-      is: isParent,
-      type: schema.type,
-    });
+    transformComponentSchema(models, name, schema);
   }
+}
+
+function transformComponentSchema(
+  models: TypeSpecModel[],
+  name: string,
+  schema: OpenAPI3Schema
+): void {
+  const extendsParent = getModelExtends(schema);
+  const isParent = getModelIs(schema);
+  models.push({
+    ...getScopeAndName(name),
+    decorators: [...getDecoratorsForSchema(schema)],
+    doc: schema.description,
+    properties: getModelPropertiesFromObjectSchema(schema),
+    additionalProperties:
+      typeof schema.additionalProperties === "object" ? schema.additionalProperties : undefined,
+    extends: extendsParent,
+    is: isParent,
+    type: schema.type,
+  });
 }
 
 function getModelExtends(schema: OpenAPI3Schema): string | undefined {
@@ -88,7 +98,7 @@ function getModelPropertiesFromObjectSchema({
     const property = properties[name];
 
     modelProperties.push({
-      name,
+      name: printIdentifier(name),
       doc: property.description,
       schema: property,
       isOptional: !required.includes(name),

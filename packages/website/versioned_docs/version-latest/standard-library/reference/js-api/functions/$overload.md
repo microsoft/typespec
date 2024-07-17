@@ -15,7 +15,7 @@ function $overload(
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) | DecoratorContext |
 | `target` | [`Operation`](../interfaces/Operation.md) | The specializing operation declaration |
 | `overloadbase` | [`Operation`](../interfaces/Operation.md) | - |

@@ -9,7 +9,7 @@ type NeverIndexer: object;
 
 ## Type declaration
 
-| Member | Type |
-| :------ | :------ |
+| Name | Type |
+| ------ | ------ |
 | `key` | [`NeverType`](../interfaces/NeverType.md) |
 | `value` | `undefined` |

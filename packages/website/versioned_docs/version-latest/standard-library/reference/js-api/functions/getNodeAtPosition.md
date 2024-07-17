@@ -17,7 +17,7 @@ Resolve the node in the syntax tree that that is at the given position.
 ### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `script` | [`TypeSpecScriptNode`](../interfaces/TypeSpecScriptNode.md) | TypeSpec Script node |
 | `position` | `number` | Position |
 | `filter`? | (`node`) => `boolean` | Filter if wanting to return a parent containing node early. |
@@ -35,16 +35,16 @@ function getNodeAtPosition<T>(
    filter): T | undefined
 ```
 
-### Type parameters
+### Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` *extends* [`Node`](../type-aliases/Node.md) |
 
 ### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `script` | [`TypeSpecScriptNode`](../interfaces/TypeSpecScriptNode.md) |
 | `position` | `number` |
 | `filter` | (`node`) => `node is T` |

@@ -16,7 +16,7 @@ title: "[I] StringTemplateLiteralLikeNode"
 ## Properties
 
 | Property | Modifier | Type | Description | Inherited from |
-| :------ | :------ | :------ | :------ | :------ |
+| ------ | ------ | ------ | ------ | ------ |
 | `directives?` | `readonly` | readonly [`DirectiveExpressionNode`](DirectiveExpressionNode.md)[] | - | [`BaseNode`](BaseNode.md).`directives` |
 | `docs?` | `readonly` | readonly [`DocNode`](DocNode.md)[] | - | [`BaseNode`](BaseNode.md).`docs` |
 | `end` | `readonly` | `number` | The ending position measured in UTF-16 code units from the start of the full string. Exclusive. | [`BaseNode`](BaseNode.md).`end` |

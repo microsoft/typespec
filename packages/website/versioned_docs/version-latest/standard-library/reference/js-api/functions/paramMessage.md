@@ -7,16 +7,16 @@ title: "[F] paramMessage"
 function paramMessage<T>(strings, ...keys): CallableMessage<T>
 ```
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` *extends* `string`[] |
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `strings` | readonly `string`[] |
 | ...`keys` | `T` |
 

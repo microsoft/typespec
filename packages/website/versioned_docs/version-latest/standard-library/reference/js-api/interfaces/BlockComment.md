@@ -10,7 +10,7 @@ title: "[I] BlockComment"
 ## Properties
 
 | Property | Modifier | Type | Description | Inherited from |
-| :------ | :------ | :------ | :------ | :------ |
+| ------ | ------ | ------ | ------ | ------ |
 | `end` | `readonly` | `number` | The ending position measured in UTF-16 code units from the start of the full string. Exclusive. | [`TextRange`](TextRange.md).`end` |
 | `kind` | `readonly` | `BlockComment` | - | - |
 | `parsedAsDocs?` | `readonly` | `boolean` | If that comment was parsed as a doc comment. If parserOptions.docs=false this will always be false. | - |

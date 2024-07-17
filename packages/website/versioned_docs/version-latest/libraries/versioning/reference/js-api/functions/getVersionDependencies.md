@@ -10,7 +10,7 @@ function getVersionDependencies(program, namespace): Map<Namespace, Map<Version,
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `namespace` | `Namespace` |
 

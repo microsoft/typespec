@@ -10,7 +10,7 @@ function isOrExtendsHttpFile(program, type): boolean
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `type` | `Type` |
 

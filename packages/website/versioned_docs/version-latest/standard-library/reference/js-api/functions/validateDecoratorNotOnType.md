@@ -17,7 +17,7 @@ Useful to check for decorator usage that conflicts with another decorator.
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) | Decorator context |
 | `type` | [`Type`](../type-aliases/Type.md) | The type to check |
 | `badDecorator` | [`DecoratorFunction`](../interfaces/DecoratorFunction.md) | The decorator we don't want present |

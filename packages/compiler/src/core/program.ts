@@ -69,7 +69,7 @@ import {
   TypeSpecLibrary,
   TypeSpecScriptNode,
 } from "./types.js";
-import { validateIncompatibleEncodedNameAndDiscriminator } from "./validators/encoded-name-discriminator.js";
+
 export interface ProjectedProgram extends Program {
   projector: Projector;
 }
@@ -742,7 +742,6 @@ export async function compile(
   /** Run the compiler built-in validators */
   function runCompilerValidators() {
     validateEncodedNamesConflicts(program);
-    validateIncompatibleEncodedNameAndDiscriminator(program);
   }
 
   function validateRequiredImports() {
