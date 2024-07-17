@@ -1493,20 +1493,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return false;
         }
 
-        private static bool EnumIsIntValueType(EnumProvider enumProvider)
+        private static bool EnumIsIntValueType(TypeProvider enumProvider)
         {
-            var frameworkType = enumProvider.MemberValueType;
+            var frameworkType = enumProvider.EnumUnderlyingType;
             return frameworkType.Equals(typeof(int)) || frameworkType.Equals(typeof(long));
         }
 
-        private static bool EnumIsFloatValueType(EnumProvider enumProvider)
+        private static bool EnumIsFloatValueType(TypeProvider enumProvider)
         {
-            var frameworkType = enumProvider.MemberValueType;
+            var frameworkType = enumProvider.EnumUnderlyingType;
             return frameworkType.Equals(typeof(float)) || frameworkType.Equals(typeof(double));
         }
 
-        private static bool EnumIsNumericValueType(EnumProvider enumProvider)
-        {
+        private static bool EnumIsNumericValueType(TypeProvider enumProvider)
+        { 
             return EnumIsIntValueType(enumProvider) || EnumIsFloatValueType(enumProvider);
         }
     }

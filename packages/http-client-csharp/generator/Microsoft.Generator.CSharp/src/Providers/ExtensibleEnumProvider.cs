@@ -20,12 +20,12 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
         private readonly InputEnumType _inputType;
-
+        private readonly TypeProvider _provider;
         internal ExtensibleEnumProvider(InputEnumType input): base(input)
         {
             _inputType = input;
             _allowedValues = input.Values;
-
+            _provider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);
             // extensible enums are implemented as readonly structs
             _modifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct;
             if (input.Accessibility == "internal")
@@ -40,7 +40,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
 
-        protected override IReadOnlyList<EnumTypeMember> BuildMembers()
+        protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {
             var values = new EnumTypeMember[_allowedValues.Count];
 
@@ -71,14 +71,14 @@ namespace Microsoft.Generator.CSharp.Providers
             => [new CSharpType(typeof(IEquatable<>), Type)]; // extensible enums implement IEquatable<Self>
 
         protected override FieldProvider[] BuildFields()
-            => [_valueField, .. Members.Select(v => v.Field)];
+            => [_valueField, .. _provider.EnumValues.Select(v => v.Field)];
 
         protected override PropertyProvider[] BuildProperties()
         {
-            var properties = new PropertyProvider[Members.Count];
+            var properties = new PropertyProvider[_provider.EnumValues.Count];
 
             var index = 0;
-            foreach (var enumValue in Members)
+            foreach (var enumValue in _provider.EnumValues)
             {
                 var name = enumValue.Name;
                 var value = enumValue.Value;

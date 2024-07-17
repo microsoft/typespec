@@ -146,7 +146,7 @@ namespace Microsoft.Generator.CSharp.Primitives
                   implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) && arguments.All(t => t.IsPublic),
                   implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct),
                   baseType,
-                  implementation is EnumProvider enumProvider ? enumProvider.ValueType.FrameworkType : null)
+                  implementation.IsEnum? implementation.EnumUnderlyingType.FrameworkType : null)
         {
         }
 
@@ -617,6 +617,20 @@ namespace Microsoft.Generator.CSharp.Primitives
             {
                 return new CSharpType(Name, Namespace, IsValueType, IsNullable, DeclaringType, arguments, IsPublic, IsStruct);
             }
+        }
+
+        private CSharpType? _rootType;
+        public CSharpType RootType => _rootType ??= GetRootType();
+
+        private CSharpType GetRootType()
+        {
+            CSharpType returnType = this;
+            while (returnType.BaseType != null)
+            {
+                returnType = returnType.BaseType;
+            }
+
+            return returnType;
         }
     }
 }

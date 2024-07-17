@@ -74,7 +74,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 var knownCases = new SwitchCaseExpression[_enumType.Values.Count];
                 for (int i = 0; i < knownCases.Length; i++)
                 {
-                    var enumValue = _provider.Members[i];
+                    var enumValue = _provider.EnumValues[i];
                     knownCases[i] = new SwitchCaseExpression(new MemberExpression(_provider.EnumUnderlyingType, enumValue.Field.Name), Literal(enumValue.Value));
                 }
                 var defaultCase = SwitchCaseExpression.Default(ThrowExpression(New.ArgumentOutOfRangeException(_provider, serializationValueParameter)));
@@ -101,7 +101,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             for (int i = 0; i < _provider.Fields.Count; i++)
             {
                 var enumField = _provider.Fields[i];
-                var enumValue = _provider.Members[i];
+                var enumValue = _provider.EnumValues[i];
                 ScopedApi<bool> condition;
                 if (_enumType.ValueType.Equals(typeof(string)))
                 {
