@@ -1,14 +1,12 @@
 ---
-title: Summary
+title: Complete Example
 ---
 
-# Summary
+# Complete Example
 
 In this tutorial, we have covered the basics of creating a REST API definition using TypeSpec. We started by setting up a new TypeSpec project and then defined a Pet Store service with various operations. We explored how to use decorators to define routes, handle path and query parameters, manage headers, and specify request and response bodies. We also looked at how to automatically generate routes, define status codes, handle errors, and manage versioning.
 
 By following these steps, you should now have a good understanding of how to use TypeSpec to define and manage your HTTP APIs. For more advanced features and detailed documentation, refer to the official TypeSpec documentation and community resources.
-
-## Complete Code Example
 
 Here's the complete Pet Store service definition written in TypeSpec:
 
