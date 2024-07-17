@@ -20,7 +20,7 @@ namespace Microsoft.Generator.CSharp
     public abstract class CodeModelPlugin
     {
         private static CodeModelPlugin? _instance;
-        internal static CodeModelPlugin Instance
+        public static CodeModelPlugin Instance
         {
             get
             {

@@ -15,17 +15,15 @@ namespace Microsoft.Generator.CSharp.ClientModel
 {
     [Export(typeof(CodeModelPlugin))]
     [ExportMetadata("PluginName", nameof(ClientModelPlugin))]
-    public class ClientModelPlugin : CodeModelPlugin
+    [method: ImportingConstructor]
+    public class ClientModelPlugin(GeneratorContext context) : CodeModelPlugin(context)
     {
-        private static ClientModelPlugin? _instance;
-        internal static ClientModelPlugin Instance => _instance ?? throw new InvalidOperationException("ClientModelPlugin is not loaded.");
-
         private ScmOutputLibrary? _scmOutputLibrary;
         public override OutputLibrary OutputLibrary => _scmOutputLibrary ??= new();
 
         public override TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
 
-        public override ScmTypeFactory TypeFactory { get; }
+        public override ScmTypeFactory TypeFactory { get; } = new();
 
         public override IReadOnlyList<MetadataReference> AdditionalMetadataReferences => [MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location)];
 
@@ -42,14 +40,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 default:
                     return base.GetSerializationTypeProviders(inputType);
             }
-        }
-
-        [ImportingConstructor]
-        public ClientModelPlugin(GeneratorContext context)
-            : base(context)
-        {
-            TypeFactory = new ScmTypeFactory();
-            _instance = this;
         }
     }
 }

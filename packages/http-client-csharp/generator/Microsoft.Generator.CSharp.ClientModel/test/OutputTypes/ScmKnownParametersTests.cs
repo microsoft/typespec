@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.OutputTypes
         {
             MockHelpers.LoadMockPlugin(tokenCredentialType: () => typeof(int));
 
-            var result = ClientModelPlugin.Instance.TypeFactory.TokenCredentialType();
+            var result = ((ScmTypeFactory)CodeModelPlugin.Instance.TypeFactory).TokenCredentialType();
             Assert.IsNotNull(result);
             Assert.AreEqual(new CSharpType(typeof(int)), result);
         }
@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.OutputTypes
         {
             MockHelpers.LoadMockPlugin(matchConditionsType: () => typeof(int));
 
-            var result = ClientModelPlugin.Instance.TypeFactory.MatchConditionsType();
+            var result = ((ScmTypeFactory)CodeModelPlugin.Instance.TypeFactory).MatchConditionsType();
             Assert.IsNotNull(result);
             Assert.AreEqual(new CSharpType(typeof(int)), result);
         }
