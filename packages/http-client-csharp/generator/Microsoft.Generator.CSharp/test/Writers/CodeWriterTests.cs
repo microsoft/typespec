@@ -153,7 +153,7 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             codeWriter.WriteMethodDeclarationNoScope(constructorSignature);
 
             var result = codeWriter.ToString(false);
-            Assert.AreEqual("public String(): base(\"test\")", result);
+            Assert.AreEqual("public String() : base(\"test\")", result);
         }
 
         [Test]
