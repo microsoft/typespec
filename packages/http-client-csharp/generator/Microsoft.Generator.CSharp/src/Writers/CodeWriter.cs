@@ -27,6 +27,7 @@ namespace Microsoft.Generator.CSharp
         private UnsafeBufferSequence _builder;
         private bool _atBeginningOfLine;
         private bool _writingXmlDocumentation;
+        private bool _writingNewInstance;
 
         internal CodeWriter()
         {
@@ -575,7 +576,7 @@ namespace Microsoft.Generator.CSharp
                 AppendRaw(_writingXmlDocumentation ? "}" : ">");
             }
 
-            if (!isDeclaration && type is { IsNullable: true, IsValueType: true })
+            if (!_writingNewInstance && !isDeclaration && type is { IsNullable: true, IsValueType: true })
             {
                 AppendRaw("?");
             }

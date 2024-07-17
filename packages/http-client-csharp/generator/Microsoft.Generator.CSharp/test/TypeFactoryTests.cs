@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 new InputPrimitiveType(InputPrimitiveTypeKind.String),
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
                 true);
-            var expected = new CSharpType("SampleType", "Sample.Models", true, true, false, null, null, true);
+            var expected = new CSharpType("SampleType", "Sample.Models", true, false, null, [], true, true, underlyingEnumType: typeof(string));
 
             var actual = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input);
 
@@ -50,7 +50,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
                 true);
             var nullableInput = new InputNullableType(input);
-            var expected = new CSharpType("SampleType", "Sample.Models", true, true, true, null, null, true);
+            var expected = new CSharpType("SampleType", "Sample.Models", true, true, null, [], true, true, underlyingEnumType: typeof(string));
 
             var actual = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(nullableInput);
 
@@ -71,17 +71,33 @@ namespace Microsoft.Generator.CSharp.Tests
                 new InputPrimitiveType(InputPrimitiveTypeKind.String),
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
                 true);
-            var expected = new CSharpType("SampleType", "Sample.Models", true, true, false, null, null, true);
+            var expected = new CSharpType("SampleType", "Sample.Models", true, false, null, [], true, true, underlyingEnumType: typeof(string));
 
             var enumProvider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);
 
             Assert.IsNotNull(enumProvider);
             Assert.AreEqual(expected, enumProvider.Type);
+        }
 
-            var actual = CodeModelPlugin.Instance.TypeFactory.GetProvider(expected);
+        [Test]
+        public void FixedStringEnumType()
+        {
+            var input = new InputEnumType(
+                "sampleType",
+                "sampleType",
+                "public",
+                null,
+                "sampleType description",
+                InputModelTypeUsage.Input,
+                new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
+                false);
+            var expected = new CSharpType("SampleType", "Sample.Models", true, false, null, [], true, false, underlyingEnumType: typeof(string));
+
+            var actual = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input);
+
             Assert.IsNotNull(actual);
-            Assert.AreEqual(enumProvider, actual);
-            Assert.AreEqual(expected, actual!.Type);
+            Assert.AreEqual(expected, actual);
         }
     }
 }

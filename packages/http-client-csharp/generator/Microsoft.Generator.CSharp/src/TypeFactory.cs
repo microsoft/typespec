@@ -224,12 +224,5 @@ namespace Microsoft.Generator.CSharp
                 return HashCode.Combine(obj.Name, obj.Namespace, obj.IsValueType, obj.IsFrameworkType ? obj.FrameworkType : null, hashCode.ToHashCode());
             }
         }
-
-        public TypeProvider? GetProvider(CSharpType type)
-        {
-            if (_csharpToTypeProvider.TryGetValue(type, out var provider))
-                return provider;
-            return null;
-        }
     }
 }
