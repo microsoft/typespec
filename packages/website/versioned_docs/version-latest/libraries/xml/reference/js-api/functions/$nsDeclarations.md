@@ -10,7 +10,7 @@ function $nsDeclarations(context, target): void
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Enum` |
 

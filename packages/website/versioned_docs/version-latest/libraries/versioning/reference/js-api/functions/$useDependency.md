@@ -13,7 +13,7 @@ function $useDependency(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Namespace` \| `EnumMember` |
 | ...`versionRecords` | `EnumMember`[] |

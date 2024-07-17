@@ -13,7 +13,7 @@ function isIntrinsicType(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `type` | [`Scalar`](../interfaces/Scalar.md) |
 | `kind` | [`IntrinsicScalarName`](../type-aliases/IntrinsicScalarName.md) |

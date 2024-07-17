@@ -12,7 +12,7 @@ Resolve the compiler options for the given entrypoint by resolving the tspconfig
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `host` | [`CompilerHost`](../interfaces/CompilerHost.md) | Compiler host |
 | `options` | [`ResolveCompilerOptionsOptions`](../interfaces/ResolveCompilerOptionsOptions.md) |  |
 

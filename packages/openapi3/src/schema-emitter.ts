@@ -25,6 +25,7 @@ import {
   getDiscriminator,
   getDoc,
   getEncode,
+  getExamples,
   getFormat,
   getKnownValues,
   getMaxItems,
@@ -46,6 +47,7 @@ import {
   isSecret,
   isTemplateDeclaration,
   resolveEncodedName,
+  serializeValueAsJson,
 } from "@typespec/compiler";
 import {
   ArrayBuilder,
@@ -767,6 +769,17 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
   }
 
+  #applySchemaExamples(
+    type: Model | Scalar | Union | Enum | ModelProperty,
+    target: ObjectBuilder<unknown>
+  ) {
+    const program = this.emitter.getProgram();
+    const examples = getExamples(program, type);
+    if (examples.length > 0) {
+      target.set("example", serializeValueAsJson(program, examples[0].value, type));
+    }
+  }
+
   #applyConstraints(
     type: Scalar | Model | ModelProperty | Union | Enum,
     original: OpenAPI3Schema
@@ -780,6 +793,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
     };
 
+    this.#applySchemaExamples(type, schema);
     applyConstraint(getMinLength, "minLength");
     applyConstraint(getMaxLength, "maxLength");
     applyConstraint(getMinValue, "minimum");
