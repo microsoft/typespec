@@ -52,10 +52,8 @@ namespace Microsoft.Generator.CSharp.Providers
         public CSharpType Type => _type ??= new(
             this,
             GetNamespace(),
-            arguments: GetTypeArguments(),
-            isNullable: false,
-            baseType: GetBaseType(),
-            isEnum: GetIsEnum());
+            GetTypeArguments(),
+            GetBaseType());
 
         protected virtual bool GetIsEnum() => false;
         public bool IsEnum => GetIsEnum();

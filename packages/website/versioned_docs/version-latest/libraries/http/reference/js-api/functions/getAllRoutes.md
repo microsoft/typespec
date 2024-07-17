@@ -10,7 +10,7 @@ function getAllRoutes(program, options?): [HttpOperation[], readonly Diagnostic[
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `options`? | [`RouteResolutionOptions`](../interfaces/RouteResolutionOptions.md) |
 

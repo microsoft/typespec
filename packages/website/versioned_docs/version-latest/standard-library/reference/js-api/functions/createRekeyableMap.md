@@ -7,17 +7,17 @@ title: "[F] createRekeyableMap"
 function createRekeyableMap<K, V>(entries?): RekeyableMap<K, V>
 ```
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `K` |
 | `V` |
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `entries`? | [`K`, `V`][] |
 
 ## Returns

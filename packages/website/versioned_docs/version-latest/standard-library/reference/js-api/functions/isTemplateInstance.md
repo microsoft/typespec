@@ -12,7 +12,7 @@ Check the given type is a finished template instance.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `type` | [`Type`](../type-aliases/Type.md) |
 
 ## Returns

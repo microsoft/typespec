@@ -1,3 +1,4 @@
+import { printIdentifier } from "@typespec/compiler";
 import { OpenAPI3Schema, Refable } from "../../../../types.js";
 import { getDecoratorsForSchema } from "../utils/decorators.js";
 import { generateDecorators } from "./generate-decorators.js";
@@ -47,8 +48,7 @@ function getTypeFromSchema(schema: OpenAPI3Schema): string {
 
 export function getRefName(ref: string): string {
   const name = ref.split("/").pop() ?? "";
-  // TODO: account for `.` in the name
-  return name;
+  return name.split(".").map(printIdentifier).join(".");
 }
 
 function getAnyOfType(schema: OpenAPI3Schema): string {

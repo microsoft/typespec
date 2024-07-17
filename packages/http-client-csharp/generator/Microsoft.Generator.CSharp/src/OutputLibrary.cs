@@ -57,6 +57,6 @@ namespace Microsoft.Generator.CSharp
         }
 
         // TODO - make this more additive instead of replace https://github.com/microsoft/typespec/issues/3827
-        protected internal virtual OutputLibraryVisitor[] GetOutputLibraryVisitors() => [];
+        protected internal virtual IEnumerable<OutputLibraryVisitor> GetOutputLibraryVisitors() => [];
     }
 }

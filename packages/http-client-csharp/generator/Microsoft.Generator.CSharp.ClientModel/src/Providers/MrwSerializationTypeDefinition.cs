@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
@@ -209,7 +208,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 JsonDocumentSnippets.Parse(response.Property(nameof(PipelineResponse.Content)).As<BinaryData>()),
                 out var docVariable);
             // return DeserializeT(doc.RootElement, ModelSerializationExtensions.WireOptions);
-            var deserialize = Return(_model.Deserialize(docVariable.As<JsonDocument>().RootElement(), ModelSerializationExtensionsSnippets.Wire));
+            var deserialize = Return(_model.Type.Deserialize(docVariable.As<JsonDocument>().RootElement(), ModelSerializationExtensionsSnippets.Wire));
             var methodBody = new MethodBodyStatement[]
             {
                 responseDeclaration,
@@ -420,7 +419,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 // using var document = JsonDocument.ParseValue(ref reader);
                 UsingDeclare("document", typeof(JsonDocument), JsonDocumentSnippets.ParseValue(_utf8JsonReaderParameter), out var docVariable),
                 // return DeserializeT(doc.RootElement, options);
-                Return(TypeProviderSnippets.Deserialize(_model, JsonDocumentSnippets.RootElement(docVariable.As<JsonDocument>()), _mrwOptionsParameterSnippet))
+                Return(_model.Type.Deserialize(JsonDocumentSnippets.RootElement(docVariable.As<JsonDocument>()), _mrwOptionsParameterSnippet))
             };
 
             // T JsonModelCreateCore(ref reader, ModelReaderWriterOptions options)
@@ -638,7 +637,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     new UsingScopeStatement(typeof(JsonDocument), "document", JsonDocumentSnippets.Parse(_dataParameter), out var jsonDocumentVar)
                     {
-                        Return(_model.Deserialize(jsonDocumentVar.As<JsonDocument>().RootElement(), _serializationOptionsParameter))
+                        Return(_model.Type.Deserialize(jsonDocumentVar.As<JsonDocument>().RootElement(), _serializationOptionsParameter))
                     },
                });
             var typeOfT = _persistableModelTInterface.Arguments[0];
@@ -1239,27 +1238,27 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ValueExpression value)
         {
             if (type.IsFrameworkType)
-            {
                 return SerializeValueType(type, serializationFormat, value, type.FrameworkType);
+
+            if (!type.IsEnum)
+                return _utf8JsonWriterSnippet.WriteObjectValue(value.As(type), options: _mrwOptionsParameterSnippet);
+
+            var enumerableSnippet = value.NullableStructValue(type).As(type);
+            if (type.IsStruct) //is extensible
+            {
+                if (type.UnderlyingEnumType.Equals(typeof(string)))
+                    return _utf8JsonWriterSnippet.WriteStringValue(enumerableSnippet.Invoke(nameof(ToString)));
+
+                return _utf8JsonWriterSnippet.WriteNumberValue(enumerableSnippet.Invoke($"ToSerial{type.UnderlyingEnumType.Name}"));
             }
             else
             {
-                var provider = ClientModelPlugin.Instance.TypeFactory.GetProvider(type);
-                if (provider is null)
-                    throw new NotSupportedException($"Serialization of type {type.Name} is not supported.");
+                if (type.UnderlyingEnumType.Equals(typeof(int)))
+                    // when the fixed enum is implemented as int, we cast to the value
+                    return _utf8JsonWriterSnippet.WriteNumberValue(enumerableSnippet.CastTo(type.UnderlyingEnumType));
 
-                if (type.IsEnum && provider is EnumProvider enumProvider)
-                {
-                    return SerializeEnumProvider(enumProvider, type, value);
-                }
-                else
-                {
-                    return _utf8JsonWriterSnippet.WriteObjectValue(value.As(provider.Type), options: _mrwOptionsParameterSnippet);
-                }
-            }
-
-            throw new NotSupportedException($"Serialization of type {type.Name} is not supported.");
-        }
+                if (type.UnderlyingEnumType.Equals(typeof(string)))
+                    return _utf8JsonWriterSnippet.WriteStringValue(enumerableSnippet.Invoke($"ToSerial{type.UnderlyingEnumType.Name}"));
 
         private MethodBodyStatement SerializeEnumProvider(
             EnumProvider enumProvider,

@@ -9,6 +9,6 @@ type HttpOperationParameter: HeaderFieldOptions | QueryParameterOptions | PathPa
 
 ## Type declaration
 
-| Member | Type |
-| :------ | :------ |
+| Name | Type |
+| ------ | ------ |
 | `param` | `ModelProperty` |

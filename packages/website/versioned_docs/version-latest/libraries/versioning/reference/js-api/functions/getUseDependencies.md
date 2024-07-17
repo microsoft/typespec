@@ -13,7 +13,7 @@ function getUseDependencies(
 ## Parameters
 
 | Parameter | Type | Default value |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | `Program` | `undefined` |
 | `target` | `Namespace` \| `Enum` | `undefined` |
 | `searchEnum` | `boolean` | `true` |

@@ -12,7 +12,7 @@ Returns the mapping of versions to old return type values, if applicable
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `p` | `Program` | TypeSpec program |
 | `t` | `Type` | type to query |
 

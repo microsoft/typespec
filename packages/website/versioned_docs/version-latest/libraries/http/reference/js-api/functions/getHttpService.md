@@ -13,7 +13,7 @@ function getHttpService(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `serviceNamespace` | `Namespace` |
 | `options`? | [`RouteResolutionOptions`](../interfaces/RouteResolutionOptions.md) |

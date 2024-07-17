@@ -303,32 +303,29 @@ namespace Microsoft.Generator.CSharp.Tests.Primitives
             Assert.IsTrue(areEqual);
         }
 
-        [Test]
-        [Ignore("Disabled until API types are refactored")]
-        public void PropertyInitializationType_List()
+        [TestCase(typeof(IList<>))]
+        [TestCase(typeof(IReadOnlyList<>))]
+        [TestCase(typeof(IEnumerable<>))]
+        public void PropertyInitializationType_List(Type listType)
         {
-            var arguments = typeof(int);
-            var cSharpType = new CSharpType(typeof(IList<>), arguments: arguments);
+            CSharpType[] arguments = [typeof(int)];
+            var cSharpType = new CSharpType(listType, arguments: arguments);
             var actual = cSharpType.PropertyInitializationType;
-            var expected = new CSharpType(typeof(IList<>), arguments: arguments);
+            var expected = CodeModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(arguments);
 
-            var areEqual = actual.Equals(expected);
-
-            Assert.IsTrue(areEqual);
+            Assert.AreEqual(expected, actual);
         }
 
-        [Test]
-        [Ignore("Disabled until API types are refactored")]
-        public void PropertyInitializationType_Dictionary()
+        [TestCase(typeof(IDictionary<,>))]
+        [TestCase(typeof(IReadOnlyDictionary<,>))]
+        public void PropertyInitializationType_Dictionary(Type dictionaryType)
         {
-            var arguments = new CSharpType[] { typeof(string), typeof(int) };
-            var cSharpType = new CSharpType(typeof(IDictionary<,>), arguments: arguments);
+            CSharpType[] arguments = [typeof(string), typeof(int)];
+            var cSharpType = new CSharpType(dictionaryType, arguments: arguments);
             var actual = cSharpType.PropertyInitializationType;
-            var expected = new CSharpType(typeof(IDictionary<,>), arguments: arguments);
+            var expected = CodeModelPlugin.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(arguments);
 
-            var areEqual = actual.Equals(expected);
-
-            Assert.IsTrue(areEqual);
+            Assert.AreEqual(expected, actual);
         }
 
         [Test]

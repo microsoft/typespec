@@ -10,7 +10,7 @@ title: "[I] ResolveCompilerOptionsOptions"
 ## Properties
 
 | Property | Type | Description | Inherited from |
-| :------ | :------ | :------ | :------ |
+| ------ | ------ | ------ | ------ |
 | `args?` | `Record`<`string`, `string`\> | Any arguments to interpolate the config. | `ConfigToOptionsOptions.args` |
 | `configPath?` | `string` | Explicit config path. | - |
 | `cwd` | `string` | Current working directory. This will be used to interpolate `{cwd}` in the config. | `ConfigToOptionsOptions.cwd` |

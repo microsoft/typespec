@@ -10,7 +10,7 @@ function isBodyIgnore(program, entity): boolean
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `entity` | `ModelProperty` |
 

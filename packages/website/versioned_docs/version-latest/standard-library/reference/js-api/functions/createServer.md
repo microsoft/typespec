@@ -10,7 +10,7 @@ function createServer(host): Server
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `host` | [`ServerHost`](../interfaces/ServerHost.md) |
 
 ## Returns
