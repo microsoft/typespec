@@ -71,13 +71,22 @@ namespace UnbrandedTypeSpec.Models
             {
                 return null;
             }
+            int? optional = default;
+            IDictionary<string, BinaryData> serializedAdditionalRawData = new ChangeTrackingDictionary<string, BinaryData>();
             string name = default;
             string address = default;
-            int? optional = default;
-            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
-            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
+                if (prop.NameEquals("optional"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        optional = null;
+                        continue;
+                    }
+                    optional = prop.Value.GetInt32();
+                    continue;
+                }
                 if (prop.NameEquals("name"u8))
                 {
                     name = prop.Value.GetString();
@@ -93,22 +102,7 @@ namespace UnbrandedTypeSpec.Models
                     address = prop.Value.GetString();
                     continue;
                 }
-                if (prop.NameEquals("optional"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        optional = null;
-                        continue;
-                    }
-                    optional = prop.Value.GetInt32();
-                    continue;
-                }
-                if (options.Format != "W")
-                {
-                    rawDataDictionary.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
-                }
             }
-            serializedAdditionalRawData = rawDataDictionary;
             return new ModelWithBaseModelWithoutRequired(optional, serializedAdditionalRawData, name, address);
         }
 

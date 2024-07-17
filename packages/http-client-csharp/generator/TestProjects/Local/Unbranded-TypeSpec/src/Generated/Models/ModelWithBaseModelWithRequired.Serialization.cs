@@ -71,13 +71,17 @@ namespace UnbrandedTypeSpec.Models
             {
                 return null;
             }
+            int @required = default;
+            IDictionary<string, BinaryData> serializedAdditionalRawData = new ChangeTrackingDictionary<string, BinaryData>();
             string name = default;
             string address = default;
-            int @required = default;
-            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
-            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
+                if (prop.NameEquals("required"u8))
+                {
+                    @required = prop.Value.GetInt32();
+                    continue;
+                }
                 if (prop.NameEquals("name"u8))
                 {
                     name = prop.Value.GetString();
@@ -93,17 +97,7 @@ namespace UnbrandedTypeSpec.Models
                     address = prop.Value.GetString();
                     continue;
                 }
-                if (prop.NameEquals("required"u8))
-                {
-                    @required = prop.Value.GetInt32();
-                    continue;
-                }
-                if (options.Format != "W")
-                {
-                    rawDataDictionary.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
-                }
             }
-            serializedAdditionalRawData = rawDataDictionary;
             return new ModelWithBaseModelWithRequired(@required, serializedAdditionalRawData, name, address);
         }
 

@@ -83,8 +83,7 @@ namespace UnbrandedTypeSpec.Models
                 return null;
             }
             int? optional = default;
-            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
-            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
+            IDictionary<string, BinaryData> serializedAdditionalRawData = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("optional"u8))
@@ -99,10 +98,9 @@ namespace UnbrandedTypeSpec.Models
                 }
                 if (options.Format != "W")
                 {
-                    rawDataDictionary.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                    serializedAdditionalRawData.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            serializedAdditionalRawData = rawDataDictionary;
             return new BaseModelWithoutRequired(optional, serializedAdditionalRawData);
         }
 

@@ -109,6 +109,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return [constructor];
         }
 
+        // TODO -- figure out how to reuse this piece of code because similar code exists in MrwSerializationDefinition as well https://github.com/microsoft/typespec/issues/3871
         private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildConstructorParameters()
         {
             // we need to find all the properties on our base model, we add the reverse because our convention is to have the properties from base model first.

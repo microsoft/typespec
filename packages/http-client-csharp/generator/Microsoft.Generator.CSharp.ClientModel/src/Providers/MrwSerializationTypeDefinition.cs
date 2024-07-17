@@ -5,6 +5,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -593,74 +594,51 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodBodyStatement[] BuildDeserializationMethodBody()
         {
-            VariableExpression? additionalRawDataDictionary = null;
-            DictionaryExpression? rawDataDictionary = null;
-            MethodBodyStatement additionalRawDataDictionaryDeclaration = MethodBodyStatement.Empty;
-            MethodBodyStatement rawDataDictionaryDeclaration = MethodBodyStatement.Empty;
-            MethodBodyStatement assignRawData = MethodBodyStatement.Empty;
-
-            // TODO -- This should be simplified if we have the canonical type of typeproviders: https://github.com/microsoft/typespec/issues/3796
-            // recursively get the raw data field from myself and all the base
-            var rawDataField = _rawDataField;
-            var baseSerialization = _baseSerializationProvider;
-            while (rawDataField == null)
-            {
-                if (baseSerialization == null)
-                {
-                    break;
-                }
-                rawDataField = baseSerialization._rawDataField;
-                baseSerialization = baseSerialization._baseSerializationProvider;
-            }
-
-            if (rawDataField != null)
-            {
-                var rawDataType = new CSharpType(typeof(Dictionary<string, BinaryData>));
-                // IDictionary<string, BinaryData> serializedAdditionalRawData = default;
-                additionalRawDataDictionaryDeclaration = Declare(
-                    AdditionalRawDataVarName,
-                    _privateAdditionalRawDataPropertyType,
-                    new DictionaryExpression(_privateAdditionalRawDataPropertyType, Default),
-                    out additionalRawDataDictionary);
-                // Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
-                rawDataDictionaryDeclaration = Declare(
-                       "rawDataDictionary",
-                       new DictionaryExpression(rawDataType, New.Instance(rawDataType)),
-                       out rawDataDictionary);
-                // serializedAdditionalRawData = rawDataDictionary;
-                assignRawData = additionalRawDataDictionary.Assign(rawDataDictionary).Terminate();
-            }
-
-            var allProperties = GetAllProperties().ToArray();
-
             // Build the deserialization statements for each property
             ForeachStatement deserializePropertiesForEachStatement = new("prop", _jsonElementParameterSnippet.EnumerateObject(), out var prop)
             {
-                BuildDeserializePropertiesStatements(allProperties, prop.As<JsonProperty>(), rawDataDictionary)
+                BuildDeserializePropertiesStatements(prop.As<JsonProperty>())
             };
 
             return
             [
                 new IfStatement(_jsonElementParameterSnippet.ValueKindEqualsNull()) { Return(Null) },
-                GetPropertyVariableDeclarations(allProperties),
-                additionalRawDataDictionaryDeclaration,
-                rawDataDictionaryDeclaration,
+                GetPropertyVariableDeclarations(),
                 deserializePropertiesForEachStatement,
-                assignRawData,
-                Return(New.Instance(_model.Type, GetSerializationCtorParameterValues(allProperties, additionalRawDataDictionary)))
+                Return(New.Instance(_model.Type, GetSerializationCtorParameterValues()))
             ];
         }
 
-        private MethodBodyStatement[] GetPropertyVariableDeclarations(IReadOnlyList<PropertyProvider> properties)
+        private MethodBodyStatement GetPropertyVariableDeclarations()
         {
-            var propertyCount = properties.Count;
-            MethodBodyStatement[] propertyDeclarationStatements = new MethodBodyStatement[propertyCount];
+            var parameters = SerializationConstructor.Signature.Parameters;
+            var propertyDeclarationStatements = new List<MethodBodyStatement>(parameters.Count);
 
-            for (var i = 0; i < propertyCount; i++)
+            for (var i = 0; i < parameters.Count; i++)
             {
-                var property = properties[i];
-                var variableRef = property.AsVariableExpression;
-                propertyDeclarationStatements[i] = Declare(variableRef, Default);
+                var parameter = parameters[i];
+                if (parameter.Property is { } property)
+                {
+                    var variableRef = property.AsVariableExpression;
+                    propertyDeclarationStatements.Add(Declare(variableRef, Default));
+                }
+                else
+                {
+                    // the fact that we get here means we have a field
+                    Debug.Assert(parameter.Field != null);
+                    var field = parameter.Field;
+                    var fieldRef = field.AsVariableExpression;
+                    if (field.Name == PrivateAdditionalPropertiesPropertyName)
+                    {
+                        // the raw data is kind of different because we assign it with an instance, not like others properties/fields
+                        // IDictionary<string, BinaryData> serializedAdditionalRawData = new Dictionary<string, BinaryData>();
+                        propertyDeclarationStatements.Add(Declare(fieldRef, new DictionaryExpression(field.Type, New.Instance(field.Type.PropertyInitializationType))));
+                    }
+                    else
+                    {
+                        propertyDeclarationStatements.Add(Declare(fieldRef, Default));
+                    }
+                }
             }
             return propertyDeclarationStatements;
         }
@@ -736,104 +714,92 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         /// <summary>
         /// Builds the values for the serialization constructor parameters.
-        /// <paramref name="additionalRawDataDictionary"/> is the variable reference for the additional raw data dictionary.
         /// </summary>
-        private ValueExpression[] GetSerializationCtorParameterValues(
-            IReadOnlyList<PropertyProvider> properties,
-            VariableExpression? additionalRawDataDictionary)
+        private ValueExpression[] GetSerializationCtorParameterValues()
         {
-            var propertyCount = properties.Count;
-            var serializationCtorParametersCount = SerializationConstructor.Signature.Parameters.Count;
-            ValueExpression[] serializationCtorParameters = new ValueExpression[serializationCtorParametersCount];
-            var serializationCtorParameterValues = new Dictionary<string, ValueExpression>(propertyCount);
+            var parameters = SerializationConstructor.Signature.Parameters;
+            ValueExpression[] serializationCtorParameters = new ValueExpression[parameters.Count];
+            var serializationCtorParameterValues = new Dictionary<string, ValueExpression>(parameters.Count);
 
             // Map property variable names to their corresponding parameter values
-            for (var i = 0; i < propertyCount; i++)
+            for (int i = 0; i < parameters.Count; i++)
             {
-                var property = properties[i];
-                var propertyVarName = property.Name.ToVariableName();
-                var propertyVarRef = property.AsVariableExpression;
-                serializationCtorParameterValues[propertyVarName] = GetValueForSerializationConstructor(property, propertyVarRef, property.WireInfo);
-            }
-
-            // add the additional raw data
-            if (additionalRawDataDictionary != null)
-            {
-                serializationCtorParameterValues.Add(AdditionalRawDataVarName, additionalRawDataDictionary);
-            }
-
-            // Construct the list of parameter value expressions for the serialization constructor
-            for (var i = 0; i < serializationCtorParametersCount; i++)
-            {
-                var parameter = SerializationConstructor.Signature.Parameters[i];
-                var paramVarName = parameter.Name;
-                serializationCtorParameters[i] = serializationCtorParameterValues.TryGetValue(paramVarName, out var value) ? value : Default;
+                var parameter = parameters[i];
+                if (parameter.Property is { } property)
+                {
+                    serializationCtorParameters[i] = GetValueForSerializationConstructor(property.Type, property.AsVariableExpression, property.WireInfo);
+                    continue;
+                }
+                else
+                {
+                    var field = parameter.Field;
+                    Debug.Assert(field != null);
+                    serializationCtorParameters[i] = field.AsVariableExpression;
+                }
             }
 
             return serializationCtorParameters;
         }
 
         private static ValueExpression GetValueForSerializationConstructor(
-            PropertyProvider property,
+            CSharpType propertyType,
             VariableExpression propertyVarReference,
             PropertyWireInformation? propertyWireInfo)
         {
-            var propertyVarName = property.Name.ToVariableName();
             var isRequired = propertyWireInfo?.IsRequired ?? false;
 
-            if (!property.Type.IsFrameworkType || propertyVarName == AdditionalRawDataVarName)
+            if (!propertyType.IsFrameworkType)
             {
                 return propertyVarReference;
             }
             else if (!isRequired)
             {
-                return OptionalSnippets.FallBackToChangeTrackingCollection(propertyVarReference, property.Type);
+                return OptionalSnippets.FallBackToChangeTrackingCollection(propertyVarReference, propertyType);
             }
 
             return propertyVarReference;
         }
 
-        private List<MethodBodyStatement> BuildDeserializePropertiesStatements(
-            IReadOnlyList<PropertyProvider> properties,
-            ScopedApi<JsonProperty> jsonProperty,
-            DictionaryExpression? rawDataDictionary)
+        private List<MethodBodyStatement> BuildDeserializePropertiesStatements(ScopedApi<JsonProperty> jsonProperty)
         {
             List<MethodBodyStatement> propertyDeserializationStatements = new();
+            var parameters = SerializationConstructor.Signature.Parameters;
             // Create each property's deserialization statement
-            for (var i = 0; i < properties.Count; i++)
+            for (int i = 0; i < parameters.Count; i++)
             {
-                var property = properties[i];
-                // we should only deserialize properties with a wire info. Those properties without wire info indicate they are not spec properties.
-                if (property.WireInfo is not { } wireInfo)
+                var parameter = parameters[i];
+                if (parameter.Property is { } property)
                 {
-                    continue;
+                    // we should only deserialize properties with a wire info. Those properties without wire info indicate they are not spec properties.
+                    if (property.WireInfo is not { } wireInfo)
+                    {
+                        continue;
+                    }
+                    var propertySerializationName = wireInfo.SerializedName;
+                    var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName))
+                    {
+                        DeserializeProperty(property, jsonProperty)
+                    };
+                    propertyDeserializationStatements.Add(checkIfJsonPropEqualsName);
                 }
-                var propertySerializationName = wireInfo.SerializedName;
-                var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName))
+                else
                 {
-                    DeserializeProperty(property, jsonProperty)
-                };
-                propertyDeserializationStatements.Add(checkIfJsonPropEqualsName);
+                    Debug.Assert(parameter.Field != null);
+                }
             }
 
             // deserialize the raw data properties
-            if (rawDataDictionary != null)
+            if (_rawDataField != null)
             {
                 var elementType = _privateAdditionalRawDataPropertyType.Arguments[1].FrameworkType;
                 var rawDataDeserializationValue = GetValueTypeDeserializationExpression(elementType, jsonProperty.Value(), SerializationFormat.Default);
                 propertyDeserializationStatements.Add(new IfStatement(_isNotEqualToWireConditionSnippet)
                 {
-                    rawDataDictionary.Add(jsonProperty.Name(), rawDataDeserializationValue)
+                    _rawDataField.AsVariableExpression.AsDictionary(_rawDataField.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
                 });
             }
 
             return propertyDeserializationStatements;
-        }
-
-        private IEnumerable<PropertyProvider> GetAllProperties()
-        {
-            // usually we should deal with base properties first then myself's properties, but considering that this is only used when building deserialization, it does not really matters which one comes first, therefore here we did not add the reverse.
-            return _inputModel.GetSelfAndBaseModels().SelectMany(model => ClientModelPlugin.Instance.TypeFactory.CreateModel(model).Properties);
         }
 
         private MethodBodyStatement[] DeserializeProperty(
