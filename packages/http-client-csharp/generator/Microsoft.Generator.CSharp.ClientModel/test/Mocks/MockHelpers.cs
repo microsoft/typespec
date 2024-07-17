@@ -50,7 +50,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var configFilePath = Path.Combine(AppContext.BaseDirectory, MocksFolder);
             // initialize the mock singleton instance of the plugin
             var codeModelInstance = typeof(CodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
-            var clientModelInstance = typeof(ClientModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
             // invoke the load method with the config file path
             var loadMethod = typeof(Configuration).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic);
             object?[] parameters = [configFilePath, null];
@@ -70,7 +69,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             }
 
             codeModelInstance!.SetValue(null, mockPluginInstance.Object);
-            clientModelInstance!.SetValue(null, mockPluginInstance.Object);
         }
     }
 }
