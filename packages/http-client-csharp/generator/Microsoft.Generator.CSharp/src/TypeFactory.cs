@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp
         private ChangeTrackingDictionaryDefinition? _changeTrackingDictionaryProvider;
         private ChangeTrackingListDefinition ChangeTrackingListProvider => _changeTrackingListProvider ??= new();
         private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
-        private Dictionary<CSharpType, TypeProvider> _csharpToTypeProvider = new Dictionary<CSharpType, TypeProvider>(new CSharpTypeComparer());
+        private readonly Dictionary<InputType, TypeProvider> _csharpToTypeProvider = new Dictionary<InputType, TypeProvider>();
 
         private readonly IDictionary<InputType, CSharpType> _typeCache = new Dictionary<InputType, CSharpType>();
         private readonly IDictionary<InputModelProperty, PropertyProvider> _propertyCache = new Dictionary<InputModelProperty, PropertyProvider>();
@@ -88,8 +88,11 @@ namespace Microsoft.Generator.CSharp
         /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
         public TypeProvider CreateModel(InputModelType model)
         {
-            var modelProvider = CreateModelCore(model);
-            _csharpToTypeProvider.TryAdd(modelProvider.Type, modelProvider);
+            if (_csharpToTypeProvider.TryGetValue(model, out var modelProvider))
+                return modelProvider;
+
+            modelProvider = CreateModelCore(model);
+            _csharpToTypeProvider.Add(model, modelProvider);
             return modelProvider;
         }
 
@@ -102,8 +105,11 @@ namespace Microsoft.Generator.CSharp
         /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
         public TypeProvider CreateEnum(InputEnumType enumType)
         {
-            var enumProvider = CreateEnumCore(enumType);
-            _csharpToTypeProvider.TryAdd(enumProvider.Type, enumProvider);
+            if (_csharpToTypeProvider.TryGetValue(enumType, out var enumProvider))
+                return enumProvider;
+
+            enumProvider = CreateEnumCore(enumType);
+            _csharpToTypeProvider.Add(enumType, enumProvider);
             return enumProvider;
         }
 
@@ -202,34 +208,5 @@ namespace Microsoft.Generator.CSharp
         /// The initialization type of dictionary properties. This type should implement both <see cref="IDictionary{TKey, TValue}"/> and <see cref="IReadOnlyDictionary{TKey, TValue}"/>.
         /// </summary>
         public virtual CSharpType DictionaryInitializationType => ChangeTrackingDictionaryProvider.Type;
-
-        private class CSharpTypeComparer : IEqualityComparer<CSharpType>
-        {
-            public bool Equals(CSharpType? x, CSharpType? y)
-            {
-                if (ReferenceEquals(x, y))
-                    return true;
-                if (x is null || y is null)
-                    return false;
-                return x.Equals(y, true);
-            }
-
-            public int GetHashCode(CSharpType obj)
-            {
-                var hashCode = new HashCode();
-                foreach (var arg in obj.Arguments)
-                {
-                    hashCode.Add(arg);
-                }
-                return HashCode.Combine(obj.Name, obj.Namespace, obj.IsValueType, obj.IsFrameworkType ? obj.FrameworkType : null, hashCode.ToHashCode());
-            }
-        }
-
-        public TypeProvider? GetProvider(CSharpType type)
-        {
-            if (_csharpToTypeProvider.TryGetValue(type, out var provider))
-                return provider;
-            return null;
-        }
     }
 }
