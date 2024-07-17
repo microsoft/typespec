@@ -6,8 +6,6 @@ using System.ClientModel;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using Microsoft.CodeAnalysis;
-using Microsoft.Generator.CSharp.ClientModel.Providers;
-using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 
@@ -28,21 +26,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public override ScmTypeFactory TypeFactory { get; }
 
         public override IReadOnlyList<MetadataReference> AdditionalMetadataReferences => [MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location)];
-
-        /// <summary>
-        /// Returns the serialization type providers for the given input type.
-        /// </summary>
-        /// <param name="inputType">The input type.</param>
-        protected override IReadOnlyList<TypeProvider> CreateSerializationsCore(InputType inputType)
-        {
-            switch (inputType)
-            {
-                case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
-                    return [new MrwSerializationTypeDefinition(inputModel)];
-                default:
-                    return base.CreateSerializationsCore(inputType);
-            }
-        }
 
         [ImportingConstructor]
         public ClientModelPlugin(GeneratorContext context)

@@ -17,7 +17,7 @@ namespace UnbrandedTypeSpec.Models
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
-        internal AnonymousBodyRequest(string name, BinaryData requiredUnion, AnonymousBodyRequestRequiredLiteralString requiredLiteralString, AnonymousBodyRequestRequiredLiteralInt requiredLiteralInt, AnonymousBodyRequestRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, AnonymousBodyRequestOptionalLiteralString? optionalLiteralString, AnonymousBodyRequestOptionalLiteralInt? optionalLiteralInt, AnonymousBodyRequestOptionalLiteralFloat? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, ModelWithBaseModelWithoutRequired baseWithoutRequired, ModelWithBaseModelWithRequired baseWithRequired, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        internal AnonymousBodyRequest(string name, BinaryData requiredUnion, AnonymousBodyRequestRequiredLiteralString requiredLiteralString, AnonymousBodyRequestRequiredLiteralInt requiredLiteralInt, AnonymousBodyRequestRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, AnonymousBodyRequestOptionalLiteralString? optionalLiteralString, AnonymousBodyRequestOptionalLiteralInt? optionalLiteralInt, AnonymousBodyRequestOptionalLiteralFloat? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             Name = name;
             RequiredUnion = requiredUnion;
@@ -32,8 +32,6 @@ namespace UnbrandedTypeSpec.Models
             RequiredBadDescription = requiredBadDescription;
             OptionalNullableList = optionalNullableList;
             RequiredNullableList = requiredNullableList;
-            BaseWithoutRequired = baseWithoutRequired;
-            BaseWithRequired = baseWithRequired;
             _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
@@ -129,16 +127,6 @@ namespace UnbrandedTypeSpec.Models
             {
                 writer.WriteNull("requiredNullableList"u8);
             }
-            if (Optional.IsDefined(BaseWithoutRequired))
-            {
-                writer.WritePropertyName("baseWithoutRequired"u8);
-                writer.WriteObjectValue(BaseWithoutRequired, options);
-            }
-            if (Optional.IsDefined(BaseWithRequired))
-            {
-                writer.WritePropertyName("baseWithRequired"u8);
-                writer.WriteObjectValue(BaseWithRequired, options);
-            }
             if (options.Format != "W" && _serializedAdditionalRawData != null)
             {
                 foreach (var item in _serializedAdditionalRawData)
@@ -190,8 +178,6 @@ namespace UnbrandedTypeSpec.Models
             string requiredBadDescription = default;
             IList<int> optionalNullableList = default;
             IList<int> requiredNullableList = default;
-            ModelWithBaseModelWithoutRequired baseWithoutRequired = default;
-            ModelWithBaseModelWithRequired baseWithRequired = default;
             IDictionary<string, BinaryData> serializedAdditionalRawData = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
@@ -299,26 +285,6 @@ namespace UnbrandedTypeSpec.Models
                     requiredNullableList = array;
                     continue;
                 }
-                if (prop.NameEquals("baseWithoutRequired"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        baseWithoutRequired = null;
-                        continue;
-                    }
-                    baseWithoutRequired = ModelWithBaseModelWithoutRequired.DeserializeModelWithBaseModelWithoutRequired(prop.Value, options);
-                    continue;
-                }
-                if (prop.NameEquals("baseWithRequired"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        baseWithRequired = null;
-                        continue;
-                    }
-                    baseWithRequired = ModelWithBaseModelWithRequired.DeserializeModelWithBaseModelWithRequired(prop.Value, options);
-                    continue;
-                }
                 if (options.Format != "W")
                 {
                     serializedAdditionalRawData.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
@@ -338,8 +304,6 @@ namespace UnbrandedTypeSpec.Models
                 requiredBadDescription,
                 optionalNullableList ?? new ChangeTrackingList<int>(),
                 requiredNullableList,
-                baseWithoutRequired,
-                baseWithRequired,
                 serializedAdditionalRawData);
         }
 

@@ -72,9 +72,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _jsonModelObjectInterface = _isStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
             _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), _model.Type);
             _persistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
-            _baseSerializationProvider = inputModel.BaseModel != null
-                ? ClientModelPlugin.Instance.CreateSerializations(inputModel.BaseModel).OfType<MrwSerializationTypeDefinition>().FirstOrDefault()
-                : null;
+
+            if (inputModel.BaseModel is not null)
+                _baseSerializationProvider = ClientModelPlugin.Instance.TypeFactory.CreateSerializations(inputModel.BaseModel).OfType<MrwSerializationTypeDefinition>().FirstOrDefault();
+
             _rawDataField = BuildRawDataField();
             _shouldOverrideMethods = _model.Type.BaseType != null && _model.Type.BaseType is { IsFrameworkType: false };
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
@@ -396,27 +397,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
 
-            var typeOfT = GetModelArgumentType(_persistableModelTInterface);
-            // return type of this method may not be T, because this could be an override method
-            var returnType = GetCoreMethodReturnType(typeOfT);
             // T PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
             return new MethodProvider
             (
-                new MethodSignature(PersistableModelCreateCoreMethodName, null, modifiers, returnType, null, [_dataParameter, _serializationOptionsParameter]),
+                new MethodSignature(PersistableModelCreateCoreMethodName, null, modifiers, _model.Type.RootType, null, [_dataParameter, _serializationOptionsParameter]),
                 BuildPersistableModelCreateCoreMethodBody(),
                 this
             );
-        }
-
-        private static CSharpType? GetCoreMethodReturnType(CSharpType typeOfT)
-        {
-            CSharpType returnType = typeOfT;
-            while (returnType.BaseType != null)
-            {
-                returnType = returnType.BaseType;
-            }
-
-            return returnType;
         }
 
         /// <summary>
@@ -425,11 +412,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         internal MethodProvider BuildJsonModelCreateMethod()
         {
             // T IJsonModel<T>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
-            var typeOfT = GetModelArgumentType(_jsonModelTInterface);
             return new MethodProvider
             (
-                new MethodSignature(nameof(IJsonModel<object>.Create), null, MethodSignatureModifiers.None, typeOfT, null, [_utf8JsonReaderParameter, _serializationOptionsParameter], ExplicitInterface: _jsonModelTInterface),
-                This.Invoke(JsonModelCreateCoreMethodName, [_utf8JsonReaderParameter, _serializationOptionsParameter]).CastTo(typeOfT),
+                new MethodSignature(nameof(IJsonModel<object>.Create), null, MethodSignatureModifiers.None, _model.Type, null, [_utf8JsonReaderParameter, _serializationOptionsParameter], ExplicitInterface: _jsonModelTInterface),
+                This.Invoke(JsonModelCreateCoreMethodName, [_utf8JsonReaderParameter, _serializationOptionsParameter]).CastTo(_model.Type),
                 this
             );
         }
@@ -445,10 +431,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
 
-            var typeOfT = GetModelArgumentType(_jsonModelTInterface);
-            // return type of this method may not be T, because this could be an override method
-            var returnType = GetCoreMethodReturnType(typeOfT);
-
             var methodBody = new MethodBodyStatement[]
             {
                 CreateValidateJsonFormat( _persistableModelTInterface, ReadAction),
@@ -461,7 +443,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // T JsonModelCreateCore(ref reader, ModelReaderWriterOptions options)
             return new MethodProvider
             (
-              new MethodSignature(JsonModelCreateCoreMethodName, null, modifiers, returnType, null, [_utf8JsonReaderParameter, _serializationOptionsParameter]),
+              new MethodSignature(JsonModelCreateCoreMethodName, null, modifiers, _model.Type.RootType, null, [_utf8JsonReaderParameter, _serializationOptionsParameter]),
               methodBody,
               this
             );
@@ -506,11 +488,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             ParameterProvider dataParameter = new("data", $"The data to parse.", typeof(BinaryData));
             // IPersistableModel<T>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-            var typeOfT = GetModelArgumentType(_persistableModelTInterface);
             return new MethodProvider
             (
-                new MethodSignature(nameof(IPersistableModel<object>.Create), null, MethodSignatureModifiers.None, typeOfT, null, [dataParameter, _serializationOptionsParameter], ExplicitInterface: _persistableModelTInterface),
-                This.Invoke(PersistableModelCreateCoreMethodName, [dataParameter, _serializationOptionsParameter]).CastTo(typeOfT),
+                new MethodSignature(nameof(IPersistableModel<object>.Create), null, MethodSignatureModifiers.None, _model.Type, null, [dataParameter, _serializationOptionsParameter], ExplicitInterface: _persistableModelTInterface),
+                This.Invoke(PersistableModelCreateCoreMethodName, [dataParameter, _serializationOptionsParameter]).CastTo(_model.Type),
                 this
             );
         }
@@ -691,7 +672,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodBodyStatement GetPropertyInitializers()
         {
-            List<MethodBodyStatement> methodBodyStatements = new();
+            List<MethodBodyStatement> methodBodyStatements = new(_model.Properties.Count + 1);
 
             // we only need to have initializers for my own properties, the base properties are handled by the base constructor.
             foreach (var property in _model.Properties)
@@ -1453,17 +1434,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 forEachStatement,
             };
-        }
-
-        private static CSharpType GetModelArgumentType(CSharpType modelInterface)
-        {
-            var interfaceArgs = modelInterface.Arguments;
-            if (!interfaceArgs.Any())
-            {
-                throw new InvalidOperationException($"Expected at least 1 argument for {modelInterface}, but found none.");
-            }
-
-            return interfaceArgs[0];
         }
 
         private static bool TypeRequiresNullCheckInSerialization(CSharpType type)

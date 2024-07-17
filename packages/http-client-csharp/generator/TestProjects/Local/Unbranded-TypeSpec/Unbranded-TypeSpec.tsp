@@ -126,12 +126,6 @@ model Thing {
 
   @doc("required nullable collection")
   requiredNullableList: int32[] | null;
-
-  @doc("the derived model with its base without required properties")
-  baseWithoutRequired?: ModelWithBaseModelWithoutRequired;
-
-  @doc("the derived model with its base with required properties")
-  baseWithRequired?: ModelWithBaseModelWithRequired;
 }
 
 @doc("A model with a few required nullable properties")
@@ -144,36 +138,6 @@ model ModelWithRequiredNullableProperties {
 
   @doc("required nullable fixed enum type")
   requiredFixedEnum: StringFixedEnum | null;
-}
-
-@doc("This is a base model without any required properties")
-model BaseModelWithoutRequired {
-  @doc("optional property")
-  optional?: int32;
-}
-
-@doc("This is a model that extends BaseModelWithoutRequired")
-model ModelWithBaseModelWithoutRequired extends BaseModelWithoutRequired {
-  @doc("name of the ModelWithBaseModelWithoutRequired")
-  name: string;
-
-  @doc("address of the ModelWithBaseModelWithoutRequired")
-  address?: string;
-}
-
-@doc("This is a base model with required properties")
-model BaseModelWithRequired {
-  @doc("required property")
-  required: int32;
-}
-
-@doc("This is a model that extends BaseModelWithRequired")
-model ModelWithBaseModelWithRequired extends BaseModelWithRequired {
-  @doc("name of the ModelWithBaseModelWithRequired")
-  name: string;
-
-  @doc("address of the ModelWithBaseModelWithRequired")
-  address?: string;
 }
 
 @doc("this is not a friendly model but with a friendly name")

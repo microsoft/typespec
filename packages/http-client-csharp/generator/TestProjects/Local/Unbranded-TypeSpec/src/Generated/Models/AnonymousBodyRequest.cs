@@ -111,11 +111,5 @@ namespace UnbrandedTypeSpec.Models
 
         /// <summary> required nullable collection. </summary>
         public IList<int> RequiredNullableList { get; set; }
-
-        /// <summary> the derived model with its base without required properties. </summary>
-        public ModelWithBaseModelWithoutRequired BaseWithoutRequired { get; set; }
-
-        /// <summary> the derived model with its base with required properties. </summary>
-        public ModelWithBaseModelWithRequired BaseWithRequired { get; set; }
     }
 }

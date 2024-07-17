@@ -55,7 +55,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return CodeModelPlugin.Instance.CreateSerializations(_inputModel).ToArray();
+            return [.. CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputModel)];
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
@@ -113,9 +113,10 @@ namespace Microsoft.Generator.CSharp.Providers
         private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildConstructorParameters()
         {
             // we need to find all the properties on our base model, we add the reverse because our convention is to have the properties from base model first.
-            IReadOnlyList<PropertyProvider> baseProperties = [.. _inputModel.GetAllBaseModels().Reverse().SelectMany(model => CodeModelPlugin.Instance.TypeFactory.CreateModel(model).Properties)];
-            var parameterCapacity = baseProperties.Count + Properties.Count;
-            var baseParameters = new List<ParameterProvider>(baseProperties.Count);
+            var baseProperties = _inputModel.GetAllBaseModels().Reverse().SelectMany(model => CodeModelPlugin.Instance.TypeFactory.CreateModel(model).Properties);
+            var basePropertyCount = baseProperties.Count();
+            var parameterCapacity = basePropertyCount + Properties.Count;
+            var baseParameters = new List<ParameterProvider>(basePropertyCount);
             var constructorParameters = new List<ParameterProvider>(parameterCapacity);
 
             // add the base parameters
