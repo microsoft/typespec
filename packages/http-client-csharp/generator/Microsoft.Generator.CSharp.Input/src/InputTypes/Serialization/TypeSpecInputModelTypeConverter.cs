@@ -33,7 +33,21 @@ namespace Microsoft.Generator.CSharp.Input
             id = id ?? throw new JsonException();
 
             // create an empty model to resolve circular references
-            var model = new InputModelType(name!, null!, null, null, null, InputModelTypeUsage.None, null!, null, null!, null, null, null!, null, false);
+            var model = new InputModelType(
+                name: name!,
+                crossLanguageDefinitionId: null!,
+                access: null,
+                deprecation: null,
+                description: null,
+                usage: InputModelTypeUsage.None,
+                properties: null!,
+                baseModel: null,
+                derivedModels: [],
+                discriminatorValue: null,
+                discriminatorProperty: null,
+                discriminatedSubtypes: null!,
+                additionalProperties: null,
+                modelAsStruct: false);
             resolver.AddReference(id, model);
 
             string? crossLanguageDefinitionId = null;
@@ -92,7 +106,7 @@ namespace Microsoft.Generator.CSharp.Input
             // if this model has a base, it means this model is a derived model of the base model, add it into the list.
             if (baseModel != null)
             {
-                ((List<InputModelType>)baseModel.DerivedModels).Add(model);
+                baseModel.DerivedModelsInternal.Add(model);
             }
 
             return model;

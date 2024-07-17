@@ -15,21 +15,30 @@ namespace Microsoft.Generator.CSharp
     public abstract class TypeFactory
     {
         private ChangeTrackingListDefinition? _changeTrackingListProvider;
-        private ChangeTrackingDictionaryDefinition? _changeTrackingDictionaryProvider;
         private ChangeTrackingListDefinition ChangeTrackingListProvider => _changeTrackingListProvider ??= new();
-        private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
-        private readonly Dictionary<InputType, TypeProvider> _csharpToTypeProvider = new Dictionary<InputType, TypeProvider>();
 
-        private readonly IDictionary<InputType, CSharpType> _typeCache = new Dictionary<InputType, CSharpType>();
-        private readonly IDictionary<InputModelProperty, PropertyProvider> _propertyCache = new Dictionary<InputModelProperty, PropertyProvider>();
+        private ChangeTrackingDictionaryDefinition? _changeTrackingDictionaryProvider;
+        private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
+
+        private Dictionary<InputType, TypeProvider>? _csharpToTypeProvider;
+        private Dictionary<InputType, TypeProvider> CSharpToTypeProvider => _csharpToTypeProvider ??= [];
+
+        private Dictionary<InputType, CSharpType>? _typeCache;
+        private Dictionary<InputType, CSharpType> TypeCache => _typeCache ??= [];
+
+        private Dictionary<InputModelProperty, PropertyProvider>? _propertyCache;
+        private Dictionary<InputModelProperty, PropertyProvider> PropertyCache => _propertyCache ??= [];
+
+        private Dictionary<InputType, IReadOnlyList<TypeProvider>>? _serializationsCache;
+        private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache => _serializationsCache ??= [];
 
         public CSharpType CreateCSharpType(InputType inputType)
         {
-            if (_typeCache.TryGetValue(inputType, out var type))
+            if (TypeCache.TryGetValue(inputType, out var type))
                 return type;
 
             type = CreateCSharpTypeCore(inputType);
-            _typeCache.Add(inputType, type);
+            TypeCache.Add(inputType, type);
             return type;
         }
 
@@ -88,11 +97,11 @@ namespace Microsoft.Generator.CSharp
         /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
         public TypeProvider CreateModel(InputModelType model)
         {
-            if (_csharpToTypeProvider.TryGetValue(model, out var modelProvider))
+            if (CSharpToTypeProvider.TryGetValue(model, out var modelProvider))
                 return modelProvider;
 
             modelProvider = CreateModelCore(model);
-            _csharpToTypeProvider.Add(model, modelProvider);
+            CSharpToTypeProvider.Add(model, modelProvider);
             return modelProvider;
         }
 
@@ -105,11 +114,11 @@ namespace Microsoft.Generator.CSharp
         /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
         public TypeProvider CreateEnum(InputEnumType enumType)
         {
-            if (_csharpToTypeProvider.TryGetValue(enumType, out var enumProvider))
+            if (CSharpToTypeProvider.TryGetValue(enumType, out var enumProvider))
                 return enumProvider;
 
             enumProvider = CreateEnumCore(enumType);
-            _csharpToTypeProvider.Add(enumType, enumProvider);
+            CSharpToTypeProvider.Add(enumType, enumProvider);
             return enumProvider;
         }
 
@@ -139,11 +148,11 @@ namespace Microsoft.Generator.CSharp
         /// <returns>The property provider.</returns>
         public PropertyProvider CreatePropertyProvider(InputModelProperty property)
         {
-            if (_propertyCache.TryGetValue(property, out var propertyProvider))
+            if (PropertyCache.TryGetValue(property, out var propertyProvider))
                 return propertyProvider;
 
             propertyProvider = CreatePropertyProviderCore(property);
-            _propertyCache.Add(property, propertyProvider);
+            PropertyCache.Add(property, propertyProvider);
             return propertyProvider;
         }
 
@@ -208,5 +217,33 @@ namespace Microsoft.Generator.CSharp
         /// The initialization type of dictionary properties. This type should implement both <see cref="IDictionary{TKey, TValue}"/> and <see cref="IReadOnlyDictionary{TKey, TValue}"/>.
         /// </summary>
         public virtual CSharpType DictionaryInitializationType => ChangeTrackingDictionaryProvider.Type;
+
+        /// <summary>
+        /// Returns the serialization type providers for the given model type provider.
+        /// </summary>
+        /// <param name="inputType">The input model.</param>
+        public IReadOnlyList<TypeProvider> CreateSerializations(InputType inputType)
+        {
+            if (SerializationsCache.TryGetValue(inputType, out var serializations))
+                return serializations;
+
+            serializations = CreateSerializationsCore(inputType);
+            SerializationsCache.Add(inputType, serializations);
+            return serializations;
+        }
+
+        protected virtual IReadOnlyList<TypeProvider> CreateSerializationsCore(InputType inputType)
+        {
+            if (inputType is InputEnumType enumType)
+            {
+                var provider = CreateEnum(enumType);
+                if (provider is EnumProvider { IsExtensible: false } enumProvider)
+                {
+                    return [new FixedEnumSerializationProvider(enumProvider)];
+                }
+            }
+
+            return [];
+        }
     }
 }

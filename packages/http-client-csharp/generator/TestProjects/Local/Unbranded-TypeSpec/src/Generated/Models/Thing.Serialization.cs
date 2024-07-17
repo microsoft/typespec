@@ -178,8 +178,7 @@ namespace UnbrandedTypeSpec.Models
             string requiredBadDescription = default;
             IList<int> optionalNullableList = default;
             IList<int> requiredNullableList = default;
-            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
-            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
+            IDictionary<string, BinaryData> serializedAdditionalRawData = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("name"u8))
@@ -288,10 +287,9 @@ namespace UnbrandedTypeSpec.Models
                 }
                 if (options.Format != "W")
                 {
-                    rawDataDictionary.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                    serializedAdditionalRawData.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            serializedAdditionalRawData = rawDataDictionary;
             return new Thing(
                 name,
                 requiredUnion,

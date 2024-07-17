@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Microsoft.Generator.CSharp.Input
 {
@@ -20,7 +21,7 @@ namespace Microsoft.Generator.CSharp.Input
             Usage = usage;
             Properties = properties;
             BaseModel = baseModel;
-            DerivedModels = derivedModels;
+            DerivedModelsInternal = [.. derivedModels];
             DiscriminatorValue = discriminatorValue;
             DiscriminatorProperty = discriminatorProperty;
             DiscriminatedSubtypes = discriminatedSubtypes;
@@ -38,7 +39,8 @@ namespace Microsoft.Generator.CSharp.Input
         public IReadOnlyList<InputModelProperty> Properties { get; internal set; }
         public bool ModelAsStruct { get; internal set; }
         public InputModelType? BaseModel { get; internal set; }
-        public IReadOnlyList<InputModelType> DerivedModels { get; internal set; }
+        public IReadOnlyList<InputModelType> DerivedModels => DerivedModelsInternal;
+        internal List<InputModelType> DerivedModelsInternal { get; }
         public string? DiscriminatorValue { get; internal set; }
         public InputModelProperty? DiscriminatorProperty { get; internal set; }
         public IReadOnlyDictionary<string, InputModelType> DiscriminatedSubtypes { get; internal set; }
