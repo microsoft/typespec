@@ -369,11 +369,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             // Validate body
             var methodBody = method?.BodyStatements;
             Assert.IsNull(methodBody);
-            var bodyExpression = method?.BodyExpression as InvokeMethodExpression;
+            var bodyExpression = method?.BodyExpression as CastExpression;
             Assert.IsNotNull(bodyExpression);
-            Assert.AreEqual("PersistableModelCreateCore", bodyExpression?.MethodName);
-            Assert.IsNotNull(bodyExpression?.InstanceReference);
-            Assert.AreEqual(2, bodyExpression?.Arguments.Count);
+            var invocationExpression = bodyExpression?.Inner as InvokeMethodExpression;
+            Assert.IsNotNull(invocationExpression);
+            Assert.AreEqual("PersistableModelCreateCore", invocationExpression?.MethodName);
+            Assert.IsNotNull(invocationExpression?.InstanceReference);
+            Assert.AreEqual(2, invocationExpression?.Arguments.Count);
         }
 
         // This test validates the persistable model serialization create core method is built correctly

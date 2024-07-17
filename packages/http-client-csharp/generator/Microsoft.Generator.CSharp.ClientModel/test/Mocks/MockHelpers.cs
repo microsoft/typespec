@@ -61,7 +61,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
             if (getSerializationTypeProviders is not null)
             {
-                mockPluginInstance.Protected().Setup<IReadOnlyList<TypeProvider>>("CreateSerializations", ItExpr.IsAny<InputType>()).Returns(getSerializationTypeProviders);
+                mockPluginInstance.Protected().Setup<IReadOnlyList<TypeProvider>>("CreateSerializationsCore", ItExpr.IsAny<InputType>()).Returns(getSerializationTypeProviders);
             }
 
             if (createCSharpTypeCore is not null)
