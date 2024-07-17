@@ -13,9 +13,9 @@ function $removed(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
-| `t` |  \| `Enum` \| `EnumMember` \| `Interface` \| `Model` \| `ModelProperty` \| `Operation` \| `Scalar` \| `Union` \| `UnionVariant` |
+| `t` | \| `Enum` \| `EnumMember` \| `Interface` \| `Model` \| `ModelProperty` \| `Operation` \| `Scalar` \| `Union` \| `UnionVariant` |
 | `v` | `EnumMember` |
 
 ## Returns

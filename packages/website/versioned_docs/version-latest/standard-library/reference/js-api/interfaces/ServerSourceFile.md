@@ -10,9 +10,9 @@ title: "[I] ServerSourceFile"
 ## Properties
 
 | Property | Modifier | Type | Description | Inherited from |
-| :------ | :------ | :------ | :------ | :------ |
+| ------ | ------ | ------ | ------ | ------ |
 | `document?` | `readonly` | `TextDocument` | - | - |
-| `path` | `readonly` | `string` | <p>The source file path.</p><p>This is used only for diagnostics. The command line compiler will populate it with the actual path from which the file was read, but it can actually be an arbitrary name for other scenarios.</p> | [`SourceFile`](SourceFile.md).`path` |
+| `path` | `readonly` | `string` | The source file path. This is used only for diagnostics. The command line compiler will populate it with the actual path from which the file was read, but it can actually be an arbitrary name for other scenarios. | [`SourceFile`](SourceFile.md).`path` |
 | `text` | `readonly` | `string` | The source code text. | [`SourceFile`](SourceFile.md).`text` |
 
 ## Methods
@@ -29,7 +29,7 @@ code units) to line number and offset from line start.
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `position` | `number` |
 
 #### Returns

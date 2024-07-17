@@ -157,29 +157,32 @@ The `OAuth2` security scheme can have a list of scopes that must be granted to t
 When different operations have different scopes, you will likely want to create a template that allows providing OAuth scopes without having to respecify the other properties of the security scheme:
 
 ```tsp
-alias MyOAuth2<Scopes extends valueof string[]> = OAuth2Auth<[{
-  type: OAuth2FlowType.implicit;
-  authorizationUrl: "https://api.example.com/oauth2/authorize";
-  refreshUrl: "https://api.example.com/oauth2/refresh";
-}], Scopes>;
-
-@useAuth<MyOAuth2<["read"]>>
+@useAuth(MyOAuth2<["read"]>)
 namespace DemoService;
 
+alias MyOAuth2<Scopes extends string[]> = OAuth2Auth<
+  [
+    {
+      type: OAuth2FlowType.implicit;
+      authorizationUrl: "https://api.example.com/oauth2/authorize";
+      refreshUrl: "https://api.example.com/oauth2/refresh";
+    }
+  ],
+  Scopes
+>;
 
 // Use OAuth2 with the "read" scope
 op list(): string[];
 
 // Use OAuth2 with the "read" scope or no authentication at all
-@useAuth<MyOAuth2<["read"]> | NoAuth>
+@useAuth(MyOAuth2<["read"]> | NoAuth)
 op read(): string;
 
 // Use OAuth2 with the "write" scope
-@useAuth(MyAuth<["write"]>)
+@useAuth(MyOAuth2<["write"]>)
 op write(value: string): void;
 
 // Use OAuth2 with the "delete" scope
-@useAuth(MyAuth<["delete"]>)
+@useAuth(MyOAuth2<["delete"]>)
 op delete(value: string): void;
-
 ```

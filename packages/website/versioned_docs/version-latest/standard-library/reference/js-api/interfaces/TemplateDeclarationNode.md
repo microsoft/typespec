@@ -15,7 +15,7 @@ title: "[I] TemplateDeclarationNode"
 ## Properties
 
 | Property | Modifier | Type |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `locals?` | `readonly` | `SymbolTable` |
 | `templateParameters` | `readonly` | readonly [`TemplateParameterDeclarationNode`](TemplateParameterDeclarationNode.md)[] |
 | `templateParametersRange` | `readonly` | [`TextRange`](TextRange.md) |

@@ -14,7 +14,7 @@ function checkDuplicateTypeName(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `type` | `Type` |
 | `name` | `string` |

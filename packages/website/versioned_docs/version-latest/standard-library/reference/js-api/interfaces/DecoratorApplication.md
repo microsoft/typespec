@@ -6,7 +6,7 @@ title: "[I] DecoratorApplication"
 ## Properties
 
 | Property | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `args` | [`DecoratorArgument`](DecoratorArgument.md)[] |
 | `decorator` | [`DecoratorFunction`](DecoratorFunction.md) |
 | `definition?` | [`Decorator`](Decorator.md) |

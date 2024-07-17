@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "0.57.0",
+  "version": "0.58.0",
   "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -91,6 +91,7 @@
     "prettier": "~3.3.2",
     "prompts": "~2.4.2",
     "semver": "^7.6.2",
+    "temporal-polyfill": "^0.2.5",
     "vscode-languageserver": "~9.0.1",
     "vscode-languageserver-textdocument": "~1.0.11",
     "yaml": "~2.4.5",

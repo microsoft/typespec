@@ -666,7 +666,11 @@ namespace Microsoft.Generator.CSharp
                 throw new InvalidOperationException("Can't declare variables inside documentation.");
             }
 
-            declaration.SetActualName(GetTemporaryVariable(declaration.RequestedName));
+            if (!declaration.HasBeenDeclared)
+            {
+                declaration.SetActualName(GetTemporaryVariable(declaration.RequestedName));
+            }
+
             return WriteDeclaration(declaration.ActualName);
         }
 

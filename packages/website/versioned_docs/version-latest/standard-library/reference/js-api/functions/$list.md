@@ -13,7 +13,7 @@ function $list(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Operation`](../interfaces/Operation.md) |
 | `listedType`? | [`Model`](../interfaces/Model.md) |

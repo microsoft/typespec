@@ -10,7 +10,7 @@ function getResourceOperation(program, typespecOperation): ResourceOperation | u
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `typespecOperation` | `Operation` |
 

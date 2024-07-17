@@ -500,6 +500,66 @@ extern dec encode(
   encodedAs?: Scalar
 );
 
+/** Options for example decorators */
+model ExampleOptions {
+  /** The title of the example */
+  title?: string;
+
+  /** Description of the example */
+  description?: string;
+}
+
+/**
+ * Provide an example value for a data type.
+ *
+ * @param example Example value.
+ * @param options Optional metadata for the example.
+ *
+ * @example
+ *
+ * ```tsp
+ * @example(#{name: "Fluffy", age: 2})
+ * model Pet {
+ *  name: string;
+ *  age: int32;
+ * }
+ * ```
+ */
+extern dec example(
+  target: Model | Enum | Scalar | Union | ModelProperty | UnionVariant,
+  example: valueof unknown,
+  options?: valueof ExampleOptions
+);
+
+/**
+ * Operation example configuration.
+ */
+model OperationExample {
+  /** Example request body. */
+  parameters?: unknown;
+
+  /** Example response body. */
+  returnType?: unknown;
+}
+
+/**
+ * Provide example values for an operation's parameters and corresponding return type.
+ *
+ * @param example Example value.
+ * @param options Optional metadata for the example.
+ *
+ * @example
+ *
+ * ```tsp
+ * @example(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+ * op createPet(pet: Pet): Pet;
+ * ```
+ */
+extern dec opExample(
+  target: Operation,
+  example: valueof OperationExample,
+  options?: valueof ExampleOptions
+);
 /**
  * Indicates that a property is only considered to be present or applicable ("visible") with
  * the in the given named contexts ("visibilities"). When a property has no visibilities applied

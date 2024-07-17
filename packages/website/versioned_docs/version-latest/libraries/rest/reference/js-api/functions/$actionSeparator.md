@@ -18,7 +18,7 @@ function $actionSeparator(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `entity` | `Model` \| `ModelProperty` \| `Operation` |
 | `separator` | `"/"` \| `":"` \| `"/:"` |

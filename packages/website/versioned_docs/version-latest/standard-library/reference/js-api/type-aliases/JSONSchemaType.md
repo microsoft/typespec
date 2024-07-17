@@ -7,8 +7,8 @@ title: "[T] JSONSchemaType"
 type JSONSchemaType<T>: AjvJSONSchemaType<T>;
 ```
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` |

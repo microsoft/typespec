@@ -12,7 +12,7 @@ Returns all the services defined.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `options`? | [`RouteResolutionOptions`](../interfaces/RouteResolutionOptions.md) |
 

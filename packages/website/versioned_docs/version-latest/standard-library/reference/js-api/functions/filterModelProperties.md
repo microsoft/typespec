@@ -17,7 +17,7 @@ a new anonymous model with only the filtered properties.
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) \| [`ProjectedProgram`](../interfaces/ProjectedProgram.md) | - |
 | `model` | [`Model`](../interfaces/Model.md) | The input model to filter. |
 | `filter` | (`property`) => `boolean` | The filter to apply. Properties are kept when this returns true. |

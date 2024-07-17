@@ -17,7 +17,7 @@ Properties that are overridden are not enumerated.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `model` | [`Model`](../interfaces/Model.md) |
 
 ## Returns
