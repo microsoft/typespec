@@ -1,6 +1,14 @@
 import { Temporal } from "temporal-polyfill";
+import { ignoreDiagnostics } from "../core/diagnostics.js";
 import type { Program } from "../core/program.js";
-import type { Model, ObjectValue, Scalar, ScalarValue, Type, Value } from "../core/types.js";
+import { isArrayModelType, isUnknownType } from "../core/type-utils.js";
+import {
+  type ObjectValue,
+  type Scalar,
+  type ScalarValue,
+  type Type,
+  type Value,
+} from "../core/types.js";
 import { getEncode, type EncodeData } from "./decorators.js";
 
 /**
@@ -27,22 +35,68 @@ export function serializeValueAsJson(
     case "EnumValue":
       return value.value.value ?? value.value.name;
     case "ArrayValue":
-      return value.values.map((v) => serializeValueAsJson(program, v, type));
+      return value.values.map((v) =>
+        serializeValueAsJson(
+          program,
+          v,
+          type.kind === "Model" && isArrayModelType(program, type)
+            ? type.indexer.value
+            : program.checker.anyType
+        )
+      );
     case "ObjectValue":
-      return serializeObjectValueAsJson(program, value, type as Model);
+      return serializeObjectValueAsJson(program, value, type);
     case "ScalarValue":
       return serializeScalarValueAsJson(program, value, type, encodeAs);
   }
 }
 
+/** Try to get the property of the type */
+function getPropertyOfType(type: Type, name: string): Type | undefined {
+  switch (type.kind) {
+    case "Model":
+      return type.properties.get(name) ?? type.indexer?.value;
+    case "Intrinsic":
+      if (isUnknownType(type)) {
+        return type;
+      } else {
+        return;
+      }
+    default:
+      return undefined;
+  }
+}
+
+function resolveUnions(program: Program, value: ObjectValue, type: Type): Type | undefined {
+  if (type.kind !== "Union") {
+    return type;
+  }
+  for (const variant of type.variants.values()) {
+    if (
+      variant.type.kind === "Model" &&
+      ignoreDiagnostics(
+        program.checker.isTypeAssignableTo(
+          value,
+          { entityKind: "MixedParameterConstraint", valueType: variant.type },
+          value
+        )
+      )
+    ) {
+      return variant.type;
+    }
+  }
+  return type;
+}
+
 function serializeObjectValueAsJson(
   program: Program,
   value: ObjectValue,
-  type: Model
+  type: Type
 ): Record<string, unknown> {
+  type = resolveUnions(program, value, type) ?? type;
   const obj: Record<string, unknown> = {};
   for (const propValue of value.properties.values()) {
-    const definition = type.properties.get(propValue.name);
+    const definition = getPropertyOfType(type, propValue.name);
     if (definition) {
       obj[propValue.name] = serializeValueAsJson(program, propValue.value, definition);
     }
