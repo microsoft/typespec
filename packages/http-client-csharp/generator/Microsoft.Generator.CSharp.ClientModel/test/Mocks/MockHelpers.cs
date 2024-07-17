@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         public const string MocksFolder = "Mocks";
 
         public static void LoadMockPlugin(
-            Func<InputType, IReadOnlyList<TypeProvider>>? getSerializationTypeProviders = null,
+            Func<InputType, IReadOnlyList<TypeProvider>>? createSerializations = null,
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<CSharpType>? matchConditionsType = null,
             Func<CSharpType>? tokenCredentialType = null,
@@ -59,9 +59,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var mockPluginInstance = new Mock<ClientModelPlugin>(mockGeneratorContext.Object) { CallBase = true };
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
 
-            if (getSerializationTypeProviders is not null)
+            if (createSerializations is not null)
             {
-                mockPluginInstance.Protected().Setup<IReadOnlyList<TypeProvider>>("CreateSerializationsCore", ItExpr.IsAny<InputType>()).Returns(getSerializationTypeProviders);
+                mockPluginInstance.Protected().Setup<IReadOnlyList<TypeProvider>>("CreateSerializationsCore", ItExpr.IsAny<InputType>()).Returns(createSerializations);
             }
 
             if (createCSharpTypeCore is not null)
