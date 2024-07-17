@@ -24,7 +24,7 @@ namespace Microsoft.Generator.CSharp.Statements
         {
         }
 
-        public TryCatchFinallyStatement(TryStatement @try, CatchStatement catchStatement, FinallyStatement? @finally = null) : this(@try, new[] { catchStatement }, @finally)
+        public TryCatchFinallyStatement(TryStatement @try, CatchStatement @catch, FinallyStatement? @finally = null) : this(@try, new[] { @catch }, @finally)
         {
         }
 
