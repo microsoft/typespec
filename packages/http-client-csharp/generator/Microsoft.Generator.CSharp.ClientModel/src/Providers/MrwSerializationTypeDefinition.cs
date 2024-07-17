@@ -397,7 +397,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             var typeOfT = GetModelArgumentType(_persistableModelTInterface);
             // return type of this method may not be T, because this could be an override method
-            var returnType = GetOverriddenMethodReturnType(_baseSerializationProvider, PersistableModelCreateCoreMethodName) ?? typeOfT;
+            var returnType = GetCoreMethodReturnType(typeOfT);
             // T PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
             return new MethodProvider
             (
@@ -407,24 +407,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             );
         }
 
-        private static CSharpType? GetOverriddenMethodReturnType(TypeProvider? baseProvider, string methodName)
+        private static CSharpType? GetCoreMethodReturnType(CSharpType typeOfT)
         {
-            // find the method with the same name on this provider, and return its return type if any
-            if (baseProvider == null)
+            CSharpType returnType = typeOfT;
+            while (returnType.BaseType != null)
             {
-                return null;
+                returnType = returnType.BaseType;
             }
 
-            // find the method on the base provider type
-            // here we are only doing this by name, in the future, to be more precise, maybe we need to add a parameter list to find the override base method
-            var method = baseProvider.Methods.FirstOrDefault(m => m.Signature.Name == methodName);
-
-            if (method == null)
-            {
-                return null;
-            }
-
-            return method.Signature.ReturnType;
+            return returnType;
         }
 
         /// <summary>
@@ -457,7 +448,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             var typeOfT = GetModelArgumentType(_jsonModelTInterface);
             // return type of this method may not be T, because this could be an override method
-            var returnType = GetOverriddenMethodReturnType(_baseSerializationProvider, PersistableModelCreateCoreMethodName) ?? typeOfT;
+            var returnType = GetCoreMethodReturnType(typeOfT);
 
             var methodBody = new MethodBodyStatement[]
             {
