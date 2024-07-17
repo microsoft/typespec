@@ -61,7 +61,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return [.. CodeModelPlugin.Instance.GetSerializationTypeProviders(_input)];
+            return [.. CodeModelPlugin.Instance.CreateSerializations(_input)];
         }
     }
 }

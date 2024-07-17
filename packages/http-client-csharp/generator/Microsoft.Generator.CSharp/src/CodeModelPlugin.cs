@@ -51,11 +51,23 @@ namespace Microsoft.Generator.CSharp
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
         public virtual IReadOnlyList<MetadataReference> AdditionalMetadataReferences => Array.Empty<MetadataReference>();
 
+        private readonly IDictionary<InputType, IReadOnlyList<TypeProvider>> _serializationsCache = new Dictionary<InputType, IReadOnlyList<TypeProvider>>();
+
         /// <summary>
         /// Returns the serialization type providers for the given model type provider.
         /// </summary>
         /// <param name="inputType">The input model.</param>
-        public virtual IReadOnlyList<TypeProvider> GetSerializationTypeProviders(InputType inputType)
+        public virtual IReadOnlyList<TypeProvider> CreateSerializations(InputType inputType)
+        {
+            if (_serializationsCache.TryGetValue(inputType, out var serializations))
+                return serializations;
+
+            serializations = CreateSerializationsCore(inputType);
+            _serializationsCache.Add(inputType, serializations);
+            return serializations;
+        }
+
+        protected virtual IReadOnlyList<TypeProvider> CreateSerializationsCore(InputType inputType)
         {
             if (inputType is InputEnumType enumType)
             {

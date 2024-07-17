@@ -71,7 +71,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _jsonModelObjectInterface = _isStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
             _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), _model.Type);
             _persistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
-            _baseSerializationProvider = FindSerializationOnBase(inputModel);
+            _baseSerializationProvider = inputModel.BaseModel != null
+                ? ClientModelPlugin.Instance.CreateSerializations(inputModel.BaseModel).OfType<MrwSerializationTypeDefinition>().FirstOrDefault()
+                : null;
             _rawDataField = BuildRawDataField();
             _shouldOverrideMethods = _model.Type.BaseType != null && _model.Type.BaseType is { IsFrameworkType: false };
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
@@ -162,13 +164,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 modifiers |= FieldModifiers.Protected;
             }
 
-            var FieldProvider = new FieldProvider(
+            var rawDataField = new FieldProvider(
                 modifiers: modifiers,
                 type: _privateAdditionalRawDataPropertyType,
                 description: FormattableStringHelpers.FromString(PrivateAdditionalPropertiesPropertyDescription),
                 name: PrivateAdditionalPropertiesPropertyName);
 
-            return FieldProvider;
+            return rawDataField;
         }
 
         /// <summary>
@@ -1050,24 +1052,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             => TypeRequiresNullCheckInSerialization(collectionItemType)
                 ? new IfElseStatement(arrayItemVar.ValueKindEqualsNull(), assignNull, deserializeValue)
                 : deserializeValue;
-
-        private static MrwSerializationTypeDefinition? FindSerializationOnBase(InputModelType inputModel)
-        {
-            var baseModel = inputModel.BaseModel;
-            if (baseModel == null)
-            {
-                return null;
-            }
-
-            var baseProvider = ClientModelPlugin.Instance.TypeFactory.CreateModel(baseModel);
-            if (baseProvider.SerializationProviders.Count == 0)
-            {
-                return null;
-            }
-
-            // finds the first MrwSerializationTypeProvider in serialization providers
-            return baseProvider.SerializationProviders.OfType<MrwSerializationTypeDefinition>().FirstOrDefault();
-        }
 
         /// <summary>
         /// Builds the parameters for the serialization constructor by iterating through the input model properties.
