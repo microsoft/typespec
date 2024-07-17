@@ -180,7 +180,7 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
   "emitter:json-schema": ["packages/json-schema/"],
   "emitter:protobuf": ["packages/protobuf/"],
   "emitter:openapi3": ["packages/openapi3/"],
-  "openapi3:converter": [],
+  "openapi3:converter": ["packages/openapi3/src/cli/actions/convert/"],
   "emitter:service:csharp": [],
   "emitter:service:js": [],
   eng: ["eng/", ".github/"],
