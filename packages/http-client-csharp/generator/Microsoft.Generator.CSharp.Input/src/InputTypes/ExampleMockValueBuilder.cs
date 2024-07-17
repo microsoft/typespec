@@ -59,7 +59,11 @@ namespace Microsoft.Generator.CSharp.Input
             if (parameter.Kind == InputOperationParameterKind.Constant)
             {
                 InputExampleValue value;
-                if (parameter.DefaultValue != null)
+                if (parameter.Type is InputLiteralType { Value: not null } literalValue)
+                {
+                    value = InputExampleValue.Value(parameter.Type, literalValue.Value);
+                }
+                else if (parameter.DefaultValue != null)
                 {
                     // when it is constant, it could have DefaultValue
                     value = InputExampleValue.Value(parameter.Type, parameter.DefaultValue.Value);

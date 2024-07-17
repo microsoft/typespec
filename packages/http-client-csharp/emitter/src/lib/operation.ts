@@ -1,30 +1,26 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { getLroMetadata } from "@azure-tools/typespec-azure-core";
 import {
-  getAccess,
-  isApiVersion,
+  SdkBodyParameter,
+  SdkBuiltInKinds,
+  SdkBuiltInType,
   SdkContext,
+  SdkHeaderParameter,
+  SdkHttpOperation,
+  SdkPathParameter,
+  SdkQueryParameter,
+  SdkServiceMethod,
+  SdkServiceResponseHeader,
+  SdkType,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
 } from "@azure-tools/typespec-client-generator-core";
-import {
-  getDeprecated,
-  getDoc,
-  getSummary,
-  isErrorModel,
-  Model,
-  ModelProperty,
-  Namespace,
-  Operation,
-  Type,
-} from "@typespec/compiler";
-import { HttpOperation, HttpOperationParameter, HttpOperationResponse } from "@typespec/http";
-import { getExtensions } from "@typespec/openapi";
+import { getDeprecated, getDoc, getSummary, isErrorModel } from "@typespec/compiler";
+import { HttpStatusCodeRange } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
 import { NetEmitterOptions } from "../options.js";
-import { BodyMediaType, typeToBodyMediaType } from "../type/body-media-type.js";
+import { BodyMediaType } from "../type/body-media-type.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
 import { HttpResponseHeader } from "../type/http-response-header.js";
 import { InputConstant } from "../type/input-constant.js";
@@ -32,351 +28,368 @@ import { InputOperationParameterKind } from "../type/input-operation-parameter-k
 import { InputOperation } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
 import {
-  InputArrayType,
   InputEnumType,
   InputModelType,
+  InputPrimitiveType,
   InputType,
-  isInputEnumType,
-  isInputLiteralType,
-  isInputModelType,
-  isInputUnionType,
 } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
-import { OperationLongRunning } from "../type/operation-long-running.js";
-import { OperationPaging } from "../type/operation-paging.js";
 import { OperationResponse } from "../type/operation-response.js";
-import { RequestLocation, requestLocationMap } from "../type/request-location.js";
-import { parseHttpRequestMethod, RequestMethod } from "../type/request-method.js";
-import { Usage } from "../type/usage.js";
-import { getExternalDocs, getOperationId, hasDecorator } from "./decorators.js";
-import { Logger } from "./logger.js";
-import { getDefaultValue, getEffectiveSchemaType, getInputType } from "./model.js";
-import { capitalize, createContentTypeOrAcceptParameter, getTypeName } from "./utils.js";
+import { RequestLocation } from "../type/request-location.js";
+import { parseHttpRequestMethod } from "../type/request-method.js";
+import { fromSdkType } from "./converter.js";
+import { getExternalDocs, getOperationId } from "./decorators.js";
+import { getInputType } from "./model.js";
 
-export function loadOperation(
-  sdkContext: SdkContext<NetEmitterOptions>,
-  operation: HttpOperation,
+export function fromSdkServiceMethod(
+  method: SdkServiceMethod<SdkHttpOperation>,
   uri: string,
-  urlParameters: InputParameter[] | undefined = undefined,
-  serviceNamespaceType: Namespace,
-  models: Map<string, InputModelType>,
-  enums: Map<string, InputEnumType>
+  clientParameters: InputParameter[],
+  rootApiVersions: string[],
+  sdkContext: SdkContext<NetEmitterOptions>,
+  modelMap: Map<string, InputModelType>,
+  enumMap: Map<string, InputEnumType>
 ): InputOperation {
-  const { path: fullPath, operation: op, verb, parameters: typespecParameters } = operation;
-  const program = sdkContext.program;
-  Logger.getInstance().info(`load operation: ${op.name}, path:${fullPath} `);
-  const resourceOperation = getResourceOperation(program, op);
-  const desc = getDoc(program, op);
-  const summary = getSummary(program, op);
-  const externalDocs = getExternalDocs(sdkContext, op);
-
-  const parameters: InputParameter[] = [];
-  if (urlParameters) {
-    for (const param of urlParameters) {
-      parameters.push(param);
-    }
-  }
-  for (const p of typespecParameters.parameters) {
-    parameters.push(loadOperationParameter(sdkContext, p));
-  }
-
-  if (typespecParameters.body?.property && !isVoidType(typespecParameters.body.type)) {
-    parameters.push(loadBodyParameter(sdkContext, typespecParameters.body?.property));
-  } else if (typespecParameters.body?.type && !isVoidType(typespecParameters.body.type)) {
-    const rawBodyType = typespecParameters.body.type;
-    if (rawBodyType.kind === "Model") {
-      const effectiveBodyType = getEffectiveSchemaType(
+  return {
+    Name: method.name,
+    ResourceName:
+      getResourceOperation(sdkContext.program, method.operation.__raw.operation)?.resourceType
+        .name ??
+      getResourceName(
         sdkContext,
-        typespecParameters.body.type
-      ) as Model;
-      const bodyParameter = loadBodyParameter(sdkContext, effectiveBodyType);
-      if (
-        effectiveBodyType.name === "" ||
-        rawBodyType.sourceModels.some((m) => m.usage === "spread")
-      ) {
-        bodyParameter.Kind = InputOperationParameterKind.Spread;
-      }
-      // TODO: remove this after https://github.com/Azure/typespec-azure/issues/69 is resolved
-      // workaround for alias model
-      if (isInputModelType(bodyParameter.Type) && bodyParameter.Type.Name === "") {
-        // give body type a name
-        bodyParameter.Type.Name = `${capitalize(op.name)}Request`;
-        const bodyModelType = bodyParameter.Type as InputModelType;
-        bodyModelType.Usage = Usage.Input;
-        // update models cache
-        models.delete("");
-        models.set(bodyModelType.Name, bodyModelType);
+        method.operation,
+        sdkContext.experimental_sdkPackage.rootNamespace
+      ),
+    Deprecated: getDeprecated(sdkContext.program, method.__raw!),
+    // TODO: we need to figure out how we want to handle summary and description
+    // Right now, we generate garbage <remarks> for some APIs like `Platform-OpenAI-TypeSpec`
+    Summary: getSummary(sdkContext.program, method.__raw!),
+    Description: getDoc(sdkContext.program, method.__raw!),
+    Accessibility: method.access,
+    Parameters: getMethodParameters(
+      method,
+      clientParameters,
+      rootApiVersions,
+      sdkContext,
+      modelMap,
+      enumMap
+    ),
+    Responses: getSdkMethodResponses(method, sdkContext, modelMap, enumMap),
+    HttpMethod: parseHttpRequestMethod(method.operation.verb),
+    RequestBodyMediaType: sdkTypeToBodyMediaType(method.operation.bodyParam?.type),
+    Uri: uri,
+    Path: method.operation.path,
+    ExternalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
+    RequestMediaTypes: getRequestMediaTypes(method.operation),
+    BufferResponse: true,
+    LongRunning: loadLongRunningOperation(method, sdkContext, modelMap, enumMap),
+    Paging: loadOperationPaging(method),
+    GenerateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
+    GenerateConvenienceMethod:
+      method.operation.verb !== "patch" &&
+      shouldGenerateConvenient(sdkContext, method.operation.__raw.operation),
+  };
+}
 
-        // give body parameter a name
-        bodyParameter.Name = `${capitalize(op.name)}Request`;
-      }
-      parameters.push(bodyParameter);
-    }
+export function getParameterDefaultValue(
+  clientDefaultValue: any,
+  parameterType: InputType
+): InputConstant | undefined {
+  if (
+    clientDefaultValue === undefined ||
+    // a constant parameter should overwrite client default value
+    parameterType.Kind === "constant"
+  ) {
+    return undefined;
   }
-
-  const responses: OperationResponse[] = [];
-  for (const res of operation.responses) {
-    const operationResponse = loadOperationResponse(sdkContext, res);
-    if (operationResponse) {
-      responses.push(operationResponse);
-    }
-    if (operationResponse?.ContentTypes && operationResponse.ContentTypes.length > 0) {
-      const acceptParameter = createContentTypeOrAcceptParameter(
-        [operationResponse.ContentTypes[0]], // We currently only support one content type per response
-        "accept",
-        "Accept"
-      );
-      const acceptIndex = parameters.findIndex((p) => p.NameInRequest.toLowerCase() === "accept");
-      if (acceptIndex > -1) {
-        parameters.splice(acceptIndex, 1, acceptParameter);
-      } else {
-        parameters.push(acceptParameter);
-      }
-    }
-  }
-
-  const mediaTypes: string[] = [];
-  const contentTypeParameter = parameters.find((value) => value.IsContentType);
-  if (contentTypeParameter) {
-    if (isInputLiteralType(contentTypeParameter.Type)) {
-      mediaTypes.push(contentTypeParameter.DefaultValue?.Value);
-    } else if (isInputUnionType(contentTypeParameter.Type)) {
-      for (const unionItem of contentTypeParameter.Type.VariantTypes) {
-        if (isInputLiteralType(unionItem)) {
-          mediaTypes.push(unionItem.Value as string);
-        } else {
-          throw "Media type of content type should be string.";
-        }
-      }
-    } else if (isInputEnumType(contentTypeParameter.Type)) {
-      const mediaTypeValues = contentTypeParameter.Type.Values.map((value) => value.Value);
-      if (mediaTypeValues.some((item) => item === undefined)) {
-        throw "Media type of content type should be string.";
-      }
-      mediaTypes.push(...mediaTypeValues);
-    }
-  }
-  const requestMethod = parseHttpRequestMethod(verb);
-  const generateProtocol: boolean = shouldGenerateProtocol(sdkContext, op);
-  const generateConvenience: boolean =
-    requestMethod !== RequestMethod.PATCH && shouldGenerateConvenient(sdkContext, op);
-
-  /* handle lro */
-  /* handle paging. */
-  let paging: OperationPaging | undefined = undefined;
-  for (const res of operation.responses) {
-    const body = res.responses[0]?.body;
-    if (body?.type) {
-      const bodyType = getEffectiveSchemaType(sdkContext, body.type);
-      if (bodyType.kind === "Model" && hasDecorator(bodyType, "$pagedResult")) {
-        const itemsProperty = Array.from(bodyType.properties.values()).find((it) =>
-          hasDecorator(it, "$items")
-        );
-        const nextLinkProperty = Array.from(bodyType.properties.values()).find((it) =>
-          hasDecorator(it, "$nextLink")
-        );
-        paging = {
-          NextLinkName: nextLinkProperty?.name,
-          ItemName: itemsProperty?.name,
-        } as OperationPaging;
-      }
-    }
-  }
-  /* TODO: handle lro */
 
   return {
-    Name: getTypeName(sdkContext, op),
-    ResourceName:
-      resourceOperation?.resourceType.name ??
-      getOperationGroupName(sdkContext, op, serviceNamespaceType),
-    Summary: summary,
-    Deprecated: getDeprecated(program, op),
-    Description: desc,
-    Accessibility: getAccess(sdkContext, op),
-    Parameters: parameters,
-    Responses: responses,
-    HttpMethod: requestMethod,
-    RequestBodyMediaType: typeToBodyMediaType(typespecParameters.body?.type),
-    Uri: uri,
-    Path: fullPath,
-    ExternalDocsUrl: externalDocs?.url,
-    RequestMediaTypes: mediaTypes.length > 0 ? mediaTypes : undefined,
-    BufferResponse: true,
-    LongRunning: loadLongRunningOperation(sdkContext, operation),
-    Paging: paging,
-    GenerateProtocolMethod: generateProtocol,
-    GenerateConvenienceMethod: generateConvenience,
-  } as InputOperation;
+    Type: {
+      Kind: getValueType(clientDefaultValue),
+    },
+    Value: clientDefaultValue,
+  };
+}
 
-  function isVoidType(type: Type): boolean {
-    return type.kind === "Intrinsic" && type.name === "void";
-  }
-
-  function loadOperationParameter(
-    context: SdkContext<NetEmitterOptions>,
-    parameter: HttpOperationParameter
-  ): InputParameter {
-    const { type: location, name, param } = parameter;
-    const format = parameter.type === "path" ? undefined : parameter.format;
-    const typespecType = param.type;
-    const inputType: InputType = getInputType(context, param, models, enums, operation.operation);
-    let defaultValue: InputConstant | undefined = undefined;
-    const value = getDefaultValue(typespecType);
-    if (value) {
-      defaultValue = {
-        Type: inputType,
-        Value: value,
-      };
-    }
-    const requestLocation = requestLocationMap[location];
-    const isApiVer: boolean = isApiVersion(sdkContext, parameter);
-    const isContentType: boolean =
-      requestLocation === RequestLocation.Header && name.toLowerCase() === "content-type";
-    const kind: InputOperationParameterKind =
-      isContentType || inputType.Kind === "constant"
-        ? InputOperationParameterKind.Constant
-        : isApiVer
-          ? defaultValue
-            ? InputOperationParameterKind.Constant
-            : InputOperationParameterKind.Client
-          : InputOperationParameterKind.Method;
-    return {
-      Name: getTypeName(sdkContext, param),
-      NameInRequest: name,
-      Description: getDoc(program, param),
-      Type: inputType,
-      Location: requestLocation,
-      DefaultValue: defaultValue,
-      IsRequired: !param.optional,
-      IsApiVersion: isApiVer,
-      IsResourceParameter: false,
-      IsContentType: isContentType,
-      IsEndpoint: false,
-      SkipUrlEncoding:
-        // TODO: update this when https://github.com/Azure/typespec-azure/issues/1022 is resolved
-        getExtensions(program, param).get("x-ms-skip-url-encoding") === true,
-      Explode: (inputType as InputArrayType).ValueType && format === "multi" ? true : false,
-      Kind: kind,
-      ArraySerializationDelimiter: format ? collectionFormatToDelimMap[format] : undefined,
-    } as InputParameter;
-  }
-
-  function loadBodyParameter(
-    context: SdkContext<NetEmitterOptions>,
-    body: ModelProperty | Model
-  ): InputParameter {
-    const inputType: InputType = getInputType(context, body, models, enums, operation.operation);
-    const requestLocation = RequestLocation.Body;
-    const kind: InputOperationParameterKind = InputOperationParameterKind.Method;
-    return {
-      Name: getTypeName(context, body),
-      NameInRequest: body.name,
-      Description: getDoc(program, body),
-      Type: inputType,
-      Location: requestLocation,
-      IsRequired: body.kind === "Model" ? true : !body.optional,
-      IsApiVersion: false,
-      IsResourceParameter: false,
-      IsContentType: false,
-      IsEndpoint: false,
-      SkipUrlEncoding: false,
-      Explode: false,
-      Kind: kind,
-    } as InputParameter;
-  }
-
-  function loadOperationResponse(
-    context: SdkContext<NetEmitterOptions>,
-    response: HttpOperationResponse
-  ): OperationResponse | undefined {
-    if (!response.statusCode || response.statusCode === "*") {
-      return undefined;
-    }
-    const status: number[] = [];
-    status.push(Number(response.statusCode));
-    //TODO: what to do if more than 1 response?
-    const body = response.responses[0]?.body;
-
-    let type: InputType | undefined = undefined;
-    if (body?.type) {
-      const typespecType = getEffectiveSchemaType(context, body.type);
-      const inputType: InputType = getInputType(
-        context,
-        typespecType,
-        models,
-        enums,
-        operation.operation
-      );
-      type = inputType;
-    }
-
-    const headers = response.responses[0]?.headers;
-    const responseHeaders: HttpResponseHeader[] = [];
-    if (headers) {
-      for (const key of Object.keys(headers)) {
-        responseHeaders.push({
-          Name: key,
-          NameInResponse: headers[key].name,
-          Description: getDoc(program, headers[key]) ?? "",
-          Type: getInputType(context, headers[key].type, models, enums, operation.operation),
-        } as HttpResponseHeader);
-      }
-    }
-
-    return {
-      StatusCodes: status,
-      BodyType: type,
-      BodyMediaType: BodyMediaType.Json,
-      Headers: responseHeaders,
-      IsErrorResponse: isErrorModel(program, response.type),
-      ContentTypes: body?.contentTypes,
-    } as OperationResponse;
-  }
-
-  function loadLongRunningOperation(
-    context: SdkContext<NetEmitterOptions>,
-    op: HttpOperation
-  ): OperationLongRunning | undefined {
-    const metadata = getLroMetadata(program, op.operation);
-    if (metadata === undefined) {
-      return undefined;
-    }
-
-    let bodyType = undefined;
-    if (
-      op.verb !== "delete" &&
-      metadata.finalResult !== undefined &&
-      metadata.finalResult !== "void"
-    ) {
-      bodyType = getInputType(
-        context,
-        metadata.finalEnvelopeResult as Model,
-        models,
-        enums,
-        op.operation
-      );
-    }
-
-    return {
-      FinalStateVia: convertLroFinalStateVia(metadata.finalStateVia),
-      FinalResponse: {
-        // in swagger, we allow delete to return some meaningful body content
-        // for now, let assume we don't allow return type
-        StatusCodes: op.verb === "delete" ? [204] : [200],
-        BodyType: bodyType,
-        BodyMediaType: BodyMediaType.Json,
-      } as OperationResponse,
-      ResultPath: metadata.finalResultPath,
-    } as OperationLongRunning;
+function getValueType(value: any): SdkBuiltInKinds {
+  switch (typeof value) {
+    case "string":
+      return "string";
+    case "number":
+      return "int32";
+    case "boolean":
+      return "boolean";
+    case "bigint":
+      return "int64";
+    default:
+      throw new Error(`Unsupported default value type: ${typeof value}`);
   }
 }
 
-function getOperationGroupName(
+function getMethodParameters(
+  method: SdkServiceMethod<SdkHttpOperation>,
+  clientParameters: InputParameter[],
+  rootApiVersions: string[],
+  sdkContext: SdkContext<NetEmitterOptions>,
+  modelMap: Map<string, InputModelType>,
+  enumMap: Map<string, InputEnumType>
+): InputParameter[] {
+  const params = clientParameters.concat(
+    method.operation.parameters.map((p) =>
+      fromHttpOperationParameter(
+        p,
+        rootApiVersions,
+        sdkContext,
+        modelMap,
+        enumMap,
+        method // TODO: remove this after https://github.com/Azure/typespec-azure/issues/1150
+      )
+    )
+  );
+  return method.operation.bodyParam
+    ? params.concat(
+        fromHttpOperationParameter(
+          method.operation.bodyParam,
+          rootApiVersions,
+          sdkContext,
+          modelMap,
+          enumMap,
+          method
+        )
+      )
+    : params;
+}
+
+// TODO: roll back to SdkMethodParameter when we figure out how to represent the parameter location
+// https://github.com/Azure/typespec-azure/issues/981
+function fromHttpOperationParameter(
+  p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter,
+  rootApiVersions: string[],
+  sdkContext: SdkContext<NetEmitterOptions>,
+  modelMap: Map<string, InputModelType>,
+  enumMap: Map<string, InputEnumType>,
+  method: SdkServiceMethod<SdkHttpOperation>
+): InputParameter {
+  const isContentType =
+    p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type";
+  const parameterType = fromSdkType(p.type, sdkContext, modelMap, enumMap);
+  // remove this after: https://github.com/Azure/typespec-azure/issues/1084
+  if (p.type.kind === "bytes") {
+    (parameterType as InputPrimitiveType).Encode = (
+      p.correspondingMethodParams[0].type as SdkBuiltInType
+    ).encode;
+  }
+  const format = p.kind === "header" || p.kind === "query" ? p.collectionFormat : undefined;
+  const serializedName = p.kind !== "body" ? p.serializedName : p.name;
+
+  return {
+    Name: p.name !== "" ? p.name : `${method.name}Content`, // TODO: remove this after https://github.com/Azure/typespec-azure/issues/1150
+    NameInRequest: serializedName,
+    Description: p.description,
+    Type: parameterType,
+    Location: getParameterLocation(p),
+    IsApiVersion:
+      p.name.toLocaleLowerCase() === "apiversion" || p.name.toLocaleLowerCase() === "api-version",
+    IsContentType: isContentType,
+    IsEndpoint: false,
+    Explode: parameterType.Kind === "array" && format === "multi" ? true : false,
+    ArraySerializationDelimiter: format ? collectionFormatToDelimMap[format] : undefined,
+    IsRequired: !p.optional,
+    Kind: getParameterKind(p, parameterType, isContentType, rootApiVersions.length > 0),
+    DefaultValue: getParameterDefaultValue(p.clientDefaultValue, parameterType),
+  } as InputParameter;
+}
+
+function loadLongRunningOperation(
+  method: SdkServiceMethod<SdkHttpOperation>,
+  sdkContext: SdkContext<NetEmitterOptions>,
+  modelMap: Map<string, InputModelType>,
+  enumMap: Map<string, InputEnumType>
+): import("../type/operation-long-running.js").OperationLongRunning | undefined {
+  if (method.kind !== "lro") {
+    return undefined;
+  }
+
+  return {
+    FinalStateVia: convertLroFinalStateVia(method.__raw_lro_metadata.finalStateVia),
+    FinalResponse: {
+      // in swagger, we allow delete to return some meaningful body content
+      // for now, let assume we don't allow return type
+      StatusCodes: method.operation.verb === "delete" ? [204] : [200],
+      BodyType:
+        method.__raw_lro_metadata.finalEnvelopeResult &&
+        method.__raw_lro_metadata.finalEnvelopeResult !== "void"
+          ? getInputType(
+              sdkContext,
+              method.__raw_lro_metadata.finalEnvelopeResult,
+              modelMap,
+              enumMap,
+              method.operation.__raw.operation
+            )
+          : undefined,
+      BodyMediaType: BodyMediaType.Json,
+    } as OperationResponse,
+    ResultPath: method.__raw_lro_metadata.finalResultPath,
+  };
+}
+function getSdkMethodResponses(
+  method: SdkServiceMethod<SdkHttpOperation>,
+  sdkContext: SdkContext<NetEmitterOptions>,
+  modelMap: Map<string, InputModelType>,
+  enumMap: Map<string, InputEnumType>
+): OperationResponse[] {
+  const responses: OperationResponse[] = [];
+  method.operation.responses.forEach((r, range) => {
+    responses.push({
+      StatusCodes: toStatusCodesArray(range),
+      BodyType: r.type ? fromSdkType(r.type, sdkContext, modelMap, enumMap) : undefined,
+      BodyMediaType: BodyMediaType.Json,
+      Headers: toHttpResponseHeaders(r.headers, sdkContext, modelMap, enumMap),
+      IsErrorResponse: r.type !== undefined && isErrorModel(sdkContext.program, r.type.__raw!),
+      // TODO: https://github.com/Azure/typespec-azure/issues/992
+      ContentTypes: r.contentTypes && r.contentTypes.length > 0 ? r.contentTypes : undefined,
+    });
+  });
+  return responses;
+}
+
+function toHttpResponseHeaders(
+  headers: SdkServiceResponseHeader[],
+  sdkContext: SdkContext<NetEmitterOptions>,
+  modelMap: Map<string, InputModelType>,
+  enumMap: Map<string, InputEnumType>
+): HttpResponseHeader[] {
+  return headers.map(
+    (h) =>
+      ({
+        Name: h.__raw!.name,
+        NameInResponse: h.serializedName,
+        Description: h.description,
+        Type: fromSdkType(h.type, sdkContext, modelMap, enumMap),
+      }) as HttpResponseHeader
+  );
+}
+function toStatusCodesArray(range: number | HttpStatusCodeRange): number[] {
+  if (typeof range === "number") return [range];
+
+  const statusCodes: number[] = [range.end - range.start + 1];
+  for (let i = range.start; i <= range.end; i++) {
+    statusCodes.push(i);
+  }
+  return statusCodes;
+}
+
+function sdkTypeToBodyMediaType(type: SdkType | undefined) {
+  if (type === undefined) {
+    return BodyMediaType.None;
+  }
+
+  if (type.kind === "model") {
+    return BodyMediaType.Json;
+  } else if (type.kind === "string") {
+    return BodyMediaType.Text;
+  } else if (type.kind === "bytes") {
+    return BodyMediaType.Binary;
+  }
+  return BodyMediaType.None;
+}
+
+function getRequestMediaTypes(op: SdkHttpOperation): string[] | undefined {
+  const contentTypes = op.parameters.filter(
+    (p) => p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type"
+  );
+  if (contentTypes.length === 0) return undefined;
+  return contentTypes.map((p) => getMediaTypes(p.type)).flat();
+}
+
+function getMediaTypes(type: SdkType): string[] {
+  if (type.kind === "constant") {
+    if (type.valueType.kind !== "string") {
+      throw `Media type in "content-type" should be string. But get ${type.valueType.kind}.`;
+    }
+    return [type.value as string];
+  } else if (type.kind === "union") {
+    const mediaTypes: string[] = [];
+    for (const unionItem of type.values) {
+      if (unionItem.kind === "constant" && unionItem.valueType.kind === "string") {
+        mediaTypes.push(unionItem.value as string);
+      } else {
+        throw `Media type in "content-type" should be string. But get ${unionItem.kind}.`;
+      }
+    }
+    return mediaTypes;
+  } else if (type.kind === "enum") {
+    if (type.valueType.kind !== "string") {
+      throw `Media type in "content-type" should be string. But get ${type.valueType.kind}.`;
+    }
+    return type.values.map((v) => v.value as string);
+  }
+  return [];
+}
+
+function loadOperationPaging(
+  method: SdkServiceMethod<SdkHttpOperation>
+): import("../type/operation-paging.js").OperationPaging | undefined {
+  if (method.kind !== "paging") {
+    return undefined;
+  }
+
+  return {
+    ItemName: method.__raw_paged_metadata.itemsProperty?.name,
+    NextLinkName: method.__raw_paged_metadata.nextLinkProperty?.name,
+  } as import("../type/operation-paging.js").OperationPaging;
+}
+
+// TODO: https://github.com/Azure/typespec-azure/issues/981
+function getParameterLocation(
+  p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter | undefined
+): RequestLocation {
+  switch (p?.kind) {
+    case "path":
+      return RequestLocation.Path;
+    case "header":
+      return RequestLocation.Header;
+    case "query":
+      return RequestLocation.Query;
+    case "body":
+      return RequestLocation.Body;
+    default:
+      return RequestLocation.None;
+  }
+}
+
+function getParameterKind(
+  p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter,
+  type: InputType,
+  isContentType: boolean,
+  hasGlobalApiVersion: boolean
+): InputOperationParameterKind {
+  if (p.kind === "body") {
+    switch (p.correspondingMethodParams.length) {
+      case 0:
+        throw new Error(`Body parameter "${p.name}" should have corresponding method parameter.`);
+      case 1:
+        return isSameType(p.correspondingMethodParams[0].type, p.type)
+          ? InputOperationParameterKind.Method
+          : InputOperationParameterKind.Spread;
+      default:
+        return InputOperationParameterKind.Spread;
+    }
+  }
+  return isContentType || type.Kind === "constant"
+    ? InputOperationParameterKind.Constant
+    : p.isApiVersionParam
+      ? hasGlobalApiVersion
+        ? InputOperationParameterKind.Client
+        : InputOperationParameterKind.Method
+      : InputOperationParameterKind.Method;
+}
+export function getResourceName(
   context: SdkContext,
-  operation: Operation,
-  serviceNamespaceType: Namespace
+  operation: SdkHttpOperation,
+  namespace: string
 ): string {
-  const explicitOperationId = getOperationId(context, operation);
+  const explicitOperationId = getOperationId(context, operation.__raw.operation);
   if (explicitOperationId) {
     const ids: string[] = explicitOperationId.split("_");
     if (ids.length > 1) {
@@ -384,14 +397,22 @@ function getOperationGroupName(
     }
   }
 
-  if (operation.interface) {
-    return operation.interface.name;
+  // TODO: not sure if this is the right way to get the resource name
+  if (operation.__raw.operation.interface) {
+    return operation.__raw.operation.interface.name;
   }
-  let namespace = operation.namespace;
-  if (!namespace) {
-    namespace = context.program.checker.getGlobalNamespaceType() ?? serviceNamespaceType;
+  if (operation.__raw.operation.namespace) {
+    return operation.__raw.operation.namespace.name;
   }
+  return namespace;
+}
 
-  if (namespace) return namespace.name;
-  else return "";
+function isSameType(src: SdkType, target: SdkType) {
+  if (src.kind !== target.kind) return false;
+
+  if (src.kind === "model" && target.kind === "model") {
+    return src.name === target.name;
+  }
+  // TODO: more type comparison
+  return true;
 }

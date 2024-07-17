@@ -63,7 +63,7 @@ namespace Microsoft.Generator.CSharp.Input
 
         private InputType CreateDerivedType(ref Utf8JsonReader reader, string? id, string? kind, string? name, JsonSerializerOptions options) => kind switch
         {
-            null => throw new JsonException("InputType must have a 'Kind' property"),
+            null => throw new JsonException($"InputType (id: '{id}', name: '{name}') must have a 'Kind' property"),
             LiteralKind => TypeSpecInputLiteralTypeConverter.CreateInputLiteralType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
             UnionKind => TypeSpecInputUnionTypeConverter.CreateInputUnionType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
             ModelKind => TypeSpecInputModelTypeConverter.CreateModelType(ref reader, id, name, options, _referenceHandler.CurrentResolver),

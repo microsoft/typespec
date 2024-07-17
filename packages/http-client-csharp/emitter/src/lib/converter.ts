@@ -54,6 +54,7 @@ export function fromSdkType(
     } as InputNullableType;
   }
   if (sdkType.kind === "model") return fromSdkModelType(sdkType, context, models, enums);
+  if (sdkType.kind === "endpoint") return fromSdkEndpointType();
   if (sdkType.kind === "enum") return fromSdkEnumType(sdkType, context, enums);
   if (sdkType.kind === "enumvalue")
     return fromSdkEnumValueTypeToConstantType(sdkType, context, enums, literalTypeContext);
@@ -69,7 +70,6 @@ export function fromSdkType(
   // TODO -- only in operations we could have these types, considering we did not adopt getAllOperations from TCGC yet, this should be fine.
   // we need to resolve these conversions when we adopt getAllOperations
   if (sdkType.kind === "credential") throw new Error("Credential type is not supported yet.");
-  if (sdkType.kind === "endpoint") throw new Error("Endpoint type is not supported yet.");
 
   return fromSdkBuiltInType(sdkType);
 }
@@ -370,11 +370,23 @@ function fromSdkArrayType(
   };
 }
 
-function fromUsageFlags(usage: UsageFlags): Usage {
+function fromUsageFlags(usage: UsageFlags): string {
   if (usage & UsageFlags.JsonMergePatch) return Usage.None; // if the model is used in patch, we ignore the usage and defer to the logic of ours
-  usage = usage & (UsageFlags.Input | UsageFlags.Output); // trim off other flags
-  if (usage === UsageFlags.Input) return Usage.Input;
-  else if (usage === UsageFlags.Output) return Usage.Output;
-  else if (usage === (UsageFlags.Input | UsageFlags.Output)) return Usage.RoundTrip;
-  else return Usage.None;
+
+  const usages: string[] = [];
+  if (usage & UsageFlags.Input && usage & UsageFlags.Output) usages.push(Usage.RoundTrip);
+  else if (usage & UsageFlags.Input) usages.push(Usage.Input);
+  else if (usage & UsageFlags.Output) usages.push(Usage.Output);
+
+  if (usage & UsageFlags.MultipartFormData) usages.push(Usage.Multipart);
+
+  if (usages.length > 0) return usages.join(",");
+
+  return Usage.None;
+}
+
+function fromSdkEndpointType(): InputPrimitiveType {
+  return {
+    Kind: "string",
+  };
 }
