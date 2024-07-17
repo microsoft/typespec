@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp.Input
                 usage: InputModelTypeUsage.None,
                 properties: null!,
                 baseModel: null,
-                derivedModels: new List<InputModelType>(),
+                derivedModels: [],
                 discriminatorValue: null,
                 discriminatorProperty: null,
                 discriminatedSubtypes: null!,
@@ -106,7 +106,7 @@ namespace Microsoft.Generator.CSharp.Input
             // if this model has a base, it means this model is a derived model of the base model, add it into the list.
             if (baseModel != null)
             {
-                ((List<InputModelType>)baseModel.DerivedModels).Add(model);
+                baseModel.DerivedModelsInternal.Add(model);
             }
 
             return model;
