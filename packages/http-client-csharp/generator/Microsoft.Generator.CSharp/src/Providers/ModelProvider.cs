@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Providers
     {
         private readonly InputModelType _inputModel;
 
-        protected override FormattableString Description { get;}
+        protected override FormattableString Description { get; }
 
         private readonly bool _isStruct;
         private readonly TypeSignatureModifiers _declarationModifiers;
@@ -111,10 +111,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildConstructorParameters()
         {
-            // find the base model
-            var baseType = Type.BaseType;
-            var baseModel = baseType != null ? CodeModelPlugin.Instance.TypeFactory.GetProvider(baseType) : null;
-            var baseProperties = baseModel?.Properties ?? [];
+            // we need to find all the properties on our base model, we add the reverse because our convention is to have the properties from base model first.
+            IReadOnlyList<PropertyProvider> baseProperties = [.. _inputModel.GetAllBaseModels().Reverse().SelectMany(model => CodeModelPlugin.Instance.TypeFactory.CreateModel(model).Properties)];
             var parameterCapacity = baseProperties.Count + Properties.Count;
             var baseParameters = new List<ParameterProvider>(baseProperties.Count);
             var constructorParameters = new List<ParameterProvider>(parameterCapacity);
@@ -122,7 +120,7 @@ namespace Microsoft.Generator.CSharp.Providers
             // add the base parameters
             foreach (var property in baseProperties)
             {
-                AddInitializationParameters(baseParameters, property, _isStruct);
+                AddInitializationParameter(baseParameters, property, _isStruct);
             }
             constructorParameters.AddRange(baseParameters);
 
@@ -131,12 +129,12 @@ namespace Microsoft.Generator.CSharp.Providers
 
             foreach (var property in Properties)
             {
-                AddInitializationParameters(constructorParameters, property, _isStruct);
+                AddInitializationParameter(constructorParameters, property, _isStruct);
             }
 
             return (constructorParameters, constructorInitializer);
 
-            static void AddInitializationParameters(List<ParameterProvider> parameters, PropertyProvider property, bool isStruct)
+            static void AddInitializationParameter(List<ParameterProvider> parameters, PropertyProvider property, bool isStruct)
             {
                 // we only add those properties with wire info indicating they are coming from specs.
                 if (property.WireInfo is not { } wireInfo)

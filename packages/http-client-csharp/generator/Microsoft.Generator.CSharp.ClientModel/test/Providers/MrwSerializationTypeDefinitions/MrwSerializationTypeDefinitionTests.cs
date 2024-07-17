@@ -419,10 +419,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             var derivedModel = new InputModelType("mockDerivedModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip,
                 [], baseModel, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
             ((List<InputModelType>)baseModel.DerivedModels).Add(derivedModel);
-            var derivedType = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(derivedModel);
-            var baseType = derivedType.BaseType;
-            var mockDerivedModelTypeProvider = ClientModelPlugin.Instance.TypeFactory.GetProvider(derivedType)!;
-            Assert.IsNotNull(mockDerivedModelTypeProvider);
+            var mockBaseModelTypeProvider = ClientModelPlugin.Instance.TypeFactory.CreateModel(baseModel);
+            var mockDerivedModelTypeProvider = ClientModelPlugin.Instance.TypeFactory.CreateModel(derivedModel);
             var derivedSerializationProviders = mockDerivedModelTypeProvider.SerializationProviders;
 
             Assert.AreEqual(1, derivedSerializationProviders.Count);
@@ -440,7 +438,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.IsNull(methodSignature?.ExplicitInterface);
             Assert.AreEqual(2, methodSignature?.Parameters.Count);
             // for derived model, the return type of this method should be the same as the overridden base method
-            Assert.AreEqual(baseType, methodSignature?.ReturnType);
+            Assert.AreEqual(mockBaseModelTypeProvider.Type, methodSignature?.ReturnType);
 
             // Check method modifiers
             var expectedModifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
