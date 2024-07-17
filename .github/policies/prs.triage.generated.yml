@@ -96,6 +96,12 @@ configuration:
                   label: emitter:openapi3
           - if:
               - filesMatchPattern:
+                  pattern: packages/openapi3/src/cli/actions/convert/.*
+            then:
+              - addLabel:
+                  label: openapi3:converter
+          - if:
+              - filesMatchPattern:
                   pattern: eng/.*
             then:
               - addLabel:
