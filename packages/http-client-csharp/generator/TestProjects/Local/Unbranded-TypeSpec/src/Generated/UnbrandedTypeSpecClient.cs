@@ -27,7 +27,7 @@ namespace UnbrandedTypeSpec
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="credential"> A credential used to authenticate to the service. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
-        public UnbrandedTypeSpecClient(Uri endpoint, ApiKeyCredential credential): this(endpoint, credential, new UnbrandedTypeSpecClientOptions())
+        public UnbrandedTypeSpecClient(Uri endpoint, ApiKeyCredential credential) : this(endpoint, credential, new UnbrandedTypeSpecClientOptions())
         {
         }
 
