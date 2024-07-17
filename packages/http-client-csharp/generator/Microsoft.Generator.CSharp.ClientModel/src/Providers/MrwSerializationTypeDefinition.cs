@@ -1036,7 +1036,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// <returns>The list of parameters for the serialization parameter.</returns>
         private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildSerializationConstructorParameters()
         {
-            var baseConstructor = GetBaseConstructor(_baseSerializationProvider);
+            var baseConstructor = _baseSerializationProvider?.SerializationConstructor.Signature;
             var baseParameters = baseConstructor?.Parameters ?? [];
             var parameterCapacity = baseParameters.Count + _inputModel.Properties.Count;
             var parameterNames = baseParameters.Select(p => p.Name).ToHashSet();
@@ -1065,24 +1065,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             return (constructorParameters, constructorInitializer);
-
-            static ConstructorSignature? GetBaseConstructor(MrwSerializationTypeDefinition? baseProvider)
-            {
-                // find the constructor on the base type
-                if (baseProvider == null || baseProvider.Constructors.Count == 0)
-                {
-                    return null;
-                }
-
-                // we cannot know exactly which ctor to call, but in our implementation, it should always be the one with most parameters
-                var ctor = baseProvider.Constructors.OrderByDescending(c => c.Signature.Parameters.Count).First();
-                if (ctor.Signature.Parameters.Count == 0)
-                {
-                    return null;
-                }
-
-                return ctor.Signature;
-            }
         }
 
         private ConstructorProvider BuildEmptyConstructor()
