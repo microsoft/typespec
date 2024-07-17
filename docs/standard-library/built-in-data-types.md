@@ -200,8 +200,8 @@ enum BytesKnownEncoding
 
 | Name | Value | Description |
 |------|-------|-------------|
-| base64 | base64 | Encode to Base64 |
-| base64url | base64url | Encode to Base64 Url |
+| base64 | `"base64"` | Encode to Base64 |
+| base64url | `"base64url"` | Encode to Base64 Url |
 
 
 ### `DateTimeKnownEncoding` {#DateTimeKnownEncoding}
@@ -213,9 +213,9 @@ enum DateTimeKnownEncoding
 
 | Name | Value | Description |
 |------|-------|-------------|
-| rfc3339 | rfc3339 | RFC 3339 standard. https://www.ietf.org/rfc/rfc3339.txt<br />Encode to string. |
-| rfc7231 | rfc7231 | RFC 7231 standard. https://www.ietf.org/rfc/rfc7231.txt<br />Encode to string. |
-| unixTimestamp | unixTimestamp | Encode a datetime to a unix timestamp.<br />Unix timestamps are represented as an integer number of seconds since the Unix epoch and usually encoded as an int32. |
+| rfc3339 | `"rfc3339"` | RFC 3339 standard. https://www.ietf.org/rfc/rfc3339.txt<br />Encode to string. |
+| rfc7231 | `"rfc7231"` | RFC 7231 standard. https://www.ietf.org/rfc/rfc7231.txt<br />Encode to string. |
+| unixTimestamp | `"unixTimestamp"` | Encode a datetime to a unix timestamp.<br />Unix timestamps are represented as an integer number of seconds since the Unix epoch and usually encoded as an int32. |
 
 
 ### `DurationKnownEncoding` {#DurationKnownEncoding}
@@ -227,8 +227,8 @@ enum DurationKnownEncoding
 
 | Name | Value | Description |
 |------|-------|-------------|
-| ISO8601 | ISO8601 | ISO8601 duration |
-| seconds | seconds | Encode to integer or float |
+| ISO8601 | `"ISO8601"` | ISO8601 duration |
+| seconds | `"seconds"` | Encode to integer or float |
 
 
 ### `boolean` {#boolean}
