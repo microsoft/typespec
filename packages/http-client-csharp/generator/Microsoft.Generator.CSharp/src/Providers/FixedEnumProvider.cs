@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputType).ToArray();
+            return CodeModelPlugin.Instance.GetSerializationTypeProviders(_inputType).ToArray();
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
@@ -51,7 +51,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 var initializationValue = IsIntValueType ? Literal(inputValue.Value) : null;
                 var field = new FieldProvider(
                     modifiers,
-                    ValueType,
+                    MemberValueType,
                     name,
                     inputValue.Description is null ? $"{name}" : FormattableStringHelpers.FromString(inputValue.Description),
                     initializationValue);
@@ -62,6 +62,9 @@ namespace Microsoft.Generator.CSharp.Providers
         }
 
         protected override FieldProvider[] BuildFields()
+            => Members.Select(v => v.Field).ToArray();
+
+        protected override EnumTypeMember[] BuildEnumValues()
             => Members.Select(v => v.Field).ToArray();
     }
 }

@@ -11,9 +11,8 @@ using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    public abstract class EnumProvider : TypeProvider
+    internal abstract class EnumProvider : TypeProvider
     {
-        private IReadOnlyList<EnumTypeMember>? _members;
         private readonly InputEnumType _inputType;
 
         public static EnumProvider Create(InputEnumType input)
@@ -25,19 +24,18 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             _inputType = input;
             _deprecated = input.Deprecated;
-            _input = input;
 
             IsExtensible = input.IsExtensible;
-            ValueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input.ValueType);
-            IsStringValueType = ValueType.Equals(typeof(string));
-            IsIntValueType = ValueType.Equals(typeof(int)) || ValueType.Equals(typeof(long));
-            IsFloatValueType = ValueType.Equals(typeof(float)) || ValueType.Equals(typeof(double));
+            MemberValueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input.ValueType);
+            IsStringValueType = MemberValueType.Equals(typeof(string));
+            IsIntValueType = MemberValueType.Equals(typeof(int)) || MemberValueType.Equals(typeof(long));
+            IsFloatValueType = MemberValueType.Equals(typeof(float)) || MemberValueType.Equals(typeof(double));
             IsNumericValueType = IsIntValueType || IsFloatValueType;
 
             Description = input.Description != null ? FormattableStringHelpers.FromString(input.Description) : $"The {Name}.";
         }
 
-        public CSharpType ValueType { get; }
+        public CSharpType MemberValueType { get; } // Each member in the EnumProvider has to have this type
         public bool IsExtensible { get; }
         internal bool IsIntValueType { get; }
         internal bool IsFloatValueType { get; }
@@ -46,16 +44,12 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        protected override string BuildName() => _input.Name.ToCleanName();
+        protected override string BuildName() => _inputType.Name.ToCleanName();
         protected override FormattableString Description { get; }
-
-        public IReadOnlyList<EnumTypeMember> Members => _members ??= BuildMembers();
-
-        protected abstract IReadOnlyList<EnumTypeMember> BuildMembers();
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputType).ToArray();
+            return CodeModelPlugin.Instance.GetSerializationTypeProviders(_inputType).ToArray();
         }
         protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 

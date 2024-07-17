@@ -33,7 +33,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 _modifiers |= TypeSignatureModifiers.Internal;
             }
 
-            _valueField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, ValueType, "_value");
+            _valueField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, MemberValueType, "_value");
         }
 
         private readonly FieldProvider _valueField;
@@ -56,7 +56,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 var initializationValue = Literal(inputValue.Value);
                 var field = new FieldProvider(
                     modifiers,
-                    ValueType,
+                    MemberValueType,
                     name,
                     FormattableStringHelpers.FromString(inputValue.Description),
                     initializationValue);
@@ -96,9 +96,9 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override ConstructorProvider[] BuildConstructors()
         {
-            var valueParameter = new ParameterProvider("value", $"The value.", ValueType)
+            var valueParameter = new ParameterProvider("value", $"The value.", MemberValueType)
             {
-                Validation = ValueType.IsValueType ? ParameterValidationType.None : ParameterValidationType.AssertNotNull
+                Validation = MemberValueType.IsValueType ? ParameterValidationType.None : ParameterValidationType.AssertNotNull
             };
             var signature = new ConstructorSignature(
                 Type: Type,
@@ -143,7 +143,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             methods.Add(new(inequalitySignature, Not(left.InvokeEquals(right)), this));
 
-            var valueParameter = new ParameterProvider("value", $"The value.", ValueType);
+            var valueParameter = new ParameterProvider("value", $"The value.", MemberValueType);
             var castSignature = new MethodSignature(
                 Name: string.Empty,
                 Description: $"Converts a string to a {Type:C}",
@@ -187,11 +187,11 @@ namespace Microsoft.Generator.CSharp.Providers
             // public bool Equals(EnumType other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
             // or
             // public bool Equals(EnumType other) => int/float.Equals(_value, other._value);
-            var valueField = new VariableExpression(ValueType.WithNullable(!ValueType.IsValueType), _valueField.Declaration);
+            var valueField = new VariableExpression(MemberValueType.WithNullable(!MemberValueType.IsValueType), _valueField.Declaration);
             var otherValue = ((ValueExpression)otherParameter).Property(_valueField.Name);
             var equalsExpressionBody = IsStringValueType
-                            ? Static(ValueType).Invoke(nameof(object.Equals), [valueField, otherValue, FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)])
-                            : Static(ValueType).Invoke(nameof(object.Equals), [valueField, otherValue]);
+                            ? Static(MemberValueType).Invoke(nameof(object.Equals), [valueField, otherValue, FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)])
+                            : Static(MemberValueType).Invoke(nameof(object.Equals), [valueField, otherValue]);
             methods.Add(new(equalsSignature, equalsExpressionBody, this));
 
             var getHashCodeSignature = new MethodSignature(
@@ -237,7 +237,7 @@ namespace Microsoft.Generator.CSharp.Providers
         }
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputType).ToArray();
+            return CodeModelPlugin.Instance.GetSerializationTypeProviders(_inputType).ToArray();
         }
     }
 }

@@ -12,6 +12,10 @@ namespace Microsoft.Generator.CSharp.Providers
 {
     public abstract class TypeProvider
     {
+        //public TypeProvider()
+        //{
+        //    _enumMemberValueType = new(() => BuildEnumMemberValueType());
+        //}
         protected string? _deprecated;
 
         /// <summary>
@@ -54,6 +58,7 @@ namespace Microsoft.Generator.CSharp.Providers
             isEnum: GetIsEnum());
 
         protected virtual bool GetIsEnum() => false;
+        public bool IsEnum => GetIsEnum();
 
         protected virtual string GetNamespace() => CodeModelPlugin.Instance.Configuration.RootNamespace;
 
@@ -143,6 +148,9 @@ namespace Microsoft.Generator.CSharp.Providers
         protected virtual TypeProvider[] BuildNestedTypes() => Array.Empty<TypeProvider>();
 
         protected virtual TypeProvider[] BuildSerializationProviders() => Array.Empty<TypeProvider>();
+        protected virtual CSharpType BuildEnumUnderlyingType() => throw new InvalidOperationException("Not an EnumProvider type");
+        private CSharpType? _enumUnderlyingType;
+        public CSharpType EnumUnderlyingType => _enumUnderlyingType ??= BuildEnumUnderlyingType();
 
         protected virtual XmlDocProvider BuildXmlDocs()
         {
@@ -169,5 +177,10 @@ namespace Microsoft.Generator.CSharp.Providers
                 _fields = fields;
             }
         }
+        public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
+
+        protected virtual IReadOnlyList<EnumTypeMember> BuildEnumValues() => Array.Empty<EnumTypeMember>();
+
+        private IReadOnlyList<EnumTypeMember>? _enumValues;
     }
 }
