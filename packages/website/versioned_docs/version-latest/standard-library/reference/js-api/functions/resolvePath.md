@@ -19,7 +19,7 @@ resolvePath("/path", "dir", "..", "to", "file.ext") === "path/to/file.ext"
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 | ...`paths` | (`undefined` \| `string`)[] |
 

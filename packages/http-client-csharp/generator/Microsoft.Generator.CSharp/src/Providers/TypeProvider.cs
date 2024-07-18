@@ -17,22 +17,15 @@ namespace Microsoft.Generator.CSharp.Providers
         /// Gets the relative file path where the generated file will be stored.
         /// This path is relative to the project's root directory.
         /// </summary>
-        public string RelativeFilePath
-        {
-            get => _relativeFilePath ??= BuildRelativeFilePath();
-            private set => _relativeFilePath = value;
-        }
+        internal string RelativeFilePath => _relativeFilePath ??= BuildRelativeFilePath();
+
         private string? _relativeFilePath;
 
-        public string Name
-        {
-            get => _name ??= BuildName();
-            private set => _name = value;
-        }
+        public string Name => _name ??= BuildName();
 
         private string? _name;
 
-        protected internal virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
+        protected virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
 
         private XmlDocProvider? _xmlDocs;
 
@@ -54,10 +47,8 @@ namespace Microsoft.Generator.CSharp.Providers
         public CSharpType Type => _type ??= new(
             this,
             GetNamespace(),
-            arguments: GetTypeArguments(),
-            isNullable: false,
-            baseType: GetBaseType(),
-            isEnum: GetIsEnum());
+            GetTypeArguments(),
+            GetBaseType());
 
         protected virtual bool GetIsEnum() => false;
 
@@ -159,16 +150,6 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected abstract string BuildRelativeFilePath();
         protected abstract string BuildName();
-
-        public static string GetDefaultModelNamespace(string defaultNamespace)
-        {
-            if (CodeModelPlugin.Instance.Configuration.UseModelNamespace)
-            {
-                return $"{defaultNamespace}.Models";
-            }
-
-            return defaultNamespace;
-        }
 
         public void Update(List<MethodProvider>? methods = default, List<PropertyProvider>? properties = default, List<FieldProvider>? fields = default)
         {

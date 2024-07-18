@@ -123,26 +123,6 @@ namespace UnbrandedTypeSpec
             return await FooSayHiAsync(headParameter, queryParameter, optionalQuery, null).ConfigureAwait(false);
         }
 
-        /// <summary> Test expression body conversion. </summary>
-        /// <returns> Returns an int. </returns>
-        public int FooTestExpressionBodyConversionSayHi()
-        {
-            try
-            {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionSayHi.");
-                return 42;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionSayHi: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionSayHi.");
-            }
-        }
-
         /// <summary>
         /// [Protocol Method] Return hi again
         /// <list type="bullet">
@@ -247,26 +227,6 @@ namespace UnbrandedTypeSpec
 
             ClientResult result = await FooHelloAgainAsync(p1, p2, action, null).ConfigureAwait(false);
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
-        }
-
-        /// <summary> Test expression body conversion. </summary>
-        /// <returns> Returns an int. </returns>
-        public int FooTestExpressionBodyConversionHelloAgain()
-        {
-            try
-            {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionHelloAgain.");
-                return 42;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionHelloAgain: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionHelloAgain.");
-            }
         }
 
         /// <summary>
@@ -375,26 +335,6 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
-        /// <summary> Test expression body conversion. </summary>
-        /// <returns> Returns an int. </returns>
-        public int FooTestExpressionBodyConversionNoContentType()
-        {
-            try
-            {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionNoContentType.");
-                return 42;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionNoContentType: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionNoContentType.");
-            }
-        }
-
         /// <summary>
         /// [Protocol Method] Return hi in demo2
         /// <list type="bullet">
@@ -467,26 +407,6 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> FooHelloDemo2Async()
         {
             return await FooHelloDemo2Async(null).ConfigureAwait(false);
-        }
-
-        /// <summary> Test expression body conversion. </summary>
-        /// <returns> Returns an int. </returns>
-        public int FooTestExpressionBodyConversionHelloDemo2()
-        {
-            try
-            {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionHelloDemo2.");
-                return 42;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionHelloDemo2: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionHelloDemo2.");
-            }
         }
 
         /// <summary>
@@ -575,26 +495,6 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
-        /// <summary> Test expression body conversion. </summary>
-        /// <returns> Returns an int. </returns>
-        public int FooTestExpressionBodyConversionCreateLiteral()
-        {
-            try
-            {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionCreateLiteral.");
-                return 42;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionCreateLiteral: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionCreateLiteral.");
-            }
-        }
-
         /// <summary>
         /// [Protocol Method] Send literal parameters
         /// <list type="bullet">
@@ -667,26 +567,6 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> FooHelloLiteralAsync()
         {
             return await FooHelloLiteralAsync(null).ConfigureAwait(false);
-        }
-
-        /// <summary> Test expression body conversion. </summary>
-        /// <returns> Returns an int. </returns>
-        public int FooTestExpressionBodyConversionHelloLiteral()
-        {
-            try
-            {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionHelloLiteral.");
-                return 42;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionHelloLiteral: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionHelloLiteral.");
-            }
         }
 
         /// <summary>
@@ -779,26 +659,6 @@ namespace UnbrandedTypeSpec
             return await FooTopActionAsync(action, null).ConfigureAwait(false);
         }
 
-        /// <summary> Test expression body conversion. </summary>
-        /// <returns> Returns an int. </returns>
-        public int FooTestExpressionBodyConversionTopAction()
-        {
-            try
-            {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionTopAction.");
-                return 42;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionTopAction: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionTopAction.");
-            }
-        }
-
         /// <summary>
         /// [Protocol Method] top level method2
         /// <list type="bullet">
@@ -871,26 +731,6 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> FooTopAction2Async()
         {
             return await FooTopAction2Async(null).ConfigureAwait(false);
-        }
-
-        /// <summary> Test expression body conversion. </summary>
-        /// <returns> Returns an int. </returns>
-        public int FooTestExpressionBodyConversionTopAction2()
-        {
-            try
-            {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionTopAction2.");
-                return 42;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionTopAction2: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionTopAction2.");
-            }
         }
 
         /// <summary>
@@ -979,26 +819,6 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
-        /// <summary> Test expression body conversion. </summary>
-        /// <returns> Returns an int. </returns>
-        public int FooTestExpressionBodyConversionPatchAction()
-        {
-            try
-            {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionPatchAction.");
-                return 42;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionPatchAction: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionPatchAction.");
-            }
-        }
-
         /// <summary>
         /// [Protocol Method] body parameter without body decorator
         /// <list type="bullet">
@@ -1083,26 +903,6 @@ namespace UnbrandedTypeSpec
 
             ClientResult result = await FooAnonymousBodyAsync(Thing, null).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
-        }
-
-        /// <summary> Test expression body conversion. </summary>
-        /// <returns> Returns an int. </returns>
-        public int FooTestExpressionBodyConversionAnonymousBody()
-        {
-            try
-            {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionAnonymousBody.");
-                return 42;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionAnonymousBody: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionAnonymousBody.");
-            }
         }
 
         /// <summary>
@@ -1191,26 +991,6 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
 
-        /// <summary> Test expression body conversion. </summary>
-        /// <returns> Returns an int. </returns>
-        public int FooTestExpressionBodyConversionFriendlyModel()
-        {
-            try
-            {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionFriendlyModel.");
-                return 42;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionFriendlyModel: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionFriendlyModel.");
-            }
-        }
-
         /// <summary>
         /// [Protocol Method] addTimeHeader
         /// <list type="bullet">
@@ -1287,26 +1067,6 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> FooAddTimeHeaderAsync(DateTimeOffset repeatabilityFirstSent)
         {
             return await FooAddTimeHeaderAsync(repeatabilityFirstSent, null).ConfigureAwait(false);
-        }
-
-        /// <summary> Test expression body conversion. </summary>
-        /// <returns> Returns an int. </returns>
-        public int FooTestExpressionBodyConversionAddTimeHeader()
-        {
-            try
-            {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionAddTimeHeader.");
-                return 42;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionAddTimeHeader: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionAddTimeHeader.");
-            }
         }
 
         /// <summary>
@@ -1395,26 +1155,6 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
         }
 
-        /// <summary> Test expression body conversion. </summary>
-        /// <returns> Returns an int. </returns>
-        public int FooTestExpressionBodyConversionProjectedNameModel()
-        {
-            try
-            {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionProjectedNameModel.");
-                return 42;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionProjectedNameModel: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionProjectedNameModel.");
-            }
-        }
-
         /// <summary>
         /// [Protocol Method] return anonymous model
         /// <list type="bullet">
@@ -1489,26 +1229,6 @@ namespace UnbrandedTypeSpec
             return await FooReturnsAnonymousModelAsync(null).ConfigureAwait(false);
         }
 
-        /// <summary> Test expression body conversion. </summary>
-        /// <returns> Returns an int. </returns>
-        public int FooTestExpressionBodyConversionReturnsAnonymousModel()
-        {
-            try
-            {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionReturnsAnonymousModel.");
-                return 42;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionReturnsAnonymousModel: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionReturnsAnonymousModel.");
-            }
-        }
-
         /// <summary>
         /// [Protocol Method] get extensible enum
         /// <list type="bullet">
@@ -1581,26 +1301,6 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> FooGetUnknownValueAsync()
         {
             return await FooGetUnknownValueAsync(null).ConfigureAwait(false);
-        }
-
-        /// <summary> Test expression body conversion. </summary>
-        /// <returns> Returns an int. </returns>
-        public int FooTestExpressionBodyConversionGetUnknownValue()
-        {
-            try
-            {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionGetUnknownValue.");
-                return 42;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionGetUnknownValue: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionGetUnknownValue.");
-            }
         }
 
         /// <summary>
@@ -1689,26 +1389,6 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
-        /// <summary> Test expression body conversion. </summary>
-        /// <returns> Returns an int. </returns>
-        public int FooTestExpressionBodyConversionInternalProtocol()
-        {
-            try
-            {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionInternalProtocol.");
-                return 42;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionInternalProtocol: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionInternalProtocol.");
-            }
-        }
-
         /// <summary>
         /// [Protocol Method] When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one
         /// <list type="bullet">
@@ -1781,26 +1461,6 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> FooStillConvenientAsync()
         {
             return await FooStillConvenientAsync(null).ConfigureAwait(false);
-        }
-
-        /// <summary> Test expression body conversion. </summary>
-        /// <returns> Returns an int. </returns>
-        public int FooTestExpressionBodyConversionStillConvenient()
-        {
-            try
-            {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionStillConvenient.");
-                return 42;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionStillConvenient: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionStillConvenient.");
-            }
         }
 
         /// <summary>
@@ -1891,26 +1551,6 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(id, nameof(id));
 
             return await FooHeadAsBooleanAsync(id, null).ConfigureAwait(false);
-        }
-
-        /// <summary> Test expression body conversion. </summary>
-        /// <returns> Returns an int. </returns>
-        public int FooTestExpressionBodyConversionHeadAsBoolean()
-        {
-            try
-            {
-                System.Console.WriteLine("Entering method TestExpressionBodyConversionHeadAsBoolean.");
-                return 42;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionHeadAsBoolean: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TestExpressionBodyConversionHeadAsBoolean.");
-            }
         }
     }
 }

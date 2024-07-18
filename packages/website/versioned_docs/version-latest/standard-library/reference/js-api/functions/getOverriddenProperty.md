@@ -13,7 +13,7 @@ given property, if any.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `property` | [`ModelProperty`](../interfaces/ModelProperty.md) |
 
 ## Returns

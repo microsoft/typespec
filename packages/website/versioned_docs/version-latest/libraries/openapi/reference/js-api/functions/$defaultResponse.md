@@ -10,7 +10,7 @@ function $defaultResponse(context, target): void
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Model` |
 

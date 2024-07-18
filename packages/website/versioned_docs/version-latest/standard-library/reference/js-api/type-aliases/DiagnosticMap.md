@@ -7,8 +7,8 @@ title: "[T] DiagnosticMap"
 type DiagnosticMap<T>: { readonly [code in keyof T]: DiagnosticDefinition<T[code]> };
 ```
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` *extends* `object` |

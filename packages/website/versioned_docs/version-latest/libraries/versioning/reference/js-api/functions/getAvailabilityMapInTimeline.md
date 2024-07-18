@@ -13,7 +13,7 @@ function getAvailabilityMapInTimeline(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `type` | `Type` |
 | `timeline` | `VersioningTimeline` |

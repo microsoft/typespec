@@ -12,7 +12,7 @@ Check if the given property should be serialized as an attribute instead of a no
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `target` | `ModelProperty` |
 

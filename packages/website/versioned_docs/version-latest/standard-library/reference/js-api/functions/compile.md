@@ -14,7 +14,7 @@ oldProgram?): Promise<Program>
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `host` | [`CompilerHost`](../interfaces/CompilerHost.md) |
 | `mainFile` | `string` |
 | `options` | [`CompilerOptions`](../interfaces/CompilerOptions.md) |

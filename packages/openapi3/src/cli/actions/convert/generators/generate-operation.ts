@@ -1,10 +1,9 @@
-import { OpenAPI3Response, Refable } from "../../../../types.js";
+import { Refable } from "../../../../types.js";
 import {
   TypeSpecOperation,
   TypeSpecOperationParameter,
   TypeSpecRequestBody,
 } from "../interfaces.js";
-import { generateResponseModelName } from "../transforms/transform-operation-responses.js";
 import { generateDocs } from "../utils/docs.js";
 import { generateDecorators } from "./generate-decorators.js";
 import { generateTypeFromSchema, getRefName } from "./generate-types.js";
@@ -26,9 +25,11 @@ export function generateOperation(operation: TypeSpecOperation): string {
     ...generateRequestBodyParameters(operation.requestBodies),
   ];
 
-  const responseTypes = generateResponses(operation.operationId!, operation.responses);
+  const responseTypes = operation.responseTypes.length
+    ? operation.responseTypes.join(" | ")
+    : "void";
 
-  definitions.push(`op ${operation.name}(${parameters.join(", ")}): ${responseTypes.join(" | ")};`);
+  definitions.push(`op ${operation.name}(${parameters.join(", ")}): ${responseTypes};`);
 
   return definitions.join(" ");
 }
@@ -85,40 +86,4 @@ function generateRequestBodyParameters(requestBodies: TypeSpecRequestBody[]): st
 
 function supportsOnlyJson(contentTypes: string[]) {
   return contentTypes.length === 1 && contentTypes[0] === "application/json";
-}
-
-function generateResponses(
-  operationId: string,
-  responses: TypeSpecOperation["responses"]
-): string[] {
-  if (!responses) {
-    return ["void"];
-  }
-
-  const definitions: string[] = [];
-
-  for (const statusCode of Object.keys(responses)) {
-    const response = responses[statusCode];
-    definitions.push(...generateResponseForStatus(operationId, statusCode, response));
-  }
-
-  return definitions;
-}
-
-function generateResponseForStatus(
-  operationId: string,
-  statusCode: string,
-  response: Refable<OpenAPI3Response>
-): string[] {
-  if ("$ref" in response) {
-    return [getRefName(response.$ref)];
-  }
-
-  if (!response.content) {
-    return [generateResponseModelName(operationId, statusCode)];
-  }
-
-  return Object.keys(response.content).map((contentType) =>
-    generateResponseModelName(operationId, statusCode, contentType)
-  );
 }

@@ -13,7 +13,7 @@ Resolve the OpenAPI operation ID for the given operation using the following log
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | `Program` | TypeSpec Program |
 | `operation` | `Operation` | Operation |
 

@@ -1,5 +1,29 @@
 # Change Log - @typespec/http
 
+## 0.58.0
+
+### Bump dependencies
+
+- [#3718](https://github.com/microsoft/typespec/pull/3718) Dependency updates July 2024
+
+### Features
+
+- [#3717](https://github.com/microsoft/typespec/pull/3717) Allow overriding base operation verb
+- [#3676](https://github.com/microsoft/typespec/pull/3676) Expose `getHttpPart` and types functions
+- [#3732](https://github.com/microsoft/typespec/pull/3732) Expose `model` property on `HttpAuth` to retrieve original type used to define security scheme
+
+### Breaking Changes
+
+- [#3737](https://github.com/microsoft/typespec/pull/3737) Keep trailing slash when building http routes, this is breaking if you used to have `@route()` ending with `/`.
+  
+  | TypeSpec                                                         | Before            | After              |
+  | ---------------------------------------------------------------- | ----------------- | ------------------ |
+  | `@route("users/")`                                               | `users`           | `users/`           |
+  | `@route("users")`                                                | `users`           | `users`            |
+  | on interface `@route("users/")` and on op `@route("addresses/")` | `users/addresses` | `users/addresses/` |
+  | on interface `@route("users/")` and on op `@route("addresses")`  | `users/addresses` | `users/addresses`  |
+
+
 ## 0.57.0
 
 ### Bug Fixes
