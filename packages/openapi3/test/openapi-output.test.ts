@@ -250,13 +250,15 @@ describe("openapi3: extension decorator", () => {
   });
 
   it("adds an extension to a namespace", async () => {
-    const oapi = await openApiFor(`
-      @extension("x-model-extension", "foobar")
-      @service namespace Service {};      
-    `);
+    const oapi = await openApiFor(
+      `
+      @extension("x-namespace-extension", "foobar")
+      @service namespace Service {};
+      `
+    );
 
-    strictEqual(oapi["x-model-extension"], "foobar");
-  })
+    strictEqual(oapi["x-namespace-extension"], "foobar");
+  });
 
   it("check format and pattern decorator on model", async () => {
     const oapi = await openApiFor(
