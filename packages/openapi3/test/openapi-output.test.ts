@@ -249,6 +249,17 @@ describe("openapi3: extension decorator", () => {
     strictEqual(oapi.components.parameters.PetId["x-parameter-extension"], "foobaz");
   });
 
+  it("adds an extension to a namespace", async () => {
+    const oapi = await openApiFor(
+      `
+      @extension("x-namespace-extension", "foobar")
+      @service namespace Service {};
+      `
+    );
+
+    strictEqual(oapi["x-namespace-extension"], "foobar");
+  });
+
   it("check format and pattern decorator on model", async () => {
     const oapi = await openApiFor(
       `
