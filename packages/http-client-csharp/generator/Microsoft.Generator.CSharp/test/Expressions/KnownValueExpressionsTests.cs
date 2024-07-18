@@ -17,7 +17,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         {
             var original = new VariableExpression(typeof(BinaryData), "foo");
 
-            var nullableExpression = original.As<BinaryData>().NullConditional(true);
+            var nullableExpression = original.As<BinaryData>().NullConditional();
             var result = nullableExpression.ToMemory();
             using CodeWriter writer = new();
             result.Write(writer);
