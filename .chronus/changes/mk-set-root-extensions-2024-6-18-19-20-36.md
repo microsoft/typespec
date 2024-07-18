@@ -4,4 +4,4 @@ packages:
   - "@typespec/openapi3"
 ---
 
-Adds extensions defined on a namespace to the root of the OAS document
+`@extension` used on the service namespace will set extension at the root of the document
