@@ -347,6 +347,7 @@ function createOAPIEmitter(
       root.servers = resolveServers(servers);
     }
 
+    attachExtensions(program, service.type, root);
     serviceNamespaceName = getNamespaceFullName(service.type);
     currentPath = root.paths;
 
