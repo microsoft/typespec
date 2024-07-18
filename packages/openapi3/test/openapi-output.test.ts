@@ -252,7 +252,7 @@ describe("openapi3: extension decorator", () => {
   it("adds an extension to a namespace", async () => {
     const oapi = await openApiFor(`
       @extension("x-model-extension", "foobar")
-      @service namespace Suno {};      
+      @service namespace Service {};      
     `);
 
     strictEqual(oapi["x-model-extension"], "foobar");
