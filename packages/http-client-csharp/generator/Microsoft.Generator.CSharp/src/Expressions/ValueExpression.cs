@@ -117,6 +117,8 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public ValueExpression AndExpr(ValueExpression other) => new BinaryOperatorExpression("and", this, other);
 
+        public ValueExpression NullConditional(bool nullConditional = true) => nullConditional ? new NullConditionalExpression(this) : this;
+
         private string GetDebuggerDisplay()
         {
             using CodeWriter writer = new CodeWriter();
