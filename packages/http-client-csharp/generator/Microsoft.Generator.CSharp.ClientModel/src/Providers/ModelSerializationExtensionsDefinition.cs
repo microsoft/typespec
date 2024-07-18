@@ -50,9 +50,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private const string _wireOptionsName = "WireOptions";
         private readonly FieldProvider _wireOptionsField;
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        public override string Name => "ModelSerializationExtensions";
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+
+        protected override string BuildName() => "ModelSerializationExtensions";
 
         protected override FieldProvider[] BuildFields()
         {

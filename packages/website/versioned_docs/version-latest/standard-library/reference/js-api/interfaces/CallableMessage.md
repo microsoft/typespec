@@ -3,10 +3,10 @@ jsApi: true
 title: "[I] CallableMessage"
 
 ---
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` *extends* `string`[] |
 
 ```ts
@@ -16,7 +16,7 @@ interface CallableMessage(dict): string
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `dict` | `Record`<`T`\[`number`\], `string`\> |
 
 ## Returns
@@ -26,5 +26,5 @@ interface CallableMessage(dict): string
 ## Properties
 
 | Property | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `keys` | `T` |

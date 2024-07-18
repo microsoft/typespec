@@ -10,7 +10,7 @@ title: "[I] ProjectedProgram"
 ## Properties
 
 | Property | Modifier | Type | Description | Inherited from |
-| :------ | :------ | :------ | :------ | :------ |
+| ------ | ------ | ------ | ------ | ------ |
 | `checker` | `public` | [`Checker`](Checker.md) | - | [`Program`](Program.md).`checker` |
 | `compilerOptions` | `public` | [`CompilerOptions`](CompilerOptions.md) | - | [`Program`](Program.md).`compilerOptions` |
 | `diagnostics` | `readonly` | readonly [`Diagnostic`](Diagnostic.md)[] | - | [`Program`](Program.md).`diagnostics` |
@@ -53,7 +53,7 @@ getOption(key): undefined | string
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `key` | `string` |
 
 #### Returns
@@ -77,7 +77,7 @@ Return location context of the given source file.
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `sourceFile` | [`SourceFile`](SourceFile.md) |
 
 #### Returns
@@ -115,7 +115,7 @@ loadTypeSpecScript(typespecScript): Promise<TypeSpecScriptNode>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `typespecScript` | [`SourceFile`](SourceFile.md) |
 
 #### Returns
@@ -137,7 +137,7 @@ onValidate(cb, LibraryMetadata): void
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `cb` | (`program`) => `void` \| `Promise`<`void`\> |
 | `LibraryMetadata` | [`LibraryMetadata`](../type-aliases/LibraryMetadata.md) |
 
@@ -160,7 +160,7 @@ reportDiagnostic(diagnostic): void
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `diagnostic` | [`Diagnostic`](Diagnostic.md) |
 
 #### Returns
@@ -182,7 +182,7 @@ reportDiagnostics(diagnostics): void
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `diagnostics` | readonly [`Diagnostic`](Diagnostic.md)[] |
 
 #### Returns
@@ -204,7 +204,7 @@ reportDuplicateSymbols(symbols): void
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `symbols` | `undefined` \| `SymbolTable` |
 
 #### Returns
@@ -226,7 +226,7 @@ resolveTypeReference(reference): [undefined | Type, readonly Diagnostic[]]
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `reference` | `string` |
 
 #### Returns
@@ -248,7 +248,7 @@ stateMap(key): Map<Type, any>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `key` | `symbol` |
 
 #### Returns
@@ -270,7 +270,7 @@ stateSet(key): Set<Type>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `key` | `symbol` |
 
 #### Returns
@@ -292,7 +292,7 @@ trace(area, message): void
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `area` | `string` |
 | `message` | `string` |
 

@@ -7,7 +7,7 @@ title: Interfaces
 
 Interfaces are useful for grouping and reusing [operations](./operations.md).
 
-You can declare interfaces using the `interface` keyword.
+You can declare interfaces using the `interface` keyword. Its name must be an [`identifier`](./identifiers.md).
 
 ```typespec
 interface SampleInterface {

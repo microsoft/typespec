@@ -45,9 +45,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }
 
-        public override string Name => "ClientPipelineExtensions";
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+        protected override string BuildName() => "ClientPipelineExtensions";
 
         protected override MethodProvider[] BuildMethods()
         {

@@ -15,7 +15,7 @@ Set a specific operation ID.
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `context` | `DecoratorContext` | Decorator Context |
 | `target` | `Operation` | - |
 | `operationId` | `string` | - |

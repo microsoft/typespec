@@ -14,7 +14,12 @@ namespace Microsoft.Generator.CSharp.Expressions
         {
             writer.Append($"new");
             if (Type is not null)
-                writer.Append($" {Type}");
+            {
+                using (var newInstanceScope = new CodeWriter.NewInstanceScope(writer))
+                {
+                    writer.Append($" {Type}");
+                }
+            }
             if (Parameters.Count > 0 || InitExpression is not { Values.Count: > 0 })
             {
                 writer.WriteArguments(Parameters, Parameters.Count < SingleLineParameterThreshold);

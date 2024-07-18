@@ -20,7 +20,7 @@ decorator, or chosen by default in simple cases.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `type` | `Type` |
 

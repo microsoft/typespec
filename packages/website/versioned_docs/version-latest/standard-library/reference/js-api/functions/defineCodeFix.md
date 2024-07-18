@@ -10,7 +10,7 @@ function defineCodeFix(fix): CodeFix
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `fix` | [`CodeFix`](../interfaces/CodeFix.md) |
 
 ## Returns

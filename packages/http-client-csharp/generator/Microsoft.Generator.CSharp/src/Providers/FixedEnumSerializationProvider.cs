@@ -26,16 +26,15 @@ namespace Microsoft.Generator.CSharp.Providers
             Debug.Assert(!enumType.IsExtensible);
 
             _enumType = enumType;
-            Name = $"{_enumType.Name}Extensions";
         }
 
         protected override string GetNamespace() => _enumType.Type.Namespace;
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial;
 
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        public override string Name { get; }
+        protected override string BuildName() => $"{_enumType.Name}Extensions";
 
         /// <summary>
         /// Returns if this enum type needs an extension method for serialization

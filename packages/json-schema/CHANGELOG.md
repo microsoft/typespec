@@ -1,5 +1,16 @@
 # Change Log - @typespec/json-schema
 
+## 0.58.0
+
+### Bug Fixes
+
+- [#3516](https://github.com/microsoft/typespec/pull/3516) Fix issue that could result in invalid document generation when running `tsp compile` from another directory
+
+### Bump dependencies
+
+- [#3718](https://github.com/microsoft/typespec/pull/3718) Dependency updates July 2024
+
+
 ## 0.57.0
 
 ### Bug Fixes

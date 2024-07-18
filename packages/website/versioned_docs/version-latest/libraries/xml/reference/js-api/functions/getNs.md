@@ -12,7 +12,7 @@ Get the namespace and prefix for the given type.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `target` | `Type` |
 

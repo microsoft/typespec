@@ -35,9 +35,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }
 
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        public override string Name => "TypeFormatters";
+        protected override string BuildName() => "TypeFormatters";
 
         private readonly FieldProvider _roundtripZFormatField = new(FieldModifiers.Private | FieldModifiers.Const, typeof(string), "RoundtripZFormat", initializationValue: Literal("yyyy-MM-ddTHH:mm:ss.fffffffZ"));
         private readonly FieldProvider _defaultNumberFormatField = new(FieldModifiers.Public | FieldModifiers.Const, typeof(string), "DefaultNumberFormat", initializationValue: Literal("G"));
@@ -65,10 +65,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             var dateTimeParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(DateTime));
             var formatParameter = new ParameterProvider("format", FormattableStringHelpers.Empty, typeof(string));
-            var dateTimeSignature = boolSignature with
-            {
-                Parameters = [dateTimeParameter, formatParameter]
-            };
+            var dateTimeSignature = new MethodSignature(
+                Name: ToStringMethodName,
+                Parameters: [dateTimeParameter, formatParameter],
+                Modifiers: _methodModifiers,
+                ReturnType: typeof(string),
+                Description: null, ReturnDescription: null);
+
             var dateTimeValue = (ValueExpression)dateTimeParameter;
             var dateTimeValueKind = dateTimeValue.Property(nameof(DateTime.Kind));
             var sdkName = "Generated clients require";
@@ -82,10 +85,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 this);
 
             var dateTimeOffsetParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(DateTimeOffset));
-            var dateTimeOffsetSignature = boolSignature with
-            {
-                Parameters = [dateTimeOffsetParameter, formatParameter]
-            };
+            var dateTimeOffsetSignature = new MethodSignature(
+                Name: ToStringMethodName,
+                Parameters: [dateTimeOffsetParameter, formatParameter],
+                Modifiers: _methodModifiers,
+                ReturnType: typeof(string),
+                Description: null, ReturnDescription: null);
+
             var dateTimeOffsetValue = dateTimeOffsetParameter.As<DateTimeOffset>();
             var toStringDateTimeOffset = new MethodProvider(
                 dateTimeOffsetSignature,
@@ -101,10 +107,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 this);
 
             var timeSpanParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(TimeSpan));
-            var timeSpanSignature = boolSignature with
-            {
-                Parameters = [timeSpanParameter, formatParameter]
-            };
+            var timeSpanSignature = new MethodSignature(
+                Name: ToStringMethodName,
+                Parameters: [timeSpanParameter, formatParameter],
+                Modifiers: _methodModifiers,
+                ReturnType: typeof(string),
+                Description: null, ReturnDescription: null);
+
             var toStringTimeSpan = new MethodProvider(
                 timeSpanSignature,
                 new SwitchExpression(formatParameter,
@@ -115,10 +124,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 this);
 
             var byteArrayParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(byte[]));
-            var byteArraySignature = boolSignature with
-            {
-                Parameters = [byteArrayParameter, formatParameter]
-            };
+            var byteArraySignature = new MethodSignature(
+                Name: ToStringMethodName,
+                Parameters: [byteArrayParameter, formatParameter],
+                Modifiers: _methodModifiers,
+                ReturnType: typeof(string),
+                Description: null, ReturnDescription: null);
             var byteArrayValue = (ValueExpression)byteArrayParameter;
             var toStringByteArray = new MethodProvider(
                 byteArraySignature,

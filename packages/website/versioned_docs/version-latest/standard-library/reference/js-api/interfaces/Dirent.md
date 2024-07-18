@@ -6,7 +6,7 @@ title: "[I] Dirent"
 ## Properties
 
 | Property | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `name` | `string` |
 
 ## Methods

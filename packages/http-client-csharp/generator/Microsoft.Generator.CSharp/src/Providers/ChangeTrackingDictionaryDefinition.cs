@@ -52,9 +52,9 @@ namespace Microsoft.Generator.CSharp.Providers
             return TypeSignatureModifiers.Internal;
         }
 
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        public override string Name => "ChangeTrackingDictionary";
+        protected override string BuildName() => "ChangeTrackingDictionary";
 
         protected override CSharpType[] GetTypeArguments()
         {

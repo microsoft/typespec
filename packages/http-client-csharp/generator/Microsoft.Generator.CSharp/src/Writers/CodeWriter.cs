@@ -27,6 +27,7 @@ namespace Microsoft.Generator.CSharp
         private UnsafeBufferSequence _builder;
         private bool _atBeginningOfLine;
         private bool _writingXmlDocumentation;
+        private bool _writingNewInstance;
 
         internal CodeWriter()
         {
@@ -575,7 +576,7 @@ namespace Microsoft.Generator.CSharp
                 AppendRaw(_writingXmlDocumentation ? "}" : ">");
             }
 
-            if (!isDeclaration && type is { IsNullable: true, IsValueType: true })
+            if (!_writingNewInstance && !isDeclaration && type is { IsNullable: true, IsValueType: true })
             {
                 AppendRaw("?");
             }
@@ -666,7 +667,11 @@ namespace Microsoft.Generator.CSharp
                 throw new InvalidOperationException("Can't declare variables inside documentation.");
             }
 
-            declaration.SetActualName(GetTemporaryVariable(declaration.RequestedName));
+            if (!declaration.HasBeenDeclared)
+            {
+                declaration.SetActualName(GetTemporaryVariable(declaration.RequestedName));
+            }
+
             return WriteDeclaration(declaration.ActualName);
         }
 
@@ -788,7 +793,7 @@ namespace Microsoft.Generator.CSharp
 
                 if (!isBase || arguments.Any())
                 {
-                    AppendRaw(isBase ? ": base(" : ": this(");
+                    AppendRaw(isBase ? " : base(" : " : this(");
                     var iterator = arguments.GetEnumerator();
                     if (iterator.MoveNext())
                     {
