@@ -19,7 +19,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _inputClient = inputClient;
         }
 
-        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}Options.cs");
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
         protected override string BuildName() => $"{_inputClient.Name}Options".ToCleanName();
 
         protected override CSharpType[] BuildImplements()

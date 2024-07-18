@@ -24,34 +24,34 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private const string AuthorizationApiKeyPrefixConstName = "AuthorizationApiKeyPrefix";
         private const string PipelineFieldName = "_pipeline";
         private const string ApiKeyCredentialFieldName = "_keyCredential";
-        private IReadOnlyDictionary<string, FieldProvider> _ctorParametersNamesToFields;
+        private const string EndpointFieldName = "_endpoint";
         private readonly FormattableString _publicCtorDescription;
         private readonly TypeProvider _clientOptions;
         private readonly InputClient _inputClient;
         private readonly InputAuth? _inputAuth;
         private readonly ParameterProvider _clientOptionsParameter;
+        private readonly ParameterProvider _endpointParameter;
+        private readonly FieldProvider _endpointField;
         private readonly FieldProvider? _apiKeyAuthField;
         private readonly FieldProvider? _authorizationHeaderConstant;
         private readonly FieldProvider? _authorizationApiKeyPrefixConstant;
-        private readonly IReadOnlyList<ParameterProvider> _clientParameters;
 
         public ClientProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
             // TO-DO: Implement client options https://github.com/microsoft/typespec/issues/3688
             _clientOptions = new ClientOptionsProvider(inputClient);
-            _clientOptionsParameter = new ParameterProvider(
-                "options",
-                $"The options for configuring the client.",
-                _clientOptions.Type.WithNullable(true),
-                initializationValue: New.Instance(_clientOptions.Type.WithNullable(true)));
+            _clientOptionsParameter = ScmKnownParameters.ClientOptions(_clientOptions.Type);
             _inputAuth = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Auth;
             _apiKeyAuthField = BuildApiKeyField();
             _authorizationHeaderConstant = BuildAuthHeaderConstant();
             _authorizationApiKeyPrefixConstant = BuildAuthApiKeyPrefixConstant();
-            _clientParameters = GetClientParameters();
+            _endpointField = new(
+                FieldModifiers.Private | FieldModifiers.ReadOnly,
+                KnownParameters.Endpoint.Type,
+                EndpointFieldName);
+            _endpointParameter = BuildClientEndpointParameter();
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
-            _ctorParametersNamesToFields = new Dictionary<string, FieldProvider>();
             PipelineField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, typeof(ClientPipeline), PipelineFieldName);
         }
 
@@ -63,15 +63,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override FieldProvider[] BuildFields()
         {
-            int estimatedCapacity = _clientParameters.Count + 3;
-            List<FieldProvider> fields = new(estimatedCapacity) { PipelineField };
-            var ctorParametersNamesToFields = new Dictionary<string, FieldProvider>();
+            List<FieldProvider> fields = [PipelineField, _endpointField];
 
             if (_apiKeyAuthField != null && _authorizationHeaderConstant != null)
             {
                 fields.Add(_authorizationHeaderConstant);
                 fields.Add(_apiKeyAuthField);
-                ctorParametersNamesToFields[ScmKnownParameters.ApiKeyAuth.Name] = _apiKeyAuthField;
 
                 if (_authorizationApiKeyPrefixConstant != null)
                 {
@@ -79,84 +76,46 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
             }
 
-            foreach (var parameter in _clientParameters)
-            {
-                // convert the parameter to a field
-                var field = new FieldProvider(
-                    FieldModifiers.Private | FieldModifiers.ReadOnly,
-                    parameter.Type,
-                    "_" + parameter.Name.ToVariableName());
-                fields.Add(field);
-                ctorParametersNamesToFields[parameter.Name] = field;
-            }
-
-            _ctorParametersNamesToFields = ctorParametersNamesToFields;
+            // TO-DO: Add additional fields for client options https://github.com/microsoft/typespec/issues/3688
 
             return [.. fields];
         }
 
         protected override ConstructorProvider[] BuildConstructors()
         {
-            var requiredParameters = _apiKeyAuthField != null ? [ScmKnownParameters.ApiKeyAuth] : new List<ParameterProvider>();
-            var optionalParameters = new List<ParameterProvider>();
-            var orderedParams = new List<ParameterProvider>(_clientParameters.Count);
-            ParameterProvider? endpointParam = null;
-
-            foreach (var parameter in _clientParameters)
-            {
-                if (parameter.Name == KnownParameters.Endpoint.Name)
-                {
-                    endpointParam = parameter;
-                    orderedParams.Add(endpointParam);
-                }
-                else if (parameter.DefaultValue == null && parameter.Validation != ParameterValidationType.None)
-                {
-                    requiredParameters.Add(parameter);
-                }
-                else
-                {
-                    optionalParameters.Add(parameter);
-                }
-            }
-
-            // order the constructor parameters as (endpoint, requiredParameters, optionalParameters).
-            orderedParams.AddRange(requiredParameters);
-            optionalParameters.Add(_clientOptionsParameter);
-            orderedParams.AddRange(optionalParameters);
-
+            var primaryConstructorParameters = GetPrimaryConstructorParameters();
             var primaryConstructor = new ConstructorProvider(
-                new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Public, orderedParams),
-                BuildPrimaryConstructorBody(orderedParams),
+                new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Public, primaryConstructorParameters),
+                BuildPrimaryConstructorBody(primaryConstructorParameters),
                 this);
-            var secondaryConstructor = BuildSecondaryConstructor(requiredParameters, orderedParams, endpointParam);
 
-            if (requiredParameters.Count > 0 || _apiKeyAuthField != null)
+            var isEndpointRequired = _endpointParameter.InitializationValue == null;
+            List<ParameterProvider> requiredParameters = isEndpointRequired ? [_endpointParameter] : [];
+            if (_apiKeyAuthField != null)
             {
-                return [ConstructorProvider.BuildMockingConstructor(this), secondaryConstructor, primaryConstructor];
+                requiredParameters.Add(_apiKeyAuthField.AsParameter);
             }
-            else
-            {
-                return [secondaryConstructor, primaryConstructor];
-            }
+
+            var secondaryConstructor = BuildSecondaryConstructor(requiredParameters, primaryConstructorParameters);
+            return requiredParameters.Count > 0 || _apiKeyAuthField != null
+                ? [ConstructorProvider.BuildMockingConstructor(this), secondaryConstructor, primaryConstructor]
+                : [secondaryConstructor, primaryConstructor];
         }
 
-        private MethodBodyStatement[] BuildPrimaryConstructorBody(IReadOnlyList<ParameterProvider> orderedParameters)
+        private MethodBodyStatement[] BuildPrimaryConstructorBody(IReadOnlyList<ParameterProvider> primaryConstructorParameters)
         {
-            MethodBodyStatement? clientOptions = null;
-            List<MethodBodyStatement> body = [];
+            // add client options and endpoint initialization
+            var clientOptionsInitializationValue = _clientOptionsParameter.InitializationValue ?? New.Instance(_clientOptions.Type.WithNullable(true));
+            var clientOptionsAssignment = _clientOptionsParameter.Assign(clientOptionsInitializationValue, nullCoalesce: true).Terminate();
+            var endpointAssignment = _endpointField.Assign(_endpointParameter).Terminate();
+            List<MethodBodyStatement> body = [clientOptionsAssignment, MethodBodyStatement.EmptyLine, endpointAssignment];
 
-            foreach (var p in orderedParameters)
+            // add other parameter assignments to their corresponding fields
+            foreach (var p in primaryConstructorParameters)
             {
-                var field = GetFieldByConstructorParameterName(p.Name);
-                // handle options parameter
-                if (p == _clientOptionsParameter)
+                if (p.Field != null)
                 {
-                    var initializationValue = _clientOptionsParameter.InitializationValue ?? New.Instance(_clientOptions.Type.WithNullable(true));
-                    clientOptions = p.Assign(initializationValue, nullCoalesce: true).Terminate();
-                }
-                else if (field != null)
-                {
-                    body.Add(field.Assign(p).Terminate());
+                    body.Add(p.Field.Assign(p).Terminate());
                 }
             }
 
@@ -176,24 +135,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             body.Add(PipelineField.Assign(ClientPipelineSnippets.Create(
                 _clientOptionsParameter, New.Array(typeof(PipelinePolicy)), perRetryPolicies, New.Array(typeof(PipelinePolicy)))).Terminate());
 
-            return clientOptions != null ? [clientOptions, .. body] : [.. body];
+            // TO-DO: Add additional field assignments for client options https://github.com/microsoft/typespec/issues/3688
+
+            return [.. body];
         }
 
         /// <summary>
-        /// Builds the secondary constructor for the client. The secondary constructor contains the endpoint parameter
-        /// and all the required parameters as arguments.
+        /// Builds the secondary constructor for the client. The secondary constructor contains all required parameters as arguments.
         /// </summary>
         /// <param name="requiredParams">The required parameters for the client.</param>
         /// <param name="primaryCtorOrderedParams">The ordered parameters for the primary constructor.</param>
-        /// <param name="endpointParam">The endpoint parameter for the client.</param>
-        private ConstructorProvider BuildSecondaryConstructor
-            (List<ParameterProvider> requiredParams,
-            List<ParameterProvider> primaryCtorOrderedParams,
-            ParameterProvider? endpointParam)
+        private ConstructorProvider BuildSecondaryConstructor(
+            IReadOnlyList<ParameterProvider> requiredParams,
+            IReadOnlyList<ParameterProvider> primaryCtorOrderedParams)
         {
-            var isEndpointRequired = endpointParam != null && endpointParam.InitializationValue == null;
-            List<ParameterProvider> secondaryCtorParameters = isEndpointRequired ? [endpointParam, .. requiredParams] : requiredParams;
-
             // initialize the arguments for the primary constructor
             var primaryCtorArgs = new List<ValueExpression>(primaryCtorOrderedParams.Count);
             foreach (var p in primaryCtorOrderedParams)
@@ -213,7 +168,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Type,
                 _publicCtorDescription,
                 MethodSignatureModifiers.Public,
-                secondaryCtorParameters,
+                requiredParams,
                 Initializer: primaryCtorInitializer);
 
             return new ConstructorProvider(
@@ -229,7 +184,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 return new FieldProvider(
                     FieldModifiers.Private | FieldModifiers.ReadOnly,
                     typeof(ApiKeyCredential),
-                    ApiKeyCredentialFieldName);
+                    ApiKeyCredentialFieldName,
+                    description: $"A credential used to authenticate to the service.");
             }
 
             return null;
@@ -279,25 +235,31 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return methods.ToArray();
         }
 
-        private ParameterProvider[] GetClientParameters()
+        private ParameterProvider[] GetPrimaryConstructorParameters()
         {
-            var parameterCount = _inputClient.Parameters.Count;
-            ParameterProvider[] clientParameters = new ParameterProvider[parameterCount];
+            if (_apiKeyAuthField != null)
+            {
+                return [_endpointParameter, _apiKeyAuthField.AsParameter, _clientOptionsParameter];
+            }
 
-            for (var i = 0; i < parameterCount; i++)
+            return [_endpointParameter, _clientOptionsParameter];
+        }
+
+        private ParameterProvider BuildClientEndpointParameter()
+        {
+            for (var i = 0; i < _inputClient.Parameters.Count; i++)
             {
                 var inputClientParam = _inputClient.Parameters[i];
-                var parameterProvider = new ParameterProvider(inputClientParam);
-
                 if (inputClientParam.IsEndpoint)
                 {
-                    // add the endpoint parameter
+                    var parameterProvider = new ParameterProvider(inputClientParam);
                     var knownEndpointParam = KnownParameters.Endpoint;
                     var description = inputClientParam.Description ?? $"{knownEndpointParam.Description}";
                     var endpointValue = parameterProvider.InitializationValue != null
                         ? New.Instance(knownEndpointParam.Type, parameterProvider.InitializationValue)
                         : null;
-                    var endpointParam = new ParameterProvider(
+
+                    return new(
                         knownEndpointParam.Name,
                         $"{description}",
                         knownEndpointParam.Type,
@@ -305,21 +267,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     {
                         Validation = parameterProvider.Validation
                     };
-
-                    clientParameters[i] = endpointParam;
-                }
-                else
-                {
-                    clientParameters[i] = parameterProvider;
                 }
             }
 
-            return clientParameters;
-        }
-
-        private FieldProvider? GetFieldByConstructorParameterName(string parameterName)
-        {
-            return _ctorParametersNamesToFields.TryGetValue(parameterName, out var field) ? field : null;
+            return KnownParameters.Endpoint;
         }
     }
 }

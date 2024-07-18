@@ -14,9 +14,10 @@ namespace UnbrandedTypeSpec
     public partial class UnbrandedTypeSpecClient
     {
         private readonly ClientPipeline _pipeline;
-        private const string AuthorizationHeader = "my-api-key";
-        private readonly ApiKeyCredential _keyCredential;
         private readonly Uri _endpoint;
+        private const string AuthorizationHeader = "my-api-key";
+        /// <summary> A credential used to authenticate to the service. </summary>
+        private readonly ApiKeyCredential _keyCredential;
 
         /// <summary> Initializes a new instance of UnbrandedTypeSpecClient for mocking. </summary>
         protected UnbrandedTypeSpecClient()
@@ -25,25 +26,26 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Initializes a new instance of UnbrandedTypeSpecClient. </summary>
         /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="credential"> A credential used to authenticate to the service. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
-        public UnbrandedTypeSpecClient(Uri endpoint, ApiKeyCredential credential) : this(endpoint, credential, new UnbrandedTypeSpecClientOptions())
+        /// <param name="keyCredential"> A credential used to authenticate to the service. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="keyCredential"/> is null. </exception>
+        public UnbrandedTypeSpecClient(Uri endpoint, ApiKeyCredential keyCredential) : this(endpoint, keyCredential, new UnbrandedTypeSpecClientOptions())
         {
         }
 
         /// <summary> Initializes a new instance of UnbrandedTypeSpecClient. </summary>
         /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="credential"> A credential used to authenticate to the service. </param>
+        /// <param name="keyCredential"> A credential used to authenticate to the service. </param>
         /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
-        public UnbrandedTypeSpecClient(Uri endpoint, ApiKeyCredential credential, UnbrandedTypeSpecClientOptions options)
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="keyCredential"/> is null. </exception>
+        public UnbrandedTypeSpecClient(Uri endpoint, ApiKeyCredential keyCredential, UnbrandedTypeSpecClientOptions options)
         {
             Argument.AssertNotNull(endpoint, nameof(endpoint));
-            Argument.AssertNotNull(credential, nameof(credential));
+            Argument.AssertNotNull(keyCredential, nameof(keyCredential));
 
             options ??= new UnbrandedTypeSpecClientOptions();
+
             _endpoint = endpoint;
-            _keyCredential = credential;
+            _keyCredential = keyCredential;
             _pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[]{ ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(_keyCredential, AuthorizationHeader) }, Array.Empty<PipelinePolicy>());
         }
 

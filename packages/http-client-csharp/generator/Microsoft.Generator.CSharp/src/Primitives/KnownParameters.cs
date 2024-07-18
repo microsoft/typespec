@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.Primitives
     public static partial class KnownParameters
     {
         private static ParameterProvider? _endpoint;
-        public static ParameterProvider Endpoint => _endpoint ??= new("endpoint", $"Service endpoint", new CSharpType(typeof(Uri)));
+        public static ParameterProvider Endpoint => _endpoint ??= new("endpoint", $"Service endpoint", new CSharpType(typeof(Uri))) { Validation = ParameterValidationType.AssertNotNull };
 
         private static ParameterProvider? _nextLink;
         public static ParameterProvider NextLink => _nextLink ??= new("nextLink", $"Continuation token", typeof(string));

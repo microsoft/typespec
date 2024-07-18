@@ -52,7 +52,6 @@ namespace Microsoft.Generator.CSharp.Providers
             Type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
             Validation = inputParameter.IsRequired ? ParameterValidationType.AssertNotNull : ParameterValidationType.None;
             InitializationValue = GetParameterInitializationValue(inputParameter);
-            DefaultValue = inputParameter.IsRequired ? null : InitializationValue;
         }
 
         public ParameterProvider(
@@ -164,6 +163,9 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private ParameterValidationType GetParameterValidation()
         {
+            if (Field is not null && !Field.Type.IsNullable)
+                return ParameterValidationType.AssertNotNull;
+
             if (Property is null || Property.WireInfo is null)
                 return ParameterValidationType.None;
 
