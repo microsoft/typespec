@@ -10,7 +10,7 @@ title: "[I] SuppressDirective"
 ## Properties
 
 | Property | Type | Inherited from |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `code` | `string` | - |
 | `message` | `string` | - |
 | `name` | `"suppress"` | - |

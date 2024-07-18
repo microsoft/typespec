@@ -10,7 +10,7 @@ function getRouteOptionsForNamespace(program, namespace): RouteOptions | undefin
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `namespace` | `Namespace` |
 

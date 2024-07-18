@@ -12,7 +12,7 @@ Resolve the info entry by merging data specified with `@service`, `@summary` and
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `entity` | `Namespace` |
 

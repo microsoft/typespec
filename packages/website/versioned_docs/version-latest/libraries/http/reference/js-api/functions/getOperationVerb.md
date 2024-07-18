@@ -10,7 +10,7 @@ function getOperationVerb(program, entity): HttpVerb | undefined
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `entity` | `Type` |
 

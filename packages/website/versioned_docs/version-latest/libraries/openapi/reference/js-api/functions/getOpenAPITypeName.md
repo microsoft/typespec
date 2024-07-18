@@ -23,7 +23,7 @@ namespace using the provided `TypeNameOptions`.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `type` | `Type` |
 | `options` | `TypeNameOptions` |

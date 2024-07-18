@@ -22,7 +22,7 @@ it will be used as a prefix to the route URI of the operation.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Namespace` \| `Interface` \| `Operation` |
 | `path` | `string` |

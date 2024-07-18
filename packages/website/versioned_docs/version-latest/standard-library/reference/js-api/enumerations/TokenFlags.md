@@ -6,7 +6,7 @@ title: "[E] TokenFlags"
 ## Enumeration Members
 
 | Enumeration Member | Value |
-| :------ | :------ |
+| ------ | ------ |
 | `Backticked` | `32` |
 | `DocComment` | `16` |
 | `Escaped` | `1` |

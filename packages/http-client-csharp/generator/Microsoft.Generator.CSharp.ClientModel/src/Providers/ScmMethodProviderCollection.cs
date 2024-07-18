@@ -53,6 +53,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Parameters: [.. MethodParameters, ScmKnownParameters.RequestOptions]);
             var methodBody = Throw(New.NotImplementedException(Literal("Method not implemented.")));
 
+            // TODO this is the wrong EnclosingType - it should be RestClientProvider. We should refactor MethodProviderCollection.
+            // https://github.com/microsoft/typespec/issues/3826
             return new MethodProvider(methodSignature, methodBody, EnclosingType);
         }
 
@@ -145,7 +147,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ];
 
             var protocolMethod =
-                new ScmMethodProvider(methodSignature, methodBody, EnclosingType) { IsProtocol = true };
+                new ScmMethodProvider(methodSignature, methodBody, EnclosingType) { IsServiceCall = true };
             protocolMethod.XmlDocs!.Exceptions.Add(new(typeof(ClientResultException), "Service returned a non-success status code.", []));
             List<XmlDocStatement> listItems =
             [

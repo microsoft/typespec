@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Providers
     {
         private readonly InputModelType _inputModel;
 
-        protected internal override FormattableString Description { get;}
+        protected override FormattableString Description { get; }
 
         private readonly bool _isStruct;
         private readonly TypeSignatureModifiers _declarationModifiers;
@@ -45,9 +45,17 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
+        protected override CSharpType? GetBaseType()
+        {
+            if (_inputModel.BaseModel == null)
+                return null;
+
+            return CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(_inputModel.BaseModel);
+        }
+
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputModel).ToArray();
+            return [.. CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputModel)];
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
@@ -83,14 +91,15 @@ namespace Microsoft.Generator.CSharp.Providers
                 : _inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
                     ? MethodSignatureModifiers.Public
                     : MethodSignatureModifiers.Internal;
-            var constructorParameters = BuildConstructorParameters();
+            var (constructorParameters, constructorInitializer) = BuildConstructorParameters();
 
             var constructor = new ConstructorProvider(
                 signature: new ConstructorSignature(
                     Type,
                     $"Initializes a new instance of {Type:C}",
                     accessibility,
-                    constructorParameters),
+                    constructorParameters,
+                    Initializer: constructorInitializer),
                 bodyStatements: new MethodBodyStatement[]
                 {
                     GetPropertyInitializers(constructorParameters)
@@ -100,27 +109,48 @@ namespace Microsoft.Generator.CSharp.Providers
             return [constructor];
         }
 
-        private IReadOnlyList<ParameterProvider> BuildConstructorParameters()
+        // TODO -- figure out how to reuse this piece of code because similar code exists in MrwSerializationDefinition as well https://github.com/microsoft/typespec/issues/3871
+        private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildConstructorParameters()
         {
-            List<ParameterProvider> constructorParameters = new List<ParameterProvider>();
+            // we need to find all the properties on our base model, we add the reverse because our convention is to have the properties from base model first.
+            var baseProperties = _inputModel.GetAllBaseModels().Reverse().SelectMany(model => CodeModelPlugin.Instance.TypeFactory.CreateModel(model).Properties);
+            var basePropertyCount = baseProperties.Count();
+            var parameterCapacity = basePropertyCount + Properties.Count;
+            var baseParameters = new List<ParameterProvider>(basePropertyCount);
+            var constructorParameters = new List<ParameterProvider>(parameterCapacity);
+
+            // add the base parameters
+            foreach (var property in baseProperties)
+            {
+                AddInitializationParameter(baseParameters, property, _isStruct);
+            }
+            constructorParameters.AddRange(baseParameters);
+
+            // construct the initializer using the parameters from base signature
+            var constructorInitializer = new ConstructorInitializer(true, baseParameters);
 
             foreach (var property in Properties)
             {
+                AddInitializationParameter(constructorParameters, property, _isStruct);
+            }
+
+            return (constructorParameters, constructorInitializer);
+
+            static void AddInitializationParameter(List<ParameterProvider> parameters, PropertyProvider property, bool isStruct)
+            {
                 // we only add those properties with wire info indicating they are coming from specs.
-                if (property.WireInfo == null)
+                if (property.WireInfo is not { } wireInfo)
                 {
-                    continue;
+                    return;
                 }
-                if (_isStruct || (property.WireInfo is { IsRequired: true, IsDiscriminator: false } && !property.Type.IsLiteral))
+                if (isStruct || (wireInfo is { IsRequired: true, IsDiscriminator: false } && !property.Type.IsLiteral))
                 {
-                    if (!property.WireInfo.IsReadOnly)
+                    if (!wireInfo.IsReadOnly)
                     {
-                        constructorParameters.Add(property.AsParameter.ToPublicInputParameter());
+                        parameters.Add(property.AsParameter.ToPublicInputParameter());
                     }
                 }
             }
-
-            return constructorParameters;
         }
 
         private MethodBodyStatement GetPropertyInitializers(IReadOnlyList<ParameterProvider> parameters)
@@ -135,7 +165,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 ValueExpression? initializationValue = null;
 
-                if (parameterMap.TryGetValue(property.Name.ToVariableName(), out var parameter) || _isStruct)
+                if (parameterMap.TryGetValue(property.AsParameter.Name, out var parameter) || _isStruct)
                 {
                     if (parameter != null)
                     {
@@ -151,7 +181,6 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
                 else if (initializationValue == null && property.Type.IsCollection)
                 {
-                    // TO-DO: Properly initialize collection properties - https://github.com/microsoft/typespec/issues/3509
                     initializationValue = New.Instance(property.Type.PropertyInitializationType);
                 }
 

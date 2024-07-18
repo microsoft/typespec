@@ -17,7 +17,7 @@ applicable with the given visibility.
 ## Parameters
 
 | Parameter | Type | Default value |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | `Program` | `undefined` |
 | `property` | `ModelProperty` | `undefined` |
 | `visibility` | [`Visibility`](../enumerations/Visibility.md) | `undefined` |
