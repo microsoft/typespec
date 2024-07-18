@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.CodeAnalysis;
+using System.Collections.Generic;
 using Moq;
 using NUnit.Framework;
 
@@ -17,7 +17,7 @@ namespace Microsoft.Generator.CSharp.Tests.StartUp
             metadataMock.SetupGet(m => m.PluginName).Returns("MockPlugin");
             var mockPlugin = new Mock<CodeModelPlugin>();
 
-            pluginHandler.Plugins = new System.Collections.Generic.List<System.Lazy<CodeModelPlugin, IMetadata>>
+            pluginHandler.Plugins = new List<System.Lazy<CodeModelPlugin, IMetadata>>
             {
                 new(() => mockPlugin.Object, metadataMock.Object),
             };
@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp.Tests.StartUp
             metadataMock.SetupGet(m => m.PluginName).Returns("MockPlugin");
             var mockPlugin = new Mock<CodeModelPlugin>();
 
-            pluginHandler.Plugins = new System.Collections.Generic.List<System.Lazy<CodeModelPlugin, IMetadata>>
+            pluginHandler.Plugins = new List<System.Lazy<CodeModelPlugin, IMetadata>>
             {
                 new(() => mockPlugin.Object, metadataMock.Object),
             };
