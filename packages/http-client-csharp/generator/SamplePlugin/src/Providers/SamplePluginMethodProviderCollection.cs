@@ -39,20 +39,17 @@ namespace SamplePlugin.Providers
                 var ex = new VariableExpression(typeof(Exception), "ex");
                 var decl = new DeclarationExpression(ex);
                 var statements = new TryCatchFinallyStatement(
-                    new[]
-                    {
+                    [
                         InvokeConsoleWriteLine(Literal($"Entering method {method.Signature.Name}.")),
                         method.BodyStatements!
-                    },
-                    new CatchExpression(
-                        decl,
-                        new[]
+                    ],
+                    new CatchStatement(decl)
                         {
                             InvokeConsoleWriteLine(new FormattableStringExpression(
                                 $"An exception was thrown in method {method.Signature.Name}: {{0}}", new[] { ex })),
                             Throw()
-                        }),
-                    InvokeConsoleWriteLine(Literal($"Exiting method {method.Signature.Name}.")));
+                        },
+                    [InvokeConsoleWriteLine(Literal($"Exiting method {method.Signature.Name}."))]);
 
                 method.Update(bodyStatements: statements);
             }

@@ -1,5 +1,12 @@
 # Change Log - @typespec/compiler
 
+## 0.58.1
+
+### Bug Fixes
+
+- [#3875](https://github.com/microsoft/typespec/pull/3875) Fix issues with examples not working with `Array`, `Record`, `Union` and `unknown` types
+
+
 ## 0.58.0
 
 ### Bug Fixes

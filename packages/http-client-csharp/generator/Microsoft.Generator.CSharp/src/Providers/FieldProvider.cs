@@ -11,6 +11,7 @@ namespace Microsoft.Generator.CSharp.Providers
 {
     public sealed class FieldProvider
     {
+        private VariableExpression? _variable;
         private Lazy<ParameterProvider> _parameter;
         public FormattableString? Description { get; }
         public FieldModifiers Modifiers { get; }
@@ -27,6 +28,8 @@ namespace Microsoft.Generator.CSharp.Providers
         /// Converts this field to a parameter.
         /// </summary>
         public ParameterProvider AsParameter => _parameter.Value;
+
+        public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
 
         public FieldProvider(
             FieldModifiers modifiers,

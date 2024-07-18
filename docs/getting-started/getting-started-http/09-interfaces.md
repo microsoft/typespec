@@ -21,7 +21,7 @@ interface ToyOperations {
 }
 ```
 
-In this example, the `ToyOperations` interface defines two operations: `getToy` and `updateToy`. The `@added(Versions.v2)` decorator indicates that these operations are part of version 2 of the service.
+In this example, the `ToyOperations` interface defines two operations: `getToy` and `updateToy`. The `@added(Versions.v2)` decorator indicates that these operations are part of version 2 of the service. We're also making use of the `NotFoundError` defined earlier to handle cases where a toy is not found.
 
 ## Using Interfaces
 

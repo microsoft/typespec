@@ -31,7 +31,7 @@ In this example, `petId` is a path parameter. The resulting URL for this operati
 
 Query parameters are used to filter or modify the results of an operation. They are marked with the `@query` decorator and are appended to the URL as key-value pairs.
 
-For example, let's modify our `list` operation to support pagination using query parameters:
+For example, let's add a `list` operation that supports pagination using query parameters:
 
 ```typespec
 @route("/pets")
