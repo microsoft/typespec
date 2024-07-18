@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [SetUp]
         public void Setup()
         {
-            _outputLibrary = new MockOutputLibrary();
+            _outputLibrary = new TestOutputLibrary();
         }
 
         // Tests that the BuildTypeProviders method is successfully overridden.
@@ -31,25 +31,25 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void CanAddVisitors()
         {
-            _outputLibrary.AddVisitor(new MockOutputLibraryVisitor());
+            _outputLibrary.AddVisitor(new TestOutputLibraryVisitor());
             Assert.AreEqual(1, _outputLibrary.GetOutputLibraryVisitors().Count());
         }
 
         [Test]
         public void CanOverrideGetOutputLibraryVisitors()
         {
-            var outputLibrary = new MockOutputLibraryOverridingVisitors(new [] { new MockOutputLibraryVisitor() });
+            var outputLibrary = new TestOutputLibraryOverridingVisitors(new [] { new TestOutputLibraryVisitor() });
             Assert.AreEqual(1, outputLibrary.GetOutputLibraryVisitors().Count());
 
-            outputLibrary.AddVisitor(new MockOutputLibraryVisitor());
+            outputLibrary.AddVisitor(new TestOutputLibraryVisitor());
             Assert.AreEqual(2, outputLibrary.GetOutputLibraryVisitors().Count());
         }
 
-        private class MockOutputLibraryVisitor : OutputLibraryVisitor
+        private class TestOutputLibraryVisitor : OutputLibraryVisitor
         {
         }
 
-        private class MockOutputLibrary : OutputLibrary
+        private class TestOutputLibrary : OutputLibrary
         {
             protected override TypeProvider[] BuildTypeProviders()
             {
@@ -57,10 +57,10 @@ namespace Microsoft.Generator.CSharp.Tests
             }
         }
 
-        private class MockOutputLibraryOverridingVisitors : OutputLibrary
+        private class TestOutputLibraryOverridingVisitors : OutputLibrary
         {
             private readonly IEnumerable<OutputLibraryVisitor>? _visitors;
-            public MockOutputLibraryOverridingVisitors(IEnumerable<OutputLibraryVisitor>? visitors = null)
+            public TestOutputLibraryOverridingVisitors(IEnumerable<OutputLibraryVisitor>? visitors = null)
             {
                 _visitors = visitors;
             }
