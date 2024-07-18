@@ -6,6 +6,8 @@ using System.ClientModel;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using Microsoft.CodeAnalysis;
+using Microsoft.Generator.CSharp.ClientModel.Providers;
+using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 
