@@ -32,6 +32,7 @@ export interface NetEmitterOptions extends SdkEmitterOptions {
   "use-model-reader-writer"?: boolean;
   "disable-xml-docs"?: boolean;
   "plugin-name"?: string;
+  decoratorsAllowList?: string[];
 }
 
 export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
@@ -105,6 +106,11 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
     "use-model-reader-writer": { type: "boolean", nullable: true },
     "disable-xml-docs": { type: "boolean", nullable: true },
     "plugin-name": { type: "string", nullable: true },
+    decoratorsAllowList: {
+      type: "array",
+      nullable: true,
+      items: { type: "string" },
+    },
   },
   required: [],
 };

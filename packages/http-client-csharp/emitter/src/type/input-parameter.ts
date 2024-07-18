@@ -2,13 +2,14 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { InputConstant } from "./input-constant.js";
+import { InputDecoratedType } from "./input-decorated-type.js";
 import { InputOperationParameterKind } from "./input-operation-parameter-kind.js";
 import { InputType } from "./input-type.js";
 import { RequestLocation } from "./request-location.js";
 
 //TODO: Define VirtualParameter for HLC
 export interface VirtualParameter {}
-export interface InputParameter {
+export interface InputParameter extends InputDecoratedType {
   Name: string;
   NameInRequest: string;
   Description?: string;

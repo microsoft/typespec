@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { BodyMediaType } from "./body-media-type.js";
+import { InputDecoratedType } from "./input-decorated-type.js";
 import { InputParameter } from "./input-parameter.js";
 import { OperationLongRunning } from "./operation-long-running.js";
 import { OperationPaging } from "./operation-paging.js";
@@ -14,7 +15,7 @@ export interface Paging {
   NextPageMethod?: string;
 }
 
-export interface InputOperation {
+export interface InputOperation extends InputDecoratedType {
   Name: string;
   ResourceName?: string;
   Summary?: string;

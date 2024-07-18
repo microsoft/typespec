@@ -14,6 +14,7 @@ import {
   SdkEnumValueType,
   SdkModelPropertyType,
   SdkModelType,
+  SdkTupleType,
   SdkType,
   SdkUnionType,
   UsageFlags,
@@ -65,7 +66,7 @@ export function fromSdkType(
   if (sdkType.kind === "utcDateTime" || sdkType.kind === "offsetDateTime")
     return fromSdkDateTimeType(sdkType);
   if (sdkType.kind === "duration") return fromSdkDurationType(sdkType as SdkDurationType);
-  if (sdkType.kind === "tuple") return fromTupleType();
+  if (sdkType.kind === "tuple") return fromTupleType(sdkType as SdkTupleType);
   // TODO -- only in operations we could have these types, considering we did not adopt getAllOperations from TCGC yet, this should be fine.
   // we need to resolve these conversions when we adopt getAllOperations
   if (sdkType.kind === "credential") throw new Error("Credential type is not supported yet.");
@@ -95,6 +96,7 @@ export function fromSdkModelType(
       Deprecation: modelType.deprecation,
       Description: modelType.description,
       DiscriminatorValue: modelType.discriminatorValue,
+      Decorators: modelType.decorators,
     } as InputModelType;
 
     models.set(modelTypeName, inputModelType);
@@ -170,6 +172,7 @@ export function fromSdkModelType(
           flattenedNamePrefixes.length > 0
             ? flattenedNamePrefixes.concat(property.name)
             : undefined,
+        Decorators: property.decorators,
       };
 
       return [modelProperty];
@@ -212,6 +215,7 @@ export function fromSdkEnumType(
       Description: enumType.description,
       IsExtensible: enumType.isFixed ? false : true,
       Usage: fromUsageFlags(enumType.usage),
+      Decorators: enumType.decorators,
     };
     if (addToCollection) enums.set(enumName, newInputEnumType);
     inputEnumType = newInputEnumType;
@@ -224,6 +228,7 @@ function fromSdkDateTimeType(dateTimeType: SdkDatetimeType): InputDateTimeType {
     Kind: dateTimeType.kind,
     Encode: dateTimeType.encode,
     WireType: fromSdkBuiltInType(dateTimeType.wireType),
+    Decorators: dateTimeType.decorators,
   };
 }
 
@@ -232,13 +237,15 @@ function fromSdkDurationType(durationType: SdkDurationType): InputDurationType {
     Kind: durationType.kind,
     Encode: durationType.encode,
     WireType: fromSdkBuiltInType(durationType.wireType),
+    Decorators: durationType.decorators,
   };
 }
 
 // TODO: tuple is not officially supported
-function fromTupleType(): InputPrimitiveType {
+function fromTupleType(tupleType: SdkTupleType): InputPrimitiveType {
   return {
     Kind: "any",
+    Decorators: tupleType.decorators,
   };
 }
 
@@ -246,6 +253,7 @@ function fromSdkBuiltInType(builtInType: SdkBuiltInType): InputPrimitiveType {
   return {
     Kind: builtInType.kind,
     Encode: builtInType.encode !== builtInType.kind ? builtInType.encode : undefined, // In TCGC this is required, and when there is no encoding, it just has the same value as kind, we could remove this when TCGC decides to simplify
+    Decorators: builtInType.decorators,
   };
 }
 
@@ -265,6 +273,7 @@ function fromUnionType(
     Kind: "union",
     Name: union.name,
     VariantTypes: variantTypes,
+    Decorators: union.decorators,
   };
 }
 
@@ -284,6 +293,7 @@ function fromSdkConstantType(
           // we might keep constant as-is, instead of creating an enum for it.
           convertConstantToEnum(constantType, enums, literalTypeContext),
     Value: constantType.value,
+    Decorators: constantType.decorators,
   };
 
   function convertConstantToEnum(
@@ -313,6 +323,7 @@ function fromSdkConstantType(
       Description: `The ${enumName}`, // TODO -- what should we put here?
       IsExtensible: true,
       Usage: "None", // will be updated later
+      Decorators: constantType.decorators,
     };
     enums.set(enumName, enumType);
     return enumType;
@@ -332,6 +343,7 @@ function fromSdkEnumValueTypeToConstantType(
         ? fromSdkBuiltInType(enumValueType.valueType as SdkBuiltInType) // TODO: TCGC fix
         : fromSdkEnumType(enumValueType.enumType, context, enums),
     Value: enumValueType.value,
+    Decorators: enumValueType.decorators,
   };
 }
 
@@ -340,6 +352,7 @@ function fromSdkEnumValueType(enumValueType: SdkEnumValueType): InputEnumTypeVal
     Name: enumValueType.name,
     Value: enumValueType.value,
     Description: enumValueType.description,
+    Decorators: enumValueType.decorators,
   };
 }
 
@@ -353,6 +366,7 @@ function fromSdkDictionaryType(
     Kind: "dict",
     KeyType: fromSdkType(dictionaryType.keyType, context, models, enums),
     ValueType: fromSdkType(dictionaryType.valueType, context, models, enums),
+    Decorators: dictionaryType.decorators,
   };
 }
 
@@ -367,6 +381,7 @@ function fromSdkArrayType(
     Name: arrayType.name,
     ValueType: fromSdkType(arrayType.valueType, context, models, enums),
     CrossLanguageDefinitionId: arrayType.crossLanguageDefinitionId,
+    Decorators: arrayType.decorators,
   };
 }
 
