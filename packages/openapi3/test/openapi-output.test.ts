@@ -249,6 +249,23 @@ describe("openapi3: extension decorator", () => {
     strictEqual(oapi.components.parameters.PetId["x-parameter-extension"], "foobaz");
   });
 
+  it("adds an extension to a namespace", async () => {
+    const oapi = await openApiFor(`
+      @extension("x-model-extension", "foobar")
+      @route("/createSong")
+      namespace Suno {
+        @get op createSong(
+          /** The requested song description, eg. \`a country song about Thanksgiving\` */
+          @query topic: string
+          ): string;
+      }      
+    `);
+
+    ok(oapi);
+    const extensions = oapi.getExtensions();
+    strictEqual(extensions["x-model-extension"], "foobar");
+  })
+
   it("check format and pattern decorator on model", async () => {
     const oapi = await openApiFor(
       `
