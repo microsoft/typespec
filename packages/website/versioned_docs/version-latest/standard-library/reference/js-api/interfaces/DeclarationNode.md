@@ -27,5 +27,5 @@ title: "[I] DeclarationNode"
 ## Properties
 
 | Property | Modifier | Type |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `id` | `readonly` | [`IdentifierNode`](IdentifierNode.md) |

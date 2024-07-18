@@ -7,12 +7,14 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
     /// <summary></summary>
     public partial class Friend : IJsonModel<Friend>
     {
+        /// <summary> Keeps track of any properties unknown to the library. </summary>
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
         internal Friend(string name, IDictionary<string, BinaryData> serializedAdditionalRawData)
@@ -82,8 +84,7 @@ namespace UnbrandedTypeSpec.Models
                 return null;
             }
             string name = default;
-            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
-            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
+            IDictionary<string, BinaryData> serializedAdditionalRawData = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("name"u8))
@@ -93,10 +94,9 @@ namespace UnbrandedTypeSpec.Models
                 }
                 if (options.Format != "W")
                 {
-                    rawDataDictionary.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                    serializedAdditionalRawData.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            serializedAdditionalRawData = rawDataDictionary;
             return new Friend(name, serializedAdditionalRawData);
         }
 
@@ -139,13 +139,15 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="friend"> The <see cref="Friend"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(Friend friend)
         {
-            throw new NotImplementedException("Not implemented");
+            return BinaryContent.Create(friend, ModelSerializationExtensions.WireOptions);
         }
 
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Friend"/> from. </param>
         public static explicit operator Friend(ClientResult result)
         {
-            throw new NotImplementedException("Not implemented");
+            using PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content);
+            return DeserializeFriend(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }

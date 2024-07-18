@@ -12,6 +12,5 @@ export interface InputClient extends InputDecoratedType {
   Operations: InputOperation[];
   Protocol?: Protocols;
   Parent?: string;
-  Creatable: boolean;
   Parameters?: InputParameter[];
 }

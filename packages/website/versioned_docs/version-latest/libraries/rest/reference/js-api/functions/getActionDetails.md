@@ -12,7 +12,7 @@ Gets the ActionDetails for the specified operation if it has previously been mar
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `operation` | `Operation` |
 

@@ -13,7 +13,7 @@ function includeInterfaceRoutesInNamespace(
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | `Program` | Program |
 | `target` | `Namespace` | Target namespace |
 | `sourceInterface` | `string` | Interface that should be included in namespace. |

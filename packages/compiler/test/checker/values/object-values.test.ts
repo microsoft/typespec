@@ -1,8 +1,14 @@
 import { ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { isValue } from "../../../src/index.js";
-import { expectDiagnostics } from "../../../src/testing/index.js";
-import { compileValue, compileValueOrType, diagnoseUsage, diagnoseValue } from "./utils.js";
+import { expectDiagnosticEmpty, expectDiagnostics } from "../../../src/testing/index.js";
+import {
+  compileAndDiagnoseValueOrType,
+  compileValue,
+  compileValueOrType,
+  diagnoseUsage,
+  diagnoseValue,
+} from "./utils.js";
 
 it("no properties", async () => {
   const object = await compileValue(`#{}`);
@@ -161,6 +167,17 @@ describe("(LEGACY) cast model to object value", () => {
     ok(b);
     strictEqual(b.valueKind, "StringValue");
     strictEqual(b.value, "bar");
+  });
+
+  it("doesn't cast or emit diagnostic if constraint also allow models", async () => {
+    const [entity, diagnostics] = await compileAndDiagnoseValueOrType(
+      `{a: string} | valueof {a: string}`,
+      `{a: "b"}`,
+      { disableDeprecatedSuppression: true }
+    );
+    expectDiagnosticEmpty(diagnostics);
+    strictEqual(entity?.entityKind, "Type");
+    strictEqual(entity.kind, "Model");
   });
 
   it("emit a warning diagnostic", async () => {

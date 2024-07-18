@@ -54,7 +54,7 @@ function useStandalonePlaygroundContext(
       setContext({ host, initialState, stateStorage });
     };
     void load();
-  }, []);
+  }, [config.importConfig, config.libraries]);
   return context;
 }
 
@@ -91,7 +91,7 @@ export const StandalonePlayground: FunctionComponent<ReactPlaygroundConfig> = (c
         defaultCompilerOptions: context.initialState.options,
         defaultSampleName: context.initialState.sampleName,
       },
-    [context]
+    [config.defaultEmitter, config.libraries, context]
   );
   if (context === undefined || fixedOptions === undefined) {
     return config.fallback;

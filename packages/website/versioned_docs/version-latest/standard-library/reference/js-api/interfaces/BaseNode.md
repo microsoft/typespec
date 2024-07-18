@@ -104,7 +104,7 @@ title: "[I] BaseNode"
 ## Properties
 
 | Property | Modifier | Type | Description | Inherited from |
-| :------ | :------ | :------ | :------ | :------ |
+| ------ | ------ | ------ | ------ | ------ |
 | `directives?` | `readonly` | readonly [`DirectiveExpressionNode`](DirectiveExpressionNode.md)[] | - | - |
 | `docs?` | `readonly` | readonly [`DocNode`](DocNode.md)[] | - | - |
 | `end` | `readonly` | `number` | The ending position measured in UTF-16 code units from the start of the full string. Exclusive. | [`TextRange`](TextRange.md).`end` |

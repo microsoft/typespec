@@ -13,7 +13,7 @@ function navigateTypesInNamespace(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `namespace` | [`Namespace`](../interfaces/Namespace.md) |
 | `listeners` | `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` |
 | `options` | [`NamespaceNavigationOptions`](../interfaces/NamespaceNavigationOptions.md) & [`NavigationOptions`](../interfaces/NavigationOptions.md) |

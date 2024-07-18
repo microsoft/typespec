@@ -25,28 +25,32 @@ import { extractParamsFromPath } from "./utils.js";
 // The set of allowed segment separator characters
 const AllowedSegmentSeparators = ["/", ":"];
 
-function normalizeFragment(fragment: string) {
+function normalizeFragment(fragment: string, trimLast = false) {
   if (fragment.length > 0 && AllowedSegmentSeparators.indexOf(fragment[0]) < 0) {
     // Insert the default separator
     fragment = `/${fragment}`;
   }
 
-  // Trim any trailing slash
-  return fragment.replace(/\/$/g, "");
+  if (trimLast && fragment[fragment.length - 1] === "/") {
+    return fragment.slice(0, -1);
+  }
+  return fragment;
+}
+
+function joinPathSegments(rest: string[]) {
+  let current = "";
+  for (const [index, segment] of rest.entries()) {
+    current += normalizeFragment(segment, index < rest.length - 1);
+  }
+  return current;
 }
 
 function buildPath(pathFragments: string[]) {
   // Join all fragments with leading and trailing slashes trimmed
-  const path =
-    pathFragments.length === 0
-      ? "/"
-      : pathFragments
-          .map(normalizeFragment)
-          .filter((x) => x !== "")
-          .join("");
+  const path = pathFragments.length === 0 ? "/" : joinPathSegments(pathFragments);
 
   // The final path must start with a '/'
-  return path.length > 0 && path[0] === "/" ? path : `/${path}`;
+  return path[0] === "/" ? path : `/${path}`;
 }
 
 export function resolvePathAndParameters(

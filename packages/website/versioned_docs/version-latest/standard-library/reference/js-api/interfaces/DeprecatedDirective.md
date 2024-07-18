@@ -10,7 +10,7 @@ title: "[I] DeprecatedDirective"
 ## Properties
 
 | Property | Type | Inherited from |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `message` | `string` | - |
 | `name` | `"deprecated"` | - |
 | `node` | [`DirectiveExpressionNode`](DirectiveExpressionNode.md) | [`DirectiveBase`](DirectiveBase.md).`node` |

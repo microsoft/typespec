@@ -854,7 +854,19 @@ scalar Foo {
   });
 
   describe("scalar constructor call", () => {
-    it("simple call", async () => {
+    it("call with no arguments", async () => {
+      await assertFormat({
+        code: `
+const foo     = utcDateTime.   now(
+    );
+`,
+        expected: `
+const foo = utcDateTime.now();
+`,
+      });
+    });
+
+    it("call with arguments", async () => {
       await assertFormat({
         code: `
 const foo     = utcDateTime.   fromISO(

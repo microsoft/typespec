@@ -60,6 +60,9 @@ export interface PlaygroundProps {
 
   onFileBug?: () => void;
 
+  /** Additional buttons to show up in the command bar */
+  commandBarButtons?: ReactNode;
+
   /** Playground links */
   links?: PlaygroundLinks;
 
@@ -159,7 +162,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   );
   useEffect(() => {
     updateTypeSpec(props.defaultContent ?? "");
-  }, []);
+  }, [props.defaultContent, updateTypeSpec]);
 
   useEffect(() => {
     if (selectedSampleName && props.samples) {
@@ -174,7 +177,13 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
         }
       }
     }
-  }, [updateTypeSpec, selectedSampleName]);
+  }, [
+    updateTypeSpec,
+    selectedSampleName,
+    props.samples,
+    onSelectedEmitterChange,
+    onCompilerOptionsChange,
+  ]);
 
   useEffect(() => {
     const debouncer = debounce(() => doCompile(), 200);
@@ -209,14 +218,14 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
 
   const formatCode = useCallback(() => {
     void editorRef.current?.getAction("editor.action.formatDocument")?.run();
-  }, [typespecModel]);
+  }, []);
 
   const fileBug = useCallback(async () => {
     if (props.onFileBug) {
       saveCode();
       props.onFileBug();
     }
-  }, [saveCode, typespecModel, props.onFileBug]);
+  }, [props, saveCode]);
 
   const typespecEditorActions = useMemo(
     (): editor.IActionDescriptor[] => [
@@ -251,11 +260,21 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     (diagnostic: Diagnostic) => {
       editorRef.current?.setSelection(getMonacoRange(host.compiler, diagnostic.target));
     },
-    [setVerticalPaneSizes]
+    [host.compiler]
   );
 
+  const playgroundContext = useMemo(() => {
+    return {
+      host,
+      setContent: (val: string) => {
+        typespecModel.setValue(val);
+        setContent(val);
+      },
+    };
+  }, [host, setContent, typespecModel]);
+
   return (
-    <PlaygroundContextProvider value={{ host }}>
+    <PlaygroundContextProvider value={playgroundContext}>
       <div className={style["layout"]}>
         <SplitPane sizes={verticalPaneSizes} onChange={onVerticalPaneSizeChange} split="horizontal">
           <Pane>
@@ -273,6 +292,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
                   saveCode={saveCode}
                   formatCode={formatCode}
                   fileBug={props.onFileBug ? fileBug : undefined}
+                  commandBarButtons={props.commandBarButtons}
                   documentationUrl={props.links?.documentationUrl}
                 />
                 <TypeSpecEditor

@@ -17,29 +17,28 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     {
         private readonly InputClient _inputClient;
 
-        public override string RelativeFilePath => Path.Combine("src", "Generated", $"{Name}.cs");
-
-        public override string Name { get; }
-
         public ClientProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
-            Name = inputClient.Name.ToCleanName();
             PipelineField = new FieldProvider(FieldModifiers.Private, typeof(ClientPipeline), "_pipeline");
         }
 
         public FieldProvider PipelineField { get; }
+
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
+
+        protected override string BuildName() => _inputClient.Name.ToCleanName();
 
         protected override FieldProvider[] BuildFields()
         {
             return [PipelineField];
         }
 
-        protected override MethodProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
             return
             [
-                new MethodProvider(
+                new ConstructorProvider(
                     new ConstructorSignature(Type, $"{_inputClient.Description}", MethodSignatureModifiers.Public, []),
                     new MethodBodyStatement[] { PipelineField.Assign(ClientPipelineSnippets.Create()).Terminate() },
                     this)
@@ -53,7 +52,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // Build methods for all the operations
             foreach (var operation in _inputClient.Operations)
             {
-                var methodCollection = ClientModelPlugin.Instance.TypeFactory.CreateMethodProviders(operation, this);
+                var methodCollection = ClientModelPlugin.Instance.TypeFactory.CreateMethods(operation, this);
                 if (methodCollection != null)
                 {
                     methods.AddRange(methodCollection);

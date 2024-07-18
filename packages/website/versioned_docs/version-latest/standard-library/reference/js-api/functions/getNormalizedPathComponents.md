@@ -19,7 +19,7 @@ getNormalizedPathComponents("to/dir/../file.ext", "/path/") === ["/", "path", "t
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 | `currentDirectory` | `undefined` \| `string` |
 

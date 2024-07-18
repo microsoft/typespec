@@ -36,7 +36,7 @@ import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputOperation } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
-import { InputEnumType, InputModelType, InputPrimitiveType } from "../type/input-type.js";
+import { InputEnumType, InputModelType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
 import { Usage } from "../type/usage.js";
 import { reportDiagnostic } from "./lib.js";
@@ -100,8 +100,7 @@ export function createModelForService(
     ? {
         Type: {
           Kind: "string",
-          IsNullable: false,
-        } as InputPrimitiveType,
+        },
         Value: defaultApiVersion,
       }
     : undefined;
@@ -250,16 +249,15 @@ export function createModelForService(
       clientDesc = getDoc(program, container) ?? "";
     }
 
-    const inputClient = {
+    const inputClient: InputClient = {
       Name: getClientName(client),
       Description: clientDesc,
       Operations: [],
       Protocol: {},
-      Creatable: client.kind === ClientKind.SdkClient,
       Parent: parent === undefined ? undefined : getClientName(parent),
       Parameters: urlParameters,
       Decorators: [],
-    } as InputClient;
+    };
     for (const op of operations) {
       const httpOperation = ignoreDiagnostics(getHttpOperation(program, op));
       const inputOperation: InputOperation = loadOperation(

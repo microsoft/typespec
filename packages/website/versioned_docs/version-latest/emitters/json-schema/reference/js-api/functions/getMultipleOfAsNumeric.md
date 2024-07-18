@@ -10,7 +10,7 @@ function getMultipleOfAsNumeric(program, target): Numeric | undefined
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `target` | `Type` |
 

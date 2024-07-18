@@ -69,6 +69,14 @@ export const $extension: ExtensionDecorator = (
   setExtension(context.program, entity, extensionName as ExtensionKey, data);
 };
 
+export function setInfo(
+  program: Program,
+  entity: Namespace,
+  data: AdditionalInfo & Record<ExtensionKey, unknown>
+) {
+  program.stateMap(infoKey).set(entity, data);
+}
+
 export function setExtension(
   program: Program,
   entity: Type,
@@ -78,7 +86,6 @@ export function setExtension(
   const openApiExtensions = program.stateMap(openApiExtensionKey);
   const typeExtensions = openApiExtensions.get(entity) ?? new Map<string, any>();
   typeExtensions.set(extensionName, data);
-
   openApiExtensions.set(entity, typeExtensions);
 }
 
@@ -149,7 +156,7 @@ export const $info: InfoDecorator = (
   entity: Namespace,
   model: TypeSpecValue
 ) => {
-  const [data, diagnostics] = typespecTypeToJson<AdditionalInfo>(
+  const [data, diagnostics] = typespecTypeToJson<AdditionalInfo & Record<ExtensionKey, unknown>>(
     model,
     context.getArgumentTarget(0)!
   );
@@ -157,7 +164,7 @@ export const $info: InfoDecorator = (
   if (data === undefined) {
     return;
   }
-  context.program.stateMap(infoKey).set(entity, data);
+  setInfo(context.program, entity, data);
 };
 
 export function getInfo(program: Program, entity: Namespace): AdditionalInfo | undefined {
