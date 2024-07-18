@@ -12,6 +12,10 @@ Invoke "dotnet build $repoRoot/generator/Microsoft.Generator.CSharp.ClientModel/
 $testProjectsLocalDir = Join-Path $repoRoot 'generator' 'TestProjects' 'Local'
 
 $unbrandedTypespecTestProject = Join-Path $testProjectsLocalDir "Unbranded-TypeSpec"
-Invoke "npx tsp compile $unbrandedTypespecTestProject/Unbranded-TypeSpec.tsp --trace @typespec/http-client-csharp --emit @typespec/http-client-csharp --option @typespec/http-client-csharp.emitter-output-dir=$unbrandedTypespecTestProject --option @typespec/http-client-csharp.save-inputs=true"
+$configFile = Join-Path $unbrandedTypespecTestProject "tspconfig.yaml"
+if (Test-Path $configFile) {
+    $configString = "--config=$configFile "
+}
+Invoke "npx tsp compile $unbrandedTypespecTestProject/Unbranded-TypeSpec.tsp --trace @typespec/http-client-csharp --emit @typespec/http-client-csharp --option @typespec/http-client-csharp.emitter-output-dir=$unbrandedTypespecTestProject $configString--option @typespec/http-client-csharp.save-inputs=true"
 
 Invoke "dotnet build $repoRoot/generator/TestProjects/Local/Unbranded-TypeSpec/src/UnbrandedTypeSpec.csproj"
