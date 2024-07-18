@@ -289,3 +289,40 @@ describe("openapi3: extension decorator", () => {
     strictEqual(oapi.components.parameters.PetId.schema.pattern, "^[a-zA-Z0-9-]{3,24}$");
   });
 });
+
+describe("openapi3: useRef decorator", () => {
+  it("adds a ref extension to a model", async () => {
+    const oapi = await openApiFor(`
+      @test @useRef("../common.json#/definitions/Foo")
+      model Foo {
+        @statusCode
+        status: 200;
+        name: string;
+      }
+      @get op get(): Foo;
+    `);
+    ok(oapi.paths["/"].get);
+    strictEqual(oapi.paths["/"].get.responses["200"]["$ref"], "../common.json#/definitions/Foo");
+  });
+
+  it("adds a ref extension to a multiple models", async () => {
+    const oapi = await openApiFor(`
+      @test @useRef("../common.json#/definitions/Foo")
+      model Foo {
+        @statusCode
+        status: 200;
+        name: string;
+      }
+      @test @useRef("https://example.com/example.yml")
+      model Foo2 {
+        @statusCode
+        status: 201;
+        name: string;
+      }
+      @get op get(): Foo | Foo2;
+    `);
+    ok(oapi.paths["/"].get);
+    strictEqual(oapi.paths["/"].get.responses["200"]["$ref"], "../common.json#/definitions/Foo");
+    strictEqual(oapi.paths["/"].get.responses["201"]["$ref"], "https://example.com/example.yml");
+  });
+});

@@ -991,6 +991,10 @@ function createOAPIEmitter(
     const openApiResponse = currentEndpoint.responses[statusCode] ?? {
       description: response.description ?? getResponseDescriptionForStatusCode(statusCode),
     };
+    const refUrl = getRef(program, response.type);
+    if (refUrl) {
+      openApiResponse.$ref = refUrl;
+    }
     emitResponseHeaders(openApiResponse, response.responses, response.type);
     emitResponseContent(operation, openApiResponse, response.responses);
     currentEndpoint.responses[statusCode] = openApiResponse;
