@@ -62,6 +62,10 @@ export const AreaLabels = defineLabels({
     color: "957300",
     description: "Issues for @typespec/openapi3 emitter",
   },
+  "openapi3:converter": {
+    color: "957300",
+    description: "Issues for @typespec/openapi3 openapi to typespec converter",
+  },
   "emitter:service:csharp": {
     color: "967200",
     description: "",
@@ -72,6 +76,14 @@ export const AreaLabels = defineLabels({
   },
   eng: {
     color: "65bfff",
+    description: "",
+  },
+  "ui:playground": {
+    color: "3256a8",
+    description: "",
+  },
+  "ui:type-graph-viewer": {
+    color: "3256a8",
     description: "",
   },
 });
@@ -168,9 +180,12 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
   "emitter:json-schema": ["packages/json-schema/"],
   "emitter:protobuf": ["packages/protobuf/"],
   "emitter:openapi3": ["packages/openapi3/"],
+  "openapi3:converter": ["packages/openapi3/src/cli/actions/convert/"],
   "emitter:service:csharp": [],
   "emitter:service:js": [],
   eng: ["eng/", ".github/"],
+  "ui:playground": ["packages/playground/"],
+  "ui:type-graph-viewer": ["packages/html-program-viewer/"],
 };
 
 export default defineConfig({

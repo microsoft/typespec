@@ -24,5 +24,20 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public virtual CSharpType MatchConditionsType() => typeof(PipelineMessageClassifier);
 
         public virtual CSharpType TokenCredentialType() => typeof(ApiKeyCredential);
+
+        /// <summary>
+        /// Returns the serialization type providers for the given input type.
+        /// </summary>
+        /// <param name="inputType">The input type.</param>
+        protected override IReadOnlyList<TypeProvider> CreateSerializationsCore(InputType inputType)
+        {
+            switch (inputType)
+            {
+                case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
+                    return [new MrwSerializationTypeDefinition(inputModel)];
+                default:
+                    return base.CreateSerializationsCore(inputType);
+            }
+        }
     }
 }

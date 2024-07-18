@@ -255,107 +255,188 @@ describe("json serialization of examples", () => {
     return serializeValueAsJson(program, examples[0].value, target);
   }
 
-  const allCases: [
-    string,
-    {
-      value: string;
-      expect: unknown;
-      encode?: string;
-    }[],
-  ][] = [
-    ["int32", [{ value: `123`, expect: 123 }]],
-    ["string", [{ value: `"abc"`, expect: "abc" }]],
-    ["boolean", [{ value: `true`, expect: true }]],
-    [
-      "utcDateTime",
+  describe("scalar encoding", () => {
+    const allCases: [
+      string,
+      {
+        value: string;
+        expect: unknown;
+        encode?: string;
+      }[],
+    ][] = [
+      ["int32", [{ value: `123`, expect: 123 }]],
+      ["string", [{ value: `"abc"`, expect: "abc" }]],
+      ["boolean", [{ value: `true`, expect: true }]],
       [
-        { value: `utcDateTime.fromISO("2024-01-01T11:32:00Z")`, expect: "2024-01-01T11:32:00Z" },
-        {
-          value: `utcDateTime.fromISO("2024-01-01T11:32:00Z")`,
-          expect: "Mon, 01 Jan 2024 11:32:00 GMT",
-          encode: `@encode("rfc7231")`,
-        },
-        {
-          value: `utcDateTime.fromISO("2024-01-01T11:32:00Z")`,
-          expect: 1704108720,
-          encode: `@encode("unixTimestamp", int32)`,
-        },
+        "utcDateTime",
+        [
+          { value: `utcDateTime.fromISO("2024-01-01T11:32:00Z")`, expect: "2024-01-01T11:32:00Z" },
+          {
+            value: `utcDateTime.fromISO("2024-01-01T11:32:00Z")`,
+            expect: "Mon, 01 Jan 2024 11:32:00 GMT",
+            encode: `@encode("rfc7231")`,
+          },
+          {
+            value: `utcDateTime.fromISO("2024-01-01T11:32:00Z")`,
+            expect: 1704108720,
+            encode: `@encode("unixTimestamp", int32)`,
+          },
+        ],
       ],
-    ],
-    [
-      "offsetDateTime",
       [
-        {
-          value: `offsetDateTime.fromISO("2024-01-01T11:32:00+01:00")`,
-          expect: "2024-01-01T11:32:00+01:00",
-        },
-        {
-          value: `offsetDateTime.fromISO("2024-01-01T11:32:00+01:00")`,
-          expect: "Mon, 01 Jan 2024 10:32:00 GMT",
-          encode: `@encode("rfc7231")`,
-        },
+        "offsetDateTime",
+        [
+          {
+            value: `offsetDateTime.fromISO("2024-01-01T11:32:00+01:00")`,
+            expect: "2024-01-01T11:32:00+01:00",
+          },
+          {
+            value: `offsetDateTime.fromISO("2024-01-01T11:32:00+01:00")`,
+            expect: "Mon, 01 Jan 2024 10:32:00 GMT",
+            encode: `@encode("rfc7231")`,
+          },
+        ],
       ],
-    ],
-    [
-      "plainDate",
       [
-        {
-          value: `plainDate.fromISO("2024-01-01")`,
-          expect: "2024-01-01",
-        },
+        "plainDate",
+        [
+          {
+            value: `plainDate.fromISO("2024-01-01")`,
+            expect: "2024-01-01",
+          },
+        ],
       ],
-    ],
-    [
-      "plainTime",
       [
-        {
-          value: `plainTime.fromISO("11:31")`,
-          expect: "11:31",
-        },
+        "plainTime",
+        [
+          {
+            value: `plainTime.fromISO("11:31")`,
+            expect: "11:31",
+          },
+        ],
       ],
-    ],
-    [
-      "duration",
       [
-        {
-          value: `duration.fromISO("PT5M")`,
-          expect: "PT5M",
-        },
-        {
-          value: `duration.fromISO("PT5M")`,
-          expect: 300,
-          encode: `@encode("seconds", int32)`,
-        },
-        {
-          value: `duration.fromISO("PT0.5S")`,
-          expect: 0.5,
-          encode: `@encode("seconds", float32)`,
-        },
+        "duration",
+        [
+          {
+            value: `duration.fromISO("PT5M")`,
+            expect: "PT5M",
+          },
+          {
+            value: `duration.fromISO("PT5M")`,
+            expect: 300,
+            encode: `@encode("seconds", int32)`,
+          },
+          {
+            value: `duration.fromISO("PT0.5S")`,
+            expect: 0.5,
+            encode: `@encode("seconds", float32)`,
+          },
+        ],
       ],
-    ],
-  ];
+    ];
 
-  describe.each(allCases)("%s", (type, cases) => {
-    const casesWithLabel = cases.map((x) => ({
-      ...x,
-      encodeLabel: x.encode ?? "default encoding",
-    }));
-    it.each(casesWithLabel)(
-      `serialize with $encodeLabel`,
-      async ({ value, expect: expected, encode }) => {
-        const result = await getJsonValueOfExample(`
+    describe.each(allCases)("%s", (type, cases) => {
+      const casesWithLabel = cases.map((x) => ({
+        ...x,
+        encodeLabel: x.encode ?? "default encoding",
+      }));
+      it.each(casesWithLabel)(
+        `serialize with $encodeLabel`,
+        async ({ value, expect: expected, encode }) => {
+          const result = await getJsonValueOfExample(`
           model TestModel {
             @example(${value})
             ${encode ?? ""}
             @test test: ${type};
           }
         `);
-        if (expected instanceof RegExp) {
-          expect(result).toMatch(expected);
-        } else {
-          expect(result).toEqual(expected);
+          if (expected instanceof RegExp) {
+            expect(result).toMatch(expected);
+          } else {
+            expect(result).toEqual(expected);
+          }
         }
+      );
+    });
+  });
+
+  it("serialize nested models", async () => {
+    const result = await getJsonValueOfExample(`
+      @example(#{ a: #{ name: "one" } })
+      @test("test") model B {
+        a: A;
       }
-    );
+
+      model A {
+        name: string;
+      }
+
+    `);
+
+    expect(result).toEqual({ a: { name: "one" } });
+  });
+
+  it("serialize nested models in arrays", async () => {
+    const result = await getJsonValueOfExample(`
+      @example(#{ items: #[#{ name: "one" }, #{ name: "two" }] })
+      @test("test") model B {
+        items: Array<A>;
+      }
+
+      model A {
+        name: string;
+      }
+
+    `);
+
+    expect(result).toEqual({ items: [{ name: "one" }, { name: "two" }] });
+  });
+
+  it("serialize nested record in arrays", async () => {
+    const result = await getJsonValueOfExample(`
+      @example(#{ items: #{one: #{ name: "one" }, two: #{ name: "two" }} })
+      @test("test") model B {
+        items: Record<A>;
+      }
+
+      model A {
+        name: string;
+      }
+
+    `);
+
+    expect(result).toEqual({ items: { one: { name: "one" }, two: { name: "two" } } });
+  });
+
+  it("serialize example as it is when type is unknown", async () => {
+    const result = await getJsonValueOfExample(`
+      @example(#{ a: #{ name: "one", other: 123 } })
+      @test("test") model B {
+        a: unknown
+      }
+    `);
+
+    expect(result).toEqual({ a: { name: "one", other: 123 } });
+  });
+
+  it("serialize example targetting a union using one of the types", async () => {
+    const result = await getJsonValueOfExample(`
+      @example(#{ a: #{ name: "one", other: 123 } })
+      @test("test") model Test {
+        a: A | B;
+      }
+
+      model A {
+        a: string
+      }
+
+      model B {
+        name: string;
+        other: int32;
+      }
+    `);
+
+    expect(result).toEqual({ a: { name: "one", other: 123 } });
   });
 });

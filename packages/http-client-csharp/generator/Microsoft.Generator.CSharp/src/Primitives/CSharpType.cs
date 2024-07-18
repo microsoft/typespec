@@ -618,5 +618,19 @@ namespace Microsoft.Generator.CSharp.Primitives
                 return new CSharpType(Name, Namespace, IsValueType, IsNullable, DeclaringType, arguments, IsPublic, IsStruct);
             }
         }
+
+        private CSharpType? _rootType;
+        public CSharpType RootType => _rootType ??= GetRootType();
+
+        private CSharpType GetRootType()
+        {
+            CSharpType returnType = this;
+            while (returnType.BaseType != null)
+            {
+                returnType = returnType.BaseType;
+            }
+
+            return returnType;
+        }
     }
 }
