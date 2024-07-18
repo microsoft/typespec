@@ -252,18 +252,10 @@ describe("openapi3: extension decorator", () => {
   it("adds an extension to a namespace", async () => {
     const oapi = await openApiFor(`
       @extension("x-model-extension", "foobar")
-      @route("/createSong")
-      namespace Suno {
-        @get op createSong(
-          /** The requested song description, eg. \`a country song about Thanksgiving\` */
-          @query topic: string
-          ): string;
-      }      
+      @service namespace Suno {};      
     `);
 
-    ok(oapi);
-    const extensions = oapi.getExtensions();
-    strictEqual(extensions["x-model-extension"], "foobar");
+    strictEqual(oapi["x-model-extension"], "foobar");
   })
 
   it("check format and pattern decorator on model", async () => {
