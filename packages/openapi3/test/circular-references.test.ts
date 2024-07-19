@@ -34,4 +34,20 @@ describe("openapi3: circular reference", () => {
       },
     });
   });
+
+  it("can reference itself via a union property", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet { parents?: string | Pet };
+      `
+    );
+
+    deepStrictEqual(res.schemas.Pet, {
+      type: "object",
+      properties: {
+        parents: { anyOf: [{ type: "string" }, { $ref: "#/components/schemas/Pet" }] },
+      },
+    });
+  });
 });
