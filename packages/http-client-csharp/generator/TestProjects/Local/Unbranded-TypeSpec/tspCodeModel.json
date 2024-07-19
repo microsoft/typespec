@@ -1202,7 +1202,7 @@
    "Kind": "model",
    "Name": "AnonymousBodyRequest",
    "CrossLanguageDefinitionId": "UnbrandedTypeSpec.anonymousBody.Request.anonymous",
-   "Usage": "Input",
+   "Usage": "None",
    "Properties": [
     {
      "$id": "182",
@@ -1442,7 +1442,7 @@
    "Kind": "model",
    "Name": "FriendlyModelRequest",
    "CrossLanguageDefinitionId": "UnbrandedTypeSpec.friendlyModel.Request.anonymous",
-   "Usage": "Input",
+   "Usage": "None",
    "Properties": [
     {
      "$id": "219",
@@ -1485,7 +1485,7 @@
    "Kind": "model",
    "Name": "ProjectedNameModelRequest",
    "CrossLanguageDefinitionId": "UnbrandedTypeSpec.projectedNameModel.Request.anonymous",
-   "Usage": "Input",
+   "Usage": "None",
    "Properties": [
     {
      "$id": "225",
