@@ -140,12 +140,69 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         }
 
         [Test]
+        public void BuildConstructor_ValidateConstructorsInDerivedModel()
+        {
+            var baseProperties = new List<InputModelProperty>
+            {
+                new InputModelProperty("prop1", "prop1", string.Empty, InputPrimitiveType.String, true, false, false),
+                new InputModelProperty("prop2", "prop2", string.Empty, InputPrimitiveType.String, false, false, false),
+            };
+            var derivedProperties = new List<InputModelProperty>
+            {
+                new InputModelProperty("prop3", "prop3", string.Empty, InputPrimitiveType.String, true, false, false),
+                new InputModelProperty("prop4", "prop4", string.Empty, InputPrimitiveType.String, false, false, false),
+            };
+            var inputBase = new InputModelType("baseModel", "baseModel", null, null, null, InputModelTypeUsage.Input, baseProperties, null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputDerived = new InputModelType("derivedModel", "derivedModel", null, null, null, InputModelTypeUsage.Input, derivedProperties, inputBase, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            ((List<InputModelType>)inputBase.DerivedModels).Add(inputDerived);
+
+            MockHelpers.LoadMockPlugin();
+
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputBase);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputDerived);
+
+            var baseCtors = baseModel.Constructors;
+            Assert.AreEqual(1, baseCtors.Count);
+            var derivedCtors = derivedModel.Constructors;
+            Assert.AreEqual(1, derivedCtors.Count);
+
+            var baseCtor = baseCtors[0];
+            var derivedCtor = derivedCtors[0];
+            var baseParameters = baseCtor.Signature.Parameters;
+            var derivedParameters = derivedCtor.Signature.Parameters;
+            Assert.AreEqual(1, baseParameters.Count);
+            Assert.AreEqual("prop1", baseParameters[0].Name);
+            Assert.AreEqual(new CSharpType(typeof(string)), baseParameters[0].Type);
+            Assert.AreEqual(2, derivedParameters.Count);
+            Assert.AreEqual("prop1", derivedParameters[0].Name);
+            Assert.AreEqual(new CSharpType(typeof(string)), derivedParameters[0].Type);
+            Assert.AreEqual("prop3", derivedParameters[1].Name);
+            Assert.AreEqual(new CSharpType(typeof(string)), derivedParameters[1].Type);
+        }
+
+        [Test]
+        public void BuildBaseType()
+        {
+            var inputBase = new InputModelType("baseModel", "baseModel", null, null, null, InputModelTypeUsage.Input, [], null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputDerived = new InputModelType("derivedModel", "derivedModel", null, null, null, InputModelTypeUsage.Input, [], inputBase, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            ((List<InputModelType>)inputBase.DerivedModels).Add(inputDerived);
+
+            MockHelpers.LoadMockPlugin();
+
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputBase);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputDerived);
+
+            Assert.AreEqual(baseModel.Type, derivedModel.Type.BaseType);
+        }
+
+        [Test]
         public void BuildModelAsStruct()
         {
-            var properties = new List<InputModelProperty>{
-                    new InputModelProperty("requiredString", "requiredString", "", InputPrimitiveType.String, true, false, false),
-                    new InputModelProperty("OptionalInt", "optionalInt", "", InputPrimitiveType.Int32, false, false, false),
-             };
+            var properties = new List<InputModelProperty>
+            {
+                new InputModelProperty("requiredString", "requiredString", "", InputPrimitiveType.String, true, false, false),
+                new InputModelProperty("OptionalInt", "optionalInt", "", InputPrimitiveType.Int32, false, false, false),
+            };
 
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (InputType inputType) =>
             {

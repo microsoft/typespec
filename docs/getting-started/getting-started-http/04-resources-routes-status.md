@@ -66,16 +66,11 @@ Here are some common HTTP status codes and their meanings:
 
 The `@statusCode` decorator is used to specify the status code for a response. You can use number literal types to create a discriminated union of response types, allowing you to handle different status codes in a single operation.
 
-Let's add `list` and `create` operations to our `Pets` resource and use the `@statusCode` decorator to specify the status codes for each operation.
+Let's add a `create` operation to our `Pets` resource and use the `@statusCode` decorator to specify the status codes for a successful operation.
 
 ```typespec
 @route("/pets")
 namespace Pets {
-  op list(@query skip: int32, @query top: int32): {
-    @statusCode statusCode: 200;
-    @body pets: Pet[];
-  };
-
   @post
   op create(@body pet: Pet): {
     @statusCode statusCode: 201;
@@ -86,7 +81,7 @@ namespace Pets {
 }
 ```
 
-**Note**: The `@body` decorator and error handling are introduced here but will be covered in detail in later sections.
+**Note**: This example introduces a `@body` decorator and error handling, which will be covered in detail in later sections.
 
 ### Handling Multiple Status Codes
 
@@ -106,8 +101,6 @@ namespace Pets {
   };
 }
 ```
-
-We'll cover error handling in more detail in the next section.
 
 In this example:
 
