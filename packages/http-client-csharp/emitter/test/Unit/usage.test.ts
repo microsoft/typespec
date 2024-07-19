@@ -35,7 +35,7 @@ describe("Test Usage", () => {
     const fooModel = root.Models.find((model) => model.Name === "Foo");
 
     ok(fooModel);
-    strictEqual(fooModel.Usage, UsageFlags.Input);
+    strictEqual(fooModel.Usage, UsageFlags.Input | UsageFlags.Json);
   });
 
   it("Get usage for response body", async () => {
@@ -56,7 +56,7 @@ describe("Test Usage", () => {
     const fooModel = root.Models.find((model) => model.Name === "Foo");
 
     ok(fooModel);
-    strictEqual(fooModel.Usage, UsageFlags.Output);
+    strictEqual(fooModel.Usage, UsageFlags.Output | UsageFlags.Json);
   });
 
   it("Get usage for the model in both input and output", async () => {
@@ -77,7 +77,7 @@ describe("Test Usage", () => {
     const fooModel = root.Models.find((model) => model.Name === "Foo");
 
     ok(fooModel);
-    strictEqual(fooModel.Usage, UsageFlags.Input | UsageFlags.Output);
+    strictEqual(fooModel.Usage, UsageFlags.Input | UsageFlags.Output | UsageFlags.Json);
   });
 
   it("Get usage for the model which is used in two operations", async () => {
@@ -99,7 +99,7 @@ describe("Test Usage", () => {
     const fooModel = root.Models.find((model) => model.Name === "Foo");
 
     ok(fooModel);
-    strictEqual(fooModel.Usage, UsageFlags.Input | UsageFlags.Output);
+    strictEqual(fooModel.Usage, UsageFlags.Input | UsageFlags.Output | UsageFlags.Json);
   });
 
   it("Get usage for the model as the template argument", async () => {
@@ -127,9 +127,9 @@ describe("Test Usage", () => {
     const templateModel = root.Models.find((model) => model.Name === "TemplateModelFoo");
 
     ok(fooModel);
-    strictEqual(fooModel.Usage, UsageFlags.Input);
+    strictEqual(fooModel.Usage, UsageFlags.Input | UsageFlags.Json);
     ok(templateModel);
-    strictEqual(templateModel.Usage, UsageFlags.Input);
+    strictEqual(templateModel.Usage, UsageFlags.Input | UsageFlags.Json);
   });
 
   it("Test the usage inheritance between base model and derived model", async () => {
@@ -157,9 +157,9 @@ describe("Test Usage", () => {
     const fooModel = root.Models.find((model) => model.Name === "Foo");
 
     ok(baseModel);
-    strictEqual(baseModel.Usage, UsageFlags.Input | UsageFlags.Output);
+    strictEqual(baseModel.Usage, UsageFlags.Input | UsageFlags.Output | UsageFlags.Json);
     ok(fooModel);
-    strictEqual(fooModel.Usage, UsageFlags.Input);
+    strictEqual(fooModel.Usage, UsageFlags.Input | UsageFlags.Json);
   });
 
   it("Test the usage inheritance between base model and derived model which has model property", async () => {
@@ -195,11 +195,11 @@ describe("Test Usage", () => {
     const propertyModel = root.Models.find((model) => model.Name === "PropertyModel");
 
     ok(baseModel);
-    strictEqual(baseModel.Usage, UsageFlags.Input | UsageFlags.Output);
+    strictEqual(baseModel.Usage, UsageFlags.Input | UsageFlags.Output | UsageFlags.Json);
     ok(fooModel);
-    strictEqual(fooModel.Usage, UsageFlags.Input);
+    strictEqual(fooModel.Usage, UsageFlags.Input | UsageFlags.Json);
     ok(propertyModel);
-    strictEqual(propertyModel.Usage, UsageFlags.Input | UsageFlags.Output);
+    strictEqual(propertyModel.Usage, UsageFlags.Input | UsageFlags.Output | UsageFlags.Json);
   });
 
   it("Test the usage of models spread alias", async () => {
@@ -220,7 +220,7 @@ describe("Test Usage", () => {
     const fooAlias = root.Models.find((model) => model.Name === "TestRequest");
 
     ok(fooAlias);
-    strictEqual(fooAlias.Usage, UsageFlags.Spread);
+    strictEqual(fooAlias.Usage, UsageFlags.Spread | UsageFlags.Json);
   });
 
   it("Test the usage of body parameter of azure core operation.", async () => {
@@ -274,11 +274,11 @@ describe("Test Usage", () => {
     );
 
     ok(fooInfo);
-    strictEqual(fooInfo.Usage, UsageFlags.Input);
+    strictEqual(fooInfo.Usage, UsageFlags.Input | UsageFlags.Json);
     ok(batchCreateFooListItemsRequest);
-    strictEqual(batchCreateFooListItemsRequest.Usage, UsageFlags.Input);
+    strictEqual(batchCreateFooListItemsRequest.Usage, UsageFlags.Input | UsageFlags.Json);
     ok(batchCreateTextListItemsResponse);
-    strictEqual(batchCreateTextListItemsResponse.Usage, UsageFlags.Output);
+    strictEqual(batchCreateTextListItemsResponse.Usage, UsageFlags.Output | UsageFlags.Json);
   });
 
   it("Test the usage of body parameter and return type of azure core resource operation.", async () => {
@@ -314,7 +314,7 @@ describe("Test Usage", () => {
     const fooModel = root.Models.find((model) => model.Name === "Foo");
 
     ok(fooModel);
-    strictEqual(fooModel.Usage, UsageFlags.Input | UsageFlags.Output | UsageFlags.JsonMergePatch);
+    strictEqual(fooModel.Usage, UsageFlags.Input | UsageFlags.Output | UsageFlags.JsonMergePatch | UsageFlags.Json);
   });
 
   it("Test the usage of body polymorphism type in azure core resource operation.", async () => {
@@ -373,9 +373,9 @@ describe("Test Usage", () => {
     );
 
     ok(baseModel);
-    strictEqual(baseModel.Usage, UsageFlags.Input);
+    strictEqual(baseModel.Usage, UsageFlags.Input | UsageFlags.Json);
     ok(derivedModel);
-    strictEqual(derivedModel.Usage, UsageFlags.Input);
+    strictEqual(derivedModel.Usage, UsageFlags.Input | UsageFlags.Json);
   });
 
   it("Test the usage of response polymorphism type in azure core resource operation.", async () => {
@@ -444,11 +444,11 @@ describe("Test Usage", () => {
     const nestedModel = root.Models.find((model) => model.Name === "NestedModel");
 
     ok(baseModel);
-    strictEqual(baseModel.Usage, UsageFlags.Output);
+    strictEqual(baseModel.Usage, UsageFlags.Output | UsageFlags.Json);
     ok(derivedModel);
-    strictEqual(derivedModel.Usage, UsageFlags.Output);
+    strictEqual(derivedModel.Usage, UsageFlags.Output | UsageFlags.Json);
     ok(nestedModel);
-    strictEqual(nestedModel.Usage, UsageFlags.Output);
+    strictEqual(nestedModel.Usage, UsageFlags.Output | UsageFlags.Json);
   });
 
   it("Test the usage of enum which is renamed via @clientName.", async () => {
@@ -501,7 +501,7 @@ describe("Test Usage", () => {
     const renamedModel = root.Models.find((model) => model.Name === "RenamedModel");
 
     ok(renamedModel);
-    strictEqual(renamedModel.Usage, UsageFlags.Input);
+    strictEqual(renamedModel.Usage, UsageFlags.Input | UsageFlags.Json);
   });
 
   it("Test the usage of return type of a customized LRO operation.", async () => {
@@ -661,6 +661,6 @@ interface LegacyLro {
     );
 
     ok(radiologyInsightsInferenceResult);
-    strictEqual(radiologyInsightsInferenceResult.Usage, UsageFlags.Output);
+    strictEqual(radiologyInsightsInferenceResult.Usage, UsageFlags.Output | UsageFlags.Json);
   });
 });

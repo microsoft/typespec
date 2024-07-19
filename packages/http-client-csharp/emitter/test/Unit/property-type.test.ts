@@ -97,7 +97,7 @@ describe("Test GetInputType for enum", () => {
     strictEqual(type.Values[1].Value, "2");
     strictEqual(type.Values[2].Name, "Four");
     strictEqual(type.Values[2].Value, "4");
-    strictEqual(type.Usage, UsageFlags.Input);
+    strictEqual(type.Usage, UsageFlags.Input | UsageFlags.Json);
   });
 
   it("Fixed int enum", async () => {
@@ -139,7 +139,7 @@ describe("Test GetInputType for enum", () => {
     strictEqual(type.Values[2].Name, "Four");
     strictEqual(type.Values[2].Value, 4);
     strictEqual(type.IsExtensible, false);
-    strictEqual(type.Usage, UsageFlags.Input);
+    strictEqual(type.Usage, UsageFlags.Input | UsageFlags.Json);
   });
 
   it("fixed enum", async () => {
@@ -172,7 +172,7 @@ describe("Test GetInputType for enum", () => {
     strictEqual(type.Values[1].Value, "2");
     strictEqual(type.Values[2].Name, "Four");
     strictEqual(type.Values[2].Value, "4");
-    strictEqual(type.Usage, UsageFlags.Input);
+    strictEqual(type.Usage, UsageFlags.Input | UsageFlags.Json);
     strictEqual(type.IsExtensible, false);
   });
 });
