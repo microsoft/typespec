@@ -164,7 +164,7 @@ export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${
       [`valueof "abc" | "def" | string`, `"abc" | "def" | string`],
       [`valueof string[]`, `string[]`],
       [`valueof ("abc" | "def")[]`, `("abc" | "def")[]`],
-      [`valueof {name: string, age?: int32}`, `{ name: string; age?: number }`],
+      [`valueof {name: string, age?: int32}`, `{ readonly name: string; readonly age?: number }`],
     ])("%s => %s", async (ref, expected) => {
       await expectSignatures({
         code: `extern dec simple(target, arg1: ${ref});`,
@@ -179,14 +179,14 @@ export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${
     it("generate local model as interface", async () => {
       await expectSignatures({
         code: `
-          model Info {name: string, age?: int32} 
+          model Info { name: string, age?: int32} 
           extern dec simple(target, arg1: valueof Info);`,
         expected: `
 ${importLine(["Type"])}
 
 interface Info {
-  name: string;
-  age?: number;
+  readonly name: string;
+  readonly age?: number;
 }
 export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: Info) => void;
     `,

@@ -233,7 +233,7 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
 
   function writeTypeExpressionForModel(model: Model): string {
     const properties = [...model.properties.values()].map((x) => {
-      return `${x.name}${x.optional ? "?" : ""}: ${getValueTSType(x.type)}`;
+      return `readonly ${x.name}${x.optional ? "?" : ""}: ${getValueTSType(x.type)}`;
     });
 
     return `{ ${properties.join(", ")} }`;
