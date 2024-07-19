@@ -320,6 +320,14 @@ namespace Microsoft.Generator.CSharp.Primitives
                         isNullable: IsNullable,
                         arguments: Arguments);
                 }
+
+                if (IsDictionary)
+                {
+                    return new CSharpType(
+                        typeof(IDictionary<,>),
+                        isNullable: IsNullable,
+                        arguments: Arguments);
+                }
             }
 
             return this;
