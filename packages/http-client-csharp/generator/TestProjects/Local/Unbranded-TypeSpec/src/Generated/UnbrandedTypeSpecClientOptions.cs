@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace UnbrandedTypeSpec
 {
-    /// <summary></summary>
+    /// <summary> Client options for UnbrandedTypeSpecClient. </summary>
     public partial class UnbrandedTypeSpecClientOptions : ClientPipelineOptions
     {
     }

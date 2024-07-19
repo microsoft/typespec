@@ -16,6 +16,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
     internal static class MockHelpers
     {
         public const string MocksFolder = "Mocks";
+        public static string ConfigFilePath = Path.Combine(AppContext.BaseDirectory, MocksFolder);
 
         public static void LoadMockPlugin(
             Func<InputType, IReadOnlyList<TypeProvider>>? createSerializationsCore = null,
@@ -23,7 +24,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             Func<CSharpType>? matchConditionsType = null,
             Func<CSharpType>? tokenCredentialType = null,
             Func<InputOperation, TypeProvider, MethodProviderCollection>? createMethods = null,
-            Func<InputParameter, ParameterProvider>? createParameter = null)
+            Func<InputParameter, ParameterProvider>? createParameter = null,
+            InputLibrary? inputLibrary = null)
         {
             var mockTypeFactory = new Mock<ScmTypeFactory>() { CallBase = true };
 
@@ -57,17 +59,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
                 mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(createCSharpTypeCore);
             }
 
-            var configFilePath = Path.Combine(AppContext.BaseDirectory, MocksFolder);
             // initialize the mock singleton instance of the plugin
             var codeModelInstance = typeof(CodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
             var clientModelInstance = typeof(ClientModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
             // invoke the load method with the config file path
             var loadMethod = typeof(Configuration).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic);
-            object?[] parameters = [configFilePath, null];
+            object?[] parameters = [ConfigFilePath, null];
             var config = loadMethod?.Invoke(null, parameters);
             var mockGeneratorContext = new Mock<GeneratorContext>(config!);
             var mockPluginInstance = new Mock<ClientModelPlugin>(mockGeneratorContext.Object) { CallBase = true };
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
+
+            if (inputLibrary is not null)
+            {
+                var inputLibInstance = typeof(CodeModelPlugin).GetField("_inputLibrary", BindingFlags.Instance | BindingFlags.NonPublic);
+                inputLibInstance!.SetValue(mockPluginInstance.Object, new Lazy<InputLibrary>(inputLibrary));
+            }
 
             codeModelInstance!.SetValue(null, mockPluginInstance.Object);
             clientModelInstance!.SetValue(null, mockPluginInstance.Object);
