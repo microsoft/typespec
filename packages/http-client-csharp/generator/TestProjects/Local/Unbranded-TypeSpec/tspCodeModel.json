@@ -157,7 +157,7 @@
    ],
    "Description": "Simple enum",
    "IsExtensible": false,
-   "Usage": "Input,Output,Json"
+   "Usage": "Input,Output"
   },
   {
    "$id": "25",
@@ -187,7 +187,7 @@
    ],
    "Description": "Extensible enum",
    "IsExtensible": true,
-   "Usage": "Input,Output,Json"
+   "Usage": "Input,Output"
   },
   {
    "$id": "30",
@@ -217,7 +217,7 @@
    ],
    "Description": "Int based extensible enum",
    "IsExtensible": true,
-   "Usage": "Input,Output,Json"
+   "Usage": "Input,Output"
   },
   {
    "$id": "35",
@@ -247,7 +247,7 @@
    ],
    "Description": "Float based extensible enum",
    "IsExtensible": true,
-   "Usage": "Input,Output,Json"
+   "Usage": "Input,Output"
   },
   {
    "$id": "40",
@@ -277,7 +277,7 @@
    ],
    "Description": "float fixed enum",
    "IsExtensible": true,
-   "Usage": "Input,Output,Json"
+   "Usage": "Input,Output"
   },
   {
    "$id": "45",
@@ -307,7 +307,7 @@
    ],
    "Description": "float fixed enum",
    "IsExtensible": false,
-   "Usage": "Input,Output,Json"
+   "Usage": "Input,Output"
   },
   {
    "$id": "50",
@@ -337,7 +337,7 @@
    ],
    "Description": "float fixed enum",
    "IsExtensible": false,
-   "Usage": "Input,Output,Json"
+   "Usage": "Input,Output"
   },
   {
    "$id": "55",
@@ -367,7 +367,7 @@
    ],
    "Description": "int fixed enum",
    "IsExtensible": false,
-   "Usage": "Input,Output,Json"
+   "Usage": "Input,Output"
   },
   {
    "$id": "60",
@@ -502,7 +502,7 @@
    "Kind": "model",
    "Name": "Thing",
    "CrossLanguageDefinitionId": "UnbrandedTypeSpec.Thing",
-   "Usage": "Input,Output,Json",
+   "Usage": "Input,Output",
    "Description": "A model with a few properties of literal types",
    "Properties": [
     {
@@ -743,7 +743,7 @@
    "Kind": "model",
    "Name": "RoundTripModel",
    "CrossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel",
-   "Usage": "Input,Output,Json",
+   "Usage": "Input,Output",
    "Description": "this is a roundtrip model",
    "Properties": [
     {
@@ -1076,7 +1076,7 @@
       "Kind": "model",
       "Name": "ModelWithRequiredNullableProperties",
       "CrossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithRequiredNullableProperties",
-      "Usage": "Input,Output,Json",
+      "Usage": "Input,Output",
       "Description": "A model with a few required nullable properties",
       "Properties": [
        {
@@ -1153,7 +1153,7 @@
    "Kind": "model",
    "Name": "AnonymousBodyRequest",
    "CrossLanguageDefinitionId": "UnbrandedTypeSpec.anonymousBody.Request.anonymous",
-   "Usage": "Spread,Json",
+   "Usage": "Spread",
    "Properties": [
     {
      "$id": "173",
@@ -1393,7 +1393,7 @@
    "Kind": "model",
    "Name": "FriendlyModelRequest",
    "CrossLanguageDefinitionId": "UnbrandedTypeSpec.friendlyModel.Request.anonymous",
-   "Usage": "Spread,Json",
+   "Usage": "Spread",
    "Properties": [
     {
      "$id": "210",
@@ -1414,7 +1414,7 @@
    "Kind": "model",
    "Name": "Friend",
    "CrossLanguageDefinitionId": "UnbrandedTypeSpec.NotFriend",
-   "Usage": "Output,Json",
+   "Usage": "Output",
    "Description": "this is not a friendly model but with a friendly name",
    "Properties": [
     {
@@ -1436,7 +1436,7 @@
    "Kind": "model",
    "Name": "ProjectedNameModelRequest",
    "CrossLanguageDefinitionId": "UnbrandedTypeSpec.projectedNameModel.Request.anonymous",
-   "Usage": "Spread,Json",
+   "Usage": "Spread",
    "Properties": [
     {
      "$id": "216",
@@ -1457,7 +1457,7 @@
    "Kind": "model",
    "Name": "ProjectedModel",
    "CrossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithProjectedName",
-   "Usage": "Output,Json",
+   "Usage": "Output",
    "Description": "this is a model with a projected name",
    "Properties": [
     {
@@ -1479,7 +1479,7 @@
    "Kind": "model",
    "Name": "ReturnsAnonymousModelResponse",
    "CrossLanguageDefinitionId": "UnbrandedTypeSpec.returnsAnonymousModel.Response.anonymous",
-   "Usage": "Output,Json",
+   "Usage": "Output",
    "Properties": []
   }
  ],
