@@ -1,6 +1,7 @@
 export { $lib } from "./lib.js";
 export { $linter } from "./linter.js";
 
+export { HttpPartOptions } from "../generated-defs/TypeSpec.Http.Private.js";
 export * from "./auth.js";
 export * from "./content-types.js";
 export * from "./decorators.js";
@@ -9,7 +10,6 @@ export * from "./operations.js";
 export * from "./parameters.js";
 export {
   HttpPart,
-  HttpPartOptions,
   getHttpFileModel,
   getHttpPart,
   isHttpFile,

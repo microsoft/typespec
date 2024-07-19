@@ -42,6 +42,14 @@ namespace Microsoft.Generator.CSharp
             _inputLibrary = new(() => new InputLibrary(Instance.Configuration.OutputDirectory));
         }
 
+        // for mocking
+        protected CodeModelPlugin()
+        {
+            // should be mocked
+            Configuration = null!;
+            _inputLibrary = new(() => null!);
+        }
+
         private Lazy<InputLibrary> _inputLibrary;
 
         // Extensibility points to be implemented by a plugin
@@ -59,6 +67,10 @@ namespace Microsoft.Generator.CSharp
         public virtual IReadOnlyList<TypeProvider> GetSerializationTypeProviders(InputType inputType)
         {
             return Array.Empty<TypeProvider>();
+        }
+
+        public virtual void Configure()
+        {
         }
     }
 }

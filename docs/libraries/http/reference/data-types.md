@@ -542,6 +542,12 @@ Describes the location of the API key
 enum TypeSpec.Http.ApiKeyLocation
 ```
 
+| Name   | Value | Description                  |
+| ------ | ----- | ---------------------------- |
+| header |       | API key is a header value    |
+| query  |       | API key is a query parameter |
+| cookie |       | API key is found in a cookie |
+
 ### `AuthType` {#TypeSpec.Http.AuthType}
 
 Authentication type
@@ -550,6 +556,14 @@ Authentication type
 enum TypeSpec.Http.AuthType
 ```
 
+| Name          | Value | Description    |
+| ------------- | ----- | -------------- |
+| http          |       | HTTP           |
+| apiKey        |       | API key        |
+| oauth2        |       | OAuth2         |
+| openIdConnect |       | OpenID connect |
+| noAuth        |       | Empty auth     |
+
 ### `OAuth2FlowType` {#TypeSpec.Http.OAuth2FlowType}
 
 Describes the OAuth2 flow type
@@ -557,3 +571,10 @@ Describes the OAuth2 flow type
 ```typespec
 enum TypeSpec.Http.OAuth2FlowType
 ```
+
+| Name              | Value | Description             |
+| ----------------- | ----- | ----------------------- |
+| authorizationCode |       | authorization code flow |
+| implicit          |       | implicit flow           |
+| password          |       | password flow           |
+| clientCredentials |       | client credential flow  |
