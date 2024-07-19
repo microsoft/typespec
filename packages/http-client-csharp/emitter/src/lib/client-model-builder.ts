@@ -28,7 +28,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   // initialize tcgc model
   if (!sdkContext.operationModelsMap) getAllModels(sdkContext);
 
-  const sdkPackage = sdkContext.experimental_sdkPackage;
+  const sdkPackage = sdkContext.sdkPackage;
 
   const modelMap = new Map<string, InputModelType>();
   const enumMap = new Map<string, InputEnumType>();

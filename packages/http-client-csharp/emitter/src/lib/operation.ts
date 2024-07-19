@@ -54,12 +54,7 @@ export function fromSdkServiceMethod(
     Name: method.name,
     ResourceName:
       getResourceOperation(sdkContext.program, method.operation.__raw.operation)?.resourceType
-        .name ??
-      getResourceName(
-        sdkContext,
-        method.operation,
-        sdkContext.experimental_sdkPackage.rootNamespace
-      ),
+        .name ?? getResourceName(sdkContext, method.operation, sdkContext.sdkPackage.rootNamespace),
     Deprecated: getDeprecated(sdkContext.program, method.__raw!),
     // TODO: we need to figure out how we want to handle summary and description
     // Right now, we generate garbage <remarks> for some APIs like `Platform-OpenAI-TypeSpec`
