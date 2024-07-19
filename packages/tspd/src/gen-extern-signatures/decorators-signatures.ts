@@ -69,11 +69,20 @@ export function generateSignatureTests(
 
 export function generateSignatures(program: Program, decorators: DecoratorSignature[]): string {
   const compilerImports = new Set<string>();
+  const localTypes = new Set<Model>();
   const decoratorDeclarations: string[] = decorators.map((x) => getTSSignatureForDecorator(x));
 
   const importArray = [...compilerImports].sort();
+
+  const localTypeDeclarations = [];
+  for (const item of localTypes) {
+    localTypeDeclarations.push(declareInterfaceForModel(item));
+  }
   const content: Doc = [
     `import type {${importArray.join(",")}} from "@typespec/compiler";`,
+    line,
+    line,
+    localTypeDeclarations.join("\n\n"),
     line,
     line,
     decoratorDeclarations.join("\n\n"),
@@ -84,6 +93,11 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
   function useCompilerType(name: string) {
     compilerImports.add(name);
     return name;
+  }
+
+  function useLocalType(type: Model) {
+    localTypes.add(type);
+    return type.name;
   }
 
   function getTSSignatureForDecorator({ typeName, decorator }: DecoratorSignature): string {
@@ -205,8 +219,30 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
         return getScalarTSType(type);
       case "Union":
         return [...type.variants.values()].map((x) => getValueTSType(x.type)).join(" | ");
+      case "Model":
+        if (isArrayModelType(program, type)) {
+          return `readonly (${getValueTSType(type.indexer.value)})` + "[]";
+        } else {
+          if (type.name) {
+            return useLocalType(type);
+          } else {
+            return writeTypeExpressionForModel(type);
+          }
+        }
     }
     return "unknown";
+  }
+
+  function writeTypeExpressionForModel(model: Model): string {
+    const properties = [...model.properties.values()].map((x) => {
+      return `readonly ${x.name}${x.optional ? "?" : ""}: ${getValueTSType(x.type)}`;
+    });
+
+    return `{ ${properties.join(", ")} }`;
+  }
+
+  function declareInterfaceForModel(model: Model): string {
+    return `export interface ${model.name} ${writeTypeExpressionForModel(model)}`;
   }
 
   function getScalarTSType(scalar: Scalar): string {
