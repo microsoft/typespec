@@ -21,6 +21,9 @@ namespace UnbrandedTypeSpec
             _pipeline = ClientPipeline.Create();
         }
 
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline => _pipeline;
+
         /// <summary>
         /// [Protocol Method] Return hi
         /// <list type="bullet">

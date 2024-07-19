@@ -1,15 +1,20 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using System.Xml.Linq;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
+using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
@@ -32,6 +37,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         protected override FieldProvider[] BuildFields()
         {
             return [PipelineField];
+        }
+
+        protected override PropertyProvider[] BuildProperties()
+        {
+            return [new PropertyProvider(
+                description: $"The HTTP pipeline for sending and receiving REST requests and responses.",
+                modifiers: MethodSignatureModifiers.Public,
+                type: typeof(ClientPipeline),
+                name: "Pipeline",
+                body: new ExpressionPropertyBody(PipelineField))];
         }
 
         protected override ConstructorProvider[] BuildConstructors()
