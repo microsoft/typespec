@@ -1,13 +1,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using NUnit.Framework;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Tests.Providers
 {
@@ -53,6 +56,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         public void ValidateProperties()
         {
             Dictionary<string, PropertyProvider> properties = _namedTypeSymbolProvider.Properties.ToDictionary(p => p.Name);
+            Assert.AreEqual(_namedSymbol.Properties.Count, properties.Count);
             foreach (var expected in _namedSymbol.Properties)
             {
                 var actual = properties[expected.Name];
@@ -64,6 +68,30 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 Assert.AreEqual(expected.Type, actual.Type);
                 Assert.AreEqual(expected.Body.GetType(), actual.Body.GetType());
                 Assert.AreEqual(expected.Body.HasSetter, actual.Body.HasSetter);
+            }
+        }
+
+        [Test]
+        public void ValidateMethods()
+        {
+            Dictionary<string, MethodProvider> methods = _namedTypeSymbolProvider.Methods.ToDictionary(p => p.Signature.Name);
+            Assert.AreEqual(_namedSymbol.Methods.Count, methods.Count);
+            foreach (var expected in _namedSymbol.Methods)
+            {
+                var actual = methods[expected.Signature.Name];
+
+                Assert.IsTrue(methods.ContainsKey(expected.Signature.Name));
+                Assert.AreEqual(expected.Signature.Name, actual.Signature.Name);
+                Assert.AreEqual($"{expected.Signature.Description}.", actual.Signature.Description?.ToString()); // the writer adds a period
+                Assert.AreEqual(expected.Signature.Modifiers, actual.Signature.Modifiers);
+                Assert.AreEqual(expected.Signature.ReturnType, actual.Signature.ReturnType);
+                Assert.AreEqual(expected.Signature.Parameters.Count, actual.Signature.Parameters.Count);
+                for (int i = 0; i < expected.Signature.Parameters.Count; i++)
+                {
+                    Assert.AreEqual(expected.Signature.Parameters[i].Name, actual.Signature.Parameters[i].Name);
+                    Assert.AreEqual($"{expected.Signature.Parameters[i].Description}.", actual.Signature.Parameters[i].Description.ToString()); // the writer adds a period
+                    Assert.AreEqual(expected.Signature.Parameters[i].Type, actual.Signature.Parameters[i].Type);
+                }
             }
         }
 
@@ -83,6 +111,19 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     new PropertyProvider($"StringProperty property no setter", MethodSignatureModifiers.Public, typeof(string), "StringProperty", new AutoPropertyBody(false)),
                     new PropertyProvider($"InternalStringProperty property no setter", MethodSignatureModifiers.Public, typeof(string), "InternalStringProperty", new AutoPropertyBody(false)),
                     new PropertyProvider($"PropertyTypeProperty property", MethodSignatureModifiers.Public, new PropertyType().Type, "PropertyTypeProperty", new AutoPropertyBody(true)),
+                ];
+            }
+
+            protected override MethodProvider[] BuildMethods()
+            {
+                var intParam = new ParameterProvider("intParam", $"intParam", new CSharpType(typeof(int)));
+
+                return
+                [
+                    new MethodProvider(
+                        new MethodSignature("Method1", $"Description of method1", MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual, typeof(Task<int>), null, [intParam]),
+                        Throw(New.Instance(typeof(NotImplementedException))),
+                        this)
                 ];
             }
         }
