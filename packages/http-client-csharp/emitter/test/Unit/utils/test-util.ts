@@ -1,9 +1,5 @@
 import { AzureCoreTestLibrary } from "@azure-tools/typespec-azure-core/testing";
-import {
-  createSdkContext,
-  getAllModels,
-  SdkContext,
-} from "@azure-tools/typespec-client-generator-core";
+import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-generator-core";
 import { SdkTestLibrary } from "@azure-tools/typespec-client-generator-core/testing";
 import {
   CompilerOptions,

@@ -6,13 +6,7 @@ import {
   getAllModels,
   getClientType,
 } from "@azure-tools/typespec-client-generator-core";
-import {
-  ModelProperty,
-  Operation,
-  Type,
-  getEffectiveModelType,
-  getNamespaceFullName,
-} from "@typespec/compiler";
+import { ModelProperty, Operation, Type, getEffectiveModelType } from "@typespec/compiler";
 import {
   getHeaderFieldName,
   getPathParamName,
@@ -24,7 +18,6 @@ import { InputEnumType, InputModelType, InputType } from "../type/input-type.js"
 import { LiteralTypeContext } from "../type/literal-type-context.js";
 import { fromSdkEnumType, fromSdkModelType, fromSdkType } from "./converter.js";
 import { Logger } from "./logger.js";
-import { capitalize } from "./utils.js";
 
 /**
  * If type is an anonymous model, tries to find a named model that has the same
