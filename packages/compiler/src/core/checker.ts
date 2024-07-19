@@ -2948,14 +2948,14 @@ export function createChecker(program: Program): Checker {
       return cur?.kind === "Model" ? cur : undefined;
     }
 
-    function getReferencedTypeFromTemplateDeclaration(dftNode: ModelOrArrayNode): Type | undefined {
-      let templateParmaeterDeclNode = dftNode?.parent;
+    function getReferencedTypeFromTemplateDeclaration(node: ModelOrArrayNode): Type | undefined {
+      let templateParmaeterDeclNode: TemplateParameterDeclarationNode | undefined = undefined;
       if (
-        dftNode?.parent?.kind === SyntaxKind.TemplateArgument &&
-        dftNode?.parent?.parent?.kind === SyntaxKind.TypeReference
+        node?.parent?.kind === SyntaxKind.TemplateArgument &&
+        node?.parent?.parent?.kind === SyntaxKind.TypeReference
       ) {
-        const argNode = dftNode.parent;
-        const refNode = dftNode.parent.parent;
+        const argNode = node.parent;
+        const refNode = node.parent.parent;
         const decl = getTemplateDeclarationsForArgument(
           argNode,
           // We should be giving the argument so the mapper here should be undefined
@@ -2966,7 +2966,10 @@ export function createChecker(program: Program): Checker {
         if (decl.length > 0 && decl[0].templateParameters.length > index) {
           templateParmaeterDeclNode = decl[0].templateParameters[index];
         }
+      } else if (node.parent?.kind === SyntaxKind.TemplateParameterDeclaration) {
+        templateParmaeterDeclNode = node?.parent;
       }
+
       if (
         templateParmaeterDeclNode?.kind !== SyntaxKind.TemplateParameterDeclaration ||
         !templateParmaeterDeclNode.constraint
@@ -2976,14 +2979,14 @@ export function createChecker(program: Program): Checker {
 
       let constraintType: Type | undefined;
       if (
-        isModelOrArrayValue(dftNode) &&
+        isModelOrArrayValue(node) &&
         templateParmaeterDeclNode.constraint.kind === SyntaxKind.ValueOfExpression
       ) {
         constraintType = program.checker.getTypeForNode(
           templateParmaeterDeclNode.constraint.target
         );
       } else if (
-        isModelOrArrayType(dftNode) &&
+        isModelOrArrayType(node) &&
         templateParmaeterDeclNode.constraint.kind !== SyntaxKind.ValueOfExpression
       ) {
         constraintType = program.checker.getTypeForNode(templateParmaeterDeclNode.constraint);
