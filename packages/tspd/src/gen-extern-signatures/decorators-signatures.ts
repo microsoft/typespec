@@ -76,13 +76,15 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
 
   const localTypeDeclarations = [];
   for (const item of localTypes) {
-    localTypeDeclarations.push(writeInterfaceForModel(item));
+    localTypeDeclarations.push(declareInterfaceForModel(item));
   }
   const content: Doc = [
     `import type {${importArray.join(",")}} from "@typespec/compiler";`,
     line,
     line,
     localTypeDeclarations.join("\n\n"),
+    line,
+    line,
     decoratorDeclarations.join("\n\n"),
   ];
 
@@ -239,8 +241,8 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
     return `{ ${properties.join(", ")} }`;
   }
 
-  function writeInterfaceForModel(model: Model): string {
-    return `interface ${model.name} ${writeTypeExpressionForModel(model)}`;
+  function declareInterfaceForModel(model: Model): string {
+    return `export interface ${model.name} ${writeTypeExpressionForModel(model)}`;
   }
 
   function getScalarTSType(scalar: Scalar): string {

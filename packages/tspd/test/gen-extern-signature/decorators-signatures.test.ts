@@ -184,7 +184,7 @@ export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${
         expected: `
 ${importLine(["Type"])}
 
-interface Info {
+export interface Info {
   readonly name: string;
   readonly age?: number;
 }

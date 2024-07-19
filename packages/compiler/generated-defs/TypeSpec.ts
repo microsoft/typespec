@@ -13,15 +13,17 @@ import type {
   UnionVariant,
 } from "../src/index.js";
 
-interface ExampleOptions {
-  title?: string;
-  description?: string;
+export interface ExampleOptions {
+  readonly title?: string;
+  readonly description?: string;
 }
 
-interface OperationExample {
-  parameters?: unknown;
-  returnType?: unknown;
-} /**
+export interface OperationExample {
+  readonly parameters?: unknown;
+  readonly returnType?: unknown;
+}
+
+/**
  * Specify how to encode the target type.
  *
  * @param encoding Known name of an encoding.
