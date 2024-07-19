@@ -23,7 +23,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     {
         private const string AuthorizationHeaderConstName = "AuthorizationHeader";
         private const string AuthorizationApiKeyPrefixConstName = "AuthorizationApiKeyPrefix";
-        private const string PipelineFieldName = "_pipeline";
         private const string ApiKeyCredentialFieldName = "_keyCredential";
         private const string EndpointFieldName = "_endpoint";
         private readonly FormattableString _publicCtorDescription;
@@ -68,10 +67,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             _endpointParameter = BuildClientEndpointParameter();
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
-            PipelineField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, typeof(ClientPipeline), PipelineFieldName);
+
+            PipelineProperty = new PropertyProvider(
+                description: $"The HTTP pipeline for sending and receiving REST requests and responses.",
+                modifiers: MethodSignatureModifiers.Public,
+                type: typeof(ClientPipeline),
+                name: "Pipeline",
+                body: new AutoPropertyBody(false));
         }
 
-        public FieldProvider PipelineField { get; }
+        public PropertyProvider PipelineProperty { get; }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
@@ -79,7 +84,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override FieldProvider[] BuildFields()
         {
-            List<FieldProvider> fields = [PipelineField, _endpointField];
+            List<FieldProvider> fields = [_endpointField];
 
             if (_apiKeyAuthField != null && _authorizationHeaderConstant != null)
             {
@@ -95,6 +100,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // TO-DO: Add additional fields for client options https://github.com/microsoft/typespec/issues/3688
 
             return [.. fields];
+        }
+
+        protected override PropertyProvider[] BuildProperties()
+        {
+            return [PipelineProperty];
         }
 
         protected override ConstructorProvider[] BuildConstructors()
@@ -135,7 +145,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
             }
 
-            // handle pipeline field
+            // handle pipeline property
             ValueExpression perRetryPolicies = New.Array(typeof(PipelinePolicy));
             if (_authorizationHeaderConstant != null && _apiKeyAuthField != null)
             {
@@ -148,7 +158,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 perRetryPolicies = New.Array(typeof(PipelinePolicy), isInline: true, perRetryPolicy);
             }
 
-            body.Add(PipelineField.Assign(ClientPipelineSnippets.Create(
+            body.Add(PipelineProperty.Assign(ClientPipelineSnippets.Create(
                 _clientOptionsParameter, New.Array(typeof(PipelinePolicy)), perRetryPolicies, New.Array(typeof(PipelinePolicy)))).Terminate());
 
             // TO-DO: Add additional field assignments for client options https://github.com/microsoft/typespec/issues/3688
