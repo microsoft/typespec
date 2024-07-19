@@ -5,12 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
+using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using NUnit.Framework;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 {
@@ -144,6 +146,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             Assert.AreEqual(primaryConstructor?.Signature?.Parameters?.Count, initializer?.Arguments?.Count);
         }
 
+        [TestCaseSource(nameof(EndpointParamInitializationValueTestCases))]
+        public void EndpointInitializationValue(InputParameter endpointParameter, ValueExpression? expectedValue)
+        {
+            var client = new InputClient("TestClient", "TestClient description", [], [endpointParameter], null);
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+            // find the endpoint parameter from the primary constructor
+            var primaryConstructor = clientProvider.Constructors.FirstOrDefault(
+                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+            var endpoint = primaryConstructor?.Signature?.Parameters?.FirstOrDefault(p => p.Name == KnownParameters.Endpoint.Name);
+
+            Assert.IsNotNull(endpoint);
+            Assert.AreEqual(expectedValue?.GetType(), endpoint?.InitializationValue?.GetType());
+            if (expectedValue != null)
+            {
+                Assert.IsTrue(endpoint?.InitializationValue is NewInstanceExpression);
+            }
+        }
+
         public static IEnumerable<TestCaseData> BuildFieldsTestCases
         {
             get
@@ -220,6 +242,46 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
                         isRequired: false, false, false, false, false, false, false, null, null)
                 });
             }
+        }
+
+        private static IEnumerable<TestCaseData> EndpointParamInitializationValueTestCases()
+        {
+            // string primitive type
+            yield return new TestCaseData(
+                new InputParameter(
+                    "param",
+                    "param description",
+                    "param",
+                    new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                    RequestLocation.None,
+                    defaultValue: new InputConstant("mockValue", InputPrimitiveType.String),
+                    InputOperationParameterKind.Client,
+                    isRequired: false, false, false, false, true, false, false, null, null),
+                New.Instance(KnownParameters.Endpoint.Type, Literal("mockvalue")));
+            // list of string type
+            yield return new TestCaseData(
+                new InputParameter(
+                    "param",
+                    "param description",
+                    "param",
+                    new InputArrayType("test", "test", new InputPrimitiveType(InputPrimitiveTypeKind.String)),
+                    RequestLocation.None,
+                    defaultValue: new InputConstant(null, new InputArrayType("test", "test", new InputPrimitiveType(InputPrimitiveTypeKind.String))),
+                    InputOperationParameterKind.Client,
+                    isRequired: false, false, false, false, true, false, false, null, null),
+                null);
+            // unknown type
+            yield return new TestCaseData(
+                new InputParameter(
+                    "param",
+                    "param description",
+                    "param",
+                    new InputPrimitiveType(InputPrimitiveTypeKind.Any),
+                    RequestLocation.None,
+                    defaultValue: new InputConstant(new object(), new InputPrimitiveType(InputPrimitiveTypeKind.Any)),
+                    InputOperationParameterKind.Client,
+                    isRequired: false, false, false, false, true, false, false, null, null),
+                null);
         }
     }
 }

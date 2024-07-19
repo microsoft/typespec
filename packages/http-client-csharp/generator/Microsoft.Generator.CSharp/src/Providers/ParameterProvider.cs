@@ -10,7 +10,6 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
-using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
@@ -51,7 +50,6 @@ namespace Microsoft.Generator.CSharp.Providers
             Description = FormattableStringHelpers.FromString(inputParameter.Description) ?? FormattableStringHelpers.Empty;
             Type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
             Validation = inputParameter.IsRequired ? ParameterValidationType.AssertNotNull : ParameterValidationType.None;
-            InitializationValue = GetParameterInitializationValue(inputParameter);
         }
 
         public ParameterProvider(
@@ -186,31 +184,6 @@ namespace Microsoft.Generator.CSharp.Providers
                 return ParameterValidationType.None;
 
             return ParameterValidationType.AssertNotNull;
-        }
-
-        private static ValueExpression? GetParameterInitializationValue(InputParameter inputParameter)
-        {
-            if (inputParameter.DefaultValue is null)
-            {
-                return null;
-            }
-
-            var defaultValue = inputParameter.DefaultValue.Value;
-            CSharpType valueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.DefaultValue.Type);
-
-            // handle default values for collections
-            if (defaultValue == null && valueType.IsCollection)
-            {
-                return New.Instance(valueType);
-            }
-            else if (valueType.IsFrameworkType && defaultValue is IConvertible)
-            {
-                // handle default values for framework types
-                var normalizedValue = Convert.ChangeType(defaultValue, valueType.FrameworkType);
-                return Literal(normalizedValue);
-            }
-
-            return null;
         }
     }
 }

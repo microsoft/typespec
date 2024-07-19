@@ -6,6 +6,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Generator.CSharp.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
@@ -43,13 +44,28 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _clientOptions = new ClientOptionsProvider(inputClient);
             _clientOptionsParameter = ScmKnownParameters.ClientOptions(_clientOptions.Type);
             _inputAuth = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Auth;
-            _apiKeyAuthField = BuildApiKeyField();
-            _authorizationHeaderConstant = BuildAuthHeaderConstant();
-            _authorizationApiKeyPrefixConstant = BuildAuthApiKeyPrefixConstant();
+
+            var apiKey = _inputAuth?.ApiKey;
+            _apiKeyAuthField = apiKey != null ? new FieldProvider(
+                FieldModifiers.Private | FieldModifiers.ReadOnly,
+                typeof(ApiKeyCredential),
+                ApiKeyCredentialFieldName,
+                description: $"A credential used to authenticate to the service.") : null;
+            _authorizationHeaderConstant = apiKey?.Name != null ? new(
+                FieldModifiers.Private | FieldModifiers.Const,
+                typeof(string),
+                AuthorizationHeaderConstName,
+                initializationValue: Literal(apiKey.Name)) : null;
+            _authorizationApiKeyPrefixConstant = apiKey?.Prefix != null ? new(
+                FieldModifiers.Private | FieldModifiers.Const,
+                typeof(string),
+                AuthorizationApiKeyPrefixConstName,
+                initializationValue: Literal(apiKey.Prefix)) : null;
             _endpointField = new(
                 FieldModifiers.Private | FieldModifiers.ReadOnly,
                 KnownParameters.Endpoint.Type,
                 EndpointFieldName);
+
             _endpointParameter = BuildClientEndpointParameter();
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
             PipelineField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, typeof(ClientPipeline), PipelineFieldName);
@@ -150,20 +166,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             IReadOnlyList<ParameterProvider> primaryCtorOrderedParams)
         {
             // initialize the arguments for the primary constructor
-            var primaryCtorArgs = new List<ValueExpression>(primaryCtorOrderedParams.Count);
-            foreach (var p in primaryCtorOrderedParams)
-            {
-                if (p.InitializationValue == null && p.Validation != ParameterValidationType.None)
-                {
-                    primaryCtorArgs.Add(p);
-                }
-                else
-                {
-                    primaryCtorArgs.Add(p.InitializationValue ?? DefaultOf(p.Type));
-                }
-            }
-
-            var primaryCtorInitializer = new ConstructorInitializer(false, primaryCtorArgs);
+            var primaryCtorInitializer = new ConstructorInitializer(
+                false,
+                [.. primaryCtorOrderedParams.Select(p => p.InitializationValue ?? (p.Validation != ParameterValidationType.None ? p : DefaultOf(p.Type)))
+             ]);
             var constructorSignature = new ConstructorSignature(
                 Type,
                 _publicCtorDescription,
@@ -175,47 +181,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 constructorSignature,
                 MethodBodyStatement.Empty,
                 this);
-        }
-
-        private FieldProvider? BuildApiKeyField()
-        {
-            if (_inputAuth?.ApiKey != null)
-            {
-                return new FieldProvider(
-                    FieldModifiers.Private | FieldModifiers.ReadOnly,
-                    typeof(ApiKeyCredential),
-                    ApiKeyCredentialFieldName,
-                    description: $"A credential used to authenticate to the service.");
-            }
-
-            return null;
-        }
-
-        private FieldProvider? BuildAuthHeaderConstant()
-        {
-            if (_inputAuth?.ApiKey?.Name != null)
-            {
-                return new FieldProvider(
-                    FieldModifiers.Private | FieldModifiers.Const,
-                    typeof(string),
-                    AuthorizationHeaderConstName,
-                    initializationValue: Literal(_inputAuth.ApiKey.Name));
-            }
-            return null;
-        }
-
-        private FieldProvider? BuildAuthApiKeyPrefixConstant()
-        {
-            if (_inputAuth?.ApiKey?.Prefix != null)
-            {
-                return new FieldProvider(
-                    FieldModifiers.Private | FieldModifiers.Const,
-                    typeof(string),
-                    AuthorizationApiKeyPrefixConstName,
-                    initializationValue: Literal(_inputAuth.ApiKey.Prefix));
-            }
-
-            return null;
         }
 
         protected override MethodProvider[] BuildMethods()
@@ -255,9 +220,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     var parameterProvider = new ParameterProvider(inputClientParam);
                     var knownEndpointParam = KnownParameters.Endpoint;
                     var description = inputClientParam.Description ?? $"{knownEndpointParam.Description}";
-                    var endpointValue = parameterProvider.InitializationValue != null
-                        ? New.Instance(knownEndpointParam.Type, parameterProvider.InitializationValue)
-                        : null;
+                    var initializationValue = GetParameterInitializationValue(inputClientParam);
+                    var endpointValue = initializationValue != null ? New.Instance(knownEndpointParam.Type, initializationValue) : null;
 
                     return new(
                         knownEndpointParam.Name,
@@ -271,6 +235,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             return KnownParameters.Endpoint;
+        }
+
+        private static ValueExpression? GetParameterInitializationValue(InputParameter inputParameter)
+        {
+            if (inputParameter.DefaultValue is null)
+            {
+                return null;
+            }
+
+            var defaultValue = inputParameter.DefaultValue.Value;
+            CSharpType valueType = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.DefaultValue.Type);
+
+            if (valueType.IsFrameworkType && defaultValue is IConvertible)
+            {
+                var normalizedValue = Convert.ChangeType(defaultValue, valueType.FrameworkType);
+                return Literal(normalizedValue);
+            }
+
+            return null;
         }
     }
 }
