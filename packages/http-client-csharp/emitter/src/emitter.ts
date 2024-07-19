@@ -16,7 +16,7 @@ import fs, { statSync } from "fs";
 import { PreserveType, stringifyRefs } from "json-serialize-refs";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
-import { configurationFileName, tspOutputFileName } from "./constants.js";
+import { configurationFileName, createSDKContextoptions, tspOutputFileName } from "./constants.js";
 import { createModel } from "./lib/client-model-builder.js";
 import { LoggerLevel } from "./lib/log-level.js";
 import { Logger } from "./lib/logger.js";
@@ -53,7 +53,9 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // Write out the dotnet model to the output path
-    const sdkContext = createSdkContext(context, "@typespec/http-client-csharp");
+    const sdkContext = createSdkContext(context, "@typespec/http-client-csharp", {
+      ...createSDKContextoptions,
+    });
     const root = createModel(sdkContext);
     if (
       context.program.diagnostics.length > 0 &&
