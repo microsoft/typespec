@@ -46,7 +46,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public ValueExpression ToEnum(ValueExpression valueExpression)
             => New.Instance(Type, valueExpression);
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial;
+        protected override TypeSignatureModifiers GetDeclarationModifiers() => (TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial) & (TypeSignatureModifiers.Class | TypeSignatureModifiers.Struct | TypeSignatureModifiers.Enum | TypeSignatureModifiers.Interface);
 
         protected override MethodProvider[] BuildMethods()
         {
