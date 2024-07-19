@@ -59,6 +59,7 @@ export function resolvePathAndParameters(
   overloadBase: HttpOperation | undefined,
   options: RouteResolutionOptions
 ): DiagnosticResult<{
+  readonly uriTemplate: string;
   path: string;
   pathSegments: string[];
   parameters: HttpOperationParameters;

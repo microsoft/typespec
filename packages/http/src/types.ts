@@ -10,6 +10,7 @@ import {
   Tuple,
   Type,
 } from "@typespec/compiler";
+import { PathOptions } from "../generated-defs/TypeSpec.Http.js";
 import { HeaderProperty } from "./http-property.js";
 
 /**
@@ -309,7 +310,7 @@ export interface QueryParameterOptions {
   format?: "multi" | "csv" | "ssv" | "tsv" | "pipes" | "simple" | "form";
 }
 
-export interface PathParameterOptions {
+export interface PathParameterOptions extends PathOptions {
   type: "path";
   name: string;
 }
@@ -359,7 +360,15 @@ export interface HttpService {
 
 export interface HttpOperation {
   /**
-   * Route path
+   * The fully resolved uri template as defined by http://tools.ietf.org/html/rfc6570.
+   * @example "/foo/{bar}/baz{?qux}"
+   * @example "/foo/{+path}"
+   */
+  readonly uriTemplate: string;
+
+  /**
+   * Route path.
+   * Not recommended use {@link uriTemplate} instead. This will not work for complex cases like not-escaping reserved chars.
    */
   path: string;
 

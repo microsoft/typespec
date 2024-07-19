@@ -221,6 +221,7 @@ function getHttpOperationInternal(
 
   const httpOperation: HttpOperation = {
     path: route.path,
+    uriTemplate: route.uriTemplate,
     pathSegments: route.pathSegments,
     verb: route.parameters.verb,
     container: operation.interface ?? operation.namespace ?? program.getGlobalNamespaceType(),

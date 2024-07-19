@@ -68,6 +68,31 @@ model QueryOptions {
  */
 extern dec query(target: ModelProperty, queryNameOrOptions?: string | QueryOptions);
 
+model PathOptions {
+  /** Name of the parameter in the uri template. */
+  name?: string;
+
+  /**
+   * When interpolating this parameter in the case of array or object expand each value using the given style.
+   * Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)
+   */
+  explode?: boolean;
+
+  /**
+   * Different interpolating styles for the path parameter.
+   * - `simple`: No special encoding.
+   * - `label`: Using `.` separator.
+   * - `matrix`: `;` as separator.
+   */
+  style?: "simple" | "label" | "matrix";
+
+  /**
+   * When interpolating this parameter do not encode reserved characters.
+   * Equivalent of adding `+` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)
+   */
+  allowReserved?: boolean;
+}
+
 /**
  * Explicitly specify that this property is to be interpolated as a path parameter.
  *
@@ -80,7 +105,7 @@ extern dec query(target: ModelProperty, queryNameOrOptions?: string | QueryOptio
  * op read(@path explicit: string, implicit: string): void;
  * ```
  */
-extern dec path(target: ModelProperty, paramName?: valueof string);
+extern dec path(target: ModelProperty, paramNameOrOptions?: valueof string | PathOptions);
 
 /**
  * Explicitly specify that this property type will be exactly the HTTP body.

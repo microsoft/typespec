@@ -33,6 +33,7 @@ import {
   MultipartBodyDecorator,
   PatchDecorator,
   PathDecorator,
+  PathOptions,
   PostDecorator,
   PutDecorator,
   QueryDecorator,
@@ -173,11 +174,16 @@ export function isQueryParam(program: Program, entity: Type) {
 export const $path: PathDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
-  paramName?: string
+  paramNameOrOptions?: string | PathOptions
 ) => {
+  const paramName =
+    typeof paramNameOrOptions === "string"
+      ? paramNameOrOptions
+      : paramNameOrOptions?.name ?? entity.name;
   const options: PathParameterOptions = {
     type: "path",
-    name: paramName ?? entity.name,
+    ...(typeof paramNameOrOptions === "object" ? paramNameOrOptions : {}),
+    name: paramName,
   };
   context.program.stateMap(HttpStateKeys.path).set(entity, options);
 };

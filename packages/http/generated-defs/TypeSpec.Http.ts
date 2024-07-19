@@ -7,6 +7,13 @@ import type {
   Type,
 } from "@typespec/compiler";
 
+export interface PathOptions {
+  readonly name?: string;
+  readonly explode?: boolean;
+  readonly style?: "simple" | "label" | "matrix";
+  readonly allowReserved?: boolean;
+}
+
 /**
  * Specify the status code for this response. Property type must be a status code integer or a union of status code integer.
  *
@@ -89,7 +96,7 @@ export type QueryDecorator = (
 export type PathDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-  paramName?: string
+  paramNameOrOptions?: string | PathOptions
 ) => void;
 
 /**
