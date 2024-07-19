@@ -1037,7 +1037,7 @@ describe("compiler: parser", () => {
            *\`\`\`
            *
            * \`This is not a @tag either because we're in a code span\`.
-           * 
+           *
            * This is not a \\@tag because it is escaped.
            *
            * @param x the param
@@ -1103,6 +1103,24 @@ describe("compiler: parser", () => {
             strictEqual(pretend.kind, SyntaxKind.DocUnknownTag as const);
             strictEqual(pretend.tagName.sv, "pretend");
             strictEqual(pretend.content[0].text, "this an unknown tag");
+          },
+        ],
+        [
+          `
+          /**
+           * Lines that end with \\
+           * don't create an extra star.
+           */
+          model M {}
+          `,
+          (script) => {
+            const docs = script.statements[0].docs;
+            strictEqual(docs?.length, 1);
+            strictEqual(docs[0].content.length, 1);
+            strictEqual(
+              docs[0].content[0].text,
+              "Lines that end with \\\ndon't create an extra star."
+            );
           },
         ],
       ],
