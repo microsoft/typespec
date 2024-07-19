@@ -13,7 +13,5 @@ namespace Microsoft.Generator.CSharp.Expressions
         {
             writer.Append(Declaration);
         }
-
-        public ValueExpression NullConditional() => Type.IsNullable ? new NullConditionalExpression(this) : this;
     }
 }
