@@ -21,28 +21,23 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public ClientProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
-            PipelineField = new FieldProvider(FieldModifiers.Private, typeof(ClientPipeline), "_pipeline");
+            PipelineProperty = new PropertyProvider(
+                description: $"The HTTP pipeline for sending and receiving REST requests and responses.",
+                modifiers: MethodSignatureModifiers.Public,
+                type: typeof(ClientPipeline),
+                name: "Pipeline",
+                body: new AutoPropertyBody(false));
         }
 
-        public FieldProvider PipelineField { get; }
+        public PropertyProvider PipelineProperty { get; }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
         protected override string BuildName() => _inputClient.Name.ToCleanName();
 
-        protected override FieldProvider[] BuildFields()
-        {
-            return [PipelineField];
-        }
-
         protected override PropertyProvider[] BuildProperties()
         {
-            return [new PropertyProvider(
-                description: $"The HTTP pipeline for sending and receiving REST requests and responses.",
-                modifiers: MethodSignatureModifiers.Public,
-                type: typeof(ClientPipeline),
-                name: "Pipeline",
-                body: new ExpressionPropertyBody(PipelineField))];
+            return [PipelineProperty];
         }
 
         protected override ConstructorProvider[] BuildConstructors()
@@ -51,7 +46,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             [
                 new ConstructorProvider(
                     new ConstructorSignature(Type, $"{_inputClient.Description}", MethodSignatureModifiers.Public, []),
-                    new MethodBodyStatement[] { PipelineField.Assign(ClientPipelineSnippets.Create()).Terminate() },
+                    new MethodBodyStatement[] { PipelineProperty.Assign(ClientPipelineSnippets.Create()).Terminate() },
                     this)
             ];
         }

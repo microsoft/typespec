@@ -99,12 +99,12 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ValueExpression Property(this ParameterProvider parameter, string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(parameter) : parameter, propertyName);
 
-        public static ValueExpression Invoke(this FieldProvider field,
+        public static ValueExpression Invoke(this PropertyProvider property,
             string methodName,
             IEnumerable<ValueExpression> parameters,
             bool isAsync,
             bool configureAwait)
-            => new InvokeMethodExpression(field, methodName, [.. parameters])
+            => new InvokeMethodExpression(property, methodName, [.. parameters])
             {
                 CallAsAsync = isAsync, AddConfigureAwaitFalse = configureAwait
             };
