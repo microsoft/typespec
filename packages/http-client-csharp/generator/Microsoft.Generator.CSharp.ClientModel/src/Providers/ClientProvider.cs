@@ -98,7 +98,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             var secondaryConstructor = BuildSecondaryConstructor(requiredParameters, primaryConstructorParameters);
             return requiredParameters.Count > 0 || _apiKeyAuthField != null
-                ? [ConstructorProvider.BuildMockingConstructor(this), secondaryConstructor, primaryConstructor]
+                ? [ConstructorProviderHelper.BuildMockingConstructor(this), secondaryConstructor, primaryConstructor]
                 : [secondaryConstructor, primaryConstructor];
         }
 
