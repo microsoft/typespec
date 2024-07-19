@@ -92,13 +92,13 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
           "models-to-treat-empty-string-as-null"
         ]
           ? options["additional-intrinsic-types-to-treat-empty-string-as-null"].concat(
-            ["Uri", "Guid", "ResourceIdentifier", "DateTimeOffset"].filter(
-              (item) =>
-                options["additional-intrinsic-types-to-treat-empty-string-as-null"].indexOf(
-                  item
-                ) < 0
+              ["Uri", "Guid", "ResourceIdentifier", "DateTimeOffset"].filter(
+                (item) =>
+                  options["additional-intrinsic-types-to-treat-empty-string-as-null"].indexOf(
+                    item
+                  ) < 0
+              )
             )
-          )
           : undefined,
         "methods-to-keep-client-default-value": options["methods-to-keep-client-default-value"],
         "head-as-boolean": options["head-as-boolean"],
