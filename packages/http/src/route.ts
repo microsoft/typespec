@@ -90,6 +90,7 @@ export function resolvePathAndParameters(
   }
 
   return diagnostics.wrap({
+    uriTemplate: null as any, // TODO: do
     path: buildPath(segments),
     pathSegments: segments,
     parameters,
