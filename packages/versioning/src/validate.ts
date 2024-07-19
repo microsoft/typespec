@@ -6,6 +6,7 @@ import {
   isTemplateInstance,
   isType,
   navigateProgram,
+  type ModelProperty,
   type Namespace,
   type Program,
   type Type,
@@ -772,6 +773,28 @@ function validateAvailabilityForRef(
   }
 }
 
+function canIgnoreDependentVersioning(type: Type, versioning: "added" | "removed") {
+  if (type.kind === "ModelProperty") {
+    return canIgnoreVersioningOnProperty(type, versioning);
+  }
+  return false;
+}
+
+function canIgnoreVersioningOnProperty(
+  prop: ModelProperty,
+  versioning: "added" | "removed"
+): boolean {
+  if (prop.sourceProperty === undefined) {
+    return false;
+  }
+  // Check if the decorator was defined on this property or a source property. If source property ignore.
+  const selfDecorators = prop.decorators.filter((x) => x.definition?.name === `@${versioning}`);
+  const sourceDecorators = prop.sourceProperty.decorators.filter(
+    (x) => x.definition?.name === `@${versioning}`
+  );
+  return !selfDecorators.some((x) => !sourceDecorators.some((y) => x.node === y.node));
+}
+
 function validateAvailabilityForContains(
   program: Program,
   sourceAvail: Map<string, Availability> | undefined,
@@ -791,7 +814,8 @@ function validateAvailabilityForContains(
     if (sourceVal === targetVal) continue;
     if (
       [Availability.Added].includes(targetVal) &&
-      [Availability.Removed, Availability.Unavailable].includes(sourceVal)
+      [Availability.Removed, Availability.Unavailable].includes(sourceVal) &&
+      !canIgnoreDependentVersioning(target, "added")
     ) {
       const sourceAddedOn = findAvailabilityOnOrBeforeVersion(key, Availability.Added, sourceAvail);
       reportDiagnostic(program, {
@@ -808,7 +832,8 @@ function validateAvailabilityForContains(
     }
     if (
       [Availability.Removed].includes(sourceVal) &&
-      [Availability.Added, Availability.Available].includes(targetVal)
+      [Availability.Added, Availability.Available].includes(targetVal) &&
+      !canIgnoreDependentVersioning(target, "removed")
     ) {
       const targetRemovedOn = findAvailabilityAfterVersion(key, Availability.Removed, targetAvail);
       reportDiagnostic(program, {
