@@ -221,7 +221,7 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
         return [...type.variants.values()].map((x) => getValueTSType(x.type)).join(" | ");
       case "Model":
         if (isArrayModelType(program, type)) {
-          return `(${getValueTSType(type.indexer.value)})` + "[]";
+          return `readonly (${getValueTSType(type.indexer.value)})` + "[]";
         } else {
           if (type.name) {
             return useLocalType(type);

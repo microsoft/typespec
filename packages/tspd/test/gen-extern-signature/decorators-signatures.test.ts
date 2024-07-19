@@ -162,8 +162,8 @@ export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${
       [`valueof true`, `true`],
       [`valueof "abc" | "def"`, `"abc" | "def"`],
       [`valueof "abc" | "def" | string`, `"abc" | "def" | string`],
-      [`valueof string[]`, `string[]`],
-      [`valueof ("abc" | "def")[]`, `("abc" | "def")[]`],
+      [`valueof string[]`, `readonly string[]`],
+      [`valueof ("abc" | "def")[]`, `readonly ("abc" | "def")[]`],
       [`valueof {name: string, age?: int32}`, `{ readonly name: string; readonly age?: number }`],
     ])("%s => %s", async (ref, expected) => {
       await expectSignatures({
@@ -188,6 +188,7 @@ export interface Info {
   readonly name: string;
   readonly age?: number;
 }
+
 export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: Info) => void;
     `,
       });
