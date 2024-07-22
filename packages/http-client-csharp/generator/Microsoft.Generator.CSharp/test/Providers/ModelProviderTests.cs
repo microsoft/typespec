@@ -46,42 +46,42 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             {
                 // list property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", InputPrimitiveType.String), false, false, false),
                     new CSharpType(typeof(IList<string>)),
                     false);
                 // read only list property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, true, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", InputPrimitiveType.String), false, true, false),
                     new CSharpType(typeof(IReadOnlyList<string>)),
                     false);
                 // nullable list property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", InputPrimitiveType.String), false, false, false),
                     new CSharpType(typeof(IList<string>), true),
                     true);
                 // dictionary property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", InputPrimitiveType.String, InputPrimitiveType.String), false, false, false),
                     new CSharpType(typeof(IDictionary<string, string>)),
                     false);
                 // nullable dictionary property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", InputPrimitiveType.String, InputPrimitiveType.String), false, false, false),
                     new CSharpType(typeof(IDictionary<string, string>), true),
                     true);
                 // primitive type property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputPrimitiveType(InputPrimitiveTypeKind.String), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", InputPrimitiveType.String, false, false, false),
                     new CSharpType(typeof(string)),
                     true);
                 // read only primitive type property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputPrimitiveType(InputPrimitiveTypeKind.String), false, true, false),
+                    new InputModelProperty("prop1", "prop1", "public", InputPrimitiveType.String, false, true, false),
                     new CSharpType(typeof(string)),
                     false);
                 // readonlymemory property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", InputPrimitiveType.String), false, false, false),
                     new CSharpType(typeof(ReadOnlyMemory<>)),
                     true);
             }
@@ -107,8 +107,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             var properties = new List<InputModelProperty>{
                     new InputModelProperty("requiredString", "requiredString", "", InputPrimitiveType.String, true, false, false),
                     new InputModelProperty("OptionalInt", "optionalInt", "", InputPrimitiveType.Int32, false, false, false),
-                    new InputModelProperty("requiredCollection", "requiredCollection", "", new InputArrayType("List", "TypeSpec.Array", new InputPrimitiveType(InputPrimitiveTypeKind.String)), true, false, false),
-                    new InputModelProperty("requiredDictionary", "requiredDictionary", "", new InputDictionaryType("Dictionary", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.String)), true, false, false),
+                    new InputModelProperty("requiredCollection", "requiredCollection", "", new InputArrayType("List", "TypeSpec.Array", InputPrimitiveType.String), true, false, false),
+                    new InputModelProperty("requiredDictionary", "requiredDictionary", "", new InputDictionaryType("Dictionary", InputPrimitiveType.String, InputPrimitiveType.String), true, false, false),
                     new InputModelProperty("optionalUnknown", "optional unknown", "", InputPrimitiveType.Any, false, false, false),
              };
 
