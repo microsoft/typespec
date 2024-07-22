@@ -7,6 +7,7 @@ export * from "./content-types.js";
 export * from "./decorators.js";
 export * from "./metadata.js";
 export * from "./operations.js";
+export { getOperationParameters } from "./parameters.js";
 export {
   HttpPart,
   getHttpFileModel,

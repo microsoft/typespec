@@ -39,7 +39,7 @@ function normalizeFragment(fragment: string, trimLast = false) {
   return fragment;
 }
 
-function joinPathSegments(rest: string[]) {
+export function joinPathSegments(rest: string[]) {
   let current = "";
   for (const [index, segment] of rest.entries()) {
     current += normalizeFragment(segment, index < rest.length - 1);
@@ -180,7 +180,7 @@ export function DefaultRouteProducer(
   const uriTemplate =
     !routePath && overloadBase
       ? overloadBase.uriTemplate
-      : buildPath([...parentSegments, ...(routePath ? [routePath] : [])]);
+      : joinPathSegments([...parentSegments, ...(routePath ? [routePath] : [])]);
 
   const parsedUriTemplate = parseUriTemplate(uriTemplate);
 
@@ -200,7 +200,9 @@ export function DefaultRouteProducer(
     unreferencedPathParamNames.delete(uriParam.name);
   }
 
-  const resolvedUriTemplate = addOperationTemplateToUriTemplate(uriTemplate, parameters.parameters);
+  const resolvedUriTemplate = addOperationTemplateToUriTemplate(uriTemplate, [
+    ...unreferencedPathParamNames.values(),
+  ]);
   return diagnostics.wrap({
     uriTemplate: resolvedUriTemplate,
     parameters,

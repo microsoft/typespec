@@ -372,6 +372,9 @@ describe("http: decorators", () => {
       deepStrictEqual(getPathParamOptions(runner.program, select), {
         type: "path",
         name: "$select",
+        allowReserved: false,
+        explode: false,
+        style: "simple",
       });
       strictEqual(getPathParamName(runner.program, select), "$select");
     });
