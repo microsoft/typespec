@@ -43,13 +43,13 @@
     "@typespec/http": "workspace:~"
   },
   "dependencies": {
-    "prettier": "~3.3.2"
+    "prettier": "~3.3.3"
   },
   "devDependencies": {
-    "@types/node": "~18.11.19",
+    "@types/node": "~20.14.11",
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
-    "typescript": "~5.5.3",
-    "tsx": "^4.16.0"
+    "tsx": "^4.16.2",
+    "typescript": "~5.5.4"
   }
 }
