@@ -136,7 +136,6 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
         {
           Name: p.name,
           NameInRequest: p.serializedName ?? p.name,
-          Description: p.description,
           Type: fromSdkType(p.type, sdkContext, modelMap, enumMap),
           Location: RequestLocation.Uri,
           IsApiVersion: false,
