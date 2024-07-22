@@ -100,8 +100,41 @@ export function getHttpProperty(
     statusCode: isStatusCode(program, property),
   };
   const defined = Object.entries(annotations).filter((x) => !!x[1]);
+  const implicit = options.implicitParameter?.(property);
+
+  if (implicit && defined.length > 0) {
+    if (implicit.type === "path" && annotations.path) {
+      if (
+        annotations.path.explode ||
+        annotations.path.style !== "simple" ||
+        annotations.path.allowReserved
+      ) {
+        diagnostics.push(
+          createDiagnostic({
+            code: "use-uri-template",
+            format: {
+              param: property.name,
+            },
+            target: property,
+          })
+        );
+      }
+    } else if (implicit.type === "query" && annotations.query) {
+    } else {
+      diagnostics.push(
+        createDiagnostic({
+          code: "incompatible-uri-param",
+          format: {
+            param: property.name,
+            uriKind: implicit.type,
+            annotationKind: defined[0][0],
+          },
+          target: property,
+        })
+      );
+    }
+  }
   if (defined.length === 0) {
-    const implicit = options.implicitParameter?.(property);
     if (implicit) {
       return createResult({
         kind: implicit.type,

@@ -13,7 +13,9 @@ import { createDiagnostic, HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { getOperationParameters } from "./parameters.js";
 import {
   HttpOperation,
+  HttpOperationParameter,
   HttpOperationParameters,
+  PathParameterOptions,
   RouteOptions,
   RoutePath,
   RouteProducer,
@@ -188,7 +190,9 @@ export function DefaultRouteProducer(
 
   // Pull out path parameters to verify what's in the path string
   const unreferencedPathParamNames = new Map(
-    parameters.parameters.filter(({ type }) => type === "path").map((x) => [x.name, x])
+    parameters.parameters
+      .filter(({ type }) => type === "path" || type === "query")
+      .map((x) => [x.name, x])
   );
 
   // Compile the list of all route params that aren't represented in the route
@@ -196,16 +200,34 @@ export function DefaultRouteProducer(
     unreferencedPathParamNames.delete(uriParam.name);
   }
 
-  const additionalSegments = [];
-  // Add any remaining declared path params
-  for (const [paramName] of unreferencedPathParamNames) {
-    additionalSegments.push(`{${paramName}}`);
-  }
-
+  const resolvedUriTemplate = addOperationTemplateToUriTemplate(uriTemplate, parameters.parameters);
   return diagnostics.wrap({
-    uriTemplate: buildPath([uriTemplate, ...additionalSegments]),
+    uriTemplate: resolvedUriTemplate,
     parameters,
   });
+}
+
+const styleToOperator: Record<PathParameterOptions["style"], string> = {
+  matrix: ";",
+  label: ".",
+  simple: "",
+  path: "/",
+  fragment: "#",
+};
+
+function addOperationTemplateToUriTemplate(uriTemplate: string, params: HttpOperationParameter[]) {
+  const pathParams = params
+    .filter((x) => x.type === "path")
+    .map((param) => {
+      const operator = param.allowReserved ? "+" : styleToOperator[param.style];
+      return `{${operator}${param.name}${param.explode ? "*" : ""}}`;
+    });
+  const queryParams = params.filter((x) => x.type === "query");
+
+  const pathPart = buildPath([uriTemplate, ...pathParams]);
+  return (
+    pathPart + (queryParams.length > 0 ? `{?${queryParams.map((x) => x.name).join(",")}}` : "")
+  );
 }
 
 export function setRouteProducer(

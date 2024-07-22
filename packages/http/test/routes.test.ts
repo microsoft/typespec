@@ -566,4 +566,71 @@ describe("uri template", () => {
       strictEqual(param.type, "query");
     });
   });
+
+  describe("build uriTemplate from parameter", () => {
+    it.each([
+      ["@path one: string", "/foo/{one}"],
+      ["@path(#{allowReserved: true}) one: string", "/foo/{+one}"],
+      ["@path(#{explode: true}) one: string", "/foo/{one*}"],
+      [`@path(#{style: "matrix"}) one: string`, "/foo/{;one}"],
+      [`@path(#{style: "label"}) one: string`, "/foo/{.one}"],
+      [`@path(#{style: "fragment"}) one: string`, "/foo/{#one}"],
+      [`@path(#{style: "path"}) one: string`, "/foo/{/one}"],
+      ["@path(#{allowReserved: true, explode: true}) one: string", "/foo/{+one*}"],
+      ["@query one: string", "/foo{?one}"],
+    ])("%s -> %s", async (param, expectedUri) => {
+      const op = await getOp(`@route("/foo") op foo(${param}): void;`);
+      expect(op.uriTemplate).toEqual(expectedUri);
+    });
+  });
+
+  it("emit diagnostic when annotating a path parameter with @query", async () => {
+    const diagnostics = await diagnoseOperations(
+      `@route("/bar/{foo}") op foo(@query foo: string): void;`
+    );
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/http/incompatible-uri-param",
+      message: "Parameter 'foo' is defined in the uri as a path but is annotated as a query.",
+    });
+  });
+
+  it("emit diagnostic when annotating a query parameter with @path", async () => {
+    const diagnostics = await diagnoseOperations(
+      `@route("/bar/{?foo}") op foo(@path foo: string): void;`
+    );
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/http/incompatible-uri-param",
+      message: "Parameter 'foo' is defined in the uri as a query but is annotated as a path.",
+    });
+  });
+
+  it("emit diagnostic when annotating a query continuation parameter with @path", async () => {
+    const diagnostics = await diagnoseOperations(
+      `@route("/bar/?bar=def{&foo}") op foo(@path foo: string): void;`
+    );
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/http/incompatible-uri-param",
+      message: "Parameter 'foo' is defined in the uri as a query but is annotated as a path.",
+    });
+  });
+
+  describe("emit diagnostic if using any of the path options when parameter is already defined in the uri template", () => {
+    it.each([
+      "#{ allowReserved: true }",
+      "#{ explode: true }",
+      `#{ style: "label" }`,
+      `#{ style: "matrix" }`,
+      `#{ style: "fragment" }`,
+      `#{ style: "path" }`,
+    ])("%s", async (options) => {
+      const diagnostics = await diagnoseOperations(
+        `@route("/bar/{foo}") op foo(@path(${options}) foo: string): void;`
+      );
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/http/use-uri-template",
+        message:
+          "Parameter 'foo' is already defined in the uri template. Explode, style and allowReserved property must be defined in the uri template as described by RFC 6570.",
+      });
+    });
+  });
 });
