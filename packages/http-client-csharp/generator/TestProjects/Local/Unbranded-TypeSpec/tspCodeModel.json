@@ -1549,7 +1549,6 @@
        "$id": "233",
        "Name": "unbrandedTypeSpecUrl",
        "NameInRequest": "unbrandedTypeSpecUrl",
-       "Description": "Endpoint Service",
        "Type": {
         "$id": "234",
         "Kind": "uri"

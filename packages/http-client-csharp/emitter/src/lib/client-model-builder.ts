@@ -177,7 +177,6 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       parameters.push({
         Name: parameter.name,
         NameInRequest: parameter.serializedName,
-        Description: parameter.description,
         // TODO: we should do the magic in generator
         Type: parameterType,
         Location: RequestLocation.Uri,
