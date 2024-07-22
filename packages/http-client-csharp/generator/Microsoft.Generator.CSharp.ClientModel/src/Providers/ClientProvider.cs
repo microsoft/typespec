@@ -230,14 +230,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     var parameterProvider = new ParameterProvider(inputClientParam);
                     var knownEndpointParam = KnownParameters.Endpoint;
                     var description = inputClientParam.Description ?? $"{knownEndpointParam.Description}";
-                    var initializationValue = GetParameterInitializationValue(inputClientParam);
-                    var endpointValue = initializationValue != null ? New.Instance(knownEndpointParam.Type, initializationValue) : null;
 
                     return new(
                         knownEndpointParam.Name,
                         $"{description}",
                         knownEndpointParam.Type,
-                        initializationValue: endpointValue)
+                        initializationValue: GetEndpointParamInitializationValue(inputClientParam))
                     {
                         Validation = parameterProvider.Validation
                     };
@@ -247,7 +245,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return KnownParameters.Endpoint;
         }
 
-        private static ValueExpression? GetParameterInitializationValue(InputParameter inputParameter)
+        private static ValueExpression? GetEndpointParamInitializationValue(InputParameter inputParameter)
         {
             if (inputParameter.DefaultValue is null)
             {
@@ -257,10 +255,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var defaultValue = inputParameter.DefaultValue.Value;
             CSharpType valueType = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.DefaultValue.Type);
 
-            if (valueType.IsFrameworkType && defaultValue is IConvertible)
+            if (valueType.IsFrameworkType && defaultValue != null)
             {
-                var normalizedValue = Convert.ChangeType(defaultValue, valueType.FrameworkType);
-                return Literal(normalizedValue);
+                return New.Instance(KnownParameters.Endpoint.Type, Literal(defaultValue));
             }
 
             return null;

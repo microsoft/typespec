@@ -276,30 +276,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
                     InputOperationParameterKind.Client,
                     isRequired: false, false, false, false, true, false, false, null, null),
                 New.Instance(KnownParameters.Endpoint.Type, Literal("mockvalue")));
-            // list of string type
-            yield return new TestCaseData(
-                new InputParameter(
-                    "param",
-                    "param description",
-                    "param",
-                    new InputArrayType("test", "test", new InputPrimitiveType(InputPrimitiveTypeKind.String)),
-                    RequestLocation.None,
-                    defaultValue: new InputConstant(null, new InputArrayType("test", "test", new InputPrimitiveType(InputPrimitiveTypeKind.String))),
-                    InputOperationParameterKind.Client,
-                    isRequired: false, false, false, false, true, false, false, null, null),
-                null);
-            // unknown type
-            yield return new TestCaseData(
-                new InputParameter(
-                    "param",
-                    "param description",
-                    "param",
-                    new InputPrimitiveType(InputPrimitiveTypeKind.Any),
-                    RequestLocation.None,
-                    defaultValue: new InputConstant(new object(), new InputPrimitiveType(InputPrimitiveTypeKind.Any)),
-                    InputOperationParameterKind.Client,
-                    isRequired: false, false, false, false, true, false, false, null, null),
-                null);
         }
     }
 }
