@@ -18,12 +18,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     internal partial class ExtensibleEnumSerializationProvider : TypeProvider
     {
         private readonly InputEnumType _enumType;
-        private readonly TypeProvider _provider;
 
         public ExtensibleEnumSerializationProvider(InputEnumType enumType)
         {
             Debug.Assert(enumType.IsExtensible);
-            _provider = ClientModelPlugin.Instance.TypeFactory.CreateEnum(enumType);
             _enumType = enumType;
         }
 
@@ -39,25 +37,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public ValueExpression ToSerial(ValueExpression enumExpression)
         {
-            var serialMethodName = _provider.EnumUnderlyingType.Equals(typeof(string)) ? nameof(object.ToString) : $"ToSerial{_provider.EnumUnderlyingType.Name}";
+            var serialMethodName = EnumUnderlyingType.Equals(typeof(string)) ? nameof(object.ToString) : $"ToSerial{EnumUnderlyingType.Name}";
             return enumExpression.Invoke(serialMethodName);
         }
 
         public ValueExpression ToEnum(ValueExpression valueExpression)
             => New.Instance(Type, valueExpression);
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers() => (TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial) & (TypeSignatureModifiers.Class | TypeSignatureModifiers.Struct | TypeSignatureModifiers.Enum | TypeSignatureModifiers.Interface);
+        //protected override TypeSignatureModifiers GetDeclarationModifiers() => DeclarationModifiers;
+        protected override TypeSignatureModifiers GetDeclarationModifiers() => (TypeSignatureModifiers.Public | TypeSignatureModifiers.ReadOnly |TypeSignatureModifiers.Partial | TypeSignatureModifiers.Struct);
 
         protected override MethodProvider[] BuildMethods()
         {
             // for string-based extensible enums, we are using `ToString` as its serialization
             // for non-string-based extensible enums, we need a method to serialize them
-            if (!_provider.EnumUnderlyingType.Equals(typeof(string)))
+            if (!EnumUnderlyingType.Equals(typeof(string)))
             {
                 var toSerialSignature = new MethodSignature(
-                    Name: $"ToSerial{_provider.EnumUnderlyingType.Name}",
+                    Name: $"ToSerial{EnumUnderlyingType.Name}",
                     Modifiers: MethodSignatureModifiers.Internal,
-                    ReturnType: _provider.EnumUnderlyingType,
+                    ReturnType: EnumUnderlyingType,
                     Parameters: Array.Empty<ParameterProvider>(),
                     Description: null,
                     ReturnDescription: null);
@@ -66,7 +65,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 // internal float ToSerialSingle() => _value; // when ValueType is float
                 // internal int ToSerialInt32() => _value; // when ValueType is int
                 // etc
-                var _valueField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, _provider.EnumUnderlyingType, "_value");
+                var _valueField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, EnumUnderlyingType, "_value");
                 return [new MethodProvider(toSerialSignature, _valueField, this)];
             }
             else
@@ -74,5 +73,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 return Array.Empty<MethodProvider>();
             }
         }
+
+        protected override bool GetIsEnum() => true;
     }
 }

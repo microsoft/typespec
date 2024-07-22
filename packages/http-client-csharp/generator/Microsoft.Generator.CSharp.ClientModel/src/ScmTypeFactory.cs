@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
@@ -35,8 +36,12 @@ namespace Microsoft.Generator.CSharp.ClientModel
             {
                 case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
                     return [new MrwSerializationTypeDefinition(inputModel)];
+                case InputEnumType inputEnumType when inputEnumType.IsExtensible:
+                    return [new ExtensibleEnumSerializationProvider(inputEnumType)];
+                case InputEnumType inputEnumType:
+                    return [new FixedEnumSerializationProvider(inputEnumType)];
                 default:
-                    return base.CreateSerializationsCore(inputType);
+                    return Array.Empty<TypeProvider>();
             }
         }
     }

@@ -60,14 +60,14 @@ namespace Microsoft.Generator.CSharp
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
         public virtual IReadOnlyList<MetadataReference> AdditionalMetadataReferences => Array.Empty<MetadataReference>();
 
-        /// <summary>
-        /// Returns the serialization type providers for the given model type provider.
-        /// </summary>
-        /// <param name="inputType">The input model.</param>
-        public virtual IReadOnlyList<TypeProvider> GetSerializationTypeProviders(InputType inputType)
-        {
-            return Array.Empty<TypeProvider>();
-        }
+        ///// <summary>
+        ///// Returns the serialization type providers for the given model type provider.
+        ///// </summary>
+        ///// <param name="inputType">The input model.</param>
+        //public virtual IReadOnlyList<TypeProvider> GetSerializationTypeProviders(InputType inputType)
+        //{
+        //    return Array.Empty<TypeProvider>();
+        //}
 
         public virtual void Configure()
         {

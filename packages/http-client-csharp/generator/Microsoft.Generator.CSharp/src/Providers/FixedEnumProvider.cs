@@ -16,13 +16,11 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
         private readonly InputEnumType _inputType;
-        private readonly TypeProvider _provider;
 
         internal FixedEnumProvider(InputEnumType input) : base(input)
         {
             _inputType = input;
             _allowedValues = input.Values;
-            _provider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);
             // fixed enums are implemented by enum in C#
             _modifiers = TypeSignatureModifiers.Enum;
             if (input.Accessibility == "internal")
@@ -33,7 +31,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return CodeModelPlugin.Instance.GetSerializationTypeProviders(_inputType).ToArray();
+            return CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType).ToArray();
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
@@ -63,6 +61,9 @@ namespace Microsoft.Generator.CSharp.Providers
         }
 
         protected override FieldProvider[] BuildFields()
-            => _provider.EnumValues.Select(v => v.Field).ToArray();
+            => EnumValues.Select(v => v.Field).ToArray();
+
+        protected override bool GetIsEnum() => true;
+        protected override CSharpType BuildEnumUnderlyingType() => CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(_inputType.ValueType);
     }
 }

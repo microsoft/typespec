@@ -20,12 +20,10 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
         private readonly InputEnumType _inputType;
-        private readonly TypeProvider _provider;
         internal ExtensibleEnumProvider(InputEnumType input): base(input)
         {
             _inputType = input;
             _allowedValues = input.Values;
-            _provider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);
             // extensible enums are implemented as readonly structs
             _modifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct;
             if (input.Accessibility == "internal")
@@ -71,14 +69,14 @@ namespace Microsoft.Generator.CSharp.Providers
             => [new CSharpType(typeof(IEquatable<>), Type)]; // extensible enums implement IEquatable<Self>
 
         protected override FieldProvider[] BuildFields()
-            => [_valueField, .. _provider.EnumValues.Select(v => v.Field)];
+            => [_valueField, .. EnumValues.Select(v => v.Field)];
 
         protected override PropertyProvider[] BuildProperties()
         {
-            var properties = new PropertyProvider[_provider.EnumValues.Count];
+            var properties = new PropertyProvider[EnumValues.Count];
 
             var index = 0;
-            foreach (var enumValue in _provider.EnumValues)
+            foreach (var enumValue in EnumValues)
             {
                 var name = enumValue.Name;
                 var value = enumValue.Value;
@@ -237,7 +235,10 @@ namespace Microsoft.Generator.CSharp.Providers
         }
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return CodeModelPlugin.Instance.GetSerializationTypeProviders(_inputType).ToArray();
+            return CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType).ToArray();
         }
+        protected override bool GetIsEnum() => true;
+
+        protected override CSharpType BuildEnumUnderlyingType() => CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(_inputType.ValueType);
     }
 }

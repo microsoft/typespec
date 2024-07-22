@@ -29,26 +29,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         public override IReadOnlyList<MetadataReference> AdditionalMetadataReferences => [MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location)];
 
-        /// <summary>
-        /// Returns the serialization type providers for the given input type.
-        /// </summary>
-        /// <param name="provider">The model type provider.</param>
-        /// <param name="inputModel">The input model.</param>
-        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(InputType? inputType)
-        {
-            switch (inputType)
-            {
-                case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
-                    return [new MrwSerializationTypeDefinition(inputModel)];
-                case InputEnumType inputEnumType when inputEnumType.IsExtensible:
-                    return [new ExtensibleEnumSerializationProvider(inputEnumType)];
-                case InputEnumType inputEnumType:
-                    return [new FixedEnumSerializationProvider(inputEnumType)];
-                default:
-                    return Array.Empty<TypeProvider>();
-            }
-        }
-
         [ImportingConstructor]
         public ClientModelPlugin(GeneratorContext context)
             : base(context)
