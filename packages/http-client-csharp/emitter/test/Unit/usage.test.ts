@@ -314,7 +314,10 @@ describe("Test Usage", () => {
     const fooModel = root.Models.find((model) => model.Name === "Foo");
 
     ok(fooModel);
-    strictEqual(fooModel.Usage, UsageFlags.Input | UsageFlags.Output | UsageFlags.JsonMergePatch | UsageFlags.Json);
+    strictEqual(
+      fooModel.Usage,
+      UsageFlags.Input | UsageFlags.Output | UsageFlags.JsonMergePatch | UsageFlags.Json
+    );
   });
 
   it("Test the usage of body polymorphism type in azure core resource operation.", async () => {
