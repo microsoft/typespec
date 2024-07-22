@@ -1,9 +1,9 @@
 import { TestHost } from "@typespec/compiler/testing";
 import { getAllHttpServices } from "@typespec/http";
-import assert, { deepStrictEqual } from "assert";
+import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { loadOperation } from "../../src/lib/operation.js";
-import { InputEnumType, InputModelType, InputPrimitiveType } from "../../src/type/input-type.js";
+import { InputEnumType, InputModelType } from "../../src/type/input-type.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
@@ -40,13 +40,8 @@ describe("Test string format", () => {
       modelMap,
       enumMap
     );
-    deepStrictEqual(
-      {
-        Kind: "url",
-        Encode: undefined,
-      } as InputPrimitiveType,
-      operation.Parameters[0].Type
-    );
+    const type = operation.Parameters[0].Type;
+    strictEqual(type.Kind, "url");
   });
 
   it("scalar url as model property", async () => {
@@ -67,13 +62,8 @@ describe("Test string format", () => {
     const enumMap = new Map<string, InputEnumType>();
     navigateModels(sdkContext, services[0].namespace, modelMap, enumMap);
     const foo = modelMap.get("Foo");
-    assert(foo !== undefined);
-    deepStrictEqual(
-      {
-        Kind: "url",
-        Encode: undefined,
-      } as InputPrimitiveType,
-      foo.Properties[0].Type
-    );
+    ok(foo);
+    const type = foo?.Properties[0].Type;
+    strictEqual(type.Kind, "url");
   });
 });

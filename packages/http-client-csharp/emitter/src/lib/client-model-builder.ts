@@ -101,7 +101,7 @@ export function createModelForService(
         Type: {
           Kind: "string",
           Name: "string",
-          CrossLanguageDefinitionId: "TypeSpec.string"
+          CrossLanguageDefinitionId: "TypeSpec.string",
         },
         Value: defaultApiVersion,
       }

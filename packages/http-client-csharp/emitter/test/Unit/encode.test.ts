@@ -1,9 +1,9 @@
 import { TestHost } from "@typespec/compiler/testing";
 import { getAllHttpServices } from "@typespec/http";
-import assert, { deepStrictEqual } from "assert";
+import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { loadOperation } from "../../src/lib/operation.js";
-import { InputDurationType, InputEnumType, InputModelType } from "../../src/type/input-type.js";
+import { InputEnumType, InputModelType } from "../../src/type/input-type.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
@@ -44,17 +44,15 @@ describe("Test encode duration", () => {
       modelMap,
       enumMap
     );
-    deepStrictEqual(
-      {
-        Kind: "duration",
-        Encode: "ISO8601",
-        WireType: {
-          Kind: "string",
-          Encode: undefined,
-        },
-      } as InputDurationType,
-      operation.Parameters[0].Type
-    );
+    const type = operation.Parameters[0].Type;
+    strictEqual(type.Kind, "duration");
+    strictEqual(type.Name, "duration");
+    strictEqual(type.CrossLanguageDefinitionId, "TypeSpec.duration");
+    strictEqual(type.Encode, "ISO8601");
+    strictEqual(type.WireType.Kind, "string");
+    strictEqual(type.WireType.Name, "string");
+    strictEqual(type.WireType.CrossLanguageDefinitionId, "TypeSpec.string");
+    strictEqual(type.BaseType, undefined);
   });
 
   it("encode seconds-int32 for duration query parameter ", async () => {
@@ -82,17 +80,15 @@ describe("Test encode duration", () => {
       modelMap,
       enumMap
     );
-    deepStrictEqual(
-      {
-        Kind: "duration",
-        Encode: "seconds",
-        WireType: {
-          Kind: "int32",
-          Encode: undefined,
-        },
-      } as InputDurationType,
-      operation.Parameters[0].Type
-    );
+    const type = operation.Parameters[0].Type;
+    strictEqual(type.Kind, "duration");
+    strictEqual(type.Name, "duration");
+    strictEqual(type.CrossLanguageDefinitionId, "TypeSpec.duration");
+    strictEqual(type.Encode, "seconds");
+    strictEqual(type.WireType.Kind, "int32");
+    strictEqual(type.WireType.Name, "int32");
+    strictEqual(type.WireType.CrossLanguageDefinitionId, "TypeSpec.int32");
+    strictEqual(type.BaseType, undefined);
   });
 
   it("encode seconds-float for duration query parameter ", async () => {
@@ -120,17 +116,15 @@ describe("Test encode duration", () => {
       modelMap,
       enumMap
     );
-    deepStrictEqual(
-      {
-        Kind: "duration",
-        Encode: "seconds",
-        WireType: {
-          Kind: "float32",
-          Encode: undefined,
-        },
-      } as InputDurationType,
-      operation.Parameters[0].Type
-    );
+    const type = operation.Parameters[0].Type;
+    strictEqual(type.Kind, "duration");
+    strictEqual(type.Name, "duration");
+    strictEqual(type.CrossLanguageDefinitionId, "TypeSpec.duration");
+    strictEqual(type.Encode, "seconds");
+    strictEqual(type.WireType.Kind, "float32");
+    strictEqual(type.WireType.Name, "float32");
+    strictEqual(type.WireType.CrossLanguageDefinitionId, "TypeSpec.float32");
+    strictEqual(type.BaseType, undefined);
   });
 
   it("encode iso8601 on duration model property", async () => {
@@ -150,19 +144,16 @@ describe("Test encode duration", () => {
     const modelMap = new Map<string, InputModelType>();
     const enumMap = new Map<string, InputEnumType>();
     navigateModels(sdkContext, services[0].namespace, modelMap, enumMap);
-    const durationProperty = modelMap.get("ISO8601DurationProperty");
-    assert(durationProperty !== undefined);
-    deepStrictEqual(
-      {
-        Kind: "duration",
-        Encode: "ISO8601",
-        WireType: {
-          Kind: "string",
-          Encode: undefined,
-        },
-      } as InputDurationType,
-      durationProperty.Properties[0].Type
-    );
+    const durationModel = modelMap.get("ISO8601DurationProperty");
+    ok(durationModel);
+    const type = durationModel.Properties[0].Type;
+    strictEqual(type.Kind, "duration");
+    strictEqual(type.Name, "duration");
+    strictEqual(type.CrossLanguageDefinitionId, "TypeSpec.duration");
+    strictEqual(type.Encode, "ISO8601");
+    strictEqual(type.WireType.Kind, "string");
+    strictEqual(type.WireType.CrossLanguageDefinitionId, "TypeSpec.string");
+    strictEqual(type.BaseType, undefined);
   });
 
   it("encode seconds int32 on duration model property", async () => {
@@ -182,19 +173,16 @@ describe("Test encode duration", () => {
     const modelMap = new Map<string, InputModelType>();
     const enumMap = new Map<string, InputEnumType>();
     navigateModels(sdkContext, services[0].namespace, modelMap, enumMap);
-    const durationProperty = modelMap.get("Int32SecondsDurationProperty");
-    assert(durationProperty !== undefined);
-    deepStrictEqual(
-      {
-        Kind: "duration",
-        Encode: "seconds",
-        WireType: {
-          Kind: "int32",
-          Encode: undefined,
-        },
-      } as InputDurationType,
-      durationProperty.Properties[0].Type
-    );
+    const durationModel = modelMap.get("Int32SecondsDurationProperty");
+    ok(durationModel);
+    const type = durationModel.Properties[0].Type;
+    strictEqual(type.Kind, "duration");
+    strictEqual(type.Name, "duration");
+    strictEqual(type.CrossLanguageDefinitionId, "TypeSpec.duration");
+    strictEqual(type.Encode, "seconds");
+    strictEqual(type.WireType.Kind, "int32");
+    strictEqual(type.WireType.CrossLanguageDefinitionId, "TypeSpec.int32");
+    strictEqual(type.BaseType, undefined);
   });
 
   it("encode seconds float32 on duration model property", async () => {
@@ -214,18 +202,15 @@ describe("Test encode duration", () => {
     const modelMap = new Map<string, InputModelType>();
     const enumMap = new Map<string, InputEnumType>();
     navigateModels(sdkContext, services[0].namespace, modelMap, enumMap);
-    const durationProperty = modelMap.get("FloatSecondsDurationProperty");
-    assert(durationProperty !== undefined);
-    deepStrictEqual(
-      {
-        Kind: "duration",
-        Encode: "seconds",
-        WireType: {
-          Kind: "float32",
-          Encode: undefined,
-        },
-      } as InputDurationType,
-      durationProperty.Properties[0].Type
-    );
+    const durationModel = modelMap.get("FloatSecondsDurationProperty");
+    ok(durationModel);
+    const type = durationModel.Properties[0].Type;
+    strictEqual(type.Kind, "duration");
+    strictEqual(type.Name, "duration");
+    strictEqual(type.CrossLanguageDefinitionId, "TypeSpec.duration");
+    strictEqual(type.Encode, "seconds");
+    strictEqual(type.WireType.Kind, "float32");
+    strictEqual(type.WireType.CrossLanguageDefinitionId, "TypeSpec.float32");
+    strictEqual(type.BaseType, undefined);
   });
 });

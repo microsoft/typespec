@@ -37,7 +37,7 @@ export function resolveServers(
         ? {
             Kind: "url",
             Name: "url",
-            CrossLanguageDefinitionId: "TypeSpec.url"
+            CrossLanguageDefinitionId: "TypeSpec.url",
           }
         : getInputType(context, prop, models, enums);
 
@@ -77,7 +77,7 @@ export function resolveServers(
         Type: {
           Kind: "string",
           Name: "string",
-          CrossLanguageDefinitionId: "TypeSpec.string"
+          CrossLanguageDefinitionId: "TypeSpec.string",
         },
         Location: RequestLocation.Uri,
         IsApiVersion: false,
@@ -92,7 +92,7 @@ export function resolveServers(
           Type: {
             Kind: "string",
             Name: "string",
-            CrossLanguageDefinitionId: "TypeSpec.string"
+            CrossLanguageDefinitionId: "TypeSpec.string",
           },
           Value: server.url,
         } as InputConstant,
