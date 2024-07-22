@@ -73,7 +73,9 @@ export interface BodyPropertyProperty extends HttpPropertyBase {
 }
 
 export interface GetHttpPropertyOptions {
-  isImplicitPathParam?: (param: ModelProperty) => boolean;
+  implicitParameter?: (
+    param: ModelProperty
+  ) => PathParameterOptions | QueryParameterOptions | undefined;
 }
 /**
  * Find the type of a property in a model
@@ -99,13 +101,11 @@ export function getHttpProperty(
   };
   const defined = Object.entries(annotations).filter((x) => !!x[1]);
   if (defined.length === 0) {
-    if (options.isImplicitPathParam && options.isImplicitPathParam(property)) {
+    const implicit = options.implicitParameter?.(property);
+    if (implicit) {
       return createResult({
-        kind: "path",
-        options: {
-          name: property.name,
-          type: "path",
-        },
+        kind: implicit.type,
+        options: implicit as any,
         property,
       });
     }

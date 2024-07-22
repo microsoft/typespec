@@ -15,6 +15,8 @@ import {
   HttpOperationParameters,
   HttpVerb,
   OperationParameterOptions,
+  PathParameterOptions,
+  QueryParameterOptions,
 } from "./types.js";
 import { parseUriTemplate } from "./uri-template.js";
 
@@ -44,6 +46,13 @@ export function getOperationParameters(
     : getOperationParametersForVerb(program, operation, "get", partialUriTemplate);
 }
 
+const operatorToStyle = {
+  ";": "matrix",
+  "#": "fragment",
+  ".": "label",
+  "/": "path",
+} as const;
+
 function getOperationParametersForVerb(
   program: Program,
   operation: Operation,
@@ -54,15 +63,43 @@ function getOperationParametersForVerb(
   const visibility = resolveRequestVisibility(program, operation, verb);
   const parsedUriTemplate = parseUriTemplate(partialUriTemplate);
 
-  function isImplicitPathParam(param: ModelProperty) {
-    const isTopLevel = param.model === operation.parameters;
-    return isTopLevel && parsedUriTemplate.parameters.some((x) => x.name === param.name);
-  }
-
   const parameters: HttpOperationParameter[] = [];
   const { body: resolvedBody, metadata } = diagnostics.pipe(
     resolveHttpPayload(program, operation.parameters, visibility, "request", {
-      isImplicitPathParam,
+      implicitParameter: (
+        param: ModelProperty
+      ): QueryParameterOptions | PathParameterOptions | undefined => {
+        const isTopLevel = param.model === operation.parameters;
+        const uriParam =
+          isTopLevel && parsedUriTemplate.parameters.find((x) => x.name === param.name);
+
+        if (!uriParam) {
+          return undefined;
+        }
+
+        if (uriParam.operator === "?" || uriParam.operator === "&") {
+          return {
+            type: "query",
+            name: uriParam.name,
+          };
+        } else if (uriParam.operator === "+") {
+          return {
+            type: "path",
+            name: uriParam.name,
+            explode: uriParam.modifier?.type === "explode",
+            allowReserved: true,
+            style: "simple",
+          };
+        } else {
+          return {
+            type: "path",
+            name: uriParam.name,
+            explode: uriParam.modifier?.type === "explode",
+            allowReserved: false,
+            style: (uriParam.operator && operatorToStyle[uriParam.operator]) ?? "simple",
+          };
+        }
+      },
     })
   );
 

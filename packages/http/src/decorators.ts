@@ -180,9 +180,13 @@ export const $path: PathDecorator = (
     typeof paramNameOrOptions === "string"
       ? paramNameOrOptions
       : paramNameOrOptions?.name ?? entity.name;
+
+  const userOptions: PathOptions = typeof paramNameOrOptions === "object" ? paramNameOrOptions : {};
   const options: PathParameterOptions = {
     type: "path",
-    ...(typeof paramNameOrOptions === "object" ? paramNameOrOptions : {}),
+    explode: userOptions.explode ?? false,
+    allowReserved: userOptions.allowReserved ?? false,
+    style: userOptions.style ?? "simple",
     name: paramName,
   };
   context.program.stateMap(HttpStateKeys.path).set(entity, options);

@@ -310,9 +310,8 @@ export interface QueryParameterOptions {
   format?: "multi" | "csv" | "ssv" | "tsv" | "pipes" | "simple" | "form";
 }
 
-export interface PathParameterOptions extends PathOptions {
+export interface PathParameterOptions extends Required<PathOptions> {
   type: "path";
-  name: string;
 }
 
 export type HttpOperationParameter = (

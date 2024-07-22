@@ -83,8 +83,10 @@ model PathOptions {
    * - `simple`: No special encoding.
    * - `label`: Using `.` separator.
    * - `matrix`: `;` as separator.
+   * - `fragment`: `#` as separator.
+   * - `path`: `/` as separator.
    */
-  style?: "simple" | "label" | "matrix";
+  style?: "simple" | "label" | "matrix" | "fragment" | "path";
 
   /**
    * When interpolating this parameter do not encode reserved characters.

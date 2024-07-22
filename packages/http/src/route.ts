@@ -72,7 +72,9 @@ export function resolvePathAndParameters(
 
   // Pull out path parameters to verify what's in the path string
   const paramByName = new Set(
-    parameters.parameters.filter(({ type }) => type === "path").map((x) => x.name)
+    parameters.parameters
+      .filter(({ type }) => type === "path" || type === "query")
+      .map((x) => x.name)
   );
 
   // Ensure that all of the parameters defined in the route are accounted for in

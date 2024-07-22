@@ -10,7 +10,7 @@ import type {
 export interface PathOptions {
   readonly name?: string;
   readonly explode?: boolean;
-  readonly style?: "simple" | "label" | "matrix";
+  readonly style?: "simple" | "label" | "matrix" | "fragment" | "path";
   readonly allowReserved?: boolean;
 }
 

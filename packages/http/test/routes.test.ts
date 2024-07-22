@@ -1,8 +1,9 @@
 import { Operation } from "@typespec/compiler";
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
-import { deepStrictEqual, strictEqual } from "assert";
-import { describe, it } from "vitest";
-import { HttpOperation, getRoutePath } from "../src/index.js";
+import { deepStrictEqual, ok, strictEqual } from "assert";
+import { describe, expect, it } from "vitest";
+import { PathOptions } from "../generated-defs/TypeSpec.Http.js";
+import { HttpOperation, HttpOperationParameter, getRoutePath } from "../src/index.js";
 import {
   compileOperations,
   createHttpTestRunner,
@@ -505,6 +506,64 @@ describe("http: routes", () => {
 
       strictEqual(getRoutePath(runner.program, get1)?.shared, true);
       strictEqual(getRoutePath(runner.program, get2)?.shared, false);
+    });
+  });
+});
+
+describe("uri template", () => {
+  async function getOp(code: string) {
+    const ops = await getOperations(code);
+    return ops[0];
+  }
+  describe("extract implicit parameters", () => {
+    async function getParameter(code: string, name: string) {
+      const op = await getOp(code);
+      const param = op.parameters.parameters.find((x) => x.name === name);
+      ok(param);
+      expect(param.name).toEqual("foo");
+      return param;
+    }
+
+    function expectPathParameter(param: HttpOperationParameter, expected: PathOptions) {
+      strictEqual(param.type, "path");
+      const { style, explode, allowReserved } = param;
+      expect({ style, explode, allowReserved }).toEqual(expected);
+    }
+
+    it("extract simple path parameter", async () => {
+      const param = await getParameter(`@route("/bar/{foo}") op foo(foo: string): void;`, "foo");
+      expectPathParameter(param, { style: "simple", allowReserved: false, explode: false });
+    });
+
+    it("+ operator map to allowReserved", async () => {
+      const param = await getParameter(`@route("/bar/{+foo}") op foo(foo: string): void;`, "foo");
+      expectPathParameter(param, { style: "simple", allowReserved: true, explode: false });
+    });
+
+    it.each([
+      [";", "matrix"],
+      ["#", "fragment"],
+      [".", "label"],
+      ["/", "path"],
+    ] as const)("%s map to style: %s", async (operator, style) => {
+      const param = await getParameter(
+        `@route("/bar/{${operator}foo}") op foo(foo: string): void;`,
+        "foo"
+      );
+      expectPathParameter(param, { style, allowReserved: false, explode: false });
+    });
+
+    it("extract simple query parameter", async () => {
+      const param = await getParameter(`@route("/bar{?foo}") op foo(foo: string): void;`, "foo");
+      strictEqual(param.type, "query");
+    });
+
+    it("extract simple query continuation parameter", async () => {
+      const param = await getParameter(
+        `@route("/bar?fixed=yes{&foo}") op foo(foo: string): void;`,
+        "foo"
+      );
+      strictEqual(param.type, "query");
     });
   });
 });
