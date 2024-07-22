@@ -109,6 +109,17 @@ namespace Microsoft.Generator.CSharp.Snippets
                 CallAsAsync = isAsync, AddConfigureAwaitFalse = configureAwait
             };
 
+        public static ValueExpression Invoke(this PropertyProvider property,
+            string methodName,
+            IEnumerable<ValueExpression> parameters,
+            bool isAsync,
+            bool configureAwait)
+            => new InvokeMethodExpression(property, methodName, [.. parameters])
+            {
+                CallAsAsync = isAsync,
+                AddConfigureAwaitFalse = configureAwait
+            };
+
         public static ScopedApi<bool> NotEqual(this ParameterProvider parameter, ValueExpression other)
             => new BinaryOperatorExpression("!=", parameter, other).As<bool>();
     }

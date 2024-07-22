@@ -7,6 +7,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
@@ -31,8 +32,8 @@ namespace Microsoft.Generator.CSharp.Providers
             foreach (var propertySymbol in _namedTypeSymbol.GetMembers().OfType<IPropertySymbol>())
             {
                 var propertyProvider = new PropertyProvider(
-                    $"{GetPropertySummary(propertySymbol)}",
-                    GetMethodSignatureModifiers(propertySymbol.DeclaredAccessibility),
+                    GetSymbolXmlDoc(propertySymbol, "summary"),
+                    GetAccessModifier(propertySymbol.DeclaredAccessibility),
                     GetCSharpType(propertySymbol.Type),
                     propertySymbol.Name,
                     new AutoPropertyBody(propertySymbol.SetMethod is not null));
@@ -41,19 +42,83 @@ namespace Microsoft.Generator.CSharp.Providers
             return [.. properties];
         }
 
-        private static string? GetPropertySummary(IPropertySymbol propertySymbol)
+        protected override MethodProvider[] BuildMethods()
+        {
+            List<MethodProvider> methods = new List<MethodProvider>();
+            foreach (var methodSymbol in _namedTypeSymbol.GetMembers().OfType<IMethodSymbol>())
+            {
+                // skip property accessors
+                if (methodSymbol.AssociatedSymbol is IPropertySymbol)
+                    continue;
+
+                // skip constructors
+                if (methodSymbol.MethodKind == MethodKind.Constructor)
+                    continue;
+
+                var modifiers = GetAccessModifier(methodSymbol.DeclaredAccessibility);
+                AddAdditionalModifiers(methodSymbol, ref modifiers);
+                var signature = new MethodSignature(
+                    methodSymbol.Name,
+                    GetSymbolXmlDoc(methodSymbol, "summary"),
+                    modifiers,
+                    GetCSharpType(methodSymbol.ReturnType),
+                    GetSymbolXmlDoc(methodSymbol, "returns"),
+                    [.. methodSymbol.Parameters.Select(p => ConvertToParameterProvider(methodSymbol, p))]);
+
+                methods.Add(new MethodProvider(signature, MethodBodyStatement.Empty, this));
+            }
+            return [.. methods];
+        }
+
+        private static ParameterProvider ConvertToParameterProvider(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol)
+        {
+            return new ParameterProvider(
+                parameterSymbol.Name,
+                FormattableStringHelpers.FromString(GetParameterXmlDocumentation(methodSymbol, parameterSymbol)) ?? FormattableStringHelpers.Empty,
+                GetCSharpType(parameterSymbol.Type));
+        }
+
+        private void AddAdditionalModifiers(IMethodSymbol methodSymbol, ref MethodSignatureModifiers modifiers)
+        {
+            if (methodSymbol.IsVirtual)
+            {
+                modifiers |= MethodSignatureModifiers.Virtual;
+            }
+            if (methodSymbol.IsOverride)
+            {
+                modifiers |= MethodSignatureModifiers.Override;
+            }
+        }
+
+        private static FormattableString? GetSymbolXmlDoc(ISymbol propertySymbol, string tag)
         {
             var xmlDocumentation = propertySymbol.GetDocumentationCommentXml();
             if (!string.IsNullOrEmpty(xmlDocumentation))
             {
                 var xDocument = XDocument.Parse(xmlDocumentation);
-                var summaryElement = xDocument.Descendants("summary").FirstOrDefault();
-                return summaryElement?.Value.Trim();
+                var summaryElement = xDocument.Descendants(tag).FirstOrDefault();
+                return FormattableStringHelpers.FromString(summaryElement?.Value.Trim());
             }
             return null;
         }
 
-        private static MethodSignatureModifiers GetMethodSignatureModifiers(Accessibility accessibility) => accessibility switch
+        private static string? GetParameterXmlDocumentation(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol)
+        {
+            var xmlDocumentation = methodSymbol.GetDocumentationCommentXml();
+
+            if (string.IsNullOrWhiteSpace(xmlDocumentation))
+            {
+                return null;
+            }
+
+            var xmlDoc = XDocument.Parse(xmlDocumentation);
+            var paramElement = xmlDoc.Descendants("param")
+                                     .FirstOrDefault(e => e.Attribute("name")?.Value == parameterSymbol.Name);
+
+            return paramElement?.Value.Trim();
+        }
+
+        private static MethodSignatureModifiers GetAccessModifier(Accessibility accessibility) => accessibility switch
         {
             Accessibility.Private => MethodSignatureModifiers.Private,
             Accessibility.Protected => MethodSignatureModifiers.Protected,
@@ -67,12 +132,13 @@ namespace Microsoft.Generator.CSharp.Providers
             var fullyQualifiedName = GetFullyQualifiedName(typeSymbol);
             var pieces = fullyQualifiedName.Split('.');
 
+            var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
+
             //if fully qualified name is in the namespace of the library being emitted find it from the outputlibrary
             if (fullyQualifiedName.StartsWith(CodeModelPlugin.Instance.Configuration.RootNamespace, StringComparison.Ordinal))
             {
                 bool isValueType = typeSymbol.IsValueType;
                 bool isEnum = typeSymbol.TypeKind == TypeKind.Enum;
-                var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
                 return new CSharpType(
                     typeSymbol.Name,
                     string.Join('.', pieces.Take(pieces.Length - 1)),
@@ -88,12 +154,20 @@ namespace Microsoft.Generator.CSharp.Providers
                         : null);
             }
 
-            var type = System.Type.GetType(fullyQualifiedName);
+            Type? type = System.Type.GetType(fullyQualifiedName);
             if (type is null)
             {
                 throw new InvalidOperationException($"Unable to convert ITypeSymbol: {fullyQualifiedName} to a CSharpType");
             }
-            return type;
+
+            CSharpType result = new CSharpType(type);
+
+            if (namedTypeSymbol is not null && namedTypeSymbol.IsGenericType)
+            {
+                return result.MakeGenericType([.. namedTypeSymbol.TypeArguments.Select(GetCSharpType)]);
+            }
+
+            return result;
         }
 
         private static string GetFullyQualifiedName(ITypeSymbol typeSymbol)
@@ -147,9 +221,11 @@ namespace Microsoft.Generator.CSharp.Providers
             // Handle generic types
             if (typeSymbol is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.IsGenericType)
             {
-                var genericArguments = string.Join(",", namedTypeSymbol.TypeArguments.Select(GetFullyQualifiedName));
-                var typeName = namedTypeSymbol.ConstructedFrom.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                return $"{typeName}[{genericArguments}]";
+                var typeNameSpan = namedTypeSymbol.ConstructedFrom.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).AsSpan();
+                var start = typeNameSpan.IndexOf(':') + 2;
+                var end = typeNameSpan.IndexOf('<');
+                typeNameSpan = typeNameSpan.Slice(start, end - start);
+                return $"{typeNameSpan}`{namedTypeSymbol.TypeArguments.Length}";
             }
 
             // Default to fully qualified name
