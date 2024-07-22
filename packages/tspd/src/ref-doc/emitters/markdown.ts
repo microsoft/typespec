@@ -220,10 +220,26 @@ export class MarkdownRenderer {
       e.doc,
       codeblock(e.signature, "typespec"),
       "",
+      this.enumMembers(e),
       this.examples(e.examples),
     ];
 
     return section(this.headingTitle(e), content);
+  }
+
+  enumMembers(e: EnumRefDoc): MarkdownDoc {
+    const rows = [...e.members.values()].map((x) => {
+      return [
+        x.name,
+        x.type.value
+          ? inlinecode(
+              typeof x.type.value === "string" ? `"${x.type.value}"` : x.type.value.toString()
+            )
+          : "",
+        x.doc,
+      ];
+    });
+    return table([["Name", "Value", "Description"], ...rows]);
   }
 
   union(union: UnionRefDoc): MarkdownDoc {
