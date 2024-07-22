@@ -67,7 +67,7 @@ export function resolvePathAndParameters(
 }> {
   const diagnostics = createDiagnosticCollector();
   const { uriTemplate, parameters } = diagnostics.pipe(
-    getRouteSegments(program, operation, overloadBase, options)
+    getUriTemplateAndParameters(program, operation, overloadBase, options)
   );
 
   const parsedUriTemplate = parseUriTemplate(uriTemplate);
@@ -130,7 +130,7 @@ function collectSegmentsAndOptions(
   return [[...parentSegments, ...(route ? [route] : [])], { ...parentOptions, ...options }];
 }
 
-function getRouteSegments(
+function getUriTemplateAndParameters(
   program: Program,
   operation: Operation,
   overloadBase: HttpOperation | undefined,
@@ -142,10 +142,15 @@ function getRouteSegments(
   );
 
   const routeProducer = getRouteProducer(program, operation) ?? DefaultRouteProducer;
-  return routeProducer(program, operation, parentSegments, overloadBase, {
+  const [result, diagnostics] = routeProducer(program, operation, parentSegments, overloadBase, {
     ...parentOptions,
     ...options,
   });
+
+  return [
+    { uriTemplate: buildPath([result.uriTemplate]), parameters: result.parameters },
+    diagnostics,
+  ];
 }
 
 /**
@@ -226,7 +231,7 @@ function addOperationTemplateToUriTemplate(uriTemplate: string, params: HttpOper
     });
   const queryParams = params.filter((x) => x.type === "query");
 
-  const pathPart = buildPath([uriTemplate, ...pathParams]);
+  const pathPart = joinPathSegments([uriTemplate, ...pathParams]);
   return (
     pathPart + (queryParams.length > 0 ? `{?${queryParams.map((x) => x.name).join(",")}}` : "")
   );
