@@ -441,4 +441,24 @@ describe("openapi3: union type", () => {
     strictEqual(res.schemas.Foo.title, "FooUnion");
     strictEqual(res.schemas.Bar.title, "BarUnion");
   });
+
+  it("does not duplicate top-level description on union members", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      @doc("The possible types of things")
+      union Foo {
+        string,
+
+        bar: "bar",
+        buzz: "buzz",
+      }`
+    );
+
+    strictEqual(res.schemas.Foo.description, "The possible types of things");
+    strictEqual(res.schemas.Foo.anyOf.length, 2);
+    for (const variant of res.schemas.Foo.anyOf) {
+      strictEqual(variant.description, undefined);
+    }
+  });
 });

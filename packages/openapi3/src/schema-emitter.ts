@@ -523,14 +523,16 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     const wrapWithObjectBuilder = (
       schemaMember: { schema: any; type: Type | null },
-      { applyNullable }: { applyNullable: boolean }
+      { mergeUnionWideConstraints }: { mergeUnionWideConstraints: boolean }
     ): ObjectBuilder<OpenAPI3Schema> => {
       // we can just return the single schema member after applying nullable
       const schema = schemaMember.schema;
       const type = schemaMember.type;
-      const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(union, {});
+      const additionalProps: Partial<OpenAPI3Schema> = mergeUnionWideConstraints
+        ? this.#applyConstraints(union, {})
+        : {};
 
-      if (applyNullable && nullable) {
+      if (mergeUnionWideConstraints && nullable) {
         additionalProps.nullable = true;
       }
 
@@ -573,11 +575,13 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
 
     if (schemaMembers.length === 1) {
-      return wrapWithObjectBuilder(schemaMembers[0], { applyNullable: true });
+      return wrapWithObjectBuilder(schemaMembers[0], { mergeUnionWideConstraints: true });
     }
 
     const schema: OpenAPI3Schema = {
-      [ofType]: schemaMembers.map((m) => wrapWithObjectBuilder(m, { applyNullable: false })),
+      [ofType]: schemaMembers.map((m) =>
+        wrapWithObjectBuilder(m, { mergeUnionWideConstraints: false })
+      ),
     };
 
     if (nullable) {
