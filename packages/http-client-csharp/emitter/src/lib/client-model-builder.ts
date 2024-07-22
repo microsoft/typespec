@@ -70,7 +70,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       inputClients.push(inputClient);
       const subClients = client.methods
         .filter((m) => m.kind === "clientaccessor")
-        .map((m) => m.response);
+        .map((m) => m.response as SdkClientType<SdkHttpOperation>);
       parentClientNames.push(inputClient.Name);
       fromSdkClients(subClients, inputClients, parentClientNames);
       parentClientNames.pop();
@@ -174,10 +174,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
         // TODO: we should do the magic in generator
         Type: parameterType,
         Location: RequestLocation.Uri,
-        // TODO: do we have a better way to check if a parameter is api-version?
-        IsApiVersion:
-          parameter.name.toLowerCase() === "apiversion" ||
-          parameter.name.toLowerCase() === "api-version",
+        IsApiVersion: parameter.isApiVersionParam,
         IsResourceParameter: false,
         IsContentType: false,
         IsRequired: !parameter.optional,
