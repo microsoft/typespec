@@ -278,7 +278,7 @@ export interface RouteResolutionOptions extends RouteOptions {
 }
 
 export interface RouteProducerResult {
-  segments: string[];
+  uriTemplate: string;
   parameters: HttpOperationParameters;
 }
 
@@ -374,6 +374,7 @@ export interface HttpOperation {
 
   /**
    * Path segments
+   * @deprecated use {@link uriTemplate} instead
    */
   pathSegments: string[];
 

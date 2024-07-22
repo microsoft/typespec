@@ -9,7 +9,7 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`HTTP verb already applied to ${"entityName"}`,
       },
     },
-    "missing-path-param": {
+    "missing-uri-param": {
       severity: "error",
       messages: {
         default: paramMessage`Route reference parameter '${"param"}' but wasn't found in operation parameters`,

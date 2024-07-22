@@ -8,7 +8,7 @@ export interface UriTemplateParameter {
 }
 
 export interface UriTemplate {
-  readonly template: string;
+  readonly segments?: (string | UriTemplateParameter)[];
   readonly parameters: UriTemplateParameter[];
 }
 
@@ -20,8 +20,9 @@ const expressionRegex = /([^:*]*)(?::(\d+)|(\*))?/;
  */
 export function parseUriTemplate(template: string): UriTemplate {
   const parameters: UriTemplateParameter[] = [];
+  const segments: (string | UriTemplateParameter)[] = [];
   const matches = template.matchAll(uriTemplateRegex);
-  for (let [_, expression] of matches) {
+  for (let [_, expression, literal] of matches) {
     if (expression) {
       let operator: Operator | undefined;
       if (operators.includes(expression[0] as any)) {
@@ -33,7 +34,7 @@ export function parseUriTemplate(template: string): UriTemplate {
       for (const item of items) {
         const match = item.match(expressionRegex)!;
         const name = match[1];
-        parameters.push({
+        const parameter: UriTemplateParameter = {
           name: name,
           operator,
           modifier: match[3]
@@ -41,9 +42,13 @@ export function parseUriTemplate(template: string): UriTemplate {
             : match[2]
               ? { type: "prefix", value: Number(match[2]) }
               : undefined,
-        });
+        };
+        parameters.push(parameter);
+        segments.push(parameter);
       }
+    } else {
+      segments.push(literal);
     }
   }
-  return { template, parameters };
+  return { segments, parameters };
 }

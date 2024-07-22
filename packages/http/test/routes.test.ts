@@ -171,7 +171,7 @@ describe("http: routes", () => {
         `@route("/foo/{myParam}/") op test(@path other: string): void;`
       );
       expectDiagnostics(diagnostics, {
-        code: "@typespec/http/missing-path-param",
+        code: "@typespec/http/missing-uri-param",
         message: "Route reference parameter 'myParam' but wasn't found in operation parameters",
       });
     });

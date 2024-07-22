@@ -16,12 +16,13 @@ import {
   HttpVerb,
   OperationParameterOptions,
 } from "./types.js";
+import { parseUriTemplate } from "./uri-template.js";
 
 export function getOperationParameters(
   program: Program,
   operation: Operation,
+  partialUriTemplate: string,
   overloadBase?: HttpOperation,
-  knownPathParamNames: string[] = [],
   options: OperationParameterOptions = {}
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const verb =
@@ -30,30 +31,32 @@ export function getOperationParameters(
     overloadBase?.verb;
 
   if (verb) {
-    return getOperationParametersForVerb(program, operation, verb, knownPathParamNames);
+    return getOperationParametersForVerb(program, operation, verb, partialUriTemplate);
   }
 
   // If no verb is explicitly specified, it is POST if there is a body and
   // GET otherwise. Theoretically, it is possible to use @visibility
   // strangely such that there is no body if the verb is POST and there is a
   // body if the verb is GET. In that rare case, GET is chosen arbitrarily.
-  const post = getOperationParametersForVerb(program, operation, "post", knownPathParamNames);
+  const post = getOperationParametersForVerb(program, operation, "post", partialUriTemplate);
   return post[0].body
     ? post
-    : getOperationParametersForVerb(program, operation, "get", knownPathParamNames);
+    : getOperationParametersForVerb(program, operation, "get", partialUriTemplate);
 }
 
 function getOperationParametersForVerb(
   program: Program,
   operation: Operation,
   verb: HttpVerb,
-  knownPathParamNames: string[]
+  partialUriTemplate: string
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const visibility = resolveRequestVisibility(program, operation, verb);
+  const parsedUriTemplate = parseUriTemplate(partialUriTemplate);
+
   function isImplicitPathParam(param: ModelProperty) {
     const isTopLevel = param.model === operation.parameters;
-    return isTopLevel && knownPathParamNames.includes(param.name);
+    return isTopLevel && parsedUriTemplate.parameters.some((x) => x.name === param.name);
   }
 
   const parameters: HttpOperationParameter[] = [];

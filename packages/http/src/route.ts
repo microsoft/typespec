@@ -1,4 +1,5 @@
 import {
+  createDiagnosticCollector,
   DecoratorContext,
   DiagnosticResult,
   Interface,
@@ -6,10 +7,9 @@ import {
   Operation,
   Program,
   Type,
-  createDiagnosticCollector,
   validateDecoratorTarget,
 } from "@typespec/compiler";
-import { HttpStateKeys, createDiagnostic, reportDiagnostic } from "./lib.js";
+import { createDiagnostic, HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { getOperationParameters } from "./parameters.js";
 import {
   HttpOperation,
@@ -20,7 +20,7 @@ import {
   RouteProducerResult,
   RouteResolutionOptions,
 } from "./types.js";
-import { extractParamsFromPath } from "./utils.js";
+import { parseUriTemplate, UriTemplate } from "./uri-template.js";
 
 // The set of allowed segment separator characters
 const AllowedSegmentSeparators = ["/", ":"];
@@ -61,13 +61,14 @@ export function resolvePathAndParameters(
 ): DiagnosticResult<{
   readonly uriTemplate: string;
   path: string;
-  pathSegments: string[];
   parameters: HttpOperationParameters;
 }> {
   const diagnostics = createDiagnosticCollector();
-  const { segments, parameters } = diagnostics.pipe(
+  const { uriTemplate, parameters } = diagnostics.pipe(
     getRouteSegments(program, operation, overloadBase, options)
   );
+
+  const parsedUriTemplate = parseUriTemplate(uriTemplate);
 
   // Pull out path parameters to verify what's in the path string
   const paramByName = new Set(
@@ -76,25 +77,38 @@ export function resolvePathAndParameters(
 
   // Ensure that all of the parameters defined in the route are accounted for in
   // the operation parameters
-  const routeParams = segments.flatMap(extractParamsFromPath);
-  for (const routeParam of routeParams) {
-    if (!paramByName.has(routeParam)) {
+  for (const routeParam of parsedUriTemplate.parameters) {
+    if (!paramByName.has(routeParam.name)) {
       diagnostics.add(
         createDiagnostic({
-          code: "missing-path-param",
-          format: { param: routeParam },
+          code: "missing-uri-param",
+          format: { param: routeParam.name },
           target: operation,
         })
       );
     }
   }
 
+  const path = produceLegacyPathFromUriTemplate(parsedUriTemplate);
   return diagnostics.wrap({
-    uriTemplate: null as any, // TODO: do
-    path: buildPath(segments),
-    pathSegments: segments,
+    uriTemplate,
+    path,
     parameters,
   });
+}
+
+function produceLegacyPathFromUriTemplate(uriTemplate: UriTemplate) {
+  let result = "";
+
+  for (const segment of uriTemplate.segments ?? []) {
+    if (typeof segment === "string") {
+      result += segment;
+    } else if (segment.operator !== "?" && segment.operator !== "&") {
+      result += `{${segment.name}}`;
+    }
+  }
+
+  return result;
 }
 
 function collectSegmentsAndOptions(
@@ -118,21 +132,16 @@ function getRouteSegments(
   overloadBase: HttpOperation | undefined,
   options: RouteResolutionOptions
 ): DiagnosticResult<RouteProducerResult> {
-  const diagnostics = createDiagnosticCollector();
   const [parentSegments, parentOptions] = collectSegmentsAndOptions(
     program,
     operation.interface ?? operation.namespace
   );
 
   const routeProducer = getRouteProducer(program, operation) ?? DefaultRouteProducer;
-  const result = diagnostics.pipe(
-    routeProducer(program, operation, parentSegments, overloadBase, {
-      ...parentOptions,
-      ...options,
-    })
-  );
-
-  return diagnostics.wrap(result);
+  return routeProducer(program, operation, parentSegments, overloadBase, {
+    ...parentOptions,
+    ...options,
+  });
 }
 
 /**
@@ -164,33 +173,35 @@ export function DefaultRouteProducer(
 ): DiagnosticResult<RouteProducerResult> {
   const diagnostics = createDiagnosticCollector();
   const routePath = getRoutePath(program, operation)?.path;
-  const segments =
+  const uriTemplate =
     !routePath && overloadBase
-      ? overloadBase.pathSegments
-      : [...parentSegments, ...(routePath ? [routePath] : [])];
-  const routeParams = segments.flatMap(extractParamsFromPath);
+      ? overloadBase.uriTemplate
+      : buildPath([...parentSegments, ...(routePath ? [routePath] : [])]);
+
+  const parsedUriTemplate = parseUriTemplate(uriTemplate);
 
   const parameters: HttpOperationParameters = diagnostics.pipe(
-    getOperationParameters(program, operation, overloadBase, routeParams, options.paramOptions)
+    getOperationParameters(program, operation, uriTemplate, overloadBase, options.paramOptions)
   );
 
   // Pull out path parameters to verify what's in the path string
-  const unreferencedPathParamNames = new Set(
-    parameters.parameters.filter(({ type }) => type === "path").map((x) => x.name)
+  const unreferencedPathParamNames = new Map(
+    parameters.parameters.filter(({ type }) => type === "path").map((x) => [x.name, x])
   );
 
   // Compile the list of all route params that aren't represented in the route
-  for (const routeParam of routeParams) {
-    unreferencedPathParamNames.delete(routeParam);
+  for (const uriParam of parsedUriTemplate.parameters) {
+    unreferencedPathParamNames.delete(uriParam.name);
   }
 
+  const additionalSegments = [];
   // Add any remaining declared path params
-  for (const paramName of unreferencedPathParamNames) {
-    segments.push(`{${paramName}}`);
+  for (const [paramName] of unreferencedPathParamNames) {
+    additionalSegments.push(`{${paramName}}`);
   }
 
   return diagnostics.wrap({
-    segments,
+    uriTemplate: buildPath([uriTemplate, ...additionalSegments]),
     parameters,
   });
 }
