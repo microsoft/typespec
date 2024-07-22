@@ -1391,226 +1391,189 @@ describe("identifiers", () => {
       `;
 
     it("show all properties for referenced model template parameter", async () => {
-      (
-        await Promise.all(
-          [`alias test = MyLogContext<{┆}`].map(async (item) => await complete(`${def}\n${item}`))
-        )
-      ).forEach((completions) => {
-        check(
-          completions,
-          [
-            {
-              label: "name",
-              insertText: "name",
-              kind: CompletionItemKind.Field,
-              documentation: {
-                kind: "markdown",
-                value: "(model property)\n```typespec\nTestModel.name: string\n```",
-              },
-            },
-            {
-              label: "value",
-              insertText: "value",
-              kind: CompletionItemKind.Field,
-              documentation: {
-                kind: "markdown",
-                value: "(model property)\n```typespec\nTestModel.value: TestSubModel\n```",
-              },
-            },
-          ],
+      const completions = await complete(`${def}\nalias test = MyLogContext<{┆}`);
+      check(
+        completions,
+        [
           {
-            fullDocs: true,
-            allowAdditionalCompletions: false,
-          }
-        );
-      });
+            label: "name",
+            insertText: "name",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: "markdown",
+              value: "(model property)\n```typespec\nTestModel.name: string\n```",
+            },
+          },
+          {
+            label: "value",
+            insertText: "value",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: "markdown",
+              value: "(model property)\n```typespec\nTestModel.value: TestSubModel\n```",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
     });
 
     it("show all properties for referenced literal object template parameter", async () => {
-      (
-        await Promise.all(
-          [`alias test = MyLogContext<{}, #{value: #{┆}}`].map(
-            async (item) => await complete(`${def}\n${item}`)
-          )
-        )
-      ).forEach((completions) => {
-        check(
-          completions,
-          [
-            {
-              label: "subName",
-              insertText: "subName",
-              kind: CompletionItemKind.Field,
-              documentation: {
-                kind: "markdown",
-                value: "(model property)\n```typespec\nTestSubModel.subName: string\n```",
-              },
-            },
-            {
-              label: "subValue",
-              insertText: "subValue",
-              kind: CompletionItemKind.Field,
-              documentation: {
-                kind: "markdown",
-                value: "(model property)\n```typespec\nTestSubModel.subValue: int16\n```",
-              },
-            },
-          ],
+      const completions = await complete(`${def}\nalias test = MyLogContext<{}, #{value: #{┆}}`);
+      check(
+        completions,
+        [
           {
-            fullDocs: true,
-            allowAdditionalCompletions: false,
-          }
-        );
-      });
+            label: "subName",
+            insertText: "subName",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: "markdown",
+              value: "(model property)\n```typespec\nTestSubModel.subName: string\n```",
+            },
+          },
+          {
+            label: "subValue",
+            insertText: "subValue",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: "markdown",
+              value: "(model property)\n```typespec\nTestSubModel.subValue: int16\n```",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
     });
 
     it("show all properties for referenced model expression parameter", async () => {
-      (
-        await Promise.all(
-          [`alias test = MyLogContext2<{┆`].map(async (item) => await complete(`${def}\n${item}`))
-        )
-      ).forEach((completions) => {
-        check(
-          completions,
-          [
-            {
-              label: "name",
-              insertText: "name",
-              kind: CompletionItemKind.Field,
-              documentation: {
-                kind: "markdown",
-                value: "(model property)\n```typespec\nname: string\n```",
-              },
-            },
-            {
-              label: "value",
-              insertText: "value",
-              kind: CompletionItemKind.Field,
-              documentation: {
-                kind: "markdown",
-                value:
-                  "(model property)\n```typespec\nvalue: { key: string, arr: TestModel[] }\n```",
-              },
-            },
-          ],
+      const completions = await complete(`${def}\nalias test = MyLogContext2<{┆`);
+      check(
+        completions,
+        [
           {
-            fullDocs: true,
-            allowAdditionalCompletions: false,
-          }
-        );
-      });
+            label: "name",
+            insertText: "name",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: "markdown",
+              value: "(model property)\n```typespec\nname: string\n```",
+            },
+          },
+          {
+            label: "value",
+            insertText: "value",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: "markdown",
+              value: "(model property)\n```typespec\nvalue: { key: string, arr: TestModel[] }\n```",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
     });
 
     it("show all properties for referenced literal expression template parameter", async () => {
-      (
-        await Promise.all(
-          [`alias test = MyLogContext2<{}, #{value: #{┆`].map(
-            async (item) => await complete(`${def}\n${item}`)
-          )
-        )
-      ).forEach((completions) => {
-        check(
-          completions,
-          [
-            {
-              label: "key",
-              insertText: "key",
-              kind: CompletionItemKind.Field,
-              documentation: {
-                kind: "markdown",
-                value: "(model property)\n```typespec\nkey: string\n```",
-              },
-            },
-            {
-              label: "arr",
-              insertText: "arr",
-              kind: CompletionItemKind.Field,
-              documentation: {
-                kind: "markdown",
-                value: "(model property)\n```typespec\narr: TestModel[]\n```",
-              },
-            },
-          ],
+      const completions = await complete(`${def}\nalias test = MyLogContext2<{}, #{value: #{┆`);
+      check(
+        completions,
+        [
           {
-            fullDocs: true,
-            allowAdditionalCompletions: false,
-          }
-        );
-      });
+            label: "key",
+            insertText: "key",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: "markdown",
+              value: "(model property)\n```typespec\nkey: string\n```",
+            },
+          },
+          {
+            label: "arr",
+            insertText: "arr",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: "markdown",
+              value: "(model property)\n```typespec\narr: TestModel[]\n```",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
     });
 
     it("show all properties for referenced model array parameter", async () => {
-      (
-        await Promise.all(
-          [`alias test = MyLogContext3<[{┆`].map(async (item) => await complete(`${def}\n${item}`))
-        )
-      ).forEach((completions) => {
-        check(
-          completions,
-          [
-            {
-              label: "name",
-              insertText: "name",
-              kind: CompletionItemKind.Field,
-              documentation: {
-                kind: "markdown",
-                value: "(model property)\n```typespec\nTestModel.name: string\n```",
-              },
-            },
-            {
-              label: "value",
-              insertText: "value",
-              kind: CompletionItemKind.Field,
-              documentation: {
-                kind: "markdown",
-                value: "(model property)\n```typespec\nTestModel.value: TestSubModel\n```",
-              },
-            },
-          ],
+      const completions = await complete(`${def}\nalias test = MyLogContext3<[{┆`);
+      check(
+        completions,
+        [
           {
-            fullDocs: true,
-            allowAdditionalCompletions: false,
-          }
-        );
-      });
+            label: "name",
+            insertText: "name",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: "markdown",
+              value: "(model property)\n```typespec\nTestModel.name: string\n```",
+            },
+          },
+          {
+            label: "value",
+            insertText: "value",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: "markdown",
+              value: "(model property)\n```typespec\nTestModel.value: TestSubModel\n```",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
     });
 
     it("show all properties for referenced literal expression array template parameter", async () => {
-      (
-        await Promise.all(
-          [`alias test = MyLogContext3<{}, #[#{┆`].map(
-            async (item) => await complete(`${def}\n${item}`)
-          )
-        )
-      ).forEach((completions) => {
-        check(
-          completions,
-          [
-            {
-              label: "name",
-              insertText: "name",
-              kind: CompletionItemKind.Field,
-              documentation: {
-                kind: "markdown",
-                value: "(model property)\n```typespec\nname: string\n```",
-              },
-            },
-            {
-              label: "value",
-              insertText: "value",
-              kind: CompletionItemKind.Field,
-              documentation: {
-                kind: "markdown",
-                value: "(model property)\n```typespec\nvalue: boolean\n```",
-              },
-            },
-          ],
+      const completions = await complete(`${def}\nalias test = MyLogContext3<{}, #[#{┆`);
+      check(
+        completions,
+        [
           {
-            fullDocs: true,
-            allowAdditionalCompletions: false,
-          }
-        );
-      });
+            label: "name",
+            insertText: "name",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: "markdown",
+              value: "(model property)\n```typespec\nname: string\n```",
+            },
+          },
+          {
+            label: "value",
+            insertText: "value",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: "markdown",
+              value: "(model property)\n```typespec\nvalue: boolean\n```",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
     });
 
     it("no completion for normal template parameter ref", async () => {
