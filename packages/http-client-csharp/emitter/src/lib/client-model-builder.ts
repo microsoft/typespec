@@ -66,15 +66,11 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     parentClientNames: string[]
   ) {
     for (const client of clients) {
-      // TODO: workaround: TCGC will put sub-client both on top level and in sub-client accessor
-      if (inputClients.some((c) => c.Name === client.name)) continue;
-
       const inputClient = emitClient(client, parentClientNames);
       inputClients.push(inputClient);
-      // TODO: https://github.com/Azure/typespec-azure/issues/969
       const subClients = client.methods
         .filter((m) => m.kind === "clientaccessor")
-        .map((m) => m.response as SdkClientType<SdkHttpOperation>);
+        .map((m) => m.response);
       parentClientNames.push(inputClient.Name);
       fromSdkClients(subClients, inputClients, parentClientNames);
       parentClientNames.pop();
