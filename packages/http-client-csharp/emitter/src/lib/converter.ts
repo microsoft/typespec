@@ -7,13 +7,14 @@ import {
   SdkBuiltInType,
   SdkConstantType,
   SdkContext,
-  SdkDatetimeType,
+  SdkDateTimeType,
   SdkDictionaryType,
   SdkDurationType,
   SdkEnumType,
   SdkEnumValueType,
   SdkModelPropertyType,
   SdkModelType,
+  SdkTupleType,
   SdkType,
   SdkUnionType,
   UsageFlags,
@@ -64,8 +65,8 @@ export function fromSdkType(
   if (sdkType.kind === "union") return fromUnionType(sdkType, context, models, enums);
   if (sdkType.kind === "utcDateTime" || sdkType.kind === "offsetDateTime")
     return fromSdkDateTimeType(sdkType);
-  if (sdkType.kind === "duration") return fromSdkDurationType(sdkType as SdkDurationType);
-  if (sdkType.kind === "tuple") return fromTupleType();
+  if (sdkType.kind === "duration") return fromSdkDurationType(sdkType);
+  if (sdkType.kind === "tuple") return fromTupleType(sdkType);
   // TODO -- only in operations we could have these types, considering we did not adopt getAllOperations from TCGC yet, this should be fine.
   // we need to resolve these conversions when we adopt getAllOperations
   if (sdkType.kind === "credential") throw new Error("Credential type is not supported yet.");
@@ -219,33 +220,44 @@ export function fromSdkEnumType(
   return inputEnumType;
 }
 
-function fromSdkDateTimeType(dateTimeType: SdkDatetimeType): InputDateTimeType {
+function fromSdkDateTimeType(dateTimeType: SdkDateTimeType): InputDateTimeType {
   return {
     Kind: dateTimeType.kind,
+    Name: dateTimeType.name,
     Encode: dateTimeType.encode,
     WireType: fromSdkBuiltInType(dateTimeType.wireType),
+    CrossLanguageDefinitionId: dateTimeType.crossLanguageDefinitionId,
+    BaseType: dateTimeType.baseType ? fromSdkDateTimeType(dateTimeType.baseType) : undefined,
   };
 }
 
 function fromSdkDurationType(durationType: SdkDurationType): InputDurationType {
   return {
     Kind: durationType.kind,
+    Name: durationType.name,
     Encode: durationType.encode,
     WireType: fromSdkBuiltInType(durationType.wireType),
+    CrossLanguageDefinitionId: durationType.crossLanguageDefinitionId,
+    BaseType: durationType.baseType ? fromSdkDurationType(durationType.baseType) : undefined,
   };
 }
 
 // TODO: tuple is not officially supported
-function fromTupleType(): InputPrimitiveType {
+function fromTupleType(tupleType: SdkTupleType): InputPrimitiveType {
   return {
     Kind: "any",
+    Name: "tuple",
+    CrossLanguageDefinitionId: "",
   };
 }
 
 function fromSdkBuiltInType(builtInType: SdkBuiltInType): InputPrimitiveType {
   return {
     Kind: builtInType.kind,
+    Name: builtInType.name,
     Encode: builtInType.encode !== builtInType.kind ? builtInType.encode : undefined, // In TCGC this is required, and when there is no encoding, it just has the same value as kind, we could remove this when TCGC decides to simplify
+    CrossLanguageDefinitionId: builtInType.crossLanguageDefinitionId,
+    BaseType: builtInType.baseType ? fromSdkBuiltInType(builtInType.baseType) : undefined,
   };
 }
 
