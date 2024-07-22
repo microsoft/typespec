@@ -43,7 +43,7 @@
     "@octokit/plugin-paginate-graphql": "^5.2.2",
     "@octokit/plugin-rest-endpoint-methods": "^13.2.4",
     "@pnpm/find-workspace-packages": "^6.0.9",
-    "@types/node": "~20.14.11",
+    "@types/node": "~18.11.19",
     "@typescript-eslint/parser": "^7.17.0",
     "@typescript-eslint/utils": "^7.17.0",
     "@vitest/coverage-v8": "^2.0.4",
