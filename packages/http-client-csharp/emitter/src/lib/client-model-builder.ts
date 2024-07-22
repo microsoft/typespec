@@ -142,8 +142,6 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
           SkipUrlEncoding: false,
           Explode: false,
           Kind: InputOperationParameterKind.Client,
-          // TODO: https://github.com/Azure/typespec-azure/issues/988
-          // https://github.com/Azure/typespec-azure/issues/989
           DefaultValue: {
             Type: {
               Kind: "string",
