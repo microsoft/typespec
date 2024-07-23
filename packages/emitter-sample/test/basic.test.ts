@@ -3,7 +3,8 @@ import { expect, it } from "vitest";
 import { emit } from "./test-host.js";
 
 it("works", async () => {
-  const results = await emit(`op doWork(): void;`);
+  const results = await emit(`op doWork(value: string): string;`);
+
   expect(results["package.json"]).toBe(d`
     {
         "name": "test-package",
@@ -18,8 +19,8 @@ it("works", async () => {
   `);
 
   expect(results["client.ts"]).toBe(d`
-    function makeRestCall() {
-      return fetch("http://localhost:8080");
+    function doWork(value: string): string {
+      
     }
   `);
 });

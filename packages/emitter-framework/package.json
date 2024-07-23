@@ -5,16 +5,22 @@
   "private": true,
   "main": "dist/index.js",
   "scripts": {
-    "build-src": "babel src -d dist --extensions '.ts,.tsx'",
+    "build-src": "babel src -d dist/src --extensions '.ts,.tsx'",
     "build": "tsc -p . && npm run build-src",
-    "watch-src": "babel src -d dist --extensions '.ts,.tsx' --watch",
+    "watch-src": "babel src -d dist/src --extensions '.ts,.tsx' --watch",
     "watch-tsc": "tsc -p . --watch",
     "watch": "concurrently --kill-others \"npm run watch-tsc\" \"npm run watch-src\"",
     "test": "vitest run"
   },
   "exports": {
-    ".": "./dist/core/index.js",
-    "./typescript": "./dist/typescript/index.js"
+    ".": {
+      "node": "./dist/src/core/index.js",
+      "types": "./dist/src/core/index.d.ts"
+    },
+    "./typescript": {
+      "node": "./dist/src/typescript/index.js",
+      "types": "./dist/src/typescript/index.d.ts"
+    }
   },
   "keywords": [],
   "author": "",

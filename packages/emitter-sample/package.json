@@ -20,6 +20,7 @@
     "@typespec/compiler": "workspace:*"
   },
   "dependencies": {
+    "@typespec/emitter-framework": "workspace:*",
     "@alloy-js/core": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@dcb70bb",
     "@alloy-js/typescript": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@dcb70bb"
   },

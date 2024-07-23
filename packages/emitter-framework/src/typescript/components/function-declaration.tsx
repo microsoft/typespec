@@ -1,6 +1,6 @@
 import * as ts from "@alloy-js/typescript";
 import { Model, Operation } from "@typespec/compiler";
-import { TypeExpression } from "./type-expression.jsx";
+import { TypeExpression } from "./type-expression.js";
 import {refkey as getRefkey} from "@alloy-js/core"
 
 export interface FunctionDeclarationPropsWithType
