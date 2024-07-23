@@ -9,6 +9,7 @@ import {
   SdkServiceMethod,
   getAllModels,
 } from "@azure-tools/typespec-client-generator-core";
+import { getDoc } from "@typespec/compiler";
 import { HttpOperation } from "@typespec/http";
 import { NetEmitterOptions, resolveOptions } from "../options.js";
 import { CodeModel } from "../type/code-model.js";
@@ -171,6 +172,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       parameters.push({
         Name: parameter.name,
         NameInRequest: parameter.serializedName,
+        Description: parameter.__raw ? getDoc(sdkContext.program, parameter.__raw) : undefined,
         // TODO: we should do the magic in generator
         Type: parameterType,
         Location: RequestLocation.Uri,
