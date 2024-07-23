@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+// cspell:ignore Retryable
+
 using System;
 using System.ClientModel.Primitives;
 using System.IO;
@@ -41,19 +43,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             var messageParam = new ParameterProvider("message", FormattableStringHelpers.Empty, typeof(PipelineMessage));
             var exceptionParam = new ParameterProvider("exception", FormattableStringHelpers.Empty, typeof(Exception));
-            var isRetriableParam = new ParameterProvider("isRetriable", FormattableStringHelpers.Empty, typeof(bool), isOut: true);
+            var isRetryableParam = new ParameterProvider("isRetryable", FormattableStringHelpers.Empty, typeof(bool), isOut: true);
             var signature = new MethodSignature(
                 "TryClassify",
                 FormattableStringHelpers.Empty,
                 MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
                 typeof(bool),
                 null,
-                [messageParam, exceptionParam, isRetriableParam]);
+                [messageParam, exceptionParam, isRetryableParam]);
             return new MethodProvider(
                 signature,
                 new MethodBodyStatements(
                 [
-                    isRetriableParam.Assign(False).Terminate(),
+                    isRetryableParam.Assign(False).Terminate(),
                     Return(False)
                 ]),
                 this);

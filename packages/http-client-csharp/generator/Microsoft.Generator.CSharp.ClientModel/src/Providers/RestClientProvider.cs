@@ -55,7 +55,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 _classifier200Property,
                 GetResponseClassifierProperty(_pipelineMessageClassifier204, 204),
                 new PropertyProvider(
-                    null,
+                    $"Gets the PipelineMessageClassifier2xxAnd4xx",
                     MethodSignatureModifiers.Private | MethodSignatureModifiers.Static,
                     _classifier2xxAnd4xxDefinition.Type,
                     "PipelineMessageClassifier2xxAnd4xx",
