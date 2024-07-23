@@ -16,7 +16,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         {
             if (Elements is not { Count: > 0 })
             {
-                writer.AppendRaw("{}");
+                writer.AppendRaw("{ }");
                 return;
             }
 
@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp.Expressions
             else
             {
                 writer.WriteLine();
-                writer.WriteRawLine("{");
+                writer.WriteRawLine("{ ");
                 for (int i = 0; i < Elements.Count; i++)
                 {
                     Elements[i].Write(writer);
@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp.Expressions
                         writer.WriteRawLine(",");
                 }
                 writer.WriteLine();
-                writer.AppendRaw("}");
+                writer.AppendRaw(" }");
             }
         }
     }

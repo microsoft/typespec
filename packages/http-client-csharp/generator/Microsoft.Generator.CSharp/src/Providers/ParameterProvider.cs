@@ -29,6 +29,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public bool IsRef { get; }
         public bool IsOut { get; }
         internal IReadOnlyList<AttributeStatement> Attributes { get; } = Array.Empty<AttributeStatement>();
+        public WireInformation WireInfo { get; }
 
         /// <summary>
         /// This property tracks which property this parameter is constructed from.
@@ -50,6 +51,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Description = FormattableStringHelpers.FromString(inputParameter.Description) ?? FormattableStringHelpers.Empty;
             Type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
             Validation = inputParameter.IsRequired ? ParameterValidationType.AssertNotNull : ParameterValidationType.None;
+            WireInfo = new WireInformation(CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParameter.Type), inputParameter.NameInRequest);
         }
 
         public ParameterProvider(
@@ -77,6 +79,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Field = field;
             Validation = GetParameterValidation();
             InitializationValue = initializationValue;
+            WireInfo = new WireInformation(SerializationFormat.Default, name);
         }
 
         private ParameterProvider? _inputParameter;

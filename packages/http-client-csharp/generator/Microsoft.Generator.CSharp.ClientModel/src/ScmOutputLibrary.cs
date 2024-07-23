@@ -16,10 +16,11 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
             foreach (var inputClient in inputClients)
             {
-                clients.Add(new RestClientProvider(inputClient));
+                var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
                 // TO-DO: Implement client options https://github.com/microsoft/typespec/issues/3688
                 clients.Add(new ClientOptionsProvider(inputClient));
-                clients.Add(new ClientProvider(inputClient));
+                clients.Add(client);
+                clients.Add(client.RestClient);
             }
 
             return clients.ToArray();

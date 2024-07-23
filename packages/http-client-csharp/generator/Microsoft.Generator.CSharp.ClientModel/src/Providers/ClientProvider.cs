@@ -31,10 +31,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly InputAuth? _inputAuth;
         private readonly ParameterProvider _clientOptionsParameter;
         private readonly ParameterProvider _endpointParameter;
-        private readonly FieldProvider _endpointField;
         private readonly FieldProvider? _apiKeyAuthField;
         private readonly FieldProvider? _authorizationHeaderConstant;
         private readonly FieldProvider? _authorizationApiKeyPrefixConstant;
+        private RestClientProvider? _restClient;
+
+        internal RestClientProvider RestClient => _restClient ??= new RestClientProvider(_inputClient, this);
 
         public ClientProvider(InputClient inputClient)
         {
@@ -60,9 +62,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 typeof(string),
                 AuthorizationApiKeyPrefixConstName,
                 initializationValue: Literal(apiKey.Prefix)) : null;
-            _endpointField = new(
+            EndpointField = new(
                 FieldModifiers.Private | FieldModifiers.ReadOnly,
-                KnownParameters.Endpoint.Type,
+                typeof(Uri),
                 EndpointFieldName);
 
             _endpointParameter = BuildClientEndpointParameter();
@@ -77,6 +79,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         public PropertyProvider PipelineProperty { get; }
+        public FieldProvider EndpointField { get; }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
@@ -84,7 +87,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override FieldProvider[] BuildFields()
         {
-            List<FieldProvider> fields = [_endpointField];
+            List<FieldProvider> fields = [EndpointField];
 
             if (_apiKeyAuthField != null && _authorizationHeaderConstant != null)
             {
@@ -136,7 +139,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             // add client options and endpoint initialization to the body
             var clientOptionsAssignment = _clientOptionsParameter.Assign(_clientOptionsParameter.InitializationValue!, nullCoalesce: true).Terminate();
-            List<MethodBodyStatement> body = [clientOptionsAssignment, MethodBodyStatement.EmptyLine, _endpointField.Assign(_endpointParameter).Terminate()];
+            List<MethodBodyStatement> body = [clientOptionsAssignment, MethodBodyStatement.EmptyLine, EndpointField.Assign(_endpointParameter).Terminate()];
 
             // add other parameter assignments to their corresponding fields
             foreach (var p in primaryConstructorParameters)
@@ -197,16 +200,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override MethodProvider[] BuildMethods()
         {
-            List<MethodProvider> methods = new List<MethodProvider>();
+            List<MethodProvider> methods = new List<MethodProvider>(_inputClient.Operations.Count * 4);
 
             // Build methods for all the operations
             foreach (var operation in _inputClient.Operations)
             {
-                var methodCollection = ClientModelPlugin.Instance.TypeFactory.CreateMethods(operation, this);
-                if (methodCollection != null)
-                {
-                    methods.AddRange(methodCollection);
-                }
+                methods.AddRange(ClientModelPlugin.Instance.TypeFactory.CreateMethods(operation, this));
             }
 
             return methods.ToArray();
