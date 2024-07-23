@@ -1,3 +1,4 @@
+import { OutputDirectory, render } from "@alloy-js/core";
 import { EmitterOptions } from "../config/types.js";
 import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
@@ -15,6 +16,7 @@ import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
 import { compilerAssert } from "./diagnostics.js";
+import { emitFile } from "./emitter-utils.js";
 import {
   resolveTypeSpecEntrypoint,
   resolveTypeSpecEntrypointForDir,
@@ -712,12 +714,29 @@ export async function compile(
       },
     };
     try {
-      await emitter.emitFunction(context);
+      let result = (await emitter.emitFunction(context)) as any;
+      if (typeof result === "function") {
+        // assume this is an alloy component
+        const tree = render(result);
+        await writeOutputDirectory(tree);
+      }
     } catch (error: unknown) {
       throw new ExternalError({ kind: "emitter", metadata: emitter.metadata, error });
     }
   }
 
+  async function writeOutputDirectory(dir: OutputDirectory) {
+    for (const sub of dir.contents) {
+      if (Array.isArray(sub.contents)) {
+        await writeOutputDirectory(sub as OutputDirectory);
+      } else {
+        await emitFile(program, {
+          content: sub.contents as string,
+          path: sub.path,
+        });
+      }
+    }
+  }
   async function runValidators() {
     runCompilerValidators();
     for (const validator of validateCbs) {
