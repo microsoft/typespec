@@ -131,6 +131,24 @@ describe("versioning: validate incompatible references", () => {
       );
     });
 
+    it("emit diagnostic when versioned op has a newer versioned spread parameter", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model MyOptions {
+          prop: string;
+        }
+        
+        @added(Versions.v1)
+        op foo(...MyOptions,): void;
+        `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.foo' was added in version 'v1' but referencing type 'TestService.MyOptions' added in version 'v2'.",
+      });
+    });
+
     // TODO See: https://github.com/microsoft/typespec/issues/2695
     it.skip("emit diagnostic when unversioned op based on a template has a versioned model as a parameter", async () => {
       const diagnostics = await runner.diagnose(`
