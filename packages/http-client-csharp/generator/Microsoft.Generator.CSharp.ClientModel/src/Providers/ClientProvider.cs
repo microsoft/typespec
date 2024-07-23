@@ -137,9 +137,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodBodyStatement[] BuildPrimaryConstructorBody(IReadOnlyList<ParameterProvider> primaryConstructorParameters)
         {
-            // add client options and endpoint initialization to the body
-            var clientOptionsAssignment = _clientOptionsParameter.Assign(_clientOptionsParameter.InitializationValue!, nullCoalesce: true).Terminate();
-            List<MethodBodyStatement> body = [clientOptionsAssignment, MethodBodyStatement.EmptyLine, EndpointField.Assign(_endpointParameter).Terminate()];
+            List<MethodBodyStatement> body = [
+                _clientOptionsParameter.Assign(_clientOptionsParameter.InitializationValue!, nullCoalesce: true).Terminate(),
+                MethodBodyStatement.EmptyLine,
+                EndpointField.Assign(_endpointParameter).Terminate()
+            ];
 
             // add other parameter assignments to their corresponding fields
             foreach (var p in primaryConstructorParameters)
