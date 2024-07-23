@@ -49,7 +49,7 @@
     "@vitest/coverage-v8": "^2.0.4",
     "c8": "^10.1.2",
     "cspell": "^8.12.1",
-    "eslint": "^9.7.0",
+    "eslint": "^8.57.0",
     "eslint-plugin-deprecation": "^3.0.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-react-hooks": "^4.6.2",
