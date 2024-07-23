@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.ClientModel.Primitives;
+using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
@@ -19,5 +20,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 
         public static ScopedApi<PipelineResponse> ExtractResponse(this ScopedApi<PipelineMessage> pipelineMessage)
             => pipelineMessage.Invoke(nameof(PipelineMessage.ExtractResponse), []).As<PipelineResponse>();
+
+        public static ScopedApi<PipelineMessageClassifier> ResponseClassifier(this ScopedApi<PipelineMessage> pipelineMessage)
+            => pipelineMessage.Property(nameof(PipelineMessage.ResponseClassifier)).As<PipelineMessageClassifier>();
+
+        public static InvokeMethodExpression Apply(this ScopedApi<PipelineMessage> pipelineMessage, ValueExpression options)
+            => pipelineMessage.Invoke(nameof(PipelineMessage.Apply), options);
     }
 }

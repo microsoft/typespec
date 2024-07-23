@@ -13,10 +13,13 @@ namespace UnbrandedTypeSpec
     /// <summary></summary>
     public partial class UnbrandedTypeSpecClient
     {
+        private Uri _endpoint;
+
         /// <summary> This is a sample typespec project. </summary>
         public UnbrandedTypeSpecClient()
         {
             Pipeline = ClientPipeline.Create();
+            _endpoint = new Uri("http://foo.com");
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
