@@ -26,7 +26,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateSayHiRequest(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
-            PipelineMessage message = _pipeline.CreateMessage();
+            PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
             request.Method = "GET";
@@ -47,7 +47,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateHelloAgainRequest(string p1, string p2, BinaryContent content, RequestOptions options)
         {
-            PipelineMessage message = _pipeline.CreateMessage();
+            PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
             request.Method = "GET";
@@ -65,7 +65,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateNoContentTypeRequest(string p1, string p2, BinaryContent content, RequestOptions options)
         {
-            PipelineMessage message = _pipeline.CreateMessage();
+            PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
             request.Method = "GET";
@@ -83,7 +83,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateHelloDemo2Request(RequestOptions options)
         {
-            PipelineMessage message = _pipeline.CreateMessage();
+            PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
             request.Method = "GET";
@@ -98,7 +98,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateCreateLiteralRequest(BinaryContent content, RequestOptions options)
         {
-            PipelineMessage message = _pipeline.CreateMessage();
+            PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
             request.Method = "POST";
@@ -114,7 +114,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateHelloLiteralRequest(RequestOptions options)
         {
-            PipelineMessage message = _pipeline.CreateMessage();
+            PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
             request.Method = "GET";
@@ -132,7 +132,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateTopActionRequest(DateTimeOffset action, RequestOptions options)
         {
-            PipelineMessage message = _pipeline.CreateMessage();
+            PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
             request.Method = "GET";
@@ -148,7 +148,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateTopAction2Request(RequestOptions options)
         {
-            PipelineMessage message = _pipeline.CreateMessage();
+            PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
             request.Method = "GET";
@@ -163,7 +163,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreatePatchActionRequest(BinaryContent content, RequestOptions options)
         {
-            PipelineMessage message = _pipeline.CreateMessage();
+            PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
             request.Method = "PATCH";
@@ -179,7 +179,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateAnonymousBodyRequest(RequestOptions options)
         {
-            PipelineMessage message = _pipeline.CreateMessage();
+            PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
             request.Method = "POST";
@@ -195,7 +195,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateFriendlyModelRequest(RequestOptions options)
         {
-            PipelineMessage message = _pipeline.CreateMessage();
+            PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
             request.Method = "POST";
@@ -211,7 +211,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateAddTimeHeaderRequest(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
         {
-            PipelineMessage message = _pipeline.CreateMessage();
+            PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
             request.Method = "GET";
@@ -227,7 +227,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateProjectedNameModelRequest(RequestOptions options)
         {
-            PipelineMessage message = _pipeline.CreateMessage();
+            PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
             request.Method = "POST";
@@ -243,7 +243,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateReturnsAnonymousModelRequest(RequestOptions options)
         {
-            PipelineMessage message = _pipeline.CreateMessage();
+            PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
             request.Method = "POST";
@@ -258,7 +258,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateGetUnknownValueRequest(RequestOptions options)
         {
-            PipelineMessage message = _pipeline.CreateMessage();
+            PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
             request.Method = "GET";
@@ -273,7 +273,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateInternalProtocolRequest(BinaryContent content, RequestOptions options)
         {
-            PipelineMessage message = _pipeline.CreateMessage();
+            PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
             request.Method = "POST";
@@ -289,7 +289,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateStillConvenientRequest(RequestOptions options)
         {
-            PipelineMessage message = _pipeline.CreateMessage();
+            PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
             request.Method = "GET";
@@ -304,7 +304,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateHeadAsBooleanRequest(string id, RequestOptions options)
         {
-            PipelineMessage message = _pipeline.CreateMessage();
+            PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
             request.Method = "HEAD";

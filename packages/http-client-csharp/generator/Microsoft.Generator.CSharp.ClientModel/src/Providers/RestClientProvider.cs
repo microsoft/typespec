@@ -115,7 +115,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodProvider BuildCreateRequestMethod(InputOperation operation)
         {
-            var pipelineField = ClientProvider.PipelineField.As<ClientPipeline>();
+            var pipelineField = ClientProvider.PipelineProperty.As<ClientPipeline>();
 
             // TODO this is the wrong EnclosingType - it should be RestClientProvider. We should refactor MethodProviderCollection.
             // https://github.com/microsoft/typespec/issues/3826
