@@ -353,6 +353,9 @@ importers:
       '@typespec/compiler':
         specifier: workspace:~
         version: link:../compiler
+      '@typespec/http':
+        specifier: workspace:~
+        version: link:../http
     devDependencies:
       '@babel/cli':
         specifier: ^7.24.8
