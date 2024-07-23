@@ -46,7 +46,7 @@
     "@docusaurus/module-type-aliases": "^3.4.0",
     "@docusaurus/tsconfig": "^3.4.0",
     "@docusaurus/types": "^3.4.0",
-    "@swc/core": "^1.6.6",
+    "@swc/core": "^1.7.0",
     "@types/node": "~18.11.19",
     "@types/react": "~18.3.3",
     "@typespec/compiler": "workspace:~",
