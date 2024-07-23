@@ -1,0 +1,39 @@
+{
+  "name": "@typespec/emitter-framework",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "build-src": "babel src -d dist --extensions '.ts,.tsx'",
+    "build": "tsc -p . && npm run build-src",
+    "watch-src": "babel src -d dist --extensions '.ts,.tsx' --watch",
+    "watch-tsc": "tsc -p . --watch",
+    "watch": "concurrently --kill-others \"npm run watch-tsc\" \"npm run watch-src\"",
+    "test": "vitest run"
+  },
+  "exports": {
+    ".": "./dist/core/index.js",
+    "./typescript": "./dist/typescript/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "peerDependencies": {
+    "@typespec/compiler": "workspace:~"
+  },
+  "dependencies": {
+    "@alloy-js/core": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@dc90269",
+    "@alloy-js/typescript": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@dc90269"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.24.8",
+    "@babel/core": "^7.24.9",
+    "@rollup/plugin-babel": "^6.0.4",
+    "babel-preset-alloy": "https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@dc90269",
+    "concurrently": "^8.2.2",
+    "typescript": "^5.5.3",
+    "vitest": "^2.0.3"
+  }
+}

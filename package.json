@@ -78,7 +78,8 @@
   },
   "pnpm": {
     "overrides": {
-      "@fluentui/react-theme": "9.1.17"
+      "@fluentui/react-theme": "9.1.17",
+      "esbuild": "0.23"
     }
   }
 }
