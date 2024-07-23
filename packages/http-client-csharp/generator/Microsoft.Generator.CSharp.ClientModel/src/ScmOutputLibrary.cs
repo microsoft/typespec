@@ -16,8 +16,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
             foreach (var inputClient in inputClients)
             {
-                clients.Add(new RestClientProvider(inputClient));
-                clients.Add(new ClientProvider(inputClient));
+                var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+                clients.Add(client);
+                clients.Add(client.RestClient);
             }
 
             return clients.ToArray();

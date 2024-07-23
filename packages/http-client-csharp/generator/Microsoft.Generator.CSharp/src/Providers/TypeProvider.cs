@@ -87,7 +87,7 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             // we always add partial when possible
-            if (!modifiers.HasFlag(TypeSignatureModifiers.Enum))
+            if (!modifiers.HasFlag(TypeSignatureModifiers.Enum) && DeclaringTypeProvider is null)
             {
                 modifiers |= TypeSignatureModifiers.Partial;
             }

@@ -45,6 +45,7 @@ namespace Microsoft.Generator.CSharp.Snippets
             public static IndexableExpression Array(CSharpType? elementType) => new(new NewArrayExpression(elementType));
             public static IndexableExpression Array(CSharpType? elementType, params ValueExpression[] items) => new(new NewArrayExpression(elementType, new ArrayInitializerExpression(items)));
             public static IndexableExpression Array(CSharpType? elementType, bool isInline, params ValueExpression[] items) => new(new NewArrayExpression(elementType, new ArrayInitializerExpression(items, isInline)));
+            public static IndexableExpression Array(CSharpType? elementType, bool isInline, bool isStackAlloc, params ValueExpression[] items) => new(new NewArrayExpression(elementType, new ArrayInitializerExpression(items, isInline), IsStackAlloc: isStackAlloc));
             public static IndexableExpression Array(CSharpType? elementType, ValueExpression size) => new(new NewArrayExpression(elementType, Size: size));
 
             public static DictionaryExpression Dictionary(CSharpType keyType, CSharpType valueType)
@@ -68,6 +69,8 @@ namespace Microsoft.Generator.CSharp.Snippets
             public static ValueExpression Instance(CSharpType type, IReadOnlyDictionary<ValueExpression, ValueExpression> properties) => new NewInstanceExpression(type, [], new ObjectInitializerExpression(properties));
             public static ScopedApi Instance(Type type, params ValueExpression[] arguments) => new NewInstanceExpression(type, arguments).As(type);
             public static ScopedApi Instance(Type type, IReadOnlyDictionary<ValueExpression, ValueExpression> properties) => new NewInstanceExpression(type, [], new ObjectInitializerExpression(properties)).As(type);
+            public static ScopedApi<T> Instance<T>(params ValueExpression[] arguments)
+                => new NewInstanceExpression(TypeReferenceExpression.GetTypeFromDefinition(typeof(T)), arguments).As<T>();
         }
     }
 }
