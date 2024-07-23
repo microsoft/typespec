@@ -430,6 +430,34 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
+    it("succeed when spreading a model that might have add properties added in previous versions", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Base {
+          @added(Versions.v1) name: string;
+        }
+
+        @added(Versions.v2)
+        model Child {
+          ...Base;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("succeed when spreading a model that might have add properties removed after the model", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Base {
+          @removed(Versions.v3) name: string;
+        }
+
+        @removed(Versions.v2)
+        model Child {
+          ...Base;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     it("emit diagnostic when model property was added before model itself", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v3)
