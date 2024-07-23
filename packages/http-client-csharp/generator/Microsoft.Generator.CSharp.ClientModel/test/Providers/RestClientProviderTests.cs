@@ -14,8 +14,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [TestCaseSource(nameof(DefaultCSharpMethodCollectionTestCases))]
         public void TestRestClientMethods(InputOperation inputOperation)
         {
-            var inputClient = new InputClient("TestClient", "TestClient description", new[] { inputOperation }, new List<InputParameter>(), null);
-            var restClientProvider = new RestClientProvider(inputClient);
+            var inputClient = new InputClient("TestClient", "TestClient description", [inputOperation], new List<InputParameter>(), null);
+            var restClientProvider = new ClientProvider(inputClient).RestClient;
             MockHelpers.LoadMockPlugin(createMethods: (inputOperation, typeProvider) => new ScmMethodProviderCollection(inputOperation, restClientProvider.ClientProvider));
 
             var methods = restClientProvider.Methods;
