@@ -13,6 +13,16 @@ import type {
   UnionVariant,
 } from "../src/index.js";
 
+export interface ExampleOptions {
+  readonly title?: string;
+  readonly description?: string;
+}
+
+export interface OperationExample {
+  readonly parameters?: unknown;
+  readonly returnType?: unknown;
+}
+
 /**
  * Specify how to encode the target type.
  *
@@ -590,7 +600,7 @@ export type ExampleDecorator = (
   context: DecoratorContext,
   target: Model | Enum | Scalar | Union | ModelProperty | UnionVariant,
   example: unknown,
-  options?: unknown
+  options?: ExampleOptions
 ) => void;
 
 /**
@@ -607,8 +617,8 @@ export type ExampleDecorator = (
 export type OpExampleDecorator = (
   context: DecoratorContext,
   target: Operation,
-  example: unknown,
-  options?: unknown
+  example: OperationExample,
+  options?: ExampleOptions
 ) => void;
 
 /**

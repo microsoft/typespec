@@ -25,22 +25,31 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public ClientProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
-            PipelineField = new FieldProvider(FieldModifiers.Private, typeof(ClientPipeline), "_pipeline");
+            PipelineProperty = new PropertyProvider(
+                description: $"The HTTP pipeline for sending and receiving REST requests and responses.",
+                modifiers: MethodSignatureModifiers.Public,
+                type: typeof(ClientPipeline),
+                name: "Pipeline",
+                body: new AutoPropertyBody(false));
             EndpointField = new FieldProvider(FieldModifiers.Private, typeof(Uri), "_endpoint");
         }
 
-        public FieldProvider PipelineField { get; }
+        public PropertyProvider PipelineProperty { get; }
         public FieldProvider EndpointField { get; }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
         protected override string BuildName() => _inputClient.Name.ToCleanName();
 
-        protected override FieldProvider[] BuildFields()
+        protected override PropertyProvider[] BuildProperties()
         {
-            return [PipelineField, EndpointField];
+            return [PipelineProperty];
         }
 
+        protected override FieldProvider[] BuildFields()
+        {
+            return [EndpointField];
+        }
         protected override ConstructorProvider[] BuildConstructors()
         {
             return
@@ -49,7 +58,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     new ConstructorSignature(Type, $"{_inputClient.Description}", MethodSignatureModifiers.Public, []),
                     new MethodBodyStatements(
                     [
-                        PipelineField.Assign(ClientPipelineSnippets.Create()).Terminate(),
+                        PipelineProperty.Assign(ClientPipelineSnippets.Create()).Terminate(),
                         EndpointField.Assign(New.Instance(typeof(Uri), Literal("http://foo.com"))).Terminate()
                     ]),
                     this)

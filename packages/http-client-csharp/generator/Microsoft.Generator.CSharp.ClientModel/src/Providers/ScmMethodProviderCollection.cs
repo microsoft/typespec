@@ -138,7 +138,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             MethodBodyStatement[] methodBody =
             [
                 UsingDeclare("message", typeof(PipelineMessage), This.Invoke(createRequestMethod.Signature, [.. MethodParameters]), out var message),
-                Return(Static<ClientResult>().Invoke(nameof(ClientResult.FromResponse), client.PipelineField.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
+                Return(Static<ClientResult>().Invoke(nameof(ClientResult.FromResponse), client.PipelineProperty.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
             ];
 
             var protocolMethod =

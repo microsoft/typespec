@@ -2837,7 +2837,14 @@ export function createChecker(program: Program): Checker {
     node: TemplateArgumentNode,
     mapper: TypeMapper | undefined
   ) {
-    const resolved = resolveTypeReferenceSym(node.parent as TypeReferenceNode, mapper, false);
+    const ref = node.parent as TypeReferenceNode;
+    let resolved = resolveTypeReferenceSym(ref, mapper, false);
+    // if the reference type can't be resolved and has parse error,
+    // it likely means the reference type hasn't been completed yet. i.e. Foo<string,
+    // so try to resolve it by it's target directly to see if we can find its sym
+    if (!resolved && hasParseError(ref) && ref.target !== undefined) {
+      resolved = resolveTypeReferenceSym(ref.target, mapper, false);
+    }
     return (resolved?.declarations.filter((n) => isTemplatedNode(n)) ?? []) as TemplateableNode[];
   }
 
@@ -2862,6 +2869,7 @@ export function createChecker(program: Program): Checker {
       return (
         (isModelOrArray(n) &&
           (n.parent?.kind === SyntaxKind.TemplateParameterDeclaration ||
+            n.parent?.kind === SyntaxKind.TemplateArgument ||
             n.parent?.kind === SyntaxKind.DecoratorExpression)) ||
         (isModelOrArrayValue(n) &&
           (n.parent?.kind === SyntaxKind.CallExpression ||
@@ -2872,6 +2880,7 @@ export function createChecker(program: Program): Checker {
     let refType: Type | undefined;
     switch (foundNode?.parent?.kind) {
       case SyntaxKind.TemplateParameterDeclaration:
+      case SyntaxKind.TemplateArgument:
         refType = getReferencedTypeFromTemplateDeclaration(foundNode as ModelOrArrayNode);
         break;
       case SyntaxKind.DecoratorExpression:
@@ -2939,27 +2948,45 @@ export function createChecker(program: Program): Checker {
       return cur?.kind === "Model" ? cur : undefined;
     }
 
-    function getReferencedTypeFromTemplateDeclaration(dftNode: ModelOrArrayNode): Type | undefined {
-      const templateParmaeterDeclNode = dftNode?.parent;
+    function getReferencedTypeFromTemplateDeclaration(node: ModelOrArrayNode): Type | undefined {
+      let templateParmaeterDeclNode: TemplateParameterDeclarationNode | undefined = undefined;
+      if (
+        node?.parent?.kind === SyntaxKind.TemplateArgument &&
+        node?.parent?.parent?.kind === SyntaxKind.TypeReference
+      ) {
+        const argNode = node.parent;
+        const refNode = node.parent.parent;
+        const decl = getTemplateDeclarationsForArgument(
+          argNode,
+          // We should be giving the argument so the mapper here should be undefined
+          undefined /* mapper */
+        );
+
+        const index = refNode.arguments.findIndex((n) => n === argNode);
+        if (decl.length > 0 && decl[0].templateParameters.length > index) {
+          templateParmaeterDeclNode = decl[0].templateParameters[index];
+        }
+      } else if (node.parent?.kind === SyntaxKind.TemplateParameterDeclaration) {
+        templateParmaeterDeclNode = node?.parent;
+      }
+
       if (
         templateParmaeterDeclNode?.kind !== SyntaxKind.TemplateParameterDeclaration ||
-        !templateParmaeterDeclNode.constraint ||
-        !templateParmaeterDeclNode.default ||
-        templateParmaeterDeclNode.default !== dftNode
+        !templateParmaeterDeclNode.constraint
       ) {
         return undefined;
       }
 
       let constraintType: Type | undefined;
       if (
-        isModelOrArrayValue(dftNode) &&
+        isModelOrArrayValue(node) &&
         templateParmaeterDeclNode.constraint.kind === SyntaxKind.ValueOfExpression
       ) {
         constraintType = program.checker.getTypeForNode(
           templateParmaeterDeclNode.constraint.target
         );
       } else if (
-        isModelOrArrayType(dftNode) &&
+        isModelOrArrayType(node) &&
         templateParmaeterDeclNode.constraint.kind !== SyntaxKind.ValueOfExpression
       ) {
         constraintType = program.checker.getTypeForNode(templateParmaeterDeclNode.constraint);

@@ -6,6 +6,7 @@ import type {
   ErrorDecorator,
   ErrorsDocDecorator,
   ExampleDecorator,
+  ExampleOptions,
   FormatDecorator,
   FriendlyNameDecorator,
   InspectTypeDecorator,
@@ -107,6 +108,7 @@ import {
 export { $encodedName, resolveEncodedName } from "./encoded-names.js";
 export { serializeValueAsJson } from "./examples.js";
 export * from "./service.js";
+export { ExampleOptions };
 
 export const namespace = "TypeSpec";
 
@@ -1450,11 +1452,6 @@ export function getReturnTypeVisibility(program: Program, entity: Operation): st
   return program.stateMap(returnTypeVisibilityKey).get(entity);
 }
 
-export interface ExampleOptions {
-  readonly title?: string;
-  readonly description?: string;
-}
-
 export interface Example extends ExampleOptions {
   readonly value: Value;
 }
@@ -1468,7 +1465,7 @@ export const $example: ExampleDecorator = (
   context: DecoratorContext,
   target: Model | Scalar | Enum | Union | ModelProperty | UnionVariant,
   _example: unknown,
-  options?: unknown // TODO: change `options?: ExampleOptions` when tspd supports it
+  options?: ExampleOptions
 ) => {
   const decorator = target.decorators.find(
     (d) => d.decorator === $example && d.node === context.decoratorTarget
@@ -1494,7 +1491,7 @@ export const $example: ExampleDecorator = (
     list = [];
     context.program.stateMap(exampleKey).set(target, list);
   }
-  list.push({ value: rawExample, ...(options as any) });
+  list.push({ value: rawExample, ...options });
 };
 
 export function getExamples(
