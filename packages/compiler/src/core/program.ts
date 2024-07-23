@@ -38,6 +38,7 @@ import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import { createSourceFile } from "./source-file.js";
 import { StateMap, StateSet, createStateAccessors } from "./state-accessors.js";
+import { createTypeFactory } from "./type-factory.js";
 import {
   CompilerHost,
   Diagnostic,
@@ -92,6 +93,7 @@ export interface Program {
   host: CompilerHost;
   tracer: Tracer;
   trace(area: string, message: string): void;
+  typeFactory: ReturnType<typeof createTypeFactory>;
   checker: Checker;
   emitters: EmitterRef[];
   readonly diagnostics: readonly Diagnostic[];
@@ -192,6 +194,7 @@ export async function compile(
     resolveTypeReference,
     getSourceFileLocationContext,
     projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
+    typeFactory: undefined!, // todo: check
   };
 
   trace("compiler.options", JSON.stringify(options, null, 2));
@@ -253,6 +256,7 @@ export async function compile(
   }
   program.checker = createChecker(program);
   program.checker.checkProgram();
+  program.typeFactory = createTypeFactory(program);
 
   if (!continueToNextStage) {
     return program;

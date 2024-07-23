@@ -47,6 +47,7 @@ import {
 } from "./parser.js";
 import type { Program, ProjectedProgram } from "./program.js";
 import { createProjectionMembers } from "./projection-members.js";
+import { Realm } from "./realm.js";
 import {
   getFullyQualifiedSymbolName,
   getParentTemplateNode,
@@ -248,7 +249,7 @@ export interface Checker {
   createAndFinishType<T extends Type extends any ? CreateTypeProps : never>(
     typeDef: T
   ): T & TypePrototype;
-  finishType<T extends Type>(typeDef: T): T;
+  finishType<T extends Type>(typeDef: T, realm?: Realm): T;
   createFunctionType(fn: (...args: Type[]) => Type): FunctionType;
   createLiteralType(value: string, node?: StringLiteralNode): StringLiteral;
   createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteral;
