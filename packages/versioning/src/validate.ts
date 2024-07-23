@@ -13,6 +13,8 @@ import {
   type TypeNameOptions,
 } from "@typespec/compiler";
 import {
+  $added,
+  $removed,
   findVersionedNamespace,
   getMadeOptionalOn,
   getMadeRequiredOn,
@@ -787,10 +789,12 @@ function canIgnoreVersioningOnProperty(
   if (prop.sourceProperty === undefined) {
     return false;
   }
+
+  const decoratorFn = versioning === "added" ? $added : $removed;
   // Check if the decorator was defined on this property or a source property. If source property ignore.
-  const selfDecorators = prop.decorators.filter((x) => x.definition?.name === `@${versioning}`);
+  const selfDecorators = prop.decorators.filter((x) => x.decorator === decoratorFn);
   const sourceDecorators = prop.sourceProperty.decorators.filter(
-    (x) => x.definition?.name === `@${versioning}`
+    (x) => x.decorator === decoratorFn
   );
   return !selfDecorators.some((x) => !sourceDecorators.some((y) => x.node === y.node));
 }
