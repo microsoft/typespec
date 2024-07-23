@@ -172,6 +172,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       parameters.push({
         Name: parameter.name,
         NameInRequest: parameter.serializedName,
+        // TODO: remove this workaround after https://github.com/Azure/typespec-azure/issues/1212 is fixed
         Description: parameter.__raw ? getDoc(sdkContext.program, parameter.__raw) : undefined,
         // TODO: we should do the magic in generator
         Type: parameterType,
