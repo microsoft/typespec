@@ -80,12 +80,12 @@ const config: Config = {
   },
   scripts: [
     {
-      src: "es-module-shims.js",
+      src: "/es-module-shims.js",
       type: "module",
       async: true,
     },
     {
-      src: "1ds-init.js",
+      src: "/1ds-init.js",
       type: "module",
       async: true,
     },
