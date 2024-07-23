@@ -104,6 +104,11 @@ export function $onValidate(program: Program) {
           validateTargetVersionCompatible(program, op.interface, op, { isTargetADependent: true });
         }
         validateReference(program, op, op.returnType);
+
+        // Check that any spread/is/aliased models are valid for this operation
+        for (const sourceModel of op.parameters.sourceModels) {
+          validateReference(program, op, sourceModel.model);
+        }
       },
       interface: (iface) => {
         for (const source of iface.sourceInterfaces) {
