@@ -109,32 +109,34 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override ConstructorProvider[] BuildConstructors()
         {
-            var primaryConstructorParameters = GetPrimaryConstructorParameters();
+            ParameterProvider[] primaryConstructorParameters = _apiKeyAuthField != null
+                ? [_endpointParameter, _apiKeyAuthField.AsParameter, _clientOptionsParameter]
+                : [_endpointParameter, _clientOptionsParameter];
             var primaryConstructor = new ConstructorProvider(
                 new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Public, primaryConstructorParameters),
                 BuildPrimaryConstructorBody(primaryConstructorParameters),
                 this);
 
-            var isEndpointRequired = _endpointParameter.InitializationValue == null;
-            List<ParameterProvider> requiredParameters = isEndpointRequired ? [_endpointParameter] : [];
+            // build the required parameters for the secondary constructor.
+            // If the endpoint parameter contains an initialization value, it is not required.
+            List<ParameterProvider> requiredParameters = _endpointParameter.InitializationValue == null ? [_endpointParameter] : [];
             if (_apiKeyAuthField != null)
             {
                 requiredParameters.Add(_apiKeyAuthField.AsParameter);
             }
 
             var secondaryConstructor = BuildSecondaryConstructor(requiredParameters, primaryConstructorParameters);
-            return requiredParameters.Count > 0 || _apiKeyAuthField != null
+            var shouldIncludeMockingConstructor = requiredParameters.Count > 0 || _apiKeyAuthField != null;
+            return shouldIncludeMockingConstructor
                 ? [ConstructorProviderHelper.BuildMockingConstructor(this), secondaryConstructor, primaryConstructor]
                 : [secondaryConstructor, primaryConstructor];
         }
 
         private MethodBodyStatement[] BuildPrimaryConstructorBody(IReadOnlyList<ParameterProvider> primaryConstructorParameters)
         {
-            // add client options and endpoint initialization
-            var clientOptionsInitializationValue = _clientOptionsParameter.InitializationValue ?? New.Instance(_clientOptions.Type.WithNullable(true));
-            var clientOptionsAssignment = _clientOptionsParameter.Assign(clientOptionsInitializationValue, nullCoalesce: true).Terminate();
-            var endpointAssignment = _endpointField.Assign(_endpointParameter).Terminate();
-            List<MethodBodyStatement> body = [clientOptionsAssignment, MethodBodyStatement.EmptyLine, endpointAssignment];
+            // add client options and endpoint initialization to the body
+            var clientOptionsAssignment = _clientOptionsParameter.Assign(_clientOptionsParameter.InitializationValue!, nullCoalesce: true).Terminate();
+            List<MethodBodyStatement> body = [clientOptionsAssignment, MethodBodyStatement.EmptyLine, _endpointField.Assign(_endpointParameter).Terminate()];
 
             // add other parameter assignments to their corresponding fields
             foreach (var p in primaryConstructorParameters)
@@ -175,10 +177,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             IReadOnlyList<ParameterProvider> requiredParams,
             IReadOnlyList<ParameterProvider> primaryCtorOrderedParams)
         {
-            // initialize the arguments for the primary constructor
+            // initialize the arguments to reference the primary constructor
             var primaryCtorInitializer = new ConstructorInitializer(
                 false,
-                [.. primaryCtorOrderedParams.Select(p => p.InitializationValue ?? (p.Validation != ParameterValidationType.None ? p : DefaultOf(p.Type)))
+                [.. primaryCtorOrderedParams.Select(p => p.InitializationValue ?? p)
              ]);
             var constructorSignature = new ConstructorSignature(
                 Type,
@@ -210,16 +212,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return methods.ToArray();
         }
 
-        private ParameterProvider[] GetPrimaryConstructorParameters()
-        {
-            if (_apiKeyAuthField != null)
-            {
-                return [_endpointParameter, _apiKeyAuthField.AsParameter, _clientOptionsParameter];
-            }
-
-            return [_endpointParameter, _clientOptionsParameter];
-        }
-
         private ParameterProvider BuildClientEndpointParameter()
         {
             for (var i = 0; i < _inputClient.Parameters.Count; i++)
@@ -228,14 +220,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 if (inputClientParam.IsEndpoint)
                 {
                     var parameterProvider = new ParameterProvider(inputClientParam);
-                    var knownEndpointParam = KnownParameters.Endpoint;
-                    var description = inputClientParam.Description ?? $"{knownEndpointParam.Description}";
+                    var description = inputClientParam.Description ?? $"{KnownParameters.Endpoint.Description}";
+                    ValueExpression? initializationValue = null;
+                    // construct the initialization value for the endpoint param if it contains a default value from input.
+                    if (inputClientParam.DefaultValue?.Value != null)
+                    {
+                        var defaultValue = inputClientParam.DefaultValue.Value;
+                        CSharpType valueType = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputClientParam.DefaultValue.Type);
+
+                        if (valueType.IsFrameworkType)
+                        {
+                            // new Uri("defaultValue")
+                            initializationValue = New.Instance(KnownParameters.Endpoint.Type, Literal(defaultValue));
+                        }
+                    }
 
                     return new(
-                        knownEndpointParam.Name,
+                        KnownParameters.Endpoint.Name,
                         $"{description}",
-                        knownEndpointParam.Type,
-                        initializationValue: GetEndpointParamInitializationValue(inputClientParam))
+                        KnownParameters.Endpoint.Type,
+                        initializationValue: initializationValue)
                     {
                         Validation = parameterProvider.Validation
                     };
@@ -243,24 +247,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             return KnownParameters.Endpoint;
-        }
-
-        private static ValueExpression? GetEndpointParamInitializationValue(InputParameter inputParameter)
-        {
-            if (inputParameter.DefaultValue is null)
-            {
-                return null;
-            }
-
-            var defaultValue = inputParameter.DefaultValue.Value;
-            CSharpType valueType = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.DefaultValue.Type);
-
-            if (valueType.IsFrameworkType && defaultValue != null)
-            {
-                return New.Instance(KnownParameters.Endpoint.Type, Literal(defaultValue));
-            }
-
-            return null;
         }
     }
 }
