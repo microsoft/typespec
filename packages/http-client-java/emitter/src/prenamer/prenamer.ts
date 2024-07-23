@@ -1,21 +1,21 @@
 import {
-  Parameter,
-  isVirtualParameter,
-  ObjectSchema,
-  isObjectSchema,
   getAllParentProperties,
-  Languages,
-  SchemaType,
   ImplementationLocation,
+  isObjectSchema,
+  isVirtualParameter,
+  Languages,
+  ObjectSchema,
+  Parameter,
   Response,
+  SchemaType,
 } from "@autorest/codemodel";
-import { CodeModel } from "../common/code-model.js";
-import { ChoiceSchema, SealedChoiceSchema } from "../common/schemas/choice.js";
-import { Request, Operation } from "../common/operation.js";
 import { selectName } from "@azure-tools/codegen";
-import { getNameOptions, isUnassigned, ScopeNamer, NamingService } from "./naming-utils.js";
-import { Style } from "./formatter.js";
 import pkg from "lodash";
+import { CodeModel } from "../common/code-model.js";
+import { Operation, Request } from "../common/operation.js";
+import { ChoiceSchema, SealedChoiceSchema } from "../common/schemas/choice.js";
+import { Style } from "./formatter.js";
+import { getNameOptions, isUnassigned, NamingService, ScopeNamer } from "./naming-utils.js";
 const { partition } = pkg;
 
 export class PreNamer {
@@ -53,18 +53,18 @@ export class PreNamer {
     this.options = {
       prenamer: true,
       naming: {
-        "parameter": "camel",
-        "property": "camel",
-        "operation": "camel",
-        "operationGroup": "pascal",
-        "choice": "pascal",
-        "choiceValue": "upper",
-        "constant": "pascal",
-        "constantParameter": "camel",
-        "client": "pascal",
-        "type": "pascal",
-        "local": "camel",
-        "global": "camel",
+        parameter: "camel",
+        property: "camel",
+        operation: "camel",
+        operationGroup: "pascal",
+        choice: "pascal",
+        choiceValue: "upper",
+        constant: "pascal",
+        constantParameter: "camel",
+        client: "pascal",
+        type: "pascal",
+        local: "camel",
+        global: "camel",
         "preserve-uppercase-max-length": 1,
       },
     };
@@ -95,7 +95,8 @@ export class PreNamer {
     }
 
     const deduplicateSchemaNames =
-      !!this.options["lenient-model-deduplication"] || !!this.options["resolve-schema-name-collisons"];
+      !!this.options["lenient-model-deduplication"] ||
+      !!this.options["resolve-schema-name-collisons"];
 
     const scopeNamer = new ScopeNamer({
       deduplicateNames: deduplicateSchemaNames,
@@ -110,12 +111,22 @@ export class PreNamer {
 
     // constant
     for (const schema of values(this.codeModel.schemas.constants)) {
-      this.namingService.setName(schema, this.format.constant, `Constant${this.enum++}`, this.format.override);
+      this.namingService.setName(
+        schema,
+        this.format.constant,
+        `Constant${this.enum++}`,
+        this.format.override
+      );
     }
 
     // ors
     for (const schema of values(this.codeModel.schemas.ors)) {
-      this.namingService.setName(schema, this.format.type, `Union${this.enum++}`, this.format.override);
+      this.namingService.setName(
+        schema,
+        this.format.type,
+        `Union${this.enum++}`,
+        this.format.override
+      );
     }
 
     // strings
@@ -175,7 +186,7 @@ export class PreNamer {
         schema,
         this.format.type,
         `DictionaryOf${schema.elementType.language.default.name}`,
-        this.format.override,
+        this.format.override
       );
       if (isUnassigned(schema.language.default.description)) {
         schema.language.default.description = `Dictionary of ${schema.elementType.language.default.name}`;
@@ -187,7 +198,7 @@ export class PreNamer {
         schema,
         this.format.type,
         `ArrayOf${schema.elementType.language.default.name}`,
-        this.format.override,
+        this.format.override
       );
       if (isUnassigned(schema.language.default.description)) {
         schema.language.default.description = `Array of ${schema.elementType.language.default.name}`;
@@ -218,7 +229,12 @@ export class PreNamer {
 
     for (const parameter of values(this.codeModel.globalParameters)) {
       if (parameter.schema.type === SchemaType.Constant) {
-        this.namingService.setName(parameter, this.format.constantParameter, "", this.format.override);
+        this.namingService.setName(
+          parameter,
+          this.format.constantParameter,
+          "",
+          this.format.override
+        );
       } else {
         this.namingService.setName(parameter, this.format.parameter, "", this.format.override);
       }
@@ -232,7 +248,7 @@ export class PreNamer {
         this.format.override,
         {
           removeDuplicates: false,
-        },
+        }
       );
       const operationScopeNamer = new ScopeNamer({
         overrides: this.format.override,
@@ -254,13 +270,22 @@ export class PreNamer {
 
         const convenienceApi = (operation as Operation).convenienceApi;
         if (convenienceApi) {
-          this.namingService.setName(convenienceApi, this.format.operation, "", this.format.override);
+          this.namingService.setName(
+            convenienceApi,
+            this.format.operation,
+            "",
+            this.format.override
+          );
         }
 
         const p = operation.language.default.paging;
         if (p) {
-          p.group = p.group ? this.format.operationGroup(p.group, true, this.format.override) : undefined;
-          p.member = p.member ? this.format.operation(p.member, true, this.format.override) : undefined;
+          p.group = p.group
+            ? this.format.operationGroup(p.group, true, this.format.override)
+            : undefined;
+          p.member = p.member
+            ? this.format.operation(p.member, true, this.format.override)
+            : undefined;
         }
       }
 
@@ -270,7 +295,12 @@ export class PreNamer {
     scopeNamer.process();
 
     // set a styled client name
-    this.namingService.setName(this.codeModel, this.format.client, this.codeModel.info.title, this.format.override);
+    this.namingService.setName(
+      this.codeModel,
+      this.format.client,
+      this.codeModel.info.title,
+      this.format.override
+    );
 
     if (this.codeModel.clients) {
       // client
@@ -286,7 +316,7 @@ export class PreNamer {
             this.format.override,
             {
               removeDuplicates: false,
-            },
+            }
           );
         }
       }
@@ -301,7 +331,10 @@ export class PreNamer {
     return this.codeModel;
   }
 
-  private processChoiceNames(choices: Array<ChoiceSchema | SealedChoiceSchema> | undefined, scopeNamer: ScopeNamer) {
+  private processChoiceNames(
+    choices: Array<ChoiceSchema | SealedChoiceSchema> | undefined,
+    scopeNamer: ScopeNamer
+  ) {
     for (const schema of values(choices)) {
       scopeNamer.add(schema, this.format.choice, `Enum${this.enum++}`);
 
@@ -317,7 +350,12 @@ export class PreNamer {
   private setParameterNames(parameterContainer: Operation | Request) {
     for (const parameter of values(parameterContainer.signatureParameters)) {
       if (parameter.schema.type === SchemaType.Constant) {
-        this.namingService.setName(parameter, this.format.constantParameter, "", this.format.override);
+        this.namingService.setName(
+          parameter,
+          this.format.constantParameter,
+          "",
+          this.format.override
+        );
       } else {
         this.namingService.setName(parameter, this.format.parameter, "", this.format.override);
       }
@@ -325,7 +363,12 @@ export class PreNamer {
     for (const parameter of values(parameterContainer.parameters)) {
       if ((parameterContainer.signatureParameters ?? []).indexOf(parameter) === -1) {
         if (parameter.schema.type === SchemaType.Constant) {
-          this.namingService.setName(parameter, this.format.constantParameter, "", this.format.override);
+          this.namingService.setName(
+            parameter,
+            this.format.constantParameter,
+            "",
+            this.format.override
+          );
         } else {
           if (parameter.implementation === ImplementationLocation.Client) {
             this.namingService.setName(parameter, this.format.global, "", this.format.override);
@@ -344,16 +387,20 @@ export class PreNamer {
           header as { language: Languages },
           this.format.responseHeader,
           "",
-          this.format.override,
+          this.format.override
         );
       }
     }
   }
 
   fixParameterCollisions() {
-    for (const operation of values(this.codeModel.operationGroups).flatMap((each) => each.operations)) {
+    for (const operation of values(this.codeModel.operationGroups).flatMap(
+      (each) => each.operations
+    )) {
       for (const request of values(operation.requests)) {
-        const parameters = values(operation.signatureParameters).concat(values(request.signatureParameters));
+        const parameters = values(operation.signatureParameters).concat(
+          values(request.signatureParameters)
+        );
 
         const usedNames = new Set<string>();
         const collisions = new Set<Parameter>();
@@ -390,7 +437,7 @@ export class PreNamer {
     }
     const [owned, flattened] = partition(
       schema.properties ?? [],
-      (each) => each.flattenedNames === undefined || each.flattenedNames.length === 0,
+      (each) => each.flattenedNames === undefined || each.flattenedNames.length === 0
     );
     const inherited = [...getAllParentProperties(schema)];
 

@@ -23,7 +23,13 @@ export function pascalCase(name: string): string {
 }
 
 export function getNamespace(type: Type | undefined): string | undefined {
-  if (type && (type.kind === "Model" || type.kind === "Enum" || type.kind === "Union" || type.kind === "Operation")) {
+  if (
+    type &&
+    (type.kind === "Model" ||
+      type.kind === "Enum" ||
+      type.kind === "Union" ||
+      type.kind === "Operation")
+  ) {
     let namespaceRef = type.namespace;
     let namespaceStr: string | undefined = undefined;
     while (namespaceRef && namespaceRef.name.length !== 0) {
@@ -41,5 +47,7 @@ export function getJavaNamespace(namespace: string | undefined): string | undefi
 }
 
 export function stringArrayContainsIgnoreCase(stringList: string[], str: string): boolean {
-  return stringList && str ? stringList.findIndex((s) => s.toLowerCase() === str.toLowerCase()) != -1 : false;
+  return stringList && str
+    ? stringList.findIndex((s) => s.toLowerCase() === str.toLowerCase()) != -1
+    : false;
 }

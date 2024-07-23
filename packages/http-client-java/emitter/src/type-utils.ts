@@ -1,3 +1,11 @@
+import { SchemaContext } from "@autorest/codemodel";
+import { getUnionAsEnum } from "@azure-tools/typespec-azure-core";
+import {
+  SdkDurationType,
+  SdkType,
+  isSdkFloatKind,
+  isSdkIntKind,
+} from "@azure-tools/typespec-client-generator-core";
 import {
   DecoratedType,
   DecoratorApplication,
@@ -19,12 +27,9 @@ import {
   isTemplateInstance,
   isTypeSpecValueTypeOf,
 } from "@typespec/compiler";
-import { SchemaContext } from "@autorest/codemodel";
+import { Version } from "@typespec/versioning";
 import { DurationSchema } from "./common/schemas/time.js";
 import { getNamespace } from "./utils.js";
-import { getUnionAsEnum } from "@azure-tools/typespec-azure-core";
-import { SdkDurationType, SdkType, isSdkFloatKind, isSdkIntKind } from "@azure-tools/typespec-client-generator-core";
-import { Version } from "@typespec/versioning";
 
 /** Acts as a cache for processing inputs.
  *
@@ -70,14 +75,19 @@ export function pushDistinct<T>(targetArray: Array<T>, ...items: Array<T>): Arra
 }
 
 export function modelContainsDerivedModel(model: Model): boolean {
-  return !isTemplateDeclaration(model) && !(isTemplateInstance(model) && model.derivedModels.length === 0);
+  return (
+    !isTemplateDeclaration(model) &&
+    !(isTemplateInstance(model) && model.derivedModels.length === 0)
+  );
 }
 
 export function isModelReferredInTemplate(template: TemplatedTypeBase, target: Model): boolean {
   return (
     template === target ||
     (template?.templateMapper?.args?.some((it) =>
-      "kind" in it && (it.kind === "Model" || it.kind === "Union") ? isModelReferredInTemplate(it, target) : false,
+      "kind" in it && (it.kind === "Model" || it.kind === "Union")
+        ? isModelReferredInTemplate(it, target)
+        : false
     ) ??
       false)
   );
@@ -120,7 +130,9 @@ export function getDurationFormat(encode: EncodeData): DurationSchema["format"] 
     } else if (scalarName.startsWith("float")) {
       format = "seconds-number";
     } else {
-      throw new Error(`Unrecognized scalar type used by duration encoded as seconds: '${scalarName}'.`);
+      throw new Error(
+        `Unrecognized scalar type used by duration encoded as seconds: '${scalarName}'.`
+      );
     }
   }
   return format;
@@ -135,7 +147,9 @@ export function getDurationFormatFromSdkType(type: SdkDurationType): DurationSch
     } else if (isSdkFloatKind(type.wireType.kind)) {
       format = "seconds-number";
     } else {
-      throw new Error(`Unrecognized scalar type used by duration encoded as seconds: '${type.kind}'.`);
+      throw new Error(
+        `Unrecognized scalar type used by duration encoded as seconds: '${type.kind}'.`
+      );
     }
   }
   return format;
@@ -155,7 +169,7 @@ export function hasScalarAsBase(type: Scalar, scalarName: IntrinsicScalarName): 
 export function unionReferredByType(
   program: Program,
   type: Type,
-  cache: Map<Type, Union | null | undefined>,
+  cache: Map<Type, Union | null | undefined>
 ): Union | null {
   if (cache.has(type)) {
     const ret = cache.get(type);
@@ -234,7 +248,13 @@ export function modelIs(model: Model, name: string, namespace: string): boolean 
 }
 
 export function getAccess(type: Type | undefined): string | undefined {
-  if (type && (type.kind === "Model" || type.kind === "Operation" || type.kind === "Enum" || type.kind === "Union")) {
+  if (
+    type &&
+    (type.kind === "Model" ||
+      type.kind === "Operation" ||
+      type.kind === "Enum" ||
+      type.kind === "Union")
+  ) {
     return getDecoratorScopedValue(type, "$access", (it) => {
       const value = it.args[0].value;
       if ("kind" in value && value.kind === "EnumMember") {
@@ -253,7 +273,13 @@ export function isAllValueInteger(values: number[]): boolean {
 }
 
 export function getUsage(type: Type | undefined): SchemaContext[] | undefined {
-  if (type && (type.kind === "Model" || type.kind === "Operation" || type.kind === "Enum" || type.kind === "Union")) {
+  if (
+    type &&
+    (type.kind === "Model" ||
+      type.kind === "Operation" ||
+      type.kind === "Enum" ||
+      type.kind === "Union")
+  ) {
     return getDecoratorScopedValue(type, "$usage", (it) => {
       const value = it.args[0].value;
       const values: EnumMember[] = [];
@@ -298,7 +324,7 @@ export function isArmCommonType(entity: Type): boolean {
   const commonDecorators = ["$armCommonDefinition", "$armCommonParameter"];
   if (isTypeSpecValueTypeOf(entity, ["Model", "ModelProperty"])) {
     return commonDecorators.some((commonDecorator) =>
-      entity.decorators.some((d) => d.decorator.name === commonDecorator),
+      entity.decorators.some((d) => d.decorator.name === commonDecorator)
     );
   }
   return false;
@@ -307,12 +333,14 @@ export function isArmCommonType(entity: Type): boolean {
 function getDecoratorScopedValue<T>(
   type: DecoratedType,
   decorator: string,
-  mapFunc: (d: DecoratorApplication) => T,
+  mapFunc: (d: DecoratorApplication) => T
 ): T | undefined {
   let value = type.decorators
     .filter(
       (it) =>
-        it.decorator.name === decorator && it.args.length == 2 && (it.args[1].value as StringLiteral).value === "java",
+        it.decorator.name === decorator &&
+        it.args.length == 2 &&
+        (it.args[1].value as StringLiteral).value === "java"
     )
     .map((it) => mapFunc(it))
     .find(() => true);
@@ -324,7 +352,7 @@ function getDecoratorScopedValue<T>(
       (it) =>
         it.decorator.name === decorator &&
         it.args.length == 2 &&
-        (it.args[1].value as StringLiteral).value === "client",
+        (it.args[1].value as StringLiteral).value === "client"
     )
     .map((it) => mapFunc(it))
     .find(() => true);

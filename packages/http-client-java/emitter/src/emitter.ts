@@ -6,26 +6,26 @@ import {
   NoTarget,
   resolvePath,
 } from "@typespec/compiler";
-import { dump } from "js-yaml";
 import { spawn } from "child_process";
 import { promises } from "fs";
-import { CodeModelBuilder } from "./code-model-builder.js";
+import { dump } from "js-yaml";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+import { CodeModelBuilder } from "./code-model-builder.js";
 
 export interface EmitterOptions {
-  "namespace"?: string;
+  namespace?: string;
   "output-dir"?: string;
   "package-dir"?: string;
 
-  "flavor"?: string;
+  flavor?: string;
 
   "service-name"?: string;
   "service-versions"?: string[];
 
   "skip-special-headers"?: string[];
 
-  "namer"?: boolean;
+  namer?: boolean;
 
   "generate-samples"?: boolean;
   "generate-tests"?: boolean;
@@ -39,7 +39,7 @@ export interface EmitterOptions {
   "custom-types"?: string;
   "custom-types-subpackage"?: string;
   "customization-class"?: string;
-  "polling"?: any;
+  polling?: any;
 
   "group-etag-headers"?: boolean;
 
@@ -51,8 +51,8 @@ export interface EmitterOptions {
 
 export interface DevOptions {
   "generate-code-model"?: boolean;
-  "debug"?: boolean;
-  "loglevel"?: "off" | "debug" | "info" | "warn" | "error";
+  debug?: boolean;
+  loglevel?: "off" | "debug" | "info" | "warn" | "error";
   "java-temp-dir"?: string; // working directory for java codegen, e.g. transformed code-model file
 }
 
@@ -60,11 +60,11 @@ const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
   type: "object",
   additionalProperties: true,
   properties: {
-    "namespace": { type: "string", nullable: true },
+    namespace: { type: "string", nullable: true },
     "output-dir": { type: "string", nullable: true },
     "package-dir": { type: "string", nullable: true },
 
-    "flavor": { type: "string", nullable: true, default: "Azure" },
+    flavor: { type: "string", nullable: true, default: "Azure" },
 
     // service
     "service-name": { type: "string", nullable: true },
@@ -74,7 +74,7 @@ const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
     "skip-special-headers": { type: "array", items: { type: "string" }, nullable: true },
 
     // namer
-    "namer": { type: "boolean", nullable: true, default: false },
+    namer: { type: "boolean", nullable: true, default: false },
 
     // sample and test
     "generate-samples": { type: "boolean", nullable: true, default: true },
@@ -90,7 +90,7 @@ const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
     "custom-types": { type: "string", nullable: true },
     "custom-types-subpackage": { type: "string", nullable: true },
     "customization-class": { type: "string", nullable: true },
-    "polling": { type: "object", additionalProperties: true, nullable: true },
+    polling: { type: "object", additionalProperties: true, nullable: true },
 
     "group-etag-headers": { type: "boolean", nullable: true },
     "advanced-versioning": { type: "boolean", nullable: true, default: false },
@@ -102,7 +102,7 @@ const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
 };
 
 export const $lib = createTypeSpecLibrary({
-  name: "@azure-tools/typespec-java",
+  name: "@typespec/http-client-java",
   diagnostics: {},
   emitter: {
     options: EmitterOptionsSchema,
@@ -143,13 +143,17 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
 
     await program.host.writeFile(codeModelFileName, dump(codeModel));
 
-    program.trace("typespec-java", `Code model file written to ${codeModelFileName}`);
+    program.trace("http-client-java", `Code model file written to ${codeModelFileName}`);
 
     const emitterOptions = JSON.stringify(options);
-    program.trace("typespec-java", `Emitter options ${emitterOptions}`);
+    program.trace("http-client-java", `Emitter options ${emitterOptions}`);
 
-    const jarFileName = resolvePath(moduleRoot, "target", "emitter.jar");
-    program.trace("typespec-java", `Exec JAR ${jarFileName}`);
+    const jarFileName = resolvePath(
+      moduleRoot,
+      "../generator/http-client-generator/target",
+      "emitter.jar"
+    );
+    program.trace("http-client-java", `Exec JAR ${jarFileName}`);
 
     const javaArgs: string[] = [];
     javaArgs.push(`-DemitterOptions=${emitterOptions}`);
@@ -219,13 +223,13 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
       });
 
       // as stdio: "inherit", std is not captured by spawn
-      // program.trace("typespec-java", output.stdout ? output.stdout : output.stderr);
+      // program.trace("http-client-java", output.stdout ? output.stdout : output.stderr);
     } catch (error: any) {
       if (error && "code" in error && error["code"] === "ENOENT") {
         const msg = "'java' is not on PATH. Please install JDK 11 or above.";
-        program.trace("typespec-java", msg);
+        program.trace("http-client-java", msg);
         program.reportDiagnostic({
-          code: "typespec-java",
+          code: "http-client-java",
           severity: "error",
           message: msg,
           target: NoTarget,

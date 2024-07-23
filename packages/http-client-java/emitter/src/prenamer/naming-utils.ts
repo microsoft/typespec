@@ -1,7 +1,7 @@
 import { Languages } from "@autorest/codemodel";
-import { removeSequentialDuplicates, fixLeadingNumber, deconstruct } from "@azure-tools/codegen";
-import { Style, Styler } from "./formatter.js";
+import { deconstruct, fixLeadingNumber, removeSequentialDuplicates } from "@azure-tools/codegen";
 import pkg from "lodash";
+import { Style, Styler } from "./formatter.js";
 const { last } = pkg;
 
 export function getNameOptions(typeName: string, components: Array<string>) {
@@ -9,7 +9,9 @@ export function getNameOptions(typeName: string, components: Array<string>) {
 
   // add a variant for each incrementally inclusive parent naming scheme.
   for (let i = 0; i < components.length; i++) {
-    const subset = Style.pascal([...removeSequentialDuplicates(components.slice(-1 * i, components.length))]);
+    const subset = Style.pascal([
+      ...removeSequentialDuplicates(components.slice(-1 * i, components.length)),
+    ]);
     result.add(subset);
   }
 
@@ -17,8 +19,11 @@ export function getNameOptions(typeName: string, components: Array<string>) {
   result.add(
     Style.pascal([
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      ...removeSequentialDuplicates([...fixLeadingNumber(deconstruct(typeName)), ...deconstruct(last(components)!)]),
-    ]),
+      ...removeSequentialDuplicates([
+        ...fixLeadingNumber(deconstruct(typeName)),
+        ...deconstruct(last(components)!),
+      ]),
+    ])
   );
   return [...result.values()];
 }
@@ -52,7 +57,7 @@ export class NamingService {
     styler: Styler,
     defaultValue: string,
     overrides: Record<string, string>,
-    options?: SetNameOptions,
+    options?: SetNameOptions
   ) {
     this.setNameAllowEmpty(thing, styler, defaultValue, overrides, options);
     // if (!thing.language.default.name) {
@@ -65,13 +70,15 @@ export class NamingService {
     styler: Styler,
     defaultValue: string,
     overrides: Record<string, string>,
-    options?: SetNameOptions,
+    options?: SetNameOptions
   ) {
     options = { ...setNameDefaultOptions, ...options };
     thing.language.default.name = styler(
-      defaultValue && isUnassigned(thing.language.default.name) ? defaultValue : thing.language.default.name,
+      defaultValue && isUnassigned(thing.language.default.name)
+        ? defaultValue
+        : thing.language.default.name,
       options.removeDuplicates,
-      overrides,
+      overrides
     );
   }
 }
@@ -107,7 +114,9 @@ export class ScopeNamer {
    */
   public add(entity: Nameable, styler: Styler, defaultName?: string) {
     const initialName =
-      defaultName && isUnassigned(entity.language.default.name) ? defaultName : entity.language.default.name;
+      defaultName && isUnassigned(entity.language.default.name)
+        ? defaultName
+        : entity.language.default.name;
 
     const name = styler(initialName, false, this.options.overrides);
     const list = this.names.get(name);

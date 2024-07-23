@@ -1,13 +1,13 @@
-import { Operation } from "@typespec/compiler";
-import { Version } from "@typespec/versioning";
 import { ApiVersions, Parameter } from "@autorest/codemodel";
 import { getOperationLink } from "@azure-tools/typespec-azure-core";
 import {
-  SdkContext,
   SdkClient,
+  SdkContext,
   listOperationGroups,
   listOperationsInOperationGroup,
 } from "@azure-tools/typespec-client-generator-core";
+import { Operation } from "@typespec/compiler";
+import { Version } from "@typespec/versioning";
 import { getAccess } from "./type-utils.js";
 
 export class ClientContext {
@@ -17,7 +17,12 @@ export class ClientContext {
   apiVersions?: string[];
   ignoredOperations: Set<Operation>;
 
-  constructor(baseUri: string, hostParameters: Parameter[], globalParameters: Parameter[], apiVersions?: ApiVersions) {
+  constructor(
+    baseUri: string,
+    hostParameters: Parameter[],
+    globalParameters: Parameter[],
+    apiVersions?: ApiVersions
+  ) {
     this.baseUri = baseUri;
     this.hostParameters = hostParameters;
     this.globalParameters = globalParameters;

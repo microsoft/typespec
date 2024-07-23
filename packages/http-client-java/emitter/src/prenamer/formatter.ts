@@ -3,13 +3,13 @@ import { fixLeadingNumber, removeSequentialDuplicates } from "@azure-tools/codeg
 export type Styler = (
   identifier: string | Array<string>,
   removeDuplicates: boolean | undefined,
-  overrides: Record<string, string> | undefined,
+  overrides: Record<string, string> | undefined
 ) => string;
 type StylerWithUppercasePreservation = (
   identifier: string | Array<string>,
   removeDuplicates: boolean | undefined,
   overrides: Record<string, string> | undefined,
-  maxUppercasePreserve: number | undefined,
+  maxUppercasePreserve: number | undefined
 ) => string;
 
 function capitalize(s: string): string {
@@ -37,7 +37,10 @@ function IsFullyUpperCase(identifier: string, maxUppercasePreserve: number) {
   return false;
 }
 
-function deconstruct(identifier: string | Array<string>, maxUppercasePreserve: number): Array<string> {
+function deconstruct(
+  identifier: string | Array<string>,
+  maxUppercasePreserve: number
+): Array<string> {
   if (Array.isArray(identifier)) {
     return [...identifier.flatMap((each) => deconstruct(each, maxUppercasePreserve))];
   }
@@ -57,7 +60,7 @@ function wrap(
   prefix: string,
   postfix: string,
   style: StylerWithUppercasePreservation,
-  maxUppercasePreserve: number,
+  maxUppercasePreserve: number
 ): Styler {
   if (postfix || prefix) {
     return (i, r, o) =>
@@ -72,7 +75,7 @@ function applyFormat(
   normalizedContent: Array<string>,
   overrides: Record<string, string> = {},
   separator = "",
-  formatter: (s: string, i: number) => string = (s, i) => s,
+  formatter: (s: string, i: number) => string = (s, i) => s
 ) {
   return normalizedContent
     .map((each, index) => {
@@ -91,7 +94,7 @@ function normalize(
   identifier: string | Array<string>,
   removeDuplicates = true,
   overrides: Record<string, string> = {},
-  maxUppercasePreserve = 0,
+  maxUppercasePreserve = 0
 ): Array<string> {
   if (!identifier || identifier.length === 0) {
     return [""];
@@ -101,7 +104,7 @@ function normalize(
         fixLeadingNumber(deconstruct(identifier, maxUppercasePreserve)),
         removeDuplicates,
         overrides,
-        maxUppercasePreserve,
+        maxUppercasePreserve
       )
     : removeDuplicates
       ? removeSequentialDuplicates(identifier)
@@ -110,7 +113,9 @@ function normalize(
 export class Style {
   static select(style: any, fallback: Styler, maxUppercasePreserve: number): Styler {
     if (style) {
-      const styles = /^([a-zA-Z0-9_]*?\+?)([a-zA-Z]+)(\+?[a-zA-Z0-9_]*)$/g.exec(style.replace(/\s*/g, ""));
+      const styles = /^([a-zA-Z0-9_]*?\+?)([a-zA-Z]+)(\+?[a-zA-Z0-9_]*)$/g.exec(
+        style.replace(/\s*/g, "")
+      );
       if (styles) {
         const prefix = styles[1] ? styles[1].substring(0, styles[1].length - 1) : "";
         const postfix = styles[3] ? styles[3].substring(1) : "";
@@ -144,14 +149,15 @@ export class Style {
     identifier: string | Array<string>,
     removeDuplicates = true,
     overrides: Record<string, string> = {},
-    maxUppercasePreserve = 0,
+    maxUppercasePreserve = 0
   ): string {
     return (
       (Object.keys(overrides).includes(<string>identifier) && overrides[<string>identifier]) ||
-      applyFormat(normalize(identifier, removeDuplicates, overrides, maxUppercasePreserve), overrides, "-").replace(
-        /([^\d])-(\d+)/g,
-        "$1$2",
-      )
+      applyFormat(
+        normalize(identifier, removeDuplicates, overrides, maxUppercasePreserve),
+        overrides,
+        "-"
+      ).replace(/([^\d])-(\d+)/g, "$1$2")
     );
   }
 
@@ -159,14 +165,15 @@ export class Style {
     identifier: string | Array<string>,
     removeDuplicates = true,
     overrides: Record<string, string> = {},
-    maxUppercasePreserve = 0,
+    maxUppercasePreserve = 0
   ): string {
     return (
       (Object.keys(overrides).includes(<string>identifier) && overrides[<string>identifier]) ||
-      applyFormat(normalize(identifier, removeDuplicates, overrides, maxUppercasePreserve), overrides, " ").replace(
-        /([^\d]) (\d+)/g,
-        "$1$2",
-      )
+      applyFormat(
+        normalize(identifier, removeDuplicates, overrides, maxUppercasePreserve),
+        overrides,
+        " "
+      ).replace(/([^\d]) (\d+)/g, "$1$2")
     );
   }
 
@@ -174,14 +181,15 @@ export class Style {
     identifier: string | Array<string>,
     removeDuplicates = true,
     overrides: Record<string, string> = {},
-    maxUppercasePreserve = 0,
+    maxUppercasePreserve = 0
   ): string {
     return (
       (Object.keys(overrides).includes(<string>identifier) && overrides[<string>identifier]) ||
-      applyFormat(normalize(identifier, removeDuplicates, overrides, maxUppercasePreserve), overrides, "_").replace(
-        /([^\d])_(\d+)/g,
-        "$1$2",
-      )
+      applyFormat(
+        normalize(identifier, removeDuplicates, overrides, maxUppercasePreserve),
+        overrides,
+        "_"
+      ).replace(/([^\d])_(\d+)/g, "$1$2")
     );
   }
 
@@ -189,12 +197,15 @@ export class Style {
     identifier: string | Array<string>,
     removeDuplicates = true,
     overrides: Record<string, string> = {},
-    maxUppercasePreserve = 0,
+    maxUppercasePreserve = 0
   ): string {
     return (
       (Object.keys(overrides).includes(<string>identifier) && overrides[<string>identifier]) ||
-      applyFormat(normalize(identifier, removeDuplicates, overrides, maxUppercasePreserve), overrides, "_", (each) =>
-        each.toUpperCase(),
+      applyFormat(
+        normalize(identifier, removeDuplicates, overrides, maxUppercasePreserve),
+        overrides,
+        "_",
+        (each) => each.toUpperCase()
       ).replace(/([^\d])_(\d+)/g, "$1$2")
     );
   }
@@ -203,12 +214,15 @@ export class Style {
     identifier: string | Array<string>,
     removeDuplicates = true,
     overrides: Record<string, string> = {},
-    maxUppercasePreserve = 0,
+    maxUppercasePreserve = 0
   ): string {
     return (
       (Object.keys(overrides).includes(<string>identifier) && overrides[<string>identifier]) ||
-      applyFormat(normalize(identifier, removeDuplicates, overrides, maxUppercasePreserve), overrides, "", (each) =>
-        capitalize(each),
+      applyFormat(
+        normalize(identifier, removeDuplicates, overrides, maxUppercasePreserve),
+        overrides,
+        "",
+        (each) => capitalize(each)
       )
     );
   }
@@ -217,7 +231,7 @@ export class Style {
     identifier: string | Array<string>,
     removeDuplicates = true,
     overrides: Record<string, string> = {},
-    maxUppercasePreserve = 0,
+    maxUppercasePreserve = 0
   ): string {
     return (
       (Object.keys(overrides).includes(<string>identifier) && overrides[<string>identifier]) ||
@@ -226,7 +240,11 @@ export class Style {
         overrides,
         "",
         (each, index) =>
-          index ? capitalize(each) : IsFullyUpperCase(each, maxUppercasePreserve) ? each : uncapitalize(each),
+          index
+            ? capitalize(each)
+            : IsFullyUpperCase(each, maxUppercasePreserve)
+              ? each
+              : uncapitalize(each)
       )
     );
   }

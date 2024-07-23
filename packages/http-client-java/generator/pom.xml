@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.microsoft.typespec</groupId>
-    <artifactId>typespec-http-client-java</artifactId>
+    <artifactId>generator</artifactId>
     <version>1.0.0-beta.1</version>
     <packaging>pom</packaging>
 

@@ -1,3 +1,6 @@
+import { Parameter } from "@autorest/codemodel";
+import { LroMetadata } from "@azure-tools/typespec-azure-core";
+import { SdkContext, getDefaultApiVersion } from "@azure-tools/typespec-client-generator-core";
 import {
   ModelProperty,
   Operation,
@@ -10,24 +13,21 @@ import {
 } from "@typespec/compiler";
 import {
   HttpOperation,
-  getHeaderFieldName,
-  getQueryParamName,
-  getPathParamName,
-  isStatusCode,
   getAllHttpServices,
+  getHeaderFieldName,
   getHttpService,
+  getPathParamName,
+  getQueryParamName,
+  isStatusCode,
 } from "@typespec/http";
 import { resolveOperationId } from "@typespec/openapi";
-import { Parameter } from "@autorest/codemodel";
-import { LroMetadata } from "@azure-tools/typespec-azure-core";
 import { buildVersionProjections } from "@typespec/versioning";
+import { pathToFileURL } from "url";
 import { Client as CodeModelClient, ServiceVersion } from "./common/client.js";
 import { CodeModel } from "./common/code-model.js";
 import { EmitterOptions } from "./emitter.js";
-import { getNamespace, logWarning, pascalCase } from "./utils.js";
 import { modelIs, unionReferredByType } from "./type-utils.js";
-import { SdkContext, getDefaultApiVersion } from "@azure-tools/typespec-client-generator-core";
-import { pathToFileURL } from "url";
+import { getNamespace, logWarning, pascalCase } from "./utils.js";
 
 export const SPECIAL_HEADER_NAMES = new Set([
   "repeatability-request-id",
@@ -74,7 +74,7 @@ export function isKnownContentType(contentTypes: string[]): boolean {
 export async function loadExamples(
   program: Program,
   options: EmitterOptions,
-  sdkContext: SdkContext,
+  sdkContext: SdkContext
 ): Promise<Map<Operation, any>> {
   // sdkContextApiVersion could contain "all" or "latest"
   const sdkContextApiVersion = sdkContext.apiVersion;
@@ -94,7 +94,7 @@ export async function loadExamples(
     if (version) {
       // projection
       const versionProjections = buildVersionProjections(program, service.namespace).filter(
-        (it) => it.version === version,
+        (it) => it.version === version
       );
       const projectedProgram = projectProgram(program, versionProjections[0].projections);
       const projectedService = projectedProgram.projector.projectedTypes.get(service.namespace);
@@ -199,7 +199,7 @@ export function operationIsMultipleContentTypes(op: HttpOperation): boolean {
       (parameter) =>
         parameter?.type === "header" &&
         parameter?.name?.toLowerCase() === CONTENT_TYPE_KEY &&
-        parameter?.param?.type?.kind === "Union",
+        parameter?.param?.type?.kind === "Union"
     )
   ) {
     return true;
@@ -210,7 +210,7 @@ export function operationIsMultipleContentTypes(op: HttpOperation): boolean {
 export function operationRefersUnion(
   program: Program,
   op: HttpOperation,
-  cache: Map<Type, Union | null | undefined>,
+  cache: Map<Type, Union | null | undefined>
 ): Union | null {
   // request parameters
   for (const parameter of op.parameters.parameters) {
@@ -272,7 +272,10 @@ export function getServiceVersion(client: CodeModelClient | CodeModel): ServiceV
   return new ServiceVersion(name, description);
 }
 
-export function isLroNewPollingStrategy(httpOperation: HttpOperation, lroMetadata: LroMetadata): boolean {
+export function isLroNewPollingStrategy(
+  httpOperation: HttpOperation,
+  lroMetadata: LroMetadata
+): boolean {
   const operation = httpOperation.operation;
   let useNewStrategy = false;
   if (
@@ -302,19 +305,24 @@ export function isLroNewPollingStrategy(httpOperation: HttpOperation, lroMetadat
 }
 
 export function cloneOperationParameter(parameter: Parameter): Parameter {
-  return new Parameter(parameter.language.default.name, parameter.language.default.description, parameter.schema, {
-    language: {
-      default: {
-        serializedName: parameter.language.default.serializedName,
+  return new Parameter(
+    parameter.language.default.name,
+    parameter.language.default.description,
+    parameter.schema,
+    {
+      language: {
+        default: {
+          serializedName: parameter.language.default.serializedName,
+        },
       },
-    },
-    protocol: parameter.protocol,
-    summary: parameter.summary,
-    implementation: parameter.implementation,
-    required: parameter.required,
-    nullable: parameter.nullable,
-    extensions: parameter.extensions,
-  });
+      protocol: parameter.protocol,
+      summary: parameter.summary,
+      implementation: parameter.implementation,
+      required: parameter.required,
+      nullable: parameter.nullable,
+      extensions: parameter.extensions,
+    }
+  );
 }
 
 function operationIs(operation: Operation, name: string | undefined, namespace: string): boolean {

@@ -1,9 +1,18 @@
-import { ChoiceValue, PrimitiveSchema, Schema, SchemaType, StringSchema, ValueSchema } from "@autorest/codemodel";
+import {
+  ChoiceValue,
+  PrimitiveSchema,
+  Schema,
+  SchemaType,
+  StringSchema,
+  ValueSchema,
+} from "@autorest/codemodel";
 import { DeepPartial } from "@azure-tools/codegen";
 import { SchemaUsage } from "./usage.js";
 
 /** a schema that represents a choice of several values (ie, an 'enum') */
-export interface ChoiceSchema<ChoiceType extends PrimitiveSchema = StringSchema> extends ValueSchema, SchemaUsage {
+export interface ChoiceSchema<ChoiceType extends PrimitiveSchema = StringSchema>
+  extends ValueSchema,
+    SchemaUsage {
   /** the schema type  */
   type: SchemaType.Choice;
   /** the primitive type for the choices */
@@ -18,7 +27,11 @@ export class ChoiceSchema<ChoiceType extends PrimitiveSchema = StringSchema>
   extends Schema
   implements ChoiceSchema<ChoiceType>
 {
-  constructor(name: string, description: string, objectInitializer?: DeepPartial<ChoiceSchema<ChoiceType>>) {
+  constructor(
+    name: string,
+    description: string,
+    objectInitializer?: DeepPartial<ChoiceSchema<ChoiceType>>
+  ) {
     super(name, description, SchemaType.Choice);
     this.apply(objectInitializer);
   }
@@ -46,7 +59,11 @@ export class SealedChoiceSchema<ChoiceType extends PrimitiveSchema = StringSchem
 {
   // crossLanguageDefinitionId?: string;
 
-  constructor(name: string, description: string, objectInitializer?: DeepPartial<ChoiceSchema<ChoiceType>>) {
+  constructor(
+    name: string,
+    description: string,
+    objectInitializer?: DeepPartial<ChoiceSchema<ChoiceType>>
+  ) {
     super(name, description, SchemaType.SealedChoice);
     this.apply(objectInitializer);
   }
