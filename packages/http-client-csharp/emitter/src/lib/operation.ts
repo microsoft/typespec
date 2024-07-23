@@ -34,6 +34,7 @@ import {
   InputType,
 } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
+import OperationPaging from "../type/operation-paging.js";
 import { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
@@ -324,7 +325,7 @@ function getMediaTypes(type: SdkType): string[] {
 
 function loadOperationPaging(
   method: SdkServiceMethod<SdkHttpOperation>
-): import("../type/operation-paging.js").OperationPaging | undefined {
+): OperationPaging | undefined {
   if (method.kind !== "paging") {
     return undefined;
   }
@@ -332,7 +333,7 @@ function loadOperationPaging(
   return {
     ItemName: method.__raw_paged_metadata.itemsProperty?.name,
     NextLinkName: method.__raw_paged_metadata.nextLinkProperty?.name,
-  } as import("../type/operation-paging.js").OperationPaging;
+  };
 }
 
 // TODO: https://github.com/Azure/typespec-azure/issues/981
