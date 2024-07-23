@@ -34,7 +34,7 @@ import {
   InputType,
 } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
-import OperationPaging from "../type/operation-paging.js";
+import { OperationPaging } from "../type/operation-paging.js";
 import { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
@@ -132,14 +132,7 @@ function getMethodParameters(
 ): InputParameter[] {
   const params = clientParameters.concat(
     method.operation.parameters.map((p) =>
-      fromHttpOperationParameter(
-        p,
-        rootApiVersions,
-        sdkContext,
-        modelMap,
-        enumMap,
-        method // TODO: remove this after https://github.com/Azure/typespec-azure/issues/1150
-      )
+      fromHttpOperationParameter(p, rootApiVersions, sdkContext, modelMap, enumMap)
     )
   );
   return method.operation.bodyParam
@@ -149,8 +142,7 @@ function getMethodParameters(
           rootApiVersions,
           sdkContext,
           modelMap,
-          enumMap,
-          method
+          enumMap
         )
       )
     : params;
@@ -163,8 +155,7 @@ function fromHttpOperationParameter(
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
   modelMap: Map<string, InputModelType>,
-  enumMap: Map<string, InputEnumType>,
-  method: SdkServiceMethod<SdkHttpOperation>
+  enumMap: Map<string, InputEnumType>
 ): InputParameter {
   const isContentType =
     p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type";
@@ -179,7 +170,7 @@ function fromHttpOperationParameter(
   const serializedName = p.kind !== "body" ? p.serializedName : p.name;
 
   return {
-    Name: p.name !== "" ? p.name : `${method.name}Content`, // TODO: remove this after https://github.com/Azure/typespec-azure/issues/1150
+    Name: p.name,
     NameInRequest: serializedName,
     Description: p.description,
     Type: parameterType,
@@ -242,8 +233,7 @@ function getSdkMethodResponses(
       BodyMediaType: BodyMediaType.Json,
       Headers: toHttpResponseHeaders(r.headers, sdkContext, modelMap, enumMap),
       IsErrorResponse: r.type !== undefined && isErrorModel(sdkContext.program, r.type.__raw!),
-      // TODO: https://github.com/Azure/typespec-azure/issues/992
-      ContentTypes: r.contentTypes && r.contentTypes.length > 0 ? r.contentTypes : undefined,
+      ContentTypes: r.contentTypes,
     });
   });
   return responses;
