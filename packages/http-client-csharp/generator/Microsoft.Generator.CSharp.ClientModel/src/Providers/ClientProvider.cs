@@ -215,39 +215,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private ParameterProvider BuildClientEndpointParameter()
         {
-            for (var i = 0; i < _inputClient.Parameters.Count; i++)
+            var endpointParam = _inputClient.Parameters.FirstOrDefault(p => p.IsEndpoint);
+            if (endpointParam == null)
+                return KnownParameters.Endpoint;
+
+            ValueExpression? initializationValue = endpointParam.DefaultValue != null
+                ? New.Instance(KnownParameters.Endpoint.Type, Literal(endpointParam.DefaultValue.Value))
+                : null;
+
+            return new(
+                KnownParameters.Endpoint.Name,
+                KnownParameters.Endpoint.Description,
+                KnownParameters.Endpoint.Type,
+                initializationValue: initializationValue)
             {
-                var inputClientParam = _inputClient.Parameters[i];
-                if (inputClientParam.IsEndpoint)
-                {
-                    var parameterProvider = new ParameterProvider(inputClientParam);
-                    var description = inputClientParam.Description ?? $"{KnownParameters.Endpoint.Description}";
-                    ValueExpression? initializationValue = null;
-                    // construct the initialization value for the endpoint param if it contains a default value from input.
-                    if (inputClientParam.DefaultValue?.Value != null)
-                    {
-                        var defaultValue = inputClientParam.DefaultValue.Value;
-                        CSharpType valueType = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputClientParam.DefaultValue.Type);
-
-                        if (valueType.IsFrameworkType)
-                        {
-                            // new Uri("defaultValue")
-                            initializationValue = New.Instance(KnownParameters.Endpoint.Type, Literal(defaultValue));
-                        }
-                    }
-
-                    return new(
-                        KnownParameters.Endpoint.Name,
-                        $"{description}",
-                        KnownParameters.Endpoint.Type,
-                        initializationValue: initializationValue)
-                    {
-                        Validation = parameterProvider.Validation
-                    };
-                }
-            }
-
-            return KnownParameters.Endpoint;
+                Validation = ParameterValidationType.AssertNotNull
+            };
         }
     }
 }
