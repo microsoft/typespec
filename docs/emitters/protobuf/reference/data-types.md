@@ -99,6 +99,13 @@ See the [`@stream`](./decorators#
 enum TypeSpec.Protobuf.StreamMode
 ```
 
+| Name   | Value | Description                                                                                                                                                     |
+| ------ | ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Duplex |       | Both the input and output of the operation are streaming. Both the client and service will stream messages to each<br />other until the connections are closed. |
+| In     |       | The input of the operation is streaming. The client will send a stream of events; and, once the stream is closed,<br />the service will respond with a message. |
+| Out    |       | The output of the operation is streaming. The client will send a message to the service, and the service will send<br />a stream of events back to the client.  |
+| None   |       | Neither the input nor the output are streaming. This is the default mode of an operation without the `@stream`<br />decorator.                                  |
+
 ### `fixed32` {#TypeSpec.Protobuf.fixed32}
 
 An unsigned 32-bit integer that will use the `fixed32` encoding when used in a Protobuf message.

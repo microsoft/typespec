@@ -8,6 +8,7 @@ namespace Microsoft.Generator.CSharp
 {
     public class OutputLibrary
     {
+        private List<OutputLibraryVisitor> _visitors = new();
         public OutputLibrary()
         {
         }
@@ -57,6 +58,11 @@ namespace Microsoft.Generator.CSharp
         }
 
         // TODO - make this more additive instead of replace https://github.com/microsoft/typespec/issues/3827
-        protected internal virtual IEnumerable<OutputLibraryVisitor> GetOutputLibraryVisitors() => [];
+        protected internal virtual IEnumerable<OutputLibraryVisitor> GetOutputLibraryVisitors() => _visitors;
+
+        public void AddVisitor(OutputLibraryVisitor visitor)
+        {
+            _visitors.Add(visitor);
+        }
     }
 }
