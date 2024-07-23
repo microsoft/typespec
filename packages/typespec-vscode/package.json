@@ -31,10 +31,6 @@
     "onLanguage:typespec",
     "onCommand:typespec.restartServer"
   ],
-  "files": [
-    "typespec-vscode-*.vsix",
-    "ThirdPartyNotices.txt"
-  ],
   "icon": "./icons/logo.png",
   "contributes": {
     "languages": [
