@@ -33,6 +33,7 @@ describe("Test GetInputType for scalar", () => {
       {
         Kind: "azureLocation",
         Encode: "string",
+        Decorators: [],
       },
       root.Clients[0].Operations[0].Parameters[0].Type
     );

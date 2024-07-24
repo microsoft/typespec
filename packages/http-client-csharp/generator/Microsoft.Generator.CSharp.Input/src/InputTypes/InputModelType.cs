@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.Generator.CSharp.Input.InputTypes;
 
 namespace Microsoft.Generator.CSharp.Input
 {
@@ -11,8 +12,8 @@ namespace Microsoft.Generator.CSharp.Input
     public class InputModelType : InputType
     {
         // TODO: Follow up issue https://github.com/microsoft/typespec/issues/3619. After https://github.com/Azure/typespec-azure/pull/966 is completed, update this type and remove the "modelAsStruct" parameter.
-        public InputModelType(string name, string crossLanguageDefinitionId, string? access, string? deprecation, string? description, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputModelProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties, bool modelAsStruct)
-            : base(name)
+        public InputModelType(string name, string crossLanguageDefinitionId, string? access, string? deprecation, string? description, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputModelProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties, bool modelAsStruct, IReadOnlyList<InputDecoratorInfo> decorators)
+            : base(name, decorators)
         {
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
             Access = access;

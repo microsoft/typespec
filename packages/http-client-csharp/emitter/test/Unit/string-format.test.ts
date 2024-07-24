@@ -44,6 +44,7 @@ describe("Test string format", () => {
       {
         Kind: "url",
         Encode: undefined,
+        Decorators: [],
       } as InputPrimitiveType,
       operation.Parameters[0].Type
     );
@@ -72,6 +73,7 @@ describe("Test string format", () => {
       {
         Kind: "url",
         Encode: undefined,
+        Decorators: [],
       } as InputPrimitiveType,
       foo.Properties[0].Type
     );

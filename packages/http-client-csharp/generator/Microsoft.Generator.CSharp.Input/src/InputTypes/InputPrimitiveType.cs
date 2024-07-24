@@ -1,16 +1,27 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.Generator.CSharp.Input.InputTypes;
+using System;
+using System.Collections.Generic;
+
 namespace Microsoft.Generator.CSharp.Input
 {
     public sealed class InputPrimitiveType : InputType
     {
-        public InputPrimitiveType(InputPrimitiveTypeKind kind) : base(kind.ToString())
+        public InputPrimitiveType(InputPrimitiveTypeKind kind) : this(kind, Array.Empty<InputDecoratorInfo>())
+        {
+        }
+        public InputPrimitiveType(InputPrimitiveTypeKind kind, IReadOnlyList<InputDecoratorInfo> decorators) : base(kind.ToString(), decorators)
         {
             Kind = kind;
         }
 
-        public InputPrimitiveType(InputPrimitiveTypeKind kind, string? encode, bool isNullable = false) : this(kind)
+        public InputPrimitiveType(InputPrimitiveTypeKind kind, string? encode, bool isNullable = false) : this(kind, Array.Empty<InputDecoratorInfo>(), encode, isNullable)
+        {
+        }
+
+        public InputPrimitiveType(InputPrimitiveTypeKind kind, IReadOnlyList<InputDecoratorInfo> decorators, string? encode, bool isNullable = false) : this(kind, decorators)
         {
             Encode = encode;
         }

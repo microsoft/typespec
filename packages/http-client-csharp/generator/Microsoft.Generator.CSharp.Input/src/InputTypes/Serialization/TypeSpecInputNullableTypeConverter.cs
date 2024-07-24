@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Input.InputTypes;
 
 namespace AutoRest.CSharp.Common.Input.InputTypes.Serialization
 {
@@ -26,11 +28,13 @@ namespace AutoRest.CSharp.Common.Input.InputTypes.Serialization
         {
             var isFirstProperty = id == null && name == null;
             InputType? valueType = null;
+            IReadOnlyList<InputDecoratorInfo>? decorators = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
                     || reader.TryReadString(nameof(InputNullableType.Name), ref name)
-                    || reader.TryReadWithConverter(nameof(InputNullableType.Type), options, ref valueType);
+                    || reader.TryReadWithConverter(nameof(InputNullableType.Type), options, ref valueType)
+                    || reader.TryReadWithConverter(nameof(InputNullableType.Type), options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -40,7 +44,7 @@ namespace AutoRest.CSharp.Common.Input.InputTypes.Serialization
 
             valueType = valueType ?? throw new JsonException("InputNullableType must have value type");
 
-            var nullableType = new InputNullableType(valueType);
+            var nullableType = new InputNullableType(valueType, decorators ?? Array.Empty<InputDecoratorInfo>());
             if (id != null)
             {
                 resolver.AddReference(id, nullableType);

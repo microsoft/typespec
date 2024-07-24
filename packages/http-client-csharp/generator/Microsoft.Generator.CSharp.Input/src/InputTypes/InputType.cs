@@ -1,20 +1,22 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using AutoRest.CSharp.Common.Input.InputTypes;
+using Microsoft.Generator.CSharp.Input.InputTypes;
 
 namespace Microsoft.Generator.CSharp.Input
 {
     /// <summary>
     /// Represents an input type to the generator.
     /// </summary>
-    public abstract class InputType
+    public abstract class InputType: InputDecoratedType
     {
         /// <summary>
         /// Construct a new <see cref="InputType"/> instance
         /// </summary>
         /// <param name="name">The name of the input type.</param>
-        protected InputType(string name)
+        protected InputType(string name, IReadOnlyList<InputDecoratorInfo> decorators): base(decorators)
         {
             Name = name;
         }
@@ -29,12 +31,14 @@ namespace Microsoft.Generator.CSharp.Input
                     return new InputArrayType(
                         listType.Name,
                         listType.CrossLanguageDefinitionId,
-                        listType.ValueType.GetCollectionEquivalent(inputType));
+                        listType.ValueType.GetCollectionEquivalent(inputType),
+                        listType.Decorators);
                 case InputDictionaryType dictionaryType:
                     return new InputDictionaryType(
                         dictionaryType.Name,
                         dictionaryType.KeyType,
-                        dictionaryType.ValueType.GetCollectionEquivalent(inputType));
+                        dictionaryType.ValueType.GetCollectionEquivalent(inputType),
+                        dictionaryType.Decorators);
                 default:
                     return inputType;
             }
@@ -42,7 +46,7 @@ namespace Microsoft.Generator.CSharp.Input
         public InputType WithNullable(bool isNullable)
         {
             if (isNullable)
-                return new InputNullableType(this);
+                return new InputNullableType(this, this.Decorators);
             return this;
         }
         public InputType GetImplementType() => this switch

@@ -2,13 +2,14 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Input.InputTypes;
 
 namespace Microsoft.Generator.CSharp.Input
 {
     public class InputEnumType : InputType
     {
-        public InputEnumType(string name, string crossLanguageDefinitionId, string? accessibility, string? deprecated, string description, InputModelTypeUsage usage, InputPrimitiveType valueType, IReadOnlyList<InputEnumTypeValue> values, bool isExtensible)
-            : base(name)
+        public InputEnumType(string name, string crossLanguageDefinitionId, string? accessibility, string? deprecated, string description, InputModelTypeUsage usage, InputPrimitiveType valueType, IReadOnlyList<InputEnumTypeValue> values, bool isExtensible, IReadOnlyList<InputDecoratorInfo> decorators)
+            : base(name, decorators)
         {
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
             Accessibility = accessibility;

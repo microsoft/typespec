@@ -74,6 +74,7 @@ op test(@body input: Pet): Pet;
         IsDiscriminator: true,
         Description: "Discriminator property for Pet.",
         FlattenedNames: undefined,
+        Decorators: [],
       } as InputModelProperty,
       discriminatorProperty
     );
@@ -185,6 +186,7 @@ op test(@body input: Pet): Pet;
         IsReadOnly: false,
         IsDiscriminator: true,
         FlattenedNames: undefined,
+        Decorators: [],
       } as InputModelProperty,
       discriminatorProperty
     );
@@ -306,6 +308,7 @@ op test(@body input: Pet): Pet;
         IsReadOnly: false,
         IsDiscriminator: true,
         FlattenedNames: undefined,
+        Decorators: [],
       } as InputModelProperty,
       discriminatorProperty
     );
