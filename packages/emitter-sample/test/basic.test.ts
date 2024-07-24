@@ -3,8 +3,11 @@ import { expect, it } from "vitest";
 import { emit } from "./test-host.js";
 
 it("works", async () => {
-  const results = await emit(`op doWork(value: string): string;`);
-
+  const results = await emit(`
+    op doWork(value: string): string;
+    op doMoreWork(value: string): string;
+  `);
+  console.log(results);
   expect(results["package.json"]).toBe(d`
     {
         "name": "test-package",
