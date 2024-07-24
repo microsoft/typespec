@@ -219,6 +219,11 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
       case SyntaxKind.ScalarConstructor:
         classify(node.id, SemanticTokenKind.Function);
         break;
+      case SyntaxKind.UsingStatement:
+        if (node.name.kind === SyntaxKind.Identifier) {
+          classify(node.name, SemanticTokenKind.Namespace);
+        }
+        break;
       case SyntaxKind.EnumStatement:
         classify(node.id, SemanticTokenKind.Enum);
         break;
@@ -291,6 +296,10 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
       case SyntaxKind.DocTemplateTag:
         classifyDocTag(node.tagName, SemanticTokenKind.DocCommentTag);
         classifyOverride(node.paramName, SemanticTokenKind.Variable);
+        break;
+      case SyntaxKind.DocPropTag:
+        classifyDocTag(node.tagName, SemanticTokenKind.DocCommentTag);
+        classifyOverride(node.propName, SemanticTokenKind.Variable);
         break;
       case SyntaxKind.DocReturnsTag:
         classifyDocTag(node.tagName, SemanticTokenKind.DocCommentTag);

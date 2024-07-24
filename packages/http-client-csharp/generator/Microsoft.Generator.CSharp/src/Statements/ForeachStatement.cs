@@ -1,46 +1,75 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Snippets;
 
-namespace Microsoft.Generator.CSharp.Expressions
+namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record ForeachStatement(CSharpType? ItemType, CodeWriterDeclaration Item, ValueExpression Enumerable, bool IsAsync) : MethodBodyStatement, IEnumerable<MethodBodyStatement>
+    public sealed class ForeachStatement : MethodBodyStatement, IEnumerable<MethodBodyStatement>
     {
+        public CSharpType? ItemType { get; }
+        public CodeWriterDeclaration Item { get; }
+        public ValueExpression Enumerable { get; }
+        public bool IsAsync { get; }
+
+        public ForeachStatement(CSharpType? itemType, CodeWriterDeclaration item, ValueExpression enumerable, bool isAsync)
+        {
+            ItemType = itemType;
+            Item = item;
+            Enumerable = enumerable;
+            IsAsync = isAsync;
+        }
+
         private readonly List<MethodBodyStatement> _body = new();
         public IReadOnlyList<MethodBodyStatement> Body => _body;
 
-        public ForeachStatement(CSharpType itemType, string itemName, ValueExpression enumerable, bool isAsync, out VariableReference item)
+        public ForeachStatement(CSharpType itemType, string itemName, ValueExpression enumerable, bool isAsync, out VariableExpression item)
             : this(itemType, new CodeWriterDeclaration(itemName), enumerable, isAsync)
         {
-            item = new VariableReference(itemType, Item);
+            item = new VariableExpression(itemType, Item);
         }
 
-        public ForeachStatement(string itemName, EnumerableExpression enumerable, out TypedValueExpression item)
+        public ForeachStatement(string itemName, ScopedApi enumerable, out VariableExpression item)
             : this(null, new CodeWriterDeclaration(itemName), enumerable, false)
         {
-            item = new VariableReference(enumerable.ItemType, Item);
+            item = new VariableExpression(enumerable.Type.Arguments[0], Item);
         }
 
-        public ForeachStatement(string itemName, EnumerableExpression enumerable, bool isAsync, out TypedValueExpression item)
+        public ForeachStatement(string itemName, ScopedApi enumerable, bool isAsync, out VariableExpression item)
             : this(null, new CodeWriterDeclaration(itemName), enumerable, isAsync)
         {
-            item = new VariableReference(enumerable.ItemType, Item);
+            item = new VariableExpression(enumerable.Type.Arguments[0], Item);
         }
 
         public ForeachStatement(string itemName, DictionaryExpression dictionary, out KeyValuePairExpression item)
             : this(null, new CodeWriterDeclaration(itemName), dictionary, false)
         {
-            var variable = new VariableReference(KeyValuePairExpression.GetType(dictionary.KeyType, dictionary.ValueType), Item);
-            item = new KeyValuePairExpression(dictionary.KeyType, dictionary.ValueType, variable);
+            var variable = new VariableExpression(dictionary.KeyValuePair, Item);
+            item = new(dictionary.KeyValuePair, variable);
         }
 
-        public void Add(MethodBodyStatement statement) => _body.Add(statement);
+        public static ForeachStatement Create<T>(string itemName, ScopedApi<IEnumerable<T>> enumerable, out ScopedApi<T> item)
+        {
+            var statement = new ForeachStatement(itemName, enumerable, out var variable);
+            item = variable.As<T>();
+            return statement;
+        }
+
+        public ForeachStatement Add(MethodBodyStatement statement)
+        {
+            _body.Add(statement);
+            return this;
+        }
+
         public IEnumerator<MethodBodyStatement> GetEnumerator() => _body.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_body).GetEnumerator();
 
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             using (writer.AmbientScope())
             {
@@ -58,13 +87,13 @@ namespace Microsoft.Generator.CSharp.Expressions
                 writer.Append($"{Item:D} in ");
                 Enumerable.Write(writer);
                 writer.WriteRawLine(")");
-
-                writer.WriteRawLine("{");
-                foreach (var bodyStatement in Body)
+                using (writer.Scope())
                 {
-                    bodyStatement.Write(writer);
+                    foreach (var bodyStatement in Body)
+                    {
+                        bodyStatement.Write(writer);
+                    }
                 }
-                writer.WriteRawLine("}");
             }
         }
     }

@@ -4,13 +4,13 @@ title: "[F] getId"
 
 ---
 ```ts
-getId(program, target): any
+function getId(program, target): any
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `target` | `Type` |
 

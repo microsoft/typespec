@@ -4,13 +4,13 @@ title: "[F] getListOperationType"
 
 ---
 ```ts
-getListOperationType(program, target): Model | undefined
+function getListOperationType(program, target): Model | undefined
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `target` | [`Type`](../type-aliases/Type.md) |
 

@@ -4,7 +4,7 @@ title: "[F] $versioned"
 
 ---
 ```ts
-$versioned(
+function $versioned(
    context, 
    target, 
    versions): void
@@ -13,7 +13,7 @@ $versioned(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Namespace` |
 | `versions` | `Enum` |

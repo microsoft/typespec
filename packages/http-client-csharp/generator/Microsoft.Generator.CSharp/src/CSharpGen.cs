@@ -9,10 +9,11 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Generator.CSharp
 {
-    public sealed class CSharpGen
+    internal sealed class CSharpGen
     {
         private const string ConfigurationFileName = "Configuration.json";
         private const string CodeModelFileName = "tspCodeModel.json";
+        private const string GeneratedFolderName = "Generated";
 
         private static readonly string[] _filesToKeep = [ConfigurationFileName, CodeModelFileName];
 
@@ -23,33 +24,31 @@ namespace Microsoft.Generator.CSharp
         {
             GeneratedCodeWorkspace.Initialize();
             var outputPath = CodeModelPlugin.Instance.Configuration.OutputDirectory;
-            var generatedTestOutputPath = Path.Combine(outputPath, "..", "..", "tests", "Generated");
+            var generatedSourceOutputPath = ParseGeneratedSourceOutputPath(outputPath);
+            var generatedTestOutputPath = Path.Combine(outputPath, "..", "..", "tests", GeneratedFolderName);
 
             GeneratedCodeWorkspace workspace = await GeneratedCodeWorkspace.Create();
 
             var output = CodeModelPlugin.Instance.OutputLibrary;
-            Directory.CreateDirectory(Path.Combine(outputPath, "src", "Generated", "Models"));
+            Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));
             List<Task> generateFilesTasks = new();
 
-            foreach (var model in output.Models)
+            // visit the entire library before generating files
+            foreach (var visitor in output.GetOutputLibraryVisitors() ?? [])
             {
-                CodeWriter writer = new CodeWriter();
-                CodeModelPlugin.Instance.GetWriter(writer, model).Write();
-                generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{model.Name}.cs"), writer.ToString()));
-
-                foreach (var serialization in model.SerializationProviders)
-                {
-                    CodeWriter serializationWriter = new CodeWriter();
-                    CodeModelPlugin.Instance.GetWriter(serializationWriter, serialization).Write();
-                    generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{serialization.Name}.Serialization.cs"), serializationWriter.ToString()));
-                }
+                visitor.Visit(output);
             }
 
-            foreach (var client in output.Clients)
+            foreach (var outputType in output.TypeProviders)
             {
-                CodeWriter writer = new CodeWriter();
-                CodeModelPlugin.Instance.GetWriter(writer, client).Write();
-                generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", $"{client.Name}.cs"), writer.ToString()));
+                var writer = CodeModelPlugin.Instance.GetWriter(outputType);
+                generateFilesTasks.Add(workspace.AddGeneratedFile(writer.Write()));
+
+                foreach (var serialization in outputType.SerializationProviders)
+                {
+                    writer = CodeModelPlugin.Instance.GetWriter(serialization);
+                    generateFilesTasks.Add(workspace.AddGeneratedFile(writer.Write()));
+                }
             }
 
             // Add all the generated files to the workspace
@@ -57,7 +56,7 @@ namespace Microsoft.Generator.CSharp
 
             if (CodeModelPlugin.Instance.Configuration.ClearOutputFolder)
             {
-                DeleteDirectory(outputPath, _filesToKeep);
+                DeleteDirectory(generatedSourceOutputPath, _filesToKeep);
                 DeleteDirectory(generatedTestOutputPath, _filesToKeep);
             }
 
@@ -80,12 +79,14 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="outputPath">The output path.</param>
         /// <returns>The parsed output path string.</returns>
-        internal static string ParseOutputPath(string outputPath)
+        internal static string ParseGeneratedSourceOutputPath(string outputPath)
         {
             if (!outputPath.EndsWith("src", StringComparison.Ordinal) && !outputPath.EndsWith("src/", StringComparison.Ordinal))
             {
                 outputPath = Path.Combine(outputPath, "src");
             }
+
+            outputPath = Path.Combine(outputPath, GeneratedFolderName);
 
             return outputPath;
         }

@@ -4,7 +4,7 @@ title: "[F] shouldInline"
 
 ---
 ```ts
-shouldInline(program, type): boolean
+function shouldInline(program, type): boolean
 ```
 
 Determines whether a type will be inlined in OpenAPI rather than defined
@@ -20,7 +20,7 @@ decorator, or chosen by default in simple cases.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `type` | `Type` |
 

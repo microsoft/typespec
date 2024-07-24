@@ -4,7 +4,7 @@ title: "[F] $validatesRawJson"
 
 ---
 ```ts
-$validatesRawJson(
+function $validatesRawJson(
    context, 
    target, 
    value): void
@@ -13,7 +13,7 @@ $validatesRawJson(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Model` |
 | `value` | `Type` |

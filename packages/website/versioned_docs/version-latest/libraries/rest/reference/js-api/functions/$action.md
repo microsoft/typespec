@@ -4,7 +4,7 @@ title: "[F] $action"
 
 ---
 ```ts
-$action(
+function $action(
    context, 
    target, 
    name?): void
@@ -13,7 +13,7 @@ $action(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Operation` |
 | `name`? | `string` |

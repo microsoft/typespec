@@ -4,15 +4,15 @@ title: "[F] getFullyQualifiedSymbolName"
 
 ---
 ```ts
-getFullyQualifiedSymbolName(sym, options?): string
+function getFullyQualifiedSymbolName(sym, options?): string
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `sym` | `undefined` \| [`Sym`](../interfaces/Sym.md) |
-| `options`? | `Object` |
+| `options`? | `object` |
 | `options.useGlobalPrefixAtTopLevel`? | `boolean` |
 
 ## Returns

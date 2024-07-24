@@ -292,7 +292,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
           program,
           addInputParams(operation.parameters, operation),
           operation,
-          operation.parameters
+          getEffectiveModelType(program, operation.parameters)
         );
 
     return {
@@ -442,7 +442,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
     reportDiagnostic(program, {
       code: "unsupported-intrinsic",
-      format: { type: t.name },
+      format: { name: t.name },
       target: t,
     });
 
@@ -557,7 +557,12 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     const keyProto = addType(keyType, relativeSource);
     const valueProto = addType(valueType, relativeSource) as ProtoRef | ProtoScalar;
 
-    return map(keyProto[1] as "string" | ScalarIntegralName, valueProto);
+    return map(
+      keyProto[1] as "string" | ScalarIntegralName,
+      valueType.kind === "Model"
+        ? addImportSourceForProtoIfNeeded(program, valueProto, relativeSource, valueType)
+        : valueProto
+    );
   }
 
   function arrayToProto(t: Model, relativeSource: Model | Operation): ProtoType {

@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Generator.CSharp.Providers;
 using NUnit.Framework;
-using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
@@ -16,33 +18,66 @@ namespace Microsoft.Generator.CSharp.Tests
         [SetUp]
         public void Setup()
         {
-            _outputLibrary = new MockOutputLibrary();
+            _outputLibrary = new TestOutputLibrary();
         }
 
-        // Tests that the BuildModels method is successfully overridden.
+        // Tests that the BuildTypeProviders method is successfully overridden.
         [Test]
-        public void BuildModels_Override()
+        public void BuildTypeProviders_Override()
         {
-            Assert.Throws<NotImplementedException>(() => { object shouldFail = _outputLibrary.Models; });
+            Assert.Throws<NotImplementedException>(() => { object shouldFail = _outputLibrary.TypeProviders; });
         }
 
-        // Tests that the BuildClients method is successfully overridden.
         [Test]
-        public void BuildClients_Override()
+        public void CanAddVisitors()
         {
-            Assert.Throws<NotImplementedException>(() => { object shouldFail = _outputLibrary.Clients; });
+            _outputLibrary.AddVisitor(new TestOutputLibraryVisitor());
+            Assert.AreEqual(1, _outputLibrary.GetOutputLibraryVisitors().Count());
         }
 
-        internal class MockOutputLibrary : OutputLibrary
+        [Test]
+        public void CanOverrideGetOutputLibraryVisitors()
         {
-            public MockOutputLibrary() : base() { }
+            var outputLibrary = new TestOutputLibraryOverridingVisitors(new [] { new TestOutputLibraryVisitor() });
+            Assert.AreEqual(1, outputLibrary.GetOutputLibraryVisitors().Count());
 
-            public override ModelTypeProvider[] BuildModels()
+            outputLibrary.AddVisitor(new TestOutputLibraryVisitor());
+            Assert.AreEqual(2, outputLibrary.GetOutputLibraryVisitors().Count());
+        }
+
+        private class TestOutputLibraryVisitor : OutputLibraryVisitor
+        {
+        }
+
+        private class TestOutputLibrary : OutputLibrary
+        {
+            protected override TypeProvider[] BuildTypeProviders()
             {
                 throw new NotImplementedException();
             }
+        }
 
-            public override ClientTypeProvider[] BuildClients()
+        private class TestOutputLibraryOverridingVisitors : OutputLibrary
+        {
+            private readonly IEnumerable<OutputLibraryVisitor>? _visitors;
+            public TestOutputLibraryOverridingVisitors(IEnumerable<OutputLibraryVisitor>? visitors = null)
+            {
+                _visitors = visitors;
+            }
+
+            protected internal override IEnumerable<OutputLibraryVisitor> GetOutputLibraryVisitors()
+            {
+                foreach (var visitor in base.GetOutputLibraryVisitors())
+                {
+                    yield return visitor;
+                }
+                foreach (var visitor in _visitors ?? [])
+                {
+                    yield return visitor;
+                }
+            }
+
+            protected override TypeProvider[] BuildTypeProviders()
             {
                 throw new NotImplementedException();
             }

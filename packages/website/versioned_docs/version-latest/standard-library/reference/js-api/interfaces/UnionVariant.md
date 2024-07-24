@@ -9,19 +9,20 @@ title: "[I] UnionVariant"
 
 ## Properties
 
-| Property | Type | Description | Overrides | Inherited from |
-| :------ | :------ | :------ | :------ | :------ |
-| `decorators` | [`DecoratorApplication`](DecoratorApplication.md)[] | - | [`DecoratedType`](DecoratedType.md).`decorators` | [`DecoratedType`](DecoratedType.md).`decorators` |
-| `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` | [`BaseType`](BaseType.md).`instantiationParameters` |
-| `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`BaseType`](BaseType.md).`isFinished` | [`BaseType`](BaseType.md).`isFinished` |
-| `kind` | `"UnionVariant"` | - | [`BaseType`](BaseType.md).`kind` | [`BaseType`](BaseType.md).`kind` |
-| `name` | `string` \| `symbol` | - | - | - |
-| `node` | `undefined` \| [`UnionVariantNode`](UnionVariantNode.md) | - | [`BaseType`](BaseType.md).`node` | [`BaseType`](BaseType.md).`node` |
-| `projectionBase?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` | [`BaseType`](BaseType.md).`projectionBase` |
-| `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` | [`BaseType`](BaseType.md).`projectionSource` |
-| `projector?` | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` | [`BaseType`](BaseType.md).`projector` |
-| `type` | [`Type`](../type-aliases/Type.md) | - | - | - |
-| `union` | [`Union`](Union.md) | - | - | - |
+| Property | Modifier | Type | Description | Overrides | Inherited from |
+| ------ | ------ | ------ | ------ | ------ | ------ |
+| `decorators` | `public` | [`DecoratorApplication`](DecoratorApplication.md)[] | - | - | [`DecoratedType`](DecoratedType.md).`decorators` |
+| `entityKind` | `readonly` | `"Type"` | - | - | [`BaseType`](BaseType.md).`entityKind` |
+| `instantiationParameters?` | `public` | [`Type`](../type-aliases/Type.md)[] | - | - | [`BaseType`](BaseType.md).`instantiationParameters` |
+| `isFinished` | `public` | `boolean` | Reflect if a type has been finished(Decorators have been called). There is multiple reasons a type might not be finished: - a template declaration will not - a template instance that argument that are still template parameters - a template instance that is only partially instantiated(like a templated operation inside a templated interface) | - | [`BaseType`](BaseType.md).`isFinished` |
+| `kind` | `public` | `"UnionVariant"` | - | [`BaseType`](BaseType.md).`kind` | - |
+| `name` | `public` | `string` \| `symbol` | - | - | - |
+| `node` | `public` | `undefined` \| [`UnionVariantNode`](UnionVariantNode.md) | - | [`BaseType`](BaseType.md).`node` | - |
+| `projectionBase?` | `public` | [`Type`](../type-aliases/Type.md) | - | - | [`BaseType`](BaseType.md).`projectionBase` |
+| `projectionSource?` | `public` | [`Type`](../type-aliases/Type.md) | - | - | [`BaseType`](BaseType.md).`projectionSource` |
+| `projector?` | `public` | [`Projector`](Projector.md) | - | - | [`BaseType`](BaseType.md).`projector` |
+| `type` | `public` | [`Type`](../type-aliases/Type.md) | - | - | - |
+| `union` | `public` | [`Union`](Union.md) | - | - | - |
 
 ## Accessors
 
@@ -35,6 +36,10 @@ get projections(): ProjectionStatementNode[]
 
 [`ProjectionStatementNode`](ProjectionStatementNode.md)[]
 
+#### Inherited from
+
+[`BaseType`](BaseType.md).[`projections`](BaseType.md#projections)
+
 ## Methods
 
 ### projectionsByName()
@@ -46,7 +51,7 @@ projectionsByName(name): ProjectionStatementNode[]
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `name` | `string` |
 
 #### Returns

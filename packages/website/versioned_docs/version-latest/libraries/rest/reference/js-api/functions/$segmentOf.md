@@ -4,7 +4,7 @@ title: "[F] $segmentOf"
 
 ---
 ```ts
-$segmentOf(
+function $segmentOf(
    context, 
    target, 
    type): void
@@ -13,7 +13,7 @@ $segmentOf(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Operation` |
 | `type` | `Model` |

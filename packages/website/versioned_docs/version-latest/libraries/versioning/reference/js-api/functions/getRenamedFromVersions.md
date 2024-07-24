@@ -4,13 +4,13 @@ title: "[F] getRenamedFromVersions"
 
 ---
 ```ts
-getRenamedFromVersions(p, t): Version[] | undefined
+function getRenamedFromVersions(p, t): Version[] | undefined
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `p` | `Program` |
 | `t` | `Type` |
 

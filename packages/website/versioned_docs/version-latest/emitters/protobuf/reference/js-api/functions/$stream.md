@@ -4,7 +4,7 @@ title: "[F] $stream"
 
 ---
 ```ts
-$stream(
+function $stream(
    context, 
    target, 
    mode): void
@@ -13,7 +13,7 @@ $stream(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Operation` |
 | `mode` | `Type` |

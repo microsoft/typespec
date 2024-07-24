@@ -4,7 +4,7 @@ title: "[F] validateRouteUnique"
 
 ---
 ```ts
-validateRouteUnique(
+function validateRouteUnique(
    program, 
    diagnostics, 
    operations): void
@@ -13,7 +13,7 @@ validateRouteUnique(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `diagnostics` | `DiagnosticCollector` |
 | `operations` | [`HttpOperation`](../interfaces/HttpOperation.md)[] |

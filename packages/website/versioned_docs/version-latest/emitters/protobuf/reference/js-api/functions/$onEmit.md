@@ -4,7 +4,7 @@ title: "[F] $onEmit"
 
 ---
 ```ts
-$onEmit(ctx): Promise<void>
+function $onEmit(ctx): Promise<void>
 ```
 
 Emitter main function.
@@ -12,7 +12,7 @@ Emitter main function.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `ctx` | `EmitContext`<`ProtobufEmitterOptions`\> |
 
 ## Returns

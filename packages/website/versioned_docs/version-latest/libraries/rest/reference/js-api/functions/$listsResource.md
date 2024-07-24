@@ -4,7 +4,7 @@ title: "[F] $listsResource"
 
 ---
 ```ts
-$listsResource(
+function $listsResource(
    context, 
    target, 
    resourceType): void
@@ -13,7 +13,7 @@ $listsResource(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Operation` |
 | `resourceType` | `Model` |

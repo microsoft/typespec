@@ -4,7 +4,7 @@ title: "[F] resolveRequestVisibility"
 
 ---
 ```ts
-resolveRequestVisibility(
+function resolveRequestVisibility(
    program, 
    operation, 
    verb): Visibility
@@ -16,7 +16,7 @@ Otherwise, returns the default visibility based on the HTTP verb for the operati
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | `Program` | - |
 | `operation` | `Operation` | The TypeSpec Operation for the request. |
 | `verb` | [`HttpVerb`](../type-aliases/HttpVerb.md) | The HTTP verb for the operation. |

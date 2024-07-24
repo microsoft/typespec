@@ -1,34 +1,37 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record DictionaryInitializerExpression(IReadOnlyList<(ValueExpression Key, ValueExpression Value)>? Values = null) : InitializerExpression
+    public sealed record DictionaryInitializerExpression(IReadOnlyDictionary<ValueExpression, ValueExpression> Values) : ObjectInitializerExpression(Values)
     {
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
-            if (Values is not { Count: > 0 })
+            var enumerator = Values.GetEnumerator();
+            if (!enumerator.MoveNext())
             {
-                writer.AppendRaw("{}");
+                writer.AppendRaw("{ }");
                 return;
             }
-
-            writer.WriteLine();
-            writer.WriteRawLine("{");
-            foreach (var (key, value) in Values)
+            using var scope = writer.Scope();
+            WriteItem(writer, enumerator.Current);
+            while (enumerator.MoveNext())
             {
-                writer.AppendRaw("[");
-                key.Write(writer);
-                writer.AppendRaw("] = ");
-                value.Write(writer);
                 writer.WriteRawLine(",");
+                WriteItem(writer, enumerator.Current);
             }
-
-            writer.RemoveTrailingComma();
             writer.WriteLine();
-            writer.AppendRaw("}");
+        }
+
+        private void WriteItem(CodeWriter writer, KeyValuePair<ValueExpression, ValueExpression> item)
+        {
+            writer.AppendRaw("{ ");
+            item.Key.Write(writer);
+            writer.AppendRaw(", ");
+            item.Value.Write(writer);
+            writer.AppendRaw(" }");
         }
     }
 }

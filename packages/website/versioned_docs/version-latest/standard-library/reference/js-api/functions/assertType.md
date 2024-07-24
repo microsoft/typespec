@@ -4,7 +4,7 @@ title: "[F] assertType"
 
 ---
 ```ts
-assertType<TKind>(
+function assertType<TKind>(
    typeDescription, 
    t, ...
    kinds): asserts t is Type & Object
@@ -12,39 +12,16 @@ assertType<TKind>(
 
 Assert that the input type has one of the kinds provided
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
-| `TKind` extends (
-  \| `"Scalar"`
-  \| `"ModelProperty"`
-  \| `"Model"`
-  \| `"Interface"`
-  \| `"Enum"`
-  \| `"EnumMember"`
-  \| `"TemplateParameter"`
-  \| `"Namespace"`
-  \| `"Operation"`
-  \| `"String"`
-  \| `"Number"`
-  \| `"Boolean"`
-  \| `"StringTemplate"`
-  \| `"StringTemplateSpan"`
-  \| `"Tuple"`
-  \| `"Union"`
-  \| `"UnionVariant"`
-  \| `"Intrinsic"`
-  \| `"Function"`
-  \| `"Decorator"`
-  \| `"FunctionParameter"`
-  \| `"Object"`
-  \| `"Projection"`)[] |
+| Type Parameter |
+| ------ |
+| `TKind` *extends* ( \| `"Boolean"` \| `"Decorator"` \| `"Enum"` \| `"EnumMember"` \| `"FunctionParameter"` \| `"Function"` \| `"Interface"` \| `"Intrinsic"` \| `"Model"` \| `"ModelProperty"` \| `"Namespace"` \| `"Number"` \| `"Object"` \| `"Operation"` \| `"Projection"` \| `"Scalar"` \| `"ScalarConstructor"` \| `"String"` \| `"StringTemplate"` \| `"StringTemplateSpan"` \| `"TemplateParameter"` \| `"Tuple"` \| `"Union"` \| `"UnionVariant"`)[] |
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `typeDescription` | `string` |
 | `t` | [`Type`](../type-aliases/Type.md) |
 | ...`kinds` | `TKind` |

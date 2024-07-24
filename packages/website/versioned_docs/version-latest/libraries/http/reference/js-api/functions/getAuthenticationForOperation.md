@@ -4,7 +4,7 @@ title: "[F] getAuthenticationForOperation"
 
 ---
 ```ts
-getAuthenticationForOperation(program, operation): Authentication | undefined
+function getAuthenticationForOperation(program, operation): Authentication | undefined
 ```
 
 Resolve the authentication for a given operation.
@@ -12,7 +12,7 @@ Resolve the authentication for a given operation.
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | `Program` | Program |
 | `operation` | `Operation` | Operation |
 

@@ -4,13 +4,13 @@ title: "[F] isListOperation"
 
 ---
 ```ts
-isListOperation(program, target): boolean
+function isListOperation(program, target): boolean
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `target` | [`Operation`](../interfaces/Operation.md) |
 

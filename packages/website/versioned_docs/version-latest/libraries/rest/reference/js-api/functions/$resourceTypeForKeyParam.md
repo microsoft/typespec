@@ -4,7 +4,7 @@ title: "[F] $resourceTypeForKeyParam"
 
 ---
 ```ts
-$resourceTypeForKeyParam(
+function $resourceTypeForKeyParam(
    context, 
    entity, 
    resourceType): void
@@ -13,7 +13,7 @@ $resourceTypeForKeyParam(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `entity` | `Type` |
 | `resourceType` | `Type` |

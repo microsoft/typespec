@@ -1,8 +1,8 @@
 import type { AstPath, Doc, Printer } from "prettier";
 import { builders } from "prettier/doc";
-import { isIdentifierContinue, isIdentifierStart, utf16CodeUnits } from "../../core/charcode.js";
+import { CharCode } from "../../core/charcode.js";
 import { compilerAssert } from "../../core/diagnostics.js";
-import { Keywords } from "../../core/scanner.js";
+import { printIdentifier as printIdentifierString } from "../../core/helpers/syntax-utils.js";
 import {
   AliasStatementNode,
   ArrayExpressionNode,
@@ -86,7 +86,20 @@ import { commentHandler } from "./comment-handler.js";
 import { needsParens } from "./needs-parens.js";
 import { DecorableNode, PrettierChildPrint, TypeSpecPrettierOptions } from "./types.js";
 import { util } from "./util.js";
-const { align, breakParent, group, hardline, ifBreak, indent, join, line, softline } = builders;
+
+const {
+  align,
+  breakParent,
+  group,
+  hardline,
+  ifBreak,
+  indent,
+  join,
+  line,
+  softline,
+  literalline,
+  markAsRoot,
+} = builders;
 
 const { isNextLineEmpty } = util as any;
 
@@ -362,6 +375,7 @@ export function printNode(
       return printDoc(path as AstPath<DocNode>, options, print);
     case SyntaxKind.DocText:
     case SyntaxKind.DocParamTag:
+    case SyntaxKind.DocPropTag:
     case SyntaxKind.DocTemplateTag:
     case SyntaxKind.DocReturnsTag:
     case SyntaxKind.DocErrorsTag:
@@ -454,7 +468,7 @@ export function printCallExpression(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const args = printCallOrDecoratorArgs(path, options, print);
+  const args = printCallLikeArgs(path, options, print);
   return [path.call(print, "target"), args];
 }
 
@@ -608,7 +622,7 @@ export function printDecorator(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const args = printCallOrDecoratorArgs(path, options, print);
+  const args = printDecoratorArgs(path, options, print);
   return ["@", path.call(print, "target"), args];
 }
 
@@ -671,8 +685,8 @@ export function printDirective(
   return ["#", path.call(print, "target"), " ", args];
 }
 
-function printCallOrDecoratorArgs(
-  path: AstPath<DecoratorExpressionNode | CallExpressionNode>,
+function printDecoratorArgs(
+  path: AstPath<DecoratorExpressionNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
@@ -681,14 +695,27 @@ function printCallOrDecoratorArgs(
     return "";
   }
 
+  return printCallLikeArgs(path, options, print);
+}
+
+function printCallLikeArgs(
+  path: AstPath<DecoratorExpressionNode | CallExpressionNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const node = path.node;
+
   // So that decorator with single object arguments have ( and { hugging.
-  // @deco({
+  // @deco(#{
   //   value: "foo"
   // })
   const shouldHug =
     node.arguments.length === 1 &&
     (node.arguments[0].kind === SyntaxKind.ModelExpression ||
-      node.arguments[0].kind === SyntaxKind.StringLiteral);
+      node.arguments[0].kind === SyntaxKind.ObjectLiteral ||
+      node.arguments[0].kind === SyntaxKind.ArrayLiteral ||
+      node.arguments[0].kind === SyntaxKind.StringLiteral ||
+      node.arguments[0].kind === SyntaxKind.StringTemplateExpression);
 
   if (shouldHug) {
     return [
@@ -1249,39 +1276,7 @@ export function printModelProperty(
 }
 
 function printIdentifier(id: IdentifierNode, options: TypeSpecPrettierOptions) {
-  return printId(id.sv);
-}
-
-export function printId(sv: string) {
-  if (needBacktick(sv)) {
-    const escapedString = sv
-      .replace(/\\/g, "\\\\")
-      .replace(/\n/g, "\\n")
-      .replace(/\r/g, "\\r")
-      .replace(/\t/g, "\\t")
-      .replace(/`/g, "\\`");
-    return `\`${escapedString}\``;
-  } else {
-    return sv;
-  }
-}
-
-function needBacktick(sv: string) {
-  if (sv.length === 0) {
-    return false;
-  }
-  if (Keywords.has(sv)) {
-    return true;
-  }
-  let cp = sv.codePointAt(0)!;
-  if (!isIdentifierStart(cp)) {
-    return true;
-  }
-  let pos = 0;
-  do {
-    pos += utf16CodeUnits(cp);
-  } while (pos < sv.length && isIdentifierContinue((cp = sv.codePointAt(pos)!)));
-  return pos < sv.length;
+  return printIdentifierString(id.sv);
 }
 
 function isModelExpressionInBlock(
@@ -1636,7 +1631,28 @@ function printStringLiteral(
   options: TypeSpecPrettierOptions
 ): Doc {
   const node = path.node;
-  return getRawText(node, options);
+  const multiline = isMultiline(node, options);
+
+  const raw = getRawText(node, options);
+  if (multiline) {
+    const lines = splitLines(raw.slice(3));
+    const whitespaceIndent = lines[lines.length - 1].length - 3;
+    const newLines = trimMultilineString(lines, whitespaceIndent);
+    return [`"""`, indent(markAsRoot(newLines))];
+  } else {
+    return raw;
+  }
+}
+
+function isMultiline(
+  node: StringLiteralNode | StringTemplateExpressionNode,
+  options: TypeSpecPrettierOptions
+) {
+  return (
+    options.originalText[node.pos] &&
+    options.originalText[node.pos + 1] === `"` &&
+    options.originalText[node.pos + 2] === `"`
+  );
 }
 
 function printNumberLiteral(
@@ -1870,14 +1886,79 @@ export function printStringTemplateExpression(
   print: PrettierChildPrint
 ) {
   const node = path.node;
-  const content = [
-    getRawText(node.head, options),
-    path.map((span: AstPath<StringTemplateSpanNode>) => {
-      const expression = span.call(print, "expression");
-      return [expression, getRawText(span.node.literal, options)];
-    }, "spans"),
-  ];
-  return content;
+  const multiline = isMultiline(node, options);
+  const rawHead = getRawText(node.head, options);
+  if (multiline) {
+    const lastSpan = node.spans[node.spans.length - 1];
+    const lastLines = splitLines(getRawText(lastSpan.literal, options));
+    const whitespaceIndent = lastLines[lastLines.length - 1].length - 3;
+    const content = [
+      trimMultilineString(splitLines(rawHead.slice(3)), whitespaceIndent),
+      path.map((span: AstPath<StringTemplateSpanNode>) => {
+        const expression = span.call(print, "expression");
+        const spanRawText = getRawText(span.node.literal, options);
+        const spanLines = splitLines(spanRawText);
+        return [
+          expression,
+          spanLines[0],
+          literalline,
+          trimMultilineString(spanLines.slice(1), whitespaceIndent),
+        ];
+      }, "spans"),
+    ];
+
+    return [`"""`, indent(markAsRoot([content]))];
+  } else {
+    const content = [
+      rawHead,
+      path.map((span: AstPath<StringTemplateSpanNode>) => {
+        const expression = span.call(print, "expression");
+        return [expression, getRawText(span.node.literal, options)];
+      }, "spans"),
+    ];
+    return content;
+  }
+}
+
+function splitLines(text: string): string[] {
+  const lines = [];
+  let start = 0;
+  let pos = 0;
+
+  while (pos < text.length) {
+    const ch = text.charCodeAt(pos);
+    switch (ch) {
+      case CharCode.CarriageReturn:
+        if (text.charCodeAt(pos + 1) === CharCode.LineFeed) {
+          lines.push(text.slice(start, pos));
+          start = pos;
+          pos++;
+        } else {
+          lines.push(text.slice(start, pos));
+          start = pos;
+        }
+        break;
+      case CharCode.LineFeed:
+        lines.push(text.slice(start, pos));
+        start = pos;
+        break;
+    }
+    pos++;
+  }
+
+  lines.push(text.slice(start));
+  return lines;
+}
+
+function trimMultilineString(lines: string[], whitespaceIndent: number): Doc[] {
+  const newLines = [];
+  for (let i = 0; i < lines.length; i++) {
+    newLines.push(lines[i].slice(whitespaceIndent));
+    if (i < lines.length - 1) {
+      newLines.push(literalline);
+    }
+  }
+  return newLines;
 }
 
 function printItemList<T extends Node>(

@@ -4,13 +4,13 @@ title: "[F] isSharedRoute"
 
 ---
 ```ts
-isSharedRoute(program, operation): boolean
+function isSharedRoute(program, operation): boolean
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `operation` | `Operation` |
 

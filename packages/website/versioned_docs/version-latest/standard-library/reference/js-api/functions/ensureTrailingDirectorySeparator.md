@@ -4,13 +4,13 @@ title: "[F] ensureTrailingDirectorySeparator"
 
 ---
 ```ts
-ensureTrailingDirectorySeparator(path): string
+function ensureTrailingDirectorySeparator(path): string
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 
 ## Returns

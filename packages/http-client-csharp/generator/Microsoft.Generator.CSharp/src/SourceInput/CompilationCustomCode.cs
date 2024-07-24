@@ -1,12 +1,13 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
+using Microsoft.Generator.CSharp.Primitives;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.SourceInput
 {
-    public abstract class CompilationCustomCode
+    internal abstract class CompilationCustomCode
     {
         protected Compilation _compilation;
 

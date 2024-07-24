@@ -7,6 +7,7 @@ import {
   DocContent,
   DocUnknownTagNode,
   Enum,
+  EnumMember,
   getDoc,
   getLocationContext,
   getSourceLocation,
@@ -16,7 +17,7 @@ import {
   isTemplateDeclaration,
   joinPaths,
   JSONSchemaType,
-  LinterDefinition,
+  LinterResolvedDefinition,
   LinterRuleDefinition,
   LinterRuleSet,
   Model,
@@ -29,6 +30,7 @@ import {
   NoTarget,
   Operation,
   Program,
+  resolveLinterDefinition,
   resolvePath,
   Scalar,
   SyntaxKind,
@@ -43,6 +45,7 @@ import { reportDiagnostic } from "./lib.js";
 import {
   DecoratorRefDoc,
   EmitterOptionRefDoc,
+  EnumMemberRefDoc,
   EnumRefDoc,
   ExampleRefDoc,
   FunctionParameterRefDoc,
@@ -109,7 +112,7 @@ export async function extractLibraryRefDocs(
     // eslint-disable-next-line deprecation/deprecation
     const linter = entrypoint.$linter ?? lib?.linter;
     if (lib && linter) {
-      refDoc.linter = extractLinterRefDoc(lib.name, linter);
+      refDoc.linter = extractLinterRefDoc(lib.name, resolveLinterDefinition(lib.name, linter));
     }
   }
 
@@ -457,8 +460,24 @@ function extractEnumRefDoc(program: Program, type: Enum): EnumRefDoc {
     type,
     doc: doc,
     examples: extractExamples(type),
+    members: new Map(
+      [...type.members.values()].map((x) => [x.name, extractEnumMemberRefDocs(program, x)])
+    ),
   };
 }
+
+function extractEnumMemberRefDocs(program: Program, type: EnumMember): EnumMemberRefDoc {
+  const doc = extractMainDoc(program, type);
+  return {
+    id: getNamedTypeId(type),
+    name: type.name,
+    signature: getTypeSignature(type),
+    type,
+    doc: doc,
+    examples: extractExamples(type),
+  };
+}
+
 function extractUnionRefDocs(program: Program, type: Union & { name: string }): UnionRefDoc {
   const doc = extractMainDoc(program, type);
   if (doc === undefined || doc === "") {
@@ -509,7 +528,7 @@ function extractMainDoc(program: Program, type: Type): string {
       mainDocs.push(dContent.text);
     }
   }
-  return mainDocs.length > 0 ? mainDocs.join("\n") : getDoc(program, type) ?? "";
+  return mainDocs.length > 0 ? mainDocs.join("\n") : (getDoc(program, type) ?? "");
 }
 
 function extractExamples(type: Type): ExampleRefDoc[] {
@@ -622,7 +641,7 @@ function extractEmitterOptionsRefDoc(
   });
 }
 
-function extractLinterRefDoc(libName: string, linter: LinterDefinition): LinterRefDoc {
+function extractLinterRefDoc(libName: string, linter: LinterResolvedDefinition): LinterRefDoc {
   return {
     ruleSets: linter.ruleSets && extractLinterRuleSetsRefDoc(libName, linter.ruleSets),
     rules: linter.rules.map((rule) => extractLinterRuleRefDoc(libName, rule)),

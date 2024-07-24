@@ -1,17 +1,18 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp
 {
-    public class DiagnosticScope : IDisposable
+    internal class DiagnosticScope : IDisposable
     {
-        private readonly CodeWriter.CodeWriterScope _scope;
+        private readonly CodeWriter.CodeScope _scope;
         private readonly CodeWriterDeclaration _scopeVariable;
         private readonly CodeWriter _writer;
 
-        public DiagnosticScope(CodeWriter.CodeWriterScope scope, CodeWriterDeclaration scopeVariable, CodeWriter writer)
+        public DiagnosticScope(CodeWriter.CodeScope scope, CodeWriterDeclaration scopeVariable, CodeWriter writer)
         {
             _scope = scope;
             _scopeVariable = scopeVariable;

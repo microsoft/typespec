@@ -4,13 +4,13 @@ title: "[F] $unwrapped"
 
 ---
 ```ts
-$unwrapped(context, target): void
+function $unwrapped(context, target): void
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `ModelProperty` |
 

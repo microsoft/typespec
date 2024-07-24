@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -24,16 +24,13 @@ namespace Microsoft.Generator.CSharp.Input
         public static InputLiteralType CreateInputLiteralType(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             var isFirstProperty = id == null && name == null;
-            bool isNullable = false;
             object? value = null;
             InputType? type = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadString(nameof(InputLiteralType.Name), ref name)
-                    || reader.TryReadBoolean(nameof(InputLiteralType.IsNullable), ref isNullable)
-                    || reader.TryReadWithConverter(nameof(InputLiteralType.LiteralValueType), options, ref type);
+                    || reader.TryReadWithConverter(nameof(InputLiteralType.ValueType), options, ref type);
 
                 if (isKnownProperty)
                 {
@@ -50,13 +47,11 @@ namespace Microsoft.Generator.CSharp.Input
                 }
             }
 
-            name = name ?? throw new JsonException($"{nameof(InputLiteralType)} must have a name.");
-
             type = type ?? throw new JsonException("InputConstant must have type");
 
             value = value ?? throw new JsonException("InputConstant must have value");
 
-            var literalType = new InputLiteralType(name, type, value, isNullable);
+            var literalType = new InputLiteralType(type, value);
 
             if (id != null)
             {
@@ -86,7 +81,7 @@ namespace Microsoft.Generator.CSharp.Input
             var kind = type switch
             {
                 InputPrimitiveType primitiveType => primitiveType.Kind,
-                InputEnumType enumType => enumType.EnumValueType.Kind,
+                InputEnumType enumType => enumType.ValueType.Kind,
                 _ => throw new JsonException($"Not supported literal type {type.GetType()}.")
             };
             object value = kind switch

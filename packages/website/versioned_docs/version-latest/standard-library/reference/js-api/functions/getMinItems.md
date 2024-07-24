@@ -4,13 +4,13 @@ title: "[F] getMinItems"
 
 ---
 ```ts
-getMinItems(program, target): number | undefined
+function getMinItems(program, target): number | undefined
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `target` | [`Type`](../type-aliases/Type.md) |
 

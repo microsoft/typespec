@@ -4,13 +4,13 @@ title: "[F] getContentMediaType"
 
 ---
 ```ts
-getContentMediaType(program, target): string
+function getContentMediaType(program, target): string
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `target` | `Type` |
 

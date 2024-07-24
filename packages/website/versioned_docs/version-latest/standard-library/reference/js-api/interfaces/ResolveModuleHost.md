@@ -16,7 +16,7 @@ Read a utf-8 encoded file.
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 
 #### Returns
@@ -36,7 +36,7 @@ Resolve the real path for the current host.
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 
 #### Returns
@@ -48,7 +48,7 @@ Resolve the real path for the current host.
 ### stat()
 
 ```ts
-stat(path): Promise<Object>
+stat(path): Promise<object>
 ```
 
 Get information about the given path
@@ -56,15 +56,14 @@ Get information about the given path
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 
 #### Returns
 
-`Promise`<`Object`\>
+`Promise`<`object`\>
 
-> | Member | Type |
-> | :------ | :------ |
-> | `isDirectory` | `boolean` |
-> | `isFile` | `boolean` |
->
+| Name | Type |
+| ------ | ------ |
+| `isDirectory` | `boolean` |
+| `isFile` | `boolean` |

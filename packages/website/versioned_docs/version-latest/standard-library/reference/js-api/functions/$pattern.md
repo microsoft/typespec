@@ -4,7 +4,7 @@ title: "[F] $pattern"
 
 ---
 ```ts
-$pattern(
+function $pattern(
    context, 
    target, 
    pattern, 
@@ -14,9 +14,9 @@ $pattern(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
-| `target` | [`Scalar`](../interfaces/Scalar.md) \| [`ModelProperty`](../interfaces/ModelProperty.md) |
+| `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
 | `pattern` | `string` |
 | `validationMessage`? | `string` |
 

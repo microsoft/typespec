@@ -2,47 +2,32 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using Microsoft.Generator.CSharp.ClientModel.Expressions;
-using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.CodeAnalysis;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
+    [Export(typeof(CodeModelPlugin))]
+    [ExportMetadata("PluginName", nameof(ClientModelPlugin))]
     public class ClientModelPlugin : CodeModelPlugin
     {
         private static ClientModelPlugin? _instance;
         internal static ClientModelPlugin Instance => _instance ?? throw new InvalidOperationException("ClientModelPlugin is not loaded.");
-        public override ApiTypes ApiTypes { get; }
-        public override CodeWriterExtensionMethods CodeWriterExtensionMethods { get; }
 
-        private OutputLibrary? _scmOutputLibrary;
+        private ScmOutputLibrary? _scmOutputLibrary;
         public override OutputLibrary OutputLibrary => _scmOutputLibrary ??= new();
 
-        public override TypeProviderWriter GetWriter(CodeWriter writer, TypeProvider provider) => new(writer, provider);
+        public override ScmTypeFactory TypeFactory { get; }
 
-        public override TypeFactory TypeFactory { get; }
-
-        public override ExtensibleSnippets ExtensibleSnippets { get; }
-
-        /// <summary>
-        /// Returns the serialization type providers for the given model type provider.
-        /// </summary>
-        /// <param name="provider">The model type provider.</param>
-        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelTypeProvider provider)
-        {
-            // Add JSON serialization type provider
-            return [new MrwSerializationTypeProvider(provider)];
-        }
+        public override IReadOnlyList<MetadataReference> AdditionalMetadataReferences => [MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location)];
 
         [ImportingConstructor]
         public ClientModelPlugin(GeneratorContext context)
             : base(context)
         {
             TypeFactory = new ScmTypeFactory();
-            ExtensibleSnippets = new SystemExtensibleSnippets();
-            ApiTypes = new SystemApiTypes();
-            CodeWriterExtensionMethods = new();
             _instance = this;
         }
     }

@@ -4,7 +4,7 @@ title: "[F] getVisibilitySuffix"
 
 ---
 ```ts
-getVisibilitySuffix(visibility, canonicalVisibility): string
+function getVisibilitySuffix(visibility, canonicalVisibility): string
 ```
 
 Provides a naming suffix to create a unique name for a type with this
@@ -24,7 +24,7 @@ Examples (with canonicalVisibility = Visibility.Read):
 ## Parameters
 
 | Parameter | Type | Default value |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `visibility` | [`Visibility`](../enumerations/Visibility.md) | `undefined` |
 | `canonicalVisibility` | `undefined` \| [`Visibility`](../enumerations/Visibility.md) | `Visibility.None` |
 

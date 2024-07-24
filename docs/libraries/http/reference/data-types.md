@@ -205,6 +205,20 @@ model TypeSpec.Http.CreatedResponse
 | ---------- | ----- | ---------------- |
 | statusCode | `201` | The status code. |
 
+### `File` {#TypeSpec.Http.File}
+
+```typespec
+model TypeSpec.Http.File
+```
+
+#### Properties
+
+| Name         | Type     | Description |
+| ------------ | -------- | ----------- |
+| contentType? | `string` |             |
+| filename?    | `string` |             |
+| contents     | `bytes`  |             |
+
 ### `ForbiddenResponse` {#TypeSpec.Http.ForbiddenResponse}
 
 Access is forbidden.
@@ -233,6 +247,35 @@ model TypeSpec.Http.HeaderOptions
 | ------- | --------------------------------------------------------------------- | --------------------------------------------------------- |
 | name?   | `string`                                                              | Name of the header when sent over HTTP.                   |
 | format? | `"csv" \| "multi" \| "tsv" \| "ssv" \| "pipes" \| "simple" \| "form"` | Determines the format of the array if type array is used. |
+
+### `HttpPart` {#TypeSpec.Http.HttpPart}
+
+```typespec
+model TypeSpec.Http.HttpPart<Type, Options>
+```
+
+#### Template Parameters
+
+| Name    | Description |
+| ------- | ----------- |
+| Type    |             |
+| Options |             |
+
+#### Properties
+
+None
+
+### `HttpPartOptions` {#TypeSpec.Http.HttpPartOptions}
+
+```typespec
+model TypeSpec.Http.HttpPartOptions
+```
+
+#### Properties
+
+| Name  | Type     | Description                                 |
+| ----- | -------- | ------------------------------------------- |
+| name? | `string` | Name of the part when using the array form. |
 
 ### `ImplicitFlow` {#TypeSpec.Http.ImplicitFlow}
 
@@ -499,6 +542,12 @@ Describes the location of the API key
 enum TypeSpec.Http.ApiKeyLocation
 ```
 
+| Name   | Value | Description                  |
+| ------ | ----- | ---------------------------- |
+| header |       | API key is a header value    |
+| query  |       | API key is a query parameter |
+| cookie |       | API key is found in a cookie |
+
 ### `AuthType` {#TypeSpec.Http.AuthType}
 
 Authentication type
@@ -507,6 +556,14 @@ Authentication type
 enum TypeSpec.Http.AuthType
 ```
 
+| Name          | Value | Description    |
+| ------------- | ----- | -------------- |
+| http          |       | HTTP           |
+| apiKey        |       | API key        |
+| oauth2        |       | OAuth2         |
+| openIdConnect |       | OpenID connect |
+| noAuth        |       | Empty auth     |
+
 ### `OAuth2FlowType` {#TypeSpec.Http.OAuth2FlowType}
 
 Describes the OAuth2 flow type
@@ -514,3 +571,10 @@ Describes the OAuth2 flow type
 ```typespec
 enum TypeSpec.Http.OAuth2FlowType
 ```
+
+| Name              | Value | Description             |
+| ----------------- | ----- | ----------------------- |
+| authorizationCode |       | authorization code flow |
+| implicit          |       | implicit flow           |
+| password          |       | password flow           |
+| clientCredentials |       | client credential flow  |

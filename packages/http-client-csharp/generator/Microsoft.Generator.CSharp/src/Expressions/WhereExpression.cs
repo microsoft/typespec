@@ -1,7 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
@@ -11,17 +12,17 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public WhereExpression And(ValueExpression constraint) => new(Type, new List<ValueExpression>(Constraints) { constraint });
 
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             writer
                 .AppendRaw("where ")
                 .Append($"{Type} : ");
-            foreach (var constraint in Constraints)
+            for (int i = 0; i < Constraints.Count; i++)
             {
-                constraint.Write(writer);
-                writer.AppendRaw(",");
+                Constraints[i].Write(writer);
+                if (i < Constraints.Count - 1)
+                    writer.AppendRaw(", ");
             }
-            writer.RemoveTrailingComma();
         }
     }
 }

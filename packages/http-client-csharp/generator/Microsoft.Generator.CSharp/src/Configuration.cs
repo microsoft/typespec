@@ -15,10 +15,15 @@ namespace Microsoft.Generator.CSharp
     {
         private const string ConfigurationFileName = "Configuration.json";
 
-        // TO-DO: decouple and refactor apitypes from configuration https://github.com/Azure/autorest.csharp/issues/4226
-#pragma warning disable CS0649 // Field 'Configuration._apiTypes' & 'Configuration.__extensibleSnippets' is never assigned to, and will always have its default value null
-        private ApiTypes? _apiTypes;
-#pragma warning restore CS0649 // Field 'Configuration._apiTypes' & 'Configuration.__extensibleSnippets' is never assigned to, and will always have its default value null
+        // for mocking
+        protected Configuration()
+        {
+            OutputDirectory = null!;
+            AdditionalConfigOptions = null!;
+            LibraryName = null!;
+            RootNamespace = null!;
+            ModelNamespace = null!;
+        }
 
         private Configuration(
             string outputPath,
@@ -39,7 +44,8 @@ namespace Microsoft.Generator.CSharp
             GenerateTestProject = generateTestProject;
             LibraryName = libraryName;
             UseModelNamespace = useModelNamespace;
-            Namespace = libraryNamespace;
+            RootNamespace = libraryNamespace;
+            ModelNamespace = useModelNamespace ? $"{libraryNamespace}.Models" : libraryNamespace;
         }
 
         /// <summary>
@@ -56,10 +62,11 @@ namespace Microsoft.Generator.CSharp
             public const string UseModelNamespace = "use-model-namespace";
         }
 
-        public ApiTypes ApiTypes => _apiTypes ?? throw new InvalidOperationException("Configuration has not been initialized");
+        /// <summary> Gets the root namespace for the library. </summary>
+        public string RootNamespace { get; }
 
-        /// Returns the singleton instance of the configuration.
-        public string Namespace { get; }
+        /// <summary> Gets the namespace for the models. </summary>
+        public string ModelNamespace { get; }
 
         internal string OutputDirectory { get; }
 
@@ -106,7 +113,7 @@ namespace Microsoft.Generator.CSharp
             var configFile = Path.Combine(outputPath, ConfigurationFileName);
             if (!File.Exists(configFile) && json is null)
             {
-                throw new InvalidOperationException($"Configuration file {outputPath} does not exist.");
+                throw new InvalidOperationException($"Configuration file {configFile} does not exist.");
             }
 
             var root = json is null
@@ -133,7 +140,7 @@ namespace Microsoft.Generator.CSharp
             { Options.UseModelNamespace, true },
             { Options.GenerateModelFactory, true },
             { Options.GenerateSampleProject, true },
-            { Options.ClearOutputFolder, false },
+            { Options.ClearOutputFolder, true },
             { Options.GenerateTestProject, false }
         };
 
@@ -167,7 +174,6 @@ namespace Microsoft.Generator.CSharp
         {
             return ReadStringOption(root, option) ?? throw new InvalidOperationException($"Unable to parse required option {option} from configuration.");
         }
-
 
         private static string? ReadStringOption(JsonElement root, string option)
         {

@@ -4,13 +4,13 @@ title: "[F] isComment"
 
 ---
 ```ts
-isComment(token): boolean
+function isComment(token): boolean
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `token` | [`Token`](../enumerations/Token.md) |
 
 ## Returns

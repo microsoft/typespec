@@ -4,7 +4,7 @@ title: "[F] setResourceTypeKey"
 
 ---
 ```ts
-setResourceTypeKey(
+function setResourceTypeKey(
    program, 
    resourceType, 
    keyProperty): void
@@ -13,7 +13,7 @@ setResourceTypeKey(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `resourceType` | `Model` |
 | `keyProperty` | `ModelProperty` |

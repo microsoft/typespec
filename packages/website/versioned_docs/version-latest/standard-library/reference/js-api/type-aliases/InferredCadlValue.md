@@ -11,8 +11,8 @@ type InferredCadlValue<K>: InferredTypeSpecValue<K>;
 
 Use InferredTypeSpecValue
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
-| `K` extends [`TypeKind`](TypeKind.md) |
+| Type Parameter |
+| ------ |
+| `K` *extends* [`TypeKind`](TypeKind.md) |

@@ -4,7 +4,7 @@ title: "[F] $doc"
 
 ---
 ```ts
-$doc(
+function $doc(
    context, 
    target, 
    doc, 
@@ -14,7 +14,7 @@ $doc(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Type`](../type-aliases/Type.md) |
 | `doc` | `string` |

@@ -1,5 +1,5 @@
 import { Diagnostic, Service } from "@typespec/compiler";
-import { ExtensionKey } from "@typespec/openapi";
+import { Contact, ExtensionKey, License } from "@typespec/openapi";
 
 export type Extensions = {
   [key in ExtensionKey]?: any;
@@ -96,6 +96,9 @@ export interface OpenAPI3Info extends Extensions {
   description?: string;
   termsOfService?: string;
   version: string;
+  contact?: Contact;
+  license?: License;
+  summary?: string;
 }
 
 export interface OpenAPI3Server {
@@ -174,6 +177,12 @@ export type OpenAPI3MediaType = Extensions & {
 
   /** A map between a property name and its encoding information. The key, being the property name, MUST exist in the schema as a property. The encoding object SHALL only apply to requestBody objects when the media type is multipart or application/x-www-form-urlencoded.  */
   encoding?: Record<string, OpenAPI3Encoding>;
+
+  /** Example */
+  example?: unknown;
+
+  /** Examples with title  */
+  examples?: Record<string, OpenAPI3Example>;
 };
 
 /**
@@ -349,8 +358,10 @@ export type OpenAPI3Link =
  * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#exampleObject
  */
 export interface OpenAPI3Example {
-  /** The name of the property MUST be one of the Operation produces values (either implicit or inherited). The value SHOULD be an example of what such a response would look like. */
-  [mineType: string]: unknown;
+  summary?: string;
+  description?: string;
+  value?: unknown;
+  externalValue?: string;
 }
 
 export interface OpenAPI3Discriminator extends Extensions {
@@ -668,6 +679,8 @@ export type OpenAPI3Operation = Extensions & {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface Ref<T> {
   $ref: string;
+  description?: string;
+  summary?: string;
 }
 
 export type Refable<T> = Ref<T> | T;

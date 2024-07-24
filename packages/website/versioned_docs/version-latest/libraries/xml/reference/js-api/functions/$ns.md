@@ -4,7 +4,7 @@ title: "[F] $ns"
 
 ---
 ```ts
-$ns(
+function $ns(
    context, 
    target, 
    ns, 
@@ -14,7 +14,7 @@ $ns(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Type` |
 | `ns` | `Type` |

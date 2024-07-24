@@ -1,5 +1,255 @@
 # Change Log - @typespec/compiler
 
+## 0.58.1
+
+### Bug Fixes
+
+- [#3875](https://github.com/microsoft/typespec/pull/3875) Fix issues with examples not working with `Array`, `Record`, `Union` and `unknown` types
+
+
+## 0.58.0
+
+### Bug Fixes
+
+- [#3623](https://github.com/microsoft/typespec/pull/3623) Fix crash of language server on firefox
+- [#3516](https://github.com/microsoft/typespec/pull/3516) Deprecate getAssetEmitter and recommend calling `createAssetEmitter` directly
+- [#3767](https://github.com/microsoft/typespec/pull/3767) Fix semantic highlighting of using of single namespace
+- [#3824](https://github.com/microsoft/typespec/pull/3824) Do not cast model expression to object value if the constraint is allowing the type
+- [#3577](https://github.com/microsoft/typespec/pull/3577) Fix formatting of object and array literal in decorator to hug parenthesis
+- [#3823](https://github.com/microsoft/typespec/pull/3823) Fix formatting of scalar constructor called with no args
+- [#3743](https://github.com/microsoft/typespec/pull/3743) Fix 'typespec vs install' command on windows
+- [#3605](https://github.com/microsoft/typespec/pull/3605) Fix templates initialized on node 22
+
+### Bump dependencies
+
+- [#3718](https://github.com/microsoft/typespec/pull/3718) Dependency updates July 2024
+
+### Features
+
+- [#3699](https://github.com/microsoft/typespec/pull/3699) Moved compiler dependencies to peer and dev for scaffolded projects.
+- [#3572](https://github.com/microsoft/typespec/pull/3572) Add new `@example` and `@opExample` decorator to provide examples on types and operations.
+
+  ```tsp
+  @example(#{
+    id: "some",
+    date: utcDateTime.fromISO("2020-01-01T00:00:00Z"),
+    timeout: duration.fromISO("PT1M"),
+  })
+  model Foo {
+    id: string;
+    date: utcDateTime;
+  
+    @encode("seconds", int32) timeout: duration;
+  }
+  ```
+  
+  ```tsp
+  @opExample(
+    #{
+      parameters: #{
+        pet: #{
+          id: "some",
+          name: "Fluffy",
+          dob: plainDate.fromISO("2020-01-01"),
+        },
+      },
+      returnType: #{
+        id: "some",
+        name: "Fluffy",
+        dob: plainDate.fromISO("2020-01-01"),
+      },
+    },
+    #{ title: "First", description: "Show creating a pet" }
+  )
+  op createPet(pet: Pet): Pet;
+  ```
+- [#3751](https://github.com/microsoft/typespec/pull/3751) Adds option to `tsp init` to generate .gitignore file
+
+### Breaking Changes
+
+- [#3793](https://github.com/microsoft/typespec/pull/3793) Do not carry over `@friendlyName` with `model is` or `op is`
+
+  ```tsp
+  @friendlyName("Abc{T}", T)
+  model Foo<T> {}
+  
+  model Bar is Foo<string>;
+  
+  // This can be changed to
+  model Abcstring is Foo<string>;
+  ```
+- [#3659](https://github.com/microsoft/typespec/pull/3659) Disallows overriding a required inherited property with an optional property.
+
+In previous versions of TypeSpec, it was possible to override a required property with an optional property. This is no longer allowed. This change may result in errors in your code if you were relying on this bug, but specifications that used this behavior are likely to have been exposed to errors resulting from incoherent type checking behavior.
+
+The following example demonstrates the behavior that is no longer allowed:
+
+```tsp
+model Base {
+  example: string;
+}
+
+model Child extends Base {
+  example?: string;
+}
+```
+
+In this example, the `Child` model overrides the `example` property from the `Base` model with an optional property. This is no longer allowed.
+
+
+## 0.57.0
+
+
+### Breaking changes
+
+- [#3022](https://github.com/microsoft/typespec/pull/3022) Addition of new `const` keyword means using `const` as a property name or decorator name will result in an error. This can be fixed by wrapping the property in backtick.
+
+```tsp
+model Test {
+  // error
+  const: string;
+
+  // correct
+  `const`: string;
+
+}
+```
+
+### Bug Fixes
+
+- [#3399](https://github.com/microsoft/typespec/pull/3399) Preserve leading whitespace in fenced blocks in doc comments
+- [#3566](https://github.com/microsoft/typespec/pull/3566) [API] Do not run decorators on cloned type if the original type wasn't finished
+- [#3522](https://github.com/microsoft/typespec/pull/3522) Fix EINVAL error when running `tsp code install`
+- [#3371](https://github.com/microsoft/typespec/pull/3371) Numeric not handling trailing zeros and causing freeze(e.g. `const a = 100.0`)
+- [#3451](https://github.com/microsoft/typespec/pull/3451) Emitter framework: fix losing context when referencing circular types
+- [#3517](https://github.com/microsoft/typespec/pull/3517) Fix application of `@param` doc tag on operation create with `op is` to override upstream doc
+- [#3488](https://github.com/microsoft/typespec/pull/3488) Add `PickProperties` type to dynamically select a subset of a model
+
+### Bump dependencies
+
+- [#3401](https://github.com/microsoft/typespec/pull/3401) Update dependencies - May 2024
+
+### Features
+
+- [#3280](https://github.com/microsoft/typespec/pull/3280) Support completion for Model with extended properties
+
+  Example
+  ```tsp
+  model Device {
+    name: string;
+    description: string;
+  }
+
+  model Phone extends Device {
+    ┆
+  } | [name]
+    | [description]
+  ```
+- [#3280](https://github.com/microsoft/typespec/pull/3280) Support completion for object values and model expression properties.
+
+  Example
+  ```tsp
+  model User {
+    name: string;
+    age: int32;
+    address: string;
+  }
+
+  const user: User = #{name: "Bob", ┆}
+                                    | [age]
+                                    | [address]
+  ```
+- [#3375](https://github.com/microsoft/typespec/pull/3375) Allow `@` to be escaped in doc comment with `\`
+- [#3022](https://github.com/microsoft/typespec/pull/3022) Add syntax for declaring values. [See docs](https://typespec.io/docs/language-basics/values).
+
+Object and array values
+```tsp
+@dummy(#{
+  name: "John",
+  age: 48,
+  address: #{ city: "London" }
+  aliases: #["Bob", "Frank"]
+})
+```
+
+Scalar constructors
+
+```tsp
+scalar utcDateTime {
+  init fromISO(value: string);
+}
+
+model DateRange {
+  minDate: utcDateTime = utcDateTime.fromISO("2024-02-15T18:36:03Z");
+}
+```
+- [#3527](https://github.com/microsoft/typespec/pull/3527) Add support for `@prop` doc comment tag to describe model properties
+- [#3422](https://github.com/microsoft/typespec/pull/3422) Formatter: Indent or dedent multiline strings to the current indentation
+- [#3460](https://github.com/microsoft/typespec/pull/3460) Hide deprecated items from completion list
+- [#3443](https://github.com/microsoft/typespec/pull/3443) Support completion for keyword 'extends' and 'is'
+
+  Example
+  ```tsp
+  model Dog ┆ {}
+            | [extends]
+            | [is]
+  
+  scalar Addresss ┆ 
+                  | [extends]
+
+  op jump ┆ 
+          | [is]
+  
+  interface ResourceA ┆ {}
+                      | [extends]
+
+  model Cat<T ┆> {}
+              | [extends]
+  ```
+- [#3462](https://github.com/microsoft/typespec/pull/3462) Linter `all` rulesets is automatically created if not explicitly provided
+- [#3533](https://github.com/microsoft/typespec/pull/3533) More logs and traces are added for diagnostic and troubleshooting in TypeSpec language server
+
+### Deprecations
+
+- [#3022](https://github.com/microsoft/typespec/pull/3022) Using a tuple type as a value is deprecated. Tuple types in contexts where values are expected must be updated to be array values instead. A codefix is provided to automatically convert tuple types into array values.
+
+```tsp
+model Test {
+  // Deprecated
+  values: string[] = ["a", "b", "c"];
+  
+  // Correct
+  values: string[] = #["a", "b", "c"];
+```
+- [#3022](https://github.com/microsoft/typespec/pull/3022) Using a model type as a value is deprecated. Model types in contexts where values are expected must be updated to be object values instead. A codefix is provided to automatically convert model types into object values.
+
+```tsp
+model Test {
+  // Deprecated
+  user: {name: string} = {name: "System"};
+  
+  // Correct
+  user: {name: string} = #{name: "System"};
+```
+- [#3022](https://github.com/microsoft/typespec/pull/3022) Decorator API: Legacy marshalling logic
+
+With the introduction of values, the decorator marshalling behavior has changed in some cases. This behavior is opt-in by setting the `valueMarshalling` package flag to `"new"`, but will be the default behavior in future versions. It is strongly recommended to adopt this new behavior as soon as possible.
+
+
+  Example: 
+  ```tsp
+  extern dec multipleOf(target: numeric | Reflection.ModelProperty, value: valueof numeric);
+  ```
+  Will now emit a deprecated warning because `value` is of type `valueof string` which would marshall to `Numeric` under the new logic but as `number` previously.
+
+  To opt-in you can add the following to your library js/ts files.
+  ```ts
+  export const $flags = definePackageFlags({
+    decoratorArgMarshalling: "new",
+  });
+  ```
+
+
 ## 0.56.0
 
 ### Bug Fixes

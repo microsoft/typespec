@@ -4,7 +4,7 @@ title: "[F] $projectedName"
 
 ---
 ```ts
-$projectedName(
+function $projectedName(
    context, 
    target, 
    targetName, 
@@ -16,7 +16,7 @@ $projectedName(
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) | DecoratorContext |
 | `target` | [`Type`](../type-aliases/Type.md) | The that should have a different name. |
 | `targetName` | `string` | - |

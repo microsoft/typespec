@@ -1,13 +1,14 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
     public sealed record FuncExpression(IReadOnlyList<CodeWriterDeclaration?> Parameters, ValueExpression Inner) : ValueExpression
     {
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             using (writer.AmbientScope())
             {
@@ -26,8 +27,9 @@ namespace Microsoft.Generator.CSharp.Expressions
                 else
                 {
                     writer.AppendRaw("(");
-                    foreach (var parameter in Parameters)
+                    for (int i = 0; i < Parameters.Count; i++)
                     {
+                        var parameter = Parameters[i];
                         if (parameter is not null)
                         {
                             writer.WriteDeclaration(parameter);
@@ -36,10 +38,9 @@ namespace Microsoft.Generator.CSharp.Expressions
                         {
                             writer.AppendRaw("_");
                         }
-                        writer.AppendRaw(", ");
+                        if (i < Parameters.Count - 1)
+                            writer.AppendRaw(", ");
                     }
-
-                    writer.RemoveTrailingComma();
                     writer.AppendRaw(")");
                 }
 

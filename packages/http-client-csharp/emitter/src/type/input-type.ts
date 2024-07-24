@@ -1,107 +1,131 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+import { AccessFlags, SdkBuiltInKinds } from "@azure-tools/typespec-client-generator-core";
+import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler";
 import { InputEnumTypeValue } from "./input-enum-type-value.js";
-import { InputIntrinsicTypeKind } from "./input-intrinsic-type-kind.js";
 import { InputModelProperty } from "./input-model-property.js";
-import { InputPrimitiveTypeKind } from "./input-primitive-type-kind.js";
-import { InputTypeKind } from "./input-type-kind.js";
 
-export interface InputType {
-  Name: string;
-  Kind: InputTypeKind;
-  IsNullable: boolean;
+interface InputTypeBase {
+  Kind: string;
+  Description?: string;
+  Deprecation?: string;
 }
 
-export interface InputPrimitiveType extends InputType {
-  Name: InputPrimitiveTypeKind;
+export type InputType =
+  | InputPrimitiveType
+  | InputDateTimeType
+  | InputDurationType
+  | InputLiteralType
+  | InputUnionType
+  | InputModelType
+  | InputEnumType
+  | InputArrayType
+  | InputDictionaryType
+  | InputNullableType;
+
+export interface InputPrimitiveType extends InputTypeBase {
+  Kind: SdkBuiltInKinds;
+  Encode?: string; // In TCGC this is required, and when there is no encoding, it just has the same value as kind
 }
 
-export interface InputLiteralType extends InputType {
-  Kind: InputTypeKind.Literal;
-  Name: InputTypeKind.Literal; // literal type does not really have a name right now, we just use its kind
-  LiteralValueType: InputType;
-  Value: any;
+export interface InputLiteralType extends InputTypeBase {
+  Kind: "constant";
+  ValueType: InputPrimitiveType | InputEnumType; // this has to be inconsistent because currently we have possibility of having an enum underlying the literal type
+  Value: string | number | boolean | null;
 }
 
 export function isInputLiteralType(type: InputType): type is InputLiteralType {
-  return type.Kind === InputTypeKind.Literal;
+  return type.Kind === "constant";
 }
 
-export interface InputUnionType extends InputType {
-  Kind: InputTypeKind.Union;
-  Name: InputTypeKind.Union; // union type does not really have a name right now, we just use its kind
-  UnionItemTypes: InputType[];
+export type InputDateTimeType = InputUtcDateTimeType | InputOffsetDateTimeType;
+
+interface InputDateTimeTypeBase extends InputTypeBase {
+  Encode: DateTimeKnownEncoding;
+  WireType: InputPrimitiveType;
+}
+
+export interface InputUtcDateTimeType extends InputDateTimeTypeBase {
+  Kind: "utcDateTime";
+}
+
+export interface InputOffsetDateTimeType extends InputDateTimeTypeBase {
+  Kind: "offsetDateTime";
+}
+
+export interface InputDurationType extends InputTypeBase {
+  Kind: "duration";
+  Encode: DurationKnownEncoding;
+  WireType: InputPrimitiveType;
+}
+
+export interface InputUnionType extends InputTypeBase {
+  Kind: "union";
+  Name: string;
+  VariantTypes: InputType[];
 }
 
 export function isInputUnionType(type: InputType): type is InputUnionType {
-  return type.Kind === InputTypeKind.Union;
+  return type.Kind === "union";
 }
 
-export interface InputModelType extends InputType {
-  Kind: InputTypeKind.Model;
-  Name: string;
-  Namespace?: string;
-  Accessibility?: string;
-  Deprecated?: string;
-  Description?: string;
-  Usage: string;
+export interface InputModelType extends InputTypeBase {
+  Kind: "model";
   Properties: InputModelProperty[];
-  BaseModel?: InputModelType;
-  DiscriminatorPropertyName?: string;
+  Name: string;
+  CrossLanguageDefinitionId: string;
+  Access?: AccessFlags;
+  Usage: string; // TODO -- replace this with UsageFlags in TCGC
+  AdditionalProperties?: InputType;
   DiscriminatorValue?: string;
-  DerivedModels?: InputModelType[];
-  InheritedDictionaryType?: InputDictionaryType;
+  DiscriminatedSubtypes?: Record<string, InputModelType>;
+  DiscriminatorProperty?: InputModelProperty;
+  BaseModel?: InputModelType;
 }
 
 export function isInputModelType(type: InputType): type is InputModelType {
-  return type.Kind === InputTypeKind.Model;
+  return type.Kind === "model";
 }
 
-export interface InputEnumType extends InputType {
-  Kind: InputTypeKind.Enum;
+export interface InputEnumType extends InputTypeBase {
+  Kind: "enum";
   Name: string;
-  EnumValueType: string;
-  AllowedValues: InputEnumTypeValue[];
-  Namespace?: string;
+  CrossLanguageDefinitionId: string;
+  ValueType: InputPrimitiveType;
+  Values: InputEnumTypeValue[];
   Accessibility?: string;
   Deprecated?: string;
-  Description?: string;
   IsExtensible: boolean;
   Usage: string;
 }
 
+export interface InputNullableType extends InputTypeBase {
+  Kind: "nullable";
+  Type: InputType;
+}
+
 export function isInputEnumType(type: InputType): type is InputEnumType {
-  return type.Kind === InputTypeKind.Enum;
+  return type.Kind === "enum";
 }
 
-export interface InputListType extends InputType {
-  Kind: InputTypeKind.Array;
-  Name: InputTypeKind.Array; // array type does not really have a name right now, we just use its kind
-  ElementType: InputType;
+export interface InputArrayType extends InputTypeBase {
+  Kind: "array";
+  Name: string;
+  ValueType: InputType;
+  CrossLanguageDefinitionId: string;
 }
 
-export function isInputListType(type: InputType): type is InputListType {
-  return type.Kind === InputTypeKind.Array;
+export function isInputArrayType(type: InputType): type is InputArrayType {
+  return type.Kind === "array";
 }
 
-export interface InputDictionaryType extends InputType {
-  Kind: InputTypeKind.Dictionary;
-  Name: InputTypeKind.Dictionary; // dictionary type does not really have a name right now, we just use its kind
+export interface InputDictionaryType extends InputTypeBase {
+  Kind: "dict";
   KeyType: InputType;
   ValueType: InputType;
 }
 
 export function isInputDictionaryType(type: InputType): type is InputDictionaryType {
-  return type.Kind === InputTypeKind.Dictionary;
-}
-
-export interface InputIntrinsicType extends InputType {
-  Kind: InputTypeKind.Intrinsic;
-  Name: InputIntrinsicTypeKind;
-  IsNullable: false;
-}
-
-export function isInputIntrinsicType(type: InputType): type is InputIntrinsicType {
-  return type.Kind === InputTypeKind.Intrinsic;
+  return type.Kind === "dict";
 }

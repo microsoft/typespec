@@ -4,13 +4,13 @@ title: "[F] $onValidate"
 
 ---
 ```ts
-$onValidate(program): void
+function $onValidate(program): void
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 
 ## Returns

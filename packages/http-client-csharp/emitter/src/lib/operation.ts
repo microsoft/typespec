@@ -3,23 +3,25 @@
 
 import { getLroMetadata } from "@azure-tools/typespec-azure-core";
 import {
-  SdkContext,
   getAccess,
   isApiVersion,
+  SdkContext,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
 } from "@azure-tools/typespec-client-generator-core";
 import {
-  Model,
-  ModelProperty,
-  Namespace,
-  Operation,
   getDeprecated,
   getDoc,
   getSummary,
   isErrorModel,
+  Model,
+  ModelProperty,
+  Namespace,
+  Operation,
+  Type,
 } from "@typespec/compiler";
 import { HttpOperation, HttpOperationParameter, HttpOperationResponse } from "@typespec/http";
+import { getExtensions } from "@typespec/openapi";
 import { getResourceOperation } from "@typespec/rest";
 import { NetEmitterOptions } from "../options.js";
 import { BodyMediaType, typeToBodyMediaType } from "../type/body-media-type.js";
@@ -29,10 +31,9 @@ import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputOperation } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
-import { InputTypeKind } from "../type/input-type-kind.js";
 import {
+  InputArrayType,
   InputEnumType,
-  InputListType,
   InputModelType,
   InputType,
   isInputEnumType,
@@ -45,7 +46,7 @@ import { OperationLongRunning } from "../type/operation-long-running.js";
 import { OperationPaging } from "../type/operation-paging.js";
 import { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation, requestLocationMap } from "../type/request-location.js";
-import { RequestMethod, parseHttpRequestMethod } from "../type/request-method.js";
+import { parseHttpRequestMethod, RequestMethod } from "../type/request-method.js";
 import { Usage } from "../type/usage.js";
 import { getExternalDocs, getOperationId, hasDecorator } from "./decorators.js";
 import { Logger } from "./logger.js";
@@ -79,13 +80,20 @@ export function loadOperation(
     parameters.push(loadOperationParameter(sdkContext, p));
   }
 
-  if (typespecParameters.body?.parameter) {
-    parameters.push(loadBodyParameter(sdkContext, typespecParameters.body?.parameter));
-  } else if (typespecParameters.body?.type) {
-    const effectiveBodyType = getEffectiveSchemaType(sdkContext, typespecParameters.body.type);
-    if (effectiveBodyType.kind === "Model") {
+  if (typespecParameters.body?.property && !isVoidType(typespecParameters.body.type)) {
+    parameters.push(loadBodyParameter(sdkContext, typespecParameters.body?.property));
+  } else if (typespecParameters.body?.type && !isVoidType(typespecParameters.body.type)) {
+    const rawBodyType = typespecParameters.body.type;
+    if (rawBodyType.kind === "Model") {
+      const effectiveBodyType = getEffectiveSchemaType(
+        sdkContext,
+        typespecParameters.body.type
+      ) as Model;
       const bodyParameter = loadBodyParameter(sdkContext, effectiveBodyType);
-      if (effectiveBodyType.name === "") {
+      if (
+        effectiveBodyType.name === "" ||
+        rawBodyType.sourceModels.some((m) => m.usage === "spread")
+      ) {
         bodyParameter.Kind = InputOperationParameterKind.Spread;
       }
       // TODO: remove this after https://github.com/Azure/typespec-azure/issues/69 is resolved
@@ -133,15 +141,15 @@ export function loadOperation(
     if (isInputLiteralType(contentTypeParameter.Type)) {
       mediaTypes.push(contentTypeParameter.DefaultValue?.Value);
     } else if (isInputUnionType(contentTypeParameter.Type)) {
-      const mediaTypeValues = contentTypeParameter.Type.UnionItemTypes.map((item) =>
-        isInputLiteralType(item) ? item.Value : undefined
-      );
-      if (mediaTypeValues.some((item) => item === undefined)) {
-        throw "Media type of content type should be string.";
+      for (const unionItem of contentTypeParameter.Type.VariantTypes) {
+        if (isInputLiteralType(unionItem)) {
+          mediaTypes.push(unionItem.Value as string);
+        } else {
+          throw "Media type of content type should be string.";
+        }
       }
-      mediaTypes.push(...mediaTypeValues);
     } else if (isInputEnumType(contentTypeParameter.Type)) {
-      const mediaTypeValues = contentTypeParameter.Type.AllowedValues.map((value) => value.Value);
+      const mediaTypeValues = contentTypeParameter.Type.Values.map((value) => value.Value);
       if (mediaTypeValues.some((item) => item === undefined)) {
         throw "Media type of content type should be string.";
       }
@@ -200,6 +208,10 @@ export function loadOperation(
     GenerateConvenienceMethod: generateConvenience,
   } as InputOperation;
 
+  function isVoidType(type: Type): boolean {
+    return type.kind === "Intrinsic" && type.name === "void";
+  }
+
   function loadOperationParameter(
     context: SdkContext<NetEmitterOptions>,
     parameter: HttpOperationParameter
@@ -221,7 +233,7 @@ export function loadOperation(
     const isContentType: boolean =
       requestLocation === RequestLocation.Header && name.toLowerCase() === "content-type";
     const kind: InputOperationParameterKind =
-      isContentType || inputType.Kind === InputTypeKind.Literal
+      isContentType || inputType.Kind === "constant"
         ? InputOperationParameterKind.Constant
         : isApiVer
           ? defaultValue
@@ -240,8 +252,10 @@ export function loadOperation(
       IsResourceParameter: false,
       IsContentType: isContentType,
       IsEndpoint: false,
-      SkipUrlEncoding: false, //TODO: retrieve out value from extension
-      Explode: (inputType as InputListType).ElementType && format === "multi" ? true : false,
+      SkipUrlEncoding:
+        // TODO: update this when https://github.com/Azure/typespec-azure/issues/1022 is resolved
+        getExtensions(program, param).get("x-ms-skip-url-encoding") === true,
+      Explode: (inputType as InputArrayType).ValueType && format === "multi" ? true : false,
       Kind: kind,
       ArraySerializationDelimiter: format ? collectionFormatToDelimMap[format] : undefined,
     } as InputParameter;
@@ -328,7 +342,7 @@ export function loadOperation(
       return undefined;
     }
 
-    let bodyType: InputType | undefined = undefined;
+    let bodyType = undefined;
     if (
       op.verb !== "delete" &&
       metadata.finalResult !== undefined &&

@@ -1,15 +1,24 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record KeyValuePairExpression(CSharpType KeyType, CSharpType ValueType, ValueExpression Untyped) : TypedValueExpression(GetType(KeyType, ValueType), Untyped)
+    public sealed record KeyValuePairExpression(KeyValuePairType Type, ValueExpression Original)
+        : ValueExpression(Original)
     {
-        public TypedValueExpression Key => new TypedMemberExpression(Untyped, nameof(KeyValuePair<string, string>.Key), KeyType);
-        public TypedValueExpression Value => new TypedMemberExpression(Untyped, nameof(KeyValuePair<string, string>.Value), ValueType);
+        public CSharpType KeyType => Type.KeyType;
+        public CSharpType ValueType => Type.ValueType;
 
-        public static CSharpType GetType(CSharpType keyType, CSharpType valueType) => new(typeof(KeyValuePair<,>), false, keyType, valueType);
+        public ValueExpression Key => Property(nameof(KeyValuePair<object, object>.Key));
+
+        public ValueExpression Value => Property(nameof(KeyValuePair<object, object>.Value));
+
+        internal override void Write(CodeWriter writer)
+        {
+            Original.Write(writer);
+        }
     }
 }

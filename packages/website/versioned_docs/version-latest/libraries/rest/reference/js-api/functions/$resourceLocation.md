@@ -4,7 +4,7 @@ title: "[F] $resourceLocation"
 
 ---
 ```ts
-$resourceLocation(
+function $resourceLocation(
    context, 
    target, 
    resourceType): void
@@ -13,7 +13,7 @@ $resourceLocation(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Scalar` |
 | `resourceType` | `Model` |

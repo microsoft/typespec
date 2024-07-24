@@ -4,7 +4,7 @@ title: "[F] isApplicableMetadata"
 
 ---
 ```ts
-isApplicableMetadata(
+function isApplicableMetadata(
    program, 
    property, 
    visibility, 
@@ -23,7 +23,7 @@ given visibility.
 ## Parameters
 
 | Parameter | Type | Default value |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | `Program` | `undefined` |
 | `property` | `ModelProperty` | `undefined` |
 | `visibility` | [`Visibility`](../enumerations/Visibility.md) | `undefined` |

@@ -350,7 +350,7 @@ describe("compiler: built-in decorators", () => {
 
   describe("@friendlyName", () => {
     it("applies @friendlyName on model", async () => {
-      const { A, B, C } = await runner.compile(`
+      const { A, B } = await runner.compile(`
         @test
         @friendlyName("MyNameIsA")
         model A { }
@@ -363,13 +363,22 @@ describe("compiler: built-in decorators", () => {
         model Templated<T> {
           prop: T;
         }
-
-        @test
-        model C is Templated<B>{};
         `);
       strictEqual(getFriendlyName(runner.program, A), "MyNameIsA");
       strictEqual(getFriendlyName(runner.program, B), "BModel");
-      strictEqual(getFriendlyName(runner.program, C), "TemplatedB");
+    });
+
+    it(" @friendlyName doesn't carry over to derived models", async () => {
+      const { A, B } = await runner.compile(`
+        @test
+        @friendlyName("MyNameIsA")
+        model A<T> { t: T; }
+
+        @test
+        model B is A<string> { }
+        `);
+      strictEqual(getFriendlyName(runner.program, A), "MyNameIsA");
+      strictEqual(getFriendlyName(runner.program, B), undefined);
     });
   });
 
@@ -779,6 +788,43 @@ describe("compiler: built-in decorators", () => {
 
       const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
       deepStrictEqual(properties, ["notMe"]);
+    });
+  });
+
+  describe("@withPickedProperties", () => {
+    it("picks a model property when given a string literal", async () => {
+      const { TestModel } = await runner.compile(
+        `
+        model OriginalModel {
+          pickMe: string;
+          notMe: string;
+        }
+
+        @test
+        model TestModel is PickProperties<OriginalModel, "pickMe"> {
+        }`
+      );
+
+      const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
+      deepStrictEqual(properties, ["pickMe"]);
+    });
+
+    it("picks model properties when given a union containing strings", async () => {
+      const { TestModel } = await runner.compile(
+        `
+        model OriginalModel {
+          pickMe: string;
+          pickMeToo: string;
+          notMe: string;
+        }
+
+        @test
+        model TestModel is PickProperties<OriginalModel, "pickMe" | "pickMeToo"> {
+        }`
+      );
+
+      const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
+      deepStrictEqual(properties, ["pickMe", "pickMeToo"]);
     });
   });
 

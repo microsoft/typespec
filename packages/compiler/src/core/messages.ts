@@ -252,6 +252,7 @@ const diagnostics = {
       default: "Invalid identifier.",
       tag: "Invalid tag name. Use backticks around code if this was not meant to be a tag.",
       param: "Invalid parameter name.",
+      prop: "Invalid property name.",
       templateParam: "Invalid template parameter name.",
     },
   },
@@ -356,6 +357,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Model has an inherited property named ${"propName"} of type ${"propType"} which cannot override type ${"parentType"}`,
+      disallowedOptionalOverride: paramMessage`Model has a required inherited property named ${"propName"} which cannot be overridden as optional`,
     },
   },
   "extend-scalar": {

@@ -4,7 +4,7 @@ title: "[F] compile"
 
 ---
 ```ts
-compile(
+function compile(
    host, 
    mainFile, 
    options, 
@@ -14,7 +14,7 @@ oldProgram?): Promise<Program>
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `host` | [`CompilerHost`](../interfaces/CompilerHost.md) |
 | `mainFile` | `string` |
 | `options` | [`CompilerOptions`](../interfaces/CompilerOptions.md) |

@@ -1,26 +1,28 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <IsPackable>false</IsPackable>
-    <IsTestProject>true</IsTestProject>
-  </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" />
-    <PackageReference Include="Moq" />
-    <PackageReference Include="NUnit" />
-    <PackageReference Include="NUnit3TestAdapter" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\..\TestProjects\ProjFiles\TestProjects.Local.Tests.csproj" />
     <ProjectReference Include="..\src\Microsoft.Generator.CSharp.ClientModel.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="mocks\Configuration.json">
+    <Compile Include="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/**/*.cs" Link="Generated/Helpers/%(RecursiveDir)/%(Filename)%(Extension)" />
+    <None Update="Mocks\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ModelReaderWriterValidation\TestProjects\**\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="**\TestData\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="**\TestData\**\*.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

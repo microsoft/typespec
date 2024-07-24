@@ -4,7 +4,7 @@ title: "[F] $useDependency"
 
 ---
 ```ts
-$useDependency(
+function $useDependency(
    context, 
    target, ...
    versionRecords): void
@@ -13,9 +13,9 @@ $useDependency(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
-| `target` | `EnumMember` \| `Namespace` |
+| `target` | `Namespace` \| `EnumMember` |
 | ...`versionRecords` | `EnumMember`[] |
 
 ## Returns

@@ -4,13 +4,13 @@ title: "[F] defineCodeFix"
 
 ---
 ```ts
-defineCodeFix(fix): CodeFix
+function defineCodeFix(fix): CodeFix
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `fix` | [`CodeFix`](../interfaces/CodeFix.md) |
 
 ## Returns

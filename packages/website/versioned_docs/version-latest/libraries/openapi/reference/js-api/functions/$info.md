@@ -4,7 +4,7 @@ title: "[F] $info"
 
 ---
 ```ts
-$info(
+function $info(
    context, 
    target, 
    additionalInfo): void
@@ -13,7 +13,7 @@ $info(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Namespace` |
 | `additionalInfo` | `Type` |

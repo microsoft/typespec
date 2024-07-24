@@ -4,7 +4,7 @@ title: "[F] getActionDetails"
 
 ---
 ```ts
-getActionDetails(program, operation): ActionDetails | undefined
+function getActionDetails(program, operation): ActionDetails | undefined
 ```
 
 Gets the ActionDetails for the specified operation if it has previously been marked with @action.
@@ -12,7 +12,7 @@ Gets the ActionDetails for the specified operation if it has previously been mar
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `operation` | `Operation` |
 

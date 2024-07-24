@@ -1,22 +1,49 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-namespace Microsoft.Generator.CSharp.Expressions
+using System.Collections;
+using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Expressions;
+
+namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record CatchStatement(ValueExpression? Exception, MethodBodyStatement Body)
+    public sealed class CatchStatement : MethodBodyStatement, IEnumerable<MethodBodyStatement>
     {
-        public void Write(CodeWriter writer)
+        private readonly List<MethodBodyStatement> _body = [];
+        public ValueExpression? Exception { get; }
+        public IReadOnlyList<MethodBodyStatement> Body => _body;
+        public CatchStatement(ValueExpression? exception)
+        {
+            Exception = exception;
+        }
+
+        internal override void Write(CodeWriter writer)
         {
             writer.AppendRaw("catch");
             if (Exception != null)
             {
                 writer.AppendRaw(" (");
                 Exception.Write(writer);
-                writer.AppendRaw(")");
+                writer.WriteRawLine(")");
             }
-            writer.WriteRawLine("{");
-            Body.Write(writer);
-            writer.WriteRawLine("}");
+
+            using (writer.Scope())
+            {
+                foreach (var statement in Body)
+                {
+                    statement.Write(writer);
+                }
+            }
         }
+
+        public CatchStatement Add(MethodBodyStatement statement)
+        {
+            _body.Add(statement);
+            return this;
+        }
+
+        public IEnumerator<MethodBodyStatement> GetEnumerator() => _body.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_body).GetEnumerator();
     }
 }

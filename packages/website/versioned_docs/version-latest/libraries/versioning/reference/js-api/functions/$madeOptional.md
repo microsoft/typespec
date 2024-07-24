@@ -4,7 +4,7 @@ title: "[F] $madeOptional"
 
 ---
 ```ts
-$madeOptional(
+function $madeOptional(
    context, 
    target, 
    version): void
@@ -13,7 +13,7 @@ $madeOptional(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `ModelProperty` |
 | `version` | `EnumMember` |

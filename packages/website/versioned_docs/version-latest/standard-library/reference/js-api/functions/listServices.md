@@ -4,7 +4,7 @@ title: "[F] listServices"
 
 ---
 ```ts
-listServices(program): Service[]
+function listServices(program): Service[]
 ```
 
 List all the services defined in the TypeSpec program
@@ -12,7 +12,7 @@ List all the services defined in the TypeSpec program
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) | Program |
 
 ## Returns

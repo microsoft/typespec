@@ -4,7 +4,7 @@ title: "[F] $extension"
 
 ---
 ```ts
-$extension(
+function $extension(
    context, 
    target, 
    key, 
@@ -14,7 +14,7 @@ $extension(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Type` |
 | `key` | `string` |

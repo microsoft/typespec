@@ -4,13 +4,13 @@ title: "[F] $patch"
 
 ---
 ```ts
-$patch(context, target): void
+function $patch(context, target): void
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Operation` |
 

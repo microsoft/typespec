@@ -4,19 +4,19 @@ title: "[F] paramMessage"
 
 ---
 ```ts
-paramMessage<T>(strings, ...keys): CallableMessage<T>
+function paramMessage<T>(strings, ...keys): CallableMessage<T>
 ```
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
-| `T` extends `string`[] |
+| Type Parameter |
+| ------ |
+| `T` *extends* `string`[] |
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `strings` | readonly `string`[] |
 | ...`keys` | `T` |
 

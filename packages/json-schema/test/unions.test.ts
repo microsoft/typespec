@@ -88,6 +88,26 @@ describe("emitting unions", () => {
     assert.strictEqual(Foo["x-foo"], true);
   });
 
+  it("handles oneOf decorator", async () => {
+    const schemas = await emitSchema(`
+      @oneOf
+      union Foo {
+        "a",
+        "b"
+      }
+
+      model Bar {
+        @oneOf
+        prop: "a" | "b"
+      }
+    `);
+
+    const Foo = schemas["Foo.json"];
+    const Bar = schemas["Bar.json"];
+
+    assert.ok(Foo.oneOf, "Foo uses oneOf");
+    assert.ok(Bar.properties.prop.oneOf, "Bar.prop uses oneOf");
+  });
   it("handles decorators on variants", async () => {
     const schemas = await emitSchema(`
       union Foo {

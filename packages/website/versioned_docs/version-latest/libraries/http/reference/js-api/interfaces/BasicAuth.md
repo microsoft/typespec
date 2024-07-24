@@ -7,7 +7,7 @@ Basic authentication is a simple authentication scheme built into the HTTP proto
 The client sends HTTP requests with the Authorization header that contains the word Basic word followed by a space and a base64-encoded string username:password.
 For example, to authorize as demo / p@55w0rd the client would send
 ```
- Authorization: Basic ZGVtbzpwQDU1dzByZA==
+Authorization: Basic ZGVtbzpwQDU1dzByZA==
 ```
 
 ## Extends
@@ -16,9 +16,10 @@ For example, to authorize as demo / p@55w0rd the client would send
 
 ## Properties
 
-| Property | Type | Description | Inherited from |
-| :------ | :------ | :------ | :------ |
-| `description?` | `string` | Optional description. | [`HttpAuthBase`](HttpAuthBase.md).`description` |
-| `id` | `string` | Id of the authentication scheme. | [`HttpAuthBase`](HttpAuthBase.md).`id` |
-| `scheme` | `"basic"` | - | - |
-| `type` | `"http"` | - | - |
+| Property | Modifier | Type | Description | Inherited from |
+| ------ | ------ | ------ | ------ | ------ |
+| `description?` | `public` | `string` | Optional description. | [`HttpAuthBase`](HttpAuthBase.md).`description` |
+| `id` | `public` | `string` | Id of the authentication scheme. | [`HttpAuthBase`](HttpAuthBase.md).`id` |
+| `model` | `readonly` | `Model` | Model that defined the authentication | [`HttpAuthBase`](HttpAuthBase.md).`model` |
+| `scheme` | `public` | `"basic"` | - | - |
+| `type` | `public` | `"http"` | - | - |

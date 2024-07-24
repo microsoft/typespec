@@ -11,7 +11,7 @@ Represents a failure while interpreting a projection.
 
 ## Constructors
 
-### new ProjectionError(message)
+### new ProjectionError()
 
 ```ts
 new ProjectionError(message): ProjectionError
@@ -20,7 +20,7 @@ new ProjectionError(message): ProjectionError
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `message` | `string` |
 
 #### Returns
@@ -34,12 +34,12 @@ new ProjectionError(message): ProjectionError
 ## Properties
 
 | Property | Modifier | Type | Description | Inherited from |
-| :------ | :------ | :------ | :------ | :------ |
+| ------ | ------ | ------ | ------ | ------ |
 | `cause?` | `public` | `unknown` | - | `Error.cause` |
 | `message` | `public` | `string` | - | `Error.message` |
 | `name` | `public` | `string` | - | `Error.name` |
 | `stack?` | `public` | `string` | - | `Error.stack` |
-| `prepareStackTrace?` | `static` | (`err`: `Error`, `stackTraces`: `CallSite`[]) => `any` | Optional override for formatting stack traces<br /><br />**See**<br />https://v8.dev/docs/stack-trace-api#customizing-stack-traces | `Error.prepareStackTrace` |
+| `prepareStackTrace?` | `static` | (`err`: `Error`, `stackTraces`: `CallSite`[]) => `any` | Optional override for formatting stack traces **See** https://v8.dev/docs/stack-trace-api#customizing-stack-traces | `Error.prepareStackTrace` |
 | `stackTraceLimit` | `static` | `number` | - | `Error.stackTraceLimit` |
 
 ## Methods
@@ -55,7 +55,7 @@ Create .stack property on a target object
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `targetObject` | `object` |
 | `constructorOpt`? | `Function` |
 

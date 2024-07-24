@@ -4,13 +4,13 @@ title: "[F] getMadeOptionalOn"
 
 ---
 ```ts
-getMadeOptionalOn(p, t): Version | undefined
+function getMadeOptionalOn(p, t): Version | undefined
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `p` | `Program` |
 | `t` | `Type` |
 

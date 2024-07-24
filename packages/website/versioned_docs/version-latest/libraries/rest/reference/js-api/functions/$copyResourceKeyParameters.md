@@ -4,7 +4,7 @@ title: "[F] $copyResourceKeyParameters"
 
 ---
 ```ts
-$copyResourceKeyParameters(
+function $copyResourceKeyParameters(
    context, 
    entity, 
    filter?): void
@@ -13,7 +13,7 @@ $copyResourceKeyParameters(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `entity` | `Model` |
 | `filter`? | `string` |

@@ -4,11 +4,11 @@ title: "[T] SemanticNodeListener"
 
 ---
 ```ts
-type SemanticNodeListener: Object & TypeListeners;
+type SemanticNodeListener: object & TypeListeners;
 ```
 
 ## Type declaration
 
-| Member | Type |
-| :------ | :------ |
+| Name | Type |
+| ------ | ------ |
 | `root` | (`context`) => `void` \| `undefined` |

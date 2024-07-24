@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -10,13 +10,22 @@ using System.Threading.Tasks;
 using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Customization;
-using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Providers;
 using NuGet.Configuration;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.SourceInput
 {
-    public sealed class SourceInputModel
+    internal sealed class SourceInputModel
     {
+        private static SourceInputModel? _instance;
+        public static SourceInputModel Instance => _instance ?? throw new InvalidOperationException("SourceInputModel has not been initialized");
+
+        public static void Initialize(Compilation customization, CompilationCustomCode? existingCompilation = null)
+        {
+            _instance = new SourceInputModel(customization, existingCompilation);
+        }
+
         private readonly CompilationCustomCode? _existingCompilation;
         private readonly CodeGenAttributes _codeGenAttributes;
         private readonly Dictionary<string, INamedTypeSymbol> _nameMap = new Dictionary<string, INamedTypeSymbol>(StringComparer.OrdinalIgnoreCase);
@@ -24,7 +33,7 @@ namespace Microsoft.Generator.CSharp
         public Compilation Customization { get; }
         public Compilation? PreviousContract { get; }
 
-        public SourceInputModel(Compilation customization, CompilationCustomCode? existingCompilation = null)
+        private SourceInputModel(Compilation customization, CompilationCustomCode? existingCompilation = null)
         {
             Customization = customization;
             PreviousContract = LoadBaselineContract().GetAwaiter().GetResult();
@@ -70,7 +79,7 @@ namespace Microsoft.Generator.CSharp
 
         public INamedTypeSymbol? FindForType(string name)
         {
-            var ns = TypeProvider.GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
+            var ns = CodeModelPlugin.Instance.Configuration.ModelNamespace;
             var fullyQualifiedMetadataName = $"{ns}.{name}";
             if (!_nameMap.TryGetValue(name, out var type) &&
                 !_nameMap.TryGetValue(fullyQualifiedMetadataName, out type))
@@ -138,9 +147,8 @@ namespace Microsoft.Generator.CSharp
 
         private async Task<Compilation?> LoadBaselineContract()
         {
-
             string fullPath;
-            string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelPlugin.Instance.Configuration.ProjectDirectory, $"{CodeModelPlugin.Instance.Configuration.Namespace}.csproj"));
+            string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelPlugin.Instance.Configuration.ProjectDirectory, $"{CodeModelPlugin.Instance.Configuration.RootNamespace}.csproj"));
             if (!File.Exists(projectFilePath))
                 return null;
 
@@ -149,15 +157,15 @@ namespace Microsoft.Generator.CSharp
             if (baselineVersion is not null)
             {
                 var nugetGlobalPackageFolder = SettingsUtility.GetGlobalPackagesFolder(new NullSettings());
-                var nugetFolder = Path.Combine(nugetGlobalPackageFolder, CodeModelPlugin.Instance.Configuration.Namespace.ToLowerInvariant(), baselineVersion, "lib", "netstandard2.0");
-                fullPath = Path.Combine(nugetFolder, $"{CodeModelPlugin.Instance.Configuration.Namespace}.dll");
+                var nugetFolder = Path.Combine(nugetGlobalPackageFolder, CodeModelPlugin.Instance.Configuration.RootNamespace.ToLowerInvariant(), baselineVersion, "lib", "netstandard2.0");
+                fullPath = Path.Combine(nugetFolder, $"{CodeModelPlugin.Instance.Configuration.RootNamespace}.dll");
                 if (File.Exists(fullPath))
                 {
-                    return await GeneratedCodeWorkspace.CreatePreviousContractFromDll(Path.Combine(nugetFolder, $"{CodeModelPlugin.Instance.Configuration.Namespace}.xml"), fullPath);
+                    return await GeneratedCodeWorkspace.CreatePreviousContractFromDll(Path.Combine(nugetFolder, $"{CodeModelPlugin.Instance.Configuration.RootNamespace}.xml"), fullPath);
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Can't find Baseline contract assembly ({CodeModelPlugin.Instance.Configuration.Namespace}@{baselineVersion}) from Nuget Global Package Folder at {fullPath}. " +
+                    throw new InvalidOperationException($"Can't find Baseline contract assembly ({CodeModelPlugin.Instance.Configuration.RootNamespace}@{baselineVersion}) from Nuget Global Package Folder at {fullPath}. " +
                         $"Please make sure the baseline nuget package has been installed properly");
                 }
             }

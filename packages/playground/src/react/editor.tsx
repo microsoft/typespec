@@ -28,6 +28,8 @@ export const Editor: FunctionComponent<EditorProps> = ({ model, options, actions
       ...options,
     });
     onMount?.({ editor: editorRef.current });
+    // This needs special handling where we only want to run this effect once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -53,7 +55,7 @@ export const Editor: FunctionComponent<EditorProps> = ({ model, options, actions
   return (
     <div
       className="monaco-editor-container"
-      style={{ width: "100%", height: "100%", overflow: "hidden" }}
+      style={{ width: "100%", height: "100%" }}
       ref={editorContainerRef}
       data-tabster='{"uncontrolled": {}}' // https://github.com/microsoft/tabster/issues/316
     ></div>

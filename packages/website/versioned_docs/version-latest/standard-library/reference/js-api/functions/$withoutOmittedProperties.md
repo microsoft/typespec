@@ -4,7 +4,7 @@ title: "[F] $withoutOmittedProperties"
 
 ---
 ```ts
-$withoutOmittedProperties(
+function $withoutOmittedProperties(
    context, 
    target, 
    omit): void
@@ -13,7 +13,7 @@ $withoutOmittedProperties(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Model`](../interfaces/Model.md) |
 | `omit` | [`Type`](../type-aliases/Type.md) |

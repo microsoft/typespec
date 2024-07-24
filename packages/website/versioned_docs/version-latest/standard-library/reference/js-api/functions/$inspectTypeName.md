@@ -4,7 +4,7 @@ title: "[F] $inspectTypeName"
 
 ---
 ```ts
-$inspectTypeName(
+function $inspectTypeName(
    context, 
    target, 
    text): void
@@ -13,7 +13,7 @@ $inspectTypeName(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Type`](../type-aliases/Type.md) |
 | `text` | `string` |

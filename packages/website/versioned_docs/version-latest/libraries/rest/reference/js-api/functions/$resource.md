@@ -4,7 +4,7 @@ title: "[F] $resource"
 
 ---
 ```ts
-$resource(
+function $resource(
    context, 
    target, 
    collectionName): void
@@ -21,7 +21,7 @@ name of `widgets`.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Model` |
 | `collectionName` | `string` |

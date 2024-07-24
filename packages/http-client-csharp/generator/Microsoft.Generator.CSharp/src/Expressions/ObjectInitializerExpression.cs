@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -8,44 +8,47 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// <summary>
     /// Represents an object initializer expression.
     /// </summary>
-    /// <param name="Parameters">The parameters to initialize the object to.</param>
+    /// <param name="Values">The set of property values to initialize the object to.</param>
     /// <param name="UseSingleLine">Flag to determine if the object should be initialized inline.</param>
-    public sealed record ObjectInitializerExpression(IReadOnlyDictionary<string, ValueExpression>? Parameters = null, bool UseSingleLine = true) : InitializerExpression
+    public record ObjectInitializerExpression(IReadOnlyDictionary<ValueExpression, ValueExpression> Values, bool UseSingleLine = false) : ValueExpression
     {
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
-            if (Parameters is not { Count: > 0 })
+            var iterator = Values.GetEnumerator();
+            if (!iterator.MoveNext())
             {
-                writer.AppendRaw("{}");
+                writer.AppendRaw("{ }");
                 return;
             }
 
             if (UseSingleLine)
             {
-                writer.AppendRaw("{");
-                foreach (var (name, value) in Parameters)
+                writer.AppendRaw("{ ");
+                WriteItem(writer, iterator.Current);
+                while (iterator.MoveNext())
                 {
-                    writer.Append($"{name} = ");
-                    value.Write(writer);
                     writer.AppendRaw(", ");
+                    WriteItem(writer, iterator.Current);
                 }
-
-                writer.RemoveTrailingComma();
-                writer.AppendRaw("}");
+                writer.AppendRaw(" }");
             }
             else
             {
-                writer.WriteLine();
-                writer.WriteRawLine("{");
-                foreach (var (name, value) in Parameters)
+                using var scope = writer.Scope();
+                WriteItem(writer, iterator.Current);
+                while (iterator.MoveNext())
                 {
-                    writer.Append($"{name} = ");
-                    value.Write(writer);
                     writer.WriteRawLine(",");
+                    WriteItem(writer, iterator.Current);
                 }
-
-                writer.AppendRaw("}");
+                writer.WriteLine();
             }
+        }
+
+        private static void WriteItem(CodeWriter writer, KeyValuePair<ValueExpression, ValueExpression> item)
+        {
+            writer.Append($"{item.Key} = ");
+            item.Value.Write(writer);
         }
     }
 }

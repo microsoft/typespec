@@ -4,7 +4,7 @@ title: "[F] $minProperties"
 
 ---
 ```ts
-$minProperties(
+function $minProperties(
    context, 
    target, 
    value): void
@@ -13,7 +13,7 @@ $minProperties(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Type` |
 | `value` | `number` |

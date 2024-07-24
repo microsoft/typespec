@@ -4,7 +4,7 @@ title: "[F] $typeChangedFrom"
 
 ---
 ```ts
-$typeChangedFrom(
+function $typeChangedFrom(
    context, 
    target, 
    version, 
@@ -14,7 +14,7 @@ $typeChangedFrom(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `ModelProperty` |
 | `version` | `EnumMember` |

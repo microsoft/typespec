@@ -4,7 +4,7 @@ title: "[F] getOperationParameters"
 
 ---
 ```ts
-getOperationParameters(
+function getOperationParameters(
    program, 
    operation, 
    overloadBase?, 
@@ -15,7 +15,7 @@ getOperationParameters(
 ## Parameters
 
 | Parameter | Type | Default value |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | `Program` | `undefined` |
 | `operation` | `Operation` | `undefined` |
 | `overloadBase`? | [`HttpOperation`](../interfaces/HttpOperation.md) | `undefined` |

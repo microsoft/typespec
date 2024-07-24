@@ -4,7 +4,7 @@ title: "[F] $segment"
 
 ---
 ```ts
-$segment(
+function $segment(
    context, 
    entity, 
    name): void
@@ -20,9 +20,9 @@ path parameter's name field.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
-| `entity` | `ModelProperty` \| `Model` \| `Operation` |
+| `entity` | `Model` \| `ModelProperty` \| `Operation` |
 | `name` | `string` |
 
 ## Returns

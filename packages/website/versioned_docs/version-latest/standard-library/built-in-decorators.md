@@ -21,7 +21,7 @@ NOTE: This decorator **should not** be used, use the `#deprecated` directive ins
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| message | `valueof string` | Deprecation message. |
+| message | [valueof `string`](#string) | Deprecation message. |
 
 #### Examples
 
@@ -47,7 +47,7 @@ Specify the property to be used to discriminate this type.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| propertyName | `valueof string` | The property name to use for discrimination |
+| propertyName | [valueof `string`](#string) | The property name to use for discrimination |
 
 #### Examples
 
@@ -82,7 +82,7 @@ Attach a documentation string.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| doc | `valueof string` | Documentation string |
+| doc | [valueof `string`](#string) | Documentation string |
 | formatArgs | `{}` | Record with key value pair that can be interpolated in the doc. |
 
 #### Examples
@@ -142,16 +142,16 @@ Provide an alternative name for this type when serialized to the given mime type
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| mimeType | `valueof string` | Mime type this should apply to. The mime type should be a known mime type as described here https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types without any suffix (e.g. `+json`) |
-| name | `valueof string` | Alternative name |
+| mimeType | [valueof `string`](#string) | Mime type this should apply to. The mime type should be a known mime type as described here https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types without any suffix (e.g. `+json`) |
+| name | [valueof `string`](#string) | Alternative name |
 
 #### Examples
 
 ```typespec
 model Certificate {
-@encodedName("application/json", "exp")
-@encodedName("application/xml", "expiry")
-expireAt: int32;
+  @encodedName("application/json", "exp")
+  @encodedName("application/xml", "expiry")
+  expireAt: int32;
 }
 ```
 
@@ -160,7 +160,7 @@ expireAt: int32;
 
 ```typespec
 @encodedName("application/merge-patch+json", "exp")
-^ error cannot use subtype
+             ^ error cannot use subtype
 ```
 
 
@@ -183,8 +183,8 @@ None
 ```typespec
 @error
 model PetStoreError {
-code: string;
-message: string;
+  code: string;
+  message: string;
 }
 ```
 
@@ -192,7 +192,7 @@ message: string;
 ### `@errorsDoc` {#@errorsDoc}
 
 Attach a documentation string to describe the error return types of an operation.
-If an operation returns a union of success and errors it only describe the errors. See `@errorsDoc` for success documentation.
+If an operation returns a union of success and errors it only describes the errors. See `@returnsDoc` for success documentation.
 ```typespec
 @errorsDoc(doc: valueof string)
 ```
@@ -204,13 +204,41 @@ If an operation returns a union of success and errors it only describe the error
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| doc | `valueof string` | Documentation string |
+| doc | [valueof `string`](#string) | Documentation string |
 
 #### Examples
 
 ```typespec
-@errorsDoc("Returns doc")
+@errorsDoc("Errors doc")
 op get(): Pet | NotFound;
+```
+
+
+### `@example` {#@example}
+
+Provide an example value for a data type.
+```typespec
+@example(example: valueof unknown, options?: valueof ExampleOptions)
+```
+
+#### Target
+
+`Model | Enum | Scalar | Union | ModelProperty | UnionVariant`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| example | `valueof unknown` | Example value. |
+| options | [valueof `ExampleOptions`](./built-in-data-types.md#ExampleOptions) | Optional metadata for the example. |
+
+#### Examples
+
+```tsp
+@example(#{name: "Fluffy", age: 2})
+model Pet {
+ name: string;
+ age: int32;
+}
 ```
 
 
@@ -230,7 +258,7 @@ The format names are open ended and are left to emitter to interpret.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| format | `valueof string` | format name. |
+| format | [valueof `string`](#string) | format name. |
 
 #### Examples
 
@@ -254,7 +282,7 @@ Specifies how a templated type should name their instances.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| name | `valueof string` | name the template instance should take |
+| name | [valueof `string`](#string) | name the template instance should take |
 | formatArgs | `unknown` | Model with key value used to interpolate the name |
 
 #### Examples
@@ -262,8 +290,8 @@ Specifies how a templated type should name their instances.
 ```typespec
 @friendlyName("{name}List", T)
 model List<Item> {
-value: Item[];
-nextLink: string;
+  value: Item[];
+  nextLink: string;
 }
 ```
 
@@ -282,7 +310,7 @@ A debugging decorator used to inspect a type.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| text | `valueof string` | Custom text to log |
+| text | [valueof `string`](#string) | Custom text to log |
 
 
 
@@ -300,7 +328,7 @@ A debugging decorator used to inspect a type name.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| text | `valueof string` | Custom text to log |
+| text | [valueof `string`](#string) | Custom text to log |
 
 
 
@@ -318,13 +346,13 @@ Mark a model property as the key to identify instances of that type
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| altName | `valueof string` | Name of the property. If not specified, the decorated property name is used. |
+| altName | [valueof `string`](#string) | Name of the property. If not specified, the decorated property name is used. |
 
 #### Examples
 
 ```typespec
 model Pet {
-@key id: string;
+  @key id: string;
 }
 ```
 
@@ -352,8 +380,8 @@ Provide a set of known values to a string type.
 scalar ErrorCode extends string;
 
 enum KnownErrorCode {
-NotFound,
-Invalid,
+  NotFound,
+  Invalid,
 }
 ```
 
@@ -390,7 +418,7 @@ Specify the maximum number of items this array should have.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `valueof integer` | Maximum number |
+| value | [valueof `integer`](#integer) | Maximum number |
 
 #### Examples
 
@@ -414,7 +442,7 @@ Specify the maximum length this string type should be.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `valueof integer` | Maximum length |
+| value | [valueof `integer`](#integer) | Maximum length |
 
 #### Examples
 
@@ -438,7 +466,7 @@ Specify the maximum value this numeric type should be.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `valueof numeric` | Maximum value |
+| value | [valueof `numeric`](#numeric) | Maximum value |
 
 #### Examples
 
@@ -463,7 +491,7 @@ value.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `valueof numeric` | Maximum value |
+| value | [valueof `numeric`](#numeric) | Maximum value |
 
 #### Examples
 
@@ -487,7 +515,7 @@ Specify the minimum number of items this array should have.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `valueof integer` | Minimum number |
+| value | [valueof `integer`](#integer) | Minimum number |
 
 #### Examples
 
@@ -511,7 +539,7 @@ Specify the minimum length this string type should be.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `valueof integer` | Minimum length |
+| value | [valueof `integer`](#integer) | Minimum length |
 
 #### Examples
 
@@ -535,7 +563,7 @@ Specify the minimum value this numeric type should be.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `valueof numeric` | Minimum value |
+| value | [valueof `numeric`](#numeric) | Minimum value |
 
 #### Examples
 
@@ -560,13 +588,38 @@ value.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `valueof numeric` | Minimum value |
+| value | [valueof `numeric`](#numeric) | Minimum value |
 
 #### Examples
 
 ```typespec
 @minValueExclusive(0)
 scalar distance is float64;
+```
+
+
+### `@opExample` {#@opExample}
+
+Provide example values for an operation's parameters and corresponding return type.
+```typespec
+@opExample(example: valueof OperationExample, options?: valueof ExampleOptions)
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| example | [valueof `OperationExample`](./built-in-data-types.md#OperationExample) | Example value. |
+| options | [valueof `ExampleOptions`](./built-in-data-types.md#ExampleOptions) | Optional metadata for the example. |
+
+#### Examples
+
+```tsp
+@example(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+op createPet(pet: Pet): Pet;
 ```
 
 
@@ -636,8 +689,8 @@ validates a GUID string might have a message like "Must be a valid GUID."
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| pattern | `valueof string` | Regular expression. |
-| validationMessage | `valueof string` | Optional validation message that may provide context when validation fails. |
+| pattern | [valueof `string`](#string) | Regular expression. |
+| validationMessage | [valueof `string`](#string) | Optional validation message that may provide context when validation fails. |
 
 #### Examples
 
@@ -663,15 +716,15 @@ Provide an alternative name for this type.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| targetName | `valueof string` | Projection target |
-| projectedName | `valueof string` | Alternative name |
+| targetName | [valueof `string`](#string) | Projection target |
+| projectedName | [valueof `string`](#string) | Alternative name |
 
 #### Examples
 
 ```typespec
 model Certificate {
-@projectedName("json", "exp")
-expireAt: int32;
+  @projectedName("json", "exp")
+  expireAt: int32;
 }
 ```
 
@@ -679,7 +732,7 @@ expireAt: int32;
 ### `@returnsDoc` {#@returnsDoc}
 
 Attach a documentation string to describe the successful return types of an operation.
-If an operation returns a union of success and errors it only describe the success. See `@errorsDoc` for error documentation.
+If an operation returns a union of success and errors it only describes the success. See `@errorsDoc` for error documentation.
 ```typespec
 @returnsDoc(doc: valueof string)
 ```
@@ -691,7 +744,7 @@ If an operation returns a union of success and errors it only describe the succe
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| doc | `valueof string` | Documentation string |
+| doc | [valueof `string`](#string) | Documentation string |
 
 #### Examples
 
@@ -793,7 +846,7 @@ Typically a short, single-line description.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| summary | `valueof string` | Summary string. |
+| summary | [valueof `string`](#string) | Summary string. |
 
 #### Examples
 
@@ -817,7 +870,7 @@ Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorat
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| tag | `valueof string` | Tag value |
+| tag | [valueof `string`](#string) | Tag value |
 
 
 
@@ -855,12 +908,12 @@ See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operati
 
 ```typespec
 model Dog {
-// the service will generate an ID, so you don't need to send it.
-@visibility("read") id: int32;
-// the service will store this secret name, but won't ever return it
-@visibility("create", "update") secretName: string;
-// the regular name is always present
-name: string;
+  // the service will generate an ID, so you don't need to send it.
+  @visibility("read") id: int32;
+  // the service will store this secret name, but won't ever return it
+  @visibility("create", "update") secretName: string;
+  // the regular name is always present
+  name: string;
 }
 ```
 
@@ -879,7 +932,7 @@ Set the visibility of key properties in a model if not already set.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibility | `valueof string` | The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied. |
+| visibility | [valueof `string`](#string) | The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied. |
 
 
 
@@ -933,6 +986,24 @@ Returns the model with the given properties omitted.
 
 
 
+### `@withPickedProperties` {#@withPickedProperties}
+
+Returns the model with only the given properties included.
+```typespec
+@withPickedProperties(pick: string | Union)
+```
+
+#### Target
+
+`Model`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| pick | `string \| Union` | List of properties to include |
+
+
+
 ### `@withUpdateableProperties` {#@withUpdateableProperties}
 
 Returns the model with non-updateable properties removed.
@@ -977,9 +1048,9 @@ not necessary to use this decorator.
 
 ```typespec
 model Dog {
-@visibility("read") id: int32;
-@visibility("create", "update") secretName: string;
-name: string;
+  @visibility("read") id: int32;
+  @visibility("create", "update") secretName: string;
+  name: string;
 }
 
 // The spread operator will copy all the properties of Dog into DogRead,
@@ -990,14 +1061,14 @@ name: string;
 // properties are kept.
 @withVisibility("create", "update")
 model DogCreateOrUpdate {
-...Dog;
+  ...Dog;
 }
 
 // In this case the id and name properties are kept and the secretName property
 // is removed.
 @withVisibility("read")
 model DogRead {
-...Dog;
+  ...Dog;
 }
 ```
 

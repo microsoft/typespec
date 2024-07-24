@@ -4,7 +4,7 @@ title: "[F] resolveAuthentication"
 
 ---
 ```ts
-resolveAuthentication(service): HttpServiceAuthentication
+function resolveAuthentication(service): HttpServiceAuthentication
 ```
 
 Compute the authentication for a given service.
@@ -12,7 +12,7 @@ Compute the authentication for a given service.
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `service` | [`HttpService`](../interfaces/HttpService.md) | Http Service |
 
 ## Returns

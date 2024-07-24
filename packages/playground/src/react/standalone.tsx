@@ -8,21 +8,25 @@ import {
   webLightTheme,
 } from "@fluentui/react-components";
 import {
-  FunctionComponent,
-  ReactNode,
   useCallback,
   useEffect,
   useId,
   useMemo,
   useState,
+  type FunctionComponent,
+  type ReactNode,
 } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserHost } from "../browser-host.js";
-import { LibraryImportOptions } from "../core.js";
+import type { LibraryImportOptions } from "../core.js";
 import { registerMonacoLanguage } from "../services.js";
-import { StateStorage, UrlStateStorage, createUrlStateStorage } from "../state-storage.js";
-import { BrowserHost } from "../types.js";
-import { Playground, PlaygroundProps, PlaygroundSaveData } from "./playground.js";
+import {
+  createUrlStateStorage,
+  type StateStorage,
+  type UrlStateStorage,
+} from "../state-storage.js";
+import type { BrowserHost } from "../types.js";
+import { Playground, type PlaygroundProps, type PlaygroundSaveData } from "./playground.js";
 
 export interface ReactPlaygroundConfig extends Partial<PlaygroundProps> {
   readonly libraries: readonly string[];
@@ -50,7 +54,7 @@ function useStandalonePlaygroundContext(
       setContext({ host, initialState, stateStorage });
     };
     void load();
-  }, []);
+  }, [config.importConfig, config.libraries]);
   return context;
 }
 
@@ -87,7 +91,7 @@ export const StandalonePlayground: FunctionComponent<ReactPlaygroundConfig> = (c
         defaultCompilerOptions: context.initialState.options,
         defaultSampleName: context.initialState.sampleName,
       },
-    [context]
+    [config.defaultEmitter, config.libraries, context]
   );
   if (context === undefined || fixedOptions === undefined) {
     return config.fallback;

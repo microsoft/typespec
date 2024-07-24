@@ -4,7 +4,7 @@ title: "[F] $multipleOf"
 
 ---
 ```ts
-$multipleOf(
+function $multipleOf(
    context, 
    target, 
    value): void
@@ -13,10 +13,10 @@ $multipleOf(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
-| `target` | `Scalar` \| `ModelProperty` |
-| `value` | `number` |
+| `target` | `ModelProperty` \| `Scalar` |
+| `value` | `Numeric` |
 
 ## Returns
 

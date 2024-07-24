@@ -4,7 +4,7 @@ title: "[F] getParameterVisibility"
 
 ---
 ```ts
-getParameterVisibility(program, entity): string[] | undefined
+function getParameterVisibility(program, entity): string[] | undefined
 ```
 
 Returns the visibilities of the parameters of the given operation, if provided with `@parameterVisibility`.
@@ -12,7 +12,7 @@ Returns the visibilities of the parameters of the given operation, if provided w
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `entity` | [`Operation`](../interfaces/Operation.md) |
 

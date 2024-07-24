@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Expressions
@@ -9,16 +9,15 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// <param name="Items">The items to set during collection initialization.</param>
     public sealed record CollectionInitializerExpression(params ValueExpression[] Items) : ValueExpression
     {
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             writer.AppendRaw("{ ");
-            foreach (var item in Items)
+            for (int i = 0; i < Items.Length; i++)
             {
-                item.Write(writer);
-                writer.AppendRaw(",");
+                Items[i].Write(writer);
+                if (i < Items.Length - 1)
+                    writer.AppendRaw(", ");
             }
-
-            writer.RemoveTrailingComma();
             writer.AppendRaw(" }");
         }
     }

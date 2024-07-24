@@ -4,17 +4,17 @@ title: "[F] resolvePathAndParameters"
 
 ---
 ```ts
-resolvePathAndParameters(
+function resolvePathAndParameters(
    program, 
    operation, 
    overloadBase, 
-options): DiagnosticResult<Object>
+options): DiagnosticResult<object>
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `operation` | `Operation` |
 | `overloadBase` | `undefined` \| [`HttpOperation`](../interfaces/HttpOperation.md) |
@@ -22,11 +22,10 @@ options): DiagnosticResult<Object>
 
 ## Returns
 
-`DiagnosticResult`<`Object`\>
+`DiagnosticResult`<`object`\>
 
-> | Member | Type |
-> | :------ | :------ |
-> | `parameters` | [`HttpOperationParameters`](../interfaces/HttpOperationParameters.md) |
-> | `path` | `string` |
-> | `pathSegments` | `string`[] |
->
+| Name | Type |
+| ------ | ------ |
+| `parameters` | [`HttpOperationParameters`](../interfaces/HttpOperationParameters.md) |
+| `path` | `string` |
+| `pathSegments` | `string`[] |

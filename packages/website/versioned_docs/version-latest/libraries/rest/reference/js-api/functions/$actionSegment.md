@@ -4,7 +4,7 @@ title: "[F] $actionSegment"
 
 ---
 ```ts
-$actionSegment(
+function $actionSegment(
    context, 
    target, 
    value): void
@@ -13,7 +13,7 @@ $actionSegment(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Operation` |
 | `value` | `string` |

@@ -1,26 +1,39 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 
-namespace Microsoft.Generator.CSharp.Expressions
+namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record UsingScopeStatement(CSharpType? Type, CodeWriterDeclaration Variable, ValueExpression Value) : MethodBodyStatement, IEnumerable<MethodBodyStatement>
+    public sealed class UsingScopeStatement : MethodBodyStatement, IEnumerable<MethodBodyStatement>
     {
+        public CSharpType? Type { get; }
+        public CodeWriterDeclaration Variable { get; }
+        public ValueExpression Value { get; }
+
+        public UsingScopeStatement(CSharpType? type, CodeWriterDeclaration variable, ValueExpression value)
+        {
+            Type = type;
+            Variable = variable;
+            Value = value;
+        }
+
         private readonly List<MethodBodyStatement> _body = new();
         public IReadOnlyList<MethodBodyStatement> Body => _body;
 
-        public UsingScopeStatement(CSharpType type, string variableName, ValueExpression value, out VariableReference variable) : this(type, new CodeWriterDeclaration(variableName), value)
+        public UsingScopeStatement(CSharpType type, string variableName, ValueExpression value, out VariableExpression variable) : this(type, new CodeWriterDeclaration(variableName), value)
         {
-            variable = new VariableReference(type, Variable);
+            variable = new VariableExpression(type, Variable);
         }
 
         public void Add(MethodBodyStatement statement) => _body.Add(statement);
         public IEnumerator<MethodBodyStatement> GetEnumerator() => _body.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_body).GetEnumerator();
 
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             using (writer.AmbientScope())
             {
@@ -38,12 +51,13 @@ namespace Microsoft.Generator.CSharp.Expressions
                 Value.Write(writer);
                 writer.WriteRawLine(")");
 
-                writer.WriteRawLine("{");
-                foreach (var bodyStatement in Body)
+                using (writer.ScopeRaw())
                 {
-                    bodyStatement.Write(writer);
+                    foreach (var bodyStatement in Body)
+                    {
+                        bodyStatement.Write(writer);
+                    }
                 }
-                writer.WriteRawLine("}");
             }
         }
     }

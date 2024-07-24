@@ -10,8 +10,8 @@ title: "[I] SourceFile"
 ## Properties
 
 | Property | Modifier | Type | Description |
-| :------ | :------ | :------ | :------ |
-| `path` | `readonly` | `string` | The source file path.<br /><br />This is used only for diagnostics. The command line compiler will populate<br />it with the actual path from which the file was read, but it can actually<br />be an arbitrary name for other scenarios. |
+| ------ | ------ | ------ | ------ |
+| `path` | `readonly` | `string` | The source file path. This is used only for diagnostics. The command line compiler will populate it with the actual path from which the file was read, but it can actually be an arbitrary name for other scenarios. |
 | `text` | `readonly` | `string` | The source code text. |
 
 ## Methods
@@ -28,7 +28,7 @@ code units) to line number and offset from line start.
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `position` | `number` |
 
 #### Returns

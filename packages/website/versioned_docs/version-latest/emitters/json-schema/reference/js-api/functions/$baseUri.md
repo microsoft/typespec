@@ -4,7 +4,7 @@ title: "[F] $baseUri"
 
 ---
 ```ts
-$baseUri(
+function $baseUri(
    context, 
    target, 
    baseUri): void
@@ -13,7 +13,7 @@ $baseUri(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Namespace` |
 | `baseUri` | `string` |

@@ -733,8 +733,8 @@ export function createAssetEmitter<T, TOptions extends object>(
    * Invoke the callback with the given context.
    */
   function withContext(newContext: EmitterState, cb: () => void) {
-    const oldContext = newContext.context;
-    const oldTypeStack = newContext.lexicalTypeStack;
+    const oldContext = context;
+    const oldTypeStack = lexicalTypeStack;
     context = newContext.context;
     lexicalTypeStack = newContext.lexicalTypeStack;
 

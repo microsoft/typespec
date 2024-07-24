@@ -1,5 +1,41 @@
 # Change Log - @typespec/openapi3
 
+## 0.58.0
+
+### Bug Fixes
+
+- [#3516](https://github.com/microsoft/typespec/pull/3516) Fix issue that could result in invalid document generation when running `tsp compile` from another directory
+- [#3794](https://github.com/microsoft/typespec/pull/3794) Updates tsp-openapi3 to always emit main.tsp when formatting encounters an error.
+- [#3839](https://github.com/microsoft/typespec/pull/3839) Updates tsp-openapi3 doc line wrapping to only automatically create newlines when they are present in the original documentation.
+
+### Bump dependencies
+
+- [#3718](https://github.com/microsoft/typespec/pull/3718) Dependency updates July 2024
+
+### Features
+
+- [#3572](https://github.com/microsoft/typespec/pull/3572) Add support for new `@example` and `@opExample` decorator
+- [#3663](https://github.com/microsoft/typespec/pull/3663) Adds support for converting OpenAPI3 specs to TypeSpec via the new tsp-openapi3 CLI included in the `@typespec/openapi3` package.
+- [#3732](https://github.com/microsoft/typespec/pull/3732) Apply openapi3 extension on Security schemes
+- [#3844](https://github.com/microsoft/typespec/pull/3844) Updates tsp-openapi3 to escape identifiers that would otherwise be invalid, and automatically resolve namespaces for schemas with dots in their names.
+
+
+## 0.57.0
+
+### Bug Fixes
+
+- [#3342](https://github.com/microsoft/typespec/pull/3342) Add support for new multipart constructs in http library
+- [#3574](https://github.com/microsoft/typespec/pull/3574) Emit diagnostic when an invalid type is used as a property instead of crashing.
+
+### Bump dependencies
+
+- [#3401](https://github.com/microsoft/typespec/pull/3401) Update dependencies - May 2024
+
+### Features
+
+- [#3022](https://github.com/microsoft/typespec/pull/3022) Add support for new object and array values as default values (e.g. `decimals: decimal[] = #[123, 456.7];`)
+
+
 ## 0.56.0
 
 ### Bug Fixes

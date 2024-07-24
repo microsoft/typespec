@@ -4,13 +4,13 @@ title: "[F] isBodyIgnore"
 
 ---
 ```ts
-isBodyIgnore(program, entity): boolean
+function isBodyIgnore(program, entity): boolean
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `entity` | `ModelProperty` |
 

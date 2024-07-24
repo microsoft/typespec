@@ -1,107 +1,123 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
     public class TypeFactoryTests
     {
-        private CustomTypeFactory? _customFactory;
-
         [SetUp]
-        public void Setup()
+        public void SetUp()
         {
-            _customFactory = new CustomTypeFactory();
+            MockHelpers.LoadMockPlugin();
         }
 
-        /// <summary>
-        /// Validates that the factory method for creating a <see cref="CSharpType"/> based on an input type <paramref name="input"/> works as expected.
-        /// </summary>
-        /// <param name="inputType">The input type to convert.</param>
-        /// <param name="expectedType">The expected <see cref="CSharpType"/>.</param>
-        [TestCaseSource("CreateTypeTestCases")]
-        public void TestCreateType(InputType inputType, CSharpType? expectedType, bool expectedError)
+        [Test]
+        public void ExtensibleStringEnumType()
         {
-            if (expectedError)
-            {
-                Assert.Throws<NotImplementedException>(() => _customFactory?.CreateCSharpType(inputType));
-                return;
-            }
-            else
-            {
-                Assert.IsNotNull(inputType);
-                Assert.IsNotNull(expectedType);
+            var input = new InputEnumType(
+                "sampleType",
+                "sampleType",
+                "public",
+                null,
+                "sampleType description",
+                InputModelTypeUsage.Input,
+                new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
+                true);
+            var expected = new CSharpType("SampleType", "Sample.Models", true, false, null, [], true, true, underlyingEnumType: typeof(string));
 
-                var actual = _customFactory?.CreateCSharpType(inputType);
+            var actual = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input);
 
-                Assert.IsNotNull(actual);
-
-                expectedType!.Equals(actual!);
-            }
+            Assert.IsNotNull(actual);
+            Assert.AreEqual(expected, actual);
         }
 
-        public static IEnumerable<TestCaseData> CreateTypeTestCases
+        [Test]
+        public void ExtensibleStringNullableEnumType()
         {
-            get
-            {
-                yield return new TestCaseData(new InputList("sampleType", new InputPrimitiveType(InputPrimitiveTypeKind.Boolean, false), false, false), new CSharpType(typeof(InputList), isNullable: false), false);
-                yield return new TestCaseData(new InputDictionary("sampleType", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new InputPrimitiveType(InputPrimitiveTypeKind.Int32, false), false), new CSharpType(typeof(InputDictionary), isNullable: false), false);
-                yield return new TestCaseData(new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new CSharpType(typeof(InputPrimitiveType), isNullable: false), false);
-                yield return new TestCaseData(new InputLiteralType("literalType", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), "literal", false), null, true);
-            }
+            var input = new InputEnumType(
+                "sampleType",
+                "sampleType",
+                "public",
+                null,
+                "sampleType description",
+                InputModelTypeUsage.Input,
+                new InputPrimitiveType(InputPrimitiveTypeKind.String, null, true),
+                [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
+                true);
+            var nullableInput = new InputNullableType(input);
+            var expected = new CSharpType("SampleType", "Sample.Models", true, true, null, [], true, true, underlyingEnumType: typeof(string));
+
+            var actual = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(nullableInput);
+
+            Assert.IsNotNull(actual);
+            Assert.AreEqual(expected, actual);
         }
 
-        internal class CustomTypeFactory : TypeFactory
+        [Test]
+        public void ExtensibleStringEnumTypeProvider()
         {
+            var input = new InputEnumType(
+                "sampleType",
+                "sampleType",
+                "public",
+                null,
+                "sampleType description",
+                InputModelTypeUsage.Input,
+                new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
+                true);
+            var expected = new CSharpType("SampleType", "Sample.Models", true, false, null, [], true, true, underlyingEnumType: typeof(string));
 
-            public override CSharpType RequestConditionsType()
-            {
-                throw new NotImplementedException();
-            }
+            var enumProvider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);
 
-            public override CSharpType TokenCredentialType()
-            {
-                throw new NotImplementedException();
-            }
+            Assert.IsNotNull(enumProvider);
+            Assert.AreEqual(expected, enumProvider.Type);
+        }
 
-            public override CSharpType MatchConditionsType()
-            {
-                throw new NotImplementedException();
-            }
+        [Test]
+        public void FixedStringEnumType()
+        {
+            var input = new InputEnumType(
+                "sampleType",
+                "sampleType",
+                "public",
+                null,
+                "sampleType description",
+                InputModelTypeUsage.Input,
+                new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
+                false);
+            var expected = new CSharpType("SampleType", "Sample.Models", true, false, null, [], true, false, underlyingEnumType: typeof(string));
 
-            public override CSharpType PageResponseType()
-            {
-                throw new NotImplementedException();
-            }
+            var actual = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input);
 
-            public override Parameter CreateCSharpParam(InputParameter parameter)
-            {
-                throw new NotImplementedException();
-            }
+            Assert.IsNotNull(actual);
+            Assert.AreEqual(expected, actual);
+        }
 
-            public override CSharpMethodCollection? CreateCSharpMethodCollection(InputOperation operation)
-            {
-                throw new NotImplementedException();
-            }
+        [Test]
+        public void CreateSameEnum()
+        {
+            var input = new InputEnumType(
+                "sampleType",
+                "sampleType",
+                "public",
+                null,
+                "sampleType description",
+                InputModelTypeUsage.Input,
+                new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
+                false);
+            var expected = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);
 
-            public override CSharpType CreateCSharpType(InputType input)
-            {
-                switch (input)
-                {
-                    case InputList:
-                        return new CSharpType(typeof(InputList), isNullable: false);
-                    case InputDictionary:
-                        return new CSharpType(typeof(InputDictionary), isNullable: false);
-                    case InputPrimitiveType:
-                        return new CSharpType(typeof(InputPrimitiveType), isNullable: false);
-                    default:
-                        throw new NotImplementedException("Unknown input type");
-                }
-            }
+            var actual = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);
+
+            Assert.IsTrue(ReferenceEquals(expected, actual));
         }
     }
 }

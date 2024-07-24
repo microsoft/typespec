@@ -1,6 +1,7 @@
 import {
   Decorator,
   Enum,
+  EnumMember,
   Interface,
   LinterRuleDefinition,
   LinterRuleSet,
@@ -51,7 +52,7 @@ export type EmitterRefDoc = {
 
 export type LinterRefDoc = {
   /** List of rulesets provided. */
-  readonly ruleSets?: LinterRuleSetRefDoc[];
+  readonly ruleSets: LinterRuleSetRefDoc[];
   readonly rules: LinterRuleRefDoc[];
 };
 
@@ -164,6 +165,11 @@ export type ModelPropertyRefDoc = NamedTypeRefDoc & {
 export type EnumRefDoc = NamedTypeRefDoc & {
   readonly kind: "enum";
   readonly type: Enum;
+  readonly members: ReadonlyMap<string, EnumMemberRefDoc>;
+};
+
+export type EnumMemberRefDoc = NamedTypeRefDoc & {
+  readonly type: EnumMember;
 };
 
 export type UnionRefDoc = NamedTypeRefDoc & {

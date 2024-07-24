@@ -1,5 +1,16 @@
 # Change Log - typespec-vs
 
+## 0.58.0
+
+No changes, version bump only.
+
+## 0.57.0
+
+### Features
+
+- [#3461](https://github.com/microsoft/typespec/pull/3461) Support Arm64
+
+
 ## 0.56.0
 
 No changes, version bump only.

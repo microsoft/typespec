@@ -1,5 +1,26 @@
 # Change Log - @typespec/versioning
 
+## 0.58.0
+
+### Bump dependencies
+
+- [#3718](https://github.com/microsoft/typespec/pull/3718) Dependency updates July 2024
+
+
+## 0.57.0
+
+### Bug Fixes
+
+- [#3292](https://github.com/microsoft/typespec/pull/3292) Add `@madeRequired` decorator
+- [#3022](https://github.com/microsoft/typespec/pull/3022) Update to support new value types
+- [#3409](https://github.com/microsoft/typespec/pull/3409) Using `@removed` on member types and `@added` on containing type could result in errors
+- [#3255](https://github.com/microsoft/typespec/pull/3255) If a property were marked with @added on a later version, the logic that said it was originally added on the first version was erroneously removed, resulting in incorrect projections.
+
+### Bump dependencies
+
+- [#3401](https://github.com/microsoft/typespec/pull/3401) Update dependencies - May 2024
+
+
 ## 0.56.0
 
 ### Bug Fixes

@@ -4,7 +4,7 @@ title: "[F] validateDecoratorParamType"
 
 ---
 ```ts
-validateDecoratorParamType<K>(
+function validateDecoratorParamType<K>(
    program, 
    target, 
    value, 
@@ -13,39 +13,16 @@ validateDecoratorParamType<K>(
 
 Validate a decorator parameter has the correct type.
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
-| `K` extends 
-  \| `"Scalar"`
-  \| `"ModelProperty"`
-  \| `"Model"`
-  \| `"Interface"`
-  \| `"Enum"`
-  \| `"EnumMember"`
-  \| `"TemplateParameter"`
-  \| `"Namespace"`
-  \| `"Operation"`
-  \| `"String"`
-  \| `"Number"`
-  \| `"Boolean"`
-  \| `"StringTemplate"`
-  \| `"StringTemplateSpan"`
-  \| `"Tuple"`
-  \| `"Union"`
-  \| `"UnionVariant"`
-  \| `"Intrinsic"`
-  \| `"Function"`
-  \| `"Decorator"`
-  \| `"FunctionParameter"`
-  \| `"Object"`
-  \| `"Projection"` |
+| Type Parameter |
+| ------ |
+| `K` *extends* \| `"Boolean"` \| `"Decorator"` \| `"Enum"` \| `"EnumMember"` \| `"FunctionParameter"` \| `"Function"` \| `"Interface"` \| `"Intrinsic"` \| `"Model"` \| `"ModelProperty"` \| `"Namespace"` \| `"Number"` \| `"Object"` \| `"Operation"` \| `"Projection"` \| `"Scalar"` \| `"ScalarConstructor"` \| `"String"` \| `"StringTemplate"` \| `"StringTemplateSpan"` \| `"TemplateParameter"` \| `"Tuple"` \| `"Union"` \| `"UnionVariant"` |
 
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) | Program |
 | `target` | [`Type`](../type-aliases/Type.md) | Decorator target |
 | `value` | [`TypeSpecValue`](../type-aliases/TypeSpecValue.md) | Value of the parameter. |

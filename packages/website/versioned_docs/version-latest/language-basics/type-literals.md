@@ -21,10 +21,10 @@ Multi-line string literals are denoted using three double quotes `"""`.
 
 ```typespec
 alias Str = """
-This is a multi line string
- - opt 1
- - opt 2
-""";
+  This is a multi line string
+   - opt 1
+   - opt 2
+  """;
 ```
 
 - The opening `"""` must be followed by a new line.

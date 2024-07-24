@@ -4,13 +4,13 @@ title: "[F] $nsDeclarations"
 
 ---
 ```ts
-$nsDeclarations(context, target): void
+function $nsDeclarations(context, target): void
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Enum` |
 

@@ -32,47 +32,53 @@ namespace Microsoft.Generator.CSharp.Input
 
             id = id ?? throw new JsonException();
 
-            // skip every other property until we have a name
-            while (name == null)
-            {
-                var hasName = reader.TryReadString(nameof(InputModelType.Name), ref name);
-                if (!hasName)
-                {
-                    reader.SkipProperty();
-                }
-            }
-            name = name ?? throw new JsonException("Model must have name");
-
             // create an empty model to resolve circular references
-            var model = new InputModelType(name, null, null, null, null, InputModelTypeUsage.None, null!, null, new List<InputModelType>(), null, null, null, false);
+            var model = new InputModelType(
+                name: name!,
+                crossLanguageDefinitionId: null!,
+                access: null,
+                deprecation: null,
+                description: null,
+                usage: InputModelTypeUsage.None,
+                properties: null!,
+                baseModel: null,
+                derivedModels: [],
+                discriminatorValue: null,
+                discriminatorProperty: null,
+                discriminatedSubtypes: null!,
+                additionalProperties: null,
+                modelAsStruct: false);
             resolver.AddReference(id, model);
 
-            bool isNullable = false;
-            string? ns = null;
+            string? crossLanguageDefinitionId = null;
             string? accessibility = null;
             string? deprecated = null;
             string? description = null;
             string? usageString = null;
-            string? discriminatorPropertyName = null;
+            InputModelProperty? discriminatorProperty = null;
             string? discriminatorValue = null;
-            InputDictionary? inheritedDictionaryType = null;
+            InputType? additionalProperties = null;
             InputModelType? baseModel = null;
             IReadOnlyList<InputModelProperty>? properties = null;
+            IReadOnlyDictionary<string, InputModelType>? discriminatedSubtypes = null;
+            bool modelAsStruct = false;
 
             // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadBoolean(nameof(InputModelType.IsNullable), ref isNullable)
-                    || reader.TryReadString(nameof(InputModelType.Namespace), ref ns)
-                    || reader.TryReadString(nameof(InputModelType.Accessibility), ref accessibility)
-                    || reader.TryReadString(nameof(InputModelType.Deprecated), ref deprecated)
+                var isKnownProperty = reader.TryReadString(nameof(InputModelType.Name), ref name)
+                    || reader.TryReadString(nameof(InputModelType.CrossLanguageDefinitionId), ref crossLanguageDefinitionId)
+                    || reader.TryReadString(nameof(InputModelType.Access), ref accessibility)
+                    || reader.TryReadString(nameof(InputModelType.Deprecation), ref deprecated)
                     || reader.TryReadString(nameof(InputModelType.Description), ref description)
                     || reader.TryReadString(nameof(InputModelType.Usage), ref usageString)
-                    || reader.TryReadString(nameof(InputModelType.DiscriminatorPropertyName), ref discriminatorPropertyName)
+                    || reader.TryReadWithConverter(nameof(InputModelType.DiscriminatorProperty), options, ref discriminatorProperty)
                     || reader.TryReadString(nameof(InputModelType.DiscriminatorValue), ref discriminatorValue)
-                    || reader.TryReadWithConverter(nameof(InputModelType.InheritedDictionaryType), options, ref inheritedDictionaryType)
+                    || reader.TryReadWithConverter(nameof(InputModelType.AdditionalProperties), options, ref additionalProperties)
                     || reader.TryReadWithConverter(nameof(InputModelType.BaseModel), options, ref baseModel)
-                    || reader.TryReadWithConverter(nameof(InputModelType.Properties), options, ref properties);
+                    || reader.TryReadWithConverter(nameof(InputModelType.Properties), options, ref properties)
+                    || reader.TryReadWithConverter(nameof(InputModelType.DiscriminatedSubtypes), options, ref discriminatedSubtypes)
+                    || reader.TryReadBoolean(nameof(InputModelType.ModelAsStruct), ref modelAsStruct);
 
                 if (!isKnownProperty)
                 {
@@ -81,20 +87,27 @@ namespace Microsoft.Generator.CSharp.Input
             }
 
             model.Name = name ?? throw new JsonException("InputModelType must have name");
-            model.Namespace = ns;
-            model.Accessibility = accessibility;
-            model.Deprecated = deprecated;
+            model.CrossLanguageDefinitionId = crossLanguageDefinitionId ?? string.Empty;
+            model.Access = accessibility;
+            model.Deprecation = deprecated;
             model.Description = description;
             var parsedUsage = Enum.TryParse<InputModelTypeUsage>(usageString, ignoreCase: true, out var usage) ? usage : InputModelTypeUsage.None;
             // TO-DO: Manually add JSON usage flag for now until support for parsing this is added to the TSP https://github.com/microsoft/typespec/issues/3392
             parsedUsage |= InputModelTypeUsage.Json;
             model.Usage = parsedUsage;
             model.DiscriminatorValue = discriminatorValue;
-            model.DiscriminatorPropertyName = discriminatorPropertyName;
-            model.InheritedDictionaryType = inheritedDictionaryType;
-            model.IsNullable = isNullable;
+            model.DiscriminatorProperty = discriminatorProperty;
+            model.AdditionalProperties = additionalProperties;
             model.BaseModel = baseModel;
             model.Properties = properties ?? Array.Empty<InputModelProperty>();
+            model.DiscriminatedSubtypes = discriminatedSubtypes ?? new Dictionary<string, InputModelType>();
+            model.ModelAsStruct = modelAsStruct;
+
+            // if this model has a base, it means this model is a derived model of the base model, add it into the list.
+            if (baseModel != null)
+            {
+                baseModel.DerivedModelsInternal.Add(model);
+            }
 
             return model;
         }

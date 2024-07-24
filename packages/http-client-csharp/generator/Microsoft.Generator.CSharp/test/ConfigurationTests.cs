@@ -4,47 +4,24 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Generator.CSharp.Expressions;
-using Moq;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
-using static Microsoft.Generator.CSharp.Expressions.ExtensibleSnippets;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
     // Tests for the Configuration class
     public class ConfigurationTests
     {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-        private readonly string _mocksFolder = "./mocks";
-
         // Validates that the configuration is initialized correctly given input
         [Test]
         public void TestInitialize()
         {
-            // mock api types
-            var mockApiTypes = new Mock<ApiTypes>()
-            {
-                CallBase = true
-            };
-
-            var mockExtensibleSnippets = new Mock<ExtensibleSnippets>()
-            {
-                CallBase = true
-            };
-
-            mockApiTypes.SetupGet(p => p.EndPointSampleValue).Returns("Sample");
-
-            var modelSnippets = new Mock<ModelSnippets>().Object;
-            mockExtensibleSnippets.SetupGet(p => p.Model).Returns(modelSnippets);
-
-            string ns = "sample.namespace";
+            string ns = "Sample";
             string? unknownStringProperty = "unknownPropertyValue";
             bool? unknownBoolProp = false;
 
-            var configuration = Configuration.Load(_mocksFolder);
+            var configuration = Configuration.Load(MockHelpers.MocksFolder);
 
-            var parsedNs = configuration.Namespace;
+            var parsedNs = configuration.RootNamespace;
 
             Assert.AreEqual(ns, parsedNs);
             // get the unknown property from the configuration
@@ -64,7 +41,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void TestInitialize_NoFileFound()
         {
-            var configFilePath = Path.Combine(_mocksFolder, "unknown_file.out");
+            var configFilePath = Path.Combine(MockHelpers.MocksFolder, "unknown_file.out");
             Assert.Throws<InvalidOperationException>(() => Configuration.Load(configFilePath));
         }
 
@@ -73,7 +50,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TestParseConfig_OutputFolder(string mockJson, bool throwsError)
         {
 
-            var expected = Path.GetFullPath(_mocksFolder);
+            var expected = Path.GetFullPath(MockHelpers.MocksFolder);
 
             if (throwsError)
             {
@@ -81,7 +58,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 return;
             }
 
-            var configuration = Configuration.Load(_mocksFolder, mockJson);
+            var configuration = Configuration.Load(MockHelpers.MocksFolder, mockJson);
 
             Assert.AreEqual(expected, configuration.OutputDirectory);
         }
@@ -115,7 +92,7 @@ namespace Microsoft.Generator.CSharp.Tests
             }
 
             var configuration = Configuration.Load(string.Empty, mockJson);
-            var ns = configuration.Namespace;
+            var ns = configuration.RootNamespace;
             var expected = "namespace";
 
             Assert.AreEqual(expected, ns);

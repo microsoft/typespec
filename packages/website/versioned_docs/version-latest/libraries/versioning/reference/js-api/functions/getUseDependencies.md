@@ -4,7 +4,7 @@ title: "[F] getUseDependencies"
 
 ---
 ```ts
-getUseDependencies(
+function getUseDependencies(
    program, 
    target, 
    searchEnum): Map<Namespace, Map<Version, Version> | Version> | undefined
@@ -13,9 +13,9 @@ getUseDependencies(
 ## Parameters
 
 | Parameter | Type | Default value |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | `Program` | `undefined` |
-| `target` | `Enum` \| `Namespace` | `undefined` |
+| `target` | `Namespace` \| `Enum` | `undefined` |
 | `searchEnum` | `boolean` | `true` |
 
 ## Returns

@@ -1,73 +1,45 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.Generator.CSharp.Expressions;
 
-namespace Microsoft.Generator.CSharp.Expressions
+namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record SwitchStatement(ValueExpression MatchExpression) : MethodBodyStatement, IEnumerable<SwitchCase>
+    public sealed class SwitchStatement : MethodBodyStatement, IEnumerable<SwitchCaseStatement>
     {
-        public SwitchStatement(ValueExpression matchExpression, IEnumerable<SwitchCase> cases) : this(matchExpression)
+        public ValueExpression MatchExpression { get; }
+
+        public SwitchStatement(ValueExpression matchExpression)
+        {
+            MatchExpression = matchExpression;
+        }
+
+        public SwitchStatement(ValueExpression matchExpression, IEnumerable<SwitchCaseStatement> cases) : this(matchExpression)
         {
             _cases.AddRange(cases);
         }
 
-        private readonly List<SwitchCase> _cases = new();
-        public IReadOnlyList<SwitchCase> Cases => _cases;
+        private readonly List<SwitchCaseStatement> _cases = new();
+        public IReadOnlyList<SwitchCaseStatement> Cases => _cases;
 
-        public void Add(SwitchCase statement) => _cases.Add(statement);
-        public IEnumerator<SwitchCase> GetEnumerator() => _cases.GetEnumerator();
+        public void Add(SwitchCaseStatement statement) => _cases.Add(statement);
+        public IEnumerator<SwitchCaseStatement> GetEnumerator() => _cases.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_cases).GetEnumerator();
 
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             using (writer.AmbientScope())
             {
                 writer.Append($"switch (");
                 MatchExpression.Write(writer);
                 writer.WriteRawLine(")");
-                writer.WriteRawLine("{");
+                using var scope = writer.Scope();
                 foreach (var switchCase in Cases)
                 {
-                    if (switchCase.Match.Any())
-                    {
-                        for (var i = 0; i < switchCase.Match.Count; i++)
-                        {
-                            ValueExpression? match = switchCase.Match[i];
-                            writer.AppendRaw("case ");
-                            match.Write(writer);
-                            if (i < switchCase.Match.Count - 1)
-                            {
-                                writer.WriteRawLine(":");
-                            }
-                        }
-                    }
-                    else
-                    {
-                        writer.AppendRaw("default");
-                    }
-
-                    writer.AppendRaw(": ");
-                    if (!switchCase.Inline)
-                    {
-                        writer.WriteLine();
-                    }
-
-                    if (switchCase.AddScope)
-                    {
-                        using (writer.Scope())
-                        {
-                            switchCase.Statement.Write(writer);
-                        }
-                    }
-                    else
-                    {
-                        switchCase.Statement.Write(writer);
-                    }
+                    switchCase.Write(writer);
                 }
-                writer.WriteRawLine("}");
             }
         }
     }

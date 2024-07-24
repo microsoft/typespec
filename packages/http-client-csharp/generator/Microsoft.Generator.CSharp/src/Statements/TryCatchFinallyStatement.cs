@@ -1,40 +1,43 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Expressions;
 
-namespace Microsoft.Generator.CSharp.Expressions
+namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record TryCatchFinallyStatement(MethodBodyStatement Try, IReadOnlyList<CatchStatement> Catches, MethodBodyStatement? Finally) : MethodBodyStatement
+    public sealed class TryCatchFinallyStatement : MethodBodyStatement
     {
-        public TryCatchFinallyStatement(MethodBodyStatement Try) : this(Try, Array.Empty<CatchStatement>(), null)
+        public TryStatement Try { get; }
+        public IReadOnlyList<CatchStatement> Catches { get; }
+        public FinallyStatement? Finally { get; }
+
+        public TryCatchFinallyStatement(TryStatement @try, IReadOnlyList<CatchStatement> catches, FinallyStatement? @finally)
+        {
+            Try = @try;
+            Catches = catches;
+            Finally = @finally;
+        }
+
+        public TryCatchFinallyStatement(TryStatement @try) : this(@try, Array.Empty<CatchStatement>(), null)
         {
         }
 
-        public TryCatchFinallyStatement(MethodBodyStatement Try, CatchStatement Catch, MethodBodyStatement? Finally = null) : this(Try, [Catch], Finally)
+        public TryCatchFinallyStatement(TryStatement @try, CatchStatement @catch, FinallyStatement? @finally = null) : this(@try, new[] { @catch }, @finally)
         {
         }
 
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
-            writer.WriteRawLine("try");
-            writer.WriteRawLine("{");
             Try.Write(writer);
-            writer.WriteRawLine("}");
 
             foreach (var catchStatement in Catches)
             {
                 catchStatement.Write(writer);
             }
 
-            if (Finally != null)
-            {
-                writer.WriteRawLine("finally");
-                writer.WriteRawLine("{");
-                Finally.Write(writer);
-                writer.WriteRawLine("}");
-            }
+            Finally?.Write(writer);
         }
     }
 }

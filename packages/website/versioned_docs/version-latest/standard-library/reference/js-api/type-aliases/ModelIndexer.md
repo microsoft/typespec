@@ -4,12 +4,12 @@ title: "[T] ModelIndexer"
 
 ---
 ```ts
-type ModelIndexer: Object;
+type ModelIndexer: object;
 ```
 
 ## Type declaration
 
-| Member | Type |
-| :------ | :------ |
+| Name | Type |
+| ------ | ------ |
 | `key` | [`Scalar`](../interfaces/Scalar.md) |
 | `value` | [`Type`](Type.md) |

@@ -46,11 +46,17 @@ configuration:
                 - hasLabel:
                     label: emitter:openapi3
                 - hasLabel:
+                    label: openapi3:converter
+                - hasLabel:
                     label: emitter:service:csharp
                 - hasLabel:
                     label: emitter:service:js
                 - hasLabel:
                     label: eng
+                - hasLabel:
+                    label: ui:playground
+                - hasLabel:
+                    label: ui:type-graph-viewer
         then:
           - addLabel:
               label: needs-area
@@ -90,11 +96,17 @@ configuration:
               - labelAdded:
                   label: emitter:openapi3
               - labelAdded:
+                  label: openapi3:converter
+              - labelAdded:
                   label: emitter:service:csharp
               - labelAdded:
                   label: emitter:service:js
               - labelAdded:
                   label: eng
+              - labelAdded:
+                  label: ui:playground
+              - labelAdded:
+                  label: ui:type-graph-viewer
         then:
           - removeLabel:
               label: needs-area
@@ -135,11 +147,17 @@ configuration:
               - labelRemoved:
                   label: emitter:openapi3
               - labelRemoved:
+                  label: openapi3:converter
+              - labelRemoved:
                   label: emitter:service:csharp
               - labelRemoved:
                   label: emitter:service:js
               - labelRemoved:
                   label: eng
+              - labelRemoved:
+                  label: ui:playground
+              - labelRemoved:
+                  label: ui:type-graph-viewer
           - not:
               or:
                 - hasLabel:
@@ -171,11 +189,17 @@ configuration:
                 - hasLabel:
                     label: emitter:openapi3
                 - hasLabel:
+                    label: openapi3:converter
+                - hasLabel:
                     label: emitter:service:csharp
                 - hasLabel:
                     label: emitter:service:js
                 - hasLabel:
                     label: eng
+                - hasLabel:
+                    label: ui:playground
+                - hasLabel:
+                    label: ui:type-graph-viewer
         then:
           - addLabel:
               label: needs-area

@@ -113,6 +113,8 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         "generate-test-project":
           options["generate-test-project"] === false ? undefined : options["generate-test-project"],
         "use-model-reader-writer": options["use-model-reader-writer"] ?? true,
+        "disable-xml-docs":
+          options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
       };
 
       await program.host.writeFile(
@@ -133,14 +135,14 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         const existingProjectOption = options["existing-project-folder"]
           ? `--existing-project-folder ${options["existing-project-folder"]}`
           : "";
-        const debugFlag = options.debug ?? false ? " --debug" : "";
+        const debugFlag = (options.debug ?? false) ? " --debug" : "";
 
         const projectRoot = findProjectRoot(dirname(fileURLToPath(import.meta.url)));
         const generatorPath = resolvePath(
           projectRoot + "/dist/generator/Microsoft.Generator.CSharp.dll"
         );
 
-        const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} ${newProjectOption} ${existingProjectOption}${debugFlag}`;
+        const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]} ${newProjectOption} ${existingProjectOption}${debugFlag}`;
         Logger.getInstance().info(command);
 
         const result = await execAsync(
@@ -150,6 +152,8 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
             "Major",
             generatorPath,
             outputFolder,
+            "-p",
+            options["plugin-name"],
             newProjectOption,
             existingProjectOption,
             debugFlag,

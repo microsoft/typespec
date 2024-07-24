@@ -4,13 +4,13 @@ title: "[F] isPathAbsolute"
 
 ---
 ```ts
-isPathAbsolute(path): boolean
+function isPathAbsolute(path): boolean
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 
 ## Returns

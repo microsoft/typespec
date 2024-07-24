@@ -5,9 +5,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
+    /// <summary> this is a roundtrip model. </summary>
     public partial class RoundTripModel
     {
         /// <summary> Initializes a new instance of <see cref="RoundTripModel"/>. </summary>
@@ -21,111 +24,33 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="modelWithRequiredNullable"> this is a model with required nullable properties. </param>
         /// <param name="requiredBytes"> Required bytes. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="requiredString"/>, <paramref name="requiredCollection"/>, <paramref name="requiredDictionary"/>, <paramref name="requiredModel"/>, <paramref name="requiredUnknown"/>, <paramref name="requiredRecordUnknown"/>, <paramref name="modelWithRequiredNullable"/> or <paramref name="requiredBytes"/> is null. </exception>
-        public RoundTripModel(string requiredString, int requiredInt, IEnumerable<string> requiredCollection, IDictionary<string, string> requiredDictionary, Thing requiredModel, System.BinaryData requiredUnknown, IDictionary<string, System.BinaryData> requiredRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, System.BinaryData requiredBytes)
+        public RoundTripModel(string requiredString, int requiredInt, IEnumerable<StringFixedEnum> requiredCollection, IDictionary<string, StringExtensibleEnum> requiredDictionary, Thing requiredModel, BinaryData requiredUnknown, IDictionary<string, BinaryData> requiredRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, BinaryData requiredBytes)
         {
-            if (requiredString == null)
-            {
-                throw new ArgumentNullException(nameof(requiredString));
-            }
-            if (requiredCollection == null)
-            {
-                throw new ArgumentNullException(nameof(requiredCollection));
-            }
-            if (requiredDictionary == null)
-            {
-                throw new ArgumentNullException(nameof(requiredDictionary));
-            }
-            if (requiredModel == null)
-            {
-                throw new ArgumentNullException(nameof(requiredModel));
-            }
-            if (requiredUnknown == null)
-            {
-                throw new ArgumentNullException(nameof(requiredUnknown));
-            }
-            if (requiredRecordUnknown == null)
-            {
-                throw new ArgumentNullException(nameof(requiredRecordUnknown));
-            }
-            if (modelWithRequiredNullable == null)
-            {
-                throw new ArgumentNullException(nameof(modelWithRequiredNullable));
-            }
-            if (requiredBytes == null)
-            {
-                throw new ArgumentNullException(nameof(requiredBytes));
-            }
+            Argument.AssertNotNull(requiredString, nameof(requiredString));
+            Argument.AssertNotNull(requiredCollection, nameof(requiredCollection));
+            Argument.AssertNotNull(requiredDictionary, nameof(requiredDictionary));
+            Argument.AssertNotNull(requiredModel, nameof(requiredModel));
+            Argument.AssertNotNull(requiredUnknown, nameof(requiredUnknown));
+            Argument.AssertNotNull(requiredRecordUnknown, nameof(requiredRecordUnknown));
+            Argument.AssertNotNull(modelWithRequiredNullable, nameof(modelWithRequiredNullable));
+            Argument.AssertNotNull(requiredBytes, nameof(requiredBytes));
 
             RequiredString = requiredString;
             RequiredInt = requiredInt;
             RequiredCollection = requiredCollection.ToList();
             RequiredDictionary = requiredDictionary;
             RequiredModel = requiredModel;
-            IntExtensibleEnumCollection = new List<int>();
-            FloatExtensibleEnumCollection = new List<int>();
-            FloatFixedEnumCollection = new List<float>();
-            IntFixedEnumCollection = new List<int>();
+            IntExtensibleEnumCollection = new ChangeTrackingList<IntExtensibleEnum>();
+            FloatExtensibleEnumCollection = new ChangeTrackingList<FloatExtensibleEnum>();
+            FloatFixedEnumCollection = new ChangeTrackingList<FloatFixedEnum>();
+            IntFixedEnumCollection = new ChangeTrackingList<IntFixedEnum>();
             RequiredUnknown = requiredUnknown;
             RequiredRecordUnknown = requiredRecordUnknown;
-            OptionalRecordUnknown = new Dictionary<string, System.BinaryData>();
-            ReadOnlyRequiredRecordUnknown = new Dictionary<string, System.BinaryData>();
-            ReadOnlyOptionalRecordUnknown = new Dictionary<string, System.BinaryData>();
+            OptionalRecordUnknown = new ChangeTrackingDictionary<string, BinaryData>();
+            ReadOnlyRequiredRecordUnknown = new ChangeTrackingDictionary<string, BinaryData>();
+            ReadOnlyOptionalRecordUnknown = new ChangeTrackingDictionary<string, BinaryData>();
             ModelWithRequiredNullable = modelWithRequiredNullable;
             RequiredBytes = requiredBytes;
-        }
-
-        /// <summary> Initializes a new instance of <see cref="RoundTripModel"/>. </summary>
-        /// <param name="requiredString"> Required string, illustrating a reference type property. </param>
-        /// <param name="requiredInt"> Required int, illustrating a value type property. </param>
-        /// <param name="requiredCollection"> Required collection of enums. </param>
-        /// <param name="requiredDictionary"> Required dictionary of enums. </param>
-        /// <param name="requiredModel"> Required model. </param>
-        /// <param name="intExtensibleEnum"> this is an int based extensible enum. </param>
-        /// <param name="intExtensibleEnumCollection"> this is a collection of int based extensible enum. </param>
-        /// <param name="floatExtensibleEnum"> this is a float based extensible enum. </param>
-        /// <param name="floatExtensibleEnumCollection"> this is a collection of float based extensible enum. </param>
-        /// <param name="floatFixedEnum"> this is a float based fixed enum. </param>
-        /// <param name="floatFixedEnumCollection"> this is a collection of float based fixed enum. </param>
-        /// <param name="intFixedEnum"> this is a int based fixed enum. </param>
-        /// <param name="intFixedEnumCollection"> this is a collection of int based fixed enum. </param>
-        /// <param name="stringFixedEnum"> this is a string based fixed enum. </param>
-        /// <param name="requiredUnknown"> required unknown. </param>
-        /// <param name="optionalUnknown"> optional unknown. </param>
-        /// <param name="requiredRecordUnknown"> required record of unknown. </param>
-        /// <param name="optionalRecordUnknown"> optional record of unknown. </param>
-        /// <param name="readOnlyRequiredRecordUnknown"> required readonly record of unknown. </param>
-        /// <param name="readOnlyOptionalRecordUnknown"> optional readonly record of unknown. </param>
-        /// <param name="modelWithRequiredNullable"> this is a model with required nullable properties. </param>
-        /// <param name="requiredBytes"> Required bytes. </param>
-        internal RoundTripModel(string requiredString, int requiredInt, IList<string> requiredCollection, IDictionary<string, string> requiredDictionary, Thing requiredModel, int intExtensibleEnum, IList<int> intExtensibleEnumCollection, int floatExtensibleEnum, IList<int> floatExtensibleEnumCollection, float floatFixedEnum, IList<float> floatFixedEnumCollection, int intFixedEnum, IList<int> intFixedEnumCollection, string stringFixedEnum, System.BinaryData requiredUnknown, System.BinaryData optionalUnknown, IDictionary<string, System.BinaryData> requiredRecordUnknown, IDictionary<string, System.BinaryData> optionalRecordUnknown, IDictionary<string, System.BinaryData> readOnlyRequiredRecordUnknown, IDictionary<string, System.BinaryData> readOnlyOptionalRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, System.BinaryData requiredBytes)
-        {
-            RequiredString = requiredString;
-            RequiredInt = requiredInt;
-            RequiredCollection = requiredCollection;
-            RequiredDictionary = requiredDictionary;
-            RequiredModel = requiredModel;
-            IntExtensibleEnum = intExtensibleEnum;
-            IntExtensibleEnumCollection = intExtensibleEnumCollection;
-            FloatExtensibleEnum = floatExtensibleEnum;
-            FloatExtensibleEnumCollection = floatExtensibleEnumCollection;
-            FloatFixedEnum = floatFixedEnum;
-            FloatFixedEnumCollection = floatFixedEnumCollection;
-            IntFixedEnum = intFixedEnum;
-            IntFixedEnumCollection = intFixedEnumCollection;
-            StringFixedEnum = stringFixedEnum;
-            RequiredUnknown = requiredUnknown;
-            OptionalUnknown = optionalUnknown;
-            RequiredRecordUnknown = requiredRecordUnknown;
-            OptionalRecordUnknown = optionalRecordUnknown;
-            ReadOnlyRequiredRecordUnknown = readOnlyRequiredRecordUnknown;
-            ReadOnlyOptionalRecordUnknown = readOnlyOptionalRecordUnknown;
-            ModelWithRequiredNullable = modelWithRequiredNullable;
-            RequiredBytes = requiredBytes;
-        }
-
-        /// <summary> Initializes a new instance of <see cref="RoundTripModel"/> for deserialization. </summary>
-        internal RoundTripModel()
-        {
         }
 
         /// <summary> Required string, illustrating a reference type property. </summary>
@@ -135,232 +60,214 @@ namespace UnbrandedTypeSpec.Models
         public int RequiredInt { get; set; }
 
         /// <summary> Required collection of enums. </summary>
-        public IList<string> RequiredCollection { get; }
+        public IList<StringFixedEnum> RequiredCollection { get; }
 
         /// <summary> Required dictionary of enums. </summary>
-        public IDictionary<string, string> RequiredDictionary { get; }
+        public IDictionary<string, StringExtensibleEnum> RequiredDictionary { get; }
 
         /// <summary> Required model. </summary>
         public Thing RequiredModel { get; set; }
 
         /// <summary> this is an int based extensible enum. </summary>
-        public int IntExtensibleEnum { get; set; }
+        public IntExtensibleEnum? IntExtensibleEnum { get; set; }
 
         /// <summary> this is a collection of int based extensible enum. </summary>
-        public IList<int> IntExtensibleEnumCollection { get; }
+        public IList<IntExtensibleEnum> IntExtensibleEnumCollection { get; }
 
         /// <summary> this is a float based extensible enum. </summary>
-        public int FloatExtensibleEnum { get; set; }
+        public FloatExtensibleEnum? FloatExtensibleEnum { get; set; }
+
+        /// <summary> this is a float based extensible enum. </summary>
+        public FloatExtensibleEnumWithIntValue? FloatExtensibleEnumWithIntValue { get; set; }
 
         /// <summary> this is a collection of float based extensible enum. </summary>
-        public IList<int> FloatExtensibleEnumCollection { get; }
+        public IList<FloatExtensibleEnum> FloatExtensibleEnumCollection { get; }
 
         /// <summary> this is a float based fixed enum. </summary>
-        public float FloatFixedEnum { get; set; }
+        public FloatFixedEnum? FloatFixedEnum { get; set; }
+
+        /// <summary> this is a float based fixed enum. </summary>
+        public FloatFixedEnumWithIntValue? FloatFixedEnumWithIntValue { get; set; }
 
         /// <summary> this is a collection of float based fixed enum. </summary>
-        public IList<float> FloatFixedEnumCollection { get; }
+        public IList<FloatFixedEnum> FloatFixedEnumCollection { get; }
 
         /// <summary> this is a int based fixed enum. </summary>
-        public int IntFixedEnum { get; set; }
+        public IntFixedEnum? IntFixedEnum { get; set; }
 
         /// <summary> this is a collection of int based fixed enum. </summary>
-        public IList<int> IntFixedEnumCollection { get; }
+        public IList<IntFixedEnum> IntFixedEnumCollection { get; }
 
         /// <summary> this is a string based fixed enum. </summary>
-        public string StringFixedEnum { get; set; }
+        public StringFixedEnum? StringFixedEnum { get; set; }
 
         /// <summary>
         /// required unknown
-        /// <para>
-        /// To assign an object to this property use <see cref="System.BinaryData.FromObjectAsJson{T}(T, Text.Json.JsonSerializerOptions?)"/>.
-        /// </para>
-        /// <para>
-        /// To assign an already formatted json string to this property use <see cref="System.BinaryData.FromString(string)"/>.
-        /// </para>
+        /// <para> To assign an object to this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
+        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
         /// <para>
         /// Examples:
         /// <list type="bullet">
         /// <item>
-        /// <term>BinaryData.FromObjectAsJson("foo")</term>
-        /// <description>Creates a payload of "foo".</description>
+        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
+        /// <description> Creates a payload of "foo". </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromString("\"foo\"")</term>
-        /// <description>Creates a payload of "foo".</description>
+        /// <term> BinaryData.FromString("\"foo\""). </term>
+        /// <description> Creates a payload of "foo". </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
-        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
-        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
         /// </item>
         /// </list>
         /// </para>
         /// </summary>
-        public System.BinaryData RequiredUnknown { get; set; }
+        public BinaryData RequiredUnknown { get; set; }
 
         /// <summary>
         /// optional unknown
-        /// <para>
-        /// To assign an object to this property use <see cref="System.BinaryData.FromObjectAsJson{T}(T, Text.Json.JsonSerializerOptions?)"/>.
-        /// </para>
-        /// <para>
-        /// To assign an already formatted json string to this property use <see cref="System.BinaryData.FromString(string)"/>.
-        /// </para>
+        /// <para> To assign an object to this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
+        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
         /// <para>
         /// Examples:
         /// <list type="bullet">
         /// <item>
-        /// <term>BinaryData.FromObjectAsJson("foo")</term>
-        /// <description>Creates a payload of "foo".</description>
+        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
+        /// <description> Creates a payload of "foo". </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromString("\"foo\"")</term>
-        /// <description>Creates a payload of "foo".</description>
+        /// <term> BinaryData.FromString("\"foo\""). </term>
+        /// <description> Creates a payload of "foo". </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
-        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
-        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
         /// </item>
         /// </list>
         /// </para>
         /// </summary>
-        public System.BinaryData OptionalUnknown { get; set; }
+        public BinaryData OptionalUnknown { get; set; }
 
         /// <summary>
         /// required record of unknown
-        /// <para>
-        /// To assign an object to the value of this property use <see cref="System.BinaryData.FromObjectAsJson{T}(T, Text.Json.JsonSerializerOptions?)"/>.
-        /// </para>
-        /// <para>
-        /// To assign an already formatted json string to this property use <see cref="System.BinaryData.FromString(string)"/>.
-        /// </para>
+        /// <para> To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
+        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
         /// <para>
         /// Examples:
         /// <list type="bullet">
         /// <item>
-        /// <term>BinaryData.FromObjectAsJson("foo")</term>
-        /// <description>Creates a payload of "foo".</description>
+        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
+        /// <description> Creates a payload of "foo". </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromString("\"foo\"")</term>
-        /// <description>Creates a payload of "foo".</description>
+        /// <term> BinaryData.FromString("\"foo\""). </term>
+        /// <description> Creates a payload of "foo". </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
-        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
-        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
         /// </item>
         /// </list>
         /// </para>
         /// </summary>
-        public IDictionary<string, System.BinaryData> RequiredRecordUnknown { get; }
+        public IDictionary<string, BinaryData> RequiredRecordUnknown { get; }
 
         /// <summary>
         /// optional record of unknown
-        /// <para>
-        /// To assign an object to the value of this property use <see cref="System.BinaryData.FromObjectAsJson{T}(T, Text.Json.JsonSerializerOptions?)"/>.
-        /// </para>
-        /// <para>
-        /// To assign an already formatted json string to this property use <see cref="System.BinaryData.FromString(string)"/>.
-        /// </para>
+        /// <para> To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
+        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
         /// <para>
         /// Examples:
         /// <list type="bullet">
         /// <item>
-        /// <term>BinaryData.FromObjectAsJson("foo")</term>
-        /// <description>Creates a payload of "foo".</description>
+        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
+        /// <description> Creates a payload of "foo". </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromString("\"foo\"")</term>
-        /// <description>Creates a payload of "foo".</description>
+        /// <term> BinaryData.FromString("\"foo\""). </term>
+        /// <description> Creates a payload of "foo". </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
-        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
-        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
         /// </item>
         /// </list>
         /// </para>
         /// </summary>
-        public IDictionary<string, System.BinaryData> OptionalRecordUnknown { get; }
+        public IDictionary<string, BinaryData> OptionalRecordUnknown { get; }
 
         /// <summary>
         /// required readonly record of unknown
-        /// <para>
-        /// To assign an object to the value of this property use <see cref="System.BinaryData.FromObjectAsJson{T}(T, Text.Json.JsonSerializerOptions?)"/>.
-        /// </para>
-        /// <para>
-        /// To assign an already formatted json string to this property use <see cref="System.BinaryData.FromString(string)"/>.
-        /// </para>
+        /// <para> To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
+        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
         /// <para>
         /// Examples:
         /// <list type="bullet">
         /// <item>
-        /// <term>BinaryData.FromObjectAsJson("foo")</term>
-        /// <description>Creates a payload of "foo".</description>
+        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
+        /// <description> Creates a payload of "foo". </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromString("\"foo\"")</term>
-        /// <description>Creates a payload of "foo".</description>
+        /// <term> BinaryData.FromString("\"foo\""). </term>
+        /// <description> Creates a payload of "foo". </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
-        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
-        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
         /// </item>
         /// </list>
         /// </para>
         /// </summary>
-        public IDictionary<string, System.BinaryData> ReadOnlyRequiredRecordUnknown { get; }
+        public IReadOnlyDictionary<string, BinaryData> ReadOnlyRequiredRecordUnknown { get; }
 
         /// <summary>
         /// optional readonly record of unknown
-        /// <para>
-        /// To assign an object to the value of this property use <see cref="System.BinaryData.FromObjectAsJson{T}(T, Text.Json.JsonSerializerOptions?)"/>.
-        /// </para>
-        /// <para>
-        /// To assign an already formatted json string to this property use <see cref="System.BinaryData.FromString(string)"/>.
-        /// </para>
+        /// <para> To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
+        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
         /// <para>
         /// Examples:
         /// <list type="bullet">
         /// <item>
-        /// <term>BinaryData.FromObjectAsJson("foo")</term>
-        /// <description>Creates a payload of "foo".</description>
+        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
+        /// <description> Creates a payload of "foo". </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromString("\"foo\"")</term>
-        /// <description>Creates a payload of "foo".</description>
+        /// <term> BinaryData.FromString("\"foo\""). </term>
+        /// <description> Creates a payload of "foo". </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
-        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
-        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
         /// </item>
         /// </list>
         /// </para>
         /// </summary>
-        public IDictionary<string, System.BinaryData> ReadOnlyOptionalRecordUnknown { get; }
+        public IReadOnlyDictionary<string, BinaryData> ReadOnlyOptionalRecordUnknown { get; }
 
         /// <summary> this is a model with required nullable properties. </summary>
         public ModelWithRequiredNullableProperties ModelWithRequiredNullable { get; set; }
@@ -368,21 +275,19 @@ namespace UnbrandedTypeSpec.Models
         /// <summary>
         /// Required bytes
         /// <para>
-        /// To assign a byte[] to this property use <see cref="System.BinaryData.FromBytes(byte[])"/>.
+        /// To assign a byte[] to this property use <see cref="BinaryData.FromBytes(byte[])"/>.
         /// The byte[] will be serialized to a Base64 encoded string.
         /// </para>
         /// <para>
         /// Examples:
         /// <list type="bullet">
         /// <item>
-        /// <term>BinaryData.FromBytes(new byte[] { 1, 2, 3 })</term>
-        /// <description>Creates a payload of "AQID".</description>
+        /// <term> BinaryData.FromBytes(new byte[] { 1, 2, 3 }). </term>
+        /// <description> Creates a payload of "AQID". </description>
         /// </item>
         /// </list>
         /// </para>
         /// </summary>
-        public System.BinaryData RequiredBytes { get; set; }
-
-        // Add Nested Type
+        public BinaryData RequiredBytes { get; set; }
     }
 }

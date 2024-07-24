@@ -4,19 +4,19 @@ title: "[T] LinterRuleDiagnosticReportWithoutTarget"
 
 ---
 ```ts
-type LinterRuleDiagnosticReportWithoutTarget<T, M>: Object & LinterRuleDiagnosticFormat<T, M>;
+type LinterRuleDiagnosticReportWithoutTarget<T, M>: object & LinterRuleDiagnosticFormat<T, M>;
 ```
 
 ## Type declaration
 
-| Member | Type |
-| :------ | :------ |
+| Name | Type |
+| ------ | ------ |
 | `codefixes` | [`CodeFix`](../interfaces/CodeFix.md)[] |
 | `messageId` | `M` |
 
-## Type parameters
+## Type Parameters
 
-| Type parameter | Value |
-| :------ | :------ |
-| `T` extends [`DiagnosticMessages`](../interfaces/DiagnosticMessages.md) | - |
-| `M` extends keyof `T` | `"default"` |
+| Type Parameter | Default type |
+| ------ | ------ |
+| `T` *extends* [`DiagnosticMessages`](../interfaces/DiagnosticMessages.md) | - |
+| `M` *extends* keyof `T` | `"default"` |

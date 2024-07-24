@@ -5,7 +5,7 @@ title: "[C] VersionMap"
 ---
 ## Constructors
 
-### new VersionMap(namespace, enumType)
+### new VersionMap()
 
 ```ts
 new VersionMap(namespace, enumType): VersionMap
@@ -14,19 +14,13 @@ new VersionMap(namespace, enumType): VersionMap
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `namespace` | `Namespace` |
 | `enumType` | `Enum` |
 
 #### Returns
 
 [`VersionMap`](VersionMap.md)
-
-## Properties
-
-| Property | Modifier | Type |
-| :------ | :------ | :------ |
-| `map` | `private` | `Map`<`EnumMember`, [`Version`](../interfaces/Version.md)\> |
 
 ## Accessors
 
@@ -51,7 +45,7 @@ getVersionForEnumMember(member): undefined | Version
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `member` | `EnumMember` |
 
 #### Returns

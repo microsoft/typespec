@@ -4,7 +4,7 @@ title: "[F] $withDefaultKeyVisibility"
 
 ---
 ```ts
-$withDefaultKeyVisibility(
+function $withDefaultKeyVisibility(
    context, 
    target, 
    visibility): void
@@ -13,7 +13,7 @@ $withDefaultKeyVisibility(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Model`](../interfaces/Model.md) |
 | `visibility` | `string` |

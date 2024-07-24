@@ -4,7 +4,7 @@ title: "[F] $id"
 
 ---
 ```ts
-$id(
+function $id(
    context, 
    target, 
    id): void
@@ -13,7 +13,7 @@ $id(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Type` |
 | `id` | `string` |

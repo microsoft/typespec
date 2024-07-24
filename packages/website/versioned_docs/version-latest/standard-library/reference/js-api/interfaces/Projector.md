@@ -6,7 +6,7 @@ title: "[I] Projector"
 ## Properties
 
 | Property | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `parentProjector?` | [`Projector`](Projector.md) |
 | `projectedGlobalNamespace?` | [`Namespace`](Namespace.md) |
 | `projectedStartNode?` | [`Type`](../type-aliases/Type.md) |
@@ -18,15 +18,15 @@ title: "[I] Projector"
 ### projectType()
 
 ```ts
-projectType(type): Type
+projectType(type): Type | Value
 ```
 
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
-| `type` | [`Type`](../type-aliases/Type.md) |
+| ------ | ------ |
+| `type` | [`Type`](../type-aliases/Type.md) \| [`Value`](../type-aliases/Value.md) |
 
 #### Returns
 
-[`Type`](../type-aliases/Type.md)
+[`Type`](../type-aliases/Type.md) \| [`Value`](../type-aliases/Value.md)

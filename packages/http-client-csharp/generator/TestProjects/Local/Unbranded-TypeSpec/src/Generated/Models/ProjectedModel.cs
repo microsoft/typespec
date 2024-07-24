@@ -2,33 +2,17 @@
 
 #nullable disable
 
-using System;
-
 namespace UnbrandedTypeSpec.Models
 {
+    /// <summary> this is a model with a projected name. </summary>
     public partial class ProjectedModel
     {
-        /// <summary> Initializes a new instance of <see cref="ProjectedModel"/>. </summary>
-        /// <param name="name"> name of the ModelWithProjectedName. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
-        public ProjectedModel(string name)
+        internal ProjectedModel(string name)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-
             Name = name;
-        }
-
-        /// <summary> Initializes a new instance of <see cref="ProjectedModel"/> for deserialization. </summary>
-        internal ProjectedModel()
-        {
         }
 
         /// <summary> name of the ModelWithProjectedName. </summary>
         public string Name { get; set; }
-
-        // Add Nested Type
     }
 }

@@ -4,7 +4,7 @@ title: "[F] setResourceOperation"
 
 ---
 ```ts
-setResourceOperation(
+function setResourceOperation(
    context, 
    entity, 
    resourceType, 
@@ -14,7 +14,7 @@ setResourceOperation(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `entity` | `Operation` |
 | `resourceType` | `Model` |

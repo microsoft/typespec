@@ -293,6 +293,16 @@ export interface Checker {
   getStdType<T extends keyof StdTypes>(name: T): StdTypes[T];
 
   /**
+   * Return the exact type of a value.
+   *
+   * ```tsp
+   * const a: string = "hello";
+   * ```
+   * calling `getValueExactType` on the value of a would give the string literal "hello".
+   * @param value
+   */
+  getValueExactType(value: Value): Type | undefined;
+  /**
    * Check and resolve a type for the given type reference node.
    * @param node Node.
    * @returns Resolved type and diagnostics if there was an error.
@@ -349,12 +359,14 @@ export function createChecker(program: Program): Checker {
   const stdTypes: Partial<StdTypes> = {};
   const symbolLinks = new Map<number, SymbolLinks>();
   const mergedSymbols = new Map<Sym, Sym>();
+  const docFromCommentForSym = new Map<Sym, string>();
   const augmentDecoratorsForSym = new Map<Sym, AugmentDecoratorStatementNode[]>();
   const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
   const referenceSymCache = new WeakMap<
     TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     Sym | undefined
   >();
+  const valueExactTypes = new WeakMap<Value, Type>();
   let onCheckerDiagnostic: (diagnostic: Diagnostic) => void = (x: Diagnostic) => {
     program.reportDiagnostic(x);
   };
@@ -461,6 +473,7 @@ export function createChecker(program: Program): Checker {
     resolveTypeReference,
     getValueForNode,
     getTypeOrValueForNode,
+    getValueExactType,
   };
 
   const projectionMembers = createProjectionMembers(checker);
@@ -970,6 +983,18 @@ export function createChecker(program: Program): Checker {
     kind: "argument" | "assignment";
     type: Type;
   }
+
+  function canTryLegacyCast(
+    target: Type,
+    constraint: MixedParameterConstraint | undefined
+  ): constraint is MixedParameterConstraint &
+    Required<Pick<MixedParameterConstraint, "valueType">> {
+    return Boolean(
+      constraint?.valueType &&
+        !(constraint.type && ignoreDiagnostics(isTypeAssignableTo(target, constraint.type, target)))
+    );
+  }
+
   /**
    * Gets a type or value depending on the node and current constraint.
    * For nodes that can be both type or values(e.g. string), the value will be returned if the constraint expect a value of that type even if the constrain also allows the type.
@@ -985,7 +1010,7 @@ export function createChecker(program: Program): Checker {
     if (entity === null) {
       return entity;
     } else if (isType(entity)) {
-      if (valueConstraint) {
+      if (canTryLegacyCast(entity, constraint?.constraint)) {
         return legacy_tryTypeToValueCast(entity, valueConstraint, node);
       } else {
         return entity;
@@ -1547,7 +1572,7 @@ export function createChecker(program: Program): Checker {
             ? finalMap.get(param.constraint.type)!
             : param.constraint;
 
-        if (isType(type) && param.constraint?.valueType) {
+        if (isType(type) && canTryLegacyCast(type, param.constraint)) {
           const converted = legacy_tryTypeToValueCast(
             type,
             { kind: "argument", type: param.constraint.valueType },
@@ -2494,6 +2519,21 @@ export function createChecker(program: Program): Checker {
     const name = node.id.sv;
     let decorators: DecoratorApplication[] = [];
 
+    const parameterModelSym = getOrCreateAugmentedSymbolTable(symbol!.metatypeMembers!).get(
+      "parameters"
+    );
+
+    if (parameterModelSym?.members) {
+      const members = getOrCreateAugmentedSymbolTable(parameterModelSym.members);
+      const paramDocs = extractParamDocs(node);
+      for (const [name, memberSym] of members) {
+        const doc = paramDocs.get(name);
+        if (doc) {
+          docFromCommentForSym.set(memberSym, doc);
+        }
+      }
+    }
+
     // Is this a definition or reference?
     let parameters: Model, returnType: Type, sourceOperation: Operation | undefined;
     if (node.signature.kind === SyntaxKind.OperationSignatureReference) {
@@ -2501,9 +2541,6 @@ export function createChecker(program: Program): Checker {
       const baseOperation = checkOperationIs(node, node.signature.baseOperation, mapper);
       if (baseOperation) {
         sourceOperation = baseOperation;
-        const parameterModelSym = getOrCreateAugmentedSymbolTable(symbol!.metatypeMembers!).get(
-          "parameters"
-        )!;
         // Reference the same return type and create the parameters type
         const clone = initializeClone(baseOperation.parameters, {
           properties: createRekeyableMap(),
@@ -2512,7 +2549,7 @@ export function createChecker(program: Program): Checker {
         clone.properties = createRekeyableMap(
           Array.from(baseOperation.parameters.properties.entries()).map(([key, prop]) => [
             key,
-            cloneTypeForSymbol(getMemberSymbol(parameterModelSym, prop.name)!, prop, {
+            cloneTypeForSymbol(getMemberSymbol(parameterModelSym!, prop.name)!, prop, {
               model: clone,
               sourceProperty: prop,
             }),
@@ -2800,7 +2837,14 @@ export function createChecker(program: Program): Checker {
     node: TemplateArgumentNode,
     mapper: TypeMapper | undefined
   ) {
-    const resolved = resolveTypeReferenceSym(node.parent as TypeReferenceNode, mapper, false);
+    const ref = node.parent as TypeReferenceNode;
+    let resolved = resolveTypeReferenceSym(ref, mapper, false);
+    // if the reference type can't be resolved and has parse error,
+    // it likely means the reference type hasn't been completed yet. i.e. Foo<string,
+    // so try to resolve it by it's target directly to see if we can find its sym
+    if (!resolved && hasParseError(ref) && ref.target !== undefined) {
+      resolved = resolveTypeReferenceSym(ref.target, mapper, false);
+    }
     return (resolved?.declarations.filter((n) => isTemplatedNode(n)) ?? []) as TemplateableNode[];
   }
 
@@ -2825,6 +2869,7 @@ export function createChecker(program: Program): Checker {
       return (
         (isModelOrArray(n) &&
           (n.parent?.kind === SyntaxKind.TemplateParameterDeclaration ||
+            n.parent?.kind === SyntaxKind.TemplateArgument ||
             n.parent?.kind === SyntaxKind.DecoratorExpression)) ||
         (isModelOrArrayValue(n) &&
           (n.parent?.kind === SyntaxKind.CallExpression ||
@@ -2835,6 +2880,7 @@ export function createChecker(program: Program): Checker {
     let refType: Type | undefined;
     switch (foundNode?.parent?.kind) {
       case SyntaxKind.TemplateParameterDeclaration:
+      case SyntaxKind.TemplateArgument:
         refType = getReferencedTypeFromTemplateDeclaration(foundNode as ModelOrArrayNode);
         break;
       case SyntaxKind.DecoratorExpression:
@@ -2902,27 +2948,45 @@ export function createChecker(program: Program): Checker {
       return cur?.kind === "Model" ? cur : undefined;
     }
 
-    function getReferencedTypeFromTemplateDeclaration(dftNode: ModelOrArrayNode): Type | undefined {
-      const templateParmaeterDeclNode = dftNode?.parent;
+    function getReferencedTypeFromTemplateDeclaration(node: ModelOrArrayNode): Type | undefined {
+      let templateParmaeterDeclNode: TemplateParameterDeclarationNode | undefined = undefined;
+      if (
+        node?.parent?.kind === SyntaxKind.TemplateArgument &&
+        node?.parent?.parent?.kind === SyntaxKind.TypeReference
+      ) {
+        const argNode = node.parent;
+        const refNode = node.parent.parent;
+        const decl = getTemplateDeclarationsForArgument(
+          argNode,
+          // We should be giving the argument so the mapper here should be undefined
+          undefined /* mapper */
+        );
+
+        const index = refNode.arguments.findIndex((n) => n === argNode);
+        if (decl.length > 0 && decl[0].templateParameters.length > index) {
+          templateParmaeterDeclNode = decl[0].templateParameters[index];
+        }
+      } else if (node.parent?.kind === SyntaxKind.TemplateParameterDeclaration) {
+        templateParmaeterDeclNode = node?.parent;
+      }
+
       if (
         templateParmaeterDeclNode?.kind !== SyntaxKind.TemplateParameterDeclaration ||
-        !templateParmaeterDeclNode.constraint ||
-        !templateParmaeterDeclNode.default ||
-        templateParmaeterDeclNode.default !== dftNode
+        !templateParmaeterDeclNode.constraint
       ) {
         return undefined;
       }
 
       let constraintType: Type | undefined;
       if (
-        isModelOrArrayValue(dftNode) &&
+        isModelOrArrayValue(node) &&
         templateParmaeterDeclNode.constraint.kind === SyntaxKind.ValueOfExpression
       ) {
         constraintType = program.checker.getTypeForNode(
           templateParmaeterDeclNode.constraint.target
         );
       } else if (
-        isModelOrArrayType(dftNode) &&
+        isModelOrArrayType(node) &&
         templateParmaeterDeclNode.constraint.kind !== SyntaxKind.ValueOfExpression
       ) {
         constraintType = program.checker.getTypeForNode(templateParmaeterDeclNode.constraint);
@@ -3832,6 +3896,18 @@ export function createChecker(program: Program): Checker {
       derivedModels: [],
     });
     linkType(links, type, mapper);
+
+    if (node.symbol.members) {
+      const members = getOrCreateAugmentedSymbolTable(node.symbol.members);
+      const propDocs = extractPropDocs(node);
+      for (const [name, memberSym] of members) {
+        const doc = propDocs.get(name);
+        if (doc) {
+          docFromCommentForSym.set(memberSym, doc);
+        }
+      }
+    }
+
     const isBase = checkModelIs(node, node.is, mapper);
 
     if (isBase) {
@@ -3847,7 +3923,8 @@ export function createChecker(program: Program): Checker {
 
     if (isBase) {
       for (const prop of isBase.properties.values()) {
-        const newProp = cloneType(prop, {
+        const memberSym = getMemberSymbol(node.symbol, prop.name)!;
+        const newProp = cloneTypeForSymbol(memberSym, prop, {
           sourceProperty: prop,
           model: type,
         });
@@ -4051,13 +4128,16 @@ export function createChecker(program: Program): Checker {
     if (constraint && !checkTypeOfValueMatchConstraint(preciseType, constraint, node)) {
       return null;
     }
-    return {
-      entityKind: "Value",
-      valueKind: "ObjectValue",
-      node: node,
-      properties,
-      type: constraint ? constraint.type : preciseType,
-    };
+    return createValue(
+      {
+        entityKind: "Value",
+        valueKind: "ObjectValue",
+        node: node,
+        properties,
+        type: constraint ? constraint.type : preciseType,
+      },
+      preciseType
+    );
   }
 
   function createTypeForObjectValue(
@@ -4159,13 +4239,29 @@ export function createChecker(program: Program): Checker {
       return null;
     }
 
-    return {
-      entityKind: "Value",
-      valueKind: "ArrayValue",
-      node: node,
-      values: values as any,
-      type: constraint ? constraint.type : preciseType,
-    };
+    return createValue(
+      {
+        entityKind: "Value",
+        valueKind: "ArrayValue",
+        node: node,
+        values: values as any,
+        type: constraint ? constraint.type : preciseType,
+      },
+      preciseType
+    );
+  }
+
+  function createValue<T extends Value>(value: T, preciseType: Type): T {
+    valueExactTypes.set(value, preciseType);
+    return value;
+  }
+  function copyValue<T extends Value>(value: T, overrides?: Partial<T>): T {
+    const newValue = { ...value, ...overrides };
+    const preciseType = valueExactTypes.get(value);
+    if (preciseType) {
+      valueExactTypes.set(newValue, preciseType);
+    }
+    return newValue;
   }
 
   function createTypeForArrayValue(node: ArrayLiteralNode, values: Value[]): Tuple {
@@ -4238,13 +4334,16 @@ export function createChecker(program: Program): Checker {
       value = literalType.value;
     }
     const scalar = inferScalarForPrimitiveValue(constraint?.type, literalType);
-    return {
-      entityKind: "Value",
-      valueKind: "StringValue",
-      value,
-      type: constraint ? constraint.type : literalType,
-      scalar,
-    };
+    return createValue(
+      {
+        entityKind: "Value",
+        valueKind: "StringValue",
+        value,
+        type: constraint ? constraint.type : literalType,
+        scalar,
+      },
+      literalType
+    );
   }
 
   function checkNumericValue(
@@ -4256,13 +4355,16 @@ export function createChecker(program: Program): Checker {
       return null;
     }
     const scalar = inferScalarForPrimitiveValue(constraint?.type, literalType);
-    return {
-      entityKind: "Value",
-      valueKind: "NumericValue",
-      value: Numeric(literalType.valueAsString),
-      type: constraint ? constraint.type : literalType,
-      scalar,
-    };
+    return createValue(
+      {
+        entityKind: "Value",
+        valueKind: "NumericValue",
+        value: Numeric(literalType.valueAsString),
+        type: constraint ? constraint.type : literalType,
+        scalar,
+      },
+      literalType
+    );
   }
 
   function checkBooleanValue(
@@ -4274,13 +4376,16 @@ export function createChecker(program: Program): Checker {
       return null;
     }
     const scalar = inferScalarForPrimitiveValue(constraint?.type, literalType);
-    return {
-      entityKind: "Value",
-      valueKind: "BooleanValue",
-      value: literalType.value,
-      type: constraint ? constraint.type : literalType,
-      scalar,
-    };
+    return createValue(
+      {
+        entityKind: "Value",
+        valueKind: "BooleanValue",
+        value: literalType.value,
+        type: constraint ? constraint.type : literalType,
+        scalar,
+      },
+      literalType
+    );
   }
 
   function checkNullValue(
@@ -4292,13 +4397,16 @@ export function createChecker(program: Program): Checker {
       return null;
     }
 
-    return {
-      entityKind: "Value",
+    return createValue(
+      {
+        entityKind: "Value",
 
-      valueKind: "NullValue",
-      type: constraint ? constraint.type : literalType,
-      value: null,
-    };
+        valueKind: "NullValue",
+        type: constraint ? constraint.type : literalType,
+        value: null,
+      },
+      literalType
+    );
   }
 
   function checkEnumValue(
@@ -4309,13 +4417,16 @@ export function createChecker(program: Program): Checker {
     if (constraint && !checkTypeOfValueMatchConstraint(literalType, constraint, node)) {
       return null;
     }
-    return {
-      entityKind: "Value",
+    return createValue(
+      {
+        entityKind: "Value",
 
-      valueKind: "EnumValue",
-      type: constraint ? constraint.type : literalType,
-      value: literalType,
-    };
+        valueKind: "EnumValue",
+        type: constraint ? constraint.type : literalType,
+        value: literalType,
+      },
+      literalType
+    );
   }
 
   function checkCallExpressionTarget(
@@ -4371,7 +4482,7 @@ export function createChecker(program: Program): Checker {
     if (!checkValueOfType(value, scalar, argNode)) {
       return null;
     }
-    return { ...value, scalar, type: scalar } as any;
+    return copyValue(value, { scalar, type: scalar }) as any;
   }
 
   function createScalarValue(
@@ -4592,6 +4703,8 @@ export function createChecker(program: Program): Checker {
       const parentType = getTypeName(overriddenProp.type);
       const newPropType = getTypeName(newProp.type);
 
+      let invalid = false;
+
       if (!isAssignable) {
         reportCheckerDiagnostic(
           createDiagnostic({
@@ -4600,8 +4713,22 @@ export function createChecker(program: Program): Checker {
             target: diagnosticTarget ?? newProp,
           })
         );
-        return;
+        invalid = true;
       }
+
+      if (!overriddenProp.optional && newProp.optional) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "override-property-mismatch",
+            messageId: "disallowedOptionalOverride",
+            format: { propName: overriddenProp.name },
+            target: diagnosticTarget ?? newProp,
+          })
+        );
+        invalid = true;
+      }
+
+      if (invalid) return;
     }
 
     properties.set(newProp.name, newProp);
@@ -5113,7 +5240,8 @@ export function createChecker(program: Program): Checker {
     prop: ModelPropertyNode,
     mapper: TypeMapper | undefined
   ): ModelProperty {
-    const symId = getSymbolId(getSymbolForMember(prop)!);
+    const sym = getSymbolForMember(prop)!;
+    const symId = getSymbolId(sym);
     const links = getSymbolLinksForMember(prop);
 
     if (links && links.declaredType && mapper === undefined) {
@@ -5160,14 +5288,9 @@ export function createChecker(program: Program): Checker {
     linkMapper(type, mapper);
 
     if (!parentTemplate || shouldCreateTypeForTemplate(parentTemplate, mapper)) {
-      if (
-        prop.parent?.parent?.kind === SyntaxKind.OperationSignatureDeclaration &&
-        prop.parent.parent.parent?.kind === SyntaxKind.OperationStatement
-      ) {
-        const doc = extractParamDoc(prop.parent.parent.parent, type.name);
-        if (doc) {
-          type.decorators.unshift(createDocFromCommentDecorator("self", doc));
-        }
+      const docComment = docFromCommentForSym.get(sym);
+      if (docComment) {
+        type.decorators.unshift(createDocFromCommentDecorator("self", docComment));
       }
       finishType(type);
     }
@@ -5546,7 +5669,7 @@ export function createChecker(program: Program): Checker {
     node: Node & { decorators: readonly DecoratorExpressionNode[] },
     mapper: TypeMapper | undefined
   ) {
-    const sym = isMemberNode(node) ? getSymbolForMember(node) ?? node.symbol : node.symbol;
+    const sym = isMemberNode(node) ? (getSymbolForMember(node) ?? node.symbol) : node.symbol;
     const decorators: DecoratorApplication[] = [];
 
     const augmentDecoratorNodes = augmentDecoratorsForSym.get(sym) ?? [];
@@ -5574,6 +5697,7 @@ export function createChecker(program: Program): Checker {
       if (returnTypesDocs.errors) {
         decorators.unshift(createDocFromCommentDecorator("errors", returnTypesDocs.errors));
       }
+    } else if (targetType.kind === "ModelProperty") {
     }
     return decorators;
   }
@@ -5598,7 +5722,6 @@ export function createChecker(program: Program): Checker {
       decorators,
       derivedScalars: [],
     });
-    checkScalarConstructors(type, node, type.constructors, mapper);
     linkType(links, type, mapper);
 
     if (node.extends) {
@@ -5608,6 +5731,7 @@ export function createChecker(program: Program): Checker {
         type.baseScalar.derivedScalars.push(type);
       }
     }
+    checkScalarConstructors(type, node, type.constructors, mapper);
     decorators.push(...checkDecorators(type, node, mapper));
 
     if (mapper === undefined) {
@@ -5672,6 +5796,19 @@ export function createChecker(program: Program): Checker {
     constructors: Map<string, ScalarConstructor>,
     mapper: TypeMapper | undefined
   ) {
+    if (parentScalar.baseScalar) {
+      for (const member of parentScalar.baseScalar.constructors.values()) {
+        const newConstructor: ScalarConstructor = cloneTypeForSymbol(
+          getMemberSymbol(node.symbol, member.name)!,
+          {
+            ...member,
+            scalar: parentScalar,
+          }
+        );
+        linkIndirectMember(node, newConstructor, mapper);
+        constructors.set(member.name, newConstructor);
+      }
+    }
     for (const member of node.members) {
       const constructor = checkScalarConstructor(member, mapper, parentScalar);
       if (constructors.has(constructor.name as string)) {
@@ -5788,7 +5925,7 @@ export function createChecker(program: Program): Checker {
       links.value = null;
       return links.value;
     }
-    links.value = type ? { ...value, type } : { ...value };
+    links.value = type ? copyValue(value, { type }) : copyValue(value);
     return links.value;
   }
 
@@ -5799,7 +5936,7 @@ export function createChecker(program: Program): Checker {
       case "NumericValue":
         if (value.scalar === undefined) {
           const scalar = inferScalarForPrimitiveValue(type, value.type);
-          return { ...value, scalar };
+          return copyValue(value as any, { scalar });
         }
         return value;
       case "ArrayValue":
@@ -6489,7 +6626,10 @@ export function createChecker(program: Program): Checker {
    * recursively by the caller.
    */
   function cloneType<T extends Type>(type: T, additionalProps: Partial<T> = {}): T {
-    const clone = finishType(initializeClone(type, additionalProps));
+    let clone = initializeClone(type, additionalProps);
+    if (type.isFinished) {
+      clone = finishType(clone);
+    }
     const projection = projectionsByType.get(type);
     if (projection) {
       projectionsByType.set(clone, projection);
@@ -6513,6 +6653,10 @@ export function createChecker(program: Program): Checker {
   ): T {
     let clone = initializeClone(type, additionalProps);
     if ("decorators" in clone) {
+      const docComment = docFromCommentForSym.get(sym);
+      if (docComment) {
+        clone.decorators.push(createDocFromCommentDecorator("self", docComment));
+      }
       for (const dec of checkAugmentDecorators(sym, clone, undefined)) {
         clone.decorators.push(dec);
       }
@@ -8110,6 +8254,10 @@ export function createChecker(program: Program): Checker {
     if (type.kind === "Model") return stdType === undefined || stdType === type.name;
     return false;
   }
+
+  function getValueExactType(value: Value): Type | undefined {
+    return valueExactTypes.get(value);
+  }
 }
 
 function isAnonymous(type: Type) {
@@ -8425,18 +8573,34 @@ function extractReturnsDocs(type: Type): {
   return result;
 }
 
-function extractParamDoc(node: OperationStatementNode, paramName: string): string | undefined {
+function extractParamDocs(node: OperationStatementNode): Map<string, string> {
   if (node.docs === undefined) {
-    return undefined;
+    return new Map();
   }
+  const paramDocs = new Map();
   for (const doc of node.docs) {
     for (const tag of doc.tags) {
-      if (tag.kind === SyntaxKind.DocParamTag && tag.paramName.sv === paramName) {
-        return getDocContent(tag.content);
+      if (tag.kind === SyntaxKind.DocParamTag) {
+        paramDocs.set(tag.paramName.sv, getDocContent(tag.content));
       }
     }
   }
-  return undefined;
+  return paramDocs;
+}
+
+function extractPropDocs(node: ModelStatementNode): Map<string, string> {
+  if (node.docs === undefined) {
+    return new Map();
+  }
+  const propDocs = new Map();
+  for (const doc of node.docs) {
+    for (const tag of doc.tags) {
+      if (tag.kind === SyntaxKind.DocPropTag) {
+        propDocs.set(tag.propName.sv, getDocContent(tag.content));
+      }
+    }
+  }
+  return propDocs;
 }
 
 function getDocContent(content: readonly DocContent[]) {

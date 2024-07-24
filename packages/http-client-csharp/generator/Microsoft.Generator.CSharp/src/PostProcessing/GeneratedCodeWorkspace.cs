@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -24,7 +25,6 @@ namespace Microsoft.Generator.CSharp
         private static readonly Lazy<IReadOnlyList<MetadataReference>> _assemblyMetadataReferences = new(() => new List<MetadataReference>()
             { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) });
         private static readonly Lazy<WorkspaceMetadataReferenceResolver> _metadataReferenceResolver = new(() => new WorkspaceMetadataReferenceResolver());
-        private static readonly CSharpSyntaxRewriter SA1505Rewriter = new SA1505Rewriter();
         private static Task<Project>? _cachedProject;
         private static readonly string[] _generatedFolders = { GeneratedFolder };
         private static readonly string _newLine = "\n";
@@ -52,9 +52,9 @@ namespace Microsoft.Generator.CSharp
             PlainFiles.Add(name, content);
         }
 
-        public async Task AddGeneratedFile(string name, string text)
+        public async Task AddGeneratedFile(CodeFile codefile)
         {
-            var document = _project.AddDocument(name, text, _generatedFolders);
+            var document = _project.AddDocument(codefile.Name, codefile.Content, _generatedFolders);
             var root = await document.GetSyntaxRootAsync();
             Debug.Assert(root != null);
 
@@ -93,15 +93,7 @@ namespace Microsoft.Generator.CSharp
 
         private async Task<Document> ProcessDocument(Document document)
         {
-            var syntaxTree = await document.GetSyntaxTreeAsync();
-            if (syntaxTree != null)
-            {
-                var root = await syntaxTree.GetRootAsync();
-                document = document.WithSyntaxRoot(SA1505Rewriter.Visit(root));
-            }
-
             document = await Simplifier.ReduceAsync(document);
-            document = await Formatter.FormatAsync(document);
             return document;
         }
 
@@ -119,7 +111,7 @@ namespace Microsoft.Generator.CSharp
             Project generatedCodeProject = workspace.AddProject(GeneratedCodeProjectName, LanguageNames.CSharp);
 
             generatedCodeProject = generatedCodeProject
-                .AddMetadataReferences(_assemblyMetadataReferences.Value)
+                .AddMetadataReferences(_assemblyMetadataReferences.Value.Concat(CodeModelPlugin.Instance.AdditionalMetadataReferences))
                 .WithCompilationOptions(new CSharpCompilationOptions(
                     OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: _metadataReferenceResolver.Value, nullableContextOptions: NullableContextOptions.Disable));
             return generatedCodeProject;

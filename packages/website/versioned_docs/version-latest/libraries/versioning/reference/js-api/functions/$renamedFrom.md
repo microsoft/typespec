@@ -4,7 +4,7 @@ title: "[F] $renamedFrom"
 
 ---
 ```ts
-$renamedFrom(
+function $renamedFrom(
    context, 
    target, 
    version, 
@@ -14,9 +14,9 @@ $renamedFrom(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
-| `target` |  \| `Scalar` \| `ModelProperty` \| `Model` \| `Interface` \| `Enum` \| `EnumMember` \| `Operation` \| `Union` \| `UnionVariant` |
+| `target` | \| `Enum` \| `EnumMember` \| `Interface` \| `Model` \| `ModelProperty` \| `Operation` \| `Scalar` \| `Union` \| `UnionVariant` |
 | `version` | `EnumMember` |
 | `oldName` | `string` |
 

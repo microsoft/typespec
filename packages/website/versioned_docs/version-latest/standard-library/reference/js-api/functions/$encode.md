@@ -4,7 +4,7 @@ title: "[F] $encode"
 
 ---
 ```ts
-$encode(
+function $encode(
    context, 
    target, 
    encoding, 
@@ -14,9 +14,9 @@ $encode(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
-| `target` | [`Scalar`](../interfaces/Scalar.md) \| [`ModelProperty`](../interfaces/ModelProperty.md) |
+| `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
 | `encoding` | [`Type`](../type-aliases/Type.md) |
 | `encodedAs`? | [`Scalar`](../interfaces/Scalar.md) |
 

@@ -4,7 +4,7 @@ title: "[F] $encodedName"
 
 ---
 ```ts
-$encodedName(
+function $encodedName(
    context, 
    target, 
    mimeType, 
@@ -14,7 +14,7 @@ $encodedName(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Type`](../type-aliases/Type.md) |
 | `mimeType` | `string` |

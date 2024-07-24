@@ -4,7 +4,7 @@ title: "[F] DefaultRouteProducer"
 
 ---
 ```ts
-DefaultRouteProducer(
+function DefaultRouteProducer(
    program, 
    operation, 
    parentSegments, 
@@ -15,7 +15,7 @@ options): DiagnosticResult<RouteProducerResult>
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `operation` | `Operation` |
 | `parentSegments` | `string`[] |

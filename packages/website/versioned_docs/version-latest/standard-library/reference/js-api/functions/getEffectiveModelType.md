@@ -4,7 +4,7 @@ title: "[F] getEffectiveModelType"
 
 ---
 ```ts
-getEffectiveModelType(
+function getEffectiveModelType(
    program, 
    model, 
    filter?): Model
@@ -24,10 +24,10 @@ best name for the remaining properties is `SomeName`.
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) | - |
 | `model` | [`Model`](../interfaces/Model.md) | The input model |
-| `filter`? | (`property`) => `boolean` | An optional filter to apply to the input model's<br />properties. |
+| `filter`? | (`property`) => `boolean` | An optional filter to apply to the input model's properties. |
 
 ## Returns
 

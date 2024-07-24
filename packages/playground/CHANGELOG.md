@@ -1,5 +1,34 @@
 # Change Log - @typespec/playground
 
+## 0.4.0
+
+### Bump dependencies
+
+- [#3718](https://github.com/microsoft/typespec/pull/3718) Dependency updates July 2024
+
+### Features
+
+- [#3585](https://github.com/microsoft/typespec/pull/3585) Add error recovery for viewer that crash
+- [#3750](https://github.com/microsoft/typespec/pull/3750) Add new property on the playground to add custom buttons on the toolbar
+- [#3713](https://github.com/microsoft/typespec/pull/3713) Extract splitpane into separate package
+
+
+## 0.3.0
+
+### Bug Fixes
+
+- [#3542](https://github.com/microsoft/typespec/pull/3542) Fix issue where hover tooltip would be cropped or not visible
+
+### Bump dependencies
+
+- [#3401](https://github.com/microsoft/typespec/pull/3401) Update dependencies - May 2024
+
+### Features
+
+- [#3465](https://github.com/microsoft/typespec/pull/3465) Provide ability to add custom program viewers
+- [#3569](https://github.com/microsoft/typespec/pull/3569) Support loglevel in playground's logging
+
+
 ## 0.2.2
 
 ### Bug Fixes

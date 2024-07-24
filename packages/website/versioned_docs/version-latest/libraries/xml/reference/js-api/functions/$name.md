@@ -4,7 +4,7 @@ title: "[F] $name"
 
 ---
 ```ts
-$name(
+function $name(
    context, 
    target, 
    name): void
@@ -13,7 +13,7 @@ $name(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Type` |
 | `name` | `string` |

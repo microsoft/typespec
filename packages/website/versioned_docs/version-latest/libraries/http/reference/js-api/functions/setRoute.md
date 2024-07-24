@@ -4,7 +4,7 @@ title: "[F] setRoute"
 
 ---
 ```ts
-setRoute(
+function setRoute(
    context, 
    entity, 
    details): void
@@ -13,7 +13,7 @@ setRoute(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `entity` | `Type` |
 | `details` | [`RoutePath`](../interfaces/RoutePath.md) |

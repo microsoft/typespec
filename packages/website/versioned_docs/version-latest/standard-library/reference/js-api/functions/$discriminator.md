@@ -4,7 +4,7 @@ title: "[F] $discriminator"
 
 ---
 ```ts
-$discriminator(
+function $discriminator(
    context, 
    target, 
    propertyName): void
@@ -13,7 +13,7 @@ $discriminator(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Model`](../interfaces/Model.md) \| [`Union`](../interfaces/Union.md) |
 | `propertyName` | `string` |

@@ -4,7 +4,7 @@ title: "[F] $prefixItems"
 
 ---
 ```ts
-$prefixItems(
+function $prefixItems(
    context, 
    target, 
    value): void
@@ -13,7 +13,7 @@ $prefixItems(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Type` |
 | `value` | `Type` |

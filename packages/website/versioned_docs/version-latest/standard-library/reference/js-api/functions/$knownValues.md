@@ -4,7 +4,7 @@ title: "[F] $knownValues"
 
 ---
 ```ts
-$knownValues(
+function $knownValues(
    context, 
    target, 
    knownValues): void
@@ -20,9 +20,9 @@ type accepts.
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) | - |
-| `target` | [`Scalar`](../interfaces/Scalar.md) \| [`ModelProperty`](../interfaces/ModelProperty.md) | Decorator target. Must be a string. (model Foo extends string) |
+| `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) | Decorator target. Must be a string. (model Foo extends string) |
 | `knownValues` | [`Enum`](../interfaces/Enum.md) | Must be an enum. |
 
 ## Returns

@@ -4,7 +4,7 @@ title: "[F] $collectionAction"
 
 ---
 ```ts
-$collectionAction(
+function $collectionAction(
    context, 
    target, 
    resourceType, 
@@ -14,7 +14,7 @@ $collectionAction(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Operation` |
 | `resourceType` | `Model` |

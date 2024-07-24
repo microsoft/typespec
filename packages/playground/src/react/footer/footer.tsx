@@ -1,5 +1,5 @@
 import { mergeClasses } from "@fluentui/react-components";
-import { FunctionComponent, ReactNode } from "react";
+import type { FunctionComponent, ReactNode } from "react";
 import style from "./footer.module.css";
 
 export interface FooterProps {

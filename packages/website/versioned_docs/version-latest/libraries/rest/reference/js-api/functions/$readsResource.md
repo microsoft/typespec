@@ -4,7 +4,7 @@ title: "[F] $readsResource"
 
 ---
 ```ts
-$readsResource(
+function $readsResource(
    context, 
    target, 
    resourceType): void
@@ -13,7 +13,7 @@ $readsResource(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Operation` |
 | `resourceType` | `Model` |

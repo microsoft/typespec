@@ -4,7 +4,7 @@ title: "[F] $header"
 
 ---
 ```ts
-$header(
+function $header(
    context, 
    target, 
    headerNameOrOptions?): void
@@ -13,7 +13,7 @@ $header(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `ModelProperty` |
 | `headerNameOrOptions`? | `Type` |

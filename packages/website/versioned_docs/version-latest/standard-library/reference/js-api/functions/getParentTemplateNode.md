@@ -4,7 +4,7 @@ title: "[F] getParentTemplateNode"
 
 ---
 ```ts
-getParentTemplateNode(node): Node & TemplateDeclarationNode | undefined
+function getParentTemplateNode(node): Node & TemplateDeclarationNode | undefined
 ```
 
 Lookup and find the node
@@ -12,7 +12,7 @@ Lookup and find the node
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `node` | [`Node`](../type-aliases/Node.md) | Node |
 
 ## Returns

@@ -4,7 +4,7 @@ title: "[F] $jsonSchema"
 
 ---
 ```ts
-$jsonSchema(
+function $jsonSchema(
    context, 
    target, 
    baseUri?): void
@@ -13,7 +13,7 @@ $jsonSchema(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Type` |
 | `baseUri`? | `string` |

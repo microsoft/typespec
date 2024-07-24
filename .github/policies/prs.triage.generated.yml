@@ -96,6 +96,12 @@ configuration:
                   label: emitter:openapi3
           - if:
               - filesMatchPattern:
+                  pattern: packages/openapi3/src/cli/actions/convert/.*
+            then:
+              - addLabel:
+                  label: openapi3:converter
+          - if:
+              - filesMatchPattern:
                   pattern: eng/.*
             then:
               - addLabel:
@@ -106,3 +112,15 @@ configuration:
             then:
               - addLabel:
                   label: eng
+          - if:
+              - filesMatchPattern:
+                  pattern: packages/playground/.*
+            then:
+              - addLabel:
+                  label: ui:playground
+          - if:
+              - filesMatchPattern:
+                  pattern: packages/html-program-viewer/.*
+            then:
+              - addLabel:
+                  label: ui:type-graph-viewer

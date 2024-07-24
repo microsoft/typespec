@@ -4,13 +4,13 @@ title: "[F] resolveOptions"
 
 ---
 ```ts
-resolveOptions(context): ResolvedOpenAPI3EmitterOptions
+function resolveOptions(context): ResolvedOpenAPI3EmitterOptions
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `EmitContext`<`OpenAPI3EmitterOptions`\> |
 
 ## Returns

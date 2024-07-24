@@ -4,7 +4,7 @@ title: "[F] $query"
 
 ---
 ```ts
-$query(
+function $query(
    context, 
    target, 
    queryNameOrOptions?): void
@@ -13,7 +13,7 @@ $query(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `ModelProperty` |
 | `queryNameOrOptions`? | `Type` |

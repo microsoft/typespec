@@ -4,7 +4,7 @@ title: "[F] $maxContains"
 
 ---
 ```ts
-$maxContains(
+function $maxContains(
    context, 
    target, 
    value): void
@@ -13,7 +13,7 @@ $maxContains(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Type` |
 | `value` | `number` |

@@ -4,7 +4,7 @@ title: "[F] $errorsDoc"
 
 ---
 ```ts
-$errorsDoc(
+function $errorsDoc(
    context, 
    target, 
    doc): void
@@ -13,7 +13,7 @@ $errorsDoc(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Operation`](../interfaces/Operation.md) |
 | `doc` | `string` |

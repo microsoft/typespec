@@ -1,21 +1,28 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
+
+using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record NewArrayExpression(CSharpType? Type, ArrayInitializerExpression? Items = null, ValueExpression? Size = null) : ValueExpression
+    public sealed record NewArrayExpression(CSharpType? Type, ArrayInitializerExpression? Items = null, ValueExpression? Size = null, bool IsStackAlloc = false) : ValueExpression
     {
-        public override void Write(CodeWriter writer)
+        private const string StackAllocKeyword = "stackalloc";
+        private const string NewKeyword = "new";
+
+        internal override void Write(CodeWriter writer)
         {
+            var newStr = IsStackAlloc ? StackAllocKeyword : NewKeyword;
+
             if (Size is not null)
             {
                 if (Type is null)
                 {
-                    writer.AppendRaw("new[");
+                    writer.AppendRaw($"{newStr} [");
                 }
                 else
                 {
-                    writer.Append($"new {Type}[");
+                    writer.Append($"{newStr} {Type}[");
                 }
 
                 Size.Write(writer);
@@ -27,18 +34,18 @@ namespace Microsoft.Generator.CSharp.Expressions
             {
                 if (Type is null)
                 {
-                    writer.AppendRaw("new[]");
+                    writer.AppendRaw($"{newStr} [] ");
                 }
                 else
                 {
-                    writer.Append($"new {Type}[]");
+                    writer.Append($"{newStr} {Type}[] ");
                 }
 
                 Items.Write(writer);
             }
             else if (Type is null)
             {
-                writer.AppendRaw("new[]{}");
+                writer.AppendRaw($"{newStr} [] {{ }}");
             }
             else
             {

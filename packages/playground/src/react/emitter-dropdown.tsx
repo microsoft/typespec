@@ -1,5 +1,5 @@
 import { Select } from "@fluentui/react-components";
-import { FunctionComponent, useCallback } from "react";
+import { useCallback, type FunctionComponent } from "react";
 
 export type EmitterDropdownProps = {
   emitters: string[];

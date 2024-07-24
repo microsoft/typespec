@@ -4,7 +4,7 @@ title: "[F] $removed"
 
 ---
 ```ts
-$removed(
+function $removed(
    context, 
    t, 
    v): void
@@ -13,9 +13,9 @@ $removed(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
-| `t` |  \| `Scalar` \| `ModelProperty` \| `Model` \| `Interface` \| `Enum` \| `EnumMember` \| `Operation` \| `Union` \| `UnionVariant` |
+| `t` | \| `Enum` \| `EnumMember` \| `Interface` \| `Model` \| `ModelProperty` \| `Operation` \| `Scalar` \| `Union` \| `UnionVariant` |
 | `v` | `EnumMember` |
 
 ## Returns

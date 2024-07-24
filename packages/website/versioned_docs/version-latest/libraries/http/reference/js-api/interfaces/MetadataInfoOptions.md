@@ -6,8 +6,8 @@ title: "[I] MetadataInfoOptions"
 ## Properties
 
 | Property | Type | Description |
-| :------ | :------ | :------ |
-| `canonicalVisibility?` | [`Visibility`](../enumerations/Visibility.md) | The visibility to be used as the baseline against which<br />[MetadataInfo.isEmptied](MetadataInfo.md#isemptied) and [MetadataInfo.isTransformed](MetadataInfo.md#istransformed)<br />are computed. If not specified, [Visibility.None](../enumerations/Visibility.md) is used, which<br />will consider that any model that has fields that are only visible to<br />some visibilities as transformed. |
+| ------ | ------ | ------ |
+| `canonicalVisibility?` | [`Visibility`](../enumerations/Visibility.md) | The visibility to be used as the baseline against which [MetadataInfo.isEmptied](MetadataInfo.md#isemptied) and [MetadataInfo.isTransformed](MetadataInfo.md#istransformed) are computed. If not specified, [Visibility.None](../enumerations/Visibility.md) is used, which will consider that any model that has fields that are only visible to some visibilities as transformed. |
 
 ## Methods
 
@@ -27,7 +27,7 @@ creating a separate schema schema for [Visibility.Read](../enumerations/Visibili
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `property` | `ModelProperty` |
 
 #### Returns

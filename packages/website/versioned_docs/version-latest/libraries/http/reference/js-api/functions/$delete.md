@@ -4,13 +4,13 @@ title: "[F] $delete"
 
 ---
 ```ts
-$delete(context, target): void
+function $delete(context, target): void
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Operation` |
 

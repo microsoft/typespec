@@ -4,7 +4,7 @@ title: "[F] getRequestVisibility"
 
 ---
 ```ts
-getRequestVisibility(verb): Visibility
+function getRequestVisibility(verb): Visibility
 ```
 
 Determines the visibility to use for a request with the given verb.
@@ -18,7 +18,7 @@ Determines the visibility to use for a request with the given verb.
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `verb` | [`HttpVerb`](../type-aliases/HttpVerb.md) | The HTTP verb for the operation. |
 
 ## Returns

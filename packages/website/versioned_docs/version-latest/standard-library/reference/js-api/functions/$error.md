@@ -4,7 +4,7 @@ title: "[F] $error"
 
 ---
 ```ts
-$error(context, target): void
+function $error(context, target): void
 ```
 
 `@error` decorator marks a model as an error type.
@@ -13,7 +13,7 @@ $error(context, target): void
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Model`](../interfaces/Model.md) |
 

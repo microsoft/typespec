@@ -71,6 +71,7 @@ import {
   getPrefixItems,
   getUniqueItems,
   isJsonSchemaDeclaration,
+  isOneOf,
 } from "./index.js";
 import { JSONSchemaEmitterOptions, reportDiagnostic } from "./lib.js";
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
@@ -96,7 +97,6 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     }
 
     this.#applyConstraints(model, schema);
-
     return this.#createDeclaration(model, name, schema);
   }
 
@@ -173,6 +173,11 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     if (property.default) {
       // eslint-disable-next-line deprecation/deprecation
       result.default = this.#getDefaultValue(property.type, property.default);
+    }
+
+    if (result.anyOf && isOneOf(this.emitter.getProgram(), property)) {
+      result.oneOf = result.anyOf;
+      delete result.anyOf;
     }
 
     this.#applyConstraints(property, result);
@@ -297,8 +302,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   unionDeclaration(union: Union, name: string): EmitterOutput<object> {
+    const key = isOneOf(this.emitter.getProgram(), union) ? "oneOf" : "anyOf";
+
     const withConstraints = this.#initializeSchema(union, name, {
-      anyOf: this.emitter.emitUnionVariants(union),
+      [key]: this.emitter.emitUnionVariants(union),
     });
 
     this.#applyConstraints(union, withConstraints);
@@ -306,8 +313,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   unionLiteral(union: Union): EmitterOutput<object> {
+    const key = isOneOf(this.emitter.getProgram(), union) ? "oneOf" : "anyOf";
+
     return new ObjectBuilder({
-      anyOf: this.emitter.emitUnionVariants(union),
+      [key]: this.emitter.emitUnionVariants(union),
     });
   }
 
@@ -371,7 +380,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         // into the defs of the root schema which references this schema.
         return { $ref: "#/$defs/" + targetDeclaration.name };
       } else {
-        // referencing a schema that is in a source file, but doesn't have an id.
+        // referencing a schema that is in a different source file, but doesn't have an id.
         // nb: this may be dead code.
 
         // when either targetSfScope or currentSfScope are undefined, we have a common scope
@@ -385,7 +394,17 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       }
     }
 
-    throw new Error("$ref to $defs not yet supported.");
+    if (!currentSfScope && !targetSfScope) {
+      // referencing ourself, and we don't have an id (otherwise we'd have
+      // returned that above), so just return a ref.
+      // This should be accurate because the only case when this can happen is if
+      // the target declaration is not a root schema, and so it will be present in
+      // the defs of some root schema, and there is only one level of defs.
+
+      return { $ref: "#/$defs/" + targetDeclaration.name };
+    }
+
+    throw new Error("JSON Pointer refs to arbitrary schemas is not supported");
   }
 
   scalarInstantiation(
@@ -719,6 +738,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     const decls = sourceFile.globalScope.declarations;
     compilerAssert(decls.length === 1, "Multiple decls in single schema per file mode");
     const content: Record<string, any> = { ...decls[0].value };
+    const bundledDecls = new Set<Declaration<object>>();
 
     if (sourceFile.meta.bundledRefs.length > 0) {
       // bundle any refs, including refs of refs
@@ -726,6 +746,11 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       const refsToBundle: Declaration<object>[] = [...sourceFile.meta.bundledRefs];
       while (refsToBundle.length > 0) {
         const decl = refsToBundle.shift()!;
+        if (bundledDecls.has(decl)) {
+          // already $def'd, no need to def it again.
+          continue;
+        }
+        bundledDecls.add(decl);
         content.$defs[decl.name] = decl.value;
 
         // all scopes are source file scopes in this emitter
@@ -794,7 +819,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   // #region context emitters
   modelDeclarationContext(model: Model, name: string): Context {
-    if (this.#isStdType(model) && model.name === "object") {
+    if (this.#isStdType(model) && (model.name as any) === "object") {
       return {};
     }
 

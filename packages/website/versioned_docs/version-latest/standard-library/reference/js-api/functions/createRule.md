@@ -4,22 +4,22 @@ title: "[F] createRule"
 
 ---
 ```ts
-createRule<N, T>(definition): LinterRuleDefinition<N, T>
+function createRule<N, T>(definition): LinterRuleDefinition<N, T>
 ```
 
 Create a new linter rule.
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
-| `N` extends `string` |
-| `T` extends [`DiagnosticMessages`](../interfaces/DiagnosticMessages.md) |
+| Type Parameter |
+| ------ |
+| `N` *extends* `string` |
+| `T` *extends* [`DiagnosticMessages`](../interfaces/DiagnosticMessages.md) |
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `definition` | [`LinterRuleDefinition`](../interfaces/LinterRuleDefinition.md)<`N`, `T`\> |
 
 ## Returns

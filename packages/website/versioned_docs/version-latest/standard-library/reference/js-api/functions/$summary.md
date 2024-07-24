@@ -4,7 +4,7 @@ title: "[F] $summary"
 
 ---
 ```ts
-$summary(
+function $summary(
    context, 
    target, 
    summary): void
@@ -13,7 +13,7 @@ $summary(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Type`](../type-aliases/Type.md) |
 | `summary` | `string` |

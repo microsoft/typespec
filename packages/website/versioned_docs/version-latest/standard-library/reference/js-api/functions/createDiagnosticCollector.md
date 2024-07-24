@@ -4,7 +4,7 @@ title: "[F] createDiagnosticCollector"
 
 ---
 ```ts
-createDiagnosticCollector(): DiagnosticCollector
+function createDiagnosticCollector(): DiagnosticCollector
 ```
 
 Create a new instance of the

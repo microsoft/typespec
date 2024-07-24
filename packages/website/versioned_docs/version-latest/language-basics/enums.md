@@ -9,7 +9,7 @@ Enums, short for enumerations, provide a way for developers to define a collecti
 
 ## The basics
 
-You can declare enums using the `enum` keyword. The members of an enum are separated by commas `,` and can be either `identifier` TypeSpecs or `string literal`s.
+You can declare enums using the `enum` keyword. The members of an enum are separated by commas `,` and can be either [`identifier`](./identifiers.md) TypeSpecs or `string literal`s.
 
 ```typespec
 enum Direction {

@@ -4,13 +4,13 @@ title: "[F] setSharedRoute"
 
 ---
 ```ts
-setSharedRoute(program, operation): void
+function setSharedRoute(program, operation): void
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `operation` | `Operation` |
 

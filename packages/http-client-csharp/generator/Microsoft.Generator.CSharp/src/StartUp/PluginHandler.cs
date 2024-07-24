@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 
@@ -9,18 +10,43 @@ namespace Microsoft.Generator.CSharp
 {
     internal class PluginHandler
     {
-        public void LoadPlugin(string outputDirectory)
+        public void LoadPlugin(CommandLineOptions options)
         {
             using DirectoryCatalog directoryCatalog = new(AppContext.BaseDirectory);
-            using (CompositionContainer container = new(directoryCatalog))
+            using CompositionContainer container = new(directoryCatalog);
+
+            container.ComposeExportedValue(new GeneratorContext(Configuration.Load(options.OutputDirectory)));
+            container.ComposeParts(this);
+
+            SelectPlugin(options.PluginName!);
+        }
+
+        internal void SelectPlugin(string pluginName)
+        {
+            bool loaded = false;
+            foreach (var plugin in Plugins!)
             {
-                container.ComposeExportedValue(new GeneratorContext(Configuration.Load(outputDirectory)));
-                var plugin = container.GetExportedValue<CodeModelPlugin>();
-                if (plugin == null)
+                if (plugin.Metadata.PluginName == pluginName)
                 {
-                    throw new InvalidOperationException($"Cannot find exported value in current directory {AppContext.BaseDirectory}.");
+                    CodeModelPlugin.Instance = plugin.Value;
+                    loaded = true;
+                    CodeModelPlugin.Instance.Configure();
+                    break;
                 }
             }
+
+            if (!loaded)
+            {
+                throw new InvalidOperationException($"Plugin {pluginName} not found.");
+            }
         }
+
+        [ImportMany]
+        public IEnumerable<Lazy<CodeModelPlugin, IMetadata>>? Plugins { get; set; }
+    }
+
+    public interface IMetadata
+    {
+        string PluginName { get; }
     }
 }

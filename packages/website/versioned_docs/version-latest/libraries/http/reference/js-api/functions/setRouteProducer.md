@@ -4,7 +4,7 @@ title: "[F] setRouteProducer"
 
 ---
 ```ts
-setRouteProducer(
+function setRouteProducer(
    program, 
    operation, 
    routeProducer): void
@@ -13,7 +13,7 @@ setRouteProducer(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `operation` | `Operation` |
 | `routeProducer` | [`RouteProducer`](../type-aliases/RouteProducer.md) |

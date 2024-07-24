@@ -4,16 +4,16 @@ title: "[F] getMultipleOf"
 
 ---
 ```ts
-getMultipleOf(program, target): any
+function getMultipleOf(program, target): number | undefined
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `target` | `Type` |
 
 ## Returns
 
-`any`
+`number` \| `undefined`

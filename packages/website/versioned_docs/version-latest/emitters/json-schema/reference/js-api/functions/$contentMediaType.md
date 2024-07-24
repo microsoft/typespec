@@ -4,7 +4,7 @@ title: "[F] $contentMediaType"
 
 ---
 ```ts
-$contentMediaType(
+function $contentMediaType(
    context, 
    target, 
    value): void
@@ -13,9 +13,9 @@ $contentMediaType(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
-| `target` | `Scalar` \| `ModelProperty` |
+| `target` | `ModelProperty` \| `Scalar` |
 | `value` | `string` |
 
 ## Returns

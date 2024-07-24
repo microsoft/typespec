@@ -4,7 +4,7 @@ title: "[F] $updatesResource"
 
 ---
 ```ts
-$updatesResource(
+function $updatesResource(
    context, 
    entity, 
    resourceType): void
@@ -13,7 +13,7 @@ $updatesResource(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `entity` | `Operation` |
 | `resourceType` | `Model` |

@@ -31,7 +31,6 @@ namespace Microsoft.Generator.CSharp.Input
             }
 
             string? name = null;
-            string? description = null;
             IReadOnlyList<string>? apiVersions = null;
             IReadOnlyList<InputEnumType>? enums = null;
             IReadOnlyList<InputModelType>? models = null;
@@ -41,7 +40,6 @@ namespace Microsoft.Generator.CSharp.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString(nameof(InputNamespace.Name), ref name)
-                    || reader.TryReadString(nameof(InputNamespace.Description), ref description)
                     || reader.TryReadWithConverter(nameof(InputNamespace.ApiVersions), options, ref apiVersions)
                     || reader.TryReadWithConverter(nameof(InputNamespace.Enums), options, ref enums)
                     || reader.TryReadWithConverter(nameof(InputNamespace.Models), options, ref models)
@@ -59,18 +57,8 @@ namespace Microsoft.Generator.CSharp.Input
             models ??= Array.Empty<InputModelType>();
             clients ??= Array.Empty<InputClient>();
 
-            // resolve the derived models now
-            foreach (var model in models)
-            {
-                if (model.BaseModel is { } baseModel)
-                {
-                    ((List<InputModelType>)baseModel.DerivedModels).Add(model);
-                }
-            }
-
             return new InputNamespace(
                 name ?? throw new JsonException(),
-                description ?? throw new JsonException(),
                 apiVersions,
                 enums,
                 models,

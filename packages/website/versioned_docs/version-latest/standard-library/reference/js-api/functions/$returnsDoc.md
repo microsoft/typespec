@@ -4,7 +4,7 @@ title: "[F] $returnsDoc"
 
 ---
 ```ts
-$returnsDoc(
+function $returnsDoc(
    context, 
    target, 
    doc): void
@@ -13,7 +13,7 @@ $returnsDoc(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Operation`](../interfaces/Operation.md) |
 | `doc` | `string` |

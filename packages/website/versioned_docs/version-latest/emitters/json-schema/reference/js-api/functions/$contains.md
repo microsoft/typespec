@@ -4,7 +4,7 @@ title: "[F] $contains"
 
 ---
 ```ts
-$contains(
+function $contains(
    context, 
    target, 
    value): void
@@ -13,7 +13,7 @@ $contains(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Type` |
 | `value` | `Type` |

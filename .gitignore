@@ -1,3 +1,13 @@
+# User-specific files
+*.suo
+*.user
+*.idea
+*.sln.docstates
+.vs/
+*.lock.json
+developer/
+launch.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -194,3 +204,4 @@ docs/**/js-api/
 # csharp emitter
 !packages/http-client-csharp/package-lock.json
 packages/http-client-csharp/generator/artifacts/
+BenchmarkDotnet.Artifacts/

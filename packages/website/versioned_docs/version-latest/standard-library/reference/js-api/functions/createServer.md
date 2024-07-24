@@ -4,13 +4,13 @@ title: "[F] createServer"
 
 ---
 ```ts
-createServer(host): Server
+function createServer(host): Server
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `host` | [`ServerHost`](../interfaces/ServerHost.md) |
 
 ## Returns

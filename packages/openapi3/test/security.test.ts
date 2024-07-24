@@ -128,6 +128,27 @@ describe("openapi3: security", () => {
     deepStrictEqual(res.security, [{ MyAuth: [] }]);
   });
 
+  it("can specify custom auth name with extensions", async () => {
+    const res = await openApiFor(
+      `
+      @service({title: "My service"})
+      @useAuth(MyAuth)
+      @test namespace Foo {
+        @extension("x-foo", "bar")
+        model MyAuth is BasicAuth;
+      }
+      `
+    );
+    deepStrictEqual(res.components.securitySchemes, {
+      MyAuth: {
+        type: "http",
+        scheme: "basic",
+        "x-foo": "bar",
+      },
+    });
+    deepStrictEqual(res.security, [{ MyAuth: [] }]);
+  });
+
   it("can use multiple auth", async () => {
     const res = await openApiFor(
       `

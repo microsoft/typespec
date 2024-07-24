@@ -191,13 +191,14 @@ const blockComment: BeginEndRule = {
 const docCommentParam: MatchRule = {
   key: "doc-comment-param",
   scope: "comment.block.tsp",
-  match: `(?x)((@)(?:param|template))\\s+(${identifier})\\b`,
+  match: `(?x)((@)(?:param|template|prop))\\s+(${identifier})\\b`,
   captures: {
     "1": { scope: "keyword.tag.tspdoc" },
     "2": { scope: "keyword.tag.tspdoc" },
     "3": { scope: "variable.name.tsp" },
   },
 };
+
 const docCommentReturn: MatchRule = {
   key: "doc-comment-return-tag",
   scope: "comment.block.tsp",
@@ -207,6 +208,7 @@ const docCommentReturn: MatchRule = {
     "2": { scope: "keyword.tag.tspdoc" },
   },
 };
+
 const docCommentUnknownTag: MatchRule = {
   key: "doc-comment-unknown-tag",
   scope: "comment.block.tsp",
@@ -877,7 +879,7 @@ const usingStatement: BeginEndRule = {
     "1": { scope: "keyword.other.tsp" },
   },
   end: universalEnd,
-  patterns: [token, identifierExpression],
+  patterns: [token, identifierExpression, punctuationAccessor],
 };
 
 const decoratorDeclarationStatement: BeginEndRule = {

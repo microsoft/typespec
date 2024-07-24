@@ -4,7 +4,7 @@ title: "[F] $deletesResource"
 
 ---
 ```ts
-$deletesResource(
+function $deletesResource(
    context, 
    entity, 
    resourceType): void
@@ -13,7 +13,7 @@ $deletesResource(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `entity` | `Operation` |
 | `resourceType` | `Model` |

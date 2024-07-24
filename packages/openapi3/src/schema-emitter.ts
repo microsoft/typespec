@@ -25,6 +25,7 @@ import {
   getDiscriminator,
   getDoc,
   getEncode,
+  getExamples,
   getFormat,
   getKnownValues,
   getMaxItems,
@@ -46,6 +47,7 @@ import {
   isSecret,
   isTemplateDeclaration,
   resolveEncodedName,
+  serializeValueAsJson,
 } from "@typespec/compiler";
 import {
   ArrayBuilder,
@@ -325,24 +327,17 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return props;
   }
 
-  #isBytesKeptRaw(type: Type) {
-    const program = this.emitter.getProgram();
-    return (
-      type.kind === "Scalar" && type.name === "bytes" && getEncode(program, type) === undefined
-    );
-  }
-
   modelPropertyLiteral(prop: ModelProperty): EmitterOutput<object> {
     const program = this.emitter.getProgram();
     const isMultipart = this.#getContentType().startsWith("multipart/");
     if (isMultipart) {
-      if (this.#isBytesKeptRaw(prop.type) && getEncode(program, prop) === undefined) {
+      if (isBytesKeptRaw(program, prop.type) && getEncode(program, prop) === undefined) {
         return { type: "string", format: "binary" };
       }
       if (
         prop.type.kind === "Model" &&
         isArrayModelType(program, prop.type) &&
-        this.#isBytesKeptRaw(prop.type.indexer.value)
+        isBytesKeptRaw(program, prop.type.indexer.value)
       ) {
         return { type: "array", items: { type: "string", format: "binary" } };
       }
@@ -352,13 +347,20 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       referenceContext:
         isMultipart &&
         (prop.type.kind !== "Union" ||
-          ![...prop.type.variants.values()].some((x) => this.#isBytesKeptRaw(x.type)))
+          ![...prop.type.variants.values()].some((x) => isBytesKeptRaw(program, x.type)))
           ? { contentType: "application/json" }
           : {},
     });
 
     if (refSchema.kind !== "code") {
-      throw new Error("Unexpected non-code result from emit reference");
+      reportDiagnostic(program, {
+        code: "invalid-model-property",
+        format: {
+          type: prop.type.kind,
+        },
+        target: prop,
+      });
+      return {};
     }
 
     const isRef = refSchema.value instanceof Placeholder || "$ref" in refSchema.value;
@@ -494,7 +496,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         continue;
       }
 
-      if (isMultipart && this.#isBytesKeptRaw(variant.type)) {
+      if (isMultipart && isBytesKeptRaw(program, variant.type)) {
         schemaMembers.push({ schema: { type: "string", format: "binary" }, type: variant.type });
         continue;
       }
@@ -519,25 +521,18 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
     }
 
-    if (schemaMembers.length === 0) {
-      if (nullable) {
-        // This union is equivalent to just `null` but OA3 has no way to specify
-        // null as a value, so we throw an error.
-        reportDiagnostic(program, { code: "union-null", target: union });
-        return new ObjectBuilder({});
-      } else {
-        // completely empty union can maybe only happen with bugs?
-        compilerAssert(false, "Attempting to emit an empty union");
-      }
-    }
-
-    if (schemaMembers.length === 1) {
+    const wrapWithObjectBuilder = (
+      schemaMember: { schema: any; type: Type | null },
+      { mergeUnionWideConstraints }: { mergeUnionWideConstraints: boolean }
+    ): ObjectBuilder<OpenAPI3Schema> => {
       // we can just return the single schema member after applying nullable
-      const schema = schemaMembers[0].schema;
-      const type = schemaMembers[0].type;
-      const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(union, {});
+      const schema = schemaMember.schema;
+      const type = schemaMember.type;
+      const additionalProps: Partial<OpenAPI3Schema> = mergeUnionWideConstraints
+        ? this.#applyConstraints(union, {})
+        : {};
 
-      if (nullable) {
+      if (mergeUnionWideConstraints && nullable) {
         additionalProps.nullable = true;
       }
 
@@ -565,10 +560,28 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
           return merged;
         }
       }
+    };
+
+    if (schemaMembers.length === 0) {
+      if (nullable) {
+        // This union is equivalent to just `null` but OA3 has no way to specify
+        // null as a value, so we throw an error.
+        reportDiagnostic(program, { code: "union-null", target: union });
+        return new ObjectBuilder({});
+      } else {
+        // completely empty union can maybe only happen with bugs?
+        compilerAssert(false, "Attempting to emit an empty union");
+      }
+    }
+
+    if (schemaMembers.length === 1) {
+      return wrapWithObjectBuilder(schemaMembers[0], { mergeUnionWideConstraints: true });
     }
 
     const schema: OpenAPI3Schema = {
-      [ofType]: schemaMembers.map((m) => m.schema),
+      [ofType]: schemaMembers.map((m) =>
+        wrapWithObjectBuilder(m, { mergeUnionWideConstraints: false })
+      ),
     };
 
     if (nullable) {
@@ -767,6 +780,17 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
   }
 
+  #applySchemaExamples(
+    type: Model | Scalar | Union | Enum | ModelProperty,
+    target: ObjectBuilder<unknown>
+  ) {
+    const program = this.emitter.getProgram();
+    const examples = getExamples(program, type);
+    if (examples.length > 0) {
+      target.set("example", serializeValueAsJson(program, examples[0].value, type));
+    }
+  }
+
   #applyConstraints(
     type: Scalar | Model | ModelProperty | Union | Enum,
     original: OpenAPI3Schema
@@ -780,6 +804,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
     };
 
+    this.#applySchemaExamples(type, schema);
     applyConstraint(getMinLength, "minLength");
     applyConstraint(getMaxLength, "maxLength");
     applyConstraint(getMinValue, "minimum");
@@ -1011,4 +1036,8 @@ export function getDefaultValue(program: Program, defaultType: Value): any {
         target: defaultType,
       });
   }
+}
+
+export function isBytesKeptRaw(program: Program, type: Type) {
+  return type.kind === "Scalar" && type.name === "bytes" && getEncode(program, type) === undefined;
 }

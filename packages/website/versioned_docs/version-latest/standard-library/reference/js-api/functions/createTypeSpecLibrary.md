@@ -4,23 +4,23 @@ title: "[F] createTypeSpecLibrary"
 
 ---
 ```ts
-createTypeSpecLibrary<T, E, State>(lib): TypeSpecLibrary<T, E, State>
+function createTypeSpecLibrary<T, E, State>(lib): TypeSpecLibrary<T, E, State>
 ```
 
 Create a new TypeSpec library definition.
 
-## Type parameters
+## Type Parameters
 
-| Type parameter | Value |
-| :------ | :------ |
-| `T` extends `Object` | - |
-| `E` extends `Record`<`string`, `any`\> | - |
-| `State` extends `string` | `never` |
+| Type Parameter | Default type |
+| ------ | ------ |
+| `T` *extends* `object` | - |
+| `E` *extends* `Record`<`string`, `any`\> | - |
+| `State` *extends* `string` | `never` |
 
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `lib` | `Readonly`<[`TypeSpecLibraryDef`](../interfaces/TypeSpecLibraryDef.md)<`T`, `E`, `State`\>\> | Library definition. |
 
 ## Returns

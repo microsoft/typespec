@@ -3,41 +3,48 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Microsoft.Generator.CSharp.Input
 {
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public class InputModelType : InputType
     {
-        public InputModelType(string name, string? modelNamespace, string? accessibility, string? deprecated, string? description, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, string? discriminatorPropertyName, InputDictionary? inheritedDictionaryType, bool isNullable)
-            : base(name, isNullable)
+        // TODO: Follow up issue https://github.com/microsoft/typespec/issues/3619. After https://github.com/Azure/typespec-azure/pull/966 is completed, update this type and remove the "modelAsStruct" parameter.
+        public InputModelType(string name, string crossLanguageDefinitionId, string? access, string? deprecation, string? description, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputModelProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties, bool modelAsStruct)
+            : base(name)
         {
-            Namespace = modelNamespace;
-            Accessibility = accessibility;
-            Deprecated = deprecated;
+            CrossLanguageDefinitionId = crossLanguageDefinitionId;
+            Access = access;
+            Deprecation = deprecation;
             Description = description;
             Usage = usage;
             Properties = properties;
             BaseModel = baseModel;
-            DerivedModels = derivedModels;
+            DerivedModelsInternal = [.. derivedModels];
             DiscriminatorValue = discriminatorValue;
-            DiscriminatorPropertyName = discriminatorPropertyName;
-            InheritedDictionaryType = inheritedDictionaryType;
+            DiscriminatorProperty = discriminatorProperty;
+            DiscriminatedSubtypes = discriminatedSubtypes;
+            AdditionalProperties = additionalProperties;
             IsUnknownDiscriminatorModel = false;
             IsPropertyBag = false;
+            ModelAsStruct = modelAsStruct;
         }
 
-        public string? Namespace { get; internal set; }
-        public string? Accessibility { get; internal set; }
-        public string? Deprecated { get; internal set; }
+        public string CrossLanguageDefinitionId { get; internal set; }
+        public string? Access { get; internal set; }
+        public string? Deprecation { get; internal set; }
         public string? Description { get; internal set; }
         public InputModelTypeUsage Usage { get; internal set; }
         public IReadOnlyList<InputModelProperty> Properties { get; internal set; }
+        public bool ModelAsStruct { get; internal set; }
         public InputModelType? BaseModel { get; internal set; }
-        public IReadOnlyList<InputModelType> DerivedModels { get; internal set; }
+        public IReadOnlyList<InputModelType> DerivedModels => DerivedModelsInternal;
+        internal List<InputModelType> DerivedModelsInternal { get; }
         public string? DiscriminatorValue { get; internal set; }
-        public string? DiscriminatorPropertyName { get; internal set; }
-        public InputDictionary? InheritedDictionaryType { get; internal set; }
+        public InputModelProperty? DiscriminatorProperty { get; internal set; }
+        public IReadOnlyDictionary<string, InputModelType> DiscriminatedSubtypes { get; internal set; }
+        public InputType? AdditionalProperties { get; internal set; }
         public bool IsUnknownDiscriminatorModel { get; init; }
         public bool IsPropertyBag { get; init; }
 
@@ -67,7 +74,7 @@ namespace Microsoft.Generator.CSharp.Input
 
         private string GetDebuggerDisplay()
         {
-            return $"Model (Name: {Name}, {Namespace})";
+            return $"Model (Name: {Name})";
         }
     }
 }

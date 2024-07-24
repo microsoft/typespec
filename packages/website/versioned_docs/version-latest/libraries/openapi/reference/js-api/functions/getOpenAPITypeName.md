@@ -4,7 +4,7 @@ title: "[F] getOpenAPITypeName"
 
 ---
 ```ts
-getOpenAPITypeName(
+function getOpenAPITypeName(
    program, 
    type, 
    options, 
@@ -23,7 +23,7 @@ namespace using the provided `TypeNameOptions`.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `type` | `Type` |
 | `options` | `TypeNameOptions` |

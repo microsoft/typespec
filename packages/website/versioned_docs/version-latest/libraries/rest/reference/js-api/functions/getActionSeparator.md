@@ -4,13 +4,13 @@ title: "[F] getActionSeparator"
 
 ---
 ```ts
-getActionSeparator(program, entity): string | undefined
+function getActionSeparator(program, entity): string | undefined
 ```
 
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | `Program` | the TypeSpec program |
 | `entity` | `Type` | the target entity |
 

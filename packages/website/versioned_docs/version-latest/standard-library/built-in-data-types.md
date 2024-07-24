@@ -39,6 +39,20 @@ model DefaultKeyVisibility<Source, Visibility>
 #### Properties
 None
 
+### `ExampleOptions` {#ExampleOptions}
+
+Options for example decorators
+```typespec
+model ExampleOptions
+```
+
+
+#### Properties
+| Name | Type | Description |
+|------|------|-------------|
+| title? | [`string`](#string) | The title of the example |
+| description? | [`string`](#string) | Description of the example |
+
 ### `object` {#object}
 
 Represent a model
@@ -83,6 +97,20 @@ model OmitProperties<Source, Keys>
 #### Properties
 None
 
+### `OperationExample` {#OperationExample}
+
+Operation example configuration.
+```typespec
+model OperationExample
+```
+
+
+#### Properties
+| Name | Type | Description |
+|------|------|-------------|
+| parameters? | `unknown` | Example request body. |
+| returnType? | `unknown` | Example response body. |
+
 ### `OptionalProperties` {#OptionalProperties}
 
 Represents a collection of optional properties.
@@ -94,6 +122,23 @@ model OptionalProperties<Source>
 | Name | Description |
 |------|-------------|
 | Source | An object whose spread properties are all optional. |
+
+
+#### Properties
+None
+
+### `PickProperties` {#PickProperties}
+
+Represents a collection of properties with only the specified keys included.
+```typespec
+model PickProperties<Source, Keys>
+```
+
+#### Template Parameters
+| Name | Description |
+|------|-------------|
+| Source | An object whose properties are spread. |
+| Keys | The property keys to include. |
 
 
 #### Properties

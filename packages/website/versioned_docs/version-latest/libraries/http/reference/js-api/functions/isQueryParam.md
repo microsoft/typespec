@@ -4,13 +4,13 @@ title: "[F] isQueryParam"
 
 ---
 ```ts
-isQueryParam(program, entity): boolean
+function isQueryParam(program, entity): boolean
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `entity` | `Type` |
 

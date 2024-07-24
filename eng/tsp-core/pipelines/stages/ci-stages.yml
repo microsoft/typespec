@@ -21,6 +21,9 @@ stages:
             "Node 20.x":
               nodeVersion: 20.x
 
+            "Node 22.x":
+              nodeVersion: 22.x
+
         pool:
           name: $(WINDOWSPOOL)
           image: $(WINDOWSVMIMAGE)
