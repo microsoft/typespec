@@ -4,8 +4,8 @@ import { Namespace } from "@typespec/compiler";
 import { format } from "prettier";
 import { assert, describe, expect, it } from "vitest";
 import { getProgram } from "../test-host.js";
-import { UnionDeclaration } from "../../../src/typescript/components/union-declaration.jsx";
-import { UnionExpression } from "../../../src/typescript/components/union-expression.jsx";
+import { UnionDeclaration } from "../../../src/typescript/components/union-declaration.js";
+import { UnionExpression } from "../../../src/typescript/components/union-expression.js";
 
 describe("Typescript Union Declaration", () => {
   describe("Union not bound to Typespec Types", () => {

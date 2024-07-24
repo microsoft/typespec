@@ -3,7 +3,7 @@ import { SourceFile } from "@alloy-js/typescript";
 import { Namespace } from "@typespec/compiler";
 import { format } from "prettier";
 import { assert, describe, expect, it } from "vitest";
-import { FunctionDeclaration } from "../../../src/typescript/components/function-declaration.jsx";
+import { FunctionDeclaration } from "../../../src/typescript/components/function-declaration.js";
 import { getProgram } from "../test-host.js";
 describe("Typescript Function Declaration", () => {
   describe("Function bound to Typespec Types", () => {

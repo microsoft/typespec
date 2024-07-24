@@ -43,7 +43,7 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
     returnType,
   };
 
-  return <ts.FunctionDeclaration {..._props} refkey={refkey}/>
+  return <ts.FunctionDeclaration {..._props} refkey={refkey} />;
 }
 
 export interface TypedFunctionParametersProps extends Omit<ts.FunctionDeclarationProps, "name"> {
