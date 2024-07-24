@@ -1,2 +1,2 @@
 export * from "./function-declaration.js";
-export * from "./type-expression.jsx";
+export * from "./type-expression.js";

@@ -1,11 +1,8 @@
 import {
   Declaration,
   DeclarationProps,
-  ObjectExpression,
-  ObjectExpressionProps,
   useTSNamePolicy,
 } from "@alloy-js/typescript";
-import { InterfaceExpression } from "./alloy-interface-expression.jsx";
 
 export interface InterfaceDeclarationProps extends DeclarationProps {
   extends?: string;

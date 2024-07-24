@@ -1,7 +1,7 @@
 import { ValueExpression } from "@alloy-js/typescript";
 import { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
 import { isDeclaration } from "../../core/utils/typeguards.js";
-import { UnionExpression } from "./union-expression.jsx";
+import { UnionExpression } from "./union-expression.js";
 
 export interface TypeExpressionProps {
   type: Type;

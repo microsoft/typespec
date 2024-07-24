@@ -1,7 +1,7 @@
 import { refkey as getRefkey, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Enum, Union } from "@typespec/compiler";
-import { UnionExpression } from "./union-expression.jsx";
+import { UnionExpression } from "./union-expression.js";
 
 export interface TypedUnionDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
   type: Union | Enum;

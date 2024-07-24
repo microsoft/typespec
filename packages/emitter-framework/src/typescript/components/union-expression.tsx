@@ -1,7 +1,7 @@
 import { Children, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Enum, Union } from "@typespec/compiler";
-import { TypeExpression } from "./type-expression.jsx";
+import { TypeExpression } from "./type-expression.js";
 
 export interface UnionExpressionProps {
   type: Union | Enum;

@@ -7,7 +7,7 @@ import {
   InterfaceDeclarationProps as TsInterfaceDeclarationProps,
 } from "./alloy-interface-declaration.js";
 import { InterfaceExpressionProps as TsInterfaceExpressionProps } from "./alloy-interface-expression.js";
-import { InterfaceMember } from "./interface-member.jsx";
+import { InterfaceMember } from "./interface-member.js";
 
 export interface TypedInterfaceDeclarationProps extends Omit<TsInterfaceDeclarationProps, "name"> {
   type: Model | Interface;

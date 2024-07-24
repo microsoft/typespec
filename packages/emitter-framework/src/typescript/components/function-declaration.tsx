@@ -1,4 +1,3 @@
-import { refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Model, Operation } from "@typespec/compiler";
 import { TypeExpression } from "./type-expression.js";
