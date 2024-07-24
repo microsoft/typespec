@@ -1,20 +1,23 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { EmitContext } from "@typespec/compiler";
-import { FunctionDeclaration } from "@typespec/emitter-framework/typescript";
+import { EmitContext, Model, Operation, Type } from "@typespec/compiler";
+import { FunctionDeclaration, InterfaceDeclaration } from "@typespec/emitter-framework/typescript";
 import { TypeCollector } from "@typespec/emitter-framework";
 
 export async function $onEmit(context: EmitContext) {
-  const globalns = context.program.getGlobalNamespaceType();
-  const types = new TypeCollector(globalns).flat();
-  
-  const functions = ay.mapJoin(types.operations, op => (
-    <FunctionDeclaration export type={op}>
+  const types = queryTypes(context);
+
+  const functions = ay.mapJoin(types.ops, op => {
+    return <FunctionDeclaration export type={op}>
       return "stub";
     </FunctionDeclaration>
+  });
+
+  const interfaces = ay.mapJoin(types.dataTypes, m => (
+    <InterfaceDeclaration type={m} />
   ));
 
-  const calls = ay.mapJoin(types.operations, (op) => {
+  const calls = ay.mapJoin(types.ops, (op) => {
     return <ts.VarDeclaration export name={op.name + "Result"}>
       <ts.Reference refkey={ay.refkey(op)} />("hello")
     </ts.VarDeclaration>
@@ -27,6 +30,7 @@ export async function $onEmit(context: EmitContext) {
         version="1.0.0"
         path={context.emitterOutputDir}>
         <ts.SourceFile path="client.ts">
+          {interfaces}
           {functions}
         </ts.SourceFile>
         <ts.SourceFile path="test.ts">
@@ -36,4 +40,22 @@ export async function $onEmit(context: EmitContext) {
       </ts.PackageDirectory>
     </ay.Output>
   );
+}
+
+
+function queryTypes(context: EmitContext) {
+  const types = new Set<Model>();
+  const ops = new Set<Operation>();
+  const globalns = context.program.getGlobalNamespaceType();
+  const allTypes = new TypeCollector(globalns).flat();
+  for (const op of allTypes.operations) {
+    ops.add(op);
+
+    const referencedTypes = new TypeCollector(op).flat();
+    for (const model of referencedTypes.models) {
+      types.add(model);
+    }
+  }
+
+  return { dataTypes: [... types], ops: [... ops] };
 }

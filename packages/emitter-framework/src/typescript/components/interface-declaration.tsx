@@ -1,4 +1,4 @@
-import { refkey as getRefkey } from "@alloy-js/core";
+import { refkey as getRefkey, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Interface, Model, ModelProperty, Operation } from "@typespec/compiler";
 import { isInterface, isModel } from "../../core/utils/typeguards.js";
@@ -40,7 +40,7 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
     <TsInterfaceDeclaration {...coreProps} name={name} refkey={refkey} extends={extendsType}>
       <InterfaceExpression type={type}>
         {coreProps.children}
-        </InterfaceExpression>
+      </InterfaceExpression>
     </TsInterfaceDeclaration>
   );
 }
@@ -56,7 +56,7 @@ export interface InterfaceExpressionProps extends TsInterfaceExpressionProps {
 }
 
 export function InterfaceExpression({ type, children }: InterfaceExpressionProps) {
-  const members = [];
+  let members: any[] = [];
   let typeMembers: IterableIterator<ModelProperty | Operation> | undefined;
   // const [childrenMembers, children] = filterComponentFromChildren(allChildren, InterfaceMember);
 
@@ -67,11 +67,16 @@ export function InterfaceExpression({ type, children }: InterfaceExpressionProps
       typeMembers = type.operations.values();
     }
 
-    for (const prop of typeMembers ?? []) {
-      members.push(<InterfaceMember type={prop} />);
-    }
+    members = mapJoin(Array.from(typeMembers!), (prop) => (
+      <InterfaceMember type={prop} />
+    ), { joiner: "\n" });
   }
 
-
-  return ["{\n", members  , children , "\n}"];
+  // this needs to be fixed (ideally children would be on the next line but it adds a line
+  // break, which is currently a formatting bug).
+  return <>
+    {"{"}
+      {members}{children}
+    {"}"}
+  </>
 }

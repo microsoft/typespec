@@ -19,8 +19,7 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
 
   return (
     <Declaration {...declarationProps}>
-      interface {name} 
-        {props.children}
+      interface {name} {props.children}
     </Declaration>
   );
 }

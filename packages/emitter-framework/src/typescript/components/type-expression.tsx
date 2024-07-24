@@ -1,4 +1,5 @@
-import { ValueExpression } from "@alloy-js/typescript";
+import { refkey } from "@alloy-js/core";
+import { ValueExpression, Reference } from "@alloy-js/typescript";
 import { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
 import { isDeclaration } from "../../core/utils/typeguards.js";
 import { UnionExpression } from "./union-expression.js";
@@ -11,8 +12,8 @@ export function TypeExpression({ type }: TypeExpressionProps) {
   if (isDeclaration(type) && !(type as Model).indexer) {
     // todo: probably need abstraction around deciding what's a declaration in the output
     // (it may not correspond to things which are declarations in TypeSpec?)
-    // return <Reference refkey={type} />;
-    throw new Error("Reference not implemented");
+    return <Reference refkey={refkey(type)} />;
+    //throw new Error("Reference not implemented");
   }
 
   switch (type.kind) {
