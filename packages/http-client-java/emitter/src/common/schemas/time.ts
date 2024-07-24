@@ -1,5 +1,5 @@
-import { DeepPartial } from "@azure-tools/codegen";
 import { PrimitiveSchema, SchemaType } from "@autorest/codemodel";
+import { DeepPartial } from "@azure-tools/codegen";
 
 /** a schema that represents a Duration value */
 export interface DurationSchema extends PrimitiveSchema {

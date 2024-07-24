@@ -1,5 +1,5 @@
-import { DeepPartial, enableSourceTracking } from "@azure-tools/codegen";
 import { Info, Metadata, OperationGroup, Parameter, Schemas, Security } from "@autorest/codemodel";
+import { DeepPartial, enableSourceTracking } from "@azure-tools/codegen";
 import { Client } from "./client.js";
 
 /** the model that contains all the information required to generate a service api */
@@ -43,7 +43,9 @@ export class CodeModel extends Metadata implements CodeModel {
   }
 
   getOperationGroup(group: string) {
-    let result = this.operationGroups.find((each) => group.toLowerCase() === each.$key.toLowerCase());
+    let result = this.operationGroups.find(
+      (each) => group.toLowerCase() === each.$key.toLowerCase()
+    );
     if (!result) {
       result = new OperationGroup(group);
       this.operationGroups.push(result);
@@ -59,7 +61,7 @@ export class CodeModel extends Metadata implements CodeModel {
   addGlobalParameter(find: (value: Parameter) => boolean, create: () => Parameter): Parameter;
   addGlobalParameter(
     predicateOrParameter: Parameter | ((value: Parameter) => boolean),
-    create: ValueOrFactory<Parameter> = <any>undefined,
+    create: ValueOrFactory<Parameter> = <any>undefined
   ): Parameter {
     try {
       if (typeof predicateOrParameter !== "function") {
@@ -76,7 +78,10 @@ export class CodeModel extends Metadata implements CodeModel {
       }
       return p;
     } finally {
-      this.globalParameters = sortAscendingInvalidLast(this.globals, (each) => each.extensions?.["x-ms-priority"]);
+      this.globalParameters = sortAscendingInvalidLast(
+        this.globals,
+        (each) => each.extensions?.["x-ms-priority"]
+      );
     }
   }
 }
@@ -87,7 +92,10 @@ function realize<T>(f: ValueOrFactory<T>): T {
   return f instanceof Function ? f() : f;
 }
 
-function sortAscendingInvalidLast<T>(input: Array<T>, accessor: (each: T) => number | undefined): Array<T> {
+function sortAscendingInvalidLast<T>(
+  input: Array<T>,
+  accessor: (each: T) => number | undefined
+): Array<T> {
   return input.sort((a, b) => {
     const pA = accessor(a) ?? Number.MAX_VALUE;
     const pB = accessor(b) ?? Number.MAX_VALUE;

@@ -1,6 +1,5 @@
+import { ComplexSchema, ObjectSchema, Schema, SchemaType } from "@autorest/codemodel";
 import { DeepPartial } from "@azure-tools/codegen";
-import { ComplexSchema, ObjectSchema, Schema } from "@autorest/codemodel";
-import { SchemaType } from "@autorest/codemodel";
 import { SchemaUsage } from "./usage.js";
 
 /** an OR relationship between several schemas

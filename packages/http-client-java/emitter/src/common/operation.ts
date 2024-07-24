@@ -1,13 +1,13 @@
-import { DeepPartial } from "@azure-tools/codegen";
 import {
   ApiVersion,
   Aspect,
+  ImplementationLocation,
   Metadata,
   Parameter,
-  ImplementationLocation,
   Response,
   SchemaType,
 } from "@autorest/codemodel";
+import { DeepPartial } from "@azure-tools/codegen";
 import { LongRunningMetadata } from "./long-running-metadata.js";
 
 /** represents a single callable endpoint with a discrete set of inputs, and any number of output possibilities (responses or exceptions)  */
@@ -72,7 +72,7 @@ export class ConvenienceApi extends Metadata {
           },
         },
       },
-      initializer,
+      initializer
     );
   }
 
@@ -106,7 +106,7 @@ export class Request extends Metadata implements Request {
           each.schema.type !== SchemaType.Constant &&
           each.implementation !== ImplementationLocation.Client &&
           !each.groupedBy &&
-          !each.flattened,
+          !each.flattened
       );
     }
   }
@@ -138,7 +138,7 @@ export class Operation extends Aspect implements Operation {
           each.schema.type !== SchemaType.Constant &&
           each.implementation !== ImplementationLocation.Client &&
           !each.groupedBy &&
-          !each.flattened,
+          !each.flattened
       );
     }
   }

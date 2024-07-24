@@ -1,5 +1,12 @@
+import {
+  Aspect,
+  Metadata,
+  ObjectSchema,
+  OperationGroup,
+  Parameter,
+  Security,
+} from "@autorest/codemodel";
 import { DeepPartial } from "@azure-tools/codegen";
-import { Aspect, Metadata, ObjectSchema, OperationGroup, Parameter, Security } from "@autorest/codemodel";
 
 export interface Client extends Aspect {
   /** All operations  */
@@ -45,7 +52,7 @@ export class ServiceVersion extends Metadata {
           },
         },
       },
-      initializer,
+      initializer
     );
   }
 }

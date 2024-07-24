@@ -1,4 +1,4 @@
-import { Languages, Extensions, Schema, SchemaType } from "@autorest/codemodel";
+import { Extensions, Languages, Schema, SchemaType } from "@autorest/codemodel";
 import { DeepPartial, Initializer } from "@azure-tools/codegen";
 import { SchemaUsage } from "./usage.js";
 
@@ -35,7 +35,11 @@ export class ConstantSchema<ConstantType extends Schema = Schema>
   extends Schema
   implements ConstantSchema<ConstantType>
 {
-  constructor(name: string, description: string, objectInitializer?: DeepPartial<ConstantSchema<ConstantType>>) {
+  constructor(
+    name: string,
+    description: string,
+    objectInitializer?: DeepPartial<ConstantSchema<ConstantType>>
+  ) {
     super(name, description, SchemaType.Constant);
     this.apply(objectInitializer);
   }
