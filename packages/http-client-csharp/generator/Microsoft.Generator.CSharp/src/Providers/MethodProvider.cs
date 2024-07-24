@@ -19,6 +19,13 @@ namespace Microsoft.Generator.CSharp.Providers
         public ValueExpression? BodyExpression { get; private set;}
         public XmlDocProvider? XmlDocs { get; private set;}
 
+        // for mocking
+        protected MethodProvider()
+        {
+            // should be mocked
+            Signature = null!;
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MethodProvider"/> class with a body statement and method signature.
         /// </summary>

@@ -8,7 +8,7 @@ namespace Microsoft.Generator.CSharp
 {
     public abstract class OutputLibraryVisitor
     {
-        internal void Visit(OutputLibrary outputLibrary)
+        internal virtual void Visit(OutputLibrary outputLibrary)
         {
             var types = new List<TypeProvider>();
             // TODO add more things to visit, e.g Constructors, Parameters, etc - https://github.com/microsoft/typespec/issues/3825
@@ -26,6 +26,16 @@ namespace Microsoft.Generator.CSharp
                         if (method != null)
                         {
                             methods.Add(method);
+                        }
+                    }
+
+                    var constructors = new List<ConstructorProvider>();
+                    foreach (var constructorProvider in typeProvider.Constructors)
+                    {
+                        var constructor = Visit(typeProvider, constructorProvider);
+                        if (constructor != null)
+                        {
+                            constructors.Add(constructor);
                         }
                     }
 
@@ -49,7 +59,7 @@ namespace Microsoft.Generator.CSharp
                         }
                     }
 
-                    type.Update(methods, properties, fields);
+                    type.Update(methods,constructors, properties, fields);
                 }
             }
             outputLibrary.TypeProviders = types;

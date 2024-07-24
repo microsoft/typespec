@@ -9,7 +9,7 @@ using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    public sealed class FieldProvider
+    public class FieldProvider
     {
         private VariableExpression? _variable;
         private Lazy<ParameterProvider> _parameter;
@@ -30,6 +30,15 @@ namespace Microsoft.Generator.CSharp.Providers
         public ParameterProvider AsParameter => _parameter.Value;
 
         public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
+
+        // for mocking
+        protected FieldProvider()
+        {
+            // should be mocked
+            _parameter = null!;
+            Type = null!;
+            Name = null!;
+        }
 
         public FieldProvider(
             FieldModifiers modifiers,

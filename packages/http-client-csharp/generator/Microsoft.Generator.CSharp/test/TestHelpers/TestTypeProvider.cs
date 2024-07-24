@@ -6,7 +6,7 @@ using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
-    internal class MockTypeProvider : TypeProvider
+    internal class TestTypeProvider : TypeProvider
     {
         protected override string BuildRelativeFilePath()
         {
@@ -17,6 +17,6 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             throw new NotImplementedException();
         }
-        public static readonly TypeProvider Empty = new MockTypeProvider();
+        public static readonly TypeProvider Empty = new TestTypeProvider();
     }
 }

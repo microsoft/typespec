@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             // validate the expression is working fine
             using var writer = new CodeWriter();
-            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
+            var enumVar = new VariableExpression(enumType.Type, new TestCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
             enumType.ToEnum(Snippet.Literal(1)).Write(writer);
@@ -81,7 +81,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             // validate the expression is working fine
             using var writer = new CodeWriter();
-            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
+            var enumVar = new VariableExpression(enumType.Type, new TestCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
             enumType.ToEnum(Snippet.Literal(1f)).Write(writer);
@@ -119,7 +119,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             // validate the expression is working fine
             using var writer = new CodeWriter();
-            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
+            var enumVar = new VariableExpression(enumType.Type, new TestCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
             enumType.ToEnum(Snippet.Literal("1")).Write(writer);
@@ -176,7 +176,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             // validate the expression is working fine
             using var writer = new CodeWriter();
-            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
+            var enumVar = new VariableExpression(enumType.Type, new TestCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
             enumType.ToEnum(Snippet.Literal(1)).Write(writer);
@@ -233,7 +233,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             // validate the expression is working fine
             using var writer = new CodeWriter();
-            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
+            var enumVar = new VariableExpression(enumType.Type, new TestCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
             enumType.ToEnum(Snippet.Literal(1f)).Write(writer);
@@ -290,7 +290,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             // validate the expression is working fine
             using var writer = new CodeWriter();
-            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
+            var enumVar = new VariableExpression(enumType.Type, new TestCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
             enumType.ToEnum(Snippet.Literal("1")).Write(writer);

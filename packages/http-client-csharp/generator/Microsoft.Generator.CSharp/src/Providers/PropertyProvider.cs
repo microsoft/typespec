@@ -33,6 +33,19 @@ namespace Microsoft.Generator.CSharp.Providers
         /// </summary>
         public ParameterProvider AsParameter => _parameter.Value;
 
+        // for mocking
+        protected PropertyProvider()
+        {
+            // should be mocked
+            _parameter = null!;
+            Type = null!;
+            Name = null!;
+            Body = null!;
+            Description = null!;
+            XmlDocSummary = null!;
+            XmlDocs = null!;
+        }
+
         public PropertyProvider(InputModelProperty inputProperty)
         {
             var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);

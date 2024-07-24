@@ -10,12 +10,19 @@ namespace Microsoft.Generator.CSharp.Providers
     /// <summary>
     /// Represents a C# method consisting of a signature, body, and expression.
     /// </summary>
-    public sealed class ConstructorProvider
+    public class ConstructorProvider
     {
         public ConstructorSignature Signature { get; }
         public MethodBodyStatement? BodyStatements { get; }
         public ValueExpression? BodyExpression { get; }
         public XmlDocProvider? XmlDocs { get; }
+
+        // for mocking
+        protected ConstructorProvider()
+        {
+            // should be mocked
+            Signature = null!;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConstructorProvider"/> class with a body statement and method signature.

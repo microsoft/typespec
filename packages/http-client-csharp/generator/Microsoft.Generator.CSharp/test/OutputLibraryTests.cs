@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.Providers;
+using Moq;
+using Moq.Protected;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests
@@ -25,6 +26,8 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void BuildTypeProviders_Override()
         {
+            var mockOutputLibrary = new Mock<OutputLibrary>();
+            mockOutputLibrary.Protected().Setup<TypeProvider[]>("BuildTypeProviders").Throws<NotImplementedException>();
             Assert.Throws<NotImplementedException>(() => { object shouldFail = _outputLibrary.TypeProviders; });
         }
 
@@ -38,49 +41,11 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void CanOverrideGetOutputLibraryVisitors()
         {
-            var outputLibrary = new TestOutputLibraryOverridingVisitors(new [] { new TestOutputLibraryVisitor() });
+            var outputLibrary = new Tests.TestOutputLibrary(new [] { new TestOutputLibraryVisitor() });
             Assert.AreEqual(1, outputLibrary.GetOutputLibraryVisitors().Count());
 
             outputLibrary.AddVisitor(new TestOutputLibraryVisitor());
             Assert.AreEqual(2, outputLibrary.GetOutputLibraryVisitors().Count());
-        }
-
-        private class TestOutputLibraryVisitor : OutputLibraryVisitor
-        {
-        }
-
-        private class TestOutputLibrary : OutputLibrary
-        {
-            protected override TypeProvider[] BuildTypeProviders()
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        private class TestOutputLibraryOverridingVisitors : OutputLibrary
-        {
-            private readonly IEnumerable<OutputLibraryVisitor>? _visitors;
-            public TestOutputLibraryOverridingVisitors(IEnumerable<OutputLibraryVisitor>? visitors = null)
-            {
-                _visitors = visitors;
-            }
-
-            protected internal override IEnumerable<OutputLibraryVisitor> GetOutputLibraryVisitors()
-            {
-                foreach (var visitor in base.GetOutputLibraryVisitors())
-                {
-                    yield return visitor;
-                }
-                foreach (var visitor in _visitors ?? [])
-                {
-                    yield return visitor;
-                }
-            }
-
-            protected override TypeProvider[] BuildTypeProviders()
-            {
-                throw new NotImplementedException();
-            }
         }
     }
 }
