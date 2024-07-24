@@ -559,6 +559,8 @@ namespace Microsoft.Generator.CSharp
                 AppendRaw("global::");
                 AppendRaw(type.Namespace);
                 AppendRaw(".");
+                if (type.DeclaringType is not null)
+                    AppendRaw($"{type.DeclaringType.Name}.");
                 AppendRaw(type.Name);
             }
 

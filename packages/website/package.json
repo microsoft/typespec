@@ -31,8 +31,8 @@
     "@docusaurus/theme-classic": "~3.4.0",
     "@docusaurus/theme-common": "~3.4.0",
     "@docusaurus/theme-mermaid": "^3.4.0",
-    "@fluentui/react-components": "~9.54.2",
-    "@fluentui/react-icons": "^2.0.247",
+    "@fluentui/react-components": "~9.54.5",
+    "@fluentui/react-icons": "^2.0.249",
     "@mdx-js/react": "^3.0.1",
     "@typespec/playground": "workspace:~",
     "clsx": "^2.1.1",
@@ -46,7 +46,7 @@
     "@docusaurus/module-type-aliases": "^3.4.0",
     "@docusaurus/tsconfig": "^3.4.0",
     "@docusaurus/types": "^3.4.0",
-    "@swc/core": "^1.6.6",
+    "@swc/core": "^1.7.0",
     "@types/node": "~18.11.19",
     "@types/react": "~18.3.3",
     "@typespec/compiler": "workspace:~",
@@ -66,12 +66,12 @@
     "file-loader": "~6.2.0",
     "mermaid": "~10.9.1",
     "monaco-editor-webpack-plugin": "~7.1.0",
-    "playwright": "^1.45.0",
+    "playwright": "^1.45.3",
     "prism-themes": "~1.9.0",
     "raw-loader": "~4.0.2",
-    "rimraf": "~5.0.7",
+    "rimraf": "~6.0.1",
     "swc-loader": "^0.2.6",
-    "typescript": "~5.5.3"
+    "typescript": "~5.5.4"
   },
   "browserslist": {
     "production": [

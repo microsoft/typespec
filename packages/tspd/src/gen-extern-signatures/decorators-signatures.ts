@@ -222,6 +222,8 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
       case "Model":
         if (isArrayModelType(program, type)) {
           return `readonly (${getValueTSType(type.indexer.value)})` + "[]";
+        } else if (isReflectionType(type)) {
+          return getValueOfReflectionType(type);
         } else {
           if (type.name) {
             return useLocalType(type);
@@ -231,6 +233,18 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
         }
     }
     return "unknown";
+  }
+
+  function getValueOfReflectionType(type: Model): string {
+    switch (type.name) {
+      case "EnumMember":
+      case "Enum":
+        return useCompilerType("EnumValue");
+      case "Model":
+        return "Record<string, unknown>";
+      default:
+        return "unknown";
+    }
   }
 
   function writeTypeExpressionForModel(model: Model): string {
@@ -295,7 +309,7 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
   }
 }
 
-function isReflectionType(type: Type): type is Model {
+function isReflectionType(type: Type): type is Model & { namespace: { name: "Reflection" } } {
   return (
     type.kind === "Model" &&
     type.namespace?.name === "Reflection" &&

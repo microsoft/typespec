@@ -19,19 +19,25 @@ namespace Microsoft.Generator.CSharp.Providers
         public string Name { get; }
         public FormattableString Description { get; }
         public CSharpType Type { get; init; }
+
+        /// <summary>
+        /// The default value of the parameter.
+        /// </summary>
         public ValueExpression? DefaultValue { get; init; }
+        public ValueExpression? InitializationValue { get; init; }
         public ParameterValidationType Validation { get; init; } = ParameterValidationType.None;
         public bool IsRef { get; }
         public bool IsOut { get; }
         internal IReadOnlyList<AttributeStatement> Attributes { get; } = Array.Empty<AttributeStatement>();
+        public WireInformation WireInfo { get; }
 
         /// <summary>
-        /// This property tracks which property this parameter is constructed from
+        /// This property tracks which property this parameter is constructed from.
         /// </summary>
         public PropertyProvider? Property { get; }
 
         /// <summary>
-        /// This property tracks which field this parameter is constructed from
+        /// This property tracks which field this parameter is constructed from.
         /// </summary>
         public FieldProvider? Field { get; }
 
@@ -45,6 +51,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Description = FormattableStringHelpers.FromString(inputParameter.Description) ?? FormattableStringHelpers.Empty;
             Type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
             Validation = inputParameter.IsRequired ? ParameterValidationType.AssertNotNull : ParameterValidationType.None;
+            WireInfo = new WireInformation(CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParameter.Type), inputParameter.NameInRequest);
         }
 
         public ParameterProvider(
@@ -56,7 +63,8 @@ namespace Microsoft.Generator.CSharp.Providers
             bool isOut = false,
             IReadOnlyList<AttributeStatement>? attributes = null,
             PropertyProvider? property = null,
-            FieldProvider? field = null)
+            FieldProvider? field = null,
+            ValueExpression? initializationValue = null)
         {
             Debug.Assert(!(property is not null && field is not null), "A parameter cannot be both a property and a field");
 
@@ -70,6 +78,8 @@ namespace Microsoft.Generator.CSharp.Providers
             Property = property;
             Field = field;
             Validation = GetParameterValidation();
+            InitializationValue = initializationValue;
+            WireInfo = new WireInformation(SerializationFormat.Default, name);
         }
 
         private ParameterProvider? _inputParameter;
@@ -154,6 +164,9 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private ParameterValidationType GetParameterValidation()
         {
+            if (Field is not null && !Field.Type.IsNullable)
+                return ParameterValidationType.AssertNotNull;
+
             if (Property is null || Property.WireInfo is null)
                 return ParameterValidationType.None;
 
