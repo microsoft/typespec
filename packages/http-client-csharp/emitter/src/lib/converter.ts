@@ -16,7 +16,6 @@ import {
   SdkModelType,
   SdkType,
   SdkUnionType,
-  UsageFlags,
   getAccessOverride,
   isReadOnly,
 } from "@azure-tools/typespec-client-generator-core";
