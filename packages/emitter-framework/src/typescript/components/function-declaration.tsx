@@ -33,7 +33,7 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
     <TypeExpression type={type.returnType} />
   );
 
-  coreProps.refkey ??= refkey(type);
+  coreProps.refkey ??= getRefkey(type);
   
   const _props: ts.FunctionDeclarationProps = {
     ...coreProps,
