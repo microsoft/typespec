@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace UnbrandedTypeSpec
+namespace UnbrandedTypeSpec.Models
 {
     /// <summary></summary>
-    public partial class ThingOptionalLiteralFloatExtensions
+    public readonly partial struct FloatExtensibleEnum
     {
         internal float ToSerialSingle() => _value;
     }

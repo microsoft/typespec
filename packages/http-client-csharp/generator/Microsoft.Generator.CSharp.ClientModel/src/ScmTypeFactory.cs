@@ -5,6 +5,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -37,11 +38,15 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
                     return [new MrwSerializationTypeDefinition(inputModel)];
                 case InputEnumType inputEnumType when inputEnumType.IsExtensible:
+                    if (ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputEnumType).UnderlyingEnumType.Equals(typeof(string)))
+                    {
+                        return [];
+                    }
                     return [new ExtensibleEnumSerializationProvider(inputEnumType)];
                 case InputEnumType inputEnumType:
                     return [new FixedEnumSerializationProvider(inputEnumType)];
                 default:
-                    return Array.Empty<TypeProvider>();
+                    return [];
             }
         }
     }

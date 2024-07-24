@@ -18,15 +18,15 @@ namespace UnbrandedTypeSpec.Models
 
         public static StringFixedEnum ToStringFixedEnum(this string value)
         {
-            if (StringComparer.OrdinalIgnoreCase.Equals(value, "1"))
+            if (value == "1")
             {
                 return StringFixedEnum.One;
             }
-            if (StringComparer.OrdinalIgnoreCase.Equals(value, "2"))
+            if (value == "2")
             {
                 return StringFixedEnum.Two;
             }
-            if (StringComparer.OrdinalIgnoreCase.Equals(value, "4"))
+            if (value == "4")
             {
                 return StringFixedEnum.Four;
             }

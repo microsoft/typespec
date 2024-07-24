@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace UnbrandedTypeSpec
+namespace UnbrandedTypeSpec.Models
 {
     /// <summary></summary>
-    public partial class ThingRequiredLiteralIntExtensions
+    public readonly partial struct IntExtensibleEnum
     {
         internal int ToSerialInt32() => _value;
     }

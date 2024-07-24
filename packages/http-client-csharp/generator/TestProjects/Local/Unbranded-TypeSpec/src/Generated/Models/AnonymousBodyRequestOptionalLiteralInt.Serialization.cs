@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace UnbrandedTypeSpec
+namespace UnbrandedTypeSpec.Models
 {
     /// <summary></summary>
-    public partial class IntExtensibleEnumExtensions
+    public readonly partial struct AnonymousBodyRequestOptionalLiteralInt
     {
         internal int ToSerialInt32() => _value;
     }

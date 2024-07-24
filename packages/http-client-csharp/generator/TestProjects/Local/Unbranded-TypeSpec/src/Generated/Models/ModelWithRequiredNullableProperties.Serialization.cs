@@ -66,7 +66,7 @@ namespace UnbrandedTypeSpec.Models
             if (RequiredFixedEnum != null)
             {
                 writer.WritePropertyName("requiredFixedEnum"u8);
-                writer.WriteStringValue(RequiredFixedEnum.Value.ToString());
+                writer.WriteStringValue(RequiredFixedEnum.Value.ToSerialString());
             }
             else
             {
@@ -133,7 +133,7 @@ namespace UnbrandedTypeSpec.Models
                         requiredExtensibleEnum = null;
                         continue;
                     }
-                    requiredExtensibleEnum = new StringExtensibleEnumExtensions(prop.Value.GetString());
+                    requiredExtensibleEnum = new StringExtensibleEnum(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("requiredFixedEnum"u8))
@@ -143,7 +143,7 @@ namespace UnbrandedTypeSpec.Models
                         requiredFixedEnum = null;
                         continue;
                     }
-                    requiredFixedEnum = prop.Value.GetString().ToStringFixedEnumExtensions();
+                    requiredFixedEnum = prop.Value.GetString().ToStringFixedEnum();
                     continue;
                 }
                 if (options.Format != "W")
