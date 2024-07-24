@@ -110,6 +110,7 @@ export function fromSdkModelType(
         property,
         {
           ModelName: modelTypeName,
+          Usage: modelType.usage,
         } as LiteralTypeContext,
         []
       );
