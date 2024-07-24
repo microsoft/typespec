@@ -171,7 +171,7 @@ function fromHttpOperationParameter(
 
   return {
     Name: p.name,
-    NameInRequest: serializedName,
+    NameInRequest: p.kind === "header" ? normalizeHeadername(serializedName) : serializedName,
     Description: p.description,
     Type: parameterType,
     Location: getParameterLocation(p),
@@ -401,4 +401,16 @@ function isSameType(src: SdkType, target: SdkType) {
   }
   // TODO: more type comparison
   return true;
+}
+
+// TODO: remove after https://github.com/Azure/typespec-azure/issues/1227 is fixed
+function normalizeHeadername(name: string): string {
+  switch (name.toLocaleLowerCase()) {
+    case "accept":
+      return "Accept";
+    case "content-type":
+      return "Content-Type";
+    default:
+      return name;
+  }
 }
