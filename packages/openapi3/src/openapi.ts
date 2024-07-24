@@ -1576,17 +1576,17 @@ function createOAPIEmitter(
       ph = mergeOpenApiParameters(ph, paramBase);
     }
 
-    const format = mapParameterFormat(parameter);
-    if (format === undefined) {
+    const attributes = getParameterAttributes(parameter);
+    if (attributes === undefined) {
       ph.schema = {
         type: "string",
       };
     } else {
-      Object.assign(ph, format);
+      Object.assign(ph, attributes);
     }
   }
 
-  function mapParameterFormat(
+  function getParameterAttributes(
     parameter: HttpOperationParameter
   ): { style?: string; explode?: boolean } | undefined {
     switch (parameter.type) {
@@ -1594,9 +1594,48 @@ function createOAPIEmitter(
         return mapHeaderParameterFormat(parameter);
       case "query":
         return mapQueryParameterFormat(parameter);
+
       case "path":
-        return {};
+        return getPathParameterAttributes(parameter);
     }
+  }
+
+  function getPathParameterAttributes(parameter: HttpOperationParameter & { type: "path" }) {
+    if (parameter.allowReserved) {
+      diagnostics.add(
+        createDiagnostic({
+          code: "path-reserved-expansion",
+          target: parameter.param,
+        })
+      );
+    }
+
+    const attributes: { style?: string; explode?: boolean } = {};
+
+    if (parameter.explode) {
+      attributes.explode = true;
+    }
+
+    switch (parameter.style) {
+      case "label":
+        attributes.style = "label";
+        break;
+      case "matrix":
+        attributes.style = "matrix";
+        break;
+      case "simple":
+        break;
+      default:
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-style",
+            format: { style: parameter.style, paramType: "path" },
+            target: parameter.param,
+          })
+        );
+    }
+
+    return attributes;
   }
 
   function mapHeaderParameterFormat(

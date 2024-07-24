@@ -1,6 +1,7 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
+import { OpenAPI3PathParameter } from "../src/types.js";
 import { diagnoseOpenApiFor, openApiFor } from "./test-host.js";
 
 describe("openapi3: parameters", () => {
@@ -427,6 +428,126 @@ describe("openapi3: parameters", () => {
     it("uses explicit name provided from @path", async () => {
       const res = await openApiFor(`op test(@path("my-custom-path") myParam: string): void;`);
       expect(res.paths).toHaveProperty("/{my-custom-path}");
+    });
+
+    async function getParam(code: string): Promise<OpenAPI3PathParameter> {
+      const res = await openApiFor(code);
+      return res.paths["/{myParam}"].get.parameters[0];
+    }
+
+    describe("mark parameter with explode: true", () => {
+      it("with option", async () => {
+        const param = await getParam(`op test(@path(#{explode: true}) myParam: string[]): void;`);
+        expect(param).toMatchObject({
+          explode: true,
+          schema: {
+            type: "array",
+            items: { type: "string" },
+          },
+        });
+      });
+      it("with uri template", async () => {
+        const param = await getParam(`@route("{myParam*}") op test(myParam: string[]): void;`);
+        expect(param).toMatchObject({
+          explode: true,
+          schema: {
+            type: "array",
+            items: { type: "string" },
+          },
+        });
+      });
+    });
+
+    describe("mark parameter with style: simple", () => {
+      it("with option", async () => {
+        const param = await getParam(`op test(@path(#{style: "simple"}) myParam: string): void;`);
+        expect(param).not.toHaveProperty("style");
+      });
+
+      it("with uri template", async () => {
+        const param = await getParam(`@route("{myParam}") op test(myParam: string): void;`);
+        expect(param).not.toHaveProperty("style");
+      });
+    });
+
+    describe("mark parameter with style: label", () => {
+      it("with option", async () => {
+        const param = await getParam(`op test(@path(#{style: "label"}) myParam: string): void;`);
+        expect(param).toMatchObject({
+          style: "label",
+        });
+      });
+
+      it("with uri template", async () => {
+        const param = await getParam(`@route("{.myParam}") op test(myParam: string): void;`);
+        expect(param).toMatchObject({
+          style: "label",
+        });
+      });
+    });
+
+    describe("mark parameter with style: matrix", () => {
+      it("with option", async () => {
+        const param = await getParam(`op test(@path(#{style: "matrix"}) myParam: string): void;`);
+        expect(param).toMatchObject({
+          style: "matrix",
+        });
+      });
+
+      it("with uri template", async () => {
+        const param = await getParam(`@route("{;myParam}") op test(myParam: string): void;`);
+        expect(param).toMatchObject({
+          style: "matrix",
+        });
+      });
+    });
+
+    describe("emit diagnostic when using style: path", () => {
+      it("with option", async () => {
+        const diagnostics = await diagnoseOpenApiFor(
+          `op test(@path(#{style: "path"}) myParam: string): void;`
+        );
+        expectDiagnostics(diagnostics, { code: "@typespec/openapi3/invalid-style" });
+      });
+
+      it("with uri template", async () => {
+        const diagnostics = await diagnoseOpenApiFor(
+          `@route("{/myParam}") op test(myParam: string): void;`
+        );
+        expectDiagnostics(diagnostics, { code: "@typespec/openapi3/invalid-style" });
+      });
+    });
+
+    describe("emit diagnostic when using style: fragment", () => {
+      it("with option", async () => {
+        const diagnostics = await diagnoseOpenApiFor(
+          `op test(@path(#{style: "fragment"}) myParam: string): void;`
+        );
+        expectDiagnostics(diagnostics, { code: "@typespec/openapi3/invalid-style" });
+      });
+
+      it("with uri template", async () => {
+        const diagnostics = await diagnoseOpenApiFor(
+          `@route("{#myParam}") op test(myParam: string): void;`
+        );
+        expectDiagnostics(diagnostics, { code: "@typespec/openapi3/invalid-style" });
+      });
+    });
+
+    describe("emit diagnostic when using reserved expansion", () => {
+      it("with option", async () => {
+        const diagnostics = await diagnoseOpenApiFor(
+          `op test(@path(#{allowReserved: true}) myParam: string): void;`
+        );
+        expectDiagnostics(diagnostics, { code: "@typespec/openapi3/path-reserved-expansion" });
+      });
+
+      it("with uri template", async () => {
+        const diagnostics = await diagnoseOpenApiFor(
+          `@route("{+myParam}") op test(myParam: string): void;`
+        );
+        expectDiagnostics(diagnostics, { code: "@typespec/openapi3/path-reserved-expansion" });
+      });
     });
   });
 });
