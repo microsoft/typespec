@@ -466,6 +466,21 @@ model TypeSpec.Http.PasswordFlow
 | refreshUrl? | `string`                                | the refresh URL                   |
 | scopes?     | `string[]`                              | list of scopes for the credential |
 
+### `PathOptions` {#TypeSpec.Http.PathOptions}
+
+```typespec
+model TypeSpec.Http.PathOptions
+```
+
+#### Properties
+
+| Name           | Type                                                      | Description                                                                                                                                                                                                                                  |
+| -------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name?          | `string`                                                  | Name of the parameter in the uri template.                                                                                                                                                                                                   |
+| explode?       | `boolean`                                                 | When interpolating this parameter in the case of array or object expand each value using the given style.<br />Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3) |
+| style?         | `"simple" \| "label" \| "matrix" \| "fragment" \| "path"` | Different interpolating styles for the path parameter.<br />- `simple`: No special encoding.<br />- `label`: Using `.` separator.<br />- `matrix`: `;` as separator.<br />- `fragment`: `#` as separator.<br />- `path`: `/` as separator.   |
+| allowReserved? | `boolean`                                                 | When interpolating this parameter do not encode reserved characters.<br />Equivalent of adding `+` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)                                      |
+
 ### `PlainData` {#TypeSpec.Http.PlainData}
 
 Produces a new model with the same properties as T, but with `@query`,
