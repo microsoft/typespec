@@ -311,7 +311,7 @@ function fromSdkConstantType(
       Deprecated: undefined,
       Description: `The ${enumName}`, // TODO -- what should we put here?
       IsExtensible: true,
-      Usage: literalTypeContext.Usage ?? UsageFlags.Input,
+      Usage: literalTypeContext.Usage,
     };
     enums.set(enumName, enumType);
     return enumType;

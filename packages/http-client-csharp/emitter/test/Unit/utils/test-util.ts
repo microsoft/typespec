@@ -128,5 +128,5 @@ export function createNetSdkContext(
   program: EmitContext<NetEmitterOptions>
 ): SdkContext<NetEmitterOptions> {
   Logger.initialize(program.program, LoggerLevel.INFO);
-  return createSdkContext(program, "@azure-tools/typespec-azure");
+  return createSdkContext(program, "@typespec/http-client-csharp");
 }
