@@ -10,12 +10,19 @@ namespace Microsoft.Generator.CSharp.Providers
     /// <summary>
     /// Represents a C# method consisting of a signature, body, and expression.
     /// </summary>
-    public sealed class ConstructorProvider
+    public class ConstructorProvider
     {
         public ConstructorSignature Signature { get; }
         public MethodBodyStatement? BodyStatements { get; }
         public ValueExpression? BodyExpression { get; }
         public XmlDocProvider? XmlDocs { get; }
+
+        // for mocking
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        protected ConstructorProvider()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConstructorProvider"/> class with a body statement and method signature.
