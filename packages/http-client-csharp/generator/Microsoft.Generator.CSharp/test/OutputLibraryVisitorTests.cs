@@ -146,7 +146,5 @@ namespace Microsoft.Generator.CSharp.Tests
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
             _mockVisitor.Protected().Verify<FieldProvider>("Visit", Times.Never(), _mockTypeProvider.Object, mockFieldProvider.Object);
         }
-
-
     }
 }
