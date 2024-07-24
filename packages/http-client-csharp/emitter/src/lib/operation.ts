@@ -356,9 +356,9 @@ function getParameterKind(
       case 0:
         throw new Error(`Body parameter "${p.name}" should have corresponding method parameter.`);
       case 1:
-        return isSameType(p.correspondingMethodParams[0].type, p.type)
-          ? InputOperationParameterKind.Method
-          : InputOperationParameterKind.Spread;
+        return isSpreadBody(p.correspondingMethodParams[0].type, p.type)
+          ? InputOperationParameterKind.Spread
+          : InputOperationParameterKind.Method;
       default:
         return InputOperationParameterKind.Spread;
     }
@@ -394,14 +394,14 @@ function getOperationGroupName(
   return namespace;
 }
 
-function isSameType(src: SdkType, target: SdkType) {
-  if (src.kind !== target.kind) return false;
+function isSpreadBody(httpParameterType: SdkType, sdkMethodParameterType: SdkType): boolean {
+  if (httpParameterType.kind !== sdkMethodParameterType.kind) return true;
 
-  if (src.kind === "model" && target.kind === "model") {
-    return src.name === target.name;
+  if (httpParameterType.kind === "model" && sdkMethodParameterType.kind === "model") {
+    return httpParameterType.name !== sdkMethodParameterType.name;
   }
-  // TODO: more type comparison
-  return true;
+
+  return false;
 }
 
 // TODO: remove after https://github.com/Azure/typespec-azure/issues/1227 is fixed
