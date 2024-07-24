@@ -13,13 +13,43 @@ namespace UnbrandedTypeSpec
     /// <summary></summary>
     public partial class UnbrandedTypeSpecClient
     {
-        private ClientPipeline _pipeline;
+        private readonly Uri _endpoint;
+        private const string AuthorizationHeader = "my-api-key";
+        /// <summary> A credential used to authenticate to the service. </summary>
+        private readonly ApiKeyCredential _keyCredential;
 
-        /// <summary> This is a sample typespec project. </summary>
-        public UnbrandedTypeSpecClient()
+        /// <summary> Initializes a new instance of UnbrandedTypeSpecClient for mocking. </summary>
+        protected UnbrandedTypeSpecClient()
         {
-            _pipeline = ClientPipeline.Create();
         }
+
+        /// <summary> Initializes a new instance of UnbrandedTypeSpecClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="keyCredential"> A credential used to authenticate to the service. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="keyCredential"/> is null. </exception>
+        public UnbrandedTypeSpecClient(Uri endpoint, ApiKeyCredential keyCredential) : this(endpoint, keyCredential, new UnbrandedTypeSpecClientOptions())
+        {
+        }
+
+        /// <summary> Initializes a new instance of UnbrandedTypeSpecClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="keyCredential"> A credential used to authenticate to the service. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="keyCredential"/> is null. </exception>
+        public UnbrandedTypeSpecClient(Uri endpoint, ApiKeyCredential keyCredential, UnbrandedTypeSpecClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
+            Argument.AssertNotNull(keyCredential, nameof(keyCredential));
+
+            options ??= new UnbrandedTypeSpecClientOptions();
+
+            _endpoint = endpoint;
+            _keyCredential = keyCredential;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(_keyCredential, AuthorizationHeader) }, Array.Empty<PipelinePolicy>());
+        }
+
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
         /// <summary>
         /// [Protocol Method] Return hi
@@ -42,7 +72,7 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
             using PipelineMessage message = CreateSayHiRequest(headParameter, queryParameter, optionalQuery, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -66,7 +96,7 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
             using PipelineMessage message = CreateSayHiRequest(headParameter, queryParameter, optionalQuery, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Return hi. </summary>
@@ -118,7 +148,7 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(p2, nameof(p2));
 
             using PipelineMessage message = CreateHelloAgainRequest(p1, p2, content, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -142,7 +172,7 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(p2, nameof(p2));
 
             using PipelineMessage message = CreateHelloAgainRequest(p1, p2, content, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Return hi again. </summary>
@@ -198,7 +228,7 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(p2, nameof(p2));
 
             using PipelineMessage message = CreateNoContentTypeRequest(p1, p2, content, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -222,7 +252,7 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(p2, nameof(p2));
 
             using PipelineMessage message = CreateNoContentTypeRequest(p1, p2, content, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Return hi again. </summary>
@@ -271,7 +301,7 @@ namespace UnbrandedTypeSpec
         public virtual ClientResult HelloDemo2(RequestOptions options)
         {
             using PipelineMessage message = CreateHelloDemo2Request(options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -288,7 +318,7 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> HelloDemo2Async(RequestOptions options)
         {
             using PipelineMessage message = CreateHelloDemo2Request(options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Return hi in demo2. </summary>
@@ -320,7 +350,7 @@ namespace UnbrandedTypeSpec
         public virtual ClientResult CreateLiteral(BinaryContent content, RequestOptions options)
         {
             using PipelineMessage message = CreateCreateLiteralRequest(content, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -338,7 +368,7 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> CreateLiteralAsync(BinaryContent content, RequestOptions options)
         {
             using PipelineMessage message = CreateCreateLiteralRequest(content, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Create with literal value. </summary>
@@ -379,7 +409,7 @@ namespace UnbrandedTypeSpec
         public virtual ClientResult HelloLiteral(RequestOptions options)
         {
             using PipelineMessage message = CreateHelloLiteralRequest(options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -396,7 +426,7 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> HelloLiteralAsync(RequestOptions options)
         {
             using PipelineMessage message = CreateHelloLiteralRequest(options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Send literal parameters. </summary>
@@ -431,7 +461,7 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(action, nameof(action));
 
             using PipelineMessage message = CreateTopActionRequest(action, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -452,7 +482,7 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(action, nameof(action));
 
             using PipelineMessage message = CreateTopActionRequest(action, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> top level method. </summary>
@@ -491,7 +521,7 @@ namespace UnbrandedTypeSpec
         public virtual ClientResult TopAction2(RequestOptions options)
         {
             using PipelineMessage message = CreateTopAction2Request(options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -508,7 +538,7 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> TopAction2Async(RequestOptions options)
         {
             using PipelineMessage message = CreateTopAction2Request(options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> top level method2. </summary>
@@ -540,7 +570,7 @@ namespace UnbrandedTypeSpec
         public virtual ClientResult PatchAction(BinaryContent content, RequestOptions options)
         {
             using PipelineMessage message = CreatePatchActionRequest(content, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -558,7 +588,7 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> PatchActionAsync(BinaryContent content, RequestOptions options)
         {
             using PipelineMessage message = CreatePatchActionRequest(content, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> top level patch. </summary>
@@ -599,7 +629,7 @@ namespace UnbrandedTypeSpec
         public virtual ClientResult AnonymousBody(RequestOptions options)
         {
             using PipelineMessage message = CreateAnonymousBodyRequest(options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -616,7 +646,7 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> AnonymousBodyAsync(RequestOptions options)
         {
             using PipelineMessage message = CreateAnonymousBodyRequest(options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> body parameter without body decorator. </summary>
@@ -647,7 +677,7 @@ namespace UnbrandedTypeSpec
         public virtual ClientResult FriendlyModel(RequestOptions options)
         {
             using PipelineMessage message = CreateFriendlyModelRequest(options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -664,7 +694,7 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> FriendlyModelAsync(RequestOptions options)
         {
             using PipelineMessage message = CreateFriendlyModelRequest(options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Model can have its friendly name. </summary>
@@ -696,7 +726,7 @@ namespace UnbrandedTypeSpec
         public virtual ClientResult AddTimeHeader(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
         {
             using PipelineMessage message = CreateAddTimeHeaderRequest(repeatabilityFirstSent, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -714,7 +744,7 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> AddTimeHeaderAsync(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
         {
             using PipelineMessage message = CreateAddTimeHeaderRequest(repeatabilityFirstSent, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> addTimeHeader. </summary>
@@ -747,7 +777,7 @@ namespace UnbrandedTypeSpec
         public virtual ClientResult ProjectedNameModel(RequestOptions options)
         {
             using PipelineMessage message = CreateProjectedNameModelRequest(options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -764,7 +794,7 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> ProjectedNameModelAsync(RequestOptions options)
         {
             using PipelineMessage message = CreateProjectedNameModelRequest(options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Model can have its projected name. </summary>
@@ -795,7 +825,7 @@ namespace UnbrandedTypeSpec
         public virtual ClientResult ReturnsAnonymousModel(RequestOptions options)
         {
             using PipelineMessage message = CreateReturnsAnonymousModelRequest(options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -812,7 +842,7 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> ReturnsAnonymousModelAsync(RequestOptions options)
         {
             using PipelineMessage message = CreateReturnsAnonymousModelRequest(options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> return anonymous model. </summary>
@@ -843,7 +873,7 @@ namespace UnbrandedTypeSpec
         public virtual ClientResult GetUnknownValue(RequestOptions options)
         {
             using PipelineMessage message = CreateGetUnknownValueRequest(options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -860,7 +890,7 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> GetUnknownValueAsync(RequestOptions options)
         {
             using PipelineMessage message = CreateGetUnknownValueRequest(options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> get extensible enum. </summary>
@@ -892,7 +922,7 @@ namespace UnbrandedTypeSpec
         public virtual ClientResult InternalProtocol(BinaryContent content, RequestOptions options)
         {
             using PipelineMessage message = CreateInternalProtocolRequest(content, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -910,7 +940,7 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> InternalProtocolAsync(BinaryContent content, RequestOptions options)
         {
             using PipelineMessage message = CreateInternalProtocolRequest(content, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
@@ -951,7 +981,7 @@ namespace UnbrandedTypeSpec
         public virtual ClientResult StillConvenient(RequestOptions options)
         {
             using PipelineMessage message = CreateStillConvenientRequest(options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -968,7 +998,7 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> StillConvenientAsync(RequestOptions options)
         {
             using PipelineMessage message = CreateStillConvenientRequest(options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
@@ -1003,7 +1033,7 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(id, nameof(id));
 
             using PipelineMessage message = CreateHeadAsBooleanRequest(id, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -1024,7 +1054,7 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(id, nameof(id));
 
             using PipelineMessage message = CreateHeadAsBooleanRequest(id, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> head as boolean. </summary>

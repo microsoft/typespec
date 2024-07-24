@@ -44,7 +44,7 @@ namespace Microsoft.Generator.CSharp
 
         public static MethodBodyStatement GetBodyStatementWithValidation(IEnumerable<ParameterProvider> parameters, MethodBodyStatement bodyStatements, Dictionary<ParameterValidationType, List<ParameterProvider>>? paramHash)
         {
-            if (paramHash is null)
+            if (paramHash is null || bodyStatements == MethodBodyStatement.Empty)
                 return bodyStatements;
 
             int count = 0;

@@ -521,25 +521,18 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
     }
 
-    if (schemaMembers.length === 0) {
-      if (nullable) {
-        // This union is equivalent to just `null` but OA3 has no way to specify
-        // null as a value, so we throw an error.
-        reportDiagnostic(program, { code: "union-null", target: union });
-        return new ObjectBuilder({});
-      } else {
-        // completely empty union can maybe only happen with bugs?
-        compilerAssert(false, "Attempting to emit an empty union");
-      }
-    }
-
-    if (schemaMembers.length === 1) {
+    const wrapWithObjectBuilder = (
+      schemaMember: { schema: any; type: Type | null },
+      { mergeUnionWideConstraints }: { mergeUnionWideConstraints: boolean }
+    ): ObjectBuilder<OpenAPI3Schema> => {
       // we can just return the single schema member after applying nullable
-      const schema = schemaMembers[0].schema;
-      const type = schemaMembers[0].type;
-      const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(union, {});
+      const schema = schemaMember.schema;
+      const type = schemaMember.type;
+      const additionalProps: Partial<OpenAPI3Schema> = mergeUnionWideConstraints
+        ? this.#applyConstraints(union, {})
+        : {};
 
-      if (nullable) {
+      if (mergeUnionWideConstraints && nullable) {
         additionalProps.nullable = true;
       }
 
@@ -567,10 +560,28 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
           return merged;
         }
       }
+    };
+
+    if (schemaMembers.length === 0) {
+      if (nullable) {
+        // This union is equivalent to just `null` but OA3 has no way to specify
+        // null as a value, so we throw an error.
+        reportDiagnostic(program, { code: "union-null", target: union });
+        return new ObjectBuilder({});
+      } else {
+        // completely empty union can maybe only happen with bugs?
+        compilerAssert(false, "Attempting to emit an empty union");
+      }
+    }
+
+    if (schemaMembers.length === 1) {
+      return wrapWithObjectBuilder(schemaMembers[0], { mergeUnionWideConstraints: true });
     }
 
     const schema: OpenAPI3Schema = {
-      [ofType]: schemaMembers.map((m) => m.schema),
+      [ofType]: schemaMembers.map((m) =>
+        wrapWithObjectBuilder(m, { mergeUnionWideConstraints: false })
+      ),
     };
 
     if (nullable) {

@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <Compile Include="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/**/*.cs" Link="Generated/Helpers/%(RecursiveDir)/%(Filename)%(Extension)" />
-    <None Update="Mocks\Configuration.json">
+    <None Update="Mocks\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="ModelReaderWriterValidation\TestProjects\**\*.json">

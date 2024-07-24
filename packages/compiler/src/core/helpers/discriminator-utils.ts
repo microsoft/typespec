@@ -216,7 +216,7 @@ function getStringValue(type: Type): string | undefined {
     case "String":
       return type.value;
     case "EnumMember":
-      return typeof type.value !== "number" ? type.value ?? type.name : undefined;
+      return typeof type.value !== "number" ? (type.value ?? type.name) : undefined;
     default:
       return undefined;
   }
