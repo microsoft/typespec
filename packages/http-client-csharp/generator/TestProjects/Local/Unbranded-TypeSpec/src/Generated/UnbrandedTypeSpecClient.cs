@@ -13,10 +13,39 @@ namespace UnbrandedTypeSpec
     /// <summary></summary>
     public partial class UnbrandedTypeSpecClient
     {
-        /// <summary> This is a sample typespec project. </summary>
-        public UnbrandedTypeSpecClient()
+        private readonly Uri _endpoint;
+        private const string AuthorizationHeader = "my-api-key";
+        /// <summary> A credential used to authenticate to the service. </summary>
+        private readonly ApiKeyCredential _keyCredential;
+
+        /// <summary> Initializes a new instance of UnbrandedTypeSpecClient for mocking. </summary>
+        protected UnbrandedTypeSpecClient()
         {
-            Pipeline = ClientPipeline.Create();
+        }
+
+        /// <summary> Initializes a new instance of UnbrandedTypeSpecClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="keyCredential"> A credential used to authenticate to the service. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="keyCredential"/> is null. </exception>
+        public UnbrandedTypeSpecClient(Uri endpoint, ApiKeyCredential keyCredential) : this(endpoint, keyCredential, new UnbrandedTypeSpecClientOptions())
+        {
+        }
+
+        /// <summary> Initializes a new instance of UnbrandedTypeSpecClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="keyCredential"> A credential used to authenticate to the service. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="keyCredential"/> is null. </exception>
+        public UnbrandedTypeSpecClient(Uri endpoint, ApiKeyCredential keyCredential, UnbrandedTypeSpecClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
+            Argument.AssertNotNull(keyCredential, nameof(keyCredential));
+
+            options ??= new UnbrandedTypeSpecClientOptions();
+
+            _endpoint = endpoint;
+            _keyCredential = keyCredential;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(_keyCredential, AuthorizationHeader) }, Array.Empty<PipelinePolicy>());
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>

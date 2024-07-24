@@ -5669,7 +5669,7 @@ export function createChecker(program: Program): Checker {
     node: Node & { decorators: readonly DecoratorExpressionNode[] },
     mapper: TypeMapper | undefined
   ) {
-    const sym = isMemberNode(node) ? getSymbolForMember(node) ?? node.symbol : node.symbol;
+    const sym = isMemberNode(node) ? (getSymbolForMember(node) ?? node.symbol) : node.symbol;
     const decorators: DecoratorApplication[] = [];
 
     const augmentDecoratorNodes = augmentDecoratorsForSym.get(sym) ?? [];
