@@ -55,7 +55,8 @@ export function fromSdkServiceMethod(
     Name: method.name,
     ResourceName:
       getResourceOperation(sdkContext.program, method.operation.__raw.operation)?.resourceType
-        .name ?? getResourceName(sdkContext, method.operation, sdkContext.sdkPackage.rootNamespace),
+        .name ??
+      getOperationGroupName(sdkContext, method.operation, sdkContext.sdkPackage.rootNamespace),
     Deprecated: getDeprecated(sdkContext.program, method.__raw!),
     // TODO: we need to figure out how we want to handle summary and description
     // Right now, we generate garbage <remarks> for some APIs like `Platform-OpenAI-TypeSpec`
@@ -370,7 +371,8 @@ function getParameterKind(
         : InputOperationParameterKind.Method
       : InputOperationParameterKind.Method;
 }
-export function getResourceName(
+
+function getOperationGroupName(
   context: SdkContext,
   operation: SdkHttpOperation,
   namespace: string
@@ -383,7 +385,6 @@ export function getResourceName(
     }
   }
 
-  // TODO: not sure if this is the right way to get the resource name
   if (operation.__raw.operation.interface) {
     return operation.__raw.operation.interface.name;
   }
