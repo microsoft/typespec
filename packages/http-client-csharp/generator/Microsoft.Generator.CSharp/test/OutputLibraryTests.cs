@@ -41,7 +41,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void CanOverrideGetOutputLibraryVisitors()
         {
-            var outputLibrary = new Tests.TestOutputLibrary(new [] { new TestOutputLibraryVisitor() });
+            var outputLibrary = new TestOutputLibrary(new [] { new TestOutputLibraryVisitor() });
             Assert.AreEqual(1, outputLibrary.GetOutputLibraryVisitors().Count());
 
             outputLibrary.AddVisitor(new TestOutputLibraryVisitor());
