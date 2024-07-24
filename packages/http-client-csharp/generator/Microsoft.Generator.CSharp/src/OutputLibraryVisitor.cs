@@ -59,7 +59,7 @@ namespace Microsoft.Generator.CSharp
                         }
                     }
 
-                    type.Update(methods,constructors, properties, fields);
+                    type.Update(methods, constructors, properties, fields);
                 }
             }
             outputLibrary.TypeProviders = types;
