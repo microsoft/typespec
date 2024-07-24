@@ -18,6 +18,8 @@ const propStorage = {};
         cookieCfg: {
           enabled: false,
         },
+        // We disable cookies and provide a in memory storage for the necessary keys
+        disableCookiesUsage: true,
         propertyStorageOverride: {
           setProperty: (key, value) => {
             propStorage[key] = value;
@@ -26,7 +28,6 @@ const propStorage = {};
             return propStorage[key];
           }
         },
-        disableCookiesUsage: true,
     },
     ext:[]
 });
