@@ -32,12 +32,10 @@ namespace Microsoft.Generator.CSharp.Providers
         public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
 
         // for mocking
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected FieldProvider()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            // should be mocked
-            _parameter = null!;
-            Type = null!;
-            Name = null!;
         }
 
         public FieldProvider(

@@ -34,16 +34,10 @@ namespace Microsoft.Generator.CSharp.Providers
         public ParameterProvider AsParameter => _parameter.Value;
 
         // for mocking
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected PropertyProvider()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            // should be mocked
-            _parameter = null!;
-            Type = null!;
-            Name = null!;
-            Body = null!;
-            Description = null!;
-            XmlDocSummary = null!;
-            XmlDocs = null!;
         }
 
         public PropertyProvider(InputModelProperty inputProperty)

@@ -11,10 +11,11 @@ namespace Microsoft.Generator.CSharp.Tests
 {
     public class OutputLibraryVisitorTests
     {
-        // these are initialized in Setup
-        private Mock<OutputLibrary> _mockOutputLibrary = null!;
-        private Mock<TypeProvider> _mockTypeProvider = null!;
-        private Mock<OutputLibraryVisitor> _mockVisitor = null!;
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        private Mock<OutputLibrary> _mockOutputLibrary;
+        private Mock<TypeProvider> _mockTypeProvider;
+        private Mock<OutputLibraryVisitor> _mockVisitor;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [SetUp]
         public void Setup()
@@ -76,14 +77,76 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void VisitsFields()
         {
-            var mockPropertyProvider = new Mock<FieldProvider>();
+            var mockFieldProvider = new Mock<FieldProvider>();
             _mockTypeProvider.Protected().Setup<FieldProvider[]>("BuildFields")
-                .Returns(new FieldProvider[] { mockPropertyProvider.Object });
+                .Returns(new FieldProvider[] { mockFieldProvider.Object });
 
             _mockVisitor.Object.Visit(_mockOutputLibrary.Object);
 
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
-            _mockVisitor.Protected().Verify<FieldProvider>("Visit", Times.Once(), _mockTypeProvider.Object, mockPropertyProvider.Object);
+            _mockVisitor.Protected().Verify<FieldProvider>("Visit", Times.Once(), _mockTypeProvider.Object, mockFieldProvider.Object);
         }
+
+        [Test]
+        public void DoesNotVisitMethodsWhenTypeIsNulledOut()
+        {
+            var mockMethodProvider = new Mock<MethodProvider>();
+            _mockTypeProvider.Protected().Setup<MethodProvider[]>("BuildMethods")
+                .Returns(new MethodProvider[] { mockMethodProvider.Object });
+            _mockVisitor.Protected().Setup<TypeProvider?>("Visit", _mockTypeProvider.Object).Returns<TypeProvider?>(
+                (t) => null);
+
+            _mockVisitor.Object.Visit(_mockOutputLibrary.Object);
+
+            _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
+            _mockVisitor.Protected().Verify<MethodProvider>("Visit", Times.Never(), _mockTypeProvider.Object, mockMethodProvider.Object);
+        }
+
+        [Test]
+        public void DoesNotVisitConstructorsWhenTypeIsNulledOut()
+        {
+            var mockConstructorProvider = new Mock<ConstructorProvider>();
+            _mockTypeProvider.Protected().Setup<ConstructorProvider[]>("BuildConstructors")
+                .Returns(new ConstructorProvider[] { mockConstructorProvider.Object });
+            _mockVisitor.Protected().Setup<TypeProvider?>("Visit", _mockTypeProvider.Object).Returns<TypeProvider?>(
+                (t) => null);
+
+            _mockVisitor.Object.Visit(_mockOutputLibrary.Object);
+
+            _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
+            _mockVisitor.Protected().Verify<ConstructorProvider>("Visit", Times.Never(), _mockTypeProvider.Object, mockConstructorProvider.Object);
+        }
+
+        [Test]
+        public void DoesNotVisitPropertiesWhenTypeIsNulledOut()
+        {
+            var mockFieldProvider = new Mock<PropertyProvider>();
+            _mockTypeProvider.Protected().Setup<PropertyProvider[]>("BuildProperties")
+                .Returns(new PropertyProvider[] { mockFieldProvider.Object });
+            _mockVisitor.Protected().Setup<TypeProvider?>("Visit", _mockTypeProvider.Object).Returns<TypeProvider?>(
+                (t) => null);
+
+            _mockVisitor.Object.Visit(_mockOutputLibrary.Object);
+
+            _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
+            _mockVisitor.Protected().Verify<PropertyProvider>("Visit", Times.Never(), _mockTypeProvider.Object, mockFieldProvider.Object);
+        }
+
+        [Test]
+        public void DoesNotVisitFieldsWhenTypeIsNulledOut()
+        {
+            var mockFieldProvider = new Mock<FieldProvider>();
+            _mockTypeProvider.Protected().Setup<FieldProvider[]>("BuildFields")
+                .Returns(new FieldProvider[] { mockFieldProvider.Object });
+            _mockVisitor.Protected().Setup<TypeProvider?>("Visit", _mockTypeProvider.Object).Returns<TypeProvider?>(
+                (t) => null);
+
+            _mockVisitor.Object.Visit(_mockOutputLibrary.Object);
+
+            _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
+            _mockVisitor.Protected().Verify<FieldProvider>("Visit", Times.Never(), _mockTypeProvider.Object, mockFieldProvider.Object);
+        }
+
+
     }
 }

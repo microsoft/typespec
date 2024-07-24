@@ -18,10 +18,10 @@ namespace Microsoft.Generator.CSharp.Providers
         public XmlDocProvider? XmlDocs { get; }
 
         // for mocking
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected ConstructorProvider()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            // should be mocked
-            Signature = null!;
         }
 
         /// <summary>
