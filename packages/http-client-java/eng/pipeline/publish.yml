@@ -20,7 +20,7 @@ extends:
           Publish: "internal"
           PublishDependsOnTest: true
           PackagePath: /packages/http-client-java
-          EmitterPackageJsonPath: packages/http-client-java/package.json
+          EmitterPackageJsonPath: packages/http-client-java/emitter/package.json
           Packages:
             - name: typespec-http-client-java
               file: typespec-http-client-java-*.tgz

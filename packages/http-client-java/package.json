@@ -28,15 +28,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p .",
-    "watch": "tsc -p . --watch",
-    "test": "mocha",
-    "test-official": "c8 mocha --forbid-only",
-    "lint": "eslint . --ext .ts --max-warnings=0",
-    "lint:fix": "eslint . --fix --ext .ts",
-    "format": "npm run -s prettier -- --write",
-    "check-format": "npm run prettier -- --check",
-    "prettier": "prettier --config ./.prettierrc.yaml **/*.ts"
+    "build:emitter": "tsc -p ./emitter/"
   },
   "files": [
     "lib/*.tsp",
@@ -67,6 +59,7 @@
     "@azure-tools/typespec-autorest": "0.43.0",
     "@azure-tools/typespec-azure-rulesets": "0.43.0",
     "@azure-tools/typespec-client-generator-core": "0.43.0",
+    "@azure-tools/codegen": "~2.10.0",
     "@types/js-yaml": "~4.0.9",
     "@types/lodash": "~4.17.1",
     "@types/mocha": "~10.0.6",

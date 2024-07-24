@@ -208,7 +208,7 @@ export class CodeModelBuilder {
       );
     }
 
-    this.sdkContext = createSdkContext(context, "@azure-tools/typespec-java");
+    this.sdkContext = createSdkContext(context, "@typespec/http-client-java");
     const service = listServices(this.program)[0];
     const serviceNamespace = service.type;
     if (serviceNamespace === undefined) {

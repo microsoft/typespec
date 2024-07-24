@@ -21,7 +21,6 @@
     "newLine": "LF",
     "outDir": "dist",
     "rootDir": ".",
-    "types": ["node", "mocha"],
     "skipLibCheck": true
   },
   "include": ["src/**/*.ts", "test/**/*.ts"]
