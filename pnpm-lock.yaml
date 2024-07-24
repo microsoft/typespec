@@ -134,8 +134,8 @@ importers:
         specifier: ~4.4.0
         version: 4.4.0
       '@azure/storage-blob':
-        specifier: ~12.23.0
-        version: 12.23.0
+        specifier: ~12.24.0
+        version: 12.24.0
       '@pnpm/find-workspace-packages':
         specifier: ^6.0.9
         version: 6.0.9(@pnpm/logger@5.0.0)
@@ -1685,10 +1685,6 @@ packages:
     resolution: {integrity: sha512-dyeQwvgthqs/SlPVQbZQetpslXceHd4i5a7M/7z/lGEAVwnSluabnQOjF2/dk/hhWgMISusv1Ytp4mQ8JNy62A==}
     engines: {node: '>=18.0.0'}
 
-  '@azure/core-client@1.9.1':
-    resolution: {integrity: sha512-hHYFx9lz0ZpbO5W+iotU9tmIX1jPcoIjYUEUaWGuMi1628LCQ/z05TUR4P+NRtMgyoHQuyVYyGQiD3PC47kaIA==}
-    engines: {node: '>=18.0.0'}
-
   '@azure/core-client@1.9.2':
     resolution: {integrity: sha512-kRdry/rav3fUKHl/aDLd/pDLcB+4pOFwPPTVEExuMyaI5r+JBbMWqRbCY1pn5BniDaU3lRxO9eaQ1AmSMehl/w==}
     engines: {node: '>=18.0.0'}
@@ -1711,6 +1707,10 @@ packages:
 
   '@azure/core-tracing@1.1.1':
     resolution: {integrity: sha512-qPbYhN1pE5XQ2jPKIHP33x8l3oBu1UqIWnYqZZ3OYnYjzY0xqIHjn49C+ptsPD9yC7uyWI9Zm7iZUZLs2R4DhQ==}
+    engines: {node: '>=18.0.0'}
+
+  '@azure/core-tracing@1.1.2':
+    resolution: {integrity: sha512-dawW9ifvWAWmUm9/h+/UQ2jrdvjCJ7VJEuCJ6XVNudzcOwm53BFZH4Q845vjfgoUAM8ZxokvVNxNxAITc502YA==}
     engines: {node: '>=18.0.0'}
 
   '@azure/core-util@1.8.1':
@@ -1745,8 +1745,8 @@ packages:
     resolution: {integrity: sha512-8tvi6Cos3m+0KmRbPjgkySXi+UQU/QiuVRFnrxIwt5xZlEEFa69O04RTaNESGgImyBBlYbo2mfE8/U8Bbdk1WQ==}
     engines: {node: '>=16'}
 
-  '@azure/storage-blob@12.23.0':
-    resolution: {integrity: sha512-c1KJ5R5hqR/HtvmFtTn/Y1BNMq45NUBp0LZH7yF8WFMET+wmESgEr0FVTu/Z5NonmfUjbgJZG5Nh8xHc5RdWGQ==}
+  '@azure/storage-blob@12.24.0':
+    resolution: {integrity: sha512-l8cmWM4C7RoNCBOImoFMxhTXe1Lr+8uQ/IgnhRNMpfoA9bAFWoLG4XrWm6O5rKXortreVQuD+fc1hbzWklOZbw==}
     engines: {node: '>=18.0.0'}
 
   '@babel/code-frame@7.12.11':
@@ -11650,18 +11650,6 @@ snapshots:
       '@azure/core-util': 1.8.1
       tslib: 2.6.2
 
-  '@azure/core-client@1.9.1':
-    dependencies:
-      '@azure/abort-controller': 2.1.1
-      '@azure/core-auth': 1.7.1
-      '@azure/core-rest-pipeline': 1.15.1
-      '@azure/core-tracing': 1.1.1
-      '@azure/core-util': 1.8.1
-      '@azure/logger': 1.1.1
-      tslib: 2.6.2
-    transitivePeerDependencies:
-      - supports-color
-
   '@azure/core-client@1.9.2':
     dependencies:
       '@azure/abort-controller': 2.1.1
@@ -11707,6 +11695,10 @@ snapshots:
       - supports-color
 
   '@azure/core-tracing@1.1.1':
+    dependencies:
+      tslib: 2.6.2
+
+  '@azure/core-tracing@1.1.2':
     dependencies:
       tslib: 2.6.2
 
@@ -11757,16 +11749,16 @@ snapshots:
       jsonwebtoken: 9.0.2
       uuid: 8.3.2
 
-  '@azure/storage-blob@12.23.0':
+  '@azure/storage-blob@12.24.0':
     dependencies:
       '@azure/abort-controller': 1.1.0
       '@azure/core-auth': 1.7.1
-      '@azure/core-client': 1.9.1
+      '@azure/core-client': 1.9.2
       '@azure/core-http-compat': 2.1.2
       '@azure/core-lro': 2.7.1
       '@azure/core-paging': 1.6.1
       '@azure/core-rest-pipeline': 1.15.1
-      '@azure/core-tracing': 1.1.1
+      '@azure/core-tracing': 1.1.2
       '@azure/core-util': 1.8.1
       '@azure/core-xml': 1.4.2
       '@azure/logger': 1.1.1
