@@ -8,9 +8,40 @@ title: Versioning
 
 In this section, we'll focus on implementing versioning in your REST API. Versioning allows you to manage changes to your API over time without breaking existing clients. We'll introduce the `@versioned` decorator, show how to define versions with enums, and demonstrate how to use the `@added` decorator to specify version-specific models and operations.
 
+## Adding the Versioning Library
+
+Before we can use the versioning decorators, we need to add the `@typespec/versioning` library to our project. This involves updating the `package.json` file and installing the necessary dependencies.
+
+### Step 1: Update `package.json`
+
+Add the `@typespec/versioning` library to your `package.json` file:
+
+```json
+{
+  "name": "tsp_pet_store",
+  "version": "0.1.0",
+  "type": "module",
+  "dependencies": {
+    "@typespec/compiler": "latest",
+    "@typespec/http": "latest",
+    "@typespec/openapi3": "latest",
+    "@typespec/versioning": "latest"
+  },
+  "private": true
+}
+```
+
+### Step 2: Install Dependencies
+
+Run the following command to install the new dependencies:
+
+```sh
+tsp install
+```
+
 ## Introduction to the `@versioned` Decorator
 
-The `@versioned` decorator is used to define different versions of your API. This decorator allows you to specify the versions that your API supports and manage changes across these versions.
+The [`@versioned`](../../libraries/versioning/reference/decorators#@TypeSpec.Versioning.versioned) decorator is used to define different versions of your API. This decorator allows you to specify the versions that your API supports and manage changes across these versions.
 
 ### Example: Defining API Versions
 
@@ -18,11 +49,9 @@ Let's define two versions of our API, `v1` and `v2`:
 
 ```typespec
 import "@typespec/http";
-import "@typespec/rest";
 import "@typespec/versioning";
 
 using TypeSpec.Http;
-using TypeSpec.Rest;
 using TypeSpec.Versioning;
 
 @service({
@@ -46,7 +75,7 @@ In this example:
 
 ## Using the `@added` Decorator
 
-The `@added` decorator is used to indicate that a model or operation was added in a specific version of the API. This allows you to manage changes and additions to your API over time.
+The [`@added`](../../libraries/versioning/reference/decorators#@TypeSpec.Versioning.added) decorator is used to indicate that a model or operation was added in a specific version of the API. This allows you to manage changes and additions to your API over time.
 
 ### Example: Adding a New Model in a Specific Version
 
@@ -54,11 +83,9 @@ Let's add a `Toy` model that is only available in version 2 of the API:
 
 ```tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
-import "@typespec/rest";
 import "@typespec/versioning";
 
 using TypeSpec.Http;
-using TypeSpec.Rest;
 using TypeSpec.Versioning;
 
 @service({
@@ -113,11 +140,9 @@ Let's define version-specific operations to manage toys for pets. These operatio
 
 ```tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
-import "@typespec/rest";
 import "@typespec/versioning";
 
 using TypeSpec.Http;
-using TypeSpec.Rest;
 using TypeSpec.Versioning;
 
 @service({
@@ -207,10 +232,7 @@ namespace Pets {
         @statusCode statusCode: 400;
         @body error: ValidationError;
       }
-    | {
-        @statusCode statusCode: 500;
-        @body error: InternalServerError;
-      };
+    | InternalServerErrorResponse;
 
   @delete
   @useAuth(BearerAuth)

@@ -6,11 +6,11 @@ title: Authentication
 
 ## Introduction
 
-In this section, we'll focus on adding authentication to your REST API. We'll introduce the `@useAuth` decorator, show how to enforce authentication on specific operations, and provide an example using Bearer authentication.
+In this section, we'll focus on adding authentication to your REST API. We'll introduce the `@useAuth` decorator, show how to enforce [authentication](../../libraries/http/authentication) on specific operations, and provide an example using Bearer authentication.
 
 ## Introduction to the `@useAuth` Decorator
 
-The `@useAuth` decorator is used to enforce authentication on specific operations in your REST API. This decorator allows you to specify the authentication mechanism that should be used for the operation. The TypeSpec HTTP library provides support for several authentication models, including `BearerAuth` for Bearer authentication.
+The [@useAuth](../../libraries/http/reference/decorators#@TypeSpec.Http.useAuth) decorator is used to enforce authentication on specific operations in your REST API. This decorator allows you to specify the authentication mechanism that should be used for the operation. The TypeSpec HTTP library provides support for several authentication models, including `BearerAuth` for Bearer authentication.
 
 ### Example: Enforcing Authentication on Specific Operations
 
@@ -18,10 +18,8 @@ Let's update our existing operations to enforce authentication using the `@useAu
 
 ```tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
-import "@typespec/rest";
 
 using TypeSpec.Http;
-using TypeSpec.Rest;
 
 @service({
   title: "Pet Store",
@@ -98,10 +96,7 @@ namespace Pets {
         @statusCode statusCode: 400;
         @body error: ValidationError;
       }
-    | {
-        @statusCode statusCode: 500;
-        @body error: InternalServerError;
-      };
+    | InternalServerErrorResponse;
 
   @delete
   @useAuth(BearerAuth)

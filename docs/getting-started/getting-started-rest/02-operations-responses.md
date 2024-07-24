@@ -1,12 +1,9 @@
 ---
+id: 02-operations-responses
 title: Operations and Responses
 ---
 
-Got it! Let's wrap up the content on operations and responses.
-
----
-
-# Document 2: Operations and Responses
+# Operations and Responses
 
 ## Introduction
 
@@ -22,10 +19,8 @@ Let's define a `POST` operation to create a new pet:
 
 ```tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
-import "@typespec/rest";
 
 using TypeSpec.Http;
-using TypeSpec.Rest;
 
 @service({
   title: "Pet Store",
@@ -93,10 +88,8 @@ Let's define a `PUT` operation to update an existing pet:
 
 ```tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
-import "@typespec/rest";
 
 using TypeSpec.Http;
-using TypeSpec.Rest;
 
 @service({
   title: "Pet Store",
@@ -171,10 +164,8 @@ Let's define a `DELETE` operation to delete an existing pet:
 
 ```typespec
 import "@typespec/http";
-import "@typespec/rest";
 
 using TypeSpec.Http;
-using TypeSpec.Rest;
 
 @service({
   title: "Pet Store",
@@ -260,10 +251,8 @@ Let's define a `ValidationError` model and update our `createPet` operation to h
 
 ```tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
-import "@typespec/rest";
 
 using TypeSpec.Http;
-using TypeSpec.Rest;
 
 @service({
   title: "Pet Store",
@@ -353,4 +342,4 @@ In this example:
 
 In this section, we expanded our REST API by defining more HTTP operations, including `POST`, `PUT`, and `DELETE` operations. We also demonstrated how to handle different types of responses, such as validation errors and not found errors.
 
-In the next section, we'll dive deeper into handling errors in your REST API, including defining Scustom response models for error handling.
+In the next section, we'll dive deeper into handling errors in your REST API, including defining custom response models for error handling.

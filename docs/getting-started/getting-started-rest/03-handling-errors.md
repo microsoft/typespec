@@ -10,18 +10,16 @@ In this section, we'll focus on handling errors in your REST API. We've already 
 
 ## Defining Error Models
 
-Error models are used to represent different types of errors that your API might return. Let's start by defining some common error models.
+Error models can be used to represent different types of errors that your API might return. Let's start by defining some common error models.
 
 ### Example: Defining Common Error Models
 
-We've already defined models to represent validation errors and not found errors. We'll now add a model for internal server errors:
+We've already defined models to represent validation errors and not-found errors. We'll now add a model for internal server errors:
 
 ```tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
-import "@typespec/rest";
 
 using TypeSpec.Http;
-using TypeSpec.Rest;
 
 @service({
   title: "Pet Store",
@@ -115,16 +113,14 @@ In this example:
 
 ## Custom Response Models for Error Handling
 
-Sometimes, you may need to create custom response models to handle specific error scenarios. Let's define a custom response model for a 500 Internal Server Error.
+Sometimes, you may need to create custom response models to handle specific error scenarios. Let's define a custom response model for the `InternalServerError` we just created.
 
 ### Example: Defining a Custom Response Model
 
 ```tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
-import "@typespec/rest";
 
 using TypeSpec.Http;
-using TypeSpec.Rest;
 
 @service({
   title: "Pet Store",
@@ -181,10 +177,7 @@ namespace Pets {
     @body updatedPet: Pet;
   } | {
     @body error: NotFoundError;
-  } | {
-    @statusCode statusCode: 500;
-    @body error: InternalServerError;
-  };
+  } | InternalServerErrorResponse;
 
   @delete
   op deletePet(@path petId: int32): {
@@ -222,20 +215,20 @@ model InternalServerErrorResponse {
 In this example:
 
 - The `InternalServerErrorResponse` model is defined to represent a custom response for a 500 Internal Server Error.
-- The `updatePet` operation is updated to handle internal server errors by returning a status code of 500 and an `InternalServerError` object.
+- The `updatePet` operation is updated to respond with with our custom `InternalServerErrorResponse` in case of an internal server error.
 
-## Using Union Types for Different Response Scenarios
+## Union Expressions for Different Response Scenarios
 
-Union types allow you to define operations that can return different types of responses based on various scenarios. Let's see how we can use union types to handle different response scenarios in our operations.
+Union expressions are a type of [union](../../language-basics/unions.md) that allows you to define operations that can return different responses based on various scenarios.
 
-### Example: Using Union Types for Responses
+We've already seen some examples of this, let's expand on how we can use union types to handle different response scenarios in our operations.
+
+### Example: Using Union Expressions for Responses
 
 ```tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
-import "@typespec/rest";
 
 using TypeSpec.Http;
-using TypeSpec.Rest;
 
 @service({
   title: "Pet Store",
@@ -335,11 +328,11 @@ model InternalServerErrorResponse {
 
 In this example:
 
-- The `updatePet` operation is updated to handle multiple response scenarios using union types.
-- It can return an updated `Pet` object, a `NotFoundError`, a `ValidationError`, or an `InternalServerError`. The `InternalServerError` response is represented by the `InternalServerErrorResponse` model, which we'll cover in more detail in a later section.
+- The `updatePet` operation is updated to handle multiple response scenarios using union expressions.
+- It can return an updated `Pet` object, a `NotFoundError`, a `ValidationError`, or an `InternalServerErrorResponse` custom response model.
 
 ## Conclusion
 
-In this section, we focused on handling errors in your REST API using TypeSpec. We expanded on the topic of defining error models, created custom response models for error handling, and demonstrated how to use union types for different response scenarios.
+In this section, we focused on defining error handling in your REST API. We expanded on the topic of defining error models, created custom response models for error handling, and demonstrated how to use union expressions for different response scenarios.
 
 In the next section, we'll dive into reusing common parameters in your REST API.

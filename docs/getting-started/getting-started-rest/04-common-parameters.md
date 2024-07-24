@@ -14,14 +14,12 @@ Let's start by defining a model for common parameters. This model will include p
 
 ### Example: Defining Common Parameters
 
-Let's define a model for common parameters such as `requestID`, `locale`, and `clientVersion`:
+For the sake of demonstration, we're going to require each API call in our pet store service to include a request ID, a locale, and a client version. Let's define a model for these common parameters, which we'll label `requestID`, `locale`, and `clientVersion`:
 
 ```typespec
 import "@typespec/http";
-import "@typespec/rest";
 
 using TypeSpec.Http;
-using TypeSpec.Rest;
 
 @service({
   title: "Pet Store",
@@ -74,10 +72,8 @@ Now that we have defined our common parameters model, let's reuse it across mult
 
 ```tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
-import "@typespec/rest";
 
 using TypeSpec.Http;
-using TypeSpec.Rest;
 
 @service({
   title: "Pet Store",
@@ -152,10 +148,7 @@ namespace Pets {
         @statusCode statusCode: 400;
         @body error: ValidationError;
       }
-    | {
-        @statusCode statusCode: 500;
-        @body error: InternalServerError;
-      };
+    | InternalServerErrorResponse;
 
   @delete
   op deletePet(@path petId: int32, ...CommonParameters): {
@@ -192,7 +185,7 @@ model InternalServerErrorResponse {
 
 In this example:
 
-- The `CommonParameters` model is reused across multiple operations using the spread operator `(...)`, which tells the TypeSpec compiler to expand the model definition inline.
+- The `CommonParameters` model is reused across multiple operations using the [spread operator](../../language-basics/models#spread) `(...)`, which tells the TypeSpec compiler to expand the model definition inline.
 - This approach ensures that the common parameters are consistently applied to all relevant operations, making the API more maintainable and reducing redundancy.
 
 ## Conclusion
