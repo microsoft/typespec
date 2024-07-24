@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using AutoRest.CSharp.Common.Input.InputTypes;
 using Microsoft.Generator.CSharp.Input.InputTypes;
 
 namespace Microsoft.Generator.CSharp.Input
@@ -10,13 +9,13 @@ namespace Microsoft.Generator.CSharp.Input
     /// <summary>
     /// Represents an input type to the generator.
     /// </summary>
-    public abstract class InputType: InputDecoratedType
+    public abstract class InputType : InputDecoratedType
     {
         /// <summary>
         /// Construct a new <see cref="InputType"/> instance
         /// </summary>
         /// <param name="name">The name of the input type.</param>
-        protected InputType(string name, IReadOnlyList<InputDecoratorInfo> decorators): base(decorators)
+        protected InputType(string name, IReadOnlyList<InputDecoratorInfo> decorators) : base(decorators)
         {
             Name = name;
         }

@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Microsoft.Generator.CSharp.Input.InputTypes;
 
 namespace Microsoft.Generator.CSharp.Input

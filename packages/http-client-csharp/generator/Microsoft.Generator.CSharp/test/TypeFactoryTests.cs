@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Input.InputTypes;
 using Microsoft.Generator.CSharp.Primitives;
 using NUnit.Framework;
 
@@ -27,7 +29,8 @@ namespace Microsoft.Generator.CSharp.Tests
                 InputModelTypeUsage.Input,
                 new InputPrimitiveType(InputPrimitiveTypeKind.String),
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
-                true);
+                true,
+                Array.Empty<InputDecoratorInfo>());
             var expected = new CSharpType("SampleType", "Sample.Models", true, false, null, [], true, true, underlyingEnumType: typeof(string));
 
             var actual = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input);
@@ -48,8 +51,9 @@ namespace Microsoft.Generator.CSharp.Tests
                 InputModelTypeUsage.Input,
                 new InputPrimitiveType(InputPrimitiveTypeKind.String, null, true),
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
-                true);
-            var nullableInput = new InputNullableType(input);
+                true,
+                Array.Empty<InputDecoratorInfo>());
+            var nullableInput = new InputNullableType(input, Array.Empty<InputDecoratorInfo>());
             var expected = new CSharpType("SampleType", "Sample.Models", true, true, null, [], true, true, underlyingEnumType: typeof(string));
 
             var actual = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(nullableInput);
@@ -70,7 +74,8 @@ namespace Microsoft.Generator.CSharp.Tests
                 InputModelTypeUsage.Input,
                 new InputPrimitiveType(InputPrimitiveTypeKind.String),
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
-                true);
+                true,
+                Array.Empty<InputDecoratorInfo>());
             var expected = new CSharpType("SampleType", "Sample.Models", true, false, null, [], true, true, underlyingEnumType: typeof(string));
 
             var enumProvider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);
@@ -91,7 +96,8 @@ namespace Microsoft.Generator.CSharp.Tests
                 InputModelTypeUsage.Input,
                 new InputPrimitiveType(InputPrimitiveTypeKind.String),
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
-                false);
+                false,
+                Array.Empty<InputDecoratorInfo>());
             var expected = new CSharpType("SampleType", "Sample.Models", true, false, null, [], true, false, underlyingEnumType: typeof(string));
 
             var actual = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input);
@@ -112,7 +118,8 @@ namespace Microsoft.Generator.CSharp.Tests
                 InputModelTypeUsage.Input,
                 new InputPrimitiveType(InputPrimitiveTypeKind.String),
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
-                false);
+                false,
+                Array.Empty<InputDecoratorInfo>());
             var expected = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);
 
             var actual = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);

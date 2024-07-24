@@ -7,9 +7,9 @@ using Microsoft.Generator.CSharp.Input.InputTypes;
 
 namespace Microsoft.Generator.CSharp.Input
 {
-    public class InputModelProperty: InputDecoratedType
+    public class InputModelProperty : InputDecoratedType
     {
-        public InputModelProperty(string name, string serializedName, string description, InputType type, bool isRequired, bool isReadOnly, bool isDiscriminator, IReadOnlyList<InputDecoratorInfo> decorators, IReadOnlyList<string>? flattenedNames = null): base(decorators)
+        public InputModelProperty(string name, string serializedName, string description, InputType type, bool isRequired, bool isReadOnly, bool isDiscriminator, IReadOnlyList<InputDecoratorInfo> decorators, IReadOnlyList<string>? flattenedNames = null) : base(decorators)
         {
             Name = name;
             SerializedName = serializedName;

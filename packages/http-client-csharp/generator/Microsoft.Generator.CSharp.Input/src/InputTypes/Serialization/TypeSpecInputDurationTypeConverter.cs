@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Generator.CSharp.Input.InputTypes;
 
 namespace Microsoft.Generator.CSharp.Input
 {
@@ -26,12 +28,14 @@ namespace Microsoft.Generator.CSharp.Input
             var isFirstProperty = id == null;
             string? encode = null;
             InputType? type = null;
+            IReadOnlyList<InputDecoratorInfo>? decorators = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
                     || reader.TryReadString(nameof(InputDurationType.Encode), ref encode)
-                    || reader.TryReadWithConverter(nameof(InputDurationType.WireType), options, ref type);
+                    || reader.TryReadWithConverter(nameof(InputDurationType.WireType), options, ref type)
+                    || reader.TryReadWithConverter(nameof(InputDurationType.Decorators), options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -47,7 +51,7 @@ namespace Microsoft.Generator.CSharp.Input
             encode = encode ?? throw new JsonException("Duration type must have encoding");
 
             var dateTimeType = Enum.TryParse<DurationKnownEncoding>(encode, ignoreCase: true, out var encodeKind)
-                ? new InputDurationType(encodeKind, wireType)
+                ? new InputDurationType(encodeKind, wireType, decorators ?? Array.Empty<InputDecoratorInfo>())
                 : throw new JsonException($"Encoding of Duration type {encode} is unknown.");
 
             if (id != null)

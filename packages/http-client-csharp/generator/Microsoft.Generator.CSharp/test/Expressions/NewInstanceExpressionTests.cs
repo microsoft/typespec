@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Input.InputTypes;
 using NUnit.Framework;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -44,7 +46,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         [Test]
         public void ValidateNullableValueType()
         {
-            InputEnumType enumType = new InputEnumType("MyEnum", "MyEnum", "public", null, "MyEnum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.String), [new InputEnumTypeValue("One", "one", null), new InputEnumTypeValue("Two", "two", null)], true);
+            InputEnumType enumType = new InputEnumType("MyEnum", "MyEnum", "public", null, "MyEnum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.String), [new InputEnumTypeValue("One", "one", null), new InputEnumTypeValue("Two", "two", null)], true, Array.Empty<InputDecoratorInfo>());
             var provider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(enumType);
             var expr = New.Instance(provider.Type, Literal("three"));
             using CodeWriter writer = new CodeWriter();

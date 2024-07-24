@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Generator.CSharp.Input.InputTypes;
 
 namespace Microsoft.Generator.CSharp.Input
 {
@@ -35,6 +36,7 @@ namespace Microsoft.Generator.CSharp.Input
             bool isExtendable = false;
             InputType? valueType = null;
             IReadOnlyList<InputEnumTypeValue>? values = null;
+            IReadOnlyList<InputDecoratorInfo>? decorators = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
@@ -46,7 +48,8 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadString(nameof(InputEnumType.Usage), ref usageString)
                     || reader.TryReadBoolean(nameof(InputEnumType.IsExtensible), ref isExtendable)
                     || reader.TryReadWithConverter(nameof(InputEnumType.ValueType), options, ref valueType)
-                    || reader.TryReadWithConverter(nameof(InputEnumType.Values), options, ref values);
+                    || reader.TryReadWithConverter(nameof(InputEnumType.Values), options, ref values)
+                    || reader.TryReadWithConverter(nameof(InputEnumType.Decorators), options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -76,7 +79,7 @@ namespace Microsoft.Generator.CSharp.Input
                 throw new JsonException("The ValueType of an EnumType must be a primitive type.");
             }
 
-            var enumType = new InputEnumType(name, crossLanguageDefinitionId ?? string.Empty, accessibility, deprecated, description!, usage, inputValueType, NormalizeValues(values, inputValueType), isExtendable);
+            var enumType = new InputEnumType(name, crossLanguageDefinitionId ?? string.Empty, accessibility, deprecated, description!, usage, inputValueType, NormalizeValues(values, inputValueType), isExtendable, decorators ?? Array.Empty<InputDecoratorInfo>());
             if (id != null)
             {
                 resolver.AddReference(id, enumType);

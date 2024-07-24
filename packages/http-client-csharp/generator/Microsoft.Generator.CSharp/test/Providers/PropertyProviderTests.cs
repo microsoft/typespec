@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Input.InputTypes;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using NUnit.Framework;
@@ -24,10 +26,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 "snake_case",
                 "snake_case",
                 "A property with snake_case name",
-                new InputPrimitiveType(InputPrimitiveTypeKind.String, null),
+                new InputPrimitiveType(InputPrimitiveTypeKind.String),
                 true,
                 false,
-                false);
+                false,
+                Array.Empty<InputDecoratorInfo>());
 
             var property = new PropertyProvider(inputModelProperty);
 
@@ -44,10 +47,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 "PascalCase",
                 "PascalCase",
                 "A property with PascalCase name",
-                new InputPrimitiveType(InputPrimitiveTypeKind.String, null),
+                new InputPrimitiveType(InputPrimitiveTypeKind.String),
                 true,
                 false,
-                false);
+                false,
+                Array.Empty<InputDecoratorInfo>());
 
             var property = new PropertyProvider(inputModelProperty);
 
@@ -64,10 +68,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 "camelCase",
                 "camelCase",
                 "A property with camelCase name",
-                new InputPrimitiveType(InputPrimitiveTypeKind.String, null),
+                new InputPrimitiveType(InputPrimitiveTypeKind.String),
                 true,
                 false,
-                false);
+                false,
+                Array.Empty<InputDecoratorInfo>());
 
             var property = new PropertyProvider(inputModelProperty);
 
@@ -84,10 +89,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 "kebab-case",
                 "kebab-case",
                 "A property with kebab-case name",
-                new InputPrimitiveType(InputPrimitiveTypeKind.String, null),
+                new InputPrimitiveType(InputPrimitiveTypeKind.String),
                     true,
                 false,
-                false);
+                false,
+                Array.Empty<InputDecoratorInfo>());
 
             var property = new PropertyProvider(inputModelProperty);
 
@@ -116,19 +122,21 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             yield return new TestCaseData(
                 new CSharpType(typeof(IList<>), typeof(string)),
                 new InputModelProperty("readOnlyCollection", "readOnlyCollection", string.Empty,
-                    new InputArrayType("List", "id", new InputPrimitiveType(InputPrimitiveTypeKind.String)),
+                    new InputArrayType("List", "id", new InputPrimitiveType(InputPrimitiveTypeKind.String), Array.Empty<InputDecoratorInfo>()),
                     true,
                     true,
-                    false),
+                    false,
+                    Array.Empty<InputDecoratorInfo>()),
                 new CSharpType(typeof(IReadOnlyList<>), typeof(string)));
             // Dictionary<string, int> -> IReadOnlyDictionary<string, int>
             yield return new TestCaseData(
                 new CSharpType(typeof(IDictionary<,>), typeof(string), typeof(int)),
                 new InputModelProperty("readOnlyDictionary", "readOnlyDictionary", string.Empty,
-                    new InputDictionaryType("Dictionary", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.Int32)),
+                    new InputDictionaryType("Dictionary", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.Int32), Array.Empty<InputDecoratorInfo>()),
                     true,
                     true,
-                    false),
+                    false,
+                    Array.Empty<InputDecoratorInfo>()),
                 new CSharpType(typeof(IReadOnlyDictionary<,>), typeof(string), typeof(int)));
             // string -> string
             yield return new TestCaseData(
@@ -137,7 +145,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     new InputPrimitiveType(InputPrimitiveTypeKind.String),
                     true,
                     true,
-                    false),
+                    false, Array.Empty<InputDecoratorInfo>()),
                 new CSharpType(typeof(string)));
         }
     }

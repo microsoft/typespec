@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Generator.CSharp.Input.InputTypes;
 
 namespace Microsoft.Generator.CSharp.Input
 {
@@ -47,7 +48,8 @@ namespace Microsoft.Generator.CSharp.Input
                 discriminatorProperty: null,
                 discriminatedSubtypes: null!,
                 additionalProperties: null,
-                modelAsStruct: false);
+                modelAsStruct: false,
+                decorators: Array.Empty<InputDecoratorInfo>());
             resolver.AddReference(id, model);
 
             string? crossLanguageDefinitionId = null;
@@ -61,6 +63,7 @@ namespace Microsoft.Generator.CSharp.Input
             InputModelType? baseModel = null;
             IReadOnlyList<InputModelProperty>? properties = null;
             IReadOnlyDictionary<string, InputModelType>? discriminatedSubtypes = null;
+            IReadOnlyList<InputDecoratorInfo>? decorators = null;
             bool modelAsStruct = false;
 
             // read all possible properties and throw away the unknown properties
@@ -78,7 +81,8 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadWithConverter(nameof(InputModelType.BaseModel), options, ref baseModel)
                     || reader.TryReadWithConverter(nameof(InputModelType.Properties), options, ref properties)
                     || reader.TryReadWithConverter(nameof(InputModelType.DiscriminatedSubtypes), options, ref discriminatedSubtypes)
-                    || reader.TryReadBoolean(nameof(InputModelType.ModelAsStruct), ref modelAsStruct);
+                    || reader.TryReadBoolean(nameof(InputModelType.ModelAsStruct), ref modelAsStruct)
+                    || reader.TryReadWithConverter(nameof(InputModelType.Decorators), options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -102,6 +106,7 @@ namespace Microsoft.Generator.CSharp.Input
             model.Properties = properties ?? Array.Empty<InputModelProperty>();
             model.DiscriminatedSubtypes = discriminatedSubtypes ?? new Dictionary<string, InputModelType>();
             model.ModelAsStruct = modelAsStruct;
+            model.Decorators = decorators ?? Array.Empty<InputDecoratorInfo>();
 
             // if this model has a base, it means this model is a derived model of the base model, add it into the list.
             if (baseModel != null)

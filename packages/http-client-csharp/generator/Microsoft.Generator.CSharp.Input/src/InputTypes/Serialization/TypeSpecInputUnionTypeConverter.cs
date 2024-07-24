@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Generator.CSharp.Input.InputTypes;
 
 namespace Microsoft.Generator.CSharp.Input
 {
@@ -32,7 +33,7 @@ namespace Microsoft.Generator.CSharp.Input
             id = id ?? throw new JsonException();
 
             // create an empty model to resolve circular references
-            var union = new InputUnionType(null!, null!);
+            var union = new InputUnionType(null!, null!, Array.Empty<InputDecoratorInfo>());
             resolver.AddReference(id, union);
 
             IReadOnlyList<InputType>? variantTypes = null;

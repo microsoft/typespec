@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Input.InputTypes;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using NUnit.Framework;
@@ -38,9 +40,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildPersistableModelCreateCoreMethod_DerivedType()
         {
-            var inputBase = new InputModelType("mockBaseModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, [], null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputBase = new InputModelType("mockBaseModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, [], null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, Array.Empty<InputDecoratorInfo>());
             var inputDerived = new InputModelType("mockDerivedModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip,
-                [], inputBase, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+                [], inputBase, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, Array.Empty<InputDecoratorInfo>());
             ((List<InputModelType>)inputBase.DerivedModels).Add(inputDerived);
             var (baseModel, baseSerialization) = MrwSerializationTypeDefinitionTests.CreateModelAndSerialization(inputBase);
             var (derivedModel, derivedSerialization) = MrwSerializationTypeDefinitionTests.CreateModelAndSerialization(inputDerived);

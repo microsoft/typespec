@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Input.InputTypes;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using NUnit.Framework;
@@ -43,7 +44,7 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: MockPluginSetValue(properties));
 
             var inputModel = new InputModelType("TestModel", string.Empty, "public", null, "Test model.", InputModelTypeUsage.RoundTrip,
-                properties, null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+                properties, null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, decorators: Array.Empty<InputDecoratorInfo>());
 
             var modelProvider = new ModelProvider(inputModel);
             var codeFile = new TypeProviderWriter(modelProvider).Write();
@@ -61,7 +62,7 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: MockPluginSetValue(properties));
 
             var inputModel = new InputModelType("TestModel", string.Empty, "public", null, "Test model.", InputModelTypeUsage.RoundTrip,
-                properties, null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, modelAsStruct: true);
+                properties, null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, modelAsStruct: true, decorators: Array.Empty<InputDecoratorInfo>());
 
             var modelProvider = new ModelProvider(inputModel);
             var codeFile = new TypeProviderWriter(modelProvider).Write();
@@ -104,12 +105,12 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
         }
 
         // common usages definitions
-        internal static readonly InputModelProperty RequiredStringProperty = new InputModelProperty("requiredString", "requiredString", "Required string, illustrating a reference type property.", InputPrimitiveType.String, true, false, false);
+        internal static readonly InputModelProperty RequiredStringProperty = new InputModelProperty("requiredString", "requiredString", "Required string, illustrating a reference type property.", InputPrimitiveType.String, true, false, false, Array.Empty<InputDecoratorInfo>());
 
-        internal static readonly InputModelProperty RequiredIntProperty = new InputModelProperty("requiredInt", "requiredInt", "Required int, illustrating a value type property.", InputPrimitiveType.Int32, true, false, false);
+        internal static readonly InputModelProperty RequiredIntProperty = new InputModelProperty("requiredInt", "requiredInt", "Required int, illustrating a value type property.", InputPrimitiveType.Int32, true, false, false, Array.Empty<InputDecoratorInfo>());
 
-        internal static readonly InputModelProperty RequiredStringListProperty = new InputModelProperty("requiredStringList", "requiredStringList", "Required collection of strings, illustrating a collection of reference types.", new InputArrayType("requiredStringList", "TypeSpec.Array", InputPrimitiveType.String), true, false, false);
+        internal static readonly InputModelProperty RequiredStringListProperty = new InputModelProperty("requiredStringList", "requiredStringList", "Required collection of strings, illustrating a collection of reference types.", new InputArrayType("requiredStringList", "TypeSpec.Array", InputPrimitiveType.String, Array.Empty<InputDecoratorInfo>()), true, false, false, Array.Empty<InputDecoratorInfo>());
 
-        internal static readonly InputModelProperty RequiredIntListProperty = new InputModelProperty("requiredIntList", "requiredIntList", "Required collection of ints, illustrating a collection of value types.", new InputArrayType("requiredIntList", "TypeSpec.Array", InputPrimitiveType.Int32), true, false, false);
+        internal static readonly InputModelProperty RequiredIntListProperty = new InputModelProperty("requiredIntList", "requiredIntList", "Required collection of ints, illustrating a collection of value types.", new InputArrayType("requiredIntList", "TypeSpec.Array", InputPrimitiveType.Int32, Array.Empty<InputDecoratorInfo>()), true, false, false, Array.Empty<InputDecoratorInfo>());
     }
 }
