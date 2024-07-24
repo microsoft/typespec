@@ -28,8 +28,12 @@
   },
   "scripts": {
     "clean": "rimraf .emitter/dist ./temp",
-    "build:emitter": "tsc -p ./emitter/",
-    "build:generator": "mvn clean install -f ./generator/pom.xml"
+    "build:emitter": "tsc -p ./emitter/tsconfig.build.json",
+    "build:generator": "mvn clean install -f ./generator/pom.xml",
+    "format": "pnpm -w format:dir packages/http-client-java",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "watch": "tsc -p ./emitter/tsconfig.build.json --watch"
   },
   "files": [
     "lib/*.tsp",
