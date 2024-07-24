@@ -12,10 +12,10 @@ namespace Microsoft.Generator.CSharp.Providers
     /// </summary>
     public class ConstructorProvider
     {
-        public ConstructorSignature Signature { get; }
-        public MethodBodyStatement? BodyStatements { get; }
-        public ValueExpression? BodyExpression { get; }
-        public XmlDocProvider? XmlDocs { get; }
+        public ConstructorSignature Signature { get; private set; }
+        public MethodBodyStatement? BodyStatements { get; private set; }
+        public ValueExpression? BodyExpression { get; private set; }
+        public XmlDocProvider? XmlDocs { get; private set; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -56,6 +56,32 @@ namespace Microsoft.Generator.CSharp.Providers
             XmlDocs = xmlDocProvider ?? (MethodProviderHelpers.IsMethodPublic(enclosingType.DeclarationModifiers, signature.Modifiers)
                 ? MethodProviderHelpers.BuildXmlDocs(signature.Parameters, signature.Description, null, null)
                 : null);
+        }
+
+        public void Update(
+            MethodBodyStatement? bodyStatements = null,
+            ConstructorSignature? signature = null,
+            ValueExpression? bodyExpression = null,
+            XmlDocProvider? xmlDocs = null)
+        {
+            if (signature != default)
+            {
+                Signature = signature;
+            }
+            if (bodyExpression != null)
+            {
+                BodyExpression = bodyExpression;
+                BodyStatements = null;
+            }
+            if (bodyStatements != default)
+            {
+                BodyStatements = bodyStatements;
+                BodyExpression = null;
+            }
+            if (xmlDocs != default)
+            {
+                XmlDocs = xmlDocs;
+            }
         }
     }
 }

@@ -156,7 +156,9 @@ namespace Microsoft.Generator.CSharp.Providers
             IEnumerable<MethodProvider>? methods = default,
             IEnumerable<ConstructorProvider>? constructors = default,
             IEnumerable<PropertyProvider>? properties = default,
-            IEnumerable<FieldProvider>? fields = default)
+            IEnumerable<FieldProvider>? fields = default,
+            IEnumerable<TypeProvider>? serializations = default,
+            XmlDocProvider? xmlDocs = default)
         {
             if (methods != null)
             {
@@ -173,6 +175,14 @@ namespace Microsoft.Generator.CSharp.Providers
             if (constructors != null)
             {
                 _constructors = (constructors as IReadOnlyList<ConstructorProvider>) ?? constructors.ToList();
+            }
+            if (serializations != null)
+            {
+                _serializationProviders = (serializations as IReadOnlyList<TypeProvider>) ?? serializations.ToList();
+            }
+            if (xmlDocs != null)
+            {
+                XmlDocs = xmlDocs;
             }
         }
     }

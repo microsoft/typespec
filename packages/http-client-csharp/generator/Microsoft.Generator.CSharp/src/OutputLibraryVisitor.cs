@@ -14,55 +14,73 @@ namespace Microsoft.Generator.CSharp
             // TODO add more things to visit, e.g Constructors, Parameters, etc - https://github.com/microsoft/typespec/issues/3825
             foreach (var typeProvider in outputLibrary.TypeProviders)
             {
-                var type = Visit(typeProvider);
+                var type = VisitType(typeProvider);
                 if (type != null)
                 {
                     types.Add(type);
-
-                    var methods = new List<MethodProvider>();
-                    foreach (var methodProvider in typeProvider.Methods)
-                    {
-                        var method = Visit(typeProvider, methodProvider);
-                        if (method != null)
-                        {
-                            methods.Add(method);
-                        }
-                    }
-
-                    var constructors = new List<ConstructorProvider>();
-                    foreach (var constructorProvider in typeProvider.Constructors)
-                    {
-                        var constructor = Visit(typeProvider, constructorProvider);
-                        if (constructor != null)
-                        {
-                            constructors.Add(constructor);
-                        }
-                    }
-
-                    var properties = new List<PropertyProvider>();
-                    foreach (var propertyProvider in typeProvider.Properties)
-                    {
-                        var property = Visit(typeProvider, propertyProvider);
-                        if (property != null)
-                        {
-                            properties.Add(property);
-                        }
-                    }
-
-                    var fields = new List<FieldProvider>();
-                    foreach (var fieldProvider in typeProvider.Fields)
-                    {
-                        var field = Visit(typeProvider, fieldProvider);
-                        if (field != null)
-                        {
-                            fields.Add(field);
-                        }
-                    }
-
-                    type.Update(methods, constructors, properties, fields);
                 }
             }
             outputLibrary.TypeProviders = types;
+        }
+
+        private TypeProvider? VisitType(TypeProvider typeProvider)
+        {
+            var type = Visit(typeProvider);
+            if (type != null)
+            {
+                var methods = new List<MethodProvider>();
+                foreach (var methodProvider in typeProvider.Methods)
+                {
+                    var method = Visit(typeProvider, methodProvider);
+                    if (method != null)
+                    {
+                        methods.Add(method);
+                    }
+                }
+
+                var constructors = new List<ConstructorProvider>();
+                foreach (var constructorProvider in typeProvider.Constructors)
+                {
+                    var constructor = Visit(typeProvider, constructorProvider);
+                    if (constructor != null)
+                    {
+                        constructors.Add(constructor);
+                    }
+                }
+
+                var properties = new List<PropertyProvider>();
+                foreach (var propertyProvider in typeProvider.Properties)
+                {
+                    var property = Visit(typeProvider, propertyProvider);
+                    if (property != null)
+                    {
+                        properties.Add(property);
+                    }
+                }
+
+                var fields = new List<FieldProvider>();
+                foreach (var fieldProvider in typeProvider.Fields)
+                {
+                    var field = Visit(typeProvider, fieldProvider);
+                    if (field != null)
+                    {
+                        fields.Add(field);
+                    }
+                }
+
+                var serializations = new List<TypeProvider>();
+                foreach (var serializationProvider in typeProvider.SerializationProviders)
+                {
+                    var serialization = VisitType(serializationProvider);
+                    if (serialization != null)
+                    {
+                        serializations.Add(serialization);
+                    }
+                }
+
+                type.Update(methods, constructors, properties, fields, serializations);
+            }
+            return type;
         }
 
         protected virtual TypeProvider? Visit(TypeProvider typeProvider)

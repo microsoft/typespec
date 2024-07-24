@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  
+  <ItemGroup>
+    <PackageReference Include="System.Memory.Data" />
+    <PackageReference Include="System.ClientModel" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../CadlRanch/**/*.cs" Exclude="../CadlRanch/**/Properties/**/*.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>

@@ -69,10 +69,12 @@ namespace Microsoft.Generator.CSharp.Providers
             if (bodyStatements != default)
             {
                 BodyStatements = bodyStatements;
+                BodyExpression = null;
             }
             if (bodyExpression != default)
             {
                 BodyExpression = bodyExpression;
+                BodyStatements = null;
             }
             if (xmlDocProvider != default)
             {
