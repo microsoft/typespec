@@ -133,7 +133,7 @@ describe("Typescript Function Declaration", () => {
         const operation = Array.from((namespace as Namespace).operations.values())[0];
         const model = Array.from((namespace as Namespace).models.values())[0];
 
-        let res = await render(
+        let res = render(
           <Output>
             <SourceFile path="test.ts">
               <FunctionDeclaration type={operation}>

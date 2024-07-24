@@ -1,6 +1,7 @@
 import * as ts from "@alloy-js/typescript";
 import { Model, Operation } from "@typespec/compiler";
 import { TypeExpression } from "./type-expression.jsx";
+import {refkey as getRefkey} from "@alloy-js/core"
 
 export interface FunctionDeclarationPropsWithType
   extends Omit<ts.FunctionDeclarationProps, "name"> {
@@ -20,6 +21,7 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
   }
 
   const { type, ...coreProps } = props;
+  const refkey = coreProps.refkey ?? getRefkey(type);
 
   const functionName = props.name
     ? props.name
@@ -38,7 +40,7 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
     returnType,
   };
 
-  return <ts.FunctionDeclaration {..._props} />;
+  return <ts.FunctionDeclaration {..._props} refkey={refkey}/>
 }
 
 export interface TypedFunctionParametersProps extends Omit<ts.FunctionDeclarationProps, "name"> {
