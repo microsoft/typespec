@@ -433,7 +433,7 @@ Specify an endpoint for this service. Multiple `@server` decorators can be used 
 namespace PetStore;
 ```
 
-##### parameterized
+##### Parameterized
 
 ```typespec
 @server("https://{region}.foo.com", "Regional endpoint", {

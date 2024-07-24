@@ -227,13 +227,14 @@ extern dec head(target: Operation);
  *  @param parameters Optional set of parameters used to interpolate the url.
  *
  * @example
+ *
  * ```typespec
  * @service
  * @server("https://example.com", "Single server endpoint")
  * namespace PetStore;
  * ```
  *
- * @example parameterized
+ * @example Parameterized
  *
  * ```typespec
  * @server("https://{region}.foo.com", "Regional endpoint", {
