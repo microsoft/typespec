@@ -1,5 +1,4 @@
 param (
-    # re-build autorest.java
     [switch] $RebuildJar = $false
 )
 
@@ -11,6 +10,6 @@ if ($RebuildJar) {
 }
 
 # re-build http-client-java
-Set-Location ./emitter/
-pnpm run build:emitter
-pnpm pack ./emitter/dist/
+npm install 
+npm run build:generator && npm run build:emitter && npm pack
+

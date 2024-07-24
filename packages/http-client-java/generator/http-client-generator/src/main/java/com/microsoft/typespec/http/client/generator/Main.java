@@ -19,6 +19,6 @@ public class Main {
    * @return The hello message.
    */
   public String sayHello(String name) {
-    return "Hello " + name;
+    return "Hello friends from " + name;
   }
 }

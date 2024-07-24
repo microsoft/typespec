@@ -1,5 +1,5 @@
 {
-  "name": "@azure-tools/typespec-java-tests",
+  "name": "@typespec/http-client-java-tests",
   "version": "0.0.1",
   "type": "module",
   "scripts": {

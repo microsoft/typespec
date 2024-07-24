@@ -9,6 +9,6 @@ public class MainTest {
   @Test
   public void testHello() {
     Main main = new Main();
-    assertEquals("Hello TypeSpec Java code generator", main.sayHello("TypeSpec Java code generator"));
+    assertEquals("Hello friends from TypeSpec Java code generator", main.sayHello("TypeSpec Java code generator"));
   }
 }

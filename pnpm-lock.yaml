@@ -491,6 +491,36 @@ importers:
       '@autorest/codemodel':
         specifier: ~4.20.0
         version: 4.20.0
+      '@azure-tools/typespec-autorest':
+        specifier: '>=0.43.0 <1.0.0'
+        version: 0.43.0(@azure-tools/typespec-azure-core@0.43.0)(@azure-tools/typespec-azure-resource-manager@0.43.0)(@azure-tools/typespec-client-generator-core@0.43.0)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)
+      '@azure-tools/typespec-azure-core':
+        specifier: '>=0.43.0 <1.0.0'
+        version: 0.43.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)
+      '@azure-tools/typespec-azure-resource-manager':
+        specifier: '>=0.43.0 <1.0.0'
+        version: 0.43.0(@azure-tools/typespec-azure-core@0.43.0)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)
+      '@azure-tools/typespec-azure-rulesets':
+        specifier: '>=0.43.0 <1.0.0'
+        version: 0.43.0(@azure-tools/typespec-azure-core@0.43.0)(@azure-tools/typespec-azure-resource-manager@0.43.0)(@azure-tools/typespec-client-generator-core@0.43.0)(@typespec/compiler@packages+compiler)
+      '@azure-tools/typespec-client-generator-core':
+        specifier: '>=0.43.0 <1.0.0'
+        version: 0.43.0(@azure-tools/typespec-azure-core@0.43.0)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)
+      '@typespec/compiler':
+        specifier: '>=0.57.0 <1.0.0'
+        version: link:../compiler
+      '@typespec/http':
+        specifier: '>=0.57.0 <1.0.0'
+        version: link:../http
+      '@typespec/openapi':
+        specifier: '>=0.57.0 <1.0.0'
+        version: link:../openapi
+      '@typespec/rest':
+        specifier: '>=0.57.0 <1.0.0'
+        version: link:../rest
+      '@typespec/versioning':
+        specifier: '>=0.57.0 <1.0.0'
+        version: link:../versioning
       js-yaml:
         specifier: ~4.1.0
         version: 4.1.0
@@ -501,21 +531,6 @@ importers:
       '@azure-tools/codegen':
         specifier: ~2.10.0
         version: 2.10.0
-      '@azure-tools/typespec-autorest':
-        specifier: 0.43.0
-        version: 0.43.0(@azure-tools/typespec-azure-core@0.43.0)(@azure-tools/typespec-azure-resource-manager@0.43.0)(@azure-tools/typespec-client-generator-core@0.43.0)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)
-      '@azure-tools/typespec-azure-core':
-        specifier: 0.43.0
-        version: 0.43.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)
-      '@azure-tools/typespec-azure-resource-manager':
-        specifier: 0.43.0
-        version: 0.43.0(@azure-tools/typespec-azure-core@0.43.0)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)
-      '@azure-tools/typespec-azure-rulesets':
-        specifier: 0.43.0
-        version: 0.43.0(@azure-tools/typespec-azure-core@0.43.0)(@azure-tools/typespec-azure-resource-manager@0.43.0)(@azure-tools/typespec-client-generator-core@0.43.0)(@typespec/compiler@packages+compiler)
-      '@azure-tools/typespec-client-generator-core':
-        specifier: 0.43.0
-        version: 0.43.0(@azure-tools/typespec-azure-core@0.43.0)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)
       '@types/js-yaml':
         specifier: ~4.0.9
         version: 4.0.9
@@ -534,21 +549,6 @@ importers:
       '@typescript-eslint/parser':
         specifier: ~7.8.0
         version: 7.8.0(eslint@8.57.0)(typescript@5.4.5)
-      '@typespec/compiler':
-        specifier: 0.57.0
-        version: link:../compiler
-      '@typespec/http':
-        specifier: 0.57.0
-        version: link:../http
-      '@typespec/openapi':
-        specifier: 0.57.0
-        version: link:../openapi
-      '@typespec/rest':
-        specifier: 0.57.0
-        version: link:../rest
-      '@typespec/versioning':
-        specifier: 0.57.0
-        version: link:../versioning
       c8:
         specifier: ~9.1.0
         version: 9.1.0
@@ -1872,7 +1872,7 @@ packages:
       '@typespec/openapi': link:packages/openapi
       '@typespec/rest': link:packages/rest
       '@typespec/versioning': link:packages/versioning
-    dev: true
+    dev: false
 
   /@azure-tools/typespec-azure-core@0.43.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest):
     resolution: {integrity: sha512-B1r0i3segJ7RuNXxcAMBy8H2t+jTkaf74dkyUWD0HIFPkhETN0uR59nuor+s+LoLU8yI4JypOFSNZt6e1rod8w==}
@@ -1885,7 +1885,7 @@ packages:
       '@typespec/compiler': link:packages/compiler
       '@typespec/http': link:packages/http
       '@typespec/rest': link:packages/rest
-    dev: true
+    dev: false
 
   /@azure-tools/typespec-azure-resource-manager@0.43.0(@azure-tools/typespec-azure-core@0.43.0)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning):
     resolution: {integrity: sha512-0GQL+/o1u+PAB63FpYz3sy3ZgZvCtk5T4sDAnICnV23v2YWIONDMUfxxd0x40xJbY6PkcwwHDpBLNMqajf2H6A==}
@@ -1906,7 +1906,7 @@ packages:
       '@typespec/versioning': link:packages/versioning
       change-case: 5.4.4
       pluralize: 8.0.0
-    dev: true
+    dev: false
 
   /@azure-tools/typespec-azure-rulesets@0.43.0(@azure-tools/typespec-azure-core@0.43.0)(@azure-tools/typespec-azure-resource-manager@0.43.0)(@azure-tools/typespec-client-generator-core@0.43.0)(@typespec/compiler@packages+compiler):
     resolution: {integrity: sha512-yh0dNQIM4hRDWATh/tkONP991uMxFDHY8BkC0eWtIpfTjQTuR2PlGhrLgMxHT2Q5cCusfkNWeFvKDYlxKeoFLA==}
@@ -1921,7 +1921,7 @@ packages:
       '@azure-tools/typespec-azure-resource-manager': 0.43.0(@azure-tools/typespec-azure-core@0.43.0)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)
       '@azure-tools/typespec-client-generator-core': 0.43.0(@azure-tools/typespec-azure-core@0.43.0)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)
       '@typespec/compiler': link:packages/compiler
-    dev: true
+    dev: false
 
   /@azure-tools/typespec-client-generator-core@0.43.0(@azure-tools/typespec-azure-core@0.43.0)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning):
     resolution: {integrity: sha512-rssB/zsg89wstzJC1MWzbd8oPpqbgoftkp9G/NP3BoMb/gCP5uRLggwlSUAgnoU2Lt0jBUKcMlqEiVLTAkY9LA==}
@@ -1940,7 +1940,7 @@ packages:
       '@typespec/versioning': link:packages/versioning
       change-case: 5.4.4
       pluralize: 8.0.0
-    dev: true
+    dev: false
 
   /@azure/abort-controller@1.1.0:
     resolution: {integrity: sha512-TrRLIoSQVzfAJX9H1JeFjzAoDGcoK1IYX1UImfceTZpsyYfWr09Ss1aHW1y5TrrR3iq6RZLBwJ3E24uwPhwahw==}
@@ -11556,6 +11556,7 @@ packages:
 
   /change-case@5.4.4:
     resolution: {integrity: sha512-HRQyTk2/YPEkt9TnUPbOpr64Uw3KOicFWPVBb+xiHvd6eBx/qPr9xqfBFDT8P2vWsvvz4jbEkfDe71W3VyNu2w==}
+    dev: false
 
   /char-regex@1.0.2:
     resolution: {integrity: sha512-kWWXztvZ5SBQV+eRgKFeh8q5sLuZY2+8WUIzlxWVTg+oGwY14qylx1KbKzHd8P6ZYkAg0xyIDU9JMHhyJMZ1jw==}
@@ -18420,7 +18421,6 @@ packages:
   /pluralize@8.0.0:
     resolution: {integrity: sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==}
     engines: {node: '>=4'}
-    dev: true
 
   /polished@4.3.1:
     resolution: {integrity: sha512-OBatVyC/N7SCW/FaDHrSd+vn0o5cS855TOmYi4OkdWUMSJCET/xip//ch8xGUvtr3i44X9LVyWwQlRMTN3pwSA==}
