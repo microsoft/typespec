@@ -2,37 +2,9 @@
 
 #nullable disable
 
-using System;
-using System.ClientModel.Primitives;
-
 namespace Authentication.Http.Custom
 {
     public partial class CustomClient
     {
-
-        private class Classifier2xxAnd4xx : PipelineMessageClassifier
-        {
-            public override bool TryClassify(PipelineMessage message, out bool isError)
-            {
-                isError = false;
-                if (message.Response == null)
-                {
-                    return false;
-                }
-                isError = message.Response.Status switch
-                {
-                    >= 200 and < 300 => false,
-                    >= 400 and < 500 => false,
-                    _ => true
-                };
-                return true;
-            }
-
-            public override bool TryClassify(PipelineMessage message, Exception exception, out bool isRetryable)
-            {
-                isRetryable = false;
-                return false;
-            }
-        }
     }
 }

@@ -158,6 +158,7 @@ namespace Microsoft.Generator.CSharp.Providers
             IEnumerable<PropertyProvider>? properties = null,
             IEnumerable<FieldProvider>? fields = null,
             IEnumerable<TypeProvider>? serializations = null,
+            IEnumerable<TypeProvider>? nestedTypes = null,
             XmlDocProvider? xmlDocs = null)
         {
             if (methods != null)
@@ -179,6 +180,10 @@ namespace Microsoft.Generator.CSharp.Providers
             if (serializations != null)
             {
                 _serializationProviders = (serializations as IReadOnlyList<TypeProvider>) ?? serializations.ToList();
+            }
+            if (nestedTypes != null)
+            {
+                _nestedTypes = (nestedTypes as IReadOnlyList<TypeProvider>) ?? nestedTypes.ToList();
             }
             if (xmlDocs != null)
             {

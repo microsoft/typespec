@@ -160,7 +160,7 @@ foreach ($kvp in $cadlRanchLaunchProjects.GetEnumerator()) {
 
 $sortedLaunchSettings = @{}
 $sortedLaunchSettings.Add("profiles", [ordered]@{})
-$sortedKeys = $launchSettings["profiles"].Keys | Sort-Object | ForEach-Object { $sortedLaunchSettings["profiles"][$_] = $launchSettings["profiles"][$_] }
+$launchSettings["profiles"].Keys | Sort-Object | ForEach-Object { $sortedLaunchSettings["profiles"][$_] = $launchSettings["profiles"][$_] }
 
 # Write the launch settings to the launchSettings.json file
 $launchSettingsPath = Join-Path $solutionDir "Microsoft.Generator.CSharp" "src" "Properties" "launchSettings.json"

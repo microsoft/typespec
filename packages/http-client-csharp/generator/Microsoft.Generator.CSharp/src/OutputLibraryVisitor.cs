@@ -78,7 +78,17 @@ namespace Microsoft.Generator.CSharp
                     }
                 }
 
-                type.Update(methods, constructors, properties, fields, serializations);
+                var nestedTypes = new List<TypeProvider>();
+                foreach (var nestedTypeProvider in typeProvider.NestedTypes)
+                {
+                    var nestedType = VisitType(nestedTypeProvider);
+                    if (nestedType != null)
+                    {
+                        nestedTypes.Add(nestedType);
+                    }
+                }
+
+                type.Update(methods, constructors, properties, fields, serializations, nestedTypes);
             }
             return type;
         }
