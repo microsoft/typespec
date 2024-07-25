@@ -174,6 +174,17 @@ describe("properties table", () => {
     });
   });
 
+  it("render deprecated properties", async () => {
+    await expectTable({
+      code: `model Test { 
+        #deprecated "Use other"
+        name: string, 
+        other: int32
+      }`,
+      rows: ["| ~~name~~ _DEPRECATED_ | `string` |  |", "| other | `int32` |  |"],
+    });
+  });
+
   it("render enum properties", async () => {
     await expectTable({
       code: `

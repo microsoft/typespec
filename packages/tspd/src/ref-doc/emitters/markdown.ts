@@ -111,7 +111,7 @@ export class MarkdownRenderer {
   }
 
   typeSection(type: NamedTypeRefDoc, content: MarkdownDoc) {
-    const deprecated = type.deprecated ? this.deprecationNotice(type.deprecated) : "";
+    const deprecated = type.deprecated ? this.deprecationNotice(type.deprecated) : [];
     return section(this.headingTitle(type), [deprecated, content]);
   }
 
@@ -185,8 +185,9 @@ export class MarkdownRenderer {
   }
 
   modelPropertyRows(prop: ModelPropertyRefDoc): { name: string; type: string; doc: string }[] {
+    const name = `${prop.name}${prop.type.optional ? "?" : ""}`;
     const base = {
-      name: `${prop.name}${prop.type.optional ? "?" : ""}`,
+      name: prop.deprecated ? `~~${name}~~ _DEPRECATED_` : name,
       type: this.ref(prop.type.type),
       doc: prop.doc,
     };
