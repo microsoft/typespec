@@ -19,6 +19,13 @@ describe("paths that should trigger Core CI", () => {
   });
 });
 
+describe("paths that should trigger all isolated packages", () => {
+  it.each(["eng/emitters/pipelines/templates/jobs/detect-api-changes.yml"])("%s", (path) => {
+    const areas = findAreasChanged([path]);
+    expect(areas).toEqual(["CSharp"]);
+  });
+});
+
 it("Should return a combination of core and isolated packages", () => {
   const areas = findAreasChanged([
     "packages/http-client-csharp/src/constants.ts",

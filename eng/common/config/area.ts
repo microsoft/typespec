@@ -33,12 +33,12 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
 const all = ["eng/common/", "vitest.config.ts"];
 
 /**
- * Path that should trigger all standalone emitter builds
+ * Path that should trigger all isolated emitter builds
  */
-const standaloneEmitters = ["eng/emitter/"];
+const isolatedEmitters = ["eng/emitters/"];
 
 export const CIRules = {
-  CSharp: [...all, ...standaloneEmitters, ...AreaPaths["emitter:client:csharp"], ".editorconfig"],
+  CSharp: [...all, ...isolatedEmitters, ...AreaPaths["emitter:client:csharp"], ".editorconfig"],
 
   Core: [
     "**/*",
@@ -46,7 +46,7 @@ export const CIRules = {
     "!.prettierrc.json",
     "!cspell.yaml", // CSpell is already run as its dedicated CI(via github action)
     "!esling.config.json", // Eslint is already run as its dedicated CI(via github action)
-    ...ignore(standaloneEmitters),
+    ...ignore(isolatedEmitters),
     ...ignore(AreaPaths["emitter:client:csharp"]),
   ],
 };
