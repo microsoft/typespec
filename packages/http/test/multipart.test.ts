@@ -13,7 +13,7 @@ it("emit diagnostic when using invalid content type for multipart ", async () =>
   expectDiagnostics(diagnostics, {
     code: "@typespec/http/multipart-invalid-content-type",
     message:
-      "Content type 'application/json' is not a multipart content type. Supported content types are: .",
+      "Content type 'application/json' is not a multipart content type. Supported content types are: multipart/form-data, multipart/mixed.",
   });
 });
 

@@ -345,7 +345,7 @@ function resolveMultiPartBodyFromTuple(
       diagnostics.add(
         createDiagnostic({
           code: "multipart-invalid-content-type",
-          format: { contentType, valid: multipartContentTypesValues.join(", ") },
+          format: { contentType, supportedContentTypes: multipartContentTypesValues.join(", ") },
           target: type,
         })
       );

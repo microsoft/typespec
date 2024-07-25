@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
@@ -87,7 +88,7 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             // we always add partial when possible
-            if (!modifiers.HasFlag(TypeSignatureModifiers.Enum))
+            if (!modifiers.HasFlag(TypeSignatureModifiers.Enum) && DeclaringTypeProvider is null)
             {
                 modifiers |= TypeSignatureModifiers.Partial;
             }
@@ -151,19 +152,27 @@ namespace Microsoft.Generator.CSharp.Providers
         protected abstract string BuildRelativeFilePath();
         protected abstract string BuildName();
 
-        public void Update(List<MethodProvider>? methods = default, List<PropertyProvider>? properties = default, List<FieldProvider>? fields = default)
+        public void Update(
+            IEnumerable<MethodProvider>? methods = default,
+            IEnumerable<ConstructorProvider>? constructors = default,
+            IEnumerable<PropertyProvider>? properties = default,
+            IEnumerable<FieldProvider>? fields = default)
         {
             if (methods != null)
             {
-                _methods = methods;
+                _methods = (methods as IReadOnlyList<MethodProvider>) ?? methods.ToList();
             }
             if (properties != null)
             {
-                _properties = properties;
+                _properties = (properties as IReadOnlyList<PropertyProvider>) ?? properties.ToList();
             }
             if (fields != null)
             {
-                _fields = fields;
+                _fields = (fields as IReadOnlyList<FieldProvider>) ?? fields.ToList();
+            }
+            if (constructors != null)
+            {
+                _constructors = (constructors as IReadOnlyList<ConstructorProvider>) ?? constructors.ToList();
             }
         }
     }

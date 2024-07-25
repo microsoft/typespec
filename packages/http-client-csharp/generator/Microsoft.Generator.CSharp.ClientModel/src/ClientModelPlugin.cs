@@ -6,8 +6,6 @@ using System.ClientModel;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using Microsoft.CodeAnalysis;
-using Microsoft.Generator.CSharp.Primitives;
-using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -20,8 +18,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         private ScmOutputLibrary? _scmOutputLibrary;
         public override OutputLibrary OutputLibrary => _scmOutputLibrary ??= new();
-
-        public override TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
 
         public override ScmTypeFactory TypeFactory { get; }
 
