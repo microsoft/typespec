@@ -42,10 +42,10 @@ export const CIRules = {
 
   Core: [
     "**/*",
-    "!.prettierignore",
+    "!.prettierignore", // Prettier is already run as its dedicated CI(via github action)
     "!.prettierrc.json",
-    "!cspell.yaml",
-    "!esling.config.json",
+    "!cspell.yaml", // CSpell is already run as its dedicated CI(via github action)
+    "!esling.config.json", // Eslint is already run as its dedicated CI(via github action)
     ...ignore(standaloneEmitters),
     ...ignore(AreaPaths["emitter:client:csharp"]),
   ],
