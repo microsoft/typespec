@@ -91,7 +91,7 @@ namespace Microsoft.Generator.CSharp.Input
                 description: description,
                 type: parameterType,
                 location: requestLocation,
-                defaultValue: defaultValue,
+                defaultValue: parameterType is InputLiteralType { Value: not null } literalType ? literalType : defaultValue,
                 kind: parameterKind,
                 isRequired: isRequired,
                 isApiVersion: isApiVersion,

@@ -131,6 +131,24 @@ describe("versioning: validate incompatible references", () => {
       );
     });
 
+    it("emit diagnostic when versioned op has a newer versioned spread parameter", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model MyOptions {
+          prop: string;
+        }
+        
+        @added(Versions.v1)
+        op foo(...MyOptions,): void;
+        `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.foo' was added in version 'v1' but referencing type 'TestService.MyOptions' added in version 'v2'.",
+      });
+    });
+
     // TODO See: https://github.com/microsoft/typespec/issues/2695
     it.skip("emit diagnostic when unversioned op based on a template has a versioned model as a parameter", async () => {
       const diagnostics = await runner.diagnose(`
@@ -407,6 +425,34 @@ describe("versioning: validate incompatible references", () => {
         model Bar {
           @added(Versions.v2)
           foo: string;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("succeed when spreading a model that might have add properties added in previous versions", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Base {
+          @added(Versions.v1) name: string;
+        }
+
+        @added(Versions.v2)
+        model Child {
+          ...Base;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("succeed when spreading a model that might have add properties removed after the model", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Base {
+          @removed(Versions.v3) name: string;
+        }
+
+        @removed(Versions.v2)
+        model Child {
+          ...Base;
         }
       `);
       expectDiagnosticEmpty(diagnostics);

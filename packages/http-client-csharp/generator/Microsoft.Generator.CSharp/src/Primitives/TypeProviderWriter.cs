@@ -18,12 +18,7 @@ namespace Microsoft.Generator.CSharp.Primitives
         public virtual CodeFile Write()
         {
             using var writer = new CodeWriter();
-            return Write(writer);
-        }
-
-        private CodeFile Write(CodeWriter writer)
-        {
-            using (writer.SetNamespace(_provider.Type.Namespace))
+            using (var ns = writer.SetNamespace(_provider.Type.Namespace))
             {
                 WriteType(writer);
             }
@@ -183,7 +178,7 @@ namespace Microsoft.Generator.CSharp.Primitives
             for (int i = 0; i < _provider.NestedTypes.Count; i++)
             {
                 var nestedWriter = new TypeProviderWriter(_provider.NestedTypes[i]);
-                nestedWriter.Write(writer);
+                nestedWriter.WriteType(writer);
                 if (i < _provider.NestedTypes.Count - 1)
                 {
                     writer.WriteLine();

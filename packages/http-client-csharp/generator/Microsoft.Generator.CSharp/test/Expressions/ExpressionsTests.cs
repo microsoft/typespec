@@ -83,5 +83,32 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
             var test = writer.ToString(false);
             Assert.AreEqual(expectedResult, test);
         }
+
+        [Test]
+        public void TestArrayInitializerExpression()
+        {
+            var mockTypeProvider = new Mock<TypeProvider>();
+            var arrayInitializerExpression = new ArrayInitializerExpression([False, True]);
+            var newArrayExpression = new NewArrayExpression(typeof(bool), arrayInitializerExpression);
+            var variableFoo = new VariableExpression(typeof(bool[]), "foo");
+            var fooDeclaration = Declare(variableFoo, newArrayExpression);
+            var fooMethod = new MethodProvider(
+                new MethodSignature(
+                    Name: "Foo",
+                    Modifiers: MethodSignatureModifiers.Public,
+                    ReturnType: null,
+                    Parameters: [],
+                    Description: null, ReturnDescription: null),
+                new MethodBodyStatement[] { fooDeclaration },
+                mockTypeProvider.Object);
+
+            // Verify the expected behavior
+            using var writer = new CodeWriter();
+            writer.WriteMethod(fooMethod);
+
+            var expectedResult = Helpers.GetExpectedFromFile();
+            var test = writer.ToString(false);
+            Assert.AreEqual(expectedResult, test);
+        }
     }
 }

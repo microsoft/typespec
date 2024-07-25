@@ -19,7 +19,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Mocks\Configuration.json">
+    <None Update="TestHelpers\Configuration.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="TestHelpers\tspCodeModel.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

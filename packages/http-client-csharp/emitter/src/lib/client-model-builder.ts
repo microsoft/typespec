@@ -10,7 +10,6 @@ import {
   getAllModels,
 } from "@azure-tools/typespec-client-generator-core";
 import { getDoc } from "@typespec/compiler";
-import { HttpOperation } from "@typespec/http";
 import { NetEmitterOptions, resolveOptions } from "../options.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputClient } from "../type/input-client.js";
@@ -18,10 +17,9 @@ import { InputOperationParameterKind } from "../type/input-operation-parameter-k
 import { InputParameter } from "../type/input-parameter.js";
 import { InputEnumType, InputModelType, InputPrimitiveType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
-import { Usage } from "../type/usage.js";
 import { fromSdkType } from "./converter.js";
 import { Logger } from "./logger.js";
-import { getUsages, navigateModels } from "./model.js";
+import { navigateModels } from "./model.js";
 import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 
@@ -35,12 +33,6 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   const enumMap = new Map<string, InputEnumType>();
 
   navigateModels(sdkContext, modelMap, enumMap);
-
-  // TODO: do we still need to re-calculate usage from TCGC methods?
-  const convenienceOperations: HttpOperation[] = [];
-  const usages = getUsages(sdkContext, convenienceOperations, modelMap);
-  setUsage(usages, modelMap);
-  setUsage(usages, enumMap);
 
   const rootApiVersions = getRootApiVersions(sdkPackage.clients);
 
@@ -189,24 +181,6 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       });
     }
     return parameters;
-  }
-}
-
-function setUsage(
-  usages: { inputs: string[]; outputs: string[]; roundTrips: string[] },
-  models: Map<string, InputModelType | InputEnumType>
-) {
-  for (const [name, m] of models) {
-    if (m.Usage !== undefined && m.Usage !== Usage.None) continue;
-    if (usages.inputs.includes(name)) {
-      m.Usage = Usage.Input;
-    } else if (usages.outputs.includes(name)) {
-      m.Usage = Usage.Output;
-    } else if (usages.roundTrips.includes(name)) {
-      m.Usage = Usage.RoundTrip;
-    } else {
-      m.Usage = Usage.None;
-    }
   }
 }
 

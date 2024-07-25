@@ -15,6 +15,7 @@ import {
   SdkType,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
+  UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { getDeprecated, getDoc, getSummary, isErrorModel } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
@@ -40,6 +41,7 @@ import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
 import { fromSdkType } from "./converter.js";
 import { getExternalDocs, getOperationId } from "./decorators.js";
+import { Logger } from "./logger.js";
 import { getInputType } from "./model.js";
 
 export function fromSdkServiceMethod(
@@ -51,6 +53,14 @@ export function fromSdkServiceMethod(
   modelMap: Map<string, InputModelType>,
   enumMap: Map<string, InputEnumType>
 ): InputOperation {
+  let generateConvenience = shouldGenerateConvenient(sdkContext, method.operation.__raw.operation);
+  if (method.operation.verb === "patch" && generateConvenience) {
+    Logger.getInstance().warn(
+      `Convenience method is not supported for PATCH method, it will be automatically turned off. Please set the '@convenientAPI' to false for operation ${method.operation.__raw.operation.name}.`
+    );
+    generateConvenience = false;
+  }
+
   return {
     Name: method.name,
     ResourceName:
@@ -82,9 +92,7 @@ export function fromSdkServiceMethod(
     LongRunning: loadLongRunningOperation(method, sdkContext, modelMap, enumMap),
     Paging: loadOperationPaging(method),
     GenerateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
-    GenerateConvenienceMethod:
-      method.operation.verb !== "patch" &&
-      shouldGenerateConvenient(sdkContext, method.operation.__raw.operation),
+    GenerateConvenienceMethod: generateConvenience,
   };
 }
 
@@ -352,16 +360,10 @@ function getParameterKind(
   hasGlobalApiVersion: boolean
 ): InputOperationParameterKind {
   if (p.kind === "body") {
-    switch (p.correspondingMethodParams.length) {
-      case 0:
-        throw new Error(`Body parameter "${p.name}" should have corresponding method parameter.`);
-      case 1:
-        return isSpreadBody(p.correspondingMethodParams[0].type, p.type)
-          ? InputOperationParameterKind.Spread
-          : InputOperationParameterKind.Method;
-      default:
-        return InputOperationParameterKind.Spread;
+    if (type.Kind === "model" && (type.Usage & UsageFlags.Spread) !== 0) {
+      return InputOperationParameterKind.Spread;
     }
+    return InputOperationParameterKind.Method;
   }
   return isContentType || type.Kind === "constant"
     ? InputOperationParameterKind.Constant
