@@ -10,7 +10,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
 {
     internal class StubVisitor : OutputLibraryVisitor
     {
-        private readonly ValueExpression ThrowNull = ThrowExpression(Null);
+        private readonly ValueExpression _throwNull = ThrowExpression(Null);
         private readonly XmlDocProvider _emptyDocs = new();
 
         protected override TypeProvider? Visit(TypeProvider typeProvider)
@@ -29,7 +29,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
 
             constructorProvider.Update(
                 bodyStatements: null,
-                bodyExpression: ThrowNull,
+                bodyExpression: _throwNull,
                 xmlDocs: _emptyDocs);
 
             return constructorProvider;
@@ -49,7 +49,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
 
             methodProvider.Update(
                 bodyStatements: null,
-                bodyExpression: ThrowNull,
+                bodyExpression: _throwNull,
                 xmlDocProvider: _emptyDocs);
 
             return methodProvider;
@@ -60,7 +60,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
             if (!ShouldKeep(propertyProvider.Modifiers))
                 return null;
 
-            var propertyBody = new ExpressionPropertyBody(ThrowNull, propertyProvider.Body.HasSetter ? ThrowNull : null);
+            var propertyBody = new ExpressionPropertyBody(_throwNull, propertyProvider.Body.HasSetter ? _throwNull : null);
 
             propertyProvider.Update(
                 body: propertyBody,

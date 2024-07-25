@@ -1,11 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Authentication.ApiKey;
-using NUnit.Framework;
-using System;
 using System.ClientModel;
 using System.Threading.Tasks;
+using Authentication.ApiKey;
+using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http.Authentication.ApiKey
 {
