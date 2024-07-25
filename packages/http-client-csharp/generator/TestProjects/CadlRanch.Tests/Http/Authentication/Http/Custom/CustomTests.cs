@@ -11,14 +11,14 @@ namespace TestProjects.CadlRanch.Tests.Http.Authentication.Http.Custom
     internal class CustomTests : CadlRanchTestBase
     {
         [CadlRanchTest]
-        public Task Authentication_Http_Custom_valid() => Test(async (host) =>
+        public Task Valid() => Test(async (host) =>
         {
             ClientResult result = await new CustomClient(host, new ApiKeyCredential("valid-key"), null).ValidAsync();
             Assert.AreEqual(204, result.GetRawResponse().Status);
         });
 
         [CadlRanchTest]
-        public Task Authentication_Http_Custom_invalid() => Test((host) =>
+        public Task Invalid() => Test((host) =>
         {
             var exception = Assert.ThrowsAsync<ClientResultException>(() => new CustomClient(host, new ApiKeyCredential("invalid-api-key"), null).InvalidAsync());
             Assert.AreEqual(403, exception!.Status);
