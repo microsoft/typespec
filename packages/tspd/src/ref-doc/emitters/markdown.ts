@@ -9,6 +9,7 @@ import { readFile } from "fs/promises";
 import { stringify } from "yaml";
 import {
   DecoratorRefDoc,
+  DeprecationNotice,
   EmitterOptionRefDoc,
   EnumRefDoc,
   ExampleRefDoc,
@@ -105,6 +106,15 @@ export class MarkdownRenderer {
     return `${item.name.toLowerCase().replace(/ /g, "-")}`;
   }
 
+  deprecationNotice(notice: DeprecationNotice): MarkdownDoc {
+    return `_Deprecated: ${notice.message}_`;
+  }
+
+  typeSection(type: NamedTypeRefDoc, content: MarkdownDoc) {
+    const deprecated = type.deprecated ? this.deprecationNotice(type.deprecated) : "";
+    return section(this.headingTitle(type), [deprecated, content]);
+  }
+
   //#region TypeSpec types
   operation(op: OperationRefDoc) {
     const content: MarkdownDoc = ["", op.doc, codeblock(op.signature, "typespec"), ""];
@@ -115,7 +125,7 @@ export class MarkdownRenderer {
 
     content.push(this.examples(op.examples));
 
-    return section(this.headingTitle(op), content);
+    return this.typeSection(op, content);
   }
 
   interface(iface: InterfaceRefDoc) {
@@ -133,7 +143,7 @@ export class MarkdownRenderer {
 
     content.push(this.examples(iface.examples));
 
-    return section(this.headingTitle(iface), content);
+    return this.typeSection(iface, content);
   }
 
   model(model: ModelRefDoc) {
@@ -145,7 +155,7 @@ export class MarkdownRenderer {
 
     content.push(this.examples(model.examples));
     content.push(this.modelProperties(model));
-    return section(this.headingTitle(model), content);
+    return this.typeSection(model, content);
   }
 
   modelProperties(model: ModelRefDoc) {
@@ -224,7 +234,7 @@ export class MarkdownRenderer {
       this.examples(e.examples),
     ];
 
-    return section(this.headingTitle(e), content);
+    return this.typeSection(e, content);
   }
 
   enumMembers(e: EnumRefDoc): MarkdownDoc {
@@ -251,7 +261,7 @@ export class MarkdownRenderer {
 
     content.push(this.examples(union.examples));
 
-    return section(this.headingTitle(union), content);
+    return this.typeSection(union, content);
   }
 
   scalar(scalar: ScalarRefDoc): MarkdownDoc {
@@ -263,7 +273,7 @@ export class MarkdownRenderer {
 
     content.push(this.examples(scalar.examples));
 
-    return section(this.headingTitle(scalar), content);
+    return this.typeSection(scalar, content);
   }
 
   templateParameters(templateParameters: readonly TemplateParameterRefDoc[]): MarkdownDoc {
@@ -292,7 +302,7 @@ export class MarkdownRenderer {
 
     content.push(this.examples(dec.examples));
 
-    return section(this.headingTitle(dec), content);
+    return this.typeSection(dec, content);
   }
 
   MixedParameterConstraint(constraint: MixedParameterConstraint): string {
