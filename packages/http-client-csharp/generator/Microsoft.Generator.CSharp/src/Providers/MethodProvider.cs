@@ -19,6 +19,13 @@ namespace Microsoft.Generator.CSharp.Providers
         public ValueExpression? BodyExpression { get; private set;}
         public XmlDocProvider? XmlDocs { get; private set;}
 
+        // for mocking
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        protected MethodProvider()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MethodProvider"/> class with a body statement and method signature.
         /// </summary>

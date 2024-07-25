@@ -105,7 +105,7 @@ function collectSegmentsAndOptions(
 
   const route = getRoutePath(program, source)?.path;
   const options =
-    source.kind === "Namespace" ? getRouteOptionsForNamespace(program, source) ?? {} : {};
+    source.kind === "Namespace" ? (getRouteOptionsForNamespace(program, source) ?? {}) : {};
 
   return [[...parentSegments, ...(route ? [route] : [])], { ...parentOptions, ...options }];
 }

@@ -15,6 +15,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
 {
     public class ScmTypeFactory : TypeFactory
     {
+        private Dictionary<InputClient, ClientProvider>? _clientCache;
+        private Dictionary<InputClient, ClientProvider> ClientCache => _clientCache ??= [];
+
         /// <summary>
         /// Creates a <see cref="MethodProviderCollection"/> for the given operation. If the operation is a <see cref="InputOperationKinds.DefaultValue"/> operation,
         /// a method collection will be created. Otherwise, <c>null</c> will be returned.
@@ -49,5 +52,19 @@ namespace Microsoft.Generator.CSharp.ClientModel
                     return [];
             }
         }
+
+        public ClientProvider CreateClient(InputClient inputClient)
+        {
+            if (ClientCache.TryGetValue(inputClient, out var client))
+            {
+                return client;
+            }
+
+            client = CreateClientCore(inputClient);
+            ClientCache[inputClient] = client;
+            return client;
+        }
+
+        protected virtual ClientProvider CreateClientCore(InputClient inputClient) => new ClientProvider(inputClient);
     }
 }

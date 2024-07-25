@@ -528,7 +528,7 @@ function extractMainDoc(program: Program, type: Type): string {
       mainDocs.push(dContent.text);
     }
   }
-  return mainDocs.length > 0 ? mainDocs.join("\n") : getDoc(program, type) ?? "";
+  return mainDocs.length > 0 ? mainDocs.join("\n") : (getDoc(program, type) ?? "");
 }
 
 function extractExamples(type: Type): ExampleRefDoc[] {
