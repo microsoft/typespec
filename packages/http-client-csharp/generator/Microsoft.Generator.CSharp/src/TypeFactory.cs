@@ -234,7 +234,7 @@ namespace Microsoft.Generator.CSharp
 
         protected virtual IReadOnlyList<TypeProvider> CreateSerializationsCore(InputType inputType)
         {
-            return Array.Empty<TypeProvider>();
+            return [];
         }
     }
 }

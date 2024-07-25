@@ -25,12 +25,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             new object[] {"One", 1, "Two", 2}
         };
 
-        private TypeProvider? CreateEnumSerializationProvider(string a, int b, string c, int d)
+        private TypeProvider? CreateEnumSerializationProvider(string stringA, int intA, string stringB, int intB)
         {
             IReadOnlyList<InputEnumTypeValue> values = new List<InputEnumTypeValue>
             {
-                new InputEnumTypeValue(a, b, null),
-                new InputEnumTypeValue(c, d, null)
+                new InputEnumTypeValue(stringA, intA, null),
+                new InputEnumTypeValue(stringB, intB, null)
             };
             var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, new InputPrimitiveType(InputPrimitiveTypeKind.Int32), values, false);
             TypeProvider enumType = ClientModelPlugin.Instance.TypeFactory.CreateEnum(input);
@@ -38,9 +38,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         }
 
         [TestCaseSource(nameof(ValidateTestCases))]
-        public void ValidateToSerial(string a, int b, string c, int d)
+        public void ValidateToSerial(string stringA, int intA, string stringB, int intB)
         {
-            var serialization = CreateEnumSerializationProvider(a, b, c, d);
+            var serialization = CreateEnumSerializationProvider(stringA, intA, stringB, intB);
             MethodProvider? method = serialization!.Methods.Where(m => m.Signature.Name.Contains("ToSerial")).FirstOrDefault();
             // Cast method.BodyExpression to SwitchCaseExpression
             if (method!.BodyExpression is SwitchExpression switchExpression)
@@ -52,9 +52,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         }
 
         [TestCaseSource(nameof(ValidateTestCases))]
-        public void ValidateToEnum(string a, int b, string c, int d)
+        public void ValidateToEnum(string stringA, int intA, string stringB, int intB)
         {
-            var serialization = CreateEnumSerializationProvider(a, b, c, d);
+            var serialization = CreateEnumSerializationProvider(stringA, intA, stringB, intB);
             MethodProvider? method = serialization!.Methods.Where(m => m.Signature.Name.Contains("Enum")).FirstOrDefault();
             // Cast method.BodyExpression to SwitchCaseExpression
             if (method!.BodyStatements is MethodBodyStatements methodBodyStatements)

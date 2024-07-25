@@ -50,7 +50,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 var initializationValue = IsIntValueType ? Literal(inputValue.Value) : null;
                 var field = new FieldProvider(
                     modifiers,
-                    MemberValueType,
+                    EnumUnderlyingType,
                     name,
                     inputValue.Description is null ? $"{name}" : FormattableStringHelpers.FromString(inputValue.Description),
                     initializationValue);

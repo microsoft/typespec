@@ -147,7 +147,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private CSharpType? _enumUnderlyingType;
 
-        public CSharpType EnumUnderlyingType => _enumUnderlyingType ??= BuildEnumUnderlyingType();
+        public CSharpType EnumUnderlyingType => _enumUnderlyingType ??= BuildEnumUnderlyingType(); // Each member in the EnumProvider has to have this type
 
         protected virtual XmlDocProvider BuildXmlDocs()
         {

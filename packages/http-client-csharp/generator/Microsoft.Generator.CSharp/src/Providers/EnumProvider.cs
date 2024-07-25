@@ -26,16 +26,14 @@ namespace Microsoft.Generator.CSharp.Providers
             _deprecated = input.Deprecated;
 
             IsExtensible = input.IsExtensible;
-            MemberValueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input.ValueType);
-            IsStringValueType = MemberValueType.Equals(typeof(string));
-            IsIntValueType = MemberValueType.Equals(typeof(int)) || MemberValueType.Equals(typeof(long));
-            IsFloatValueType = MemberValueType.Equals(typeof(float)) || MemberValueType.Equals(typeof(double));
+            IsStringValueType = EnumUnderlyingType.Equals(typeof(string));
+            IsIntValueType = EnumUnderlyingType.Equals(typeof(int)) || EnumUnderlyingType.Equals(typeof(long));
+            IsFloatValueType = EnumUnderlyingType.Equals(typeof(float)) || EnumUnderlyingType.Equals(typeof(double));
             IsNumericValueType = IsIntValueType || IsFloatValueType;
 
             Description = input.Description != null ? FormattableStringHelpers.FromString(input.Description) : $"The {Name}.";
         }
 
-        public CSharpType MemberValueType { get; } // Each member in the EnumProvider has to have this type
         public bool IsExtensible { get; }
         internal bool IsIntValueType { get; }
         internal bool IsFloatValueType { get; }
