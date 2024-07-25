@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -59,15 +58,6 @@ namespace Microsoft.Generator.CSharp
         public InputLibrary InputLibrary => _inputLibrary.Value;
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
         public virtual IReadOnlyList<MetadataReference> AdditionalMetadataReferences => Array.Empty<MetadataReference>();
-
-        ///// <summary>
-        ///// Returns the serialization type providers for the given model type provider.
-        ///// </summary>
-        ///// <param name="inputType">The input model.</param>
-        //public virtual IReadOnlyList<TypeProvider> GetSerializationTypeProviders(InputType inputType)
-        //{
-        //    return Array.Empty<TypeProvider>();
-        //}
 
         public virtual void Configure()
         {

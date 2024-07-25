@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         /// <summary>
         /// Returns if this enum type needs an extension method for serialization
-        /// </summary>EnumProvider.EnumProvider.EnumUnderlyingType
+        /// </summary>
         /// <returns></returns>
         private bool NeedsSerializationMethod()
         {
