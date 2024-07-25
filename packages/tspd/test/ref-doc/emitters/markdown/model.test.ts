@@ -28,6 +28,27 @@ it("render simple model", async () => {
   );
 });
 
+it("render deprecation notice", async () => {
+  const result = await renderModel(`
+    #deprecated "Use something else"
+    model Test {}`);
+  expect(result).toEqual(
+    [
+      "# `Test`",
+      "_Deprecated: Use something else_",
+      "",
+      "",
+      "```typespec",
+      "model Lib.Test",
+      "```",
+      "",
+      "",
+      "## Properties",
+      "None",
+    ].join("\n")
+  );
+});
+
 it("render model with template parameter", async () => {
   const result = await renderModel(`model Test<T> {}`);
   expect(result).toEqual(
