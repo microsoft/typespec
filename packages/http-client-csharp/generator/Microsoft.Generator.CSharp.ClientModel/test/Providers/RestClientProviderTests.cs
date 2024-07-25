@@ -107,7 +107,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             [
                 new InputParameter("message", "message", "The message to create.", new InputPrimitiveType(InputPrimitiveTypeKind.Boolean), RequestLocation.Body, null, InputOperationParameterKind.Method, true, false, false, false, false, false, false, null, null)
             ],
-            responses: [],
+            responses: [new OperationResponse([200], null, BodyMediaType.Json, [], false, ["application/json"])],
             httpMethod: "GET",
             requestBodyMediaType: BodyMediaType.Json,
             uri: "localhost",

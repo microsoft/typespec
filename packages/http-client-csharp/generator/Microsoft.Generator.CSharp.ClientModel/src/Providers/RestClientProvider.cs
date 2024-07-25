@@ -6,6 +6,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using Microsoft.Generator.CSharp.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
@@ -32,6 +33,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private TypeProvider _classifier2xxAnd4xxDefinition;
 
         private PropertyProvider _classifier200Property;
+        private PropertyProvider _classifier204Property;
+        private PropertyProvider _classifier2xxAnd4xxProperty;
 
         public RestClientProvider(InputClient inputClient, ClientProvider clientProvider)
         {
@@ -42,6 +45,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _classifier2xxAnd4xxDefinition = new Classifier2xxAnd4xxDefinition(this);
             _pipelineMessageClassifier2xxAnd4xx = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, _classifier2xxAnd4xxDefinition.Type, "_pipelineMessageClassifier2xxAnd4xx");
             _classifier200Property = GetResponseClassifierProperty(_pipelineMessageClassifier200, 200);
+            _classifier204Property = GetResponseClassifierProperty(_pipelineMessageClassifier204, 204);
+            _classifier2xxAnd4xxProperty = new PropertyProvider(
+                $"Gets the PipelineMessageClassifier2xxAnd4xx",
+                MethodSignatureModifiers.Private | MethodSignatureModifiers.Static,
+                _classifier2xxAnd4xxDefinition.Type,
+                "PipelineMessageClassifier2xxAnd4xx",
+                new ExpressionPropertyBody(_pipelineMessageClassifier2xxAnd4xx.Assign(New.Instance(_classifier2xxAnd4xxDefinition.Type), true)));
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.RestClient.cs");
@@ -53,13 +63,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return
             [
                 _classifier200Property,
-                GetResponseClassifierProperty(_pipelineMessageClassifier204, 204),
-                new PropertyProvider(
-                    $"Gets the PipelineMessageClassifier2xxAnd4xx",
-                    MethodSignatureModifiers.Private | MethodSignatureModifiers.Static,
-                    _classifier2xxAnd4xxDefinition.Type,
-                    "PipelineMessageClassifier2xxAnd4xx",
-                    new ExpressionPropertyBody(_pipelineMessageClassifier2xxAnd4xx.Assign(New.Instance(_classifier2xxAnd4xxDefinition.Type), true)))
+                _classifier204Property,
+                _classifier2xxAnd4xxProperty
             ];
         }
 
@@ -126,12 +131,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 [.. GetMethodParameters(operation), options]);
             var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
 
+            var classifier = GetClassifier(operation);
+
             return new MethodProvider(
                 signature,
                 new MethodBodyStatements(
                 [
                     Declare("message", pipelineField.CreateMessage(), out ScopedApi<PipelineMessage> message),
-                    message.ResponseClassifier().Assign(_classifier200Property).Terminate(),
+                    message.ResponseClassifier().Assign(classifier).Terminate(),
                     Declare("request", message.Request(), out ScopedApi<PipelineRequest> request),
                     request.SetMethod(operation.HttpMethod),
                     Declare("uri", New.Instance<ClientUriBuilderDefinition>(), out ScopedApi<ClientUriBuilderDefinition> uri),
@@ -144,6 +151,29 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Return(message)
                 ]),
                 this);
+        }
+
+        private PropertyProvider GetClassifier(InputOperation operation)
+        {
+            if (operation.HttpMethod == HttpMethod.Head.ToString())
+                return _classifier2xxAnd4xxProperty;
+
+            var response = operation.Responses.First(r => !r.IsErrorResponse); //should only be one of these
+
+            if (response.StatusCodes.Count == 0)
+                return response.BodyType is null ? _classifier204Property : _classifier200Property; //default to 200 if no status codes defined
+
+            if (response.StatusCodes.Count == 1)
+            {
+                return response.StatusCodes[0] switch
+                {
+                    200 => _classifier200Property,
+                    204 => _classifier204Property,
+                    _ => throw new InvalidOperationException($"Unexpected status code {response.StatusCodes[0]}")
+                };
+            }
+
+            throw new InvalidOperationException("Multiple status codes not supported");
         }
 
         private IEnumerable<MethodBodyStatement> AppendHeaderParameters(ScopedApi<PipelineRequest> request, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
