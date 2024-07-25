@@ -1,9 +1,5 @@
 import { AzureCoreTestLibrary } from "@azure-tools/typespec-azure-core/testing";
-import {
-  createSdkContext,
-  getAllModels,
-  SdkContext,
-} from "@azure-tools/typespec-client-generator-core";
+import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-generator-core";
 import { SdkTestLibrary } from "@azure-tools/typespec-client-generator-core/testing";
 import {
   CompilerOptions,
@@ -132,8 +128,5 @@ export function createNetSdkContext(
   program: EmitContext<NetEmitterOptions>
 ): SdkContext<NetEmitterOptions> {
   Logger.initialize(program.program, LoggerLevel.INFO);
-  const sdkContext = createSdkContext(program, "@azure-tools/typespec-azure");
-  // initialize TCGC
-  getAllModels(sdkContext);
-  return sdkContext;
+  return createSdkContext(program, "@typespec/http-client-csharp");
 }

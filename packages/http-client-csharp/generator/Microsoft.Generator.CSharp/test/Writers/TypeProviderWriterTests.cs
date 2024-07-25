@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var properties = new List<InputModelProperty> { RequiredStringProperty, RequiredIntProperty };
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: MockPluginSetValue(properties));
 
-            var inputModel = new InputModelType("TestModel", string.Empty, "public", null, "Test model.", InputModelTypeUsage.RoundTrip,
+            var inputModel = new InputModelType("TestModel", string.Empty, "public", null, "Test model.", InputModelTypeUsage.Input | InputModelTypeUsage.Output,
                 properties, null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, decorators: Array.Empty<InputDecoratorInfo>());
 
             var modelProvider = new ModelProvider(inputModel);
@@ -61,7 +61,7 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var properties = new List<InputModelProperty> { RequiredStringProperty, RequiredIntProperty };
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: MockPluginSetValue(properties));
 
-            var inputModel = new InputModelType("TestModel", string.Empty, "public", null, "Test model.", InputModelTypeUsage.RoundTrip,
+            var inputModel = new InputModelType("TestModel", string.Empty, "public", null, "Test model.", InputModelTypeUsage.Input | InputModelTypeUsage.Output,
                 properties, null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, modelAsStruct: true, decorators: Array.Empty<InputDecoratorInfo>());
 
             var modelProvider = new ModelProvider(inputModel);

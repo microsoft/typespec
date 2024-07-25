@@ -22,7 +22,7 @@ namespace Microsoft.Generator.CSharp.Perf
             {
                 new InputModelProperty("MyProperty", "myProperty", "The property of mine", new InputPrimitiveType(InputPrimitiveTypeKind.Int32), true, false, false, Array.Empty<InputDecoratorInfo>())
             };
-            var inputModel = new InputModelType("MyModel", string.Empty, null, null, "Test model", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, Array.Empty<InputDecoratorInfo>());
+            var inputModel = new InputModelType("MyModel", string.Empty, null, null, "Test model", InputModelTypeUsage.Input | InputModelTypeUsage.Output, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, Array.Empty<InputDecoratorInfo>());
             var modelProvider = new ModelProvider(inputModel);
             _writer = new TypeProviderWriter(modelProvider);
         }
