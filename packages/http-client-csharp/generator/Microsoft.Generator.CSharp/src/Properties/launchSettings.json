@@ -1,14 +1,34 @@
 {
   "profiles": {
-    "Unbranded-TypeSpec": {
-      "commandName": "Executable",
-      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe",
-      "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Unbranded-TypeSpec -p ClientModelPlugin"
-    },
     "Debug-Plugin-Test-TypeSpec": {
       "commandName": "Executable",
-      "executablePath": "$(SolutionDir)/../generator/artifacts/bin/SamplePlugin/Debug/net8.0/Microsoft.Generator.CSharp.exe",
-      "commandLineArgs": "$(SolutionDir)/TestProjects/Plugin/Unbranded-TypeSpec -p SampleCodeModelPlugin"
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Unbranded-TypeSpec -p SampleCodeModelPlugin",
+      "executablePath": "$(SolutionDir)/../generator/artifacts/bin/SamplePlugin/Debug/net8.0/Microsoft.Generator.CSharp.exe"
+    },
+    "http-authentication-api-key": {
+      "commandName": "Executable",
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/authentication/api-key -p StubLibraryPlugin",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-authentication-http-custom": {
+      "commandName": "Executable",
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/authentication/http/custom -p StubLibraryPlugin",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-authentication-oauth2": {
+      "commandName": "Executable",
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/authentication/oauth2 -p StubLibraryPlugin",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-authentication-union": {
+      "commandName": "Executable",
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/authentication/union -p StubLibraryPlugin",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "Unbranded-TypeSpec": {
+      "commandName": "Executable",
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Unbranded-TypeSpec -p ClientModelPlugin",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     }
   }
 }

@@ -3,38 +3,9 @@
 Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
 
 $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
+$solutionDir = Join-Path $packageRoot 'generator'
 
-function Get-TspCommand {
-    param (
-        [string]$specFile,
-        [string]$generationDir,
-        [bool]$generateStub = $false
-    )
-    $command = "npx tsp compile $specFile"
-    $command += " --trace @typespec/http-client-csharp"
-    $command += " --emit @typespec/http-client-csharp"
-    $command += " --option @typespec/http-client-csharp.emitter-output-dir=$generationDir"
-    $command += " --option @typespec/http-client-csharp.save-inputs=true"
-    if ($generateStub) {
-        $command += " --option @typespec/http-client-csharp.plugin-name=StubLibraryPlugin"
-    }
-    return $command
-}
-
-Write-Host "Building emitter and generator" -ForegroundColor Cyan
-Invoke "npm run build:emitter"
-# exit if the generation failed
-if ($LASTEXITCODE -ne 0) {
-    exit $LASTEXITCODE
-}
-
-# we don't want to build the entire solution because the test projects might not build until after regeneration
-# generating Microsoft.Generator.CSharp.ClientModel.csproj is enough
-Invoke "dotnet build $packageRoot/generator/Microsoft.Generator.CSharp.ClientModel.StubLibrary/src"
-# exit if the generation failed
-if ($LASTEXITCODE -ne 0) {
-    exit $LASTEXITCODE
-}
+Refresh-Build
 
 Write-Host "Generating UnbrandedTypeSpec" -ForegroundColor Cyan
 $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
@@ -116,7 +87,9 @@ $failingSpecs = @(
     Join-Path 'http' 'type' 'property' 'value-types'
 )
 
-# Loop through all directories and subdirectories
+$cadlRanchLaunchProjects = @{}
+
+# Loop through all directories and subdirectories of the cadl ranch specs
 $directories = Get-ChildItem -Path "$specsDirectory/http" -Directory -Recurse
 foreach ($directory in $directories) {
     if (-not (IsSpecDir $directory.FullName)) {
@@ -150,6 +123,7 @@ foreach ($directory in $directories) {
         New-Item -ItemType Directory -Path $generationDir | Out-Null
     }
 
+    $cadlRanchLaunchProjects.Add(($folders -join "-"), ("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))"))
     Write-Host "Generating $subPath" -ForegroundColor Cyan
     Invoke (Get-TspCommand $specFile $generationDir $true)
 
@@ -160,3 +134,34 @@ foreach ($directory in $directories) {
 
     # TODO need to build but depends on https://github.com/Azure/autorest.csharp/issues/4463
 }
+
+Write-Host "Writing new launch settings" -ForegroundColor Cyan
+$mgcExe = "`$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+$sampleExe = "`$(SolutionDir)/../generator/artifacts/bin/SamplePlugin/Debug/net8.0/Microsoft.Generator.CSharp.exe"
+$unbrandedSpec = "TestProjects/Local/Unbranded-TypeSpec"
+
+$launchSettings = @{}
+$launchSettings.Add("profiles", @{})
+$launchSettings["profiles"].Add("Unbranded-TypeSpec", @{})
+$launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandName", "Executable")
+$launchSettings["profiles"]["Unbranded-TypeSpec"].Add("executablePath", $mgcExe)
+$launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSpec -p ClientModelPlugin")
+$launchSettings["profiles"].Add("Debug-Plugin-Test-TypeSpec", @{})
+$launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("commandName", "Executable")
+$launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("executablePath", $sampleExe)
+$launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSpec -p SampleCodeModelPlugin")
+
+foreach ($kvp in $cadlRanchLaunchProjects.GetEnumerator()) {
+    $launchSettings["profiles"].Add($kvp.Key, @{})
+    $launchSettings["profiles"][$kvp.Key].Add("commandName", "Executable")
+    $launchSettings["profiles"][$kvp.Key].Add("executablePath", $mgcExe)
+    $launchSettings["profiles"][$kvp.Key].Add("commandLineArgs", "`$(SolutionDir)/$($kvp.Value) -p StubLibraryPlugin")
+}
+
+$sortedLaunchSettings = @{}
+$sortedLaunchSettings.Add("profiles", [ordered]@{})
+$sortedKeys = $launchSettings["profiles"].Keys | Sort-Object | ForEach-Object { $sortedLaunchSettings["profiles"][$_] = $launchSettings["profiles"][$_] }
+
+# Write the launch settings to the launchSettings.json file
+$launchSettingsPath = Join-Path $solutionDir "Microsoft.Generator.CSharp" "src" "Properties" "launchSettings.json"
+$sortedLaunchSettings | ConvertTo-Json | Set-Content $launchSettingsPath
