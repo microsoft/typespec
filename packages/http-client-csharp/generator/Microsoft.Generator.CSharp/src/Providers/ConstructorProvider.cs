@@ -64,7 +64,7 @@ namespace Microsoft.Generator.CSharp.Providers
             ValueExpression? bodyExpression = null,
             XmlDocProvider? xmlDocs = null)
         {
-            if (signature != default)
+            if (signature != null)
             {
                 Signature = signature;
             }
@@ -73,12 +73,12 @@ namespace Microsoft.Generator.CSharp.Providers
                 BodyExpression = bodyExpression;
                 BodyStatements = null;
             }
-            if (bodyStatements != default)
+            if (bodyStatements != null)
             {
                 BodyStatements = bodyStatements;
                 BodyExpression = null;
             }
-            if (xmlDocs != default)
+            if (xmlDocs != null)
             {
                 XmlDocs = xmlDocs;
             }

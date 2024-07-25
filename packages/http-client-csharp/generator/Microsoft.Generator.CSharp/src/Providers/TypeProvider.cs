@@ -153,12 +153,12 @@ namespace Microsoft.Generator.CSharp.Providers
         protected abstract string BuildName();
 
         public void Update(
-            IEnumerable<MethodProvider>? methods = default,
-            IEnumerable<ConstructorProvider>? constructors = default,
-            IEnumerable<PropertyProvider>? properties = default,
-            IEnumerable<FieldProvider>? fields = default,
-            IEnumerable<TypeProvider>? serializations = default,
-            XmlDocProvider? xmlDocs = default)
+            IEnumerable<MethodProvider>? methods = null,
+            IEnumerable<ConstructorProvider>? constructors = null,
+            IEnumerable<PropertyProvider>? properties = null,
+            IEnumerable<FieldProvider>? fields = null,
+            IEnumerable<TypeProvider>? serializations = null,
+            XmlDocProvider? xmlDocs = null)
         {
             if (methods != null)
             {

@@ -163,14 +163,14 @@ namespace Microsoft.Generator.CSharp.Providers
             => property._asMember ??= new MemberExpression(null, property.Name);
 
         public void Update(
-            PropertyBody? body = default,
-            XmlDocProvider? xmlDocs = default)
+            PropertyBody? body = null,
+            XmlDocProvider? xmlDocs = null)
         {
-            if (body != default)
+            if (body != null)
             {
                 Body = body;
             }
-            if (xmlDocs != default)
+            if (xmlDocs != null)
             {
                 XmlDocs = xmlDocs;
             }
