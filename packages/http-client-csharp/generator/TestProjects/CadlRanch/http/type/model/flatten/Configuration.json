@@ -1,6 +1,0 @@
-{
-  "output-folder": ".",
-  "namespace": "Type.Model.Flatten",
-  "library-name": "Type.Model.Flatten",
-  "use-model-reader-writer": true
-}

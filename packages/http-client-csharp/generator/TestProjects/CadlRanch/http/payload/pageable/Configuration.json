@@ -1,6 +1,0 @@
-{
-  "output-folder": ".",
-  "namespace": "Payload.Pageable",
-  "library-name": "Payload.Pageable",
-  "use-model-reader-writer": true
-}
