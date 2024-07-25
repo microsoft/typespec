@@ -65,8 +65,8 @@ export function fromSdkType(
     return fromSdkDateTimeType(sdkType);
   if (sdkType.kind === "duration") return fromSdkDurationType(sdkType as SdkDurationType);
   if (sdkType.kind === "tuple") return fromTupleType();
-  // TODO -- only in operations we could have these types, considering we did not adopt getAllOperations from TCGC yet, this should be fine.
-  // we need to resolve these conversions when we adopt getAllOperations
+  // TODO -- endpoint and credential are handled separately in emitter, since we have specific locations for them in input model.
+  // We can handle unify the way we handle them in the future, probably by chaning the input model schema and do the conversion in generator.
   if (sdkType.kind === "credential") throw new Error("Credential type is not supported yet.");
 
   return fromSdkBuiltInType(sdkType);
