@@ -1670,7 +1670,7 @@ function createOAPIEmitter(
   ): { style?: string; explode?: boolean } | undefined {
     switch (parameter.format) {
       case undefined:
-        return {};
+        return { explode: parameter.explode === true ? true : undefined };
       case "csv":
       case "simple":
         return { style: "form", explode: false };

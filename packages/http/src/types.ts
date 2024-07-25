@@ -10,7 +10,7 @@ import {
   Tuple,
   Type,
 } from "@typespec/compiler";
-import { PathOptions } from "../generated-defs/TypeSpec.Http.js";
+import { PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
 import { HeaderProperty } from "./http-property.js";
 
 /**
@@ -300,14 +300,12 @@ export interface HeaderFieldOptions {
   format?: "csv" | "multi" | "ssv" | "tsv" | "pipes" | "simple" | "form";
 }
 
-export interface QueryParameterOptions {
+export interface QueryParameterOptions extends Required<Omit<QueryOptions, "format">> {
   type: "query";
-  name: string;
   /**
-   * The string format of the array. "csv" and "simple" are used interchangeably, as are
-   * "multi" and "form".
+   * @deprecated use explode and `@encode` decorator instead.
    */
-  format?: "multi" | "csv" | "ssv" | "tsv" | "pipes" | "simple" | "form";
+  format?: "csv" | "multi" | "ssv" | "tsv" | "pipes" | "simple" | "form";
 }
 
 export interface PathParameterOptions extends Required<PathOptions> {

@@ -166,12 +166,6 @@ export const $lib = createTypeSpecLibrary({
         default: `A format must be specified for @header when type is an array. e.g. @header({format: "csv"})`,
       },
     },
-    "query-format-required": {
-      severity: "error",
-      messages: {
-        default: `A format must be specified for @query when type is an array. e.g. @query({format: "multi"})`,
-      },
-    },
   },
   state: {
     authentication: { description: "State for the @auth decorator" },

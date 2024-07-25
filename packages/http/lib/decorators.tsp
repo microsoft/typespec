@@ -49,7 +49,20 @@ model QueryOptions {
   name?: string;
 
   /**
+   * If true send each value in the array/object as a separate query parameter.
+   * Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)
+   *
+   *  | Style  | Explode | Uri Template   | Primitive value id = 5 | Array id = [3, 4, 5]    | Object id = {"role": "admin", "firstName": "Alex"} |
+   *  | ------ | ------- | -------------- | ---------------------- | ----------------------- | -------------------------------------------------- |
+   *  | simple | false   | `/users{?id}`  | `/users?id=5`          | `/users?id=3,4,5`       | `/users?id=role,admin,firstName,Alex`              |
+   *  | simple | true    | `/users{?id*}` | `/users?id=5`          | `/users?id=3&id=4&id=5` | `/users?role=admin&firstName=Alex`                 |
+   *
+   */
+  explode?: boolean;
+
+  /**
    * Determines the format of the array if type array is used.
+   * **DEPRECATED**: use explode: true instead of `multi` or `@encode`
    */
   format?: "multi" | "csv" | "ssv" | "tsv" | "simple" | "form" | "pipes";
 }
@@ -66,7 +79,7 @@ model QueryOptions {
  * op list(@query({name: "id", format: "multi"}) ids: string[]): void;
  * ```
  */
-extern dec query(target: ModelProperty, queryNameOrOptions?: string | QueryOptions);
+extern dec query(target: ModelProperty, queryNameOrOptions?: valueof string | QueryOptions);
 
 model PathOptions {
   /** Name of the parameter in the uri template. */

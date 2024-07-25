@@ -77,16 +77,18 @@ function getOperationParametersForVerb(
           return undefined;
         }
 
+        const explode = uriParam.modifier?.type === "explode";
         if (uriParam.operator === "?" || uriParam.operator === "&") {
           return {
             type: "query",
             name: uriParam.name,
+            explode,
           };
         } else if (uriParam.operator === "+") {
           return {
             type: "path",
             name: uriParam.name,
-            explode: uriParam.modifier?.type === "explode",
+            explode,
             allowReserved: true,
             style: "simple",
           };
@@ -94,7 +96,7 @@ function getOperationParametersForVerb(
           return {
             type: "path",
             name: uriParam.name,
-            explode: uriParam.modifier?.type === "explode",
+            explode,
             allowReserved: false,
             style: (uriParam.operator && operatorToStyle[uriParam.operator]) ?? "simple",
           };
