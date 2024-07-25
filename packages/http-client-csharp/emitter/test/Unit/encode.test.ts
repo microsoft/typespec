@@ -51,7 +51,9 @@ describe("Test encode duration", () => {
         WireType: {
           Kind: "string",
           Encode: undefined,
+          Decorators: [],
         },
+        Decorators: [],
       } as InputDurationType,
       operation.Parameters[0].Type
     );
@@ -89,7 +91,9 @@ describe("Test encode duration", () => {
         WireType: {
           Kind: "int32",
           Encode: undefined,
+          Decorators: [],
         },
+        Decorators: [],
       } as InputDurationType,
       operation.Parameters[0].Type
     );
@@ -127,7 +131,9 @@ describe("Test encode duration", () => {
         WireType: {
           Kind: "float32",
           Encode: undefined,
+          Decorators: [],
         },
+        Decorators: [],
       } as InputDurationType,
       operation.Parameters[0].Type
     );
@@ -159,7 +165,9 @@ describe("Test encode duration", () => {
         WireType: {
           Kind: "string",
           Encode: undefined,
+          Decorators: [],
         },
+        Decorators: [],
       } as InputDurationType,
       durationProperty.Properties[0].Type
     );
@@ -191,7 +199,9 @@ describe("Test encode duration", () => {
         WireType: {
           Kind: "int32",
           Encode: undefined,
+          Decorators: [],
         },
+        Decorators: [],
       } as InputDurationType,
       durationProperty.Properties[0].Type
     );
@@ -223,7 +233,9 @@ describe("Test encode duration", () => {
         WireType: {
           Kind: "float32",
           Encode: undefined,
+          Decorators: [],
         },
+        Decorators: [],
       } as InputDurationType,
       durationProperty.Properties[0].Type
     );

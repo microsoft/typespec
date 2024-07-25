@@ -68,6 +68,7 @@ op test(@body input: Pet): Pet;
         Type: {
           Kind: "string",
           Encode: undefined,
+          Decorators: [],
         },
         IsRequired: true,
         IsReadOnly: false,
@@ -166,21 +167,25 @@ op test(@body input: Pet): Pet;
           ValueType: {
             Kind: "string",
             Encode: undefined,
+            Decorators: [],
           },
           Values: [
             {
               Name: "Cat",
               Value: "Cat",
               Description: undefined,
+              Decorators: [],
             },
             {
               Name: "Dog",
               Value: "Dog",
               Description: undefined,
+              Decorators: [],
             },
           ],
           IsExtensible: false,
           Usage: "RoundTrip",
+          Decorators: [],
         },
         IsRequired: true,
         IsReadOnly: false,
@@ -288,21 +293,25 @@ op test(@body input: Pet): Pet;
           ValueType: {
             Kind: "string",
             Encode: undefined,
+            Decorators: [],
           },
           Values: [
             {
               Name: "Cat",
               Value: "cat",
               Description: undefined,
+              Decorators: [],
             },
             {
               Name: "Dog",
               Value: "dog",
               Description: undefined,
+              Decorators: [],
             },
           ],
           IsExtensible: false,
           Usage: "RoundTrip",
+          Decorators: [],
         },
         IsRequired: true,
         IsReadOnly: false,
