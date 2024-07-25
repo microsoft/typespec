@@ -455,7 +455,7 @@ op getWidget(@path id: string): Widget;
 
 #### `@server`
 
-Specify the endpoint for this service.
+Specify an endpoint for this service. Multiple `@server` decorators can be used to specify multiple endpoints.
 
 ```typespec
 @TypeSpec.Http.server(url: valueof string, description: valueof string, parameters?: Record<unknown>)
@@ -481,13 +481,28 @@ Specify the endpoint for this service.
 namespace PetStore;
 ```
 
-###### parameterized
+###### Parameterized
 
 ```typespec
 @server("https://{region}.foo.com", "Regional endpoint", {
   @doc("Region name")
   region?: string = "westus",
 })
+```
+
+###### Multiple
+
+```typespec
+@service
+@server("https://example.com", "Standard endpoint")
+@server(
+  "https://{project}.private.example.com",
+  "Private project endpoint",
+  {
+    project: string,
+  }
+)
+namespace PetStore;
 ```
 
 #### `@sharedRoute`

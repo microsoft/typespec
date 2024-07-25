@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
         [Test]
         public void Write_Override()
         {
-            var writer = new MockExpressionTypeProviderWriter(MockTypeProvider.Empty);
+            var writer = new MockExpressionTypeProviderWriter(TestTypeProvider.Empty);
             Assert.That(writer.Write, Throws.Exception.TypeOf<NotImplementedException>());
         }
 

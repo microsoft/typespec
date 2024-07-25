@@ -19,7 +19,7 @@ namespace Microsoft.Generator.CSharp.Tests
             string? unknownStringProperty = "unknownPropertyValue";
             bool? unknownBoolProp = false;
 
-            var configuration = Configuration.Load(MockHelpers.MocksFolder);
+            var configuration = Configuration.Load(MockHelpers.TestHelpersFolder);
 
             var parsedNs = configuration.RootNamespace;
 
@@ -41,7 +41,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void TestInitialize_NoFileFound()
         {
-            var configFilePath = Path.Combine(MockHelpers.MocksFolder, "unknown_file.out");
+            var configFilePath = Path.Combine(MockHelpers.TestHelpersFolder, "unknown_file.out");
             Assert.Throws<InvalidOperationException>(() => Configuration.Load(configFilePath));
         }
 
@@ -50,7 +50,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TestParseConfig_OutputFolder(string mockJson, bool throwsError)
         {
 
-            var expected = Path.GetFullPath(MockHelpers.MocksFolder);
+            var expected = Path.GetFullPath(MockHelpers.TestHelpersFolder);
 
             if (throwsError)
             {
@@ -58,7 +58,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 return;
             }
 
-            var configuration = Configuration.Load(MockHelpers.MocksFolder, mockJson);
+            var configuration = Configuration.Load(MockHelpers.TestHelpersFolder, mockJson);
 
             Assert.AreEqual(expected, configuration.OutputDirectory);
         }
