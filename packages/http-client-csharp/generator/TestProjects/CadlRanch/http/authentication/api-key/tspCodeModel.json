@@ -9,7 +9,7 @@
    "Kind": "model",
    "Name": "InvalidAuth",
    "CrossLanguageDefinitionId": "Authentication.ApiKey.InvalidAuth",
-   "Usage": "Output",
+   "Usage": "Output,Error,Json",
    "Properties": [
     {
      "$id": "3",
