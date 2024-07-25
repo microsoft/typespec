@@ -1,13 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.Generator.CSharp;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace StubPlugin
+namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
 {
     internal class StubVisitor : OutputLibraryVisitor
     {
@@ -16,21 +15,17 @@ namespace StubPlugin
 
         protected override TypeProvider? Visit(TypeProvider typeProvider)
         {
-            if (typeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
-            {
-                typeProvider.Update(xmlDocs: _emptyDocs);
-                return typeProvider;
-            }
+            if (!typeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                return null;
 
-            return null;
+            typeProvider.Update(xmlDocs: _emptyDocs);
+            return typeProvider;
         }
 
         protected override ConstructorProvider? Visit(TypeProvider typeProvider, ConstructorProvider constructorProvider)
         {
             if (!ShouldKeep(constructorProvider.Signature.Modifiers))
-            {
                 return null;
-            }
 
             constructorProvider.Update(
                 bodyStatements: null,
@@ -48,9 +43,7 @@ namespace StubPlugin
         protected override MethodProvider? Visit(TypeProvider typeProvider, MethodProvider methodProvider)
         {
             if (methodProvider.Signature.ExplicitInterface is null && !ShouldKeep(methodProvider.Signature.Modifiers))
-            {
                 return null;
-            }
 
             methodProvider.Signature.Update(modifiers: methodProvider.Signature.Modifiers & ~MethodSignatureModifiers.Async);
 
@@ -65,9 +58,7 @@ namespace StubPlugin
         protected override PropertyProvider? Visit(TypeProvider typeProvider, PropertyProvider propertyProvider)
         {
             if (!ShouldKeep(propertyProvider.Modifiers))
-            {
                 return null;
-            }
 
             var propertyBody = new ExpressionPropertyBody(ThrowNull, propertyProvider.Body.HasSetter ? ThrowNull : null);
 

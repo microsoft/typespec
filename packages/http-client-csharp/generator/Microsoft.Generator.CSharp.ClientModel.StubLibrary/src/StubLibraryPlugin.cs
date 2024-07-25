@@ -12,6 +12,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
         [ImportingConstructor]
         public StubLibraryPlugin(GeneratorContext context) : base(context) { }
 
-        public override OutputLibrary OutputLibrary => new StubLibraryOutputLibrary();
+        public override void Configure()
+        {
+            OutputLibrary.AddVisitor(new StubVisitor());
+        }
     }
 }
