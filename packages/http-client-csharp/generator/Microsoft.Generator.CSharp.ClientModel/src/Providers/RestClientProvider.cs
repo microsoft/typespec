@@ -131,14 +131,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 [.. GetMethodParameters(operation), options]);
             var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
 
-            var classifer = GetClassifier(operation);
+            var classifier = GetClassifier(operation);
 
             return new MethodProvider(
                 signature,
                 new MethodBodyStatements(
                 [
                     Declare("message", pipelineField.CreateMessage(), out ScopedApi<PipelineMessage> message),
-                    message.ResponseClassifier().Assign(classifer).Terminate(),
+                    message.ResponseClassifier().Assign(classifier).Terminate(),
                     Declare("request", message.Request(), out ScopedApi<PipelineRequest> request),
                     request.SetMethod(operation.HttpMethod),
                     Declare("uri", New.Instance<ClientUriBuilderDefinition>(), out ScopedApi<ClientUriBuilderDefinition> uri),
