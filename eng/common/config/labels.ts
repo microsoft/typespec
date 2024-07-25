@@ -49,7 +49,11 @@ export const AreaLabels = defineLabels({
   },
   "emitter:client:csharp": {
     color: "e1b300",
-    description: "",
+    description: "Issue for the C# client emitter: @typespec/emitter-client-csharp",
+  },
+  "emitter:client:java": {
+    color: "e1b300",
+    description: "Issue for the Java client emitter: @typespec/emitter-client-java",
   },
   "emitter:json-schema": {
     color: "957300",

@@ -2,21 +2,13 @@
 
 #nullable disable
 
-using System;
-using UnbrandedTypeSpec;
-
 namespace UnbrandedTypeSpec.Models
 {
     /// <summary> The FriendlyModelRequest. </summary>
     public partial class FriendlyModelRequest
     {
-        /// <summary> Initializes a new instance of <see cref="FriendlyModelRequest"/>. </summary>
-        /// <param name="name"> name of the NotFriend. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
-        public FriendlyModelRequest(string name)
+        internal FriendlyModelRequest(string name)
         {
-            Argument.AssertNotNull(name, nameof(name));
-
             Name = name;
         }
 

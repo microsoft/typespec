@@ -10,21 +10,21 @@ namespace Microsoft.Generator.CSharp.Tests
     /// This allows you to unit test parts of the writer that assume the declaration was done
     /// without actually doing the declaration
     /// </summary>
-    internal class MockCodeWriterDeclaration
+    internal class TestCodeWriterDeclaration
     {
         public string RequestedName { get; }
         private string? ActualName { get; }
 
-        public MockCodeWriterDeclaration(string requestedName, string? actualName = null)
+        public TestCodeWriterDeclaration(string requestedName, string? actualName = null)
         {
             RequestedName = requestedName;
             ActualName = actualName;
         }
 
-        public static implicit operator CodeWriterDeclaration(MockCodeWriterDeclaration mockCodeWriterDeclaration)
+        public static implicit operator CodeWriterDeclaration(TestCodeWriterDeclaration testCodeWriterDeclaration)
         {
-            var result = new CodeWriterDeclaration(mockCodeWriterDeclaration.RequestedName);
-            result.SetActualName(mockCodeWriterDeclaration.ActualName ?? mockCodeWriterDeclaration.RequestedName);
+            var result = new CodeWriterDeclaration(testCodeWriterDeclaration.RequestedName);
+            result.SetActualName(testCodeWriterDeclaration.ActualName ?? testCodeWriterDeclaration.RequestedName);
             return result;
         }
     }
