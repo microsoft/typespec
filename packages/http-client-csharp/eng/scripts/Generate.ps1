@@ -143,24 +143,36 @@ $unbrandedSpec = "TestProjects/Local/Unbranded-TypeSpec"
 $launchSettings = @{}
 $launchSettings.Add("profiles", @{})
 $launchSettings["profiles"].Add("Unbranded-TypeSpec", @{})
+$launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSpec -p ClientModelPlugin")
 $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandName", "Executable")
 $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("executablePath", $mgcExe)
-$launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSpec -p ClientModelPlugin")
 $launchSettings["profiles"].Add("Debug-Plugin-Test-TypeSpec", @{})
+$launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSpec -p SampleCodeModelPlugin")
 $launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("commandName", "Executable")
 $launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("executablePath", $sampleExe)
-$launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSpec -p SampleCodeModelPlugin")
 
 foreach ($kvp in $cadlRanchLaunchProjects.GetEnumerator()) {
     $launchSettings["profiles"].Add($kvp.Key, @{})
+    $launchSettings["profiles"][$kvp.Key].Add("commandLineArgs", "`$(SolutionDir)/$($kvp.Value) -p StubLibraryPlugin")
     $launchSettings["profiles"][$kvp.Key].Add("commandName", "Executable")
     $launchSettings["profiles"][$kvp.Key].Add("executablePath", $mgcExe)
-    $launchSettings["profiles"][$kvp.Key].Add("commandLineArgs", "`$(SolutionDir)/$($kvp.Value) -p StubLibraryPlugin")
 }
 
 $sortedLaunchSettings = @{}
 $sortedLaunchSettings.Add("profiles", [ordered]@{})
-$launchSettings["profiles"].Keys | Sort-Object | ForEach-Object { $sortedLaunchSettings["profiles"][$_] = $launchSettings["profiles"][$_] }
+$launchSettings["profiles"].Keys | Sort-Object | ForEach-Object {
+    $profileKey = $_
+    $originalProfile = $launchSettings["profiles"][$profileKey]
+
+    # Sort the keys inside each profile
+    # This is needed due to non deterministic ordering of json elements in powershell
+    $sortedProfile = [ordered]@{}
+    $originalProfile.GetEnumerator() | Sort-Object Key | ForEach-Object {
+        $sortedProfile[$_.Key] = $_.Value
+    }
+
+    $sortedLaunchSettings["profiles"][$profileKey] = $sortedProfile
+}
 
 # Write the launch settings to the launchSettings.json file
 $launchSettingsPath = Join-Path $solutionDir "Microsoft.Generator.CSharp" "src" "Properties" "launchSettings.json"

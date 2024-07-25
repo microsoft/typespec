@@ -1,33 +1,33 @@
 {
   "profiles": {
     "Debug-Plugin-Test-TypeSpec": {
-      "commandName": "Executable",
       "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Unbranded-TypeSpec -p SampleCodeModelPlugin",
+      "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../generator/artifacts/bin/SamplePlugin/Debug/net8.0/Microsoft.Generator.CSharp.exe"
     },
     "http-authentication-api-key": {
-      "commandName": "Executable",
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/authentication/api-key -p StubLibraryPlugin",
+      "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
     "http-authentication-http-custom": {
-      "commandName": "Executable",
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/authentication/http/custom -p StubLibraryPlugin",
+      "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
     "http-authentication-oauth2": {
-      "commandName": "Executable",
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/authentication/oauth2 -p StubLibraryPlugin",
+      "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
     "http-authentication-union": {
-      "commandName": "Executable",
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/authentication/union -p StubLibraryPlugin",
+      "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
     "Unbranded-TypeSpec": {
-      "commandName": "Executable",
       "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Unbranded-TypeSpec -p ClientModelPlugin",
+      "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     }
   }
