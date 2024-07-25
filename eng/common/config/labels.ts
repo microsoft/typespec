@@ -48,7 +48,11 @@ export const AreaLabels = defineLabels({
   },
   "emitter:client:csharp": {
     color: "e1b300",
-    description: "",
+    description: "Issue for the C# client emitter: @typespec/emitter-client-csharp",
+  },
+  "emitter:client:java": {
+    color: "e1b300",
+    description: "Issue for the Java client emitter: @typespec/emitter-client-java",
   },
   "emitter:json-schema": {
     color: "957300",
@@ -177,6 +181,7 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
   "meta:website": ["website/"],
   tspd: ["packages/tspd/"],
   "emitter:client:csharp": ["packages/http-client-csharp/"],
+  "emitter:client:java": ["packages/http-client-java/"],
   "emitter:json-schema": ["packages/json-schema/"],
   "emitter:protobuf": ["packages/protobuf/"],
   "emitter:openapi3": ["packages/openapi3/"],

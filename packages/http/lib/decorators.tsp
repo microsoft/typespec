@@ -260,25 +260,37 @@ extern dec delete(target: Operation);
 extern dec head(target: Operation);
 
 /**
- * Specify the endpoint for this service.
+ * Specify an endpoint for this service. Multiple `@server` decorators can be used to specify multiple endpoints.
+ *
  *  @param url Server endpoint
  *  @param description Description of the endpoint
  *  @param parameters Optional set of parameters used to interpolate the url.
  *
  * @example
+ *
  * ```typespec
  * @service
  * @server("https://example.com", "Single server endpoint")
  * namespace PetStore;
  * ```
  *
- * @example parameterized
+ * @example Parameterized
  *
  * ```typespec
  * @server("https://{region}.foo.com", "Regional endpoint", {
  *   @doc("Region name")
  *   region?: string = "westus",
  * })
+ * ```
+ *
+ * @example Multiple
+ * ```typespec
+ * @service
+ * @server("https://example.com", "Standard endpoint")
+ * @server("https://{project}.private.example.com", "Private project endpoint", {
+ *   project: string;
+ * })
+ * namespace PetStore;
  * ```
  *
  */

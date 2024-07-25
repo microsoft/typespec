@@ -3,22 +3,23 @@
 
 import { getLroMetadata } from "@azure-tools/typespec-azure-core";
 import {
+  SdkContext,
+  UsageFlags,
   getAccess,
   isApiVersion,
-  SdkContext,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
 } from "@azure-tools/typespec-client-generator-core";
 import {
-  getDeprecated,
-  getDoc,
-  getSummary,
-  isErrorModel,
   Model,
   ModelProperty,
   Namespace,
   Operation,
   Type,
+  getDeprecated,
+  getDoc,
+  getSummary,
+  isErrorModel,
 } from "@typespec/compiler";
 import { HttpOperation, HttpOperationParameter, HttpOperationResponse } from "@typespec/http";
 import { getExtensions } from "@typespec/openapi";
@@ -38,7 +39,6 @@ import {
   InputType,
   isInputEnumType,
   isInputLiteralType,
-  isInputModelType,
   isInputUnionType,
 } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
@@ -46,12 +46,11 @@ import { OperationLongRunning } from "../type/operation-long-running.js";
 import { OperationPaging } from "../type/operation-paging.js";
 import { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation, requestLocationMap } from "../type/request-location.js";
-import { parseHttpRequestMethod, RequestMethod } from "../type/request-method.js";
-import { Usage } from "../type/usage.js";
+import { RequestMethod, parseHttpRequestMethod } from "../type/request-method.js";
 import { getExternalDocs, getOperationId, hasDecorator } from "./decorators.js";
 import { Logger } from "./logger.js";
 import { getDefaultValue, getEffectiveSchemaType, getInputType } from "./model.js";
-import { capitalize, createContentTypeOrAcceptParameter, getTypeName } from "./utils.js";
+import { createContentTypeOrAcceptParameter, getTypeName } from "./utils.js";
 
 export function loadOperation(
   sdkContext: SdkContext<NetEmitterOptions>,
@@ -84,34 +83,12 @@ export function loadOperation(
     parameters.push(loadBodyParameter(sdkContext, typespecParameters.body?.property));
   } else if (typespecParameters.body?.type && !isVoidType(typespecParameters.body.type)) {
     const rawBodyType = typespecParameters.body.type;
-    if (rawBodyType.kind === "Model") {
-      const effectiveBodyType = getEffectiveSchemaType(
-        sdkContext,
-        typespecParameters.body.type
-      ) as Model;
-      const bodyParameter = loadBodyParameter(sdkContext, effectiveBodyType);
-      if (
-        effectiveBodyType.name === "" ||
-        rawBodyType.sourceModels.some((m) => m.usage === "spread")
-      ) {
-        bodyParameter.Kind = InputOperationParameterKind.Spread;
-      }
-      // TODO: remove this after https://github.com/Azure/typespec-azure/issues/69 is resolved
-      // workaround for alias model
-      if (isInputModelType(bodyParameter.Type) && bodyParameter.Type.Name === "") {
-        // give body type a name
-        bodyParameter.Type.Name = `${capitalize(op.name)}Request`;
-        const bodyModelType = bodyParameter.Type as InputModelType;
-        bodyModelType.Usage = Usage.Input;
-        // update models cache
-        models.delete("");
-        models.set(bodyModelType.Name, bodyModelType);
-
-        // give body parameter a name
-        bodyParameter.Name = `${capitalize(op.name)}Request`;
-      }
-      parameters.push(bodyParameter);
+    const bodyParameter = loadBodyParameter(sdkContext, rawBodyType as Model);
+    const bodyType = bodyParameter.Type;
+    if (bodyType.Kind === "model" && (bodyType.Usage & UsageFlags.Spread) !== 0) {
+      bodyParameter.Kind = InputOperationParameterKind.Spread;
     }
+    parameters.push(bodyParameter);
   }
 
   const responses: OperationResponse[] = [];
@@ -156,10 +133,17 @@ export function loadOperation(
       mediaTypes.push(...mediaTypeValues);
     }
   }
+
   const requestMethod = parseHttpRequestMethod(verb);
   const generateProtocol: boolean = shouldGenerateProtocol(sdkContext, op);
-  const generateConvenience: boolean =
-    requestMethod !== RequestMethod.PATCH && shouldGenerateConvenient(sdkContext, op);
+  let generateConvenience: boolean = shouldGenerateConvenient(sdkContext, op);
+
+  if (requestMethod === RequestMethod.PATCH && generateConvenience) {
+    Logger.getInstance().warn(
+      `Convenience method is not supported for PATCH method, it will be automatically turned off. Please set the '@convenientAPI' to false for operation ${op.name}.`
+    );
+    generateConvenience = false;
+  }
 
   /* handle lro */
   /* handle paging. */
