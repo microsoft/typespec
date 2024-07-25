@@ -1,6 +1,7 @@
 // cspell:ignore bfff
 import { defineConfig, defineLabels } from "../scripts/labels/config.js";
 import { repo } from "../scripts/utils/common.js";
+import { AreaPaths } from "./area.js";
 
 /**
  * Labels that are used to categorize issue for which area they belong to.
@@ -160,32 +161,6 @@ export const CommonLabels = {
       },
     },
   },
-};
-
-/**
- * Set the paths that each area applies to.
- */
-export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
-  "compiler:core": ["packages/compiler/"],
-  "compiler:emitter-framework": [],
-  ide: ["packages/typespec-vscode/", "packages/typespec-vs/"],
-  "lib:http": ["packages/http/"],
-  "lib:openapi": ["packages/openapi/"],
-  "lib:rest": ["packages/rest/"],
-  "lib:versioning": ["packages/versioning/"],
-  "meta:blog": ["blog/"],
-  "meta:website": ["website/"],
-  tspd: ["packages/tspd/"],
-  "emitter:client:csharp": ["packages/http-client-csharp/"],
-  "emitter:json-schema": ["packages/json-schema/"],
-  "emitter:protobuf": ["packages/protobuf/"],
-  "emitter:openapi3": ["packages/openapi3/"],
-  "openapi3:converter": ["packages/openapi3/src/cli/actions/convert/"],
-  "emitter:service:csharp": [],
-  "emitter:service:js": [],
-  eng: ["eng/", ".github/"],
-  "ui:playground": ["packages/playground/"],
-  "ui:type-graph-viewer": ["packages/html-program-viewer/"],
 };
 
 export default defineConfig({
