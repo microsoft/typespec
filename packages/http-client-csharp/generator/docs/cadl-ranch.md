@@ -1,19 +1,21 @@
+<!-- cspell:ignore cadlranch -->
+
 # CadlRanch Testing
 
-By default all tests under the [http folder](https://github.com/Azure/cadl-ranch/tree/main/packages/cadl-ranch-specs/http) and excluding the [azure folder](https://github.com/Azure/cadl-ranch/tree/main/packages/cadl-ranch-specs/http/azure) will be generated.  In order to get coverage for a test within one of the specs you must write a test case that executes the operation.
+By default all tests under the [http folder](https://github.com/Azure/cadl-ranch/tree/main/packages/cadl-ranch-specs/http) and excluding the [azure folder](https://github.com/Azure/cadl-ranch/tree/main/packages/cadl-ranch-specs/http/azure) will be generated. In order to get coverage for a test within one of the specs you must write a test case that executes the operation.
 
 ## Generating CadlRanchTests
 
-Each spec will be generated when running `./eng/scripts/Generate.ps1` within the same folder structure it exists in cadl ranch repo.  As an example [http/authentication/api-key](https://github.com/Azure/cadl-ranch/tree/main/packages/cadl-ranch-specs/http/authentication/api-key)
+Each spec will be generated when running `./eng/scripts/Generate.ps1` within the same folder structure it exists in cadl ranch repo. As an example [http/authentication/api-key](https://github.com/Azure/cadl-ranch/tree/main/packages/cadl-ranch-specs/http/authentication/api-key)
 will live in the following folder inside the CadlRanch test projects
 
 ![alt text](generation-structure.png)
 
-The files that get generated here will only be stubbed public APIs.  This is done to minimize the size of the repo and reduce PR diff noise when an internal implementation is modified which can potentially effect every model.  Seeing the same diff in hundreds of files doesn't provide value it only introduces noise.
+The files that get generated here will only be stubbed public APIs. This is done to minimize the size of the repo and reduce PR diff noise when an internal implementation is modified which can potentially effect every model. Seeing the same diff in hundreds of files doesn't provide value it only introduces noise.
 
 ## Writing CadlRanchTests
 
-Generating the stubs allows us write tests against the public API surface that will compile.  To do this we add a test class in same folder structure although this time we will modify the casing slightly to match dotnet standards.
+Generating the stubs allows us write tests against the public API surface that will compile. To do this we add a test class in same folder structure although this time we will modify the casing slightly to match dotnet standards.
 
 ![alt text](test-structure.png)
 
@@ -28,11 +30,11 @@ public Task Valid() => Test(async (host) =>
 });
 ```
 
-This test validates that we can successfully call the mock cadl ranch service and verifies that we recieve a successful response with code 204.  Notice that we are using `CadlRanchTest` attribute instead of the standard NUnit `Test` attribute.  This is because the test will not complete successfully against the stub and we must generate the full library before running the test.
+This test validates that we can successfully call the mock cadl ranch service and verifies that we receive a successful response with code 204. Notice that we are using `CadlRanchTest` attribute instead of the standard NUnit `Test` attribute. This is because the test will not complete successfully against the stub and we must generate the full library before running the test.
 
-## Testing CaldRanch Scenarios
+## Testing CadlRanch Scenarios
 
-All of this is automated into a script called `./eng/scripts/Test-CadlRanch.ps1`.  This script will find all generated cadl ranch projects and regenerate each of them without using the `StubLibraryPlugin`.  It will then run dotnet test using `./eng/test-configurations/cadlranch.runsettings` which will cause tests using the `CadlRanchTest` attribute to no longer be skipped.  Finally it will restore the files back to the stubs if everything was successful and if not it will leave the files in place so you can investigate.
+All of this is automated into a script called `./eng/scripts/Test-CadlRanch.ps1`. This script will find all generated cadl ranch projects and regenerate each of them without using the `StubLibraryPlugin`. It will then run dotnet test using `./eng/test-configurations/cadlranch.runsettings` which will cause tests using the `CadlRanchTest` attribute to no longer be skipped. Finally it will restore the files back to the stubs if everything was successful and if not it will leave the files in place so you can investigate.
 
 <details>
 <Summary>Here is an example output for one library</Summary>
@@ -81,15 +83,16 @@ Restoring http\authentication\api-key
 Removing ../generator/TestProjects/CadlRanch/http/authentication/api-key/src/Generated/Internal/
 > git restore C:\git\typespec\packages\http-client-csharp\generator\TestProjects\CadlRanch\http\authentication\api-key
 ```
+
 </details>
 
 ## Debugging Generation of CadlRanch Project
 
-If you want to debug the generation of one of the cadl ranch libraries you can do this with the `StubLibraryPlugin`.  There are launch settings for each cadl ranch test which are already configured to use this plugin.
+If you want to debug the generation of one of the cadl ranch libraries you can do this with the `StubLibraryPlugin`. There are launch settings for each cadl ranch test which are already configured to use this plugin.
 
 ![alt text](launch-settings.png)
 
-The plugin does not skip generating the methods bodies and xml docs it simply removes them before saving the files to disk.  Therefore you can break at any point and debug any part of the full generation without needing to constantly flip the plugin being used back and forth.
+The plugin does not skip generating the methods bodies and xml docs it simply removes them before saving the files to disk. Therefore you can break at any point and debug any part of the full generation without needing to constantly flip the plugin being used back and forth.
 
 ## Debugging CadlRanch Tests
 
@@ -99,4 +102,4 @@ To debug one of the `CadlRanchTest` you will need to set your launch settings in
 
 ## Problematic Specs
 
-The `./eng/scripts/Generate.ps1` script allows you to exclude a problematic spec by adding it to the `$failingSpecs` list.  Ideally no specs should be here, but if we need to we can temporarily add items to the list and create tracking issues in github to remove them at a later time.
+The `./eng/scripts/Generate.ps1` script allows you to exclude a problematic spec by adding it to the `$failingSpecs` list. Ideally no specs should be here, but if we need to we can temporarily add items to the list and create tracking issues in github to remove them at a later time.
