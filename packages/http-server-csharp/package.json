@@ -4,7 +4,7 @@
   "author": "Microsoft Corporation",
   "description": "TypeSpec service code generator for c-sharp",
   "homepage": "https://typespec.io",
-  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
+  "readme": "https://github.com/microsoft/typespec/blob/main/packages/http-server-csharp/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
