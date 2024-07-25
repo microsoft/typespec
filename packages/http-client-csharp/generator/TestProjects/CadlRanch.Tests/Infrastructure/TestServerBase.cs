@@ -72,7 +72,7 @@ namespace TestProjects.CadlRanch.Tests
         protected static string GetNodeModulesDirectory()
         {
             var repoRoot = _buildProperties.Value.RepoRoot;
-            var nodeModulesDirectory = Path.Combine(repoRoot, "node_modules");
+            var nodeModulesDirectory = Path.Combine(repoRoot, "..", "node_modules");
             if (Directory.Exists(nodeModulesDirectory))
             {
                 return nodeModulesDirectory;
