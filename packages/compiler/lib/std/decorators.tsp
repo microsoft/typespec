@@ -493,10 +493,18 @@ enum BytesKnownEncoding {
  * @encode("unixTimestamp", int32)
  * scalar myDateTime extends unixTimestamp;
  * ```
+ *
+ * @example encode numeric type to string
+ *
+ * ```tsp
+ * model Pet {
+ *   @encode(string) id: int64;
+ * }
+ * ```
  */
 extern dec encode(
   target: Scalar | ModelProperty,
-  encoding: string | EnumMember,
+  encodingOrEncodeAs: (valueof string | EnumMember) | Scalar,
   encodedAs?: Scalar
 );
 

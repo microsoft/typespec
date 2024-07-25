@@ -10,7 +10,6 @@ import {
   getAllTags,
   getAnyExtensionFromPath,
   getDoc,
-  getEncode,
   getFormat,
   getKnownValues,
   getMaxItems,
@@ -44,7 +43,6 @@ import {
   ProjectionApplication,
   projectProgram,
   resolvePath,
-  Scalar,
   serializeValueAsJson,
   Service,
   Type,
@@ -99,6 +97,7 @@ import {
 import { buildVersionProjections, VersionProjections } from "@typespec/versioning";
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
+import { applyEncoding } from "./encoding.js";
 import { createDiagnostic, FileType, OpenAPI3EmitterOptions } from "./lib.js";
 import { getDefaultValue, isBytesKeptRaw, OpenAPI3SchemaEmitter } from "./schema-emitter.js";
 import {
@@ -1529,7 +1528,12 @@ function createOAPIEmitter(
     if (!typeSchema) {
       return undefined;
     }
-    const schema = applyEncoding(param, applyIntrinsicDecorators(param, typeSchema));
+    const schema = applyEncoding(
+      program,
+      param,
+      applyIntrinsicDecorators(param, typeSchema),
+      options
+    );
     if (param.defaultValue) {
       schema.default = getDefaultValue(program, param.defaultValue);
     }
@@ -1820,61 +1824,6 @@ function createOAPIEmitter(
     attachExtensions(program, typespecType, newTarget);
 
     return newTarget;
-  }
-
-  function applyEncoding(
-    typespecType: Scalar | ModelProperty,
-    target: OpenAPI3Schema
-  ): OpenAPI3Schema {
-    const encodeData = getEncode(program, typespecType);
-    if (encodeData) {
-      const newTarget = { ...target };
-      const newType = callSchemaEmitter(
-        encodeData.type,
-        Visibility.Read,
-        false,
-        "application/json"
-      ) as OpenAPI3Schema;
-      newTarget.type = newType.type;
-      // If the target already has a format it takes priority. (e.g. int32)
-      newTarget.format = mergeFormatAndEncoding(
-        newTarget.format,
-        encodeData.encoding,
-        newType.format
-      );
-      return newTarget;
-    }
-    return target;
-  }
-  function mergeFormatAndEncoding(
-    format: string | undefined,
-    encoding: string,
-    encodeAsFormat: string | undefined
-  ): string {
-    switch (format) {
-      case undefined:
-        return encodeAsFormat ?? encoding;
-      case "date-time":
-        switch (encoding) {
-          case "rfc3339":
-            return "date-time";
-          case "unixTimestamp":
-            return "unixtime";
-          case "rfc7231":
-            return "http-date";
-          default:
-            return encoding;
-        }
-      case "duration":
-        switch (encoding) {
-          case "ISO8601":
-            return "duration";
-          default:
-            return encodeAsFormat ?? encoding;
-        }
-      default:
-        return encodeAsFormat ?? encoding;
-    }
   }
 
   function applyExternalDocs(typespecType: Type, target: Record<string, unknown>) {
