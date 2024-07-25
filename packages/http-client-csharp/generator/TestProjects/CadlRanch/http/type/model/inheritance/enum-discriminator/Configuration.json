@@ -1,0 +1,6 @@
+{
+  "output-folder": ".",
+  "namespace": "Type.Model.Inheritance.EnumDiscriminator",
+  "library-name": "Type.Model.Inheritance.EnumDiscriminator",
+  "use-model-reader-writer": true
+}

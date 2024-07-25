@@ -1,0 +1,203 @@
+{
+ "$id": "1",
+ "Name": "Authentication.Http.Custom",
+ "ApiVersions": [],
+ "Enums": [],
+ "Models": [
+  {
+   "$id": "2",
+   "Kind": "model",
+   "Name": "InvalidAuth",
+   "CrossLanguageDefinitionId": "Authentication.Http.Custom.InvalidAuth",
+   "Usage": "Output",
+   "Properties": [
+    {
+     "$id": "3",
+     "Name": "error",
+     "SerializedName": "error",
+     "Description": "",
+     "Type": {
+      "$id": "4",
+      "Kind": "string"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  }
+ ],
+ "Clients": [
+  {
+   "$id": "5",
+   "Name": "CustomClient",
+   "Description": "Illustrates clients generated with generic HTTP auth.",
+   "Operations": [
+    {
+     "$id": "6",
+     "Name": "valid",
+     "ResourceName": "Custom",
+     "Description": "Check whether client is authenticated",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "7",
+       "Name": "host",
+       "NameInRequest": "host",
+       "Description": "TestServer endpoint",
+       "Type": {
+        "$id": "8",
+        "Kind": "string"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "9",
+        "Type": {
+         "$id": "10",
+         "Kind": "string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "11",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "12",
+        "Kind": "string"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "13",
+        "Type": {
+         "$ref": "12"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "14",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/authentication/http/custom/valid",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "15",
+     "Name": "invalid",
+     "ResourceName": "Custom",
+     "Description": "Check whether client is authenticated.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "7"
+      },
+      {
+       "$id": "16",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "17",
+        "Kind": "string"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "18",
+        "Type": {
+         "$ref": "17"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "19",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      },
+      {
+       "$id": "20",
+       "StatusCodes": [
+        403
+       ],
+       "BodyType": {
+        "$ref": "2"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": true,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/authentication/http/custom/invalid",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    }
+   ],
+   "Protocol": {
+    "$id": "21"
+   },
+   "Parameters": [
+    {
+     "$ref": "7"
+    }
+   ]
+  }
+ ],
+ "Auth": {
+  "$id": "22",
+  "ApiKey": {
+   "$id": "23",
+   "Name": "Authorization",
+   "Prefix": "SharedAccessKey"
+  }
+ }
+}

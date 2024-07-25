@@ -69,10 +69,10 @@ namespace StubPlugin
                 return null;
             }
 
-            var propetybody = new ExpressionPropertyBody(ThrowNull, propertyProvider.Body.HasSetter ? ThrowNull : null);
+            var propertyBody = new ExpressionPropertyBody(ThrowNull, propertyProvider.Body.HasSetter ? ThrowNull : null);
 
             propertyProvider.Update(
-                body: propetybody,
+                body: propertyBody,
                 xmlDocs: _emptyDocs);
 
             return propertyProvider;

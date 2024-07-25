@@ -1,0 +1,6 @@
+{
+  "output-folder": ".",
+  "namespace": "Type.Enum.Extensible",
+  "library-name": "Type.Enum.Extensible",
+  "use-model-reader-writer": true
+}
