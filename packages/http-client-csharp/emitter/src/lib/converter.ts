@@ -16,7 +16,6 @@ import {
   SdkModelType,
   SdkType,
   SdkUnionType,
-  UsageFlags,
   getAccessOverride,
   isReadOnly,
 } from "@azure-tools/typespec-client-generator-core";
@@ -37,7 +36,6 @@ import {
   InputUnionType,
 } from "../type/input-type.js";
 import { LiteralTypeContext } from "../type/literal-type-context.js";
-import { Usage } from "../type/usage.js";
 
 export function fromSdkType(
   sdkType: SdkType,
@@ -91,7 +89,7 @@ export function fromSdkModelType(
         context,
         modelType.__raw as Model
       ) /* when tcgc provide a way to identify if the access is override or not, we can get the accessibility from the modelType.access */,
-      Usage: fromUsageFlags(modelType.usage),
+      Usage: modelType.usage,
       Deprecation: modelType.deprecation,
       Description: modelType.description,
       DiscriminatorValue: modelType.discriminatorValue,
@@ -112,6 +110,7 @@ export function fromSdkModelType(
         property,
         {
           ModelName: modelTypeName,
+          Usage: modelType.usage,
         } as LiteralTypeContext,
         []
       );
@@ -211,7 +210,7 @@ export function fromSdkEnumType(
       Deprecated: enumType.deprecation,
       Description: enumType.description,
       IsExtensible: enumType.isFixed ? false : true,
-      Usage: fromUsageFlags(enumType.usage),
+      Usage: enumType.usage,
     };
     if (addToCollection) enums.set(enumName, newInputEnumType);
     inputEnumType = newInputEnumType;
@@ -312,7 +311,7 @@ function fromSdkConstantType(
       Deprecated: undefined,
       Description: `The ${enumName}`, // TODO -- what should we put here?
       IsExtensible: true,
-      Usage: "None", // will be updated later
+      Usage: literalTypeContext.Usage,
     };
     enums.set(enumName, enumType);
     return enumType;
@@ -368,13 +367,4 @@ function fromSdkArrayType(
     ValueType: fromSdkType(arrayType.valueType, context, models, enums),
     CrossLanguageDefinitionId: arrayType.crossLanguageDefinitionId,
   };
-}
-
-function fromUsageFlags(usage: UsageFlags): Usage {
-  if (usage & UsageFlags.JsonMergePatch) return Usage.None; // if the model is used in patch, we ignore the usage and defer to the logic of ours
-  usage = usage & (UsageFlags.Input | UsageFlags.Output); // trim off other flags
-  if (usage === UsageFlags.Input) return Usage.Input;
-  else if (usage === UsageFlags.Output) return Usage.Output;
-  else if (usage === (UsageFlags.Input | UsageFlags.Output)) return Usage.RoundTrip;
-  else return Usage.None;
 }

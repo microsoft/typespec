@@ -53,8 +53,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodProvider BuildConvenienceMethod(MethodProvider protocolMethod, bool isAsync)
         {
-            ClientProvider? client = EnclosingType as ClientProvider;
-            if (client is null)
+            if (EnclosingType is not ClientProvider client)
             {
                 throw new InvalidOperationException("Protocol methods can only be built for client types.");
             }
@@ -68,16 +67,29 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
                 FormattableStringHelpers.FromString(Operation.Description),
                 methodModifier,
-                GetResponseType(Operation.Responses, true, isAsync),
+                GetResponseType(Operation.Responses, true, isAsync, out var responseBodyType),
                 null,
                 ConvenienceMethodParameters);
             var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
-            MethodBodyStatement[] methodBody = _bodyParameter is null
-                ? [Return(This.Invoke(methodSignature, [.. ConvenienceMethodParameters, Null], isAsync))]
-                : [
-                    Declare("result", typeof(ClientResult), This.Invoke(protocolMethod.Signature, [.. ConvenienceMethodParameters, Null], isAsync), out var result),
-                    Return(Static<ClientResult>().Invoke(nameof(ClientResult.FromValue), [result.CastTo(_bodyParameter.Type), result.Invoke("GetRawResponse")])),
+
+            MethodBodyStatement[] methodBody;
+            if (responseBodyType is null)
+            {
+                methodBody = [Return(This.Invoke(protocolMethod.Signature, [.. ConvenienceMethodParameters, Null], isAsync))];
+            }
+            else
+            {
+                methodBody =
+                [
+                    Declare("result", This.Invoke(protocolMethod.Signature, [.. ConvenienceMethodParameters, Null], isAsync).As<ClientResult>(), out ScopedApi<ClientResult> result),
+                    Return(Static<ClientResult>().Invoke(
+                        nameof(ClientResult.FromValue),
+                        [
+                            responseBodyType.Equals(typeof(string)) ? result.GetRawResponse().Content().InvokeToString() : result.CastTo(responseBodyType),
+                            result.Invoke("GetRawResponse")
+                        ])),
                 ];
+            }
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType);
             convenienceMethod.XmlDocs!.Exceptions.Add(new(typeof(ClientResultException), "Service returned a non-success status code.", []));
@@ -130,7 +142,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
                 FormattableStringHelpers.FromString(Operation.Description),
                 methodModifier,
-                GetResponseType(Operation.Responses, false, isAsync),
+                GetResponseType(Operation.Responses, false, isAsync, out var responseBodyType),
                 $"The response returned from the service.",
                 MethodParameters);
             var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
@@ -153,18 +165,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return protocolMethod;
         }
 
-        private static CSharpType? GetResponseType(IReadOnlyList<OperationResponse> responses, bool isConvenience, bool isAsync)
+        private static CSharpType? GetResponseType(IReadOnlyList<OperationResponse> responses, bool isConvenience, bool isAsync, out CSharpType? responseBodyType)
         {
-            var returnType = isConvenience ? GetConvenienceReturnType(responses) : typeof(ClientResult);
+            responseBodyType = null;
+            var returnType = isConvenience ? GetConvenienceReturnType(responses, out responseBodyType) : typeof(ClientResult);
             return isAsync ? new CSharpType(typeof(Task<>), returnType) : returnType;
         }
 
-        private static CSharpType GetConvenienceReturnType(IReadOnlyList<OperationResponse> responses)
+        private static CSharpType GetConvenienceReturnType(IReadOnlyList<OperationResponse> responses, out CSharpType? responseBodyType)
         {
             var response = responses.FirstOrDefault(r => !r.IsErrorResponse);
-            return response is null || response.BodyType is null
+            responseBodyType = response?.BodyType is null ? null : ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(response.BodyType);
+            return response is null || responseBodyType is null
                 ? typeof(ClientResult)
-                : new CSharpType(typeof(ClientResult<>), ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(response.BodyType));
+                : new CSharpType(typeof(ClientResult<>), responseBodyType);
         }
     }
 }

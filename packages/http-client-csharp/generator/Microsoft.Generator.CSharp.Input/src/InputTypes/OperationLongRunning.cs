@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace Microsoft.Generator.CSharp.Input
 {
     public sealed class OperationLongRunning
     {
+        [JsonConstructor]
         public OperationLongRunning(int finalStateVia, OperationResponse finalResponse, string? resultPath)
         {
             FinalStateVia = finalStateVia;
