@@ -1,0 +1,5 @@
+<RunSettings>
+  <TestRunParameters>
+    <Parameter name="RunCadlRanch" value="true" />
+  </TestRunParameters>
+</RunSettings>
