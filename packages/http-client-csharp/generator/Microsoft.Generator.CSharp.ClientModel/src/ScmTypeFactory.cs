@@ -49,7 +49,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 case InputEnumType inputEnumType:
                     return [new FixedEnumSerializationProvider(inputEnumType)];
                 default:
-                    return [];
+                    return base.CreateSerializationsCore(inputType);
             }
         }
 
