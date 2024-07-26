@@ -54,6 +54,9 @@ model ExampleOptions
 | description? | [`string`](#string) | Description of the example |
 
 ### `object` {#object}
+:::warning
+**Deprecated**: object is deprecated. Please use {} for an empty model, `Record<unknown>` for a record with unknown property types, `unknown[]` for an array.
+:::
 
 Represent a model
 ```typespec
