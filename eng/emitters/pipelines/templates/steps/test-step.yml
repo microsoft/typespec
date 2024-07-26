@@ -58,7 +58,7 @@ steps:
       arguments: ${{ parameters.TestArgs }}
       workingDirectory: $(selfRepositoryPath)
 
-  - task: PowerShell@2
+  - task: AzureCLI@2
     displayName: "Upload Cadl Ranch Standard Coverage Report"
     condition: and(ne(variables['Build.Reason'], 'PullRequest'), eq(variables['System.TeamProject'], 'internal'), eq('${{ parameters.EmitArtifacts }}', true))
     inputs:
