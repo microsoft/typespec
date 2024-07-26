@@ -1,3 +1,5 @@
+# cspell:ignore azuresdkcadlranch
+
 parameters:
   # Custom steps to run in the Build and Test stages after the repositories are cloned.
   - name: AdditionalInitializeSteps
