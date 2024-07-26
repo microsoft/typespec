@@ -124,9 +124,9 @@ export function navigateModels(
 }
 
 /* We always need to pass in the emitter name now that it is required so making a helper to do this. */
-export function createNetSdkContext(
+export async function createNetSdkContext(
   program: EmitContext<NetEmitterOptions>
 ): SdkContext<NetEmitterOptions> {
   Logger.initialize(program.program, LoggerLevel.INFO);
-  return createSdkContext(program, "@typespec/http-client-csharp");
+  return await createSdkContext(program, "@typespec/http-client-csharp");
 }
