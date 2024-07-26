@@ -153,10 +153,13 @@ namespace Microsoft.Generator.CSharp.Providers
         protected abstract string BuildName();
 
         public void Update(
-            IEnumerable<MethodProvider>? methods = default,
-            IEnumerable<ConstructorProvider>? constructors = default,
-            IEnumerable<PropertyProvider>? properties = default,
-            IEnumerable<FieldProvider>? fields = default)
+            IEnumerable<MethodProvider>? methods = null,
+            IEnumerable<ConstructorProvider>? constructors = null,
+            IEnumerable<PropertyProvider>? properties = null,
+            IEnumerable<FieldProvider>? fields = null,
+            IEnumerable<TypeProvider>? serializations = null,
+            IEnumerable<TypeProvider>? nestedTypes = null,
+            XmlDocProvider? xmlDocs = null)
         {
             if (methods != null)
             {
@@ -173,6 +176,18 @@ namespace Microsoft.Generator.CSharp.Providers
             if (constructors != null)
             {
                 _constructors = (constructors as IReadOnlyList<ConstructorProvider>) ?? constructors.ToList();
+            }
+            if (serializations != null)
+            {
+                _serializationProviders = (serializations as IReadOnlyList<TypeProvider>) ?? serializations.ToList();
+            }
+            if (nestedTypes != null)
+            {
+                _nestedTypes = (nestedTypes as IReadOnlyList<TypeProvider>) ?? nestedTypes.ToList();
+            }
+            if (xmlDocs != null)
+            {
+                XmlDocs = xmlDocs;
             }
         }
     }

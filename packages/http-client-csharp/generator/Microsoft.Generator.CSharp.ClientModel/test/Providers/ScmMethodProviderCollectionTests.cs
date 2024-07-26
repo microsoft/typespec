@@ -67,7 +67,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
                             null,
                             null)
                     ],
-                    responses: [],
+                    responses: [new OperationResponse([200], null, BodyMediaType.Json, [], false, ["application/json"])],
                     httpMethod: "GET",
                     requestBodyMediaType: BodyMediaType.Json,
                     uri: "localhost",

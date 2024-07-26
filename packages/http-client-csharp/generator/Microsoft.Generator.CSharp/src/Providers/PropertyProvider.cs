@@ -24,9 +24,9 @@ namespace Microsoft.Generator.CSharp.Providers
         public MethodSignatureModifiers Modifiers { get; }
         public CSharpType Type { get; }
         public string Name { get; }
-        public PropertyBody Body { get; }
+        public PropertyBody Body { get; private set; }
         public CSharpType? ExplicitInterface { get; }
-        public XmlDocProvider XmlDocs { get; }
+        public XmlDocProvider XmlDocs { get; private set; }
         public PropertyWireInformation? WireInfo { get; }
 
         /// <summary>
@@ -178,5 +178,19 @@ namespace Microsoft.Generator.CSharp.Providers
         private MemberExpression? _asMember;
         public static implicit operator MemberExpression(PropertyProvider property)
             => property._asMember ??= new MemberExpression(null, property.Name);
+
+        public void Update(
+            PropertyBody? body = null,
+            XmlDocProvider? xmlDocs = null)
+        {
+            if (body != null)
+            {
+                Body = body;
+            }
+            if (xmlDocs != null)
+            {
+                XmlDocs = xmlDocs;
+            }
+        }
     }
 }
