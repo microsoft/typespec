@@ -396,16 +396,6 @@ function getOperationGroupName(
   return namespace;
 }
 
-function isSpreadBody(httpParameterType: SdkType, sdkMethodParameterType: SdkType): boolean {
-  if (httpParameterType.kind !== sdkMethodParameterType.kind) return true;
-
-  if (httpParameterType.kind === "model" && sdkMethodParameterType.kind === "model") {
-    return httpParameterType.name !== sdkMethodParameterType.name;
-  }
-
-  return false;
-}
-
 // TODO: remove after https://github.com/Azure/typespec-azure/issues/1227 is fixed
 function normalizeHeadername(name: string): string {
   switch (name.toLocaleLowerCase()) {
