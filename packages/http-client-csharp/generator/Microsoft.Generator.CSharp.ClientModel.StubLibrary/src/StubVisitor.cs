@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -13,60 +14,74 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
         private readonly ValueExpression _throwNull = ThrowExpression(Null);
         private readonly XmlDocProvider _emptyDocs = new();
 
-        protected override TypeProvider? Visit(TypeProvider typeProvider)
+        protected override TypeProvider? Visit(TypeProvider type)
         {
-            if (!typeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+            if (!type.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
                 return null;
 
-            typeProvider.Update(xmlDocs: _emptyDocs);
-            return typeProvider;
+            type.Update(xmlDocs: _emptyDocs);
+            return type;
         }
 
-        protected override ConstructorProvider? Visit(TypeProvider typeProvider, ConstructorProvider constructorProvider)
+        protected override TypeProvider? PostVisit(TypeProvider type)
         {
-            if (!ShouldKeep(constructorProvider.Signature.Modifiers))
+            if (type is RestClientProvider &&
+                type.Methods.Count == 0 &&
+                type.Constructors.Count == 0 &&
+                type.Properties.Count == 0 &&
+                type.Fields.Count == 0)
+            {
+                return null;
+            }
+
+            return type;
+        }
+
+        protected override ConstructorProvider? Visit(TypeProvider enclosingType, ConstructorProvider constructor)
+        {
+            if (!ShouldKeep(constructor.Signature.Modifiers))
                 return null;
 
-            constructorProvider.Update(
+            constructor.Update(
                 bodyStatements: null,
                 bodyExpression: _throwNull,
                 xmlDocs: _emptyDocs);
 
-            return constructorProvider;
+            return constructor;
         }
 
-        protected override FieldProvider? Visit(TypeProvider typeProvider, FieldProvider fieldProvider)
+        protected override FieldProvider? Visit(TypeProvider enclosingType, FieldProvider field)
         {
-            return fieldProvider.Modifiers.HasFlag(FieldModifiers.Public) ? fieldProvider : null;
+            return field.Modifiers.HasFlag(FieldModifiers.Public) ? field : null;
         }
 
-        protected override MethodProvider? Visit(TypeProvider typeProvider, MethodProvider methodProvider)
+        protected override MethodProvider? Visit(TypeProvider enclosingType, MethodProvider method)
         {
-            if (methodProvider.Signature.ExplicitInterface is null && !ShouldKeep(methodProvider.Signature.Modifiers))
+            if (method.Signature.ExplicitInterface is null && !ShouldKeep(method.Signature.Modifiers))
                 return null;
 
-            methodProvider.Signature.Update(modifiers: methodProvider.Signature.Modifiers & ~MethodSignatureModifiers.Async);
+            method.Signature.Update(modifiers: method.Signature.Modifiers & ~MethodSignatureModifiers.Async);
 
-            methodProvider.Update(
+            method.Update(
                 bodyStatements: null,
                 bodyExpression: _throwNull,
                 xmlDocProvider: _emptyDocs);
 
-            return methodProvider;
+            return method;
         }
 
-        protected override PropertyProvider? Visit(TypeProvider typeProvider, PropertyProvider propertyProvider)
+        protected override PropertyProvider? Visit(TypeProvider enclosingType, PropertyProvider property)
         {
-            if (!ShouldKeep(propertyProvider.Modifiers))
+            if (!ShouldKeep(property.Modifiers))
                 return null;
 
-            var propertyBody = new ExpressionPropertyBody(_throwNull, propertyProvider.Body.HasSetter ? _throwNull : null);
+            var propertyBody = new ExpressionPropertyBody(_throwNull, property.Body.HasSetter ? _throwNull : null);
 
-            propertyProvider.Update(
+            property.Update(
                 body: propertyBody,
                 xmlDocs: _emptyDocs);
 
-            return propertyProvider;
+            return property;
         }
 
         private bool ShouldKeep(MethodSignatureModifiers modifiers)

@@ -89,33 +89,39 @@ namespace Microsoft.Generator.CSharp
                 }
 
                 type.Update(methods, constructors, properties, fields, serializations, nestedTypes);
+                type = PostVisit(type);
             }
             return type;
         }
 
-        protected virtual TypeProvider? Visit(TypeProvider typeProvider)
+        protected virtual TypeProvider? Visit(TypeProvider type)
         {
-            return typeProvider;
+            return type;
         }
 
-        protected virtual ConstructorProvider? Visit(TypeProvider typeProvider, ConstructorProvider constructorProvider)
+        protected virtual TypeProvider? PostVisit(TypeProvider type)
         {
-            return constructorProvider;
+            return type;
         }
 
-        protected virtual MethodProvider? Visit(TypeProvider typeProvider, MethodProvider methodProvider)
+        protected virtual ConstructorProvider? Visit(TypeProvider enclosingType, ConstructorProvider constructor)
         {
-            return methodProvider;
+            return constructor;
         }
 
-        protected virtual PropertyProvider? Visit(TypeProvider typeProvider, PropertyProvider propertyProvider)
+        protected virtual MethodProvider? Visit(TypeProvider enclosingType, MethodProvider method)
         {
-            return propertyProvider;
+            return method;
         }
 
-        protected virtual FieldProvider? Visit(TypeProvider typeProvider, FieldProvider fieldProvider)
+        protected virtual PropertyProvider? Visit(TypeProvider enclosingType, PropertyProvider property)
         {
-            return fieldProvider;
+            return property;
+        }
+
+        protected virtual FieldProvider? Visit(TypeProvider enclosingType, FieldProvider field)
+        {
+            return field;
         }
     }
 }
