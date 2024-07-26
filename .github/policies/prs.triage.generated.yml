@@ -78,6 +78,12 @@ configuration:
                   label: emitter:client:csharp
           - if:
               - filesMatchPattern:
+                  pattern: packages/http-client-java/.*
+            then:
+              - addLabel:
+                  label: emitter:client:java
+          - if:
+              - filesMatchPattern:
                   pattern: packages/json-schema/.*
             then:
               - addLabel:
