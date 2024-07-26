@@ -113,19 +113,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             List<PropertyProvider> properties = _versionProperty != null ? [_versionProperty] : [];
 
-            foreach (var f in _clientProvider.Fields)
+            foreach (var p in _inputClient.Parameters)
             {
-                if (f != _clientProvider.ApiKeyAuthField
-                    && f != _clientProvider.EndpointField
-                    && !f.Modifiers.HasFlag(FieldModifiers.Const))
+                if (!p.IsEndpoint && p.DefaultValue != null)
                 {
+                    FormattableString? description = null;
+                    if (p.Description != null)
+                    {
+                        description = $"{p.Description}";
+                    }
+
                     properties.Add(new(
-                        f.Description,
+                        description,
                         MethodSignatureModifiers.Public,
-                        f.Type.PropertyInitializationType,
-                        f.Name.ToCleanName(),
-                        new AutoPropertyBody(true),
-                        backingField: f));
+                        ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type).PropertyInitializationType,
+                        p.Name.ToCleanName(),
+                        new AutoPropertyBody(true)));
                 }
             }
 

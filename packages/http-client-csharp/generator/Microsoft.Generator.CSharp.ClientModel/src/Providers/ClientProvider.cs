@@ -30,6 +30,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly InputAuth? _inputAuth;
         private readonly ParameterProvider _clientOptionsParameter;
         private readonly ParameterProvider _endpointParameter;
+        private readonly FieldProvider? _apiKeyAuthField;
         private readonly FieldProvider? _authorizationHeaderConstant;
         private readonly FieldProvider? _authorizationApiKeyPrefixConstant;
         private ClientOptionsProvider? _clientOptions;
@@ -47,6 +48,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
 
             var apiKey = _inputAuth?.ApiKey;
+            _apiKeyAuthField = apiKey != null ? new FieldProvider(
+                FieldModifiers.Private | FieldModifiers.ReadOnly,
+                typeof(ApiKeyCredential),
+                ApiKeyCredentialFieldName,
+                description: $"A credential used to authenticate to the service.") : null;
             _authorizationHeaderConstant = apiKey?.Name != null ? new(
                 FieldModifiers.Private | FieldModifiers.Const,
                 typeof(string),
@@ -57,11 +63,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 typeof(string),
                 AuthorizationApiKeyPrefixConstName,
                 initializationValue: Literal(apiKey.Prefix)) : null;
-            ApiKeyAuthField = apiKey != null ? new FieldProvider(
-                FieldModifiers.Private | FieldModifiers.ReadOnly,
-                typeof(ApiKeyCredential),
-                ApiKeyCredentialFieldName,
-                description: $"A credential used to authenticate to the service.") : null;
             EndpointField = new(
                 FieldModifiers.Private | FieldModifiers.ReadOnly,
                 typeof(Uri),
@@ -76,7 +77,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public PropertyProvider PipelineProperty { get; }
         public FieldProvider EndpointField { get; }
-        internal FieldProvider? ApiKeyAuthField { get; }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
@@ -86,10 +86,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             List<FieldProvider> fields = [EndpointField];
 
-            if (ApiKeyAuthField != null && _authorizationHeaderConstant != null)
+            if (_apiKeyAuthField != null && _authorizationHeaderConstant != null)
             {
                 fields.Add(_authorizationHeaderConstant);
-                fields.Add(ApiKeyAuthField);
+                fields.Add(_apiKeyAuthField);
 
                 if (_authorizationApiKeyPrefixConstant != null)
                 {
@@ -126,8 +126,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override ConstructorProvider[] BuildConstructors()
         {
-            ParameterProvider[] primaryConstructorParameters = ApiKeyAuthField != null
-                ? [_endpointParameter, ApiKeyAuthField.AsParameter, _clientOptionsParameter]
+            ParameterProvider[] primaryConstructorParameters = _apiKeyAuthField != null
+                ? [_endpointParameter, _apiKeyAuthField.AsParameter, _clientOptionsParameter]
                 : [_endpointParameter, _clientOptionsParameter];
             var primaryConstructor = new ConstructorProvider(
                 new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Public, primaryConstructorParameters),
@@ -137,13 +137,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // build the required parameters for the secondary constructor.
             // If the endpoint parameter contains an initialization value, it is not required.
             List<ParameterProvider> requiredParameters = _endpointParameter.InitializationValue == null ? [_endpointParameter] : [];
-            if (ApiKeyAuthField != null)
+            if (_apiKeyAuthField != null)
             {
-                requiredParameters.Add(ApiKeyAuthField.AsParameter);
+                requiredParameters.Add(_apiKeyAuthField.AsParameter);
             }
 
             var secondaryConstructor = BuildSecondaryConstructor(requiredParameters, primaryConstructorParameters);
-            var shouldIncludeMockingConstructor = requiredParameters.Count > 0 || ApiKeyAuthField != null;
+            var shouldIncludeMockingConstructor = requiredParameters.Count > 0 || _apiKeyAuthField != null;
             return shouldIncludeMockingConstructor
                 ? [ConstructorProviderHelper.BuildMockingConstructor(this), secondaryConstructor, primaryConstructor]
                 : [secondaryConstructor, primaryConstructor];
@@ -168,12 +168,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             // handle pipeline property
             ValueExpression perRetryPolicies = New.Array(typeof(PipelinePolicy));
-            if (_authorizationHeaderConstant != null && ApiKeyAuthField != null)
+            if (_authorizationHeaderConstant != null && _apiKeyAuthField != null)
             {
                 // new PipelinePolicy[] { ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(_keyCredential, AuthorizationHeader) }
                 ValueExpression[] perRetryPolicyArgs = _authorizationApiKeyPrefixConstant != null
-                    ? [ApiKeyAuthField, _authorizationHeaderConstant, _authorizationApiKeyPrefixConstant]
-                    : [ApiKeyAuthField, _authorizationHeaderConstant];
+                    ? [_apiKeyAuthField, _authorizationHeaderConstant, _authorizationApiKeyPrefixConstant]
+                    : [_apiKeyAuthField, _authorizationHeaderConstant];
                 var perRetryPolicy = Static<ApiKeyAuthenticationPolicy>().Invoke(
                     nameof(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy), perRetryPolicyArgs).As<ApiKeyAuthenticationPolicy>();
                 perRetryPolicies = New.Array(typeof(PipelinePolicy), isInline: true, perRetryPolicy);
@@ -182,12 +182,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             body.Add(PipelineProperty.Assign(ClientPipelineSnippets.Create(
                 _clientOptionsParameter, New.Array(typeof(PipelinePolicy)), perRetryPolicies, New.Array(typeof(PipelinePolicy)))).Terminate());
 
-            // assign optional client parameters
-            foreach (var p in ClientOptions.Properties)
+            foreach (var f in Fields)
             {
-                if (p.BackingField != null)
+                if (f != _apiKeyAuthField && f != EndpointField && !f.Modifiers.HasFlag(FieldModifiers.Const))
                 {
-                    body.Add(p.BackingField.Assign(_clientOptionsParameter.Property(p.Name)).Terminate());
+                    body.Add(f.Assign(_clientOptionsParameter.Property(f.Name.ToCleanName())).Terminate());
                 }
             }
 

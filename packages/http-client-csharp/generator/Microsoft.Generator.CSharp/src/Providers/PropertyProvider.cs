@@ -17,7 +17,6 @@ namespace Microsoft.Generator.CSharp.Providers
     {
         private VariableExpression? _variable;
         private Lazy<ParameterProvider> _parameter;
-        private FieldProvider? _backingField;
 
         public FormattableString Description { get; }
         public XmlDocSummaryStatement XmlDocSummary { get; }
@@ -40,11 +39,6 @@ namespace Microsoft.Generator.CSharp.Providers
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
         }
-
-        /// <summary>
-        /// Returns the backing field of this property if any.
-        /// </summary>
-        public FieldProvider? BackingField => _backingField;
 
         public PropertyProvider(InputModelProperty inputProperty)
         {
@@ -76,8 +70,7 @@ namespace Microsoft.Generator.CSharp.Providers
             string name,
             PropertyBody body,
             CSharpType? explicitInterface = null,
-            PropertyWireInformation? wireInfo = null,
-            FieldProvider? backingField = null)
+            PropertyWireInformation? wireInfo = null)
         {
             Description = description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter);
             XmlDocSummary = new XmlDocSummaryStatement([Description]);
@@ -90,7 +83,6 @@ namespace Microsoft.Generator.CSharp.Providers
             WireInfo = wireInfo;
 
             InitializeParameter(Name, description ?? FormattableStringHelpers.Empty, Type);
-            InitializeField(backingField);
         }
 
         [MemberNotNull(nameof(_parameter))]
@@ -98,14 +90,6 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             var parameterName = propertyName.ToVariableName();
             _parameter = new(() => new ParameterProvider(parameterName, description, propertyType, property: this));
-        }
-
-        private void InitializeField(FieldProvider? backingField)
-        {
-            if (backingField == null)
-                return;
-
-            _backingField = backingField;
         }
 
         public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
