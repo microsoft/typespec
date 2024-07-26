@@ -24,8 +24,8 @@ using Azure.ClientGenerator.Core;
 using Azure.Core;
 
 enum Versions {
-  "2024-07-16-preview",
-  "2024-08-16-preview",
+  `2024-07-16-preview`,
+  `2024-08-16-preview`,
 }
 
 @doc("float fixed enum")
