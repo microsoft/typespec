@@ -21,9 +21,9 @@ namespace Microsoft.Generator.CSharp.Tests
         public void Setup()
         {
             _mockOutputLibrary = new Mock<OutputLibrary>();
-            _mockTypeProvider = new Mock<TypeProvider>();
+            _mockTypeProvider = new Mock<TypeProvider>() { CallBase = true };
             _mockOutputLibrary.Protected().Setup<TypeProvider[]>("BuildTypeProviders")
-                .Returns(new TypeProvider[] { _mockTypeProvider.Object });
+                .Returns([_mockTypeProvider.Object]);
             _mockVisitor = new Mock<OutputLibraryVisitor> { CallBase = true };
             _mockOutputLibrary.Object.AddVisitor(_mockVisitor.Object);
         }
@@ -41,7 +41,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             var mockMethodProvider = new Mock<MethodProvider>();
             _mockTypeProvider.Protected().Setup<MethodProvider[]>("BuildMethods")
-                .Returns(new MethodProvider[] { mockMethodProvider.Object });
+                .Returns([mockMethodProvider.Object]);
 
             _mockVisitor.Object.Visit(_mockOutputLibrary.Object);
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
@@ -53,7 +53,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             var mockConstructorProvider = new Mock<ConstructorProvider>();
             _mockTypeProvider.Protected().Setup<ConstructorProvider[]>("BuildConstructors")
-                .Returns(new ConstructorProvider[] { mockConstructorProvider.Object });
+                .Returns([mockConstructorProvider.Object]);
 
             _mockVisitor.Object.Visit(_mockOutputLibrary.Object);
 
@@ -66,7 +66,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             var mockPropertyProvider = new Mock<PropertyProvider>();
             _mockTypeProvider.Protected().Setup<PropertyProvider[]>("BuildProperties")
-                .Returns(new PropertyProvider[] { mockPropertyProvider.Object });
+                .Returns([mockPropertyProvider.Object]);
 
             _mockVisitor.Object.Visit(_mockOutputLibrary.Object);
 
@@ -79,7 +79,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             var mockFieldProvider = new Mock<FieldProvider>();
             _mockTypeProvider.Protected().Setup<FieldProvider[]>("BuildFields")
-                .Returns(new FieldProvider[] { mockFieldProvider.Object });
+                .Returns([mockFieldProvider.Object]);
 
             _mockVisitor.Object.Visit(_mockOutputLibrary.Object);
 
@@ -92,7 +92,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             var mockMethodProvider = new Mock<MethodProvider>();
             _mockTypeProvider.Protected().Setup<MethodProvider[]>("BuildMethods")
-                .Returns(new MethodProvider[] { mockMethodProvider.Object });
+                .Returns([mockMethodProvider.Object]);
             _mockVisitor.Protected().Setup<TypeProvider?>("Visit", _mockTypeProvider.Object).Returns<TypeProvider?>(
                 (t) => null);
 
@@ -107,7 +107,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             var mockConstructorProvider = new Mock<ConstructorProvider>();
             _mockTypeProvider.Protected().Setup<ConstructorProvider[]>("BuildConstructors")
-                .Returns(new ConstructorProvider[] { mockConstructorProvider.Object });
+                .Returns([mockConstructorProvider.Object]);
             _mockVisitor.Protected().Setup<TypeProvider?>("Visit", _mockTypeProvider.Object).Returns<TypeProvider?>(
                 (t) => null);
 
@@ -122,7 +122,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             var mockFieldProvider = new Mock<PropertyProvider>();
             _mockTypeProvider.Protected().Setup<PropertyProvider[]>("BuildProperties")
-                .Returns(new PropertyProvider[] { mockFieldProvider.Object });
+                .Returns([mockFieldProvider.Object]);
             _mockVisitor.Protected().Setup<TypeProvider?>("Visit", _mockTypeProvider.Object).Returns<TypeProvider?>(
                 (t) => null);
 
@@ -137,7 +137,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             var mockFieldProvider = new Mock<FieldProvider>();
             _mockTypeProvider.Protected().Setup<FieldProvider[]>("BuildFields")
-                .Returns(new FieldProvider[] { mockFieldProvider.Object });
+                .Returns([mockFieldProvider.Object]);
             _mockVisitor.Protected().Setup<TypeProvider?>("Visit", _mockTypeProvider.Object).Returns<TypeProvider?>(
                 (t) => null);
 
