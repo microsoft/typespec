@@ -290,8 +290,8 @@ export type IncludeInapplicableMetadataInPayloadDecorator = (
  * ```
  * @example Query parameter
  * ```typespec
- * @route("/files") op list(select?: string, filter?: string): Widget[];
- * @route("/files{?select,filter}") op listFullUriTemplateselect?: string, filter?: string): Widget[];
+ * @route("/files") op list(select?: string, filter?: string): Files[];
+ * @route("/files{?select,filter}") op listFullUriTemplate(select?: string, filter?: string): Files[];
  * ```
  */
 export type RouteDecorator = (
