@@ -2,8 +2,16 @@ import { describe, expect, it } from "vitest";
 import { findAreasChanged } from "./find-area-changed.js";
 
 describe("paths that should trigger CSharp CI", () => {
-  it.each(["packages/http-client-csharp/src/constants.ts"])("%s", (path) => {
-    const areas = findAreasChanged([path]);
+  it.each([
+    ["packages/http-client-csharp/src/constants.ts"],
+    [
+      "eng/emitters/pipelines/templates/jobs/test-job.yml",
+      "packages/http-client-csharp/eng/scripts/Test-CadlRanch.ps1",
+      "packages/http-client-csharp/generator/TestProjects/CadlRanch.Tests/Infrastructure/AssemblyCleanFixture.cs",
+      "packages/http-client-csharp/generator/TestProjects/CadlRanch.Tests/Infrastructure/CadlRanchServer.cs",
+    ],
+  ])("%s", (...paths) => {
+    const areas = findAreasChanged(paths);
     expect(areas).toEqual(["CSharp"]);
   });
 });
