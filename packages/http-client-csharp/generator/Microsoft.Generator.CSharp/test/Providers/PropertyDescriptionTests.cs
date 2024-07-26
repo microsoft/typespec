@@ -74,19 +74,19 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     new CSharpType(typeof(IReadOnlyList<BinaryData>)));
                 // dictionary property with binary data value
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.Any)), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", InputPrimitiveType.String, InputPrimitiveType.Any), false, false, false),
                     new CSharpType(typeof(IDictionary<string, BinaryData>)));
                 // nullable dictionary property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", InputPrimitiveType.String, InputPrimitiveType.String), false, false, false),
                     new CSharpType(typeof(IDictionary<string, string>), true));
                 // primitive type property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputPrimitiveType(InputPrimitiveTypeKind.String), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", InputPrimitiveType.String, false, false, false),
                     new CSharpType(typeof(string)));
                 // binary data property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputPrimitiveType(InputPrimitiveTypeKind.Any), false, true, false),
+                    new InputModelProperty("prop1", "prop1", "public", InputPrimitiveType.Any, false, true, false),
                     new CSharpType(typeof(BinaryData)));
             }
         }
