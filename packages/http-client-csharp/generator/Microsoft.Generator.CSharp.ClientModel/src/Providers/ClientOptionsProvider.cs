@@ -9,8 +9,6 @@ using System.ClientModel.Primitives;
 using System;
 using Microsoft.Generator.CSharp.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
 using Microsoft.Generator.CSharp.Expressions;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -23,7 +21,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly InputClient _inputClient;
         private readonly ClientProvider _clientProvider;
         private readonly string _clientOptionsName;
-        private readonly string _clientName;
         private readonly ServiceVersionDefinition? _serviceVersionDefinition;
         private readonly FieldProvider? _latestVersionField;
         private readonly PropertyProvider? _versionProperty;
@@ -32,8 +29,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             _inputClient = inputClient;
             _clientProvider = clientProvider;
-            _clientName = _inputClient.Name.ToCleanName();
-            _clientOptionsName = $"{_inputClient.Name}Options".ToCleanName();
+            _clientOptionsName = $"{_clientProvider.Name}Options";
 
             var inputApiVersions = ClientModelPlugin.Instance.InputLibrary.InputNamespace.ApiVersions;
             ApiVersions = ParseApiVersions(inputApiVersions);
@@ -59,7 +55,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
         protected override string BuildName() => _clientOptionsName;
-        protected override FormattableString Description => $"Client options for {_clientName}.";
+        protected override FormattableString Description => $"Client options for {_clientProvider.Type:C}.";
 
         protected override CSharpType[] BuildImplements()
         {
@@ -148,19 +144,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             for (int i = 0; i < count; i++)
             {
-                var normalizedVersion = NormalizeVersion(inputApiVersions[i]);
-                var description = $"Service version \"{inputApiVersions[i]}\"";
+                var normalizedVersion = StringExtensions.ToApiVersionMemberName(inputApiVersions[i]);
+                FormattableString description = $"Service version {inputApiVersions[i]:L}";
                 parsedVersions[i] = new ApiVersion(normalizedVersion, description, i + 1, inputApiVersions[i]);
             }
 
             return parsedVersions;
         }
-
-        internal static string NormalizeVersion(string version) =>
-            CultureInfo.InvariantCulture.TextInfo.ToTitleCase(new StringBuilder("V")
-                .Append(version.StartsWith("v", true, CultureInfo.InvariantCulture) ? version.Substring(1) : version)
-                .Replace('-', '_')
-                .Replace('.', '_')
-                .ToString());
     }
 }

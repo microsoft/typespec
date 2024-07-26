@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     FieldModifiers.Public | FieldModifiers.Static,
                     Type,
                     apiVersion.Name,
-                    apiVersion.Description is null ? $"{apiVersion.Name}" : FormattableStringHelpers.FromString(apiVersion.Description),
+                    apiVersion.Description is null ? $"{apiVersion.Name}" : apiVersion.Description,
                     Literal(apiVersion.Value));
 
                 members[i] = new EnumTypeMember(apiVersion.Name, field, apiVersion.StringValue);
@@ -63,7 +63,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         protected override FieldProvider[] BuildFields()
-            => Members.Select(v => v.Field).ToArray();
+            => [.. Members.Select(v => v.Field)];
 
         internal FieldProvider LatestServiceVersion { get; }
     }

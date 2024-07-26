@@ -25,11 +25,6 @@ namespace Microsoft.Generator.CSharp.Providers
         public CodeWriterDeclaration Declaration => _declaration ??= new CodeWriterDeclaration(Name);
 
         /// <summary>
-        /// This property tracks the corresponding property that this field is backing for.
-        /// </summary>
-        public PropertyProvider? Property { get; internal set; }
-
-        /// <summary>
         /// Converts this field to a parameter.
         /// </summary>
         public ParameterProvider AsParameter => _parameter.Value;

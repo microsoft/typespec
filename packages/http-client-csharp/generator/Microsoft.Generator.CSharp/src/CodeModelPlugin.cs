@@ -55,7 +55,7 @@ namespace Microsoft.Generator.CSharp
         public abstract TypeFactory TypeFactory { get; }
         public virtual string LicenseString => string.Empty;
         public virtual OutputLibrary OutputLibrary { get; } = new();
-        public InputLibrary InputLibrary => _inputLibrary.Value;
+        public virtual InputLibrary InputLibrary => _inputLibrary.Value;
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
         public virtual IReadOnlyList<MetadataReference> AdditionalMetadataReferences => Array.Empty<MetadataReference>();
 

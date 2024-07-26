@@ -72,8 +72,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
             if (inputLibrary is not null)
             {
-                var inputLibInstance = typeof(CodeModelPlugin).GetField("_inputLibrary", BindingFlags.Instance | BindingFlags.NonPublic);
-                inputLibInstance!.SetValue(mockPluginInstance.Object, new Lazy<InputLibrary>(inputLibrary));
+                mockPluginInstance.Setup(p => p.InputLibrary).Returns(inputLibrary);
             }
 
             codeModelInstance!.SetValue(null, mockPluginInstance.Object);

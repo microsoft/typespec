@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -226,6 +227,27 @@ namespace Microsoft.Generator.CSharp
         {
             var humanizedString = HumanizedCamelCaseRegex.Replace(camelCase, "$1");
             return humanizedString.Split(' ').Select(w => w.FirstCharToUpperCase());
+        }
+
+        public static string ToApiVersionMemberName(string version)
+        {
+            var sb = new StringBuilder("V");
+            int startIndex = version.StartsWith("v", StringComparison.InvariantCultureIgnoreCase) ? 1 : 0;
+
+            for (int i = startIndex; i < version.Length; i++)
+            {
+                char c = version[i];
+                if (c == '-' || c == '.')
+                {
+                    sb.Append('_');
+                }
+                else
+                {
+                    sb.Append(c);
+                }
+            }
+
+            return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(sb.ToString());
         }
     }
 }

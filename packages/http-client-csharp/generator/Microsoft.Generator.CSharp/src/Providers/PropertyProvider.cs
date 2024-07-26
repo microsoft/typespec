@@ -106,7 +106,6 @@ namespace Microsoft.Generator.CSharp.Providers
                 return;
 
             _backingField = backingField;
-            backingField.Property = this;
         }
 
         public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
