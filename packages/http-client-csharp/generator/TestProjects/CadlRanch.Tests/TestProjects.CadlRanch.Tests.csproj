@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  
+  <ItemGroup>
+    <PackageReference Include="System.Memory.Data" />
+    <PackageReference Include="System.ClientModel" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../CadlRanch/**/*.cs" Exclude="../CadlRanch/**/Properties/**/*.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="TestProjects.CadlRanch.Tests.BuildProperties">
+      <_Parameter1>$(RepoRoot)</_Parameter1>
+      <_Parameter2>$(ArtifactsDir)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+  
+</Project>

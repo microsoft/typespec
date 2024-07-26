@@ -23,15 +23,22 @@ namespace Microsoft.Generator.CSharp.Providers
         public MethodSignatureModifiers Modifiers { get; }
         public CSharpType Type { get; }
         public string Name { get; }
-        public PropertyBody Body { get; }
+        public PropertyBody Body { get; private set; }
         public CSharpType? ExplicitInterface { get; }
-        public XmlDocProvider XmlDocs { get; }
+        public XmlDocProvider XmlDocs { get; private set; }
         public PropertyWireInformation? WireInfo { get; }
 
         /// <summary>
         /// Converts this property to a parameter.
         /// </summary>
         public ParameterProvider AsParameter => _parameter.Value;
+
+        // for mocking
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        protected PropertyProvider()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        {
+        }
 
         public PropertyProvider(InputModelProperty inputProperty)
         {
@@ -154,5 +161,19 @@ namespace Microsoft.Generator.CSharp.Providers
         private MemberExpression? _asMember;
         public static implicit operator MemberExpression(PropertyProvider property)
             => property._asMember ??= new MemberExpression(null, property.Name);
+
+        public void Update(
+            PropertyBody? body = null,
+            XmlDocProvider? xmlDocs = null)
+        {
+            if (body != null)
+            {
+                Body = body;
+            }
+            if (xmlDocs != null)
+            {
+                XmlDocs = xmlDocs;
+            }
+        }
     }
 }

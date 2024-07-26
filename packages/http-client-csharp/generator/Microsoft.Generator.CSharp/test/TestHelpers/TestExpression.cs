@@ -5,7 +5,7 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
-    internal record MockExpression : ValueExpression
+    internal record TestExpression : ValueExpression
     {
         internal override void Write(CodeWriter writer)
         {

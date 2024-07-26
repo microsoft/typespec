@@ -8,76 +8,120 @@ namespace Microsoft.Generator.CSharp
 {
     public abstract class OutputLibraryVisitor
     {
-        internal void Visit(OutputLibrary outputLibrary)
+        internal virtual void Visit(OutputLibrary outputLibrary)
         {
             var types = new List<TypeProvider>();
             // TODO add more things to visit, e.g Constructors, Parameters, etc - https://github.com/microsoft/typespec/issues/3825
             foreach (var typeProvider in outputLibrary.TypeProviders)
             {
-                var type = Visit(typeProvider);
+                var type = VisitType(typeProvider);
                 if (type != null)
                 {
                     types.Add(type);
-
-                    var methods = new List<MethodProvider>();
-                    foreach (var methodProvider in typeProvider.Methods)
-                    {
-                        var method = Visit(typeProvider, methodProvider);
-                        if (method != null)
-                        {
-                            methods.Add(method);
-                        }
-                    }
-
-                    var properties = new List<PropertyProvider>();
-                    foreach (var propertyProvider in typeProvider.Properties)
-                    {
-                        var property = Visit(typeProvider, propertyProvider);
-                        if (property != null)
-                        {
-                            properties.Add(property);
-                        }
-                    }
-
-                    var fields = new List<FieldProvider>();
-                    foreach (var fieldProvider in typeProvider.Fields)
-                    {
-                        var field = Visit(typeProvider, fieldProvider);
-                        if (field != null)
-                        {
-                            fields.Add(field);
-                        }
-                    }
-
-                    type.Update(methods, properties, fields);
                 }
             }
             outputLibrary.TypeProviders = types;
         }
 
-        protected virtual TypeProvider? Visit(TypeProvider typeProvider)
+        private TypeProvider? VisitType(TypeProvider typeProvider)
         {
-            return typeProvider;
+            var type = Visit(typeProvider);
+            if (type != null)
+            {
+                var methods = new List<MethodProvider>();
+                foreach (var methodProvider in typeProvider.Methods)
+                {
+                    var method = Visit(typeProvider, methodProvider);
+                    if (method != null)
+                    {
+                        methods.Add(method);
+                    }
+                }
+
+                var constructors = new List<ConstructorProvider>();
+                foreach (var constructorProvider in typeProvider.Constructors)
+                {
+                    var constructor = Visit(typeProvider, constructorProvider);
+                    if (constructor != null)
+                    {
+                        constructors.Add(constructor);
+                    }
+                }
+
+                var properties = new List<PropertyProvider>();
+                foreach (var propertyProvider in typeProvider.Properties)
+                {
+                    var property = Visit(typeProvider, propertyProvider);
+                    if (property != null)
+                    {
+                        properties.Add(property);
+                    }
+                }
+
+                var fields = new List<FieldProvider>();
+                foreach (var fieldProvider in typeProvider.Fields)
+                {
+                    var field = Visit(typeProvider, fieldProvider);
+                    if (field != null)
+                    {
+                        fields.Add(field);
+                    }
+                }
+
+                var serializations = new List<TypeProvider>();
+                foreach (var serializationProvider in typeProvider.SerializationProviders)
+                {
+                    var serialization = VisitType(serializationProvider);
+                    if (serialization != null)
+                    {
+                        serializations.Add(serialization);
+                    }
+                }
+
+                var nestedTypes = new List<TypeProvider>();
+                foreach (var nestedTypeProvider in typeProvider.NestedTypes)
+                {
+                    var nestedType = VisitType(nestedTypeProvider);
+                    if (nestedType != null)
+                    {
+                        nestedTypes.Add(nestedType);
+                    }
+                }
+
+                type.Update(methods, constructors, properties, fields, serializations, nestedTypes);
+                type = PostVisit(type);
+            }
+            return type;
         }
 
-        protected virtual ConstructorProvider? Visit(TypeProvider typeProvider, ConstructorProvider constructorProvider)
+        protected virtual TypeProvider? Visit(TypeProvider type)
         {
-            return constructorProvider;
+            return type;
         }
 
-        protected virtual MethodProvider? Visit(TypeProvider typeProvider, MethodProvider methodProvider)
+        protected virtual TypeProvider? PostVisit(TypeProvider type)
         {
-            return methodProvider;
+            return type;
         }
 
-        protected virtual PropertyProvider? Visit(TypeProvider typeProvider, PropertyProvider propertyProvider)
+        protected virtual ConstructorProvider? Visit(TypeProvider enclosingType, ConstructorProvider constructor)
         {
-            return propertyProvider;
+            return constructor;
         }
 
-        protected virtual FieldProvider? Visit(TypeProvider typeProvider, FieldProvider fieldProvider)
+        protected virtual MethodProvider? Visit(TypeProvider enclosingType, MethodProvider method)
         {
-            return fieldProvider;
+            return method;
+        }
+
+        protected virtual PropertyProvider? Visit(TypeProvider enclosingType, PropertyProvider property)
+        {
+            return property;
+        }
+
+        protected virtual FieldProvider? Visit(TypeProvider enclosingType, FieldProvider field)
+        {
+            return field;
         }
     }
 }

@@ -22,7 +22,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(int));
 
-            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, InputPrimitiveType.Int32, [new InputEnumTypeValue("One", 1, null), new InputEnumTypeValue("Two", 2, null)], false);
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.Int32, [new InputEnumTypeValue("One", 1, null), new InputEnumTypeValue("Two", 2, null)], false);
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
 
@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             // validate the expression is working fine
             using var writer = new CodeWriter();
-            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
+            var enumVar = new VariableExpression(enumType.Type, new TestCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
             enumType.ToEnum(Snippet.Literal(1)).Write(writer);
@@ -63,7 +63,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(float));
 
+<<<<<<< HEAD
             var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, InputPrimitiveType.Float32, [new InputEnumTypeValue("One", 1f, null), new InputEnumTypeValue("Two", 2f, null)], false);
+=======
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, new InputPrimitiveType(InputPrimitiveTypeKind.Float32), [new InputEnumTypeValue("One", 1f, null), new InputEnumTypeValue("Two", 2f, null)], false);
+>>>>>>> origin/main
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
 
@@ -81,7 +85,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             // validate the expression is working fine
             using var writer = new CodeWriter();
-            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
+            var enumVar = new VariableExpression(enumType.Type, new TestCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
             enumType.ToEnum(Snippet.Literal(1f)).Write(writer);
@@ -101,7 +105,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(string));
 
+<<<<<<< HEAD
             var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, InputPrimitiveType.String, [new InputEnumTypeValue("One", "1", null), new InputEnumTypeValue("Two", "2", null)], false);
+=======
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, new InputPrimitiveType(InputPrimitiveTypeKind.String), [new InputEnumTypeValue("One", "1", null), new InputEnumTypeValue("Two", "2", null)], false);
+>>>>>>> origin/main
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
 
@@ -119,7 +127,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             // validate the expression is working fine
             using var writer = new CodeWriter();
-            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
+            var enumVar = new VariableExpression(enumType.Type, new TestCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
             enumType.ToEnum(Snippet.Literal("1")).Write(writer);
@@ -139,7 +147,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(int));
 
+<<<<<<< HEAD
             var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, InputPrimitiveType.Int32, [new InputEnumTypeValue("One", 1, null), new InputEnumTypeValue("Two", 2, null)], true);
+=======
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, new InputPrimitiveType(InputPrimitiveTypeKind.Int32), [new InputEnumTypeValue("One", 1, null), new InputEnumTypeValue("Two", 2, null)], true);
+>>>>>>> origin/main
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
             var properties = enumType.Properties;
@@ -176,7 +188,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             // validate the expression is working fine
             using var writer = new CodeWriter();
-            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
+            var enumVar = new VariableExpression(enumType.Type, new TestCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
             enumType.ToEnum(Snippet.Literal(1)).Write(writer);
@@ -196,7 +208,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(float));
 
+<<<<<<< HEAD
             var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, InputPrimitiveType.Float32, [new InputEnumTypeValue("One", 1f, null), new InputEnumTypeValue("Two", 2f, null)], true);
+=======
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, new InputPrimitiveType(InputPrimitiveTypeKind.Float32), [new InputEnumTypeValue("One", 1f, null), new InputEnumTypeValue("Two", 2f, null)], true);
+>>>>>>> origin/main
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
             var properties = enumType.Properties;
@@ -233,7 +249,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             // validate the expression is working fine
             using var writer = new CodeWriter();
-            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
+            var enumVar = new VariableExpression(enumType.Type, new TestCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
             enumType.ToEnum(Snippet.Literal(1f)).Write(writer);
@@ -253,7 +269,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(string));
 
+<<<<<<< HEAD
             var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, InputPrimitiveType.String, [new InputEnumTypeValue("One", "1", null), new InputEnumTypeValue("Two", "2", null)], true);
+=======
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, new InputPrimitiveType(InputPrimitiveTypeKind.String), [new InputEnumTypeValue("One", "1", null), new InputEnumTypeValue("Two", "2", null)], true);
+>>>>>>> origin/main
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
             var properties = enumType.Properties;
@@ -290,7 +310,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             // validate the expression is working fine
             using var writer = new CodeWriter();
-            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
+            var enumVar = new VariableExpression(enumType.Type, new TestCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
             enumType.ToEnum(Snippet.Literal("1")).Write(writer);
