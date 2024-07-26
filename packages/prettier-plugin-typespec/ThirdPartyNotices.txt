@@ -8,7 +8,7 @@ original copyright notices and the licenses under which Microsoft received such
 components are set forth below. Microsoft reserves all rights not expressly
 granted herein, whether by implication, estoppel or otherwise.
 
-1. prettier version 3.3.2 (prettier/prettier)
+1. prettier version 3.3.3 (prettier/prettier)
 
 
 %% prettier NOTICES AND INFORMATION BEGIN HERE
@@ -32,7 +32,7 @@ MIT, ISC, BSD-2-Clause, BSD-3-Clause, Apache-2.0
 
 ## Bundled dependencies
 
-### @angular/compiler@v18.0.2
+### @angular/compiler@v18.1.0
 
 > Angular - the compiler library
 
@@ -143,7 +143,7 @@ Author: The Babel Team (https://babel.dev/team)
 
 ----------------------------------------
 
-### @babel/parser@v7.24.7
+### @babel/parser@v7.24.8
 
 > A JavaScript parser
 
@@ -471,7 +471,7 @@ Author: Alex Bell <alex@bellandwhistle.net>
 
 ----------------------------------------
 
-### @typescript-eslint/types@v7.13.0
+### @typescript-eslint/types@v8.0.0-alpha.41
 
 > Types for the TypeScript-ESTree AST spec
 
@@ -503,7 +503,7 @@ Repository: <https://github.com/typescript-eslint/typescript-eslint.git>
 
 ----------------------------------------
 
-### @typescript-eslint/typescript-estree@v7.13.0
+### @typescript-eslint/typescript-estree@v8.0.0-alpha.41
 
 > A parser that converts TypeScript source code into an ESTree compatible form
 
@@ -540,13 +540,13 @@ Repository: <https://github.com/typescript-eslint/typescript-eslint.git>
 
 ----------------------------------------
 
-### acorn@v8.11.3
+### acorn@v8.12.1
 
 > ECMAScript parser
 
 License: MIT
 Homepage: <https://github.com/acornjs/acorn>
-Repository: <https://github.com/acornjs/acorn.git>
+Repository: <git+https://github.com/acornjs/acorn.git>
 
 > MIT License
 >
@@ -634,7 +634,7 @@ Author: Ika <ikatyang@gmail.com> (https://github.com/ikatyang)
 
 ----------------------------------------
 
-### angular-html-parser@v5.2.0
+### angular-html-parser@v6.0.2
 
 > A HTML parser extracted from Angular with some modifications
 
@@ -643,19 +643,19 @@ Homepage: <https://github.com/prettier/angular-html-parser/blob/master/packages/
 Author: Ika <ikatyang@gmail.com> (https://github.com/ikatyang)
 
 > MIT License
->
+> 
 > Copyright (c) Ika <ikatyang@gmail.com> (https://github.com/ikatyang)
->
+> 
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal
 > in the Software without restriction, including without limitation the rights
 > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 > copies of the Software, and to permit persons to whom the Software is
 > furnished to do so, subject to the following conditions:
->
+> 
 > The above copyright notice and this permission notice shall be included in all
 > copies or substantial portions of the Software.
->
+> 
 > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -1182,7 +1182,7 @@ Author: Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
 
 ----------------------------------------
 
-### espree@v10.0.1
+### espree@v10.1.0
 
 > An Esprima-compatible JavaScript parser built on Acorn
 
@@ -1317,7 +1317,7 @@ Author: James Halliday <mail@substack.net> (http://substack.net)
 
 ----------------------------------------
 
-### fastq@v1.15.0
+### fastq@v1.17.1
 
 > Fast, in memory work queue
 
@@ -1620,7 +1620,7 @@ Contributors:
 
 ----------------------------------------
 
-### graphql@v16.8.1
+### graphql@v16.9.0
 
 > A Query Language and Runtime which can target any service.
 
@@ -2238,7 +2238,7 @@ Author: fisker Cheung <lionkay@gmail.com> (https://www.fiskercheung.com/)
 
 ----------------------------------------
 
-### jest-docblock@v29.7.0
+### jest-docblock@v30.0.0-alpha.5
 
 License: MIT
 Repository: <https://github.com/jestjs/jest.git>
@@ -2246,6 +2246,7 @@ Repository: <https://github.com/jestjs/jest.git>
 > MIT License
 >
 > Copyright (c) Meta Platforms, Inc. and affiliates.
+> Copyright Contributors to the Jest project.
 >
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal
@@ -2958,7 +2959,7 @@ Author: typicode
 
 ----------------------------------------
 
-### postcss@v8.4.38
+### postcss@v8.4.39
 
 > Tool for transforming styles with JS plugins
 
@@ -3700,7 +3701,7 @@ Author: JoshuaKGoldberg <npm@joshuakgoldberg.com>
 
 ----------------------------------------
 
-### typescript@v5.4.5
+### typescript@v5.5.3
 
 > TypeScript is a language for application scale JavaScript development
 
@@ -4375,7 +4376,7 @@ Author: Ika <ikatyang@gmail.com> (https://github.com/ikatyang)
 
 ----------------------------------------
 
-### yocto-queue@v1.0.0
+### yocto-queue@v1.1.1
 
 > Tiny queue data structure
 

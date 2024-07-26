@@ -347,6 +347,7 @@ function createOAPIEmitter(
       root.servers = resolveServers(servers);
     }
 
+    attachExtensions(program, service.type, root);
     serviceNamespaceName = getNamespaceFullName(service.type);
     currentPath = root.paths;
 
@@ -990,6 +991,10 @@ function createOAPIEmitter(
     const openApiResponse = currentEndpoint.responses[statusCode] ?? {
       description: response.description ?? getResponseDescriptionForStatusCode(statusCode),
     };
+    const refUrl = getRef(program, response.type);
+    if (refUrl) {
+      openApiResponse.$ref = refUrl;
+    }
     emitResponseHeaders(openApiResponse, response.responses, response.type);
     emitResponseContent(operation, openApiResponse, response.responses);
     currentEndpoint.responses[statusCode] = openApiResponse;

@@ -9,6 +9,7 @@ import {
 import {
   HttpFileDecorator,
   HttpPartDecorator,
+  HttpPartOptions,
   PlainDataDecorator,
 } from "../generated-defs/TypeSpec.Http.Private.js";
 import { HttpStateKeys } from "./lib.js";
@@ -89,10 +90,6 @@ export function getHttpFileModel(program: Program, type: Type): HttpFileModel | 
   const contents = getProperty(type, "contents")!;
 
   return { contents, contentType, filename, type };
-}
-
-export interface HttpPartOptions {
-  readonly name?: string;
 }
 
 export const $httpPart: HttpPartDecorator = (

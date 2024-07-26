@@ -1,3 +1,4 @@
+import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
@@ -96,7 +97,7 @@ describe("Test GetInputType for enum", () => {
     strictEqual(type.Values[1].Value, "2");
     strictEqual(type.Values[2].Name, "Four");
     strictEqual(type.Values[2].Value, "4");
-    strictEqual(type.Usage, "Input");
+    strictEqual(type.Usage, UsageFlags.Input | UsageFlags.Json);
   });
 
   it("Fixed int enum", async () => {
@@ -138,7 +139,7 @@ describe("Test GetInputType for enum", () => {
     strictEqual(type.Values[2].Name, "Four");
     strictEqual(type.Values[2].Value, 4);
     strictEqual(type.IsExtensible, false);
-    strictEqual(type.Usage, "Input");
+    strictEqual(type.Usage, UsageFlags.Input | UsageFlags.Json);
   });
 
   it("fixed enum", async () => {
@@ -171,7 +172,7 @@ describe("Test GetInputType for enum", () => {
     strictEqual(type.Values[1].Value, "2");
     strictEqual(type.Values[2].Name, "Four");
     strictEqual(type.Values[2].Value, "4");
-    strictEqual(type.Usage, "Input");
+    strictEqual(type.Usage, UsageFlags.Input | UsageFlags.Json);
     strictEqual(type.IsExtensible, false);
   });
 });

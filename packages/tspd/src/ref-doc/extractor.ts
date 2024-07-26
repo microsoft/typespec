@@ -7,6 +7,7 @@ import {
   DocContent,
   DocUnknownTagNode,
   Enum,
+  EnumMember,
   getDoc,
   getLocationContext,
   getSourceLocation,
@@ -44,6 +45,7 @@ import { reportDiagnostic } from "./lib.js";
 import {
   DecoratorRefDoc,
   EmitterOptionRefDoc,
+  EnumMemberRefDoc,
   EnumRefDoc,
   ExampleRefDoc,
   FunctionParameterRefDoc,
@@ -458,8 +460,24 @@ function extractEnumRefDoc(program: Program, type: Enum): EnumRefDoc {
     type,
     doc: doc,
     examples: extractExamples(type),
+    members: new Map(
+      [...type.members.values()].map((x) => [x.name, extractEnumMemberRefDocs(program, x)])
+    ),
   };
 }
+
+function extractEnumMemberRefDocs(program: Program, type: EnumMember): EnumMemberRefDoc {
+  const doc = extractMainDoc(program, type);
+  return {
+    id: getNamedTypeId(type),
+    name: type.name,
+    signature: getTypeSignature(type),
+    type,
+    doc: doc,
+    examples: extractExamples(type),
+  };
+}
+
 function extractUnionRefDocs(program: Program, type: Union & { name: string }): UnionRefDoc {
   const doc = extractMainDoc(program, type);
   if (doc === undefined || doc === "") {
@@ -510,7 +528,7 @@ function extractMainDoc(program: Program, type: Type): string {
       mainDocs.push(dContent.text);
     }
   }
-  return mainDocs.length > 0 ? mainDocs.join("\n") : getDoc(program, type) ?? "";
+  return mainDocs.length > 0 ? mainDocs.join("\n") : (getDoc(program, type) ?? "");
 }
 
 function extractExamples(type: Type): ExampleRefDoc[] {

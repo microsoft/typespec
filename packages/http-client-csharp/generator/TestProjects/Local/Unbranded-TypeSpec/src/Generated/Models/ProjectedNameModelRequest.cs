@@ -2,21 +2,13 @@
 
 #nullable disable
 
-using System;
-using UnbrandedTypeSpec;
-
 namespace UnbrandedTypeSpec.Models
 {
     /// <summary> The ProjectedNameModelRequest. </summary>
     public partial class ProjectedNameModelRequest
     {
-        /// <summary> Initializes a new instance of <see cref="ProjectedNameModelRequest"/>. </summary>
-        /// <param name="name"> name of the ModelWithProjectedName. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
-        public ProjectedNameModelRequest(string name)
+        internal ProjectedNameModelRequest(string name)
         {
-            Argument.AssertNotNull(name, nameof(name));
-
             Name = name;
         }
 

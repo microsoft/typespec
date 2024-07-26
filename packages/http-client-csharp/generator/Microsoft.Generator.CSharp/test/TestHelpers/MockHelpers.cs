@@ -12,11 +12,13 @@ namespace Microsoft.Generator.CSharp.Tests
 {
     internal static class MockHelpers
     {
-        public const string MocksFolder = "Mocks";
+        public const string TestHelpersFolder = "TestHelpers";
 
-        public static void LoadMockPlugin(Func<InputType, CSharpType>? createCSharpTypeCore = null)
+        public static void LoadMockPlugin(
+            Func<InputType, CSharpType>? createCSharpTypeCore = null,
+            Func<OutputLibrary>? createOutputLibrary = null)
         {
-            var configFilePath = Path.Combine(AppContext.BaseDirectory, MocksFolder);
+            var configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
             // initialize the singleton instance of the plugin
             var mockPlugin = new Mock<CodeModelPlugin>(new GeneratorContext(Configuration.Load(configFilePath))) { CallBase = true };
 
@@ -26,6 +28,12 @@ namespace Microsoft.Generator.CSharp.Tests
             {
                 mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns((InputType inputType) => createCSharpTypeCore.Invoke(inputType));
             }
+
+            if (createOutputLibrary != null)
+            {
+                mockPlugin.Setup(p => p.OutputLibrary).Returns(createOutputLibrary);
+            }
+
             mockPlugin.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
 
             CodeModelPlugin.Instance = mockPlugin.Object;

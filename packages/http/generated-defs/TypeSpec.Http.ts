@@ -194,7 +194,7 @@ export type DeleteDecorator = (context: DecoratorContext, target: Operation) => 
 export type HeadDecorator = (context: DecoratorContext, target: Operation) => void;
 
 /**
- * Specify the endpoint for this service.
+ * Specify an endpoint for this service. Multiple `@server` decorators can be used to specify multiple endpoints.
  *
  * @param url Server endpoint
  * @param description Description of the endpoint
@@ -205,13 +205,22 @@ export type HeadDecorator = (context: DecoratorContext, target: Operation) => vo
  * @server("https://example.com", "Single server endpoint")
  * namespace PetStore;
  * ```
- * @example parameterized
+ * @example Parameterized
  *
  * ```typespec
  * @server("https://{region}.foo.com", "Regional endpoint", {
  *   @doc("Region name")
  *   region?: string = "westus",
  * })
+ * ```
+ * @example Multiple
+ * ```typespec
+ * @service
+ * @server("https://example.com", "Standard endpoint")
+ * @server("https://{project}.private.example.com", "Private project endpoint", {
+ *   project: string;
+ * })
+ * namespace PetStore;
  * ```
  */
 export type ServerDecorator = (
