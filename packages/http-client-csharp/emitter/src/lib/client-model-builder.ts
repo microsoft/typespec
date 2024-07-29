@@ -2,25 +2,26 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import {
+  getAllModels,
   SdkClientType,
   SdkContext,
   SdkEndpointParameter,
   SdkHttpOperation,
   SdkServiceMethod,
-  getAllModels,
 } from "@azure-tools/typespec-client-generator-core";
-import { getDoc } from "@typespec/compiler";
+import { getDoc, Value } from "@typespec/compiler";
 import { NetEmitterOptions, resolveOptions } from "../options.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputClient } from "../type/input-client.js";
+import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputParameter } from "../type/input-parameter.js";
-import { InputEnumType, InputModelType, InputPrimitiveType } from "../type/input-type.js";
+import { InputEnumType, InputModelType, InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
 import { fromSdkType } from "./converter.js";
 import { Logger } from "./logger.js";
 import { navigateModels } from "./model.js";
-import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation.js";
+import { fromSdkServiceMethod } from "./operation.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 
 export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeModel {
@@ -156,11 +157,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     const parameters: InputParameter[] = [];
     for (const parameter of p.type.templateArguments) {
       const isEndpoint = parameter.name === endpointVariableName;
-      const parameterType = isEndpoint
-        ? ({
-            Kind: "uri",
-          } as InputPrimitiveType)
-        : fromSdkType(parameter.type, sdkContext, modelMap, enumMap);
+      const parameterType = fromSdkType(parameter.type, sdkContext, modelMap, enumMap);
       parameters.push({
         Name: parameter.name,
         NameInRequest: parameter.serializedName,
@@ -177,7 +174,11 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
         SkipUrlEncoding: false,
         Explode: false,
         Kind: InputOperationParameterKind.Client,
-        DefaultValue: getParameterDefaultValue(parameter.clientDefaultValue, parameterType),
+        // TODO: update this after https://github.com/Azure/typespec-azure/issues/1030 is fixed
+        DefaultValue: getSdkEndpointParameterDefaultValue(
+          parameter.__raw?.defaultValue,
+          parameterType
+        ),
       });
     }
     return parameters;
@@ -198,4 +199,26 @@ function getMethodUri(p: SdkEndpointParameter | undefined): string {
   if (p.type.templateArguments.length > 0) return p.type.serverUrl;
 
   return `{${p.name}}`;
+}
+
+function getSdkEndpointParameterDefaultValue(
+  value: Value | undefined,
+  type: InputType
+): InputConstant | undefined {
+  if (!value) return undefined;
+
+  switch (value.valueKind) {
+    case "NumericValue":
+    case "StringValue":
+    case "BooleanValue":
+    case "EnumValue":
+      return {
+        Type: type,
+        Value: value.value,
+      };
+    case "NullValue":
+      return undefined;
+    default:
+      throw new Error(`Unsupported value kind "${value.valueKind}" of endpoint parameter`);
+  }
 }
