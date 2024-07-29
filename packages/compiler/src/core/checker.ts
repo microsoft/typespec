@@ -7902,7 +7902,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function isStringLiteralRelatedTo(source: StringLiteral | StringTemplate, target: Scalar) {
-    if (!areScalarsRelated(target, getStdType("string"))) {
+    if (!areScalarsRelated((target.projectionBase as any) ?? target, getStdType("string"))) {
       return false;
     }
     if (source.kind === "StringTemplate") {
