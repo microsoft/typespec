@@ -54,7 +54,6 @@ import {
 import { AssetEmitter, createAssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
 import {} from "@typespec/compiler/utils";
 import {
-  Authentication,
   AuthenticationOptionReference,
   AuthenticationReference,
   createMetadataInfo,
@@ -67,14 +66,12 @@ import {
   HttpOperationBody,
   HttpOperationMultipartBody,
   HttpOperationParameter,
-  HttpOperationParameters,
   HttpOperationPart,
   HttpOperationResponse,
   HttpOperationResponseContent,
   HttpServer,
   HttpStatusCodeRange,
   HttpStatusCodesEntry,
-  HttpVerb,
   isContentTypeHeader,
   isOrExtendsHttpFile,
   isOverloadSameEndpoint,
@@ -515,18 +512,9 @@ function createOAPIEmitter(
   /**
    * Validates that common responses are consistent and returns the minimal set that describes the differences.
    */
-  function validateCommonResponses(
-    statusCode: string,
-    ops: HttpOperation[]
+  function deduplicateCommonResponses(
+    statusCodeResponses: HttpOperationResponse[]
   ): HttpOperationResponse[] {
-    const statusCodeResponses: HttpOperationResponse[] = [];
-    for (const op of ops) {
-      for (const response of op.responses) {
-        if (getOpenAPI3StatusCodes(response.statusCodes, response.type).includes(statusCode)) {
-          statusCodeResponses.push(response);
-        }
-      }
-    }
     const ref = statusCodeResponses[0];
     const sameTypeKind = statusCodeResponses.every((r) => r.type.kind === ref.type.kind);
     const sameTypeValue = statusCodeResponses.every((r) => r.type === ref.type);
@@ -539,73 +527,62 @@ function createOAPIEmitter(
   }
 
   /**
-   * Validates that common bodies are consistent and returns the minimal set that describes the differences.
-   */
-  function validateCommonBodies(ops: HttpOperation[]): HttpOperationBody[] | undefined {
-    const allBodies = ops.map((op) => op.parameters.body) as HttpOperationBody[];
-    return [...new Set(allBodies)];
-  }
-
-  /**
    * Validates that common parameters are consistent and returns the minimal set that describes the differences.
    */
-  function validateCommonParameters(
-    ops: HttpOperation[],
-    name: string,
-    totalOps: number
-  ): HttpOperationParameter[] {
+  function resolveSharedRouteParameters(ops: HttpOperation[]): HttpOperationParameter[] {
     const finalParams: HttpOperationParameter[] = [];
-    const commonParams: HttpOperationParameter[] = [];
+    const parameters = new Map<string, HttpOperationParameter[]>();
     for (const op of ops) {
-      const param = op.parameters.parameters.find((p) => p.name === name);
-      if (param) {
-        commonParams.push(param);
+      for (const parameter of op.parameters.parameters) {
+        const existing = parameters.get(parameter.name);
+        if (existing) {
+          existing.push(parameter);
+        } else {
+          parameters.set(parameter.name, [parameter]);
+        }
       }
     }
-    const reference = commonParams[0];
-    if (!reference) {
+
+    if (parameters.size === 0) {
       return [];
     }
-    const inAllOps = ops.length === totalOps;
-    const sameLocations = commonParams.every((p) => p.type === reference.type);
-    const sameOptionality = commonParams.every(
-      (p) => p.param.optional === reference.param.optional
-    );
-    const sameTypeKind = commonParams.every((p) => p.param.type.kind === reference.param.type.kind);
-    const sameTypeValue = commonParams.every((p) => p.param.type === reference.param.type);
+    for (const sharedParams of parameters.values()) {
+      const reference = sharedParams[0];
 
-    if (inAllOps && sameLocations && sameOptionality && sameTypeKind && sameTypeValue) {
-      // param is consistent and in all shared operations. Only need one copy.
-      finalParams.push(reference);
-    } else if (!inAllOps && sameLocations && sameOptionality && sameTypeKind && sameTypeValue) {
-      // param is consistent when used, but does not appear in all shared operations. Only need one copy, but it must be optional.
-      reference.param.optional = true;
-      finalParams.push(reference);
-    } else if (inAllOps && !(sameLocations && sameOptionality && sameTypeKind)) {
-      // param is in all shared operations, but is not consistent. Need multiple copies, which must be optional.
-      // exception allowed when the params only differ by their value (e.g. string enum values)
-      commonParams.forEach((p) => {
-        p.param.optional = true;
-      });
-      finalParams.push(...commonParams);
-    } else {
-      finalParams.push(...commonParams);
+      const inAllOps = ops.length === sharedParams.length;
+      const sameLocations = sharedParams.every((p) => p.type === reference.type);
+      const sameOptionality = sharedParams.every(
+        (p) => p.param.optional === reference.param.optional
+      );
+      const sameTypeKind = sharedParams.every(
+        (p) => p.param.type.kind === reference.param.type.kind
+      );
+      const sameTypeValue = sharedParams.every((p) => p.param.type === reference.param.type);
+
+      if (inAllOps && sameLocations && sameOptionality && sameTypeKind && sameTypeValue) {
+        // param is consistent and in all shared operations. Only need one copy.
+        finalParams.push(reference);
+      } else if (!inAllOps && sameLocations && sameOptionality && sameTypeKind && sameTypeValue) {
+        // param is consistent when used, but does not appear in all shared operations. Only need one copy, but it must be optional.
+        reference.param.optional = true;
+        finalParams.push(reference);
+      } else if (inAllOps && !(sameLocations && sameOptionality && sameTypeKind)) {
+        // param is in all shared operations, but is not consistent. Need multiple copies, which must be optional.
+        // exception allowed when the params only differ by their value (e.g. string enum values)
+        sharedParams.forEach((p) => {
+          p.param.optional = true;
+        });
+        finalParams.push(...sharedParams);
+      } else {
+        finalParams.push(...sharedParams);
+      }
     }
     return finalParams;
   }
 
   interface SharedHttpOperation {
     kind: "shared";
-    path: string;
-    operationId: string;
-    description: string | undefined;
-    summary: string | undefined;
-    verb: HttpVerb;
-    parameters: HttpOperationParameters;
-    bodies: HttpOperationBody[] | undefined;
-    authentication?: Authentication;
-    responses: Map<string, HttpOperationResponse[]>;
-    operations: Operation[];
+    operations: HttpOperation[];
   }
 
   function getOpenAPI3StatusCodes(
@@ -669,56 +646,10 @@ function createOAPIEmitter(
   }
 
   function buildSharedOperation(operations: HttpOperation[]): SharedHttpOperation {
-    const paramMap = new Map<string, HttpOperation[]>();
-    const responseMap = new Map<string, HttpOperation[]>();
-
-    for (const op of operations) {
-      // determine which parameters are shared by shared route operations
-      for (const param of op.parameters.parameters) {
-        if (paramMap.has(param.name)) {
-          paramMap.get(param.name)!.push(op);
-        } else {
-          paramMap.set(param.name, [op]);
-        }
-      }
-      // determine which responses are shared by shared route operations
-      for (const response of op.responses) {
-        const statusCodes = getOpenAPI3StatusCodes(response.statusCodes, op.operation);
-        for (const statusCode of statusCodes) {
-          if (responseMap.has(statusCode)) {
-            responseMap.get(statusCode)!.push(op);
-          } else {
-            responseMap.set(statusCode, [op]);
-          }
-        }
-      }
-    }
-
-    const totalOps = operations.length;
-    const shared: SharedHttpOperation = {
+    return {
       kind: "shared",
-      operationId: operations.map((op) => resolveOperationId(program, op.operation)).join("_"),
-      description: joinOps(operations, getDoc, " "),
-      summary: joinOps(operations, getSummary, " "),
-      path: operations[0].path,
-      verb: operations[0].verb,
-      operations: operations.map((op) => op.operation),
-      parameters: {
-        parameters: [],
-      } as any,
-      bodies: undefined,
-      authentication: operations[0].authentication,
-      responses: new Map<string, HttpOperationResponse[]>(),
+      operations: operations,
     };
-    for (const [paramName, ops] of paramMap) {
-      const commonParams = validateCommonParameters(ops, paramName, totalOps);
-      shared.parameters.parameters.push(...commonParams);
-    }
-    shared.bodies = validateCommonBodies(operations);
-    for (const [statusCode, ops] of responseMap) {
-      shared.responses.set(statusCode, validateCommonResponses(statusCode, ops));
-    }
-    return shared;
   }
 
   /**
@@ -760,7 +691,9 @@ function createOAPIEmitter(
 
       for (const op of resolveOperations(httpService.operations)) {
         if ((op as SharedHttpOperation).kind === "shared") {
-          const opAuth = auth.operationsAuth.get((op as SharedHttpOperation).operations[0]);
+          const opAuth = auth.operationsAuth.get(
+            (op as SharedHttpOperation).operations[0].operation
+          );
           emitSharedOperation(op as SharedHttpOperation, opAuth);
         } else {
           const opAuth = auth.operationsAuth.get((op as HttpOperation).operation);
@@ -807,28 +740,59 @@ function createOAPIEmitter(
     }
   }
 
+  function computeSharedOperationId(shared: SharedHttpOperation) {
+    return shared.operations.map((op) => resolveOperationId(program, op.operation)).join("_");
+  }
+
   function emitSharedOperation(
     shared: SharedHttpOperation,
     authReference?: AuthenticationReference
   ): void {
-    const { path: fullPath, verb: verb, operations: ops } = shared;
-    if (!root.paths[fullPath]) {
-      root.paths[fullPath] = {};
+    const { operation, verb, path } = getSharedOperation(shared, authReference);
+
+    if (!root.paths[path]) {
+      root.paths[path] = {};
     }
-    currentPath = root.paths[fullPath];
+    currentPath = root.paths[path];
     if (!currentPath[verb]) {
-      currentPath[verb] = {};
+      currentPath[verb] = operation;
     }
-    currentEndpoint = currentPath[verb];
-    for (const op of ops) {
-      const opTags = getAllTags(program, op);
+  }
+
+  function getSharedOperation(
+    shared: SharedHttpOperation,
+    authReference?: AuthenticationReference
+  ): { operation: OpenAPI3Operation; path: string; verb: string } {
+    const operations = shared.operations;
+    const verb = operations[0].verb;
+    const path = operations[0].path;
+    const oai3Operation: OpenAPI3Operation = {
+      parameters: [],
+      operationId: computeSharedOperationId(shared),
+      description: joinOps(operations, getDoc, " "),
+      summary: joinOps(operations, getSummary, " "),
+      responses: {},
+    };
+
+    currentEndpoint = oai3Operation; // TODO: remove this
+
+    for (const op of operations) {
+      applyExternalDocs(op.operation, oai3Operation);
+      attachExtensions(program, op.operation, oai3Operation);
+      if (isDeprecated(program, op.operation)) {
+        currentEndpoint.deprecated = true;
+      }
+    }
+
+    for (const op of operations) {
+      const opTags = getAllTags(program, op.operation);
       if (opTags) {
-        const currentTags = currentEndpoint.tags;
+        const currentTags = oai3Operation.tags;
         if (currentTags) {
           // combine tags but eliminate duplicates
-          currentEndpoint.tags = [...new Set([...currentTags, ...opTags])];
+          oai3Operation.tags = [...new Set([...currentTags, ...opTags])];
         } else {
-          currentEndpoint.tags = opTags;
+          oai3Operation.tags = opTags;
         }
         for (const tag of opTags) {
           // Add to root tags if not already there
@@ -836,47 +800,37 @@ function createOAPIEmitter(
         }
       }
     }
-    // Set up basic endpoint fields
-    currentEndpoint.operationId = shared.operationId;
-    for (const op of ops) {
-      applyExternalDocs(op, currentEndpoint);
-    }
-    currentEndpoint.summary = shared.summary;
-    currentEndpoint.description = shared.description;
-    currentEndpoint.parameters = [];
-    currentEndpoint.responses = {};
+
     // Error out if shared routes do not have consistent `@parameterVisibility`. We can
     // lift this restriction in the future if a use case develops.
-    const visibilities = shared.operations.map((op) => {
-      return resolveRequestVisibility(program, op, verb);
-    });
+    const visibilities = operations.map((op) =>
+      resolveRequestVisibility(program, op.operation, verb)
+    );
     if (visibilities.some((v) => v !== visibilities[0])) {
       diagnostics.add(
         createDiagnostic({
           code: "inconsistent-shared-route-request-visibility",
-          target: ops[0],
+          target: operations[0].operation,
         })
       );
     }
-    const visibility = resolveRequestVisibility(program, shared.operations[0], verb);
-    emitEndpointParameters(shared.parameters.parameters, visibility);
-    if (shared.bodies) {
-      if (shared.bodies.length === 1) {
-        emitRequestBody(shared, shared.bodies[0], visibility);
-      } else if (shared.bodies.length > 1) {
-        emitMergedRequestBody(shared, shared.bodies, visibility);
+    const visibility = visibilities[0];
+    emitEndpointParameters(resolveSharedRouteParameters(operations), visibility);
+
+    const bodies = [...new Set(operations.map((op) => op.parameters.body))] as HttpOperationBody[];
+    if (bodies) {
+      if (bodies.length === 1) {
+        emitRequestBody(shared, bodies[0], visibility);
+      } else if (bodies.length > 1) {
+        emitMergedRequestBody(shared, bodies, visibility);
       }
     }
-    emitSharedResponses(shared, shared.responses);
-    for (const op of ops) {
-      if (isDeprecated(program, op)) {
-        currentEndpoint.deprecated = true;
-      }
-      attachExtensions(program, op, currentEndpoint);
-    }
+    emitSharedResponses(shared);
     if (authReference) {
       emitEndpointSecurity(authReference);
     }
+
+    return { operation: oai3Operation, verb, path };
   }
 
   function emitOperation(operation: HttpOperation, authReference?: AuthenticationReference): void {
@@ -923,15 +877,26 @@ function createOAPIEmitter(
     attachExtensions(program, op, currentEndpoint);
   }
 
-  function emitSharedResponses(
-    operation: SharedHttpOperation,
-    responses: Map<string, HttpOperationResponse[]>
-  ) {
-    for (const [statusCode, statusCodeResponses] of responses) {
-      if (statusCodeResponses.length === 1) {
-        emitResponseObject(operation, statusCode, statusCodeResponses[0]);
+  function emitSharedResponses(operation: SharedHttpOperation) {
+    const responseMap = new Map<string, HttpOperationResponse[]>();
+    for (const op of operation.operations) {
+      for (const response of op.responses) {
+        const statusCodes = getOpenAPI3StatusCodes(response.statusCodes, op.operation);
+        for (const statusCode of statusCodes) {
+          if (responseMap.has(statusCode)) {
+            responseMap.get(statusCode)!.push(response);
+          } else {
+            responseMap.set(statusCode, [response]);
+          }
+        }
+      }
+    }
+    for (const [statusCode, statusCodeResponses] of responseMap) {
+      const dedupeResponses = deduplicateCommonResponses(statusCodeResponses);
+      if (dedupeResponses.length === 1) {
+        emitResponseObject(operation, statusCode, dedupeResponses[0]);
       } else {
-        emitMergedResponseObject(operation, statusCode, statusCodeResponses);
+        emitMergedResponseObject(operation, statusCode, dedupeResponses);
       }
     }
   }
@@ -1155,7 +1120,7 @@ function createOAPIEmitter(
   ): [Operation, OpExample][] {
     if (isSharedHttpOperation(operation)) {
       return operation.operations.flatMap((op) =>
-        getOpExamples(program, op).map((x): [Operation, OpExample] => [op, x])
+        getOpExamples(program, op.operation).map((x): [Operation, OpExample] => [op.operation, x])
       );
     } else {
       return getOpExamples(program, operation.operation).map((x) => [operation.operation, x]);
