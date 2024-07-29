@@ -1551,7 +1551,7 @@
        "NameInRequest": "unbrandedTypeSpecUrl",
        "Type": {
         "$id": "234",
-        "Kind": "string"
+        "Kind": "uri"
        },
        "Location": "Uri",
        "IsApiVersion": false,
