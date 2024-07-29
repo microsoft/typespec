@@ -750,7 +750,7 @@ function createOAPIEmitter(
         verb: string;
       }
     | undefined {
-    if ("kind" in operation) {
+    if (isSharedHttpOperation(operation)) {
       return getSharedOperation(operation);
     } else {
       return getOperation(operation);
@@ -770,7 +770,7 @@ function createOAPIEmitter(
       operationId: computeSharedOperationId(shared),
       description: joinOps(operations, getDoc, " "),
       summary: joinOps(operations, getSummary, " "),
-      responses: {},
+      responses: getSharedResponses(shared),
     };
 
     currentEndpoint = oai3Operation; // TODO: remove this
@@ -824,7 +824,6 @@ function createOAPIEmitter(
         emitMergedRequestBody(shared, bodies, visibility);
       }
     }
-    emitSharedResponses(shared);
     const authReference = serviceAuth.operationsAuth.get(shared.operations[0].operation);
     if (authReference) {
       emitEndpointSecurity(authReference);
@@ -846,26 +845,25 @@ function createOAPIEmitter(
     const oai3Operation: OpenAPI3Operation = {
       summary: getSummary(program, operation.operation),
       description: getDoc(program, operation.operation),
+      operationId: resolveOperationId(program, operation.operation),
       parameters: [],
-      responses: {},
+      responses: getResponses(operation, operation.responses),
     };
     currentEndpoint = oai3Operation;
     const currentTags = getAllTags(program, op);
     if (currentTags) {
-      currentEndpoint.tags = currentTags;
+      oai3Operation.tags = currentTags;
       for (const tag of currentTags) {
         // Add to root tags if not already there
         tags.add(tag);
       }
     }
-    currentEndpoint.operationId = resolveOperationId(program, operation.operation);
-    applyExternalDocs(op, currentEndpoint);
+    applyExternalDocs(op, oai3Operation);
     // Set up basic endpoint fields
 
     const visibility = resolveRequestVisibility(program, operation.operation, verb);
     emitEndpointParameters(parameters.parameters, visibility);
     emitRequestBody(operation, parameters.body, visibility);
-    emitResponses(operation, operation.responses);
     const authReference = serviceAuth.operationsAuth.get(operation.operation);
     if (authReference) {
       emitEndpointSecurity(authReference);
@@ -877,7 +875,9 @@ function createOAPIEmitter(
     return { operation: oai3Operation, path: fullPath, verb };
   }
 
-  function emitSharedResponses(operation: SharedHttpOperation) {
+  function getSharedResponses(
+    operation: SharedHttpOperation
+  ): Record<string, Refable<OpenAPI3Response>> {
     const responseMap = new Map<string, HttpOperationResponse[]>();
     for (const op of operation.operations) {
       for (const response of op.responses) {
@@ -891,22 +891,26 @@ function createOAPIEmitter(
         }
       }
     }
+    const result: Record<string, Refable<OpenAPI3Response>> = {};
+
     for (const [statusCode, statusCodeResponses] of responseMap) {
       const dedupeResponses = deduplicateCommonResponses(statusCodeResponses);
-      if (dedupeResponses.length === 1) {
-        emitResponseObject(operation, statusCode, dedupeResponses[0]);
-      } else {
-        emitMergedResponseObject(operation, statusCode, dedupeResponses);
-      }
+      result[statusCode] = getResponseForStatusCode(operation, statusCode, dedupeResponses);
     }
+    return result;
   }
 
-  function emitResponses(operation: HttpOperation, responses: HttpOperationResponse[]) {
+  function getResponses(
+    operation: HttpOperation,
+    responses: HttpOperationResponse[]
+  ): Record<string, Refable<OpenAPI3Response>> {
+    const result: Record<string, Refable<OpenAPI3Response>> = {};
     for (const response of responses) {
       for (const statusCode of getOpenAPI3StatusCodes(response.statusCodes, response.type)) {
-        emitResponseObject(operation, statusCode, response);
+        result[statusCode] = getResponseForStatusCode(operation, statusCode, [response]);
       }
     }
+    return result;
   }
 
   function isBinaryPayload(body: Type, contentType: string) {
@@ -918,17 +922,20 @@ function createOAPIEmitter(
     );
   }
 
-  function emitMergedResponseObject(
-    operation: SharedHttpOperation,
+  function getResponseForStatusCode(
+    operation: HttpOperation | SharedHttpOperation,
     statusCode: OpenAPI3StatusCode,
     responses: HttpOperationResponse[]
-  ) {
-    const openApiResponse: any = {
-      description: undefined,
-      content: {},
+  ): Refable<OpenAPI3Response> {
+    const openApiResponse: OpenAPI3Response = {
+      description: "",
     };
     const schemaMap = new Map<string, any[]>();
     for (const response of responses) {
+      const refUrl = getRef(program, response.type);
+      if (refUrl) {
+        return { $ref: refUrl };
+      }
       if (response.description && response.description !== openApiResponse.description) {
         openApiResponse.description = openApiResponse.description
           ? `${openApiResponse.description} ${response.description}`
@@ -939,25 +946,9 @@ function createOAPIEmitter(
       if (!openApiResponse.description) {
         openApiResponse.description = getResponseDescriptionForStatusCode(statusCode);
       }
-      currentEndpoint.responses[statusCode] = openApiResponse;
     }
-  }
 
-  function emitResponseObject(
-    operation: HttpOperation | SharedHttpOperation,
-    statusCode: OpenAPI3StatusCode,
-    response: Readonly<HttpOperationResponse>
-  ) {
-    const openApiResponse = currentEndpoint.responses[statusCode] ?? {
-      description: response.description ?? getResponseDescriptionForStatusCode(statusCode),
-    };
-    const refUrl = getRef(program, response.type);
-    if (refUrl) {
-      openApiResponse.$ref = refUrl;
-    }
-    emitResponseHeaders(openApiResponse, response.responses, response.type);
-    emitResponseContent(operation, openApiResponse, response.responses);
-    currentEndpoint.responses[statusCode] = openApiResponse;
+    return openApiResponse;
   }
 
   function emitResponseHeaders(obj: any, responses: HttpOperationResponseContent[], target: Type) {
@@ -1375,6 +1366,7 @@ function createOAPIEmitter(
         currentEndpoint.parameters.push(params.get(httpOpParam.param));
         continue;
       }
+      // eslint-disable-next-line deprecation/deprecation
       if (httpOpParam.type === "header" && isContentTypeHeader(program, httpOpParam.param)) {
         continue;
       }

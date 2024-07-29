@@ -157,7 +157,7 @@ export type OpenAPI3Response = Extensions & {
   description: string;
 
   /** Maps a header name to its definition. RFC7230 states header names are case insensitive. If a response header is defined with the name "Content-Type", it SHALL be ignored. */
-  headers: Record<string, Refable<OpenAPI3Header>>;
+  headers?: Record<string, Refable<OpenAPI3Header>>;
 
   /** A map containing descriptions of potential response payloads. The key is a media type or media type range and the value describes it. For responses that match multiple keys, only the most specific key is applicable. e.g. text/plain overrides text/* */
   content?: Record<string, OpenAPI3MediaType>;
