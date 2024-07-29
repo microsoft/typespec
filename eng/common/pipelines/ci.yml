@@ -41,7 +41,7 @@ extends:
           DependsOn: InitStage
           Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCSharp'])
 
-      # Run csharp stages if RunJava == true
+      # Run java stages if RunJava == true
       - template: /packages/http-client-java/eng/pipeline/templates/ci-stages.yml
         parameters:
           DependsOn: InitStage
