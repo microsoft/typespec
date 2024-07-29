@@ -7504,9 +7504,9 @@ export function createChecker(program: Program): Checker {
     relationCache: MultiKeyMap<[Entity | IndeterminateEntity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     const cached = relationCache.get([source, target]);
-    if (cached !== undefined) {
-      return [cached, []];
-    }
+    // if (cached !== undefined) {
+    //   return [cached, []];
+    // }
     const [result, diagnostics] = isTypeAssignableToWorker(
       source,
       target,
@@ -7874,7 +7874,7 @@ export function createChecker(program: Program): Checker {
 
   function isNumericAssignableToNumericScalar(source: Numeric, target: Scalar) {
     // if the target does not derive from numeric, then it can't be assigned a numeric literal
-    if (!areScalarsRelated(target, getStdType("numeric"))) {
+    if (!areScalarsRelated((target.projectionBase as any) ?? target, getStdType("numeric"))) {
       return false;
     }
 

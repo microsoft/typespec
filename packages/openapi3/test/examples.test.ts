@@ -95,4 +95,25 @@ describe("operation examples", () => {
       age: 2,
     });
   });
+
+  it("set example on the response body with union", async () => {
+    const res: OpenAPI3Document = await openApiFor(
+      `
+      @opExample(#{
+        returnType: #{
+          name: "Fluffy",
+          age: 2,
+        },
+      })
+      op getPet(): {name: string, age: int32} | {
+        @statusCode _: 404;
+        error: string;
+      };
+      `
+    );
+    expect(res.paths["/"].get?.responses[200].content["application/json"].example).toEqual({
+      name: "Fluffy",
+      age: 2,
+    });
+  });
 });
