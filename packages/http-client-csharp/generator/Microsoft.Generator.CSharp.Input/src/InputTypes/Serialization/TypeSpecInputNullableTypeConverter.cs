@@ -4,9 +4,8 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Microsoft.Generator.CSharp.Input;
 
-namespace AutoRest.CSharp.Common.Input.InputTypes.Serialization
+namespace Microsoft.Generator.CSharp.Input
 {
     internal class TypeSpecInputNullableTypeConverter : JsonConverter<InputNullableType>
     {
