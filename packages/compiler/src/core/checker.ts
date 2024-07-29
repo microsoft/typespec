@@ -7504,9 +7504,9 @@ export function createChecker(program: Program): Checker {
     relationCache: MultiKeyMap<[Entity | IndeterminateEntity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     const cached = relationCache.get([source, target]);
-    // if (cached !== undefined) {
-    //   return [cached, []];
-    // }
+    if (cached !== undefined) {
+      return [cached, []];
+    }
     const [result, diagnostics] = isTypeAssignableToWorker(
       source,
       target,

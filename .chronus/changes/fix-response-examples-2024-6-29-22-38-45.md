@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Fix type comparaison of literal and scalar when in projection context
+Fix type comparison of literal and scalar when in projection context
