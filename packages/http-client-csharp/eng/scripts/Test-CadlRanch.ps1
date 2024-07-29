@@ -14,6 +14,12 @@ $directories = Get-ChildItem -Path "$cadlRanchRoot" -Directory -Recurse
 $cadlRanchCsproj = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch.Tests' 'TestProjects.CadlRanch.Tests.csproj'
 $runSettings = Join-Path $packageRoot 'eng' 'test-configurations' 'cadlranch.runsettings'
 
+$coverageDir = Join-Path $packageRoot 'generator' 'artifacts' 'coverage'
+
+if (-not (Test-Path $coverageDir)) {
+    New-Item -ItemType Directory -Path $coverageDir | Out-Null
+}
+
 function IsGenerated {
     param (
         [string]$dir

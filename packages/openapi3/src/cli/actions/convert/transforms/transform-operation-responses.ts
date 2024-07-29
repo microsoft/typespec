@@ -34,9 +34,11 @@ export function collectOperationResponses(
 
     // These headers will be applied to all of the models for this operation/statusCode
     const commonProperties: TypeSpecModelProperty[] = [];
-    for (const name of Object.keys(response.headers ?? {})) {
-      const property = convertHeaderToProperty(name, response.headers[name]);
-      if (property) commonProperties.push(property);
+    if (response.headers) {
+      for (const name of Object.keys(response.headers)) {
+        const property = convertHeaderToProperty(name, response.headers[name]);
+        if (property) commonProperties.push(property);
+      }
     }
 
     decorators.push(...getExtensions(response));
