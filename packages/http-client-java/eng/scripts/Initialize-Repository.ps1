@@ -17,16 +17,20 @@ try {
         Remove-Item -Recurse -Force "./node_modules"
     }
 
-    # install dotnet
+    # install Java 21
+    
+    # Linux
+    # https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_linux_hotspot_21.0.4_7.tar.gz
+    
+    # macOS
+    # https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_mac_hotspot_21.0.4_7.pkg
     if ($IsWindows) {
-        # download and run https://dot.net/v1/dotnet-install.ps1
-        Invoke-WebRequest 'https://dot.net/v1/dotnet-install.ps1' -OutFile 'dotnet-install.ps1'
-        ./dotnet-install.ps1 -Version '8.0.204'
+        # download JDK, install 
+        Invoke-WebRequest 'https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_windows_hotspot_21.0.4_7.msi' -OutFile 'java-install.msi'
+        ./java-install.msi
     }
-    else {
-        Invoke-WebRequest 'https://dot.net/v1/dotnet-install.sh' -OutFile 'dotnet-install.sh'
-        bash ./dotnet-install.sh --version 8.0.204
-    }
+   
+    # install Maven and set MAVEN_HOME
 
     # install and list npm packages
   
