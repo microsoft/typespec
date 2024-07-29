@@ -109,6 +109,7 @@ import {
   OpenAPI3Operation,
   OpenAPI3Parameter,
   OpenAPI3ParameterBase,
+  OpenAPI3RequestBody,
   OpenAPI3Response,
   OpenAPI3Schema,
   OpenAPI3SecurityScheme,
@@ -816,13 +817,11 @@ function createOAPIEmitter(
     const visibility = visibilities[0];
     emitEndpointParameters(resolveSharedRouteParameters(operations), visibility);
 
-    const bodies = [...new Set(operations.map((op) => op.parameters.body))] as HttpOperationBody[];
+    const bodies = [
+      ...new Set(operations.map((op) => op.parameters.body).filter((x) => x !== undefined)),
+    ];
     if (bodies) {
-      if (bodies.length === 1) {
-        emitRequestBody(shared, bodies[0], visibility);
-      } else if (bodies.length > 1) {
-        emitMergedRequestBody(shared, bodies, visibility);
-      }
+      currentEndpoint.requestBody = getRequestBody(shared, bodies, visibility);
     }
     const authReference = serviceAuth.operationsAuth.get(shared.operations[0].operation);
     if (authReference) {
@@ -863,7 +862,13 @@ function createOAPIEmitter(
 
     const visibility = resolveRequestVisibility(program, operation.operation, verb);
     emitEndpointParameters(parameters.parameters, visibility);
-    emitRequestBody(operation, parameters.body, visibility);
+    if (parameters.body) {
+      oai3Operation.requestBody = getRequestBody(
+        operation,
+        parameters.body && [parameters.body],
+        visibility
+      );
+    }
     const authReference = serviceAuth.operationsAuth.get(operation.operation);
     if (authReference) {
       emitEndpointSecurity(authReference);
@@ -1374,20 +1379,20 @@ function createOAPIEmitter(
     }
   }
 
-  function emitMergedRequestBody(
+  function getRequestBody(
     operation: HttpOperation | SharedHttpOperation,
-    bodies: HttpOperationBody[] | undefined,
+    bodies: (HttpOperationBody | HttpOperationMultipartBody)[] | undefined,
     visibility: Visibility
-  ) {
-    if (bodies === undefined) {
-      return;
+  ): OpenAPI3RequestBody | undefined {
+    if (bodies === undefined || bodies.every((x) => isVoidType(x.type))) {
+      return undefined;
     }
-    const requestBody: any = {
-      description: undefined,
+    const requestBody: OpenAPI3RequestBody = {
       content: {},
+      required: bodies.every((body) => (body.property ? !body.property.optional : true)),
     };
-    const schemaMap = new Map<string, any[]>();
-    for (const body of bodies) {
+    const schemaMap = new Map<string, OpenAPI3MediaType[]>();
+    for (const body of bodies.filter((x) => !isVoidType(x.type))) {
       const desc = body.property ? getDoc(program, body.property) : undefined;
       if (desc) {
         requestBody.description = requestBody.description
@@ -1396,61 +1401,28 @@ function createOAPIEmitter(
       }
       const contentTypes = body.contentTypes.length > 0 ? body.contentTypes : ["application/json"];
       for (const contentType of contentTypes) {
-        const { schema: bodySchema } = getBodyContentEntry(
-          operation,
-          "request",
-          body,
-          visibility,
-          contentType
-        );
-        if (schemaMap.has(contentType)) {
-          schemaMap.get(contentType)!.push(bodySchema);
+        const entry = getBodyContentEntry(operation, "request", body, visibility, contentType);
+        const existing = schemaMap.get(contentType);
+        if (existing) {
+          existing.push(entry);
         } else {
-          schemaMap.set(contentType, [bodySchema]);
+          schemaMap.set(contentType, [entry]);
         }
       }
     }
-    const content: any = {};
+
     for (const [contentType, schemaArray] of schemaMap) {
       if (schemaArray.length === 1) {
-        content[contentType] = { schema: schemaArray[0] };
+        requestBody.content[contentType] = schemaArray[0];
       } else {
-        content[contentType] = {
-          schema: { anyOf: schemaArray },
+        requestBody.content[contentType] = {
+          schema: { anyOf: schemaArray.map((x) => x.schema).filter((x) => x !== undefined) },
+          encoding: schemaArray.find((x) => x.encoding)?.encoding,
         };
       }
     }
-    requestBody.content = content;
-    currentEndpoint.requestBody = requestBody;
-  }
 
-  function emitRequestBody(
-    operation: HttpOperation | SharedHttpOperation,
-    body: HttpOperationBody | HttpOperationMultipartBody | undefined,
-    visibility: Visibility
-  ) {
-    if (body === undefined || isVoidType(body.type)) {
-      return;
-    }
-
-    const requestBody: any = {
-      description: body.property ? getDoc(program, body.property) : undefined,
-      required: body.property ? !body.property.optional : true,
-      content: {},
-    };
-
-    const contentTypes = body.contentTypes.length > 0 ? body.contentTypes : ["application/json"];
-    for (const contentType of contentTypes) {
-      requestBody.content[contentType] = getBodyContentEntry(
-        operation,
-        "request",
-        body,
-        visibility,
-        contentType
-      );
-    }
-
-    currentEndpoint.requestBody = requestBody;
+    return requestBody;
   }
 
   function emitParameter(parameter: HttpOperationParameter, visibility: Visibility) {

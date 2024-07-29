@@ -214,7 +214,7 @@ export type OpenAPI3Encoding = Extensions & {
  */
 export type OpenAPI3RequestBody = Extensions & {
   /** A brief description of the request body. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */
-  description: string;
+  description?: string;
 
   /** The content of the request body. The key is a media type or media type range and the value describes it. For requests that match multiple keys, only the most specific key is applicable. e.g. text/plain overrides text/* */
   content: Record<string, OpenAPI3MediaType>;
@@ -670,7 +670,7 @@ export type OpenAPI3Operation = Extensions & {
   responses?: any;
   tags?: string[];
   operationId?: string;
-  requestBody?: any;
+  requestBody?: OpenAPI3RequestBody;
   parameters: OpenAPI3Parameter[];
   deprecated?: boolean;
   security?: Record<string, string[]>[];
