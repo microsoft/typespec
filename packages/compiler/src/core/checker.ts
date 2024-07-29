@@ -293,6 +293,16 @@ export interface Checker {
   getStdType<T extends keyof StdTypes>(name: T): StdTypes[T];
 
   /**
+   * Return the exact type of a value.
+   *
+   * ```tsp
+   * const a: string = "hello";
+   * ```
+   * calling `getValueExactType` on the value of a would give the string literal "hello".
+   * @param value
+   */
+  getValueExactType(value: Value): Type | undefined;
+  /**
    * Check and resolve a type for the given type reference node.
    * @param node Node.
    * @returns Resolved type and diagnostics if there was an error.
@@ -356,6 +366,7 @@ export function createChecker(program: Program): Checker {
     TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     Sym | undefined
   >();
+  const valueExactTypes = new WeakMap<Value, Type>();
   let onCheckerDiagnostic: (diagnostic: Diagnostic) => void = (x: Diagnostic) => {
     program.reportDiagnostic(x);
   };
@@ -462,6 +473,7 @@ export function createChecker(program: Program): Checker {
     resolveTypeReference,
     getValueForNode,
     getTypeOrValueForNode,
+    getValueExactType,
   };
 
   const projectionMembers = createProjectionMembers(checker);
@@ -971,6 +983,18 @@ export function createChecker(program: Program): Checker {
     kind: "argument" | "assignment";
     type: Type;
   }
+
+  function canTryLegacyCast(
+    target: Type,
+    constraint: MixedParameterConstraint | undefined
+  ): constraint is MixedParameterConstraint &
+    Required<Pick<MixedParameterConstraint, "valueType">> {
+    return Boolean(
+      constraint?.valueType &&
+        !(constraint.type && ignoreDiagnostics(isTypeAssignableTo(target, constraint.type, target)))
+    );
+  }
+
   /**
    * Gets a type or value depending on the node and current constraint.
    * For nodes that can be both type or values(e.g. string), the value will be returned if the constraint expect a value of that type even if the constrain also allows the type.
@@ -986,7 +1010,7 @@ export function createChecker(program: Program): Checker {
     if (entity === null) {
       return entity;
     } else if (isType(entity)) {
-      if (valueConstraint) {
+      if (canTryLegacyCast(entity, constraint?.constraint)) {
         return legacy_tryTypeToValueCast(entity, valueConstraint, node);
       } else {
         return entity;
@@ -1548,7 +1572,7 @@ export function createChecker(program: Program): Checker {
             ? finalMap.get(param.constraint.type)!
             : param.constraint;
 
-        if (isType(type) && param.constraint?.valueType) {
+        if (isType(type) && canTryLegacyCast(type, param.constraint)) {
           const converted = legacy_tryTypeToValueCast(
             type,
             { kind: "argument", type: param.constraint.valueType },
@@ -2813,7 +2837,14 @@ export function createChecker(program: Program): Checker {
     node: TemplateArgumentNode,
     mapper: TypeMapper | undefined
   ) {
-    const resolved = resolveTypeReferenceSym(node.parent as TypeReferenceNode, mapper, false);
+    const ref = node.parent as TypeReferenceNode;
+    let resolved = resolveTypeReferenceSym(ref, mapper, false);
+    // if the reference type can't be resolved and has parse error,
+    // it likely means the reference type hasn't been completed yet. i.e. Foo<string,
+    // so try to resolve it by it's target directly to see if we can find its sym
+    if (!resolved && hasParseError(ref) && ref.target !== undefined) {
+      resolved = resolveTypeReferenceSym(ref.target, mapper, false);
+    }
     return (resolved?.declarations.filter((n) => isTemplatedNode(n)) ?? []) as TemplateableNode[];
   }
 
@@ -2838,6 +2869,7 @@ export function createChecker(program: Program): Checker {
       return (
         (isModelOrArray(n) &&
           (n.parent?.kind === SyntaxKind.TemplateParameterDeclaration ||
+            n.parent?.kind === SyntaxKind.TemplateArgument ||
             n.parent?.kind === SyntaxKind.DecoratorExpression)) ||
         (isModelOrArrayValue(n) &&
           (n.parent?.kind === SyntaxKind.CallExpression ||
@@ -2848,6 +2880,7 @@ export function createChecker(program: Program): Checker {
     let refType: Type | undefined;
     switch (foundNode?.parent?.kind) {
       case SyntaxKind.TemplateParameterDeclaration:
+      case SyntaxKind.TemplateArgument:
         refType = getReferencedTypeFromTemplateDeclaration(foundNode as ModelOrArrayNode);
         break;
       case SyntaxKind.DecoratorExpression:
@@ -2915,27 +2948,45 @@ export function createChecker(program: Program): Checker {
       return cur?.kind === "Model" ? cur : undefined;
     }
 
-    function getReferencedTypeFromTemplateDeclaration(dftNode: ModelOrArrayNode): Type | undefined {
-      const templateParmaeterDeclNode = dftNode?.parent;
+    function getReferencedTypeFromTemplateDeclaration(node: ModelOrArrayNode): Type | undefined {
+      let templateParmaeterDeclNode: TemplateParameterDeclarationNode | undefined = undefined;
+      if (
+        node?.parent?.kind === SyntaxKind.TemplateArgument &&
+        node?.parent?.parent?.kind === SyntaxKind.TypeReference
+      ) {
+        const argNode = node.parent;
+        const refNode = node.parent.parent;
+        const decl = getTemplateDeclarationsForArgument(
+          argNode,
+          // We should be giving the argument so the mapper here should be undefined
+          undefined /* mapper */
+        );
+
+        const index = refNode.arguments.findIndex((n) => n === argNode);
+        if (decl.length > 0 && decl[0].templateParameters.length > index) {
+          templateParmaeterDeclNode = decl[0].templateParameters[index];
+        }
+      } else if (node.parent?.kind === SyntaxKind.TemplateParameterDeclaration) {
+        templateParmaeterDeclNode = node?.parent;
+      }
+
       if (
         templateParmaeterDeclNode?.kind !== SyntaxKind.TemplateParameterDeclaration ||
-        !templateParmaeterDeclNode.constraint ||
-        !templateParmaeterDeclNode.default ||
-        templateParmaeterDeclNode.default !== dftNode
+        !templateParmaeterDeclNode.constraint
       ) {
         return undefined;
       }
 
       let constraintType: Type | undefined;
       if (
-        isModelOrArrayValue(dftNode) &&
+        isModelOrArrayValue(node) &&
         templateParmaeterDeclNode.constraint.kind === SyntaxKind.ValueOfExpression
       ) {
         constraintType = program.checker.getTypeForNode(
           templateParmaeterDeclNode.constraint.target
         );
       } else if (
-        isModelOrArrayType(dftNode) &&
+        isModelOrArrayType(node) &&
         templateParmaeterDeclNode.constraint.kind !== SyntaxKind.ValueOfExpression
       ) {
         constraintType = program.checker.getTypeForNode(templateParmaeterDeclNode.constraint);
@@ -4077,13 +4128,16 @@ export function createChecker(program: Program): Checker {
     if (constraint && !checkTypeOfValueMatchConstraint(preciseType, constraint, node)) {
       return null;
     }
-    return {
-      entityKind: "Value",
-      valueKind: "ObjectValue",
-      node: node,
-      properties,
-      type: constraint ? constraint.type : preciseType,
-    };
+    return createValue(
+      {
+        entityKind: "Value",
+        valueKind: "ObjectValue",
+        node: node,
+        properties,
+        type: constraint ? constraint.type : preciseType,
+      },
+      preciseType
+    );
   }
 
   function createTypeForObjectValue(
@@ -4185,13 +4239,29 @@ export function createChecker(program: Program): Checker {
       return null;
     }
 
-    return {
-      entityKind: "Value",
-      valueKind: "ArrayValue",
-      node: node,
-      values: values as any,
-      type: constraint ? constraint.type : preciseType,
-    };
+    return createValue(
+      {
+        entityKind: "Value",
+        valueKind: "ArrayValue",
+        node: node,
+        values: values as any,
+        type: constraint ? constraint.type : preciseType,
+      },
+      preciseType
+    );
+  }
+
+  function createValue<T extends Value>(value: T, preciseType: Type): T {
+    valueExactTypes.set(value, preciseType);
+    return value;
+  }
+  function copyValue<T extends Value>(value: T, overrides?: Partial<T>): T {
+    const newValue = { ...value, ...overrides };
+    const preciseType = valueExactTypes.get(value);
+    if (preciseType) {
+      valueExactTypes.set(newValue, preciseType);
+    }
+    return newValue;
   }
 
   function createTypeForArrayValue(node: ArrayLiteralNode, values: Value[]): Tuple {
@@ -4264,13 +4334,16 @@ export function createChecker(program: Program): Checker {
       value = literalType.value;
     }
     const scalar = inferScalarForPrimitiveValue(constraint?.type, literalType);
-    return {
-      entityKind: "Value",
-      valueKind: "StringValue",
-      value,
-      type: constraint ? constraint.type : literalType,
-      scalar,
-    };
+    return createValue(
+      {
+        entityKind: "Value",
+        valueKind: "StringValue",
+        value,
+        type: constraint ? constraint.type : literalType,
+        scalar,
+      },
+      literalType
+    );
   }
 
   function checkNumericValue(
@@ -4282,13 +4355,16 @@ export function createChecker(program: Program): Checker {
       return null;
     }
     const scalar = inferScalarForPrimitiveValue(constraint?.type, literalType);
-    return {
-      entityKind: "Value",
-      valueKind: "NumericValue",
-      value: Numeric(literalType.valueAsString),
-      type: constraint ? constraint.type : literalType,
-      scalar,
-    };
+    return createValue(
+      {
+        entityKind: "Value",
+        valueKind: "NumericValue",
+        value: Numeric(literalType.valueAsString),
+        type: constraint ? constraint.type : literalType,
+        scalar,
+      },
+      literalType
+    );
   }
 
   function checkBooleanValue(
@@ -4300,13 +4376,16 @@ export function createChecker(program: Program): Checker {
       return null;
     }
     const scalar = inferScalarForPrimitiveValue(constraint?.type, literalType);
-    return {
-      entityKind: "Value",
-      valueKind: "BooleanValue",
-      value: literalType.value,
-      type: constraint ? constraint.type : literalType,
-      scalar,
-    };
+    return createValue(
+      {
+        entityKind: "Value",
+        valueKind: "BooleanValue",
+        value: literalType.value,
+        type: constraint ? constraint.type : literalType,
+        scalar,
+      },
+      literalType
+    );
   }
 
   function checkNullValue(
@@ -4318,13 +4397,16 @@ export function createChecker(program: Program): Checker {
       return null;
     }
 
-    return {
-      entityKind: "Value",
+    return createValue(
+      {
+        entityKind: "Value",
 
-      valueKind: "NullValue",
-      type: constraint ? constraint.type : literalType,
-      value: null,
-    };
+        valueKind: "NullValue",
+        type: constraint ? constraint.type : literalType,
+        value: null,
+      },
+      literalType
+    );
   }
 
   function checkEnumValue(
@@ -4335,13 +4417,16 @@ export function createChecker(program: Program): Checker {
     if (constraint && !checkTypeOfValueMatchConstraint(literalType, constraint, node)) {
       return null;
     }
-    return {
-      entityKind: "Value",
+    return createValue(
+      {
+        entityKind: "Value",
 
-      valueKind: "EnumValue",
-      type: constraint ? constraint.type : literalType,
-      value: literalType,
-    };
+        valueKind: "EnumValue",
+        type: constraint ? constraint.type : literalType,
+        value: literalType,
+      },
+      literalType
+    );
   }
 
   function checkCallExpressionTarget(
@@ -4397,7 +4482,7 @@ export function createChecker(program: Program): Checker {
     if (!checkValueOfType(value, scalar, argNode)) {
       return null;
     }
-    return { ...value, scalar, type: scalar } as any;
+    return copyValue(value, { scalar, type: scalar }) as any;
   }
 
   function createScalarValue(
@@ -4618,6 +4703,8 @@ export function createChecker(program: Program): Checker {
       const parentType = getTypeName(overriddenProp.type);
       const newPropType = getTypeName(newProp.type);
 
+      let invalid = false;
+
       if (!isAssignable) {
         reportCheckerDiagnostic(
           createDiagnostic({
@@ -4626,8 +4713,22 @@ export function createChecker(program: Program): Checker {
             target: diagnosticTarget ?? newProp,
           })
         );
-        return;
+        invalid = true;
       }
+
+      if (!overriddenProp.optional && newProp.optional) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "override-property-mismatch",
+            messageId: "disallowedOptionalOverride",
+            format: { propName: overriddenProp.name },
+            target: diagnosticTarget ?? newProp,
+          })
+        );
+        invalid = true;
+      }
+
+      if (invalid) return;
     }
 
     properties.set(newProp.name, newProp);
@@ -5568,7 +5669,7 @@ export function createChecker(program: Program): Checker {
     node: Node & { decorators: readonly DecoratorExpressionNode[] },
     mapper: TypeMapper | undefined
   ) {
-    const sym = isMemberNode(node) ? getSymbolForMember(node) ?? node.symbol : node.symbol;
+    const sym = isMemberNode(node) ? (getSymbolForMember(node) ?? node.symbol) : node.symbol;
     const decorators: DecoratorApplication[] = [];
 
     const augmentDecoratorNodes = augmentDecoratorsForSym.get(sym) ?? [];
@@ -5824,7 +5925,7 @@ export function createChecker(program: Program): Checker {
       links.value = null;
       return links.value;
     }
-    links.value = type ? { ...value, type } : { ...value };
+    links.value = type ? copyValue(value, { type }) : copyValue(value);
     return links.value;
   }
 
@@ -5835,7 +5936,7 @@ export function createChecker(program: Program): Checker {
       case "NumericValue":
         if (value.scalar === undefined) {
           const scalar = inferScalarForPrimitiveValue(type, value.type);
-          return { ...value, scalar };
+          return copyValue(value as any, { scalar });
         }
         return value;
       case "ArrayValue":
@@ -8152,6 +8253,10 @@ export function createChecker(program: Program): Checker {
     if (stdType === "Record" && type === stdTypes["Record"]) return true;
     if (type.kind === "Model") return stdType === undefined || stdType === type.name;
     return false;
+  }
+
+  function getValueExactType(value: Value): Type | undefined {
+    return valueExactTypes.get(value);
   }
 }
 

@@ -13,7 +13,7 @@ Reduce an array of path components to a more simplified path by navigating any
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `components` | readonly `string`[] |
 
 ## Returns

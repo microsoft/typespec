@@ -10,7 +10,7 @@ function getSourceFileKindFromExt(path): SourceFileKind | undefined
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 
 ## Returns

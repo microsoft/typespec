@@ -3,57 +3,27 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
-using Moq;
-using Moq.Protected;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 {
     internal class ScmMethodProviderCollectionTests
     {
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private ScmTypeFactory _typeFactory;
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private readonly string _mocksFolder = "Mocks";
-        private FieldInfo? _mockPlugin;
-
-        [SetUp]
-        public void Setup()
-        {
-            var mockParameter = new ParameterProvider("mockParam", $"mock description", typeof(bool), null);
-            var mockTypeFactory = new Mock<ScmTypeFactory>() { };
-            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(new CSharpType(typeof(bool)));
-            mockTypeFactory.Setup(t => t.CreateCSharpParam(It.IsAny<InputParameter>())).Returns(mockParameter);
-            _typeFactory = mockTypeFactory.Object;
-
-            var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
-            // initialize the mock singleton instance of the plugin
-            _mockPlugin = typeof(ClientModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
-            var mockConfiguration = new Mock<Configuration>() { };
-            var mockGeneratorContext = new Mock<GeneratorContext>(mockConfiguration.Object);
-            var mockPluginInstance = new Mock<ClientModelPlugin>(mockGeneratorContext.Object) { };
-            mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(_typeFactory);
-
-            _mockPlugin?.SetValue(null, mockPluginInstance.Object);
-        }
-
-        [TearDown]
-        public void Teardown()
-        {
-            _mockPlugin?.SetValue(null, null);
-        }
-
         // Validate that the default method collection consists of the expected method kind(s)
         [TestCaseSource(nameof(DefaultCSharpMethodCollectionTestCases))]
         public void TestDefaultCSharpMethodCollection(InputOperation inputOperation)
         {
-            var methodCollection = new ScmMethodProviderCollection(inputOperation, new MockClientTypeProvider());
+            var inputClient = new InputClient("TestClient", "TestClient description", [inputOperation], [], null);
+
+            MockHelpers.LoadMockPlugin(
+                createCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)),
+                createParameter: (inputParameter) => new ParameterProvider("mockParam", $"mock description", typeof(bool), null));
+
+            var methodCollection = new ScmMethodProviderCollection(inputOperation, ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient));
             Assert.IsNotNull(methodCollection);
             Assert.AreEqual(4, methodCollection.Count);
 
@@ -77,10 +47,27 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
                     deprecated: null,
                     description: string.Empty,
                     accessibility: null,
-                    parameters: [
-                        new InputParameter("message", "message", "The message to create.", new InputPrimitiveType(InputPrimitiveTypeKind.Boolean), RequestLocation.Body, null, InputOperationParameterKind.Method, true, false, false, false, false, false, false, null, null)
-                        ],
-                    responses: Array.Empty<OperationResponse>(),
+                    parameters:
+                    [
+                        new InputParameter(
+                            "message",
+                            "message",
+                            "The message to create.",
+                            new InputPrimitiveType(InputPrimitiveTypeKind.Boolean),
+                            RequestLocation.Body,
+                            null,
+                            InputOperationParameterKind.Method,
+                            true,
+                            false,
+                            false,
+                            false,
+                            false,
+                            false,
+                            false,
+                            null,
+                            null)
+                    ],
+                    responses: [new OperationResponse([200], null, BodyMediaType.Json, [], false, ["application/json"])],
                     httpMethod: "GET",
                     requestBodyMediaType: BodyMediaType.Json,
                     uri: "localhost",

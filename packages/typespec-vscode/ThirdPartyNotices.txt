@@ -11,7 +11,7 @@ granted herein, whether by implication, estoppel or otherwise.
 1. balanced-match version 1.0.2 (https://github.com/juliangruber/balanced-match)
 2. brace-expansion version 2.0.1 (https://github.com/juliangruber/brace-expansion)
 3. minimatch version 5.1.6 (https://github.com/isaacs/minimatch)
-4. semver version 7.6.2 (https://github.com/npm/node-semver)
+4. semver version 7.6.3 (https://github.com/npm/node-semver)
 
 
 %% balanced-match NOTICES AND INFORMATION BEGIN HERE

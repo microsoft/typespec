@@ -10,7 +10,18 @@ import type {
   Scalar,
   Type,
   Union,
+  UnionVariant,
 } from "../src/index.js";
+
+export interface ExampleOptions {
+  readonly title?: string;
+  readonly description?: string;
+}
+
+export interface OperationExample {
+  readonly parameters?: unknown;
+  readonly returnType?: unknown;
+}
 
 /**
  * Specify how to encode the target type.
@@ -117,7 +128,7 @@ export type SummaryDecorator = (context: DecoratorContext, target: Type, summary
 
 /**
  * Attach a documentation string to describe the successful return types of an operation.
- * If an operation returns a union of success and errors it only describe the success. See `@errorsDoc` for error documentation.
+ * If an operation returns a union of success and errors it only describes the success. See `@errorsDoc` for error documentation.
  *
  * @param doc Documentation string
  * @example
@@ -134,12 +145,12 @@ export type ReturnsDocDecorator = (
 
 /**
  * Attach a documentation string to describe the error return types of an operation.
- * If an operation returns a union of success and errors it only describe the errors. See `@errorsDoc` for success documentation.
+ * If an operation returns a union of success and errors it only describes the errors. See `@returnsDoc` for success documentation.
  *
  * @param doc Documentation string
  * @example
  * ```typespec
- * @errorsDoc("Returns doc")
+ * @errorsDoc("Errors doc")
  * op get(): Pet | NotFound;
  * ```
  */
@@ -569,6 +580,45 @@ export type DiscriminatorDecorator = (
   context: DecoratorContext,
   target: Model | Union,
   propertyName: string
+) => void;
+
+/**
+ * Provide an example value for a data type.
+ *
+ * @param example Example value.
+ * @param options Optional metadata for the example.
+ * @example
+ * ```tsp
+ * @example(#{name: "Fluffy", age: 2})
+ * model Pet {
+ *  name: string;
+ *  age: int32;
+ * }
+ * ```
+ */
+export type ExampleDecorator = (
+  context: DecoratorContext,
+  target: Model | Enum | Scalar | Union | ModelProperty | UnionVariant,
+  example: unknown,
+  options?: ExampleOptions
+) => void;
+
+/**
+ * Provide example values for an operation's parameters and corresponding return type.
+ *
+ * @param example Example value.
+ * @param options Optional metadata for the example.
+ * @example
+ * ```tsp
+ * @example(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+ * op createPet(pet: Pet): Pet;
+ * ```
+ */
+export type OpExampleDecorator = (
+  context: DecoratorContext,
+  target: Operation,
+  example: OperationExample,
+  options?: ExampleOptions
 ) => void;
 
 /**

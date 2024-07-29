@@ -1,11 +1,11 @@
-import { formatTypeSpec } from "@typespec/compiler";
 import { TypeSpecProgram } from "../interfaces.js";
 import { generateModel } from "./generate-model.js";
+import { generateNamespace } from "./generate-namespace.js";
 import { generateOperation } from "./generate-operation.js";
 import { generateServiceInformation } from "./generate-service-info.js";
 
-export async function generateMain(program: TypeSpecProgram): Promise<string> {
-  const content = `
+export function generateMain(program: TypeSpecProgram): string {
+  return `
   import "@typespec/http";
   import "@typespec/openapi";
   import "@typespec/openapi3";
@@ -18,10 +18,9 @@ export async function generateMain(program: TypeSpecProgram): Promise<string> {
   ${program.models.map(generateModel).join("\n\n")}
 
   ${program.operations.map(generateOperation).join("\n\n")}
-  `;
 
-  return formatTypeSpec(content, {
-    printWidth: 100,
-    tabWidth: 2,
-  });
+  ${Object.entries(program.namespaces)
+    .map(([name, namespace]) => generateNamespace(name, namespace))
+    .join("\n\n")}
+  `;
 }

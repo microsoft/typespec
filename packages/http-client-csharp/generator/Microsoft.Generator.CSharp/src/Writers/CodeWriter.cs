@@ -27,6 +27,7 @@ namespace Microsoft.Generator.CSharp
         private UnsafeBufferSequence _builder;
         private bool _atBeginningOfLine;
         private bool _writingXmlDocumentation;
+        private bool _writingNewInstance;
 
         internal CodeWriter()
         {
@@ -198,6 +199,30 @@ namespace Microsoft.Generator.CSharp
             }
         }
 
+        public void WriteConstructor(ConstructorProvider ctor)
+        {
+            ArgumentNullException.ThrowIfNull(ctor, nameof(ctor));
+
+            WriteXmlDocs(ctor.XmlDocs);
+
+            if (ctor.BodyStatements is { } body)
+            {
+                using (WriteMethodDeclaration(ctor.Signature))
+                {
+                    body.Write(this);
+                }
+            }
+            else if (ctor.BodyExpression is { } expression)
+            {
+                using (WriteMethodDeclarationNoScope(ctor.Signature))
+                {
+                    AppendRaw(" => ");
+                    expression.Write(this);
+                    WriteRawLine(";");
+                }
+            }
+        }
+
         internal void WriteXmlDocs(XmlDocProvider? docs)
         {
             if (docs is null)
@@ -260,9 +285,23 @@ namespace Microsoft.Generator.CSharp
 
             switch (property.Body)
             {
-                case ExpressionPropertyBody(var expression):
-                    expression.Write(AppendRaw(" => "));
-                    AppendRaw(";");
+                case ExpressionPropertyBody(var getter, var setter):
+                    if (setter is null)
+                    {
+                        getter.Write(AppendRaw(" => "));
+                        AppendRaw(";");
+                    }
+                    else
+                    {
+                        WriteLine();
+                        using (var scope = ScopeRaw())
+                        {
+                            getter.Write(AppendRaw("get => "));
+                            WriteRawLine(";");
+                            setter.Write(AppendRaw("set => "));
+                            WriteRawLine(";");
+                        }
+                    }
                     break;
                 case AutoPropertyBody(var hasSetter, var setterModifiers, var initialization):
                     AppendRaw(" { get;");
@@ -521,7 +560,7 @@ namespace Microsoft.Generator.CSharp
             }
             else if (isDeclaration && !type.IsFrameworkType)
             {
-                AppendRaw(type.Implementation.Name);
+                AppendRaw(type.Name);
             }
             else if (writeTypeNameOnly)
             {
@@ -534,6 +573,8 @@ namespace Microsoft.Generator.CSharp
                 AppendRaw("global::");
                 AppendRaw(type.Namespace);
                 AppendRaw(".");
+                if (type.DeclaringType is not null)
+                    AppendRaw($"{type.DeclaringType.Name}.");
                 AppendRaw(type.Name);
             }
 
@@ -551,7 +592,7 @@ namespace Microsoft.Generator.CSharp
                 AppendRaw(_writingXmlDocumentation ? "}" : ">");
             }
 
-            if (!isDeclaration && type is { IsNullable: true, IsValueType: true })
+            if (!_writingNewInstance && !isDeclaration && type is { IsNullable: true, IsValueType: true })
             {
                 AppendRaw("?");
             }
@@ -642,7 +683,11 @@ namespace Microsoft.Generator.CSharp
                 throw new InvalidOperationException("Can't declare variables inside documentation.");
             }
 
-            declaration.SetActualName(GetTemporaryVariable(declaration.RequestedName));
+            if (!declaration.HasBeenDeclared)
+            {
+                declaration.SetActualName(GetTemporaryVariable(declaration.RequestedName));
+            }
+
             return WriteDeclaration(declaration.ActualName);
         }
 
@@ -764,7 +809,7 @@ namespace Microsoft.Generator.CSharp
 
                 if (!isBase || arguments.Any())
                 {
-                    AppendRaw(isBase ? ": base(" : ": this(");
+                    AppendRaw(isBase ? " : base(" : " : this(");
                     var iterator = arguments.GetEnumerator();
                     if (iterator.MoveNext())
                     {

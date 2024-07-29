@@ -154,14 +154,14 @@ describe("http: routes", () => {
   describe("@route path parameters mapping", () => {
     it("maps route interpolated params to the operation param", async () => {
       const routes = await getRoutesFor(
-        `@route("/foo/{myParam}/") op test(@path myParam: string): void;`
+        `@route("/foo/{myParam}") op test(@path myParam: string): void;`
       );
       deepStrictEqual(routes, [{ verb: "get", path: "/foo/{myParam}", params: ["myParam"] }]);
     });
 
     it("maps route interpolated params to the operation param when operation spread items", async () => {
       const routes = await getRoutesFor(
-        `@route("/foo/{myParam}/") op test(@path myParam: string, ...Record<string>): void;`
+        `@route("/foo/{myParam}") op test(@path myParam: string, ...Record<string>): void;`
       );
       deepStrictEqual(routes, [{ verb: "post", path: "/foo/{myParam}", params: ["myParam"] }]);
     });
@@ -278,6 +278,29 @@ describe("http: routes", () => {
     );
 
     deepStrictEqual(routes, [{ verb: "get", path: "/", params: [] }]);
+  });
+
+  it("keeps trailing / at the end of the route", async () => {
+    const routes = await getRoutesFor(
+      `
+      @route("/foo/") op index(): void;
+      `
+    );
+
+    deepStrictEqual(routes, [{ verb: "get", path: "/foo/", params: [] }]);
+  });
+
+  it("merge trailing and leading / when combining container path", async () => {
+    const routes = await getRoutesFor(
+      `
+      @route("/foo/")
+      interface Foo {
+        @route("/bar/") op index(): void;
+      }
+      `
+    );
+
+    deepStrictEqual(routes, [{ verb: "get", path: "/foo/bar/", params: [] }]);
   });
 
   it("join / route segments correctly", async () => {

@@ -15,7 +15,7 @@ Mark a type as deprecated
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) | DecoratorContext |
 | `target` | [`Type`](../type-aliases/Type.md) | Decorator target |
 | `message` | `string` | Deprecation target. |

@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.IO;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -15,17 +13,9 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
 {
     internal class ExpressionsTests
     {
-        private readonly string _mocksFolder = "Mocks";
-
-        [OneTimeSetUp]
-        public void Setup()
+        public ExpressionsTests()
         {
-            string outputFolder = "./outputFolder";
-            string projectPath = outputFolder;
-
-            var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
-            // initialize the singleton instance of the plugin
-            _ = new MockCodeModelPlugin(new GeneratorContext(Configuration.Load(configFilePath)));
+            MockHelpers.LoadMockPlugin();
         }
 
         [Test]
@@ -83,6 +73,33 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
                     Parameters: [],
                     Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { xDeclaration },
+                mockTypeProvider.Object);
+
+            // Verify the expected behavior
+            using var writer = new CodeWriter();
+            writer.WriteMethod(fooMethod);
+
+            var expectedResult = Helpers.GetExpectedFromFile();
+            var test = writer.ToString(false);
+            Assert.AreEqual(expectedResult, test);
+        }
+
+        [Test]
+        public void TestArrayInitializerExpression()
+        {
+            var mockTypeProvider = new Mock<TypeProvider>();
+            var arrayInitializerExpression = new ArrayInitializerExpression([False, True]);
+            var newArrayExpression = new NewArrayExpression(typeof(bool), arrayInitializerExpression);
+            var variableFoo = new VariableExpression(typeof(bool[]), "foo");
+            var fooDeclaration = Declare(variableFoo, newArrayExpression);
+            var fooMethod = new MethodProvider(
+                new MethodSignature(
+                    Name: "Foo",
+                    Modifiers: MethodSignatureModifiers.Public,
+                    ReturnType: null,
+                    Parameters: [],
+                    Description: null, ReturnDescription: null),
+                new MethodBodyStatement[] { fooDeclaration },
                 mockTypeProvider.Object);
 
             // Verify the expected behavior

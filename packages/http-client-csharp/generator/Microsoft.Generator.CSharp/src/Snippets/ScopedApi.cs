@@ -7,8 +7,18 @@ using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public record ScopedApi(CSharpType Type, ValueExpression Original) : ValueExpression(Original)
+    public record ScopedApi : ValueExpression
     {
+        public ValueExpression Original { get; }
+        public CSharpType Type { get; }
+
+        public ScopedApi(CSharpType type, ValueExpression original)
+            : base(original)
+        {
+            Original = original;
+            Type = type;
+        }
+
         private MethodBodyStatement? _terminated;
 
         internal override void Write(CodeWriter writer)

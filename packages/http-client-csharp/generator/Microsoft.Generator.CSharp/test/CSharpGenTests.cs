@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Moq;
@@ -14,8 +15,6 @@ namespace Microsoft.Generator.CSharp.Tests
 {
     public class CSharpGenTests
     {
-        private readonly string _mocksFolder = "./Mocks";
-
         // Validates that the output path is parsed correctly when provided
         [Test]
         public void TestGetOutputPath_OutputPathProvided()
@@ -47,25 +46,27 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void TestCSharpGen_ValidPlugin()
         {
-            // mock plugin
-            var mockPlugin = new Mock<CodeModelPlugin>(new GeneratorContext(Configuration.Load(_mocksFolder)))
-            {
-                CallBase = true
-            };
+            MockHelpers.LoadMockPlugin();
+            var csharpGen = new CSharpGen();
 
-            // mock type factory
-            var mockTypeFactory = new Mock<TypeFactory>()
-            {
-                CallBase = true
-            };
+            Assert.DoesNotThrowAsync(async () => await csharpGen.ExecuteAsync());
+        }
 
-            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(new CSharpType(typeof(IList<>)));
-            mockPlugin.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
+        [Test]
+        public void VisitorsAreVisited()
+        {
+            var mockOutputLibrary = new Mock<OutputLibrary>();
+            MockHelpers.LoadMockPlugin(createOutputLibrary: () => mockOutputLibrary.Object);
+            var mockOutputLibraryVisitor = new Mock<OutputLibraryVisitor>();
 
-            var configFilePath = Path.Combine(_mocksFolder, "Configuration.json");
-            var csharpGen = new CSharpGen().ExecuteAsync();
+            mockOutputLibrary.Protected()
+                .Setup<IEnumerable<OutputLibraryVisitor>>("GetOutputLibraryVisitors")
+                .Returns(new List<OutputLibraryVisitor> { mockOutputLibraryVisitor.Object });
+            var csharpGen = new CSharpGen();
 
-            Assert.IsNotNull(csharpGen);
+            Assert.DoesNotThrowAsync(async () => await csharpGen.ExecuteAsync());
+            mockOutputLibrary.Verify(m => m.GetOutputLibraryVisitors(), Times.Once);
+            mockOutputLibraryVisitor.Verify(m => m.Visit(mockOutputLibrary.Object), Times.Once);
         }
 
         private void TestOutputPathAppended(string outputPath, string expectedPath)

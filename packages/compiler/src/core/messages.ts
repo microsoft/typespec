@@ -357,6 +357,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Model has an inherited property named ${"propName"} of type ${"propType"} which cannot override type ${"parentType"}`,
+      disallowedOptionalOverride: paramMessage`Model has a required inherited property named ${"propName"} which cannot be overridden as optional`,
     },
   },
   "extend-scalar": {

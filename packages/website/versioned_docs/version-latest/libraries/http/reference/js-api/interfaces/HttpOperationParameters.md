@@ -6,8 +6,8 @@ title: "[I] HttpOperationParameters"
 ## Properties
 
 | Property | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `body?` | [`HttpOperationBody`](HttpOperationBody.md) \| [`HttpOperationMultipartBody`](HttpOperationMultipartBody.md) | - |
-| ~~`bodyParameter?`~~ | `ModelProperty` | <p>**Deprecated**</p><p>use body.parameter</p> |
-| ~~`bodyType?`~~ | `Type` | <p>**Deprecated**</p><p>use body.type</p> |
+| ~~`bodyParameter?`~~ | `ModelProperty` | **Deprecated** use body.parameter |
+| ~~`bodyType?`~~ | `Type` | **Deprecated** use body.type |
 | `parameters` | [`HttpOperationParameter`](../type-aliases/HttpOperationParameter.md)[] | - |

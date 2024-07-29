@@ -17,17 +17,9 @@ namespace Microsoft.Generator.CSharp.Primitives
     /// </summary>
     public class CSharpType
     {
-        private readonly TypeProvider? _implementation;
         private readonly Type? _type;
-        private string _name;
-        private string _namespace;
-        private CSharpType? _declaringType;
-        private bool _isValueType;
-        private bool _isEnum;
-        private bool _isNullable;
-        private bool _isPublic;
-        private IReadOnlyList<CSharpType> _arguments;
         private object? _literal;
+        private readonly Type? _underlyingType;
         private IReadOnlyList<CSharpType>? _unionItemTypes;
 
         private bool? _isReadOnlyMemory;
@@ -110,16 +102,20 @@ namespace Microsoft.Generator.CSharp.Primitives
             _type = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
             ValidateArguments(_type, arguments);
 
-            var name = type.IsGenericType ? type.Name.Substring(0, type.Name.IndexOf('`')) : type.Name;
-            var isValueType = type.IsValueType;
-            var isEnum = type.IsEnum;
-            var ns = type.Namespace;
-            var isPublic = type.IsPublic && arguments.All(t => t.IsPublic);
+            Name = type.IsGenericType ? type.Name.Substring(0, type.Name.IndexOf('`')) : type.Name;
+            IsValueType = type.IsValueType;
+            Namespace = type.Namespace ?? string.Empty;
+            IsPublic = type.IsPublic && arguments.All(t => t.IsPublic);
             // open generic parameter such as the `T` in `List<T>` is considered as declared inside the `List<T>` type as well, but we just want this to be the pure nested type, therefore here we exclude the open generic parameter scenario
             // for a closed generic parameter such as the `string` in `List<string>`, it is just an ordinary type without a `DeclaringType`.
-            var declaringType = type.DeclaringType is not null && !type.IsGenericParameter ? new CSharpType(type.DeclaringType) : null;
+            DeclaringType = type.DeclaringType is not null && !type.IsGenericParameter ? new CSharpType(type.DeclaringType) : null;
 
-            Initialize(name, isValueType, isEnum, isNullable, ns, declaringType, arguments, isPublic);
+            Arguments = arguments;
+            IsNullable = isNullable;
+
+            IsStruct = type.IsValueType;
+            BaseType = type.BaseType ?? (CSharpType?)null;
+            _underlyingType = type.IsEnum ? Enum.GetUnderlyingType(type) : null;
         }
 
         [Conditional("DEBUG")]
@@ -135,71 +131,71 @@ namespace Microsoft.Generator.CSharp.Primitives
             }
         }
 
-        [Conditional("DEBUG")]
-        private static void ValidateArguments(TypeProvider implementation, IReadOnlyList<CSharpType>? arguments)
+        internal CSharpType(
+            TypeProvider implementation,
+            string providerNamespace,
+            IReadOnlyList<CSharpType> arguments,
+            CSharpType? baseType)
+            : this(
+                  implementation.Name,
+                  providerNamespace,
+                  implementation is EnumProvider || implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct),
+                  false,
+                  implementation.DeclaringTypeProvider?.Type,
+                  arguments,
+                  implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) && arguments.All(t => t.IsPublic),
+                  implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct),
+                  baseType,
+                  implementation is EnumProvider enumProvider ? enumProvider.ValueType.FrameworkType : null)
         {
-            if (arguments == null)
-                return;
-
-            Debug.Assert(implementation.TypeArguments.Count == arguments.Count, $"the count of arguments given ({string.Join(", ", arguments.Select(a => a.ToString()))}) does not match the arguments in the definition {implementation.Name}");
         }
 
-        internal CSharpType(TypeProvider implementation, IReadOnlyList<CSharpType>? arguments = null, bool isNullable = false)
+        internal CSharpType(
+            string name,
+            string ns,
+            bool isValueType,
+            bool isNullable,
+            CSharpType? declaringType,
+            IReadOnlyList<CSharpType> args,
+            bool isPublic,
+            bool isStruct,
+            CSharpType? baseType = null,
+            Type? underlyingEnumType = null)
         {
-            ValidateArguments(implementation, arguments);
+            ArgumentNullException.ThrowIfNull(name, nameof(name));
+            ArgumentNullException.ThrowIfNull(ns, nameof(ns));
+            ArgumentNullException.ThrowIfNull(args, nameof(args));
 
-            _implementation = implementation;
-            _arguments = arguments ?? implementation.TypeArguments;
-
-            var isPublic = (implementation.DeclarationModifiers & TypeSignatureModifiers.Public) != 0
-                && Arguments.All(t => t.IsPublic);
-            var name = implementation.Name;
-            var ns = implementation.Namespace;
-            var isEnum = implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Enum);
-            var isValueType = isEnum || implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
-            var declaringType = implementation.DeclaringTypeProvider?.Type;
-
-            Initialize(name, isValueType, isEnum, isNullable, ns, declaringType, arguments, isPublic);
-
-            SerializeAs = _implementation?.SerializeAs;
+            Arguments = args;
+            Name = name;
+            IsValueType = isValueType;
+            IsNullable = isNullable;
+            Namespace = ns;
+            DeclaringType = declaringType;
+            IsPublic = isPublic;
+            IsStruct = isStruct;
+            BaseType = baseType;
+            _underlyingType = underlyingEnumType;
         }
 
-        [MemberNotNull(nameof(_name))]
-        [MemberNotNull(nameof(_isValueType))]
-        [MemberNotNull(nameof(_isEnum))]
-        [MemberNotNull(nameof(_isNullable))]
-        [MemberNotNull(nameof(_namespace))]
-        [MemberNotNull(nameof(_arguments))]
-        [MemberNotNull(nameof(_isPublic))]
-        private void Initialize(string? name, bool isValueType, bool isEnum, bool isNullable, string? ns,
-            CSharpType? declaringType, IReadOnlyList<CSharpType>? args, bool isPublic)
-        {
-            _name = name ?? string.Empty;
-            _isValueType = isValueType;
-            _isEnum = isEnum;
-            _isNullable = isNullable;
-            _namespace = ns ?? string.Empty;
-            _declaringType = declaringType;
-            _arguments = args ?? Array.Empty<CSharpType>();
-            _isPublic = isPublic;
-        }
-
-        public string Namespace { get { return _namespace; } }
-        public string Name { get { return _name; } }
-        public CSharpType? DeclaringType { get { return _declaringType; } }
-        public bool IsValueType { get { return _isValueType; } }
-        public bool IsEnum { get { return _isEnum; } }
+        public string Namespace { get; private init; }
+        public string Name { get; private init; }
+        public CSharpType? DeclaringType { get; private init; }
+        public bool IsValueType { get; private init; }
+        public bool IsEnum => _underlyingType is not null;
         public bool IsLiteral => _literal is not null;
         public bool IsUnion => _unionItemTypes?.Count > 0;
-        public bool IsPublic { get { return _isPublic; } }
+        public bool IsPublic { get; private init; }
         public bool IsFrameworkType => _type != null;
-        public bool IsNullable { get { return _isNullable; } }
+        public bool IsNullable { get; private init; }
         public bool IsGenericType => Arguments.Count > 0;
         public bool IsCollection => _isCollection ??= TypeIsCollection();
+        public IReadOnlyList<CSharpType> Arguments { get; private init; }
+        public CSharpType? BaseType { get; }
+        public bool IsStruct { get; private init; }
         public Type FrameworkType => _type ?? throw new InvalidOperationException("Not a framework type");
         public object Literal => _literal ?? throw new InvalidOperationException("Not a literal type");
-        public TypeProvider Implementation => _implementation ?? throw new InvalidOperationException($"Not implemented type: '{Namespace}.{Name}'");
-        public IReadOnlyList<CSharpType> Arguments { get { return _arguments; } }
+        public Type UnderlyingEnumType => _underlyingType ?? throw new InvalidOperationException("Not an enum type");
 
         /// <summary>
         /// Retrieves the property initialization type variant of this type.
@@ -210,7 +206,6 @@ namespace Microsoft.Generator.CSharp.Primitives
         public CSharpType ElementType => _elementType ??= GetElementType();
         public CSharpType InputType => _inputType ??= GetInputType();
         public CSharpType OutputType => _outputType ??= GetOutputType();
-        public Type? SerializeAs { get; init; }
         public IReadOnlyList<CSharpType> UnionItemTypes => _unionItemTypes ?? throw new InvalidOperationException("Not a union type");
 
         private bool TypeIsReadOnlyMemory()
@@ -440,10 +435,16 @@ namespace Microsoft.Generator.CSharp.Primitives
         /// <param name="ignoreNullable">Flag used to control if nullability should be ignored during comparison.</param>
         /// <returns><c>true</c> if the types are equal, <c>false</c> otherwise.</returns>
         protected internal bool Equals(CSharpType other, bool ignoreNullable = false)
-            => Equals(_implementation, other._implementation) &&
-               _type == other._type &&
-               Arguments.SequenceEqual(other.Arguments) &&
-               (ignoreNullable || IsNullable == other.IsNullable);
+            => Name == other.Name &&
+                Namespace == other.Namespace &&
+                IsValueType == other.IsValueType &&
+                _type == other._type &&
+                Arguments.SequenceEqual(other.Arguments) &&
+                IsEnum == other.IsEnum &&
+                IsStruct == other.IsStruct &&
+                IsPublic == other.IsPublic &&
+                _underlyingType == other._underlyingType &&
+                (ignoreNullable || IsNullable == other.IsNullable);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public sealed override bool Equals(object? obj)
@@ -470,7 +471,7 @@ namespace Microsoft.Generator.CSharp.Primitives
             {
                 hashCode.Add(arg);
             }
-            _hashCode = HashCode.Combine(_implementation, _type, hashCode.ToHashCode(), IsNullable);
+            _hashCode = HashCode.Combine(Name, Namespace, IsValueType, _type, hashCode.ToHashCode(), IsNullable);
 
             return _hashCode.Value;
         }
@@ -489,7 +490,7 @@ namespace Microsoft.Generator.CSharp.Primitives
         {
             var type = isNullable == IsNullable ? this : IsFrameworkType
                 ? new CSharpType(FrameworkType, Arguments, isNullable)
-                : new CSharpType(Implementation, Arguments, isNullable);
+                : new CSharpType(Name, Namespace, IsValueType, isNullable, DeclaringType, Arguments, IsPublic, IsStruct, BaseType, _underlyingType);
 
             type._literal = _literal;
             type._unionItemTypes = _unionItemTypes;
@@ -579,9 +580,9 @@ namespace Microsoft.Generator.CSharp.Primitives
 
                 return literalType;
             }
-            else if (type is { IsFrameworkType: false, Implementation: EnumProvider enumType })
+            else if (type is { IsFrameworkType: false, IsEnum: true })
             {
-                var literalType = new CSharpType(enumType, type.Arguments, type.IsNullable)
+                var literalType = new CSharpType(type.Name, type.Namespace, type.IsValueType, type.IsNullable, type.DeclaringType, type.Arguments, type.IsPublic, type.IsStruct, type.BaseType, type.IsFrameworkType && type.IsEnum ? Enum.GetUnderlyingType(type.FrameworkType) : type._underlyingType)
                 {
                     _literal = literalValue
                 };
@@ -614,8 +615,22 @@ namespace Microsoft.Generator.CSharp.Primitives
             }
             else
             {
-                return new CSharpType(Implementation, arguments, IsNullable);
+                return new CSharpType(Name, Namespace, IsValueType, IsNullable, DeclaringType, arguments, IsPublic, IsStruct);
             }
+        }
+
+        private CSharpType? _rootType;
+        public CSharpType RootType => _rootType ??= GetRootType();
+
+        private CSharpType GetRootType()
+        {
+            CSharpType returnType = this;
+            while (returnType.BaseType != null)
+            {
+                returnType = returnType.BaseType;
+            }
+
+            return returnType;
         }
     }
 }

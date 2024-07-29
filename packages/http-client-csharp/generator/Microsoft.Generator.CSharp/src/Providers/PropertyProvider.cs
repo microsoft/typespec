@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -15,31 +16,51 @@ namespace Microsoft.Generator.CSharp.Providers
     public class PropertyProvider
     {
         private VariableExpression? _variable;
+        private Lazy<ParameterProvider> _parameter;
+
         public FormattableString Description { get; }
         public XmlDocSummaryStatement XmlDocSummary { get; }
         public MethodSignatureModifiers Modifiers { get; }
         public CSharpType Type { get; }
         public string Name { get; }
-        public PropertyBody Body { get; }
+        public PropertyBody Body { get; private set; }
         public CSharpType? ExplicitInterface { get; }
-        public XmlDocProvider XmlDocs { get; }
+        public XmlDocProvider XmlDocs { get; private set; }
         public PropertyWireInformation? WireInfo { get; }
+
+        /// <summary>
+        /// Converts this property to a parameter.
+        /// </summary>
+        public ParameterProvider AsParameter => _parameter.Value;
+
+        // for mocking
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        protected PropertyProvider()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        {
+        }
 
         public PropertyProvider(InputModelProperty inputProperty)
         {
             var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
+            if (!inputProperty.IsRequired && !propertyType.IsCollection)
+            {
+                propertyType = propertyType.WithNullable(true);
+            }
             var serializationFormat = CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type);
             var propHasSetter = PropertyHasSetter(propertyType, inputProperty);
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
 
-            Type = propertyType;
+            Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
             Modifiers = MethodSignatureModifiers.Public;
-            Name = inputProperty.Name.FirstCharToUpperCase();
+            Name = inputProperty.Name.ToCleanName();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
             Description = string.IsNullOrEmpty(inputProperty.Description) ? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter) : $"{inputProperty.Description}";
             XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);
             XmlDocs = GetXmlDocs();
             WireInfo = new PropertyWireInformation(inputProperty);
+
+            InitializeParameter(Name, FormattableStringHelpers.FromString(inputProperty.Description), Type);
         }
 
         public PropertyProvider(
@@ -60,6 +81,15 @@ namespace Microsoft.Generator.CSharp.Providers
             ExplicitInterface = explicitInterface;
             XmlDocs = GetXmlDocs();
             WireInfo = wireInfo;
+
+            InitializeParameter(Name, description ?? FormattableStringHelpers.Empty, Type);
+        }
+
+        [MemberNotNull(nameof(_parameter))]
+        private void InitializeParameter(string propertyName, FormattableString description, CSharpType propertyType)
+        {
+            var parameterName = propertyName.ToVariableName();
+            _parameter = new(() => new ParameterProvider(parameterName, description, propertyType, property: this));
         }
 
         public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
@@ -78,7 +108,7 @@ namespace Microsoft.Generator.CSharp.Providers
         /// Returns true if the property has a setter.
         /// </summary>
         /// <param name="type">The <see cref="CSharpType"/> of the property.</param>
-        private bool PropertyHasSetter(CSharpType type, InputModelProperty inputProperty)
+        protected virtual bool PropertyHasSetter(CSharpType type, InputModelProperty inputProperty)
         {
             if (inputProperty.IsDiscriminator)
             {
@@ -131,5 +161,19 @@ namespace Microsoft.Generator.CSharp.Providers
         private MemberExpression? _asMember;
         public static implicit operator MemberExpression(PropertyProvider property)
             => property._asMember ??= new MemberExpression(null, property.Name);
+
+        public void Update(
+            PropertyBody? body = null,
+            XmlDocProvider? xmlDocs = null)
+        {
+            if (body != null)
+            {
+                Body = body;
+            }
+            if (xmlDocs != null)
+            {
+                XmlDocs = xmlDocs;
+            }
+        }
     }
 }

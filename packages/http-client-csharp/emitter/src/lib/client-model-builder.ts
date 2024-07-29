@@ -6,6 +6,7 @@ import {
   SdkContext,
   SdkOperationGroup,
   getAllModels,
+  getHttpOperationWithCache,
   getLibraryName,
   listClients,
   listOperationGroups,
@@ -17,16 +18,9 @@ import {
   Service,
   getDoc,
   getNamespaceFullName,
-  ignoreDiagnostics,
   listServices,
 } from "@typespec/compiler";
-import {
-  HttpOperation,
-  getAllHttpServices,
-  getAuthentication,
-  getHttpOperation,
-  getServers,
-} from "@typespec/http";
+import { HttpOperation, getAllHttpServices, getAuthentication, getServers } from "@typespec/http";
 import { getVersions } from "@typespec/versioning";
 import { NetEmitterOptions, resolveOptions } from "../options.js";
 import { ClientKind } from "../type/client-kind.js";
@@ -38,10 +32,9 @@ import { InputOperation } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
 import { InputEnumType, InputModelType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
-import { Usage } from "../type/usage.js";
 import { reportDiagnostic } from "./lib.js";
 import { Logger } from "./logger.js";
-import { getUsages, navigateModels } from "./model.js";
+import { navigateModels } from "./model.js";
 import { loadOperation } from "./operation.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 import { resolveServers } from "./typespec-server.js";
@@ -148,31 +141,8 @@ export function createModelForService(
 
   navigateModels(sdkContext, modelMap, enumMap);
 
-  const usages = getUsages(sdkContext, convenienceOperations, modelMap);
-  setUsage(usages, modelMap);
-  setUsage(usages, enumMap);
-
   for (const client of clients) {
     for (const op of client.Operations) {
-      /* TODO: remove this when adopt tcgc.
-       *set Multipart usage for models.
-       */
-      const bodyParameter = op.Parameters.find((value) => value.Location === RequestLocation.Body);
-      if (bodyParameter && bodyParameter.Type && (bodyParameter.Type as InputModelType)) {
-        const inputModelType = bodyParameter.Type as InputModelType;
-        op.RequestMediaTypes?.forEach((item) => {
-          if (item === "multipart/form-data" && !inputModelType.Usage.includes(Usage.Multipart)) {
-            if (inputModelType.Usage.trim().length === 0) {
-              inputModelType.Usage = inputModelType.Usage.concat(Usage.Multipart);
-            } else {
-              inputModelType.Usage = inputModelType.Usage.trim()
-                .concat(",")
-                .concat(Usage.Multipart);
-            }
-          }
-        });
-      }
-
       const apiVersionIndex = op.Parameters.findIndex(
         (value: InputParameter) => value.IsApiVersion
       );
@@ -245,7 +215,7 @@ export function createModelForService(
     const operations = listOperationsInOperationGroup(sdkContext, client);
     let clientDesc = "";
     if (operations.length > 0) {
-      const container = ignoreDiagnostics(getHttpOperation(program, operations[0])).container;
+      const container = getHttpOperationWithCache(sdkContext, operations[0]).container;
       clientDesc = getDoc(program, container) ?? "";
     }
 
@@ -258,7 +228,7 @@ export function createModelForService(
       Parameters: urlParameters,
     };
     for (const op of operations) {
-      const httpOperation = ignoreDiagnostics(getHttpOperation(program, op));
+      const httpOperation = getHttpOperationWithCache(sdkContext, op);
       const inputOperation: InputOperation = loadOperation(
         sdkContext,
         httpOperation,
@@ -274,24 +244,6 @@ export function createModelForService(
       if (inputOperation.GenerateConvenienceMethod) convenienceOperations.push(httpOperation);
     }
     return inputClient;
-  }
-}
-
-function setUsage(
-  usages: { inputs: string[]; outputs: string[]; roundTrips: string[] },
-  models: Map<string, InputModelType | InputEnumType>
-) {
-  for (const [name, m] of models) {
-    if (m.Usage !== undefined && m.Usage !== Usage.None) continue;
-    if (usages.inputs.includes(name)) {
-      m.Usage = Usage.Input;
-    } else if (usages.outputs.includes(name)) {
-      m.Usage = Usage.Output;
-    } else if (usages.roundTrips.includes(name)) {
-      m.Usage = Usage.RoundTrip;
-    } else {
-      m.Usage = Usage.None;
-    }
   }
 }
 

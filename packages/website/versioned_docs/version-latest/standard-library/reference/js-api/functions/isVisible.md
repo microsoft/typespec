@@ -13,7 +13,7 @@ function isVisible(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `property` | [`ModelProperty`](../interfaces/ModelProperty.md) |
 | `visibilities` | readonly `string`[] |

@@ -41,6 +41,14 @@ namespace Microsoft.Generator.CSharp
             _inputLibrary = new(() => new InputLibrary(Instance.Configuration.OutputDirectory));
         }
 
+        // for mocking
+        protected CodeModelPlugin()
+        {
+            // should be mocked
+            Configuration = null!;
+            _inputLibrary = new(() => null!);
+        }
+
         private Lazy<InputLibrary> _inputLibrary;
 
         // Extensibility points to be implemented by a plugin
@@ -51,18 +59,8 @@ namespace Microsoft.Generator.CSharp
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
         public virtual IReadOnlyList<MetadataReference> AdditionalMetadataReferences => Array.Empty<MetadataReference>();
 
-        /// <summary>
-        /// Returns the serialization type providers for the given model type provider.
-        /// </summary>
-        /// <param name="provider">The model type provider.</param>
-        /// <param name="inputModel">The input model.</param>
-        public virtual IReadOnlyList<TypeProvider> GetSerializationTypeProviders(TypeProvider provider, InputType inputModel)
+        public virtual void Configure()
         {
-            if (provider is EnumProvider { IsExtensible: false } enumProvider)
-            {
-                return [new FixedEnumSerializationProvider(enumProvider)];
-            }
-            return Array.Empty<TypeProvider>();
         }
     }
 }

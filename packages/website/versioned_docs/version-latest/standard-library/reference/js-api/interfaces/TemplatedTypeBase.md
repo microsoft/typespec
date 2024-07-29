@@ -14,7 +14,7 @@ title: "[I] TemplatedTypeBase"
 ## Properties
 
 | Property | Type | Description |
-| :------ | :------ | :------ |
-| ~~`templateArguments?`~~ | ([`Type`](../type-aliases/Type.md) \| [`Value`](../type-aliases/Value.md) \| [`IndeterminateEntity`](IndeterminateEntity.md))[] | <p>**Deprecated**</p><p>use templateMapper instead.</p> |
+| ------ | ------ | ------ |
+| ~~`templateArguments?`~~ | ([`Type`](../type-aliases/Type.md) \| [`Value`](../type-aliases/Value.md) \| [`IndeterminateEntity`](IndeterminateEntity.md))[] | **Deprecated** use templateMapper instead. |
 | `templateMapper?` | [`TypeMapper`](TypeMapper.md) | - |
 | `templateNode?` | [`Node`](../type-aliases/Node.md) | - |

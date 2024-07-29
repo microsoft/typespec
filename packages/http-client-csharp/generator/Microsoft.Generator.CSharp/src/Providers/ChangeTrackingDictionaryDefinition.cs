@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly MethodSignature _ensureDictionarySignature;
 
         private IndexableExpression EnsureDictionary { get; init; }
-        private ScopedApi<bool> IsUndefined { get; } = new(This.Property("IsUndefined"));
+        private ScopedApi<bool> IsUndefined { get; } = This.Property("IsUndefined").As<bool>();
 
         public ChangeTrackingDictionaryDefinition()
         {
@@ -52,41 +52,41 @@ namespace Microsoft.Generator.CSharp.Providers
             return TypeSignatureModifiers.Internal;
         }
 
-        public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        public override string Name => "ChangeTrackingDictionary";
+        protected override string BuildName() => "ChangeTrackingDictionary";
 
-        protected override CSharpType[] BuildTypeArguments()
+        protected override CSharpType[] GetTypeArguments()
         {
-            return new[] { _tKey, _tValue };
+            return [_tKey, _tValue];
         }
 
         protected override FieldProvider[] BuildFields()
         {
-            return new[] { _innerDictionaryField };
+            return [_innerDictionaryField];
         }
 
         protected override CSharpType[] BuildImplements()
         {
-            return new[] { _IDictionary, _IReadOnlyDictionary };
+            return [_IDictionary, _IReadOnlyDictionary];
         }
 
-        protected override MethodProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
-            return new MethodProvider[]
-            {
+            return
+            [
                 DefaultConstructor(),
                 ConstructorWithDictionary(),
                 ConstructorWithReadOnlyDictionary()
-            };
+            ];
         }
 
-        private MethodProvider ConstructorWithReadOnlyDictionary()
+        private ConstructorProvider ConstructorWithReadOnlyDictionary()
         {
             var dictionaryParam = new ParameterProvider("dictionary", $"The inner dictionary.", _IReadOnlyDictionary);
             DictionaryExpression dictionary = dictionaryParam.AsDictionary(_tKey, _tValue);
             var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [dictionaryParam]);
-            return new MethodProvider(signature, new MethodBodyStatement[]
+            return new ConstructorProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(dictionary.Equal(Null))
                 {
@@ -101,11 +101,11 @@ namespace Microsoft.Generator.CSharp.Providers
             this);
         }
 
-        private MethodProvider ConstructorWithDictionary()
+        private ConstructorProvider ConstructorWithDictionary()
         {
             var dictionary = new ParameterProvider("dictionary", $"The inner dictionary.", _IDictionary);
             var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [dictionary]);
-            return new MethodProvider(signature, new MethodBodyStatement[]
+            return new ConstructorProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(dictionary.AsExpression.Equal(Null))
                 {
@@ -116,10 +116,10 @@ namespace Microsoft.Generator.CSharp.Providers
             this);
         }
 
-        private MethodProvider DefaultConstructor()
+        private ConstructorProvider DefaultConstructor()
         {
             var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, Array.Empty<ParameterProvider>());
-            return new MethodProvider(signature, Array.Empty<MethodBodyStatement>(), this);
+            return new ConstructorProvider(signature, Array.Empty<MethodBodyStatement>(), this);
         }
 
         protected override PropertyProvider[] BuildProperties()

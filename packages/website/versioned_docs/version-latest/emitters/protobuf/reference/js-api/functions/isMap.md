@@ -12,7 +12,7 @@ Determines whether a type represents a Protobuf map.
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | `Program` | the program context |
 | `m` | `Type` | the type to test |
 

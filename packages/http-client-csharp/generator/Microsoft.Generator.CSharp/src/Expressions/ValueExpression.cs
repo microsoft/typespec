@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 
@@ -56,54 +55,68 @@ namespace Microsoft.Generator.CSharp.Expressions
         public ValueExpression InvokeGetType() => Invoke(nameof(GetType));
         public ValueExpression InvokeGetHashCode() => Invoke(nameof(GetHashCode));
 
-        public ScopedApi<bool> InvokeEquals(ValueExpression other) => new(Invoke(nameof(Equals), other));
+        public ScopedApi<bool> InvokeEquals(ValueExpression other) => Invoke(nameof(Equals), other).As<bool>();
 
-        public ValueExpression Property(string propertyName, bool nullConditional = false)
-            => new MemberExpression(nullConditional ? new NullConditionalExpression(this) : this, propertyName);
+        public ValueExpression Property(string propertyName) => new MemberExpression(this, propertyName);
 
         public InvokeMethodExpression Invoke(string methodName)
-            => new InvokeMethodExpression(this, methodName, [], null, false);
+            => new InvokeMethodExpression(this, methodName, []);
 
         public InvokeMethodExpression Invoke(string methodName, ValueExpression arg)
-            => new InvokeMethodExpression(this, methodName, [arg], null, false);
+            => new InvokeMethodExpression(this, methodName, [arg]);
 
         public InvokeMethodExpression Invoke(string methodName, ValueExpression arg1, ValueExpression arg2)
-            => new InvokeMethodExpression(this, methodName, [arg1, arg2], null, false);
+            => new InvokeMethodExpression(this, methodName, [arg1, arg2]);
 
         public InvokeMethodExpression Invoke(string methodName, IReadOnlyList<ValueExpression> arguments)
-            => new InvokeMethodExpression(this, methodName, arguments, null, false);
+            => new InvokeMethodExpression(this, methodName, arguments);
 
-        public InvokeMethodExpression Invoke(MethodSignature method)
-            => new InvokeMethodExpression(this, method.Name, [.. method.Parameters], null, method.Modifiers.HasFlag(MethodSignatureModifiers.Async));
+        public InvokeMethodExpression Invoke(MethodSignature methodSignature)
+            => new InvokeMethodExpression(this, methodSignature, [.. methodSignature.Parameters])
+            {
+                CallAsAsync = methodSignature.Modifiers.HasFlag(MethodSignatureModifiers.Async)
+            };
 
-        public InvokeMethodExpression Invoke(MethodSignature method, IReadOnlyList<ValueExpression> arguments, bool addConfigureAwaitFalse = true)
-            => new InvokeMethodExpression(this, method.Name, arguments, null, method.Modifiers.HasFlag(MethodSignatureModifiers.Async), AddConfigureAwaitFalse: addConfigureAwaitFalse);
+        public InvokeMethodExpression Invoke(MethodSignature methodSignature, IReadOnlyList<ValueExpression> arguments, bool addConfigureAwaitFalse = true)
+            => new InvokeMethodExpression(this, methodSignature, arguments)
+            {
+                CallAsAsync = methodSignature.Modifiers.HasFlag(MethodSignatureModifiers.Async),
+                AddConfigureAwaitFalse = addConfigureAwaitFalse
+            };
 
         public InvokeMethodExpression Invoke(string methodName, bool async)
-            => new InvokeMethodExpression(this, methodName, [], null, async);
+            => new InvokeMethodExpression(this, methodName, []);
 
         public InvokeMethodExpression Invoke(string methodName, IReadOnlyList<ValueExpression> arguments, bool async)
-            => new InvokeMethodExpression(this, methodName, arguments, null, async);
+            => new InvokeMethodExpression(this, methodName, arguments) { CallAsAsync = async };
 
         public InvokeMethodExpression Invoke(string methodName, IReadOnlyList<ValueExpression> arguments, IReadOnlyList<CSharpType>? typeArguments, bool callAsAsync, bool addConfigureAwaitFalse = true, CSharpType? extensionType = null)
-            => new InvokeMethodExpression(this, methodName, arguments, typeArguments, callAsAsync, addConfigureAwaitFalse, extensionType);
+            => new InvokeMethodExpression(this, methodName, arguments)
+            {
+                TypeArguments = typeArguments,
+                CallAsAsync = callAsAsync,
+                AddConfigureAwaitFalse = addConfigureAwaitFalse,
+                ExtensionType = extensionType
+            };
 
         public CastExpression CastTo(CSharpType to) => new CastExpression(this, to);
 
-        public ScopedApi<bool> GreaterThan(ValueExpression other) => new(new BinaryOperatorExpression(">", this, other));
-        public ScopedApi<bool> GreaterThanOrEqual(ValueExpression other) => new(new BinaryOperatorExpression(">=", this, other));
+        public ScopedApi<bool> GreaterThan(ValueExpression other) => new BinaryOperatorExpression(">", this, other).As<bool>();
+        public ScopedApi<bool> GreaterThanOrEqual(ValueExpression other) => new BinaryOperatorExpression(">=", this, other).As<bool>();
 
-        public ScopedApi<bool> LessThan(ValueExpression other) => new(new BinaryOperatorExpression("<", this, other));
+        public ScopedApi<bool> LessThan(ValueExpression other) => new BinaryOperatorExpression("<", this, other).As<bool>();
 
-        public ScopedApi<bool> Equal(ValueExpression other) => new(new BinaryOperatorExpression("==", this, other));
+        public ScopedApi<bool> Equal(ValueExpression other) => new BinaryOperatorExpression("==", this, other).As<bool>();
 
-        public ScopedApi<bool> NotEqual(ValueExpression other) => new(new BinaryOperatorExpression("!=", this, other));
+        public ScopedApi<bool> NotEqual(ValueExpression other) => new BinaryOperatorExpression("!=", this, other).As<bool>();
 
-        public ScopedApi<bool> Is(ValueExpression other) => new(new BinaryOperatorExpression("is", this, other));
+        public ScopedApi<bool> Is(ValueExpression other) => new BinaryOperatorExpression("is", this, other).As<bool>();
 
         public UnaryOperatorExpression Increment() => new UnaryOperatorExpression("++", this, true);
 
         public ValueExpression AndExpr(ValueExpression other) => new BinaryOperatorExpression("and", this, other);
+
+        public ValueExpression NullConditional() => new NullConditionalExpression(this);
 
         private string GetDebuggerDisplay()
         {

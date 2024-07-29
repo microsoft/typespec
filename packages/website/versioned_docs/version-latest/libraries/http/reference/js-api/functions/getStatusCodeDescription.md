@@ -19,7 +19,7 @@ function getStatusCodeDescription(statusCode):
   | "The client has made a conditional request and the resource has not been modified."
   | "The server could not understand the request due to invalid syntax."
   | "Access is unauthorized."
-  | "Access is forbidden"
+  | "Access is forbidden."
   | "The server cannot find the requested resource."
   | "The request conflicts with the current state of the server."
   | "Precondition failed."
@@ -29,7 +29,7 @@ function getStatusCodeDescription(statusCode):
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `statusCode` | `string` \| `number` \| [`HttpStatusCodeRange`](../interfaces/HttpStatusCodeRange.md) |
 
 ## Returns
@@ -48,7 +48,7 @@ function getStatusCodeDescription(statusCode):
   \| `"The client has made a conditional request and the resource has not been modified."`
   \| `"The server could not understand the request due to invalid syntax."`
   \| `"Access is unauthorized."`
-  \| `"Access is forbidden"`
+  \| `"Access is forbidden."`
   \| `"The server cannot find the requested resource."`
   \| `"The request conflicts with the current state of the server."`
   \| `"Precondition failed."`
