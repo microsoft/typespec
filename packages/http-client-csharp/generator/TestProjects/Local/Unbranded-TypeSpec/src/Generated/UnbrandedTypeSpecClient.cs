@@ -105,12 +105,13 @@ namespace UnbrandedTypeSpec
         /// <param name="optionalQuery"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult SayHi(string headParameter, string queryParameter, string optionalQuery)
+        public virtual ClientResult<Thing> SayHi(string headParameter, string queryParameter, string optionalQuery)
         {
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
-            return SayHi(headParameter, queryParameter, optionalQuery, null);
+            ClientResult result = SayHi(headParameter, queryParameter, optionalQuery, null);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> Return hi. </summary>
@@ -119,12 +120,13 @@ namespace UnbrandedTypeSpec
         /// <param name="optionalQuery"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> SayHiAsync(string headParameter, string queryParameter, string optionalQuery)
+        public virtual async Task<ClientResult<Thing>> SayHiAsync(string headParameter, string queryParameter, string optionalQuery)
         {
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
-            return await SayHiAsync(headParameter, queryParameter, optionalQuery, null).ConfigureAwait(false);
+            ClientResult result = await SayHiAsync(headParameter, queryParameter, optionalQuery, null).ConfigureAwait(false);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -181,7 +183,7 @@ namespace UnbrandedTypeSpec
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult HelloAgain(string p1, string p2, RoundTripModel action)
+        public virtual ClientResult<RoundTripModel> HelloAgain(string p1, string p2, RoundTripModel action)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
@@ -197,7 +199,7 @@ namespace UnbrandedTypeSpec
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> HelloAgainAsync(string p1, string p2, RoundTripModel action)
+        public virtual async Task<ClientResult<RoundTripModel>> HelloAgainAsync(string p1, string p2, RoundTripModel action)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
@@ -261,7 +263,7 @@ namespace UnbrandedTypeSpec
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult NoContentType(string p1, string p2, RoundTripModel action)
+        public virtual ClientResult<RoundTripModel> NoContentType(string p1, string p2, RoundTripModel action)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
@@ -277,7 +279,7 @@ namespace UnbrandedTypeSpec
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> NoContentTypeAsync(string p1, string p2, RoundTripModel action)
+        public virtual async Task<ClientResult<RoundTripModel>> NoContentTypeAsync(string p1, string p2, RoundTripModel action)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
@@ -323,16 +325,18 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Return hi in demo2. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult HelloDemo2()
+        public virtual ClientResult<Thing> HelloDemo2()
         {
-            return HelloDemo2(null);
+            ClientResult result = HelloDemo2(null);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> Return hi in demo2. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> HelloDemo2Async()
+        public virtual async Task<ClientResult<Thing>> HelloDemo2Async()
         {
-            return await HelloDemo2Async(null).ConfigureAwait(false);
+            ClientResult result = await HelloDemo2Async(null).ConfigureAwait(false);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -375,7 +379,7 @@ namespace UnbrandedTypeSpec
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult CreateLiteral(Thing body)
+        public virtual ClientResult<Thing> CreateLiteral(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
@@ -387,7 +391,7 @@ namespace UnbrandedTypeSpec
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> CreateLiteralAsync(Thing body)
+        public virtual async Task<ClientResult<Thing>> CreateLiteralAsync(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
@@ -431,16 +435,18 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Send literal parameters. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult HelloLiteral()
+        public virtual ClientResult<Thing> HelloLiteral()
         {
-            return HelloLiteral(null);
+            ClientResult result = HelloLiteral(null);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> Send literal parameters. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> HelloLiteralAsync()
+        public virtual async Task<ClientResult<Thing>> HelloLiteralAsync()
         {
-            return await HelloLiteralAsync(null).ConfigureAwait(false);
+            ClientResult result = await HelloLiteralAsync(null).ConfigureAwait(false);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -489,22 +495,24 @@ namespace UnbrandedTypeSpec
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="action"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult TopAction(DateTimeOffset action)
+        public virtual ClientResult<Thing> TopAction(DateTimeOffset action)
         {
             Argument.AssertNotNull(action, nameof(action));
 
-            return TopAction(action, null);
+            ClientResult result = TopAction(action, null);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> top level method. </summary>
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="action"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> TopActionAsync(DateTimeOffset action)
+        public virtual async Task<ClientResult<Thing>> TopActionAsync(DateTimeOffset action)
         {
             Argument.AssertNotNull(action, nameof(action));
 
-            return await TopActionAsync(action, null).ConfigureAwait(false);
+            ClientResult result = await TopActionAsync(action, null).ConfigureAwait(false);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -543,16 +551,18 @@ namespace UnbrandedTypeSpec
 
         /// <summary> top level method2. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult TopAction2()
+        public virtual ClientResult<Thing> TopAction2()
         {
-            return TopAction2(null);
+            ClientResult result = TopAction2(null);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> top level method2. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> TopAction2Async()
+        public virtual async Task<ClientResult<Thing>> TopAction2Async()
         {
-            return await TopAction2Async(null).ConfigureAwait(false);
+            ClientResult result = await TopAction2Async(null).ConfigureAwait(false);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -595,7 +605,7 @@ namespace UnbrandedTypeSpec
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult PatchAction(Thing body)
+        public virtual ClientResult<Thing> PatchAction(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
@@ -607,7 +617,7 @@ namespace UnbrandedTypeSpec
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> PatchActionAsync(Thing body)
+        public virtual async Task<ClientResult<Thing>> PatchActionAsync(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
@@ -651,16 +661,18 @@ namespace UnbrandedTypeSpec
 
         /// <summary> body parameter without body decorator. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult AnonymousBody()
+        public virtual ClientResult<Thing> AnonymousBody()
         {
-            return AnonymousBody(null);
+            ClientResult result = AnonymousBody(null);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> body parameter without body decorator. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> AnonymousBodyAsync()
+        public virtual async Task<ClientResult<Thing>> AnonymousBodyAsync()
         {
-            return await AnonymousBodyAsync(null).ConfigureAwait(false);
+            ClientResult result = await AnonymousBodyAsync(null).ConfigureAwait(false);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -699,16 +711,18 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Model can have its friendly name. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult FriendlyModel()
+        public virtual ClientResult<Friend> FriendlyModel()
         {
-            return FriendlyModel(null);
+            ClientResult result = FriendlyModel(null);
+            return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
 
         /// <summary> Model can have its friendly name. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> FriendlyModelAsync()
+        public virtual async Task<ClientResult<Friend>> FriendlyModelAsync()
         {
-            return await FriendlyModelAsync(null).ConfigureAwait(false);
+            ClientResult result = await FriendlyModelAsync(null).ConfigureAwait(false);
+            return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -799,16 +813,18 @@ namespace UnbrandedTypeSpec
 
         /// <summary> Model can have its projected name. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult ProjectedNameModel()
+        public virtual ClientResult<ProjectedModel> ProjectedNameModel()
         {
-            return ProjectedNameModel(null);
+            ClientResult result = ProjectedNameModel(null);
+            return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
         }
 
         /// <summary> Model can have its projected name. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> ProjectedNameModelAsync()
+        public virtual async Task<ClientResult<ProjectedModel>> ProjectedNameModelAsync()
         {
-            return await ProjectedNameModelAsync(null).ConfigureAwait(false);
+            ClientResult result = await ProjectedNameModelAsync(null).ConfigureAwait(false);
+            return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -847,16 +863,18 @@ namespace UnbrandedTypeSpec
 
         /// <summary> return anonymous model. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult ReturnsAnonymousModel()
+        public virtual ClientResult<ReturnsAnonymousModelResponse> ReturnsAnonymousModel()
         {
-            return ReturnsAnonymousModel(null);
+            ClientResult result = ReturnsAnonymousModel(null);
+            return ClientResult.FromValue((ReturnsAnonymousModelResponse)result, result.GetRawResponse());
         }
 
         /// <summary> return anonymous model. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> ReturnsAnonymousModelAsync()
+        public virtual async Task<ClientResult<ReturnsAnonymousModelResponse>> ReturnsAnonymousModelAsync()
         {
-            return await ReturnsAnonymousModelAsync(null).ConfigureAwait(false);
+            ClientResult result = await ReturnsAnonymousModelAsync(null).ConfigureAwait(false);
+            return ClientResult.FromValue((ReturnsAnonymousModelResponse)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -895,16 +913,18 @@ namespace UnbrandedTypeSpec
 
         /// <summary> get extensible enum. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult GetUnknownValue()
+        public virtual ClientResult<string> GetUnknownValue()
         {
-            return GetUnknownValue(null);
+            ClientResult result = GetUnknownValue(null);
+            return ClientResult.FromValue(result.GetRawResponse().Content.ToString(), result.GetRawResponse());
         }
 
         /// <summary> get extensible enum. </summary>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> GetUnknownValueAsync()
+        public virtual async Task<ClientResult<string>> GetUnknownValueAsync()
         {
-            return await GetUnknownValueAsync(null).ConfigureAwait(false);
+            ClientResult result = await GetUnknownValueAsync(null).ConfigureAwait(false);
+            return ClientResult.FromValue(result.GetRawResponse().Content.ToString(), result.GetRawResponse());
         }
 
         /// <summary>
@@ -947,7 +967,7 @@ namespace UnbrandedTypeSpec
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult InternalProtocol(Thing body)
+        public virtual ClientResult<Thing> InternalProtocol(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
@@ -959,7 +979,7 @@ namespace UnbrandedTypeSpec
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> InternalProtocolAsync(Thing body)
+        public virtual async Task<ClientResult<Thing>> InternalProtocolAsync(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 

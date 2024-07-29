@@ -160,9 +160,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             var response = operation.Responses.First(r => !r.IsErrorResponse); //should only be one of these
 
-            if (response.StatusCodes.Count == 0)
-                return response.BodyType is null ? _classifier204Property : _classifier200Property; //default to 200 if no status codes defined
-
             if (response.StatusCodes.Count == 1)
             {
                 return response.StatusCodes[0] switch

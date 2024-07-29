@@ -236,9 +236,10 @@ stages:
         dependsOn:
           - ${{ parameters.DependsOn }}
           - ${{ parameters.StagePrefix }}_Build
-          - ${{ if and(parameters.PublishDependsOnTest, ne(length(parameters.TestMatrix), 0)) }}:
+          - ${{ if parameters.PublishDependsOnTest }}:
               - ${{ parameters.StagePrefix }}_Test
-              - ${{ parameters.StagePrefix }}_Regen_Test
+              - ${{ if ne(length(parameters.TestMatrix), 0) }}:
+                  - ${{ parameters.StagePrefix }}_Regen_Test
         variables:
           toolsRepositoryPath: $(Build.SourcesDirectory)
           buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts_${{ parameters.LanguageShortName }}

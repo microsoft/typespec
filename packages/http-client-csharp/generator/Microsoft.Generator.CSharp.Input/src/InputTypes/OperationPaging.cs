@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Text.Json.Serialization;
 
 namespace Microsoft.Generator.CSharp.Input
 {
     public sealed class OperationPaging
     {
+        [JsonConstructor]
         public OperationPaging(string? nextLinkName = null, string? itemName = null)
         {
             NextLinkName = nextLinkName;
