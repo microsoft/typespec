@@ -23,6 +23,7 @@ namespace Microsoft.Generator.CSharp.Providers
             _input = input;
 
             IsExtensible = input.IsExtensible;
+            IsApiVersion = input.Usage.Equals(InputModelTypeUsage.ApiVersionEnum);
             ValueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input.ValueType);
             IsStringValueType = ValueType.Equals(typeof(string));
             IsIntValueType = ValueType.Equals(typeof(int)) || ValueType.Equals(typeof(long));
@@ -34,6 +35,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public CSharpType ValueType { get; }
         public bool IsExtensible { get; }
+        public bool IsApiVersion { get; }
         internal bool IsIntValueType { get; }
         internal bool IsFloatValueType { get; }
         internal bool IsStringValueType { get; }

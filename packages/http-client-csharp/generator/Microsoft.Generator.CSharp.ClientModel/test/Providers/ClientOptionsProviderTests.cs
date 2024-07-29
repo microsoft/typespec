@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         public void TestImplements()
         {
             var client = new InputClient("TestClient", "TestClient description", [], [], null);
-            var clientOptionsProvider = new ClientOptionsProvider(client, new ClientProvider(client));
+            var clientOptionsProvider = new ClientOptionsProvider(client);
 
             Assert.IsNotNull(clientOptionsProvider);
 
@@ -52,7 +52,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             }
 
             var client = new InputClient("TestClient", "TestClient description", [], [], null);
-            var clientOptionsProvider = new ClientOptionsProvider(client, new ClientProvider(client));
+            var clientOptionsProvider = new ClientOptionsProvider(client);
 
             Assert.IsNotNull(clientOptionsProvider);
             var fields = clientOptionsProvider.Fields;
@@ -82,7 +82,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             }
 
             var client = new InputClient("TestClient", "TestClient description", [], [], null);
-            var clientOptionsProvider = new ClientOptionsProvider(client, new ClientProvider(client));
+            var clientOptionsProvider = new ClientOptionsProvider(client);
 
             Assert.IsNotNull(clientOptionsProvider);
 
@@ -112,7 +112,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             }
 
             var client = new InputClient("TestClient", "TestClient description", [], [], null);
-            var clientOptionsProvider = new ClientOptionsProvider(client, new ClientProvider(client));
+            var clientOptionsProvider = new ClientOptionsProvider(client);
 
             Assert.IsNotNull(clientOptionsProvider);
 
@@ -149,7 +149,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             }
 
             var client = new InputClient("TestClient", "TestClient description", [], [], null);
-            var clientOptionsProvider = new ClientOptionsProvider(client, new ClientProvider(client));
+            var clientOptionsProvider = new ClientOptionsProvider(client);
 
             Assert.IsNotNull(clientOptionsProvider);
 
@@ -171,31 +171,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             {
                 Assert.AreEqual(0, properties.Count);
             }
-        }
-
-        [TestCase("1.0.0", "V1_0_0")]
-        [TestCase("v1.0.0", "V1_0_0")]
-        [TestCase("V1.0.0", "V1_0_0")]
-        [TestCase("V2022.05.15_Preview", "V2022_05_15_Preview")]
-        [TestCase("v2022.05.15_Preview", "V2022_05_15_Preview")]
-        [TestCase("V2022.05.15-preview", "V2022_05_15_Preview")]
-        public void TestParseApiVersion(string apiVersion, string expectedApiVersion)
-        {
-            // setup
-            List<string> apiVersions = [apiVersion];
-            var mockInputNs = new Mock<InputNamespace>("ns", apiVersions, Array.Empty<InputEnumType>(), Array.Empty<InputModelType>(), Array.Empty<InputClient>(), new InputAuth());
-            var inputNsInstance = typeof(InputLibrary).GetField("_inputNamespace", BindingFlags.Instance | BindingFlags.NonPublic);
-            inputNsInstance!.SetValue(_mockInputLibrary.Object, mockInputNs.Object);
-            MockHelpers.LoadMockPlugin(inputLibrary: _mockInputLibrary.Object);
-            var client = new InputClient("TestClient", "TestClient description", [], [], null);
-            var clientOptionsProvider = new ClientOptionsProvider(client, new ClientProvider(client));
-
-            Assert.IsNotNull(clientOptionsProvider);
-
-            var parsedApiVersions = clientOptionsProvider.ApiVersions;
-            Assert.IsNotNull(parsedApiVersions);
-            Assert.AreEqual(1, parsedApiVersions.Count);
-            Assert.AreEqual(expectedApiVersion, parsedApiVersions[0].Name);
         }
     }
 }

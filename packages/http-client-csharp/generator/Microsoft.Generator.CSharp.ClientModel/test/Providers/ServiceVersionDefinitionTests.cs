@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         public void TestDeclarationModifiers()
         {
             var client = new InputClient("TestClient", "TestClient description", [], [], null);
-            var clientOptionsProvider = new ClientOptionsProvider(client, new ClientProvider(client));
+            var clientOptionsProvider = new ClientOptionsProvider(client);
             var serviceVersionDefinition = new ServiceVersionDefinition(clientOptionsProvider);
 
             Assert.IsNotNull(serviceVersionDefinition);
@@ -41,7 +41,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         public void TestFields()
         {
             var client = new InputClient("TestClient", "TestClient description", [], [], null);
-            var clientOptionsProvider = new ClientOptionsProvider(client, new ClientProvider(client));
+            var clientOptionsProvider = new ClientOptionsProvider(client);
             var serviceVersionDefinition = new ServiceVersionDefinition(clientOptionsProvider);
 
             Assert.IsNotNull(serviceVersionDefinition);
@@ -56,7 +56,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         public void TestLatestServiceVersion()
         {
             var client = new InputClient("TestClient", "TestClient description", [], [], null);
-            var clientOptionsProvider = new ClientOptionsProvider(client, new ClientProvider(client));
+            var clientOptionsProvider = new ClientOptionsProvider(client);
             var serviceVersionDefinition = new ServiceVersionDefinition(clientOptionsProvider);
 
             Assert.IsNotNull(serviceVersionDefinition);

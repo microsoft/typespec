@@ -28,21 +28,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly FormattableString _publicCtorDescription;
         private readonly InputClient _inputClient;
         private readonly InputAuth? _inputAuth;
-        private readonly ParameterProvider _clientOptionsParameter;
         private readonly ParameterProvider _endpointParameter;
         private readonly FieldProvider? _apiKeyAuthField;
         private readonly FieldProvider? _authorizationHeaderConstant;
         private readonly FieldProvider? _authorizationApiKeyPrefixConstant;
+        private ParameterProvider? _clientOptionsParameter;
         private ClientOptionsProvider? _clientOptions;
         private RestClientProvider? _restClient;
 
-        internal RestClientProvider RestClient => _restClient ??= new RestClientProvider(_inputClient, this);
-        internal ClientOptionsProvider ClientOptions => _clientOptions ??= new ClientOptionsProvider(_inputClient, this);
+        private ParameterProvider ClientOptionsParameter => _clientOptionsParameter ??= ScmKnownParameters.ClientOptions(ClientOptions.Type);
+        internal RestClientProvider RestClient => _restClient ??= new RestClientProvider(_inputClient);
+        internal ClientOptionsProvider ClientOptions => _clientOptions ??= new ClientOptionsProvider(_inputClient);
 
         public ClientProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
-            _clientOptionsParameter = ScmKnownParameters.ClientOptions(ClientOptions.Type);
             _inputAuth = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Auth;
             _endpointParameter = BuildClientEndpointParameter();
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
@@ -127,8 +127,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         protected override ConstructorProvider[] BuildConstructors()
         {
             ParameterProvider[] primaryConstructorParameters = _apiKeyAuthField != null
-                ? [_endpointParameter, _apiKeyAuthField.AsParameter, _clientOptionsParameter]
-                : [_endpointParameter, _clientOptionsParameter];
+                ? [_endpointParameter, _apiKeyAuthField.AsParameter, ClientOptionsParameter]
+                : [_endpointParameter, ClientOptionsParameter];
             var primaryConstructor = new ConstructorProvider(
                 new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Public, primaryConstructorParameters),
                 BuildPrimaryConstructorBody(primaryConstructorParameters),
@@ -152,7 +152,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private MethodBodyStatement[] BuildPrimaryConstructorBody(IReadOnlyList<ParameterProvider> primaryConstructorParameters)
         {
             List<MethodBodyStatement> body = [
-                _clientOptionsParameter.Assign(_clientOptionsParameter.InitializationValue!, nullCoalesce: true).Terminate(),
+                ClientOptionsParameter.Assign(ClientOptionsParameter.InitializationValue!, nullCoalesce: true).Terminate(),
                 MethodBodyStatement.EmptyLine,
                 EndpointField.Assign(_endpointParameter).Terminate()
             ];
@@ -180,13 +180,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             body.Add(PipelineProperty.Assign(ClientPipelineSnippets.Create(
-                _clientOptionsParameter, New.Array(typeof(PipelinePolicy)), perRetryPolicies, New.Array(typeof(PipelinePolicy)))).Terminate());
+                ClientOptionsParameter, New.Array(typeof(PipelinePolicy)), perRetryPolicies, New.Array(typeof(PipelinePolicy)))).Terminate());
 
             foreach (var f in Fields)
             {
-                if (f != _apiKeyAuthField && f != EndpointField && !f.Modifiers.HasFlag(FieldModifiers.Const))
+                if (f != _apiKeyAuthField
+                    && f != EndpointField
+                    && !f.Modifiers.HasFlag(FieldModifiers.Const)
+                    && ClientOptions.PropertiesDictionary.TryGetValue(f.Name.ToCleanName(), out var optionsProperty))
                 {
-                    body.Add(f.Assign(_clientOptionsParameter.Property(f.Name.ToCleanName())).Terminate());
+                    body.Add(f.Assign(ClientOptionsParameter.Property(optionsProperty.Name)).Terminate());
                 }
             }
 

@@ -27,19 +27,24 @@ namespace Microsoft.Generator.CSharp.ClientModel
         protected override TypeProvider[] BuildTypeProviders()
         {
             var baseTypes = base.BuildTypeProviders();
+            var updatedBaseTypes = new List<TypeProvider>(baseTypes.Length);
             var systemOptionalProvider = new SystemOptionalDefinition();
 
-            for (var i = 0; i < baseTypes.Length; i++)
+            foreach (var t in baseTypes)
             {
-                if (baseTypes[i] is OptionalDefinition)
+                if (t is OptionalDefinition)
                 {
-                    baseTypes[i] = systemOptionalProvider;
+                    updatedBaseTypes.Add(systemOptionalProvider);
+                }
+                else if (!(t is EnumProvider enumProvider && enumProvider.IsApiVersion))
+                {
+                    updatedBaseTypes.Add(t);
                 }
             }
 
             return [
-                ..baseTypes,
-                ..BuildClients(),
+                .. updatedBaseTypes,
+                .. BuildClients(),
                 new ModelSerializationExtensionsDefinition(),
                 new TypeFormattersDefinition(),
                 new ClientPipelineExtensionsDefinition(),

@@ -36,10 +36,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private PropertyProvider _classifier204Property;
         private PropertyProvider _classifier2xxAnd4xxProperty;
 
-        public RestClientProvider(InputClient inputClient, ClientProvider clientProvider)
+        public RestClientProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
-            ClientProvider = clientProvider;
+            ClientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
             _pipelineMessageClassifier200 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, typeof(PipelineMessageClassifier), "_pipelineMessageClassifier200");
             _pipelineMessageClassifier204 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, typeof(PipelineMessageClassifier), "_pipelineMessageClassifier204");
             _classifier2xxAnd4xxDefinition = new Classifier2xxAnd4xxDefinition(this);

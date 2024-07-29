@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Generator.CSharp.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
@@ -13,13 +12,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     internal class ServiceVersionDefinition : TypeProvider
     {
-        private readonly IReadOnlyList<ApiVersion> _apiVersions;
+        private readonly IReadOnlyList<string> _apiVersions;
         private IReadOnlyList<EnumTypeMember>? _members;
 
         public ServiceVersionDefinition(ClientOptionsProvider declaringType)
         {
-            DeclaringTypeProvider = declaringType;
             _apiVersions = declaringType.ApiVersions;
+            DeclaringTypeProvider = declaringType;
 
             // Since the ServiceVersionProvider is only instantiated when there are service versions,
             // we can safely assume that there is at least one member in the enum.
@@ -50,14 +49,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             for (int i = 0; i < count; i++)
             {
                 var apiVersion = _apiVersions[i];
+                var memberName = StringExtensions.ToApiVersionMemberName(apiVersion);
                 var field = new FieldProvider(
                     FieldModifiers.Public | FieldModifiers.Static,
                     Type,
-                    apiVersion.Name,
-                    apiVersion.Description is null ? $"{apiVersion.Name}" : apiVersion.Description,
-                    Literal(apiVersion.Value));
+                    memberName,
+                    $"Service version {apiVersion:L}",
+                    Literal(i + 1));
 
-                members[i] = new EnumTypeMember(apiVersion.Name, field, apiVersion.StringValue);
+                members[i] = new EnumTypeMember(memberName, field, apiVersion);
             }
             return members;
         }

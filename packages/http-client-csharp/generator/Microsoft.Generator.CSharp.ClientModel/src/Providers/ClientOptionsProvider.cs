@@ -7,10 +7,10 @@ using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Primitives;
 using System.ClientModel.Primitives;
 using System;
-using Microsoft.Generator.CSharp.ClientModel.Primitives;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
+using System.Linq;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
@@ -25,14 +25,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly FieldProvider? _latestVersionField;
         private readonly PropertyProvider? _versionProperty;
 
-        public ClientOptionsProvider(InputClient inputClient, ClientProvider clientProvider)
+        public ClientOptionsProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
-            _clientProvider = clientProvider;
+            _clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
             _clientOptionsName = $"{_clientProvider.Name}Options";
 
-            var inputApiVersions = ClientModelPlugin.Instance.InputLibrary.InputNamespace.ApiVersions;
-            ApiVersions = ParseApiVersions(inputApiVersions);
+            ApiVersions = ClientModelPlugin.Instance.InputLibrary.InputNamespace.ApiVersions;
 
             if (ApiVersions.Count > 0)
             {
@@ -49,9 +48,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     VersionPropertyName,
                     new AutoPropertyBody(false));
             }
+
+            PropertiesDictionary = Properties.ToDictionary(p => p.Name);
         }
 
-        internal IReadOnlyList<ApiVersion> ApiVersions { get; }
+        internal IReadOnlyList<string> ApiVersions { get; }
+
+        internal Dictionary<string, PropertyProvider> PropertiesDictionary { get; }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
         protected override string BuildName() => _clientOptionsName;
@@ -133,26 +136,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             return [.. properties];
-        }
-
-        private static ApiVersion[] ParseApiVersions(IReadOnlyList<string> inputApiVersions)
-        {
-            if (inputApiVersions == null)
-            {
-                return [];
-            }
-
-            var count = inputApiVersions.Count;
-            var parsedVersions = new ApiVersion[count];
-
-            for (int i = 0; i < count; i++)
-            {
-                var normalizedVersion = StringExtensions.ToApiVersionMemberName(inputApiVersions[i]);
-                FormattableString description = $"Service version {inputApiVersions[i]:L}";
-                parsedVersions[i] = new ApiVersion(normalizedVersion, description, i + 1, inputApiVersions[i]);
-            }
-
-            return parsedVersions;
         }
     }
 }
