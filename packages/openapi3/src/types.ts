@@ -671,7 +671,7 @@ export type OpenAPI3Operation = Extensions & {
   tags?: string[];
   operationId?: string;
   requestBody?: OpenAPI3RequestBody;
-  parameters: OpenAPI3Parameter[];
+  parameters: Refable<OpenAPI3Parameter>[];
   deprecated?: boolean;
   security?: Record<string, string[]>[];
 };

@@ -1328,46 +1328,33 @@ function createOAPIEmitter(
     return false;
   }
 
-  function getParamPlaceholder(property: ModelProperty) {
-    let spreadParam = false;
+  function getParameter(
+    parameter: HttpOperationParameter,
+    visibility: Visibility
+  ): OpenAPI3Parameter {
+    const param: OpenAPI3Parameter = {
+      name: parameter.name,
+      in: parameter.type,
+      ...getOpenAPIParameterBase(parameter.param, visibility),
+    } as any;
 
-    if (property.sourceProperty) {
-      // chase our sources all the way back to the first place this property
-      // was defined.
-      spreadParam = true;
-      property = property.sourceProperty;
-      while (property.sourceProperty) {
-        property = property.sourceProperty;
-      }
-    }
-
-    const refUrl = getRef(program, property);
-    if (refUrl) {
-      return {
-        $ref: refUrl,
+    const format = mapParameterFormat(parameter);
+    if (format === undefined) {
+      param.schema = {
+        type: "string",
       };
+    } else {
+      Object.assign(param, format);
     }
 
-    if (params.has(property)) {
-      return params.get(property);
-    }
-
-    const placeholder = {};
-
-    // only parameters inherited by spreading from non-inlined type are shared in #/components/parameters
-    if (spreadParam && property.model && !shouldInline(program, property.model)) {
-      params.set(property, placeholder);
-      paramModels.add(property.model);
-    }
-
-    return placeholder;
+    return param;
   }
 
   function getEndpointParameters(
     parameters: HttpOperationParameter[],
     visibility: Visibility
-  ): OpenAPI3Parameter[] {
-    const result: OpenAPI3Parameter[] = [];
+  ): Refable<OpenAPI3Parameter>[] {
+    const result: Refable<OpenAPI3Parameter>[] = [];
     for (const httpOpParam of parameters) {
       if (params.has(httpOpParam.param)) {
         result.push(params.get(httpOpParam.param));
@@ -1377,10 +1364,12 @@ function createOAPIEmitter(
       if (httpOpParam.type === "header" && isContentTypeHeader(program, httpOpParam.param)) {
         continue;
       }
-      const param = getParameter(httpOpParam, visibility);
+      const param = getParameterOrRef(httpOpParam, visibility);
       if (param) {
-        const existing = result.find((x) => x.name === param.name && x.in === param.in);
-        if (existing) {
+        const existing = result.find(
+          (x) => !("$ref" in param) && !("$ref" in x) && x.name === param.name && x.in === param.in
+        );
+        if (existing && !("$ref" in param) && !("$ref" in existing)) {
           mergeOpenApiParameters(existing, param);
         } else {
           result.push(param);
@@ -1436,19 +1425,47 @@ function createOAPIEmitter(
     return requestBody;
   }
 
-  function getParameter(
+  function getParameterOrRef(
     parameter: HttpOperationParameter,
     visibility: Visibility
-  ): OpenAPI3Parameter | undefined {
+  ): Refable<OpenAPI3Parameter> | undefined {
     if (isNeverType(parameter.param.type)) {
       return undefined;
     }
-    const ph = getParamPlaceholder(parameter.param);
-    // If the parameter already has a $ref, don't bother populating it
-    if (!("$ref" in ph)) {
-      populateParameter(ph, parameter, visibility);
+
+    let spreadParam = false;
+    let property = parameter.param;
+
+    if (property.sourceProperty) {
+      // chase our sources all the way back to the first place this property
+      // was defined.
+      spreadParam = true;
+      property = property.sourceProperty;
+      while (property.sourceProperty) {
+        property = property.sourceProperty;
+      }
     }
-    return ph;
+
+    const refUrl = getRef(program, property);
+    if (refUrl) {
+      return {
+        $ref: refUrl,
+      };
+    }
+
+    if (params.has(property)) {
+      return params.get(property);
+    }
+
+    const param = getParameter(parameter, visibility);
+
+    // only parameters inherited by spreading from non-inlined type are shared in #/components/parameters
+    if (spreadParam && property.model && !shouldInline(program, property.model)) {
+      params.set(property, param);
+      paramModels.add(property.model);
+    }
+
+    return param;
   }
 
   function getOpenAPIParameterBase(
@@ -1491,27 +1508,6 @@ function createOAPIEmitter(
       Object.assign(target, apply);
     }
     return target;
-  }
-
-  function populateParameter(
-    ph: OpenAPI3Parameter,
-    parameter: HttpOperationParameter,
-    visibility: Visibility
-  ) {
-    ph.name = parameter.name;
-    ph.in = parameter.type;
-
-    const paramBase = getOpenAPIParameterBase(parameter.param, visibility);
-    Object.assign(ph, paramBase);
-
-    const format = mapParameterFormat(parameter);
-    if (format === undefined) {
-      ph.schema = {
-        type: "string",
-      };
-    } else {
-      Object.assign(ph, format);
-    }
   }
 
   function mapParameterFormat(
