@@ -668,8 +668,7 @@ function createOAPIEmitter(
     return codes;
   }
 
-  function buildSharedOperations(operations: HttpOperation[]): SharedHttpOperation[] {
-    const results: SharedHttpOperation[] = [];
+  function buildSharedOperation(operations: HttpOperation[]): SharedHttpOperation {
     const paramMap = new Map<string, HttpOperation[]>();
     const responseMap = new Map<string, HttpOperation[]>();
 
@@ -719,8 +718,7 @@ function createOAPIEmitter(
     for (const [statusCode, ops] of responseMap) {
       shared.responses.set(statusCode, validateCommonResponses(statusCode, ops));
     }
-    results.push(shared);
-    return results;
+    return shared;
   }
 
   /**
@@ -743,10 +741,7 @@ function createOAPIEmitter(
       if (ops.length === 1) {
         result.push(ops[0]);
       } else {
-        const sharedOps = buildSharedOperations(ops);
-        for (const op of sharedOps) {
-          result.push(op);
-        }
+        result.push(buildSharedOperation(ops));
       }
     }
     return result;
