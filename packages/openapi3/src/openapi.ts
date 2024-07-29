@@ -225,7 +225,6 @@ function createOAPIEmitter(
   // Get the service namespace string for use in name shortening
   let serviceNamespaceName: string | undefined;
   let currentPath: any;
-  let currentEndpoint: OpenAPI3Operation;
 
   let metadataInfo: MetadataInfo;
   let visibilityUsage: VisibilityUsageTracker;
@@ -774,13 +773,11 @@ function createOAPIEmitter(
       responses: getSharedResponses(shared),
     };
 
-    currentEndpoint = oai3Operation; // TODO: remove this
-
     for (const op of operations) {
       applyExternalDocs(op.operation, oai3Operation);
       attachExtensions(program, op.operation, oai3Operation);
       if (isDeprecated(program, op.operation)) {
-        currentEndpoint.deprecated = true;
+        oai3Operation.deprecated = true;
       }
     }
 
@@ -815,17 +812,20 @@ function createOAPIEmitter(
       );
     }
     const visibility = visibilities[0];
-    emitEndpointParameters(resolveSharedRouteParameters(operations), visibility);
+    oai3Operation.parameters = getEndpointParameters(
+      resolveSharedRouteParameters(operations),
+      visibility
+    );
 
     const bodies = [
       ...new Set(operations.map((op) => op.parameters.body).filter((x) => x !== undefined)),
     ];
     if (bodies) {
-      currentEndpoint.requestBody = getRequestBody(shared, bodies, visibility);
+      oai3Operation.requestBody = getRequestBody(shared, bodies, visibility);
     }
     const authReference = serviceAuth.operationsAuth.get(shared.operations[0].operation);
     if (authReference) {
-      emitEndpointSecurity(authReference);
+      oai3Operation.security = getEndpointSecurity(authReference);
     }
 
     return { operation: oai3Operation, verb, path };
@@ -840,15 +840,15 @@ function createOAPIEmitter(
       diagnostics.add(createDiagnostic({ code: "path-query", target: op }));
       return undefined;
     }
+    const visibility = resolveRequestVisibility(program, operation.operation, verb);
 
     const oai3Operation: OpenAPI3Operation = {
       summary: getSummary(program, operation.operation),
       description: getDoc(program, operation.operation),
       operationId: resolveOperationId(program, operation.operation),
-      parameters: [],
+      parameters: getEndpointParameters(parameters.parameters, visibility),
       responses: getResponses(operation, operation.responses),
     };
-    currentEndpoint = oai3Operation;
     const currentTags = getAllTags(program, op);
     if (currentTags) {
       oai3Operation.tags = currentTags;
@@ -860,8 +860,6 @@ function createOAPIEmitter(
     applyExternalDocs(op, oai3Operation);
     // Set up basic endpoint fields
 
-    const visibility = resolveRequestVisibility(program, operation.operation, verb);
-    emitEndpointParameters(parameters.parameters, visibility);
     if (parameters.body) {
       oai3Operation.requestBody = getRequestBody(
         operation,
@@ -871,7 +869,7 @@ function createOAPIEmitter(
     }
     const authReference = serviceAuth.operationsAuth.get(operation.operation);
     if (authReference) {
-      emitEndpointSecurity(authReference);
+      oai3Operation.security = getEndpointSecurity(authReference);
     }
     if (isDeprecated(program, op)) {
       oai3Operation.deprecated = true;
@@ -1365,18 +1363,31 @@ function createOAPIEmitter(
     return placeholder;
   }
 
-  function emitEndpointParameters(parameters: HttpOperationParameter[], visibility: Visibility) {
+  function getEndpointParameters(
+    parameters: HttpOperationParameter[],
+    visibility: Visibility
+  ): OpenAPI3Parameter[] {
+    const result: OpenAPI3Parameter[] = [];
     for (const httpOpParam of parameters) {
       if (params.has(httpOpParam.param)) {
-        currentEndpoint.parameters.push(params.get(httpOpParam.param));
+        result.push(params.get(httpOpParam.param));
         continue;
       }
       // eslint-disable-next-line deprecation/deprecation
       if (httpOpParam.type === "header" && isContentTypeHeader(program, httpOpParam.param)) {
         continue;
       }
-      emitParameter(httpOpParam, visibility);
+      const param = getParameter(httpOpParam, visibility);
+      if (param) {
+        const existing = result.find((x) => x.name === param.name && x.in === param.in);
+        if (existing) {
+          mergeOpenApiParameters(existing, param);
+        } else {
+          result.push(param);
+        }
+      }
     }
+    return result;
   }
 
   function getRequestBody(
@@ -1425,24 +1436,19 @@ function createOAPIEmitter(
     return requestBody;
   }
 
-  function emitParameter(parameter: HttpOperationParameter, visibility: Visibility) {
+  function getParameter(
+    parameter: HttpOperationParameter,
+    visibility: Visibility
+  ): OpenAPI3Parameter | undefined {
     if (isNeverType(parameter.param.type)) {
-      return;
+      return undefined;
     }
-    const existing = currentEndpoint.parameters.find(
-      (p) => p.name === parameter.name && p.in === parameter.type
-    );
-    if (existing) {
-      populateParameter(existing, parameter, visibility);
-    } else {
-      const ph = getParamPlaceholder(parameter.param);
-      currentEndpoint.parameters.push(ph);
-
-      // If the parameter already has a $ref, don't bother populating it
-      if (!("$ref" in ph)) {
-        populateParameter(ph, parameter, visibility);
-      }
+    const ph = getParamPlaceholder(parameter.param);
+    // If the parameter already has a $ref, don't bother populating it
+    if (!("$ref" in ph)) {
+      populateParameter(ph, parameter, visibility);
     }
+    return ph;
   }
 
   function getOpenAPIParameterBase(
@@ -1472,19 +1478,19 @@ function createOAPIEmitter(
   }
 
   function mergeOpenApiParameters(
-    param: OpenAPI3Parameter,
-    base: OpenAPI3ParameterBase
+    target: OpenAPI3Parameter,
+    apply: OpenAPI3Parameter
   ): OpenAPI3Parameter {
-    if (param.schema) {
-      const schema = param.schema;
-      if (schema.enum && base.schema.enum) {
-        schema.enum = [...new Set([...schema.enum, ...base.schema.enum])];
+    if (target.schema) {
+      const schema = target.schema;
+      if (schema.enum && apply.schema.enum) {
+        schema.enum = [...new Set([...schema.enum, ...apply.schema.enum])];
       }
-      param.schema = schema;
+      target.schema = schema;
     } else {
-      Object.assign(param, base);
+      Object.assign(target, apply);
     }
-    return param;
+    return target;
   }
 
   function populateParameter(
@@ -1496,9 +1502,7 @@ function createOAPIEmitter(
     ph.in = parameter.type;
 
     const paramBase = getOpenAPIParameterBase(parameter.param, visibility);
-    if (paramBase) {
-      ph = mergeOpenApiParameters(ph, paramBase);
-    }
+    Object.assign(ph, paramBase);
 
     const format = mapParameterFormat(parameter);
     if (format === undefined) {
@@ -1841,14 +1845,17 @@ function createOAPIEmitter(
     return security;
   }
 
-  function emitEndpointSecurity(authReference: AuthenticationReference) {
+  function getEndpointSecurity(
+    authReference: AuthenticationReference
+  ): Record<string, string[]>[] | undefined {
     const security = getOpenAPISecurity(authReference);
     if (deepEquals(security, root.security)) {
-      return;
+      return undefined;
     }
     if (security.length > 0) {
-      currentEndpoint.security = security;
+      return security;
     }
+    return undefined;
   }
 
   function getOpenAPI3Scheme(auth: HttpAuth): OpenAPI3SecurityScheme | undefined {
