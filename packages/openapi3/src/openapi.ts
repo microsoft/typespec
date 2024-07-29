@@ -70,6 +70,7 @@ import {
   HttpOperationResponse,
   HttpOperationResponseContent,
   HttpServer,
+  HttpServiceAuthentication,
   HttpStatusCodeRange,
   HttpStatusCodesEntry,
   isContentTypeHeader,
@@ -219,6 +220,7 @@ function createOAPIEmitter(
   let root: OpenAPI3Document;
   let diagnostics: DiagnosticCollector;
   let currentService: Service;
+  let serviceAuth: HttpServiceAuthentication;
   // Get the service namespace string for use in name shortening
   let serviceNamespaceName: string | undefined;
   let currentPath: any;
@@ -684,20 +686,17 @@ function createOAPIEmitter(
   ): Promise<[OpenAPI3Document, Readonly<Diagnostic[]>] | undefined> {
     try {
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
-      const auth = resolveAuthentication(httpService);
+      const auth = (serviceAuth = resolveAuthentication(httpService));
 
       initializeEmitter(service, auth.schemes, auth.defaultAuth, version);
       reportIfNoRoutes(program, httpService.operations);
 
       for (const op of resolveOperations(httpService.operations)) {
-        if ((op as SharedHttpOperation).kind === "shared") {
-          const opAuth = auth.operationsAuth.get(
-            (op as SharedHttpOperation).operations[0].operation
-          );
-          emitSharedOperation(op as SharedHttpOperation, opAuth);
-        } else {
-          const opAuth = auth.operationsAuth.get((op as HttpOperation).operation);
-          emitOperation(op as HttpOperation, opAuth);
+        const result = getOperationOrSharedOperation(op);
+        if (result) {
+          const { operation, path, verb } = result;
+          currentPath[path] ??= {};
+          currentPath[path][verb] = operation;
         }
       }
       emitParameters();
@@ -744,25 +743,25 @@ function createOAPIEmitter(
     return shared.operations.map((op) => resolveOperationId(program, op.operation)).join("_");
   }
 
-  function emitSharedOperation(
-    shared: SharedHttpOperation,
-    authReference?: AuthenticationReference
-  ): void {
-    const { operation, verb, path } = getSharedOperation(shared, authReference);
-
-    if (!root.paths[path]) {
-      root.paths[path] = {};
-    }
-    currentPath = root.paths[path];
-    if (!currentPath[verb]) {
-      currentPath[verb] = operation;
+  function getOperationOrSharedOperation(operation: HttpOperation | SharedHttpOperation):
+    | {
+        operation: OpenAPI3Operation;
+        path: string;
+        verb: string;
+      }
+    | undefined {
+    if ("kind" in operation) {
+      return getSharedOperation(operation);
+    } else {
+      return getOperation(operation);
     }
   }
 
-  function getSharedOperation(
-    shared: SharedHttpOperation,
-    authReference?: AuthenticationReference
-  ): { operation: OpenAPI3Operation; path: string; verb: string } {
+  function getSharedOperation(shared: SharedHttpOperation): {
+    operation: OpenAPI3Operation;
+    path: string;
+    verb: string;
+  } {
     const operations = shared.operations;
     const verb = operations[0].verb;
     const path = operations[0].path;
@@ -826,6 +825,7 @@ function createOAPIEmitter(
       }
     }
     emitSharedResponses(shared);
+    const authReference = serviceAuth.operationsAuth.get(shared.operations[0].operation);
     if (authReference) {
       emitEndpointSecurity(authReference);
     }
@@ -833,21 +833,23 @@ function createOAPIEmitter(
     return { operation: oai3Operation, verb, path };
   }
 
-  function emitOperation(operation: HttpOperation, authReference?: AuthenticationReference): void {
+  function getOperation(
+    operation: HttpOperation
+  ): { operation: OpenAPI3Operation; path: string; verb: string } | undefined {
     const { path: fullPath, operation: op, verb, parameters } = operation;
     // If path contains a query string, issue msg and don't emit this endpoint
     if (fullPath.indexOf("?") > 0) {
       diagnostics.add(createDiagnostic({ code: "path-query", target: op }));
-      return;
+      return undefined;
     }
-    if (!root.paths[fullPath]) {
-      root.paths[fullPath] = {};
-    }
-    currentPath = root.paths[fullPath];
-    if (!currentPath[verb]) {
-      currentPath[verb] = {};
-    }
-    currentEndpoint = currentPath[verb];
+
+    const oai3Operation: OpenAPI3Operation = {
+      summary: getSummary(program, operation.operation),
+      description: getDoc(program, operation.operation),
+      parameters: [],
+      responses: {},
+    };
+    currentEndpoint = oai3Operation;
     const currentTags = getAllTags(program, op);
     if (currentTags) {
       currentEndpoint.tags = currentTags;
@@ -859,22 +861,20 @@ function createOAPIEmitter(
     currentEndpoint.operationId = resolveOperationId(program, operation.operation);
     applyExternalDocs(op, currentEndpoint);
     // Set up basic endpoint fields
-    currentEndpoint.summary = getSummary(program, operation.operation);
-    currentEndpoint.description = getDoc(program, operation.operation);
-    currentEndpoint.parameters = [];
-    currentEndpoint.responses = {};
 
     const visibility = resolveRequestVisibility(program, operation.operation, verb);
     emitEndpointParameters(parameters.parameters, visibility);
     emitRequestBody(operation, parameters.body, visibility);
     emitResponses(operation, operation.responses);
+    const authReference = serviceAuth.operationsAuth.get(operation.operation);
     if (authReference) {
       emitEndpointSecurity(authReference);
     }
     if (isDeprecated(program, op)) {
-      currentEndpoint.deprecated = true;
+      oai3Operation.deprecated = true;
     }
-    attachExtensions(program, op, currentEndpoint);
+    attachExtensions(program, op, oai3Operation);
+    return { operation: oai3Operation, path: fullPath, verb };
   }
 
   function emitSharedResponses(operation: SharedHttpOperation) {
