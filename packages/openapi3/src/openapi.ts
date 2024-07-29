@@ -766,8 +766,8 @@ function createOAPIEmitter(
     const verb = operations[0].verb;
     const path = operations[0].path;
     const oai3Operation: OpenAPI3Operation = {
-      parameters: [],
       operationId: computeSharedOperationId(shared),
+      parameters: [],
       description: joinOps(operations, getDoc, " "),
       summary: joinOps(operations, getSummary, " "),
       responses: getSharedResponses(shared),
@@ -843,9 +843,9 @@ function createOAPIEmitter(
     const visibility = resolveRequestVisibility(program, operation.operation, verb);
 
     const oai3Operation: OpenAPI3Operation = {
+      operationId: resolveOperationId(program, operation.operation),
       summary: getSummary(program, operation.operation),
       description: getDoc(program, operation.operation),
-      operationId: resolveOperationId(program, operation.operation),
       parameters: getEndpointParameters(parameters.parameters, visibility),
       responses: getResponses(operation, operation.responses),
     };
@@ -1399,8 +1399,8 @@ function createOAPIEmitter(
       return undefined;
     }
     const requestBody: OpenAPI3RequestBody = {
-      content: {},
       required: bodies.every((body) => (body.property ? !body.property.optional : true)),
+      content: {},
     };
     const schemaMap = new Map<string, OpenAPI3MediaType[]>();
     for (const body of bodies.filter((x) => !isVoidType(x.type))) {
