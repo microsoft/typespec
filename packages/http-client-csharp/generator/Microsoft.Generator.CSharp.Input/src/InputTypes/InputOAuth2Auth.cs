@@ -3,12 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Microsoft.Generator.CSharp.Input
 {
-    public class InputOAuth2Auth : InputAuth
+    public class InputOAuth2Auth
     {
-        public InputOAuth2Auth(IReadOnlyCollection<string> scopes) : base()
+        [JsonConstructor]
+        public InputOAuth2Auth(IReadOnlyCollection<string> scopes)
         {
             Scopes = scopes;
         }
