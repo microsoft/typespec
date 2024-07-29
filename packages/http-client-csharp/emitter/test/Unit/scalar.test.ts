@@ -26,7 +26,7 @@ describe("Test GetInputType for scalar", () => {
     );
     runner.compileAndDiagnose;
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const type = root.Clients[0].Operations[0].Parameters[0].Type;
     strictEqual(type.Kind, "string");

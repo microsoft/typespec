@@ -26,7 +26,7 @@ describe("Test GetInputType for array", () => {
     );
     runner.compileAndDiagnose;
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const type = root.Clients[0].Operations[0].Parameters[0].Type;
     strictEqual(type.Kind, "array");
@@ -43,7 +43,7 @@ describe("Test GetInputType for array", () => {
       runner
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const bodyType = root.Clients[0].Operations[0].Responses[0].BodyType;
     strictEqual(bodyType?.Kind, "array");
@@ -82,7 +82,7 @@ describe("Test GetInputType for enum", () => {
       { IsNamespaceNeeded: true, IsAzureCoreNeeded: true }
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const type = root.Clients[0].Operations[0].Parameters[0].Type;
     strictEqual(type.Kind, "enum");
@@ -124,7 +124,7 @@ describe("Test GetInputType for enum", () => {
       { IsNamespaceNeeded: true, IsAzureCoreNeeded: true }
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const type = root.Clients[0].Operations[0].Parameters[0].Type;
     strictEqual(type.Kind, "enum");
@@ -159,7 +159,7 @@ describe("Test GetInputType for enum", () => {
       runner
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const type = root.Clients[0].Operations[0].Parameters[0].Type;
     strictEqual(type.Kind, "enum");
