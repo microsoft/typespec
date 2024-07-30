@@ -8,6 +8,7 @@ import {
 } from "@typespec/emitter-framework/typescript";
 import { useHelpers } from "../helpers.js";
 import { CliType } from "../index.js";
+import { mapJoin } from "@alloy-js/core";
 
 export interface ControllerInterfaceProps {
   cli: CliType;
@@ -25,7 +26,7 @@ export function ControllerInterface({ cli }: ControllerInterfaceProps) {
 
   const typeDecls = collectTypeDecls(cli).map((type) => <TypeDeclaration type={type} />);
 
-  const memberDecls = commands.map((command) => {
+  const memberDecls = mapJoin(commands, (command) => {
     const optionsBagForm = helpers.toOptionsBag(command);
     return <InterfaceMember type={optionsBagForm.type as Operation} />;
   });

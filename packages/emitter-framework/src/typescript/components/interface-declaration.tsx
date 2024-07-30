@@ -2,25 +2,21 @@ import { refkey as getRefkey, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Interface, Model, ModelProperty, Operation } from "@typespec/compiler";
 import { isInterface, isModel } from "../../core/utils/typeguards.js";
-import {
-  InterfaceDeclaration as TsInterfaceDeclaration,
-  InterfaceDeclarationProps as TsInterfaceDeclarationProps,
-} from "./alloy-interface-declaration.js";
-import { InterfaceExpressionProps as TsInterfaceExpressionProps } from "./alloy-interface-expression.js";
 import { InterfaceMember } from "./interface-member.js";
 
-export interface TypedInterfaceDeclarationProps extends Omit<TsInterfaceDeclarationProps, "name"> {
+
+export interface TypedInterfaceDeclarationProps extends Omit<ts.InterfaceDeclarationProps, "name"> {
   type: Model | Interface;
   name?: string;
 }
 
 export type InterfaceDeclarationProps =
   | TypedInterfaceDeclarationProps
-  | TsInterfaceDeclarationProps;
+  | ts.InterfaceDeclarationProps;
 
 export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
   if (!isTypedInterfaceDeclarationProps(props)) {
-    return <TsInterfaceDeclaration {...props} />;
+    return <ts.InterfaceDeclaration {...props} />;
   }
 
   const namePolicy = ts.useTSNamePolicy();
@@ -37,11 +33,11 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
 
 
   return (
-    <TsInterfaceDeclaration {...coreProps} name={name} refkey={refkey} extends={extendsType}>
+    <ts.InterfaceDeclaration {...coreProps} name={name} refkey={refkey} extends={extendsType}>
       <InterfaceExpression type={type}>
         {coreProps.children}
       </InterfaceExpression>
-    </TsInterfaceDeclaration>
+    </ts.InterfaceDeclaration>
   );
 }
 
@@ -51,7 +47,7 @@ function isTypedInterfaceDeclarationProps(
   return "type" in props;
 }
 
-export interface InterfaceExpressionProps extends TsInterfaceExpressionProps {
+export interface InterfaceExpressionProps extends ts.InterfaceExpressionProps {
   type: Model | Interface;
 }
 

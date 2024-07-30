@@ -1,14 +1,15 @@
-import { EmitOutput, RenderedTreeNode, SourceFile, render } from "@typespec/efnext/framework";
+import { Output, renderTree as render, RenderTextTree } from "@alloy-js/core";
+import { SourceFile } from "@alloy-js/typescript";
 import { format } from "prettier";
 import { assert } from "vitest";
 
 async function prepareExpected(expected: string) {
   const expectedRoot = (
-    <EmitOutput>
-      <SourceFile filetype="typescript" path="test.ts">
+    <Output>
+      <SourceFile path="test.ts">
         {expected}
       </SourceFile>
-    </EmitOutput>
+    </Output>
   );
 
   const rendered = await render(expectedRoot);
@@ -17,13 +18,13 @@ async function prepareExpected(expected: string) {
   return format(raw, { parser: "typescript" });
 }
 
-async function prepareActual(actual: RenderedTreeNode) {
+async function prepareActual(actual: RenderTextTree) {
   const raw = (actual as any).flat(Infinity).join("");
 
   return format(raw, { parser: "typescript" });
 }
 
-export async function assertEqual(actual: RenderedTreeNode, expected: string) {
+export async function assertEqual(actual: RenderTextTree, expected: string) {
   const actualFormatted = await prepareActual(actual);
   const expectedFormatted = await prepareExpected(expected);
 

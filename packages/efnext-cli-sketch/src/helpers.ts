@@ -1,3 +1,4 @@
+import { createContext, useContext } from "@alloy-js/core";
 import {
   EmitContext,
   Mutator,
@@ -8,7 +9,6 @@ import {
   isIntrinsicType,
   mutateSubgraph,
 } from "@typespec/compiler";
-import { createContext, useContext } from "@typespec/efnext/framework";
 import { getShortName, hasShortName, isInvertable, isPositional, listClis } from "./decorators.js";
 
 export const HelperContext = createContext<ReturnType<typeof getStateHelpers>>();
@@ -62,7 +62,6 @@ const optionsBagMutator: Mutator = {
       const optionsProp = realm.typeFactory.modelProperty("options", optionsBag, {
         optional: true,
       });
-      console.log(optionsProp);
 
       for (const [key, prop] of clone.properties) {
         if (prop.optional) {

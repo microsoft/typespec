@@ -1,4 +1,3 @@
-import { Children } from "@alloy-js/core";
 import { useTSNamePolicy } from "@alloy-js/typescript";
 import { ModelProperty, Operation } from "@typespec/compiler";
 import { isModelProperty, isOperation } from "../../core/utils/typeguards.js";
@@ -22,11 +21,10 @@ export function InterfaceMember({ type }: InterfaceMemberProps) {
 
   if (isOperation(type)) {
     const returnType = <TypeExpression type={type.returnType} />;
-
+    const params = <FunctionDeclaration.Parameters type={type.parameters} />;
     return (
       <>
-        {name}(<FunctionDeclaration.Parameters type={type.parameters} />
-        ): {returnType};
+        {name}({params.children}): {returnType};
       </>
     );
   }

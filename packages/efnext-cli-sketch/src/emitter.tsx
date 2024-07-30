@@ -7,7 +7,8 @@ import {
   Operation,
   Union,
 } from "@typespec/compiler";
-import { Output, SourceFile, code } from "@alloy-js/core";
+import { Output, code } from "@alloy-js/core";
+import { SourceFile } from "@alloy-js/typescript";
 import { CommandArgParser } from "./components/CommandArgParser/CommandArgParser.js";
 import { ControllerInterface } from "./components/ControllerInterface.js";
 import { HelperContext, getStateHelpers } from "./helpers.js";
@@ -35,7 +36,7 @@ export async function $onEmit(context: EmitContext) {
     });
 
     cliSfs.push(
-      <SourceFile path={cli.name + ".ts"} filetype="typescript">
+      <SourceFile path={cli.name + ".ts"}>
         {code`
           import { parseArgs as nodeParseArgs } from "node:util";
           import Table from "cli-table3";

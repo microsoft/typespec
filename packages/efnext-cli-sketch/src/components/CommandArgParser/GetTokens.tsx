@@ -1,6 +1,6 @@
 /* eslint-disable unicorn/filename-case */
 import { code } from "@alloy-js/core";
-import { $verbatim, ObjectExpression } from "@alloy-js/typescript";
+import { ObjectExpression } from "@alloy-js/typescript";
 import { useHelpers } from "../../helpers.js";
 import { useCommand } from "./CommandArgParser.js";
 
@@ -12,7 +12,7 @@ export function GetTokens({}: GetTokensProps) {
   const helpers = useHelpers();
 
   const parseArgsArg: Record<string, any> = {
-    args: $verbatim("args"),
+    args: "ARGS",
     tokens: true,
     strict: false,
     options: {},
@@ -34,7 +34,9 @@ export function GetTokens({}: GetTokensProps) {
     }
   }
 
-  return code`
-    const { tokens } = nodeParseArgs(${(<ObjectExpression jsValue={parseArgsArg} />)});
-  `;
+  return <>
+    const {"{"} tokens {"}"} = nodeParseArgs(
+      <ObjectExpression jsValue={parseArgsArg} />
+    );
+  </>
 }
