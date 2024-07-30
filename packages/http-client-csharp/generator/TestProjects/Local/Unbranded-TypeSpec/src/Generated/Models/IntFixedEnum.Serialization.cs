@@ -8,14 +8,6 @@ namespace UnbrandedTypeSpec.Models
 {
     internal static partial class IntFixedEnumExtensions
     {
-        public static int ToSerialInt32(this IntFixedEnum value) => value switch
-        {
-            IntFixedEnum.One => 1,
-            IntFixedEnum.Two => 2,
-            IntFixedEnum.Four => 4,
-            _ => throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown IntFixedEnum value.")
-        };
-
         public static IntFixedEnum ToIntFixedEnum(this int value)
         {
             if (value == 1)

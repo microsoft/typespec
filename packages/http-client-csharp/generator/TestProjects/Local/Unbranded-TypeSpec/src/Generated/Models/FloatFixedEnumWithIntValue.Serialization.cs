@@ -8,14 +8,6 @@ namespace UnbrandedTypeSpec.Models
 {
     internal static partial class FloatFixedEnumWithIntValueExtensions
     {
-        public static int ToSerialInt32(this FloatFixedEnumWithIntValue value) => value switch
-        {
-            FloatFixedEnumWithIntValue.One => 1,
-            FloatFixedEnumWithIntValue.Two => 2,
-            FloatFixedEnumWithIntValue.Four => 4,
-            _ => throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown FloatFixedEnumWithIntValue value.")
-        };
-
         public static FloatFixedEnumWithIntValue ToFloatFixedEnumWithIntValue(this int value)
         {
             if (value == 1)

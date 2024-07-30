@@ -43,12 +43,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             var serialization = CreateEnumSerializationProvider(stringA, intA, stringB, intB);
             MethodProvider? method = serialization!.Methods.Where(m => m.Signature.Name.Contains("ToSerial")).FirstOrDefault();
             // Cast method.BodyExpression to SwitchCaseExpression
-            if (method!.BodyExpression is SwitchExpression switchExpression)
-            {
-                // Verify that the switch case expression has the correct number of cases (values + 1 for throw)
-                Assert.AreEqual(3, switchExpression.Cases.Count());
-                Assert.IsTrue(switchExpression.Cases[2].Expression.ToString().Contains("ArgumentOutOfRangeException"));
-            }
+            Assert.IsNull(method);
         }
 
         [TestCaseSource(nameof(ValidateTestCases))]

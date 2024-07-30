@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private bool NeedsSerializationMethod()
         {
             // fixed enum with int based types, we do not write a method for serialization because it was embedded in the definition
-            bool isIntValueType = _enumType.ValueType.Equals(typeof(int)) || _enumType.ValueType.Equals(typeof(long));
+            bool isIntValueType = EnumProvider.EnumUnderlyingType.Equals(typeof(int)) || EnumProvider.EnumUnderlyingType.Equals(typeof(long));
             if (!_enumType.IsExtensible && isIntValueType)
                 return false;
 
@@ -102,7 +102,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 var enumField = EnumProvider.Fields[i];
                 var enumValue = EnumProvider.EnumValues[i];
                 ScopedApi<bool> condition;
-                if (_enumType.ValueType.Equals(typeof(string)))
+                if (EnumProvider.EnumUnderlyingType.Equals(typeof(string)))
                 {
                     // when the values are strings, we compare them case-insensitively
                     // this is either
