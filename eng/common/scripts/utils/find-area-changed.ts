@@ -11,7 +11,7 @@ export function findAreasChanged(files: string[]): (keyof typeof CIRules)[] {
 
     if (match.length > 0) {
       result.push(name as any);
-      console.log(`Changes matched for trigger ${pc.cyan(name)}`, files);
+      console.log(`Changes matched for trigger ${pc.cyan(name)}`, match);
     } else {
       console.log(`No changes matched for trigger ${pc.cyan(name)}`);
     }
