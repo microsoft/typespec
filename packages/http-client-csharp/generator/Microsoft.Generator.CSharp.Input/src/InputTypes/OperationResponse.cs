@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace Microsoft.Generator.CSharp.Input
 {
@@ -12,7 +11,6 @@ namespace Microsoft.Generator.CSharp.Input
     /// </summary>
     public sealed class OperationResponse
     {
-        [JsonConstructor]
         public OperationResponse(IReadOnlyList<int> statusCodes, InputType? bodyType, BodyMediaType bodyMediaType, IReadOnlyList<OperationResponseHeader> headers, bool isErrorResponse, IReadOnlyList<string> contentTypes)
         {
             StatusCodes = statusCodes;
