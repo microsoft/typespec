@@ -36,15 +36,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildName() => EnumProvider.Name;
 
-        public ValueExpression ToSerial(ValueExpression enumExpression)
-        {
-            var serialMethodName = EnumProvider.EnumUnderlyingType.Equals(typeof(string)) ? nameof(object.ToString) : $"ToSerial{EnumProvider.EnumUnderlyingType.Name}";
-            return enumExpression.Invoke(serialMethodName);
-        }
-
-        public ValueExpression ToEnum(ValueExpression valueExpression)
-            => New.Instance(Type, valueExpression);
-
         protected override TypeSignatureModifiers GetDeclarationModifiers() => EnumProvider.DeclarationModifiers;
 
         protected override MethodProvider[] BuildMethods()

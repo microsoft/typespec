@@ -132,23 +132,5 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             return methods.ToArray();
         }
-
-        public ValueExpression ToSerial(ValueExpression enumExpression)
-        {
-            if (_enumType.ValueType.Equals(typeof(int)) || _enumType.ValueType.Equals(typeof(long)))
-            {
-                // when the fixed enum is implemented as int, we cast to the value
-                return enumExpression.CastTo(EnumProvider.EnumUnderlyingType);
-            }
-
-            // otherwise we call the corresponding extension method to convert the value
-            CSharpType? serializationType = SerializationProviders.FirstOrDefault()?.Type;
-            return enumExpression.Invoke($"ToSerial{_enumType.ValueType.Name}");
-        }
-
-        public ValueExpression ToEnum(ValueExpression valueExpression)
-        {
-            return valueExpression.Invoke($"To{Type.Name}");
-        }
     }
 }
