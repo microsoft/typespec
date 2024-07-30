@@ -67,6 +67,7 @@ jobs:
             TestArgs: $(TestArguments)
           ${{ else }}:
             TestArgs: ${{ parameters.TestArgs }}
+          EmitArtifacts: ${{ parameters.EmitArtifacts }}
     ${{ if parameters.EmitArtifacts }}:
       templateContext:
         outputs:
