@@ -17,7 +17,6 @@ paths:
               schema:
                 type: string
       requestBody:
-        description: Input parameter.
         required: true
         content:
           application/pdf:
@@ -35,6 +34,7 @@ paths:
           image/tiff:
             schema:
               $ref: '#/components/schemas/SourcePath'
+        description: Input parameter.
   /mediatypes/contentTypeWithEncoding:
     post:
       operationId: contentTypeWithEncoding
@@ -48,12 +48,12 @@ paths:
               schema:
                 type: string
       requestBody:
-        description: Input parameter.
         required: true
         content:
           text/plain:
             schema:
               $ref: '#/components/schemas/SourcePath'
+        description: Input parameter.
 components:
   schemas:
     Input:
