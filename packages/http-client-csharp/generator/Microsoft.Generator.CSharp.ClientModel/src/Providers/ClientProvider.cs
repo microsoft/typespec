@@ -182,12 +182,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             body.Add(PipelineProperty.Assign(ClientPipelineSnippets.Create(
                 ClientOptionsParameter, New.Array(typeof(PipelinePolicy)), perRetryPolicies, New.Array(typeof(PipelinePolicy)))).Terminate());
 
+            var clientOptionsPropertyDict = ClientOptions.Properties.ToDictionary(p => p.Name.ToCleanName());
             foreach (var f in Fields)
             {
                 if (f != _apiKeyAuthField
                     && f != EndpointField
                     && !f.Modifiers.HasFlag(FieldModifiers.Const)
-                    && ClientOptions.PropertiesDictionary.TryGetValue(f.Name.ToCleanName(), out var optionsProperty))
+                    && clientOptionsPropertyDict.TryGetValue(f.Name.ToCleanName(), out var optionsProperty))
                 {
                     body.Add(f.Assign(ClientOptionsParameter.Property(optionsProperty.Name)).Terminate());
                 }

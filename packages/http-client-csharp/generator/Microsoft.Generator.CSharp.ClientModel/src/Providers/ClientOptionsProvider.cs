@@ -48,13 +48,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     VersionPropertyName,
                     new AutoPropertyBody(false));
             }
-
-            PropertiesDictionary = Properties.ToDictionary(p => p.Name);
         }
 
         internal IReadOnlyList<string> ApiVersions { get; }
-
-        internal Dictionary<string, PropertyProvider> PropertiesDictionary { get; }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
         protected override string BuildName() => _clientOptionsName;
