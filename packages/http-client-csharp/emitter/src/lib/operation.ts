@@ -8,6 +8,7 @@ import {
   SdkContext,
   SdkHeaderParameter,
   SdkHttpOperation,
+  SdkHttpResponse,
   SdkPathParameter,
   SdkQueryParameter,
   SdkServiceMethod,
@@ -73,17 +74,22 @@ export function fromSdkServiceMethod(
     Summary: getSummary(sdkContext.program, method.__raw!),
     Description: getDoc(sdkContext.program, method.__raw!),
     Accessibility: method.access,
-    Parameters: getMethodParameters(
-      method,
+    Parameters: fromSdkOperationParameters(
+      method.operation,
       clientParameters,
       rootApiVersions,
       sdkContext,
       modelMap,
       enumMap
     ),
-    Responses: getSdkMethodResponses(method, sdkContext, modelMap, enumMap),
+    Responses: fromSdkHttpOperationResponses(
+      method.operation.responses,
+      sdkContext,
+      modelMap,
+      enumMap
+    ),
     HttpMethod: parseHttpRequestMethod(method.operation.verb),
-    RequestBodyMediaType: sdkTypeToBodyMediaType(method.operation.bodyParam?.type),
+    RequestBodyMediaType: getBodyMediaType(method.operation.bodyParam?.type),
     Uri: uri,
     Path: method.operation.path,
     ExternalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
@@ -131,8 +137,8 @@ function getValueType(value: any): SdkBuiltInKinds {
   }
 }
 
-function getMethodParameters(
-  method: SdkServiceMethod<SdkHttpOperation>,
+function fromSdkOperationParameters(
+  operation: SdkHttpOperation,
   clientParameters: InputParameter[],
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
@@ -140,14 +146,14 @@ function getMethodParameters(
   enumMap: Map<string, InputEnumType>
 ): InputParameter[] {
   const params = clientParameters.concat(
-    method.operation.parameters.map((p) =>
-      fromHttpOperationParameter(p, rootApiVersions, sdkContext, modelMap, enumMap)
+    operation.parameters.map((p) =>
+      fromSdkHttpOperationParameter(p, rootApiVersions, sdkContext, modelMap, enumMap)
     )
   );
-  return method.operation.bodyParam
+  return operation.bodyParam
     ? params.concat(
-        fromHttpOperationParameter(
-          method.operation.bodyParam,
+        fromSdkHttpOperationParameter(
+          operation.bodyParam,
           rootApiVersions,
           sdkContext,
           modelMap,
@@ -159,7 +165,7 @@ function getMethodParameters(
 
 // TODO: roll back to SdkMethodParameter when we figure out how to represent the parameter location
 // https://github.com/Azure/typespec-azure/issues/981
-function fromHttpOperationParameter(
+function fromSdkHttpOperationParameter(
   p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter,
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
@@ -228,19 +234,20 @@ function loadLongRunningOperation(
     ResultPath: method.__raw_lro_metadata.finalResultPath,
   };
 }
-function getSdkMethodResponses(
-  method: SdkServiceMethod<SdkHttpOperation>,
+
+function fromSdkHttpOperationResponses(
+  operationResponses: Map<HttpStatusCodeRange | number, SdkHttpResponse>,
   sdkContext: SdkContext<NetEmitterOptions>,
   modelMap: Map<string, InputModelType>,
   enumMap: Map<string, InputEnumType>
 ): OperationResponse[] {
   const responses: OperationResponse[] = [];
-  method.operation.responses.forEach((r, range) => {
+  operationResponses.forEach((r, range) => {
     responses.push({
       StatusCodes: toStatusCodesArray(range),
       BodyType: r.type ? fromSdkType(r.type, sdkContext, modelMap, enumMap) : undefined,
       BodyMediaType: BodyMediaType.Json,
-      Headers: toHttpResponseHeaders(r.headers, sdkContext, modelMap, enumMap),
+      Headers: fromSdkServiceResponseHeaders(r.headers, sdkContext, modelMap, enumMap),
       IsErrorResponse: r.type !== undefined && isErrorModel(sdkContext.program, r.type.__raw!),
       ContentTypes: r.contentTypes,
     });
@@ -248,7 +255,7 @@ function getSdkMethodResponses(
   return responses;
 }
 
-function toHttpResponseHeaders(
+function fromSdkServiceResponseHeaders(
   headers: SdkServiceResponseHeader[],
   sdkContext: SdkContext<NetEmitterOptions>,
   modelMap: Map<string, InputModelType>,
@@ -264,6 +271,7 @@ function toHttpResponseHeaders(
       }) as HttpResponseHeader
   );
 }
+
 function toStatusCodesArray(range: number | HttpStatusCodeRange): number[] {
   if (typeof range === "number") return [range];
 
@@ -274,7 +282,7 @@ function toStatusCodesArray(range: number | HttpStatusCodeRange): number[] {
   return statusCodes;
 }
 
-function sdkTypeToBodyMediaType(type: SdkType | undefined) {
+function getBodyMediaType(type: SdkType | undefined) {
   if (type === undefined) {
     return BodyMediaType.None;
   }
