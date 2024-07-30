@@ -4,7 +4,6 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using AutoRest.CSharp.Common.Input.InputTypes.Serialization;
 
 namespace Microsoft.Generator.CSharp.Input
 {
