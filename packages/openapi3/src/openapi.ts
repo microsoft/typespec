@@ -69,6 +69,7 @@ import {
   HttpOperationPart,
   HttpOperationResponse,
   HttpOperationResponseContent,
+  HttpProperty,
   HttpServer,
   HttpServiceAuthentication,
   HttpStatusCodeRange,
@@ -97,6 +98,7 @@ import {
 import { buildVersionProjections, VersionProjections } from "@typespec/versioning";
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
+import { getBodyValue, getContentTypeValue, getStatusCodeValue } from "./examples.js";
 import { createDiagnostic, FileType, OpenAPI3EmitterOptions } from "./lib.js";
 import { getDefaultValue, isBytesKeptRaw, OpenAPI3SchemaEmitter } from "./schema-emitter.js";
 import {
@@ -945,7 +947,7 @@ function createOAPIEmitter(
           : response.description;
       }
       emitResponseHeaders(openApiResponse, response.responses, response.type);
-      emitResponseContent(operation, openApiResponse, response.responses, schemaMap);
+      emitResponseContent(operation, openApiResponse, response.responses, statusCode, schemaMap);
       if (!openApiResponse.description) {
         openApiResponse.description = getResponseDescriptionForStatusCode(statusCode);
       }
@@ -985,6 +987,7 @@ function createOAPIEmitter(
     operation: HttpOperation | SharedHttpOperation,
     obj: OpenAPI3Response,
     responses: HttpOperationResponseContent[],
+    statusCode: OpenAPI3StatusCode,
     schemaMap: Map<string, OpenAPI3MediaType[]> | undefined = undefined
   ) {
     schemaMap ??= new Map<string, OpenAPI3MediaType[]>();
@@ -996,10 +999,11 @@ function createOAPIEmitter(
       for (const contentType of data.body.contentTypes) {
         const contents = getBodyContentEntry(
           operation,
-          "response",
           data.body,
           Visibility.Read,
-          contentType
+          contentType,
+          data,
+          { target: "response", contentType, statusCode }
         );
         if (schemaMap.has(contentType)) {
           schemaMap.get(contentType)!.push(contents);
@@ -1120,9 +1124,26 @@ function createOAPIEmitter(
       return getOpExamples(program, operation.operation).map((x) => [operation.operation, x]);
     }
   }
+
+  interface Payload {
+    properties: HttpProperty[];
+    body?: HttpOperationBody | HttpOperationMultipartBody;
+  }
+
+  type BodyExampleFilter =
+    | {
+        target: "request";
+        contentType: string;
+      }
+    | {
+        target: "response";
+        contentType: string;
+        statusCode: string;
+      };
   function getExamplesForBodyContentEntry(
     operation: HttpOperation | SharedHttpOperation,
-    target: "request" | "response"
+    filter: BodyExampleFilter,
+    payload: Payload
   ): Pick<OpenAPI3MediaType, "example" | "examples"> {
     const examples = findOperationExamples(operation);
     if (examples.length === 0) {
@@ -1131,11 +1152,34 @@ function createOAPIEmitter(
 
     const flattenedExamples: [Example, Type][] = examples
       .map(([op, example]): [Example, Type] | undefined => {
-        const value = target === "request" ? example.parameters : example.returnType;
-        const type = target === "request" ? op.parameters : op.returnType;
-        return value
-          ? [{ value, title: example.title, description: example.description }, type]
-          : undefined;
+        const inputValue = filter.target === "request" ? example.parameters : example.returnType;
+        if (inputValue === undefined || payload.body === undefined) {
+          return undefined;
+        }
+        const contentTypeValue =
+          getContentTypeValue(inputValue, payload.properties) ?? "application/json";
+        if (contentTypeValue !== filter.contentType) {
+          return undefined;
+        }
+        const statusCodeForExample = getStatusCodeValue(inputValue, payload.properties) ?? 200;
+        if (filter.target === "response" && statusCodeForExample.toString() !== filter.statusCode) {
+          return undefined;
+        }
+        const value = getBodyValue(inputValue, payload.properties);
+        if (value === undefined) {
+          return undefined;
+        }
+        if (
+          !ignoreDiagnostics(
+            program.checker.isTypeAssignableTo(value.type, payload.body.type, value)
+          )
+        ) {
+          return undefined;
+        }
+        return [
+          { value, title: example.title, description: example.description },
+          payload.body.type,
+        ];
       })
       .filter(isDefined);
 
@@ -1171,16 +1215,18 @@ function createOAPIEmitter(
 
   function getBodyContentEntry(
     operation: HttpOperation | SharedHttpOperation,
-    target: "request" | "response",
     body: HttpOperationBody | HttpOperationMultipartBody,
     visibility: Visibility,
-    contentType: string
+    contentType: string,
+    payload: Payload,
+    filter: BodyExampleFilter
   ): OpenAPI3MediaType {
     const isBinary = isBinaryPayload(body.type, contentType);
     if (isBinary) {
       return { schema: { type: "string", format: "binary" } };
     }
 
+    const examples = getExamplesForBodyContentEntry(operation, filter, payload);
     switch (body.bodyKind) {
       case "single":
         return {
@@ -1190,12 +1236,12 @@ function createOAPIEmitter(
             body.isExplicit && body.containsMetadataAnnotations,
             contentType.startsWith("multipart/") ? contentType : undefined
           ),
-          ...getExamplesForBodyContentEntry(operation, target),
+          ...examples,
         };
       case "multipart":
         return {
           ...getBodyContentForMultipartBody(body, visibility, contentType),
-          ...getExamplesForBodyContentEntry(operation, target),
+          ...examples,
         };
     }
   }
@@ -1401,8 +1447,15 @@ function createOAPIEmitter(
       }
       const contentTypes = body.contentTypes.length > 0 ? body.contentTypes : ["application/json"];
       for (const contentType of contentTypes) {
-        const entry = getBodyContentEntry(operation, "request", body, visibility, contentType);
         const existing = schemaMap.get(contentType);
+        const entry = getBodyContentEntry(
+          operation,
+          body,
+          visibility,
+          contentType,
+          (operation as HttpOperation)?.parameters,
+          { target: "request", contentType }
+        );
         if (existing) {
           existing.push(entry);
         } else {

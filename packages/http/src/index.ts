@@ -5,6 +5,7 @@ export { HttpPartOptions } from "../generated-defs/TypeSpec.Http.Private.js";
 export * from "./auth.js";
 export * from "./content-types.js";
 export * from "./decorators.js";
+export type { HttpProperty } from "./http-property.js";
 export * from "./metadata.js";
 export * from "./operations.js";
 export * from "./parameters.js";

@@ -36,6 +36,8 @@ export type HttpProperty =
 
 export interface HttpPropertyBase {
   readonly property: ModelProperty;
+  /** Path from the root of the operation parameters/returnType to the property. */
+  readonly path: (string | number)[];
 }
 
 export interface HeaderProperty extends HttpPropertyBase {
@@ -78,14 +80,17 @@ export interface GetHttpPropertyOptions {
 /**
  * Find the type of a property in a model
  */
-export function getHttpProperty(
+function getHttpProperty(
   program: Program,
   property: ModelProperty,
+  path: (string | number)[],
   options: GetHttpPropertyOptions = {}
 ): [HttpProperty, readonly Diagnostic[]] {
   const diagnostics: Diagnostic[] = [];
-  function createResult<T extends HttpProperty>(opts: T): [T, readonly Diagnostic[]] {
-    return [{ ...opts, property } as any, diagnostics];
+  function createResult<T extends Omit<HttpProperty, "path" | "property">>(
+    opts: T
+  ): [HttpProperty & T, readonly Diagnostic[]] {
+    return [{ ...opts, property, path } as any, diagnostics];
   }
 
   const annotations = {
@@ -106,10 +111,9 @@ export function getHttpProperty(
           name: property.name,
           type: "path",
         },
-        property,
       });
     }
-    return [{ kind: "bodyProperty", property }, []];
+    return createResult({ kind: "bodyProperty" });
   } else if (defined.length > 1) {
     diagnostics.push(
       createDiagnostic({
@@ -122,24 +126,24 @@ export function getHttpProperty(
 
   if (annotations.header) {
     if (annotations.header.name.toLowerCase() === "content-type") {
-      return createResult({ kind: "contentType", property });
+      return createResult({ kind: "contentType" });
     } else {
-      return createResult({ kind: "header", options: annotations.header, property });
+      return createResult({ kind: "header", options: annotations.header });
     }
   } else if (annotations.query) {
-    return createResult({ kind: "query", options: annotations.query, property });
+    return createResult({ kind: "query", options: annotations.query });
   } else if (annotations.path) {
-    return createResult({ kind: "path", options: annotations.path, property });
+    return createResult({ kind: "path", options: annotations.path });
   } else if (annotations.statusCode) {
-    return createResult({ kind: "statusCode", property });
+    return createResult({ kind: "statusCode" });
   } else if (annotations.body) {
-    return createResult({ kind: "body", property });
+    return createResult({ kind: "body" });
   } else if (annotations.bodyRoot) {
-    return createResult({ kind: "bodyRoot", property });
+    return createResult({ kind: "bodyRoot" });
   } else if (annotations.multipartBody) {
-    return createResult({ kind: "multipartBody", property });
+    return createResult({ kind: "multipartBody" });
   }
-  compilerAssert(false, `Unexpected http property type`, property);
+  compilerAssert(false, `Unexpected http property type`);
 }
 
 /**
@@ -161,33 +165,34 @@ export function resolvePayloadProperties(
   }
 
   const visited = new Set();
-  const queue = new Queue<[Model, ModelProperty | undefined]>([[type, undefined]]);
+  const queue = new Queue<[Model, (string | number)[]]>([[type, []]]);
 
   while (!queue.isEmpty()) {
-    const [model, rootOpt] = queue.dequeue();
+    const [model, path] = queue.dequeue();
     visited.add(model);
 
     for (const property of walkPropertiesInherited(model)) {
-      const root = rootOpt ?? property;
+      const propPath = [...path, property.name];
 
       if (!isVisible(program, property, visibility)) {
         continue;
       }
 
-      let httpProperty = diagnostics.pipe(getHttpProperty(program, property, options));
+      let httpProperty = diagnostics.pipe(getHttpProperty(program, property, propPath, options));
       if (shouldTreatAsBodyProperty(httpProperty, visibility)) {
-        httpProperty = { kind: "bodyProperty", property };
+        httpProperty = { kind: "bodyProperty", property, path: propPath };
       }
       httpProperties.set(property, httpProperty);
       if (
-        property !== root &&
+        path.length > 0 &&
         (httpProperty.kind === "body" ||
           httpProperty.kind === "bodyRoot" ||
           httpProperty.kind === "multipartBody")
       ) {
-        const parent = httpProperties.get(root);
-        if (parent?.kind === "bodyProperty") {
-          httpProperties.delete(root);
+        for (const [name, prop] of httpProperties) {
+          if (prop?.kind === "bodyProperty") {
+            httpProperties.delete(name);
+          }
         }
       }
       if (httpProperty.kind === "body" || httpProperty.kind === "multipartBody") {
@@ -200,7 +205,7 @@ export function resolvePayloadProperties(
         type.properties.size > 0 &&
         !visited.has(property.type)
       ) {
-        queue.enqueue([property.type, root]);
+        queue.enqueue([property.type, propPath]);
       }
     }
   }
