@@ -13,120 +13,140 @@ configuration:
           - if:
               - filesMatchPattern:
                   pattern: packages/compiler/.*
+                  matchAny: true
             then:
               - addLabel:
                   label: compiler:core
           - if:
               - filesMatchPattern:
                   pattern: packages/typespec-vscode/.*
+                  matchAny: true
             then:
               - addLabel:
                   label: ide
           - if:
               - filesMatchPattern:
                   pattern: packages/typespec-vs/.*
+                  matchAny: true
             then:
               - addLabel:
                   label: ide
           - if:
               - filesMatchPattern:
                   pattern: packages/http/.*
+                  matchAny: true
             then:
               - addLabel:
                   label: lib:http
           - if:
               - filesMatchPattern:
                   pattern: packages/openapi/.*
+                  matchAny: true
             then:
               - addLabel:
                   label: lib:openapi
           - if:
               - filesMatchPattern:
                   pattern: packages/rest/.*
+                  matchAny: true
             then:
               - addLabel:
                   label: lib:rest
           - if:
               - filesMatchPattern:
                   pattern: packages/versioning/.*
+                  matchAny: true
             then:
               - addLabel:
                   label: lib:versioning
           - if:
               - filesMatchPattern:
                   pattern: blog/.*
+                  matchAny: true
             then:
               - addLabel:
                   label: meta:blog
           - if:
               - filesMatchPattern:
                   pattern: website/.*
+                  matchAny: true
             then:
               - addLabel:
                   label: meta:website
           - if:
               - filesMatchPattern:
                   pattern: packages/tspd/.*
+                  matchAny: true
             then:
               - addLabel:
                   label: tspd
           - if:
               - filesMatchPattern:
                   pattern: packages/http-client-csharp/.*
+                  matchAny: true
             then:
               - addLabel:
                   label: emitter:client:csharp
           - if:
               - filesMatchPattern:
                   pattern: packages/http-client-java/.*
+                  matchAny: true
             then:
               - addLabel:
                   label: emitter:client:java
           - if:
               - filesMatchPattern:
                   pattern: packages/json-schema/.*
+                  matchAny: true
             then:
               - addLabel:
                   label: emitter:json-schema
           - if:
               - filesMatchPattern:
                   pattern: packages/protobuf/.*
+                  matchAny: true
             then:
               - addLabel:
                   label: emitter:protobuf
           - if:
               - filesMatchPattern:
                   pattern: packages/openapi3/.*
+                  matchAny: true
             then:
               - addLabel:
                   label: emitter:openapi3
           - if:
               - filesMatchPattern:
                   pattern: packages/openapi3/src/cli/actions/convert/.*
+                  matchAny: true
             then:
               - addLabel:
                   label: openapi3:converter
           - if:
               - filesMatchPattern:
                   pattern: eng/.*
+                  matchAny: true
             then:
               - addLabel:
                   label: eng
           - if:
               - filesMatchPattern:
                   pattern: .github/.*
+                  matchAny: true
             then:
               - addLabel:
                   label: eng
           - if:
               - filesMatchPattern:
                   pattern: packages/playground/.*
+                  matchAny: true
             then:
               - addLabel:
                   label: ui:playground
           - if:
               - filesMatchPattern:
                   pattern: packages/html-program-viewer/.*
+                  matchAny: true
             then:
               - addLabel:
                   label: ui:type-graph-viewer
