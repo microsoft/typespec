@@ -1,27 +1,7 @@
 {
+  "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
-    "composite": true,
-    "alwaysStrict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "node16",
-    "moduleResolution": "node16",
-    "esModuleInterop": true,
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "sourceMap": true,
-    "declarationMap": true,
-    "strict": true,
-    "declaration": true,
-    "stripInternal": true,
-    "noEmitHelpers": false,
-    "target": "es2019",
-    "lib": ["es2019"],
-    "experimentalDecorators": true,
-    "newLine": "LF",
-    "outDir": "dist",
-    "rootDir": ".",
-    "skipLibCheck": true
+    "noEmit": true
   },
-  "include": ["src/**/*.ts", "test/**/*.ts"]
+  "include": ["src/**/*.ts", "test/**/*.ts", "vitest.config.ts"]
 }
