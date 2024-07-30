@@ -30,7 +30,7 @@ namespace TestProjects.CadlRanch.Tests
         }
         internal static string GetCoverageFilePath()
         {
-            return Path.Combine(GetCoverageDirectory(), "cadl-ranch-coverage-csharp-azure.json");
+            return Path.Combine(GetCoverageDirectory(), "cadl-ranch-coverage-csharp-standard.json");
         }
 
         protected override void Stop(Process process)
