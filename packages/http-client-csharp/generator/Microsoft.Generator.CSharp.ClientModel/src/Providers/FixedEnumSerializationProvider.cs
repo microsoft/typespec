@@ -32,7 +32,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         protected override string GetNamespace() => _enumProvider.Type.Namespace;
-        protected override TypeSignatureModifiers GetDeclarationModifiers() => (TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class);
+        protected override TypeSignatureModifiers GetDeclarationModifiers()
+            => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
+
         protected override string BuildRelativeFilePath()
         {
             return Path.Combine("src", "Generated", "Models", $"{_enumType.Name}.Serialization.cs");
