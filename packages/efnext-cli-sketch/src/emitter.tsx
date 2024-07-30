@@ -8,7 +8,7 @@ import {
   Union,
 } from "@typespec/compiler";
 import { Output, code } from "@alloy-js/core";
-import { SourceFile } from "@alloy-js/typescript";
+import { ObjectExpression, SourceFile } from "@alloy-js/typescript";
 import { CommandArgParser } from "./components/CommandArgParser/CommandArgParser.js";
 import { ControllerInterface } from "./components/ControllerInterface.js";
 import { HelperContext, getStateHelpers } from "./helpers.js";
@@ -53,7 +53,10 @@ export async function $onEmit(context: EmitContext) {
   }
 
   return <Output>
-    <HelperContext.Provider value={helpers}>{cliSfs}</HelperContext.Provider>
+    <SourceFile path="test.ts">
+      object:
+        <ObjectExpression jsValue={{a: 1, b: 2}} />
+    </SourceFile>
   </Output>
 }
 
