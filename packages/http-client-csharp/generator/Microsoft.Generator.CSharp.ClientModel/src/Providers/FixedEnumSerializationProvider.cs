@@ -37,10 +37,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildRelativeFilePath()
         {
-            return Path.Combine("src", "Generated", "Models", $"{_enumType.Name}.Serialization.cs");
+            return Path.Combine("src", "Generated", "Models", $"{_enumProvider.Name}.Serialization.cs");
         }
 
-        protected override string BuildName() => $"{_enumType.Name}Extensions";
+        protected override string BuildName() => $"{_enumProvider.Name}Extensions";
 
         /// <summary>
         /// Returns if this enum type needs an extension method for serialization
@@ -72,7 +72,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Description: null, ReturnDescription: null);
 
                 // the fields of an enum type are the values of the enum type
-                var knownCases = new SwitchCaseExpression[_enumType.Values.Count];
+                var knownCases = new SwitchCaseExpression[_enumProvider.EnumValues.Count];
                 for (int i = 0; i < knownCases.Length; i++)
                 {
                     var enumValue = _enumProvider.EnumValues[i];
@@ -86,7 +86,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // deserialization method (we always need a deserialization)
             var deserializationValueParameter = new ParameterProvider("value", $"The value to deserialize.", _enumProvider.EnumUnderlyingType);
             var deserializationSignature = new MethodSignature(
-                Name: $"To{_enumType.Name}",
+                Name: $"To{_enumProvider.Name}",
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Extension,
                 ReturnType: _enumProvider.Type,
                 Parameters: [deserializationValueParameter],
