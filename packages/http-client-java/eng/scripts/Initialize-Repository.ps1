@@ -26,20 +26,29 @@ try {
     # https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_mac_hotspot_21.0.4_7.pkg
     if ($IsWindows) {
         # download JDK, install 
+        Write-Host "Downloading and installing Java 21"
         Invoke-WebRequest 'https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_windows_hotspot_21.0.4_7.msi' -OutFile 'java-install.msi'
         ./java-install.msi
+        $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.4.7-hotspot\'
+        Write-Host "JAVA_HOME: $env:JAVA_HOME"
+
+        # download Maven, install
+        Write-Host "Downloading and installing Maven"
+        Invoke-WebRequest 'https://dlcdn.apache.org/maven/maven-3/3.9.8/binaries/apache-maven-3.9.8-bin.zip' -OutFile 'maven.zip'
+        Expand-Archive -Path 'maven.zip' -DestinationPath '.'
+        $env:MAVEN_HOME = (Get-ChildItem -Directory -Filter 'apache-maven-*').FullName
+        Write-Host "MAVEN_HOME: $env:MAVEN_HOME"
     }
    
-    # install Maven and set MAVEN_HOME
 
     # install and list npm packages
-  
+ 
     if ($BuildArtifactsPath) {
         $lockFilesPath = Resolve-Path "$BuildArtifactsPath/lock-files"
         # if we were passed a build_artifacts path, use the package.json and package-lock.json from there
-        Write-Host "Using emitter/package.json and emitter/package-lock.json from $lockFilesPath"
-        Copy-Item "$lockFilesPath/emitter/package.json" './package.json' -Force
-        Copy-Item "$lockFilesPath/emitter/package-lock.json" './package-lock.json' -Force
+        Write-Host "Using package.json and package-lock.json from $lockFilesPath"
+        Copy-Item "$lockFilesPath/package.json" './package.json' -Force
+        Copy-Item "$lockFilesPath/package-lock.json" './package-lock.json' -Force
 
         Invoke-LoggedCommand "npm ci"
     }
