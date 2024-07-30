@@ -1153,7 +1153,10 @@ function createOAPIEmitter(
   ):
     | { contentType: string; statusCode: string; response: HttpOperationResponseContent }
     | undefined {
-    let tentativeResponse: HttpOperationResponseContent | undefined;
+    const tentatives: [
+      { response: HttpOperationResponseContent; contentType?: string; statusCode?: string },
+      number,
+    ][] = [];
     for (const statusCodeResponse of responses) {
       for (const response of statusCodeResponse.responses) {
         if (response.body === undefined) {
@@ -1161,29 +1164,32 @@ function createOAPIEmitter(
         }
         const contentType = getContentTypeValue(exampleValue, response.properties);
         const statusCode = getStatusCodeValue(exampleValue, response.properties);
-        const contentTypeProp = response.properties.find((x) => x.kind === "contentType");
-        const statusCodeProp = response.properties.find((x) => x.kind === "statusCode");
-        if (statusCodeProp === undefined && tentativeResponse === undefined) {
-          tentativeResponse = response;
-        }
-        if (
-          statusCode === statusCodeResponse.statusCodes &&
-          contentType &&
-          response.body?.contentTypes.includes(contentType)
-        ) {
+        const contentTypeProp = response.properties.find((x) => x.kind === "contentType"); // if undefined MUST be application/json
+        const statusCodeProp = response.properties.find((x) => x.kind === "statusCode"); // if undefined MUST be 200
+
+        const statusCodeMatch = statusCode === statusCodeResponse.statusCodes;
+        const contentTypeMatch = contentType && response.body?.contentTypes.includes(contentType);
+        if (statusCodeMatch && contentTypeMatch) {
           return {
             contentType,
             statusCode: statusCode.toString(),
             response,
           };
+        } else if (statusCodeMatch && contentTypeProp === undefined) {
+          tentatives.push([{ response, statusCode: statusCode.toString() }, 1]);
+        } else if (contentTypeMatch && statusCodeMatch === undefined) {
+          tentatives.push([{ response, contentType }, 1]);
+        } else if (contentTypeProp === undefined && statusCodeProp === undefined) {
+          tentatives.push([{ response }, 0]);
         }
       }
     }
-    if (tentativeResponse) {
+    const tentative = tentatives.sort((a, b) => a[1] - b[1]).pop();
+    if (tentative) {
       return {
-        contentType: "application/json",
-        statusCode: "200",
-        response: tentativeResponse,
+        contentType: tentative[0].contentType ?? "application/json",
+        statusCode: tentative[0].statusCode ?? "200",
+        response: tentative[0].response,
       };
     }
     return undefined;
@@ -1217,7 +1223,7 @@ function createOAPIEmitter(
       if (example.returnType && op.responses) {
         const match = findResponseForExample(example.returnType, op.responses);
         if (match) {
-          const value = getBodyValue(example.returnType, op.parameters.properties);
+          const value = getBodyValue(example.returnType, match.response.properties);
           if (value) {
             result.responses[match.statusCode] ??= {};
             result.responses[match.statusCode][match.contentType] ??= [];
