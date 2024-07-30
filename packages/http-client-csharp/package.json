@@ -71,6 +71,8 @@
     "c8": "^9.1.0",
     "rimraf": "~5.0.5",
     "typescript": "~5.4.3",
-    "vitest": "^1.4.0"
+    "vitest": "^1.4.0",
+    "@azure-tools/cadl-ranch-specs": "0.34.7",
+    "@azure-tools/cadl-ranch": "0.13.4"
   }
 }
