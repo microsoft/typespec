@@ -38,7 +38,6 @@ import {
   Namespace,
   navigateTypesInNamespace,
   NewLine,
-  Operation,
   OpExample,
   Program,
   ProjectionApplication,
@@ -49,6 +48,7 @@ import {
   Service,
   Type,
   TypeNameOptions,
+  Value,
 } from "@typespec/compiler";
 
 import { AssetEmitter, createAssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
@@ -69,7 +69,6 @@ import {
   HttpOperationPart,
   HttpOperationResponse,
   HttpOperationResponseContent,
-  HttpProperty,
   HttpServer,
   HttpServiceAuthentication,
   HttpStatusCodeRange,
@@ -122,7 +121,7 @@ import {
   OpenAPI3VersionedServiceRecord,
   Refable,
 } from "./types.js";
-import { deepEquals, isDefined } from "./util.js";
+import { deepEquals } from "./util.js";
 import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
 
 const defaultFileType: FileType = "yaml";
@@ -767,12 +766,13 @@ function createOAPIEmitter(
     const operations = shared.operations;
     const verb = operations[0].verb;
     const path = operations[0].path;
+    const examples = resolveOperationExamples(shared);
     const oai3Operation: OpenAPI3Operation = {
       operationId: computeSharedOperationId(shared),
       parameters: [],
       description: joinOps(operations, getDoc, " "),
       summary: joinOps(operations, getSummary, " "),
-      responses: getSharedResponses(shared),
+      responses: getSharedResponses(shared, examples),
     };
 
     for (const op of operations) {
@@ -823,7 +823,7 @@ function createOAPIEmitter(
       ...new Set(operations.map((op) => op.parameters.body).filter((x) => x !== undefined)),
     ];
     if (bodies) {
-      oai3Operation.requestBody = getRequestBody(shared, bodies, visibility);
+      oai3Operation.requestBody = getRequestBody(shared, bodies, visibility, examples);
     }
     const authReference = serviceAuth.operationsAuth.get(shared.operations[0].operation);
     if (authReference) {
@@ -843,13 +843,13 @@ function createOAPIEmitter(
       return undefined;
     }
     const visibility = resolveRequestVisibility(program, operation.operation, verb);
-
+    const examples = resolveOperationExamples(operation);
     const oai3Operation: OpenAPI3Operation = {
       operationId: resolveOperationId(program, operation.operation),
       summary: getSummary(program, operation.operation),
       description: getDoc(program, operation.operation),
       parameters: getEndpointParameters(parameters.parameters, visibility),
-      responses: getResponses(operation, operation.responses),
+      responses: getResponses(operation, operation.responses, examples),
     };
     const currentTags = getAllTags(program, op);
     if (currentTags) {
@@ -866,7 +866,8 @@ function createOAPIEmitter(
       oai3Operation.requestBody = getRequestBody(
         operation,
         parameters.body && [parameters.body],
-        visibility
+        visibility,
+        examples
       );
     }
     const authReference = serviceAuth.operationsAuth.get(operation.operation);
@@ -881,7 +882,8 @@ function createOAPIEmitter(
   }
 
   function getSharedResponses(
-    operation: SharedHttpOperation
+    operation: SharedHttpOperation,
+    examples: OperationExamples
   ): Record<string, Refable<OpenAPI3Response>> {
     const responseMap = new Map<string, HttpOperationResponse[]>();
     for (const op of operation.operations) {
@@ -900,19 +902,25 @@ function createOAPIEmitter(
 
     for (const [statusCode, statusCodeResponses] of responseMap) {
       const dedupeResponses = deduplicateCommonResponses(statusCodeResponses);
-      result[statusCode] = getResponseForStatusCode(operation, statusCode, dedupeResponses);
+      result[statusCode] = getResponseForStatusCode(
+        operation,
+        statusCode,
+        dedupeResponses,
+        examples
+      );
     }
     return result;
   }
 
   function getResponses(
     operation: HttpOperation,
-    responses: HttpOperationResponse[]
+    responses: HttpOperationResponse[],
+    examples: OperationExamples
   ): Record<string, Refable<OpenAPI3Response>> {
     const result: Record<string, Refable<OpenAPI3Response>> = {};
     for (const response of responses) {
       for (const statusCode of getOpenAPI3StatusCodes(response.statusCodes, response.type)) {
-        result[statusCode] = getResponseForStatusCode(operation, statusCode, [response]);
+        result[statusCode] = getResponseForStatusCode(operation, statusCode, [response], examples);
       }
     }
     return result;
@@ -930,7 +938,8 @@ function createOAPIEmitter(
   function getResponseForStatusCode(
     operation: HttpOperation | SharedHttpOperation,
     statusCode: OpenAPI3StatusCode,
-    responses: HttpOperationResponse[]
+    responses: HttpOperationResponse[],
+    examples: OperationExamples
   ): Refable<OpenAPI3Response> {
     const openApiResponse: OpenAPI3Response = {
       description: "",
@@ -947,7 +956,14 @@ function createOAPIEmitter(
           : response.description;
       }
       emitResponseHeaders(openApiResponse, response.responses, response.type);
-      emitResponseContent(operation, openApiResponse, response.responses, statusCode, schemaMap);
+      emitResponseContent(
+        operation,
+        openApiResponse,
+        response.responses,
+        statusCode,
+        examples,
+        schemaMap
+      );
       if (!openApiResponse.description) {
         openApiResponse.description = getResponseDescriptionForStatusCode(statusCode);
       }
@@ -988,6 +1004,7 @@ function createOAPIEmitter(
     obj: OpenAPI3Response,
     responses: HttpOperationResponseContent[],
     statusCode: OpenAPI3StatusCode,
+    examples: OperationExamples,
     schemaMap: Map<string, OpenAPI3MediaType[]> | undefined = undefined
   ) {
     schemaMap ??= new Map<string, OpenAPI3MediaType[]>();
@@ -1002,8 +1019,7 @@ function createOAPIEmitter(
           data.body,
           Visibility.Read,
           contentType,
-          data,
-          { target: "response", contentType, statusCode }
+          examples.responses[statusCode]?.[contentType]
         );
         if (schemaMap.has(contentType)) {
           schemaMap.get(contentType)!.push(contents);
@@ -1011,6 +1027,7 @@ function createOAPIEmitter(
           schemaMap.set(contentType, [contents]);
         }
       }
+
       for (const [contentType, contents] of schemaMap) {
         if (contents.length === 1) {
           obj.content[contentType] = contents[0];
@@ -1115,75 +1132,108 @@ function createOAPIEmitter(
 
   function findOperationExamples(
     operation: HttpOperation | SharedHttpOperation
-  ): [Operation, OpExample][] {
+  ): [HttpOperation, OpExample][] {
     if (isSharedHttpOperation(operation)) {
       return operation.operations.flatMap((op) =>
-        getOpExamples(program, op.operation).map((x): [Operation, OpExample] => [op.operation, x])
+        getOpExamples(program, op.operation).map((x): [HttpOperation, OpExample] => [op, x])
       );
     } else {
-      return getOpExamples(program, operation.operation).map((x) => [operation.operation, x]);
+      return getOpExamples(program, operation.operation).map((x) => [operation, x]);
     }
   }
 
-  interface Payload {
-    properties: HttpProperty[];
-    body?: HttpOperationBody | HttpOperationMultipartBody;
+  interface OperationExamples {
+    requestBody: Record<string, [Example, Type][]>;
+    responses: Record<string, Record<string, [Example, Type][]>>;
   }
 
-  type BodyExampleFilter =
-    | {
-        target: "request";
-        contentType: string;
-      }
-    | {
-        target: "response";
-        contentType: string;
-        statusCode: string;
-      };
-  function getExamplesForBodyContentEntry(
-    operation: HttpOperation | SharedHttpOperation,
-    filter: BodyExampleFilter,
-    payload: Payload
-  ): Pick<OpenAPI3MediaType, "example" | "examples"> {
-    const examples = findOperationExamples(operation);
-    if (examples.length === 0) {
-      return {};
-    }
-
-    const flattenedExamples: [Example, Type][] = examples
-      .map(([op, example]): [Example, Type] | undefined => {
-        const inputValue = filter.target === "request" ? example.parameters : example.returnType;
-        if (inputValue === undefined || payload.body === undefined) {
-          return undefined;
+  function findResponseForExample(
+    exampleValue: Value,
+    responses: HttpOperationResponse[]
+  ):
+    | { contentType: string; statusCode: string; response: HttpOperationResponseContent }
+    | undefined {
+    let tentativeResponse: HttpOperationResponseContent | undefined;
+    for (const statusCodeResponse of responses) {
+      for (const response of statusCodeResponse.responses) {
+        if (response.body === undefined) {
+          continue;
         }
-        const contentTypeValue =
-          getContentTypeValue(inputValue, payload.properties) ?? "application/json";
-        if (contentTypeValue !== filter.contentType) {
-          return undefined;
-        }
-        const statusCodeForExample = getStatusCodeValue(inputValue, payload.properties) ?? 200;
-        if (filter.target === "response" && statusCodeForExample.toString() !== filter.statusCode) {
-          return undefined;
-        }
-        const value = getBodyValue(inputValue, payload.properties);
-        if (value === undefined) {
-          return undefined;
+        const contentType = getContentTypeValue(exampleValue, response.properties);
+        const statusCode = getStatusCodeValue(exampleValue, response.properties);
+        const contentTypeProp = response.properties.find((x) => x.kind === "contentType");
+        const statusCodeProp = response.properties.find((x) => x.kind === "statusCode");
+        if (statusCodeProp === undefined && tentativeResponse === undefined) {
+          tentativeResponse = response;
         }
         if (
-          !ignoreDiagnostics(
-            program.checker.isTypeAssignableTo(value.type, payload.body.type, value)
-          )
+          statusCode === statusCodeResponse.statusCodes &&
+          contentType &&
+          response.body?.contentTypes.includes(contentType)
         ) {
-          return undefined;
+          return {
+            contentType,
+            statusCode: statusCode.toString(),
+            response,
+          };
         }
-        return [
-          { value, title: example.title, description: example.description },
-          payload.body.type,
-        ];
-      })
-      .filter(isDefined);
+      }
+    }
+    if (tentativeResponse) {
+      return {
+        contentType: "application/json",
+        statusCode: "200",
+        response: tentativeResponse,
+      };
+    }
+    return undefined;
+  }
 
-    return getExampleOrExamples(flattenedExamples);
+  function resolveOperationExamples(
+    operation: HttpOperation | SharedHttpOperation
+  ): OperationExamples {
+    const examples = findOperationExamples(operation);
+    const result: OperationExamples = { requestBody: {}, responses: {} };
+    if (examples.length === 0) {
+      return result;
+    }
+    for (const [op, example] of examples) {
+      if (example.parameters && op.parameters.body) {
+        const contentTypeValue =
+          getContentTypeValue(example.parameters, op.parameters.properties) ?? "application/json";
+        result.requestBody[contentTypeValue] ??= [];
+        const value = getBodyValue(example.parameters, op.parameters.properties);
+        if (value) {
+          result.requestBody[contentTypeValue].push([
+            {
+              value,
+              title: example.title,
+              description: example.description,
+            },
+            op.parameters.body.type,
+          ]);
+        }
+      }
+      if (example.returnType && op.responses) {
+        const match = findResponseForExample(example.returnType, op.responses);
+        if (match) {
+          const value = getBodyValue(example.returnType, op.parameters.properties);
+          if (value) {
+            result.responses[match.statusCode] ??= {};
+            result.responses[match.statusCode][match.contentType] ??= [];
+            result.responses[match.statusCode][match.contentType].push([
+              {
+                value,
+                title: example.title,
+                description: example.description,
+              },
+              match.response.body!.type,
+            ]);
+          }
+        }
+      }
+    }
+    return result;
   }
 
   function getExampleOrExamples(
@@ -1218,15 +1268,14 @@ function createOAPIEmitter(
     body: HttpOperationBody | HttpOperationMultipartBody,
     visibility: Visibility,
     contentType: string,
-    payload: Payload,
-    filter: BodyExampleFilter
+    examples?: [Example, Type][]
   ): OpenAPI3MediaType {
     const isBinary = isBinaryPayload(body.type, contentType);
     if (isBinary) {
       return { schema: { type: "string", format: "binary" } };
     }
 
-    const examples = getExamplesForBodyContentEntry(operation, filter, payload);
+    const oai3Examples = examples && getExampleOrExamples(examples);
     switch (body.bodyKind) {
       case "single":
         return {
@@ -1236,12 +1285,12 @@ function createOAPIEmitter(
             body.isExplicit && body.containsMetadataAnnotations,
             contentType.startsWith("multipart/") ? contentType : undefined
           ),
-          ...examples,
+          ...oai3Examples,
         };
       case "multipart":
         return {
           ...getBodyContentForMultipartBody(body, visibility, contentType),
-          ...examples,
+          ...oai3Examples,
         };
     }
   }
@@ -1428,7 +1477,8 @@ function createOAPIEmitter(
   function getRequestBody(
     operation: HttpOperation | SharedHttpOperation,
     bodies: (HttpOperationBody | HttpOperationMultipartBody)[] | undefined,
-    visibility: Visibility
+    visibility: Visibility,
+    examples: OperationExamples
   ): OpenAPI3RequestBody | undefined {
     if (bodies === undefined || bodies.every((x) => isVoidType(x.type))) {
       return undefined;
@@ -1453,8 +1503,7 @@ function createOAPIEmitter(
           body,
           visibility,
           contentType,
-          (operation as HttpOperation)?.parameters,
-          { target: "request", contentType }
+          examples.requestBody[contentType]
         );
         if (existing) {
           existing.push(entry);
