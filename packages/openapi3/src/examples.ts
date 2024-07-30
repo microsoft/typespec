@@ -1,6 +1,7 @@
 import {
   Example,
   getOpExamples,
+  ignoreDiagnostics,
   OpExample,
   Program,
   serializeValueAsJson,
@@ -12,7 +13,9 @@ import type {
   HttpOperationResponse,
   HttpOperationResponseContent,
   HttpProperty,
+  HttpStatusCodeRange,
 } from "@typespec/http";
+import { getOpenAPI3StatusCodes } from "./status-codes.js";
 import { OpenAPI3Example, OpenAPI3MediaType } from "./types.js";
 import { isSharedHttpOperation, SharedHttpOperation } from "./util.js";
 
@@ -48,20 +51,22 @@ export function resolveOperationExamples(
       }
     }
     if (example.returnType && op.responses) {
-      const match = findResponseForExample(example.returnType, op.responses);
+      const match = findResponseForExample(program, example.returnType, op.responses);
       if (match) {
         const value = getBodyValue(example.returnType, match.response.properties);
         if (value) {
-          result.responses[match.statusCode] ??= {};
-          result.responses[match.statusCode][match.contentType] ??= [];
-          result.responses[match.statusCode][match.contentType].push([
-            {
-              value,
-              title: example.title,
-              description: example.description,
-            },
-            match.response.body!.type,
-          ]);
+          for (const statusCode of match.statusCodes) {
+            result.responses[statusCode] ??= {};
+            result.responses[statusCode][match.contentType] ??= [];
+            result.responses[statusCode][match.contentType].push([
+              {
+                value,
+                title: example.title,
+                description: example.description,
+              },
+              match.response.body!.type,
+            ]);
+          }
         }
       }
     }
@@ -82,12 +87,28 @@ function findOperationExamples(
   }
 }
 
+function isStatusCodeIn(
+  exampleStatusCode: number,
+  statusCodes: number | HttpStatusCodeRange | "*"
+) {
+  if (statusCodes === "*") {
+    return true;
+  }
+  if (typeof statusCodes === "number") {
+    return exampleStatusCode === statusCodes;
+  }
+
+  return exampleStatusCode >= statusCodes.start && exampleStatusCode <= statusCodes.end;
+}
 function findResponseForExample(
+  program: Program,
   exampleValue: Value,
   responses: HttpOperationResponse[]
-): { contentType: string; statusCode: string; response: HttpOperationResponseContent } | undefined {
+):
+  | { contentType: string; statusCodes: string[]; response: HttpOperationResponseContent }
+  | undefined {
   const tentatives: [
-    { response: HttpOperationResponseContent; contentType?: string; statusCode?: string },
+    { response: HttpOperationResponseContent; contentType?: string; statusCodes?: string[] },
     number,
   ][] = [];
   for (const statusCodeResponse of responses) {
@@ -100,16 +121,31 @@ function findResponseForExample(
       const contentTypeProp = response.properties.find((x) => x.kind === "contentType"); // if undefined MUST be application/json
       const statusCodeProp = response.properties.find((x) => x.kind === "statusCode"); // if undefined MUST be 200
 
-      const statusCodeMatch = statusCode === statusCodeResponse.statusCodes;
+      const statusCodeMatch =
+        statusCode && statusCodeProp && isStatusCodeIn(statusCode, statusCodeResponse.statusCodes);
       const contentTypeMatch = contentType && response.body?.contentTypes.includes(contentType);
       if (statusCodeMatch && contentTypeMatch) {
         return {
           contentType,
-          statusCode: statusCode.toString(),
+          statusCodes: ignoreDiagnostics(
+            getOpenAPI3StatusCodes(program, statusCodeResponse.statusCodes, statusCodeResponse.type)
+          ),
           response,
         };
       } else if (statusCodeMatch && contentTypeProp === undefined) {
-        tentatives.push([{ response, statusCode: statusCode.toString() }, 1]);
+        tentatives.push([
+          {
+            response,
+            statusCodes: ignoreDiagnostics(
+              getOpenAPI3StatusCodes(
+                program,
+                statusCodeResponse.statusCodes,
+                statusCodeResponse.type
+              )
+            ),
+          },
+          1,
+        ]);
       } else if (contentTypeMatch && statusCodeMatch === undefined) {
         tentatives.push([{ response, contentType }, 1]);
       } else if (contentTypeProp === undefined && statusCodeProp === undefined) {
@@ -121,7 +157,7 @@ function findResponseForExample(
   if (tentative) {
     return {
       contentType: tentative[0].contentType ?? "application/json",
-      statusCode: tentative[0].statusCode ?? "200",
+      statusCodes: tentative[0].statusCodes ?? ["200"],
       response: tentative[0].response,
     };
   }

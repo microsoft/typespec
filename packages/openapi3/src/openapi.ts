@@ -3,7 +3,6 @@ import {
   createDiagnosticCollector,
   Diagnostic,
   DiagnosticCollector,
-  DiagnosticTarget,
   EmitContext,
   emitFile,
   Example,
@@ -65,8 +64,6 @@ import {
   HttpOperationResponseContent,
   HttpServer,
   HttpServiceAuthentication,
-  HttpStatusCodeRange,
-  HttpStatusCodesEntry,
   isContentTypeHeader,
   isOrExtendsHttpFile,
   isOverloadSameEndpoint,
@@ -82,7 +79,6 @@ import {
   getExternalDocs,
   getOpenAPITypeName,
   getParameterKey,
-  isDefaultResponse,
   isReadonlyProperty,
   resolveInfo,
   resolveOperationId,
@@ -95,6 +91,7 @@ import { applyEncoding } from "./encoding.js";
 import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
 import { createDiagnostic, FileType, OpenAPI3EmitterOptions } from "./lib.js";
 import { getDefaultValue, isBytesKeptRaw, OpenAPI3SchemaEmitter } from "./schema-emitter.js";
+import { getOpenAPI3StatusCodes } from "./status-codes.js";
 import {
   OpenAPI3Document,
   OpenAPI3Encoding,
@@ -577,66 +574,6 @@ function createOAPIEmitter(
     return finalParams;
   }
 
-  function getOpenAPI3StatusCodes(
-    statusCodes: HttpStatusCodesEntry,
-    response: Type
-  ): OpenAPI3StatusCode[] {
-    if (isDefaultResponse(program, response) || statusCodes === "*") {
-      return ["default"];
-    } else if (typeof statusCodes === "number") {
-      return [String(statusCodes)];
-    } else {
-      return rangeToOpenAPI(statusCodes, response);
-    }
-  }
-
-  function rangeToOpenAPI(
-    range: HttpStatusCodeRange,
-    diagnosticTarget: DiagnosticTarget
-  ): OpenAPI3StatusCode[] {
-    const reportInvalid = () =>
-      diagnostics.add(
-        createDiagnostic({
-          code: "unsupported-status-code-range",
-          format: { start: String(range.start), end: String(range.end) },
-          target: diagnosticTarget,
-        })
-      );
-
-    const codes: OpenAPI3StatusCode[] = [];
-    let start = range.start;
-    let end = range.end;
-
-    if (range.start < 100) {
-      reportInvalid();
-      start = 100;
-      codes.push("default");
-    } else if (range.end > 599) {
-      reportInvalid();
-      codes.push("default");
-      end = 599;
-    }
-    const groups = [1, 2, 3, 4, 5];
-
-    for (const group of groups) {
-      if (start > end) {
-        break;
-      }
-      const groupStart = group * 100;
-      const groupEnd = groupStart + 99;
-      if (start >= groupStart && start <= groupEnd) {
-        codes.push(`${group}XX`);
-        if (start !== groupStart || end < groupEnd) {
-          reportInvalid();
-        }
-
-        start = groupStart + 100;
-      }
-    }
-
-    return codes;
-  }
-
   function buildSharedOperation(operations: HttpOperation[]): SharedHttpOperation {
     return {
       kind: "shared",
@@ -876,7 +813,9 @@ function createOAPIEmitter(
     const responseMap = new Map<string, HttpOperationResponse[]>();
     for (const op of operation.operations) {
       for (const response of op.responses) {
-        const statusCodes = getOpenAPI3StatusCodes(response.statusCodes, op.operation);
+        const statusCodes = diagnostics.pipe(
+          getOpenAPI3StatusCodes(program, response.statusCodes, op.operation)
+        );
         for (const statusCode of statusCodes) {
           if (responseMap.has(statusCode)) {
             responseMap.get(statusCode)!.push(response);
@@ -907,7 +846,9 @@ function createOAPIEmitter(
   ): Record<string, Refable<OpenAPI3Response>> {
     const result: Record<string, Refable<OpenAPI3Response>> = {};
     for (const response of responses) {
-      for (const statusCode of getOpenAPI3StatusCodes(response.statusCodes, response.type)) {
+      for (const statusCode of diagnostics.pipe(
+        getOpenAPI3StatusCodes(program, response.statusCodes, response.type)
+      )) {
         result[statusCode] = getResponseForStatusCode(operation, statusCode, [response], examples);
       }
     }
