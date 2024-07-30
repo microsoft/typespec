@@ -71,6 +71,24 @@ namespace Microsoft.Generator.CSharp.Input
             return true;
         }
 
+        public static bool TryReadInt32(this ref Utf8JsonReader reader, string propertyName, ref int value)
+        {
+            if (reader.TokenType != JsonTokenType.PropertyName)
+            {
+                throw new JsonException();
+            }
+
+            if (reader.GetString() != propertyName)
+            {
+                return false;
+            }
+
+            reader.Read();
+            value = reader.GetInt32();
+            reader.Read();
+            return true;
+        }
+
         public static bool TryReadString(this ref Utf8JsonReader reader, string propertyName, ref string? value)
         {
             if (reader.TokenType != JsonTokenType.PropertyName)
