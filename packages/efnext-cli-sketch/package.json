@@ -1,0 +1,85 @@
+{
+  "name": "@typespec/efnext-cli-sketch",
+  "version": "0.56.0",
+  "author": "Microsoft Corporation",
+  "description": "emitter framework prototype",
+  "homepage": "https://github.com/microsoft/typespec",
+  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "keywords": [
+    "TypeSpec"
+  ],
+  "type": "module",
+  "main": "dist/src/python-sketch/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "tspMain": "lib/main.tsp",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "clean": "rimraf ./dist ./temp",
+    "build": "npm run gen-extern-signature && tsc -p . && npm run lint-typespec-library",
+    "watch": "tsc -p . --watch",
+    "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
+    "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
+    "test": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/emitters/json-schema/reference"
+  },
+  "files": [
+    "lib/*.tsp",
+    "dist/**",
+    "!dist/test/**"
+  ],
+  "peerDependencies": {
+    "@typespec/compiler": "workspace:~",
+    "@typespec/http": "workspace:~"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.24.8",
+    "@babel/core": "^7.24.9",
+    "@rollup/plugin-babel": "^6.0.4",
+    "babel-preset-alloy": "https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@dcb70bb",
+    "@types/marked": "^6.0.0",
+    "@types/marked-terminal": "^6.1.1",
+    "@types/node": "~18.11.19",
+    "@typespec/compiler": "workspace:~",
+    "@typespec/internal-build-utils": "workspace:~",
+    "@typespec/library-linter": "workspace:~",
+    "@typespec/tspd": "workspace:~",
+    "@vitest/coverage-v8": "^1.6.0",
+    "@vitest/ui": "^1.6.0",
+    "ajv": "~8.13.0",
+    "ajv-formats": "~3.0.1",
+    "c8": "^9.1.0",
+    "rimraf": "~5.0.7",
+    "typescript": "~5.4.5",
+    "vitest": "^1.6.0"
+  },
+  "dependencies": {
+    "@typespec/emitter-framework": "workspace:~",
+    "change-case": "~5.4.4",
+    "marked": "^13.0.0",
+    "marked-terminal": "^7.1.0",
+    "prettier": "~3.2.5",
+    "strip-ansi": "^7.1.0",
+    "yaml": "~2.4.2",
+    "@alloy-js/core": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@dcb70bb",
+    "@alloy-js/typescript": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@dcb70bb"
+  }
+}

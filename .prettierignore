@@ -66,3 +66,4 @@ packages/http-client-csharp/generator/TestProjects/**/tspCodeModel.json
 # Alloy components
 packages/emitter-framework/**/*.tsx
 packages/emitter-sample/**/*.tsx
+packages/efnext-cli-sketch/**/*.tsx
