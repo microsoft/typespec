@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Text.Json.Serialization;
-
 namespace Microsoft.Generator.CSharp.Input
 {
     /// <summary>
@@ -11,11 +9,10 @@ namespace Microsoft.Generator.CSharp.Input
     public sealed class OperationResponseHeader
     {
         /// <summary>Creates an instance of <see cref="OperationResponseHeader"/>.</summary>
-        /// <param name="Name">The name of the header.</param>
-        /// <param name="NameInResponse">The name of the header in the operation response.</param>
-        /// <param name="Description">The description of the header.</param>
-        /// <param name="Type">The input type.</param>
-        [JsonConstructor]
+        /// <param name="name">The name of the header.</param>
+        /// <param name="nameInResponse">The name of the header in the operation response.</param>
+        /// <param name="description">The description of the header.</param>
+        /// <param name="type">The input type.</param>
         public OperationResponseHeader(string name, string nameInResponse, string description, InputType type)
         {
             Name = name;
