@@ -134,3 +134,41 @@ model User {
 </td>
 </tr>
 </table>
+
+## Numeric types ( `int64`, `decimal128`, `float64`, etc.)
+
+By default numeric types are serialized as a JSON number. However for large types like `int64` or `decimal128` that cannot be represented in certain languages like JavaScript it is recommended to serialize them as string over the wire.
+
+<table>
+<tr><td>TypeSpec</td><td>Example payload</td></tr>
+<tr>
+<td>
+
+```tsp
+model User {
+  id: int64; // JSON number
+
+  @encode(string)
+  idAsString: int64; // JSON string
+
+  viaSalar: decimalString;
+}
+
+@encode(string)
+scalar decimalString extends decimal128;
+```
+
+</td>
+<td>
+
+```json
+{
+  "id": 1234567890123456789012345678901234567890,
+  "idAsString": "1234567890123456789012345678901234567890",
+  "viaSalar": "1.3"
+}
+```
+
+</td>
+</tr>
+</table>
