@@ -22,13 +22,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     internal class FixedEnumSerializationProvider : TypeProvider
     {
         private readonly InputEnumType _enumType;
-        private TypeProvider? _enumProvider;
-        private TypeProvider EnumProvider => _enumProvider ??= ClientModelPlugin.Instance.TypeFactory.CreateEnum(_enumType);
+        private TypeProvider _enumProvider;
 
         public FixedEnumSerializationProvider(InputEnumType enumType)
         {
             Debug.Assert(!enumType.IsExtensible);
             _enumType = enumType;
+            _enumProvider = ClientModelPlugin.Instance.TypeFactory.CreateEnum(_enumType);
         }
 
         protected override string GetNamespace() => ClientModelPlugin.Instance.Configuration.ModelNamespace;
@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private bool NeedsSerializationMethod()
         {
             // fixed enum with int based types, we do not write a method for serialization because it was embedded in the definition
-            bool isIntValueType = EnumProvider.EnumUnderlyingType.Equals(typeof(int)) || EnumProvider.EnumUnderlyingType.Equals(typeof(long));
+            bool isIntValueType = _enumProvider.EnumUnderlyingType.Equals(typeof(int)) || _enumProvider.EnumUnderlyingType.Equals(typeof(long));
             if (!_enumType.IsExtensible && isIntValueType)
                 return false;
 
@@ -61,11 +61,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // serialization method (in some cases we do not need serialization)
             if (NeedsSerializationMethod())
             {
-                var serializationValueParameter = new ParameterProvider("value", $"The value to serialize.", EnumProvider.Type);
+                var serializationValueParameter = new ParameterProvider("value", $"The value to serialize.", _enumProvider.Type);
                 var serializationSignature = new MethodSignature(
-                    Name: $"ToSerial{EnumProvider.EnumUnderlyingType.Name}",
+                    Name: $"ToSerial{_enumProvider.EnumUnderlyingType.Name}",
                     Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Extension,
-                    ReturnType: EnumProvider.EnumUnderlyingType,
+                    ReturnType: _enumProvider.EnumUnderlyingType,
                     Parameters: [serializationValueParameter],
                     Description: null, ReturnDescription: null);
 
@@ -73,20 +73,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 var knownCases = new SwitchCaseExpression[_enumType.Values.Count];
                 for (int i = 0; i < knownCases.Length; i++)
                 {
-                    var enumValue = EnumProvider.EnumValues[i];
-                    knownCases[i] = new SwitchCaseExpression(new MemberExpression(EnumProvider.Type, enumValue.Field.Name), Literal(enumValue.Value));
+                    var enumValue = _enumProvider.EnumValues[i];
+                    knownCases[i] = new SwitchCaseExpression(new MemberExpression(_enumProvider.Type, enumValue.Field.Name), Literal(enumValue.Value));
                 }
-                var defaultCase = SwitchCaseExpression.Default(ThrowExpression(New.ArgumentOutOfRangeException(EnumProvider, serializationValueParameter)));
+                var defaultCase = SwitchCaseExpression.Default(ThrowExpression(New.ArgumentOutOfRangeException(_enumProvider, serializationValueParameter)));
                 var serializationBody = new SwitchExpression(serializationValueParameter, [.. knownCases, defaultCase]);
                 methods.Add(new(serializationSignature, serializationBody, this));
             }
 
             // deserialization method (we always need a deserialization)
-            var deserializationValueParameter = new ParameterProvider("value", $"The value to deserialize.", EnumProvider.EnumUnderlyingType);
+            var deserializationValueParameter = new ParameterProvider("value", $"The value to deserialize.", _enumProvider.EnumUnderlyingType);
             var deserializationSignature = new MethodSignature(
                 Name: $"To{_enumType.Name}",
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Extension,
-                ReturnType: EnumProvider.Type,
+                ReturnType: _enumProvider.Type,
                 Parameters: [deserializationValueParameter],
                 Description: null, ReturnDescription: null);
 
@@ -97,12 +97,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // in general, this loop builds up if statements for each value, it looks like:
             // if (<condition>) { return EnumType.TheValue; }
             // the condition could be different depending on the type of the underlying value type of the enum
-            for (int i = 0; i < EnumProvider.Fields.Count; i++)
+            for (int i = 0; i < _enumProvider.Fields.Count; i++)
             {
-                var enumField = EnumProvider.Fields[i];
-                var enumValue = EnumProvider.EnumValues[i];
+                var enumField = _enumProvider.Fields[i];
+                var enumValue = _enumProvider.EnumValues[i];
                 ScopedApi<bool> condition;
-                if (EnumProvider.EnumUnderlyingType.Equals(typeof(string)))
+                if (_enumProvider.EnumUnderlyingType.Equals(typeof(string)))
                 {
                     // when the values are strings, we compare them case-insensitively
                     // this is either
@@ -111,7 +111,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     // string.Equals(value, "<the value>", StringComparison.InvariantCultureIgnoreCase)
                     condition = (enumValue.Value is string strValue && strValue.All(char.IsAscii)
                                 ? stringComparer.Invoke(nameof(IEqualityComparer<string>.Equals), value, Literal(strValue))
-                                : Static(EnumProvider.EnumUnderlyingType).Invoke(nameof(Equals), [value, Literal(enumValue.Value), FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)]))
+                                : Static(_enumProvider.EnumUnderlyingType).Invoke(nameof(Equals), [value, Literal(enumValue.Value), FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)]))
                                 .As<bool>();
                 }
                 else
@@ -121,12 +121,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
                 deserializationBody.Add(new IfStatement(condition)
                     {
-                        Return(new MemberExpression(EnumProvider.Type, enumField.Name))
+                        Return(new MemberExpression(_enumProvider.Type, enumField.Name))
                     });
             }
 
             // add a fallback throw statement to ensure every path of this method returns a value
-            deserializationBody.Add(Throw(New.ArgumentOutOfRangeException(EnumProvider, deserializationValueParameter)));
+            deserializationBody.Add(Throw(New.ArgumentOutOfRangeException(_enumProvider, deserializationValueParameter)));
 
             methods.Add(new(deserializationSignature, deserializationBody, this));
 
