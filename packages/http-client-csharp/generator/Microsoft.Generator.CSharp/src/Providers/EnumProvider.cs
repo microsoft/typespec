@@ -24,21 +24,18 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             _inputType = input;
             _deprecated = input.Deprecated;
-
             IsExtensible = input.IsExtensible;
-            IsStringValueType = EnumUnderlyingType.Equals(typeof(string));
-            IsIntValueType = EnumUnderlyingType.Equals(typeof(int)) || EnumUnderlyingType.Equals(typeof(long));
-            IsFloatValueType = EnumUnderlyingType.Equals(typeof(float)) || EnumUnderlyingType.Equals(typeof(double));
-            IsNumericValueType = IsIntValueType || IsFloatValueType;
-
             Description = input.Description != null ? FormattableStringHelpers.FromString(input.Description) : $"The {Name}.";
         }
 
         public bool IsExtensible { get; }
-        internal bool IsIntValueType { get; }
-        internal bool IsFloatValueType { get; }
-        internal bool IsStringValueType { get; }
-        internal bool IsNumericValueType { get; }
+        private bool? _isIntValue;
+        internal bool IsIntValueType => _isIntValue ??= EnumUnderlyingType.Equals(typeof(int)) || EnumUnderlyingType.Equals(typeof(long));
+        private bool? _isFloatValue;
+        internal bool IsFloatValueType => _isFloatValue ??= EnumUnderlyingType.Equals(typeof(float)) || EnumUnderlyingType.Equals(typeof(double));
+        private bool? _isStringValue;
+        internal bool IsStringValueType => _isStringValue ??= EnumUnderlyingType.Equals(typeof(string));
+        internal bool IsNumericValueType => IsIntValueType || IsFloatValueType;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
