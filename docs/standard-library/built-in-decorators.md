@@ -100,7 +100,7 @@ model Pet {}
 
 Specify how to encode the target type.
 ```typespec
-@encode(encoding: string | EnumMember, encodedAs?: Scalar)
+@encode(encodingOrEncodeAs: Scalar | valueof string | EnumMember, encodedAs?: Scalar)
 ```
 
 #### Target
@@ -110,7 +110,7 @@ Specify how to encode the target type.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| encoding | `string \| EnumMember` | Known name of an encoding. |
+| encodingOrEncodeAs | `Scalar` \| `valueof string \| EnumMember` | Known name of an encoding or a scalar type to encode as(Only for numeric types to encode as string). |
 | encodedAs | `Scalar` | What target type is this being encoded as. Default to string. |
 
 #### Examples
@@ -128,6 +128,15 @@ scalar myDateTime extends offsetDateTime;
 ```tsp
 @encode("unixTimestamp", int32)
 scalar myDateTime extends unixTimestamp;
+```
+
+##### encode numeric type to string
+
+
+```tsp
+model Pet {
+  @encode(string) id: int64;
+}
 ```
 
 

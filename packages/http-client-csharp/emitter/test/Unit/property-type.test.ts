@@ -28,7 +28,7 @@ describe("Test GetInputType for array", () => {
     const context = createEmitterContext(program);
     const sdkContext = createNetSdkContext(context);
     const root = createModel(sdkContext);
-    const type = root.Clients[0].Operations[0].Parameters[0].Type;
+    const type = root.Clients[0].Operations[0].Parameters[3].Type;
     strictEqual(type.Kind, "array");
     strictEqual(type.CrossLanguageDefinitionId, "TypeSpec.Array");
     strictEqual(type.ValueType.Kind, "string");
@@ -82,7 +82,7 @@ describe("Test GetInputType for enum", () => {
     const context = createEmitterContext(program);
     const sdkContext = createNetSdkContext(context);
     const root = createModel(sdkContext);
-    const type = root.Clients[0].Operations[0].Parameters[0].Type;
+    const type = root.Clients[0].Operations[0].Parameters[3].Type;
     strictEqual(type.Kind, "enum");
     strictEqual(type.Name, "SimpleEnum");
     strictEqual(type.IsExtensible, false);
@@ -124,7 +124,7 @@ describe("Test GetInputType for enum", () => {
     const context = createEmitterContext(program);
     const sdkContext = createNetSdkContext(context);
     const root = createModel(sdkContext);
-    const type = root.Clients[0].Operations[0].Parameters[0].Type;
+    const type = root.Clients[0].Operations[0].Parameters[3].Type;
     strictEqual(type.Kind, "enum");
     strictEqual(type.Name, "FixedIntEnum");
     strictEqual(type.CrossLanguageDefinitionId, "Azure.Csharp.Testing.FixedIntEnum");
@@ -158,7 +158,7 @@ describe("Test GetInputType for enum", () => {
     const context = createEmitterContext(program);
     const sdkContext = createNetSdkContext(context);
     const root = createModel(sdkContext);
-    const type = root.Clients[0].Operations[0].Parameters[0].Type;
+    const type = root.Clients[0].Operations[0].Parameters[3].Type;
     strictEqual(type.Kind, "enum");
     strictEqual(type.Name, "FixedEnum");
     strictEqual(type.CrossLanguageDefinitionId, "Azure.Csharp.Testing.FixedEnum");
