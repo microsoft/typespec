@@ -83,7 +83,7 @@ describe("Test encode duration", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
-    const type = root.Clients[0].Operations[0].Parameters[0].Type;
+    const type = root.Clients[0].Operations[0].Parameters[1].Type;
     strictEqual(type.Kind, "duration");
     strictEqual(type.Name, "duration");
     strictEqual(type.CrossLanguageDefinitionId, "TypeSpec.duration");
