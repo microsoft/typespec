@@ -20,17 +20,12 @@ try {
     Write-Host "Current PATH: $env:PATH"
     # install Java 21
     
-    # Linux
-    # https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_linux_hotspot_21.0.4_7.tar.gz
-    
-    # macOS
-    # https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_mac_hotspot_21.0.4_7.pkg
     if ($IsWindows) {
         # download JDK, install 
         Write-Host "Downloading and installing Java 21"
         Invoke-WebRequest 'https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_windows_hotspot_21.0.4_7.msi' -OutFile 'java-install.msi'
         ./java-install.msi
-        $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.4.7-hotspot\'
+        $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.4.7-hotspot'
         Write-Host "JAVA_HOME: $env:JAVA_HOME"
         
         # download Maven, install
@@ -40,14 +35,13 @@ try {
         $env:MAVEN_HOME = (Get-ChildItem -Directory -Filter 'apache-maven-*').FullName
         Write-Host "MAVEN_HOME: $env:MAVEN_HOME"
 
-        $env:PATH = "$env:JAVA_HOME\bin;$env:MAVEN_HOME;$env:PATH"
-        Write-Host "Updated PATH: $env:PATH"
-
-        Invoke-LoggedCommand "java -version"
-
-        Invoke-LoggedCommand "mvn -version"
+        $env:PATH = "$env:JAVA_HOME\bin;$env:MAVEN_HOME\bin;$env:PATH"
+        
     }
    
+    Write-Host "Updated PATH: $env:PATH"
+    Invoke-LoggedCommand "java -version"
+    Invoke-LoggedCommand "mvn -version"
 
     # install and list npm packages
  
@@ -76,7 +70,7 @@ try {
         $lockFilesPath = "$artifactStagingDirectory/lock-files"
         New-Item -ItemType Directory -Path "$lockFilesPath/emitter" | Out-Null
         
-        Write-Host "Copying package.json and emitter/ackage-lock.json to $lockFilesPath"
+        Write-Host "Copying package.json and emitter/package-lock.json to $lockFilesPath"
         Copy-Item './package.json' "$lockFilesPath/emitter/package.json" -Force
         Copy-Item './package-lock.json' "$lockFilesPath/emitter/package-lock.json" -Force
     }

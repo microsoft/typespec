@@ -48,6 +48,6 @@ export function getJavaNamespace(namespace: string | undefined): string | undefi
 
 export function stringArrayContainsIgnoreCase(stringList: string[], str: string): boolean {
   return stringList && str
-    ? stringList.findIndex((s) => s.toLowerCase() === str.toLowerCase()) != -1
+    ? stringList.findIndex((s) => s.toLowerCase() === str.toLowerCase()) !== -1
     : false;
 }
