@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using AutoRest.CSharp.Common.Input.InputTypes;
-
 namespace Microsoft.Generator.CSharp.Input
 {
     /// <summary>

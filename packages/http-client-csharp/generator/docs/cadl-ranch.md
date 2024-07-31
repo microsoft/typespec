@@ -13,6 +13,13 @@ will live in the following folder inside the CadlRanch test projects
 
 The files that get generated here will only be stubbed public APIs. This is done to minimize the size of the repo and reduce PR diff noise when an internal implementation is modified which can potentially effect every model. Seeing the same diff in hundreds of files doesn't provide value it only introduces noise.
 
+If you want to manually generate the non stubbed version you can call Generate.ps1 with the name of the project you want to generate and set Stubbed to false.
+For example if you want to generate the non stubbed version of `http/authentication/api-key` you can do the following.
+
+```powershell
+./eng/scripts/Generate.ps1 http/authentication/api-key -Stubbed $false
+```
+
 ## Writing CadlRanchTests
 
 Generating the stubs allows us write tests against the public API surface that will compile. To do this we add a test class in same folder structure although this time we will modify the casing slightly to match dotnet standards.
@@ -32,9 +39,11 @@ public Task Valid() => Test(async (host) =>
 
 This test validates that we can successfully call the mock cadl ranch service and verifies that we receive a successful response with code 204. Notice that we are using `CadlRanchTest` attribute instead of the standard NUnit `Test` attribute. This is because the test will not complete successfully against the stub and we must generate the full library before running the test.
 
+The `CadlRanchTest` attribute will dynamically determine if the library is stubbed and mark the step as `Ignore` if it is. If it is not stubbed it will run the full test.
+
 ## Testing CadlRanch Scenarios
 
-All of this is automated into a script called `./eng/scripts/Test-CadlRanch.ps1`. This script will find all generated cadl ranch projects and regenerate each of them without using the `StubLibraryPlugin`. It will then run dotnet test using `./eng/test-configurations/cadlranch.runsettings` which will cause tests using the `CadlRanchTest` attribute to no longer be skipped. Finally it will restore the files back to the stubs if everything was successful and if not it will leave the files in place so you can investigate.
+All of this is automated into a script called `./eng/scripts/Test-CadlRanch.ps1`. This script will find all generated cadl ranch projects and regenerate each of them without using the `StubLibraryPlugin`. It will then run dotnet test which will cause tests using the `CadlRanchTest` attribute to no longer be skipped. Finally it will restore the files back to the stubs if everything was successful and if not it will leave the files in place so you can investigate.
 
 <details>
 <Summary>Here is an example output for one library</Summary>
@@ -96,9 +105,13 @@ The plugin does not skip generating the methods bodies and xml docs it simply re
 
 ## Debugging CadlRanch Tests
 
-To debug one of the `CadlRanchTest` you will need to set your launch settings in the TestExplorer to the cadlranch.runsettings otherwise the test will simply be skipped.
+To debug one of the `CadlRanchTest` you will need to generate the non stubbed library first by calling Generate.ps1 with Stubbed set to false.
 
-![alt text](runsettings.png)
+```powershell
+./eng/scripts/Generate.ps1 http/authentication/api-key -Stubbed $false
+```
+
+If you don't do this the test will be ignored by `CadlRanchTest` attribute since you cannot run a test when the library has no implementation.
 
 ## Problematic Specs
 

@@ -15,13 +15,10 @@ namespace UnbrandedTypeSpec
         private static PipelineMessageClassifier _pipelineMessageClassifier204;
         private static Classifier2xxAnd4xx _pipelineMessageClassifier2xxAnd4xx;
 
-        /// <summary> Gets the pipelinemessageclassifier200. </summary>
         private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 = PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
 
-        /// <summary> Gets the pipelinemessageclassifier204. </summary>
         private static PipelineMessageClassifier PipelineMessageClassifier204 => _pipelineMessageClassifier204 = PipelineMessageClassifier.Create(stackalloc ushort[] { 204 });
 
-        /// <summary> Gets the PipelineMessageClassifier2xxAnd4xx. </summary>
         private static Classifier2xxAnd4xx PipelineMessageClassifier2xxAnd4xx => _pipelineMessageClassifier2xxAnd4xx ??= new Classifier2xxAnd4xx();
 
         internal PipelineMessage CreateSayHiRequest(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
@@ -75,8 +72,8 @@ namespace UnbrandedTypeSpec
             uri.AppendPath(p2, true);
             request.Uri = uri.ToUri();
             request.Headers.Set("p1", p1);
-            request.Headers.Set("Accept", "application/json");
             request.Headers.Set("Content-Type", "application/json");
+            request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
@@ -106,8 +103,8 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/literal", false);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Accept", "application/json");
             request.Headers.Set("Content-Type", "application/json");
+            request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
@@ -171,8 +168,8 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/patch", false);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Accept", "application/json");
             request.Headers.Set("Content-Type", "application/json");
+            request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
@@ -187,8 +184,8 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/anonymousBody", false);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Accept", "application/json");
             request.Headers.Set("Content-Type", "application/json");
+            request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
@@ -203,8 +200,8 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/friendlyName", false);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Accept", "application/json");
             request.Headers.Set("Content-Type", "application/json");
+            request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
@@ -220,7 +217,6 @@ namespace UnbrandedTypeSpec
             uri.AppendPath("/", false);
             request.Uri = uri.ToUri();
             request.Headers.Set("Repeatability-First-Sent", repeatabilityFirstSent.ToString("R"));
-            request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
@@ -235,8 +231,8 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/projectedName", false);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Accept", "application/json");
             request.Headers.Set("Content-Type", "application/json");
+            request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
@@ -256,7 +252,7 @@ namespace UnbrandedTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateGetUnknownValueRequest(RequestOptions options)
+        internal PipelineMessage CreateGetUnknownValueRequest(string accept, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
@@ -266,7 +262,7 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/unknown-value", false);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("Accept", accept);
             message.Apply(options);
             return message;
         }
@@ -281,8 +277,8 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/internalProtocol", false);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Accept", "application/json");
             request.Headers.Set("Content-Type", "application/json");
+            request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
@@ -297,7 +293,6 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/stillConvenient", false);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
@@ -313,7 +308,6 @@ namespace UnbrandedTypeSpec
             uri.AppendPath("/headAsBoolean/", false);
             uri.AppendPath(id, true);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }

@@ -477,7 +477,7 @@ enum BytesKnownEncoding {
 
 /**
  * Specify how to encode the target type.
- * @param encoding Known name of an encoding.
+ * @param encodingOrEncodeAs Known name of an encoding or a scalar type to encode as(Only for numeric types to encode as string).
  * @param encodedAs What target type is this being encoded as. Default to string.
  *
  * @example offsetDateTime encoded with rfc7231
@@ -493,10 +493,18 @@ enum BytesKnownEncoding {
  * @encode("unixTimestamp", int32)
  * scalar myDateTime extends unixTimestamp;
  * ```
+ *
+ * @example encode numeric type to string
+ *
+ * ```tsp
+ * model Pet {
+ *   @encode(string) id: int64;
+ * }
+ * ```
  */
 extern dec encode(
   target: Scalar | ModelProperty,
-  encoding: string | EnumMember,
+  encodingOrEncodeAs: (valueof string | EnumMember) | Scalar,
   encodedAs?: Scalar
 );
 
