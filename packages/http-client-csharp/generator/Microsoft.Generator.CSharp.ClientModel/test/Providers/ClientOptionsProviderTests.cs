@@ -16,12 +16,43 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 {
     public class ClientOptionsProviderTests
     {
+        private const string ApiVersionsCategory = "WithApiVersions";
         private readonly Mock<InputLibrary> _mockInputLibrary = new(MockHelpers.ConfigFilePath);
+        private readonly List<string> _apiVersions = ["1.0", "2.0"];
 
         [SetUp]
         public void SetUp()
         {
-            MockHelpers.LoadMockPlugin();
+            var categories = TestContext.CurrentContext.Test?.Properties["Category"];
+            bool containsApiVersions = categories?.Contains(ApiVersionsCategory) ?? false;
+
+            // Load the mock plugin with or without api versions
+            if (containsApiVersions)
+            {
+                InputEnumTypeValue[] enumValues = new InputEnumTypeValue[_apiVersions.Count];
+                for (var i = 0; i < _apiVersions.Count; i++)
+                {
+                    enumValues[i] = new InputEnumTypeValue(_apiVersions[i], _apiVersions[i], null);
+                }
+                var inputEnum = new InputEnumType(
+                    "ServiceVersion",
+                    string.Empty,
+                    null,
+                    null,
+                    "ServiceVersion description",
+                    InputModelTypeUsage.ApiVersionEnum,
+                    InputPrimitiveType.Int64,
+                    enumValues,
+                    false);
+                var mockInputNs = new Mock<InputNamespace>("ns", _apiVersions, new List<InputEnumType> { inputEnum }, Array.Empty<InputModelType>(), Array.Empty<InputClient>(), new InputAuth());
+                var inputNsInstance = typeof(InputLibrary).GetField("_inputNamespace", BindingFlags.Instance | BindingFlags.NonPublic);
+                inputNsInstance!.SetValue(_mockInputLibrary.Object, mockInputNs.Object);
+                MockHelpers.LoadMockPlugin(inputLibrary: _mockInputLibrary.Object);
+            }
+            else
+            {
+                MockHelpers.LoadMockPlugin();
+            }
         }
 
         [Test]
@@ -38,19 +69,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             Assert.AreEqual(new CSharpType(typeof(ClientPipelineOptions)), implements[0]);
         }
 
-        [TestCase(true)]
+        [TestCase(true, Category = ApiVersionsCategory)]
         [TestCase(false)]
         public void TestFields(bool containsApiVersions)
         {
-            if (containsApiVersions)
-            {
-                List<string> apiVersions = ["1.0", "2.0"];
-                var mockInputNs = new Mock<InputNamespace>("ns", apiVersions, Array.Empty<InputEnumType>(), Array.Empty<InputModelType>(), Array.Empty<InputClient>(), new InputAuth());
-                var inputNsInstance = typeof(InputLibrary).GetField("_inputNamespace", BindingFlags.Instance | BindingFlags.NonPublic);
-                inputNsInstance!.SetValue(_mockInputLibrary.Object, mockInputNs.Object);
-                MockHelpers.LoadMockPlugin(inputLibrary: _mockInputLibrary.Object);
-            }
-
             var client = new InputClient("TestClient", "TestClient description", [], [], null);
             var clientOptionsProvider = new ClientOptionsProvider(client);
 
@@ -61,6 +83,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             {
                 Assert.AreEqual(1, fields.Count);
                 Assert.IsTrue("LatestVersion" == fields[0].Name);
+                Assert.IsTrue(fields[0].Type == clientOptionsProvider.NestedTypes[0].Type);
             }
             else
             {
@@ -68,19 +91,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             }
         }
 
-        [TestCase(true)]
+        [TestCase(true, Category = ApiVersionsCategory)]
         [TestCase(false)]
         public void TestNestedTypes(bool containsApiVersions)
         {
-            if (containsApiVersions)
-            {
-                List<string> apiVersions = ["1.0", "2.0"];
-                var mockInputNs = new Mock<InputNamespace>("ns", apiVersions, Array.Empty<InputEnumType>(), Array.Empty<InputModelType>(), Array.Empty<InputClient>(), new InputAuth());
-                var inputNsInstance = typeof(InputLibrary).GetField("_inputNamespace", BindingFlags.Instance | BindingFlags.NonPublic);
-                inputNsInstance!.SetValue(_mockInputLibrary.Object, mockInputNs.Object);
-                MockHelpers.LoadMockPlugin(inputLibrary: _mockInputLibrary.Object);
-            }
-
             var client = new InputClient("TestClient", "TestClient description", [], [], null);
             var clientOptionsProvider = new ClientOptionsProvider(client);
 
@@ -90,7 +104,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             if (containsApiVersions)
             {
                 Assert.AreEqual(1, nestedTypes.Count);
-                Assert.IsTrue(nestedTypes[0] is ServiceVersionDefinition);
+                var nestedType = nestedTypes[0];
+                Assert.IsTrue(nestedType.Name == "ServiceVersion");
+                Assert.AreEqual(TypeSignatureModifiers.Public | TypeSignatureModifiers.Enum, nestedType.DeclarationModifiers);
+                var nestedTypeFields = nestedType.Fields;
+                Assert.AreEqual(2, nestedTypeFields.Count);
+                Assert.AreEqual("V1_0", nestedTypeFields[0].Name);
+                Assert.AreEqual("V2_0", nestedTypeFields[1].Name);
             }
             else
             {
@@ -98,19 +118,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             }
         }
 
-        [TestCase(true)]
+        [TestCase(true, Category = ApiVersionsCategory)]
         [TestCase(false)]
         public void TestConstructors(bool containsApiVersions)
         {
-            if (containsApiVersions)
-            {
-                List<string> apiVersions = ["1.0", "2.0"];
-                var mockInputNs = new Mock<InputNamespace>("ns", apiVersions, Array.Empty<InputEnumType>(), Array.Empty<InputModelType>(), Array.Empty<InputClient>(), new InputAuth());
-                var inputNsInstance = typeof(InputLibrary).GetField("_inputNamespace", BindingFlags.Instance | BindingFlags.NonPublic);
-                inputNsInstance!.SetValue(_mockInputLibrary.Object, mockInputNs.Object);
-                MockHelpers.LoadMockPlugin(inputLibrary: _mockInputLibrary.Object);
-            }
-
             var client = new InputClient("TestClient", "TestClient description", [], [], null);
             var clientOptionsProvider = new ClientOptionsProvider(client);
 
@@ -135,19 +146,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             }
         }
 
-        [TestCase(true)]
+        [TestCase(true, Category = ApiVersionsCategory)]
         [TestCase(false)]
         public void TestProperties(bool containsApiVersions)
         {
-            if (containsApiVersions)
-            {
-                List<string> apiVersions = ["1.0", "2.0"];
-                var mockInputNs = new Mock<InputNamespace>("ns", apiVersions, Array.Empty<InputEnumType>(), Array.Empty<InputModelType>(), Array.Empty<InputClient>(), new InputAuth());
-                var inputNsInstance = typeof(InputLibrary).GetField("_inputNamespace", BindingFlags.Instance | BindingFlags.NonPublic);
-                inputNsInstance!.SetValue(_mockInputLibrary.Object, mockInputNs.Object);
-                MockHelpers.LoadMockPlugin(inputLibrary: _mockInputLibrary.Object);
-            }
-
             var client = new InputClient("TestClient", "TestClient description", [], [], null);
             var clientOptionsProvider = new ClientOptionsProvider(client);
 

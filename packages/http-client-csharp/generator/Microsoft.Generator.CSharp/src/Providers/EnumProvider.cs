@@ -2,10 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 
@@ -15,10 +13,10 @@ namespace Microsoft.Generator.CSharp.Providers
     {
         private readonly InputEnumType _inputType;
 
-        public static EnumProvider Create(InputEnumType input)
+        public static EnumProvider Create(InputEnumType input, TypeProvider? declaringType = null)
             => input.IsExtensible
-            ? new ExtensibleEnumProvider(input)
-            : new FixedEnumProvider(input);
+            ? new ExtensibleEnumProvider(input, declaringType)
+            : new FixedEnumProvider(input, declaringType);
 
         protected EnumProvider(InputEnumType input)
         {

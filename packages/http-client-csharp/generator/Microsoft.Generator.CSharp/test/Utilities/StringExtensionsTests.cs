@@ -126,7 +126,7 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
         [TestCase("V2022.05.15-preview", "V2022_05_15_Preview")]
         public void TestToApiVersionMemberName(string apiVersion, string expectedApiVersion)
         {
-            var name = StringExtensions.ToApiVersionMemberName(apiVersion);
+            var name = apiVersion.ToApiVersionMemberName();
             Assert.AreEqual(expectedApiVersion, name);
         }
     }

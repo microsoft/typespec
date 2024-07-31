@@ -229,7 +229,7 @@ namespace Microsoft.Generator.CSharp
             return humanizedString.Split(' ').Select(w => w.FirstCharToUpperCase());
         }
 
-        public static string ToApiVersionMemberName(string version)
+        public static string ToApiVersionMemberName(this string version)
         {
             var sb = new StringBuilder("V");
             int startIndex = version.StartsWith("v", StringComparison.InvariantCultureIgnoreCase) ? 1 : 0;

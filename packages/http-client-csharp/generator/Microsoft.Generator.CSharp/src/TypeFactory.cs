@@ -111,18 +111,19 @@ namespace Microsoft.Generator.CSharp
         /// Factory method for creating a <see cref="TypeProvider"/> based on an <see cref="InputEnumType"> <paramref name="enumType"/>.
         /// </summary>
         /// <param name="enumType">The <see cref="InputEnumType"/> to convert.</param>
+        /// <param name="declaringType"/> The declaring <see cref="TypeProvider".</param>
         /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
-        public TypeProvider CreateEnum(InputEnumType enumType)
+        public TypeProvider CreateEnum(InputEnumType enumType, TypeProvider? declaringType = null)
         {
             if (CSharpToTypeProvider.TryGetValue(enumType, out var enumProvider))
                 return enumProvider;
 
-            enumProvider = CreateEnumCore(enumType);
+            enumProvider = CreateEnumCore(enumType, declaringType);
             CSharpToTypeProvider.Add(enumType, enumProvider);
             return enumProvider;
         }
 
-        protected virtual TypeProvider CreateEnumCore(InputEnumType enumType) => EnumProvider.Create(enumType);
+        protected virtual TypeProvider CreateEnumCore(InputEnumType enumType, TypeProvider? declaringType) => EnumProvider.Create(enumType, declaringType);
 
         /// <summary>
         /// Factory method for creating a <see cref="ParameterProvider"/> based on an input parameter <paramref name="parameter"/>.

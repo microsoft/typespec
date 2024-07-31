@@ -23,13 +23,16 @@ namespace Microsoft.Generator.CSharp
         private static TypeProvider[] BuildEnums()
         {
             var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
-            var enums = new TypeProvider[input.Enums.Count];
-            for (int i = 0; i < enums.Length; i++)
+            var count = input.Enums.Count;
+            List<TypeProvider> enums = new(count);
+            for (int i = 0; i < count; i++)
             {
                 var inputEnum = input.Enums[i];
-                enums[i] = CodeModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
+                if (inputEnum.Usage.HasFlag(Input.InputModelTypeUsage.ApiVersionEnum))
+                    continue;
+                enums.Add(CodeModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum));
             }
-            return enums;
+            return [.. enums];
         }
 
         private static TypeProvider[] BuildModels()

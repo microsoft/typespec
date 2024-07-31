@@ -30,9 +30,9 @@ namespace UnbrandedTypeSpec
         /// <summary> The version of the service to use. </summary>
         public enum ServiceVersion
         {
-            /// <summary> Service version "2024-07-16-preview". </summary>
+            /// <summary> V2024_07_16_Preview. </summary>
             V2024_07_16_Preview = 1,
-            /// <summary> Service version "2024-08-16-preview". </summary>
+            /// <summary> V2024_08_16_Preview. </summary>
             V2024_08_16_Preview = 2
         }
     }
