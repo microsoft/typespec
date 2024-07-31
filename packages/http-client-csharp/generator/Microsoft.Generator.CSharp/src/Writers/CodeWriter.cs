@@ -285,9 +285,23 @@ namespace Microsoft.Generator.CSharp
 
             switch (property.Body)
             {
-                case ExpressionPropertyBody(var expression):
-                    expression.Write(AppendRaw(" => "));
-                    AppendRaw(";");
+                case ExpressionPropertyBody(var getter, var setter):
+                    if (setter is null)
+                    {
+                        getter.Write(AppendRaw(" => "));
+                        AppendRaw(";");
+                    }
+                    else
+                    {
+                        WriteLine();
+                        using (var scope = ScopeRaw())
+                        {
+                            getter.Write(AppendRaw("get => "));
+                            WriteRawLine(";");
+                            setter.Write(AppendRaw("set => "));
+                            WriteRawLine(";");
+                        }
+                    }
                     break;
                 case AutoPropertyBody(var hasSetter, var setterModifiers, var initialization):
                     AppendRaw(" { get;");

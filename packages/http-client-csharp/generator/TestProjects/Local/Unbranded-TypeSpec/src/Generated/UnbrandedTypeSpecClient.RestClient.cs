@@ -212,7 +212,7 @@ namespace UnbrandedTypeSpec
         internal PipelineMessage CreateAddTimeHeaderRequest(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
-            message.ResponseClassifier = PipelineMessageClassifier200;
+            message.ResponseClassifier = PipelineMessageClassifier204;
             PipelineRequest request = message.Request;
             request.Method = "GET";
             ClientUriBuilder uri = new ClientUriBuilder();
@@ -290,7 +290,7 @@ namespace UnbrandedTypeSpec
         internal PipelineMessage CreateStillConvenientRequest(RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
-            message.ResponseClassifier = PipelineMessageClassifier200;
+            message.ResponseClassifier = PipelineMessageClassifier204;
             PipelineRequest request = message.Request;
             request.Method = "GET";
             ClientUriBuilder uri = new ClientUriBuilder();
@@ -305,7 +305,7 @@ namespace UnbrandedTypeSpec
         internal PipelineMessage CreateHeadAsBooleanRequest(string id, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
-            message.ResponseClassifier = PipelineMessageClassifier200;
+            message.ResponseClassifier = PipelineMessageClassifier2xxAnd4xx;
             PipelineRequest request = message.Request;
             request.Method = "HEAD";
             ClientUriBuilder uri = new ClientUriBuilder();

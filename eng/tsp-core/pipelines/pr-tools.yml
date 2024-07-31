@@ -8,6 +8,8 @@ pr:
   paths:
     exclude:
       - packages/http-client-csharp
+      - cspell.yaml
+      - eng/emitters
 
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml

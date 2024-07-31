@@ -6,6 +6,9 @@ toc_max_heading_level: 3
 # Built-in Decorators
 ## TypeSpec
 ### `@deprecated` {#@deprecated}
+:::warning
+**Deprecated**: @deprecated decorator is deprecated. Use the `#deprecated` directive instead.
+:::
 
 Mark this type as deprecated.
 
@@ -358,6 +361,9 @@ model Pet {
 
 
 ### `@knownValues` {#@knownValues}
+:::warning
+**Deprecated**: This decorator has been deprecated. Use a named union of string literals with a string variant to achieve the same result without a decorator.
+:::
 
 Provide a set of known values to a string type.
 ```typespec
@@ -701,6 +707,9 @@ scalar LowerAlpha extends string;
 
 
 ### `@projectedName` {#@projectedName}
+:::warning
+**Deprecated**: Use `@encodedName` instead for changing the name over the wire.
+:::
 
 DEPRECATED: Use `@encodedName` instead.
 

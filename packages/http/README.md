@@ -395,7 +395,7 @@ None
 Specify this property is to be sent as a query parameter.
 
 ```typespec
-@TypeSpec.Http.query(queryNameOrOptions?: string | TypeSpec.Http.QueryOptions)
+@TypeSpec.Http.query(queryNameOrOptions?: valueof string | TypeSpec.Http.QueryOptions)
 ```
 
 ##### Target
@@ -404,9 +404,9 @@ Specify this property is to be sent as a query parameter.
 
 ##### Parameters
 
-| Name               | Type                                   | Description                                                                     |
-| ------------------ | -------------------------------------- | ------------------------------------------------------------------------------- |
-| queryNameOrOptions | `string \| TypeSpec.Http.QueryOptions` | Optional name of the query when included in the url or query parameter options. |
+| Name               | Type                                           | Description                                                                     |
+| ------------------ | ---------------------------------------------- | ------------------------------------------------------------------------------- |
+| queryNameOrOptions | `valueof string \| TypeSpec.Http.QueryOptions` | Optional name of the query when included in the url or query parameter options. |
 
 ##### Examples
 
@@ -459,8 +459,8 @@ Defines the relative route URI template for the target operation as defined by [
 ###### Query parameter
 
 ```typespec
-@route("/files") op list(select?: string, filter?: string): Widget[];
-@route("/files{?select,filter}") op listFullUriTemplateselect?: string, filter?: string): Widget[];
+@route("/files") op list(select?: string, filter?: string): Files[];
+@route("/files{?select,filter}") op listFullUriTemplate(select?: string, filter?: string): Files[];
 ```
 
 #### `@server`
