@@ -93,6 +93,7 @@ export function fromSdkModelType(
       Deprecation: modelType.deprecation,
       Description: modelType.description,
       DiscriminatorValue: modelType.discriminatorValue,
+      Decorators: modelType.decorators,
     } as InputModelType;
 
     models.set(modelTypeName, inputModelType);
