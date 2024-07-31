@@ -28,13 +28,13 @@ describe("Test GetInputType for scalar", () => {
     const context = createEmitterContext(program);
     const sdkContext = createNetSdkContext(context);
     const root = createModel(sdkContext);
-    deepStrictEqual(root.Clients[0].Operations[0].Parameters[0].Type.Kind, "azureLocation");
+    deepStrictEqual(root.Clients[0].Operations[0].Parameters[1].Type.Kind, "azureLocation");
     deepStrictEqual(
       {
         Kind: "azureLocation",
         Encode: "string",
       },
-      root.Clients[0].Operations[0].Parameters[0].Type
+      root.Clients[0].Operations[0].Parameters[1].Type
     );
   });
 });

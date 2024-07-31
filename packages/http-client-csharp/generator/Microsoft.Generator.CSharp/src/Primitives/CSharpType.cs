@@ -146,7 +146,7 @@ namespace Microsoft.Generator.CSharp.Primitives
                   implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) && arguments.All(t => t.IsPublic),
                   implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct),
                   baseType,
-                  implementation is EnumProvider enumProvider ? enumProvider.ValueType.FrameworkType : null)
+                  implementation.IsEnum? implementation.EnumUnderlyingType.FrameworkType : null)
         {
         }
 

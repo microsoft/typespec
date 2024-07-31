@@ -3,6 +3,7 @@
   <ItemGroup>
     <PackageReference Include="System.Memory.Data" />
     <PackageReference Include="System.ClientModel" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,5 +16,5 @@
       <_Parameter2>$(ArtifactsDir)</_Parameter2>
     </AssemblyAttribute>
   </ItemGroup>
-  
+ 
 </Project>

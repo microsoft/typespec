@@ -885,12 +885,16 @@ namespace UnbrandedTypeSpec
         /// </item>
         /// </list>
         /// </summary>
+        /// <param name="accept"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="accept"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult GetUnknownValue(RequestOptions options)
+        public virtual ClientResult GetUnknownValue(string accept, RequestOptions options)
         {
-            using PipelineMessage message = CreateGetUnknownValueRequest(options);
+            Argument.AssertNotNull(accept, nameof(accept));
+
+            using PipelineMessage message = CreateGetUnknownValueRequest(accept, options);
             return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
@@ -902,28 +906,40 @@ namespace UnbrandedTypeSpec
         /// </item>
         /// </list>
         /// </summary>
+        /// <param name="accept"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="accept"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> GetUnknownValueAsync(RequestOptions options)
+        public virtual async Task<ClientResult> GetUnknownValueAsync(string accept, RequestOptions options)
         {
-            using PipelineMessage message = CreateGetUnknownValueRequest(options);
+            Argument.AssertNotNull(accept, nameof(accept));
+
+            using PipelineMessage message = CreateGetUnknownValueRequest(accept, options);
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> get extensible enum. </summary>
+        /// <param name="accept"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="accept"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<string> GetUnknownValue()
+        public virtual ClientResult<string> GetUnknownValue(string accept)
         {
-            ClientResult result = GetUnknownValue(null);
+            Argument.AssertNotNull(accept, nameof(accept));
+
+            ClientResult result = GetUnknownValue(accept, null);
             return ClientResult.FromValue(result.GetRawResponse().Content.ToString(), result.GetRawResponse());
         }
 
         /// <summary> get extensible enum. </summary>
+        /// <param name="accept"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="accept"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<string>> GetUnknownValueAsync()
+        public virtual async Task<ClientResult<string>> GetUnknownValueAsync(string accept)
         {
-            ClientResult result = await GetUnknownValueAsync(null).ConfigureAwait(false);
+            Argument.AssertNotNull(accept, nameof(accept));
+
+            ClientResult result = await GetUnknownValueAsync(accept, null).ConfigureAwait(false);
             return ClientResult.FromValue(result.GetRawResponse().Content.ToString(), result.GetRawResponse());
         }
 

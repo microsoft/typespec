@@ -1,6 +1,7 @@
 import type {
   DecoratorContext,
   Enum,
+  EnumValue,
   Interface,
   Model,
   ModelProperty,
@@ -26,7 +27,7 @@ export interface OperationExample {
 /**
  * Specify how to encode the target type.
  *
- * @param encoding Known name of an encoding.
+ * @param encodingOrEncodeAs Known name of an encoding or a scalar type to encode as(Only for numeric types to encode as string).
  * @param encodedAs What target type is this being encoded as. Default to string.
  * @example offsetDateTime encoded with rfc7231
  *
@@ -40,11 +41,18 @@ export interface OperationExample {
  * @encode("unixTimestamp", int32)
  * scalar myDateTime extends unixTimestamp;
  * ```
+ * @example encode numeric type to string
+ *
+ * ```tsp
+ * model Pet {
+ *   @encode(string) id: int64;
+ * }
+ * ```
  */
 export type EncodeDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  encoding: Type,
+  encodingOrEncodeAs: Scalar | string | EnumValue,
   encodedAs?: Scalar
 ) => void;
 
