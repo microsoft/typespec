@@ -520,7 +520,7 @@ describe("uri template", () => {
       const op = await getOp(code);
       const param = op.parameters.parameters.find((x) => x.name === name);
       ok(param);
-      expect(param.name).toEqual("foo");
+      expect(param.name).toEqual(name);
       return param;
     }
 
