@@ -25,6 +25,8 @@ namespace TestProjects.CadlRanch.Tests
             string clientCodeDirectory = GetGeneratedDirectory(test);
 
             var clientCsFile = GetClientCsFile(clientCodeDirectory);
+
+            TestContext.Progress.WriteLine($"Checking if '{clientCsFile}' is a stubbed implementation.");
             if (clientCsFile is null || IsLibraryStubbed(clientCsFile))
             {
                 SkipTest(test);
@@ -56,13 +58,14 @@ namespace TestProjects.CadlRanch.Tests
         private static void SkipTest(Test test)
         {
             test.RunState = RunState.Ignored;
+            TestContext.Progress.WriteLine($"Test skipped because {test.FullName} is currently a stubbed implementation.");
             test.Properties.Set(PropertyNames.SkipReason, $"Test skipped because {test.FullName} is currently a stubbed implementation.");
         }
 
         private static string? GetClientCsFile(string clientCodeDirectory)
         {
             return Directory.GetFiles(clientCodeDirectory, "*.cs", SearchOption.TopDirectoryOnly)
-                .Where(f => f.EndsWith("Client.cs", StringComparison.Ordinal))
+                .Where(f => f.EndsWith("Client.cs", StringComparison.Ordinal) && !f.EndsWith("RestClient.cs", StringComparison.Ordinal))
                 .FirstOrDefault();
         }
 

@@ -40,7 +40,7 @@ foreach ($directory in $directories) {
 }
 
 # test all
-Write-Host "Testing $subPath" -ForegroundColor Cyan
+Write-Host "Generating CadlRanch coverage" -ForegroundColor Cyan
 $command  = "dotnet test $cadlRanchCsproj"
 Invoke $command
 # exit if the testing failed
