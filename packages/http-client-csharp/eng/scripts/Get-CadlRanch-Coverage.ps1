@@ -1,5 +1,3 @@
-# cspell:ignore cadlranch
-
 #Requires -Version 7.0
 
 Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
@@ -13,7 +11,6 @@ $specsDirectory = Join-Path $packageRoot 'node_modules' '@azure-tools' 'cadl-ran
 $cadlRanchRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch'
 $directories = Get-ChildItem -Path "$cadlRanchRoot" -Directory -Recurse
 $cadlRanchCsproj = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch.Tests' 'TestProjects.CadlRanch.Tests.csproj'
-$runSettings = Join-Path $packageRoot 'eng' 'test-configurations' 'cadlranch.runsettings'
 
 $coverageDir = Join-Path $packageRoot 'generator' 'artifacts' 'coverage'
 
@@ -44,7 +41,7 @@ foreach ($directory in $directories) {
 
 # test all
 Write-Host "Testing $subPath" -ForegroundColor Cyan
-$command  = "dotnet test $cadlRanchCsproj --settings $runSettings"
+$command  = "dotnet test $cadlRanchCsproj"
 Invoke $command
 # exit if the testing failed
 if ($LASTEXITCODE -ne 0) {
