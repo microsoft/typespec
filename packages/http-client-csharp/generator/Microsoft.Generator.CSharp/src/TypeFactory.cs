@@ -234,15 +234,6 @@ namespace Microsoft.Generator.CSharp
 
         protected virtual IReadOnlyList<TypeProvider> CreateSerializationsCore(InputType inputType)
         {
-            if (inputType is InputEnumType enumType)
-            {
-                var provider = CreateEnum(enumType);
-                if (provider is EnumProvider { IsExtensible: false } enumProvider)
-                {
-                    return [new FixedEnumSerializationProvider(enumProvider)];
-                }
-            }
-
             return [];
         }
     }

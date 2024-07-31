@@ -52,6 +52,7 @@ namespace Microsoft.Generator.CSharp.Providers
             GetBaseType());
 
         protected virtual bool GetIsEnum() => false;
+        public bool IsEnum => GetIsEnum();
 
         protected virtual string GetNamespace() => CodeModelPlugin.Instance.Configuration.RootNamespace;
 
@@ -142,6 +143,12 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected virtual TypeProvider[] BuildSerializationProviders() => Array.Empty<TypeProvider>();
 
+        protected virtual CSharpType BuildEnumUnderlyingType() => throw new InvalidOperationException("Not an EnumProvider type");
+
+        private CSharpType? _enumUnderlyingType;
+
+        public CSharpType EnumUnderlyingType => _enumUnderlyingType ??= BuildEnumUnderlyingType(); // Each member in the EnumProvider has to have this type
+
         protected virtual XmlDocProvider BuildXmlDocs()
         {
             var docs = new XmlDocProvider();
@@ -190,5 +197,10 @@ namespace Microsoft.Generator.CSharp.Providers
                 XmlDocs = xmlDocs;
             }
         }
+        public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
+
+        protected virtual IReadOnlyList<EnumTypeMember> BuildEnumValues() => throw new InvalidOperationException("Not an EnumProvider type");
+
+        private IReadOnlyList<EnumTypeMember>? _enumValues;
     }
 }

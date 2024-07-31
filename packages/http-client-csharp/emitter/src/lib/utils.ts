@@ -68,5 +68,5 @@ export function createContentTypeOrAcceptParameter(
             Value: mediaTypes[0],
           } as InputConstant)
         : undefined,
-  } as InputParameter;
+  };
 }

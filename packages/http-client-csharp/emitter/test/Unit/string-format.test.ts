@@ -2,7 +2,7 @@ import { TestHost } from "@typespec/compiler/testing";
 import { getAllHttpServices } from "@typespec/http";
 import assert, { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { loadOperation } from "../../src/lib/operation.js";
+import { createModel } from "../../src/lib/client-model-builder.js";
 import { InputEnumType, InputModelType, InputPrimitiveType } from "../../src/type/input-type.js";
 import {
   createEmitterContext,
@@ -28,24 +28,13 @@ describe("Test string format", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = createNetSdkContext(context);
-    const [services] = getAllHttpServices(program);
-    const modelMap = new Map<string, InputModelType>();
-    const enumMap = new Map<string, InputEnumType>();
-    const operation = loadOperation(
-      sdkContext,
-      services[0].operations[0],
-      "",
-      [],
-      services[0].namespace,
-      modelMap,
-      enumMap
-    );
+    const root = createModel(sdkContext);
     deepStrictEqual(
       {
         Kind: "url",
         Encode: undefined,
       } as InputPrimitiveType,
-      operation.Parameters[0].Type
+      root.Clients[0].Operations[0].Parameters[1].Type
     );
   });
 
