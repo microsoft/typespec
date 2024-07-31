@@ -17,6 +17,7 @@ try {
         Remove-Item -Recurse -Force "./node_modules"
     }
 
+    Write-Host "Current PATH: $env:PATH"
     # install Java 21
     
     # Linux
@@ -31,13 +32,20 @@ try {
         ./java-install.msi
         $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.4.7-hotspot\'
         Write-Host "JAVA_HOME: $env:JAVA_HOME"
-
+        
         # download Maven, install
         Write-Host "Downloading and installing Maven"
         Invoke-WebRequest 'https://dlcdn.apache.org/maven/maven-3/3.9.8/binaries/apache-maven-3.9.8-bin.zip' -OutFile 'maven.zip'
         Expand-Archive -Path 'maven.zip' -DestinationPath '.'
         $env:MAVEN_HOME = (Get-ChildItem -Directory -Filter 'apache-maven-*').FullName
         Write-Host "MAVEN_HOME: $env:MAVEN_HOME"
+
+        $env:PATH = "$env:JAVA_HOME\bin;$env:MAVEN_HOME;$env:PATH"
+        Write-Host "Updated PATH: $env:PATH"
+
+        Invoke-LoggedCommand "java -version"
+
+        Invoke-LoggedCommand "mvn -version"
     }
    
 
