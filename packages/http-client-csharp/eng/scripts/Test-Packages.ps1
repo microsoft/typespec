@@ -24,7 +24,7 @@ try {
             # test the generator
             Invoke-LoggedCommand "dotnet test ./generator" -GroupOutput
 
-            Invoke-LoggedCommand "./eng/scripts/Test-CadlRanch.ps1" -GroupOutput
+            Invoke-LoggedCommand "./eng/scripts/Get-CadlRanch-Coverage.ps1" -GroupOutput
         }
         finally {
             Pop-Location
