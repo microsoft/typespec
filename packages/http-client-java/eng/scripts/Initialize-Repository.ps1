@@ -68,7 +68,7 @@ try {
         $lockFilesPath = "$artifactStagingDirectory/lock-files"
         New-Item -ItemType Directory -Path "$lockFilesPath/emitter" | Out-Null
         
-        Write-Host "Copying emitter/package.json and emitter/package-lock.json to $lockFilesPath"
+        Write-Host "Copying package.json and emitter/ackage-lock.json to $lockFilesPath"
         Copy-Item './package.json' "$lockFilesPath/emitter/package.json" -Force
         Copy-Item './package-lock.json' "$lockFilesPath/emitter/package-lock.json" -Force
     }
