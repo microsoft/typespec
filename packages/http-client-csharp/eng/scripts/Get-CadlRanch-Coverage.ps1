@@ -1,3 +1,5 @@
+# cspell:ignore cadlranch
+
 #Requires -Version 7.0
 
 Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
@@ -7,7 +9,7 @@ $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 
 Refresh-Build
 
-$specsDirectory = "$packageRoot/node_modules/@azure-tools/cadl-ranch-specs"
+$specsDirectory = Join-Path $packageRoot 'node_modules' '@azure-tools' 'cadl-ranch-specs'
 $cadlRanchRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch'
 $directories = Get-ChildItem -Path "$cadlRanchRoot" -Directory -Recurse
 $cadlRanchCsproj = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch.Tests' 'TestProjects.CadlRanch.Tests.csproj'
@@ -44,7 +46,7 @@ foreach ($directory in $directories) {
 Write-Host "Testing $subPath" -ForegroundColor Cyan
 $command  = "dotnet test $cadlRanchCsproj --settings $runSettings"
 Invoke $command
-# exit if the generation failed
+# exit if the testing failed
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
@@ -61,13 +63,13 @@ foreach ($directory in $directories) {
     Write-Host "Restoring $subPath" -ForegroundColor Cyan
     $command = "git clean -xfd $outputDir"
     Invoke $command
-    # exit if the generation failed
+    # exit if the restore failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
     }
     $command = "git restore $outputDir"
     Invoke $command
-    # exit if the generation failed
+    # exit if the restore failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
     }

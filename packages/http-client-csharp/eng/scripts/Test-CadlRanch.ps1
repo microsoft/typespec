@@ -54,7 +54,7 @@ foreach ($directory in $directories) {
     Write-Host "Testing $subPath" -ForegroundColor Cyan
     $command  = "dotnet test $cadlRanchCsproj --filter `"FullyQualifiedName~$testFilter`" --settings $runSettings"
     Invoke $command
-    # exit if the generation failed
+    # exit if the testing failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
     }
@@ -62,13 +62,13 @@ foreach ($directory in $directories) {
     Write-Host "Restoring $subPath" -ForegroundColor Cyan
     $command = "git clean -xfd $outputDir"
     Invoke $command
-    # exit if the generation failed
+    # exit if the restore failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
     }
     $command = "git restore $outputDir"
     Invoke $command
-    # exit if the generation failed
+    # exit if the restore failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
     }

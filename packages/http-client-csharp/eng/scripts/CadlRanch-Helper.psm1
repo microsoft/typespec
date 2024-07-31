@@ -42,5 +42,4 @@ function Get-Namespace {
 }
 
 Export-ModuleMember -Function "IsGenerated"
-Export-ModuleMember -Function "Capitalize-FirstLetter"
 Export-ModuleMember -Function "Get-Namespace"
