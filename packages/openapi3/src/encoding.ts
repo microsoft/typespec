@@ -1,4 +1,5 @@
 import { type ModelProperty, Program, type Scalar, getEncode } from "@typespec/compiler";
+import { ObjectBuilder } from "@typespec/compiler/emitter-framework";
 import type { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
 import type { OpenAPI3Schema } from "./types.js";
@@ -11,7 +12,7 @@ export function applyEncoding(
 ): OpenAPI3Schema {
   const encodeData = getEncode(program, typespecType);
   if (encodeData) {
-    const newTarget = { ...target };
+    const newTarget = new ObjectBuilder();
     const newType = getSchemaForStdScalars(encodeData.type as any, options);
     newTarget.type = newType.type;
     // If the target already has a format it takes priority. (e.g. int32)
@@ -22,7 +23,7 @@ export function applyEncoding(
     );
     return newTarget;
   }
-  return target;
+  return new ObjectBuilder(target);
 }
 
 function mergeFormatAndEncoding(
