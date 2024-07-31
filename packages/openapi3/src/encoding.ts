@@ -12,7 +12,7 @@ export function applyEncoding(
 ): OpenAPI3Schema {
   const encodeData = getEncode(program, typespecType);
   if (encodeData) {
-    const newTarget = new ObjectBuilder();
+    const newTarget = new ObjectBuilder(target);
     const newType = getSchemaForStdScalars(encodeData.type as any, options);
     newTarget.type = newType.type;
     // If the target already has a format it takes priority. (e.g. int32)
