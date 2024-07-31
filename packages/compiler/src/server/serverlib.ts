@@ -590,10 +590,7 @@ export function createServer(host: ServerHost): Server {
     if (document === undefined) {
       return [];
     }
-    const formattedText = await formatTypeSpec(document.getText(), {
-      tabWidth: params.options.tabSize,
-      useTabs: !params.options.insertSpaces,
-    });
+    const formattedText = await formatTypeSpec(document.getText());
     return [minimalEdit(document, formattedText)];
   }
 
