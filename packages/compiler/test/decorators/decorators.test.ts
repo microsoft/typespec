@@ -731,6 +731,19 @@ describe("compiler: built-in decorators", () => {
             strictEqual(encodeData.type.name, encodeAs ?? "string");
           });
         });
+
+        it(`@encode(string) on numeric scalar`, async () => {
+          const { s } = (await runner.compile(`
+            @encode(string)
+            @test
+            scalar s extends int64;
+          `)) as { s: Scalar };
+
+          const encodeData = getEncode(runner.program, s);
+          ok(encodeData);
+          strictEqual(encodeData.encoding, undefined);
+          strictEqual(encodeData.type.name, "string");
+        });
       });
       describe("invalid", () => {
         invalidCases.forEach(([target, encoding, encodeAs, expectedCode, expectedMessage]) => {
@@ -748,6 +761,20 @@ describe("compiler: built-in decorators", () => {
               severity: "error",
               message: expectedMessage,
             });
+          });
+        });
+
+        it(`@encode(string) on non-numeric scalar`, async () => {
+          const diagnostics = await runner.diagnose(`
+            @encode(string)
+            @test
+            scalar s extends utcDateTime;
+          `);
+
+          expectDiagnostics(diagnostics, {
+            code: "invalid-encode",
+            severity: "error",
+            message: "Encoding 'string' cannot be used on type 's'. Expected: numeric.",
           });
         });
       });

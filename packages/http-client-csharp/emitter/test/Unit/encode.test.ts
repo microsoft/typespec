@@ -2,7 +2,7 @@ import { TestHost } from "@typespec/compiler/testing";
 import { getAllHttpServices } from "@typespec/http";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { loadOperation } from "../../src/lib/operation.js";
+import { createModel } from "../../src/lib/client-model-builder.js";
 import { InputEnumType, InputModelType } from "../../src/type/input-type.js";
 import {
   createEmitterContext,
@@ -11,6 +11,7 @@ import {
   navigateModels,
   typeSpecCompile,
 } from "./utils/test-util.js";
+import { createModel } from "../../src/lib/client-model-builder.js";
 
 describe("Test encode duration", () => {
   let runner: TestHost;
@@ -32,19 +33,8 @@ describe("Test encode duration", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const [services] = getAllHttpServices(program);
-    const modelMap = new Map<string, InputModelType>();
-    const enumMap = new Map<string, InputEnumType>();
-    const operation = loadOperation(
-      sdkContext,
-      services[0].operations[0],
-      "",
-      [],
-      services[0].namespace,
-      modelMap,
-      enumMap
-    );
-    const type = operation.Parameters[0].Type;
+    const root = createModel(sdkContext);
+    const type = root.Clients[0].Operations[0].Parameters[1].Type;
     strictEqual(type.Kind, "duration");
     strictEqual(type.Name, "duration");
     strictEqual(type.CrossLanguageDefinitionId, "TypeSpec.duration");
@@ -68,19 +58,8 @@ describe("Test encode duration", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const [services] = getAllHttpServices(program);
-    const modelMap = new Map<string, InputModelType>();
-    const enumMap = new Map<string, InputEnumType>();
-    const operation = loadOperation(
-      sdkContext,
-      services[0].operations[0],
-      "",
-      [],
-      services[0].namespace,
-      modelMap,
-      enumMap
-    );
-    const type = operation.Parameters[0].Type;
+    const root = createModel(sdkContext);
+    const type = root.Clients[0].Operations[0].Parameters[1].Type;
     strictEqual(type.Kind, "duration");
     strictEqual(type.Name, "duration");
     strictEqual(type.CrossLanguageDefinitionId, "TypeSpec.duration");
@@ -104,19 +83,8 @@ describe("Test encode duration", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const [services] = getAllHttpServices(program);
-    const modelMap = new Map<string, InputModelType>();
-    const enumMap = new Map<string, InputEnumType>();
-    const operation = loadOperation(
-      sdkContext,
-      services[0].operations[0],
-      "",
-      [],
-      services[0].namespace,
-      modelMap,
-      enumMap
-    );
-    const type = operation.Parameters[0].Type;
+    const root = createModel(sdkContext);
+    const type = root.Clients[0].Operations[0].Parameters[0].Type;
     strictEqual(type.Kind, "duration");
     strictEqual(type.Name, "duration");
     strictEqual(type.CrossLanguageDefinitionId, "TypeSpec.duration");

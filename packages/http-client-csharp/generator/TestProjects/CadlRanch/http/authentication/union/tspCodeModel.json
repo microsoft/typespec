@@ -19,9 +19,8 @@
      "Parameters": [
       {
        "$id": "4",
-       "Name": "host",
-       "NameInRequest": "host",
-       "Description": "TestServer endpoint",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
        "Type": {
         "$id": "5",
         "Kind": "string",
@@ -47,38 +46,11 @@
         },
         "Value": "http://localhost:3000"
        }
-      },
-      {
-       "$id": "8",
-       "Name": "accept",
-       "NameInRequest": "Accept",
-       "Type": {
-        "$id": "9",
-        "Kind": "string",
-        "Name": "string",
-        "CrossLanguageDefinitionId": "TypeSpec.string"
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": false,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Constant",
-       "DefaultValue": {
-        "$id": "10",
-        "Type": {
-         "$ref": "9"
-        },
-        "Value": "application/json"
-       }
       }
      ],
      "Responses": [
       {
-       "$id": "11",
+       "$id": "8",
        "StatusCodes": [
         204
        ],
@@ -89,14 +61,14 @@
      ],
      "HttpMethod": "GET",
      "RequestBodyMediaType": "None",
-     "Uri": "{host}",
+     "Uri": "{endpoint}",
      "Path": "/authentication/union/validkey",
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true
     },
     {
-     "$id": "12",
+     "$id": "9",
      "Name": "validToken",
      "ResourceName": "Union",
      "Description": "Check whether client is authenticated",
@@ -104,38 +76,11 @@
      "Parameters": [
       {
        "$ref": "4"
-      },
-      {
-       "$id": "13",
-       "Name": "accept",
-       "NameInRequest": "Accept",
-       "Type": {
-        "$id": "14",
-        "Kind": "string",
-        "Name": "string",
-        "CrossLanguageDefinitionId": "TypeSpec.string"
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": false,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Constant",
-       "DefaultValue": {
-        "$id": "15",
-        "Type": {
-         "$ref": "14"
-        },
-        "Value": "application/json"
-       }
       }
      ],
      "Responses": [
       {
-       "$id": "16",
+       "$id": "10",
        "StatusCodes": [
         204
        ],
@@ -146,7 +91,7 @@
      ],
      "HttpMethod": "GET",
      "RequestBodyMediaType": "None",
-     "Uri": "{host}",
+     "Uri": "{endpoint}",
      "Path": "/authentication/union/validtoken",
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
@@ -154,7 +99,7 @@
     }
    ],
    "Protocol": {
-    "$id": "17"
+    "$id": "11"
    },
    "Parameters": [
     {
@@ -164,13 +109,13 @@
   }
  ],
  "Auth": {
-  "$id": "18",
+  "$id": "12",
   "ApiKey": {
-   "$id": "19",
+   "$id": "13",
    "Name": "x-ms-api-key"
   },
   "OAuth2": {
-   "$id": "20",
+   "$id": "14",
    "Scopes": [
     "https://security.microsoft.com/.default"
    ]

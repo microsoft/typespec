@@ -19,11 +19,11 @@ namespace Microsoft.Generator.CSharp.Providers
     {
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
-
+        private readonly InputEnumType _inputType;
         internal ExtensibleEnumProvider(InputEnumType input): base(input)
         {
+            _inputType = input;
             _allowedValues = input.Values;
-
             // extensible enums are implemented as readonly structs
             _modifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct;
             if (input.Accessibility == "internal")
@@ -31,14 +31,14 @@ namespace Microsoft.Generator.CSharp.Providers
                 _modifiers |= TypeSignatureModifiers.Internal;
             }
 
-            _valueField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, ValueType, "_value");
+            _valueField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, EnumUnderlyingType, "_value");
         }
 
         private readonly FieldProvider _valueField;
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
 
-        protected override IReadOnlyList<EnumTypeMember> BuildMembers()
+        protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {
             var values = new EnumTypeMember[_allowedValues.Count];
 
@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 var initializationValue = Literal(inputValue.Value);
                 var field = new FieldProvider(
                     modifiers,
-                    ValueType,
+                    EnumUnderlyingType,
                     name,
                     FormattableStringHelpers.FromString(inputValue.Description),
                     initializationValue);
@@ -69,14 +69,14 @@ namespace Microsoft.Generator.CSharp.Providers
             => [new CSharpType(typeof(IEquatable<>), Type)]; // extensible enums implement IEquatable<Self>
 
         protected override FieldProvider[] BuildFields()
-            => [_valueField, .. Members.Select(v => v.Field)];
+            => [_valueField, .. EnumValues.Select(v => v.Field)];
 
         protected override PropertyProvider[] BuildProperties()
         {
-            var properties = new PropertyProvider[Members.Count];
+            var properties = new PropertyProvider[EnumValues.Count];
 
             var index = 0;
-            foreach (var enumValue in Members)
+            foreach (var enumValue in EnumValues)
             {
                 var name = enumValue.Name;
                 var value = enumValue.Value;
@@ -94,9 +94,9 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override ConstructorProvider[] BuildConstructors()
         {
-            var valueParameter = new ParameterProvider("value", $"The value.", ValueType)
+            var valueParameter = new ParameterProvider("value", $"The value.", EnumUnderlyingType)
             {
-                Validation = ValueType.IsValueType ? ParameterValidationType.None : ParameterValidationType.AssertNotNull
+                Validation = EnumUnderlyingType.IsValueType ? ParameterValidationType.None : ParameterValidationType.AssertNotNull
             };
             var signature = new ConstructorSignature(
                 Type: Type,
@@ -141,7 +141,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             methods.Add(new(inequalitySignature, Not(left.InvokeEquals(right)), this));
 
-            var valueParameter = new ParameterProvider("value", $"The value.", ValueType);
+            var valueParameter = new ParameterProvider("value", $"The value.", EnumUnderlyingType);
             var castSignature = new MethodSignature(
                 Name: string.Empty,
                 Description: $"Converts a string to a {Type:C}",
@@ -185,11 +185,11 @@ namespace Microsoft.Generator.CSharp.Providers
             // public bool Equals(EnumType other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
             // or
             // public bool Equals(EnumType other) => int/float.Equals(_value, other._value);
-            var valueField = new VariableExpression(ValueType.WithNullable(!ValueType.IsValueType), _valueField.Declaration);
+            var valueField = new VariableExpression(EnumUnderlyingType.WithNullable(!EnumUnderlyingType.IsValueType), _valueField.Declaration);
             var otherValue = ((ValueExpression)otherParameter).Property(_valueField.Name);
             var equalsExpressionBody = IsStringValueType
-                            ? Static(ValueType).Invoke(nameof(object.Equals), [valueField, otherValue, FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)])
-                            : Static(ValueType).Invoke(nameof(object.Equals), [valueField, otherValue]);
+                            ? Static(EnumUnderlyingType).Invoke(nameof(object.Equals), [valueField, otherValue, FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)])
+                            : Static(EnumUnderlyingType).Invoke(nameof(object.Equals), [valueField, otherValue]);
             methods.Add(new(equalsSignature, equalsExpressionBody, this));
 
             var getHashCodeSignature = new MethodSignature(
@@ -231,35 +231,14 @@ namespace Microsoft.Generator.CSharp.Providers
                             : valueField.Invoke(nameof(object.ToString), new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture)));
             methods.Add(new(toStringSignature, toStringExpressionBody, this, XmlDocProvider.InheritDocs));
 
-            // for string-based extensible enums, we are using `ToString` as its serialization
-            // for non-string-based extensible enums, we need a method to serialize them
-            if (!IsStringValueType)
-            {
-                var toSerialSignature = new MethodSignature(
-                    Name: $"ToSerial{ValueType.Name}",
-                    Modifiers: MethodSignatureModifiers.Internal,
-                    ReturnType: ValueType,
-                    Parameters: Array.Empty<ParameterProvider>(),
-                    Description: null,
-                    ReturnDescription: null);
-
-                // writes the method:
-                // internal float ToSerialSingle() => _value; // when ValueType is float
-                // internal int ToSerialInt32() => _value; // when ValueType is int
-                // etc
-                methods.Add(new(toSerialSignature, valueField, this));
-            }
-
             return methods.ToArray();
         }
-
-        public override ValueExpression ToSerial(ValueExpression enumExpression)
+        protected override TypeProvider[] BuildSerializationProviders()
         {
-            var serialMethodName = IsStringValueType ? nameof(object.ToString) : $"ToSerial{ValueType.Name}";
-            return enumExpression.Invoke(serialMethodName);
+            return CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType).ToArray();
         }
+        protected override bool GetIsEnum() => true;
 
-        public override ValueExpression ToEnum(ValueExpression valueExpression)
-            => New.Instance(Type, valueExpression);
+        protected override CSharpType BuildEnumUnderlyingType() => CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(_inputType.ValueType);
     }
 }

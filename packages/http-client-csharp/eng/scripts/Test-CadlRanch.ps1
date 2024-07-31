@@ -1,8 +1,10 @@
 # cspell:ignore cadlranch
 
 #Requires -Version 7.0
+param($filter)
 
 Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
+Import-Module "$PSScriptRoot\CadlRanch-Helper.psm1" -DisableNameChecking -Force;
 
 $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 
@@ -20,47 +22,6 @@ if (-not (Test-Path $coverageDir)) {
     New-Item -ItemType Directory -Path $coverageDir | Out-Null
 }
 
-function IsGenerated {
-    param (
-        [string]$dir
-    )
-
-    if (-not ($dir.EndsWith("Generated"))) {
-        return $false
-    }
-
-    $csFiles = Get-ChildItem -Path $directory -Filter *.cs -File
-    return $csFiles.Count -gt 0
-}
-
-function Capitalize-FirstLetter {
-    param (
-        [string]$inputString
-    )
-
-    if ([string]::IsNullOrEmpty($inputString)) {
-        return $inputString
-    }
-
-    $firstChar = $inputString[0].ToString().ToUpper()
-    $restOfString = $inputString.Substring(1)
-
-    return $firstChar + $restOfString
-}
-
-function Get-Namespace {
-    param (
-        [string]$dir
-    )
-
-    $words = $dir.Split('-')
-    $namespace = ""
-    foreach ($word in $words) {
-        $namespace += Capitalize-FirstLetter $word
-    }
-    return $namespace
-}
-
 foreach ($directory in $directories) {
     if (-not (IsGenerated $directory.FullName)) {
         continue
@@ -69,6 +30,10 @@ foreach ($directory in $directories) {
     $outputDir = $directory.FullName.Substring(0, $directory.FullName.IndexOf("src") - 1)
     $subPath = $outputDir.Substring($cadlRanchRoot.Length + 1)
     $folders = $subPath.Split([System.IO.Path]::DirectorySeparatorChar)
+
+    if (-not (Compare-Paths $subPath $filter)) {
+        continue
+    }
 
     $testFilter = "TestProjects.CadlRanch.Tests"
     foreach ($folder in $folders) {
@@ -89,7 +54,7 @@ foreach ($directory in $directories) {
     Write-Host "Testing $subPath" -ForegroundColor Cyan
     $command  = "dotnet test $cadlRanchCsproj --filter `"FullyQualifiedName~$testFilter`" --settings $runSettings"
     Invoke $command
-    # exit if the generation failed
+    # exit if the testing failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
     }
@@ -97,13 +62,13 @@ foreach ($directory in $directories) {
     Write-Host "Restoring $subPath" -ForegroundColor Cyan
     $command = "git clean -xfd $outputDir"
     Invoke $command
-    # exit if the generation failed
+    # exit if the restore failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
     }
     $command = "git restore $outputDir"
     Invoke $command
-    # exit if the generation failed
+    # exit if the restore failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
     }

@@ -54,6 +54,21 @@ function Refresh-Build {
     }
 }
 
+function Compare-Paths {
+    param (
+        [string]$path1,
+        [string]$path2
+    )
+
+    # Normalize the directory separators
+    $normalizedPath1 = $path1 -replace '/', '\'
+    $normalizedPath2 = $path2 -replace '/', '\'
+
+    # Compare the normalized paths
+    return $normalizedPath1.Contains($normalizedPath2)
+}
+
 Export-ModuleMember -Function "Invoke"
 Export-ModuleMember -Function "Get-TspCommand"
 Export-ModuleMember -Function "Refresh-Build"
+Export-ModuleMember -Function "Compare-Paths"
