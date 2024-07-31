@@ -1,7 +1,6 @@
 import { AzureCoreTestLibrary } from "@azure-tools/typespec-azure-core/testing";
 import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-generator-core";
 import { SdkTestLibrary } from "@azure-tools/typespec-client-generator-core/testing";
-import { XmlTestLibrary } from "@typespec/xml/testing";
 import {
   CompilerOptions,
   EmitContext,
@@ -15,6 +14,7 @@ import { createTestHost, TestHost } from "@typespec/compiler/testing";
 import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
+import { XmlTestLibrary } from "@typespec/xml/testing";
 import { LoggerLevel } from "../../../src/lib/log-level.js";
 import { Logger } from "../../../src/lib/logger.js";
 import { getInputType } from "../../../src/lib/model.js";

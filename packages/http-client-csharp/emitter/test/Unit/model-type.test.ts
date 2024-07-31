@@ -565,7 +565,8 @@ op op1(): void;
   });
 });
 
-describe("typespec-client-generator-core: general decorators list", () => {  let runner: TestHost;
+describe("typespec-client-generator-core: general decorators list", () => {
+  let runner: TestHost;
   beforeEach(async () => {
     runner = await createEmitterTestHost();
   });

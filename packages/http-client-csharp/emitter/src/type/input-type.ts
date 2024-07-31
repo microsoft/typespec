@@ -3,9 +3,9 @@
 
 import {
   AccessFlags,
+  DecoratorInfo,
   SdkBuiltInKinds,
   UsageFlags,
-  DecoratorInfo,
 } from "@azure-tools/typespec-client-generator-core";
 import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler";
 import { InputEnumTypeValue } from "./input-enum-type-value.js";
@@ -15,7 +15,7 @@ interface InputTypeBase {
   Kind: string;
   Description?: string;
   Deprecation?: string;
-  Decorators? : DecoratorInfo[];
+  Decorators?: DecoratorInfo[];
 }
 
 export type InputType =
