@@ -80,7 +80,7 @@ export type HeaderDecorator = (
  * @example
  * ```typespec
  * op read(@query select: string, @query("order-by") orderBy: string): void;
- * op list(@query({name: "id", format: "multi"}) ids: string[]): void;
+ * op list(@query(#{name: "id", explode: true}) ids: string[]): void;
  * ```
  */
 export type QueryDecorator = (
@@ -277,7 +277,7 @@ export type IncludeInapplicableMetadataInPayloadDecorator = (
  *
  * `@route` can only be applied to operations, namespaces, and interfaces.
  *
- * @param path Relative route path. Cannot include query parameters.
+ * @param uriTemplate Uri template for this operation.
  * @param options _DEPRECATED_ Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations.
  * @example Simple path parameter
  *

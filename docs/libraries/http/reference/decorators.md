@@ -364,13 +364,7 @@ Specify this property is to be sent as a query parameter.
 
 ```typespec
 op read(@query select: string, @query("order-by") orderBy: string): void;
-op list(
-  @query({
-    name: "id",
-    format: "multi",
-  })
-  ids: string[],
-): void;
+op list(@query(#{ name: "id", explode: true }) ids: string[]): void;
 ```
 
 ### `@route` {#@TypeSpec.Http.route}
@@ -391,7 +385,7 @@ Defines the relative route URI template for the target operation as defined by [
 
 | Name    | Type             | Description                                                                                                                                               |
 | ------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| path    | `valueof string` | Relative route path. Cannot include query parameters.                                                                                                     |
+| path    | `valueof string` |                                                                                                                                                           |
 | options | `{...}`          | _DEPRECATED_ Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
 
 #### Examples
