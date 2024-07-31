@@ -11,7 +11,6 @@ import {
   navigateModels,
   typeSpecCompile,
 } from "./utils/test-util.js";
-import { createModel } from "../../src/lib/client-model-builder.js";
 
 describe("Test encode duration", () => {
   let runner: TestHost;

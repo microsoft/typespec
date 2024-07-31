@@ -15,7 +15,7 @@ import { CodeModel } from "../type/code-model.js";
 import { InputClient } from "../type/input-client.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputParameter } from "../type/input-parameter.js";
-import { InputType, InputEnumType, InputModelType } from "../type/input-type.js";
+import { InputEnumType, InputModelType, InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
 import { fromSdkType } from "./converter.js";
 import { Logger } from "./logger.js";
