@@ -140,7 +140,7 @@ function getScalarEncoding(
 ): WireEncoding | undefined {
   const encode = getEncode(program, scalar);
   if (encode === undefined) return undefined;
-  return { name: encode.encoding, wireType: encode.type };
+  return { name: encode.encoding ?? "string", wireType: encode.type };
 }
 
 function getTypeType(): CSharpType {
