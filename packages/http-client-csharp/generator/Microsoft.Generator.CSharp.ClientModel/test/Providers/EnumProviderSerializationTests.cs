@@ -8,7 +8,6 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
-using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
