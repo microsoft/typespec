@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 "kebab-case",
                 "kebab-case",
                 "A property with kebab-case name",
-                new InputPrimitiveType(InputPrimitiveTypeKind.String, null),
+                InputPrimitiveType.String,
                 true,
                 false,
                 false);
@@ -75,7 +75,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 "snake_case",
                 "snake_case",
                 "A property with snake_case name",
-                new InputPrimitiveType(InputPrimitiveTypeKind.String, null),
+                InputPrimitiveType.String,
                 true,
                 false,
                 false);
@@ -108,7 +108,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 "PascalCase",
                 "PascalCase",
                 "A property with PascalCase name",
-                new InputPrimitiveType(InputPrimitiveTypeKind.String, null),
+                InputPrimitiveType.String,
                 true,
                 false,
                 false);
@@ -141,7 +141,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 "camelCase",
                 "camelCase",
                 "A property with camelCase name",
-                new InputPrimitiveType(InputPrimitiveTypeKind.String, null),
+                InputPrimitiveType.String,
                 true,
                 false,
                 false);
