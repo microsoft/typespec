@@ -49,6 +49,8 @@ namespace Microsoft.Generator.CSharp
             _inputLibrary = new(() => null!);
         }
 
+        internal bool IsNewProject { get; set; }
+
         private Lazy<InputLibrary> _inputLibrary;
 
         // Extensibility points to be implemented by a plugin
@@ -57,7 +59,7 @@ namespace Microsoft.Generator.CSharp
         public virtual OutputLibrary OutputLibrary { get; } = new();
         public InputLibrary InputLibrary => _inputLibrary.Value;
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
-        public virtual IReadOnlyList<MetadataReference> AdditionalMetadataReferences => Array.Empty<MetadataReference>();
+        public virtual IReadOnlyList<MetadataReference> AdditionalMetadataReferences => [];
 
         public virtual void Configure()
         {
