@@ -135,6 +135,7 @@ const sidebars: SidebarsConfig = {
           "libraries/http/content-types",
           "libraries/http/multipart",
           "libraries/http/encoding",
+          "libraries/http/examples",
         ]),
         createLibraryReferenceStructure("libraries/rest", "Rest", false, [
           "libraries/rest/cheat-sheet",
