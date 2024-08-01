@@ -121,6 +121,7 @@ const sidebars: SidebarsConfig = {
         },
         "standard-library/projected-names",
         "standard-library/discriminated-types",
+        "standard-library/examples",
       ],
     },
     {
