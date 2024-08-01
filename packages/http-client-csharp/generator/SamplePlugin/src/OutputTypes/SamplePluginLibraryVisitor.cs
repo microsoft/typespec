@@ -3,6 +3,7 @@
 
 using Microsoft.Generator.CSharp;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
+using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 
@@ -19,6 +20,11 @@ namespace SamplePlugin
 
             methodProvider.Signature.Update(name: $"Foo{methodProvider.Signature.Name}");
             return methodProvider;
+        }
+
+        protected override PropertyProvider Visit(InputModelProperty property, PropertyProvider? propertyProvider)
+        {
+            return new SamplePluginPropertyProvider(property);
         }
     }
 }

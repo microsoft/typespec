@@ -60,10 +60,10 @@ namespace UnbrandedTypeSpec.Models
         public int RequiredInt { get; set; }
 
         /// <summary> Required collection of enums. </summary>
-        public IList<StringFixedEnum> RequiredCollection { get; }
+        public IList<StringFixedEnum> RequiredCollection { get; set; }
 
         /// <summary> Required dictionary of enums. </summary>
-        public IDictionary<string, StringExtensibleEnum> RequiredDictionary { get; }
+        public IDictionary<string, StringExtensibleEnum> RequiredDictionary { get; set; }
 
         /// <summary> Required model. </summary>
         public Thing RequiredModel { get; set; }
@@ -72,7 +72,7 @@ namespace UnbrandedTypeSpec.Models
         public IntExtensibleEnum? IntExtensibleEnum { get; set; }
 
         /// <summary> this is a collection of int based extensible enum. </summary>
-        public IList<IntExtensibleEnum> IntExtensibleEnumCollection { get; }
+        public IList<IntExtensibleEnum> IntExtensibleEnumCollection { get; set; }
 
         /// <summary> this is a float based extensible enum. </summary>
         public FloatExtensibleEnum? FloatExtensibleEnum { get; set; }
@@ -81,7 +81,7 @@ namespace UnbrandedTypeSpec.Models
         public FloatExtensibleEnumWithIntValue? FloatExtensibleEnumWithIntValue { get; set; }
 
         /// <summary> this is a collection of float based extensible enum. </summary>
-        public IList<FloatExtensibleEnum> FloatExtensibleEnumCollection { get; }
+        public IList<FloatExtensibleEnum> FloatExtensibleEnumCollection { get; set; }
 
         /// <summary> this is a float based fixed enum. </summary>
         public FloatFixedEnum? FloatFixedEnum { get; set; }
@@ -90,13 +90,13 @@ namespace UnbrandedTypeSpec.Models
         public FloatFixedEnumWithIntValue? FloatFixedEnumWithIntValue { get; set; }
 
         /// <summary> this is a collection of float based fixed enum. </summary>
-        public IList<FloatFixedEnum> FloatFixedEnumCollection { get; }
+        public IList<FloatFixedEnum> FloatFixedEnumCollection { get; set; }
 
         /// <summary> this is a int based fixed enum. </summary>
         public IntFixedEnum? IntFixedEnum { get; set; }
 
         /// <summary> this is a collection of int based fixed enum. </summary>
-        public IList<IntFixedEnum> IntFixedEnumCollection { get; }
+        public IList<IntFixedEnum> IntFixedEnumCollection { get; set; }
 
         /// <summary> this is a string based fixed enum. </summary>
         public StringFixedEnum? StringFixedEnum { get; set; }
@@ -183,7 +183,7 @@ namespace UnbrandedTypeSpec.Models
         /// </list>
         /// </para>
         /// </summary>
-        public IDictionary<string, BinaryData> RequiredRecordUnknown { get; }
+        public IDictionary<string, BinaryData> RequiredRecordUnknown { get; set; }
 
         /// <summary>
         /// optional record of unknown
@@ -211,7 +211,7 @@ namespace UnbrandedTypeSpec.Models
         /// </list>
         /// </para>
         /// </summary>
-        public IDictionary<string, BinaryData> OptionalRecordUnknown { get; }
+        public IDictionary<string, BinaryData> OptionalRecordUnknown { get; set; }
 
         /// <summary>
         /// required readonly record of unknown
@@ -239,7 +239,7 @@ namespace UnbrandedTypeSpec.Models
         /// </list>
         /// </para>
         /// </summary>
-        public IReadOnlyDictionary<string, BinaryData> ReadOnlyRequiredRecordUnknown { get; }
+        public IReadOnlyDictionary<string, BinaryData> ReadOnlyRequiredRecordUnknown { get; set; }
 
         /// <summary>
         /// optional readonly record of unknown
@@ -267,7 +267,7 @@ namespace UnbrandedTypeSpec.Models
         /// </list>
         /// </para>
         /// </summary>
-        public IReadOnlyDictionary<string, BinaryData> ReadOnlyOptionalRecordUnknown { get; }
+        public IReadOnlyDictionary<string, BinaryData> ReadOnlyOptionalRecordUnknown { get; set; }
 
         /// <summary> this is a model with required nullable properties. </summary>
         public ModelWithRequiredNullableProperties ModelWithRequiredNullable { get; set; }
