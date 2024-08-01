@@ -151,9 +151,9 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             if (parameter._asVariable == null)
             {
-                var decl = new CodeWriterDeclaration(parameter.Name, parameter.IsRef);
+                var decl = new CodeWriterDeclaration(parameter.Name);
                 decl.SetActualName(parameter.Name);
-                parameter._asVariable = new VariableExpression(parameter.Type, decl);
+                parameter._asVariable = new VariableExpression(parameter.Type, decl, parameter.IsRef);
             }
 
             return parameter._asVariable;

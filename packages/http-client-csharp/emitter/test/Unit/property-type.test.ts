@@ -26,12 +26,13 @@ describe("Test GetInputType for array", () => {
     );
     runner.compileAndDiagnose;
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const type = root.Clients[0].Operations[0].Parameters[3].Type;
     strictEqual(type.Kind, "array");
     strictEqual(type.CrossLanguageDefinitionId, "TypeSpec.Array");
     strictEqual(type.ValueType.Kind, "string");
+    strictEqual(type.ValueType.CrossLanguageDefinitionId, "TypeSpec.string");
   });
 
   it("array as response", async () => {
@@ -42,12 +43,13 @@ describe("Test GetInputType for array", () => {
       runner
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const bodyType = root.Clients[0].Operations[0].Responses[0].BodyType;
     strictEqual(bodyType?.Kind, "array");
     strictEqual(bodyType.CrossLanguageDefinitionId, "TypeSpec.Array");
     strictEqual(bodyType.ValueType.Kind, "string");
+    strictEqual(bodyType.ValueType.CrossLanguageDefinitionId, "TypeSpec.string");
   });
 });
 
@@ -80,7 +82,7 @@ describe("Test GetInputType for enum", () => {
       { IsNamespaceNeeded: true, IsAzureCoreNeeded: true }
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const type = root.Clients[0].Operations[0].Parameters[3].Type;
     strictEqual(type.Kind, "enum");
@@ -122,7 +124,7 @@ describe("Test GetInputType for enum", () => {
       { IsNamespaceNeeded: true, IsAzureCoreNeeded: true }
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const type = root.Clients[0].Operations[0].Parameters[3].Type;
     strictEqual(type.Kind, "enum");
@@ -130,6 +132,7 @@ describe("Test GetInputType for enum", () => {
     strictEqual(type.CrossLanguageDefinitionId, "Azure.Csharp.Testing.FixedIntEnum");
     strictEqual(type.Accessibility, undefined);
     strictEqual(type.Description, "Fixed int enum");
+    strictEqual(type.ValueType.CrossLanguageDefinitionId, "TypeSpec.int32");
     strictEqual(type.ValueType.Kind, "int32");
     strictEqual(type.Values.length, 3);
     strictEqual(type.Values[0].Name, "One");
@@ -156,7 +159,7 @@ describe("Test GetInputType for enum", () => {
       runner
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const type = root.Clients[0].Operations[0].Parameters[3].Type;
     strictEqual(type.Kind, "enum");
@@ -165,6 +168,7 @@ describe("Test GetInputType for enum", () => {
     strictEqual(type.Accessibility, undefined);
     strictEqual(type.Description, "Fixed enum");
     strictEqual(type.ValueType.Kind, "string");
+    strictEqual(type.ValueType.CrossLanguageDefinitionId, "TypeSpec.string");
     strictEqual(type.Values.length, 3);
     strictEqual(type.Values[0].Name, "One");
     strictEqual(type.Values[0].Value, "1");

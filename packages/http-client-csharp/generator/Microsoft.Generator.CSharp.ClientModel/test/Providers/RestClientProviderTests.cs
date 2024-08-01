@@ -105,7 +105,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             accessibility: null,
             parameters:
             [
-                new InputParameter("message", "message", "The message to create.", new InputPrimitiveType(InputPrimitiveTypeKind.Boolean), RequestLocation.Body, null, InputOperationParameterKind.Method, true, false, false, false, false, false, false, null, null)
+                new InputParameter("message", "message", "The message to create.", InputPrimitiveType.Boolean, RequestLocation.Body, null, InputOperationParameterKind.Method, true, false, false, false, false, false, false, null, null)
             ],
             responses: [new OperationResponse([200], null, BodyMediaType.Json, [], false, ["application/json"])],
             httpMethod: "GET",
