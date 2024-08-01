@@ -25,9 +25,15 @@ namespace Microsoft.Generator.CSharp.Primitives
             return new CodeFile(writer.ToString(), _provider.RelativeFilePath);
         }
 
+        private bool IsPublicContext(TypeProvider provider)
+        {
+            return provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) &&
+                (provider.DeclaringTypeProvider is null || IsPublicContext(provider.DeclaringTypeProvider));
+        }
+
         private void WriteType(CodeWriter writer)
         {
-            if (_provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+            if (IsPublicContext(_provider))
             {
                 writer.WriteXmlDocs(_provider.XmlDocs);
             }
@@ -133,7 +139,8 @@ namespace Microsoft.Generator.CSharp.Primitives
         {
             for (int i = 0; i < _provider.Properties.Count; i++)
             {
-                writer.WriteProperty(_provider.Properties[i]);
+                var property = _provider.Properties[i];
+                writer.WriteProperty(property, property.Modifiers.HasFlag(MethodSignatureModifiers.Public) && IsPublicContext(_provider));
                 if (i < _provider.Properties.Count - 1)
                 {
                     writer.WriteLine();
