@@ -75,7 +75,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     null,
                     MethodSignatureModifiers.Private | MethodSignatureModifiers.Static,
                     typeof(PipelineMessageClassifier),
-                    pipelineMessageClassifier.Name.Substring(1).FirstCharToUpperCase(),
+                    pipelineMessageClassifier.Name.Substring(1).ToCleanName(),
                     new ExpressionPropertyBody(
                         pipelineMessageClassifier.Assign(
                             Static<PipelineMessageClassifier>().Invoke(

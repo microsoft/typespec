@@ -30,7 +30,7 @@ describe("Test Usage", () => {
       runner
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const fooModel = root.Models.find((model) => model.Name === "Foo");
 
@@ -51,7 +51,7 @@ describe("Test Usage", () => {
       runner
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const fooModel = root.Models.find((model) => model.Name === "Foo");
 
@@ -72,7 +72,7 @@ describe("Test Usage", () => {
       runner
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const fooModel = root.Models.find((model) => model.Name === "Foo");
 
@@ -94,7 +94,7 @@ describe("Test Usage", () => {
       runner
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const fooModel = root.Models.find((model) => model.Name === "Foo");
 
@@ -121,7 +121,7 @@ describe("Test Usage", () => {
       runner
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const fooModel = root.Models.find((model) => model.Name === "Foo");
     const templateModel = root.Models.find((model) => model.Name === "TemplateModelFoo");
@@ -151,7 +151,7 @@ describe("Test Usage", () => {
       runner
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const baseModel = root.Models.find((model) => model.Name === "BaseModel");
     const fooModel = root.Models.find((model) => model.Name === "Foo");
@@ -188,7 +188,7 @@ describe("Test Usage", () => {
       runner
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const baseModel = root.Models.find((model) => model.Name === "BaseModel");
     const fooModel = root.Models.find((model) => model.Name === "Foo");
@@ -215,7 +215,7 @@ describe("Test Usage", () => {
       runner
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const fooAlias = root.Models.find((model) => model.Name === "TestRequest");
 
@@ -263,7 +263,7 @@ describe("Test Usage", () => {
       { IsNamespaceNeeded: true, IsAzureCoreNeeded: true }
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const fooInfo = root.Models.find((model) => model.Name === "FooInfo");
     const batchCreateFooListItemsRequest = root.Models.find(
@@ -309,7 +309,7 @@ describe("Test Usage", () => {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const fooModel = root.Models.find((model) => model.Name === "Foo");
 
@@ -368,7 +368,7 @@ describe("Test Usage", () => {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const baseModel = root.Models.find((model) => model.Name === "BaseModelWithDiscriminator");
     const derivedModel = root.Models.find(
@@ -438,7 +438,7 @@ describe("Test Usage", () => {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const baseModel = root.Models.find((model) => model.Name === "BaseModelWithDiscriminator");
     const derivedModel = root.Models.find(
@@ -475,7 +475,7 @@ describe("Test Usage", () => {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const simpleEnumRenamed = root.Enums.find((enumType) => enumType.Name === "SimpleEnumRenamed");
 
@@ -499,7 +499,7 @@ describe("Test Usage", () => {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const renamedModel = root.Models.find((model) => model.Name === "RenamedModel");
 
@@ -657,7 +657,7 @@ interface LegacyLro {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const radiologyInsightsInferenceResult = root.Models.find(
       (model) => model.Name === "RadiologyInsightsInferenceResult"

@@ -63,15 +63,12 @@ namespace Microsoft.Generator.CSharp
             {
                 InputPrimitiveTypeKind.Boolean => new CSharpType(typeof(bool)),
                 InputPrimitiveTypeKind.Bytes => new CSharpType(typeof(BinaryData)),
-                InputPrimitiveTypeKind.ContentType => new CSharpType(typeof(string)),
                 InputPrimitiveTypeKind.PlainDate => new CSharpType(typeof(DateTimeOffset)),
                 InputPrimitiveTypeKind.Decimal => new CSharpType(typeof(decimal)),
                 InputPrimitiveTypeKind.Decimal128 => new CSharpType(typeof(decimal)),
                 InputPrimitiveTypeKind.PlainTime => new CSharpType(typeof(TimeSpan)),
                 InputPrimitiveTypeKind.Float32 => new CSharpType(typeof(float)),
                 InputPrimitiveTypeKind.Float64 => new CSharpType(typeof(double)),
-                InputPrimitiveTypeKind.Float128 => new CSharpType(typeof(decimal)),
-                InputPrimitiveTypeKind.Guid or InputPrimitiveTypeKind.Uuid => new CSharpType(typeof(Guid)),
                 InputPrimitiveTypeKind.Int8 => new CSharpType(typeof(sbyte)),
                 InputPrimitiveTypeKind.UInt8 => new CSharpType(typeof(byte)),
                 InputPrimitiveTypeKind.Int32 => new CSharpType(typeof(int)),
@@ -80,11 +77,9 @@ namespace Microsoft.Generator.CSharp
                 InputPrimitiveTypeKind.Integer => new CSharpType(typeof(long)), // in typespec, integer is the base type of int related types, see type relation: https://typespec.io/docs/language-basics/type-relations
                 InputPrimitiveTypeKind.Float => new CSharpType(typeof(double)), // in typespec, float is the base type of float32 and float64, see type relation: https://typespec.io/docs/language-basics/type-relations
                 InputPrimitiveTypeKind.Numeric => new CSharpType(typeof(double)), // in typespec, numeric is the base type of number types, see type relation: https://typespec.io/docs/language-basics/type-relations
-                InputPrimitiveTypeKind.IPAddress => new CSharpType(typeof(IPAddress)),
                 InputPrimitiveTypeKind.Stream => new CSharpType(typeof(Stream)),
                 InputPrimitiveTypeKind.String => new CSharpType(typeof(string)),
-                InputPrimitiveTypeKind.Uri or InputPrimitiveTypeKind.Url => new CSharpType(typeof(Uri)),
-                InputPrimitiveTypeKind.Char => new CSharpType(typeof(char)),
+                InputPrimitiveTypeKind.Url => new CSharpType(typeof(Uri)),
                 InputPrimitiveTypeKind.Any => new CSharpType(typeof(BinaryData)),
                 _ => new CSharpType(typeof(object)),
             },

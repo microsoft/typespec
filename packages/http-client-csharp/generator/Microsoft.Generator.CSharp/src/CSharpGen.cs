@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -71,6 +72,13 @@ namespace Microsoft.Generator.CSharp
                 Console.WriteLine($"Writing {Path.GetFullPath(filename)}");
                 Directory.CreateDirectory(Path.GetDirectoryName(filename)!);
                 await File.WriteAllTextAsync(filename, file.Text);
+            }
+
+            // Write project scaffolding files
+            if (CodeModelPlugin.Instance.IsNewProject)
+            {
+                var scaffolding = new NewProjectScaffolding();
+                await scaffolding.Execute();
             }
         }
 

@@ -27,7 +27,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 null,
                 "sampleType description",
                 InputModelTypeUsage.Input,
-                new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                InputPrimitiveType.String,
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
                 true);
             var expected = new CSharpType("SampleType", "Sample.Models", true, false, null, [], true, true, underlyingEnumType: typeof(string));
@@ -48,7 +48,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 null,
                 "sampleType description",
                 InputModelTypeUsage.Input,
-                new InputPrimitiveType(InputPrimitiveTypeKind.String, null, true),
+                InputPrimitiveType.String,
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
                 true);
             var nullableInput = new InputNullableType(input);
@@ -70,7 +70,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 null,
                 "sampleType description",
                 InputModelTypeUsage.Input,
-                new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                InputPrimitiveType.String,
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
                 true);
             var expected = new CSharpType("SampleType", "Sample.Models", true, false, null, [], true, true, underlyingEnumType: typeof(string));
@@ -91,7 +91,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 null,
                 "sampleType description",
                 InputModelTypeUsage.Input,
-                new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                InputPrimitiveType.String,
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
                 false);
             var expected = new CSharpType("SampleType", "Sample.Models", true, false, null, [], true, false, underlyingEnumType: typeof(string));
@@ -112,7 +112,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 null,
                 "sampleType description",
                 InputModelTypeUsage.Input,
-                new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                InputPrimitiveType.String,
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
                 false);
             var expected = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);
@@ -132,7 +132,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 null,
                 "sampleType description",
                 InputModelTypeUsage.Input,
-                new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                InputPrimitiveType.String,
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
                 false);
             var declaringType = new Mock<TypeProvider>().Object;

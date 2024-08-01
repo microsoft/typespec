@@ -24,7 +24,6 @@ namespace UnbrandedTypeSpec
             };
         }
 
-        /// <summary> Gets the version. </summary>
         internal string Version { get; }
 
         /// <summary> The version of the service to use. </summary>

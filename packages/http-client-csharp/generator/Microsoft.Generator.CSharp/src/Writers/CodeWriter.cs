@@ -255,9 +255,10 @@ namespace Microsoft.Generator.CSharp
             }
         }
 
-        public void WriteProperty(PropertyProvider property)
+        public void WriteProperty(PropertyProvider property, bool isPublicContext = false)
         {
-            WriteXmlDocs(property.XmlDocs);
+            if (isPublicContext)
+                WriteXmlDocs(property.XmlDocs);
 
             var modifiers = property.Modifiers;
             AppendRawIf("public ", modifiers.HasFlag(MethodSignatureModifiers.Public))
@@ -897,7 +898,6 @@ namespace Microsoft.Generator.CSharp
         {
             if (declaration.HasBeenDeclared)
             {
-                AppendRawIf("ref ", declaration.IsRef);
                 WriteIdentifier(declaration.ActualName);
             }
             else

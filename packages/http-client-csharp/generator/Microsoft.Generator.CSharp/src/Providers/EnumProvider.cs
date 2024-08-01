@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 
@@ -42,7 +41,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType).ToArray();
+            return [.. CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType)];
         }
         protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 

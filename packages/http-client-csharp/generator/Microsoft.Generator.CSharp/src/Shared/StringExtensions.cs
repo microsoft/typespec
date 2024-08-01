@@ -2,10 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis.CSharp;
@@ -98,7 +96,7 @@ namespace Microsoft.Generator.CSharp
                 Current = default;
             }
 
-            public GetPathPartsEnumerator GetEnumerator() => this;
+            public readonly GetPathPartsEnumerator GetEnumerator() => this;
 
             public bool MoveNext()
             {
@@ -205,28 +203,6 @@ namespace Microsoft.Generator.CSharp
             }
 
             return SyntaxFacts.IsKeywordKind(kind);
-        }
-
-        public static string FirstCharToUpperCase(this string str)
-        {
-            if (string.IsNullOrEmpty(str))
-                return str;
-
-            var strSpan = str.AsSpan();
-
-            if (char.IsUpper(strSpan[0]))
-                return str;
-
-            Span<char> span = stackalloc char[strSpan.Length];
-            strSpan.CopyTo(span);
-            span[0] = char.ToUpper(span[0]);
-            return new string(span);
-        }
-
-        public static IEnumerable<string> SplitByCamelCase(this string camelCase)
-        {
-            var humanizedString = HumanizedCamelCaseRegex.Replace(camelCase, "$1");
-            return humanizedString.Split(' ').Select(w => w.FirstCharToUpperCase());
         }
 
         public static string ToApiVersionMemberName(this string version)
