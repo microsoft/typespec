@@ -46,13 +46,7 @@ namespace Microsoft.Generator.CSharp
                 return null;
             }
 
-            var type = inputType switch
-            {
-                InputModelType modelType => CreateModel(modelType)?.Type,
-                InputEnumType enumType => CreateEnum(enumType)?.Type,
-                InputNullableType nullableType => CreateCSharpType(nullableType.Type)?.WithNullable(true),
-                _ => CreatePrimitiveCSharpType(inputType)
-            };
+            CSharpType? type = CreateCSharpTypeCore(inputType);
 
             if (type == null)
             {
@@ -62,7 +56,53 @@ namespace Microsoft.Generator.CSharp
             return type;
         }
 
-        public CSharpType CreatePrimitiveCSharpType(InputType inputType)
+        private protected virtual CSharpType? CreateCSharpTypeCore(InputType inputType)
+        {
+            CSharpType? type;
+            switch (inputType)
+            {
+                case InputLiteralType literalType:
+                    var input = CreateCSharpType(literalType.ValueType);
+                    type = input != null ? CSharpType.FromLiteral(input, literalType.Value) : null;
+                    break;
+                case InputUnionType unionType:
+                    var unionInputs = new List<CSharpType>();
+                    foreach (var variant in unionType.VariantTypes)
+                    {
+                        var unionInput = CreateCSharpType(variant);
+                        if (unionInput != null)
+                        {
+                            unionInputs.Add(unionInput);
+                        }
+                    }
+                    type = CSharpType.FromUnion(unionInputs);
+                    break;
+                case InputArrayType listType:
+                    var arrayInput = CreateCSharpType(listType.ValueType);
+                    type = arrayInput != null ? new CSharpType(typeof(IList<>), arrayInput) : null;
+                    break;
+                case InputDictionaryType dictionaryType:
+                    var inputValueType = CreateCSharpType(dictionaryType.ValueType);
+                    type = inputValueType != null ? new CSharpType(typeof(IDictionary<,>), typeof(string), inputValueType) : null;
+                    break;
+                case InputEnumType enumType:
+                    type = CreateEnum(enumType)?.Type;
+                    break;
+                case InputModelType modelType:
+                    type = CreateModel(modelType)?.Type;
+                    break;
+                case InputNullableType nullableType:
+                    type = CreateCSharpType(nullableType.Type)?.WithNullable(true);
+                    break;
+                default:
+                    type = CreatePrimitiveCSharpType(inputType);
+                    break;
+            }
+
+            return type;
+        }
+
+        internal CSharpType CreatePrimitiveCSharpType(InputType inputType)
         {
             if (TypeCache.TryGetValue(inputType, out var type))
                 return type;
@@ -79,10 +119,6 @@ namespace Microsoft.Generator.CSharp
         /// <returns>An instance of <see cref="CSharpType"/>.</returns>
         private protected virtual CSharpType CreatePrimitiveCSharpTypeCore(InputType inputType) => inputType switch
         {
-            InputLiteralType literalType => CSharpType.FromLiteral(CreatePrimitiveCSharpType(literalType.ValueType), literalType.Value),
-            InputUnionType unionType => CSharpType.FromUnion(unionType.VariantTypes.Select(CreatePrimitiveCSharpType).ToArray()),
-            InputArrayType listType => new CSharpType(typeof(IList<>), CreatePrimitiveCSharpType(listType.ValueType)),
-            InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), typeof(string), CreatePrimitiveCSharpType(dictionaryType.ValueType)),
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
                 InputPrimitiveTypeKind.Boolean => new CSharpType(typeof(bool)),

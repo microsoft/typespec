@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
             if (createCSharpTypeCore != null)
             {
-                mockTypeFactory.Protected().Setup<CSharpType>("CreatePrimitiveCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns((InputType inputType) => createCSharpTypeCore.Invoke(inputType));
+                mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns((InputType inputType) => createCSharpTypeCore.Invoke(inputType));
             }
 
             if (createOutputLibrary != null)

@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
             if (createPrimitiveCSharpTypeCore is not null)
             {
-                mockTypeFactory.Protected().Setup<CSharpType>("CreatePrimitiveCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(createPrimitiveCSharpTypeCore);
+                mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(createPrimitiveCSharpTypeCore);
             }
 
             var configFilePath = Path.Combine(AppContext.BaseDirectory, MocksFolder);

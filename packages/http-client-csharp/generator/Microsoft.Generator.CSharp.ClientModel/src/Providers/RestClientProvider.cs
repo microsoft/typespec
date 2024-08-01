@@ -263,7 +263,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputParameter inputParam, out bool isString, out string? format, out ValueExpression valueExpression)
         {
-            isString = ClientModelPlugin.Instance.TypeFactory.CreatePrimitiveCSharpType(inputParam.Type).Equals(typeof(string));
+            isString = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParam.Type)?.Equals(typeof(string)) == true;
             if (inputParam.Kind == InputOperationParameterKind.Constant)
             {
                 valueExpression = Literal(inputParam.DefaultValue?.Value);
