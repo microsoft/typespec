@@ -21,8 +21,9 @@ namespace Microsoft.Generator.CSharp.Tests.StartUp
             {
                 new(() => mockPlugin.Object, metadataMock.Object),
             };
+            CommandLineOptions options = new() { PluginName = "MockPlugin" };
 
-            Assert.DoesNotThrow(() => pluginHandler.SelectPlugin("MockPlugin"));
+            Assert.DoesNotThrow(() => pluginHandler.SelectPlugin(options));
             mockPlugin.Verify(p => p.Configure(), Times.Once);
         }
 
@@ -38,8 +39,9 @@ namespace Microsoft.Generator.CSharp.Tests.StartUp
             {
                 new(() => mockPlugin.Object, metadataMock.Object),
             };
+            CommandLineOptions options = new() { PluginName = "NonExistentPlugin" };
 
-            Assert.Throws<System.InvalidOperationException>(() => pluginHandler.SelectPlugin("NonExistentPlugin"));
+            Assert.Throws<System.InvalidOperationException>(() => pluginHandler.SelectPlugin(options));
             mockPlugin.Verify(p => p.Configure(), Times.Never);
         }
     }
