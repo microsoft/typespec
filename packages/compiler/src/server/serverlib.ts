@@ -1,3 +1,5 @@
+import { resolveConfig } from "prettier";
+import { inspect } from "util";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   CodeAction,
@@ -590,7 +592,17 @@ export function createServer(host: ServerHost): Server {
     if (document === undefined) {
       return [];
     }
-    const formattedText = await formatTypeSpec(document.getText());
+    const path = await fileService.fileURLToRealPath(params.textDocument.uri);
+    const prettierConfig = await resolveConfig(path);
+    const resolvedConfig = prettierConfig ?? {
+      tabWidth: params.options.tabSize,
+      useTabs: !params.options.insertSpaces,
+    };
+    log({
+      level: "info",
+      message: `Formatting TypeSpec document: ${inspect({ fileUri: params.textDocument.uri, vscodeOptions: params.options, prettierConfig, resolvedConfig })}`,
+    });
+    const formattedText = await formatTypeSpec(document.getText(), resolvedConfig);
     return [minimalEdit(document, formattedText)];
   }
 
