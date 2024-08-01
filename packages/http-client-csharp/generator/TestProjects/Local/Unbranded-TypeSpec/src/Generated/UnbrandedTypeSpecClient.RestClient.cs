@@ -15,13 +15,10 @@ namespace UnbrandedTypeSpec
         private static PipelineMessageClassifier _pipelineMessageClassifier204;
         private static Classifier2xxAnd4xx _pipelineMessageClassifier2xxAnd4xx;
 
-        /// <summary> Gets the pipelinemessageclassifier200. </summary>
         private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 = PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
 
-        /// <summary> Gets the pipelinemessageclassifier204. </summary>
         private static PipelineMessageClassifier PipelineMessageClassifier204 => _pipelineMessageClassifier204 = PipelineMessageClassifier.Create(stackalloc ushort[] { 204 });
 
-        /// <summary> Gets the PipelineMessageClassifier2xxAnd4xx. </summary>
         private static Classifier2xxAnd4xx PipelineMessageClassifier2xxAnd4xx => _pipelineMessageClassifier2xxAnd4xx ??= new Classifier2xxAnd4xx();
 
         internal PipelineMessage CreateSayHiRequest(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
