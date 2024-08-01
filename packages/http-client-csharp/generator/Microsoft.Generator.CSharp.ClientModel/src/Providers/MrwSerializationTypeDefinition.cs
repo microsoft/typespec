@@ -64,7 +64,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public MrwSerializationTypeDefinition(InputModelType inputModel)
         {
-            _model = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel)!;
+            _model = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel) ??
+                     throw new InvalidOperationException($"Failed to create model type for {inputModel.Name}");
             _inputModel = inputModel;
             _isStruct = _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             // Initialize the serialization interfaces

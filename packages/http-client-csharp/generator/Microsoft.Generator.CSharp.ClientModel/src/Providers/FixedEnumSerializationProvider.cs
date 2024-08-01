@@ -28,7 +28,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             Debug.Assert(!enumType.IsExtensible);
             _enumType = enumType;
-            _enumProvider = ClientModelPlugin.Instance.TypeFactory.CreateEnum(_enumType)!;
+            _enumProvider = ClientModelPlugin.Instance.TypeFactory.CreateEnum(_enumType) ??
+                            throw new InvalidOperationException($"Failed to create enum type for {_enumType.Name}");
         }
 
         protected override string GetNamespace() => _enumProvider.Type.Namespace;
