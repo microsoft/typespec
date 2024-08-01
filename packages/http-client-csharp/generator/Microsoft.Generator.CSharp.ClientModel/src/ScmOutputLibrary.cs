@@ -12,7 +12,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private static TypeProvider[] BuildClients()
         {
             var inputClients = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
-            var clients = new List<TypeProvider>();
+            var clients = new List<TypeProvider>(inputClients.Count * 3);
             foreach (var inputClient in inputClients)
             {
                 var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);

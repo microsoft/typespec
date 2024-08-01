@@ -1,16 +1,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.Generator.CSharp.Input;
-using System.IO;
-using Microsoft.Generator.CSharp.Providers;
-using Microsoft.Generator.CSharp.Primitives;
-using System.ClientModel.Primitives;
 using System;
 using System.Collections.Generic;
-using Microsoft.Generator.CSharp.Expressions;
-using static Microsoft.Generator.CSharp.Snippets.Snippet;
+using System.IO;
 using System.Linq;
+using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Providers;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
+using System.ClientModel.Primitives;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
@@ -19,26 +19,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private const string LatestVersionFieldName = "LatestVersion";
         private const string VersionPropertyName = "Version";
         private readonly InputClient _inputClient;
-        private readonly ClientProvider _clientProvider;
-        private readonly TypeProvider? _serviceVersionEnum;
-        private readonly FieldProvider? _latestVersionField;
+        private readonly Lazy<ClientProvider> _clientProvider;
+        private readonly Lazy<TypeProvider>? _serviceVersionEnum;
         private readonly PropertyProvider? _versionProperty;
+        private FieldProvider? _latestVersionField;
 
         public ClientOptionsProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
-            _clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
-
+            _clientProvider = new(() => ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient));
             var inputEnumType = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Enums
                     .FirstOrDefault(e => e.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum));
             if (inputEnumType != null)
             {
-                _serviceVersionEnum = ClientModelPlugin.Instance.TypeFactory.CreateEnum(inputEnumType, this);
-                _latestVersionField = new(
-                    modifiers: FieldModifiers.Private | FieldModifiers.Const,
-                    type: _serviceVersionEnum.Type,
-                    name: LatestVersionFieldName,
-                    initializationValue: Static(_serviceVersionEnum.Type).Property(_serviceVersionEnum.EnumValues[^1].Name));
+                _serviceVersionEnum = new(() => ClientModelPlugin.Instance.TypeFactory.CreateEnum(inputEnumType, this));
                 _versionProperty = new(
                     null,
                     MethodSignatureModifiers.Internal,
@@ -48,9 +42,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
         }
 
+        private TypeProvider? ServiceVersionEnum => _serviceVersionEnum?.Value;
+        private ClientProvider ClientProvider => _clientProvider.Value;
+        private FieldProvider? LatestVersionField => _latestVersionField ??= BuildLatestVersionField();
+
+        private FieldProvider? BuildLatestVersionField()
+        {
+            if (ServiceVersionEnum == null)
+                return null;
+
+            return new(
+                modifiers: FieldModifiers.Private | FieldModifiers.Const,
+                type: ServiceVersionEnum.Type,
+                name: LatestVersionFieldName,
+                initializationValue: Static(ServiceVersionEnum.Type).Property(ServiceVersionEnum.EnumValues[^1].Name));
+        }
+
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
-        protected override string BuildName() => $"{_clientProvider.Name}Options";
-        protected override FormattableString Description => $"Client options for {_clientProvider.Type:C}.";
+        protected override string BuildName() => $"{ClientProvider.Name}Options";
+        protected override FormattableString Description => $"Client options for {ClientProvider.Type:C}.";
 
         protected override CSharpType[] BuildImplements()
         {
@@ -59,46 +69,46 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override FieldProvider[] BuildFields()
         {
-            if (_latestVersionField == null)
+            if (LatestVersionField == null)
                 return [];
 
-            return [_latestVersionField];
+            return [LatestVersionField];
         }
 
         protected override TypeProvider[] BuildNestedTypes()
         {
-            if (_serviceVersionEnum == null)
+            if (ServiceVersionEnum == null)
                 return [];
 
-            return [_serviceVersionEnum];
+            return [ServiceVersionEnum];
         }
 
         protected override ConstructorProvider[] BuildConstructors()
         {
-            if (_serviceVersionEnum == null || _latestVersionField == null)
+            if (ServiceVersionEnum == null || LatestVersionField == null)
                 return [];
 
             var versionParam = new ParameterProvider(
                 "version",
                 $"The service version",
-                _serviceVersionEnum.Type,
-                defaultValue: _latestVersionField);
-            var serviceVersionsCount = _serviceVersionEnum.EnumValues.Count;
+                ServiceVersionEnum.Type,
+                defaultValue: LatestVersionField);
+            var serviceVersionsCount = ServiceVersionEnum.EnumValues.Count;
             List<SwitchCaseExpression> switchCases = new(serviceVersionsCount + 1);
 
             for (int i = 0; i < serviceVersionsCount; i++)
             {
-                var serviceVersionMember = _serviceVersionEnum.EnumValues[i];
+                var serviceVersionMember = ServiceVersionEnum.EnumValues[i];
                 // ServiceVersion.Version => "version"
                 switchCases.Add(new(
-                    new MemberExpression(_serviceVersionEnum.Type, serviceVersionMember.Name),
+                    Static(ServiceVersionEnum.Type).Property(serviceVersionMember.Name),
                     new LiteralExpression(serviceVersionMember.Value)));
             }
 
             switchCases.Add(SwitchCaseExpression.Default(ThrowExpression(New.NotSupportedException(ValueExpression.Empty))));
 
             var constructor = new ConstructorProvider(
-                new ConstructorSignature(Type, $"Initializes a new instance of {_clientProvider.Name}Options.", MethodSignatureModifiers.Public, [versionParam]),
+                new ConstructorSignature(Type, $"Initializes a new instance of {ClientProvider.Name}Options.", MethodSignatureModifiers.Public, [versionParam]),
                 _versionProperty!.Assign(new SwitchExpression(versionParam, [.. switchCases])).Terminate(),
                 this);
             return [constructor];

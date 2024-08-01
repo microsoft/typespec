@@ -5,11 +5,9 @@ using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
-using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
@@ -17,8 +15,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
     public class ClientOptionsProviderTests
     {
         private const string ApiVersionsCategory = "WithApiVersions";
-        private readonly Mock<InputLibrary> _mockInputLibrary = new(MockHelpers.ConfigFilePath);
-        private readonly List<string> _apiVersions = ["1.0", "2.0"];
 
         [SetUp]
         public void SetUp()
@@ -29,10 +25,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             // Load the mock plugin with or without api versions
             if (containsApiVersions)
             {
-                InputEnumTypeValue[] enumValues = new InputEnumTypeValue[_apiVersions.Count];
-                for (var i = 0; i < _apiVersions.Count; i++)
+                List<string> apiVersions = ["1.0", "2.0"];
+                InputEnumTypeValue[] enumValues = new InputEnumTypeValue[apiVersions.Count];
+                for (var i = 0; i < apiVersions.Count; i++)
                 {
-                    enumValues[i] = new InputEnumTypeValue(_apiVersions[i], _apiVersions[i], null);
+                    enumValues[i] = new InputEnumTypeValue(apiVersions[i], apiVersions[i], null);
                 }
                 var inputEnum = new InputEnumType(
                     "ServiceVersion",
@@ -44,10 +41,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
                     InputPrimitiveType.Int64,
                     enumValues,
                     false);
-                var mockInputNs = new Mock<InputNamespace>("ns", _apiVersions, new List<InputEnumType> { inputEnum }, Array.Empty<InputModelType>(), Array.Empty<InputClient>(), new InputAuth());
-                var inputNsInstance = typeof(InputLibrary).GetField("_inputNamespace", BindingFlags.Instance | BindingFlags.NonPublic);
-                inputNsInstance!.SetValue(_mockInputLibrary.Object, mockInputNs.Object);
-                MockHelpers.LoadMockPlugin(inputLibrary: _mockInputLibrary.Object);
+
+                MockHelpers.LoadMockPlugin(
+                    apiVersions: () => apiVersions,
+                    inputEnums: () => [inputEnum]);
             }
             else
             {

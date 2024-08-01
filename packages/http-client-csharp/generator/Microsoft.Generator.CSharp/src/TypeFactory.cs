@@ -23,6 +23,9 @@ namespace Microsoft.Generator.CSharp
         private Dictionary<InputType, TypeProvider>? _csharpToTypeProvider;
         private Dictionary<InputType, TypeProvider> CSharpToTypeProvider => _csharpToTypeProvider ??= [];
 
+        private Dictionary<EnumCacheKey, TypeProvider>? _enumCache;
+        private Dictionary<EnumCacheKey, TypeProvider> EnumCache => _enumCache ??= [];
+
         private Dictionary<InputType, CSharpType>? _typeCache;
         private Dictionary<InputType, CSharpType> TypeCache => _typeCache ??= [];
 
@@ -115,11 +118,12 @@ namespace Microsoft.Generator.CSharp
         /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
         public TypeProvider CreateEnum(InputEnumType enumType, TypeProvider? declaringType = null)
         {
-            if (CSharpToTypeProvider.TryGetValue(enumType, out var enumProvider))
+            var enumCacheKey = new EnumCacheKey(enumType, declaringType);
+            if (EnumCache.TryGetValue(enumCacheKey, out var enumProvider))
                 return enumProvider;
 
             enumProvider = CreateEnumCore(enumType, declaringType);
-            CSharpToTypeProvider.Add(enumType, enumProvider);
+            EnumCache.Add(enumCacheKey, enumProvider);
             return enumProvider;
         }
 
@@ -237,5 +241,7 @@ namespace Microsoft.Generator.CSharp
         {
             return [];
         }
+
+        private sealed record EnumCacheKey(InputEnumType EnumType, TypeProvider? DeclaringType);
     }
 }

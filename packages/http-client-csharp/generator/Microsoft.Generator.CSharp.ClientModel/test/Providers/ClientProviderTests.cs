@@ -22,7 +22,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [OneTimeSetUp]
         public void SetUp()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockPlugin(apiKeyAuth: () => new InputApiKeyAuth("mock", null));
         }
 
         [Test]
