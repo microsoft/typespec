@@ -27,7 +27,6 @@ namespace Microsoft.Generator.CSharp.Tests
             _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
             _mockInputLibrary = new Mock<InputLibrary>();
             _mockPlugin.Setup(p => p.InputLibrary).Returns(_mockInputLibrary.Object);
-            _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
         }
 
         [Test]
@@ -113,6 +112,84 @@ namespace Microsoft.Generator.CSharp.Tests
 
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), inputModel, ItExpr.IsNull<TypeProvider>());
             _mockVisitor.Protected().Verify<MethodProvider>("Visit", Times.Once(), inputModelProperty, ItExpr.IsNull<PropertyProvider>());
+        }
+
+        [Test]
+        public void RemovedInputModelCausesExceptionWhenReferencedInDifferentModel()
+        {
+            var inputModel1Property =
+                new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any), true, true, false);
+            var inputModel1 = new InputModelType("Model1", "id", "desc", "internal", "description",
+                InputModelTypeUsage.Input, new[] { inputModel1Property }, null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
+
+            var inputModel2Property = new InputModelProperty("prop2", "prop1", "string", inputModel1, true, true, false);
+
+            var inputModel2 = new InputModelType("Model2", "id", "desc", "internal", "description",
+                InputModelTypeUsage.Input, new[] { inputModel2Property }, null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
+
+            _mockInputLibrary.Setup(l => l.InputNamespace).Returns(new InputNamespace(
+                "test library",
+                new List<string>(),
+                new List<InputEnumType>(),
+                new List<InputModelType> {inputModel1, inputModel2},
+                new List<InputClient>(),
+                new InputAuth()));
+
+            var visitor = new PreVisitor();
+            _mockPlugin.Object.AddVisitor(visitor);
+            Assert.Throws<InvalidOperationException>(() => visitor.Visit(_mockPlugin.Object.OutputLibrary));
+        }
+
+        [Test]
+        public void CanCleanUpRemovedReferencesToRemovedModels()
+        {
+            var inputModel1Property =
+                new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any), true, true, false);
+            var inputModel1 = new InputModelType("Model1", "id", "desc", "internal", "description",
+                InputModelTypeUsage.Input, new[] { inputModel1Property }, null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
+
+            var inputModel2Property = new InputModelProperty("prop2", "prop1", "string", inputModel1, true, true, false);
+
+            var inputModel2 = new InputModelType("Model2", "id", "desc", "internal", "description",
+                InputModelTypeUsage.Input, new[] { inputModel2Property }, null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
+
+            _mockInputLibrary.Setup(l => l.InputNamespace).Returns(new InputNamespace(
+                "test library",
+                new List<string>(),
+                new List<InputEnumType>(),
+                new List<InputModelType> {inputModel1, inputModel2},
+                new List<InputClient>(),
+                new InputAuth()));
+
+            var visitor = new PreVisitor(true);
+            Assert.DoesNotThrow(() => visitor.Visit(_mockPlugin.Object.OutputLibrary));
+        }
+
+        private class PreVisitor : LibraryVisitor
+        {
+            private readonly bool _cleanupReference;
+
+            public PreVisitor(bool cleanupReference = false)
+            {
+                _cleanupReference = cleanupReference;
+            }
+            protected internal override TypeProvider? Visit(InputModelType inputModel, TypeProvider? typeProvider)
+            {
+                if (inputModel.Name == "Model1")
+                {
+                    return null;
+                }
+                return base.Visit(inputModel, typeProvider);
+            }
+
+            protected internal override PropertyProvider? Visit(InputModelProperty inputModelProperty, PropertyProvider? propertyProvider)
+            {
+                if (_cleanupReference && inputModelProperty.Type.Name == "Model1")
+                {
+                    return null;
+                }
+                return base.Visit(inputModelProperty, propertyProvider);
+            }
         }
     }
 }
