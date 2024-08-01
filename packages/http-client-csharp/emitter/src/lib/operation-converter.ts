@@ -99,6 +99,7 @@ export function fromSdkServiceMethod(
     Paging: loadOperationPaging(method),
     GenerateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
     GenerateConvenienceMethod: generateConvenience,
+    CrossLanguageDefinitionId: method.crossLanguageDefintionId,
   };
 }
 
@@ -155,14 +156,14 @@ function fromSdkOperationParameters(
   );
   return operation.bodyParam
     ? params.concat(
-        fromSdkHttpOperationParameter(
-          operation.bodyParam,
-          rootApiVersions,
-          sdkContext,
-          modelMap,
-          enumMap
-        )
+      fromSdkHttpOperationParameter(
+        operation.bodyParam,
+        rootApiVersions,
+        sdkContext,
+        modelMap,
+        enumMap
       )
+    )
     : params;
 }
 
@@ -223,14 +224,14 @@ function loadLongRunningOperation(
       StatusCodes: method.operation.verb === "delete" ? [204] : [200],
       BodyType:
         method.__raw_lro_metadata.finalEnvelopeResult &&
-        method.__raw_lro_metadata.finalEnvelopeResult !== "void"
+          method.__raw_lro_metadata.finalEnvelopeResult !== "void"
           ? getInputType(
-              sdkContext,
-              method.__raw_lro_metadata.finalEnvelopeResult,
-              modelMap,
-              enumMap,
-              method.operation.__raw.operation
-            )
+            sdkContext,
+            method.__raw_lro_metadata.finalEnvelopeResult,
+            modelMap,
+            enumMap,
+            method.operation.__raw.operation
+          )
           : undefined,
       BodyMediaType: BodyMediaType.Json,
     } as OperationResponse,

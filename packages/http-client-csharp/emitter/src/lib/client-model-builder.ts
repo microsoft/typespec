@@ -20,7 +20,7 @@ import { RequestLocation } from "../type/request-location.js";
 import { fromSdkType } from "./converter.js";
 import { Logger } from "./logger.js";
 import { navigateModels } from "./model.js";
-import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation.js";
+import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 
 export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeModel {
@@ -160,10 +160,10 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       const isEndpoint = parameter.name === endpointVariableName;
       const parameterType: InputType = isEndpoint
         ? {
-            Kind: "url",
-            Name: "url",
-            CrossLanguageDefinitionId: "TypeSpec.url",
-          }
+          Kind: "url",
+          Name: "url",
+          CrossLanguageDefinitionId: "TypeSpec.url",
+        }
         : fromSdkType(parameter.type, sdkContext, modelMap, enumMap);
       parameters.push({
         Name: parameter.name,
