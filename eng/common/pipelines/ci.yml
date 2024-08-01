@@ -47,7 +47,7 @@ extends:
       - template: /packages/http-client-java/eng/pipeline/templates/ci-stages.yml
         parameters:
           DependsOn: InitStage
-          Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunJava'])    
+          Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunJava'])
 
       # Run core stages if RunCore == true
       - template: /eng/tsp-core/pipelines/stages/ci-stages.yml

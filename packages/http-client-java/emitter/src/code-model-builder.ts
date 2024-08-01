@@ -2122,7 +2122,7 @@ export class CodeModelBuilder {
         },
         description: type.description,
         valueType: type.additionalProperties,
-        decorators: []
+        decorators: [],
       };
       const parentSchema = this.processSchemaFromSdkType(sdkDictType, "Record");
       objectSchema.parents = objectSchema.parents ?? new Relations();

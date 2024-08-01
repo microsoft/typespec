@@ -167,7 +167,6 @@ export const CommonLabels = {
   },
 };
 
-
 export default defineConfig({
   repo,
   labels: {

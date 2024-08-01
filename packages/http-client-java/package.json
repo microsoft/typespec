@@ -61,7 +61,7 @@
   },
   "devDependencies": {
     "@azure-tools/typespec-azure-core": "0.44.0",
-    "@azure-tools/typespec-client-generator-core": "0.44.1",
+    "@azure-tools/typespec-client-generator-core": "0.44.3",
     "@azure-tools/codegen": "~2.10.0",
     "@microsoft/api-extractor": "^7.40.3",
     "@types/js-yaml": "~4.0.9",
