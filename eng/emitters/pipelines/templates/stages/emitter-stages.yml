@@ -70,6 +70,7 @@ parameters:
 
   - name: CadlRanchName
     type: string
+    default: ""
 
 stages:
   # Build stage
