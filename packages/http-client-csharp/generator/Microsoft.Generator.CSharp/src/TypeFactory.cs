@@ -145,12 +145,11 @@ namespace Microsoft.Generator.CSharp
         private TypeProvider? CreateModelCore(InputModelType model)
         {
             TypeProvider? type = null;
-            var visitors = (IList<LibraryVisitor>)CodeModelPlugin.Instance.GetLibraryVisitors();
-            if (visitors.Count == 0)
+            if (Visitors.Count == 0)
             {
                 return new ModelProvider(model);
             }
-            foreach (var visitor in visitors)
+            foreach (var visitor in Visitors)
             {
                 type = visitor.Visit(model, type);
             }
