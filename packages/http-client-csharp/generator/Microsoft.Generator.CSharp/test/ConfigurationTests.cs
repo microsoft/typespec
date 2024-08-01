@@ -4,7 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Providers;
 using NUnit.Framework;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
@@ -132,6 +135,91 @@ namespace Microsoft.Generator.CSharp.Tests
 
             bool unknownBoolValue = additionalConfigOptions["unknown-bool-property"].ToObjectFromJson<bool>();
             Assert.AreEqual(true, unknownBoolValue);
+        }
+
+        [Test]
+        public void DisableDocsForProperty()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""library-name"": ""libraryName"",
+                ""namespace"": ""namespace"",
+                ""disable-xml-docs"": true
+                }";
+
+            MockHelpers.LoadMockPlugin(configuration: mockJson);
+
+            Assert.IsTrue(CodeModelPlugin.Instance.Configuration.DisableXmlDocs);
+
+            PropertyProvider property = new($"IntProperty description", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true));
+            using var writer = new CodeWriter();
+            writer.WriteProperty(property, true);
+            Assert.AreEqual("public int IntProperty { get; set; }\n", writer.ToString(false));
+        }
+
+        [Test]
+        public void DisableDocsForMethod()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""library-name"": ""libraryName"",
+                ""namespace"": ""namespace"",
+                ""disable-xml-docs"": true
+                }";
+
+            MockHelpers.LoadMockPlugin(configuration: mockJson);
+
+            Assert.IsTrue(CodeModelPlugin.Instance.Configuration.DisableXmlDocs);
+            MethodProvider method = new(
+                new MethodSignature(
+                    "Method",
+                    $"Method Description",
+                    MethodSignatureModifiers.Public,
+                    null,
+                    null,
+                    []),
+                ThrowExpression(Null),
+                new TestTypeProvider());
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual("public void Method() => throw null;\n", writer.ToString(false));
+        }
+
+        [Test]
+        public void DisableDocsForType()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""library-name"": ""libraryName"",
+                ""namespace"": ""Test"",
+                ""disable-xml-docs"": true
+                }";
+
+            MockHelpers.LoadMockPlugin(configuration: mockJson);
+
+            Assert.IsTrue(CodeModelPlugin.Instance.Configuration.DisableXmlDocs);
+            TypeProvider type = new TestTypeProvider();
+            TypeProviderWriter writer = new(type);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.Write().Content);
+        }
+
+        [Test]
+        public void DisableDocsForField()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""library-name"": ""libraryName"",
+                ""namespace"": ""namespace"",
+                ""disable-xml-docs"": true
+                }";
+
+            MockHelpers.LoadMockPlugin(configuration: mockJson);
+
+            Assert.IsTrue(CodeModelPlugin.Instance.Configuration.DisableXmlDocs);
+            FieldProvider field = new(FieldModifiers.Public, typeof(int), "_field", $"Field Description");
+            using var writer = new CodeWriter();
+            writer.WriteField(field);
+            Assert.AreEqual("public int _field;\n", writer.ToString(false));
         }
 
         public static IEnumerable<TestCaseData> ParseConfigOutputFolderTestCases

@@ -34,7 +34,8 @@ namespace Microsoft.Generator.CSharp
             bool generateTestProject,
             string libraryName,
             bool useModelNamespace,
-            string libraryNamespace)
+            string libraryNamespace,
+            bool disableXmlDocs)
         {
             OutputDirectory = outputPath;
             AdditionalConfigOptions = additionalConfigOptions;
@@ -46,6 +47,7 @@ namespace Microsoft.Generator.CSharp
             UseModelNamespace = useModelNamespace;
             RootNamespace = libraryNamespace;
             ModelNamespace = useModelNamespace ? $"{libraryNamespace}.Models" : libraryNamespace;
+            DisableXmlDocs = disableXmlDocs;
         }
 
         /// <summary>
@@ -60,7 +62,13 @@ namespace Microsoft.Generator.CSharp
             public const string LibraryName = "library-name";
             public const string Namespace = "namespace";
             public const string UseModelNamespace = "use-model-namespace";
+            public const string DisableXmlDocs = "disable-xml-docs";
         }
+
+        /// <summary>
+        /// Gets whether XML docs are disabled.
+        /// </summary>
+        public bool DisableXmlDocs { get; }
 
         /// <summary> Gets the root namespace for the library. </summary>
         public string RootNamespace { get; }
@@ -129,7 +137,8 @@ namespace Microsoft.Generator.CSharp
                 ReadOption(root, Options.GenerateTestProject),
                 ReadRequiredStringOption(root, Options.LibraryName),
                 ReadOption(root, Options.UseModelNamespace),
-                ReadRequiredStringOption(root, Options.Namespace));
+                ReadRequiredStringOption(root, Options.Namespace),
+                ReadOption(root, Options.DisableXmlDocs));
         }
 
         /// <summary>
@@ -141,7 +150,8 @@ namespace Microsoft.Generator.CSharp
             { Options.GenerateModelFactory, true },
             { Options.GenerateSampleProject, true },
             { Options.ClearOutputFolder, true },
-            { Options.GenerateTestProject, false }
+            { Options.GenerateTestProject, false },
+            { Options.DisableXmlDocs, false },
         };
 
         /// <summary>
@@ -156,6 +166,7 @@ namespace Microsoft.Generator.CSharp
             Options.LibraryName,
             Options.UseModelNamespace,
             Options.Namespace,
+            Options.DisableXmlDocs,
         };
 
         private static bool ReadOption(JsonElement root, string option)
