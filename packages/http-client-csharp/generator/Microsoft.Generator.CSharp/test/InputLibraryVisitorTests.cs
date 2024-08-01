@@ -33,7 +33,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
             var inputModelProperty =
-                new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any), true, true, false);
+                new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any, "foo", "bar"), true, true, false);
             var inputModel = new InputModelType("foo", "id", "desc", "internal", "description",
                 InputModelTypeUsage.Input, new[] { inputModelProperty }, null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
@@ -85,12 +85,12 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
             var inputModelProperty =
-                new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any), true, true, false);
+                new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any, "foo", "bar"), true, true, false);
             var inputModel = new InputModelType("foo", "id", "desc", "internal", "description",
                 InputModelTypeUsage.Input, new[] { inputModelProperty }, null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
             var param = new InputParameter("param", "name", "desc",
-                new InputLiteralType(new InputPrimitiveType(InputPrimitiveTypeKind.String), "bar"),
+                new InputLiteralType(new InputPrimitiveType(InputPrimitiveTypeKind.String, "foo", "bar"), "bar"),
                 RequestLocation.Header, null, InputOperationParameterKind.Client, true, false, true, false, false,
                 false, false, null, null);
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(new InputNamespace(
@@ -120,7 +120,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void RemovedInputModelCausesExceptionWhenReferencedInDifferentModel()
         {
             var inputModel1Property =
-                new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any), true, true, false);
+                new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any, "foo", "bar"), true, true, false);
             var inputModel1 = new InputModelType("Model1", "id", "desc", "internal", "description",
                 InputModelTypeUsage.Input, new[] { inputModel1Property }, null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
@@ -146,7 +146,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void CanCleanUpRemovedReferencesToRemovedModels()
         {
             var inputModel1Property =
-                new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any), true, true, false);
+                new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any, "foo", "bar"), true, true, false);
             var inputModel1 = new InputModelType("Model1", "id", "desc", "internal", "description",
                 InputModelTypeUsage.Input, new[] { inputModel1Property }, null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 

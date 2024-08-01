@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
                 new InputEnumTypeValue(stringA, intA, null),
                 new InputEnumTypeValue(stringB, intB, null)
             };
-            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, new InputPrimitiveType(InputPrimitiveTypeKind.Int32), values, false);
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.Int32, values, false);
             TypeProvider? enumType = ClientModelPlugin.Instance.TypeFactory.CreateEnum(input);
             return enumType!.SerializationProviders.FirstOrDefault();
         }
