@@ -9,7 +9,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
 {
-    internal class StubVisitor : OutputLibraryVisitor
+    internal class StubVisitor : LibraryVisitor
     {
         private readonly ValueExpression _throwNull = ThrowExpression(Null);
         private readonly XmlDocProvider _emptyDocs = new();

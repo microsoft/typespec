@@ -161,9 +161,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputBase);
             var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputDerived);
 
-            var baseCtors = baseModel.Constructors;
+            var baseCtors = baseModel!.Constructors;
             Assert.AreEqual(1, baseCtors.Count);
-            var derivedCtors = derivedModel.Constructors;
+            var derivedCtors = derivedModel!.Constructors;
             Assert.AreEqual(1, derivedCtors.Count);
 
             var baseCtor = baseCtors[0];
@@ -192,7 +192,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputBase);
             var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputDerived);
 
-            Assert.AreEqual(baseModel.Type, derivedModel.Type.BaseType);
+            Assert.AreEqual(baseModel!.Type, derivedModel!.Type.BaseType);
         }
 
         [Test]

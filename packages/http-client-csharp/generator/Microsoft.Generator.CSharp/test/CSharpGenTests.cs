@@ -55,18 +55,16 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void VisitorsAreVisited()
         {
-            var mockOutputLibrary = new Mock<OutputLibrary>();
-            MockHelpers.LoadMockPlugin(createOutputLibrary: () => mockOutputLibrary.Object);
-            var mockOutputLibraryVisitor = new Mock<OutputLibraryVisitor>();
+            var mockVisitor = new Mock<LibraryVisitor>();
 
-            mockOutputLibrary.Protected()
-                .Setup<IEnumerable<OutputLibraryVisitor>>("GetOutputLibraryVisitors")
-                .Returns(new List<OutputLibraryVisitor> { mockOutputLibraryVisitor.Object });
+            var mockPlugin = MockHelpers.LoadMockPlugin(
+                createLibraryVisitor: () => new List<LibraryVisitor> { mockVisitor.Object });
+
             var csharpGen = new CSharpGen();
 
             Assert.DoesNotThrowAsync(async () => await csharpGen.ExecuteAsync());
-            mockOutputLibrary.Verify(m => m.GetOutputLibraryVisitors(), Times.Once);
-            mockOutputLibraryVisitor.Verify(m => m.Visit(mockOutputLibrary.Object), Times.Once);
+            mockPlugin.Verify(m => m.GetLibraryVisitors(), Times.Once);
+            mockVisitor.Verify(m => m.Visit(mockPlugin.Object.OutputLibrary), Times.Once);
         }
 
         private void TestOutputPathAppended(string outputPath, string expectedPath)

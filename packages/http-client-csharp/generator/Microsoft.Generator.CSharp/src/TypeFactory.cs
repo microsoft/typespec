@@ -12,7 +12,7 @@ using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
-    public abstract class TypeFactory
+    public class TypeFactory
     {
         private ChangeTrackingListDefinition? _changeTrackingListProvider;
         private ChangeTrackingListDefinition ChangeTrackingListProvider => _changeTrackingListProvider ??= new();
@@ -20,19 +20,23 @@ namespace Microsoft.Generator.CSharp
         private ChangeTrackingDictionaryDefinition? _changeTrackingDictionaryProvider;
         private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
 
-        private Dictionary<InputType, TypeProvider>? _csharpToTypeProvider;
-        private Dictionary<InputType, TypeProvider> CSharpToTypeProvider => _csharpToTypeProvider ??= [];
+        private Dictionary<InputType, TypeProvider?>? _csharpToTypeProvider;
+        private Dictionary<InputType, TypeProvider?> CSharpToTypeProvider => _csharpToTypeProvider ??= [];
 
-        private Dictionary<InputType, CSharpType>? _typeCache;
-        private Dictionary<InputType, CSharpType> TypeCache => _typeCache ??= [];
+        private Dictionary<InputType, CSharpType?>? _typeCache;
+        private Dictionary<InputType, CSharpType?> TypeCache => _typeCache ??= [];
 
-        private Dictionary<InputModelProperty, PropertyProvider>? _propertyCache;
-        private Dictionary<InputModelProperty, PropertyProvider> PropertyCache => _propertyCache ??= [];
+        private Dictionary<InputModelProperty, PropertyProvider?>? _propertyCache;
+        private Dictionary<InputModelProperty, PropertyProvider?> PropertyCache => _propertyCache ??= [];
+
+        private Dictionary<InputParameter, ParameterProvider?>? _parameterCache;
+        private Dictionary<InputParameter, ParameterProvider?> ParameterCache => _parameterCache ??= [];
 
         private Dictionary<InputType, IReadOnlyList<TypeProvider>>? _serializationsCache;
+        private IList<LibraryVisitor> Visitors => (IList<LibraryVisitor>)CodeModelPlugin.Instance.GetLibraryVisitors();
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache => _serializationsCache ??= [];
 
-        public CSharpType CreateCSharpType(InputType inputType)
+        public CSharpType? CreateCSharpType(InputType inputType)
         {
             if (TypeCache.TryGetValue(inputType, out var type))
                 return type;
@@ -47,17 +51,46 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="inputType">The <see cref="InputType"/> to convert.</param>
         /// <returns>An instance of <see cref="CSharpType"/>.</returns>
-        protected virtual CSharpType CreateCSharpTypeCore(InputType inputType) => inputType switch
+        private protected virtual CSharpType? CreateCSharpTypeCore(InputType inputType)
         {
-            InputLiteralType literalType => CSharpType.FromLiteral(CreateCSharpType(literalType.ValueType), literalType.Value),
-            InputUnionType unionType => CSharpType.FromUnion(unionType.VariantTypes.Select(CreateCSharpType).ToArray()),
-            InputArrayType listType => new CSharpType(typeof(IList<>), CreateCSharpType(listType.ValueType)),
-            InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), typeof(string), CreateCSharpType(dictionaryType.ValueType)),
-            InputEnumType enumType => CreateEnum(enumType).Type,
-            InputModelType model => CreateModel(model).Type,
-            InputNullableType nullableType => CreateCSharpType(nullableType.Type).WithNullable(true),
-            InputPrimitiveType primitiveType => primitiveType.Kind switch
+            switch (inputType)
             {
+                case InputLiteralType literalType:
+                    var inputLiteralType = CreateCSharpType(literalType.ValueType);
+                    return inputLiteralType != null ? CSharpType.FromLiteral(inputLiteralType, literalType.Value) : null;
+                case InputUnionType unionType:
+                    var unionTypes = new List<CSharpType>();
+                    foreach (var variantType in unionType.VariantTypes)
+                    {
+                        var variantCSharpType = CreateCSharpType(variantType);
+                        if (variantCSharpType != null)
+                        {
+                            unionTypes.Add(variantCSharpType);
+                        }
+                    }
+                    return unionTypes.Count > 0 ? CSharpType.FromUnion(unionTypes.ToArray()) : null;
+                case InputArrayType listType:
+                    var listCSharpType = CreateCSharpType(listType.ValueType);
+                    return listCSharpType != null ? new CSharpType(typeof(IList<>), listCSharpType) : null;
+
+                case InputDictionaryType dictionaryType:
+                    var keyCSharpType = CreateCSharpType(dictionaryType.KeyType);
+                    var valueCSharpType = CreateCSharpType(dictionaryType.ValueType);
+                    if (keyCSharpType != null && valueCSharpType != null)
+                    {
+                        return new CSharpType(typeof(IDictionary<,>), keyCSharpType, valueCSharpType);
+                    }
+                    return null;
+                case InputEnumType enumType:
+                    return CreateEnum(enumType)?.Type;
+                case InputModelType model:
+                    return CreateModel(model)?.Type;
+                case InputNullableType nullableType:
+                    var nullableCSharpType = CreateCSharpType(nullableType.Type);
+                    return nullableCSharpType?.WithNullable(true);
+                case InputPrimitiveType primitiveType:
+                    return primitiveType.Kind switch
+                    {
                 InputPrimitiveTypeKind.Boolean => new CSharpType(typeof(bool)),
                 InputPrimitiveTypeKind.Bytes => new CSharpType(typeof(BinaryData)),
                 InputPrimitiveTypeKind.ContentType => new CSharpType(typeof(string)),
@@ -84,18 +117,22 @@ namespace Microsoft.Generator.CSharp
                 InputPrimitiveTypeKind.Char => new CSharpType(typeof(char)),
                 InputPrimitiveTypeKind.Any => new CSharpType(typeof(BinaryData)),
                 _ => new CSharpType(typeof(object)),
-            },
-            InputDateTimeType dateTimeType => new CSharpType(typeof(DateTimeOffset)),
-            InputDurationType durationType => new CSharpType(typeof(TimeSpan)),
-            _ => throw new InvalidOperationException($"Unknown type: {inputType}")
-        };
+                    };
+                case InputDateTimeType dateTimeType:
+                    return new CSharpType(typeof(DateTimeOffset));
+                case InputDurationType durationType:
+                    return new CSharpType(typeof(TimeSpan));
+                default:
+                    throw new InvalidOperationException($"Unknown type: {inputType}");
+            }
+        }
 
         /// <summary>
         /// Factory method for creating a <see cref="TypeProvider"/> based on an <see cref="InputModelType"> <paramref name="model"/>.
         /// </summary>
         /// <param name="model">The <see cref="InputModelType"/> to convert.</param>
         /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
-        public TypeProvider CreateModel(InputModelType model)
+        public TypeProvider? CreateModel(InputModelType model)
         {
             if (CSharpToTypeProvider.TryGetValue(model, out var modelProvider))
                 return modelProvider;
@@ -105,14 +142,28 @@ namespace Microsoft.Generator.CSharp
             return modelProvider;
         }
 
-        protected virtual TypeProvider CreateModelCore(InputModelType model) => new ModelProvider(model);
+        private TypeProvider? CreateModelCore(InputModelType model)
+        {
+            TypeProvider? type = null;
+            var visitors = (IList<LibraryVisitor>)CodeModelPlugin.Instance.GetLibraryVisitors();
+            if (visitors.Count == 0)
+            {
+                return new ModelProvider(model);
+            }
+            foreach (var visitor in visitors)
+            {
+                type = visitor.Visit(model, type);
+            }
+
+            return type;
+        }
 
         /// <summary>
         /// Factory method for creating a <see cref="TypeProvider"/> based on an <see cref="InputEnumType"> <paramref name="enumType"/>.
         /// </summary>
         /// <param name="enumType">The <see cref="InputEnumType"/> to convert.</param>
         /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
-        public TypeProvider CreateEnum(InputEnumType enumType)
+        public TypeProvider? CreateEnum(InputEnumType enumType)
         {
             if (CSharpToTypeProvider.TryGetValue(enumType, out var enumProvider))
                 return enumProvider;
@@ -122,14 +173,48 @@ namespace Microsoft.Generator.CSharp
             return enumProvider;
         }
 
-        protected virtual TypeProvider CreateEnumCore(InputEnumType enumType) => EnumProvider.Create(enumType);
+        private TypeProvider? CreateEnumCore(InputEnumType enumType)
+        {
+            TypeProvider? type = null;
+            if (Visitors.Count == 0)
+            {
+                return EnumProvider.Create(enumType);
+            }
+            foreach (var visitor in Visitors)
+            {
+                type = visitor.Visit(enumType, type);
+            }
+            return type;
+        }
 
         /// <summary>
         /// Factory method for creating a <see cref="ParameterProvider"/> based on an input parameter <paramref name="parameter"/>.
         /// </summary>
         /// <param name="parameter">The <see cref="InputParameter"/> to convert.</param>
         /// <returns>An instance of <see cref="ParameterProvider"/>.</returns>
-        public virtual ParameterProvider CreateParameter(InputParameter parameter) => new ParameterProvider(parameter);
+        public virtual ParameterProvider? CreateParameter(InputParameter parameter)
+        {
+            if (ParameterCache.TryGetValue(parameter, out var parameterProvider))
+                return parameterProvider;
+
+            parameterProvider = CreateParameterCore(parameter);
+            ParameterCache.Add(parameter, parameterProvider);
+            return parameterProvider;
+        }
+
+        private ParameterProvider? CreateParameterCore(InputParameter parameter)
+        {
+            ParameterProvider? type = null;
+            if (Visitors.Count == 0)
+            {
+                return new ParameterProvider(parameter);
+            }
+            foreach (var visitor in Visitors)
+            {
+                type = visitor.Visit(parameter, type);
+            }
+            return type;
+        }
 
         /// <summary>
         /// Factory method for creating a <see cref="MethodProviderCollection"/> based on an input operation <paramref name="operation"/>.
@@ -146,7 +231,7 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="property">The input property.</param>
         /// <returns>The property provider.</returns>
-        public PropertyProvider CreatePropertyProvider(InputModelProperty property)
+        public PropertyProvider? CreatePropertyProvider(InputModelProperty property)
         {
             if (PropertyCache.TryGetValue(property, out var propertyProvider))
                 return propertyProvider;
@@ -161,7 +246,21 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="property">The input model property.</param>
         /// <returns>An instance of <see cref="PropertyProvider"/>.</returns>
-        protected virtual PropertyProvider CreatePropertyProviderCore(InputModelProperty property) => new PropertyProvider(property);
+        private PropertyProvider? CreatePropertyProviderCore(InputModelProperty property)
+        {
+            {
+                PropertyProvider? propertyProvider = null;
+                if (Visitors.Count == 0)
+                {
+                    return new PropertyProvider(property);
+                }
+                foreach (var visitor in Visitors)
+                {
+                    propertyProvider = visitor.Visit(property, propertyProvider);
+                }
+                return propertyProvider;
+            }
+        }
 
         /// <summary>
         /// Factory method for retrieving the serialization format for a given input type.

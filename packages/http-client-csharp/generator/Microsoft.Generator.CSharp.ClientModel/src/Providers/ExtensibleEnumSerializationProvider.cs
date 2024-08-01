@@ -24,7 +24,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             Debug.Assert(enumType.IsExtensible);
             _enumType = enumType;
-            _enumProvider = ClientModelPlugin.Instance.TypeFactory.CreateEnum(_enumType);
+            _enumProvider = ClientModelPlugin.Instance.TypeFactory.CreateEnum(_enumType)!;
         }
 
         protected override string BuildRelativeFilePath()

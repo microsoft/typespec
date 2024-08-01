@@ -8,7 +8,7 @@ using Microsoft.Generator.CSharp.Providers;
 
 namespace SamplePlugin
 {
-    public class SamplePluginOutputLibraryVisitor : OutputLibraryVisitor
+    public class SamplePluginLibraryVisitor : LibraryVisitor
     {
         protected override MethodProvider Visit(TypeProvider typeProvider, MethodProvider methodProvider)
         {

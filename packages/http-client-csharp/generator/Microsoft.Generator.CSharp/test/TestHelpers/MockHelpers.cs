@@ -3,6 +3,7 @@
 
 using System.IO;
 using System;
+using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Moq.Protected;
@@ -14,9 +15,10 @@ namespace Microsoft.Generator.CSharp.Tests
     {
         public const string TestHelpersFolder = "TestHelpers";
 
-        public static void LoadMockPlugin(
+        public static Mock<CodeModelPlugin> LoadMockPlugin(
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
-            Func<OutputLibrary>? createOutputLibrary = null)
+            Func<OutputLibrary>? createOutputLibrary = null,
+            Func<IEnumerable<LibraryVisitor>>? createLibraryVisitor = null)
         {
             var configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
             // initialize the singleton instance of the plugin
@@ -34,9 +36,18 @@ namespace Microsoft.Generator.CSharp.Tests
                 mockPlugin.Setup(p => p.OutputLibrary).Returns(createOutputLibrary);
             }
 
+            if (createLibraryVisitor != null)
+            {
+                mockPlugin.Protected()
+                    .Setup<IEnumerable<LibraryVisitor>>("GetLibraryVisitors")
+                    .Returns(createLibraryVisitor);
+            }
+
+
             mockPlugin.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
 
             CodeModelPlugin.Instance = mockPlugin.Object;
+            return mockPlugin;
         }
     }
 }

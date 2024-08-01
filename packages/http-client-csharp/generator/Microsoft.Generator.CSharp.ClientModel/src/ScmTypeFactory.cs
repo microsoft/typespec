@@ -40,8 +40,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             {
                 case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
                     return [new MrwSerializationTypeDefinition(inputModel)];
-                case InputEnumType inputEnumType when inputEnumType.IsExtensible:
-                    if (ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputEnumType).UnderlyingEnumType.Equals(typeof(string)))
+                case InputEnumType { IsExtensible: true } inputEnumType:
+                    if (ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputEnumType)?.UnderlyingEnumType.Equals(typeof(string)) == true)
                     {
                         return [];
                     }

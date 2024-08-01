@@ -19,6 +19,7 @@ namespace Microsoft.Generator.CSharp
     [ExportMetadata("PluginName", nameof(CodeModelPlugin))]
     public abstract class CodeModelPlugin
     {
+        private List<LibraryVisitor> _visitors = new();
         private static CodeModelPlugin? _instance;
         internal static CodeModelPlugin Instance
         {
@@ -39,28 +40,35 @@ namespace Microsoft.Generator.CSharp
         {
             Configuration = context.Configuration;
             _inputLibrary = new(() => new InputLibrary(Instance.Configuration.OutputDirectory));
+            TypeFactory = new TypeFactory();
         }
 
         // for mocking
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected CodeModelPlugin()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            // should be mocked
-            Configuration = null!;
-            _inputLibrary = new(() => null!);
         }
 
         private Lazy<InputLibrary> _inputLibrary;
 
         // Extensibility points to be implemented by a plugin
-        public abstract TypeFactory TypeFactory { get; }
+        public virtual TypeFactory TypeFactory { get; }
         public virtual string LicenseString => string.Empty;
         public virtual OutputLibrary OutputLibrary { get; } = new();
-        public InputLibrary InputLibrary => _inputLibrary.Value;
+        public virtual InputLibrary InputLibrary => _inputLibrary.Value;
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
         public virtual IReadOnlyList<MetadataReference> AdditionalMetadataReferences => Array.Empty<MetadataReference>();
 
         public virtual void Configure()
         {
+        }
+
+        protected internal virtual IEnumerable<LibraryVisitor> GetLibraryVisitors() => _visitors;
+
+        public void AddVisitor(LibraryVisitor visitor)
+        {
+            _visitors.Add(visitor);
         }
     }
 }

@@ -76,7 +76,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var enumProvider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);
 
             Assert.IsNotNull(enumProvider);
-            Assert.AreEqual(expected, enumProvider.Type);
+            Assert.AreEqual(expected, enumProvider!.Type);
         }
 
         [Test]

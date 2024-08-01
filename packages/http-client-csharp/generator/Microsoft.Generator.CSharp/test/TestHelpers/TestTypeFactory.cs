@@ -3,7 +3,7 @@
 
 namespace Microsoft.Generator.CSharp.Tests
 {
-    public class TestOutputLibraryVisitor : OutputLibraryVisitor
+    public class TestTypeFactory : TypeFactory
     {
     }
 }

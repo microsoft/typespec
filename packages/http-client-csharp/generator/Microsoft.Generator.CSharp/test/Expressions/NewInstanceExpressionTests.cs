@@ -46,7 +46,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         {
             InputEnumType enumType = new InputEnumType("MyEnum", "MyEnum", "public", null, "MyEnum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, new InputPrimitiveType(InputPrimitiveTypeKind.String), [new InputEnumTypeValue("One", "one", null), new InputEnumTypeValue("Two", "two", null)], true);
             var provider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(enumType);
-            var expr = New.Instance(provider.Type, Literal("three"));
+            var expr = New.Instance(provider!.Type, Literal("three"));
             using CodeWriter writer = new CodeWriter();
             expr.Write(writer);
             Assert.AreEqual("new global::Sample.Models.MyEnum(\"three\")", writer.ToString(false));

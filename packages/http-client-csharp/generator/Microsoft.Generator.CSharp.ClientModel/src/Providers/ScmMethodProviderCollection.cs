@@ -111,17 +111,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 return [.. MethodParameters.Take(MethodParameters.Count - 1)];
 
             _bodyParameter = ClientModelPlugin.Instance.TypeFactory.CreateParameter(bodyInputParameter);
-            for (int i = 0; i < MethodParameters.Count - 1; i++)
+            if (_bodyParameter != null)
             {
-                if (ReferenceEquals(MethodParameters[i], ScmKnownParameters.BinaryContent))
+                for (int i = 0; i < MethodParameters.Count - 1; i++)
                 {
-                    methodParameters.Add(_bodyParameter);
-                }
-                else
-                {
-                    methodParameters.Add(MethodParameters[i]);
+                    if (ReferenceEquals(MethodParameters[i], ScmKnownParameters.BinaryContent))
+                    {
+                        methodParameters.Add(_bodyParameter);
+                    }
+                    else
+                    {
+                        methodParameters.Add(MethodParameters[i]);
+                    }
                 }
             }
+
             return methodParameters;
         }
 
