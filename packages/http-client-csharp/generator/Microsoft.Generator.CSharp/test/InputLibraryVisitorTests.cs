@@ -24,7 +24,6 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             _mockPlugin = MockHelpers.LoadMockPlugin();
             _mockVisitor = new Mock<LibraryVisitor> { CallBase = true };
-            _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
             _mockInputLibrary = new Mock<InputLibrary>();
             _mockPlugin.Setup(p => p.InputLibrary).Returns(_mockInputLibrary.Object);
         }
@@ -32,6 +31,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void PreVisitsProperties()
         {
+            _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
             var inputModelProperty =
                 new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any), true, true, false);
             var inputModel = new InputModelType("foo", "id", "desc", "internal", "description",
@@ -54,6 +54,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void PreVisitsEnum()
         {
+            _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
             var inputEnum = new InputEnumType("enum", "id", "desc", null, "description", InputModelTypeUsage.Input, InputPrimitiveType.Int32, new[]
             {
                 new InputEnumTypeValue("value", 1, "desc")
@@ -82,6 +83,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Ignore("This should probably move to SCM tests if CreateMethods moves there. https://github.com/microsoft/typespec/issues/4066")]
         public void PreVisitsMethods()
         {
+            _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
             var inputModelProperty =
                 new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any), true, true, false);
             var inputModel = new InputModelType("foo", "id", "desc", "internal", "description",
@@ -162,6 +164,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 new InputAuth()));
 
             var visitor = new PreVisitor(true);
+            _mockPlugin.Object.AddVisitor(visitor);
             Assert.DoesNotThrow(() => visitor.Visit(_mockPlugin.Object.OutputLibrary));
         }
 
