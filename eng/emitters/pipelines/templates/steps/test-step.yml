@@ -35,6 +35,7 @@ parameters:
 
   - name: CadlRanchName
     type: string
+    default: ""
 
 steps:
   - checkout: self

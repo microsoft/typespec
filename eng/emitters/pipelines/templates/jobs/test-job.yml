@@ -42,6 +42,7 @@ parameters:
 
   - name: CadlRanchName
     type: string
+    default: ""
 
 jobs:
   - job: Test_${{ parameters.Os }}_${{ split(parameters.NodeVersion, '.')[0] }}
