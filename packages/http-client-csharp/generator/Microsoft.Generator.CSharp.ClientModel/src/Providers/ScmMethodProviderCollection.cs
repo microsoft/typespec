@@ -179,7 +179,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private static CSharpType GetConvenienceReturnType(IReadOnlyList<OperationResponse> responses, out CSharpType? responseBodyType)
         {
             var response = responses.FirstOrDefault(r => !r.IsErrorResponse);
-            responseBodyType = response?.BodyType is null ? null : ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(response.BodyType);
+            responseBodyType = response?.BodyType is null ? null : ClientModelPlugin.Instance.TypeFactory.CreatePrimitiveCSharpType(response.BodyType);
             return response is null || responseBodyType is null
                 ? typeof(ClientResult)
                 : new CSharpType(typeof(ClientResult<>), responseBodyType);

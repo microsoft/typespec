@@ -23,8 +23,11 @@ namespace Microsoft.Generator.CSharp
         private Dictionary<InputType, TypeProvider?>? _csharpToTypeProvider;
         private Dictionary<InputType, TypeProvider?> CSharpToTypeProvider => _csharpToTypeProvider ??= [];
 
-        private Dictionary<InputType, CSharpType?>? _typeCache;
-        private Dictionary<InputType, CSharpType?> TypeCache => _typeCache ??= [];
+        private Dictionary<InputType, CSharpType>? _typeCache;
+        private Dictionary<InputType, CSharpType> TypeCache => _typeCache ??= [];
+
+        private HashSet<InputType>? _nullTypes;
+        private HashSet<InputType> NullTypes => _nullTypes ??= [];
 
         private Dictionary<InputModelProperty, PropertyProvider?>? _propertyCache;
         private Dictionary<InputModelProperty, PropertyProvider?> PropertyCache => _propertyCache ??= [];
@@ -38,10 +41,33 @@ namespace Microsoft.Generator.CSharp
 
         public CSharpType? CreateCSharpType(InputType inputType)
         {
+            if (NullTypes.Contains(inputType))
+            {
+                return null;
+            }
+
+            var type = inputType switch
+            {
+                InputModelType modelType => CreateModel(modelType)?.Type,
+                InputEnumType enumType => CreateEnum(enumType)?.Type,
+                InputNullableType nullableType => CreateCSharpType(nullableType.Type)?.WithNullable(true),
+                _ => CreatePrimitiveCSharpType(inputType)
+            };
+
+            if (type == null)
+            {
+                NullTypes.Add(inputType);
+            }
+
+            return type;
+        }
+
+        public CSharpType CreatePrimitiveCSharpType(InputType inputType)
+        {
             if (TypeCache.TryGetValue(inputType, out var type))
                 return type;
 
-            type = CreateCSharpTypeCore(inputType);
+            type = CreatePrimitiveCSharpTypeCore(inputType);
             TypeCache.Add(inputType, type);
             return type;
         }
@@ -51,57 +77,22 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="inputType">The <see cref="InputType"/> to convert.</param>
         /// <returns>An instance of <see cref="CSharpType"/>.</returns>
-        private protected virtual CSharpType? CreateCSharpTypeCore(InputType inputType)
+        private protected virtual CSharpType CreatePrimitiveCSharpTypeCore(InputType inputType) => inputType switch
         {
-            switch (inputType)
+            InputLiteralType literalType => CSharpType.FromLiteral(CreatePrimitiveCSharpType(literalType.ValueType), literalType.Value),
+            InputUnionType unionType => CSharpType.FromUnion(unionType.VariantTypes.Select(CreatePrimitiveCSharpType).ToArray()),
+            InputArrayType listType => new CSharpType(typeof(IList<>), CreatePrimitiveCSharpType(listType.ValueType)),
+            InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), typeof(string), CreatePrimitiveCSharpType(dictionaryType.ValueType)),
+            InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
-                case InputLiteralType literalType:
-                    var inputLiteralType = CreateCSharpType(literalType.ValueType);
-                    return inputLiteralType != null ? CSharpType.FromLiteral(inputLiteralType, literalType.Value) : null;
-                case InputUnionType unionType:
-                    var unionTypes = new List<CSharpType>();
-                    foreach (var variantType in unionType.VariantTypes)
-                    {
-                        var variantCSharpType = CreateCSharpType(variantType);
-                        if (variantCSharpType != null)
-                        {
-                            unionTypes.Add(variantCSharpType);
-                        }
-                    }
-                    return unionTypes.Count > 0 ? CSharpType.FromUnion(unionTypes.ToArray()) : null;
-                case InputArrayType listType:
-                    var listCSharpType = CreateCSharpType(listType.ValueType);
-                    return listCSharpType != null ? new CSharpType(typeof(IList<>), listCSharpType) : null;
-
-                case InputDictionaryType dictionaryType:
-                    var keyCSharpType = CreateCSharpType(dictionaryType.KeyType);
-                    var valueCSharpType = CreateCSharpType(dictionaryType.ValueType);
-                    if (keyCSharpType != null && valueCSharpType != null)
-                    {
-                        return new CSharpType(typeof(IDictionary<,>), keyCSharpType, valueCSharpType);
-                    }
-                    return null;
-                case InputEnumType enumType:
-                    return CreateEnum(enumType)?.Type;
-                case InputModelType model:
-                    return CreateModel(model)?.Type;
-                case InputNullableType nullableType:
-                    var nullableCSharpType = CreateCSharpType(nullableType.Type);
-                    return nullableCSharpType?.WithNullable(true);
-                case InputPrimitiveType primitiveType:
-                    return primitiveType.Kind switch
-                    {
                 InputPrimitiveTypeKind.Boolean => new CSharpType(typeof(bool)),
                 InputPrimitiveTypeKind.Bytes => new CSharpType(typeof(BinaryData)),
-                InputPrimitiveTypeKind.ContentType => new CSharpType(typeof(string)),
                 InputPrimitiveTypeKind.PlainDate => new CSharpType(typeof(DateTimeOffset)),
                 InputPrimitiveTypeKind.Decimal => new CSharpType(typeof(decimal)),
                 InputPrimitiveTypeKind.Decimal128 => new CSharpType(typeof(decimal)),
                 InputPrimitiveTypeKind.PlainTime => new CSharpType(typeof(TimeSpan)),
                 InputPrimitiveTypeKind.Float32 => new CSharpType(typeof(float)),
                 InputPrimitiveTypeKind.Float64 => new CSharpType(typeof(double)),
-                InputPrimitiveTypeKind.Float128 => new CSharpType(typeof(decimal)),
-                InputPrimitiveTypeKind.Guid or InputPrimitiveTypeKind.Uuid => new CSharpType(typeof(Guid)),
                 InputPrimitiveTypeKind.Int8 => new CSharpType(typeof(sbyte)),
                 InputPrimitiveTypeKind.UInt8 => new CSharpType(typeof(byte)),
                 InputPrimitiveTypeKind.Int32 => new CSharpType(typeof(int)),
@@ -110,22 +101,16 @@ namespace Microsoft.Generator.CSharp
                 InputPrimitiveTypeKind.Integer => new CSharpType(typeof(long)), // in typespec, integer is the base type of int related types, see type relation: https://typespec.io/docs/language-basics/type-relations
                 InputPrimitiveTypeKind.Float => new CSharpType(typeof(double)), // in typespec, float is the base type of float32 and float64, see type relation: https://typespec.io/docs/language-basics/type-relations
                 InputPrimitiveTypeKind.Numeric => new CSharpType(typeof(double)), // in typespec, numeric is the base type of number types, see type relation: https://typespec.io/docs/language-basics/type-relations
-                InputPrimitiveTypeKind.IPAddress => new CSharpType(typeof(IPAddress)),
                 InputPrimitiveTypeKind.Stream => new CSharpType(typeof(Stream)),
                 InputPrimitiveTypeKind.String => new CSharpType(typeof(string)),
-                InputPrimitiveTypeKind.Uri or InputPrimitiveTypeKind.Url => new CSharpType(typeof(Uri)),
-                InputPrimitiveTypeKind.Char => new CSharpType(typeof(char)),
+                InputPrimitiveTypeKind.Url => new CSharpType(typeof(Uri)),
                 InputPrimitiveTypeKind.Any => new CSharpType(typeof(BinaryData)),
                 _ => new CSharpType(typeof(object)),
-                    };
-                case InputDateTimeType dateTimeType:
-                    return new CSharpType(typeof(DateTimeOffset));
-                case InputDurationType durationType:
-                    return new CSharpType(typeof(TimeSpan));
-                default:
-                    throw new InvalidOperationException($"Unknown type: {inputType}");
-            }
-        }
+            },
+            InputDateTimeType dateTimeType => new CSharpType(typeof(DateTimeOffset)),
+            InputDurationType durationType => new CSharpType(typeof(TimeSpan)),
+            _ => throw new InvalidOperationException($"Unknown type: {inputType}")
+        };
 
         /// <summary>
         /// Factory method for creating a <see cref="TypeProvider"/> based on an <see cref="InputModelType"> <paramref name="model"/>.
@@ -196,23 +181,9 @@ namespace Microsoft.Generator.CSharp
             if (ParameterCache.TryGetValue(parameter, out var parameterProvider))
                 return parameterProvider;
 
-            parameterProvider = CreateParameterCore(parameter);
+            parameterProvider = new ParameterProvider(parameter);
             ParameterCache.Add(parameter, parameterProvider);
             return parameterProvider;
-        }
-
-        private ParameterProvider? CreateParameterCore(InputParameter parameter)
-        {
-            ParameterProvider? type = null;
-            if (Visitors.Count == 0)
-            {
-                return new ParameterProvider(parameter);
-            }
-            foreach (var visitor in Visitors)
-            {
-                type = visitor.Visit(parameter, type);
-            }
-            return type;
         }
 
         /// <summary>

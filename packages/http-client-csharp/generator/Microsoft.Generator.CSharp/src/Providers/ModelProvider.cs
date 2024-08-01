@@ -50,7 +50,7 @@ namespace Microsoft.Generator.CSharp.Providers
             if (_inputModel.BaseModel == null)
                 return null;
 
-            return CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(_inputModel.BaseModel);
+            return CodeModelPlugin.Instance.TypeFactory.CreateModel(_inputModel.BaseModel)?.Type;
         }
 
         protected override TypeProvider[] BuildSerializationProviders()

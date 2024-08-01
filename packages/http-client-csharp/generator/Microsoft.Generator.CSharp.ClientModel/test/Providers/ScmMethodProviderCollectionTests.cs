@@ -20,7 +20,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             var inputClient = new InputClient("TestClient", "TestClient description", [inputOperation], [], null);
 
             MockHelpers.LoadMockPlugin(
-                createCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)),
+                createPrimitiveCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)),
                 createParameter: (inputParameter) => new ParameterProvider("mockParam", $"mock description", typeof(bool), null));
 
             var methodCollection = new ScmMethodProviderCollection(inputOperation, ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient));
