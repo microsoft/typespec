@@ -41,7 +41,7 @@ export class XorSchema extends Schema implements XorSchema {
 
 /**  a NOT relationship between schemas
  *
- * @fearthecowboy - I don't think we're going to impmement this.
+ * @fearthecowboy - I don't think we're going to implement this.
  */
 export interface NotSchema extends Schema {
   /** the schema type  */
