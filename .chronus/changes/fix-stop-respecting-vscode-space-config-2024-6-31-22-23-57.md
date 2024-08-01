@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-IDE: Stop respecting VSCode space/tabs config for extension formatter
+IDE: Formatting command will use prettier config if provided over the editor's configuration.
