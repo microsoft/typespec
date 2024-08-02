@@ -36,7 +36,7 @@ namespace Microsoft.Generator.CSharp
         private Dictionary<InputParameter, ParameterProvider> ParameterCache => _parameterCache ??= [];
 
         private Dictionary<InputType, IReadOnlyList<TypeProvider>>? _serializationsCache;
-        private IList<LibraryVisitor> Visitors => (IList<LibraryVisitor>)CodeModelPlugin.Instance.GetLibraryVisitors();
+        private IList<LibraryVisitor> Visitors => CodeModelPlugin.Instance.Visitors;
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache => _serializationsCache ??= [];
 
         protected internal TypeFactory()

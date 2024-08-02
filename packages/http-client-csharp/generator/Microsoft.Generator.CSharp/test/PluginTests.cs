@@ -13,17 +13,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             var plugin = new TestPlugin();
             plugin.AddVisitor(new TestLibraryVisitor());
-            Assert.AreEqual(1, plugin.GetLibraryVisitors().Count());
-        }
-
-        [Test]
-        public void CanOverrideGetOutputLibraryVisitors()
-        {
-            var plugin = new TestPlugin(new [] { new TestLibraryVisitor() });
-            Assert.AreEqual(1, plugin.GetLibraryVisitors().Count());
-
-            plugin.AddVisitor(new TestLibraryVisitor());
-            Assert.AreEqual(2, plugin.GetLibraryVisitors().Count());
+            Assert.AreEqual(1, plugin.Visitors.Count);
         }
     }
 }

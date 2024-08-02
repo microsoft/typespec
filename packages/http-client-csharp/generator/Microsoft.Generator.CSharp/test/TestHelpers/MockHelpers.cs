@@ -18,8 +18,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public static Mock<CodeModelPlugin> LoadMockPlugin(
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<OutputLibrary>? createOutputLibrary = null,
-            string? configuration = null,
-            Func<IEnumerable<LibraryVisitor>>? createLibraryVisitor = null)
+            string? configuration = null)
         {
             var configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
             // initialize the singleton instance of the plugin
@@ -36,14 +35,6 @@ namespace Microsoft.Generator.CSharp.Tests
             {
                 mockPlugin.Setup(p => p.OutputLibrary).Returns(createOutputLibrary);
             }
-
-            if (createLibraryVisitor != null)
-            {
-                mockPlugin.Protected()
-                    .Setup<IEnumerable<LibraryVisitor>>("GetLibraryVisitors")
-                    .Returns(createLibraryVisitor);
-            }
-
 
             mockPlugin.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
 

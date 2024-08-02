@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp
             List<Task> generateFilesTasks = new();
 
             // visit the entire library before generating files
-            foreach (var visitor in CodeModelPlugin.Instance.GetLibraryVisitors() ?? [])
+            foreach (var visitor in CodeModelPlugin.Instance.Visitors)
             {
                 visitor.Visit(output);
             }

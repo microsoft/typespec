@@ -57,13 +57,13 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             var mockVisitor = new Mock<LibraryVisitor>();
 
-            var mockPlugin = MockHelpers.LoadMockPlugin(
-                createLibraryVisitor: () => new List<LibraryVisitor> { mockVisitor.Object });
+            var mockPlugin = MockHelpers.LoadMockPlugin();
+            mockPlugin.Object.AddVisitor(mockVisitor.Object);
 
             var csharpGen = new CSharpGen();
 
             Assert.DoesNotThrowAsync(async () => await csharpGen.ExecuteAsync());
-            mockPlugin.Verify(m => m.GetLibraryVisitors(), Times.Once);
+            mockPlugin.Verify(m => m.Visitors, Times.Once);
             mockVisitor.Verify(m => m.Visit(mockPlugin.Object.OutputLibrary), Times.Once);
         }
 
