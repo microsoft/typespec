@@ -3,6 +3,7 @@
 
 using System.IO;
 using System;
+using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Moq.Protected;
@@ -14,7 +15,7 @@ namespace Microsoft.Generator.CSharp.Tests
     {
         public const string TestHelpersFolder = "TestHelpers";
 
-        public static void LoadMockPlugin(
+        public static Mock<CodeModelPlugin> LoadMockPlugin(
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<OutputLibrary>? createOutputLibrary = null,
             string? configuration = null)
@@ -38,6 +39,7 @@ namespace Microsoft.Generator.CSharp.Tests
             mockPlugin.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
 
             CodeModelPlugin.Instance = mockPlugin.Object;
+            return mockPlugin;
         }
     }
 }

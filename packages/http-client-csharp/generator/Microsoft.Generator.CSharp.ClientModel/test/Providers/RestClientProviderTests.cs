@@ -22,7 +22,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         public void TestRestClientMethods(InputOperation inputOperation)
         {
             var restClientProvider = new ClientProvider(SingleOpInputClient).RestClient;
-            MockHelpers.LoadMockPlugin(createMethods: (inputOperation, typeProvider) => new ScmMethodProviderCollection(inputOperation, restClientProvider.ClientProvider));
 
             var methods = restClientProvider.Methods;
             Assert.IsNotNull(methods, "Methods should not be null.");
