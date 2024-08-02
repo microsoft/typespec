@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import { Extensions, Languages, Schema, SchemaType } from "@autorest/codemodel";
 import { DeepPartial, Initializer } from "@azure-tools/codegen";
 import { SchemaUsage } from "./usage.js";

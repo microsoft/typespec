@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import {
   ChoiceValue,
   PrimitiveSchema,

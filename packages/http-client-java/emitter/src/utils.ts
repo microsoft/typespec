@@ -3,7 +3,7 @@ import { NoTarget, Program, Type } from "@typespec/compiler";
 export function logWarning(program: Program, msg: string) {
   trace(program, msg);
   program.reportDiagnostic({
-    code: "http-client-java",
+    code: "typespec-java",
     severity: "warning",
     message: msg,
     target: NoTarget,
@@ -11,7 +11,7 @@ export function logWarning(program: Program, msg: string) {
 }
 
 export function trace(program: Program, msg: string) {
-  program.trace("http-client-java", msg);
+  program.trace("typespec-java", msg);
 }
 
 export function pascalCase(name: string): string {

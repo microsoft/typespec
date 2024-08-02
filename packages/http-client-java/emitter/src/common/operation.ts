@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import {
   ApiVersion,
   Aspect,
@@ -8,10 +9,11 @@ import {
   SchemaType,
 } from "@autorest/codemodel";
 import { DeepPartial } from "@azure-tools/codegen";
+import { CrossLanguageDefinition } from "./client.js";
 import { LongRunningMetadata } from "./long-running-metadata.js";
 
 /** represents a single callable endpoint with a discrete set of inputs, and any number of output possibilities (responses or exceptions)  */
-export interface Operation extends Aspect {
+export interface Operation extends Aspect, CrossLanguageDefinition {
   /**
    * Original Operation ID if present.
    * This can be used to identify the original id of an operation before it is styled.
@@ -111,9 +113,8 @@ export class Request extends Metadata implements Request {
     }
   }
 }
-export class Operation extends Aspect implements Operation {
-  crossLanguageDefinitionId?: string;
 
+export class Operation extends Aspect implements Operation {
   constructor($key: string, description: string, initializer?: DeepPartial<Operation>) {
     super($key, description);
     this.apply(initializer);

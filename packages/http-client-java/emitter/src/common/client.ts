@@ -1,14 +1,8 @@
-import {
-  Aspect,
-  Metadata,
-  ObjectSchema,
-  OperationGroup,
-  Parameter,
-  Security,
-} from "@autorest/codemodel";
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
+import { Aspect, Metadata, OperationGroup, Parameter, Security } from "@autorest/codemodel";
 import { DeepPartial } from "@azure-tools/codegen";
 
-export interface Client extends Aspect {
+export interface Client extends Aspect, CrossLanguageDefinition {
   /** All operations  */
   operationGroups: Array<OperationGroup>;
 
@@ -17,8 +11,6 @@ export interface Client extends Aspect {
   security: Security;
 
   serviceVersion?: ServiceVersion; // apiVersions is in
-
-  crossLanguageDefinitionId?: string;
 }
 
 export class Client extends Aspect implements Client {
@@ -57,9 +49,6 @@ export class ServiceVersion extends Metadata {
   }
 }
 
-export class ObjectScheme extends ObjectSchema {
+export interface CrossLanguageDefinition {
   crossLanguageDefinitionId?: string;
-  constructor(name: string, description: string, objectInitializer?: DeepPartial<ObjectSchema>) {
-    super(name, description, objectInitializer);
-  }
 }

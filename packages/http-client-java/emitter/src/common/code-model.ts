@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import { Info, Metadata, OperationGroup, Parameter, Schemas, Security } from "@autorest/codemodel";
 import { DeepPartial, enableSourceTracking } from "@azure-tools/codegen";
 import { Client } from "./client.js";

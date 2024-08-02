@@ -1,33 +1,17 @@
 import { Parameter } from "@autorest/codemodel";
 import { LroMetadata } from "@azure-tools/typespec-azure-core";
-import { SdkContext, getDefaultApiVersion } from "@azure-tools/typespec-client-generator-core";
-import {
-  ModelProperty,
-  Operation,
-  Program,
-  Type,
-  Union,
-  ignoreDiagnostics,
-  projectProgram,
-  resolvePath,
-} from "@typespec/compiler";
+import { ModelProperty, Operation, Program, Type, Union } from "@typespec/compiler";
 import {
   HttpOperation,
-  getAllHttpServices,
   getHeaderFieldName,
-  getHttpService,
   getPathParamName,
   getQueryParamName,
   isStatusCode,
 } from "@typespec/http";
-import { resolveOperationId } from "@typespec/openapi";
-import { buildVersionProjections } from "@typespec/versioning";
-import { pathToFileURL } from "url";
 import { Client as CodeModelClient, ServiceVersion } from "./common/client.js";
 import { CodeModel } from "./common/code-model.js";
-import { EmitterOptions } from "./emitter.js";
 import { modelIs, unionReferredByType } from "./type-utils.js";
-import { getNamespace, logWarning, pascalCase } from "./utils.js";
+import { getNamespace, pascalCase } from "./utils.js";
 
 export const SPECIAL_HEADER_NAMES = new Set([
   "repeatability-request-id",
@@ -61,116 +45,6 @@ export function isKnownContentType(contentTypes: string[]): boolean {
     .some((it) => {
       return SUPPORTED_MIME_TYPES.has(it);
     });
-}
-
-/**
- * Load examples from the examples directory.
- *
- * @param program the program.
- * @param options the emitter options.
- * @param sdkContext the SdkContext.
- * @returns the Map of Operation to JSON. The Operation would be operation.projectionSource if available.
- */
-export async function loadExamples(
-  program: Program,
-  options: EmitterOptions,
-  sdkContext: SdkContext
-): Promise<Map<Operation, any>> {
-  // sdkContextApiVersion could contain "all" or "latest"
-  const sdkContextApiVersion = sdkContext.apiVersion;
-
-  const operationExamplesMap = new Map<Operation, any>();
-  const operationExamplesDirectory = options["examples-directory"];
-  if (operationExamplesDirectory) {
-    const operationIdExamplesMap = new Map<string, any>();
-
-    let service = ignoreDiagnostics(getAllHttpServices(program))[0];
-    let version = undefined;
-    if (sdkContextApiVersion && !["all", "latest"].includes(sdkContextApiVersion)) {
-      version = sdkContextApiVersion;
-    } else {
-      version = getDefaultApiVersion(sdkContext, service.namespace)?.value;
-    }
-    if (version) {
-      // projection
-      const versionProjections = buildVersionProjections(program, service.namespace).filter(
-        (it) => it.version === version
-      );
-      const projectedProgram = projectProgram(program, versionProjections[0].projections);
-      const projectedService = projectedProgram.projector.projectedTypes.get(service.namespace);
-      if (projectedService?.kind === "Namespace") {
-        service = ignoreDiagnostics(getHttpService(program, projectedService));
-      }
-    }
-
-    let exampleDir = version
-      ? resolvePath(operationExamplesDirectory, version)
-      : resolvePath(operationExamplesDirectory);
-    if (!(await directoryExists(program, exampleDir))) {
-      if (program.projectRoot) {
-        // try resolve "examples-directory" relative to program.projectRoot
-        exampleDir = version
-          ? resolvePath(program.projectRoot, operationExamplesDirectory, version)
-          : resolvePath(program.projectRoot, operationExamplesDirectory);
-        if (!(await directoryExists(program, exampleDir))) {
-          logWarning(program, `Examples directory '${exampleDir}' does not exist.`);
-          return operationExamplesMap;
-        }
-      }
-    }
-    const exampleFiles = await program.host.readDir(exampleDir);
-    for (const fileName of exampleFiles) {
-      try {
-        const exampleFilePath = resolvePath(exampleDir, fileName);
-        const exampleFile = await program.host.readFile(exampleFilePath);
-        const example = JSON.parse(exampleFile.text);
-        if (!example.operationId) {
-          logWarning(program, `Example file '${fileName}' is missing operationId.`);
-          continue;
-        }
-
-        if (!operationIdExamplesMap.has(example.operationId)) {
-          example["x-ms-original-file"] = pathToFileURL(exampleFilePath).toString();
-          operationIdExamplesMap.set(example.operationId, example);
-        }
-      } catch (err) {
-        logWarning(program, `Failed to load example file '${fileName}'.`);
-      }
-    }
-
-    if (operationIdExamplesMap.size > 0) {
-      const routes = service.operations;
-      routes.forEach((it) => {
-        const operationId = pascalCaseForOperationId(resolveOperationId(program, it.operation));
-        if (operationIdExamplesMap.has(operationId)) {
-          let operation = it.operation;
-          if (operation.projectionSource?.kind === "Operation") {
-            operation = operation.projectionSource;
-          }
-          operationExamplesMap.set(operation, operationIdExamplesMap.get(operationId));
-        }
-      });
-    }
-  }
-  return operationExamplesMap;
-}
-
-async function directoryExists(program: Program, directory: string) {
-  try {
-    if (!(await program.host.stat(directory)).isDirectory()) {
-      return false;
-    }
-  } catch (err) {
-    return false;
-  }
-  return true;
-}
-
-function pascalCaseForOperationId(name: string) {
-  return name
-    .split("_")
-    .map((s) => pascalCase(s))
-    .join("_");
 }
 
 export function operationIsJsonMergePatch(op: HttpOperation): boolean {

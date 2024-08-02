@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import { PrimitiveSchema, SchemaType } from "@autorest/codemodel";
 import { DeepPartial } from "@azure-tools/codegen";
 

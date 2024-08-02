@@ -48,11 +48,12 @@ import {
 } from "@azure-tools/typespec-azure-core";
 import {
   SdkArrayType,
+  SdkBodyModelPropertyType,
   SdkBuiltInType,
   SdkClient,
   SdkConstantType,
   SdkContext,
-  SdkDatetimeType,
+  SdkDateTimeType,
   SdkDictionaryType,
   SdkDurationType,
   SdkEnumType,
@@ -67,6 +68,8 @@ import {
   getClientType,
   getCrossLanguageDefinitionId,
   getDefaultApiVersion,
+  getHttpOperationExamples,
+  getHttpOperationWithCache,
   getWireName,
   isApiVersion,
   isInternal,
@@ -80,8 +83,10 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import {
   EmitContext,
+  Interface,
   Model,
   ModelProperty,
+  Namespace,
   Operation,
   Program,
   Scalar,
@@ -97,7 +102,6 @@ import {
   getProjectedName,
   getSummary,
   getVisibility,
-  ignoreDiagnostics,
   isArrayModelType,
   isErrorModel,
   isRecordModelType,
@@ -115,18 +119,23 @@ import {
   HttpStatusCodesEntry,
   Visibility,
   getAuthentication,
+  getHeaderFieldName,
   getHeaderFieldOptions,
-  getHttpOperation,
+  getPathParamName,
+  getQueryParamName,
   getQueryParamOptions,
   getServers,
   getStatusCodeDescription,
+  isHeader,
   isPathParam,
+  isQueryParam,
 } from "@typespec/http";
 import { getResourceOperation, getSegment } from "@typespec/rest";
 import { Version, getAddedOnVersions, getVersion } from "@typespec/versioning";
 import { fail } from "assert";
 import pkg from "lodash";
-import { Client as CodeModelClient, ObjectScheme } from "./common/client.js";
+import { pathToFileURL } from "url";
+import { Client as CodeModelClient, CrossLanguageDefinition } from "./common/client.js";
 import { CodeModel } from "./common/code-model.js";
 import { LongRunningMetadata } from "./common/long-running-metadata.js";
 import { Operation as CodeModelOperation, ConvenienceApi, Request } from "./common/operation.js";
@@ -146,7 +155,6 @@ import {
   isKnownContentType,
   isLroNewPollingStrategy,
   isPayloadProperty,
-  loadExamples,
   operationIsJsonMergePatch,
   operationIsMultipart,
   operationIsMultipleContentTypes,
@@ -181,9 +189,12 @@ export class CodeModelBuilder {
   private program: Program;
   private typeNameOptions: TypeNameOptions;
   private namespace: string;
-  private sdkContext: SdkContext;
+  private sdkContext!: SdkContext;
   private options: EmitterOptions;
   private codeModel: CodeModel;
+  private emitterContext: EmitContext<EmitterOptions>;
+  private serviceNamespace: Namespace | Interface | Operation;
+
   private loggingEnabled: boolean = false;
 
   readonly schemaCache = new ProcessingCache((type: SdkType, name: string) =>
@@ -191,13 +202,13 @@ export class CodeModelBuilder {
   );
   readonly typeUnionRefCache = new Map<Type, Union | null | undefined>(); // Union means it ref a Union type, null means it does not ref any Union, undefined means type visited but not completed
 
-  private operationExamples: Map<Operation, any> = new Map<Operation, any>();
   // current apiVersion name to generate code
   private apiVersion: Version | undefined;
 
   public constructor(program1: Program, context: EmitContext<EmitterOptions>) {
     this.options = context.options;
     this.program = program1;
+    this.emitterContext = context;
     if (this.options["dev-options"]?.loglevel) {
       this.loggingEnabled = true;
     }
@@ -208,15 +219,15 @@ export class CodeModelBuilder {
       );
     }
 
-    this.sdkContext = createSdkContext(context, "@typespec/http-client-java");
     const service = listServices(this.program)[0];
     const serviceNamespace = service.type;
     if (serviceNamespace === undefined) {
       throw Error("Cannot emit yaml for a namespace that doesn't exist.");
     }
+    this.serviceNamespace = serviceNamespace;
 
-    // java namespace
     this.namespace = getNamespaceFullName(serviceNamespace) || "Azure.Client";
+    // java namespace
     const javaNamespace = getJavaNamespace(this.namespace);
 
     const namespace1 = this.namespace;
@@ -224,7 +235,7 @@ export class CodeModelBuilder {
       // shorten type names by removing TypeSpec and service namespace
       namespaceFilter(ns) {
         const name = getNamespaceFullName(ns);
-        return name !== "Cadl" && name !== namespace1;
+        return name !== "TypeSpec" && name !== namespace1;
       },
     };
 
@@ -248,17 +259,17 @@ export class CodeModelBuilder {
         },
       },
     });
-
-    // auth
-    // TODO: it is not very likely, but different client could have different auth
-    const auth = getAuthentication(this.program, serviceNamespace);
-    if (auth) {
-      this.processAuth(auth);
-    }
   }
 
   public async build(): Promise<CodeModel> {
-    this.operationExamples = await loadExamples(this.program, this.options, this.sdkContext);
+    this.sdkContext = await createSdkContext(this.emitterContext, "@azure-tools/typespec-java");
+
+    // auth
+    // TODO: it is not very likely, but different client could have different auth
+    const auth = getAuthentication(this.program, this.serviceNamespace);
+    if (auth) {
+      this.processAuth(auth);
+    }
 
     if (this.sdkContext.arm) {
       // ARM
@@ -554,7 +565,8 @@ export class CodeModelBuilder {
         codeModelClient.apiVersions = [];
         for (const version of this.getFilteredApiVersions(
           this.apiVersion,
-          versioning.getVersions()
+          versioning.getVersions(),
+          this.options["service-version-exclude-preview"]
         )) {
           const apiVersion = new ApiVersion();
           apiVersion.version = version.value;
@@ -656,7 +668,7 @@ export class CodeModelBuilder {
 
   /**
    * Filter api-versions for "ServiceVersion".
-   * TODO(xiaofei) pending TCGC design: https://github.com/Azure/typespec-azure/issues/746
+   * TODO(xiaofei) pending TCGC design: https://github.com/Azure/typespec-azure/issues/965
    *
    * @param pinnedApiVersion the api-version to use as filter base
    * @param versions api-versions to filter
@@ -664,14 +676,15 @@ export class CodeModelBuilder {
    */
   private getFilteredApiVersions(
     pinnedApiVersion: Version | undefined,
-    versions: Version[]
+    versions: Version[],
+    excludePreview: boolean = false
   ): Version[] {
     if (!pinnedApiVersion) {
       return versions;
     }
     return versions
       .slice(0, versions.indexOf(pinnedApiVersion) + 1)
-      .filter((version) => !isStable(pinnedApiVersion) || isStable(version));
+      .filter((version) => !excludePreview || !isStable(pinnedApiVersion) || isStable(version));
   }
 
   /**
@@ -708,22 +721,21 @@ export class CodeModelBuilder {
     return Boolean(this.options["advanced-versioning"]);
   }
 
-  private getOperationExample(operation: Operation): any | undefined {
-    if (operation.projectionSource?.kind === "Operation") {
-      // always use the projectionSource, if available
-      operation = operation.projectionSource;
-    }
-    let operationExample = this.operationExamples.get(operation);
-    if (!operationExample && operation.sourceOperation) {
-      // if the operation is customized in client.tsp, the operation would be different from that of main.tsp
-      // try the operation.sourceOperation
-      operation = operation.sourceOperation;
-      if (operation.projectionSource?.kind === "Operation") {
-        operation = operation.projectionSource;
+  private getOperationExample(operation: HttpOperation): Record<string, any> | undefined {
+    const httpOperationExamples = getHttpOperationExamples(this.sdkContext, operation);
+    if (httpOperationExamples && httpOperationExamples.length > 0) {
+      const operationExamples: Record<string, any> = {};
+      for (const example of httpOperationExamples) {
+        const operationExample = example.rawExample;
+        operationExample["x-ms-original-file"] = pathToFileURL(example.filePath).toString();
+        operationExamples[
+          operationExample.title ?? operationExample.operationId ?? operation.operation.name
+        ] = operationExample;
       }
-      operationExample = this.operationExamples.get(operation);
+      return operationExamples;
+    } else {
+      return undefined;
     }
-    return operationExample;
   }
 
   private processOperation(
@@ -731,31 +743,24 @@ export class CodeModelBuilder {
     operation: Operation,
     clientContext: ClientContext
   ): CodeModelOperation {
-    const op = ignoreDiagnostics(getHttpOperation(this.program, operation));
+    const op = getHttpOperationWithCache(this.sdkContext, operation);
 
     const operationGroup = this.codeModel.getOperationGroup(groupName);
     const operationName = this.getName(operation);
     const opId = groupName ? `${groupName}_${operationName}` : `${operationName}`;
 
-    const operationExample = this.getOperationExample(operation);
+    const operationExamples = this.getOperationExample(op);
 
     const codeModelOperation = new CodeModelOperation(operationName, this.getDoc(operation), {
       operationId: opId,
       summary: this.getSummary(operation),
       extensions: {
-        "x-ms-examples": operationExample
-          ? {
-              [operationExample.title ?? operationExample.operationId ?? operation.name]:
-                operationExample,
-            }
-          : undefined,
+        "x-ms-examples": operationExamples,
       },
     });
 
-    codeModelOperation.crossLanguageDefinitionId = getCrossLanguageDefinitionId(
-      this.sdkContext,
-      operation
-    );
+    (codeModelOperation as CrossLanguageDefinition).crossLanguageDefinitionId =
+      getCrossLanguageDefinitionId(this.sdkContext, operation);
     codeModelOperation.internalApi = this.isInternal(this.sdkContext, operation);
 
     const convenienceApiName = this.getConvenienceApiName(operation);
@@ -835,7 +840,7 @@ export class CodeModelBuilder {
           this.processParameterBody(codeModelOperation, op, op.parameters.body.property);
         }
       } else if (op.parameters.body.type) {
-        let bodyType = this.getEffectiveSchemaType(op.parameters.body.type);
+        let bodyType = op.parameters.body.type;
 
         if (bodyType.kind === "Model") {
           // try use resource type as round-trip model
@@ -1177,7 +1182,7 @@ export class CodeModelBuilder {
         },
         language: {
           default: {
-            serializedName: param.name,
+            serializedName: this.getSerializedName(param.param),
           },
         },
         extensions: extensions,
@@ -1410,7 +1415,11 @@ export class CodeModelBuilder {
       schema = this.processSchemaFromSdkType(sdkType, body.name);
     }
 
-    const isAnonymousModel = sdkType.kind === "model" && sdkType.isGeneratedName === true;
+    // Explicit body parameter @body or @bodyRoot would result to body.kind === "ModelProperty"
+    // Implicit body parameter would result to body.kind === "Model"
+    // see https://typespec.io/docs/libraries/http/cheat-sheet#data-types
+    const bodyParameterFlatten = sdkType.kind === "model" && body.kind === "Model" && !this.isArm();
+
     const parameterName =
       body.kind === "Model" ? (sdkType.kind === "model" ? sdkType.name : "") : this.getName(body);
     const parameter = new Parameter(parameterName, this.getDoc(body), schema, {
@@ -1439,8 +1448,8 @@ export class CodeModelBuilder {
       this.trackSchemaUsage(schema, { serializationFormats: [KnownMediaType.Multipart] });
     }
 
-    if (schema instanceof ObjectSchema && isAnonymousModel) {
-      // anonymous model
+    if (schema instanceof ObjectSchema && bodyParameterFlatten) {
+      // flatten body parameter
 
       // name the schema for documentation
       schema.language.default.name = pascalCase(op.language.default.name) + "Request";
@@ -1475,7 +1484,8 @@ export class CodeModelBuilder {
             // parameter
             if (
               existParameter.implementation === ImplementationLocation.Method &&
-              (existParameter.origin?.startsWith("modelerfour:synthesized/") ?? true)
+              (existParameter.origin?.startsWith("modelerfour:synthesized/") ?? true) &&
+              !(existParameter.schema instanceof ConstantSchema)
             ) {
               request.parameters.push(cloneOperationParameter(existParameter));
             }
@@ -1794,16 +1804,7 @@ export class CodeModelBuilder {
           return this.processAnySchemaFromSdkType();
 
         case "string":
-        case "password":
-        case "guid":
-        case "ipAddress":
-        case "uuid":
-        case "ipV4Address":
-        case "ipV6Address":
-        case "eTag":
-        case "armId":
-        case "azureLocation":
-          return this.processStringSchemaFromSdkType(type, type.kind);
+          return this.processStringSchemaFromSdkType(type, nameHint);
 
         case "float":
         case "float32":
@@ -1827,7 +1828,6 @@ export class CodeModelBuilder {
           return this.processDateSchemaFromSdkType(type, nameHint);
 
         case "url":
-        case "uri":
           return this.processUrlSchemaFromSdkType(type, nameHint);
       }
     }
@@ -1995,7 +1995,7 @@ export class CodeModelBuilder {
     );
   }
 
-  private processUnixTimeSchemaFromSdkType(type: SdkDatetimeType, name: string): UnixTimeSchema {
+  private processUnixTimeSchemaFromSdkType(type: SdkDateTimeType, name: string): UnixTimeSchema {
     return this.codeModel.schemas.add(
       new UnixTimeSchema(name, type.details ?? "", {
         summary: type.description,
@@ -2004,7 +2004,7 @@ export class CodeModelBuilder {
   }
 
   private processDateTimeSchemaFromSdkType(
-    type: SdkDatetimeType,
+    type: SdkDateTimeType,
     name: string,
     rfc1123: boolean
   ): DateTimeSchema {
@@ -2056,7 +2056,7 @@ export class CodeModelBuilder {
   private processObjectSchemaFromSdkType(type: SdkModelType, name: string): ObjectSchema {
     const rawModelType = type.__raw;
     const namespace = getNamespace(rawModelType);
-    const objectSchema = new ObjectScheme(name, type.details ?? "", {
+    const objectSchema = new ObjectSchema(name, type.details ?? "", {
       summary: type.description,
       language: {
         default: {
@@ -2067,7 +2067,8 @@ export class CodeModelBuilder {
         },
       },
     });
-    objectSchema.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
+    (objectSchema as CrossLanguageDefinition).crossLanguageDefinitionId =
+      type.crossLanguageDefinitionId;
     this.codeModel.schemas.add(objectSchema);
 
     // cache this now before we accidentally recurse on this type.
@@ -2119,6 +2120,8 @@ export class CodeModelBuilder {
           kind: "string",
           encode: "string",
           decorators: [],
+          name: "string",
+          crossLanguageDefinitionId: type.crossLanguageDefinitionId,
         },
         description: type.description,
         valueType: type.additionalProperties,
@@ -2185,8 +2188,11 @@ export class CodeModelBuilder {
       extensions["x-ms-mutability"] = mutability;
     }
 
-    if (prop.kind === "property" && prop.isMultipartFileInput) {
-      schema = this.processMultipartFormDataFilePropertySchemaFromSdkType(prop, this.namespace);
+    if (prop.kind === "property" && prop.multipartOptions) {
+      // TODO: handle MultipartOptions.isMulti
+      if (prop.multipartOptions.isFilePart) {
+        schema = this.processMultipartFormDataFilePropertySchemaFromSdkType(prop, this.namespace);
+      }
     }
 
     return new Property(prop.name, prop.details ?? "", schema, {
@@ -2309,31 +2315,41 @@ export class CodeModelBuilder {
   }
 
   private processMultipartFormDataFilePropertySchemaFromSdkType(
-    property: SdkModelPropertyType,
+    property: SdkBodyModelPropertyType,
     namespace: string
   ): Schema {
-    if (property.type.kind === "bytes") {
+    const processSchemaFunc = (type: SdkType) => this.processSchemaFromSdkType(type, "");
+    if (property.type.kind === "bytes" || property.type.kind === "model") {
       return getFileDetailsSchema(
-        property.name,
+        property,
         namespace,
         this.codeModel.schemas,
         this.binarySchema,
-        this.stringSchema
+        this.stringSchema,
+        processSchemaFunc
       );
-    } else if (property.type.kind === "array" && property.type.valueType.kind === "bytes") {
+    } else if (
+      property.type.kind === "array" &&
+      (property.type.valueType.kind === "bytes" || property.type.valueType.kind === "model")
+    ) {
       return new ArraySchema(
         property.name,
-        property.description ?? "",
+        property.details ?? "",
         getFileDetailsSchema(
-          property.name,
+          property,
           namespace,
           this.codeModel.schemas,
           this.binarySchema,
-          this.stringSchema
-        )
+          this.stringSchema,
+          processSchemaFunc
+        ),
+        {
+          summary: property.description,
+        }
       );
+    } else {
+      throw new Error(`Invalid type for multipart form data: '${property.type.kind}'.`);
     }
-    throw new Error(`Invalid type for multipart form data: '${property.type.kind}'.`);
   }
 
   private getDoc(target: Type | undefined): string {
@@ -2376,8 +2392,16 @@ export class CodeModelBuilder {
   }
 
   private getSerializedName(target: ModelProperty): string {
-    // TODO: currently this is only for JSON
-    return getWireName(this.sdkContext, target);
+    if (isHeader(this.program, target)) {
+      return getHeaderFieldName(this.program, target);
+    } else if (isQueryParam(this.program, target)) {
+      return getQueryParamName(this.program, target);
+    } else if (isPathParam(this.program, target)) {
+      return getPathParamName(this.program, target);
+    } else {
+      // TODO: currently this is only for JSON
+      return getWireName(this.sdkContext, target);
+    }
   }
 
   private isReadOnly(target: SdkModelPropertyType): boolean {

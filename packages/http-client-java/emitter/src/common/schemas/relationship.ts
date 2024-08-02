@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import { ComplexSchema, ObjectSchema, Schema, SchemaType } from "@autorest/codemodel";
 import { DeepPartial } from "@azure-tools/codegen";
 import { SchemaUsage } from "./usage.js";
