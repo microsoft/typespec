@@ -38,8 +38,7 @@ try {
         $env:PATH = "$env:JAVA_HOME\bin;$env:MAVEN_HOME\bin;$env:PATH"
         
     }
-    Invoke-LoggedCommand "Get-ChildItem -Path $env:JAVA_HOME -File"
-   
+  
     Write-Host "Updated PATH: $env:PATH"
     Invoke-LoggedCommand "java -version"
     Invoke-LoggedCommand "mvn -version"
