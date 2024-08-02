@@ -91,10 +91,6 @@ if ($PublishType -eq "internal") {
 $overrides | ConvertTo-Json | Set-Content "$outputPath/overrides.json"
 
 $packageMatrix = [ordered]@{
-    "mgc" = $mgcVersion
-    "mgc-client-model" = $mgcClientModelVersion
-    "mgc-input" = $mgcInputVersion
-    "mgc-customization" = $mgcCustomizationVersion
     "emitter" = $emitterVersion
 }
 

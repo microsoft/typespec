@@ -20,24 +20,53 @@ try {
     Write-Host "Current PATH: $env:PATH"
     # install Java 21
     
-    if ($IsWindows) {
-        # download JDK, install 
-        Write-Host "Downloading and installing Java 21"
-        Invoke-WebRequest 'https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_windows_hotspot_21.0.4_7.msi' -OutFile 'java-install.msi'
-        ./java-install.msi
-        $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.4.7-hotspot'
-        Write-Host "JAVA_HOME: $env:JAVA_HOME"
-        
-        # download Maven, install
-        Write-Host "Downloading and installing Maven"
-        Invoke-WebRequest 'https://dlcdn.apache.org/maven/maven-3/3.9.8/binaries/apache-maven-3.9.8-bin.zip' -OutFile 'maven.zip'
-        Expand-Archive -Path 'maven.zip' -DestinationPath '.'
-        $env:MAVEN_HOME = (Get-ChildItem -Directory -Filter 'apache-maven-*').FullName
-        Write-Host "MAVEN_HOME: $env:MAVEN_HOME"
+    # Query Adoptium for the list of installs for the JDK feature version.
+    $adoptiumApiUrl = "https://api.adoptium.net"
+    $jdkFeatureVersion = "21"
+    $os
 
-        $env:PATH = "$env:JAVA_HOME\bin;$env:MAVEN_HOME\bin;$env:PATH"
-        
+    if ($IsWindows) {
+        $os = "windows"
+    } elseif ($IsMacOS) {
+        $os = "mac"
+    } else {
+        $os = "linux"
     }
+
+    $getInstalls = "$adoptiumApiUrl/v3/assets/latest/$jdkFeatureVersion/hotspot?architecture=x64&image_type=jdk&os=$os&vendor=eclipse"
+    $jdkUnzipName = "jdk-$jdkFeatureVersion"
+
+    Write-Host "Downloading latest JDK to" (Get-Location)
+
+    if (!(Test-Path -Path $jdkUnzipName -PathType container)) {
+        # Query Adoptium for the list of installs for the JDK feature version.
+        Write-Host "Inkvoking web request to '$getInstalls' to find JDK $jdkFeatureVersion installs available on $os."
+        $installsAvailable = Invoke-WebRequest -URI $getInstalls | ConvertFrom-Json
+        $jdkLink = $installsAvailable.binary.package.link
+        $jdkZipName = $jdkLink.split("/")[-1]
+
+        Write-Host "Downloading install from '$jdkLink' to '$jdkZipName'."
+        Invoke-WebRequest -URI $jdkLink -OutFile $jdkZipName
+
+        if ($IsWindows) {
+            Expand-Archive -Path $jdkZipName -Destination "jdk-temp"
+            Move-Item -Path (Join-Path -Path "jdk-temp" -ChildPath (Get-ChildItem "jdk-temp")[0].Name) -Destination $jdkUnzipName
+        } else {
+            New-Item -Path "jdk-temp" -ItemType "directory"
+            tar -xvf $jdkZipName -C "jdk-temp"
+            Move-Item -Path (Join-Path -Path "jdk-temp" -ChildPath (Get-ChildItem "jdk-temp")[0].Name) -Destination $jdkUnzipName
+        }
+    }
+
+    $javaHome = (Convert-Path $jdkUnzipName)
+    Write-Host "Latest JDK: $javaHome"
+
+    Write-Host "Current JAVA_HOME: $Env:JAVA_HOME"
+    Write-Host "##vso[task.setvariable variable=JAVA_HOME;]$javaHome"
+    Write-Host "Updated JAVA_HOME: $Env:JAVA_HOME"
+
+    $jdkFeatureVersionJavaHome = "JAVA_HOME_" + $jdkFeatureVersion + "_X64"
+    Write-Host "##vso[task.setvariable variable=$jdkFeatureVersionJavaHome;]$javaHome"
   
     Write-Host "Updated PATH: $env:PATH"
     Invoke-LoggedCommand "java -version"
