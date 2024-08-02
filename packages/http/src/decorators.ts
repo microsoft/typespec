@@ -144,7 +144,7 @@ export const $query: QueryDecorator = (
     type: "query",
     explode:
       userOptions.explode ?? (userOptions.format === "multi" || userOptions.format === "form"),
-    format: userOptions.format,
+    format: userOptions.format ?? (userOptions.explode ? "multi" : "csv"),
     name: paramName,
   };
   context.program.stateMap(HttpStateKeys.query).set(entity, options);
