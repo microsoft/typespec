@@ -22,7 +22,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<CSharpType>? matchConditionsType = null,
             Func<CSharpType>? tokenCredentialType = null,
-            Func<InputOperation, TypeProvider, MethodProviderCollection>? createMethods = null,
             Func<InputParameter, ParameterProvider>? createParameter = null)
         {
             var mockTypeFactory = new Mock<ScmTypeFactory>() { CallBase = true };
@@ -35,11 +34,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             if (tokenCredentialType is not null)
             {
                 mockTypeFactory.Setup(p => p.TokenCredentialType()).Returns(tokenCredentialType);
-            }
-
-            if (createMethods is not null)
-            {
-                mockTypeFactory.Setup(p => p.CreateMethods(It.IsAny<InputOperation>(), It.IsAny<TypeProvider>())).Returns(createMethods);
             }
 
             if (createParameter is not null)

@@ -18,14 +18,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private Dictionary<InputClient, ClientProvider>? _clientCache;
         private Dictionary<InputClient, ClientProvider> ClientCache => _clientCache ??= [];
 
-        /// <summary>
-        /// Creates a <see cref="MethodProviderCollection"/> for the given operation. If the operation is a <see cref="InputOperationKinds.DefaultValue"/> operation,
-        /// a method collection will be created. Otherwise, <c>null</c> will be returned.
-        /// </summary>
-        /// <param name="operation">The input operation to create methods for.</param>
-        /// <param name="enclosingType">The enclosing type of the operation.</param>
-        public override MethodProviderCollection CreateMethods(InputOperation operation, TypeProvider enclosingType) => new ScmMethodProviderCollection(operation, enclosingType);
-
         public virtual CSharpType MatchConditionsType() => typeof(PipelineMessageClassifier);
 
         public virtual CSharpType TokenCredentialType() => typeof(ApiKeyCredential);

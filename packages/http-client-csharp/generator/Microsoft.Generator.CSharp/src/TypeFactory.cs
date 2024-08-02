@@ -234,7 +234,19 @@ namespace Microsoft.Generator.CSharp
         /// <returns>An instance of <see cref="MethodProviderCollection"/> containing the chain of methods
         /// associated with the input operation, or <c>null</c> if no methods are constructed.
         /// </returns>
-        public virtual MethodProviderCollection CreateMethods(InputOperation operation, TypeProvider enclosingType) => new(operation, enclosingType);
+        public MethodProviderCollection? CreateMethods(InputOperation operation, TypeProvider enclosingType)
+        {
+            var methods = new MethodProviderCollection(operation, enclosingType);
+            if (Visitors.Count == 0)
+            {
+                return methods;
+            }
+            foreach (var visitor in Visitors)
+            {
+                methods = visitor.Visit(operation, enclosingType, methods);
+            }
+            return methods;
+        }
 
         /// <summary>
         /// Creates a <see cref="PropertyProvider"/> based on an input property <paramref name="property"/>.
