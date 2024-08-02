@@ -18,11 +18,12 @@ namespace Microsoft.Generator.CSharp.Tests
         public static Mock<CodeModelPlugin> LoadMockPlugin(
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<OutputLibrary>? createOutputLibrary = null,
+            string? configuration = null,
             Func<IEnumerable<LibraryVisitor>>? createLibraryVisitor = null)
         {
             var configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
             // initialize the singleton instance of the plugin
-            var mockPlugin = new Mock<CodeModelPlugin>(new GeneratorContext(Configuration.Load(configFilePath))) { CallBase = true };
+            var mockPlugin = new Mock<CodeModelPlugin>(new GeneratorContext(Configuration.Load(configFilePath, configuration))) { CallBase = true };
 
             var mockTypeFactory = new Mock<TypeFactory>() { CallBase = true };
 
