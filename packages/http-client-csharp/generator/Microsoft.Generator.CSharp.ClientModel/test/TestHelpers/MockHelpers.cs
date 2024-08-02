@@ -19,7 +19,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
         public static void LoadMockPlugin(
             Func<InputType, TypeProvider, IReadOnlyList<TypeProvider>>? createSerializationsCore = null,
-            Func<InputType, CSharpType>? createPrimitiveCSharpTypeCore = null,
+            Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<CSharpType>? matchConditionsType = null,
             Func<CSharpType>? tokenCredentialType = null,
             Func<InputOperation, TypeProvider, MethodProviderCollection>? createMethods = null,
@@ -52,9 +52,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
                 mockTypeFactory.Protected().Setup<IReadOnlyList<TypeProvider>>("CreateSerializationsCore", ItExpr.IsAny<InputType>(), ItExpr.IsAny<TypeProvider>()).Returns(createSerializationsCore);
             }
 
-            if (createPrimitiveCSharpTypeCore is not null)
+            if (createCSharpTypeCore is not null)
             {
-                mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(createPrimitiveCSharpTypeCore);
+                mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(createCSharpTypeCore);
             }
 
             var configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
