@@ -129,7 +129,7 @@ namespace Microsoft.Generator.CSharp
                 : JsonDocument.Parse(json).RootElement;
 
             return new Configuration(
-                outputPath.Equals(string.Empty) ? outputPath : Path.GetFullPath(outputPath),
+                Path.GetFullPath(outputPath),
                 ParseAdditionalConfigOptions(root),
                 ReadOption(root, Options.ClearOutputFolder),
                 ReadOption(root, Options.GenerateModelFactory),

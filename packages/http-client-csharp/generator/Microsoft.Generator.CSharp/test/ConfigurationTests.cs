@@ -70,15 +70,13 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCaseSource("ParseConfigLibraryNameTestCases")]
         public void TestParseConfig_LibraryName(string mockJson, bool throwsError)
         {
-
             if (throwsError)
             {
-                Assert.Throws<InvalidOperationException>(() => Configuration.Load(string.Empty, mockJson));
+                Assert.Throws<InvalidOperationException>(() => MockHelpers.LoadMockPlugin(configuration: mockJson));
                 return;
             }
 
-            var configuration = Configuration.Load(string.Empty, mockJson);
-            var library = configuration.LibraryName;
+            var library = CodeModelPlugin.Instance.Configuration.LibraryName;
             var expected = "libraryName";
 
             Assert.AreEqual(expected, library);
@@ -90,12 +88,11 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             if (throwsError)
             {
-                Assert.Throws<InvalidOperationException>(() => Configuration.Load(string.Empty, mockJson));
+                Assert.Throws<InvalidOperationException>(() => MockHelpers.LoadMockPlugin(configuration: mockJson));
                 return;
             }
 
-            var configuration = Configuration.Load(string.Empty, mockJson);
-            var ns = configuration.RootNamespace;
+            var ns = CodeModelPlugin.Instance.Configuration.RootNamespace;
             var expected = "namespace";
 
             Assert.AreEqual(expected, ns);
@@ -105,8 +102,8 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCaseSource("ParseConfigUseModelNamespaceTestCases")]
         public void TestParseConfig_UseModelNamespace(string mockJson, bool expected)
         {
-            var configuration = Configuration.Load(string.Empty, mockJson);
-            var useModelNs = configuration.UseModelNamespace;
+            MockHelpers.LoadMockPlugin(configuration: mockJson);
+            var useModelNs = CodeModelPlugin.Instance.Configuration.UseModelNamespace;
 
             Assert.AreEqual(expected, useModelNs);
         }
@@ -123,9 +120,9 @@ namespace Microsoft.Generator.CSharp.Tests
                 ""unknown-bool-property"": true
                 }";
 
-            var configuration = Configuration.Load(string.Empty, mockJson);
+            MockHelpers.LoadMockPlugin(configuration: mockJson);
 
-            var additionalConfigOptions = configuration.AdditionalConfigOptions;
+            var additionalConfigOptions = CodeModelPlugin.Instance.Configuration.AdditionalConfigOptions;
             Assert.IsNotNull(additionalConfigOptions);
             Assert.IsTrue(additionalConfigOptions!.ContainsKey("unknown-string-property"));
             Assert.IsTrue(additionalConfigOptions.ContainsKey("unknown-bool-property"));
