@@ -7,11 +7,12 @@ import {
   Operation,
   Union,
 } from "@typespec/compiler";
-import { Output, code } from "@alloy-js/core";
-import { ObjectExpression, SourceFile } from "@alloy-js/typescript";
+import { mapJoin, Output, refkey } from "@alloy-js/core";
+import { FunctionDeclaration, node, Reference, SourceFile } from "@alloy-js/typescript";
 import { CommandArgParser } from "./components/CommandArgParser/CommandArgParser.js";
 import { ControllerInterface } from "./components/ControllerInterface.js";
 import { HelperContext, getStateHelpers } from "./helpers.js";
+import { CLITable3 } from "./dependencies.js";
 
 export type CliType = Namespace | Interface | Operation;
 
@@ -24,11 +25,11 @@ export async function $onEmit(context: EmitContext) {
   const clis = helpers.listClis() as CliType[];
   const cliSfs = [];
 
-  for (let cli of clis) {
+  for (const cli of clis) {
     const subCommandClis =
       cli.kind === "Namespace" || cli.kind === "Interface" ? [...cli.operations.values()] : [];
 
-    const parsers = [cli, ...subCommandClis].map((cli) => {
+    const parsers = mapJoin([cli, ...subCommandClis], (cli) => {
       const mutatedCli =
         cli.kind === "Operation" ? (helpers.toOptionsBag(cli).type as Operation) : cli;
       const options = collectCommandOptions(mutatedCli);
@@ -37,26 +38,21 @@ export async function $onEmit(context: EmitContext) {
 
     cliSfs.push(
       <SourceFile path={cli.name + ".ts"}>
-        {code`
-          import { parseArgs as nodeParseArgs } from "node:util";
-          import Table from "cli-table3";
-        `}
         <ControllerInterface cli={cli} />
 
-        {code`
-          export function parseArgs(args: string[], handler: CommandInterface) {
-            parse${cli.name}Args(args);
-            ${parsers}
-          }`}
+        <FunctionDeclaration export name="parseArgs" parameters={{
+          args: "string[]",
+          handler: <Reference refkey={refkey("CommandInterface")} />
+        }}>
+          parse{cli.name}Args(args);
+          {parsers}
+        </FunctionDeclaration>
       </SourceFile>
     );
   }
 
-  return <Output>
-    <SourceFile path="test.ts">
-      object:
-        <ObjectExpression jsValue={{a: 1, b: 2}} />
-    </SourceFile>
+  return <Output externals={[CLITable3, node.util]}>
+    <HelperContext.Provider value={helpers}>{cliSfs}</HelperContext.Provider>
   </Output>
 }
 
@@ -99,3 +95,4 @@ export function collectCommandOptions(command: CliType): Map<ModelProperty, stri
 
   return commandOpts;
 }
+

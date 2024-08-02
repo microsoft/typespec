@@ -56,7 +56,7 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.24.8",
-    "@babel/core": "^7.24.9",
+    "@babel/core": "^7.25.2",
     "@rollup/plugin-babel": "^6.0.4",
     "@types/marked": "^6.0.0",
     "@types/marked-terminal": "^6.1.1",
@@ -69,22 +69,22 @@
     "@vitest/ui": "^1.6.0",
     "ajv": "~8.13.0",
     "ajv-formats": "~3.0.1",
-    "babel-preset-alloy": "https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@dbec7a3",
+    "babel-preset-alloy": "https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@395a1b8",
     "c8": "^9.1.0",
     "concurrently": "^8.2.2",
-    "rimraf": "~5.0.7",
+    "rimraf": "~5.0.9",
     "typescript": "~5.4.5",
     "vitest": "^1.6.0"
   },
   "dependencies": {
-    "@alloy-js/core": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@dbec7a3",
-    "@alloy-js/typescript": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@dbec7a3",
+    "@alloy-js/core": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@395a1b8",
+    "@alloy-js/typescript": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@395a1b8",
     "@typespec/emitter-framework": "workspace:~",
     "change-case": "~5.4.4",
-    "marked": "^13.0.0",
+    "marked": "^13.0.3",
     "marked-terminal": "^7.1.0",
     "prettier": "~3.2.5",
     "strip-ansi": "^7.1.0",
-    "yaml": "~2.4.2"
+    "yaml": "~2.4.5"
   }
 }

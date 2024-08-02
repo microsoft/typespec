@@ -1,6 +1,6 @@
 /* eslint-disable unicorn/filename-case */
 import { ModelProperty } from "@typespec/compiler";
-import { code } from "@alloy-js/core";
+import { code, mapJoin } from "@alloy-js/core";
 import { useHelpers } from "../../helpers.js";
 
 export interface OptionTokenHandlerProps {
@@ -17,7 +17,7 @@ export function OptionTokenHandler({ option, path }: OptionTokenHandlerProps) {
       cases.push($case(`marshalledArgs${path} = false`, "no-" + option.name));
     }
 
-    return cases;
+    return mapJoin(cases, (v) => v);
   } else {
     // todo: marshalling etc.
     return $case(`marshalledArgs${path} = token.value!`);
@@ -31,7 +31,8 @@ export function OptionTokenHandler({ option, path }: OptionTokenHandlerProps) {
         : [option.name];
 
     return code`
-      ${names.map((v) => `case "${v}": `).join("")}${handler}; break;
+      ${mapJoin(names, (v) => `case "${v}": `)}
+        ${handler}; break;
     `;
   }
 }

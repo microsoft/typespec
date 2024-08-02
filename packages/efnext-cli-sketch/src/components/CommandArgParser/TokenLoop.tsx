@@ -1,5 +1,5 @@
 /* eslint-disable unicorn/filename-case */
-import { code } from "@alloy-js/core";
+import { code, mapJoin } from "@alloy-js/core";
 import { useCommand } from "./CommandArgParser.js";
 import { OptionTokenHandler } from "./OptionTokenHandler.js";
 import { PositionalTokenHandler } from "./PositionalTokenHandler.js";
@@ -8,8 +8,8 @@ export interface TokenLoopProps {}
 // eslint-disable-next-line no-empty-pattern
 export function TokenLoop({}: TokenLoopProps) {
   const { command, options } = useCommand();
-  const optionTokenHandlers = Array.from(options.entries()).map(([option, path]) => (
-    <OptionTokenHandler option={option} path={path} />
+  const optionTokenHandlers = mapJoin(options, (option, path) => (
+    "hello"
   ));
 
   return code`

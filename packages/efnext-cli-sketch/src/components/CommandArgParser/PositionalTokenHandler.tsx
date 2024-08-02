@@ -1,5 +1,5 @@
 /* eslint-disable unicorn/filename-case */
-import { code } from "@alloy-js/core";
+import { code, mapJoin } from "@alloy-js/core";
 import { useCommand } from "./CommandArgParser.js";
 
 export interface PositionalTokenHandlerProps {}
@@ -9,15 +9,17 @@ export function PositionalTokenHandler({}: PositionalTokenHandlerProps) {
   const { subcommandMap } = useCommand();
   // todo: positionals.
   if (subcommandMap && subcommandMap.size > 0) {
-    const subcommandCases = [...subcommandMap.entries()].map(([name, cli]) => {
+    const subcommandCases = mapJoin(subcommandMap, (name, cli) => {
       return code`
-        case "${name}": parse${name}Args(args.slice(token.index + 1)); return;
+        case "${name}":
+          parse${name}Args(args.slice(token.index + 1));
+          return;
       `;
     });
-    // TODO: Fix this any cast
+
     return code`
       switch (token.value) {
-        ${subcommandCases as any} 
+        ${subcommandCases} 
       }
     `;
   } else {

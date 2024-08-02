@@ -9,6 +9,8 @@ import stripAnsi from "strip-ansi";
 import { useHelpers } from "../helpers.js";
 import { CliType } from "../index.js";
 import { useCommand } from "./CommandArgParser/CommandArgParser.js";
+import { CLITable3 } from "../dependencies.js";
+import { Reference } from "@alloy-js/typescript";
 
 function removeHashAndBold(s: string) {
   return pc.bold(s.replace(/^#+ /, ""));
@@ -46,26 +48,27 @@ export function HelpText({}: HelpTextProps) {
     .map((o) => pushOptionHelp(o))
     .join("");
 
-  let subcommandHelp = "";
+  const subcommandHelp = [];
   if (subcommandMap.size > 0) {
-    subcommandHelp += `
-    const subcommandTable = new Table({
-      chars: noFormatting,
-    });
-    `;
-    subcommandHelp += [...subcommandMap.entries()]
+    subcommandHelp.push(code`
+      const subcommandTable = new ${<Reference refkey={CLITable3.default} />}({
+        chars: noFormatting,
+      });
+    `)
+    subcommandHelp.push(... [...subcommandMap.entries()]
       .map(([name, cli]) => {
         return pushSubcommandHelp(name, cli);
-      })
-      .join("");
+      }))
 
-    subcommandHelp += `
+    subcommandHelp.push(code`
       console.log(\`\\n${pc.bold("Subcommands\n")}\`);
       console.log(subcommandTable.toString());
-    `;
+    `);
   }
   return (
-    <FunctionDeclaration name={`${command.name}Help`} parameters={{ "noColor?": "boolean" }}>
+    <FunctionDeclaration 
+      name={`${command.name}Help`}
+      parameters={{ "noColor?": "boolean" }}>
       {code`
         if (noColor || process.env["NO_COLOR"]) {
           console.log("${command.name} " + handler.version + "\\n");
@@ -93,7 +96,7 @@ export function HelpText({}: HelpTextProps) {
           "right-mid": "",
         };
 
-        const table = new Table({
+        const table = new ${<Reference refkey={CLITable3.default} />}({
           chars: noFormatting,
         });
         table.push(["--help, -h", "Display this help message."])

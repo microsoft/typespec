@@ -1,25 +1,24 @@
 /* eslint-disable unicorn/filename-case */
-import { code } from "@alloy-js/core";
-import { ObjectExpression } from "@alloy-js/typescript";
+import { node, ObjectExpression, Reference } from "@alloy-js/typescript";
 import { useHelpers } from "../../helpers.js";
 import { useCommand } from "./CommandArgParser.js";
 
 export interface GetTokensProps {}
-
+node.fs
 // eslint-disable-next-line no-empty-pattern
 export function GetTokens({}: GetTokensProps) {
   const { options } = useCommand();
   const helpers = useHelpers();
 
   const parseArgsArg: Record<string, any> = {
-    args: "ARGS",
+    args: () => "args",
     tokens: true,
     strict: false,
     options: {},
   };
 
   // assemble the options in parseArgsArg and arg handlers.
-  for (const [option, path] of options) {
+  for (const [option] of options) {
     const argOptions: Record<string, any> = {};
     parseArgsArg.options[option.name] = argOptions;
 
@@ -35,8 +34,6 @@ export function GetTokens({}: GetTokensProps) {
   }
 
   return <>
-    const {"{"} tokens {"}"} = nodeParseArgs(
-      <ObjectExpression jsValue={parseArgsArg} />
-    );
+    const {"{"} tokens {"}"} = <Reference refkey={node.util.parseArgs} />(<ObjectExpression jsValue={parseArgsArg} />);
   </>
 }
