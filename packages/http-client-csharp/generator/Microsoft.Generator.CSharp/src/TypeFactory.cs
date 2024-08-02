@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -237,6 +236,15 @@ namespace Microsoft.Generator.CSharp
             return [];
         }
 
-        private sealed record EnumCacheKey(InputEnumType EnumType, TypeProvider? DeclaringType);
+        private readonly struct EnumCacheKey
+        {
+            public InputEnumType EnumType { get; }
+            public TypeProvider? DeclaringType { get; }
+            public EnumCacheKey(InputEnumType enumType, TypeProvider? declaringType)
+            {
+                EnumType = enumType;
+                DeclaringType = declaringType;
+            }
+        }
     }
 }
