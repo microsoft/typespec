@@ -23,15 +23,13 @@ try {
     # Query Adoptium for the list of installs for the JDK feature version.
     $adoptiumApiUrl = "https://api.adoptium.net"
     $jdkFeatureVersion = "21"
-    $os
+    $os = "linux"
 
     if ($IsWindows) {
         $os = "windows"
     } elseif ($IsMacOS) {
         $os = "mac"
-    } else {
-        $os = "linux"
-    }
+    } 
 
     $getInstalls = "$adoptiumApiUrl/v3/assets/latest/$jdkFeatureVersion/hotspot?architecture=x64&image_type=jdk&os=$os&vendor=eclipse"
     $jdkUnzipName = "jdk-$jdkFeatureVersion"
@@ -40,7 +38,7 @@ try {
 
     if (!(Test-Path -Path $jdkUnzipName -PathType container)) {
         # Query Adoptium for the list of installs for the JDK feature version.
-        Write-Host "Inkvoking web request to '$getInstalls' to find JDK $jdkFeatureVersion installs available on $os."
+        Write-Host "Invoking web request to '$getInstalls' to find JDK $jdkFeatureVersion installs available on $os."
         $installsAvailable = Invoke-WebRequest -URI $getInstalls | ConvertFrom-Json
         $jdkLink = $installsAvailable.binary.package.link
         $jdkZipName = $jdkLink.split("/")[-1]
