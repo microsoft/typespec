@@ -41,3 +41,4 @@ extends:
           StagePrefix: "CSharp"
           LanguageShortName: "csharp"
           HasNugetPackages: true
+          CadlRanchName: "@typespec/http-client-csharp"
