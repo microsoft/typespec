@@ -519,7 +519,7 @@ describe("typespec-client-generator-core: general decorators list", () => {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const models = root.Models;
     strictEqual(models.length, 1);
