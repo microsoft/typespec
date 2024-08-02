@@ -21,7 +21,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
     {
         public MrwSerializationTypeDefinitionTests()
         {
-            MockHelpers.LoadMockPlugin(createSerializationsCore: inputType => inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType)] : []);
+            MockHelpers.LoadMockPlugin(createSerializationsCore: (inputType, typeProvider) =>
+                inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, typeProvider)] : []);
         }
 
         internal static (TypeProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel)

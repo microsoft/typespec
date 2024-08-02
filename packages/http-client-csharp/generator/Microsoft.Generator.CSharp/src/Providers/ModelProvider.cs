@@ -55,7 +55,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return [.. CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputModel)];
+            return [.. CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputModel, this)];
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");

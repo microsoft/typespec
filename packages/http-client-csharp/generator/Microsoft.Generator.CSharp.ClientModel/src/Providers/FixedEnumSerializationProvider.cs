@@ -24,12 +24,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly InputEnumType _enumType;
         private TypeProvider _enumProvider;
 
-        public FixedEnumSerializationProvider(InputEnumType enumType)
+        public FixedEnumSerializationProvider(InputEnumType enumType, TypeProvider enumProvider)
         {
             Debug.Assert(!enumType.IsExtensible);
             _enumType = enumType;
-            _enumProvider = ClientModelPlugin.Instance.TypeFactory.CreateEnum(_enumType) ??
-                            throw new InvalidOperationException($"Failed to create enum type for {_enumType.Name}");
+            _enumProvider = enumProvider;
         }
 
         protected override string GetNamespace() => _enumProvider.Type.Namespace;

@@ -7,11 +7,11 @@ using System.Collections.Generic;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests
 {
-    public class MockResponseHeaders : PipelineResponseHeaders
+    public class TestResponseHeaders : PipelineResponseHeaders
     {
         private readonly Dictionary<string, string> _headers;
 
-        public MockResponseHeaders()
+        public TestResponseHeaders()
         {
             _headers = new Dictionary<string, string>();
         }

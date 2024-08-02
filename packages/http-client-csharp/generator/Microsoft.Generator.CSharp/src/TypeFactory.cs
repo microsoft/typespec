@@ -327,17 +327,18 @@ namespace Microsoft.Generator.CSharp
         /// Returns the serialization type providers for the given model type provider.
         /// </summary>
         /// <param name="inputType">The input model.</param>
-        public IReadOnlyList<TypeProvider> CreateSerializations(InputType inputType)
+        /// <param name="typeProvider">The type provider.</param>
+        public IReadOnlyList<TypeProvider> CreateSerializations(InputType inputType, TypeProvider typeProvider)
         {
             if (SerializationsCache.TryGetValue(inputType, out var serializations))
                 return serializations;
 
-            serializations = CreateSerializationsCore(inputType);
+            serializations = CreateSerializationsCore(inputType, typeProvider);
             SerializationsCache.Add(inputType, serializations);
             return serializations;
         }
 
-        protected virtual IReadOnlyList<TypeProvider> CreateSerializationsCore(InputType inputType)
+        protected virtual IReadOnlyList<TypeProvider> CreateSerializationsCore(InputType inputType, TypeProvider typeProvider)
         {
             return [];
         }

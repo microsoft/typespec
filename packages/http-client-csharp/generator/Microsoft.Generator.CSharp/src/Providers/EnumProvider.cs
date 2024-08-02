@@ -41,7 +41,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return [.. CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType)];
+            return [.. CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType, this)];
         }
         protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 

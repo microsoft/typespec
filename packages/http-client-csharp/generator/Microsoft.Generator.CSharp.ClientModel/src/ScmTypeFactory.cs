@@ -34,22 +34,23 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// Returns the serialization type providers for the given input type.
         /// </summary>
         /// <param name="inputType">The input type.</param>
-        protected override IReadOnlyList<TypeProvider> CreateSerializationsCore(InputType inputType)
+        /// <param name="typeProvider">The type provider.</param>
+        protected override IReadOnlyList<TypeProvider> CreateSerializationsCore(InputType inputType, TypeProvider typeProvider)
         {
             switch (inputType)
             {
                 case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
-                    return [new MrwSerializationTypeDefinition(inputModel)];
+                    return [new MrwSerializationTypeDefinition(inputModel, typeProvider)];
                 case InputEnumType { IsExtensible: true } inputEnumType:
                     if (ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputEnumType)?.UnderlyingEnumType.Equals(typeof(string)) == true)
                     {
                         return [];
                     }
-                    return [new ExtensibleEnumSerializationProvider(inputEnumType)];
+                    return [new ExtensibleEnumSerializationProvider(inputEnumType, typeProvider)];
                 case InputEnumType inputEnumType:
-                    return [new FixedEnumSerializationProvider(inputEnumType)];
+                    return [new FixedEnumSerializationProvider(inputEnumType, typeProvider)];
                 default:
-                    return base.CreateSerializationsCore(inputType);
+                    return base.CreateSerializationsCore(inputType, typeProvider);
             }
         }
 

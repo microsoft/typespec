@@ -235,7 +235,7 @@ namespace Microsoft.Generator.CSharp.Providers
         }
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType).ToArray();
+            return CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType, this).ToArray();
         }
         protected override bool GetIsEnum() => true;
 
