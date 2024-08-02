@@ -161,8 +161,10 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputBase);
             var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputDerived);
 
+            Assert.NotNull(baseModel);
             var baseCtors = baseModel!.Constructors;
             Assert.AreEqual(1, baseCtors.Count);
+            Assert.NotNull(derivedModel);
             var derivedCtors = derivedModel!.Constructors;
             Assert.AreEqual(1, derivedCtors.Count);
 

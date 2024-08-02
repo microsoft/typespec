@@ -27,7 +27,8 @@ namespace Microsoft.Generator.CSharp
                     enums.Add(outputEnum);
                 }
             }
-            return enums.ToArray();
+
+            return [.. enums];
         }
 
         private static TypeProvider[] BuildModels()
@@ -42,7 +43,8 @@ namespace Microsoft.Generator.CSharp
                     models.Add(outputModel);
                 }
             }
-            return models.ToArray();
+
+            return [.. models];
         }
 
         protected virtual TypeProvider[] BuildTypeProviders()

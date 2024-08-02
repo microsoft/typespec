@@ -32,12 +32,16 @@ namespace Microsoft.Generator.CSharp
         private Dictionary<InputModelProperty, PropertyProvider?>? _propertyCache;
         private Dictionary<InputModelProperty, PropertyProvider?> PropertyCache => _propertyCache ??= [];
 
-        private Dictionary<InputParameter, ParameterProvider?>? _parameterCache;
-        private Dictionary<InputParameter, ParameterProvider?> ParameterCache => _parameterCache ??= [];
+        private Dictionary<InputParameter, ParameterProvider>? _parameterCache;
+        private Dictionary<InputParameter, ParameterProvider> ParameterCache => _parameterCache ??= [];
 
         private Dictionary<InputType, IReadOnlyList<TypeProvider>>? _serializationsCache;
         private IList<LibraryVisitor> Visitors => (IList<LibraryVisitor>)CodeModelPlugin.Instance.GetLibraryVisitors();
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache => _serializationsCache ??= [];
+
+        protected internal TypeFactory()
+        {
+        }
 
         public CSharpType? CreateCSharpType(InputType inputType)
         {
@@ -165,10 +169,10 @@ namespace Microsoft.Generator.CSharp
 
         private TypeProvider? CreateModelCore(InputModelType model)
         {
-            TypeProvider? type = null;
+            TypeProvider? type = new ModelProvider(model);
             if (Visitors.Count == 0)
             {
-                return new ModelProvider(model);
+                return type;
             }
             foreach (var visitor in Visitors)
             {
@@ -195,10 +199,10 @@ namespace Microsoft.Generator.CSharp
 
         private TypeProvider? CreateEnumCore(InputEnumType enumType)
         {
-            TypeProvider? type = null;
+            TypeProvider? type = EnumProvider.Create(enumType);
             if (Visitors.Count == 0)
             {
-                return EnumProvider.Create(enumType);
+                return type;
             }
             foreach (var visitor in Visitors)
             {
@@ -212,7 +216,7 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="parameter">The <see cref="InputParameter"/> to convert.</param>
         /// <returns>An instance of <see cref="ParameterProvider"/>.</returns>
-        public virtual ParameterProvider? CreateParameter(InputParameter parameter)
+        public virtual ParameterProvider CreateParameter(InputParameter parameter)
         {
             if (ParameterCache.TryGetValue(parameter, out var parameterProvider))
                 return parameterProvider;
@@ -255,10 +259,10 @@ namespace Microsoft.Generator.CSharp
         private PropertyProvider? CreatePropertyProviderCore(InputModelProperty property)
         {
             {
-                PropertyProvider? propertyProvider = null;
+                PropertyProvider.TryCreate(property, out var propertyProvider);
                 if (Visitors.Count == 0)
                 {
-                    return new PropertyProvider(property);
+                    return propertyProvider;
                 }
                 foreach (var visitor in Visitors)
                 {
