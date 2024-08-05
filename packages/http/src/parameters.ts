@@ -138,6 +138,7 @@ function getOperationParametersForVerb(
   const body = resolvedBody;
 
   return diagnostics.wrap({
+    properties: metadata,
     parameters,
     verb,
     body,
