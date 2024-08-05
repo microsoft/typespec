@@ -9,7 +9,6 @@ import {
   type ModelProperty,
   type Program,
 } from "@typespec/compiler";
-import { Queue } from "@typespec/compiler/utils";
 import {
   getHeaderFieldOptions,
   getPathParamOptions,
@@ -165,12 +164,10 @@ export function resolvePayloadProperties(
   }
 
   const visited = new Set();
-  const queue = new Queue<[Model, (string | number)[]]>([[type, []]]);
-
-  while (!queue.isEmpty()) {
-    const [model, path] = queue.dequeue();
+  function checkModel(model: Model, path: string[]) {
     visited.add(model);
-
+    let foundBody = false;
+    let foundBodyProperty = false;
     for (const property of walkPropertiesInherited(model)) {
       const propPath = [...path, property.name];
 
@@ -182,35 +179,40 @@ export function resolvePayloadProperties(
       if (shouldTreatAsBodyProperty(httpProperty, visibility)) {
         httpProperty = { kind: "bodyProperty", property, path: propPath };
       }
-      httpProperties.set(property, httpProperty);
+
       if (
-        path.length > 0 &&
-        (httpProperty.kind === "body" ||
-          httpProperty.kind === "bodyRoot" ||
-          httpProperty.kind === "multipartBody")
+        httpProperty.kind === "body" ||
+        httpProperty.kind === "bodyRoot" ||
+        httpProperty.kind === "multipartBody"
       ) {
-        for (const [name, prop] of httpProperties) {
-          if (prop?.kind === "bodyProperty") {
-            httpProperties.delete(name);
-          }
-        }
-      }
-      if (httpProperty.kind === "body" || httpProperty.kind === "multipartBody") {
-        continue; // We ignore any properties under `@body` or `@multipartBody`
+        foundBody = true;
       }
 
       if (
-        property.type.kind === "Model" &&
-        !type.indexer &&
-        type.properties.size > 0 &&
+        !(httpProperty.kind === "body" || httpProperty.kind === "multipartBody") &&
+        isModelWithProperties(property.type) &&
         !visited.has(property.type)
       ) {
-        queue.enqueue([property.type, propPath]);
+        if (checkModel(property.type, propPath)) {
+          foundBody = true;
+          continue;
+        }
       }
+      if (httpProperty.kind === "bodyProperty") {
+        foundBodyProperty = true;
+      }
+      httpProperties.set(property, httpProperty);
     }
+    return foundBody && !foundBodyProperty;
   }
 
+  checkModel(type, []);
+
   return diagnostics.wrap([...httpProperties.values()]);
+}
+
+function isModelWithProperties(type: Type): type is Model {
+  return type.kind === "Model" && !type.indexer && type.properties.size > 0;
 }
 
 function shouldTreatAsBodyProperty(property: HttpProperty, visibility: Visibility): boolean {
