@@ -19,15 +19,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private const string LatestVersionFieldName = "LatestVersion";
         private const string VersionPropertyName = "Version";
         private readonly InputClient _inputClient;
-        private readonly Lazy<ClientProvider> _clientProvider;
+        private readonly ClientProvider _clientProvider;
         private readonly Lazy<TypeProvider?>? _serviceVersionEnum;
         private readonly PropertyProvider? _versionProperty;
         private FieldProvider? _latestVersionField;
 
-        public ClientOptionsProvider(InputClient inputClient)
+        public ClientOptionsProvider(InputClient inputClient, ClientProvider clientProvider)
         {
             _inputClient = inputClient;
-            _clientProvider = new(() => ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient));
+            _clientProvider = clientProvider;
             var inputEnumType = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Enums
                     .FirstOrDefault(e => e.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum));
             if (inputEnumType != null)
@@ -43,7 +43,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         private TypeProvider? ServiceVersionEnum => _serviceVersionEnum?.Value;
-        private ClientProvider ClientProvider => _clientProvider.Value;
         private FieldProvider? LatestVersionField => _latestVersionField ??= BuildLatestVersionField();
 
         private FieldProvider? BuildLatestVersionField()
@@ -59,8 +58,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
-        protected override string BuildName() => $"{ClientProvider.Name}Options";
-        protected override FormattableString Description => $"Client options for {ClientProvider.Type:C}.";
+        protected override string BuildName() => $"{_clientProvider.Name}Options";
+        protected override FormattableString Description => $"Client options for {_clientProvider.Type:C}.";
 
         protected override CSharpType[] BuildImplements()
         {
@@ -108,7 +107,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             switchCases.Add(SwitchCaseExpression.Default(ThrowExpression(New.NotSupportedException(ValueExpression.Empty))));
 
             var constructor = new ConstructorProvider(
-                new ConstructorSignature(Type, $"Initializes a new instance of {ClientProvider.Name}Options.", MethodSignatureModifiers.Public, [versionParam]),
+                new ConstructorSignature(Type, $"Initializes a new instance of {_clientProvider.Name}Options.", MethodSignatureModifiers.Public, [versionParam]),
                 _versionProperty!.Assign(new SwitchExpression(versionParam, [.. switchCases])).Terminate(),
                 this);
             return [constructor];

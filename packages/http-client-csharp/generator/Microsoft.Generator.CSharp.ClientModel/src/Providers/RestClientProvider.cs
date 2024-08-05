@@ -25,8 +25,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private Dictionary<InputOperation, MethodProvider> MethodCache => _methodCache ??= [];
 
         private readonly InputClient _inputClient;
-        private readonly Lazy<ClientProvider> _clientProvider;
-        internal ClientProvider ClientProvider => _clientProvider.Value;
+        internal ClientProvider ClientProvider { get; }
 
         private FieldProvider _pipelineMessageClassifier200;
         private FieldProvider _pipelineMessageClassifier204;
@@ -37,10 +36,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private PropertyProvider _classifier204Property;
         private PropertyProvider _classifier2xxAnd4xxProperty;
 
-        public RestClientProvider(InputClient inputClient)
+        public RestClientProvider(InputClient inputClient, ClientProvider clientProvider)
         {
             _inputClient = inputClient;
-            _clientProvider = new(() => ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient));
+            ClientProvider = clientProvider;
             _pipelineMessageClassifier200 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, typeof(PipelineMessageClassifier), "_pipelineMessageClassifier200");
             _pipelineMessageClassifier204 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, typeof(PipelineMessageClassifier), "_pipelineMessageClassifier204");
             _classifier2xxAnd4xxDefinition = new Classifier2xxAnd4xxDefinition(this);

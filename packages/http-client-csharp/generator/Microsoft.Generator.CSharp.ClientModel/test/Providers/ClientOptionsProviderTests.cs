@@ -56,7 +56,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         public void TestImplements()
         {
             var client = new InputClient("TestClient", "TestClient description", [], [], null);
-            var clientOptionsProvider = new ClientOptionsProvider(client);
+            var clientProvider = new ClientProvider(client);
+            var clientOptionsProvider = new ClientOptionsProvider(client, clientProvider);
 
             Assert.IsNotNull(clientOptionsProvider);
 
@@ -71,7 +72,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         public void TestFields(bool containsApiVersions)
         {
             var client = new InputClient("TestClient", "TestClient description", [], [], null);
-            var clientOptionsProvider = new ClientOptionsProvider(client);
+            var clientProvider = new ClientProvider(client);
+            var clientOptionsProvider = new ClientOptionsProvider(client, clientProvider);
 
             Assert.IsNotNull(clientOptionsProvider);
             var fields = clientOptionsProvider.Fields;
@@ -93,7 +95,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         public void TestNestedTypes(bool containsApiVersions)
         {
             var client = new InputClient("TestClient", "TestClient description", [], [], null);
-            var clientOptionsProvider = new ClientOptionsProvider(client);
+            var clientProvider = new ClientProvider(client);
+            var clientOptionsProvider = new ClientOptionsProvider(client, clientProvider);
 
             Assert.IsNotNull(clientOptionsProvider);
 
@@ -120,7 +123,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         public void TestConstructors(bool containsApiVersions)
         {
             var client = new InputClient("TestClient", "TestClient description", [], [], null);
-            var clientOptionsProvider = new ClientOptionsProvider(client);
+            var clientProvider = new ClientProvider(client);
+            var clientOptionsProvider = new ClientOptionsProvider(client, clientProvider);
 
             Assert.IsNotNull(clientOptionsProvider);
 
@@ -148,7 +152,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         public void TestProperties(bool containsApiVersions)
         {
             var client = new InputClient("TestClient", "TestClient description", [], [], null);
-            var clientOptionsProvider = new ClientOptionsProvider(client);
+            var clientProvider = new ClientProvider(client);
+            var clientOptionsProvider = new ClientOptionsProvider(client, clientProvider);
 
             Assert.IsNotNull(clientOptionsProvider);
 

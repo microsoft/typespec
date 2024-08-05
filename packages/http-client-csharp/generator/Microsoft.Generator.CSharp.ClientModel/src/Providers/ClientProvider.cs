@@ -37,8 +37,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private RestClientProvider? _restClient;
 
         private ParameterProvider ClientOptionsParameter => _clientOptionsParameter ??= ScmKnownParameters.ClientOptions(ClientOptions.Type);
-        internal RestClientProvider RestClient => _restClient ??= new RestClientProvider(_inputClient);
-        internal ClientOptionsProvider ClientOptions => _clientOptions ??= new ClientOptionsProvider(_inputClient);
+        internal RestClientProvider RestClient => _restClient ??= new RestClientProvider(_inputClient, this);
+        internal ClientOptionsProvider ClientOptions => _clientOptions ??= new ClientOptionsProvider(_inputClient, this);
 
         public ClientProvider(InputClient inputClient)
         {
