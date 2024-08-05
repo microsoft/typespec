@@ -58,10 +58,10 @@ namespace Microsoft.Generator.CSharp.Input
             if (parameter.Kind == InputOperationParameterKind.Constant)
             {
                 InputExampleValue value;
-                if (parameter is { Type: InputLiteralType { Value: not null } literalValue })
+                if (parameter is { Type: InputLiteralType { Value: { } literalValue } })
                 {
                     // when it is literal type, we just use the value
-                    value = InputExampleValue.Value(parameter.Type, literalValue.Value);
+                    value = InputExampleValue.Value(parameter.Type, literalValue);
                 }
                 else if (parameter.Type is InputUnionType unionType && unionType.VariantTypes[0] is InputLiteralType literalType)
                 {
