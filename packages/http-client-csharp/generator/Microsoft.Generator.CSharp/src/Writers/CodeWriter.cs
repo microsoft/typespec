@@ -225,7 +225,7 @@ namespace Microsoft.Generator.CSharp
 
         internal void WriteXmlDocs(XmlDocProvider? docs)
         {
-            if (docs is null)
+            if (CodeModelPlugin.Instance.Configuration.DisableXmlDocs || docs is null)
                 return;
 
             if (docs.Inherit is not null)
@@ -898,7 +898,6 @@ namespace Microsoft.Generator.CSharp
         {
             if (declaration.HasBeenDeclared)
             {
-                AppendRawIf("ref ", declaration.IsRef);
                 WriteIdentifier(declaration.ActualName);
             }
             else

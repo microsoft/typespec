@@ -207,7 +207,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // Build methods for all the operations
             foreach (var operation in _inputClient.Operations)
             {
-                methods.AddRange(ClientModelPlugin.Instance.TypeFactory.CreateMethods(operation, this));
+                var clientMethods = ClientModelPlugin.Instance.TypeFactory.CreateMethods(operation, this);
+                if (clientMethods != null)
+                {
+                    methods.AddRange(clientMethods);
+                }
             }
 
             return methods.ToArray();

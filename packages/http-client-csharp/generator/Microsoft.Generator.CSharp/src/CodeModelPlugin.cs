@@ -19,6 +19,7 @@ namespace Microsoft.Generator.CSharp
     [ExportMetadata("PluginName", nameof(CodeModelPlugin))]
     public abstract class CodeModelPlugin
     {
+        private List<LibraryVisitor> _visitors = new();
         private static CodeModelPlugin? _instance;
         internal static CodeModelPlugin Instance
         {
@@ -34,19 +35,21 @@ namespace Microsoft.Generator.CSharp
 
         public Configuration Configuration { get; }
 
+        internal virtual IList<LibraryVisitor> Visitors => _visitors;
+
         [ImportingConstructor]
         public CodeModelPlugin(GeneratorContext context)
         {
             Configuration = context.Configuration;
             _inputLibrary = new(() => new InputLibrary(Instance.Configuration.OutputDirectory));
+            TypeFactory = new TypeFactory();
         }
 
         // for mocking
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected CodeModelPlugin()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            // should be mocked
-            Configuration = null!;
-            _inputLibrary = new(() => null!);
         }
 
         internal bool IsNewProject { get; set; }
@@ -54,15 +57,20 @@ namespace Microsoft.Generator.CSharp
         private Lazy<InputLibrary> _inputLibrary;
 
         // Extensibility points to be implemented by a plugin
-        public abstract TypeFactory TypeFactory { get; }
+        public virtual TypeFactory TypeFactory { get; }
         public virtual string LicenseString => string.Empty;
         public virtual OutputLibrary OutputLibrary { get; } = new();
-        public InputLibrary InputLibrary => _inputLibrary.Value;
+        public virtual InputLibrary InputLibrary => _inputLibrary.Value;
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
         public virtual IReadOnlyList<MetadataReference> AdditionalMetadataReferences => [];
 
         public virtual void Configure()
         {
+        }
+
+        public void AddVisitor(LibraryVisitor visitor)
+        {
+            _visitors.Add(visitor);
         }
     }
 }

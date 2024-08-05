@@ -40,9 +40,25 @@ namespace Microsoft.Generator.CSharp.Providers
         {
         }
 
-        public PropertyProvider(InputModelProperty inputProperty)
+        internal static bool TryCreate(InputModelProperty inputProperty, [NotNullWhen(true)] out PropertyProvider? property)
         {
-            var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
+            var type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
+            if (type == null)
+            {
+                property = null;
+                return false;
+            }
+            property = new PropertyProvider(inputProperty, type);
+            return true;
+        }
+
+        public PropertyProvider(InputModelProperty inputProperty)
+        : this(inputProperty, CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type) ?? throw new InvalidOperationException($"Could not create CSharpType for property {inputProperty.Name}"))
+        {
+        }
+
+        private PropertyProvider(InputModelProperty inputProperty, CSharpType propertyType)
+        {
             if (!inputProperty.IsRequired && !propertyType.IsCollection)
             {
                 propertyType = propertyType.WithNullable(true);
