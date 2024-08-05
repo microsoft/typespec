@@ -75,7 +75,6 @@ import {
   isOrExtendsHttpFile,
   isOverloadSameEndpoint,
   MetadataInfo,
-  QueryParameterOptions,
   reportIfNoRoutes,
   resolveAuthentication,
   resolveRequestVisibility,
@@ -1521,8 +1520,7 @@ function createOAPIEmitter(
       case "header":
         return mapHeaderParameterFormat(parameter);
       case "query":
-        return mapQueryParameterFormat(parameter);
-
+        return getQueryParameterAttributes(parameter);
       case "path":
         return getPathParameterAttributes(parameter);
     }
@@ -1566,6 +1564,39 @@ function createOAPIEmitter(
     return attributes;
   }
 
+  function getQueryParameterAttributes(parameter: HttpOperationParameter & { type: "query" }) {
+    const attributes: { style?: string; explode?: boolean } = {};
+
+    if (parameter.explode) {
+      attributes.explode = true;
+    }
+
+    switch (parameter.format) {
+      case "ssv":
+        return { style: "spaceDelimited", explode: false };
+      case "pipes":
+        return { style: "pipeDelimited", explode: false };
+      case undefined:
+      case "csv":
+      case "simple":
+      case "multi":
+      case "form":
+        return attributes;
+      default:
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-format",
+            format: {
+              paramType: "query",
+              value: parameter.format,
+            },
+            target: parameter.param,
+          })
+        );
+        return undefined;
+    }
+  }
+
   function mapHeaderParameterFormat(
     parameter: HeaderFieldOptions & {
       param: ModelProperty;
@@ -1583,39 +1614,6 @@ function createOAPIEmitter(
             code: "invalid-format",
             format: {
               paramType: "header",
-              value: parameter.format,
-            },
-            target: parameter.param,
-          })
-        );
-        return undefined;
-    }
-  }
-  function mapQueryParameterFormat(
-    parameter: QueryParameterOptions & {
-      param: ModelProperty;
-    }
-  ): { style?: string; explode?: boolean } | undefined {
-    switch (parameter.format) {
-      case undefined:
-        return { explode: parameter.explode === true ? true : undefined };
-      case "csv":
-      case "simple":
-        return { style: "form", explode: false };
-      case "multi":
-      case "form":
-        return { style: "form", explode: true };
-      case "ssv":
-        return { style: "spaceDelimited", explode: false };
-      case "pipes":
-        return { style: "pipeDelimited", explode: false };
-
-      default:
-        diagnostics.add(
-          createDiagnostic({
-            code: "invalid-format",
-            format: {
-              paramType: "query",
               value: parameter.format,
             },
             target: parameter.param,

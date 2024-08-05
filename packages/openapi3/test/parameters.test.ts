@@ -65,7 +65,6 @@ describe("query parameters", () => {
     deepStrictEqual(params[0], {
       in: "query",
       name: "$multi",
-      style: "form",
       required: true,
       explode: true,
       schema: {
@@ -78,8 +77,6 @@ describe("query parameters", () => {
     deepStrictEqual(params[1], {
       in: "query",
       name: "$csv",
-      style: "form",
-      explode: false,
       schema: {
         type: "array",
         items: {
