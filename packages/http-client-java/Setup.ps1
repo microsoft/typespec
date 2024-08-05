@@ -11,5 +11,5 @@ if ($RebuildJar) {
 
 # re-build http-client-java
 npm install 
-npm run build:generator && npm run build:emitter && npm pack
+npm run build:generator && npm run build:emitter
 
