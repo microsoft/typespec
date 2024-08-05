@@ -37,13 +37,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         {
             var baseProperties = new List<InputModelProperty>
             {
-                new InputModelProperty("prop1", "prop1", string.Empty, InputPrimitiveType.String, true, false, false, Array.Empty<InputDecoratorInfo>()),
-                new InputModelProperty("prop2", "prop2", string.Empty, InputPrimitiveType.String, false, false, false, Array.Empty<InputDecoratorInfo>()),
+                new InputModelProperty("prop1", "prop1", string.Empty, InputPrimitiveType.String, true, false, false, []),
+                new InputModelProperty("prop2", "prop2", string.Empty, InputPrimitiveType.String, false, false, false, []),
             };
             var derivedProperties = new List<InputModelProperty>
             {
-                new InputModelProperty("prop3", "prop3", string.Empty, InputPrimitiveType.String, true, false, false, Array.Empty<InputDecoratorInfo>()),
-                new InputModelProperty("prop4", "prop4", string.Empty, InputPrimitiveType.String, false, false, false, Array.Empty<InputDecoratorInfo>()),
+                new InputModelProperty("prop3", "prop3", string.Empty, InputPrimitiveType.String, true, false, false, []),
+                new InputModelProperty("prop4", "prop4", string.Empty, InputPrimitiveType.String, false, false, false, []),
             };
             var inputBase = new InputModelType("baseModel", "baseModel", null, null, null, InputModelTypeUsage.Input, baseProperties, null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, Array.Empty<InputDecoratorInfo>());
             var inputDerived = new InputModelType("derivedModel", "derivedModel", null, null, null, InputModelTypeUsage.Input, derivedProperties, inputBase, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, Array.Empty<InputDecoratorInfo>());

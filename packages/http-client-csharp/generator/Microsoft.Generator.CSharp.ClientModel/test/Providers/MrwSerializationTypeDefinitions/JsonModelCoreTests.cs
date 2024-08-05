@@ -48,7 +48,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 true,
                 false,
                 false,
-                Array.Empty<InputDecoratorInfo>());
+                []);
             var inputModel = new InputModelType(
                 "TestModel",
                 "TestModel",
@@ -64,7 +64,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 new Dictionary<string, InputModelType>(),
                 null,
                 false,
-                Array.Empty<InputDecoratorInfo>());
+                []);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
@@ -118,7 +118,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 true,
                 false,
                 false,
-                Array.Empty<InputDecoratorInfo>());
+                []);
             var inputModel = new InputModelType(
                 "TestModel",
                 "TestModel",
@@ -134,7 +134,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 new Dictionary<string, InputModelType>(),
                 null,
                 false,
-                Array.Empty<InputDecoratorInfo>());
+                []);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
@@ -153,7 +153,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 true,
                 false,
                 false,
-                Array.Empty<InputDecoratorInfo>());
+                []);
             var inputModel = new InputModelType(
                 "TestModel",
                 "TestModel",
@@ -169,7 +169,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 new Dictionary<string, InputModelType>(),
                 null,
                 false,
-                Array.Empty<InputDecoratorInfo>());
+                []);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
