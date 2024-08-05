@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\TestProjects\ProjFiles\TestProjects.Local.Tests.csproj" />
+    <ProjectReference Include="..\..\TestProjects\Local.Tests\TestProjects.Local.Tests.csproj" />
     <ProjectReference Include="..\src\Microsoft.Generator.CSharp.ClientModel.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Include="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/**/*.cs" Link="Generated/Helpers/%(RecursiveDir)/%(Filename)%(Extension)" />
-    <None Update="Mocks\Configuration.json">
+    <None Update="TestHelpers\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="ModelReaderWriterValidation\TestProjects\**\*.json">
@@ -24,5 +24,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
 </Project>

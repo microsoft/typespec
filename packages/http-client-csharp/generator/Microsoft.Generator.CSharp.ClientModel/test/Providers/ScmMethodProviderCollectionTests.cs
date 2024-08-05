@@ -17,11 +17,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [TestCaseSource(nameof(DefaultCSharpMethodCollectionTestCases))]
         public void TestDefaultCSharpMethodCollection(InputOperation inputOperation)
         {
+            var inputClient = new InputClient("TestClient", "TestClient description", [inputOperation], [], null);
+
             MockHelpers.LoadMockPlugin(
                 createCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)),
                 createParameter: (inputParameter) => new ParameterProvider("mockParam", $"mock description", typeof(bool), null));
 
-            var methodCollection = new ScmMethodProviderCollection(inputOperation, MockClientTypeProvider.Empty);
+            var methodCollection = new ScmMethodProviderCollection(inputOperation, ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient));
             Assert.IsNotNull(methodCollection);
             Assert.AreEqual(4, methodCollection.Count);
 
@@ -45,10 +47,27 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
                     deprecated: null,
                     description: string.Empty,
                     accessibility: null,
-                    parameters: [
-                        new InputParameter("message", "message", "The message to create.", new InputPrimitiveType(InputPrimitiveTypeKind.Boolean), RequestLocation.Body, null, InputOperationParameterKind.Method, true, false, false, false, false, false, false, null, null)
-                        ],
-                    responses: Array.Empty<OperationResponse>(),
+                    parameters:
+                    [
+                        new InputParameter(
+                            "message",
+                            "message",
+                            "The message to create.",
+                            InputPrimitiveType.Boolean,
+                            RequestLocation.Body,
+                            null,
+                            InputOperationParameterKind.Method,
+                            true,
+                            false,
+                            false,
+                            false,
+                            false,
+                            false,
+                            false,
+                            null,
+                            null)
+                    ],
+                    responses: [new OperationResponse([200], null, BodyMediaType.Json, [], false, ["application/json"])],
                     httpMethod: "GET",
                     requestBodyMediaType: BodyMediaType.Json,
                     uri: "localhost",

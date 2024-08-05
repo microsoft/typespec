@@ -153,6 +153,7 @@ ignorePaths:
   - .github/CODEOWNERS
   - packages/samples/test/output/**
   - "**/BenchmarkDotNet.Artifacts/**"
+  - "**/tspCodeModel.json"
 useGitignore: true
 enableGlobDot: true
 enableFiletypes:

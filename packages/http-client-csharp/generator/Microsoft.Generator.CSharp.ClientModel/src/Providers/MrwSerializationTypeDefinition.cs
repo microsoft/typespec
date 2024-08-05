@@ -10,7 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
-using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
@@ -62,9 +61,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         // TODO -- we should not be needing this if we resolve https://github.com/microsoft/typespec/issues/3796
         private readonly MrwSerializationTypeDefinition? _baseSerializationProvider;
 
-        public MrwSerializationTypeDefinition(InputModelType inputModel)
+        public MrwSerializationTypeDefinition(InputModelType inputModel, TypeProvider modelProvider)
         {
-            _model = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
+            _model = modelProvider;
             _inputModel = inputModel;
             _isStruct = _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             // Initialize the serialization interfaces
@@ -74,7 +73,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _persistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
 
             if (inputModel.BaseModel is not null)
-                _baseSerializationProvider = ClientModelPlugin.Instance.TypeFactory.CreateSerializations(inputModel.BaseModel).OfType<MrwSerializationTypeDefinition>().FirstOrDefault();
+                _baseSerializationProvider = ClientModelPlugin.Instance.TypeFactory.CreateSerializations(inputModel.BaseModel, modelProvider).OfType<MrwSerializationTypeDefinition>().FirstOrDefault();
 
             _rawDataField = BuildRawDataField();
             _shouldOverrideMethods = _model.Type.BaseType != null && _model.Type.BaseType is { IsFrameworkType: false };

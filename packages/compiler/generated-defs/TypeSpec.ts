@@ -1,6 +1,7 @@
 import type {
   DecoratorContext,
   Enum,
+  EnumValue,
   Interface,
   Model,
   ModelProperty,
@@ -13,10 +14,20 @@ import type {
   UnionVariant,
 } from "../src/index.js";
 
+export interface ExampleOptions {
+  readonly title?: string;
+  readonly description?: string;
+}
+
+export interface OperationExample {
+  readonly parameters?: unknown;
+  readonly returnType?: unknown;
+}
+
 /**
  * Specify how to encode the target type.
  *
- * @param encoding Known name of an encoding.
+ * @param encodingOrEncodeAs Known name of an encoding or a scalar type to encode as(Only for numeric types to encode as string).
  * @param encodedAs What target type is this being encoded as. Default to string.
  * @example offsetDateTime encoded with rfc7231
  *
@@ -30,11 +41,18 @@ import type {
  * @encode("unixTimestamp", int32)
  * scalar myDateTime extends unixTimestamp;
  * ```
+ * @example encode numeric type to string
+ *
+ * ```tsp
+ * model Pet {
+ *   @encode(string) id: int64;
+ * }
+ * ```
  */
 export type EncodeDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  encoding: Type,
+  encodingOrEncodeAs: Scalar | string | EnumValue,
   encodedAs?: Scalar
 ) => void;
 
@@ -590,7 +608,7 @@ export type ExampleDecorator = (
   context: DecoratorContext,
   target: Model | Enum | Scalar | Union | ModelProperty | UnionVariant,
   example: unknown,
-  options?: unknown
+  options?: ExampleOptions
 ) => void;
 
 /**
@@ -607,8 +625,8 @@ export type ExampleDecorator = (
 export type OpExampleDecorator = (
   context: DecoratorContext,
   target: Operation,
-  example: unknown,
-  options?: unknown
+  example: OperationExample,
+  options?: ExampleOptions
 ) => void;
 
 /**

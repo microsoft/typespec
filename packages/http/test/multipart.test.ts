@@ -13,7 +13,7 @@ it("emit diagnostic when using invalid content type for multipart ", async () =>
   expectDiagnostics(diagnostics, {
     code: "@typespec/http/multipart-invalid-content-type",
     message:
-      "Content type 'application/json' is not a multipart content type. Supported content types are: .",
+      "Content type 'application/json' is not a multipart content type. Supported content types are: multipart/form-data, multipart/mixed.",
   });
 });
 
@@ -79,7 +79,7 @@ describe("define with the tuple form", () => {
 });
 
 describe("define with the object form", () => {
-  it("use name from property name", async () => {
+  it("part explicit name is used", async () => {
     const body = await getMultipartBody(`
       op read(
         @header contentType: "multipart/mixed",
@@ -89,7 +89,7 @@ describe("define with the object form", () => {
     `);
 
     strictEqual(body.parts.length, 1);
-    strictEqual(body.parts[0].name, "myPropertyPart");
+    strictEqual(body.parts[0].name, "myPart");
   });
 
   it("using an array of parts marks the part as multi: true", async () => {

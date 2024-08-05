@@ -259,11 +259,16 @@ describe("openapi3: primitives", () => {
     async function testEncode(
       scalar: string,
       expectedOpenApi: OpenAPI3Schema,
-      encoding?: string,
+      encoding?: string | null,
       encodeAs?: string
     ) {
       const encodeAsParam = encodeAs ? `, ${encodeAs}` : "";
-      const encodeDecorator = encoding ? `@encode("${encoding}"${encodeAsParam})` : "";
+      const encodeDecorator =
+        encoding === null
+          ? `@encode(${encodeAs})`
+          : encoding !== undefined
+            ? `@encode("${encoding}"${encodeAsParam})`
+            : "";
       const res1 = await oapiForModel("s", `${encodeDecorator} scalar s extends ${scalar};`);
       deepStrictEqual(res1.schemas.s, expectedOpenApi);
       const res2 = await oapiForModel("Test", `model Test {${encodeDecorator} prop: ${scalar}};`);
@@ -308,6 +313,20 @@ describe("openapi3: primitives", () => {
         testEncode("bytes", { type: "string", format: "byte" }));
       it("set format to base64url when encoding bytes as base64url", () =>
         testEncode("bytes", { type: "string", format: "base64url" }, "base64url"));
+    });
+
+    describe("int64", () => {
+      it("set type: integer and format to 'int64' by default", () =>
+        testEncode("int64", { type: "integer", format: "int64" }));
+      it("set type: string and format to int64 when @encode(string)", () =>
+        testEncode("int64", { type: "string", format: "int64" }, null, "string"));
+    });
+
+    describe("decimal128", () => {
+      it("set type: integer and format to 'int64' by default", () =>
+        testEncode("decimal128", { type: "number", format: "decimal128" }));
+      it("set type: string and format to int64 when @encode(string)", () =>
+        testEncode("decimal128", { type: "string", format: "decimal128" }, null, "string"));
     });
   });
 });

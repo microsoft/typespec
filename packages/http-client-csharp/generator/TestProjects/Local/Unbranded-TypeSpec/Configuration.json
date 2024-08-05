@@ -2,8 +2,5 @@
   "output-folder": ".",
   "namespace": "UnbrandedTypeSpec",
   "library-name": "UnbrandedTypeSpec",
-  "head-as-boolean": true,
-  "deserialize-null-collection-as-null-value": true,
-  "generate-test-project": true,
   "use-model-reader-writer": true
 }

@@ -19,6 +19,13 @@ namespace Microsoft.Generator.CSharp.Providers
         public ValueExpression? BodyExpression { get; private set;}
         public XmlDocProvider? XmlDocs { get; private set;}
 
+        // for mocking
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        protected MethodProvider()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MethodProvider"/> class with a body statement and method signature.
         /// </summary>
@@ -53,21 +60,27 @@ namespace Microsoft.Generator.CSharp.Providers
                 : null);
         }
 
-        public void Update(MethodSignature? signature = default, MethodBodyStatement? bodyStatements = default, ValueExpression? bodyExpression = default, XmlDocProvider? xmlDocProvider = default)
+        public void Update(
+            MethodSignature? signature = null,
+            MethodBodyStatement? bodyStatements = null,
+            ValueExpression? bodyExpression = null,
+            XmlDocProvider? xmlDocProvider = null)
         {
-            if (signature != default)
+            if (signature != null)
             {
                 Signature = signature;
             }
-            if (bodyStatements != default)
+            if (bodyStatements != null)
             {
                 BodyStatements = bodyStatements;
+                BodyExpression = null;
             }
-            if (bodyExpression != default)
+            if (bodyExpression != null)
             {
                 BodyExpression = bodyExpression;
+                BodyStatements = null;
             }
-            if (xmlDocProvider != default)
+            if (xmlDocProvider != null)
             {
                 XmlDocs = xmlDocProvider;
             }

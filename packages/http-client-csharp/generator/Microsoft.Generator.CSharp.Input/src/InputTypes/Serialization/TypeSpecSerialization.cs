@@ -32,8 +32,13 @@ namespace Microsoft.Generator.CSharp.Input
                     new TypeSpecInputClientConverter(referenceHandler),
                     new TypeSpecInputOperationConverter(referenceHandler),
                     new TypeSpecInputParameterConverter(referenceHandler),
+                    new TypeSpecInputPrimitiveTypeConverter(referenceHandler),
+                    new TypeSpecOperationLongRunningConverter(referenceHandler),
+                    new TypeSpecOperationResponseConverter(referenceHandler),
+                    new TypeSpecOperationResponseHeaderConverter(referenceHandler),
                     new TypeSpecInputDateTimeTypeConverter(referenceHandler),
-                    new TypeSpecInputDurationTypeConverter(referenceHandler)
+                    new TypeSpecInputDurationTypeConverter(referenceHandler),
+                    new TypeSpecInputAuthConverter(referenceHandler),
                 }
             };
 
