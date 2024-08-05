@@ -76,8 +76,8 @@ try {
         $lockFilesPath = Resolve-Path "$BuildArtifactsPath/lock-files"
         # if we were passed a build_artifacts path, use the package.json and package-lock.json from there
         Write-Host "Using package.json and package-lock.json from $lockFilesPath"
-        Copy-Item "$lockFilesPath/package.json" './package.json' -Force
-        Copy-Item "$lockFilesPath/package-lock.json" './package-lock.json' -Force
+        Copy-Item "$lockFilesPath/emitter/package.json" './package.json' -Force
+        Copy-Item "$lockFilesPath/emitter/package-lock.json" './package-lock.json' -Force
 
         Invoke-LoggedCommand "npm ci"
     }
