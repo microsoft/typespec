@@ -12,7 +12,7 @@ using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
-    public abstract class TypeFactory
+    public class TypeFactory
     {
         private ChangeTrackingListDefinition? _changeTrackingListProvider;
         private ChangeTrackingListDefinition ChangeTrackingListProvider => _changeTrackingListProvider ??= new();
@@ -20,24 +20,98 @@ namespace Microsoft.Generator.CSharp
         private ChangeTrackingDictionaryDefinition? _changeTrackingDictionaryProvider;
         private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
 
-        private Dictionary<InputType, TypeProvider>? _csharpToTypeProvider;
-        private Dictionary<InputType, TypeProvider> CSharpToTypeProvider => _csharpToTypeProvider ??= [];
+        private Dictionary<InputType, TypeProvider?>? _csharpToTypeProvider;
+        private Dictionary<InputType, TypeProvider?> CSharpToTypeProvider => _csharpToTypeProvider ??= [];
 
         private Dictionary<InputType, CSharpType>? _typeCache;
         private Dictionary<InputType, CSharpType> TypeCache => _typeCache ??= [];
 
-        private Dictionary<InputModelProperty, PropertyProvider>? _propertyCache;
-        private Dictionary<InputModelProperty, PropertyProvider> PropertyCache => _propertyCache ??= [];
+        private HashSet<InputType>? _nullTypes;
+        private HashSet<InputType> NullTypes => _nullTypes ??= [];
+
+        private Dictionary<InputModelProperty, PropertyProvider?>? _propertyCache;
+        private Dictionary<InputModelProperty, PropertyProvider?> PropertyCache => _propertyCache ??= [];
+
+        private Dictionary<InputParameter, ParameterProvider>? _parameterCache;
+        private Dictionary<InputParameter, ParameterProvider> ParameterCache => _parameterCache ??= [];
 
         private Dictionary<InputType, IReadOnlyList<TypeProvider>>? _serializationsCache;
+        private IList<LibraryVisitor> Visitors => CodeModelPlugin.Instance.Visitors;
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache => _serializationsCache ??= [];
 
-        public CSharpType CreateCSharpType(InputType inputType)
+        protected internal TypeFactory()
+        {
+        }
+
+        public CSharpType? CreateCSharpType(InputType inputType)
+        {
+            if (NullTypes.Contains(inputType))
+            {
+                return null;
+            }
+
+            CSharpType? type = CreateCSharpTypeCore(inputType);
+
+            if (type == null)
+            {
+                NullTypes.Add(inputType);
+            }
+
+            return type;
+        }
+
+        private protected virtual CSharpType? CreateCSharpTypeCore(InputType inputType)
+        {
+            CSharpType? type;
+            switch (inputType)
+            {
+                case InputLiteralType literalType:
+                    var input = CreateCSharpType(literalType.ValueType);
+                    type = input != null ? CSharpType.FromLiteral(input, literalType.Value) : null;
+                    break;
+                case InputUnionType unionType:
+                    var unionInputs = new List<CSharpType>();
+                    foreach (var variant in unionType.VariantTypes)
+                    {
+                        var unionInput = CreateCSharpType(variant);
+                        if (unionInput != null)
+                        {
+                            unionInputs.Add(unionInput);
+                        }
+                    }
+                    type = CSharpType.FromUnion(unionInputs);
+                    break;
+                case InputArrayType listType:
+                    var arrayInput = CreateCSharpType(listType.ValueType);
+                    type = arrayInput != null ? new CSharpType(typeof(IList<>), arrayInput) : null;
+                    break;
+                case InputDictionaryType dictionaryType:
+                    var inputValueType = CreateCSharpType(dictionaryType.ValueType);
+                    type = inputValueType != null ? new CSharpType(typeof(IDictionary<,>), typeof(string), inputValueType) : null;
+                    break;
+                case InputEnumType enumType:
+                    type = CreateEnum(enumType)?.Type;
+                    break;
+                case InputModelType modelType:
+                    type = CreateModel(modelType)?.Type;
+                    break;
+                case InputNullableType nullableType:
+                    type = CreateCSharpType(nullableType.Type)?.WithNullable(true);
+                    break;
+                default:
+                    type = CreatePrimitiveCSharpType(inputType);
+                    break;
+            }
+
+            return type;
+        }
+
+        internal CSharpType CreatePrimitiveCSharpType(InputType inputType)
         {
             if (TypeCache.TryGetValue(inputType, out var type))
                 return type;
 
-            type = CreateCSharpTypeCore(inputType);
+            type = CreatePrimitiveCSharpTypeCore(inputType);
             TypeCache.Add(inputType, type);
             return type;
         }
@@ -47,28 +121,18 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="inputType">The <see cref="InputType"/> to convert.</param>
         /// <returns>An instance of <see cref="CSharpType"/>.</returns>
-        protected virtual CSharpType CreateCSharpTypeCore(InputType inputType) => inputType switch
+        private protected virtual CSharpType CreatePrimitiveCSharpTypeCore(InputType inputType) => inputType switch
         {
-            InputLiteralType literalType => CSharpType.FromLiteral(CreateCSharpType(literalType.ValueType), literalType.Value),
-            InputUnionType unionType => CSharpType.FromUnion(unionType.VariantTypes.Select(CreateCSharpType).ToArray()),
-            InputArrayType listType => new CSharpType(typeof(IList<>), CreateCSharpType(listType.ValueType)),
-            InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), typeof(string), CreateCSharpType(dictionaryType.ValueType)),
-            InputEnumType enumType => CreateEnum(enumType).Type,
-            InputModelType model => CreateModel(model).Type,
-            InputNullableType nullableType => CreateCSharpType(nullableType.Type).WithNullable(true),
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
                 InputPrimitiveTypeKind.Boolean => new CSharpType(typeof(bool)),
                 InputPrimitiveTypeKind.Bytes => new CSharpType(typeof(BinaryData)),
-                InputPrimitiveTypeKind.ContentType => new CSharpType(typeof(string)),
                 InputPrimitiveTypeKind.PlainDate => new CSharpType(typeof(DateTimeOffset)),
                 InputPrimitiveTypeKind.Decimal => new CSharpType(typeof(decimal)),
                 InputPrimitiveTypeKind.Decimal128 => new CSharpType(typeof(decimal)),
                 InputPrimitiveTypeKind.PlainTime => new CSharpType(typeof(TimeSpan)),
                 InputPrimitiveTypeKind.Float32 => new CSharpType(typeof(float)),
                 InputPrimitiveTypeKind.Float64 => new CSharpType(typeof(double)),
-                InputPrimitiveTypeKind.Float128 => new CSharpType(typeof(decimal)),
-                InputPrimitiveTypeKind.Guid or InputPrimitiveTypeKind.Uuid => new CSharpType(typeof(Guid)),
                 InputPrimitiveTypeKind.Int8 => new CSharpType(typeof(sbyte)),
                 InputPrimitiveTypeKind.UInt8 => new CSharpType(typeof(byte)),
                 InputPrimitiveTypeKind.Int32 => new CSharpType(typeof(int)),
@@ -77,11 +141,9 @@ namespace Microsoft.Generator.CSharp
                 InputPrimitiveTypeKind.Integer => new CSharpType(typeof(long)), // in typespec, integer is the base type of int related types, see type relation: https://typespec.io/docs/language-basics/type-relations
                 InputPrimitiveTypeKind.Float => new CSharpType(typeof(double)), // in typespec, float is the base type of float32 and float64, see type relation: https://typespec.io/docs/language-basics/type-relations
                 InputPrimitiveTypeKind.Numeric => new CSharpType(typeof(double)), // in typespec, numeric is the base type of number types, see type relation: https://typespec.io/docs/language-basics/type-relations
-                InputPrimitiveTypeKind.IPAddress => new CSharpType(typeof(IPAddress)),
                 InputPrimitiveTypeKind.Stream => new CSharpType(typeof(Stream)),
                 InputPrimitiveTypeKind.String => new CSharpType(typeof(string)),
-                InputPrimitiveTypeKind.Uri or InputPrimitiveTypeKind.Url => new CSharpType(typeof(Uri)),
-                InputPrimitiveTypeKind.Char => new CSharpType(typeof(char)),
+                InputPrimitiveTypeKind.Url => new CSharpType(typeof(Uri)),
                 InputPrimitiveTypeKind.Any => new CSharpType(typeof(BinaryData)),
                 _ => new CSharpType(typeof(object)),
             },
@@ -95,7 +157,7 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="model">The <see cref="InputModelType"/> to convert.</param>
         /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
-        public TypeProvider CreateModel(InputModelType model)
+        public TypeProvider? CreateModel(InputModelType model)
         {
             if (CSharpToTypeProvider.TryGetValue(model, out var modelProvider))
                 return modelProvider;
@@ -105,14 +167,27 @@ namespace Microsoft.Generator.CSharp
             return modelProvider;
         }
 
-        protected virtual TypeProvider CreateModelCore(InputModelType model) => new ModelProvider(model);
+        private TypeProvider? CreateModelCore(InputModelType model)
+        {
+            TypeProvider? type = new ModelProvider(model);
+            if (Visitors.Count == 0)
+            {
+                return type;
+            }
+            foreach (var visitor in Visitors)
+            {
+                type = visitor.Visit(model, type);
+            }
+
+            return type;
+        }
 
         /// <summary>
         /// Factory method for creating a <see cref="TypeProvider"/> based on an <see cref="InputEnumType"> <paramref name="enumType"/>.
         /// </summary>
         /// <param name="enumType">The <see cref="InputEnumType"/> to convert.</param>
         /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
-        public TypeProvider CreateEnum(InputEnumType enumType)
+        public TypeProvider? CreateEnum(InputEnumType enumType)
         {
             if (CSharpToTypeProvider.TryGetValue(enumType, out var enumProvider))
                 return enumProvider;
@@ -122,14 +197,34 @@ namespace Microsoft.Generator.CSharp
             return enumProvider;
         }
 
-        protected virtual TypeProvider CreateEnumCore(InputEnumType enumType) => EnumProvider.Create(enumType);
+        private TypeProvider? CreateEnumCore(InputEnumType enumType)
+        {
+            TypeProvider? type = EnumProvider.Create(enumType);
+            if (Visitors.Count == 0)
+            {
+                return type;
+            }
+            foreach (var visitor in Visitors)
+            {
+                type = visitor.Visit(enumType, type);
+            }
+            return type;
+        }
 
         /// <summary>
         /// Factory method for creating a <see cref="ParameterProvider"/> based on an input parameter <paramref name="parameter"/>.
         /// </summary>
         /// <param name="parameter">The <see cref="InputParameter"/> to convert.</param>
         /// <returns>An instance of <see cref="ParameterProvider"/>.</returns>
-        public virtual ParameterProvider CreateParameter(InputParameter parameter) => new ParameterProvider(parameter);
+        public virtual ParameterProvider CreateParameter(InputParameter parameter)
+        {
+            if (ParameterCache.TryGetValue(parameter, out var parameterProvider))
+                return parameterProvider;
+
+            parameterProvider = new ParameterProvider(parameter);
+            ParameterCache.Add(parameter, parameterProvider);
+            return parameterProvider;
+        }
 
         /// <summary>
         /// Factory method for creating a <see cref="MethodProviderCollection"/> based on an input operation <paramref name="operation"/>.
@@ -139,14 +234,26 @@ namespace Microsoft.Generator.CSharp
         /// <returns>An instance of <see cref="MethodProviderCollection"/> containing the chain of methods
         /// associated with the input operation, or <c>null</c> if no methods are constructed.
         /// </returns>
-        public virtual MethodProviderCollection CreateMethods(InputOperation operation, TypeProvider enclosingType) => new(operation, enclosingType);
+        public MethodProviderCollection? CreateMethods(InputOperation operation, TypeProvider enclosingType)
+        {
+            var methods = new MethodProviderCollection(operation, enclosingType);
+            if (Visitors.Count == 0)
+            {
+                return methods;
+            }
+            foreach (var visitor in Visitors)
+            {
+                methods = visitor.Visit(operation, enclosingType, methods);
+            }
+            return methods;
+        }
 
         /// <summary>
         /// Creates a <see cref="PropertyProvider"/> based on an input property <paramref name="property"/>.
         /// </summary>
         /// <param name="property">The input property.</param>
         /// <returns>The property provider.</returns>
-        public PropertyProvider CreatePropertyProvider(InputModelProperty property)
+        public PropertyProvider? CreatePropertyProvider(InputModelProperty property)
         {
             if (PropertyCache.TryGetValue(property, out var propertyProvider))
                 return propertyProvider;
@@ -161,7 +268,21 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="property">The input model property.</param>
         /// <returns>An instance of <see cref="PropertyProvider"/>.</returns>
-        protected virtual PropertyProvider CreatePropertyProviderCore(InputModelProperty property) => new PropertyProvider(property);
+        private PropertyProvider? CreatePropertyProviderCore(InputModelProperty property)
+        {
+            {
+                PropertyProvider.TryCreate(property, out var propertyProvider);
+                if (Visitors.Count == 0)
+                {
+                    return propertyProvider;
+                }
+                foreach (var visitor in Visitors)
+                {
+                    propertyProvider = visitor.Visit(property, propertyProvider);
+                }
+                return propertyProvider;
+            }
+        }
 
         /// <summary>
         /// Factory method for retrieving the serialization format for a given input type.
@@ -222,17 +343,18 @@ namespace Microsoft.Generator.CSharp
         /// Returns the serialization type providers for the given model type provider.
         /// </summary>
         /// <param name="inputType">The input model.</param>
-        public IReadOnlyList<TypeProvider> CreateSerializations(InputType inputType)
+        /// <param name="typeProvider">The type provider.</param>
+        public IReadOnlyList<TypeProvider> CreateSerializations(InputType inputType, TypeProvider typeProvider)
         {
             if (SerializationsCache.TryGetValue(inputType, out var serializations))
                 return serializations;
 
-            serializations = CreateSerializationsCore(inputType);
+            serializations = CreateSerializationsCore(inputType, typeProvider);
             SerializationsCache.Add(inputType, serializations);
             return serializations;
         }
 
-        protected virtual IReadOnlyList<TypeProvider> CreateSerializationsCore(InputType inputType)
+        protected virtual IReadOnlyList<TypeProvider> CreateSerializationsCore(InputType inputType, TypeProvider typeProvider)
         {
             return [];
         }

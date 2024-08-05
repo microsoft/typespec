@@ -23,13 +23,13 @@ namespace UnbrandedTypeSpec.Models
             _value = value;
         }
 
-        /// <summary> Gets the one. </summary>
+        /// <summary> Gets the One. </summary>
         public static FloatExtensibleEnumWithIntValue One { get; } = new FloatExtensibleEnumWithIntValue(OneValue);
 
-        /// <summary> Gets the two. </summary>
+        /// <summary> Gets the Two. </summary>
         public static FloatExtensibleEnumWithIntValue Two { get; } = new FloatExtensibleEnumWithIntValue(TwoValue);
 
-        /// <summary> Gets the four. </summary>
+        /// <summary> Gets the Four. </summary>
         public static FloatExtensibleEnumWithIntValue Four { get; } = new FloatExtensibleEnumWithIntValue(FourValue);
 
         /// <summary> Determines if two <see cref="FloatExtensibleEnumWithIntValue"/> values are the same. </summary>

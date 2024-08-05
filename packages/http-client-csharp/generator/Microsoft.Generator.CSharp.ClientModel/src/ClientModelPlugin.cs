@@ -30,5 +30,10 @@ namespace Microsoft.Generator.CSharp.ClientModel
             TypeFactory = new ScmTypeFactory();
             _instance = this;
         }
+
+        public override void Configure()
+        {
+            AddVisitor(new ScmVisitor());
+        }
     }
 }

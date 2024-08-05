@@ -50,12 +50,12 @@ namespace Microsoft.Generator.CSharp.Providers
             if (_inputModel.BaseModel == null)
                 return null;
 
-            return CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(_inputModel.BaseModel);
+            return CodeModelPlugin.Instance.TypeFactory.CreateModel(_inputModel.BaseModel)?.Type;
         }
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return [.. CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputModel)];
+            return [.. CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputModel, this)];
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
@@ -67,15 +67,19 @@ namespace Microsoft.Generator.CSharp.Providers
         protected override PropertyProvider[] BuildProperties()
         {
             var propertiesCount = _inputModel.Properties.Count;
-            var propertyDeclarations = new PropertyProvider[propertiesCount];
+            var propertyDeclarations = new List<PropertyProvider>(propertiesCount);
 
             for (int i = 0; i < propertiesCount; i++)
             {
                 var property = _inputModel.Properties[i];
-                propertyDeclarations[i] = CodeModelPlugin.Instance.TypeFactory.CreatePropertyProvider(property);
+                var outputProperty = CodeModelPlugin.Instance.TypeFactory.CreatePropertyProvider(property);
+                if (outputProperty != null)
+                {
+                    propertyDeclarations.Add(outputProperty);
+                }
             }
 
-            return propertyDeclarations;
+            return propertyDeclarations.ToArray();
         }
 
         protected override ConstructorProvider[] BuildConstructors()
@@ -113,7 +117,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildConstructorParameters()
         {
             // we need to find all the properties on our base model, we add the reverse because our convention is to have the properties from base model first.
-            var baseProperties = _inputModel.GetAllBaseModels().Reverse().SelectMany(model => CodeModelPlugin.Instance.TypeFactory.CreateModel(model).Properties);
+            var baseProperties = _inputModel.GetAllBaseModels().Reverse().SelectMany(model => CodeModelPlugin.Instance.TypeFactory.CreateModel(model)?.Properties ?? []);
             var basePropertyCount = baseProperties.Count();
             var parameterCapacity = basePropertyCount + Properties.Count;
             var baseParameters = new List<ParameterProvider>(basePropertyCount);
