@@ -15,11 +15,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 {
     internal static class MockHelpers
     {
-        private static readonly string _configFilePath = Path.Combine(AppContext.BaseDirectory, MocksFolder);
-        public const string MocksFolder = "Mocks";
+        private static readonly string _configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
+        public const string TestHelpersFolder = "TestHelpers";
 
         public static void LoadMockPlugin(
-            Func<InputType, IReadOnlyList<TypeProvider>>? createSerializationsCore = null,
+            Func<InputType, TypeProvider, IReadOnlyList<TypeProvider>>? createSerializationsCore = null,
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<CSharpType>? matchConditionsType = null,
             Func<CSharpType>? tokenCredentialType = null,
@@ -41,6 +41,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
                 Array.Empty<InputClient>(),
                 inputNsAuth);
             var mockInputLibrary = new Mock<InputLibrary>(_configFilePath);
+            mockInputLibrary.Setup(p => p.InputNamespace).Returns(mockInputNs.Object);
 
             if (matchConditionsType is not null)
             {
@@ -52,11 +53,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
                 mockTypeFactory.Setup(p => p.TokenCredentialType()).Returns(tokenCredentialType);
             }
 
-            if (createMethods is not null)
-            {
-                mockTypeFactory.Setup(p => p.CreateMethods(It.IsAny<InputOperation>(), It.IsAny<TypeProvider>())).Returns(createMethods);
-            }
-
             if (createParameter is not null)
             {
                 mockTypeFactory.Setup(p => p.CreateParameter(It.IsAny<InputParameter>())).Returns(createParameter);
@@ -64,7 +60,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
             if (createSerializationsCore is not null)
             {
-                mockTypeFactory.Protected().Setup<IReadOnlyList<TypeProvider>>("CreateSerializationsCore", ItExpr.IsAny<InputType>()).Returns(createSerializationsCore);
+                mockTypeFactory.Protected().Setup<IReadOnlyList<TypeProvider>>("CreateSerializationsCore", ItExpr.IsAny<InputType>(), ItExpr.IsAny<TypeProvider>()).Returns(createSerializationsCore);
             }
 
             if (createCSharpTypeCore is not null)
@@ -75,8 +71,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             // initialize the mock singleton instance of the plugin
             var codeModelInstance = typeof(CodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
             var clientModelInstance = typeof(ClientModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
-            var inputNsInstance = typeof(InputLibrary).GetField("_inputNamespace", BindingFlags.Instance | BindingFlags.NonPublic);
-            inputNsInstance!.SetValue(mockInputLibrary.Object, mockInputNs.Object);
             // invoke the load method with the config file path
             var loadMethod = typeof(Configuration).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic);
             object?[] parameters = [_configFilePath, null];

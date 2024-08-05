@@ -20,7 +20,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private const string VersionPropertyName = "Version";
         private readonly InputClient _inputClient;
         private readonly Lazy<ClientProvider> _clientProvider;
-        private readonly Lazy<TypeProvider>? _serviceVersionEnum;
+        private readonly Lazy<TypeProvider?>? _serviceVersionEnum;
         private readonly PropertyProvider? _versionProperty;
         private FieldProvider? _latestVersionField;
 
@@ -128,12 +128,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         description = $"{p.Description}";
                     }
 
-                    properties.Add(new(
-                        description,
-                        MethodSignatureModifiers.Public,
-                        ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type).PropertyInitializationType,
-                        p.Name.ToCleanName(),
-                        new AutoPropertyBody(true)));
+                    var type = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type)?.PropertyInitializationType;
+                    if (type != null)
+                    {
+                        properties.Add(new(
+                            description,
+                            MethodSignatureModifiers.Public,
+                            type,
+                            p.Name.ToCleanName(),
+                            new AutoPropertyBody(true)));
+                    }
                 }
             }
 

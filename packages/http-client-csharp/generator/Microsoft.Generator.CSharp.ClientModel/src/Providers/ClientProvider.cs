@@ -108,11 +108,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         description = $"{p.Description}";
                     }
 
-                    fields.Add(new(
-                        FieldModifiers.Private | FieldModifiers.ReadOnly,
-                        ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type),
-                        "_" + p.Name.ToVariableName(),
-                        description));
+                    var type = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type);
+                    if (type != null)
+                    {
+                        fields.Add(new(
+                            FieldModifiers.Private | FieldModifiers.ReadOnly,
+                            type,
+                            "_" + p.Name.ToVariableName(),
+                            description));
+                    }
                 }
             }
 
@@ -231,7 +235,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // Build methods for all the operations
             foreach (var operation in _inputClient.Operations)
             {
-                methods.AddRange(ClientModelPlugin.Instance.TypeFactory.CreateMethods(operation, this));
+                var clientMethods = ClientModelPlugin.Instance.TypeFactory.CreateMethods(operation, this);
+                if (clientMethods != null)
+                {
+                    methods.AddRange(clientMethods);
+                }
             }
 
             return methods.ToArray();

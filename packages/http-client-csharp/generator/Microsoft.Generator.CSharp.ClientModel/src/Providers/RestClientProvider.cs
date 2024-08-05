@@ -264,7 +264,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputParameter inputParam, out bool isString, out string? format, out ValueExpression valueExpression)
         {
-            isString = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParam.Type).Equals(typeof(string));
+            isString = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParam.Type)?.Equals(typeof(string)) == true;
             if (inputParam.Kind == InputOperationParameterKind.Constant)
             {
                 valueExpression = Literal(inputParam.DefaultValue?.Value);
@@ -292,10 +292,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 if (inputParam.Kind != InputOperationParameterKind.Method)
                     continue;
 
-                ParameterProvider parameter = inputParam.Location == RequestLocation.Body
+                ParameterProvider? parameter = inputParam.Location == RequestLocation.Body
                     ? ScmKnownParameters.BinaryContent
                     : ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam);
-                methodParameters.Add(parameter);
+                if (parameter is not null)
+                    methodParameters.Add(parameter);
             }
             return methodParameters;
         }
