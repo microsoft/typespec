@@ -16,6 +16,18 @@ describe("paths that should trigger CSharp CI", () => {
   });
 });
 
+describe("paths that should trigger Java CI", () => {
+  it.each([
+    ["packages/https-client-java/emitter/src/emitter.ts"],
+    [
+      "eng/emitters/pipelines/templates/jobs/test-job.yml"
+    ],
+  ])("%s", (...paths) => {
+    const areas = findAreasChanged(paths);
+    expect(areas).toEqual(["Java"]);
+  });
+});
+
 describe("paths that should trigger Core CI", () => {
   it.each([
     "packages/compiler/package.json",
@@ -30,7 +42,7 @@ describe("paths that should trigger Core CI", () => {
 describe("paths that should trigger all isolated packages", () => {
   it.each(["eng/emitters/pipelines/templates/jobs/detect-api-changes.yml"])("%s", (path) => {
     const areas = findAreasChanged([path]);
-    expect(areas).toEqual(["CSharp"]);
+    expect(areas).toEqual(["CSharp", "Java"]);
   });
 });
 
@@ -39,12 +51,12 @@ it("Should return a combination of core and isolated packages", () => {
     "packages/http-client-csharp/src/constants.ts",
     "packages/compiler/package.json",
   ]);
-  expect(areas).toEqual(["CSharp", "Core"]);
+  expect(areas).toEqual(["CSharp", "Core", "Java"]);
 });
 
-it("Should return CSharp and Core if .editorconfig is changed", () => {
+it("Should return CSharp, Core and Java if .editorconfig is changed", () => {
   const areas = findAreasChanged([".editorconfig"]);
-  expect(areas).toEqual(["CSharp", "Core"]);
+  expect(areas).toEqual(["CSharp", "Core", "Java"]);
 });
 
 it("Should not return Core for .prettierignore, .prettierrc.json, cspell.yaml, esling.config.json", () => {
@@ -54,8 +66,9 @@ it("Should not return Core for .prettierignore, .prettierrc.json, cspell.yaml, e
     "cspell.yaml",
     "esling.config.json",
     "packages/http-client-csharp/emitter/src/constants.ts",
+    "packages/https-client-java/emitter/src/emitter.ts"
   ]);
-  expect(areas).toEqual(["CSharp"]);
+  expect(areas).toEqual(["CSharp", "Java"]);
 });
 
 it("should return Core for random files at the root", () => {
