@@ -53,7 +53,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // Write out the dotnet model to the output path
-    const sdkContext = createSdkContext(context, "@typespec/http-client-csharp");
+    const sdkContext = await createSdkContext(context, "@typespec/http-client-csharp");
     const root = createModel(sdkContext);
     if (
       context.program.diagnostics.length > 0 &&

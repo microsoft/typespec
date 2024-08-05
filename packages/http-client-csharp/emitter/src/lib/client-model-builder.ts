@@ -15,7 +15,7 @@ import { CodeModel } from "../type/code-model.js";
 import { InputClient } from "../type/input-client.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputParameter } from "../type/input-parameter.js";
-import { InputEnumType, InputModelType, InputPrimitiveType } from "../type/input-type.js";
+import { InputEnumType, InputModelType, InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
 import { fromSdkType } from "./converter.js";
 import { Logger } from "./logger.js";
@@ -138,6 +138,8 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
           DefaultValue: {
             Type: {
               Kind: "string",
+              Name: "string",
+              CrossLanguageDefinitionId: "TypeSpec.string",
             },
             Value: p.type.serverUrl,
           },
@@ -156,10 +158,12 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     const parameters: InputParameter[] = [];
     for (const parameter of p.type.templateArguments) {
       const isEndpoint = parameter.name === endpointVariableName;
-      const parameterType = isEndpoint
-        ? ({
-            Kind: "uri",
-          } as InputPrimitiveType)
+      const parameterType: InputType = isEndpoint
+        ? {
+            Kind: "url",
+            Name: "url",
+            CrossLanguageDefinitionId: "TypeSpec.url",
+          }
         : fromSdkType(parameter.type, sdkContext, modelMap, enumMap);
       parameters.push({
         Name: parameter.name,

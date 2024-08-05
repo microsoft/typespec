@@ -18,14 +18,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private Dictionary<InputClient, ClientProvider>? _clientCache;
         private Dictionary<InputClient, ClientProvider> ClientCache => _clientCache ??= [];
 
-        /// <summary>
-        /// Creates a <see cref="MethodProviderCollection"/> for the given operation. If the operation is a <see cref="InputOperationKinds.DefaultValue"/> operation,
-        /// a method collection will be created. Otherwise, <c>null</c> will be returned.
-        /// </summary>
-        /// <param name="operation">The input operation to create methods for.</param>
-        /// <param name="enclosingType">The enclosing type of the operation.</param>
-        public override MethodProviderCollection CreateMethods(InputOperation operation, TypeProvider enclosingType) => new ScmMethodProviderCollection(operation, enclosingType);
-
         public virtual CSharpType MatchConditionsType() => typeof(PipelineMessageClassifier);
 
         public virtual CSharpType TokenCredentialType() => typeof(ApiKeyCredential);
@@ -34,22 +26,23 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// Returns the serialization type providers for the given input type.
         /// </summary>
         /// <param name="inputType">The input type.</param>
-        protected override IReadOnlyList<TypeProvider> CreateSerializationsCore(InputType inputType)
+        /// <param name="typeProvider">The type provider.</param>
+        protected override IReadOnlyList<TypeProvider> CreateSerializationsCore(InputType inputType, TypeProvider typeProvider)
         {
             switch (inputType)
             {
                 case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
-                    return [new MrwSerializationTypeDefinition(inputModel)];
-                case InputEnumType inputEnumType when inputEnumType.IsExtensible:
-                    if (ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputEnumType).UnderlyingEnumType.Equals(typeof(string)))
+                    return [new MrwSerializationTypeDefinition(inputModel, typeProvider)];
+                case InputEnumType { IsExtensible: true } inputEnumType:
+                    if (ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputEnumType)?.UnderlyingEnumType.Equals(typeof(string)) == true)
                     {
                         return [];
                     }
-                    return [new ExtensibleEnumSerializationProvider(inputEnumType)];
+                    return [new ExtensibleEnumSerializationProvider(inputEnumType, typeProvider)];
                 case InputEnumType inputEnumType:
-                    return [new FixedEnumSerializationProvider(inputEnumType)];
+                    return [new FixedEnumSerializationProvider(inputEnumType, typeProvider)];
                 default:
-                    return base.CreateSerializationsCore(inputType);
+                    return base.CreateSerializationsCore(inputType, typeProvider);
             }
         }
 

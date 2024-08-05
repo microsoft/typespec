@@ -38,6 +38,7 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
+    "examples-directory": { type: "string", nullable: true },
     "api-version": { type: "string", nullable: true },
     outputFile: { type: "string", nullable: true },
     logFile: { type: "string", nullable: true },

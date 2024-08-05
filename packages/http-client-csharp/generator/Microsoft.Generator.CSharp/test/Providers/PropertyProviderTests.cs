@@ -24,7 +24,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 "snake_case",
                 "snake_case",
                 "A property with snake_case name",
-                new InputPrimitiveType(InputPrimitiveTypeKind.String, null),
+                InputPrimitiveType.String,
                 true,
                 false,
                 false);
@@ -44,7 +44,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 "PascalCase",
                 "PascalCase",
                 "A property with PascalCase name",
-                new InputPrimitiveType(InputPrimitiveTypeKind.String, null),
+                InputPrimitiveType.String,
                 true,
                 false,
                 false);
@@ -64,7 +64,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 "camelCase",
                 "camelCase",
                 "A property with camelCase name",
-                new InputPrimitiveType(InputPrimitiveTypeKind.String, null),
+                InputPrimitiveType.String,
                 true,
                 false,
                 false);
@@ -84,7 +84,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 "kebab-case",
                 "kebab-case",
                 "A property with kebab-case name",
-                new InputPrimitiveType(InputPrimitiveTypeKind.String, null),
+                InputPrimitiveType.String,
                     true,
                 false,
                 false);
@@ -116,7 +116,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             yield return new TestCaseData(
                 new CSharpType(typeof(IList<>), typeof(string)),
                 new InputModelProperty("readOnlyCollection", "readOnlyCollection", string.Empty,
-                    new InputArrayType("List", "id", new InputPrimitiveType(InputPrimitiveTypeKind.String)),
+                    new InputArrayType("List", "id", InputPrimitiveType.String),
                     true,
                     true,
                     false),
@@ -125,7 +125,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             yield return new TestCaseData(
                 new CSharpType(typeof(IDictionary<,>), typeof(string), typeof(int)),
                 new InputModelProperty("readOnlyDictionary", "readOnlyDictionary", string.Empty,
-                    new InputDictionaryType("Dictionary", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.Int32)),
+                    new InputDictionaryType("Dictionary", InputPrimitiveType.String, InputPrimitiveType.Int32),
                     true,
                     true,
                     false),
@@ -134,7 +134,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             yield return new TestCaseData(
                 new CSharpType(typeof(string)),
                 new InputModelProperty("stringProperty", "stringProperty", string.Empty,
-                    new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                    InputPrimitiveType.String,
                     true,
                     true,
                     false),

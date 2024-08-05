@@ -2,17 +2,17 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
-    public abstract class OutputLibraryVisitor
+    public abstract class LibraryVisitor
     {
-        internal virtual void Visit(OutputLibrary outputLibrary)
+        internal virtual void Visit(OutputLibrary library)
         {
             var types = new List<TypeProvider>();
-            // TODO add more things to visit, e.g Constructors, Parameters, etc - https://github.com/microsoft/typespec/issues/3825
-            foreach (var typeProvider in outputLibrary.TypeProviders)
+            foreach (var typeProvider in library.TypeProviders)
             {
                 var type = VisitType(typeProvider);
                 if (type != null)
@@ -20,7 +20,7 @@ namespace Microsoft.Generator.CSharp
                     types.Add(type);
                 }
             }
-            outputLibrary.TypeProviders = types;
+            library.TypeProviders = types;
         }
 
         private TypeProvider? VisitType(TypeProvider typeProvider)
@@ -92,6 +92,26 @@ namespace Microsoft.Generator.CSharp
                 type = PostVisit(type);
             }
             return type;
+        }
+
+        protected internal virtual TypeProvider? Visit(InputModelType model, TypeProvider? type)
+        {
+            return new ModelProvider(model);
+        }
+
+        protected internal virtual PropertyProvider? Visit(InputModelProperty property, PropertyProvider? propertyProvider)
+        {
+            return new PropertyProvider(property);
+        }
+
+        protected internal virtual TypeProvider? Visit(InputEnumType enumType, TypeProvider? type)
+        {
+            return EnumProvider.Create(enumType);
+        }
+
+        protected internal virtual MethodProviderCollection? Visit(InputOperation operation, TypeProvider enclosingType, MethodProviderCollection? methodProviderCollection)
+        {
+            return new MethodProviderCollection(operation, enclosingType);
         }
 
         protected virtual TypeProvider? Visit(TypeProvider type)
