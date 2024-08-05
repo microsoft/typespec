@@ -58,7 +58,6 @@
     "@autorest/codemodel": "~4.20.0",
     "@azure-tools/ts-genapi": "^1.0.7",
     "@microsoft/api-extractor-model": "^7.28.2",
-    "@typespec/http-client-java": "file:",
     "js-tokens": "^8.0.0",
     "js-yaml": "~4.1.0",
     "lodash": "~4.17.21"
