@@ -5,4 +5,4 @@ packages:
   - "@typespec/http"
 ---
 
-API: Expose `properties: HttpProperty[]` on operation parameter and response which reference all the property of intrest(Body, statusCode, contentType, implicitBodyProperty, etc.)
+API: Expose `properties: HttpProperty[]` on operation parameter and response which reference all the properties of interest(Body, statusCode, contentType, implicitBodyProperty, etc.)
