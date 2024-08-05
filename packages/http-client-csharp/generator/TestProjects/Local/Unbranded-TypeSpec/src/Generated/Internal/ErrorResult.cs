@@ -18,7 +18,6 @@ namespace UnbrandedTypeSpec
             _exception = exception;
         }
 
-        /// <summary> Gets the value. </summary>
         public override T Value => throw _exception;
     }
 }

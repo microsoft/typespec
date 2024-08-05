@@ -53,7 +53,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
                             "message",
                             "message",
                             "The message to create.",
-                            new InputPrimitiveType(InputPrimitiveTypeKind.Boolean),
+                            InputPrimitiveType.Boolean,
                             RequestLocation.Body,
                             null,
                             InputOperationParameterKind.Method,
