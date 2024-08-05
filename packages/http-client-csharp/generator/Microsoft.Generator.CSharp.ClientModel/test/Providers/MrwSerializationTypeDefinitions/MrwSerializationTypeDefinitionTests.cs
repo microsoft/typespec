@@ -22,13 +22,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
     {
         public MrwSerializationTypeDefinitionTests()
         {
-            MockHelpers.LoadMockPlugin(createSerializationsCore: inputType => inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType)] : []);
+            MockHelpers.LoadMockPlugin(createSerializationsCore: (inputType, typeProvider) =>
+                inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, typeProvider)] : []);
         }
 
         internal static (TypeProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel)
         {
             var model = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
-            var serializations = model.SerializationProviders;
+            var serializations = model!.SerializationProviders;
 
             Assert.AreEqual(1, serializations.Count);
             Assert.IsInstanceOf<MrwSerializationTypeDefinition>(serializations[0]);
@@ -511,8 +512,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             {
                 new InputModelProperty("requiredString", "requiredString", "", InputPrimitiveType.String, true, false, false, Array.Empty<InputDecoratorInfo>()),
                 new InputModelProperty("OptionalInt", "optionalInt", "", InputPrimitiveType.Int32, false, false, false, Array.Empty<InputDecoratorInfo>()),
-                new InputModelProperty("requiredCollection", "requiredCollection", "", new InputArrayType("List", "TypeSpec.Array", new InputPrimitiveType(InputPrimitiveTypeKind.String), Array.Empty<InputDecoratorInfo>()), true, false, false, Array.Empty<InputDecoratorInfo>()),
-                new InputModelProperty("requiredDictionary", "requiredDictionary", "", new InputDictionaryType("Dictionary", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.String), Array.Empty<InputDecoratorInfo>()), true, false, false, Array.Empty<InputDecoratorInfo>()),
+                new InputModelProperty("requiredCollection", "requiredCollection", "", new InputArrayType("List", "TypeSpec.Array", InputPrimitiveType.String, Array.Empty<InputDecoratorInfo>()), true, false, false, Array.Empty<InputDecoratorInfo>()),
+                new InputModelProperty("requiredDictionary", "requiredDictionary", "", new InputDictionaryType("Dictionary", InputPrimitiveType.String, InputPrimitiveType.String, Array.Empty<InputDecoratorInfo>()), true, false, false, Array.Empty<InputDecoratorInfo>()),
              };
 
             var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.Input | InputModelTypeUsage.Output, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, Array.Empty<InputDecoratorInfo>());
@@ -599,7 +600,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.IsNotNull(methodSignature);
 
             var expectedModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
-            Assert.AreEqual(inputModel.Name.FirstCharToUpperCase(), methodSignature?.Name);
+            Assert.AreEqual(inputModel.Name.ToCleanName(), methodSignature?.Name);
             Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers);
 
             var methodParameters = methodSignature?.Parameters;

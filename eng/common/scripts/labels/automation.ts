@@ -1,6 +1,6 @@
 import { resolve } from "path";
 import { stringify } from "yaml";
-import { CheckOptions, syncFile } from "../common.js";
+import { CheckOptions, syncFile } from "../utils/common.js";
 import {
   PolicyServiceConfig,
   and,

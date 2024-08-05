@@ -17,14 +17,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
     {
         public JsonModelCoreTests()
         {
-            MockHelpers.LoadMockPlugin(createSerializationsCore: inputType
-                => inputType is InputModelType modeltype ? [new MockMrwProvider(modeltype)] : []);
+            MockHelpers.LoadMockPlugin(createSerializationsCore: (inputType, typeProvider)
+                => inputType is InputModelType modeltype ? [new MockMrwProvider(modeltype, typeProvider)] : []);
         }
 
         private class MockMrwProvider : MrwSerializationTypeDefinition
         {
-            public MockMrwProvider(InputModelType inputModel)
-                : base(inputModel)
+            public MockMrwProvider(InputModelType inputModel, TypeProvider typeProvider)
+                : base(inputModel, typeProvider)
             {
             }
 
@@ -44,7 +44,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 "kebab-case",
                 "kebab-case",
                 "A property with kebab-case name",
-                new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                InputPrimitiveType.String,
                 true,
                 false,
                 false,
@@ -79,7 +79,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 "snake_case",
                 "snake_case",
                 "A property with snake_case name",
-                new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                InputPrimitiveType.String,
                 true,
                 false,
                 false,
@@ -114,7 +114,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 "PascalCase",
                 "PascalCase",
                 "A property with PascalCase name",
-                new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                InputPrimitiveType.String,
                 true,
                 false,
                 false,
@@ -149,7 +149,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 "camelCase",
                 "camelCase",
                 "A property with camelCase name",
-                new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                InputPrimitiveType.String,
                 true,
                 false,
                 false,

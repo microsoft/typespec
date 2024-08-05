@@ -74,7 +74,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     null,
                     MethodSignatureModifiers.Private | MethodSignatureModifiers.Static,
                     typeof(PipelineMessageClassifier),
-                    pipelineMessageClassifier.Name.Substring(1).FirstCharToUpperCase(),
+                    pipelineMessageClassifier.Name.Substring(1).ToCleanName(),
                     new ExpressionPropertyBody(
                         pipelineMessageClassifier.Assign(
                             Static<PipelineMessageClassifier>().Invoke(
@@ -159,9 +159,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 return _classifier2xxAnd4xxProperty;
 
             var response = operation.Responses.First(r => !r.IsErrorResponse); //should only be one of these
-
-            if (response.StatusCodes.Count == 0)
-                return response.BodyType is null ? _classifier204Property : _classifier200Property; //default to 200 if no status codes defined
 
             if (response.StatusCodes.Count == 1)
             {
@@ -266,7 +263,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputParameter inputParam, out bool isString, out string? format, out ValueExpression valueExpression)
         {
-            isString = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParam.Type).Equals(typeof(string));
+            isString = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParam.Type)?.Equals(typeof(string)) == true;
             if (inputParam.Kind == InputOperationParameterKind.Constant)
             {
                 valueExpression = Literal(inputParam.DefaultValue?.Value);
@@ -294,10 +291,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 if (inputParam.Kind != InputOperationParameterKind.Method)
                     continue;
 
-                ParameterProvider parameter = inputParam.Location == RequestLocation.Body
+                ParameterProvider? parameter = inputParam.Location == RequestLocation.Body
                     ? ScmKnownParameters.BinaryContent
                     : ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam);
-                methodParameters.Add(parameter);
+                if (parameter is not null)
+                    methodParameters.Add(parameter);
             }
             return methodParameters;
         }

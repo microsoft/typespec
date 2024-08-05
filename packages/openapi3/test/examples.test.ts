@@ -47,7 +47,7 @@ describe("operation examples", () => {
 
       `
     );
-    expect(res.paths["/"].post?.requestBody.content["application/json"].example).toEqual({
+    expect(res.paths["/"].post?.requestBody?.content["application/json"].example).toEqual({
       name: "Fluffy",
       age: 2,
     });
@@ -67,7 +67,7 @@ describe("operation examples", () => {
 
       `
     );
-    expect(res.paths["/"].post?.requestBody.content["application/json"].examples).toEqual({
+    expect(res.paths["/"].post?.requestBody?.content["application/json"].examples).toEqual({
       MyExample: {
         summary: "MyExample",
         value: {

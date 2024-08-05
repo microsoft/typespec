@@ -6,7 +6,11 @@ import { resolvePath } from "../../../path-utils.js";
 import { Program, compile as compileProgram } from "../../../program.js";
 import { CompilerHost, Diagnostic } from "../../../types.js";
 import { CliCompilerHost } from "../../types.js";
-import { handleInternalCompilerError, logDiagnosticCount } from "../../utils.js";
+import {
+  handleInternalCompilerError,
+  logDiagnosticCount,
+  logInternalCompilerError,
+} from "../../utils.js";
 import { CompileCliArgs, getCompilerOptions } from "./args.js";
 import { ProjectWatcher, WatchHost, createWatchHost, createWatcher } from "./watch.js";
 
@@ -77,10 +81,11 @@ function compileWatch(
   path: string,
   compilerOptions: CompilerOptions
 ): Promise<void> {
+  const entrypoint = resolve(path);
   const watchHost: WatchHost = createWatchHost(cliHost);
 
   let compileRequested: boolean = false;
-  let currentCompilePromise: Promise<Program> | undefined = undefined;
+  let currentCompilePromise: Promise<Program | void> | undefined = undefined;
 
   const runCompilePromise = () => {
     // Don't run the compiler if it's already running
@@ -90,9 +95,9 @@ function compileWatch(
       console.clear();
 
       watchHost?.forceJSReload();
-      currentCompilePromise = compileProgram(watchHost, resolve(path), compilerOptions)
-        .then(onCompileFinished)
-        .catch(handleInternalCompilerError);
+      currentCompilePromise = compileProgram(watchHost, entrypoint, compilerOptions)
+        .catch(logInternalCompilerError)
+        .then(onCompileFinished);
     } else {
       compileRequested = true;
     }
@@ -105,10 +110,13 @@ function compileWatch(
   const watcher: ProjectWatcher = createWatcher((_name: string) => {
     scheduleCompile();
   });
+  watcher?.updateWatchedFiles([entrypoint]);
 
-  const onCompileFinished = (program: Program) => {
-    watcher?.updateWatchedFiles([...program.sourceFiles.keys(), ...program.jsSourceFiles.keys()]);
-    logProgramResult(watchHost, program, { showTimestamp: true });
+  const onCompileFinished = (program?: Program | void) => {
+    if (program !== undefined) {
+      watcher?.updateWatchedFiles([...program.sourceFiles.keys(), ...program.jsSourceFiles.keys()]);
+      logProgramResult(watchHost, program, { showTimestamp: true });
+    }
 
     currentCompilePromise = undefined;
     if (compileRequested) {

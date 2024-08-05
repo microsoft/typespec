@@ -185,15 +185,15 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var property4 = new PropertyProvider($"To test an auto property with an internal setter and initialization value", MethodSignatureModifiers.Public, typeof(string), "Property4", new AutoPropertyBody(true, MethodSignatureModifiers.Internal, Literal("abc")));
 
             using var codeWriter = new CodeWriter();
-            codeWriter.WriteProperty(property1);
+            codeWriter.WriteProperty(property1, true);
             codeWriter.WriteLine($"// test comment");
-            codeWriter.WriteProperty(property2);
-            codeWriter.WriteProperty(property3);
-            codeWriter.WriteProperty(property4);
+            codeWriter.WriteProperty(property2, true);
+            codeWriter.WriteProperty(property3, true);
+            codeWriter.WriteProperty(property4, true);
 
             var expected = Helpers.GetExpectedFromFile();
 
-            var result = codeWriter.ToString();
+            var result = codeWriter.ToString(false);
 
             Assert.AreEqual(expected, result);
         }
@@ -206,14 +206,14 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var property3 = new PropertyProvider($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(int), nameof(IReadOnlyList<string>.Count), new AutoPropertyBody(true, MethodSignatureModifiers.Internal), explicitInterface: typeof(IReadOnlyList<string>));
 
             using var codeWriter = new CodeWriter();
-            codeWriter.WriteProperty(property1);
+            codeWriter.WriteProperty(property1, true);
             codeWriter.WriteLine($"// test comment");
-            codeWriter.WriteProperty(property2);
-            codeWriter.WriteProperty(property3);
+            codeWriter.WriteProperty(property2, true);
+            codeWriter.WriteProperty(property3, true);
 
             var expected = Helpers.GetExpectedFromFile();
 
-            var result = codeWriter.ToString();
+            var result = codeWriter.ToString(false);
 
             Assert.AreEqual(expected, result);
         }
@@ -225,13 +225,13 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var property2 = new PropertyProvider($"To test an expression property with int type", MethodSignatureModifiers.Public, typeof(int), "Property2", new ExpressionPropertyBody(Literal(299792458)));
 
             using var codeWriter = new CodeWriter();
-            codeWriter.WriteProperty(property1);
+            codeWriter.WriteProperty(property1, true);
             codeWriter.WriteLine($"// test comment");
-            codeWriter.WriteProperty(property2);
+            codeWriter.WriteProperty(property2, true);
 
             var expected = Helpers.GetExpectedFromFile();
 
-            var result = codeWriter.ToString();
+            var result = codeWriter.ToString(false);
 
             Assert.AreEqual(expected, result);
         }
@@ -243,11 +243,11 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
 
             using var codeWriter = new CodeWriter();
             codeWriter.WriteLine($"// test comment");
-            codeWriter.WriteProperty(property1);
+            codeWriter.WriteProperty(property1, true);
 
             var expected = Helpers.GetExpectedFromFile();
 
-            var result = codeWriter.ToString();
+            var result = codeWriter.ToString(false);
 
             Assert.AreEqual(expected, result);
         }
@@ -260,14 +260,14 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var property3 = new PropertyProvider($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(string), "Property3", new MethodPropertyBody(Return(Literal("abc")), This.Property("Property3").Assign(Value).Terminate(), MethodSignatureModifiers.Internal));
 
             using var codeWriter = new CodeWriter();
-            codeWriter.WriteProperty(property1);
+            codeWriter.WriteProperty(property1, true);
             codeWriter.WriteLine($"// test comment");
-            codeWriter.WriteProperty(property2);
-            codeWriter.WriteProperty(property3);
+            codeWriter.WriteProperty(property2, true);
+            codeWriter.WriteProperty(property3, true);
 
             var expected = Helpers.GetExpectedFromFile();
 
-            var result = codeWriter.ToString();
+            var result = codeWriter.ToString(false);
 
             Assert.AreEqual(expected, result);
         }
@@ -280,14 +280,14 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var property3 = new PropertyProvider($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(int), nameof(IReadOnlyList<string>.Count), new MethodPropertyBody(Return(Literal(299792458)), This.Property($"{nameof(IReadOnlyList<string>.Count)}").Assign(Value).Terminate(), MethodSignatureModifiers.Internal), explicitInterface: typeof(IReadOnlyList<string>));
 
             using var codeWriter = new CodeWriter();
-            codeWriter.WriteProperty(property1);
+            codeWriter.WriteProperty(property1, true);
             codeWriter.WriteLine($"// test comment");
-            codeWriter.WriteProperty(property2);
-            codeWriter.WriteProperty(property3);
+            codeWriter.WriteProperty(property2, true);
+            codeWriter.WriteProperty(property3, true);
 
             var expected = Helpers.GetExpectedFromFile();
 
-            var result = codeWriter.ToString();
+            var result = codeWriter.ToString(false);
 
             Assert.AreEqual(expected, result);
         }
@@ -305,15 +305,15 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var indexer4 = new IndexPropertyProvider($"To test an auto property with an internal setter and initialization value", MethodSignatureModifiers.Public, typeof(string), p4, new AutoPropertyBody(true, MethodSignatureModifiers.Internal, Literal("abc")));
 
             using var codeWriter = new CodeWriter();
-            codeWriter.WriteProperty(indexer1);
+            codeWriter.WriteProperty(indexer1, true);
             codeWriter.WriteLine($"// test comment");
-            codeWriter.WriteProperty(indexer2);
-            codeWriter.WriteProperty(indexer3);
-            codeWriter.WriteProperty(indexer4);
+            codeWriter.WriteProperty(indexer2, true);
+            codeWriter.WriteProperty(indexer3, true);
+            codeWriter.WriteProperty(indexer4, true);
 
             var expected = Helpers.GetExpectedFromFile();
 
-            var result = codeWriter.ToString();
+            var result = codeWriter.ToString(false);
 
             Assert.AreEqual(expected, result);
         }
@@ -327,14 +327,14 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var indexer3 = new IndexPropertyProvider($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(double), index, new AutoPropertyBody(true, MethodSignatureModifiers.Internal), explicitInterface: typeof(IReadOnlyList<double>));
 
             using var codeWriter = new CodeWriter();
-            codeWriter.WriteProperty(indexer1);
+            codeWriter.WriteProperty(indexer1, true);
             codeWriter.WriteLine($"// test comment");
-            codeWriter.WriteProperty(indexer2);
-            codeWriter.WriteProperty(indexer3);
+            codeWriter.WriteProperty(indexer2, true);
+            codeWriter.WriteProperty(indexer3, true);
 
             var expected = Helpers.GetExpectedFromFile();
 
-            var result = codeWriter.ToString();
+            var result = codeWriter.ToString(false);
 
             Assert.AreEqual(expected, result);
         }
@@ -348,13 +348,13 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var indexer2 = new IndexPropertyProvider($"To test an expression property with int type", MethodSignatureModifiers.Public, typeof(int), p2, new ExpressionPropertyBody(Literal(299792458)));
 
             using var codeWriter = new CodeWriter();
-            codeWriter.WriteProperty(indexer1);
+            codeWriter.WriteProperty(indexer1, true);
             codeWriter.WriteLine($"// test comment");
-            codeWriter.WriteProperty(indexer2);
+            codeWriter.WriteProperty(indexer2, true);
 
             var expected = Helpers.GetExpectedFromFile();
 
-            var result = codeWriter.ToString();
+            var result = codeWriter.ToString(false);
 
             Assert.AreEqual(expected, result);
         }
@@ -368,13 +368,13 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var indexer2 = new IndexPropertyProvider($"To test an expression property with int type", MethodSignatureModifiers.Public, typeof(int), p2, new ExpressionPropertyBody(Literal(299792458)), explicitInterface: typeof(IReadOnlyDictionary<string, int>));
 
             using var codeWriter = new CodeWriter();
-            codeWriter.WriteProperty(indexer1);
+            codeWriter.WriteProperty(indexer1, true);
             codeWriter.WriteLine($"// test comment");
-            codeWriter.WriteProperty(indexer2);
+            codeWriter.WriteProperty(indexer2, true);
 
             var expected = Helpers.GetExpectedFromFile();
 
-            var result = codeWriter.ToString();
+            var result = codeWriter.ToString(false);
 
             Assert.AreEqual(expected, result);
         }
@@ -390,14 +390,14 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var indexer3 = new IndexPropertyProvider($"To test a method property with an internal setter", MethodSignatureModifiers.Public, typeof(string), p3, new MethodPropertyBody(Return(Literal("abc")), This.Property($"Property3").Assign(Value).Terminate(), MethodSignatureModifiers.Internal));
 
             using var codeWriter = new CodeWriter();
-            codeWriter.WriteProperty(indexer1);
+            codeWriter.WriteProperty(indexer1, true);
             codeWriter.WriteLine($"// test comment");
-            codeWriter.WriteProperty(indexer2);
-            codeWriter.WriteProperty(indexer3);
+            codeWriter.WriteProperty(indexer2, true);
+            codeWriter.WriteProperty(indexer3, true);
 
             var expected = Helpers.GetExpectedFromFile();
 
-            var result = codeWriter.ToString();
+            var result = codeWriter.ToString(false);
 
             Assert.AreEqual(expected, result);
         }
@@ -411,14 +411,14 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var indexer3 = new IndexPropertyProvider($"To test a method property with an internal setter", MethodSignatureModifiers.Public, typeof(string), index, new MethodPropertyBody(Return(Literal("abc")), This.Property($"Property3").Assign(Value).Terminate(), MethodSignatureModifiers.Internal), explicitInterface: typeof(IReadOnlyDictionary<int, string>));
 
             using var codeWriter = new CodeWriter();
-            codeWriter.WriteProperty(indexer1);
+            codeWriter.WriteProperty(indexer1, true);
             codeWriter.WriteLine($"// test comment");
-            codeWriter.WriteProperty(indexer2);
-            codeWriter.WriteProperty(indexer3);
+            codeWriter.WriteProperty(indexer2, true);
+            codeWriter.WriteProperty(indexer3, true);
 
             var expected = Helpers.GetExpectedFromFile();
 
-            var result = codeWriter.ToString();
+            var result = codeWriter.ToString(false);
 
             Assert.AreEqual(expected, result);
         }

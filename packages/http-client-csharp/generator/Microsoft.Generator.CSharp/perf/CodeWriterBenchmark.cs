@@ -20,7 +20,7 @@ namespace Microsoft.Generator.CSharp.Perf
             PluginInitializer.Initialize();
             var properties = new[]
             {
-                new InputModelProperty("MyProperty", "myProperty", "The property of mine", new InputPrimitiveType(InputPrimitiveTypeKind.Int32), true, false, false, Array.Empty<InputDecoratorInfo>())
+                new InputModelProperty("MyProperty", "myProperty", "The property of mine", InputPrimitiveType.Int32, true, false, false, Array.Empty<InputDecoratorInfo>())
             };
             var inputModel = new InputModelType("MyModel", string.Empty, null, null, "Test model", InputModelTypeUsage.Input | InputModelTypeUsage.Output, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, Array.Empty<InputDecoratorInfo>());
             var modelProvider = new ModelProvider(inputModel);

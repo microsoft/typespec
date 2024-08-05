@@ -49,7 +49,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             Name = inputParameter.Name;
             Description = FormattableStringHelpers.FromString(inputParameter.Description) ?? FormattableStringHelpers.Empty;
-            Type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
+            Type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");
             Validation = inputParameter.IsRequired ? ParameterValidationType.AssertNotNull : ParameterValidationType.None;
             WireInfo = new WireInformation(CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParameter.Type), inputParameter.NameInRequest);
         }
@@ -151,9 +151,9 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             if (parameter._asVariable == null)
             {
-                var decl = new CodeWriterDeclaration(parameter.Name, parameter.IsRef);
+                var decl = new CodeWriterDeclaration(parameter.Name);
                 decl.SetActualName(parameter.Name);
-                parameter._asVariable = new VariableExpression(parameter.Type, decl);
+                parameter._asVariable = new VariableExpression(parameter.Type, decl, parameter.IsRef);
             }
 
             return parameter._asVariable;

@@ -12,13 +12,20 @@ namespace Microsoft.Generator.CSharp.Input
 
         private readonly string _codeModelPath;
 
+        // for mocking
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        protected InputLibrary()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        {
+        }
+
         public InputLibrary(string codeModelPath)
         {
             _codeModelPath = codeModelPath;
         }
 
         private InputNamespace? _inputNamespace;
-        public InputNamespace InputNamespace => _inputNamespace ??= Load(_codeModelPath);
+        public virtual InputNamespace InputNamespace => _inputNamespace ??= Load(_codeModelPath);
 
         internal InputNamespace Load(string outputDirectory)
         {

@@ -27,7 +27,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 null,
                 "sampleType description",
                 InputModelTypeUsage.Input,
-                new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                InputPrimitiveType.String,
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
                 true,
                 Array.Empty<InputDecoratorInfo>());
@@ -49,7 +49,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 null,
                 "sampleType description",
                 InputModelTypeUsage.Input,
-                new InputPrimitiveType(InputPrimitiveTypeKind.String, null, true),
+                InputPrimitiveType.String,
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
                 true,
                 Array.Empty<InputDecoratorInfo>());
@@ -72,7 +72,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 null,
                 "sampleType description",
                 InputModelTypeUsage.Input,
-                new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                InputPrimitiveType.String,
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
                 true,
                 Array.Empty<InputDecoratorInfo>());
@@ -81,7 +81,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var enumProvider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);
 
             Assert.IsNotNull(enumProvider);
-            Assert.AreEqual(expected, enumProvider.Type);
+            Assert.AreEqual(expected, enumProvider!.Type);
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 null,
                 "sampleType description",
                 InputModelTypeUsage.Input,
-                new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                InputPrimitiveType.String,
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
                 false,
                 Array.Empty<InputDecoratorInfo>());
@@ -116,7 +116,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 null,
                 "sampleType description",
                 InputModelTypeUsage.Input,
-                new InputPrimitiveType(InputPrimitiveTypeKind.String),
+                InputPrimitiveType.String,
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
                 false,
                 Array.Empty<InputDecoratorInfo>());

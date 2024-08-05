@@ -31,7 +31,10 @@ export type InputType =
 
 export interface InputPrimitiveType extends InputTypeBase {
   Kind: SdkBuiltInKinds;
+  Name: string;
   Encode?: string; // In TCGC this is required, and when there is no encoding, it just has the same value as kind
+  CrossLanguageDefinitionId: string;
+  BaseType?: InputPrimitiveType;
 }
 
 export interface InputLiteralType extends InputTypeBase {
@@ -47,8 +50,11 @@ export function isInputLiteralType(type: InputType): type is InputLiteralType {
 export type InputDateTimeType = InputUtcDateTimeType | InputOffsetDateTimeType;
 
 interface InputDateTimeTypeBase extends InputTypeBase {
+  Name: string;
   Encode: DateTimeKnownEncoding;
   WireType: InputPrimitiveType;
+  CrossLanguageDefinitionId: string;
+  BaseType?: InputDateTimeType;
 }
 
 export interface InputUtcDateTimeType extends InputDateTimeTypeBase {
@@ -61,8 +67,11 @@ export interface InputOffsetDateTimeType extends InputDateTimeTypeBase {
 
 export interface InputDurationType extends InputTypeBase {
   Kind: "duration";
+  Name: string;
   Encode: DurationKnownEncoding;
   WireType: InputPrimitiveType;
+  CrossLanguageDefinitionId: string;
+  BaseType?: InputDurationType;
 }
 
 export interface InputUnionType extends InputTypeBase {
