@@ -198,6 +198,7 @@ describe("http: decorators", () => {
       expect(getQueryParamOptions(runner.program, selects)).toEqual({
         type: "query",
         name: "selects",
+        format: "multi",
         explode: true,
       });
     });
