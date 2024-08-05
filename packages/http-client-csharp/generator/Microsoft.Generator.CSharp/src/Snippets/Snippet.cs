@@ -13,9 +13,10 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public static partial class Snippet
     {
-        public static ScopedApi<T> As<T>(this ParameterProvider parameter) => parameter.AsExpression.As<T>();
         public static ScopedApi As(this ParameterProvider parameter, CSharpType type) => parameter.AsExpression.As(type);
+        public static ScopedApi<T> As<T>(this ParameterProvider parameter) => parameter.AsExpression.As<T>();
         public static ScopedApi<T> As<T>(this PropertyProvider property) => ((MemberExpression)property).As<T>();
+        public static ScopedApi<T> As<T>(this FieldProvider field) => ((MemberExpression)field).As<T>();
 
         public static DictionaryExpression AsDictionary(this FieldProvider field, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), field);
         public static DictionaryExpression AsDictionary(this ParameterProvider parameter, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), parameter);
@@ -52,6 +53,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ValueExpression ThrowExpression(ValueExpression expression) => new KeywordExpression("throw", expression);
 
         public static ValueExpression NullCoalescing(ValueExpression left, ValueExpression right) => new BinaryOperatorExpression("??", left, right);
+
         // TO-DO: Migrate remaining class as part of output classes migration : https://github.com/Azure/autorest.csharp/issues/4198
         //public static ValueExpression EnumValue(EnumType type, EnumTypeValue value) => new MemberExpression(new TypeReference(type.Type), value.Declaration.Name);
         public static ValueExpression FrameworkEnumValue<TEnum>(TEnum value) where TEnum : struct, Enum => new MemberExpression(TypeReferenceExpression.FromType(typeof(TEnum)), Enum.GetName(value)!);
@@ -92,6 +94,9 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static InvokeMethodExpression Invoke(this ParameterProvider parameter, string methodName, ValueExpression arg)
             => new InvokeMethodExpression(parameter, methodName, [arg]);
 
+        public static InvokeMethodExpression Invoke(this ParameterProvider parameter, string methodName, params ValueExpression[] args)
+            => new InvokeMethodExpression(parameter, methodName, args);
+
         public static InvokeMethodExpression Invoke(this ParameterProvider parameter, string methodName, CSharpType? extensionType = null)
             => new InvokeMethodExpression(parameter, methodName, Array.Empty<ValueExpression>()) { ExtensionType = extensionType};
 
@@ -106,6 +111,17 @@ namespace Microsoft.Generator.CSharp.Snippets
             => new InvokeMethodExpression(field, methodName, [.. parameters])
             {
                 CallAsAsync = isAsync, AddConfigureAwaitFalse = configureAwait
+            };
+
+        public static ValueExpression Invoke(this PropertyProvider property,
+            string methodName,
+            IEnumerable<ValueExpression> parameters,
+            bool isAsync,
+            bool configureAwait)
+            => new InvokeMethodExpression(property, methodName, [.. parameters])
+            {
+                CallAsAsync = isAsync,
+                AddConfigureAwaitFalse = configureAwait
             };
 
         public static ScopedApi<bool> NotEqual(this ParameterProvider parameter, ValueExpression other)

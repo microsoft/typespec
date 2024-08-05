@@ -36,6 +36,8 @@ export function resolveServers(
       const inputType: InputType = isEndpoint
         ? {
             Kind: "url",
+            Name: "url",
+            CrossLanguageDefinitionId: "TypeSpec.url",
           }
         : getInputType(context, prop, models, enums);
 
@@ -74,6 +76,8 @@ export function resolveServers(
         Description: server.description,
         Type: {
           Kind: "string",
+          Name: "string",
+          CrossLanguageDefinitionId: "TypeSpec.string",
         },
         Location: RequestLocation.Uri,
         IsApiVersion: false,
@@ -87,6 +91,8 @@ export function resolveServers(
         DefaultValue: {
           Type: {
             Kind: "string",
+            Name: "string",
+            CrossLanguageDefinitionId: "TypeSpec.string",
           },
           Value: server.url,
         } as InputConstant,

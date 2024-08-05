@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Moq;
@@ -45,25 +46,25 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void TestCSharpGen_ValidPlugin()
         {
-            // mock plugin
-            var mockPlugin = new Mock<CodeModelPlugin>(new GeneratorContext(Configuration.Load(MockHelpers.MocksFolder)))
-            {
-                CallBase = true
-            };
+            MockHelpers.LoadMockPlugin();
+            var csharpGen = new CSharpGen();
 
-            // mock type factory
-            var mockTypeFactory = new Mock<TypeFactory>()
-            {
-                CallBase = true
-            };
+            Assert.DoesNotThrowAsync(async () => await csharpGen.ExecuteAsync());
+        }
 
-            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(new CSharpType(typeof(IList<>)));
-            mockPlugin.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
+        [Test]
+        public void VisitorsAreVisited()
+        {
+            var mockVisitor = new Mock<LibraryVisitor>();
 
-            var configFilePath = Path.Combine(MockHelpers.MocksFolder, "Configuration.json");
-            var csharpGen = new CSharpGen().ExecuteAsync();
+            var mockPlugin = MockHelpers.LoadMockPlugin();
+            mockPlugin.Object.AddVisitor(mockVisitor.Object);
 
-            Assert.IsNotNull(csharpGen);
+            var csharpGen = new CSharpGen();
+
+            Assert.DoesNotThrowAsync(async () => await csharpGen.ExecuteAsync());
+            mockPlugin.Verify(m => m.Visitors, Times.Once);
+            mockVisitor.Verify(m => m.Visit(mockPlugin.Object.OutputLibrary), Times.Once);
         }
 
         private void TestOutputPathAppended(string outputPath, string expectedPath)

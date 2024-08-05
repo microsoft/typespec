@@ -7,16 +7,16 @@ import {
   SdkBuiltInType,
   SdkConstantType,
   SdkContext,
-  SdkDatetimeType,
+  SdkDateTimeType,
   SdkDictionaryType,
   SdkDurationType,
   SdkEnumType,
   SdkEnumValueType,
   SdkModelPropertyType,
   SdkModelType,
+  SdkTupleType,
   SdkType,
   SdkUnionType,
-  UsageFlags,
   getAccessOverride,
   isReadOnly,
 } from "@azure-tools/typespec-client-generator-core";
@@ -37,7 +37,6 @@ import {
   InputUnionType,
 } from "../type/input-type.js";
 import { LiteralTypeContext } from "../type/literal-type-context.js";
-import { Usage } from "../type/usage.js";
 
 export function fromSdkType(
   sdkType: SdkType,
@@ -54,6 +53,7 @@ export function fromSdkType(
     } as InputNullableType;
   }
   if (sdkType.kind === "model") return fromSdkModelType(sdkType, context, models, enums);
+  if (sdkType.kind === "endpoint") return fromSdkEndpointType();
   if (sdkType.kind === "enum") return fromSdkEnumType(sdkType, context, enums);
   if (sdkType.kind === "enumvalue")
     return fromSdkEnumValueTypeToConstantType(sdkType, context, enums, literalTypeContext);
@@ -64,12 +64,11 @@ export function fromSdkType(
   if (sdkType.kind === "union") return fromUnionType(sdkType, context, models, enums);
   if (sdkType.kind === "utcDateTime" || sdkType.kind === "offsetDateTime")
     return fromSdkDateTimeType(sdkType);
-  if (sdkType.kind === "duration") return fromSdkDurationType(sdkType as SdkDurationType);
-  if (sdkType.kind === "tuple") return fromTupleType();
-  // TODO -- only in operations we could have these types, considering we did not adopt getAllOperations from TCGC yet, this should be fine.
-  // we need to resolve these conversions when we adopt getAllOperations
+  if (sdkType.kind === "duration") return fromSdkDurationType(sdkType);
+  if (sdkType.kind === "tuple") return fromTupleType(sdkType);
+  // TODO -- endpoint and credential are handled separately in emitter, since we have specific locations for them in input model.
+  // We can handle unify the way we handle them in the future, probably by chaning the input model schema and do the conversion in generator.
   if (sdkType.kind === "credential") throw new Error("Credential type is not supported yet.");
-  if (sdkType.kind === "endpoint") throw new Error("Endpoint type is not supported yet.");
 
   return fromSdkBuiltInType(sdkType);
 }
@@ -91,7 +90,7 @@ export function fromSdkModelType(
         context,
         modelType.__raw as Model
       ) /* when tcgc provide a way to identify if the access is override or not, we can get the accessibility from the modelType.access */,
-      Usage: fromUsageFlags(modelType.usage),
+      Usage: modelType.usage,
       Deprecation: modelType.deprecation,
       Description: modelType.description,
       DiscriminatorValue: modelType.discriminatorValue,
@@ -112,6 +111,7 @@ export function fromSdkModelType(
         property,
         {
           ModelName: modelTypeName,
+          Usage: modelType.usage,
         } as LiteralTypeContext,
         []
       );
@@ -211,7 +211,7 @@ export function fromSdkEnumType(
       Deprecated: enumType.deprecation,
       Description: enumType.description,
       IsExtensible: enumType.isFixed ? false : true,
-      Usage: fromUsageFlags(enumType.usage),
+      Usage: enumType.usage,
     };
     if (addToCollection) enums.set(enumName, newInputEnumType);
     inputEnumType = newInputEnumType;
@@ -219,33 +219,44 @@ export function fromSdkEnumType(
   return inputEnumType;
 }
 
-function fromSdkDateTimeType(dateTimeType: SdkDatetimeType): InputDateTimeType {
+function fromSdkDateTimeType(dateTimeType: SdkDateTimeType): InputDateTimeType {
   return {
     Kind: dateTimeType.kind,
+    Name: dateTimeType.name,
     Encode: dateTimeType.encode,
     WireType: fromSdkBuiltInType(dateTimeType.wireType),
+    CrossLanguageDefinitionId: dateTimeType.crossLanguageDefinitionId,
+    BaseType: dateTimeType.baseType ? fromSdkDateTimeType(dateTimeType.baseType) : undefined,
   };
 }
 
 function fromSdkDurationType(durationType: SdkDurationType): InputDurationType {
   return {
     Kind: durationType.kind,
+    Name: durationType.name,
     Encode: durationType.encode,
     WireType: fromSdkBuiltInType(durationType.wireType),
+    CrossLanguageDefinitionId: durationType.crossLanguageDefinitionId,
+    BaseType: durationType.baseType ? fromSdkDurationType(durationType.baseType) : undefined,
   };
 }
 
 // TODO: tuple is not officially supported
-function fromTupleType(): InputPrimitiveType {
+function fromTupleType(tupleType: SdkTupleType): InputPrimitiveType {
   return {
     Kind: "any",
+    Name: "tuple",
+    CrossLanguageDefinitionId: "",
   };
 }
 
 function fromSdkBuiltInType(builtInType: SdkBuiltInType): InputPrimitiveType {
   return {
     Kind: builtInType.kind,
+    Name: builtInType.name,
     Encode: builtInType.encode !== builtInType.kind ? builtInType.encode : undefined, // In TCGC this is required, and when there is no encoding, it just has the same value as kind, we could remove this when TCGC decides to simplify
+    CrossLanguageDefinitionId: builtInType.crossLanguageDefinitionId,
+    BaseType: builtInType.baseType ? fromSdkBuiltInType(builtInType.baseType) : undefined,
   };
 }
 
@@ -312,7 +323,7 @@ function fromSdkConstantType(
       Deprecated: undefined,
       Description: `The ${enumName}`, // TODO -- what should we put here?
       IsExtensible: true,
-      Usage: "None", // will be updated later
+      Usage: literalTypeContext.Usage,
     };
     enums.set(enumName, enumType);
     return enumType;
@@ -370,11 +381,10 @@ function fromSdkArrayType(
   };
 }
 
-function fromUsageFlags(usage: UsageFlags): Usage {
-  if (usage & UsageFlags.JsonMergePatch) return Usage.None; // if the model is used in patch, we ignore the usage and defer to the logic of ours
-  usage = usage & (UsageFlags.Input | UsageFlags.Output); // trim off other flags
-  if (usage === UsageFlags.Input) return Usage.Input;
-  else if (usage === UsageFlags.Output) return Usage.Output;
-  else if (usage === (UsageFlags.Input | UsageFlags.Output)) return Usage.RoundTrip;
-  else return Usage.None;
+function fromSdkEndpointType(): InputPrimitiveType {
+  return {
+    Kind: "string",
+    Name: "string",
+    CrossLanguageDefinitionId: "TypeSpec.string",
+  };
 }

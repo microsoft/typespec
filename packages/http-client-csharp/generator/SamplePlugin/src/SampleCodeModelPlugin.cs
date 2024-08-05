@@ -14,6 +14,9 @@ namespace SamplePlugin
     {
         public override SamplePluginTypeFactory TypeFactory { get; } = new SamplePluginTypeFactory();
 
-        public override OutputLibrary OutputLibrary { get; } = new SamplePluginOutputLibrary();
+        public override void Configure()
+        {
+            AddVisitor(new SamplePluginLibraryVisitor());
+        }
     }
 }

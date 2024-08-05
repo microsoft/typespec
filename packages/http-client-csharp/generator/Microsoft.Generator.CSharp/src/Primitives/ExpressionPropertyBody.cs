@@ -5,5 +5,5 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Primitives
 {
-    public record ExpressionPropertyBody(ValueExpression Getter) : PropertyBody(false);
+    public record ExpressionPropertyBody(ValueExpression Getter, ValueExpression? Setter = null) : PropertyBody(Setter is not null);
 }

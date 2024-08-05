@@ -6,6 +6,7 @@ import type {
   ErrorDecorator,
   ErrorsDocDecorator,
   ExampleDecorator,
+  ExampleOptions,
   FormatDecorator,
   FriendlyNameDecorator,
   InspectTypeDecorator,
@@ -54,6 +55,7 @@ import {
   getTypeName,
   ignoreDiagnostics,
   isArrayModelType,
+  isValue,
   reportDeprecated,
   validateDecoratorUniqueOnNode,
 } from "../core/index.js";
@@ -89,6 +91,7 @@ import {
   DiagnosticTarget,
   Enum,
   EnumMember,
+  EnumValue,
   Interface,
   Model,
   ModelProperty,
@@ -107,6 +110,7 @@ import {
 export { $encodedName, resolveEncodedName } from "./encoded-names.js";
 export { serializeValueAsJson } from "./examples.js";
 export * from "./service.js";
+export { ExampleOptions };
 
 export const namespace = "TypeSpec";
 
@@ -680,8 +684,13 @@ export function isSecret(program: Program, target: Type): boolean | undefined {
 export type DateTimeKnownEncoding = "rfc3339" | "rfc7231" | "unixTimestamp";
 export type DurationKnownEncoding = "ISO8601" | "seconds";
 export type BytesKnownEncoding = "base64" | "base64url";
+
 export interface EncodeData {
-  encoding: DateTimeKnownEncoding | DurationKnownEncoding | BytesKnownEncoding | string;
+  /**
+   * Known encoding key.
+   * Can be undefined when `@encode(string)` is used on a numeric type. In that case it just means using the base10 decimal representation of the number.
+   */
+  encoding?: DateTimeKnownEncoding | DurationKnownEncoding | BytesKnownEncoding | string;
   type: Scalar;
 }
 
@@ -689,38 +698,48 @@ const encodeKey = createStateSymbol("encode");
 export const $encode: EncodeDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  encoding: string | Type,
+  encoding: string | EnumValue | Scalar,
   encodeAs?: Scalar
 ) => {
   validateDecoratorUniqueOnNode(context, target, $encode);
 
-  const encodingStr = computeEncoding(encoding);
-  if (encodingStr === undefined) {
+  const encodeData = computeEncoding(context.program, encoding, encodeAs);
+  if (encodeData === undefined) {
     return;
   }
-  const encodeData: EncodeData = {
-    encoding: encodingStr,
-    type: encodeAs ?? context.program.checker.getStdType("string"),
-  };
   const targetType = getPropertyType(target);
   validateEncodeData(context, targetType, encodeData);
   context.program.stateMap(encodeKey).set(target, encodeData);
 };
-function computeEncoding(encoding: string | Type) {
-  if (typeof encoding === "string") {
-    return encoding;
-  }
-  switch (encoding.kind) {
-    case "String":
-      return encoding.value;
-    case "EnumMember":
-      if (encoding.value && typeof encoding.value === "string") {
-        return encoding.value;
-      } else {
-        return getTypeName(encoding);
-      }
-    default:
+
+function computeEncoding(
+  program: Program,
+  encodingOrEncodeAs: string | EnumValue | Scalar,
+  encodeAs: Scalar | undefined
+): EncodeData | undefined {
+  const strType = program.checker.getStdType("string");
+  const resolvedEncodeAs = encodeAs ?? strType;
+  if (typeof encodingOrEncodeAs === "string") {
+    return { encoding: encodingOrEncodeAs, type: resolvedEncodeAs };
+  } else if (isValue(encodingOrEncodeAs)) {
+    const member = encodingOrEncodeAs.value;
+    if (member.value && typeof member.value === "string") {
+      return { encoding: member.value, type: resolvedEncodeAs };
+    } else {
+      return { encoding: getTypeName(member), type: resolvedEncodeAs };
+    }
+  } else {
+    const originalType = encodingOrEncodeAs.projectionBase ?? encodingOrEncodeAs;
+    if (originalType !== strType) {
+      reportDiagnostic(program, {
+        code: "invalid-encode",
+        messageId: "firstArg",
+        target: encodingOrEncodeAs,
+      });
       return undefined;
+    }
+
+    return { type: encodingOrEncodeAs };
   }
 }
 
@@ -740,7 +759,7 @@ function validateEncodeData(context: DecoratorContext, target: Type, encodeData:
         code: "invalid-encode",
         messageId: "wrongType",
         format: {
-          encoding: encodeData.encoding,
+          encoding: encodeData.encoding ?? "string",
           type: getTypeName(target),
           expected: validTargets.join(", "),
         },
@@ -761,11 +780,11 @@ function validateEncodeData(context: DecoratorContext, target: Type, encodeData:
       const typeName = getTypeName(encodeData.type.projectionBase ?? encodeData.type);
       reportDiagnostic(context.program, {
         code: "invalid-encode",
-        messageId: ["unixTimestamp", "seconds"].includes(encodeData.encoding)
+        messageId: ["unixTimestamp", "seconds"].includes(encodeData.encoding ?? "string")
           ? "wrongNumericEncodingType"
           : "wrongEncodingType",
         format: {
-          encoding: encodeData.encoding,
+          encoding: encodeData.encoding!,
           type: getTypeName(target),
           expected: validEncodeTypes.join(", "),
           actual: typeName,
@@ -788,6 +807,8 @@ function validateEncodeData(context: DecoratorContext, target: Type, encodeData:
       return check(["bytes"], ["string"]);
     case "base64url":
       return check(["bytes"], ["string"]);
+    case undefined:
+      return check(["numeric"], ["string"]);
   }
 }
 
@@ -1450,11 +1471,6 @@ export function getReturnTypeVisibility(program: Program, entity: Operation): st
   return program.stateMap(returnTypeVisibilityKey).get(entity);
 }
 
-export interface ExampleOptions {
-  readonly title?: string;
-  readonly description?: string;
-}
-
 export interface Example extends ExampleOptions {
   readonly value: Value;
 }
@@ -1468,7 +1484,7 @@ export const $example: ExampleDecorator = (
   context: DecoratorContext,
   target: Model | Scalar | Enum | Union | ModelProperty | UnionVariant,
   _example: unknown,
-  options?: unknown // TODO: change `options?: ExampleOptions` when tspd supports it
+  options?: ExampleOptions
 ) => {
   const decorator = target.decorators.find(
     (d) => d.decorator === $example && d.node === context.decoratorTarget
@@ -1494,7 +1510,7 @@ export const $example: ExampleDecorator = (
     list = [];
     context.program.stateMap(exampleKey).set(target, list);
   }
-  list.push({ value: rawExample, ...(options as any) });
+  list.push({ value: rawExample, ...options });
 };
 
 export function getExamples(

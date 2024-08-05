@@ -1,3 +1,5 @@
+# cspell:ignore azuresdkcadlranch
+
 parameters:
   # Custom steps to run in the Build and Test stages after the repositories are cloned.
   - name: AdditionalInitializeSteps
@@ -26,6 +28,15 @@ parameters:
     type: string
     default: ""
 
+  # Emit artifacts
+  - name: EmitArtifacts
+    type: boolean
+    default: false
+
+  - name: CadlRanchName
+    type: string
+    default: ""
+
 steps:
   - checkout: self
 
@@ -50,3 +61,14 @@ steps:
       filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Test-Packages.ps1
       arguments: ${{ parameters.TestArgs }}
       workingDirectory: $(selfRepositoryPath)
+
+  - ${{ if eq(variables['System.TeamProject'], 'internal') }}:
+      - task: AzureCLI@2
+        displayName: "Upload Cadl Ranch Standard Coverage Report"
+        condition: and(ne(variables['Build.Reason'], 'PullRequest'), eq(variables['System.TeamProject'], 'internal'), eq('${{ parameters.EmitArtifacts }}', true))
+        inputs:
+          azureSubscription: "Cadl Ranch Storage"
+          scriptType: "bash"
+          scriptLocation: "inlineScript"
+          inlineScript: npx cadl-ranch upload-coverage --coverageFile ./generator/artifacts/coverage/cadl-ranch-coverage-${{ parameters.LanguageShortName }}-standard.json --generatorName ${{ coalesce(parameters.CadlRanchName, parameters.LanguageShortName) }} --storageAccountName azuresdkcadlranch --generatorVersion $(node -p -e "require('./package.json').version") --generatorMode standard
+          workingDirectory: $(selfRepositoryPath)${{ parameters.PackagePath }}

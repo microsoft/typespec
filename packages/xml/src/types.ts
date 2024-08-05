@@ -21,6 +21,6 @@ export type XmlEncoding =
   | "TypeSpec.Xml.Encoding.xmlBase64Binary";
 
 export interface XmlEncodeData extends EncodeData {
-  encoding: XmlEncoding | EncodeData["encoding"];
+  encoding?: XmlEncoding | EncodeData["encoding"];
   type: Scalar;
 }

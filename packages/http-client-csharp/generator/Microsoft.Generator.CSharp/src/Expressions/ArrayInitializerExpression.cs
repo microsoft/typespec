@@ -16,25 +16,25 @@ namespace Microsoft.Generator.CSharp.Expressions
         {
             if (Elements is not { Count: > 0 })
             {
-                writer.AppendRaw("{}");
+                writer.AppendRaw("{ }");
                 return;
             }
 
             if (IsInline)
             {
-                writer.AppendRaw("{");
+                writer.AppendRaw("{ ");
                 for (int i = 0; i < Elements.Count; i++)
                 {
                     Elements[i].Write(writer);
                     if (i < Elements.Count - 1)
                         writer.AppendRaw(", ");
                 }
-                writer.AppendRaw("}");
+                writer.AppendRaw(" }");
             }
             else
             {
                 writer.WriteLine();
-                writer.WriteRawLine("{");
+                writer.WriteRawLine("{ ");
                 for (int i = 0; i < Elements.Count; i++)
                 {
                     Elements[i].Write(writer);
@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp.Expressions
                         writer.WriteRawLine(",");
                 }
                 writer.WriteLine();
-                writer.AppendRaw("}");
+                writer.AppendRaw(" }");
             }
         }
     }

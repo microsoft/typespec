@@ -40,6 +40,10 @@ parameters:
     type: string
     default: ""
 
+  - name: CadlRanchName
+    type: string
+    default: ""
+
 jobs:
   - job: Test_${{ parameters.Os }}_${{ split(parameters.NodeVersion, '.')[0] }}
     ${{ if eq(parameters.Os, 'linux') }}:
@@ -67,6 +71,8 @@ jobs:
             TestArgs: $(TestArguments)
           ${{ else }}:
             TestArgs: ${{ parameters.TestArgs }}
+          EmitArtifacts: ${{ parameters.EmitArtifacts }}
+          CadlRanchName: ${{ parameters.CadlRanchName }}
     ${{ if parameters.EmitArtifacts }}:
       templateContext:
         outputs:

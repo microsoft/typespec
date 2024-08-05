@@ -91,7 +91,8 @@ namespace Microsoft.Generator.CSharp.Input
                 description: description,
                 type: parameterType,
                 location: requestLocation,
-                defaultValue: defaultValue,
+                // TODO: not use default value for constant value https://github.com/microsoft/typespec/issues/4028
+                defaultValue: parameterType is InputLiteralType { Value: not null } literalType ? literalType : defaultValue,
                 kind: parameterKind,
                 isRequired: isRequired,
                 isApiVersion: isApiVersion,

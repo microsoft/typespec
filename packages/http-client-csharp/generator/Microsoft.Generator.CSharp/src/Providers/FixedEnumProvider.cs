@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -15,11 +16,12 @@ namespace Microsoft.Generator.CSharp.Providers
     {
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
+        private readonly InputEnumType _inputType;
 
         internal FixedEnumProvider(InputEnumType input) : base(input)
         {
+            _inputType = input;
             _allowedValues = input.Values;
-
             // fixed enums are implemented by enum in C#
             _modifiers = TypeSignatureModifiers.Enum;
             if (input.Accessibility == "internal")
@@ -28,10 +30,15 @@ namespace Microsoft.Generator.CSharp.Providers
             }
         }
 
+        protected override TypeProvider[] BuildSerializationProviders()
+        {
+            return CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType, this).ToArray();
+        }
+
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
 
         // we have to build the values first, because the corresponding fieldDeclaration of the values might need all of the existing values to avoid name conflicts
-        protected override IReadOnlyList<EnumTypeMember> BuildMembers()
+        protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {
             var values = new EnumTypeMember[_allowedValues.Count];
             for (int i = 0; i < _allowedValues.Count; i++)
@@ -44,7 +51,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 var initializationValue = IsIntValueType ? Literal(inputValue.Value) : null;
                 var field = new FieldProvider(
                     modifiers,
-                    ValueType,
+                    EnumUnderlyingType,
                     name,
                     inputValue.Description is null ? $"{name}" : FormattableStringHelpers.FromString(inputValue.Description),
                     initializationValue);
@@ -55,22 +62,9 @@ namespace Microsoft.Generator.CSharp.Providers
         }
 
         protected override FieldProvider[] BuildFields()
-            => Members.Select(v => v.Field).ToArray();
+            => EnumValues.Select(v => v.Field).ToArray();
 
-        public override ValueExpression ToSerial(ValueExpression enumExpression)
-        {
-            if (IsIntValueType)
-            {
-                // when the fixed enum is implemented as int, we cast to the value
-                return enumExpression.CastTo(ValueType);
-            }
-
-            // otherwise we call the corresponding extension method to convert the value
-            CSharpType? serializationType = SerializationProviders.FirstOrDefault()?.Type;
-            return enumExpression.Invoke($"ToSerial{ValueType.Name}");
-        }
-
-        public override ValueExpression ToEnum(ValueExpression valueExpression)
-            => valueExpression.Invoke($"To{Type.Name}");
+        protected override bool GetIsEnum() => true;
+        protected override CSharpType BuildEnumUnderlyingType() => CodeModelPlugin.Instance.TypeFactory.CreatePrimitiveCSharpType(_inputType.ValueType);
     }
 }
