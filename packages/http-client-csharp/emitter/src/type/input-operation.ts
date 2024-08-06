@@ -35,5 +35,6 @@ export interface InputOperation {
   Paging?: OperationPaging;
   GenerateProtocolMethod: boolean;
   GenerateConvenienceMethod: boolean;
+  CrossLanguageDefinitionId: string;
   Decorators?: DecoratorInfo[];
 }

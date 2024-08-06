@@ -30,6 +30,7 @@ namespace Microsoft.Generator.CSharp.Input
             OperationPaging? paging,
             bool generateProtocolMethod,
             bool generateConvenienceMethod,
+            string crossLanguageDefinitionId,
             IReadOnlyList<InputDecoratorInfo> decorators)
         {
             Name = name;
@@ -50,6 +51,7 @@ namespace Microsoft.Generator.CSharp.Input
             Paging = paging;
             GenerateProtocolMethod = generateProtocolMethod;
             GenerateConvenienceMethod = generateConvenienceMethod;
+            CrossLanguageDefinitionId = crossLanguageDefinitionId;
             Decorators = decorators;
         }
 
@@ -72,6 +74,7 @@ namespace Microsoft.Generator.CSharp.Input
             paging: null,
             generateProtocolMethod: true,
             generateConvenienceMethod: false,
+            crossLanguageDefinitionId: string.Empty,
             decorators: Array.Empty<InputDecoratorInfo>())
         { }
 
@@ -93,6 +96,7 @@ namespace Microsoft.Generator.CSharp.Input
         public OperationPaging? Paging { get; internal set; }
         public bool GenerateProtocolMethod { get; internal set; }
         public bool GenerateConvenienceMethod { get; internal set; }
+        public string CrossLanguageDefinitionId { get; internal set; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; }
 
         private IReadOnlyDictionary<string, InputOperationExample>? _examples;

@@ -20,7 +20,7 @@ import { RequestLocation } from "../type/request-location.js";
 import { fromSdkType } from "./converter.js";
 import { Logger } from "./logger.js";
 import { navigateModels } from "./model.js";
-import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation.js";
+import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 
 export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeModel {
