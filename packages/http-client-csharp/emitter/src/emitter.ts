@@ -135,8 +135,8 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
           ? `--existing-project-folder ${options["existing-project-folder"]}`
           : "";
         const debugFlag = (options.debug ?? false) ? " --debug" : "";
-
-        const projectRoot = findProjectRoot(dirname(fileURLToPath(import.meta.url)));
+        const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
+        const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
         const generatorPath = resolvePath(
           projectRoot + "/dist/generator/Microsoft.Generator.CSharp.dll"
         );
