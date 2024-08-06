@@ -90,7 +90,8 @@
      "Path": "/authentication/oauth2/valid",
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Authentication.OAuth2.valid"
     },
     {
      "$id": "12",
@@ -143,7 +144,8 @@
      "Path": "/authentication/oauth2/invalid",
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Authentication.OAuth2.invalid"
     }
    ],
    "Protocol": {
