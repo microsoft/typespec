@@ -1,0 +1,42 @@
+{
+  "name": "@typespec/spec-lib",
+  "version": "0.1.0",
+  "description": "Spec Library providing decorator and validation for specs",
+  "main": "dist/index.js",
+  "tspMain": "lib/lib.tsp",
+  "type": "module",
+  "scripts": {
+    "watch": "tsc -p ./tsconfig.build.json --watch",
+    "build": "tsc -p ./tsconfig.build.json",
+    "clean": "rimraf dist/ temp/",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
+  "author": "Microsoft",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "homepage": "https://github.com/microsoft/typespec#readme",
+  "devDependencies": {
+    "@types/node": "^18.16.0",
+    "@typespec/eslint-config-typespec": "~0.55.0",
+    "eslint": "^8.50.0",
+    "rimraf": "^5.0.5",
+    "typescript": "~5.2.2"
+  },
+  "peerDependencies": {
+    "@typespec/compiler": "workspace:~",
+    "@typespec/versioning": "workspace:~",
+    "@typespec/http": "workspace:~",
+    "@typespec/rest": "workspace:~"
+  }
+}

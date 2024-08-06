@@ -19,6 +19,7 @@
     "types": ["node"],
     "lib": ["es2022", "DOM"],
     "experimentalDecorators": true,
+    "skipLibCheck": true,
     "newLine": "LF"
   }
 }
