@@ -1,11 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
-  createSdkContext,
-  CreateSdkContextOptions,
-  UsageFlags,
-} from "@azure-tools/typespec-client-generator-core";
+import { createSdkContext, UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import {
   EmitContext,
   getDirectoryPath,
@@ -25,6 +21,7 @@ import { createModel } from "./lib/client-model-builder.js";
 import { LoggerLevel } from "./lib/log-level.js";
 import { Logger } from "./lib/logger.js";
 import { NetEmitterOptions, resolveOptions, resolveOutputFolder } from "./options.js";
+import { defaultSDKContextOptions } from "./sdkContextOptions.js";
 import { Configuration } from "./type/configuration.js";
 
 /**
@@ -47,11 +44,6 @@ function findProjectRoot(path: string): string | undefined {
   }
 }
 
-let sdkContextOptions: CreateSdkContextOptions = {};
-export function setSDKContextOptions(options: CreateSdkContextOptions) {
-  sdkContextOptions = options;
-}
-
 export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
   const program: Program = context.program;
   const options = resolveOptions(context);
@@ -65,7 +57,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
     const sdkContext = await createSdkContext(
       context,
       "@typespec/http-client-csharp",
-      sdkContextOptions
+      defaultSDKContextOptions
     );
     const root = createModel(sdkContext);
     if (
