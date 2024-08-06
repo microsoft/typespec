@@ -7,12 +7,12 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public class InputDecoratorInfo
     {
-        public InputDecoratorInfo(string name, IReadOnlyDictionary<string, object> arguments)
+        public InputDecoratorInfo(string name, IReadOnlyDictionary<string, object?>? arguments)
         {
             Name = name;
             Arguments = arguments;
         }
         public string Name { get; }
-        public IReadOnlyDictionary<string, object> Arguments { get; }
+        public IReadOnlyDictionary<string, object?>? Arguments { get; }
     }
 }

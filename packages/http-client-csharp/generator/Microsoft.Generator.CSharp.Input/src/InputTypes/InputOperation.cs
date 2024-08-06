@@ -29,7 +29,8 @@ namespace Microsoft.Generator.CSharp.Input
             OperationLongRunning? longRunning,
             OperationPaging? paging,
             bool generateProtocolMethod,
-            bool generateConvenienceMethod)
+            bool generateConvenienceMethod,
+            IReadOnlyList<InputDecoratorInfo> decorators)
         {
             Name = name;
             ResourceName = resourceName;
@@ -49,6 +50,7 @@ namespace Microsoft.Generator.CSharp.Input
             Paging = paging;
             GenerateProtocolMethod = generateProtocolMethod;
             GenerateConvenienceMethod = generateConvenienceMethod;
+            Decorators = decorators;
         }
 
         public InputOperation() : this(
@@ -69,7 +71,8 @@ namespace Microsoft.Generator.CSharp.Input
             longRunning: null,
             paging: null,
             generateProtocolMethod: true,
-            generateConvenienceMethod: false)
+            generateConvenienceMethod: false,
+            decorators: Array.Empty<InputDecoratorInfo>())
         { }
 
         public string Name { get; internal set; }
@@ -90,6 +93,7 @@ namespace Microsoft.Generator.CSharp.Input
         public OperationPaging? Paging { get; internal set; }
         public bool GenerateProtocolMethod { get; internal set; }
         public bool GenerateConvenienceMethod { get; internal set; }
+        public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; }
 
         private IReadOnlyDictionary<string, InputOperationExample>? _examples;
         internal IReadOnlyDictionary<string, InputOperationExample> Examples => _examples ??= EnsureExamples();

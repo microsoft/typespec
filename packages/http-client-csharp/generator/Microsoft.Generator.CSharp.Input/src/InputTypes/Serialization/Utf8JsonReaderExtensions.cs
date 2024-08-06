@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -232,6 +233,90 @@ namespace Microsoft.Generator.CSharp.Input
             return result;
         }
 
+        public static bool TryReadStringObjectDictionary(this ref Utf8JsonReader reader, string propertyName, ref IReadOnlyDictionary<string, object?>? value)
+        {
+            if (reader.GetString() != propertyName)
+            {
+                return false;
+            }
+
+            if (reader.GetString() != propertyName)
+            {
+                return false;
+            }
+
+            reader.Read();
+            reader.Read();
+
+            var result = new Dictionary<string, object?>();
+            while (reader.TokenType != JsonTokenType.EndObject)
+            {
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                {
+                    throw new JsonException();
+                }
+
+                string? argumentName = reader.GetString();
+                if (argumentName is null)
+                {
+                    throw new JsonException();
+                }
+
+                // skip $id property since the decorator argument should not be referenced anyway
+                if (argumentName == "$id")
+                {
+                    reader.SkipProperty();
+                    continue;
+                }
+
+                using var document = JsonDocument.ParseValue(ref reader);
+                var propertyValue = ConvertJsonElementToObject(document.RootElement);
+                result[argumentName] = propertyValue;
+                reader.Read();
+            }
+            value = result;
+            return true;
+        }
+
+        public static object? ConvertJsonElementToObject(JsonElement element)
+        {
+            switch (element.ValueKind)
+            {
+                case JsonValueKind.Object:
+                    var result = new Dictionary<string, object?>();
+                    foreach (JsonProperty property in element.EnumerateObject())
+                    {
+                        result.Add(property.Name, ConvertJsonElementToObject(property.Value));
+                    }
+                    return result;
+                case JsonValueKind.Array:
+                    return element.EnumerateArray().Select(s => ConvertJsonElementToObject(s)).ToArray();
+                case JsonValueKind.String:
+                    return element.GetString()!;
+                case JsonValueKind.Number:
+                    if (element.TryGetInt32(out int integer))
+                    {
+                        return integer;
+                    }
+                    else if (element.TryGetInt64(out long longNumber))
+                    {
+                        return longNumber;
+                    }
+                    else if (element.TryGetSingle(out float floatNumber))
+                    {
+                        return floatNumber;
+                    }
+                    else
+                    {
+                        return element.GetDouble();
+                    }
+                case JsonValueKind.True:
+                case JsonValueKind.False:
+                    return element.GetBoolean();
+                default:
+                    return null;
+            }
+        }
         public static void SkipProperty(this ref Utf8JsonReader reader)
         {
             if (reader.TokenType != JsonTokenType.PropertyName)

@@ -92,7 +92,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var param = new InputParameter("param", "name", "desc",
                 new InputLiteralType(new InputPrimitiveType(InputPrimitiveTypeKind.String, "foo", "bar"), "bar", Array.Empty<InputDecoratorInfo>()),
                 RequestLocation.Header, null, InputOperationParameterKind.Client, true, false, true, false, false,
-                false, false, null, null);
+                false, false, null, null, []);
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(new InputNamespace(
                 "test library",
                 new List<string>(),
@@ -105,8 +105,8 @@ namespace Microsoft.Generator.CSharp.Tests
                         new InputOperation("testoperation", "name", "desc", null, null, new[]
                         {
                             param
-                        }, Array.Empty<OperationResponse>(), "GET", BodyMediaType.Json, "http://example.com", "baz", null, null, true, null, null, true, true)
-                    }, new []{param}, null)
+                        }, Array.Empty<OperationResponse>(), "GET", BodyMediaType.Json, "http://example.com", "baz", null, null, true, null, null, true, true, [])
+                    }, new []{param}, null, [])
                 },
                 new InputAuth()));
 

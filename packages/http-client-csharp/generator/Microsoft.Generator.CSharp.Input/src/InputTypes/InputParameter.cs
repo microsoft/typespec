@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+
 namespace Microsoft.Generator.CSharp.Input
 {
     public sealed class InputParameter
@@ -21,7 +23,8 @@ namespace Microsoft.Generator.CSharp.Input
             bool skipUrlEncoding,
             bool explode,
             string? arraySerializationDelimiter,
-            string? headerCollectionPrefix)
+            string? headerCollectionPrefix,
+            IReadOnlyList<InputDecoratorInfo> decorators)
         {
             Name = name;
             NameInRequest = nameInRequest;
@@ -39,6 +42,7 @@ namespace Microsoft.Generator.CSharp.Input
             Explode = explode;
             ArraySerializationDelimiter = arraySerializationDelimiter;
             HeaderCollectionPrefix = headerCollectionPrefix;
+            Decorators = decorators;
         }
 
         public string Name { get; }
@@ -57,5 +61,6 @@ namespace Microsoft.Generator.CSharp.Input
         public bool Explode { get; }
         public string? ArraySerializationDelimiter { get; }
         public string? HeaderCollectionPrefix { get; }
+        public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; }
     }
 }

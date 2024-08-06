@@ -3,6 +3,7 @@
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using AutoRest.CSharp.Common.Input;
 
 namespace Microsoft.Generator.CSharp.Input
 {
@@ -39,6 +40,7 @@ namespace Microsoft.Generator.CSharp.Input
                     new TypeSpecInputDateTimeTypeConverter(referenceHandler),
                     new TypeSpecInputDurationTypeConverter(referenceHandler),
                     new TypeSpecInputAuthConverter(referenceHandler),
+                    new TypeSpecInputDecoratorInfoConverter(referenceHandler),
                 }
             };
 

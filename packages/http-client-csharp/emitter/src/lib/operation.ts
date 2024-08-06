@@ -99,6 +99,7 @@ export function fromSdkServiceMethod(
     Paging: loadOperationPaging(method),
     GenerateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
     GenerateConvenienceMethod: generateConvenience,
+    Decorators: method.decorators,
   };
 }
 
@@ -202,6 +203,7 @@ function fromSdkHttpOperationParameter(
     IsRequired: !p.optional,
     Kind: getParameterKind(p, parameterType, isContentType, rootApiVersions.length > 0),
     DefaultValue: getParameterDefaultValue(p.clientDefaultValue, parameterType),
+    Decorators: p.decorators,
   } as InputParameter;
 }
 
