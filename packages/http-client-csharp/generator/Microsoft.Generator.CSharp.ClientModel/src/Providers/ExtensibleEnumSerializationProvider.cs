@@ -20,11 +20,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string GetNamespace() => _enumProvider.Type.Namespace;
 
-        public ExtensibleEnumSerializationProvider(InputEnumType enumType)
+        public ExtensibleEnumSerializationProvider(InputEnumType enumType, TypeProvider enumProvider)
         {
             Debug.Assert(enumType.IsExtensible);
             _enumType = enumType;
-            _enumProvider = ClientModelPlugin.Instance.TypeFactory.CreateEnum(_enumType);
+            _enumProvider = enumProvider;
         }
 
         protected override string BuildRelativeFilePath()

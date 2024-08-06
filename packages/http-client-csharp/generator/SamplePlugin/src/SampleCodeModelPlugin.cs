@@ -16,7 +16,7 @@ namespace SamplePlugin
 
         public override void Configure()
         {
-            OutputLibrary.AddVisitor(new SamplePluginOutputLibraryVisitor());
+            AddVisitor(new SamplePluginLibraryVisitor());
         }
     }
 }

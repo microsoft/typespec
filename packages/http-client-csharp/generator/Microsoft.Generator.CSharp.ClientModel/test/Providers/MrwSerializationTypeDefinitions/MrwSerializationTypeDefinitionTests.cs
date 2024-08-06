@@ -21,13 +21,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
     {
         public MrwSerializationTypeDefinitionTests()
         {
-            MockHelpers.LoadMockPlugin(createSerializationsCore: inputType => inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType)] : []);
+            MockHelpers.LoadMockPlugin(createSerializationsCore: (inputType, typeProvider) =>
+                inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, typeProvider)] : []);
         }
 
         internal static (TypeProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel)
         {
             var model = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
-            var serializations = model.SerializationProviders;
+            var serializations = model!.SerializationProviders;
 
             Assert.AreEqual(1, serializations.Count);
             Assert.IsInstanceOf<MrwSerializationTypeDefinition>(serializations[0]);

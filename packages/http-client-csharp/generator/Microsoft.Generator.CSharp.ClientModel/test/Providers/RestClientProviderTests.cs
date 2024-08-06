@@ -22,7 +22,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         public void TestRestClientMethods(InputOperation inputOperation)
         {
             var restClientProvider = new ClientProvider(SingleOpInputClient).RestClient;
-            MockHelpers.LoadMockPlugin(createMethods: (inputOperation, typeProvider) => new ScmMethodProviderCollection(inputOperation, restClientProvider.ClientProvider));
 
             var methods = restClientProvider.Methods;
             Assert.IsNotNull(methods, "Methods should not be null.");
@@ -118,7 +117,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             longRunning: null,
             paging: null,
             generateProtocolMethod: true,
-            generateConvenienceMethod: true);
+            generateConvenienceMethod: true,
+            crossLanguageDefinitionId: "TestService.CreateMessage");
 
         private readonly static InputClient SingleOpInputClient = new InputClient("TestClient", "TestClient description", [BasicOperation], [], null);
 

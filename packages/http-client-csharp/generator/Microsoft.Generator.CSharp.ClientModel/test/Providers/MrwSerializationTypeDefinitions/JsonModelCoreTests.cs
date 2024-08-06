@@ -15,14 +15,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
     {
         public JsonModelCoreTests()
         {
-            MockHelpers.LoadMockPlugin(createSerializationsCore: inputType
-                => inputType is InputModelType modeltype ? [new MockMrwProvider(modeltype)] : []);
+            MockHelpers.LoadMockPlugin(createSerializationsCore: (inputType, typeProvider)
+                => inputType is InputModelType modeltype ? [new MockMrwProvider(modeltype, typeProvider)] : []);
         }
 
         private class MockMrwProvider : MrwSerializationTypeDefinition
         {
-            public MockMrwProvider(InputModelType inputModel)
-                : base(inputModel)
+            public MockMrwProvider(InputModelType inputModel, TypeProvider typeProvider)
+                : base(inputModel, typeProvider)
             {
             }
 
