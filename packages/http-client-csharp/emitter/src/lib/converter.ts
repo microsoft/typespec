@@ -45,6 +45,7 @@ export function fromSdkType(
   enums: Map<string, InputEnumType>,
   literalTypeContext?: LiteralTypeContext
 ): InputType {
+  // TODO -- we need to add a global cache here to track the TCGC type vs our type
   if (sdkType.kind === "nullable") {
     const inputType = fromSdkType(sdkType.type, context, models, enums);
     return {
