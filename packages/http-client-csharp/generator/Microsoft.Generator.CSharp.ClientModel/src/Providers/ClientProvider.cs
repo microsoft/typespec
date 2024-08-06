@@ -242,7 +242,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
             }
 
-            return methods.ToArray();
+            return [.. methods];
         }
 
         private ParameterProvider BuildClientEndpointParameter()
