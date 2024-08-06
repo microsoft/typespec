@@ -12,7 +12,7 @@ export function setSDKContextOptions(options: CreateSdkContextOptions) {
   };
 }
 
-function getAdditionalDecorators(options: CreateSdkContextOptions) {
+function appendAdditionalDecoratorsOfContextOptions(options: CreateSdkContextOptions) {
   if (options.additionalDecorators) {
     if (defaultSDKContextOptions.additionalDecorators) {
       return [...defaultSDKContextOptions.additionalDecorators, ...options.additionalDecorators];
