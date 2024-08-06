@@ -661,8 +661,11 @@ export function createScanner(
           return next(Token.NewLine);
 
         case CharCode.Backslash:
-          tokenFlags |= TokenFlags.Escaped;
-          return position === endPosition - 1 ? next(Token.DocText) : next(Token.DocText, 2);
+          if (lookAhead(1) === CharCode.At) {
+            tokenFlags |= TokenFlags.Escaped;
+            return next(Token.DocText, 2);
+          }
+          return next(Token.DocText);
 
         case CharCode.Space:
         case CharCode.Tab:

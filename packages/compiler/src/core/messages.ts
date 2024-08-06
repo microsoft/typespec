@@ -606,6 +606,12 @@ const diagnostics = {
       default: paramMessage`Path "${"path"}" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
     },
   },
+  "path-unix-style": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Path should use unix style separators. Use "/" instead of "\\".`,
+    },
+  },
   "config-path-not-found": {
     severity: "error",
     messages: {
@@ -854,6 +860,7 @@ const diagnostics = {
       wrongType: paramMessage`Encoding '${"encoding"}' cannot be used on type '${"type"}'. Expected: ${"expected"}.`,
       wrongEncodingType: paramMessage`Encoding '${"encoding"}' on type '${"type"}' is expected to be serialized as '${"expected"}' but got '${"actual"}'.`,
       wrongNumericEncodingType: paramMessage`Encoding '${"encoding"}' on type '${"type"}' is expected to be serialized as '${"expected"}' but got '${"actual"}'. Set '@encode' 2nd parameter to be of type ${"expected"}. e.g. '@encode("${"encoding"}", int32)'`,
+      firstArg: `First argument of "@encode" must be the encoding name or the string type when encoding numeric types.`,
     },
   },
 

@@ -251,7 +251,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Parameters: [],
                     Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { fooDeclaration, switchStatement },
-                MockTypeProvider.Empty);
+                TestTypeProvider.Empty);
 
             // Verify the expected behavior
             using var writer = new CodeWriter();
@@ -293,7 +293,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Parameters: [],
                     Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { fooDeclaration, switchStatement },
-                MockTypeProvider.Empty);
+                TestTypeProvider.Empty);
 
             // Verify the expected behavior
             using var writer = new CodeWriter();
@@ -304,11 +304,86 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
             Assert.AreEqual(expectedResult, test);
         }
 
+        [Test]
+        public void TryStatementWithEmptyBody()
+        {
+            var tryStatement = new TryStatement();
+            Assert.IsEmpty(tryStatement.Body);
+        }
+
+        [Test]
+        public void TryStatementWithOneLineBody()
+        {
+            var tryStatement = new TryStatement() { Return(True) };
+            Assert.AreEqual(1, tryStatement.Body.Count);
+        }
+
+        [Test]
+        public void TryStatementWithMultipleLineBody()
+        {
+            var tryStatement = new TryStatement
+            {
+                Declare(new VariableExpression(typeof(int), "foo"), Literal(5)),
+                Return(True)
+            };
+            Assert.AreEqual(2, tryStatement.Body.Count);
+        }
+
+        [Test]
+        public void CatchStatementWithEmptyBody()
+        {
+            var catchStatement = new CatchStatement(null);
+            Assert.IsEmpty(catchStatement.Body);
+        }
+
+        [Test]
+        public void CatchStatementWithOneLineBody()
+        {
+            var catchStatement = new CatchStatement(null) { Return(True) };
+            Assert.AreEqual(1, catchStatement.Body.Count);
+        }
+
+        [Test]
+        public void CatchStatementWithMultipleLineBody()
+        {
+            var catchStatement = new CatchStatement(null)
+            {
+                Declare(new VariableExpression(typeof(int), "foo"), Literal(5)),
+                Return(True)
+            };
+            Assert.AreEqual(2, catchStatement.Body.Count);
+        }
+
+        [Test]
+        public void FinallyStatementWithEmptyBody()
+        {
+            var finallyStatement = new FinallyStatement();
+            Assert.IsEmpty(finallyStatement.Body);
+        }
+
+        [Test]
+        public void FinallyStatementWithOneLineBody()
+        {
+            var finallyStatement = new FinallyStatement() { Return(True) };
+            Assert.AreEqual(1, finallyStatement.Body.Count);
+        }
+
+        [Test]
+        public void FinallyStatementWithMultipleLineBody()
+        {
+            var finallyStatement = new FinallyStatement
+            {
+                Declare(new VariableExpression(typeof(int), "foo"), Literal(5)),
+                Return(True)
+            };
+            Assert.AreEqual(2, finallyStatement.Body.Count);
+        }
+
 
         [Test]
         public void TryCatchFinallyStatementWithTryOnly()
         {
-            var tryStatement = new MethodBodyStatement();
+            var tryStatement = new TryStatement();
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement);
 
             Assert.AreEqual(tryStatement, tryCatchFinally.Try);
@@ -319,8 +394,8 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void TryCatchFinallyStatementWithTryAndCatch()
         {
-            var tryStatement = new MethodBodyStatement();
-            var catchStatement = new CatchExpression(null, new MethodBodyStatement());
+            var tryStatement = new TryStatement();
+            var catchStatement = new CatchStatement(null);
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, catchStatement, null);
 
             Assert.AreEqual(tryStatement, tryCatchFinally.Try);
@@ -332,9 +407,9 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void TryCatchFinallyStatementWithTryCatchAndFinally()
         {
-            var tryStatement = new MethodBodyStatement();
-            var catchStatement = new CatchExpression(null, new MethodBodyStatement());
-            var finallyStatement = new MethodBodyStatement();
+            var tryStatement = new TryStatement();
+            var catchStatement = new CatchStatement(null);
+            var finallyStatement = new FinallyStatement();
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, catchStatement, finallyStatement);
 
             Assert.AreEqual(tryStatement, tryCatchFinally.Try);
@@ -346,15 +421,15 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void TryCatchFinallyStatementWithMultipleCatches()
         {
-            var tryStatement = new MethodBodyStatement();
+            var tryStatement = new TryStatement();
             var var1 = new DeclarationExpression(typeof(UnauthorizedAccessException), "ex1");
             var var2 = new DeclarationExpression(typeof(Exception), "ex2");
             var catchStatements = new[]
             {
-                new CatchExpression(var1, new MethodBodyStatement()),
-                new CatchExpression(var2, new MethodBodyStatement())
+                new CatchStatement(var1),
+                new CatchStatement(var2)
             };
-            var finallyStatement = new MethodBodyStatement();
+            var finallyStatement = new FinallyStatement();
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, catchStatements, finallyStatement);
 
             Assert.AreEqual(tryStatement, tryCatchFinally.Try);
@@ -370,7 +445,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Parameters: [],
                     Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { tryCatchFinally },
-                MockTypeProvider.Empty);
+                TestTypeProvider.Empty);
 
             // Verify the expected behavior
             using var writer = new CodeWriter();
@@ -402,7 +477,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Parameters: [],
                     Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { xDeclaration, ifElsePreprocessor },
-                MockTypeProvider.Empty);
+                TestTypeProvider.Empty);
 
             // Verify the expected behavior
             using var writer = new CodeWriter();

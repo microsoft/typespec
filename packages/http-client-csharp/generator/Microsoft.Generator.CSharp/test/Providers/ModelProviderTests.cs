@@ -24,7 +24,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 inputModelProperty
             };
 
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, props, null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.Input | InputModelTypeUsage.Output, props, null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
             var modelTypeProvider = new ModelProvider(inputModel);
             var properties = modelTypeProvider.Properties;
 
@@ -46,42 +46,42 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             {
                 // list property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", InputPrimitiveType.String), false, false, false),
                     new CSharpType(typeof(IList<string>)),
                     false);
                 // read only list property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, true, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", InputPrimitiveType.String), false, true, false),
                     new CSharpType(typeof(IReadOnlyList<string>)),
                     false);
                 // nullable list property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", InputPrimitiveType.String), false, false, false),
                     new CSharpType(typeof(IList<string>), true),
                     true);
                 // dictionary property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", InputPrimitiveType.String, InputPrimitiveType.String), false, false, false),
                     new CSharpType(typeof(IDictionary<string, string>)),
                     false);
                 // nullable dictionary property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", InputPrimitiveType.String, InputPrimitiveType.String), false, false, false),
                     new CSharpType(typeof(IDictionary<string, string>), true),
                     true);
                 // primitive type property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputPrimitiveType(InputPrimitiveTypeKind.String), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", InputPrimitiveType.String, false, false, false),
                     new CSharpType(typeof(string)),
                     true);
                 // read only primitive type property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputPrimitiveType(InputPrimitiveTypeKind.String), false, true, false),
+                    new InputModelProperty("prop1", "prop1", "public", InputPrimitiveType.String, false, true, false),
                     new CSharpType(typeof(string)),
                     false);
                 // readonlymemory property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", InputPrimitiveType.String), false, false, false),
                     new CSharpType(typeof(ReadOnlyMemory<>)),
                     true);
             }
@@ -107,8 +107,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             var properties = new List<InputModelProperty>{
                     new InputModelProperty("requiredString", "requiredString", "", InputPrimitiveType.String, true, false, false),
                     new InputModelProperty("OptionalInt", "optionalInt", "", InputPrimitiveType.Int32, false, false, false),
-                    new InputModelProperty("requiredCollection", "requiredCollection", "", new InputArrayType("List", "TypeSpec.Array", new InputPrimitiveType(InputPrimitiveTypeKind.String)), true, false, false),
-                    new InputModelProperty("requiredDictionary", "requiredDictionary", "", new InputDictionaryType("Dictionary", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.String)), true, false, false),
+                    new InputModelProperty("requiredCollection", "requiredCollection", "", new InputArrayType("List", "TypeSpec.Array", InputPrimitiveType.String), true, false, false),
+                    new InputModelProperty("requiredDictionary", "requiredDictionary", "", new InputDictionaryType("Dictionary", InputPrimitiveType.String, InputPrimitiveType.String), true, false, false),
                     new InputModelProperty("optionalUnknown", "optional unknown", "", InputPrimitiveType.Any, false, false, false),
              };
 
@@ -126,7 +126,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 }
             });
 
-            var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.Input | InputModelTypeUsage.Output, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
 
             var modelTypeProvider = new ModelProvider(inputModel);
             var ctors = modelTypeProvider.Constructors;
@@ -140,12 +140,71 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         }
 
         [Test]
+        public void BuildConstructor_ValidateConstructorsInDerivedModel()
+        {
+            var baseProperties = new List<InputModelProperty>
+            {
+                new InputModelProperty("prop1", "prop1", string.Empty, InputPrimitiveType.String, true, false, false),
+                new InputModelProperty("prop2", "prop2", string.Empty, InputPrimitiveType.String, false, false, false),
+            };
+            var derivedProperties = new List<InputModelProperty>
+            {
+                new InputModelProperty("prop3", "prop3", string.Empty, InputPrimitiveType.String, true, false, false),
+                new InputModelProperty("prop4", "prop4", string.Empty, InputPrimitiveType.String, false, false, false),
+            };
+            var inputBase = new InputModelType("baseModel", "baseModel", null, null, null, InputModelTypeUsage.Input, baseProperties, null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputDerived = new InputModelType("derivedModel", "derivedModel", null, null, null, InputModelTypeUsage.Input, derivedProperties, inputBase, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            ((List<InputModelType>)inputBase.DerivedModels).Add(inputDerived);
+
+            MockHelpers.LoadMockPlugin();
+
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputBase);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputDerived);
+
+            Assert.NotNull(baseModel);
+            var baseCtors = baseModel!.Constructors;
+            Assert.AreEqual(1, baseCtors.Count);
+            Assert.NotNull(derivedModel);
+            var derivedCtors = derivedModel!.Constructors;
+            Assert.AreEqual(1, derivedCtors.Count);
+
+            var baseCtor = baseCtors[0];
+            var derivedCtor = derivedCtors[0];
+            var baseParameters = baseCtor.Signature.Parameters;
+            var derivedParameters = derivedCtor.Signature.Parameters;
+            Assert.AreEqual(1, baseParameters.Count);
+            Assert.AreEqual("prop1", baseParameters[0].Name);
+            Assert.AreEqual(new CSharpType(typeof(string)), baseParameters[0].Type);
+            Assert.AreEqual(2, derivedParameters.Count);
+            Assert.AreEqual("prop1", derivedParameters[0].Name);
+            Assert.AreEqual(new CSharpType(typeof(string)), derivedParameters[0].Type);
+            Assert.AreEqual("prop3", derivedParameters[1].Name);
+            Assert.AreEqual(new CSharpType(typeof(string)), derivedParameters[1].Type);
+        }
+
+        [Test]
+        public void BuildBaseType()
+        {
+            var inputBase = new InputModelType("baseModel", "baseModel", null, null, null, InputModelTypeUsage.Input, [], null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputDerived = new InputModelType("derivedModel", "derivedModel", null, null, null, InputModelTypeUsage.Input, [], inputBase, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            ((List<InputModelType>)inputBase.DerivedModels).Add(inputDerived);
+
+            MockHelpers.LoadMockPlugin();
+
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputBase);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputDerived);
+
+            Assert.AreEqual(baseModel!.Type, derivedModel!.Type.BaseType);
+        }
+
+        [Test]
         public void BuildModelAsStruct()
         {
-            var properties = new List<InputModelProperty>{
-                    new InputModelProperty("requiredString", "requiredString", "", InputPrimitiveType.String, true, false, false),
-                    new InputModelProperty("OptionalInt", "optionalInt", "", InputPrimitiveType.Int32, false, false, false),
-             };
+            var properties = new List<InputModelProperty>
+            {
+                new InputModelProperty("requiredString", "requiredString", "", InputPrimitiveType.String, true, false, false),
+                new InputModelProperty("OptionalInt", "optionalInt", "", InputPrimitiveType.Int32, false, false, false),
+            };
 
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (InputType inputType) =>
             {
@@ -161,7 +220,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 }
             });
 
-            var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, modelAsStruct: true);
+            var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.Input | InputModelTypeUsage.Output, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, modelAsStruct: true);
 
             var modelTypeProvider = new ModelProvider(inputModel);
             Assert.AreEqual(TypeSignatureModifiers.Public | TypeSignatureModifiers.Struct | TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly, modelTypeProvider.DeclarationModifiers);

@@ -1,6 +1,7 @@
 import {
   Decorator,
   Enum,
+  EnumMember,
   Interface,
   LinterRuleDefinition,
   LinterRuleSet,
@@ -108,6 +109,11 @@ export type NamedTypeRefDoc = ReferencableElement & {
   readonly signature: string;
   readonly doc: string;
   readonly examples: readonly ExampleRefDoc[];
+  readonly deprecated?: DeprecationNotice;
+};
+
+export type DeprecationNotice = {
+  readonly message: string;
 };
 
 export type DecoratorRefDoc = NamedTypeRefDoc & {
@@ -164,6 +170,11 @@ export type ModelPropertyRefDoc = NamedTypeRefDoc & {
 export type EnumRefDoc = NamedTypeRefDoc & {
   readonly kind: "enum";
   readonly type: Enum;
+  readonly members: ReadonlyMap<string, EnumMemberRefDoc>;
+};
+
+export type EnumMemberRefDoc = NamedTypeRefDoc & {
+  readonly type: EnumMember;
 };
 
 export type UnionRefDoc = NamedTypeRefDoc & {

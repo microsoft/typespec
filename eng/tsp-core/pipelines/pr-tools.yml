@@ -8,6 +8,8 @@ pr:
   paths:
     exclude:
       - packages/http-client-csharp
+      - cspell.yaml
+      - eng/emitters
 
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
@@ -25,7 +27,7 @@ extends:
           - job: tryit
             displayName: Setup Try It
             variables:
-              TYPESPEC_WEBSITE_BASE_PATH: "prs/$(System.PullRequest.PullRequestNumber)/"
+              TYPESPEC_WEBSITE_BASE_PATH: "/prs/$(System.PullRequest.PullRequestNumber)/"
             steps:
               - checkout: self
                 persistCredentials: true

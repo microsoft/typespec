@@ -10,6 +10,6 @@ title: "[I] XmlEncodeData"
 ## Properties
 
 | Property | Type | Overrides |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `encoding` | `string` | `EncodeData.encoding` |
 | `type` | `Scalar` | `EncodeData.type` |

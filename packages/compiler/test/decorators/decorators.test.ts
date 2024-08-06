@@ -350,7 +350,7 @@ describe("compiler: built-in decorators", () => {
 
   describe("@friendlyName", () => {
     it("applies @friendlyName on model", async () => {
-      const { A, B, C } = await runner.compile(`
+      const { A, B } = await runner.compile(`
         @test
         @friendlyName("MyNameIsA")
         model A { }
@@ -363,13 +363,22 @@ describe("compiler: built-in decorators", () => {
         model Templated<T> {
           prop: T;
         }
-
-        @test
-        model C is Templated<B>{};
         `);
       strictEqual(getFriendlyName(runner.program, A), "MyNameIsA");
       strictEqual(getFriendlyName(runner.program, B), "BModel");
-      strictEqual(getFriendlyName(runner.program, C), "TemplatedB");
+    });
+
+    it(" @friendlyName doesn't carry over to derived models", async () => {
+      const { A, B } = await runner.compile(`
+        @test
+        @friendlyName("MyNameIsA")
+        model A<T> { t: T; }
+
+        @test
+        model B is A<string> { }
+        `);
+      strictEqual(getFriendlyName(runner.program, A), "MyNameIsA");
+      strictEqual(getFriendlyName(runner.program, B), undefined);
     });
   });
 
@@ -722,6 +731,19 @@ describe("compiler: built-in decorators", () => {
             strictEqual(encodeData.type.name, encodeAs ?? "string");
           });
         });
+
+        it(`@encode(string) on numeric scalar`, async () => {
+          const { s } = (await runner.compile(`
+            @encode(string)
+            @test
+            scalar s extends int64;
+          `)) as { s: Scalar };
+
+          const encodeData = getEncode(runner.program, s);
+          ok(encodeData);
+          strictEqual(encodeData.encoding, undefined);
+          strictEqual(encodeData.type.name, "string");
+        });
       });
       describe("invalid", () => {
         invalidCases.forEach(([target, encoding, encodeAs, expectedCode, expectedMessage]) => {
@@ -739,6 +761,20 @@ describe("compiler: built-in decorators", () => {
               severity: "error",
               message: expectedMessage,
             });
+          });
+        });
+
+        it(`@encode(string) on non-numeric scalar`, async () => {
+          const diagnostics = await runner.diagnose(`
+            @encode(string)
+            @test
+            scalar s extends utcDateTime;
+          `);
+
+          expectDiagnostics(diagnostics, {
+            code: "invalid-encode",
+            severity: "error",
+            message: "Encoding 'string' cannot be used on type 's'. Expected: numeric.",
           });
         });
       });

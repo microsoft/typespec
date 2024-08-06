@@ -131,7 +131,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 _pipeline.Invoke(nameof(ClientPipeline.Send), [_message]).Terminate(),
                 MethodBodyStatement.EmptyLine,
-                new IfStatement(_message.Response().IsError().And(new BinaryOperatorExpression("&", _options.Property("ErrorOptions", true), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
+                new IfStatement(_message.Response().IsError().And(new BinaryOperatorExpression("&", _options.NullConditional().Property("ErrorOptions"), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
                 {
                     Throw(New.Instance(typeof(ClientResultException), _message.Response()))
                 },
@@ -166,7 +166,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 _pipeline.Invoke(nameof(ClientPipeline.SendAsync), [_message], true).Terminate(),
                 MethodBodyStatement.EmptyLine,
-                new IfStatement(_message.Response().IsError().And(new BinaryOperatorExpression("&", _options.Property("ErrorOptions", true), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
+                new IfStatement(_message.Response().IsError().And(new BinaryOperatorExpression("&", _options.NullConditional().Property("ErrorOptions"), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
                 {
                     Throw(Static<ClientResultException>().Invoke(nameof(ClientResultException.CreateAsync), [_message.Response()], true))
                 },

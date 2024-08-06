@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement UsingDeclare<T>(string name, ScopedApi<T> value, out ScopedApi<T> variable)
         {
             var declaration = new CodeWriterDeclaration(name);
-            var variableExpression = new VariableExpression(value.Type, declaration);
+            var variableExpression = new VariableExpression(TypeReferenceExpression.GetTypeFromDefinition(value.Type)!, declaration);
             variable = variableExpression.As<T>();
             return UsingDeclare(variableExpression, value);
         }
@@ -55,9 +55,16 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement Declare<T>(string name, ScopedApi<T> value, out ScopedApi<T> variable)
         {
             var declaration = new CodeWriterDeclaration(name);
-            var variableExpression = new VariableExpression(value.Type, declaration);
+            var variableExpression = new VariableExpression(TypeReferenceExpression.GetTypeFromDefinition(value.Type)!, declaration);
             variable = variableExpression.As<T>();
             return new DeclarationExpression(variableExpression).Assign(value).Terminate();
+        }
+
+        public static DeclarationExpression Declare<T>(string name, out ScopedApi<T> variable)
+        {
+            var variableExpression = new VariableExpression(typeof(T), name);
+            variable = variableExpression.As<T>();
+            return new DeclarationExpression(variableExpression);
         }
     }
 }

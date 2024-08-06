@@ -28,6 +28,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Primitives
         public static readonly ParameterProvider OptionalOptions = new("options", FormattableStringHelpers.Empty, nullableModelReaderWriterOptionsType, DefaultOf(nullableModelReaderWriterOptionsType));
         public static readonly ParameterProvider JsonElement = new("element", FormattableStringHelpers.Empty, typeof(JsonElement));
         public static readonly ParameterProvider Data = new("data", FormattableStringHelpers.Empty, typeof(BinaryData));
+        public static ParameterProvider ClientOptions(CSharpType clientOptionsType)
+            => new("options", $"The options for configuring the client.", clientOptionsType.WithNullable(true), initializationValue: New.Instance(clientOptionsType.WithNullable(true)));
         public static readonly ParameterProvider TokenAuth = new("tokenCredential", $"The token credential to copy", ClientModelPlugin.Instance.TypeFactory.TokenCredentialType());
         public static readonly ParameterProvider MatchConditionsParameter = new("matchConditions", $"The content to send as the request conditions of the request.", ClientModelPlugin.Instance.TypeFactory.MatchConditionsType(), DefaultOf(ClientModelPlugin.Instance.TypeFactory.MatchConditionsType()));
         public static readonly ParameterProvider RequestOptions = new("options", $"The request options, which can override default behaviors of the client pipeline on a per-call basis.", typeof(RequestOptions));

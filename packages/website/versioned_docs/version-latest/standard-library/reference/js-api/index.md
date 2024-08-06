@@ -3,6 +3,12 @@ jsApi: true
 title: "[P] JS API"
 
 ---
+## References
+
+### printIdentifier
+
+Renames and re-exports [formatIdentifier](functions/formatIdentifier.md)
+
 ## Enumerations
 
 - [IdentifierKind](enumerations/IdentifierKind.md)
@@ -93,6 +99,8 @@ title: "[P] JS API"
 - [EnumStatementNode](interfaces/EnumStatementNode.md)
 - [EnumValue](interfaces/EnumValue.md)
 - [ErrorType](interfaces/ErrorType.md)
+- [Example](interfaces/Example.md)
+- [ExampleOptions](interfaces/ExampleOptions.md)
 - [ExternKeywordNode](interfaces/ExternKeywordNode.md)
 - [FileLibraryMetadata](interfaces/FileLibraryMetadata.md)
 - [FilePos](interfaces/FilePos.md)
@@ -155,6 +163,7 @@ title: "[P] JS API"
 - [ObjectType](interfaces/ObjectType.md)
 - [ObjectValue](interfaces/ObjectValue.md)
 - [ObjectValuePropertyDescriptor](interfaces/ObjectValuePropertyDescriptor.md)
+- [OpExample](interfaces/OpExample.md)
 - [Operation](interfaces/Operation.md)
 - [OperationSignatureDeclarationNode](interfaces/OperationSignatureDeclarationNode.md)
 - [OperationSignatureReferenceNode](interfaces/OperationSignatureReferenceNode.md)
@@ -387,6 +396,7 @@ title: "[P] JS API"
 - [$encodedName](functions/$encodedName.md)
 - [$error](functions/$error.md)
 - [$errorsDoc](functions/$errorsDoc.md)
+- [$example](functions/$example.md)
 - [$format](functions/$format.md)
 - [$friendlyName](functions/$friendlyName.md)
 - [$inspectType](functions/$inspectType.md)
@@ -402,6 +412,7 @@ title: "[P] JS API"
 - [$minLength](functions/$minLength.md)
 - [$minValue](functions/$minValue.md)
 - [$minValueExclusive](functions/$minValueExclusive.md)
+- [$opExample](functions/$opExample.md)
 - [$overload](functions/$overload.md)
 - [$parameterVisibility](functions/$parameterVisibility.md)
 - [$pattern](functions/$pattern.md)
@@ -467,6 +478,7 @@ title: "[P] JS API"
 - [getEntityName](functions/getEntityName.md)
 - [getErrorsDoc](functions/getErrorsDoc.md)
 - [getErrorsDocData](functions/getErrorsDocData.md)
+- [getExamples](functions/getExamples.md)
 - [getFirstAncestor](functions/getFirstAncestor.md)
 - [getFormat](functions/getFormat.md)
 - [getFriendlyName](functions/getFriendlyName.md)
@@ -498,6 +510,7 @@ title: "[P] JS API"
 - [getNormalizedAbsolutePath](functions/getNormalizedAbsolutePath.md)
 - [getNormalizedAbsolutePathWithoutRoot](functions/getNormalizedAbsolutePathWithoutRoot.md)
 - [getNormalizedPathComponents](functions/getNormalizedPathComponents.md)
+- [getOpExamples](functions/getOpExamples.md)
 - [getOverloadedOperation](functions/getOverloadedOperation.md)
 - [getOverloads](functions/getOverloads.md)
 - [getOverriddenProperty](functions/getOverriddenProperty.md)
@@ -596,6 +609,7 @@ title: "[P] JS API"
 - [resolvePath](functions/resolvePath.md)
 - [resolveUsages](functions/resolveUsages.md)
 - [scopeNavigationToNamespace](functions/scopeNavigationToNamespace.md)
+- [serializeValueAsJson](functions/serializeValueAsJson.md)
 - [setCadlNamespace](functions/setCadlNamespace.md)
 - [setTypeSpecNamespace](functions/setTypeSpecNamespace.md)
 - [skipContinuousIdentifier](functions/skipContinuousIdentifier.md)

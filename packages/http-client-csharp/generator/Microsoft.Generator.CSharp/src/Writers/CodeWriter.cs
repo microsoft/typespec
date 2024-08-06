@@ -27,6 +27,7 @@ namespace Microsoft.Generator.CSharp
         private UnsafeBufferSequence _builder;
         private bool _atBeginningOfLine;
         private bool _writingXmlDocumentation;
+        private bool _writingNewInstance;
 
         internal CodeWriter()
         {
@@ -224,7 +225,7 @@ namespace Microsoft.Generator.CSharp
 
         internal void WriteXmlDocs(XmlDocProvider? docs)
         {
-            if (docs is null)
+            if (CodeModelPlugin.Instance.Configuration.DisableXmlDocs || docs is null)
                 return;
 
             if (docs.Inherit is not null)
@@ -254,9 +255,10 @@ namespace Microsoft.Generator.CSharp
             }
         }
 
-        public void WriteProperty(PropertyProvider property)
+        public void WriteProperty(PropertyProvider property, bool isPublicContext = false)
         {
-            WriteXmlDocs(property.XmlDocs);
+            if (isPublicContext)
+                WriteXmlDocs(property.XmlDocs);
 
             var modifiers = property.Modifiers;
             AppendRawIf("public ", modifiers.HasFlag(MethodSignatureModifiers.Public))
@@ -284,9 +286,23 @@ namespace Microsoft.Generator.CSharp
 
             switch (property.Body)
             {
-                case ExpressionPropertyBody(var expression):
-                    expression.Write(AppendRaw(" => "));
-                    AppendRaw(";");
+                case ExpressionPropertyBody(var getter, var setter):
+                    if (setter is null)
+                    {
+                        getter.Write(AppendRaw(" => "));
+                        AppendRaw(";");
+                    }
+                    else
+                    {
+                        WriteLine();
+                        using (var scope = ScopeRaw())
+                        {
+                            getter.Write(AppendRaw("get => "));
+                            WriteRawLine(";");
+                            setter.Write(AppendRaw("set => "));
+                            WriteRawLine(";");
+                        }
+                    }
                     break;
                 case AutoPropertyBody(var hasSetter, var setterModifiers, var initialization):
                     AppendRaw(" { get;");
@@ -558,6 +574,8 @@ namespace Microsoft.Generator.CSharp
                 AppendRaw("global::");
                 AppendRaw(type.Namespace);
                 AppendRaw(".");
+                if (type.DeclaringType is not null)
+                    AppendRaw($"{type.DeclaringType.Name}.");
                 AppendRaw(type.Name);
             }
 
@@ -575,7 +593,7 @@ namespace Microsoft.Generator.CSharp
                 AppendRaw(_writingXmlDocumentation ? "}" : ">");
             }
 
-            if (!isDeclaration && type is { IsNullable: true, IsValueType: true })
+            if (!_writingNewInstance && !isDeclaration && type is { IsNullable: true, IsValueType: true })
             {
                 AppendRaw("?");
             }
@@ -666,7 +684,11 @@ namespace Microsoft.Generator.CSharp
                 throw new InvalidOperationException("Can't declare variables inside documentation.");
             }
 
-            declaration.SetActualName(GetTemporaryVariable(declaration.RequestedName));
+            if (!declaration.HasBeenDeclared)
+            {
+                declaration.SetActualName(GetTemporaryVariable(declaration.RequestedName));
+            }
+
             return WriteDeclaration(declaration.ActualName);
         }
 
@@ -788,7 +810,7 @@ namespace Microsoft.Generator.CSharp
 
                 if (!isBase || arguments.Any())
                 {
-                    AppendRaw(isBase ? ": base(" : ": this(");
+                    AppendRaw(isBase ? " : base(" : " : this(");
                     var iterator = arguments.GetEnumerator();
                     if (iterator.MoveNext())
                     {
@@ -876,7 +898,6 @@ namespace Microsoft.Generator.CSharp
         {
             if (declaration.HasBeenDeclared)
             {
-                AppendRawIf("ref ", declaration.IsRef);
                 WriteIdentifier(declaration.ActualName);
             }
             else
