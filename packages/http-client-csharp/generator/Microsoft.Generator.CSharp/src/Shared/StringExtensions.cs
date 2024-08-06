@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis.CSharp;
@@ -202,6 +203,27 @@ namespace Microsoft.Generator.CSharp
             }
 
             return SyntaxFacts.IsKeywordKind(kind);
+        }
+
+        public static string ToApiVersionMemberName(this string version)
+        {
+            var sb = new StringBuilder("V");
+            int startIndex = version.StartsWith("v", StringComparison.InvariantCultureIgnoreCase) ? 1 : 0;
+
+            for (int i = startIndex; i < version.Length; i++)
+            {
+                char c = version[i];
+                if (c == '-' || c == '.')
+                {
+                    sb.Append('_');
+                }
+                else
+                {
+                    sb.Append(c);
+                }
+            }
+
+            return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(sb.ToString());
         }
     }
 }
