@@ -117,7 +117,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             longRunning: null,
             paging: null,
             generateProtocolMethod: true,
-            generateConvenienceMethod: true);
+            generateConvenienceMethod: true,
+            crossLanguageDefinitionId: "TestService.CreateMessage");
 
         private readonly static InputClient SingleOpInputClient = new InputClient("TestClient", "TestClient description", [BasicOperation], [], null);
 
