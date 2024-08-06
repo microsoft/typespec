@@ -6,11 +6,11 @@ using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests
 {
-    internal class MockClientTypeProvider : ClientProvider
+    internal class TestClientTypeProvider : ClientProvider
     {
-        public static readonly ClientProvider Empty = new MockClientTypeProvider();
+        public static readonly ClientProvider Empty = new TestClientTypeProvider();
 
-        public MockClientTypeProvider() : base(new InputClient("TestClient", "TestClient description", [], [], null))
+        public TestClientTypeProvider() : base(new InputClient("TestClient", "TestClient description", [], [], null))
         {
         }
     }

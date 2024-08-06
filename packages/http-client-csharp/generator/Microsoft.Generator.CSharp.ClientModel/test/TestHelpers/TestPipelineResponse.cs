@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests
 {
-    public class MockPipelineResponse : PipelineResponse
+    public class TestPipelineResponse : PipelineResponse
     {
         private int _status;
         private string _reasonPhrase;
@@ -21,11 +21,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
         private bool _disposed;
 
-        public MockPipelineResponse(int status = 0, string reasonPhrase = "")
+        public TestPipelineResponse(int status = 0, string reasonPhrase = "")
         {
             _status = status;
             _reasonPhrase = reasonPhrase;
-            _headers = new MockResponseHeaders();
+            _headers = new TestResponseHeaders();
         }
 
         public override int Status => _status;
@@ -41,7 +41,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             ContentStream = new MemoryStream(content, 0, content.Length, false, true);
         }
 
-        public MockPipelineResponse SetContent(string content)
+        public TestPipelineResponse SetContent(string content)
         {
             SetContent(Encoding.UTF8.GetBytes(content));
             return this;

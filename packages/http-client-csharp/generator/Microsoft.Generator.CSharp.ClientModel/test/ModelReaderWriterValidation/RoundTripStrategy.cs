@@ -196,7 +196,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
 
         public override object Read(string payload, object model, ModelReaderWriterOptions options)
         {
-            var responseWithBody = new MockPipelineResponse(200);
+            var responseWithBody = new TestPipelineResponse(200);
             responseWithBody.SetContent(payload);
 
             ClientResult result = ClientResult.FromResponse(responseWithBody);
