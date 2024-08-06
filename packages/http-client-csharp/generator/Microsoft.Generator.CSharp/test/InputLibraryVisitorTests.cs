@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.Input.InputTypes;
 using Microsoft.Generator.CSharp.Providers;
 using Moq;
 using Moq.Protected;

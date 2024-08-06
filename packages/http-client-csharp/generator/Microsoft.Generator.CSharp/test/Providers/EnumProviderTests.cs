@@ -2,14 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Linq;
-using System.Text;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.Input.InputTypes;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
-using Microsoft.Generator.CSharp.Snippets;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Providers

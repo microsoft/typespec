@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.Generator.CSharp.Input.InputTypes
+namespace Microsoft.Generator.CSharp.Input
 {
     public class InputDecoratorInfo
     {

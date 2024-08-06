@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.Input.InputTypes;
 using Microsoft.Generator.CSharp.Primitives;
 using NUnit.Framework;
 
