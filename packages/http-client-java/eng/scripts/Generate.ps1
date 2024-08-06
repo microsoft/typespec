@@ -4,10 +4,8 @@ Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 
-Invoke "npm run build:emitter"
-# we don't want to build the entire solution because the test projects might not build until after regeneration
-# generating Microsoft.Generator.CSharp.ClientModel.csproj is enough
 Invoke "npm run build:generator"
+Invoke "npm run build:emitter"
 
 $testDir = Join-Path $repoRoot 'test' 
 

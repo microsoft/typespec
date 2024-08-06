@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileAttribute;
 
 /**
  * The main class for TypeSpec Java code generator.
@@ -17,9 +18,12 @@ public class Main {
   public static void main(String[] args) throws IOException {
     Main main = new Main();
     System.out.println(main.sayHello("TypeSpec Java code generator"));
-    Path file = Files.createFile(Paths.get("tsp-output/test.txt"));
+    Path file = Files.createFile(Paths.get("test.txt"));
     Files.write(file, "Test file".getBytes(StandardCharsets.UTF_8));
     System.out.println("Created file at " + file.toAbsolutePath());
+    boolean deleteIfExists = Files.deleteIfExists(file);
+    System.out.println("Deleted file at " + file.toAbsolutePath() + " " + deleteIfExists);
+
   }
 
   /**

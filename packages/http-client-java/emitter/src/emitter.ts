@@ -105,7 +105,7 @@ const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
 };
 
 export const $lib = createTypeSpecLibrary({
-  name: "@azure-tools/typespec-java",
+  name: "@typespec/http-client-java",
   diagnostics: {},
   emitter: {
     options: EmitterOptionsSchema,
@@ -146,13 +146,13 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
 
     await program.host.writeFile(codeModelFileName, dump(codeModel));
 
-    program.trace("typespec-java", `Code model file written to ${codeModelFileName}`);
+    program.trace("http-client-java", `Code model file written to ${codeModelFileName}`);
 
     const emitterOptions = JSON.stringify(options);
-    program.trace("typespec-java", `Emitter options ${emitterOptions}`);
+    program.trace("http-client-java", `Emitter options ${emitterOptions}`);
 
-    const jarFileName = resolvePath(moduleRoot, "target", "emitter.jar");
-    program.trace("typespec-java", `Exec JAR ${jarFileName}`);
+    const jarFileName = resolvePath(moduleRoot, "generator/http-client-generator/target", "emitter.jar");
+    program.trace("http-client-java", `Exec JAR ${jarFileName}`);
 
     const javaArgs: string[] = [];
     javaArgs.push(`-DemitterOptions=${emitterOptions}`);
@@ -222,13 +222,13 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
       });
 
       // as stdio: "inherit", std is not captured by spawn
-      // program.trace("typespec-java", output.stdout ? output.stdout : output.stderr);
+      // program.trace("http-client-java", output.stdout ? output.stdout : output.stderr);
     } catch (error: any) {
       if (error && "code" in error && error["code"] === "ENOENT") {
         const msg = "'java' is not on PATH. Please install JDK 11 or above.";
-        program.trace("typespec-java", msg);
+        program.trace("http-client-java", msg);
         program.reportDiagnostic({
-          code: "typespec-java",
+          code: "http-client-java",
           severity: "error",
           message: msg,
           target: NoTarget,

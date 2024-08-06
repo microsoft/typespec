@@ -17,17 +17,16 @@
   },
   "license": "MIT",
   "type": "module",
-  "main": "emitter/dist/emitter.js",
+  "main": "dist/emitter/emitter.js",
   "exports": {
-    ".": "./emitter/dist/src/emitter.js",
-    "./testing": "./dist/src/testing/index.js"
+    ".": "./dist/emitter/emitter.js"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "scripts": {
-    "clean": "rimraf .emitter/dist ./temp",
-    "build": "npm run build:emitter && npm run build:generator && npm run extract-api",
+    "clean": "rimraf ./dist ./temp",
+    "build": "npm run build:generator && npm run build:emitter",
     "build:emitter": "tsc -p ./emitter/tsconfig.build.json",
     "build:generator": "mvn clean install -f ./generator/pom.xml",
     "format": "pnpm -w format:dir packages/http-client-java",
@@ -38,8 +37,8 @@
   },
   "files": [
     "lib/*.tsp",
-    "emitter/dist/**",
-    "!emitter/dist/test/**",
+    "dist/**",
+    "!dist/test/**",
     "generator/http-client-generator/target/emitter.jar"
   ],
   "peerDependencies": {
@@ -58,6 +57,7 @@
     "@autorest/codemodel": "~4.20.0",
     "@azure-tools/ts-genapi": "^1.0.7",
     "@microsoft/api-extractor-model": "^7.28.2",
+    "@typespec/http-client-java": "file:",
     "js-tokens": "^8.0.0",
     "js-yaml": "~4.1.0",
     "lodash": "~4.17.21"

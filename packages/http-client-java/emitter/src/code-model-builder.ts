@@ -262,7 +262,7 @@ export class CodeModelBuilder {
   }
 
   public async build(): Promise<CodeModel> {
-    this.sdkContext = await createSdkContext(this.emitterContext, "@azure-tools/typespec-java");
+    this.sdkContext = await createSdkContext(this.emitterContext, "@typespec/http-client-java");
 
     // auth
     // TODO: it is not very likely, but different client could have different auth
