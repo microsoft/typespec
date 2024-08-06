@@ -43,6 +43,9 @@ packages/website/versioned_docs/**/reference/
 packages/website/versioned_docs/**/standard-library/built-in-decorators.md
 packages/website/versioned_docs/**/standard-library/built-in-data-types.md
 
+# Docs with special formatting that prettier can't handle
+docs/getting-started/getting-started-rest/
+
 # Auto generated version list
 packages/website/playground-versions.json
 

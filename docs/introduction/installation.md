@@ -39,12 +39,18 @@ Run the following command in a clean directory to create a new TypeSpec project.
 tsp init
 ```
 
-This will prompt you with a few questions. Pick the `Generic REST API` template, your project name, and select the `@typespec/openapi3` library.
+This will prompt you with a few questions. Pick the `Generic REST API` template, your project name, and make sure the `@typespec\http` and `@typespec/openapi3` libraries are selected.
 
 Next, you can install the dependencies.
 
 ```bash
 tsp install
+```
+
+Run a build to generate the OpenAPI specification output file.
+
+```bash
+tsp compile .
 ```
 
 You should now have a basic TypeSpec project setup with a structure looking like this:
@@ -66,11 +72,5 @@ tsp-output/
 - **node_modules/**: Directory where npm installs the project's dependencies.
 - **tsp-output/**: Directory where the TypeSpec compiler outputs generated files.
 - **openapi.yaml**: The generated OpenAPI specification file for your API, detailing the API's endpoints, models, and operations. The output can vary based on the target format specified in the `tspconfig.yaml` file.
-
-## Compile project
-
-```bash
-tsp compile .
-```
 
 You can also run `tsp compile . --watch` to automatically compile changes on save.
