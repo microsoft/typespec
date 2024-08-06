@@ -644,4 +644,17 @@ describe("uri template", () => {
       });
     });
   });
+
+  describe("emit diagnostic if using any of the query options when parameter is already defined in the uri template", () => {
+    it.each(["#{ explode: true }"])("%s", async (options) => {
+      const diagnostics = await diagnoseOperations(
+        `@route("/bar{?foo}") op foo(@query(${options}) foo: string): void;`
+      );
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/http/use-uri-template",
+        message:
+          "Parameter 'foo' is already defined in the uri template. Explode, style and allowReserved property must be defined in the uri template as described by RFC 6570.",
+      });
+    });
+  });
 });

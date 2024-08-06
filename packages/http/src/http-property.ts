@@ -124,6 +124,17 @@ function getHttpProperty(
         );
       }
     } else if (implicit.type === "query" && annotations.query) {
+      if (annotations.query.explode) {
+        diagnostics.push(
+          createDiagnostic({
+            code: "use-uri-template",
+            format: {
+              param: property.name,
+            },
+            target: property,
+          })
+        );
+      }
     } else {
       diagnostics.push(
         createDiagnostic({
