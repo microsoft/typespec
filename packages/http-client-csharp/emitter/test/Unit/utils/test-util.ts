@@ -1,5 +1,5 @@
 import { AzureCoreTestLibrary } from "@azure-tools/typespec-azure-core/testing";
-import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-generator-core";
+import { createSdkContext, SdkContext, SdkType } from "@azure-tools/typespec-client-generator-core";
 import { SdkTestLibrary } from "@azure-tools/typespec-client-generator-core/testing";
 import {
   CompilerOptions,
@@ -99,7 +99,7 @@ export function createEmitterContext(program: Program): EmitContext<NetEmitterOp
       "generate-convenience-methods": true,
       "package-name": undefined,
     },
-  };
+  } as EmitContext<NetEmitterOptions>;
 }
 
 /* Navigate all the models in the whole namespace. */

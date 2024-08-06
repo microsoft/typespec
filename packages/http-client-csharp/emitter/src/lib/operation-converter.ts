@@ -8,6 +8,7 @@ import {
   SdkContext,
   SdkHeaderParameter,
   SdkHttpOperation,
+  SdkHttpOperationExample,
   SdkHttpResponse,
   SdkPathParameter,
   SdkQueryParameter,
@@ -27,7 +28,7 @@ import { collectionFormatToDelimMap } from "../type/collection-format.js";
 import { HttpResponseHeader } from "../type/http-response-header.js";
 import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
-import { InputOperation } from "../type/input-operation.js";
+import { InputHttpOperationExample, InputOperation } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
 import {
   InputEnumType,
@@ -62,6 +63,7 @@ export function fromSdkServiceMethod(
     generateConvenience = false;
   }
 
+  // TODO -- cache the parameters to use in examples
   return {
     Name: method.name,
     ResourceName:
@@ -100,8 +102,31 @@ export function fromSdkServiceMethod(
     GenerateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
     GenerateConvenienceMethod: generateConvenience,
     CrossLanguageDefinitionId: method.crossLanguageDefintionId,
+    Examples: fromSdkHttpExamples(method.operation.examples, modelMap, enumMap),
   };
 }
+
+function fromSdkHttpExamples(
+  examples: SdkHttpOperationExample[] | undefined,
+  modelMap: Map<string, InputModelType>,
+  enumMap: Map<string, InputEnumType>
+): InputHttpOperationExample[] | undefined {
+  if (!examples) return undefined;
+
+  // return examples.map((example) => fromSdkHttpExample(example, modelMap, enumMap));
+  return undefined;
+}
+
+// function fromSdkHttpExample(example: SdkHttpOperationExample, modelMap: Map<string, InputModelType>, enumMap: Map<string, InputEnumType>): InputHttpOperationExample {
+//   return {
+//     kind: "http",
+//     name: example.name,
+//     description: example.description,
+//     filePath: example.filePath,
+//     rawExample: example.rawExample,
+//     parameters: example.parameters.map((p) => fromSdkParameterExample(p, modelMap, enumMap)),
+//   };
+// }
 
 export function getParameterDefaultValue(
   clientDefaultValue: any,
