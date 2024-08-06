@@ -1,5 +1,5 @@
 import {
-    SdkAnyExample,
+  SdkAnyExample,
   SdkArrayExample,
   SdkBooleanExample,
   SdkContext,
@@ -16,7 +16,7 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { NetEmitterOptions } from "../options.js";
 import {
-    InputAnyExample,
+  InputAnyExample,
   InputArrayExample,
   InputBooleanExample,
   InputDictionaryExample,
@@ -76,9 +76,9 @@ export function fromSdkHttpExamples(
         return fromSdkStringExample(example);
       case "number":
         return fromSdkNumberExample(example);
-        case "boolean":
+      case "boolean":
         return fromSdkBooleanExample(example);
-        case "union":
+      case "union":
         return fromSdkUnionExample(example);
       case "array":
         return fromSdkArrayExample(example);
@@ -86,10 +86,10 @@ export function fromSdkHttpExamples(
         return fromSdkDictionaryExample(example);
       case "model":
         return fromSdkModelExample(example);
-        case "any":
-            return fromSdkAnyExample(example);
-        case "null":
-            return fromSdkNullExample(example);
+      case "any":
+        return fromSdkAnyExample(example);
+      case "null":
+        return fromSdkNullExample(example);
     }
   }
 
@@ -111,18 +111,18 @@ export function fromSdkHttpExamples(
 
   function fromSdkBooleanExample(example: SdkBooleanExample): InputBooleanExample {
     return {
-        kind: example.kind,
-        type: fromSdkType(example.type, sdkContext, modelMap, enumMap) as InputPrimitiveType,
-        value: example.value,
+      kind: example.kind,
+      type: fromSdkType(example.type, sdkContext, modelMap, enumMap) as InputPrimitiveType,
+      value: example.value,
     };
   }
 
   function fromSdkUnionExample(example: SdkUnionExample): InputUnionExample {
     return {
-        kind: example.kind,
-        type: fromSdkType(example.type, sdkContext, modelMap, enumMap) as InputUnionType,
-        value: example.value,
-    }
+      kind: example.kind,
+      type: fromSdkType(example.type, sdkContext, modelMap, enumMap) as InputUnionType,
+      value: example.value,
+    };
   }
 
   function fromSdkArrayExample(example: SdkArrayExample): InputArrayExample {
@@ -154,18 +154,18 @@ export function fromSdkHttpExamples(
 
   function fromSdkAnyExample(example: SdkAnyExample): InputAnyExample {
     return {
-        kind: example.kind,
-        type: fromSdkType(example.type, sdkContext, modelMap, enumMap) as InputPrimitiveType,
-        value: example.value,
-    }
+      kind: example.kind,
+      type: fromSdkType(example.type, sdkContext, modelMap, enumMap) as InputPrimitiveType,
+      value: example.value,
+    };
   }
 
   function fromSdkNullExample(example: SdkNullExample): InputNullExample {
     return {
-        kind: example.kind,
-        type: fromSdkType(example.type, sdkContext, modelMap, enumMap) as InputNullableType,
-        value: example.value,
-    }
+      kind: example.kind,
+      type: fromSdkType(example.type, sdkContext, modelMap, enumMap) as InputNullableType,
+      value: example.value,
+    };
   }
 
   function fromExampleRecord(
