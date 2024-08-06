@@ -8,11 +8,11 @@ export let defaultSDKContextOptions: CreateSdkContextOptions = {
 export function setSDKContextOptions(options: CreateSdkContextOptions) {
   defaultSDKContextOptions = {
     versioning: options.versioning ?? defaultSDKContextOptions.versioning,
-    additionalDecorators: getAdditionalDecorators(options),
+    additionalDecorators: appendAdditionalDecoratorsInContextOptions(options),
   };
 }
 
-function appendAdditionalDecoratorsOfContextOptions(options: CreateSdkContextOptions) {
+function appendAdditionalDecoratorsInContextOptions(options: CreateSdkContextOptions) {
   if (options.additionalDecorators) {
     if (defaultSDKContextOptions.additionalDecorators) {
       return [...defaultSDKContextOptions.additionalDecorators, ...options.additionalDecorators];
