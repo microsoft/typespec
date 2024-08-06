@@ -13,4 +13,4 @@ export {
   resolveOptions,
   resolveOutputFolder,
 } from "./options.js";
-export { setSDKContextOptions } from "./sdkContextOptions.js";
+export { setSDKContextOptions } from "./sdk-context-options.js";

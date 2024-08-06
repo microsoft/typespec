@@ -21,7 +21,7 @@ import { createModel } from "./lib/client-model-builder.js";
 import { LoggerLevel } from "./lib/log-level.js";
 import { Logger } from "./lib/logger.js";
 import { NetEmitterOptions, resolveOptions, resolveOutputFolder } from "./options.js";
-import { defaultSDKContextOptions } from "./sdkContextOptions.js";
+import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { Configuration } from "./type/configuration.js";
 
 /**
