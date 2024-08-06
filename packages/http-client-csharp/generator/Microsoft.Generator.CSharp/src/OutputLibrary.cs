@@ -21,6 +21,8 @@ namespace Microsoft.Generator.CSharp
             var enums = new List<TypeProvider>(input.Enums.Count);
             foreach (var inputEnum in input.Enums)
             {
+                if (inputEnum.Usage.HasFlag(Input.InputModelTypeUsage.ApiVersionEnum))
+                    continue;
                 var outputEnum = CodeModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
                 if (outputEnum != null)
                 {

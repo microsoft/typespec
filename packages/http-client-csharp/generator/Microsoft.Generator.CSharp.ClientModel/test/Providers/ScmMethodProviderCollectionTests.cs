@@ -78,7 +78,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
                     longRunning: null,
                     paging: null,
                     generateProtocolMethod: true,
-                    generateConvenienceMethod: true
+                    generateConvenienceMethod: true,
+                    crossLanguageDefinitionId: "TestService.CreateMessage"
                 ));
             }
         }

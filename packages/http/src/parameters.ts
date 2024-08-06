@@ -15,13 +15,16 @@ import {
   HttpOperationParameters,
   HttpVerb,
   OperationParameterOptions,
+  PathParameterOptions,
+  QueryParameterOptions,
 } from "./types.js";
+import { parseUriTemplate } from "./uri-template.js";
 
 export function getOperationParameters(
   program: Program,
   operation: Operation,
+  partialUriTemplate: string,
   overloadBase?: HttpOperation,
-  knownPathParamNames: string[] = [],
   options: OperationParameterOptions = {}
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const verb =
@@ -30,36 +33,75 @@ export function getOperationParameters(
     overloadBase?.verb;
 
   if (verb) {
-    return getOperationParametersForVerb(program, operation, verb, knownPathParamNames);
+    return getOperationParametersForVerb(program, operation, verb, partialUriTemplate);
   }
 
   // If no verb is explicitly specified, it is POST if there is a body and
   // GET otherwise. Theoretically, it is possible to use @visibility
   // strangely such that there is no body if the verb is POST and there is a
   // body if the verb is GET. In that rare case, GET is chosen arbitrarily.
-  const post = getOperationParametersForVerb(program, operation, "post", knownPathParamNames);
+  const post = getOperationParametersForVerb(program, operation, "post", partialUriTemplate);
   return post[0].body
     ? post
-    : getOperationParametersForVerb(program, operation, "get", knownPathParamNames);
+    : getOperationParametersForVerb(program, operation, "get", partialUriTemplate);
 }
+
+const operatorToStyle = {
+  ";": "matrix",
+  "#": "fragment",
+  ".": "label",
+  "/": "path",
+} as const;
 
 function getOperationParametersForVerb(
   program: Program,
   operation: Operation,
   verb: HttpVerb,
-  knownPathParamNames: string[]
+  partialUriTemplate: string
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const visibility = resolveRequestVisibility(program, operation, verb);
-  function isImplicitPathParam(param: ModelProperty) {
-    const isTopLevel = param.model === operation.parameters;
-    return isTopLevel && knownPathParamNames.includes(param.name);
-  }
+  const parsedUriTemplate = parseUriTemplate(partialUriTemplate);
 
   const parameters: HttpOperationParameter[] = [];
   const { body: resolvedBody, metadata } = diagnostics.pipe(
     resolveHttpPayload(program, operation.parameters, visibility, "request", {
-      isImplicitPathParam,
+      implicitParameter: (
+        param: ModelProperty
+      ): QueryParameterOptions | PathParameterOptions | undefined => {
+        const isTopLevel = param.model === operation.parameters;
+        const uriParam =
+          isTopLevel && parsedUriTemplate.parameters.find((x) => x.name === param.name);
+
+        if (!uriParam) {
+          return undefined;
+        }
+
+        const explode = uriParam.modifier?.type === "explode";
+        if (uriParam.operator === "?" || uriParam.operator === "&") {
+          return {
+            type: "query",
+            name: uriParam.name,
+            explode,
+          };
+        } else if (uriParam.operator === "+") {
+          return {
+            type: "path",
+            name: uriParam.name,
+            explode,
+            allowReserved: true,
+            style: "simple",
+          };
+        } else {
+          return {
+            type: "path",
+            name: uriParam.name,
+            explode,
+            allowReserved: false,
+            style: (uriParam.operator && operatorToStyle[uriParam.operator]) ?? "simple",
+          };
+        }
+      },
     })
   );
 
@@ -96,6 +138,7 @@ function getOperationParametersForVerb(
   const body = resolvedBody;
 
   return diagnostics.wrap({
+    properties: metadata,
     parameters,
     verb,
     body,

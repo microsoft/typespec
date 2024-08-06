@@ -194,6 +194,19 @@ model UpdateableProperties<Source>
 #### Properties
 None
 
+### `ArrayEncoding` {#ArrayEncoding}
+
+Encoding for serializing arrays
+```typespec
+enum ArrayEncoding
+```
+
+| Name | Value | Description |
+|------|-------|-------------|
+| pipeDelimited |  | Each values of the array is separated by a \| |
+| spaceDelimited |  | Each values of the array is separated by a <space> |
+
+
 ### `BytesKnownEncoding` {#BytesKnownEncoding}
 
 Known encoding to use on bytes
