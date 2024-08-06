@@ -49,8 +49,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [TestCaseSource(nameof(ValidateTypes))]
         public void ValidateToEnumMethods(InputEnumType inputEnum)
         {
-            TypeProvider enumType = ClientModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
-            var serialization = enumType.SerializationProviders.FirstOrDefault();
+            TypeProvider? enumType = ClientModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
+            Assert.NotNull(enumType);
+            var serialization = enumType!.SerializationProviders.FirstOrDefault();
             Assert.IsNotNull(serialization);
             MethodProvider? method = serialization!.Methods.Where(m => m.Signature.Name.Contains("Enum")).FirstOrDefault();
             // Cast method.BodyExpression to SwitchCaseExpression
@@ -64,8 +65,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [TestCaseSource(nameof(ValidateTypes))]
         public void ValidateToSerialMethods(InputEnumType inputEnum)
         {
-            TypeProvider enumType = ClientModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
-            var serialization = enumType.SerializationProviders.FirstOrDefault();
+            TypeProvider? enumType = ClientModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
+            Assert.NotNull(enumType);
+            var serialization = enumType!.SerializationProviders.FirstOrDefault();
             Assert.IsNotNull(serialization);
             MethodProvider? method = serialization!.Methods.Where(m => m.Signature.Name.Contains("ToSerial")).FirstOrDefault();
             if (inputEnum.ValueType == InputPrimitiveType.Int32)
