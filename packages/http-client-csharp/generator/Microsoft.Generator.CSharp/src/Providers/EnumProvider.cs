@@ -12,10 +12,10 @@ namespace Microsoft.Generator.CSharp.Providers
     {
         private readonly InputEnumType _inputType;
 
-        public static EnumProvider Create(InputEnumType input)
+        public static EnumProvider Create(InputEnumType input, TypeProvider? declaringType = null)
             => input.IsExtensible
-            ? new ExtensibleEnumProvider(input)
-            : new FixedEnumProvider(input);
+            ? new ExtensibleEnumProvider(input, declaringType)
+            : new FixedEnumProvider(input, declaringType);
 
         protected EnumProvider(InputEnumType input)
         {

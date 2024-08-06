@@ -22,7 +22,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [OneTimeSetUp]
         public void SetUp()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockPlugin(apiKeyAuth: () => new InputApiKeyAuth("mock", null));
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         }
 
         [TestCaseSource(nameof(BuildFieldsTestCases))]
-        public void TestBuildFields(List<InputParameter> inputParameters)
+        public void TestBuildFields(List<InputParameter> inputParameters, bool containsAdditionalOptionalParams)
         {
             var client = new InputClient("TestClient", "TestClient description", [], inputParameters, null);
             var clientProvider = new ClientProvider(client);
@@ -55,7 +55,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             // validate the fields
             var fields = clientProvider.Fields;
-            Assert.AreEqual(3, fields.Count);
+            if (containsAdditionalOptionalParams)
+            {
+                Assert.AreEqual(6, fields.Count);
+
+            }
+            else
+            {
+                Assert.AreEqual(3, fields.Count);
+            }
 
             // validate the endpoint field
             if (inputParameters.Any(p => p.IsEndpoint))
@@ -63,6 +71,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
                 var endpointField = fields.FirstOrDefault(f => f.Name == "_endpoint");
                 Assert.IsNotNull(endpointField);
                 Assert.AreEqual(new CSharpType(typeof(Uri)), endpointField?.Type);
+            }
+
+            // validate other optional parameters as fields
+            if (containsAdditionalOptionalParams)
+            {
+                var optionalParamField = fields.FirstOrDefault(f => f.Name == "_optionalParam");
+                Assert.IsNotNull(optionalParamField);
+                Assert.AreEqual(new CSharpType(typeof(string)), optionalParamField?.Type);
+
+                var optionalParam2Field = fields.FirstOrDefault(f => f.Name == "_optionalParam2");
+                Assert.IsNotNull(optionalParam2Field);
+                Assert.AreEqual(new CSharpType(typeof(string)), optionalParam2Field?.Type);
+
+                var optionalParam3Field = fields.FirstOrDefault(f => f.Name == "_optionalParam3");
+                Assert.IsNotNull(optionalParam3Field);
+                Assert.AreEqual(new CSharpType(typeof(long)), optionalParam3Field?.Type);
             }
         }
 
@@ -208,7 +232,46 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
                         defaultValue: null,
                         InputOperationParameterKind.Client,
                         isRequired: false, false, false, false, isEndpoint: true, false, false, null, null)
-                });
+                }, false);
+                yield return new TestCaseData(new List<InputParameter>
+                {
+                    new(
+                        "optionalParam",
+                        "optionalParam description",
+                        "optionalParam",
+                        InputPrimitiveType.String,
+                        RequestLocation.None,
+                        defaultValue: new InputConstant("someValue", InputPrimitiveType.String),
+                        InputOperationParameterKind.Client,
+                        isRequired: false, false, false, false, false, false, false, null, null),
+                    new(
+                        "optionalParam2",
+                        "optionalParam description",
+                        "optionalParam2",
+                        InputPrimitiveType.String,
+                        RequestLocation.None,
+                        defaultValue: new InputConstant("someValue", InputPrimitiveType.String),
+                        InputOperationParameterKind.Client,
+                        isRequired: false, false, false, false, false, false, false, null, null),
+                    new(
+                        "optionalParam3",
+                        "optionalParam description",
+                        "optionalParam3",
+                        InputPrimitiveType.Int64,
+                        RequestLocation.None,
+                        defaultValue: new InputConstant(2, InputPrimitiveType.Int64),
+                        InputOperationParameterKind.Client,
+                        isRequired: false, false, false, false, false, false, false, null, null),
+                    new(
+                        KnownParameters.Endpoint.Name,
+                        "endpoint description",
+                        KnownParameters.Endpoint.Name,
+                        InputPrimitiveType.String,
+                        RequestLocation.None,
+                        defaultValue: null,
+                        InputOperationParameterKind.Client,
+                        isRequired: false, false, false, false, isEndpoint: true, false, false, null, null)
+                }, true);
             }
         }
 
