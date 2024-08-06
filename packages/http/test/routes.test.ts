@@ -553,9 +553,20 @@ describe("uri template", () => {
       expectPathParameter(param, { style, allowReserved: false, explode: false });
     });
 
+    function expectQueryParameter(param: HttpOperationParameter, expected: PathOptions) {
+      strictEqual(param.type, "query");
+      const { explode } = param;
+      expect({ explode }).toEqual(expected);
+    }
+
     it("extract simple query parameter", async () => {
       const param = await getParameter(`@route("/bar{?foo}") op foo(foo: string): void;`, "foo");
-      strictEqual(param.type, "query");
+      expectQueryParameter(param, { explode: false });
+    });
+
+    it("extract explode query parameter", async () => {
+      const param = await getParameter(`@route("/bar{?foo*}") op foo(foo: string): void;`, "foo");
+      expectQueryParameter(param, { explode: true });
     });
 
     it("extract simple query continuation parameter", async () => {
@@ -563,7 +574,7 @@ describe("uri template", () => {
         `@route("/bar?fixed=yes{&foo}") op foo(foo: string): void;`,
         "foo"
       );
-      strictEqual(param.type, "query");
+      expectQueryParameter(param, { explode: false });
     });
   });
 
