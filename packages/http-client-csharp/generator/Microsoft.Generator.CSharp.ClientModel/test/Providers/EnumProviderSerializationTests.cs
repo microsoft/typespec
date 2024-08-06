@@ -51,12 +51,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         {
             TypeProvider enumType = ClientModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
             var serialization = enumType.SerializationProviders.FirstOrDefault();
+            Assert.IsNotNull(serialization);
             MethodProvider? method = serialization!.Methods.Where(m => m.Signature.Name.Contains("Enum")).FirstOrDefault();
             // Cast method.BodyExpression to SwitchCaseExpression
             if (method!.BodyStatements is MethodBodyStatements methodBodyStatements)
             {
                 // Verify that there are the correct number of cases (values + 1 for throw)
-                Assert.AreEqual(3, methodBodyStatements.Statements.Count());
+                Assert.AreEqual(inputEnum.Values.Count + 1, methodBodyStatements.Statements.Count());
             }
         }
 
@@ -65,6 +66,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         {
             TypeProvider enumType = ClientModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
             var serialization = enumType.SerializationProviders.FirstOrDefault();
+            Assert.IsNotNull(serialization);
             MethodProvider? method = serialization!.Methods.Where(m => m.Signature.Name.Contains("ToSerial")).FirstOrDefault();
             if (inputEnum.ValueType == InputPrimitiveType.Int32)
             {
@@ -76,7 +78,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
                 if (method!.BodyExpression is SwitchExpression switchExpression)
                 {
                     // Verify that the switch case expression has the correct number of cases (values + 1 for throw)
-                    Assert.AreEqual(3, switchExpression.Cases.Count());
+                    Assert.AreEqual(inputEnum.Values.Count + 1, switchExpression.Cases.Count());
 
                     // Third case should be a throw
                     var caseExpression = switchExpression.Cases[2].Expression as KeywordExpression;
