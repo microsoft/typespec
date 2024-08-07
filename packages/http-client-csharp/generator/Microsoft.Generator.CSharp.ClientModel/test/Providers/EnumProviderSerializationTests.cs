@@ -20,34 +20,34 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             MockHelpers.LoadMockPlugin();
         }
 
-        private static object[] ValidateTypes()
+        private static object[] ValidateTypes(bool isExtensible)
         {
             var intValues = new List<InputEnumTypeValue>
             {
                 new InputEnumTypeValue("One", 1, null),
                 new InputEnumTypeValue("Two", 2, null)
             };
-            var intType = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.Int32, intValues, false);
+            var intType = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.Int32, intValues, isExtensible);
 
             var floatValues = new List<InputEnumTypeValue>
             {
                 new InputEnumTypeValue("One", 1f, null),
                 new InputEnumTypeValue("Two", 2f, null)
             };
-            var floatType = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.Float32, floatValues, false);
+            var floatType = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.Float32, floatValues, isExtensible);
 
             var stringValues = new List<InputEnumTypeValue>
             {
                 new InputEnumTypeValue("One", "1", null),
                 new InputEnumTypeValue("Two", "2", null)
             };
-            var stringType = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.String, stringValues, false);
+            var stringType = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.String, stringValues, isExtensible);
 
             return [intType, floatType, stringType];
         }
 
-        [TestCaseSource(nameof(ValidateTypes))]
-        public void ValidateToEnumMethods(InputEnumType inputEnum)
+        [TestCaseSource(nameof(ValidateTypes), new object[] { false })]
+        public void ValidateToEnumMethodsFixed(InputEnumType inputEnum)
         {
             TypeProvider? enumType = ClientModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
             Assert.NotNull(enumType);
@@ -62,8 +62,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             }
         }
 
-        [TestCaseSource(nameof(ValidateTypes))]
-        public void ValidateToSerialMethods(InputEnumType inputEnum)
+        [TestCaseSource(nameof(ValidateTypes), new object[] { false })]
+        public void ValidateToSerialMethodsFixed(InputEnumType inputEnum)
         {
             TypeProvider? enumType = ClientModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
             Assert.NotNull(enumType);
@@ -87,6 +87,50 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
                     Assert.IsNotNull(caseExpression);
                     Assert.AreEqual("throw", caseExpression!.Keyword);
                     Assert.IsTrue(caseExpression!.Expression!.ToString().Contains("ArgumentOutOfRangeException"));
+                }
+            }
+        }
+
+        [TestCaseSource(nameof(ValidateTypes), new object[] { true })]
+        public void ValidateToEnumMethodsExtensible(InputEnumType inputEnum)
+        {
+            TypeProvider? enumType = ClientModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
+            Assert.NotNull(enumType);
+            var serialization = enumType!.SerializationProviders.FirstOrDefault();
+
+            // if inputEnum.ValueType is string, there should be no serialization provider
+            if (inputEnum.ValueType == InputPrimitiveType.String)
+            {
+                Assert.IsNull(serialization);
+            }
+            else
+            {
+                // if inputEnum.ValueType is not string, there should be no Enum serialization method
+                MethodProvider? method = serialization!.Methods.Where(m => m.Signature.Name.Contains("Enum")).FirstOrDefault();
+                Assert.IsNull(method);
+            }
+        }
+
+        [TestCaseSource(nameof(ValidateTypes), new object[] { true })]
+        public void ValidateToSerialMethodsExtensible(InputEnumType inputEnum)
+        {
+            TypeProvider? enumType = ClientModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
+            Assert.NotNull(enumType);
+            TypeProvider? serialization = enumType!.SerializationProviders.FirstOrDefault();
+
+            // if inputEnum.ValueType is string, there should be no serialization provider
+            if (inputEnum.ValueType == InputPrimitiveType.String)
+            {
+                Assert.IsNull(serialization);
+            }
+            else
+            {
+                Assert.IsNotNull(serialization);
+                MethodProvider? method = serialization!.Methods.Where(m => m.Signature.Name.Contains("ToSerial")).FirstOrDefault();
+                // Cast method.BodyExpression to MemberExpression
+                if (method!.BodyExpression is MemberExpression memberExpression)
+                {
+                    Assert.AreEqual("_value", memberExpression.MemberName);
                 }
             }
         }
