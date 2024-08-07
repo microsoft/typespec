@@ -17,12 +17,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
     {
         public const string TestHelpersFolder = "TestHelpers";
 
-        public static void LoadMockPlugin(
+        public static Mock<ClientModelPlugin> LoadMockPlugin(
             Func<InputType, TypeProvider, IReadOnlyList<TypeProvider>>? createSerializationsCore = null,
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<CSharpType>? matchConditionsType = null,
             Func<CSharpType>? tokenCredentialType = null,
-            Func<InputParameter, ParameterProvider>? createParameter = null)
+            Func<InputParameter, ParameterProvider>? createParameter = null,
+            Func<InputLibrary>? createInputLibrary = null)
         {
             var mockTypeFactory = new Mock<ScmTypeFactory>() { CallBase = true };
 
@@ -63,8 +64,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var mockPluginInstance = new Mock<ClientModelPlugin>(mockGeneratorContext.Object) { CallBase = true };
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
 
+            if (createInputLibrary is not null)
+            {
+                mockPluginInstance.Setup(p => p.InputLibrary).Returns(createInputLibrary);
+            }
+
             codeModelInstance!.SetValue(null, mockPluginInstance.Object);
             clientModelInstance!.SetValue(null, mockPluginInstance.Object);
+            return mockPluginInstance;
         }
     }
 }
