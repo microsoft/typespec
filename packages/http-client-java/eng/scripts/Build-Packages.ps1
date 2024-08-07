@@ -64,7 +64,7 @@ try {
     Invoke-LoggedCommand "java -version"
     Invoke-LoggedCommand "mvn -version"
 
-    Invoke-LoggedCommand "mvn clean install -f ./pom.xml -X"
+    Invoke-LoggedCommand "mvn clean install -f ./pom.xml"
 }
 finally {
     Pop-Location
