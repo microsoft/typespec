@@ -86,7 +86,6 @@ paths:
             type: array
             items:
               type: string
-          style: form
           explode: true
       responses:
         '200':
