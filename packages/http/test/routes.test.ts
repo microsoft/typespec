@@ -590,7 +590,7 @@ describe("uri template", () => {
       ["@path(#{allowReserved: true, explode: true}) one: string", "/foo/{+one*}"],
       ["@query one: string", "/foo{?one}"],
       // cspell:ignore Atwo
-      [`@query("one:two") one: string`, "/foo/{?one%3Atwo}"],
+      [`@query("one:two") one: string`, "/foo{?one%3Atwo}"],
     ])("%s -> %s", async (param, expectedUri) => {
       const op = await getOp(`@route("/foo") op foo(${param}): void;`);
       expect(op.uriTemplate).toEqual(expectedUri);
