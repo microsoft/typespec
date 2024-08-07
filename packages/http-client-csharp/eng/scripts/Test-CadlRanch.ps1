@@ -42,12 +42,7 @@ foreach ($directory in $directories) {
 
     $specFile = Join-Path $specsDirectory $subPath "main.tsp"
 
-    $configFile = $null
-    $configFilePath = Join-Path $outputDir "tspconfig.yaml"
-    if (Test-Path $configFilePath) {
-        $configFile = $configFilePath
-    }
-    $command = Get-TspCommand $specFile $outputDir $configFile
+    $command = Get-TspCommand $specFile $outputDir
     Invoke $command
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {

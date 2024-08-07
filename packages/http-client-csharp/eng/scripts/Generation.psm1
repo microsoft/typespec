@@ -24,13 +24,13 @@ function Get-TspCommand {
     param (
         [string]$specFile,
         [string]$generationDir,
-        [string]$configFile = $null,
         [bool]$generateStub = $false
     )
     $command = "npx tsp compile $specFile"
     $command += " --trace @typespec/http-client-csharp"
     $command += " --emit @typespec/http-client-csharp"
-    if ($null -ne $configFile -and (Test-Path $configFile)) {
+    $configFile = Join-Path $generationDir "tspconfig.yaml"
+    if (Test-Path $configFile) {
         $command += " --config=$configFile"
     }
     $command += " --option @typespec/http-client-csharp.emitter-output-dir=$generationDir"

@@ -16,13 +16,8 @@ if ($null -eq $filter -or $filter -eq "Unbranded-TypeSpec") {
     $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
 
     $unbrandedTypespecTestProject = Join-Path $testProjectsLocalDir "Unbranded-TypeSpec"
-    $configFile = $null
-    $configFilePath = Join-Path $unbrandedTypespecTestProject "tspconfig.yaml"
-    if (Test-Path $configFilePath) {
-        $configFile = $configFilePath
-    }
 
-    Invoke (Get-TspCommand "$unbrandedTypespecTestProject/Unbranded-TypeSpec.tsp" $unbrandedTypespecTestProject $configFile)
+    Invoke (Get-TspCommand "$unbrandedTypespecTestProject/Unbranded-TypeSpec.tsp" $unbrandedTypespecTestProject)
 
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
@@ -140,7 +135,7 @@ foreach ($directory in $directories) {
 
     $cadlRanchLaunchProjects.Add(($folders -join "-"), ("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))"))
     Write-Host "Generating $subPath" -ForegroundColor Cyan
-    Invoke (Get-TspCommand -specFile $specFile -generationDir $generationDir -generateStub $stubbed)
+    Invoke (Get-TspCommand $specFile $generationDir $stubbed)
 
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
