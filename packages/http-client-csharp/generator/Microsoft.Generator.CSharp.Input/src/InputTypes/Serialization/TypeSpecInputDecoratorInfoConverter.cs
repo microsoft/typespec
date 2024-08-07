@@ -23,13 +23,13 @@ namespace AutoRest.CSharp.Common.Input
             bool isFirstProperty = true;
             string? id = null;
             string? name = null;
-            IReadOnlyDictionary<string, object?>? arguments = null;
+            IReadOnlyDictionary<string, BinaryData>? arguments = null;
             reader.Read();
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
                     || reader.TryReadString(nameof(InputDecoratorInfo.Name).ToLower(), ref name)
-                    || reader.TryReadStringObjectDictionary(nameof(InputDecoratorInfo.Arguments).ToLower(), ref arguments);
+                    || reader.TryReadStringBinaryDataDictionary(nameof(InputDecoratorInfo.Arguments).ToLower(), ref arguments);
 
                 if (!isKnownProperty)
                 {

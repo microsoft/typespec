@@ -6,6 +6,7 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Snippets;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Providers
@@ -78,7 +79,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(string));
             
             string[] apiVersions = ["2024-07-16", "2024-07-17"];
-            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.ApiVersionEnum, InputPrimitiveType.String, [new InputEnumTypeValue(apiVersions[0], 1, null), new InputEnumTypeValue(apiVersions[1], 2, null)], false);
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.ApiVersionEnum, InputPrimitiveType.String, [new InputEnumTypeValue(apiVersions[0], 1, null), new InputEnumTypeValue(apiVersions[1], 2, null)], false, []);
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
 

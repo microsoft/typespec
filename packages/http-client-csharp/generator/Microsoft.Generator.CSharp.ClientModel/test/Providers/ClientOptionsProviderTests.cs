@@ -40,7 +40,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
                     InputModelTypeUsage.ApiVersionEnum,
                     InputPrimitiveType.Int64,
                     enumValues,
-                    false);
+                    false,
+                    []);
 
                 MockHelpers.LoadMockPlugin(
                     apiVersions: () => apiVersions,
@@ -55,7 +56,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [Test]
         public void TestImplements()
         {
-            var client = new InputClient("TestClient", "TestClient description", [], [], null);
+            var client = new InputClient("TestClient", "TestClient description", [], [], null, []);
             var clientProvider = new ClientProvider(client);
             var clientOptionsProvider = new ClientOptionsProvider(client, clientProvider);
 
@@ -71,7 +72,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [TestCase(false)]
         public void TestFields(bool containsApiVersions)
         {
-            var client = new InputClient("TestClient", "TestClient description", [], [], null);
+            var client = new InputClient("TestClient", "TestClient description", [], [], null, []);
             var clientProvider = new ClientProvider(client);
             var clientOptionsProvider = new ClientOptionsProvider(client, clientProvider);
 
@@ -94,7 +95,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [TestCase(false)]
         public void TestNestedTypes(bool containsApiVersions)
         {
-            var client = new InputClient("TestClient", "TestClient description", [], [], null);
+            var client = new InputClient("TestClient", "TestClient description", [], [], null, []);
             var clientProvider = new ClientProvider(client);
             var clientOptionsProvider = new ClientOptionsProvider(client, clientProvider);
 
@@ -122,7 +123,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [TestCase(false)]
         public void TestConstructors(bool containsApiVersions)
         {
-            var client = new InputClient("TestClient", "TestClient description", [], [], null);
+            var client = new InputClient("TestClient", "TestClient description", [], [], null, []);
             var clientProvider = new ClientProvider(client);
             var clientOptionsProvider = new ClientOptionsProvider(client, clientProvider);
 
@@ -151,7 +152,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [TestCase(false)]
         public void TestProperties(bool containsApiVersions)
         {
-            var client = new InputClient("TestClient", "TestClient description", [], [], null);
+            var client = new InputClient("TestClient", "TestClient description", [], [], null, []);
             var clientProvider = new ClientProvider(client);
             var clientOptionsProvider = new ClientOptionsProvider(client, clientProvider);
 

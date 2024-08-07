@@ -140,7 +140,8 @@ namespace Microsoft.Generator.CSharp.Tests
                 InputModelTypeUsage.Input,
                 InputPrimitiveType.String,
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
-                false);
+                false,
+                []);
             var declaringType = new Mock<TypeProvider>().Object;
             var expected = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input, declaringType);
             var actual = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input, declaringType);
