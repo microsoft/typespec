@@ -2383,10 +2383,69 @@
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.topAction"
+     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.topAction",
+     "Examples": [
+      {
+       "$id": "298",
+       "kind": "http",
+       "name": "For test topAction",
+       "description": "For test topAction",
+       "filePath": "C:/Users/dapzhang/Documents/Workspaces/typespec/packages/http-client-csharp/generator/TestProjects/Local/Unbranded-TypeSpec/examples/UnbrandedTypeSpec_TopAction.json",
+       "rawExample": {
+        "$id": "299",
+        "operationId": "TopAction",
+        "title": "For test topAction",
+        "parameters": {
+         "$id": "300",
+         "action": "2024-05-06T12:20-12Z"
+        },
+        "responses": {
+         "200": {
+          "$id": "302",
+          "body": {
+           "$id": "303",
+           "name": "test",
+           "requiredUnion": [
+            "a",
+            "b",
+            "c"
+           ]
+          }
+         },
+         "$id": "301"
+        }
+       },
+       "parameters": [
+        {
+         "$id": "304",
+         "parameter": {
+          "$ref": "291"
+         },
+         "value": {
+          "$id": "305",
+          "kind": "string",
+          "type": {
+           "$id": "306",
+           "Kind": "utcDateTime",
+           "Name": "utcDateTime",
+           "Encode": "rfc3339",
+           "WireType": {
+            "$id": "307",
+            "Kind": "string",
+            "Name": "string",
+            "CrossLanguageDefinitionId": "TypeSpec.string"
+           },
+           "CrossLanguageDefinitionId": "TypeSpec.utcDateTime"
+          },
+          "value": "2024-05-06T12:20-12Z"
+         }
+        }
+       ]
+      }
+     ]
     },
     {
-     "$id": "298",
+     "$id": "308",
      "Name": "topAction2",
      "ResourceName": "UnbrandedTypeSpec",
      "Description": "top level method2",
@@ -2396,14 +2455,14 @@
        "$ref": "224"
       },
       {
-       "$id": "299",
+       "$id": "309",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "300",
+        "$id": "310",
         "Kind": "constant",
         "ValueType": {
-         "$id": "301",
+         "$id": "311",
          "Kind": "string",
          "Name": "string",
          "CrossLanguageDefinitionId": "TypeSpec.string"
@@ -2421,7 +2480,7 @@
      ],
      "Responses": [
       {
-       "$id": "302",
+       "$id": "312",
        "StatusCodes": [
         200
        ],
@@ -2446,7 +2505,7 @@
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.topAction2"
     },
     {
-     "$id": "303",
+     "$id": "313",
      "Name": "patchAction",
      "ResourceName": "UnbrandedTypeSpec",
      "Description": "top level patch",
@@ -2456,15 +2515,15 @@
        "$ref": "224"
       },
       {
-       "$id": "304",
+       "$id": "314",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "305",
+        "$id": "315",
         "Kind": "constant",
         "ValueType": {
-         "$id": "306",
+         "$id": "316",
          "Kind": "string",
          "Name": "string",
          "CrossLanguageDefinitionId": "TypeSpec.string"
@@ -2480,14 +2539,14 @@
        "Kind": "Constant"
       },
       {
-       "$id": "307",
+       "$id": "317",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "308",
+        "$id": "318",
         "Kind": "constant",
         "ValueType": {
-         "$id": "309",
+         "$id": "319",
          "Kind": "string",
          "Name": "string",
          "CrossLanguageDefinitionId": "TypeSpec.string"
@@ -2503,7 +2562,7 @@
        "Kind": "Constant"
       },
       {
-       "$id": "310",
+       "$id": "320",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -2520,7 +2579,7 @@
      ],
      "Responses": [
       {
-       "$id": "311",
+       "$id": "321",
        "StatusCodes": [
         200
        ],
@@ -2548,7 +2607,7 @@
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.patchAction"
     },
     {
-     "$id": "312",
+     "$id": "322",
      "Name": "anonymousBody",
      "ResourceName": "UnbrandedTypeSpec",
      "Description": "body parameter without body decorator",
@@ -2558,15 +2617,15 @@
        "$ref": "224"
       },
       {
-       "$id": "313",
+       "$id": "323",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "314",
+        "$id": "324",
         "Kind": "constant",
         "ValueType": {
-         "$id": "315",
+         "$id": "325",
          "Kind": "string",
          "Name": "string",
          "CrossLanguageDefinitionId": "TypeSpec.string"
@@ -2582,14 +2641,14 @@
        "Kind": "Constant"
       },
       {
-       "$id": "316",
+       "$id": "326",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "317",
+        "$id": "327",
         "Kind": "constant",
         "ValueType": {
-         "$id": "318",
+         "$id": "328",
          "Kind": "string",
          "Name": "string",
          "CrossLanguageDefinitionId": "TypeSpec.string"
@@ -2605,7 +2664,7 @@
        "Kind": "Constant"
       },
       {
-       "$id": "319",
+       "$id": "329",
        "Name": "anonymousBodyRequest",
        "NameInRequest": "anonymousBodyRequest",
        "Type": {
@@ -2622,7 +2681,7 @@
      ],
      "Responses": [
       {
-       "$id": "320",
+       "$id": "330",
        "StatusCodes": [
         200
        ],
@@ -2650,7 +2709,7 @@
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.anonymousBody"
     },
     {
-     "$id": "321",
+     "$id": "331",
      "Name": "friendlyModel",
      "ResourceName": "UnbrandedTypeSpec",
      "Description": "Model can have its friendly name",
@@ -2660,15 +2719,15 @@
        "$ref": "224"
       },
       {
-       "$id": "322",
+       "$id": "332",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "323",
+        "$id": "333",
         "Kind": "constant",
         "ValueType": {
-         "$id": "324",
+         "$id": "334",
          "Kind": "string",
          "Name": "string",
          "CrossLanguageDefinitionId": "TypeSpec.string"
@@ -2684,14 +2743,14 @@
        "Kind": "Constant"
       },
       {
-       "$id": "325",
+       "$id": "335",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "326",
+        "$id": "336",
         "Kind": "constant",
         "ValueType": {
-         "$id": "327",
+         "$id": "337",
          "Kind": "string",
          "Name": "string",
          "CrossLanguageDefinitionId": "TypeSpec.string"
@@ -2707,7 +2766,7 @@
        "Kind": "Constant"
       },
       {
-       "$id": "328",
+       "$id": "338",
        "Name": "friendlyModelRequest",
        "NameInRequest": "friendlyModelRequest",
        "Type": {
@@ -2724,7 +2783,7 @@
      ],
      "Responses": [
       {
-       "$id": "329",
+       "$id": "339",
        "StatusCodes": [
         200
        ],
@@ -2752,7 +2811,7 @@
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.friendlyModel"
     },
     {
-     "$id": "330",
+     "$id": "340",
      "Name": "addTimeHeader",
      "ResourceName": "UnbrandedTypeSpec",
      "Accessibility": "public",
@@ -2761,16 +2820,16 @@
        "$ref": "224"
       },
       {
-       "$id": "331",
+       "$id": "341",
        "Name": "repeatabilityFirstSent",
        "NameInRequest": "Repeatability-First-Sent",
        "Type": {
-        "$id": "332",
+        "$id": "342",
         "Kind": "utcDateTime",
         "Name": "utcDateTime",
         "Encode": "rfc7231",
         "WireType": {
-         "$id": "333",
+         "$id": "343",
          "Kind": "string",
          "Name": "string",
          "CrossLanguageDefinitionId": "TypeSpec.string"
@@ -2788,7 +2847,7 @@
      ],
      "Responses": [
       {
-       "$id": "334",
+       "$id": "344",
        "StatusCodes": [
         204
        ],
@@ -2807,7 +2866,7 @@
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.addTimeHeader"
     },
     {
-     "$id": "335",
+     "$id": "345",
      "Name": "projectedNameModel",
      "ResourceName": "UnbrandedTypeSpec",
      "Description": "Model can have its projected name",
@@ -2817,15 +2876,15 @@
        "$ref": "224"
       },
       {
-       "$id": "336",
+       "$id": "346",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "337",
+        "$id": "347",
         "Kind": "constant",
         "ValueType": {
-         "$id": "338",
+         "$id": "348",
          "Kind": "string",
          "Name": "string",
          "CrossLanguageDefinitionId": "TypeSpec.string"
@@ -2841,14 +2900,14 @@
        "Kind": "Constant"
       },
       {
-       "$id": "339",
+       "$id": "349",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "340",
+        "$id": "350",
         "Kind": "constant",
         "ValueType": {
-         "$id": "341",
+         "$id": "351",
          "Kind": "string",
          "Name": "string",
          "CrossLanguageDefinitionId": "TypeSpec.string"
@@ -2864,7 +2923,7 @@
        "Kind": "Constant"
       },
       {
-       "$id": "342",
+       "$id": "352",
        "Name": "projectedNameModelRequest",
        "NameInRequest": "projectedNameModelRequest",
        "Type": {
@@ -2881,7 +2940,7 @@
      ],
      "Responses": [
       {
-       "$id": "343",
+       "$id": "353",
        "StatusCodes": [
         200
        ],
@@ -2909,7 +2968,7 @@
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.projectedNameModel"
     },
     {
-     "$id": "344",
+     "$id": "354",
      "Name": "returnsAnonymousModel",
      "ResourceName": "UnbrandedTypeSpec",
      "Description": "return anonymous model",
@@ -2919,14 +2978,14 @@
        "$ref": "224"
       },
       {
-       "$id": "345",
+       "$id": "355",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "346",
+        "$id": "356",
         "Kind": "constant",
         "ValueType": {
-         "$id": "347",
+         "$id": "357",
          "Kind": "string",
          "Name": "string",
          "CrossLanguageDefinitionId": "TypeSpec.string"
@@ -2944,7 +3003,7 @@
      ],
      "Responses": [
       {
-       "$id": "348",
+       "$id": "358",
        "StatusCodes": [
         200
        ],
@@ -2969,7 +3028,7 @@
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.returnsAnonymousModel"
     },
     {
-     "$id": "349",
+     "$id": "359",
      "Name": "getUnknownValue",
      "ResourceName": "UnbrandedTypeSpec",
      "Description": "get extensible enum",
@@ -2979,11 +3038,11 @@
        "$ref": "224"
       },
       {
-       "$id": "350",
+       "$id": "360",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "351",
+        "$id": "361",
         "Kind": "string",
         "Name": "string",
         "CrossLanguageDefinitionId": "TypeSpec.string"
@@ -2999,15 +3058,15 @@
      ],
      "Responses": [
       {
-       "$id": "352",
+       "$id": "362",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$id": "353",
+        "$id": "363",
         "Kind": "constant",
         "ValueType": {
-         "$id": "354",
+         "$id": "364",
          "Kind": "string",
          "Name": "string",
          "CrossLanguageDefinitionId": "TypeSpec.string"
@@ -3039,7 +3098,7 @@
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.getUnknownValue"
     },
     {
-     "$id": "355",
+     "$id": "365",
      "Name": "internalProtocol",
      "ResourceName": "UnbrandedTypeSpec",
      "Description": "When set protocol false and convenient true, then the protocol method should be internal",
@@ -3049,15 +3108,15 @@
        "$ref": "224"
       },
       {
-       "$id": "356",
+       "$id": "366",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "357",
+        "$id": "367",
         "Kind": "constant",
         "ValueType": {
-         "$id": "358",
+         "$id": "368",
          "Kind": "string",
          "Name": "string",
          "CrossLanguageDefinitionId": "TypeSpec.string"
@@ -3073,14 +3132,14 @@
        "Kind": "Constant"
       },
       {
-       "$id": "359",
+       "$id": "369",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "360",
+        "$id": "370",
         "Kind": "constant",
         "ValueType": {
-         "$id": "361",
+         "$id": "371",
          "Kind": "string",
          "Name": "string",
          "CrossLanguageDefinitionId": "TypeSpec.string"
@@ -3096,7 +3155,7 @@
        "Kind": "Constant"
       },
       {
-       "$id": "362",
+       "$id": "372",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -3113,7 +3172,7 @@
      ],
      "Responses": [
       {
-       "$id": "363",
+       "$id": "373",
        "StatusCodes": [
         200
        ],
@@ -3141,7 +3200,7 @@
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.internalProtocol"
     },
     {
-     "$id": "364",
+     "$id": "374",
      "Name": "stillConvenient",
      "ResourceName": "UnbrandedTypeSpec",
      "Description": "When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one",
@@ -3153,7 +3212,7 @@
      ],
      "Responses": [
       {
-       "$id": "365",
+       "$id": "375",
        "StatusCodes": [
         204
        ],
@@ -3172,7 +3231,7 @@
      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.stillConvenient"
     },
     {
-     "$id": "366",
+     "$id": "376",
      "Name": "headAsBoolean",
      "ResourceName": "UnbrandedTypeSpec",
      "Description": "head as boolean.",
@@ -3182,11 +3241,11 @@
        "$ref": "224"
       },
       {
-       "$id": "367",
+       "$id": "377",
        "Name": "id",
        "NameInRequest": "id",
        "Type": {
-        "$id": "368",
+        "$id": "378",
         "Kind": "string",
         "Name": "string",
         "CrossLanguageDefinitionId": "TypeSpec.string"
@@ -3202,7 +3261,7 @@
      ],
      "Responses": [
       {
-       "$id": "369",
+       "$id": "379",
        "StatusCodes": [
         204
        ],
@@ -3222,7 +3281,7 @@
     }
    ],
    "Protocol": {
-    "$id": "370"
+    "$id": "380"
    },
    "Parameters": [
     {
@@ -3232,9 +3291,9 @@
   }
  ],
  "Auth": {
-  "$id": "371",
+  "$id": "381",
   "ApiKey": {
-   "$id": "372",
+   "$id": "382",
    "Name": "my-api-key"
   }
  }
