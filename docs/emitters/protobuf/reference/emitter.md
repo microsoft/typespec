@@ -21,6 +21,15 @@ emit:
   - "@typespec/protobuf"
 ```
 
+The config can be extended with options as follows:
+
+```yaml
+emit:
+  - "@typespec/protobuf"
+options:
+  "@typespec/protobuf": option:value
+```
+
 ## Emitter options
 
 ### `noEmit`

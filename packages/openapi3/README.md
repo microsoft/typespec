@@ -25,6 +25,15 @@ emit:
   - "@typespec/openapi3"
 ```
 
+The config can be extended with options as follows:
+
+```yaml
+emit:
+  - "@typespec/openapi3"
+options:
+  "@typespec/openapi3": option:value
+```
+
 ### Emitter options
 
 #### `file-type`

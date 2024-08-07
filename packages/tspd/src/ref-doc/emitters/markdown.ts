@@ -373,7 +373,10 @@ export class MarkdownRenderer {
         "2. Via the config",
         codeblock(`emit:\n  - "${refDoc.name}" `, "yaml"),
         "The config can be extended with options as follows:",
-        codeblock(`emit:\n  - "${refDoc.name}"\noptions:\n  "${refDoc.name}":\n    option:value`, "yaml"),
+        codeblock(
+          `emit:\n  - "${refDoc.name}"\noptions:\n  "${refDoc.name}":\n    option:value`,
+          "yaml"
+        ),
       ]),
       this.emitterOptions(refDoc.emitter.options),
     ]);

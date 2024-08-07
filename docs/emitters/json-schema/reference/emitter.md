@@ -21,6 +21,15 @@ emit:
   - "@typespec/json-schema"
 ```
 
+The config can be extended with options as follows:
+
+```yaml
+emit:
+  - "@typespec/json-schema"
+options:
+  "@typespec/json-schema": option:value
+```
+
 ## Emitter options
 
 ### `file-type`
