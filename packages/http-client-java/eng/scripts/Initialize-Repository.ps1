@@ -61,7 +61,10 @@ try {
 
     Write-Host "Current JAVA_HOME: $Env:JAVA_HOME"
     Write-Host "##vso[task.setvariable variable=JAVA_HOME;]$javaHome"
+    $env:JAVA_HOME = $javaHome
     Write-Host "Updated JAVA_HOME: $Env:JAVA_HOME"
+
+    $env:PATH = "$javaHome\bin;$env:PATH"
 
     $jdkFeatureVersionJavaHome = "JAVA_HOME_" + $jdkFeatureVersion + "_X64"
     Write-Host "##vso[task.setvariable variable=$jdkFeatureVersionJavaHome;]$javaHome"

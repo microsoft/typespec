@@ -49,7 +49,7 @@ describe("paths that should trigger all isolated packages", () => {
 it("Should return a combination of core and isolated packages", () => {
   const areas = findAreasChanged([
     "packages/http-client-csharp/src/constants.ts",
-    "packages/http-client-csharp/src/emitter.ts",
+    "packages/http-client-java/src/emitter.ts",
     "packages/compiler/package.json",
   ]);
   expect(areas).toEqual(["CSharp", "Core", "Java"]);
@@ -57,7 +57,7 @@ it("Should return a combination of core and isolated packages", () => {
 
 it("Should return CSharp, Core and Java if .editorconfig is changed", () => {
   const areas = findAreasChanged([".editorconfig"]);
-  expect(areas).toEqual(["CSharp", "Core", "Java"]);
+  expect(areas).toEqual(["CSharp", "Java", "Core"]);
 });
 
 it("Should not return Core for .prettierignore, .prettierrc.json, cspell.yaml, esling.config.json", () => {
