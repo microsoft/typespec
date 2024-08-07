@@ -82,7 +82,8 @@ export function resolvePathAndParameters(
   // Ensure that all of the parameters defined in the route are accounted for in
   // the operation parameters
   for (const routeParam of parsedUriTemplate.parameters) {
-    if (!paramByName.has(routeParam.name)) {
+    const decoded = decodeURIComponent(routeParam.name);
+    if (!paramByName.has(routeParam.name) && !paramByName.has(decoded)) {
       diagnostics.add(
         createDiagnostic({
           code: "missing-uri-param",
@@ -233,8 +234,15 @@ function addOperationTemplateToUriTemplate(uriTemplate: string, params: HttpOper
 
   const pathPart = joinPathSegments([uriTemplate, ...pathParams]);
   return (
-    pathPart + (queryParams.length > 0 ? `{?${queryParams.map((x) => x.name).join(",")}}` : "")
+    pathPart +
+    (queryParams.length > 0
+      ? `{?${queryParams.map((x) => escapeUriTemplateParamName(x.name)).join(",")}}`
+      : "")
   );
+}
+
+function escapeUriTemplateParamName(name: string) {
+  return name.replaceAll(":", "%3A");
 }
 
 export function setRouteProducer(
