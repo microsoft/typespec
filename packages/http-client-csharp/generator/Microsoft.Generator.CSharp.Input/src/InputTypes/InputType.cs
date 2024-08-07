@@ -46,7 +46,7 @@ namespace Microsoft.Generator.CSharp.Input
         public InputType WithNullable(bool isNullable)
         {
             if (isNullable)
-                return new InputNullableType(this, this.Decorators);
+                return new InputNullableType(this);
             return this;
         }
         public InputType GetImplementType() => this switch
