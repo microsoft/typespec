@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp
 
         public Configuration Configuration { get; }
 
-        public IReadOnlyList<LibraryVisitor> Visitors => _visitors;
+        public virtual IReadOnlyList<LibraryVisitor> Visitors => _visitors;
 
         [ImportingConstructor]
         public CodeModelPlugin(GeneratorContext context)
