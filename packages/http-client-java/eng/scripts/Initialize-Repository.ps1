@@ -60,21 +60,16 @@ try {
     Write-Host "Latest JDK: $javaHome"
 
     Write-Host "Current JAVA_HOME: $Env:JAVA_HOME"
-    Write-Host "##vso[task.setvariable variable=JAVA_HOME;]$javaHome"
     $env:JAVA_HOME = $javaHome
     Write-Host "Updated JAVA_HOME: $Env:JAVA_HOME"
 
     $env:PATH = "$javaHome\bin;$env:PATH"
-
-    $jdkFeatureVersionJavaHome = "JAVA_HOME_" + $jdkFeatureVersion + "_X64"
-    Write-Host "##vso[task.setvariable variable=$jdkFeatureVersionJavaHome;]$javaHome"
   
     Write-Host "Updated PATH: $env:PATH"
     Invoke-LoggedCommand "java -version"
     Invoke-LoggedCommand "mvn -version"
 
     # install and list npm packages
- 
     if ($BuildArtifactsPath) {
         $lockFilesPath = Resolve-Path "$BuildArtifactsPath/lock-files"
         # if we were passed a build_artifacts path, use the package.json and package-lock.json from there

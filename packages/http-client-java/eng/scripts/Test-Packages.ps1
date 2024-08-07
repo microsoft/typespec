@@ -12,6 +12,10 @@ $packageRoot = (Resolve-Path "$PSScriptRoot/../..").Path.Replace('\', '/')
 . "$packageRoot/../../eng/emitters/scripts/CommandInvocation-Helpers.ps1"
 Set-ConsoleEncoding
 
+Write-Host "PATH: $env:PATH"
+Invoke-LoggedCommand "java -version"
+Invoke-LoggedCommand "mvn -version"
+
 Push-Location $packageRoot
 try {
     if ($UnitTests) {
