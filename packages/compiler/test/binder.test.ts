@@ -60,6 +60,44 @@ describe("compiler: binder", () => {
       },
     });
   });
+
+  it("namespace inside blockless namespace with the same name", () => {
+    const code = `
+      namespace A.B;
+      namespace A.B {
+        model D { }
+      }
+    `;
+    const script = bindTypeSpec(code);
+    strictEqual(script.namespaces.length, 4);
+    assertBindings("root", script.symbol.exports!, {
+      A: {
+        declarations: [SyntaxKind.NamespaceStatement],
+        flags: SymbolFlags.Namespace,
+        exports: {
+          B: {
+            flags: SymbolFlags.Namespace,
+            exports: {
+              A: {
+                declarations: [SyntaxKind.NamespaceStatement],
+                flags: SymbolFlags.Namespace,
+                exports: {
+                  B: {
+                    flags: SymbolFlags.Namespace,
+                    exports: {
+                      D: {
+                        flags: SymbolFlags.Model,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  });
   it("binds namespaces", () => {
     const code = `
       namespace A {

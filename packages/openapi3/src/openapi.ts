@@ -3,7 +3,6 @@ import {
   createDiagnosticCollector,
   Diagnostic,
   DiagnosticCollector,
-  DiagnosticTarget,
   EmitContext,
   emitFile,
   Example,
@@ -21,7 +20,6 @@ import {
   getMinValue,
   getMinValueExclusive,
   getNamespaceFullName,
-  getOpExamples,
   getPattern,
   getService,
   getSummary,
@@ -37,13 +35,10 @@ import {
   Namespace,
   navigateTypesInNamespace,
   NewLine,
-  Operation,
-  OpExample,
   Program,
   ProjectionApplication,
   projectProgram,
   resolvePath,
-  serializeValueAsJson,
   Service,
   Type,
   TypeNameOptions,
@@ -69,13 +64,10 @@ import {
   HttpOperationResponseContent,
   HttpServer,
   HttpServiceAuthentication,
-  HttpStatusCodeRange,
-  HttpStatusCodesEntry,
   isContentTypeHeader,
   isOrExtendsHttpFile,
   isOverloadSameEndpoint,
   MetadataInfo,
-  QueryParameterOptions,
   reportIfNoRoutes,
   resolveAuthentication,
   resolveRequestVisibility,
@@ -86,7 +78,6 @@ import {
   getExternalDocs,
   getOpenAPITypeName,
   getParameterKey,
-  isDefaultResponse,
   isReadonlyProperty,
   resolveInfo,
   resolveOperationId,
@@ -96,12 +87,13 @@ import { buildVersionProjections, VersionProjections } from "@typespec/versionin
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
 import { applyEncoding } from "./encoding.js";
+import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
 import { createDiagnostic, FileType, OpenAPI3EmitterOptions } from "./lib.js";
 import { getDefaultValue, isBytesKeptRaw, OpenAPI3SchemaEmitter } from "./schema-emitter.js";
+import { getOpenAPI3StatusCodes } from "./status-codes.js";
 import {
   OpenAPI3Document,
   OpenAPI3Encoding,
-  OpenAPI3Example,
   OpenAPI3Header,
   OpenAPI3MediaType,
   OpenAPI3OAuthFlows,
@@ -119,7 +111,7 @@ import {
   OpenAPI3VersionedServiceRecord,
   Refable,
 } from "./types.js";
-import { deepEquals, isDefined } from "./util.js";
+import { deepEquals, isSharedHttpOperation, SharedHttpOperation } from "./util.js";
 import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
 
 const defaultFileType: FileType = "yaml";
@@ -581,71 +573,6 @@ function createOAPIEmitter(
     return finalParams;
   }
 
-  interface SharedHttpOperation {
-    kind: "shared";
-    operations: HttpOperation[];
-  }
-
-  function getOpenAPI3StatusCodes(
-    statusCodes: HttpStatusCodesEntry,
-    response: Type
-  ): OpenAPI3StatusCode[] {
-    if (isDefaultResponse(program, response) || statusCodes === "*") {
-      return ["default"];
-    } else if (typeof statusCodes === "number") {
-      return [String(statusCodes)];
-    } else {
-      return rangeToOpenAPI(statusCodes, response);
-    }
-  }
-
-  function rangeToOpenAPI(
-    range: HttpStatusCodeRange,
-    diagnosticTarget: DiagnosticTarget
-  ): OpenAPI3StatusCode[] {
-    const reportInvalid = () =>
-      diagnostics.add(
-        createDiagnostic({
-          code: "unsupported-status-code-range",
-          format: { start: String(range.start), end: String(range.end) },
-          target: diagnosticTarget,
-        })
-      );
-
-    const codes: OpenAPI3StatusCode[] = [];
-    let start = range.start;
-    let end = range.end;
-
-    if (range.start < 100) {
-      reportInvalid();
-      start = 100;
-      codes.push("default");
-    } else if (range.end > 599) {
-      reportInvalid();
-      codes.push("default");
-      end = 599;
-    }
-    const groups = [1, 2, 3, 4, 5];
-
-    for (const group of groups) {
-      if (start > end) {
-        break;
-      }
-      const groupStart = group * 100;
-      const groupEnd = groupStart + 99;
-      if (start >= groupStart && start <= groupEnd) {
-        codes.push(`${group}XX`);
-        if (start !== groupStart || end < groupEnd) {
-          reportInvalid();
-        }
-
-        start = groupStart + 100;
-      }
-    }
-
-    return codes;
-  }
-
   function buildSharedOperation(operations: HttpOperation[]): SharedHttpOperation {
     return {
       kind: "shared",
@@ -764,12 +691,13 @@ function createOAPIEmitter(
     const operations = shared.operations;
     const verb = operations[0].verb;
     const path = operations[0].path;
+    const examples = resolveOperationExamples(program, shared);
     const oai3Operation: OpenAPI3Operation = {
       operationId: computeSharedOperationId(shared),
       parameters: [],
       description: joinOps(operations, getDoc, " "),
       summary: joinOps(operations, getSummary, " "),
-      responses: getSharedResponses(shared),
+      responses: getSharedResponses(shared, examples),
     };
 
     for (const op of operations) {
@@ -820,7 +748,7 @@ function createOAPIEmitter(
       ...new Set(operations.map((op) => op.parameters.body).filter((x) => x !== undefined)),
     ];
     if (bodies) {
-      oai3Operation.requestBody = getRequestBody(shared, bodies, visibility);
+      oai3Operation.requestBody = getRequestBody(bodies, visibility, examples);
     }
     const authReference = serviceAuth.operationsAuth.get(shared.operations[0].operation);
     if (authReference) {
@@ -840,13 +768,13 @@ function createOAPIEmitter(
       return undefined;
     }
     const visibility = resolveRequestVisibility(program, operation.operation, verb);
-
+    const examples = resolveOperationExamples(program, operation);
     const oai3Operation: OpenAPI3Operation = {
       operationId: resolveOperationId(program, operation.operation),
       summary: getSummary(program, operation.operation),
       description: getDoc(program, operation.operation),
       parameters: getEndpointParameters(parameters.parameters, visibility),
-      responses: getResponses(operation, operation.responses),
+      responses: getResponses(operation, operation.responses, examples),
     };
     const currentTags = getAllTags(program, op);
     if (currentTags) {
@@ -861,9 +789,9 @@ function createOAPIEmitter(
 
     if (parameters.body) {
       oai3Operation.requestBody = getRequestBody(
-        operation,
         parameters.body && [parameters.body],
-        visibility
+        visibility,
+        examples
       );
     }
     const authReference = serviceAuth.operationsAuth.get(operation.operation);
@@ -878,12 +806,15 @@ function createOAPIEmitter(
   }
 
   function getSharedResponses(
-    operation: SharedHttpOperation
+    operation: SharedHttpOperation,
+    examples: OperationExamples
   ): Record<string, Refable<OpenAPI3Response>> {
     const responseMap = new Map<string, HttpOperationResponse[]>();
     for (const op of operation.operations) {
       for (const response of op.responses) {
-        const statusCodes = getOpenAPI3StatusCodes(response.statusCodes, op.operation);
+        const statusCodes = diagnostics.pipe(
+          getOpenAPI3StatusCodes(program, response.statusCodes, op.operation)
+        );
         for (const statusCode of statusCodes) {
           if (responseMap.has(statusCode)) {
             responseMap.get(statusCode)!.push(response);
@@ -897,19 +828,27 @@ function createOAPIEmitter(
 
     for (const [statusCode, statusCodeResponses] of responseMap) {
       const dedupeResponses = deduplicateCommonResponses(statusCodeResponses);
-      result[statusCode] = getResponseForStatusCode(operation, statusCode, dedupeResponses);
+      result[statusCode] = getResponseForStatusCode(
+        operation,
+        statusCode,
+        dedupeResponses,
+        examples
+      );
     }
     return result;
   }
 
   function getResponses(
     operation: HttpOperation,
-    responses: HttpOperationResponse[]
+    responses: HttpOperationResponse[],
+    examples: OperationExamples
   ): Record<string, Refable<OpenAPI3Response>> {
     const result: Record<string, Refable<OpenAPI3Response>> = {};
     for (const response of responses) {
-      for (const statusCode of getOpenAPI3StatusCodes(response.statusCodes, response.type)) {
-        result[statusCode] = getResponseForStatusCode(operation, statusCode, [response]);
+      for (const statusCode of diagnostics.pipe(
+        getOpenAPI3StatusCodes(program, response.statusCodes, response.type)
+      )) {
+        result[statusCode] = getResponseForStatusCode(operation, statusCode, [response], examples);
       }
     }
     return result;
@@ -927,7 +866,8 @@ function createOAPIEmitter(
   function getResponseForStatusCode(
     operation: HttpOperation | SharedHttpOperation,
     statusCode: OpenAPI3StatusCode,
-    responses: HttpOperationResponse[]
+    responses: HttpOperationResponse[],
+    examples: OperationExamples
   ): Refable<OpenAPI3Response> {
     const openApiResponse: OpenAPI3Response = {
       description: "",
@@ -944,7 +884,14 @@ function createOAPIEmitter(
           : response.description;
       }
       emitResponseHeaders(openApiResponse, response.responses, response.type);
-      emitResponseContent(operation, openApiResponse, response.responses, schemaMap);
+      emitResponseContent(
+        operation,
+        openApiResponse,
+        response.responses,
+        statusCode,
+        examples,
+        schemaMap
+      );
       if (!openApiResponse.description) {
         openApiResponse.description = getResponseDescriptionForStatusCode(statusCode);
       }
@@ -984,6 +931,8 @@ function createOAPIEmitter(
     operation: HttpOperation | SharedHttpOperation,
     obj: OpenAPI3Response,
     responses: HttpOperationResponseContent[],
+    statusCode: OpenAPI3StatusCode,
+    examples: OperationExamples,
     schemaMap: Map<string, OpenAPI3MediaType[]> | undefined = undefined
   ) {
     schemaMap ??= new Map<string, OpenAPI3MediaType[]>();
@@ -994,11 +943,10 @@ function createOAPIEmitter(
       obj.content ??= {};
       for (const contentType of data.body.contentTypes) {
         const contents = getBodyContentEntry(
-          operation,
-          "response",
           data.body,
           Visibility.Read,
-          contentType
+          contentType,
+          examples.responses[statusCode]?.[contentType]
         );
         if (schemaMap.has(contentType)) {
           schemaMap.get(contentType)!.push(contents);
@@ -1006,6 +954,7 @@ function createOAPIEmitter(
           schemaMap.set(contentType, [contents]);
         }
       }
+
       for (const [contentType, contents] of schemaMap) {
         if (contents.length === 1) {
           obj.content[contentType] = contents[0];
@@ -1102,84 +1051,18 @@ function createOAPIEmitter(
     }) as any;
   }
 
-  function isSharedHttpOperation(
-    operation: HttpOperation | SharedHttpOperation
-  ): operation is SharedHttpOperation {
-    return (operation as SharedHttpOperation).kind === "shared";
-  }
-
-  function findOperationExamples(
-    operation: HttpOperation | SharedHttpOperation
-  ): [Operation, OpExample][] {
-    if (isSharedHttpOperation(operation)) {
-      return operation.operations.flatMap((op) =>
-        getOpExamples(program, op.operation).map((x): [Operation, OpExample] => [op.operation, x])
-      );
-    } else {
-      return getOpExamples(program, operation.operation).map((x) => [operation.operation, x]);
-    }
-  }
-  function getExamplesForBodyContentEntry(
-    operation: HttpOperation | SharedHttpOperation,
-    target: "request" | "response"
-  ): Pick<OpenAPI3MediaType, "example" | "examples"> {
-    const examples = findOperationExamples(operation);
-    if (examples.length === 0) {
-      return {};
-    }
-
-    const flattenedExamples: [Example, Type][] = examples
-      .map(([op, example]): [Example, Type] | undefined => {
-        const value = target === "request" ? example.parameters : example.returnType;
-        const type = target === "request" ? op.parameters : op.returnType;
-        return value
-          ? [{ value, title: example.title, description: example.description }, type]
-          : undefined;
-      })
-      .filter(isDefined);
-
-    return getExampleOrExamples(flattenedExamples);
-  }
-
-  function getExampleOrExamples(
-    examples: [Example, Type][]
-  ): Pick<OpenAPI3MediaType, "example" | "examples"> {
-    if (examples.length === 0) {
-      return {};
-    }
-
-    if (
-      examples.length === 1 &&
-      examples[0][0].title === undefined &&
-      examples[0][0].description === undefined
-    ) {
-      const [example, type] = examples[0];
-      return { example: serializeValueAsJson(program, example.value, type) };
-    } else {
-      const exampleObj: Record<string, OpenAPI3Example> = {};
-      for (const [index, [example, type]] of examples.entries()) {
-        exampleObj[example.title ?? `example${index}`] = {
-          summary: example.title,
-          description: example.description,
-          value: serializeValueAsJson(program, example.value, type),
-        };
-      }
-      return { examples: exampleObj };
-    }
-  }
-
   function getBodyContentEntry(
-    operation: HttpOperation | SharedHttpOperation,
-    target: "request" | "response",
     body: HttpOperationBody | HttpOperationMultipartBody,
     visibility: Visibility,
-    contentType: string
+    contentType: string,
+    examples?: [Example, Type][]
   ): OpenAPI3MediaType {
     const isBinary = isBinaryPayload(body.type, contentType);
     if (isBinary) {
       return { schema: { type: "string", format: "binary" } };
     }
 
+    const oai3Examples = examples && getExampleOrExamples(program, examples);
     switch (body.bodyKind) {
       case "single":
         return {
@@ -1189,12 +1072,12 @@ function createOAPIEmitter(
             body.isExplicit && body.containsMetadataAnnotations,
             contentType.startsWith("multipart/") ? contentType : undefined
           ),
-          ...getExamplesForBodyContentEntry(operation, target),
+          ...oai3Examples,
         };
       case "multipart":
         return {
           ...getBodyContentForMultipartBody(body, visibility, contentType),
-          ...getExamplesForBodyContentEntry(operation, target),
+          ...oai3Examples,
         };
     }
   }
@@ -1337,13 +1220,13 @@ function createOAPIEmitter(
       ...getOpenAPIParameterBase(parameter.param, visibility),
     } as any;
 
-    const format = mapParameterFormat(parameter);
-    if (format === undefined) {
+    const attributes = getParameterAttributes(parameter);
+    if (attributes === undefined) {
       param.schema = {
         type: "string",
       };
     } else {
-      Object.assign(param, format);
+      Object.assign(param, attributes);
     }
 
     return param;
@@ -1379,9 +1262,9 @@ function createOAPIEmitter(
   }
 
   function getRequestBody(
-    operation: HttpOperation | SharedHttpOperation,
     bodies: (HttpOperationBody | HttpOperationMultipartBody)[] | undefined,
-    visibility: Visibility
+    visibility: Visibility,
+    examples: OperationExamples
   ): OpenAPI3RequestBody | undefined {
     if (bodies === undefined || bodies.every((x) => isVoidType(x.type))) {
       return undefined;
@@ -1400,8 +1283,13 @@ function createOAPIEmitter(
       }
       const contentTypes = body.contentTypes.length > 0 ? body.contentTypes : ["application/json"];
       for (const contentType of contentTypes) {
-        const entry = getBodyContentEntry(operation, "request", body, visibility, contentType);
         const existing = schemaMap.get(contentType);
+        const entry = getBodyContentEntry(
+          body,
+          visibility,
+          contentType,
+          examples.requestBody[contentType]
+        );
         if (existing) {
           existing.push(entry);
         } else {
@@ -1514,16 +1402,87 @@ function createOAPIEmitter(
     return target;
   }
 
-  function mapParameterFormat(
+  function getParameterAttributes(
     parameter: HttpOperationParameter
   ): { style?: string; explode?: boolean } | undefined {
     switch (parameter.type) {
       case "header":
         return mapHeaderParameterFormat(parameter);
       case "query":
-        return mapQueryParameterFormat(parameter);
+        return getQueryParameterAttributes(parameter);
       case "path":
-        return {};
+        return getPathParameterAttributes(parameter);
+    }
+  }
+
+  function getPathParameterAttributes(parameter: HttpOperationParameter & { type: "path" }) {
+    if (parameter.allowReserved) {
+      diagnostics.add(
+        createDiagnostic({
+          code: "path-reserved-expansion",
+          target: parameter.param,
+        })
+      );
+    }
+
+    const attributes: { style?: string; explode?: boolean } = {};
+
+    if (parameter.explode) {
+      attributes.explode = true;
+    }
+
+    switch (parameter.style) {
+      case "label":
+        attributes.style = "label";
+        break;
+      case "matrix":
+        attributes.style = "matrix";
+        break;
+      case "simple":
+        break;
+      default:
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-style",
+            format: { style: parameter.style, paramType: "path" },
+            target: parameter.param,
+          })
+        );
+    }
+
+    return attributes;
+  }
+
+  function getQueryParameterAttributes(parameter: HttpOperationParameter & { type: "query" }) {
+    const attributes: { style?: string; explode?: boolean } = {};
+
+    if (parameter.explode) {
+      attributes.explode = true;
+    }
+
+    switch (parameter.format) {
+      case "ssv":
+        return { style: "spaceDelimited", explode: false };
+      case "pipes":
+        return { style: "pipeDelimited", explode: false };
+      case undefined:
+      case "csv":
+      case "simple":
+      case "multi":
+      case "form":
+        return attributes;
+      default:
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-format",
+            format: {
+              paramType: "query",
+              value: parameter.format,
+            },
+            target: parameter.param,
+          })
+        );
+        return undefined;
     }
   }
 
@@ -1544,39 +1503,6 @@ function createOAPIEmitter(
             code: "invalid-format",
             format: {
               paramType: "header",
-              value: parameter.format,
-            },
-            target: parameter.param,
-          })
-        );
-        return undefined;
-    }
-  }
-  function mapQueryParameterFormat(
-    parameter: QueryParameterOptions & {
-      param: ModelProperty;
-    }
-  ): { style?: string; explode?: boolean } | undefined {
-    switch (parameter.format) {
-      case undefined:
-        return {};
-      case "csv":
-      case "simple":
-        return { style: "form", explode: false };
-      case "multi":
-      case "form":
-        return { style: "form", explode: true };
-      case "ssv":
-        return { style: "spaceDelimited", explode: false };
-      case "pipes":
-        return { style: "pipeDelimited", explode: false };
-
-      default:
-        diagnostics.add(
-          createDiagnostic({
-            code: "invalid-format",
-            format: {
-              paramType: "query",
               value: parameter.format,
             },
             target: parameter.param,

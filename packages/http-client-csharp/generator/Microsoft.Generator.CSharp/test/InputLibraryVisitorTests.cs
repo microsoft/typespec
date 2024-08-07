@@ -35,13 +35,13 @@ namespace Microsoft.Generator.CSharp.Tests
             var inputModelProperty =
                 new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any, "foo", "bar"), true, true, false);
             var inputModel = new InputModelType("foo", "id", "desc", "internal", "description",
-                InputModelTypeUsage.Input, new[] { inputModelProperty }, null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
+                InputModelTypeUsage.Input, [inputModelProperty], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(new InputNamespace(
                 "test library",
                 new List<string>(),
                 new List<InputEnumType>(),
-                new List<InputModelType> {inputModel},
+                new List<InputModelType> { inputModel },
                 new List<InputClient>(),
                 new InputAuth()));
 
@@ -62,13 +62,13 @@ namespace Microsoft.Generator.CSharp.Tests
             var inputModelProperty =
                 new InputModelProperty("prop1", "prop1", "string", inputEnum, true, true, false);
             var inputModel = new InputModelType("foo", "id", "desc", "internal", "description",
-                InputModelTypeUsage.Input, new[] { inputModelProperty }, null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
+                InputModelTypeUsage.Input, [inputModelProperty], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(new InputNamespace(
                 "test library",
                 new List<string>(),
                 new List<InputEnumType>(),
-                new List<InputModelType> {inputModel},
+                new List<InputModelType> { inputModel },
                 new List<InputClient>(),
                 new InputAuth()));
 
@@ -76,44 +76,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), inputModel, ItExpr.Is<ModelProvider>(m => m.Name == new ModelProvider(inputModel).Name));
 
-            _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), inputEnum, ItExpr.Is<EnumProvider>(e => e.Name == EnumProvider.Create(inputEnum).Name));
-        }
-
-        [Test]
-        [Ignore("This should probably move to SCM tests if CreateMethods moves there. https://github.com/microsoft/typespec/issues/4066")]
-        public void PreVisitsMethods()
-        {
-            _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
-            var inputModelProperty =
-                new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any, "foo", "bar"), true, true, false);
-            var inputModel = new InputModelType("foo", "id", "desc", "internal", "description",
-                InputModelTypeUsage.Input, new[] { inputModelProperty }, null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
-
-            var param = new InputParameter("param", "name", "desc",
-                new InputLiteralType(new InputPrimitiveType(InputPrimitiveTypeKind.String, "foo", "bar"), "bar"),
-                RequestLocation.Header, null, InputOperationParameterKind.Client, true, false, true, false, false,
-                false, false, null, null);
-            _mockInputLibrary.Setup(l => l.InputNamespace).Returns(new InputNamespace(
-                "test library",
-                new List<string>(),
-                new List<InputEnumType>(),
-                new List<InputModelType> {inputModel},
-                new List<InputClient>
-                {
-                    new InputClient("fooClient", "desc", new[]
-                    {
-                        new InputOperation("testoperation", "name", "desc", null, null, new[]
-                        {
-                            param
-                        }, Array.Empty<OperationResponse>(), "GET", BodyMediaType.Json, "http://example.com", "baz", null, null, true, null, null, true, true)
-                    }, new []{param}, null)
-                },
-                new InputAuth()));
-
-            _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
-
-            _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), inputModel, ItExpr.IsNull<TypeProvider>());
-            _mockVisitor.Protected().Verify<MethodProvider>("Visit", Times.Once(), inputModelProperty, ItExpr.IsNull<PropertyProvider>());
+            _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), inputEnum, ItExpr.IsNull<EnumProvider>());
         }
 
         [Test]
@@ -122,18 +85,18 @@ namespace Microsoft.Generator.CSharp.Tests
             var inputModel1Property =
                 new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any, "foo", "bar"), true, true, false);
             var inputModel1 = new InputModelType("Model1", "id", "desc", "internal", "description",
-                InputModelTypeUsage.Input, new[] { inputModel1Property }, null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
+                InputModelTypeUsage.Input, [inputModel1Property], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
             var inputModel2Property = new InputModelProperty("prop2", "prop1", "string", inputModel1, true, true, false);
 
             var inputModel2 = new InputModelType("Model2", "id", "desc", "internal", "description",
-                InputModelTypeUsage.Input, new[] { inputModel2Property }, null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
+                InputModelTypeUsage.Input, [inputModel2Property], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(new InputNamespace(
                 "test library",
                 new List<string>(),
                 new List<InputEnumType>(),
-                new List<InputModelType> {inputModel1, inputModel2},
+                new List<InputModelType> { inputModel1, inputModel2 },
                 new List<InputClient>(),
                 new InputAuth()));
 
@@ -148,18 +111,18 @@ namespace Microsoft.Generator.CSharp.Tests
             var inputModel1Property =
                 new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any, "foo", "bar"), true, true, false);
             var inputModel1 = new InputModelType("Model1", "id", "desc", "internal", "description",
-                InputModelTypeUsage.Input, new[] { inputModel1Property }, null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
+                InputModelTypeUsage.Input, [inputModel1Property], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
             var inputModel2Property = new InputModelProperty("prop2", "prop1", "string", inputModel1, true, true, false);
 
             var inputModel2 = new InputModelType("Model2", "id", "desc", "internal", "description",
-                InputModelTypeUsage.Input, new[] { inputModel2Property }, null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
+                InputModelTypeUsage.Input, [inputModel2Property], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(new InputNamespace(
                 "test library",
                 new List<string>(),
                 new List<InputEnumType>(),
-                new List<InputModelType> {inputModel1, inputModel2},
+                new List<InputModelType> { inputModel1, inputModel2 },
                 new List<InputClient>(),
                 new InputAuth()));
 

@@ -476,6 +476,17 @@ enum BytesKnownEncoding {
 }
 
 /**
+ * Encoding for serializing arrays
+ */
+enum ArrayEncoding {
+  /** Each values of the array is separated by a | */
+  pipeDelimited,
+
+  /** Each values of the array is separated by a <space> */
+  spaceDelimited,
+}
+
+/**
  * Specify how to encode the target type.
  * @param encodingOrEncodeAs Known name of an encoding or a scalar type to encode as(Only for numeric types to encode as string).
  * @param encodedAs What target type is this being encoded as. Default to string.

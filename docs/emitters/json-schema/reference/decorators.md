@@ -103,13 +103,23 @@ media type and encoding.
 ### `@extension` {#@TypeSpec.JsonSchema.extension}
 
 Specify a custom property to add to the emitted schema. Useful for adding custom keywords
-and other vendor-specific extensions. The value will be converted to a schema unless the parameter
-is wrapped in the `Json<Data>` template. For example, `@extension("x-schema", { x: "value" })` will
-emit a JSON schema value for `x-schema`, whereas `@extension("x-schema", Json<{x: "value"}>)` will
-emit the raw JSON code `{x: "value"}`.
+and other vendor-specific extensions. Scalar values need to be specified using `typeof` to be converted to a schema.
+
+For example, `@extension("x-schema", typeof "foo")` will emit a JSON schema value for `x-schema`,
+whereas `@extension("x-schema", "foo")` will emit the raw code `"foo"`.
+
+The value will be treated as a raw value if any of the following are true:
+
+1. The value is a scalar value (e.g. string, number, boolean, etc.)
+2. The value is wrapped in the `Json<Data>` template
+3. The value is provided using the value syntax (e.g. `#{}`, `#[]`)
+
+For example, `@extension("x-schema", { x: "value" })` will emit a JSON schema value for `x-schema`,
+whereas `@extension("x-schema", #{x: "value"})` and `@extension("x-schema", Json<{x: "value"}>)`
+will emit the raw JSON code `{x: "value"}`.
 
 ```typespec
-@TypeSpec.JsonSchema.extension(key: valueof string, value: unknown)
+@TypeSpec.JsonSchema.extension(key: valueof string, value: unknown | valueof unknown)
 ```
 
 #### Target
@@ -118,10 +128,10 @@ emit the raw JSON code `{x: "value"}`.
 
 #### Parameters
 
-| Name  | Type             | Description                                                                             |
-| ----- | ---------------- | --------------------------------------------------------------------------------------- |
-| key   | `valueof string` | the name of the keyword of vendor extension, e.g. `x-custom`.                           |
-| value | `unknown`        | the value of the keyword. Will be converted to a schema unless wrapped in `Json<Data>`. |
+| Name  | Type                           | Description                                                   |
+| ----- | ------------------------------ | ------------------------------------------------------------- |
+| key   | `valueof string`               | the name of the keyword of vendor extension, e.g. `x-custom`. |
+| value | `unknown` \| `valueof unknown` | the value of the keyword.                                     |
 
 ### `@id` {#@TypeSpec.JsonSchema.id}
 

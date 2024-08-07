@@ -466,6 +466,21 @@ model TypeSpec.Http.PasswordFlow
 | refreshUrl? | `string`                                | the refresh URL                   |
 | scopes?     | `string[]`                              | list of scopes for the credential |
 
+### `PathOptions` {#TypeSpec.Http.PathOptions}
+
+```typespec
+model TypeSpec.Http.PathOptions
+```
+
+#### Properties
+
+| Name           | Type                                                      | Description                                                                                                                                                                                                                                  |
+| -------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name?          | `string`                                                  | Name of the parameter in the uri template.                                                                                                                                                                                                   |
+| explode?       | `boolean`                                                 | When interpolating this parameter in the case of array or object expand each value using the given style.<br />Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3) |
+| style?         | `"simple" \| "label" \| "matrix" \| "fragment" \| "path"` | Different interpolating styles for the path parameter.<br />- `simple`: No special encoding.<br />- `label`: Using `.` separator.<br />- `matrix`: `;` as separator.<br />- `fragment`: `#` as separator.<br />- `path`: `/` as separator.   |
+| allowReserved? | `boolean`                                                 | When interpolating this parameter do not encode reserved characters.<br />Equivalent of adding `+` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)                                      |
+
 ### `PlainData` {#TypeSpec.Http.PlainData}
 
 Produces a new model with the same properties as T, but with `@query`,
@@ -495,10 +510,11 @@ model TypeSpec.Http.QueryOptions
 
 #### Properties
 
-| Name    | Type                                                                  | Description                                               |
-| ------- | --------------------------------------------------------------------- | --------------------------------------------------------- |
-| name?   | `string`                                                              | Name of the query when included in the url.               |
-| format? | `"multi" \| "csv" \| "ssv" \| "tsv" \| "simple" \| "form" \| "pipes"` | Determines the format of the array if type array is used. |
+| Name     | Type                                                                  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| -------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| name?    | `string`                                                              | Name of the query when included in the url.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| explode? | `boolean`                                                             | If true send each value in the array/object as a separate query parameter.<br />Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)<br /><br />\| Style \| Explode \| Uri Template \| Primitive value id = 5 \| Array id = [3, 4, 5] \| Object id = {"role": "admin", "firstName": "Alex"} \|<br />\| ------ \| ------- \| -------------- \| ---------------------- \| ----------------------- \| -------------------------------------------------- \|<br />\| simple \| false \| `/users{?id}` \| `/users?id=5` \| `/users?id=3,4,5` \| `/users?id=role,admin,firstName,Alex` \|<br />\| simple \| true \| `/users{?id*}` \| `/users?id=5` \| `/users?id=3&id=4&id=5` \| `/users?role=admin&firstName=Alex` \| |
+| format?  | `"multi" \| "csv" \| "ssv" \| "tsv" \| "simple" \| "form" \| "pipes"` | Determines the format of the array if type array is used.<br />**DEPRECATED**: use explode: true instead of `multi` or `@encode`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 ### `Response` {#TypeSpec.Http.Response}
 

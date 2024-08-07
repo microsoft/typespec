@@ -54,6 +54,7 @@ namespace Microsoft.Generator.CSharp.Input
             OperationPaging? paging = null;
             bool generateProtocolMethod = false;
             bool generateConvenienceMethod = false;
+            string? crossLanguageDefinitionId = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -74,7 +75,8 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadWithConverter(nameof(InputOperation.LongRunning), options, ref longRunning)
                     || reader.TryReadWithConverter(nameof(InputOperation.Paging), options, ref paging)
                     || reader.TryReadBoolean(nameof(InputOperation.GenerateProtocolMethod), ref generateProtocolMethod)
-                    || reader.TryReadBoolean(nameof(InputOperation.GenerateConvenienceMethod), ref generateConvenienceMethod);
+                    || reader.TryReadBoolean(nameof(InputOperation.GenerateConvenienceMethod), ref generateConvenienceMethod)
+                    || reader.TryReadString(nameof(InputOperation.CrossLanguageDefinitionId), ref crossLanguageDefinitionId);
 
                 if (!isKnownProperty)
                 {
@@ -100,6 +102,7 @@ namespace Microsoft.Generator.CSharp.Input
             operation.Paging = paging;
             operation.GenerateProtocolMethod = generateProtocolMethod;
             operation.GenerateConvenienceMethod = generateConvenienceMethod;
+            operation.CrossLanguageDefinitionId = crossLanguageDefinitionId ?? throw new JsonException("InputOperation must have CrossLanguageDefinitionId");
 
             return operation;
         }

@@ -117,5 +117,15 @@ describe("compiler: emitter options", () => {
         message: `Path "assets" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
       });
     });
+
+    it("emit diagnostic if passing windows style path", async () => {
+      const diagnostics = await diagnoseEmitterOptions({
+        "asset-dir": "C:\\abc\\def",
+      });
+      expectDiagnostics(diagnostics, {
+        code: "path-unix-style",
+        message: `Path should use unix style separators. Use "/" instead of "\\".`,
+      });
+    });
   });
 });

@@ -266,7 +266,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             isString = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParam.Type)?.Equals(typeof(string)) == true;
             if (inputParam.Kind == InputOperationParameterKind.Constant)
             {
-                valueExpression = Literal(inputParam.DefaultValue?.Value);
+                valueExpression = Literal((inputParam.Type as InputLiteralType)?.Value);
                 format = ClientModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
             }
             else

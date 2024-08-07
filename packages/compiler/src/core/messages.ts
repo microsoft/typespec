@@ -606,6 +606,12 @@ const diagnostics = {
       default: paramMessage`Path "${"path"}" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
     },
   },
+  "path-unix-style": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Path should use unix style separators. Use "/" instead of "\\".`,
+    },
+  },
   "config-path-not-found": {
     severity: "error",
     messages: {

@@ -89,7 +89,8 @@
      "Path": "/authentication/api-key/valid",
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Authentication.ApiKey.valid"
     },
     {
      "$id": "12",
@@ -142,7 +143,8 @@
      "Path": "/authentication/api-key/invalid",
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Authentication.ApiKey.invalid"
     }
    ],
    "Protocol": {

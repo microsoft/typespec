@@ -135,9 +135,10 @@ function processResponseType(
       response.responses.push({
         body: resolvedBody,
         headers,
+        properties: metadata,
       });
     } else {
-      response.responses.push({ headers });
+      response.responses.push({ headers, properties: metadata });
     }
     responses.set(statusCode, response);
   }

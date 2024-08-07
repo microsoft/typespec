@@ -9,12 +9,25 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`HTTP verb already applied to ${"entityName"}`,
       },
     },
-    "missing-path-param": {
+    "missing-uri-param": {
       severity: "error",
       messages: {
         default: paramMessage`Route reference parameter '${"param"}' but wasn't found in operation parameters`,
       },
     },
+    "incompatible-uri-param": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Parameter '${"param"}' is defined in the uri as a ${"uriKind"} but is annotated as a ${"annotationKind"}.`,
+      },
+    },
+    "use-uri-template": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Parameter '${"param"}' is already defined in the uri template. Explode, style and allowReserved property must be defined in the uri template as described by RFC 6570.`,
+      },
+    },
+
     "optional-path-param": {
       severity: "error",
       messages: {
@@ -153,12 +166,6 @@ export const $lib = createTypeSpecLibrary({
         default: `A format must be specified for @header when type is an array. e.g. @header({format: "csv"})`,
       },
     },
-    "query-format-required": {
-      severity: "error",
-      messages: {
-        default: `A format must be specified for @query when type is an array. e.g. @query({format: "multi"})`,
-      },
-    },
   },
   state: {
     authentication: { description: "State for the @auth decorator" },
@@ -187,6 +194,6 @@ export const $lib = createTypeSpecLibrary({
     file: { description: "State for the @Private.file decorator" },
     httpPart: { description: "State for the @Private.httpPart decorator" },
   },
-} as const);
+});
 
 export const { reportDiagnostic, createDiagnostic, stateKeys: HttpStateKeys } = $lib;

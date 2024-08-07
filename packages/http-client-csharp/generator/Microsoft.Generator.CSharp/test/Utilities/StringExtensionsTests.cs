@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.Generator.CSharp.Input;
+using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Utilities
@@ -114,6 +116,18 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
         {
             var result = StringExtensions.IsCSharpKeyword(name);
             Assert.AreEqual(isKeyword, result);
+        }
+
+        [TestCase("1.0.0", "V1_0_0")]
+        [TestCase("v1.0.0", "V1_0_0")]
+        [TestCase("V1.0.0", "V1_0_0")]
+        [TestCase("V2022.05.15_Preview", "V2022_05_15_Preview")]
+        [TestCase("v2022.05.15_Preview", "V2022_05_15_Preview")]
+        [TestCase("V2022.05.15-preview", "V2022_05_15_Preview")]
+        public void TestToApiVersionMemberName(string apiVersion, string expectedApiVersion)
+        {
+            var name = apiVersion.ToApiVersionMemberName();
+            Assert.AreEqual(expectedApiVersion, name);
         }
     }
 }

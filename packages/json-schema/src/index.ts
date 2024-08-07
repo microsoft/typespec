@@ -11,6 +11,7 @@ import {
   Tuple,
   Type,
   Union,
+  isType,
   setTypeSpecNamespace,
   typespecTypeToJson,
 } from "@typespec/compiler";
@@ -284,7 +285,7 @@ export function getPrefixItems(program: Program, target: Type): Tuple | undefine
 
 export interface ExtensionRecord {
   key: string;
-  value: Type;
+  value: Type | unknown;
 }
 
 const extensionsKey = createStateSymbol("JsonSchema.extension");
@@ -292,18 +293,43 @@ export const $extension: ExtensionDecorator = (
   context: DecoratorContext,
   target: Type,
   key: string,
-  value: Type
+  value: unknown
 ) => {
-  const stateMap = context.program.stateMap(extensionsKey) as Map<Type, ExtensionRecord[]>;
-  const extensions = stateMap.has(target)
-    ? stateMap.get(target)!
-    : stateMap.set(target, []).get(target)!;
-
-  extensions.push({ key, value });
+  setExtension(context.program, target, key, value);
 };
 
 export function getExtensions(program: Program, target: Type): ExtensionRecord[] {
   return program.stateMap(extensionsKey).get(target) ?? [];
+}
+
+export function setExtension(program: Program, target: Type, key: string, value: unknown) {
+  const stateMap = program.stateMap(extensionsKey) as Map<Type, ExtensionRecord[]>;
+  const extensions = stateMap.has(target)
+    ? stateMap.get(target)!
+    : stateMap.set(target, []).get(target)!;
+
+  // Check if we were handed the `Json` template model
+  if (isJsonTemplateType(value)) {
+    extensions.push({
+      key,
+      value: typespecTypeToJson(value.properties.get("value")!.type, target)[0],
+    });
+  } else {
+    extensions.push({ key, value });
+  }
+}
+
+function isJsonTemplateType(
+  value: any
+): value is Type & { kind: "Model"; name: "Json"; namespace: { name: "JsonSchema" } } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    isType(value) &&
+    value.kind === "Model" &&
+    value.name === "Json" &&
+    value.namespace?.name === "JsonSchema"
+  );
 }
 
 export const $validatesRawJson: ValidatesRawJsonDecorator = (

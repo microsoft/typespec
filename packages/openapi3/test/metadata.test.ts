@@ -952,9 +952,6 @@ describe("openapi3: metadata", () => {
           operationId: "create",
           parameters: [
             {
-              $ref: "#/components/parameters/Pet.id",
-            },
-            {
               name: "h1",
               in: "header",
               required: true,
@@ -969,6 +966,9 @@ describe("openapi3: metadata", () => {
               schema: {
                 type: "string",
               },
+            },
+            {
+              $ref: "#/components/parameters/Pet.id",
             },
           ],
           responses: {

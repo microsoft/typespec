@@ -7,9 +7,9 @@ using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
-    public class ScmVisitor : LibraryVisitor
+    public abstract class ScmVisitor : LibraryVisitor
     {
-        protected override MethodProviderCollection? Visit(InputOperation operation,
+        protected internal virtual MethodProviderCollection? Visit(InputOperation operation,
             TypeProvider enclosingType,
             MethodProviderCollection? methodProviderCollection)
         {

@@ -18,6 +18,16 @@ export interface JSONSchemaValidatorOptions {
   strict?: boolean;
 }
 
+function absolutePathStatus(path: string): "valid" | "not-absolute" | "windows-style" {
+  if (path.startsWith(".") || !isPathAbsolute(path)) {
+    return "not-absolute";
+  }
+  if (path.includes("\\")) {
+    return "windows-style";
+  }
+  return "valid";
+}
+
 export function createJSONSchemaValidator<T>(
   schema: JSONSchemaType<T>,
   options: JSONSchemaValidatorOptions = { strict: true }
@@ -30,9 +40,7 @@ export function createJSONSchemaValidator<T>(
 
   ajv.addFormat("absolute-path", {
     type: "string",
-    validate: (path) => {
-      return !path.startsWith(".") && isPathAbsolute(path);
-    },
+    validate: (path) => absolutePathStatus(path) === "valid",
   });
   return { validate };
 
@@ -66,11 +74,21 @@ function ajvErrorToDiagnostic(
 ): Diagnostic {
   const tspTarget = resolveTarget(error, target);
   if (error.params.format === "absolute-path") {
-    return createDiagnostic({
-      code: "config-path-absolute",
-      format: { path: getErrorValue(obj, error) as any },
-      target: tspTarget,
-    });
+    const value = getErrorValue(obj, error) as any;
+    const status = absolutePathStatus(value);
+    if (status === "windows-style") {
+      return createDiagnostic({
+        code: "path-unix-style",
+        format: { path: value },
+        target: tspTarget,
+      });
+    } else {
+      return createDiagnostic({
+        code: "config-path-absolute",
+        format: { path: value },
+        target: tspTarget,
+      });
+    }
   }
 
   const messageLines = [`Schema violation: ${error.message} (${error.instancePath || "/"})`];

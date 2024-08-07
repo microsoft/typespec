@@ -1,3 +1,5 @@
+import { HttpOperation } from "@typespec/http";
+
 /**
  * Checks if two objects are deeply equal.
  *
@@ -74,4 +76,14 @@ export function mapEquals<K, V>(
  */
 export function isDefined<T>(arg: T | undefined): arg is T {
   return arg !== undefined;
+}
+
+export interface SharedHttpOperation {
+  kind: "shared";
+  operations: HttpOperation[];
+}
+export function isSharedHttpOperation(
+  operation: HttpOperation | SharedHttpOperation
+): operation is SharedHttpOperation {
+  return (operation as SharedHttpOperation).kind === "shared";
 }

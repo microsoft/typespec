@@ -21,6 +21,7 @@ import {
   HttpOperationParameter,
   HttpOperationParameters,
   HttpVerb,
+  joinPathSegments,
   RouteOptions,
   RouteProducerResult,
   setRouteProducer,
@@ -114,7 +115,7 @@ function autoRouteProducer(
   };
 
   const parameters: HttpOperationParameters = diagnostics.pipe(
-    getOperationParameters(program, operation, undefined, [], paramOptions)
+    getOperationParameters(program, operation, "", undefined, paramOptions)
   );
 
   for (const httpParam of parameters.parameters) {
@@ -155,7 +156,7 @@ function autoRouteProducer(
   addActionFragment(program, operation, segments);
 
   return diagnostics.wrap({
-    segments,
+    uriTemplate: joinPathSegments(segments),
     parameters: {
       ...parameters,
       parameters: filteredParameters,

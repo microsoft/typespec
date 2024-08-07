@@ -7,6 +7,19 @@ import type {
   Type,
 } from "@typespec/compiler";
 
+export interface QueryOptions {
+  readonly name?: string;
+  readonly explode?: boolean;
+  readonly format?: "multi" | "csv" | "ssv" | "tsv" | "simple" | "form" | "pipes";
+}
+
+export interface PathOptions {
+  readonly name?: string;
+  readonly explode?: boolean;
+  readonly style?: "simple" | "label" | "matrix" | "fragment" | "path";
+  readonly allowReserved?: boolean;
+}
+
 /**
  * Specify the status code for this response. Property type must be a status code integer or a union of status code integer.
  *
@@ -67,19 +80,19 @@ export type HeaderDecorator = (
  * @example
  * ```typespec
  * op read(@query select: string, @query("order-by") orderBy: string): void;
- * op list(@query({name: "id", format: "multi"}) ids: string[]): void;
+ * op list(@query(#{name: "id", explode: true}) ids: string[]): void;
  * ```
  */
 export type QueryDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-  queryNameOrOptions?: Type
+  queryNameOrOptions?: string | QueryOptions
 ) => void;
 
 /**
  * Explicitly specify that this property is to be interpolated as a path parameter.
  *
- * @param paramName Optional name of the parameter in the url template.
+ * @param paramNameOrOptions Optional name of the parameter in the uri template or options.
  * @example
  * ```typespec
  * @route("/read/{explicit}/things/{implicit}")
@@ -89,7 +102,7 @@ export type QueryDecorator = (
 export type PathDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-  paramName?: string
+  paramNameOrOptions?: string | PathOptions
 ) => void;
 
 /**
@@ -260,20 +273,25 @@ export type IncludeInapplicableMetadataInPayloadDecorator = (
 ) => void;
 
 /**
- * Defines the relative route URI for the target operation
- *
- * The first argument should be a URI fragment that may contain one or more path parameter fields.
- * If the namespace or interface that contains the operation is also marked with a `@route` decorator,
- * it will be used as a prefix to the route URI of the operation.
+ * Defines the relative route URI template for the target operation as defined by [RFC 6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)
  *
  * `@route` can only be applied to operations, namespaces, and interfaces.
  *
- * @param path Relative route path. Cannot include query parameters.
- * @param options Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations.
- * @example
+ * @param uriTemplate Uri template for this operation.
+ * @param options _DEPRECATED_ Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations.
+ * @example Simple path parameter
+ *
  * ```typespec
- * @route("/widgets")
- * op getWidget(@path id: string): Widget;
+ * @route("/widgets/{id}") op getWidget(@path id: string): Widget;
+ * ```
+ * @example Reserved characters
+ * ```typespec
+ * @route("/files{+path}") op getFile(@path path: string): bytes;
+ * ```
+ * @example Query parameter
+ * ```typespec
+ * @route("/files") op list(select?: string, filter?: string): Files[];
+ * @route("/files{?select,filter}") op listFullUriTemplate(select?: string, filter?: string): Files[];
  * ```
  */
 export type RouteDecorator = (

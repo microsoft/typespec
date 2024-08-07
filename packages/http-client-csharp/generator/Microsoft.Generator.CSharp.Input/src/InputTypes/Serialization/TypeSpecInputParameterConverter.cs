@@ -85,14 +85,18 @@ namespace Microsoft.Generator.CSharp.Input
             }
             Enum.TryParse<InputOperationParameterKind>(kind, ignoreCase: true, out var parameterKind);
 
+            if (parameterKind == InputOperationParameterKind.Constant && parameterType is not InputLiteralType)
+            {
+                throw new JsonException($"Operation parameter '{name}' is constant, but its type is '{parameterType.Name}'.");
+            }
+
             var parameter = new InputParameter(
                 name: name,
                 nameInRequest: nameInRequest,
                 description: description,
                 type: parameterType,
                 location: requestLocation,
-                // TODO: not use default value for constant value https://github.com/microsoft/typespec/issues/4028
-                defaultValue: parameterType is InputLiteralType { Value: not null } literalType ? literalType : defaultValue,
+                defaultValue: defaultValue,
                 kind: parameterKind,
                 isRequired: isRequired,
                 isApiVersion: isApiVersion,

@@ -2,7 +2,13 @@ import { Namespace } from "@typespec/compiler";
 import { BasicTestRunner, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { getExtensions, getExternalDocs, getInfo, resolveInfo } from "../src/decorators.js";
+import {
+  getExtensions,
+  getExternalDocs,
+  getInfo,
+  resolveInfo,
+  setInfo,
+} from "../src/decorators.js";
 import { createOpenAPITestRunner } from "./test-host.js";
 
 describe("openapi: decorators", () => {
@@ -236,6 +242,44 @@ describe("openapi: decorators", () => {
       `)) as { Service: Namespace };
 
       deepStrictEqual(resolveInfo(runner.program, Service), {});
+    });
+
+    it("setInfo() function for setting info object directly", async () => {
+      const { Service } = (await runner.compile(`
+        @test namespace Service {}
+      `)) as { Service: Namespace };
+      setInfo(runner.program, Service, {
+        title: "My API",
+        version: "1.0.0",
+        summary: "My API summary",
+        termsOfService: "http://example.com/terms/",
+        contact: {
+          name: "API Support",
+          url: "http://www.example.com/support",
+          email: "support@example.com",
+        },
+        license: {
+          name: "Apache 2.0",
+          url: "http://www.apache.org/licenses/LICENSE-2.0.html",
+        },
+        "x-custom": "Bar",
+      });
+      deepStrictEqual(getInfo(runner.program, Service), {
+        title: "My API",
+        version: "1.0.0",
+        summary: "My API summary",
+        termsOfService: "http://example.com/terms/",
+        contact: {
+          name: "API Support",
+          url: "http://www.example.com/support",
+          email: "support@example.com",
+        },
+        license: {
+          name: "Apache 2.0",
+          url: "http://www.apache.org/licenses/LICENSE-2.0.html",
+        },
+        "x-custom": "Bar",
+      });
     });
   });
 });

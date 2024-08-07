@@ -41,6 +41,30 @@ it("emit diagnostic when there is an unannotated parameter and a @body param", a
   });
 });
 
+it("emit diagnostic when there is an unannotated parameter and a nested @body param", async () => {
+  const [_, diagnostics] = await compileOperations(`
+      @get op get(param1: string, nested: {@body param2: string}): void;
+    `);
+
+  expectDiagnostics(diagnostics, {
+    code: "@typespec/http/duplicate-body",
+    message:
+      "Operation has a @body and an unannotated parameter. There can only be one representing the body",
+  });
+});
+
+it("emit diagnostic when there is annotated param and @body nested together", async () => {
+  const [_, diagnostics] = await compileOperations(`
+      @get op get(nested: {param1: string, @body param2: string}): void;
+    `);
+
+  expectDiagnostics(diagnostics, {
+    code: "@typespec/http/duplicate-body",
+    message:
+      "Operation has a @body and an unannotated parameter. There can only be one representing the body",
+  });
+});
+
 it("emit diagnostic when there are multiple @body param", async () => {
   const [_, diagnostics] = await compileOperations(`
       @get op get(@query select: string, @body param1: string, @body param2: string): string;

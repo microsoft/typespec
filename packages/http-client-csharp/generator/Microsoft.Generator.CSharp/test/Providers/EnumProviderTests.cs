@@ -73,6 +73,25 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.IsNull(fields[1].InitializationValue);
         }
 
+        // Validates the api version enum
+        [TestCase]
+        public void BuildEnumType_ValidateApiVersionEnum()
+        {
+            MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(string));
+            
+            string[] apiVersions = ["2024-07-16", "2024-07-17"];
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.ApiVersionEnum, InputPrimitiveType.String, [new InputEnumTypeValue(apiVersions[0], 1, null), new InputEnumTypeValue(apiVersions[1], 2, null)], false);
+            var enumType = EnumProvider.Create(input);
+            var fields = enumType.Fields;
+
+            Assert.AreEqual(2, fields.Count);
+            Assert.AreEqual(apiVersions[0].ToApiVersionMemberName(), fields[0].Name);
+            Assert.AreEqual(apiVersions[1].ToApiVersionMemberName(), fields[1].Name);
+            Assert.AreEqual(Snippet.Literal(1), fields[0].InitializationValue);
+            Assert.AreEqual(Snippet.Literal(2), fields[1].InitializationValue);
+            Assert.AreEqual("ServiceVersion", enumType.Name);
+        }
+
         // Validates the int based extensible enum
         [TestCase]
         public void BuildEnumType_ValidateIntBasedExtensibleEnum()

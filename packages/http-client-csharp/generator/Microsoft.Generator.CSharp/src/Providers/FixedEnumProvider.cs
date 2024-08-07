@@ -14,11 +14,13 @@ namespace Microsoft.Generator.CSharp.Providers
 {
     internal sealed class FixedEnumProvider : EnumProvider
     {
+        private const string ApiVersionEnumName = "ServiceVersion";
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
         private readonly InputEnumType _inputType;
+        private readonly bool _isApiVersionEnum;
 
-        internal FixedEnumProvider(InputEnumType input) : base(input)
+        internal FixedEnumProvider(InputEnumType input, TypeProvider? declaringType) : base(input)
         {
             _inputType = input;
             _allowedValues = input.Values;
@@ -28,7 +30,18 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 _modifiers |= TypeSignatureModifiers.Internal;
             }
+            _isApiVersionEnum = input.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum);
+            DeclaringTypeProvider = declaringType;
         }
+
+        protected override string BuildName()
+            => _isApiVersionEnum ? ApiVersionEnumName : base.BuildName();
+
+        protected override FormattableString Description
+            => _isApiVersionEnum ? $"The version of the service to use." : base.Description;
+
+        protected override string GetNamespace()
+            => _isApiVersionEnum ? CodeModelPlugin.Instance.Configuration.RootNamespace : base.GetNamespace();
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
@@ -46,9 +59,20 @@ namespace Microsoft.Generator.CSharp.Providers
                 var inputValue = _allowedValues[i];
                 var modifiers = FieldModifiers.Public | FieldModifiers.Static;
                 // the fields for fixed enums are just its members (we use fields to represent the values in a system `enum` type), we just use the name for this field
-                var name = inputValue.Name.ToCleanName();
+                var name = _isApiVersionEnum
+                    ? inputValue.Name.ToApiVersionMemberName()
+                    : inputValue.Name.ToCleanName();
                 // for fixed enum, we only need it for int values, for other value typed fixed enum, we use the serialization extension method to give the values (because assigning them to enum members cannot compile)
-                var initializationValue = IsIntValueType ? Literal(inputValue.Value) : null;
+                ValueExpression? initializationValue = null;
+                if (_isApiVersionEnum)
+                {
+                    initializationValue = Literal(i + 1);
+                }
+                else if (IsIntValueType)
+                {
+                    initializationValue = Literal(inputValue.Value);
+                }
+
                 var field = new FieldProvider(
                     modifiers,
                     EnumUnderlyingType,

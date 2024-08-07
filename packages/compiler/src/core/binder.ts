@@ -490,8 +490,9 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindNamespaceStatement(statement: NamespaceStatementNode) {
+    const effectiveScope = fileNamespace ?? scope;
     // check if there's an existing symbol for this namespace
-    const existingBinding = (scope as NamespaceStatementNode).symbol.exports!.get(statement.id.sv);
+    const existingBinding = effectiveScope.symbol.exports!.get(statement.id.sv);
     if (existingBinding && existingBinding.flags & SymbolFlags.Namespace) {
       mutate(statement).symbol = existingBinding;
       // locals are never shared.

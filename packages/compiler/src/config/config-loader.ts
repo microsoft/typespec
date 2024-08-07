@@ -260,6 +260,13 @@ function validatePathAbsolute(
       target: target === NoTarget ? target : getLocationInYamlScript(target.file, target.path),
     });
   }
+  if (path.includes("\\")) {
+    return createDiagnostic({
+      code: "path-unix-style",
+      format: { path },
+      target: target === NoTarget ? target : getLocationInYamlScript(target.file, target.path),
+    });
+  }
 
   return undefined;
 }
