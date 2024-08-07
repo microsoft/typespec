@@ -151,7 +151,11 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
     const emitterOptions = JSON.stringify(options);
     program.trace("http-client-java", `Emitter options ${emitterOptions}`);
 
-    const jarFileName = resolvePath(moduleRoot, "generator/http-client-generator/target", "emitter.jar");
+    const jarFileName = resolvePath(
+      moduleRoot,
+      "generator/http-client-generator/target",
+      "emitter.jar"
+    );
     program.trace("http-client-java", `Exec JAR ${jarFileName}`);
 
     const javaArgs: string[] = [];

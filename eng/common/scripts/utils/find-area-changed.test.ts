@@ -20,8 +20,8 @@ describe("paths that should trigger Java CI", () => {
     ["packages/http-client-java/emitter/src/emitter.ts"],
     [
       "packages/http-client-java/package.json",
-      "packages/http-client-java/eng/scripts/Build-Packages.ps1"
-    ]
+      "packages/http-client-java/eng/scripts/Build-Packages.ps1",
+    ],
   ])("%s", (...paths) => {
     const areas = findAreasChanged(paths);
     expect(areas).toEqual(["Java"]);
@@ -41,8 +41,8 @@ describe("paths that should trigger Core CI", () => {
 
 describe("paths that should trigger all isolated packages", () => {
   it.each([
-    "eng/emitters/pipelines/templates/jobs/detect-api-changes.yml", 
-    "eng/emitters/pipelines/templates/jobs/test-job.yml"
+    "eng/emitters/pipelines/templates/jobs/detect-api-changes.yml",
+    "eng/emitters/pipelines/templates/jobs/test-job.yml",
   ])("%s", (path) => {
     const areas = findAreasChanged([path]);
     expect(areas).toEqual(["CSharp", "Java"]);
@@ -70,7 +70,7 @@ it("Should not return Core for .prettierignore, .prettierrc.json, cspell.yaml, e
     "cspell.yaml",
     "esling.config.json",
     "packages/http-client-csharp/emitter/src/constants.ts",
-    "packages/http-client-java/emitter/src/emitter.ts"
+    "packages/http-client-java/emitter/src/emitter.ts",
   ]);
   expect(areas).toEqual(["CSharp", "Java"]);
 });

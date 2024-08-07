@@ -25,7 +25,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "clean": "rimraf ./dist ./temp",
+    "clean": "rimraf ./dist ./temp ./generator/target/emitter.jar",
     "build": "npm run build:generator && npm run build:emitter",
     "build:emitter": "tsc -p ./emitter/tsconfig.build.json",
     "build:generator": "mvn clean install -f ./generator/pom.xml",
@@ -45,7 +45,6 @@
     "@azure-tools/typespec-autorest": ">=0.43.0 <1.0.0",
     "@azure-tools/typespec-azure-core": ">=0.43.0 <1.0.0",
     "@azure-tools/typespec-client-generator-core": ">=0.43.2 <1.0.0",
-    "@microsoft/api-extractor": "^7.40.3",
     "@typespec/compiler": ">=0.57.0 <1.0.0",
     "@typespec/http": ">=0.57.0 <1.0.0",
     "@typespec/openapi": ">=0.57.0 <1.0.0",
@@ -55,18 +54,17 @@
   },
   "dependencies": {
     "@autorest/codemodel": "~4.20.0",
-    "@azure-tools/ts-genapi": "^1.0.7",
-    "@microsoft/api-extractor-model": "^7.28.2",
     "@typespec/http-client-java": "file:",
-    "js-tokens": "^8.0.0",
     "js-yaml": "~4.1.0",
     "lodash": "~4.17.21"
   },
   "devDependencies": {
     "@azure-tools/codegen": "~2.10.0",
+    "@azure-tools/ts-genapi": "^1.0.7",
     "@azure-tools/typespec-azure-core": "0.44.0",
     "@azure-tools/typespec-client-generator-core": "0.44.3",
     "@microsoft/api-extractor": "^7.40.3",
+    "@microsoft/api-extractor-model": "^7.28.2",
     "@types/js-yaml": "~4.0.9",
     "@types/lodash": "~4.17.1",
     "@types/node": "~20.12.10",
