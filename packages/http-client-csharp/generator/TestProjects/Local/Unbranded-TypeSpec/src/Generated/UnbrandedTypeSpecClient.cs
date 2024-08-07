@@ -5,7 +5,6 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.Threading;
 using System.Threading.Tasks;
 using UnbrandedTypeSpec.Models;
 
@@ -18,8 +17,6 @@ namespace UnbrandedTypeSpec
         private const string AuthorizationHeader = "my-api-key";
         /// <summary> A credential used to authenticate to the service. </summary>
         private readonly ApiKeyCredential _keyCredential;
-        private Audio _cachedAudio;
-        private Pets _cachedPets;
 
         /// <summary> Initializes a new instance of UnbrandedTypeSpecClient for mocking. </summary>
         protected UnbrandedTypeSpecClient()
@@ -1116,18 +1113,6 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(id, nameof(id));
 
             return await HeadAsBooleanAsync(id, null).ConfigureAwait(false);
-        }
-
-        /// <summary> Initializes a new instance of Audio. </summary>
-        public virtual Audio GetAudioClient()
-        {
-            return Volatile.Read(ref _cachedAudio) ?? Interlocked.CompareExchange(ref _cachedAudio, new Audio(Pipeline, _keyCredential, _endpoint), null) ?? _cachedAudio;
-        }
-
-        /// <summary> Initializes a new instance of Pets. </summary>
-        public virtual Pets GetPetsClient()
-        {
-            return Volatile.Read(ref _cachedPets) ?? Interlocked.CompareExchange(ref _cachedPets, new Pets(Pipeline, _keyCredential, _endpoint), null) ?? _cachedPets;
         }
     }
 }

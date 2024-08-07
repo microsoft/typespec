@@ -366,31 +366,3 @@ op stillConvenient(): void;
 @head
 @convenientAPI(true)
 op headAsBoolean(@path id: string): void;
-
-@route("/audio")
-@doc("Audio.")
-namespace Audio {
-  @route("transcriptions")
-  @doc("Audio transcriptions.")
-  interface Transcriptions {
-    @post
-    @convenientAPI(true)
-    create(@body body: Thing): Thing;
-  }
-}
-
-@route("/pets")
-@doc("Pets.")
-namespace Pets {
-  @route("kinds")
-  op kinds(): string[];
-
-  @route("/actions")
-  @doc("Pet actions.")
-  interface Actions {
-    @post
-    feed(@path id: string): void;
-    @get
-    pet(@path id: string): void;
-  }
-}
