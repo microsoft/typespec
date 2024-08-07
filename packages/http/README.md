@@ -326,7 +326,7 @@ None
 Explicitly specify that this property is to be interpolated as a path parameter.
 
 ```typespec
-@TypeSpec.Http.path(paramName?: valueof string)
+@TypeSpec.Http.path(paramNameOrOptions?: valueof string | TypeSpec.Http.PathOptions)
 ```
 
 ##### Target
@@ -335,9 +335,9 @@ Explicitly specify that this property is to be interpolated as a path parameter.
 
 ##### Parameters
 
-| Name      | Type             | Description                                         |
-| --------- | ---------------- | --------------------------------------------------- |
-| paramName | `valueof string` | Optional name of the parameter in the url template. |
+| Name               | Type                                          | Description                                                    |
+| ------------------ | --------------------------------------------- | -------------------------------------------------------------- |
+| paramNameOrOptions | `valueof string \| TypeSpec.Http.PathOptions` | Optional name of the parameter in the uri template or options. |
 
 ##### Examples
 
@@ -395,7 +395,7 @@ None
 Specify this property is to be sent as a query parameter.
 
 ```typespec
-@TypeSpec.Http.query(queryNameOrOptions?: string | TypeSpec.Http.QueryOptions)
+@TypeSpec.Http.query(queryNameOrOptions?: valueof string | TypeSpec.Http.QueryOptions)
 ```
 
 ##### Target
@@ -404,30 +404,20 @@ Specify this property is to be sent as a query parameter.
 
 ##### Parameters
 
-| Name               | Type                                   | Description                                                                     |
-| ------------------ | -------------------------------------- | ------------------------------------------------------------------------------- |
-| queryNameOrOptions | `string \| TypeSpec.Http.QueryOptions` | Optional name of the query when included in the url or query parameter options. |
+| Name               | Type                                           | Description                                                                     |
+| ------------------ | ---------------------------------------------- | ------------------------------------------------------------------------------- |
+| queryNameOrOptions | `valueof string \| TypeSpec.Http.QueryOptions` | Optional name of the query when included in the url or query parameter options. |
 
 ##### Examples
 
 ```typespec
 op read(@query select: string, @query("order-by") orderBy: string): void;
-op list(
-  @query({
-    name: "id",
-    format: "multi",
-  })
-  ids: string[],
-): void;
+op list(@query(#{ name: "id", explode: true }) ids: string[]): void;
 ```
 
 #### `@route`
 
-Defines the relative route URI for the target operation
-
-The first argument should be a URI fragment that may contain one or more path parameter fields.
-If the namespace or interface that contains the operation is also marked with a `@route` decorator,
-it will be used as a prefix to the route URI of the operation.
+Defines the relative route URI template for the target operation as defined by [RFC 6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)
 
 `@route` can only be applied to operations, namespaces, and interfaces.
 
@@ -441,16 +431,30 @@ it will be used as a prefix to the route URI of the operation.
 
 ##### Parameters
 
-| Name    | Type             | Description                                                                                                                                  |
-| ------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| path    | `valueof string` | Relative route path. Cannot include query parameters.                                                                                        |
-| options | `{...}`          | Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
+| Name    | Type             | Description                                                                                                                                               |
+| ------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| path    | `valueof string` |                                                                                                                                                           |
+| options | `{...}`          | _DEPRECATED_ Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
 
 ##### Examples
 
+###### Simple path parameter
+
 ```typespec
-@route("/widgets")
-op getWidget(@path id: string): Widget;
+@route("/widgets/{id}") op getWidget(@path id: string): Widget;
+```
+
+###### Reserved characters
+
+```typespec
+@route("/files{+path}") op getFile(@path path: string): bytes;
+```
+
+###### Query parameter
+
+```typespec
+@route("/files") op list(select?: string, filter?: string): Files[];
+@route("/files{?select,filter}") op listFullUriTemplate(select?: string, filter?: string): Files[];
 ```
 
 #### `@server`
