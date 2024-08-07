@@ -35,19 +35,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var inputModelProperty =
                 new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any, "foo", "bar"), true, true, false);
             var inputModel = new InputModelType("foo", "id", "desc", "internal", "description",
-                InputModelTypeUsage.Input, new[] { inputModelProperty }, null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
+                InputModelTypeUsage.Input, [inputModelProperty], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
             var param = new InputParameter("param", "name", "desc",
                 new InputLiteralType(new InputPrimitiveType(InputPrimitiveTypeKind.String, "foo", "bar"), "bar"),
                 RequestLocation.Header, null, InputOperationParameterKind.Method, true, false, true, false, false,
                 false, false, null, null);
-            var inputOperation = new InputOperation("testoperation", "name", "desc", null, null, new[] { param }, new[] {new OperationResponse(new[] {200}, new InputLiteralType(InputPrimitiveType.Any, "foo"), BodyMediaType.Json, [], false, [] )},
-                "GET", BodyMediaType.Json, "http://example.com", "baz", null, null, true, null, null, true, true);
+            var inputOperation = new InputOperation("testoperation", "name", "desc", null, null, [param], new[] {new OperationResponse([200], new InputLiteralType(InputPrimitiveType.Any, "foo"), BodyMediaType.Json, [], false, [] )},
+                "GET", BodyMediaType.Json, "http://example.com", "baz", null, null, true, null, null, true, true, "foo");
             var inputClient = new InputClient(
                 "fooClient",
                 "desc",
-                new[] { inputOperation },
-                new[] { param },
+                [inputOperation],
+                [param],
                 null);
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(new InputNamespace(
                 "test library",
@@ -63,7 +63,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
                         {
                             inputOperation
                         },
-                        new[]{ param },
+                        [param],
                         null)
                 },
                 new InputAuth()));
