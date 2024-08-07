@@ -106,7 +106,7 @@ namespace Microsoft.Generator.CSharp
 
         protected internal virtual TypeProvider? Visit(InputEnumType enumType, TypeProvider? type)
         {
-            return EnumProvider.Create(enumType);
+            return EnumProvider.Create(enumType, type);
         }
 
         protected internal virtual MethodProviderCollection? Visit(InputOperation operation, TypeProvider enclosingType, MethodProviderCollection? methodProviderCollection)

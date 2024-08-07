@@ -20,7 +20,8 @@ export function* emitEnum(ctx: JsContext, enum_: Enum): Iterable<string> {
   yield `export enum ${name.pascalCase} {`;
 
   for (const member of enum_.members.values()) {
-    yield `  ${member.name} = ${member.value},`;
+    const nameCase = parseCase(member.name);
+    yield `  ${nameCase.pascalCase} = ${JSON.stringify(member.value)},`;
   }
 
   yield `}`;

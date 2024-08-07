@@ -89,7 +89,8 @@
      "Path": "/authentication/http/custom/valid",
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Authentication.Http.Custom.valid"
     },
     {
      "$id": "12",
@@ -142,7 +143,8 @@
      "Path": "/authentication/http/custom/invalid",
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Authentication.Http.Custom.invalid"
     }
    ],
    "Protocol": {
