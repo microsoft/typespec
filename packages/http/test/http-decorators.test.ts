@@ -157,8 +157,8 @@ describe("http: decorators", () => {
     it("emit diagnostics when query name is not a string or of type QueryOptions", async () => {
       const diagnostics = await runner.diagnose(`
           op test(@query(123) MyQuery: string): string;
-          op test2(@query({name: 123}) MyQuery: string): string;
-          op test3(@query({format: "invalid"}) MyQuery: string): string;
+          op test2(@query(#{name: 123}) MyQuery: string): string;
+          op test3(@query(#{format: "invalid"}) MyQuery: string): string;
         `);
 
       expectDiagnostics(diagnostics, [
@@ -172,17 +172,6 @@ describe("http: decorators", () => {
           code: "invalid-argument",
         },
       ]);
-    });
-
-    it("emit diagnostics when query is not specifing format but is an array", async () => {
-      const diagnostics = await runner.diagnose(`
-          op test(@query select: string[]): string;
-        `);
-
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/http/query-format-required",
-        message: `A format must be specified for @query when type is an array. e.g. @query({format: "multi"})`,
-      });
     });
 
     it("generate query name from property name", async () => {
@@ -202,15 +191,43 @@ describe("http: decorators", () => {
       strictEqual(getQueryParamName(runner.program, select), "$select");
     });
 
-    describe("change format for array value", () => {
-      ["csv", "tsv", "ssv", "simple", "form", "pipes"].forEach((format) => {
+    it("specify explode: true", async () => {
+      const { selects } = await runner.compile(`
+        op test(@test @query(#{ explode: true }) selects: string[]): string;
+      `);
+      expect(getQueryParamOptions(runner.program, selects)).toEqual({
+        type: "query",
+        name: "selects",
+        format: "multi",
+        explode: true,
+      });
+    });
+
+    describe("LEGACY: change format for array value", () => {
+      ["csv", "tsv", "ssv", "simple", "pipes"].forEach((format) => {
         it(`set query format to "${format}"`, async () => {
           const { selects } = await runner.compile(`
-            op test(@test @query({name: "$select", format: "${format}"}) selects: string[]): string;
+            #suppress "deprecated" "Test"
+            op test(@test @query(#{name: "$select", format: "${format}"}) selects: string[]): string;
           `);
           deepStrictEqual(getQueryParamOptions(runner.program, selects), {
             type: "query",
             name: "$select",
+            explode: false,
+            format,
+          });
+        });
+      });
+      ["form"].forEach((format) => {
+        it(`set query format to "${format}"`, async () => {
+          const { selects } = await runner.compile(`
+            #suppress "deprecated" "Test"
+            op test(@test @query(#{name: "$select", format: "${format}"}) selects: string[]): string;
+          `);
+          deepStrictEqual(getQueryParamOptions(runner.program, selects), {
+            type: "query",
+            name: "$select",
+            explode: true,
             format,
           });
         });
@@ -372,6 +389,9 @@ describe("http: decorators", () => {
       deepStrictEqual(getPathParamOptions(runner.program, select), {
         type: "path",
         name: "$select",
+        allowReserved: false,
+        explode: false,
+        style: "simple",
       });
       strictEqual(getPathParamName(runner.program, select), "$select");
     });

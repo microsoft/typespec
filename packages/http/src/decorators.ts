@@ -33,9 +33,11 @@ import {
   MultipartBodyDecorator,
   PatchDecorator,
   PathDecorator,
+  PathOptions,
   PostDecorator,
   PutDecorator,
   QueryDecorator,
+  QueryOptions,
   RouteDecorator,
   ServerDecorator,
   SharedRouteDecorator,
@@ -123,38 +125,28 @@ export function isHeader(program: Program, entity: Type) {
 export const $query: QueryDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
-  queryNameOrOptions?: StringLiteral | Type
+  queryNameOrOptions?: string | QueryOptions
 ) => {
+  const paramName =
+    typeof queryNameOrOptions === "string"
+      ? queryNameOrOptions
+      : (queryNameOrOptions?.name ?? entity.name);
+  const userOptions: QueryOptions =
+    typeof queryNameOrOptions === "object" ? queryNameOrOptions : {};
+  if (userOptions.format) {
+    reportDeprecated(
+      context.program,
+      "The `format` option of `@query` decorator is deprecated. Use `explode: true` instead of `form` and `multi`. `csv` or `simple` is the default now.",
+      entity
+    );
+  }
   const options: QueryParameterOptions = {
     type: "query",
-    name: entity.name,
+    explode:
+      userOptions.explode ?? (userOptions.format === "multi" || userOptions.format === "form"),
+    format: userOptions.format ?? (userOptions.explode ? "multi" : "csv"),
+    name: paramName,
   };
-  if (queryNameOrOptions) {
-    if (queryNameOrOptions.kind === "String") {
-      options.name = queryNameOrOptions.value;
-    } else if (queryNameOrOptions.kind === "Model") {
-      const name = queryNameOrOptions.properties.get("name")?.type;
-      if (name?.kind === "String") {
-        options.name = name.value;
-      }
-      const format = queryNameOrOptions.properties.get("format")?.type;
-      if (format?.kind === "String") {
-        options.format = format.value as any; // That value should have already been validated by the TypeSpec dec
-      }
-    } else {
-      return;
-    }
-  }
-  if (
-    entity.type.kind === "Model" &&
-    isArrayModelType(context.program, entity.type) &&
-    options.format === undefined
-  ) {
-    reportDiagnostic(context.program, {
-      code: "query-format-required",
-      target: context.decoratorTarget,
-    });
-  }
   context.program.stateMap(HttpStateKeys.query).set(entity, options);
 };
 
@@ -173,11 +165,20 @@ export function isQueryParam(program: Program, entity: Type) {
 export const $path: PathDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
-  paramName?: string
+  paramNameOrOptions?: string | PathOptions
 ) => {
+  const paramName =
+    typeof paramNameOrOptions === "string"
+      ? paramNameOrOptions
+      : (paramNameOrOptions?.name ?? entity.name);
+
+  const userOptions: PathOptions = typeof paramNameOrOptions === "object" ? paramNameOrOptions : {};
   const options: PathParameterOptions = {
     type: "path",
-    name: paramName ?? entity.name,
+    explode: userOptions.explode ?? false,
+    allowReserved: userOptions.allowReserved ?? false,
+    style: userOptions.style ?? "simple",
+    name: paramName,
   };
   context.program.stateMap(HttpStateKeys.path).set(entity, options);
 };
