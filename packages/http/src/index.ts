@@ -8,7 +8,7 @@ export * from "./decorators.js";
 export type { HttpProperty } from "./http-property.js";
 export * from "./metadata.js";
 export * from "./operations.js";
-export * from "./parameters.js";
+export { getOperationParameters } from "./parameters.js";
 export {
   HttpPart,
   getHttpFileModel,
