@@ -15,36 +15,68 @@ import { HelperContext, getStateHelpers } from "./helpers.js";
 import { CLITable3 } from "./dependencies.js";
 
 export type CliType = Namespace | Interface | Operation;
-
+export interface Command {
+  cli: CliType;
+  subcommands: Command[];
+  options: Map<ModelProperty, string>;
+}
 export async function $onEmit(context: EmitContext) {
   const helpers = getStateHelpers(context);
   if (context.program.compilerOptions.noEmit) {
     return;
   }
 
+  const commands: Command[] = [];
   const clis = helpers.listClis() as CliType[];
-  const cliSfs = [];
 
   for (const cli of clis) {
-    const subCommandClis =
-      cli.kind === "Namespace" || cli.kind === "Interface" ? [...cli.operations.values()] : [];
+    if (cli.kind === "Namespace" || cli.kind === "Interface") {
+      const command: Command = {
+        cli,
+        subcommands: [],
+        options: collectCommandOptions(cli)
+      }
 
-    const parsers = mapJoin([cli, ...subCommandClis], (cli) => {
-      const mutatedCli =
-        cli.kind === "Operation" ? (helpers.toOptionsBag(cli).type as Operation) : cli;
-      const options = collectCommandOptions(mutatedCli);
-      return <CommandArgParser command={mutatedCli} options={options} />;
-    });
+      for (const subCli of cli.operations.values()) {
+        const subcommand = {
+          cli: subCli,
+          subcommands: [],
+          options: collectCommandOptions(subCli)
+        }
+
+        command.subcommands.push(subcommand);
+      }
+
+      commands.push(command);
+    } else {
+      commands.push({
+        cli: (helpers.toOptionsBag(cli).type as Operation),
+        subcommands: [],
+        options: collectCommandOptions(cli)
+      })
+    }
+  }
+
+  const cliSfs = [];
+
+  for (const command of commands) {
+    const parsers = [
+      <CommandArgParser command={command} />
+    ]
+
+    for (const subcommand of command.subcommands) {
+      parsers.push(<CommandArgParser command={subcommand} />);
+    }
 
     cliSfs.push(
-      <SourceFile path={cli.name + ".ts"}>
-        <ControllerInterface cli={cli} />
+      <SourceFile path={command.cli.name + ".ts"}>
+        <ControllerInterface cli={command.cli} />
 
         <FunctionDeclaration export name="parseArgs" parameters={{
           args: "string[]",
           handler: <Reference refkey={refkey("CommandInterface")} />
         }}>
-          parse{cli.name}Args(args);
+          <Reference refkey={refkey(command, "parseArgs")} />(args);
           {parsers}
         </FunctionDeclaration>
       </SourceFile>

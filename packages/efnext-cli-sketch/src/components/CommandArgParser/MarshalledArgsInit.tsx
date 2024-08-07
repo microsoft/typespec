@@ -10,11 +10,11 @@ export interface MarshalledArgsInit {}
 export function MarshalledArgsInit({}: MarshalledArgsInit) {
   const { command } = useCommand();
   let defaultArgParams: ModelProperty[];
-  if (command.kind === "Interface" || command.kind === "Namespace") {
+  if (command.cli.kind === "Interface" || command.cli.kind === "Namespace") {
     // todo: get "command" op for this command group.
     defaultArgParams = [];
   } else {
-    defaultArgParams = [...command.parameters.properties.values()];
+    defaultArgParams = [...command.cli.parameters.properties.values()];
   }
   const defaultArgs = defaultArgParams.map((p) => buildDefaults(p));
 

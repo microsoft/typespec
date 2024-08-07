@@ -7,7 +7,7 @@ export interface GetTokensProps {}
 node.fs
 // eslint-disable-next-line no-empty-pattern
 export function GetTokens({}: GetTokensProps) {
-  const { options } = useCommand();
+  const { command: { options } } = useCommand();
   const helpers = useHelpers();
 
   const parseArgsArg: Record<string, any> = {
