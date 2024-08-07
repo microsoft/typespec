@@ -51,8 +51,11 @@ $emitterVersion = node -p -e "require('$packageRoot/package.json').version"
 Push-Location "$packageRoot/generator"
 try {
     Write-Host "Working in $PWD"
+    Write-Host "PATH: $env:PATH"
+    Invoke-LoggedCommand "java -version"
+    Invoke-LoggedCommand "mvn -version"
 
-    Invoke-LoggedCommand "mvn clean install -f ./pom.xml"
+    Invoke-LoggedCommand "mvn clean install -f ./pom.xml -X"
 }
 finally {
     Pop-Location
