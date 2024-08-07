@@ -170,6 +170,18 @@ export const libDef = {
         default: paramMessage`Collection format '${"value"}' is not supported in OpenAPI3 ${"paramType"} parameters. Defaulting to type 'string'.`,
       },
     },
+    "invalid-style": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Style '${"style"}' is not supported in OpenAPI3 ${"paramType"} parameters. Defaulting to style 'simple'.`,
+      },
+    },
+    "path-reserved-expansion": {
+      severity: "warning",
+      messages: {
+        default: `Reserved expansion of path parameter with '+' operator #{allowReserved: true} is not supported in OpenAPI3.`,
+      },
+    },
     "resource-namespace": {
       severity: "error",
       messages: {

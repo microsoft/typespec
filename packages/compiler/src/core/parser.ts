@@ -582,7 +582,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.NamespaceKeyword:
           const ns = parseNamespaceStatement(pos, decorators, docs, directives);
 
-          if (!Array.isArray(ns.statements)) {
+          if (isBlocklessNamespace(ns)) {
             error({ code: "blockless-namespace-first", messageId: "topLevel", target: ns });
           }
           item = ns;
