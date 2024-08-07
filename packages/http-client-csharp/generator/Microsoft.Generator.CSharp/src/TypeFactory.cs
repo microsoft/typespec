@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -23,6 +21,9 @@ namespace Microsoft.Generator.CSharp
         private Dictionary<InputType, TypeProvider?>? _csharpToTypeProvider;
         private Dictionary<InputType, TypeProvider?> CSharpToTypeProvider => _csharpToTypeProvider ??= [];
 
+        private Dictionary<EnumCacheKey, TypeProvider?>? _enumCache;
+        private Dictionary<EnumCacheKey, TypeProvider?> EnumCache => _enumCache ??= [];
+
         private Dictionary<InputType, CSharpType>? _typeCache;
         private Dictionary<InputType, CSharpType> TypeCache => _typeCache ??= [];
 
@@ -36,7 +37,7 @@ namespace Microsoft.Generator.CSharp
         private Dictionary<InputParameter, ParameterProvider> ParameterCache => _parameterCache ??= [];
 
         private Dictionary<InputType, IReadOnlyList<TypeProvider>>? _serializationsCache;
-        private IList<LibraryVisitor> Visitors => CodeModelPlugin.Instance.Visitors;
+        private IReadOnlyList<LibraryVisitor> Visitors => CodeModelPlugin.Instance.Visitors;
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache => _serializationsCache ??= [];
 
         protected internal TypeFactory()
@@ -186,27 +187,29 @@ namespace Microsoft.Generator.CSharp
         /// Factory method for creating a <see cref="TypeProvider"/> based on an <see cref="InputEnumType"> <paramref name="enumType"/>.
         /// </summary>
         /// <param name="enumType">The <see cref="InputEnumType"/> to convert.</param>
+        /// <param name="declaringType"/> The declaring <see cref="TypeProvider".</param>
         /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
-        public TypeProvider? CreateEnum(InputEnumType enumType)
+        public TypeProvider? CreateEnum(InputEnumType enumType, TypeProvider? declaringType = null)
         {
-            if (CSharpToTypeProvider.TryGetValue(enumType, out var enumProvider))
+            var enumCacheKey = new EnumCacheKey(enumType, declaringType);
+            if (EnumCache.TryGetValue(enumCacheKey, out var enumProvider))
                 return enumProvider;
 
-            enumProvider = CreateEnumCore(enumType);
-            CSharpToTypeProvider.Add(enumType, enumProvider);
+            enumProvider = CreateEnumCore(enumType, declaringType);
+            EnumCache.Add(enumCacheKey, enumProvider);
             return enumProvider;
         }
 
-        private TypeProvider? CreateEnumCore(InputEnumType enumType)
+        private TypeProvider? CreateEnumCore(InputEnumType enumType, TypeProvider? declaringType)
         {
-            TypeProvider? type = EnumProvider.Create(enumType);
+            TypeProvider? type = EnumProvider.Create(enumType, declaringType);
             if (Visitors.Count == 0)
             {
                 return type;
             }
             foreach (var visitor in Visitors)
             {
-                type = visitor.Visit(enumType, type);
+                type = visitor.Visit(enumType, declaringType);
             }
             return type;
         }
@@ -224,28 +227,6 @@ namespace Microsoft.Generator.CSharp
             parameterProvider = new ParameterProvider(parameter);
             ParameterCache.Add(parameter, parameterProvider);
             return parameterProvider;
-        }
-
-        /// <summary>
-        /// Factory method for creating a <see cref="MethodProviderCollection"/> based on an input operation <paramref name="operation"/>.
-        /// </summary>
-        /// <param name="operation">The <see cref="InputOperation"/> to convert.</param>
-        /// <param name="enclosingType">The <see cref="TypeProvider"/> that will contain the methods.</param>
-        /// <returns>An instance of <see cref="MethodProviderCollection"/> containing the chain of methods
-        /// associated with the input operation, or <c>null</c> if no methods are constructed.
-        /// </returns>
-        public MethodProviderCollection? CreateMethods(InputOperation operation, TypeProvider enclosingType)
-        {
-            var methods = new MethodProviderCollection(operation, enclosingType);
-            if (Visitors.Count == 0)
-            {
-                return methods;
-            }
-            foreach (var visitor in Visitors)
-            {
-                methods = visitor.Visit(operation, enclosingType, methods);
-            }
-            return methods;
         }
 
         /// <summary>
@@ -357,6 +338,17 @@ namespace Microsoft.Generator.CSharp
         protected virtual IReadOnlyList<TypeProvider> CreateSerializationsCore(InputType inputType, TypeProvider typeProvider)
         {
             return [];
+        }
+
+        private readonly struct EnumCacheKey
+        {
+            public InputEnumType EnumType { get; }
+            public TypeProvider? DeclaringType { get; }
+            public EnumCacheKey(InputEnumType enumType, TypeProvider? declaringType)
+            {
+                EnumType = enumType;
+                DeclaringType = declaringType;
+            }
         }
     }
 }
