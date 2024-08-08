@@ -63,3 +63,4 @@ title: "[P] JS API"
 - [getUniqueItems](functions/getUniqueItems.md)
 - [isJsonSchemaDeclaration](functions/isJsonSchemaDeclaration.md)
 - [isOneOf](functions/isOneOf.md)
+- [setExtension](functions/setExtension.md)
