@@ -18,7 +18,7 @@ function $example(
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | \| [`Enum`](../interfaces/Enum.md) \| [`Model`](../interfaces/Model.md) \| [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) \| [`Union`](../interfaces/Union.md) \| [`UnionVariant`](../interfaces/UnionVariant.md) |
 | `example` | `unknown` |
-| `options`? | `unknown` |
+| `options`? | [`ExampleOptions`](../interfaces/ExampleOptions.md) |
 
 ## Returns
 

@@ -1,5 +1,12 @@
 # Change Log - @typespec/playground
 
+## 0.4.1
+
+### Bump dependencies
+
+- [#3948](https://github.com/microsoft/typespec/pull/3948) Update dependencies
+
+
 ## 0.4.0
 
 ### Bump dependencies
