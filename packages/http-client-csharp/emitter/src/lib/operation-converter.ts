@@ -201,7 +201,7 @@ function fromSdkHttpOperationParameter(
     Explode: parameterType.Kind === "array" && format === "multi" ? true : false,
     ArraySerializationDelimiter: format ? collectionFormatToDelimMap[format] : undefined,
     IsRequired: !p.optional,
-    Kind: getParameterKind(p, parameterType, isContentType, rootApiVersions.length > 0),
+    Kind: getParameterKind(p, parameterType, rootApiVersions.length > 0),
     DefaultValue: getParameterDefaultValue(p.clientDefaultValue, parameterType),
   } as InputParameter;
 }
@@ -368,7 +368,6 @@ function getParameterLocation(
 function getParameterKind(
   p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter,
   type: InputType,
-  isContentType: boolean,
   hasGlobalApiVersion: boolean
 ): InputOperationParameterKind {
   if (p.kind === "body") {
@@ -377,7 +376,7 @@ function getParameterKind(
     }
     return InputOperationParameterKind.Method;
   }
-  return isContentType || type.Kind === "constant"
+  return type.Kind === "constant"
     ? InputOperationParameterKind.Constant
     : p.isApiVersionParam
       ? hasGlobalApiVersion
