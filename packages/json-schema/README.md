@@ -49,7 +49,8 @@ The config can be extended with options as follows:
 emit:
   - "@typespec/json-schema"
 options:
-  "@typespec/json-schema": option:value
+  "@typespec/json-schema":
+    option: value
 ```
 
 ### Emitter options

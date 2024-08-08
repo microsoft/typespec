@@ -27,7 +27,8 @@ The config can be extended with options as follows:
 emit:
   - "@typespec/openapi3"
 options:
-  "@typespec/openapi3": option:value
+  "@typespec/openapi3":
+    option: value
 ```
 
 ## Emitter options
