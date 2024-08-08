@@ -144,9 +144,19 @@ export const $query: QueryDecorator = (
     type: "query",
     explode:
       userOptions.explode ?? (userOptions.format === "multi" || userOptions.format === "form"),
-    format: userOptions.format ?? (userOptions.explode ? "multi" : "csv"),
+    format: userOptions.format,
     name: paramName,
   };
+
+  if (
+    entity.type.kind === "Model" &&
+    isArrayModelType(context.program, entity.type) &&
+    // eslint-disable-next-line deprecation/deprecation
+    options.format === undefined
+  ) {
+    // eslint-disable-next-line deprecation/deprecation
+    options.format = userOptions.explode ? "multi" : "csv";
+  }
   context.program.stateMap(HttpStateKeys.query).set(entity, options);
 };
 
