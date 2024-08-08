@@ -396,6 +396,63 @@ describe("openapi3: union type", () => {
     });
   });
 
+  it("handles unions defined in a namespace", async () => {
+    const res = await openApiFor(`
+      namespace Foo {
+        model A {
+          foo: string;
+        }
+      }
+
+      namespace Bar {
+        model A {
+          bar: string;
+        }
+      }
+
+      namespace Baz {
+        union A {
+          foo: Foo.A,
+          bar: Bar.A
+        }
+      }
+
+      @get
+      op getFoo(data: Baz.A): {};
+    `);
+
+    deepStrictEqual(res.components.schemas["Foo.A"], {
+      properties: {
+        foo: {
+          type: "string",
+        },
+      },
+      required: ["foo"],
+      type: "object",
+    });
+
+    deepStrictEqual(res.components.schemas["Bar.A"], {
+      properties: {
+        bar: {
+          type: "string",
+        },
+      },
+      required: ["bar"],
+      type: "object",
+    });
+
+    deepStrictEqual(res.components.schemas["Baz.A"], {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/Foo.A",
+        },
+        {
+          $ref: "#/components/schemas/Bar.A",
+        },
+      ],
+    });
+  });
+
   it("throws diagnostics for empty enum definitions", async () => {
     const diagnostics = await diagnoseOpenApiFor(`union Pet {}`);
 

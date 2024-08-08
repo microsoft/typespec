@@ -475,7 +475,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   unionDeclaration(union: Union, name: string): EmitterOutput<object> {
     const schema = this.#unionSchema(union);
-    return this.#createDeclaration(union, name, schema);
+    const baseName = getOpenAPITypeName(this.emitter.getProgram(), union, this.#typeNameOptions());
+    return this.#createDeclaration(union, baseName, schema);
   }
 
   #unionSchema(union: Union): ObjectBuilder<OpenAPI3Schema> {
