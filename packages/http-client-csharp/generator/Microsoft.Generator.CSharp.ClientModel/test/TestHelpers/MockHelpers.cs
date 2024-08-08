@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         private static readonly string _configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
         public const string TestHelpersFolder = "TestHelpers";
 
-        public static void LoadMockPlugin(
+        public static Mock<ClientModelPlugin> LoadMockPlugin(
             Func<InputType, TypeProvider, IReadOnlyList<TypeProvider>>? createSerializationsCore = null,
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<CSharpType>? matchConditionsType = null,
@@ -27,7 +27,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             Func<InputParameter, ParameterProvider>? createParameter = null,
             Func<InputApiKeyAuth>? apiKeyAuth = null,
             Func<IReadOnlyList<string>>? apiVersions = null,
-            Func<IReadOnlyList<InputEnumType>>? inputEnums = null)
+            Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
+            Func<InputLibrary>? createInputLibrary = null)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
             IReadOnlyList<InputEnumType> inputNsEnums = inputEnums?.Invoke() ?? [];
@@ -80,8 +81,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             mockPluginInstance.Setup(p => p.InputLibrary).Returns(mockInputLibrary.Object);
 
+            if (createInputLibrary is not null)
+            {
+                mockPluginInstance.Setup(p => p.InputLibrary).Returns(createInputLibrary);
+            }
+
             codeModelInstance!.SetValue(null, mockPluginInstance.Object);
             clientModelInstance!.SetValue(null, mockPluginInstance.Object);
+            return mockPluginInstance;
         }
     }
 }

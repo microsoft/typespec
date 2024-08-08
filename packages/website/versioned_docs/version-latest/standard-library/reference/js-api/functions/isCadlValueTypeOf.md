@@ -7,8 +7,6 @@ title: "[F] isCadlValueTypeOf"
 function isCadlValueTypeOf<K>(target, expectedType): target is InferredTypeSpecValue<K>
 ```
 
-Check if the given target is of any of the TypeSpec types.
-
 ## Type Parameters
 
 | Type Parameter |
@@ -26,4 +24,6 @@ Check if the given target is of any of the TypeSpec types.
 
 `target is InferredTypeSpecValue<K>`
 
-boolean if the target is of one of the allowed types.
+## Deprecated
+
+use isTypeSpecValueTypeOf

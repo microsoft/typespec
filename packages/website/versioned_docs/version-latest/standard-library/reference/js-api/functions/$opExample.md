@@ -17,8 +17,8 @@ function $opExample(
 | ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Operation`](../interfaces/Operation.md) |
-| `example` | `unknown` |
-| `options`? | `unknown` |
+| `example` | `OperationExample` |
+| `options`? | [`ExampleOptions`](../interfaces/ExampleOptions.md) |
 
 ## Returns
 

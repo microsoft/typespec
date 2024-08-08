@@ -40,6 +40,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         internal RestClientProvider RestClient => _restClient ??= new RestClientProvider(_inputClient, this);
         internal ClientOptionsProvider ClientOptions => _clientOptions ??= new ClientOptionsProvider(_inputClient, this);
 
+        // for mocking
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        protected ClientProvider()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        {
+        }
+
         public ClientProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
