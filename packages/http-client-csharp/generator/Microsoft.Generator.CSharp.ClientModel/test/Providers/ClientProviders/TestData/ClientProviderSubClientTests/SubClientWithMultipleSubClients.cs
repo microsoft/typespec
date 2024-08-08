@@ -2,9 +2,6 @@
 
 #nullable disable
 
-using System;
-using System.ClientModel;
-using System.ClientModel.Primitives;
 using System.Threading;
 
 namespace sample.namespace
@@ -12,38 +9,16 @@ namespace sample.namespace
     /// <summary></summary>
     public partial class Animal
     {
-        private readonly global::System.Uri _endpoint;
-        private const string AuthorizationHeader = "mock";
-        /// <summary> A credential used to authenticate to the service. </summary>
-        private readonly global::System.ClientModel.ApiKeyCredential _keyCredential;
-        private global::sample.namespace.Dog _cachedDog;
-        private global::sample.namespace.Cat _cachedCat;
-
-        /// <summary> Initializes a new instance of Animal for mocking. </summary>
-        protected Animal()
-        {
-        }
-
-        internal Animal(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.ClientModel.ApiKeyCredential keyCredential, global::System.Uri endpoint)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-            _keyCredential = keyCredential;
-        }
-
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline { get; }
-
         /// <summary> Initializes a new instance of Dog. </summary>
         public virtual global::sample.namespace.Dog GetDogClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedDog) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedDog, new global::sample.namespace.Dog(Pipeline, _keyCredential, _endpoint), null) ?? _cachedDog));
+            return (global::System.Threading.Volatile.Read(ref _cachedDog) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedDog, new global::sample.namespace.Dog(), null) ?? _cachedDog));
         }
 
         /// <summary> Initializes a new instance of Cat. </summary>
         public virtual global::sample.namespace.Cat GetCatClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedCat) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedCat, new global::sample.namespace.Cat(Pipeline, _keyCredential, _endpoint), null) ?? _cachedCat));
+            return (global::System.Threading.Volatile.Read(ref _cachedCat) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedCat, new global::sample.namespace.Cat(), null) ?? _cachedCat));
         }
     }
 }
