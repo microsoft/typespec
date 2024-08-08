@@ -497,3 +497,39 @@ op op1(): void;
     ok(isEmptyModel);
   });
 });
+
+describe("typespec-client-generator-core: general decorators list", () => {
+  let runner: TestHost;
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("@name", async function () {
+    const program = await typeSpecCompile(
+      `
+      @name("XmlBook")
+      model Book {
+        content: string;
+      }
+
+      op test(): Book;
+      `,
+      runner,
+      { IsTCGCNeeded: true, IsXmlNeeded: true }
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createNetSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.Models;
+    strictEqual(models.length, 1);
+    deepStrictEqual(models[0].Decorators, [
+      {
+        name: "TypeSpec.Xml.@name",
+        arguments: {
+          name: "XmlBook",
+        },
+      },
+    ]);
+  });
+});
