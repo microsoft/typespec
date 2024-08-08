@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         private static readonly string _configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
         public const string TestHelpersFolder = "TestHelpers";
 
-        public static void LoadMockPlugin(
+        public static Mock<ClientModelPlugin> LoadMockPlugin(
             Func<InputType, TypeProvider, IReadOnlyList<TypeProvider>>? createSerializationsCore = null,
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<CSharpType>? matchConditionsType = null,
@@ -27,10 +27,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             Func<InputParameter, ParameterProvider>? createParameter = null,
             Func<InputApiKeyAuth>? apiKeyAuth = null,
             Func<IReadOnlyList<string>>? apiVersions = null,
-            Func<IReadOnlyList<InputEnumType>>? inputEnums = null)
+            Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
+            Func<IReadOnlyList<InputClient>>? clients = null,
+            Func<InputLibrary>? createInputLibrary = null)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
             IReadOnlyList<InputEnumType> inputNsEnums = inputEnums?.Invoke() ?? [];
+            IReadOnlyList<InputClient> inputNsClients = clients?.Invoke() ?? [];
             InputAuth inputNsAuth = apiKeyAuth != null ? new InputAuth(apiKeyAuth(), null) : new InputAuth();
             var mockTypeFactory = new Mock<ScmTypeFactory>() { CallBase = true };
             var mockInputNs = new Mock<InputNamespace>(
@@ -38,7 +41,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
                 inputNsApiVersions,
                 inputNsEnums,
                 Array.Empty<InputModelType>(),
-                Array.Empty<InputClient>(),
+                inputNsClients,
                 inputNsAuth);
             var mockInputLibrary = new Mock<InputLibrary>(_configFilePath);
             mockInputLibrary.Setup(p => p.InputNamespace).Returns(mockInputNs.Object);
@@ -80,8 +83,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             mockPluginInstance.Setup(p => p.InputLibrary).Returns(mockInputLibrary.Object);
 
+            if (createInputLibrary is not null)
+            {
+                mockPluginInstance.Setup(p => p.InputLibrary).Returns(createInputLibrary);
+            }
+
             codeModelInstance!.SetValue(null, mockPluginInstance.Object);
             clientModelInstance!.SetValue(null, mockPluginInstance.Object);
+            return mockPluginInstance;
         }
     }
 }
