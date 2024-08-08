@@ -1,6 +1,6 @@
 {
   "name": "@typespec/rest",
-  "version": "0.60.0",
+  "version": "0.61.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec REST protocol binding",
   "homepage": "https://typespec.io",
