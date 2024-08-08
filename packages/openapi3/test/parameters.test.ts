@@ -422,6 +422,7 @@ describe("query parameters", () => {
       deepStrictEqual(res.paths["/"].post.requestBody.content["application/octet-stream"].schema, {
         type: "string",
       });
+      strictEqual(res.paths["/"].post.parameters.length, 0);
     });
 
     it("query named contentType doesn't get resolved as the content type parameter.", async () => {
