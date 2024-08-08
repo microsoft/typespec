@@ -1,5 +1,9 @@
 # Changelog - @typespec/http-server-javascript
 
+## 0.58.0-alpha.3
+
+No changes, version bump only.
+
 ## 0.58.0-alpha.2
 
 ### Bug Fixes

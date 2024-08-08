@@ -1,6 +1,6 @@
 {
   "name": "@typespec/versioning",
-  "version": "0.59.0",
+  "version": "0.60.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for declaring and emitting versioned APIs",
   "homepage": "https://typespec.io",
