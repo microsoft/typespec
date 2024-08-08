@@ -10,6 +10,7 @@
    "Name": "InvalidAuth",
    "CrossLanguageDefinitionId": "Authentication.OAuth2.InvalidAuth",
    "Usage": "Output,Error,Json",
+   "Decorators": [],
    "Properties": [
     {
      "$id": "3",
