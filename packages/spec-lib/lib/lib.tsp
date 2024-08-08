@@ -20,11 +20,6 @@ extern dec scenarioService(target: Namespace, route: string, options?: ScenarioS
 extern dec scenario(target: Namespace | Interface | Operation, name?: string);
 
 /**
- * Specify which workflow this scenario is meant to be supported by
- */
-extern dec supportedBy(target: Namespace, value: string);
-
-/**
  * Specify documentation on how to implement this scenario.
  * @param doc Documentation
  * @param formatArgs Format arguments
