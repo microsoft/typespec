@@ -17,6 +17,7 @@ namespace Microsoft.Generator.CSharp.Providers
     internal class ModelFactoryProvider : TypeProvider
     {
         private const string ModelFactorySuffix = "ModelFactory";
+        private const string AdditionalRawDataParameterName = "serializedAdditionalRawData";
 
         private readonly IEnumerable<InputModelType> _models;
 
@@ -86,11 +87,17 @@ namespace Microsoft.Generator.CSharp.Providers
                     docs.Params.Add(new XmlDocParamStatement(param.Name, param.Description));
                 }
 
+                var modelCtor = GetSecondaryConstructor(modelProvider);
+                if (modelCtor == null)
+                {
+                    throw new InvalidOperationException($"Unable to find the secondary constructor for the model {modelProvider.Name}.");
+                }
+
                 var statements = new MethodBodyStatements(
                 [
                     .. GetCollectionInitialization(signature),
                     MethodBodyStatement.EmptyLine,
-                    Return(New.Instance(modelProvider.Type, [.. GetCtorParams(signature)]))
+                    Return(New.Instance(modelCtor.Signature, [.. GetCtorParams(modelCtor.Signature, signature)]))
                 ]);
 
                 methods.Add(new MethodProvider(signature, statements, this, docs));
@@ -98,21 +105,29 @@ namespace Microsoft.Generator.CSharp.Providers
             return [.. methods];
         }
 
-        private IReadOnlyList<ValueExpression> GetCtorParams(MethodSignature signature)
+        private static IReadOnlyList<ValueExpression> GetCtorParams(
+            ConstructorSignature modelProviderCtor,
+            MethodSignature modelFactoryMethod)
         {
-            var expressions = new List<ValueExpression>(signature.Parameters.Count);
-            foreach (var param in signature.Parameters)
+            var modelProviderCtorParams = modelProviderCtor.Parameters;
+            var modelFactoryMethodParams = modelFactoryMethod.Parameters.ToDictionary(p => p.Name);
+            var expressions = new List<ValueExpression>(modelProviderCtorParams.Count);
+
+            foreach (var param in modelProviderCtorParams)
             {
-                if (param.Type.IsList)
+                if (modelFactoryMethodParams.TryGetValue(param.Name, out var factoryMethodParam))
                 {
-                    expressions.Add(param.NullConditional().ToList());
+                    ValueExpression expression = factoryMethodParam.Type.IsList
+                        ? factoryMethodParam.NullConditional().ToList()
+                        : factoryMethodParam;
+                    expressions.Add(expression);
                 }
                 else
                 {
-                    expressions.Add(param);
+                    expressions.Add(Null);
                 }
             }
-            expressions.Add(Null);
+
             return [.. expressions];
         }
 
@@ -162,6 +177,18 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 Validation = ParameterValidationType.None,
             };
+        }
+
+        private static ConstructorProvider? GetSecondaryConstructor(TypeProvider model)
+        {
+            if (model.Constructors.Count == 1)
+            {
+                return model.Constructors[0];
+            }
+
+            return model.Constructors.FirstOrDefault(ctor =>
+                ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal) &&
+                ctor.Signature.Parameters.Any(p => p.Name == AdditionalRawDataParameterName));
         }
     }
 }

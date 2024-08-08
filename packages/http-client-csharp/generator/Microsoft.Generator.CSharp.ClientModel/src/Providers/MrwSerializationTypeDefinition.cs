@@ -26,7 +26,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     /// </summary>
     internal class MrwSerializationTypeDefinition : TypeProvider
     {
-        private const string PrivateAdditionalPropertiesPropertyDescription = "Keeps track of any properties unknown to the library.";
         private const string PrivateAdditionalPropertiesPropertyName = "_serializedAdditionalRawData";
         private const string JsonModelWriteCoreMethodName = "JsonModelWriteCore";
         private const string JsonModelCreateCoreMethodName = "JsonModelCreateCore";
@@ -34,7 +33,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private const string PersistableModelCreateCoreMethodName = "PersistableModelCreateCore";
         private const string WriteAction = "writing";
         private const string ReadAction = "reading";
-        private const string AdditionalRawDataVarName = "serializedAdditionalRawData";
+        private const string AdditionalRawDataParameterName = "serializedAdditionalRawData";
         private readonly ParameterProvider _utf8JsonWriterParameter = new("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
         private readonly ParameterProvider _utf8JsonReaderParameter = new("reader", $"The JSON reader.", typeof(Utf8JsonReader), isRef: true);
         private readonly ParameterProvider _serializationOptionsParameter =
@@ -46,7 +45,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly ScopedApi<ModelReaderWriterOptions> _mrwOptionsParameterSnippet;
         private readonly ScopedApi<JsonElement> _jsonElementParameterSnippet;
         private readonly ScopedApi<bool> _isNotEqualToWireConditionSnippet;
-        private readonly CSharpType _privateAdditionalRawDataPropertyType = typeof(IDictionary<string, BinaryData>);
         private readonly CSharpType _jsonModelTInterface;
         private readonly CSharpType? _jsonModelObjectInterface;
         private readonly CSharpType _persistableModelTInterface;
@@ -58,8 +56,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private ConstructorProvider? _serializationConstructor;
         // Flag to determine if the model should override the serialization methods
         private readonly bool _shouldOverrideMethods;
-        // TODO -- we should not be needing this if we resolve https://github.com/microsoft/typespec/issues/3796
-        private readonly MrwSerializationTypeDefinition? _baseSerializationProvider;
 
         public MrwSerializationTypeDefinition(InputModelType inputModel, TypeProvider modelProvider)
         {
@@ -71,11 +67,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _jsonModelObjectInterface = _isStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
             _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), _model.Type);
             _persistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
-
-            if (inputModel.BaseModel is not null)
-                _baseSerializationProvider = ClientModelPlugin.Instance.TypeFactory.CreateSerializations(inputModel.BaseModel, modelProvider).OfType<MrwSerializationTypeDefinition>().FirstOrDefault();
-
-            _rawDataField = BuildRawDataField();
+            _rawDataField = _model.Fields.FirstOrDefault(f => f.Name == PrivateAdditionalPropertiesPropertyName);
             _shouldOverrideMethods = _model.Type.BaseType != null && _model.Type.BaseType is { IsFrameworkType: false };
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
@@ -86,25 +78,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         protected override string GetNamespace() => _model.Type.Namespace;
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
-        private ConstructorProvider SerializationConstructor => _serializationConstructor ??= BuildSerializationConstructor();
+        private ConstructorProvider? SerializationConstructor => _serializationConstructor ??= GetSerializationConstructor();
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
 
         protected override string BuildName() => _model.Name;
 
-        /// <summary>
-        /// Builds the fields for the model by adding the raw data field for serialization.
-        /// </summary>
-        /// <returns>The list of <see cref="FieldProvider"/> for the model.</returns>
-        protected override FieldProvider[] BuildFields()
-        {
-            return _rawDataField != null ? [_rawDataField] : Array.Empty<FieldProvider>();
-        }
-
         protected override ConstructorProvider[] BuildConstructors()
         {
             List<ConstructorProvider> constructors = new();
-            bool serializationCtorParamsMatch = false;
             bool ctorWithNoParamsExist = false;
 
             foreach (var ctor in _model.Constructors)
@@ -116,21 +98,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     ctorWithNoParamsExist = true;
                 }
-
-                if (!serializationCtorParamsMatch)
-                {
-                    // Check if the model constructor parameters match the serialization constructor parameters
-                    if (initializationCtorParams.SequenceEqual(SerializationConstructor.Signature.Parameters))
-                    {
-                        serializationCtorParamsMatch = true;
-                    }
-                }
-            }
-
-            // Add the serialization constructor if it doesn't match any of the existing constructors
-            if (!serializationCtorParamsMatch)
-            {
-                constructors.Add(SerializationConstructor);
             }
 
             // Add an empty constructor if the model doesn't have one
@@ -139,39 +106,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 constructors.Add(BuildEmptyConstructor());
             }
 
-            return constructors.ToArray();
-        }
-
-        /// <summary>
-        /// Builds the raw data field for the model to be used for serialization.
-        /// </summary>
-        /// <returns>The constructed <see cref="FieldProvider"/> if the model should generate the field.</returns>
-        private FieldProvider? BuildRawDataField()
-        {
-            if (_isStruct)
-            {
-                return null;
-            }
-
-            // check if there is a raw data field on my base, if so, we do not have to have one here
-            if (_baseSerializationProvider?._rawDataField != null)
-            {
-                return null;
-            }
-
-            var modifiers = FieldModifiers.Private;
-            if (!_model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Sealed))
-            {
-                modifiers |= FieldModifiers.Protected;
-            }
-
-            var rawDataField = new FieldProvider(
-                modifiers: modifiers,
-                type: _privateAdditionalRawDataPropertyType,
-                description: FormattableStringHelpers.FromString(PrivateAdditionalPropertiesPropertyDescription),
-                name: PrivateAdditionalPropertiesPropertyName);
-
-            return rawDataField;
+            return [.. constructors];
         }
 
         /// <summary>
@@ -528,25 +463,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         /// <summary>
-        /// Builds the serialization constructor for the model.
+        /// Finds the serialization constructor for the model.
         /// </summary>
-        /// <returns>The constructed serialization constructor.</returns>
-        internal ConstructorProvider BuildSerializationConstructor()
+        /// <returns>The serialization constructor.</returns>
+        private ConstructorProvider? GetSerializationConstructor()
         {
-            var (serializationCtorParameters, serializationCtorInitializer) = BuildSerializationConstructorParameters();
+            if (_model.Constructors.Count == 1)
+            {
+                return _model.Constructors[0];
+            }
 
-            return new ConstructorProvider(
-                signature: new ConstructorSignature(
-                    Type,
-                    $"Initializes a new instance of {Type:C}",
-                    MethodSignatureModifiers.Internal,
-                    serializationCtorParameters,
-                    Initializer: serializationCtorInitializer),
-                bodyStatements: new MethodBodyStatement[]
-                {
-                    GetPropertyInitializers()
-                },
-                this);
+            return _model.Constructors.FirstOrDefault(ctor =>
+                ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal) &&
+                ctor.Signature.Parameters.Any(p => p.Name == AdditionalRawDataParameterName));
         }
 
         private MethodBodyStatement[] BuildJsonModelWriteMethodBody(MethodProvider jsonModelWriteCoreMethod)
@@ -591,7 +520,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodBodyStatement GetPropertyVariableDeclarations()
         {
-            var parameters = SerializationConstructor.Signature.Parameters;
+            var parameters = SerializationConstructor?.Signature.Parameters ?? [];
             var propertyDeclarationStatements = new List<MethodBodyStatement>(parameters.Count);
 
             for (var i = 0; i < parameters.Count; i++)
@@ -697,9 +626,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         private ValueExpression[] GetSerializationCtorParameterValues()
         {
-            var parameters = SerializationConstructor.Signature.Parameters;
+            var parameters = SerializationConstructor?.Signature.Parameters ?? [];
             ValueExpression[] serializationCtorParameters = new ValueExpression[parameters.Count];
-            var serializationCtorParameterValues = new Dictionary<string, ValueExpression>(parameters.Count);
 
             // Map property variable names to their corresponding parameter values
             for (int i = 0; i < parameters.Count; i++)
@@ -743,7 +671,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private List<MethodBodyStatement> BuildDeserializePropertiesStatements(ScopedApi<JsonProperty> jsonProperty)
         {
             List<MethodBodyStatement> propertyDeserializationStatements = new();
-            var parameters = SerializationConstructor.Signature.Parameters;
+            var parameters = SerializationConstructor?.Signature.Parameters ?? [];
             // Create each property's deserialization statement
             for (int i = 0; i < parameters.Count; i++)
             {
@@ -771,7 +699,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // deserialize the raw data properties
             if (_rawDataField != null)
             {
-                var elementType = _privateAdditionalRawDataPropertyType.Arguments[1].FrameworkType;
+                var elementType = _rawDataField.Type.Arguments[1].FrameworkType;
                 var rawDataDeserializationValue = GetValueTypeDeserializationExpression(elementType, jsonProperty.Value(), SerializationFormat.Default);
                 propertyDeserializationStatements.Add(new IfStatement(_isNotEqualToWireConditionSnippet)
                 {
@@ -958,44 +886,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             => TypeRequiresNullCheckInSerialization(collectionItemType)
                 ? new IfElseStatement(arrayItemVar.ValueKindEqualsNull(), assignNull, deserializeValue)
                 : deserializeValue;
-
-        /// <summary>
-        /// Builds the parameters for the serialization constructor by iterating through the input model properties.
-        /// It then adds raw data field to the constructor if it doesn't already exist in the list of constructed parameters.
-        /// </summary>
-        /// <returns>The list of parameters for the serialization parameter.</returns>
-        private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildSerializationConstructorParameters()
-        {
-            var baseConstructor = _baseSerializationProvider?.SerializationConstructor.Signature;
-            var baseParameters = baseConstructor?.Parameters ?? [];
-            var parameterCapacity = baseParameters.Count + _inputModel.Properties.Count;
-            var parameterNames = baseParameters.Select(p => p.Name).ToHashSet();
-            var constructorParameters = new List<ParameterProvider>(parameterCapacity);
-
-            // add the base parameters
-            constructorParameters.AddRange(baseParameters);
-
-            // construct the initializer using the parameters from base signature
-            var constructorInitializer = new ConstructorInitializer(true, baseParameters);
-
-            foreach (var property in _model.Properties)
-            {
-                // skip those non-spec properties
-                if (property.WireInfo == null)
-                {
-                    continue;
-                }
-                constructorParameters.Add(property.AsParameter);
-            }
-
-            // Append the raw data field if it doesn't already exist in the constructor parameters
-            if (_rawDataField != null)
-            {
-                constructorParameters.Add(_rawDataField.AsParameter);
-            }
-
-            return (constructorParameters, constructorInitializer);
-        }
 
         private ConstructorProvider BuildEmptyConstructor()
         {

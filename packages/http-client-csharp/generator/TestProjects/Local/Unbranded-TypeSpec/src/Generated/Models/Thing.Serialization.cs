@@ -14,27 +14,6 @@ namespace UnbrandedTypeSpec.Models
     /// <summary></summary>
     public partial class Thing : IJsonModel<Thing>
     {
-        /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
-
-        internal Thing(string name, BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, ThingOptionalLiteralString? optionalLiteralString, ThingOptionalLiteralInt? optionalLiteralInt, ThingOptionalLiteralFloat? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, BinaryData> serializedAdditionalRawData)
-        {
-            Name = name;
-            RequiredUnion = requiredUnion;
-            RequiredLiteralString = requiredLiteralString;
-            RequiredLiteralInt = requiredLiteralInt;
-            RequiredLiteralFloat = requiredLiteralFloat;
-            RequiredLiteralBool = requiredLiteralBool;
-            OptionalLiteralString = optionalLiteralString;
-            OptionalLiteralInt = optionalLiteralInt;
-            OptionalLiteralFloat = optionalLiteralFloat;
-            OptionalLiteralBool = optionalLiteralBool;
-            RequiredBadDescription = requiredBadDescription;
-            OptionalNullableList = optionalNullableList;
-            RequiredNullableList = requiredNullableList;
-            _serializedAdditionalRawData = serializedAdditionalRawData;
-        }
-
         internal Thing()
         {
         }
