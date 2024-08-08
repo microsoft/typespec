@@ -249,6 +249,26 @@ describe("openapi3: extension decorator", () => {
     strictEqual(oapi.components.parameters.PetId["x-parameter-extension"], "foobaz");
   });
 
+  it("inline adds an arbitrary extension to a parameter", async () => {
+    const oapi = await openApiFor(
+      `
+      model Pet {
+        name: string;
+      }
+      
+      @route("/Pets")
+      @get
+      op get(
+        @path
+        @extension("x-parameter-extension", "foobaz")
+        petId: string;
+      ): Pet;
+      `
+    );
+    ok(oapi.paths["/Pets/{petId}"].get);
+    strictEqual(oapi.paths["/Pets/{petId}"].get.parameters[0]["x-parameter-extension"], "foobaz");
+  });
+
   it("adds an extension to a namespace", async () => {
     const oapi = await openApiFor(
       `
