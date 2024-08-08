@@ -46,7 +46,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             return [intType, floatType, stringType];
         }
 
-        [TestCaseSource(nameof(ValidateTypes), new object[] { false })]
+        [TestCaseSource(nameof(ValidateTypes), [false])]
         public void ValidateToEnumMethodsFixed(InputEnumType inputEnum)
         {
             TypeProvider? enumType = ClientModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
@@ -62,7 +62,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             }
         }
 
-        [TestCaseSource(nameof(ValidateTypes), new object[] { false })]
+        [TestCaseSource(nameof(ValidateTypes), [false])]
         public void ValidateToSerialMethodsFixed(InputEnumType inputEnum)
         {
             TypeProvider? enumType = ClientModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
@@ -91,7 +91,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             }
         }
 
-        [TestCaseSource(nameof(ValidateTypes), new object[] { true })]
+        [TestCaseSource(nameof(ValidateTypes), [true])]
         public void ValidateToEnumMethodsExtensible(InputEnumType inputEnum)
         {
             TypeProvider? enumType = ClientModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
@@ -111,7 +111,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             }
         }
 
-        [TestCaseSource(nameof(ValidateTypes), new object[] { true })]
+        [TestCaseSource(nameof(ValidateTypes), [true])]
         public void ValidateToSerialMethodsExtensible(InputEnumType inputEnum)
         {
             TypeProvider? enumType = ClientModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
