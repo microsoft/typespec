@@ -8,6 +8,7 @@ import {
   SdkContext,
   SdkHeaderParameter,
   SdkHttpOperation,
+  SdkHttpParameter,
   SdkHttpResponse,
   SdkPathParameter,
   SdkQueryParameter,
@@ -42,6 +43,7 @@ import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
 import { fromSdkType } from "./converter.js";
 import { getExternalDocs, getOperationId } from "./decorators.js";
+import { fromSdkHttpExamples } from "./example-converter.js";
 import { Logger } from "./logger.js";
 import { getInputType } from "./model.js";
 
@@ -62,6 +64,13 @@ export function fromSdkServiceMethod(
     generateConvenience = false;
   }
 
+  const parameterMap = fromSdkOperationParameters(
+    method.operation,
+    rootApiVersions,
+    sdkContext,
+    modelMap,
+    enumMap
+  );
   return {
     Name: method.name,
     ResourceName:
@@ -74,14 +83,7 @@ export function fromSdkServiceMethod(
     Summary: getSummary(sdkContext.program, method.__raw!),
     Description: getDoc(sdkContext.program, method.__raw!),
     Accessibility: method.access,
-    Parameters: fromSdkOperationParameters(
-      method.operation,
-      clientParameters,
-      rootApiVersions,
-      sdkContext,
-      modelMap,
-      enumMap
-    ),
+    Parameters: [...clientParameters, ...parameterMap.values()],
     Responses: fromSdkHttpOperationResponses(
       method.operation.responses,
       sdkContext,
@@ -100,6 +102,13 @@ export function fromSdkServiceMethod(
     GenerateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
     GenerateConvenienceMethod: generateConvenience,
     CrossLanguageDefinitionId: method.crossLanguageDefintionId,
+    Examples: fromSdkHttpExamples(
+      sdkContext,
+      method.operation.examples,
+      parameterMap,
+      modelMap,
+      enumMap
+    ),
   };
 }
 
@@ -143,28 +152,28 @@ function getValueType(value: any): SdkBuiltInKinds {
 
 function fromSdkOperationParameters(
   operation: SdkHttpOperation,
-  clientParameters: InputParameter[],
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
   modelMap: Map<string, InputModelType>,
   enumMap: Map<string, InputEnumType>
-): InputParameter[] {
-  const params = clientParameters.concat(
-    operation.parameters.map((p) =>
-      fromSdkHttpOperationParameter(p, rootApiVersions, sdkContext, modelMap, enumMap)
-    )
-  );
-  return operation.bodyParam
-    ? params.concat(
-        fromSdkHttpOperationParameter(
-          operation.bodyParam,
-          rootApiVersions,
-          sdkContext,
-          modelMap,
-          enumMap
-        )
-      )
-    : params;
+): Map<SdkHttpParameter, InputParameter> {
+  const parameters = new Map<SdkHttpParameter, InputParameter>();
+  for (const p of operation.parameters) {
+    const param = fromSdkHttpOperationParameter(p, rootApiVersions, sdkContext, modelMap, enumMap);
+    parameters.set(p, param);
+  }
+
+  if (operation.bodyParam) {
+    const bodyParam = fromSdkHttpOperationParameter(
+      operation.bodyParam,
+      rootApiVersions,
+      sdkContext,
+      modelMap,
+      enumMap
+    );
+    parameters.set(operation.bodyParam, bodyParam);
+  }
+  return parameters;
 }
 
 // TODO: roll back to SdkMethodParameter when we figure out how to represent the parameter location
@@ -190,7 +199,7 @@ function fromSdkHttpOperationParameter(
 
   return {
     Name: p.name,
-    NameInRequest: p.kind === "header" ? normalizeHeadername(serializedName) : serializedName,
+    NameInRequest: p.kind === "header" ? normalizeHeaderName(serializedName) : serializedName,
     Description: p.description,
     Type: parameterType,
     Location: getParameterLocation(p),
@@ -408,7 +417,7 @@ function getOperationGroupName(
 }
 
 // TODO: remove after https://github.com/Azure/typespec-azure/issues/1227 is fixed
-function normalizeHeadername(name: string): string {
+function normalizeHeaderName(name: string): string {
   switch (name.toLocaleLowerCase()) {
     case "accept":
       return "Accept";

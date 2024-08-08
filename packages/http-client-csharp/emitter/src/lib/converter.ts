@@ -45,6 +45,7 @@ export function fromSdkType(
   enums: Map<string, InputEnumType>,
   literalTypeContext?: LiteralTypeContext
 ): InputType {
+  // TODO -- we need to add a global cache here to track the TCGC type vs our type
   if (sdkType.kind === "nullable") {
     const inputType = fromSdkType(sdkType.type, context, models, enums);
     return {
@@ -198,8 +199,8 @@ export function fromSdkEnumType(
 ): InputEnumType {
   const enumName = enumType.name;
   let inputEnumType = enums.get(enumName);
-  if (inputEnumType === undefined) {
-    const newInputEnumType: InputEnumType = {
+  if (!inputEnumType) {
+    inputEnumType = {
       Kind: "enum",
       Name: enumName,
       CrossLanguageDefinitionId: enumType.crossLanguageDefinitionId,
@@ -214,8 +215,7 @@ export function fromSdkEnumType(
       IsExtensible: enumType.isFixed ? false : true,
       Usage: enumType.usage,
     };
-    if (addToCollection) enums.set(enumName, newInputEnumType);
-    inputEnumType = newInputEnumType;
+    if (addToCollection) enums.set(enumName, inputEnumType);
   }
   return inputEnumType;
 }
@@ -341,7 +341,7 @@ function fromSdkEnumValueTypeToConstantType(
     Kind: "constant",
     ValueType:
       enumValueType.valueType.kind === "boolean" || literalTypeContext === undefined
-        ? fromSdkBuiltInType(enumValueType.valueType as SdkBuiltInType) // TODO: TCGC fix
+        ? fromSdkBuiltInType(enumValueType.valueType)
         : fromSdkEnumType(enumValueType.enumType, context, enums),
     Value: enumValueType.value,
   };
