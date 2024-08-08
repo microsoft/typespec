@@ -80,40 +80,6 @@ namespace Microsoft.Generator.CSharp.Tests
         }
 
         [Test]
-        [Ignore("This should probably move to SCM tests if CreateMethods moves there. https://github.com/microsoft/typespec/issues/4066")]
-        public void PreVisitsMethods()
-        {
-            _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
-            var inputModelProperty =
-                new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any, "foo", "bar"), true, true, false, Array.Empty<InputDecoratorInfo>());
-            var inputModel = new InputModelType("foo", "id", "desc", "internal", "description",
-                InputModelTypeUsage.Input, [inputModelProperty], null, [], null, null, new Dictionary<string, InputModelType>(), null, false, []);
-
-            var param = new InputParameter("param", "name", "desc",
-                new InputLiteralType(new InputPrimitiveType(InputPrimitiveTypeKind.String, "foo", "bar"), "bar", Array.Empty<InputDecoratorInfo>()),
-                RequestLocation.Header, null, InputOperationParameterKind.Client, true, false, true, false, false,
-                false, false, null, null, []);
-            _mockInputLibrary.Setup(l => l.InputNamespace).Returns(new InputNamespace(
-                "test library",
-                new List<string>(),
-                new List<InputEnumType>(),
-                new List<InputModelType> { inputModel },
-                new List<InputClient>
-                {
-                    new InputClient("fooClient", "desc",
-                    [
-                        new InputOperation("testoperation", "name", "desc", null, null, [param], [], "GET", BodyMediaType.Json, "http://example.com", "baz", null, null, true, null, null, true, true, string.Empty, [])
-                    ], [param], null, [])
-                },
-                new InputAuth()));
-
-            _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
-
-            _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), inputModel, ItExpr.IsNull<TypeProvider>());
-            _mockVisitor.Protected().Verify<MethodProvider>("Visit", Times.Once(), inputModelProperty, ItExpr.IsNull<PropertyProvider>());
-        }
-
-        [Test]
         public void RemovedInputModelCausesExceptionWhenReferencedInDifferentModel()
         {
             var inputModel1Property =
