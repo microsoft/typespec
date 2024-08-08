@@ -16,6 +16,8 @@ namespace Microsoft.Generator.CSharp.Providers
 {
     internal class ModelFactoryProvider : TypeProvider
     {
+        private const string ModelFactorySuffix = "ModelFactory";
+
         private readonly IEnumerable<InputModelType> _models;
 
         public ModelFactoryProvider(IEnumerable<InputModelType> models)
@@ -27,9 +29,9 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             var span = CodeModelPlugin.Instance.Configuration.LibraryName.AsSpan();
             if (span.IndexOf('.') == -1)
-                return $"{span}ModelFactory";
+                return string.Concat(CodeModelPlugin.Instance.Configuration.LibraryName, ModelFactorySuffix);
 
-            Span<char> dest = stackalloc char[span.Length];
+            Span<char> dest = stackalloc char[span.Length + ModelFactorySuffix.Length];
             int j = 0;
 
             for (int i = 0; i < span.Length; i++)
@@ -40,9 +42,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     j++;
                 }
             }
-
-            var prefix =  dest.Slice(0, j).ToString();
-            return $"{prefix}ModelFactory";
+            ModelFactorySuffix.AsSpan().CopyTo(dest.Slice(j));
+            return dest.Slice(0, j + ModelFactorySuffix.Length).ToString();
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");

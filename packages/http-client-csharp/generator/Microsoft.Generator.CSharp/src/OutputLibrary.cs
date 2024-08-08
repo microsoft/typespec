@@ -51,25 +51,21 @@ namespace Microsoft.Generator.CSharp
 
         protected virtual TypeProvider[] BuildTypeProviders()
         {
-            var modelFactory = new ModelFactoryProvider(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Models);
-
-            IEnumerable<TypeProvider> types = [
+            return [
                 .. BuildEnums(),
                 .. BuildModels(),
                 new ChangeTrackingListDefinition(),
                 new ChangeTrackingDictionaryDefinition(),
                 new ArgumentDefinition(),
                 new OptionalDefinition(),
+                .. BuildModelFactory()
             ];
+        }
 
-            if (modelFactory.Methods.Count > 0)
-            {
-                return [.. types, modelFactory];
-            }
-            else
-            {
-                return [.. types];
-            }
+        private static TypeProvider[] BuildModelFactory()
+        {
+            var modelFactory = new ModelFactoryProvider(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Models);
+            return modelFactory.Methods.Count > 0 ? [modelFactory] : [];
         }
     }
 }
