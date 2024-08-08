@@ -62,8 +62,8 @@ namespace Microsoft.Generator.CSharp.Input
             InputModelType? baseModel = null;
             IReadOnlyList<InputModelProperty>? properties = null;
             IReadOnlyDictionary<string, InputModelType>? discriminatedSubtypes = null;
-            IReadOnlyList<InputDecoratorInfo>? decorators = null;
             bool modelAsStruct = false;
+            IReadOnlyList<InputDecoratorInfo>? decorators = null;
 
             // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)
