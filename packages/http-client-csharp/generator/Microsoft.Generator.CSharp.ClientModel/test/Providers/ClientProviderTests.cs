@@ -232,7 +232,46 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
                         defaultValue: null,
                         InputOperationParameterKind.Client,
                         isRequired: false, false, false, false, isEndpoint: true, false, false, null, null, [])
-                });
+                }, false);
+                yield return new TestCaseData(new List<InputParameter>
+                {
+                    new(
+                        "optionalParam",
+                        "optionalParam description",
+                        "optionalParam",
+                        InputPrimitiveType.String,
+                        RequestLocation.None,
+                        defaultValue: new InputConstant("someValue", InputPrimitiveType.String),
+                        InputOperationParameterKind.Client,
+                        isRequired: false, false, false, false, false, false, false, null, null, []),
+                    new(
+                        "optionalParam2",
+                        "optionalParam description",
+                        "optionalParam2",
+                        InputPrimitiveType.String,
+                        RequestLocation.None,
+                        defaultValue: new InputConstant("someValue", InputPrimitiveType.String),
+                        InputOperationParameterKind.Client,
+                        isRequired: false, false, false, false, false, false, false, null, null, []),
+                    new(
+                        "optionalParam3",
+                        "optionalParam description",
+                        "optionalParam3",
+                        InputPrimitiveType.Int64,
+                        RequestLocation.None,
+                        defaultValue: new InputConstant(2, InputPrimitiveType.Int64),
+                        InputOperationParameterKind.Client,
+                        isRequired: false, false, false, false, false, false, false, null, null, []),
+                    new(
+                        KnownParameters.Endpoint.Name,
+                        "endpoint description",
+                        KnownParameters.Endpoint.Name,
+                        InputPrimitiveType.String,
+                        RequestLocation.None,
+                        defaultValue: null,
+                        InputOperationParameterKind.Client,
+                        isRequired: false, false, false, false, isEndpoint: true, false, false, null, null, [])
+                }, true);
             }
         }
 
