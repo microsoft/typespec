@@ -151,6 +151,7 @@ if ($null -eq $filter) {
     $mgcExe = "`$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     $sampleExe = "`$(SolutionDir)/../generator/artifacts/bin/SamplePlugin/Debug/net8.0/Microsoft.Generator.CSharp.exe"
     $unbrandedSpec = "TestProjects/Local/Unbranded-TypeSpec"
+    $unbrandedPluginSpec = "TestProjects/Plugin/Unbranded-TypeSpec"
 
     $launchSettings = @{}
     $launchSettings.Add("profiles", @{})
@@ -159,7 +160,7 @@ if ($null -eq $filter) {
     $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandName", "Executable")
     $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("executablePath", $mgcExe)
     $launchSettings["profiles"].Add("Debug-Plugin-Test-TypeSpec", @{})
-    $launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSpec -p SampleCodeModelPlugin")
+    $launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedPluginSpec -p SampleCodeModelPlugin")
     $launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("commandName", "Executable")
     $launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("executablePath", $sampleExe)
 
