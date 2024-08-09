@@ -223,4 +223,26 @@ describe("openapi3: servers", () => {
       },
     ]);
   });
+  it("set multiple servers", async () => {
+    const res = await openApiFor(
+      `
+        @service
+        @server("https://example1.com", "Main server1")
+        @server("https://example2.com", "Main server2")
+        namespace MyService {}
+        `
+    );
+    deepStrictEqual(res.servers, [
+      {
+        description: "Main server2",
+        url: "https://example2.com",
+        variables: {},
+      },
+      {
+        description: "Main server1",
+        url: "https://example1.com",
+        variables: {},
+      },
+    ]);
+  });
 });
