@@ -9,7 +9,6 @@ namespace Microsoft.Generator.CSharp.Primitives
     public sealed class CodeWriterDeclaration
     {
         private Dictionary<CodeWriter.CodeScope, string> _actualNames = [];
-        private string? _debuggerName;
 
         internal bool HasBeenDeclared(Stack<CodeWriter.CodeScope> scopes)
         {
@@ -39,32 +38,14 @@ namespace Microsoft.Generator.CSharp.Primitives
         internal string GetActualName(CodeWriter.CodeScope scope)
         {
             if (!_actualNames.TryGetValue(scope, out var actualName))
-                return _debuggerName ?? throw new InvalidOperationException($"Declaration {RequestedName} is not initialized");
+                throw new InvalidOperationException($"Declaration {RequestedName} is not initialized");
 
             return actualName;
         }
 
-        internal void SetActualName(string? actualName, CodeWriter.CodeScope scope)
+        internal void SetActualName(string actualName, CodeWriter.CodeScope scope)
         {
-            var isScopeDeclared = _actualNames.ContainsKey(scope);
-            if (isScopeDeclared && actualName != null)
-            {
-                throw new InvalidOperationException($"Declaration {_actualNames[scope]} already initialized, can't initialize it with {actualName} name.");
-            }
-
-            if (actualName is not null)
-            {
-                _actualNames[scope] = actualName;
-            }
-            else if (isScopeDeclared)
-            {
-                _actualNames.Remove(scope);
-            }
-        }
-
-        internal void SetDebuggerName(string? debuggerName)
-        {
-            _debuggerName = debuggerName;
+            _actualNames[scope] = actualName;
         }
     }
 }
