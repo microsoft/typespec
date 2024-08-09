@@ -2,15 +2,32 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.Generator.CSharp.Primitives
 {
     public sealed class CodeWriterDeclaration
     {
-        private string? _actualName;
+        private Dictionary<CodeWriter.CodeScope, string> _actualNames = [];
         private string? _debuggerName;
 
-        public bool HasBeenDeclared => _actualName != null;
+        internal bool HasBeenDeclared(Stack<CodeWriter.CodeScope> scopes)
+        {
+            var top = scopes.Peek();
+            foreach (var scope in scopes)
+            {
+                if (_actualNames.ContainsKey(scope))
+                {
+                    if (!scope.Equals(top))
+                    {
+                        //move the declaration to make it easy to find
+                        _actualNames.Add(top, _actualNames[scope]);
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
 
         public CodeWriterDeclaration(string name)
         {
@@ -19,24 +36,35 @@ namespace Microsoft.Generator.CSharp.Primitives
 
         public string RequestedName { get; }
 
-        public string ActualName => _actualName ?? _debuggerName ?? throw new InvalidOperationException($"Declaration {RequestedName} is not initialized");
-
-        internal void SetActualName(string? actualName)
+        internal string GetActualName(CodeWriter.CodeScope scope)
         {
-            if (_actualName != null && actualName != null)
+            if (!_actualNames.TryGetValue(scope, out var actualName))
+                return _debuggerName ?? throw new InvalidOperationException($"Declaration {RequestedName} is not initialized");
+
+            return actualName;
+        }
+
+        internal void SetActualName(string? actualName, CodeWriter.CodeScope scope)
+        {
+            var isScopeDeclared = _actualNames.ContainsKey(scope);
+            if (isScopeDeclared && actualName != null)
             {
-                throw new InvalidOperationException($"Declaration {_actualName} already initialized, can't initialize it with {actualName} name.");
+                throw new InvalidOperationException($"Declaration {_actualNames[scope]} already initialized, can't initialize it with {actualName} name.");
             }
 
-            _actualName = actualName;
+            if (actualName is not null)
+            {
+                _actualNames[scope] = actualName;
+            }
+            else if (isScopeDeclared)
+            {
+                _actualNames.Remove(scope);
+            }
         }
 
         internal void SetDebuggerName(string? debuggerName)
         {
-            if (_actualName == null)
-            {
-                _debuggerName = debuggerName;
-            }
+            _debuggerName = debuggerName;
         }
     }
 }
