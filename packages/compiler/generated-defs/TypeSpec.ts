@@ -749,6 +749,7 @@ export type ReturnTypeVisibilityDecorator = (
   target: Operation,
   ...visibilities: string[]
 ) => void;
+
 export type TypeSpecDecorators = {
   encode: EncodeDecorator;
   doc: DocDecorator;
