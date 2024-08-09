@@ -36,10 +36,12 @@ namespace Microsoft.Generator.CSharp.Input
             resolver.AddReference(id, union);
 
             IReadOnlyList<InputType>? variantTypes = null;
+            IReadOnlyList<InputDecoratorInfo>? decorators = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString(nameof(InputUnionType.Name), ref name)
-                    || reader.TryReadWithConverter(nameof(InputUnionType.VariantTypes), options, ref variantTypes);
+                    || reader.TryReadWithConverter(nameof(InputUnionType.VariantTypes), options, ref variantTypes)
+                    || reader.TryReadWithConverter(nameof(InputUnionType.Decorators), options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -53,6 +55,7 @@ namespace Microsoft.Generator.CSharp.Input
                 throw new JsonException("Union must have a least one union type");
             }
             union.VariantTypes = variantTypes;
+            union.Decorators = decorators ?? [];
             return union;
         }
     }

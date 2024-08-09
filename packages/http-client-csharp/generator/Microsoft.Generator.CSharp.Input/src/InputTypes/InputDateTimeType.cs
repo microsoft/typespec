@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+
 namespace Microsoft.Generator.CSharp.Input
 {
     public class InputDateTimeType : InputType
     {
-        public InputDateTimeType(DateTimeKnownEncoding encode, string name, string crossLanguageDefinitionId, InputPrimitiveType wireType, InputDateTimeType? baseType = null) : base(name)
+        public InputDateTimeType(DateTimeKnownEncoding encode, string name, string crossLanguageDefinitionId, InputPrimitiveType wireType, InputDateTimeType? baseType = null, IReadOnlyList<InputDecoratorInfo>? decorators = null) : base(name, decorators)
         {
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
             Encode = encode;

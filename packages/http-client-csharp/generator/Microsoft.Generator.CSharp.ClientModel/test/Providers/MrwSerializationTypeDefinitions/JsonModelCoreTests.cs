@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
@@ -45,7 +46,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 InputPrimitiveType.String,
                 true,
                 false,
-                false);
+                false,
+                []);
             var inputModel = new InputModelType(
                 "TestModel",
                 "TestModel",
@@ -60,7 +62,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 null,
                 new Dictionary<string, InputModelType>(),
                 null,
-                false);
+                false,
+                []);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
@@ -93,7 +96,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 null,
                 new Dictionary<string, InputModelType>(),
                 null,
-                false);
+                false,
+                Array.Empty<InputDecoratorInfo>());
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
@@ -111,7 +115,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 InputPrimitiveType.String,
                 true,
                 false,
-                false);
+                false,
+                []);
             var inputModel = new InputModelType(
                 "TestModel",
                 "TestModel",
@@ -126,7 +131,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 null,
                 new Dictionary<string, InputModelType>(),
                 null,
-                false);
+                false,
+                []);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
@@ -144,7 +150,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 InputPrimitiveType.String,
                 true,
                 false,
-                false);
+                false,
+                []);
             var inputModel = new InputModelType(
                 "TestModel",
                 "TestModel",
@@ -159,7 +166,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 null,
                 new Dictionary<string, InputModelType>(),
                 null,
-                false);
+                false,
+                []);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);

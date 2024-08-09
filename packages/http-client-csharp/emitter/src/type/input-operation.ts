@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+import { DecoratorInfo } from "@azure-tools/typespec-client-generator-core";
 import { BodyMediaType } from "./body-media-type.js";
 import { InputParameter } from "./input-parameter.js";
 import { OperationLongRunning } from "./operation-long-running.js";
@@ -35,4 +36,5 @@ export interface InputOperation {
   GenerateProtocolMethod: boolean;
   GenerateConvenienceMethod: boolean;
   CrossLanguageDefinitionId: string;
+  Decorators?: DecoratorInfo[];
 }
