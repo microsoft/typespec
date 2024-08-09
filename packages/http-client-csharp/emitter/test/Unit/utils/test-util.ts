@@ -1,5 +1,9 @@
 import { AzureCoreTestLibrary } from "@azure-tools/typespec-azure-core/testing";
-import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-generator-core";
+import {
+  createSdkContext,
+  CreateSdkContextOptions,
+  SdkContext,
+} from "@azure-tools/typespec-client-generator-core";
 import { SdkTestLibrary } from "@azure-tools/typespec-client-generator-core/testing";
 import {
   CompilerOptions,
@@ -131,8 +135,9 @@ export function navigateModels(
 
 /* We always need to pass in the emitter name now that it is required so making a helper to do this. */
 export async function createNetSdkContext(
-  program: EmitContext<NetEmitterOptions>
+  program: EmitContext<NetEmitterOptions>,
+  sdkContextOptions: CreateSdkContextOptions = {}
 ): Promise<SdkContext<NetEmitterOptions>> {
   Logger.initialize(program.program, LoggerLevel.INFO);
-  return await createSdkContext(program, "@typespec/http-client-csharp");
+  return await createSdkContext(program, "@typespec/http-client-csharp", sdkContextOptions);
 }
