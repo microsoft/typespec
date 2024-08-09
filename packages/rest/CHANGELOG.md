@@ -1,5 +1,16 @@
 # Change Log - @typespec/rest
 
+## 0.59.0
+
+### Bump dependencies
+
+- [#3948](https://github.com/microsoft/typespec/pull/3948) Update dependencies
+
+### Features
+
+- [#3932](https://github.com/microsoft/typespec/pull/3932) Add support for URI templates in routes
+
+
 ## 0.58.0
 
 ### Bump dependencies

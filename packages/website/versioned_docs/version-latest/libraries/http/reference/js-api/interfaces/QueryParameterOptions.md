@@ -3,10 +3,15 @@ jsApi: true
 title: "[I] QueryParameterOptions"
 
 ---
+## Extends
+
+- `Required`<`Omit`<`QueryOptions`, `"format"`\>\>
+
 ## Properties
 
-| Property | Type | Description |
-| ------ | ------ | ------ |
-| `format?` | \| `"form"` \| `"csv"` \| `"multi"` \| `"ssv"` \| `"tsv"` \| `"pipes"` \| `"simple"` | The string format of the array. "csv" and "simple" are used interchangeably, as are "multi" and "form". |
-| `name` | `string` | - |
-| `type` | `"query"` | - |
+| Property | Modifier | Type | Description | Inherited from |
+| ------ | ------ | ------ | ------ | ------ |
+| `explode` | `readonly` | `boolean` | - | `Required.explode` |
+| ~~`format?`~~ | `public` | \| `"form"` \| `"multi"` \| `"csv"` \| `"ssv"` \| `"tsv"` \| `"simple"` \| `"pipes"` | **Deprecated** use explode and `@encode` decorator instead. | - |
+| `name` | `readonly` | `string` | - | `Required.name` |
+| `type` | `public` | `"query"` | - | - |

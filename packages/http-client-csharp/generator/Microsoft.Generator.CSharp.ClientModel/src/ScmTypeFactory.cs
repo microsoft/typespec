@@ -75,7 +75,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
             foreach (var visitor in visitors)
             {
-                if (visitor is ScmVisitor scmVisitor)
+                if (visitor is ScmLibraryVisitor scmVisitor)
                 {
                     methods = scmVisitor.Visit(operation, enclosingType, methods);
                 }
