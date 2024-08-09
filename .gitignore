@@ -205,3 +205,6 @@ docs/**/js-api/
 !packages/http-client-csharp/package-lock.json
 packages/http-client-csharp/generator/artifacts/
 BenchmarkDotnet.Artifacts/
+
+# java emitter
+!packages/http-client-java/package-lock.json

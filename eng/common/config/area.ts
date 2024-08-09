@@ -39,6 +39,7 @@ const isolatedEmitters = ["eng/emitters/"];
 
 export const CIRules = {
   CSharp: [...all, ...isolatedEmitters, ...AreaPaths["emitter:client:csharp"], ".editorconfig"],
+  Java: [...all, ...isolatedEmitters, ...AreaPaths["emitter:client:java"], ".editorconfig"],
 
   Core: [
     "**/*",
@@ -48,6 +49,7 @@ export const CIRules = {
     "!esling.config.json", // Eslint is already run as its dedicated CI(via github action)
     ...ignore(isolatedEmitters),
     ...ignore(AreaPaths["emitter:client:csharp"]),
+    ...ignore(AreaPaths["emitter:client:java"]),
   ],
 };
 

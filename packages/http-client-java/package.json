@@ -1,0 +1,83 @@
+{
+  "name": "@typespec/http-client-java",
+  "version": "0.1.0",
+  "description": "TypeSpec library for emitting Java client from the TypeSpec REST protocol binding",
+  "keywords": [
+    "TypeSpec"
+  ],
+  "author": "Microsoft Corporation",
+  "homepage": "https://github.com/Microsoft/typespec",
+  "readme": "https://github.com/Microsoft/typespec/blob/main/packages/http-client-java/README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Microsoft/typespec.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Microsoft/typespec/issues"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/emitter/emitter.js",
+  "exports": {
+    ".": "./dist/emitter/emitter.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "clean": "rimraf ./dist ./temp ./generator/target/emitter.jar",
+    "build": "npm run build:generator && npm run build:emitter",
+    "build:emitter": "tsc -p ./emitter/tsconfig.build.json",
+    "build:generator": "mvn clean install -f ./generator/pom.xml",
+    "format": "pnpm -w format:dir packages/http-client-java",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
+    "extract-api": "npx api-extractor run --local --verbose"
+  },
+  "files": [
+    "lib/*.tsp",
+    "dist/**",
+    "!dist/test/**",
+    "generator/http-client-generator/target/emitter.jar"
+  ],
+  "peerDependencies": {
+    "@azure-tools/typespec-autorest": ">=0.43.0 <1.0.0",
+    "@azure-tools/typespec-azure-core": ">=0.43.0 <1.0.0",
+    "@azure-tools/typespec-client-generator-core": ">=0.43.2 <1.0.0",
+    "@typespec/compiler": ">=0.57.0 <1.0.0",
+    "@typespec/http": ">=0.57.0 <1.0.0",
+    "@typespec/openapi": ">=0.57.0 <1.0.0",
+    "@typespec/rest": ">=0.57.0 <1.0.0",
+    "@typespec/versioning": ">=0.57.0 <1.0.0",
+    "@typespec/xml": ">=0.57.0 <1.0.0"
+  },
+  "dependencies": {
+    "@autorest/codemodel": "~4.20.0",
+    "@typespec/http-client-java": "file:",
+    "js-yaml": "~4.1.0",
+    "lodash": "~4.17.21"
+  },
+  "devDependencies": {
+    "@azure-tools/codegen": "~2.10.0",
+    "@azure-tools/ts-genapi": "^1.0.7",
+    "@azure-tools/typespec-azure-core": "0.44.0",
+    "@azure-tools/typespec-client-generator-core": "0.44.3",
+    "@microsoft/api-extractor": "^7.40.3",
+    "@microsoft/api-extractor-model": "^7.28.2",
+    "@types/js-yaml": "~4.0.9",
+    "@types/lodash": "~4.17.1",
+    "@types/node": "~20.12.10",
+    "@typespec/compiler": "0.58.0",
+    "@typespec/http": "0.58.0",
+    "@typespec/openapi": "0.58.0",
+    "@typespec/rest": "0.58.0",
+    "@typespec/versioning": "0.58.0",
+    "@vitest/coverage-v8": "^1.4.0",
+    "@vitest/ui": "^1.4.0",
+    "c8": "~9.1.0",
+    "rimraf": "~5.0.5",
+    "typescript": "~5.4.5",
+    "vitest": "^1.4.0"
+  }
+}

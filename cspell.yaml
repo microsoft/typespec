@@ -5,6 +5,7 @@ dictionaries:
   - node
   - typescript
 words:
+  - Adoptium
   - AQID
   - atrule
   - autorest
@@ -28,11 +29,15 @@ words:
   - createsorupdatesresource
   - CRUDL
   - dbaeumer
+  - Dcodegen
   - debouncer
+  - Dedupes
   - destructures
   - devdiv
   - Diagnoser
   - dogfood
+  - Dorg
+  - Dskip
   - eastus
   - ecmarkup
   - esbenp
@@ -48,6 +53,7 @@ words:
   - instanceid
   - interner
   - intrinsics
+  - jdwp
   - jsyaml
   - keyer
   - lifecyle
@@ -112,8 +118,8 @@ words:
   - uitestresults
   - unassignable
   - Uncapitalize
-  - undifferentiable
   - uncollapsed
+  - undifferentiable
   - uninstantiated
   - unioned
   - unparented
@@ -128,8 +134,10 @@ words:
   - VSSDK
   - Vsts
   - vswhere
+  - weidxu
   - westus
   - WINDOWSVMIMAGE
+  - xiaofei
   - xlarge
   - xplat
 ignorePaths:
