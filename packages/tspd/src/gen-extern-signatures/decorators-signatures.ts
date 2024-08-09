@@ -72,6 +72,7 @@ export function generateSignatures(
     line,
     decoratorDeclarations.join("\n\n"),
     line,
+    line,
   ];
 
   content.push([

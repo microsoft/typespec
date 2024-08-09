@@ -1,6 +1,9 @@
 import { TypeSpecOpenAPIDecorators } from "../generated-defs/TypeSpec.OpenAPI.js";
 import { $defaultResponse, $extension, $externalDocs, $info, $operationId } from "./decorators.js";
 
+export { $lib } from "./lib.js";
+
+/** @internal */
 export const $decorators = {
   "TypeSpec.OpenAPI": {
     defaultResponse: $defaultResponse,
@@ -10,5 +13,3 @@ export const $decorators = {
     operationId: $operationId,
   } satisfies TypeSpecOpenAPIDecorators,
 };
-
-export { $lib } from "./lib.js";

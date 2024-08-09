@@ -19,6 +19,7 @@ import {
 
 export { $lib } from "./lib.js";
 
+/** @internal */
 export const $decorators = {
   "TypeSpec.Rest": {
     autoRoute: $autoRoute,

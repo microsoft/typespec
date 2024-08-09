@@ -188,6 +188,7 @@ function omitUndefined<T extends Record<string, unknown>>(data: T): T {
   return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
 }
 
+/** @internal */
 export const $decorators = {
   "TypeSpec.OpenAPI": {
     defaultResponse: $defaultResponse,

@@ -108,9 +108,7 @@ export function getHttpPart(program: Program, target: Type): HttpPart | undefine
   return program.stateMap(HttpStateKeys.httpPart).get(target);
 }
 
-/**
- * @internal
- */
+/** @internal */
 export const $decorators = {
   "TypeSpec.Http.Private": {
     httpFile: $httpFile,

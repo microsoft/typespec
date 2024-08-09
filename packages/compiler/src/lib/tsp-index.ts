@@ -44,6 +44,7 @@ import {
   $withoutOmittedProperties,
 } from "./decorators.js";
 
+/** @internal */
 export const $decorators = {
   TypeSpec: {
     encode: $encode,
