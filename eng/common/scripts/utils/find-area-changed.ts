@@ -20,7 +20,7 @@ export function findAreasChanged(files: string[]): (keyof typeof CIRules)[] {
   return result;
 }
 
-function expandFolder(maybeFolder: string) {
+export function expandFolder(maybeFolder: string) {
   if (maybeFolder.endsWith("/")) {
     return `${maybeFolder}**/*`;
   }
