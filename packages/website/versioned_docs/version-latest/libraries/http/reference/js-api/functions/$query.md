@@ -16,7 +16,7 @@ function $query(
 | ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `ModelProperty` |
-| `queryNameOrOptions`? | `Type` |
+| `queryNameOrOptions`? | `string` \| `QueryOptions` |
 
 ## Returns
 
