@@ -17,7 +17,7 @@ namespace Microsoft.Generator.CSharp.Primitives
             {
                 if (_actualNames.ContainsKey(scope))
                 {
-                    if (!scope.Equals(top))
+                    if (!ReferenceEquals(scope, top))
                     {
                         //move the declaration to make it easy to find
                         _actualNames.Add(top, _actualNames[scope]);
