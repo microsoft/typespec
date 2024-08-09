@@ -120,6 +120,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   }
 
   function fromSdkEndpointParameter(p: SdkEndpointParameter): InputParameter[] {
+    // TODO: handle SdkUnionType
     if (p.type.kind === "union") return [];
 
     if (p.type.templateArguments.length === 0)
