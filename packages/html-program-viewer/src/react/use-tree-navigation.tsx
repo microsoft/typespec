@@ -109,7 +109,8 @@ function computeTree(program: Program): TypeGraphListNode {
 }
 
 function computeTypeNode(parentPath: string, type: NamedType, name?: string): TypeGraphTypeNode {
-  const path = parentPath + "." + type.name.toString();
+  const pathSeg = name ?? type.name.toString();
+  const path = parentPath + "." + pathSeg;
   return computeTypeNodeProps(path, type, name);
 }
 
