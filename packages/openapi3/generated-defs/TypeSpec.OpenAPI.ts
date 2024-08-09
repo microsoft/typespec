@@ -15,6 +15,7 @@ export type UseRefDecorator = (
   target: Model | ModelProperty,
   ref: string
 ) => void;
+
 export type TypeSpecOpenAPIDecorators = {
   oneOf: OneOfDecorator;
   useRef: UseRefDecorator;

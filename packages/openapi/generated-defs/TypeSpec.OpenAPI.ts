@@ -78,6 +78,7 @@ export type InfoDecorator = (
   target: Namespace,
   additionalInfo: Type
 ) => void;
+
 export type TypeSpecOpenAPIDecorators = {
   operationId: OperationIdDecorator;
   extension: ExtensionDecorator;

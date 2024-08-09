@@ -215,6 +215,7 @@ export type CopyResourceKeyParametersDecorator = (
   target: Model,
   filter?: string
 ) => void;
+
 export type TypeSpecRestDecorators = {
   autoRoute: AutoRouteDecorator;
   segment: SegmentDecorator;
