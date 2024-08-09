@@ -178,7 +178,7 @@ function writeVariant(decl: ProtoEnumVariantDeclaration, indentLevel: number): I
 }
 
 function writeField(decl: ProtoFieldDeclaration, indentLevel: number): Iterable<string> {
-  const prefix = decl.repeated ? "repeated " : "";
+  const prefix = getFieldPrefix(decl);
   const output = prefix + `${writeType(decl.type)} ${decl.name} = ${decl.index};`;
 
   return writeDocumentationCommentFlexible(decl, output, indentLevel);
@@ -290,6 +290,23 @@ function selectMap<TIn, Delegates extends { [k: string]: (input: TIn) => unknown
   }
 
   return result;
+}
+
+/**
+ * Determines the prefix for a field declaration based on its properties.
+ *
+ * @param decl - The field declaration to analyze.
+ * @returns A string representing the appropriate prefix for the field.
+ */
+function getFieldPrefix(decl: { repeated?: boolean; optional?: boolean }): string {
+  switch (true) {
+    case decl.repeated:
+      return "repeated ";
+    case decl.optional:
+      return "optional ";
+    default:
+      return "";
+  }
 }
 
 // #endregion
