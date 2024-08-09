@@ -33,7 +33,7 @@ export function generateSignatureTests(
     line,
   ]);
 
-  content.push(`import { ${decRecord} } from "${decoratorSignatureImport}";`);
+  content.push(`import type { ${decRecord} } from "${decoratorSignatureImport}";`);
 
   content.push(line);
 
