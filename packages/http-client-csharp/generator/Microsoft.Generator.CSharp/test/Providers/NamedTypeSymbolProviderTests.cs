@@ -95,6 +95,30 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             }
         }
 
+        [Test]
+        public void ValidateConstructors()
+        {
+            Dictionary<string, ConstructorProvider> constructors = _namedTypeSymbolProvider.Constructors.ToDictionary(p => p.Signature.Name);
+            Assert.AreEqual(_namedSymbol.Constructors.Count, constructors.Count);
+            foreach (var expected in _namedSymbol.Constructors)
+            {
+                var actual = constructors[expected.Signature.Name];
+
+                Assert.IsTrue(constructors.ContainsKey(expected.Signature.Name));
+                Assert.AreEqual(expected.Signature.Name, actual.Signature.Name);
+                Assert.AreEqual($"{expected.Signature.Description}.", actual.Signature.Description?.ToString()); // the writer adds a period
+                Assert.AreEqual(expected.Signature.Modifiers, actual.Signature.Modifiers);
+                Assert.AreEqual(expected.Signature.ReturnType, actual.Signature.ReturnType);
+                Assert.AreEqual(expected.Signature.Parameters.Count, actual.Signature.Parameters.Count);
+                for (int i = 0; i < expected.Signature.Parameters.Count; i++)
+                {
+                    Assert.AreEqual(expected.Signature.Parameters[i].Name, actual.Signature.Parameters[i].Name);
+                    Assert.AreEqual($"{expected.Signature.Parameters[i].Description}.", actual.Signature.Parameters[i].Description.ToString()); // the writer adds a period
+                    Assert.AreEqual(expected.Signature.Parameters[i].Type, actual.Signature.Parameters[i].Type);
+                }
+            }
+        }
+
         private class NamedSymbol : TypeProvider
         {
             protected override string BuildRelativeFilePath() => ".";
@@ -122,6 +146,19 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 [
                     new MethodProvider(
                         new MethodSignature("Method1", $"Description of method1", MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual, typeof(Task<int>), null, [intParam]),
+                        Throw(New.Instance(typeof(NotImplementedException))),
+                        this)
+                ];
+            }
+
+            protected override ConstructorProvider[] BuildConstructors()
+            {
+                var intParam = new ParameterProvider("intParam", $"intParam", new CSharpType(typeof(int)));
+
+                return
+                [
+                    new ConstructorProvider(
+                        new ConstructorSignature(Type, $"Initializes a new instance of {Type}", MethodSignatureModifiers.Public, [intParam]),
                         Throw(New.Instance(typeof(NotImplementedException))),
                         this)
                 ];
