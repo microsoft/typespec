@@ -226,7 +226,7 @@ describe("openapi3: servers", () => {
   it("set multiple servers", async () => {
     const res = await openApiFor(
       `
-        @service({title: "My service"})
+        @service
         @server("https://example1.com", "Main server1")
         @server("https://example2.com", "Main server2")
         namespace MyService {}
