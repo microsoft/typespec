@@ -2,12 +2,12 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import {
+  getAllModels,
   SdkClientType,
   SdkContext,
   SdkEndpointParameter,
   SdkHttpOperation,
   SdkServiceMethod,
-  getAllModels,
 } from "@azure-tools/typespec-client-generator-core";
 import { getDoc } from "@typespec/compiler";
 import { NetEmitterOptions, resolveOptions } from "../options.js";
@@ -120,6 +120,8 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   }
 
   function fromSdkEndpointParameter(p: SdkEndpointParameter): InputParameter[] {
+    if (p.type.kind === "union") return [];
+
     if (p.type.templateArguments.length === 0)
       return [
         {
@@ -199,7 +201,7 @@ function getRootApiVersions(clients: SdkClientType<SdkHttpOperation>[]): string[
 function getMethodUri(p: SdkEndpointParameter | undefined): string {
   if (!p) return "";
 
-  if (p.type.templateArguments.length > 0) return p.type.serverUrl;
+  if (p.type.kind === "endpoint" && p.type.templateArguments.length > 0) return p.type.serverUrl;
 
   return `{${p.name}}`;
 }
