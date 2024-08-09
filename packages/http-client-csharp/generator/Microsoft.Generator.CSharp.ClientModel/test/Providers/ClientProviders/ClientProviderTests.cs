@@ -15,20 +15,38 @@ using Microsoft.Generator.CSharp.Statements;
 using NUnit.Framework;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
+namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 {
     public class ClientProviderTests
     {
-        [OneTimeSetUp]
+        private const string SubClientsCategory = "WithSubClients";
+        private const string TestClientName = "TestClient";
+        private static readonly InputClient _animalClient = new("animal", "AnimalClient description", [], [], TestClientName);
+        private static readonly InputClient _dogClient = new("dog", "DogClient description", [], [], _animalClient.Name);
+        private static readonly InputClient _huskyClient = new("husky", "HuskyClient description", [], [], _dogClient.Name);
+
+        [SetUp]
         public void SetUp()
         {
-            MockHelpers.LoadMockPlugin(apiKeyAuth: () => new InputApiKeyAuth("mock", null));
+            var categories = TestContext.CurrentContext.Test?.Properties["Category"];
+            bool containsSubClients = categories?.Contains(SubClientsCategory) ?? false;
+
+            if (containsSubClients)
+            {
+                MockHelpers.LoadMockPlugin(
+                    apiKeyAuth: () => new InputApiKeyAuth("mock", null),
+                    clients: () => [_animalClient, _dogClient, _huskyClient]);
+            }
+            else
+            {
+                MockHelpers.LoadMockPlugin(apiKeyAuth: () => new InputApiKeyAuth("mock", null));
+            }
         }
 
         [Test]
         public void TestBuildProperties()
         {
-            var client = new InputClient("TestClient", "TestClient description", [], [], null);
+            var client = new InputClient(TestClientName, "TestClient description", [], [], null);
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
@@ -48,7 +66,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [TestCaseSource(nameof(BuildFieldsTestCases))]
         public void TestBuildFields(List<InputParameter> inputParameters, bool containsAdditionalOptionalParams)
         {
-            var client = new InputClient("TestClient", "TestClient description", [], inputParameters, null);
+            var client = new InputClient(TestClientName, "TestClient description", [], inputParameters, null);
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
@@ -90,10 +108,39 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             }
         }
 
+        // validates the fields are built correctly when a client has sub-clients
+        [TestCaseSource(nameof(SubClientTestCases), Category = SubClientsCategory)]
+        public void TestBuildFields_WithSubClients(InputClient client, bool hasSubClients)
+        {
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            // validate the fields
+            var fields = clientProvider.Fields;
+
+            // validate the endpoint field
+            var endpointField = fields.FirstOrDefault(f => f.Name == "_endpoint");
+            Assert.IsNotNull(endpointField);
+            Assert.AreEqual(new CSharpType(typeof(Uri)), endpointField?.Type);
+
+            // there should be n number of caching client fields for every direct sub-client + endpoint field + auth fields
+            if (hasSubClients)
+            {
+                Assert.AreEqual(4, fields.Count);
+                var cachedClientFields = fields.Where(f => f.Name.StartsWith("_cached"));
+                Assert.AreEqual(1, cachedClientFields.Count());
+            }
+            else
+            {
+                Assert.AreEqual(3, fields.Count);
+            }
+        }
+
         [TestCaseSource(nameof(BuildConstructorsTestCases))]
         public void TestBuildConstructors_PrimaryConstructor(List<InputParameter> inputParameters)
         {
-            var client = new InputClient("TestClient", "TestClient description", [], inputParameters, null);
+            var client = new InputClient(TestClientName, "TestClient description", [], inputParameters, null);
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
@@ -109,7 +156,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [TestCaseSource(nameof(BuildConstructorsTestCases))]
         public void TestBuildConstructors_SecondaryConstructor(List<InputParameter> inputParameters)
         {
-            var client = new InputClient("TestClient", "TestClient description", [], inputParameters, null);
+            var client = new InputClient(TestClientName, "TestClient description", [], inputParameters, null);
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
@@ -125,6 +172,27 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             var secondaryPublicConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Initializer != null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
             ValidateSecondaryConstructor(primaryPublicConstructor, secondaryPublicConstructor, inputParameters);
+        }
+
+        [Test]
+        public void TestBuildConstructors_ForSubClient()
+        {
+            var clientProvider = new ClientProvider(_animalClient);
+
+            Assert.IsNotNull(clientProvider);
+
+            var constructors = clientProvider.Constructors;
+
+            Assert.AreEqual(2, constructors.Count);
+            var internalConstructor = constructors.FirstOrDefault(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
+            Assert.IsNotNull(internalConstructor);
+            var ctorParams = internalConstructor?.Signature?.Parameters;
+            Assert.AreEqual(3, ctorParams?.Count);
+
+            var mockingConstructor = constructors.FirstOrDefault(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
+            Assert.IsNotNull(mockingConstructor);
         }
 
         private void ValidatePrimaryConstructor(
@@ -148,7 +216,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             {
                 var inputEndpointParam = inputParameters.FirstOrDefault(p => p.IsEndpoint);
                 var parsedValue = inputEndpointParam?.DefaultValue?.Value;
-                Assert.AreEqual(Snippet.Literal(parsedValue), endpointParam?.InitializationValue);
+                Assert.AreEqual(Literal(parsedValue), endpointParam?.InitializationValue);
             }
 
             // validate the body of the primary ctor
@@ -191,7 +259,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [TestCaseSource(nameof(EndpointParamInitializationValueTestCases))]
         public void EndpointInitializationValue(InputParameter endpointParameter, ValueExpression? expectedValue)
         {
-            var client = new InputClient("TestClient", "TestClient description", [], [endpointParameter], null);
+            var client = new InputClient(TestClientName, "TestClient description", [], [endpointParameter], null);
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
@@ -206,6 +274,64 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             {
                 Assert.IsTrue(endpoint?.InitializationValue is NewInstanceExpression);
             }
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestGetClientOptions(bool isSubClient)
+        {
+            string? parentClientName = null;
+            if (isSubClient)
+            {
+                parentClientName = "parent";
+            }
+
+            var client = new InputClient(TestClientName, "TestClient description", [], [], parentClientName);
+            var clientProvider = new ClientProvider(client);
+
+            if (isSubClient)
+            {
+                Assert.IsNull(clientProvider?.ClientOptions);
+            }
+            else
+            {
+                Assert.IsNotNull(clientProvider?.ClientOptions);
+            }
+        }
+
+        [TestCaseSource(nameof(SubClientTestCases), Category = SubClientsCategory)]
+        public void TestSubClientAccessorFactoryMethods(InputClient client, bool hasSubClients)
+        {
+            var clientProvider = new ClientProvider(client);
+            Assert.IsNotNull(clientProvider);
+
+            var methods = clientProvider.Methods;
+            List<MethodProvider> subClientAccessorFactoryMethods = [];
+            foreach (var method in methods)
+            {
+                var methodSignature = method.Signature;
+                if (methodSignature != null &&
+                    methodSignature.Name.StartsWith("Get") &&
+                    methodSignature.Modifiers.HasFlag(MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual))
+                {
+                    subClientAccessorFactoryMethods.Add(method);
+                }
+            }
+
+            if (hasSubClients)
+            {
+                Assert.AreEqual(1, subClientAccessorFactoryMethods.Count);
+                var factoryMethod = subClientAccessorFactoryMethods[0];
+                Assert.AreEqual(0, factoryMethod.Signature?.Parameters.Count);
+
+                // method body should not be empty
+                Assert.AreNotEqual(MethodBodyStatement.Empty, factoryMethod.BodyStatements);
+            }
+            else
+            {
+                Assert.AreEqual(0, subClientAccessorFactoryMethods.Count);
+            }
+
         }
 
         public static IEnumerable<TestCaseData> BuildFieldsTestCases
@@ -272,6 +398,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
                         InputOperationParameterKind.Client,
                         isRequired: false, false, false, false, isEndpoint: true, false, false, null, null)
                 }, true);
+            }
+        }
+
+        public static IEnumerable<TestCaseData> SubClientTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(new InputClient(TestClientName, "TestClient description", [], [], null), true);
+                yield return new TestCaseData(_animalClient, true);
+                yield return new TestCaseData(_dogClient, true);
+                yield return new TestCaseData(_huskyClient, false);
             }
         }
 

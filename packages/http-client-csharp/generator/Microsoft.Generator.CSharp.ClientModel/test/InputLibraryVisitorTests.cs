@@ -16,7 +16,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private Mock<ClientModelPlugin> _mockPlugin;
-        private Mock<ScmVisitor> _mockVisitor;
+        private Mock<ScmLibraryVisitor> _mockVisitor;
         private Mock<InputLibrary> _mockInputLibrary;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
@@ -25,7 +25,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         {
             _mockInputLibrary = new Mock<InputLibrary>();
             _mockPlugin = MockHelpers.LoadMockPlugin(createInputLibrary: () => _mockInputLibrary.Object);
-            _mockVisitor = new Mock<ScmVisitor> { CallBase = true };
+            _mockVisitor = new Mock<ScmLibraryVisitor> { CallBase = true };
         }
 
         [Test]
