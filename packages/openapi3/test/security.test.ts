@@ -6,7 +6,7 @@ describe("openapi3: security", () => {
   it("set a basic auth", async () => {
     const res = await openApiFor(
       `
-      @service({title: "My service"})
+      @service
       @useAuth(BasicAuth)
       namespace MyService {}
       `
@@ -23,7 +23,7 @@ describe("openapi3: security", () => {
   it("set a bearer auth", async () => {
     const res = await openApiFor(
       `
-      @service({title: "My service"})
+      @service
       @useAuth(BearerAuth)
       namespace MyService {}
       `
@@ -40,7 +40,7 @@ describe("openapi3: security", () => {
   it("set a ApiKeyAuth query", async () => {
     const res = await openApiFor(
       `
-      @service({title: "My service"})
+      @service
       @useAuth(ApiKeyAuth<ApiKeyLocation.query, "x-my-header">)
       namespace MyService {}
       `
@@ -58,7 +58,7 @@ describe("openapi3: security", () => {
   it("set a ApiKeyAuth ", async () => {
     const res = await openApiFor(
       `
-      @service({title: "My service"})
+      @service
       @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-my-header">)
       namespace MyService {}
       `
@@ -76,7 +76,7 @@ describe("openapi3: security", () => {
   it("set a ApiKeyAuth cookie ", async () => {
     const res = await openApiFor(
       `
-      @service({title: "My service"})
+      @service
       @useAuth(ApiKeyAuth<ApiKeyLocation.cookie, "x-my-header">)
       namespace MyService {}
       `
@@ -94,8 +94,7 @@ describe("openapi3: security", () => {
   it("set a oauth2 auth", async () => {
     const res = await openApiFor(
       `
-      @service({title: "My service"})
-     
+      @service     
       @useAuth(OAuth2Auth<[MyFlow]>)
       namespace MyService {
         model MyFlow {
@@ -128,8 +127,7 @@ describe("openapi3: security", () => {
   it("set a oauth2 auth password", async () => {
     const res = await openApiFor(
       `
-      @service({title: "My service"})
-     
+      @service     
       @useAuth(OAuth2Auth<[MyFlow]>)
       namespace MyService {
         model MyFlow {
@@ -162,8 +160,7 @@ describe("openapi3: security", () => {
   it("set a oauth2 auth clientCredentials", async () => {
     const res = await openApiFor(
       `
-      @service({title: "My service"})
-     
+      @service     
       @useAuth(OAuth2Auth<[MyFlow]>)
       namespace MyService {
         model MyFlow {
@@ -196,8 +193,7 @@ describe("openapi3: security", () => {
   it("set a oauth2 auth authorizationCode", async () => {
     const res = await openApiFor(
       `
-      @service({title: "My service"})
-     
+      @service     
       @useAuth(OAuth2Auth<[MyFlow]>)
       namespace MyService {
         model MyFlow {
@@ -253,7 +249,7 @@ describe("openapi3: security", () => {
   it("can specify custom auth name with description", async () => {
     const res = await openApiFor(
       `
-      @service({title: "My service"})
+      @service
       @useAuth(MyAuth)
       @test namespace Foo {
         @doc("My custom basic auth")
@@ -274,7 +270,7 @@ describe("openapi3: security", () => {
   it("can specify custom auth name with extensions", async () => {
     const res = await openApiFor(
       `
-      @service({title: "My service"})
+      @service
       @useAuth(MyAuth)
       @test namespace Foo {
         @extension("x-foo", "bar")
@@ -295,7 +291,7 @@ describe("openapi3: security", () => {
   it("can use multiple auth", async () => {
     const res = await openApiFor(
       `
-      @service({title: "My service"})
+      @service
       @useAuth(BearerAuth | [ApiKeyAuth<ApiKeyLocation.header, "x-my-header">, BasicAuth])
       namespace MyService {}
       `

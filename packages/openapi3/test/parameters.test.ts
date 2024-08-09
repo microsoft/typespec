@@ -456,6 +456,19 @@ describe("path parameters", () => {
     expect(res.paths).toHaveProperty("/{my-custom-path}");
   });
 
+  it("inline adds an arbitrary extension to a parameter", async () => {
+    const oapi = await openApiFor(
+      `
+      op get(
+        @path
+        @extension("x-parameter-extension", "foobaz")
+        petId: string;
+      ): void;
+      `
+    );
+    strictEqual(oapi.paths["/{petId}"].get.parameters[0]["x-parameter-extension"], "foobaz");
+  });
+
   describe("set explode: true", () => {
     it("with option", async () => {
       const param = await getPathParam(`op test(@path(#{explode: true}) myParam: string[]): void;`);
