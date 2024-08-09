@@ -96,6 +96,30 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         }
 
         [Test]
+        public void ValidateConstructors()
+        {
+            Dictionary<string, ConstructorProvider> constructors = _namedTypeSymbolProvider.Constructors.ToDictionary(p => p.Signature.Name);
+            Assert.AreEqual(_namedSymbol.Constructors.Count, constructors.Count);
+            foreach (var expected in _namedSymbol.Constructors)
+            {
+                var actual = constructors[expected.Signature.Name];
+
+                Assert.IsTrue(constructors.ContainsKey(expected.Signature.Name));
+                Assert.AreEqual(expected.Signature.Name, actual.Signature.Name);
+                Assert.AreEqual($"{expected.Signature.Description}.", actual.Signature.Description?.ToString()); // the writer adds a period
+                Assert.AreEqual(expected.Signature.Modifiers, actual.Signature.Modifiers);
+                Assert.AreEqual(expected.Signature.ReturnType, actual.Signature.ReturnType);
+                Assert.AreEqual(expected.Signature.Parameters.Count, actual.Signature.Parameters.Count);
+                for (int i = 0; i < expected.Signature.Parameters.Count; i++)
+                {
+                    Assert.AreEqual(expected.Signature.Parameters[i].Name, actual.Signature.Parameters[i].Name);
+                    Assert.AreEqual($"{expected.Signature.Parameters[i].Description}.", actual.Signature.Parameters[i].Description.ToString()); // the writer adds a period
+                    Assert.AreEqual(expected.Signature.Parameters[i].Type, actual.Signature.Parameters[i].Type);
+                }
+            }
+        }
+
+        [Test]
         public void ValidateFields()
         {
             Dictionary<string, FieldProvider> fields = _namedTypeSymbolProvider.Fields.ToDictionary(p => p.Name);
@@ -121,6 +145,17 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
+            protected override FieldProvider[] BuildFields()
+            {
+                return
+                [
+                    new FieldProvider(FieldModifiers.Public, typeof(int), "IntProperty", $"PublicIntProperty property"),
+                    new FieldProvider(FieldModifiers.Private, typeof(string), "StringProperty", $"PrivateStringProperty property no setter"),
+                    new FieldProvider(FieldModifiers.Internal, typeof(double),  "DoubleProperty", $"InternalDoubleProperty property"),
+                    new FieldProvider(FieldModifiers.Public | FieldModifiers.Static, typeof(float),  "FloatProperty", $"PublicStaticFloatProperty property"),
+                ];
+            }
+
             protected override PropertyProvider[] BuildProperties()
             {
                 return
@@ -129,6 +164,19 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     new PropertyProvider($"StringProperty property no setter", MethodSignatureModifiers.Public, typeof(string), "StringProperty", new AutoPropertyBody(false)),
                     new PropertyProvider($"InternalStringProperty property no setter", MethodSignatureModifiers.Public, typeof(string), "InternalStringProperty", new AutoPropertyBody(false)),
                     new PropertyProvider($"PropertyTypeProperty property", MethodSignatureModifiers.Public, new PropertyType().Type, "PropertyTypeProperty", new AutoPropertyBody(true)),
+                ];
+            }
+
+            protected override ConstructorProvider[] BuildConstructors()
+            {
+                var intParam = new ParameterProvider("intParam", $"intParam", new CSharpType(typeof(int)));
+
+                return
+                [
+                    new ConstructorProvider(
+                        new ConstructorSignature(Type, $"Initializes a new instance of {Type}", MethodSignatureModifiers.Public, [intParam]),
+                        Throw(New.Instance(typeof(NotImplementedException))),
+                        this)
                 ];
             }
 
@@ -142,17 +190,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                         new MethodSignature("Method1", $"Description of method1", MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual, typeof(Task<int>), null, [intParam]),
                         Throw(New.Instance(typeof(NotImplementedException))),
                         this)
-                ];
-            }
-
-            protected override FieldProvider[] BuildFields()
-            {
-                return
-                [
-                    new FieldProvider(FieldModifiers.Public, typeof(int), "IntProperty", $"PublicIntProperty property"),
-                    new FieldProvider(FieldModifiers.Private, typeof(string), "StringProperty", $"PrivateStringProperty property no setter"),
-                    new FieldProvider(FieldModifiers.Internal, typeof(double),  "DoubleProperty", $"InternalDoubleProperty property"),
-                    new FieldProvider(FieldModifiers.Public | FieldModifiers.Static, typeof(float),  "FloatProperty", $"PublicStaticFloatProperty property"),
                 ];
             }
         }
