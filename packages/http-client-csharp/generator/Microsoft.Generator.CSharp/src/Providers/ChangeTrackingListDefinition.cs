@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly FieldProvider _innerListField;
         private readonly CSharpType _tArray;
         private readonly ParameterProvider _tParam;
-        private readonly ParameterProvider _indexParam = new ParameterProvider("index", $"The index.", typeof(int));
+        private readonly ParameterProvider _indexParam = new ParameterProvider("index", $"The inner list.", typeof(int));
         private VariableExpression _innerList;
         private readonly CSharpType _iListOfT;
         private readonly CSharpType _iReadOnlyListOfT;
@@ -128,8 +128,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private PropertyProvider BuildIndexer()
         {
-            var indexParam = new ParameterProvider("index", $"The inner list.", typeof(int));
-            return new IndexPropertyProvider(null, MethodSignatureModifiers.Public, _t, indexParam, new MethodPropertyBody(
+            return new IndexPropertyProvider(null, MethodSignatureModifiers.Public, _t, _indexParam, new MethodPropertyBody(
                 new MethodBodyStatement[]
                 {
                     new IfStatement(IsUndefined)

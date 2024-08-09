@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         public void InvalidDocComment()
         {
             var statement = new XmlDocStatement("<tag>", "</tag>", [$"<|endoftext|>"]);
-            var writer = new CodeWriter();
+            using var writer = new CodeWriter();
             statement.Write(writer);
             Assert.AreEqual("/// <tag> &lt;|endoftext|&gt;. </tag>\n", writer.ToString(false));
         }
@@ -22,7 +22,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         public void InvalidDocCommentWithCref()
         {
             var statement = new XmlDocStatement("<tag>", "</tag>", [$"{typeof(int):C} <|endoftext|>"]);
-            var writer = new CodeWriter();
+            using var writer = new CodeWriter();
             statement.Write(writer);
             Assert.AreEqual("/// <tag> <see cref=\"int\"/> &lt;|endoftext|&gt;. </tag>\n", writer.ToString(false));
         }
@@ -31,7 +31,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         public void InvalidDocCommentWithCrefMethod()
         {
             var statement = new XmlDocStatement("<tag>", "</tag>", [$"<see cref=\"{typeof(BinaryData)}.FromBytes(byte[])\"/> <|endoftext|>"]);
-            var writer = new CodeWriter();
+            using var writer = new CodeWriter();
             statement.Write(writer);
             Assert.AreEqual("/// <tag> <see cref=\"global::System.BinaryData.FromBytes(byte[])\"/> &lt;|endoftext|&gt;. </tag>\n", writer.ToString(false));
         }
@@ -41,7 +41,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         {
             var invalid = "<|endoftext|>";
             var statement = new XmlDocStatement("<tag>", "</tag>", [$"{invalid}"]);
-            var writer = new CodeWriter();
+            using var writer = new CodeWriter();
             statement.Write(writer);
             Assert.AreEqual("/// <tag> &lt;|endoftext|&gt;. </tag>\n", writer.ToString(false));
         }

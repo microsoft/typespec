@@ -151,9 +151,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             if (parameter._asVariable == null)
             {
-                var decl = new CodeWriterDeclaration(parameter.Name);
-                decl.SetActualName(parameter.Name);
-                parameter._asVariable = new VariableExpression(parameter.Type, decl, parameter.IsRef);
+                parameter._asVariable = new VariableExpression(parameter.Type, parameter.Name, parameter.IsRef);
             }
 
             return parameter._asVariable;
@@ -187,6 +185,25 @@ namespace Microsoft.Generator.CSharp.Providers
                 return ParameterValidationType.None;
 
             return ParameterValidationType.AssertNotNull;
+        }
+
+        internal ParameterProvider WithRef()
+        {
+            return new ParameterProvider(
+                Name,
+                Description,
+                Type,
+                DefaultValue,
+                true,
+                false,
+                Attributes,
+                Property,
+                Field,
+                InitializationValue)
+            {
+                Validation = Validation,
+                _asVariable = AsExpression,
+            };
         }
     }
 }
