@@ -1,2 +1,2 @@
-import "../dist/src/index.js";
+import "../dist/src/tsp-main.js";
 import "./decorators.tsp";
