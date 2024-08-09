@@ -11,10 +11,9 @@ import {
   HttpPartDecorator,
   HttpPartOptions,
   PlainDataDecorator,
+  TypeSpecHttpPrivateDecorators,
 } from "../generated-defs/TypeSpec.Http.Private.js";
 import { HttpStateKeys } from "./lib.js";
-
-export const namespace = "TypeSpec.Http.Private";
 
 export const $plainData: PlainDataDecorator = (context: DecoratorContext, entity: Model) => {
   const { program } = context;
@@ -110,3 +109,11 @@ export interface HttpPart {
 export function getHttpPart(program: Program, target: Type): HttpPart | undefined {
   return program.stateMap(HttpStateKeys.httpPart).get(target);
 }
+
+export const $decorators = {
+  "TypeSpec.Http.Private": {
+    httpFile: $httpFile,
+    httpPart: $httpPart,
+    plainData: $plainData,
+  } satisfies TypeSpecHttpPrivateDecorators,
+};

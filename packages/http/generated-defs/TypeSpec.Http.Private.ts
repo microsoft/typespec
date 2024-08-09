@@ -14,3 +14,8 @@ export type HttpPartDecorator = (
   type: Type,
   options: HttpPartOptions
 ) => void;
+export type TypeSpecHttpPrivateDecorators = {
+  plainData: PlainDataDecorator;
+  httpFile: HttpFileDecorator;
+  httpPart: HttpPartDecorator;
+};
