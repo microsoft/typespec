@@ -78,7 +78,7 @@ namespace Microsoft.Generator.CSharp.Input
                 throw new JsonException("The ValueType of an EnumType must be a primitive type.");
             }
 
-            var enumType = new InputEnumType(name, crossLanguageDefinitionId ?? string.Empty, accessibility, deprecated, description!, usage, inputValueType, NormalizeValues(values, inputValueType), isExtendable, decorators ?? Array.Empty<InputDecoratorInfo>());
+            var enumType = new InputEnumType(name, crossLanguageDefinitionId ?? string.Empty, accessibility, deprecated, description!, usage, inputValueType, NormalizeValues(values, inputValueType), isExtendable, decorators);
             if (id != null)
             {
                 resolver.AddReference(id, enumType);

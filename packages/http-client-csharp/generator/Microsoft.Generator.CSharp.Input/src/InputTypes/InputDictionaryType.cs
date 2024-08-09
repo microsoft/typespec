@@ -15,7 +15,7 @@ namespace Microsoft.Generator.CSharp.Input
         /// <param name="keyType">The key's <see cref="InputType"/>.</param>
         /// <param name="valueType">The value's <see cref="InputType"/>.</param>
         /// <param name="isNullable">Flag used to determine if the input dictionary type is nullable.</param>
-        public InputDictionaryType(string name, InputType keyType, InputType valueType, IReadOnlyList<InputDecoratorInfo> decorators) : base(name, decorators)
+        public InputDictionaryType(string name, InputType keyType, InputType valueType, IReadOnlyList<InputDecoratorInfo>? decorators = null) : base(name, decorators)
         {
             KeyType = keyType;
             ValueType = valueType;

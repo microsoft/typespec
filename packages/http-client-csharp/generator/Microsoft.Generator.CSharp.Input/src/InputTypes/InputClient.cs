@@ -11,14 +11,14 @@ namespace Microsoft.Generator.CSharp.Input
         private readonly string? _key;
         private IReadOnlyDictionary<string, InputClientExample>? _examples;
 
-        public InputClient(string name, string description, IReadOnlyList<InputOperation> operations, IReadOnlyList<InputParameter> parameters, string? parent, IReadOnlyList<InputDecoratorInfo> decorators)
+        public InputClient(string name, string description, IReadOnlyList<InputOperation> operations, IReadOnlyList<InputParameter> parameters, string? parent, IReadOnlyList<InputDecoratorInfo>? decorators = null)
         {
             Name = name;
             Description = description;
             Operations = operations;
             Parameters = parameters;
             Parent = parent;
-            Decorators = decorators;
+            Decorators = decorators ?? [];
         }
 
         public InputClient() : this(string.Empty, string.Empty, Array.Empty<InputOperation>(), Array.Empty<InputParameter>(), null, Array.Empty<InputDecoratorInfo>()) { }

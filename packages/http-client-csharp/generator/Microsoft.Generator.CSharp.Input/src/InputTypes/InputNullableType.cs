@@ -8,10 +8,7 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public sealed class InputNullableType : InputType
     {
-        public InputNullableType(InputType type) : this(type, Array.Empty<InputDecoratorInfo>())
-        {
-        }
-        public InputNullableType(InputType type, IReadOnlyList<InputDecoratorInfo> decorators) : base("nullable", decorators)
+        public InputNullableType(InputType type, IReadOnlyList<InputDecoratorInfo>? decorators = null) : base("nullable", decorators)
         {
             Type = type;
         }

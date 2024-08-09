@@ -81,8 +81,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 InputPrimitiveType.String,
                 true,
                 false,
-                false,
-                Array.Empty<InputDecoratorInfo>());
+                false);
             var inputModel = new InputModelType(
                 "TestModel",
                 "TestModel",

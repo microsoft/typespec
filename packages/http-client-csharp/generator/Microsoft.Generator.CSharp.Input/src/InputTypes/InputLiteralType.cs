@@ -7,7 +7,7 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public sealed class InputLiteralType : InputType
     {
-        public InputLiteralType(InputType valueType, object value, IReadOnlyList<InputDecoratorInfo> decorators) : base("Literal", decorators)
+        public InputLiteralType(InputType valueType, object value, IReadOnlyList<InputDecoratorInfo>? decorators = null) : base("Literal", decorators)
         {
             ValueType = valueType;
             Value = value;

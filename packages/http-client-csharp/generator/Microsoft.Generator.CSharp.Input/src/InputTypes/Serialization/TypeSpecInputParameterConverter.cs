@@ -110,7 +110,7 @@ namespace Microsoft.Generator.CSharp.Input
                 explode: explode,
                 arraySerializationDelimiter: arraySerializationDelimiter,
                 headerCollectionPrefix: headerCollectionPrefix,
-                decorators: decorators ?? Array.Empty<InputDecoratorInfo>());
+                decorators: decorators);
 
             if (id != null)
             {

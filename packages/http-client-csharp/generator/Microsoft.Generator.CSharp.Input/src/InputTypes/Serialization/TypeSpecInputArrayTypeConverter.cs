@@ -44,7 +44,7 @@ namespace Microsoft.Generator.CSharp.Input
             }
 
             valueType = valueType ?? throw new JsonException("List must have element type");
-            var listType = new InputArrayType(name ?? "Array", crossLanguageDefinitionId ?? string.Empty, valueType, decorators ?? Array.Empty<InputDecoratorInfo>());
+            var listType = new InputArrayType(name ?? "Array", crossLanguageDefinitionId ?? string.Empty, valueType, decorators);
             if (id != null)
             {
                 resolver.AddReference(id, listType);

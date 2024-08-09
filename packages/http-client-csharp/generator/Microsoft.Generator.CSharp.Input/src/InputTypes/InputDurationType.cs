@@ -7,7 +7,7 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public class InputDurationType : InputType
     {
-        public InputDurationType(DurationKnownEncoding encode, string name, string crossLanguageDefinitionId, InputPrimitiveType wireType, InputDurationType? baseType, IReadOnlyList<InputDecoratorInfo> decorators) : base(name, decorators)
+        public InputDurationType(DurationKnownEncoding encode, string name, string crossLanguageDefinitionId, InputPrimitiveType wireType, InputDurationType? baseType, IReadOnlyList<InputDecoratorInfo>? decorators = null) : base(name, decorators)
         {
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
             Encode = encode;

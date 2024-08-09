@@ -21,7 +21,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(int));
 
-            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.Int32, [new InputEnumTypeValue("One", 1, null), new InputEnumTypeValue("Two", 2, null)], false, Array.Empty<InputDecoratorInfo>());
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.Int32, [new InputEnumTypeValue("One", 1, null), new InputEnumTypeValue("Two", 2, null)], false);
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
 
@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(float));
 
-            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.Float32, [new InputEnumTypeValue("One", 1f, null), new InputEnumTypeValue("Two", 2f, null)], false, Array.Empty<InputDecoratorInfo>());
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.Float32, [new InputEnumTypeValue("One", 1f, null), new InputEnumTypeValue("Two", 2f, null)], false);
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
 
@@ -60,7 +60,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(string));
 
-            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.String, [new InputEnumTypeValue("One", "1", null), new InputEnumTypeValue("Two", "2", null)], false, Array.Empty<InputDecoratorInfo>());
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.String, [new InputEnumTypeValue("One", "1", null), new InputEnumTypeValue("Two", "2", null)], false);
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
 
@@ -77,7 +77,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         public void BuildEnumType_ValidateApiVersionEnum()
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(string));
-            
+
             string[] apiVersions = ["2024-07-16", "2024-07-17"];
             var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.ApiVersionEnum, InputPrimitiveType.String, [new InputEnumTypeValue(apiVersions[0], 1, null), new InputEnumTypeValue(apiVersions[1], 2, null)], false, []);
             var enumType = EnumProvider.Create(input);
@@ -97,7 +97,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(int));
 
-            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.Int32, [new InputEnumTypeValue("One", 1, null), new InputEnumTypeValue("Two", 2, null)], true, Array.Empty<InputDecoratorInfo>());
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.Int32, [new InputEnumTypeValue("One", 1, null), new InputEnumTypeValue("Two", 2, null)], true);
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
             var properties = enumType.Properties;
@@ -135,7 +135,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(float));
 
-            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.Float32, [new InputEnumTypeValue("One", 1f, null), new InputEnumTypeValue("Two", 2f, null)], true, Array.Empty<InputDecoratorInfo>());
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.Float32, [new InputEnumTypeValue("One", 1f, null), new InputEnumTypeValue("Two", 2f, null)], true);
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
             var properties = enumType.Properties;
@@ -173,7 +173,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(string));
 
-            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.String, [new InputEnumTypeValue("One", "1", null), new InputEnumTypeValue("Two", "2", null)], true, Array.Empty<InputDecoratorInfo>());
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.String, [new InputEnumTypeValue("One", "1", null), new InputEnumTypeValue("Two", "2", null)], true);
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
             var properties = enumType.Properties;

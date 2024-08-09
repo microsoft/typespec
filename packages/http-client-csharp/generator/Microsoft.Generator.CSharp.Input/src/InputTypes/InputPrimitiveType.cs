@@ -8,28 +8,18 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public sealed class InputPrimitiveType : InputType
     {
-        public InputPrimitiveType(InputPrimitiveTypeKind kind, string name, string crossLanguageDefinitionId) : this(kind, name, crossLanguageDefinitionId, Array.Empty<InputDecoratorInfo>())
-        {
-        }
-        public InputPrimitiveType(InputPrimitiveTypeKind kind, string name, string crossLanguageDefinitionId, IReadOnlyList<InputDecoratorInfo> decorators) : base(name, decorators)
+        public InputPrimitiveType(InputPrimitiveTypeKind kind, string name, string crossLanguageDefinitionId, IReadOnlyList<InputDecoratorInfo>? decorators = null) : base(name, decorators)
         {
             Kind = kind;
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
         }
 
-        public InputPrimitiveType(InputPrimitiveTypeKind kind, string name, string crossLanguageDefinitionId, string? encode) : this(kind, name, crossLanguageDefinitionId, encode, Array.Empty<InputDecoratorInfo>())
-        {
-        }
-
-        public InputPrimitiveType(InputPrimitiveTypeKind kind, string name, string crossLanguageDefinitionId, string? encode, IReadOnlyList<InputDecoratorInfo> decorators) : this(kind, name, crossLanguageDefinitionId, decorators)
+        public InputPrimitiveType(InputPrimitiveTypeKind kind, string name, string crossLanguageDefinitionId, string? encode, IReadOnlyList<InputDecoratorInfo>? decorators = null) : this(kind, name, crossLanguageDefinitionId, decorators)
         {
             Encode = encode;
         }
 
-        public InputPrimitiveType(InputPrimitiveTypeKind kind, string name, string crossLanguageDefinitionId, string? encode, InputPrimitiveType? baseType) : this(kind, name, crossLanguageDefinitionId, encode, baseType, Array.Empty<InputDecoratorInfo>())
-        {
-        }
-        public InputPrimitiveType(InputPrimitiveTypeKind kind, string name, string crossLanguageDefinitionId, string? encode, InputPrimitiveType? baseType, IReadOnlyList<InputDecoratorInfo> decorators) : this(kind, name, crossLanguageDefinitionId, encode, decorators)
+        public InputPrimitiveType(InputPrimitiveTypeKind kind, string name, string crossLanguageDefinitionId, string? encode, InputPrimitiveType? baseType, IReadOnlyList<InputDecoratorInfo>? decorators = null) : this(kind, name, crossLanguageDefinitionId, encode, decorators)
         {
             BaseType = baseType;
         }

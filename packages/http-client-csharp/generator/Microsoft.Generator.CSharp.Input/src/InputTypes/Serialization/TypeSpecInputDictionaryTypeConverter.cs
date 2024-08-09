@@ -45,7 +45,7 @@ namespace Microsoft.Generator.CSharp.Input
             keyType = keyType ?? throw new JsonException("Dictionary must have key type");
             valueType = valueType ?? throw new JsonException("Dictionary must have value type");
 
-            var dictType = new InputDictionaryType("Dictionary", keyType, valueType, decorators ?? Array.Empty<InputDecoratorInfo>());
+            var dictType = new InputDictionaryType("Dictionary", keyType, valueType, decorators);
             if (id != null)
             {
                 resolver.AddReference(id, dictType);

@@ -24,7 +24,7 @@ namespace Microsoft.Generator.CSharp.Input
             bool explode,
             string? arraySerializationDelimiter,
             string? headerCollectionPrefix,
-            IReadOnlyList<InputDecoratorInfo> decorators)
+            IReadOnlyList<InputDecoratorInfo>? decorators = null)
         {
             Name = name;
             NameInRequest = nameInRequest;
@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp.Input
             Explode = explode;
             ArraySerializationDelimiter = arraySerializationDelimiter;
             HeaderCollectionPrefix = headerCollectionPrefix;
-            Decorators = decorators;
+            Decorators = decorators ?? [];
         }
 
         public string Name { get; }

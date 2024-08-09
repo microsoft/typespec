@@ -31,7 +31,7 @@ namespace Microsoft.Generator.CSharp.Input
             bool generateProtocolMethod,
             bool generateConvenienceMethod,
             string crossLanguageDefinitionId,
-            IReadOnlyList<InputDecoratorInfo> decorators)
+            IReadOnlyList<InputDecoratorInfo>? decorators = null)
         {
             Name = name;
             ResourceName = resourceName;
@@ -52,7 +52,7 @@ namespace Microsoft.Generator.CSharp.Input
             GenerateProtocolMethod = generateProtocolMethod;
             GenerateConvenienceMethod = generateConvenienceMethod;
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
-            Decorators = decorators;
+            Decorators = decorators ?? [];
         }
 
         public InputOperation() : this(

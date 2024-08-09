@@ -28,8 +28,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 InputPrimitiveType.String,
                 true,
                 false,
-                false,
-                Array.Empty<InputDecoratorInfo>());
+                false);
 
             var property = new PropertyProvider(inputModelProperty);
 
@@ -49,8 +48,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 InputPrimitiveType.String,
                 true,
                 false,
-                false,
-                Array.Empty<InputDecoratorInfo>());
+                false);
 
             var property = new PropertyProvider(inputModelProperty);
 
@@ -70,8 +68,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 InputPrimitiveType.String,
                 true,
                 false,
-                false,
-                Array.Empty<InputDecoratorInfo>());
+                false);
 
             var property = new PropertyProvider(inputModelProperty);
 
@@ -91,8 +88,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 InputPrimitiveType.String,
                     true,
                 false,
-                false,
-                Array.Empty<InputDecoratorInfo>());
+                false);
 
             var property = new PropertyProvider(inputModelProperty);
 
@@ -121,21 +117,19 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             yield return new TestCaseData(
                 new CSharpType(typeof(IList<>), typeof(string)),
                 new InputModelProperty("readOnlyCollection", "readOnlyCollection", string.Empty,
-                    new InputArrayType("List", "id", InputPrimitiveType.String, Array.Empty<InputDecoratorInfo>()),
+                    new InputArrayType("List", "id", InputPrimitiveType.String),
                     true,
                     true,
-                    false,
-                    Array.Empty<InputDecoratorInfo>()),
+                    false),
                 new CSharpType(typeof(IReadOnlyList<>), typeof(string)));
             // Dictionary<string, int> -> IReadOnlyDictionary<string, int>
             yield return new TestCaseData(
                 new CSharpType(typeof(IDictionary<,>), typeof(string), typeof(int)),
                 new InputModelProperty("readOnlyDictionary", "readOnlyDictionary", string.Empty,
-                    new InputDictionaryType("Dictionary", InputPrimitiveType.String, InputPrimitiveType.Int32, Array.Empty<InputDecoratorInfo>()),
+                    new InputDictionaryType("Dictionary", InputPrimitiveType.String, InputPrimitiveType.Int32),
                     true,
                     true,
-                    false,
-                    Array.Empty<InputDecoratorInfo>()),
+                    false),
                 new CSharpType(typeof(IReadOnlyDictionary<,>), typeof(string), typeof(int)));
             // string -> string
             yield return new TestCaseData(
@@ -144,7 +138,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     InputPrimitiveType.String,
                     true,
                     true,
-                    false, Array.Empty<InputDecoratorInfo>()),
+                    false),
                 new CSharpType(typeof(string)));
         }
     }

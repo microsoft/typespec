@@ -14,10 +14,10 @@ namespace Microsoft.Generator.CSharp.Input
         /// Construct a new <see cref="InputType"/> instance
         /// </summary>
         /// <param name="name">The name of the input type.</param>
-        protected InputType(string name, IReadOnlyList<InputDecoratorInfo> decorators)
+        protected InputType(string name, IReadOnlyList<InputDecoratorInfo>? decorators = null)
         {
             Name = name;
-            Decorators = decorators;
+            Decorators = decorators ?? [];
         }
 
         public string Name { get; internal set; }
