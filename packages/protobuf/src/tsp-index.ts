@@ -1,5 +1,15 @@
 import { TypeSpecProtobufDecorators } from "../generated-defs/TypeSpec.Protobuf.js";
-import { $field, $message, $package, $reserve, $service, $stream } from "./proto.js";
+import { TypeSpecProtobufPrivateDecorators } from "../generated-defs/TypeSpec.Protobuf.Private.js";
+import {
+  $_map,
+  $externRef,
+  $field,
+  $message,
+  $package,
+  $reserve,
+  $service,
+  $stream,
+} from "./proto.js";
 
 export { TypeSpecProtobufLibrary as $lib } from "./lib.js";
 /** @internal */
@@ -12,4 +22,8 @@ export const $decorators = {
     package: $package,
     stream: $stream,
   } satisfies TypeSpecProtobufDecorators,
+  "TypeSpec.Protobuf.Private": {
+    externRef: $externRef,
+    _map: $_map,
+  } satisfies TypeSpecProtobufPrivateDecorators,
 };

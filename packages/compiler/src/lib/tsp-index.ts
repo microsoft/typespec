@@ -92,3 +92,6 @@ export const $decorators = {
     returnTypeVisibility: $returnTypeVisibility,
   } satisfies TypeSpecDecorators,
 };
+
+// Projection function exports
+export { getProjectedName, hasProjectedName } from "./decorators.js";
