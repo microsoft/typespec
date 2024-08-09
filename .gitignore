@@ -135,6 +135,7 @@ lib-cov
 
 # Coverage directory used by tools like istanbul
 coverage
+!packages/spec-core/src/coverage
 
 # nyc test coverage
 .nyc_output

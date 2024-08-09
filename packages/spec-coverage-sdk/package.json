@@ -1,0 +1,39 @@
+{
+  "name": "@typespec/spec-coverage-sdk",
+  "version": "0.1.0",
+  "description": "Spec utility to manage the reported coverage",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "watch": "tsc -p ./tsconfig.build.json --watch",
+    "build": "tsc -p ./tsconfig.build.json",
+    "clean": "rimraf dist/ temp/",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
+  "author": "Microsoft",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "homepage": "https://github.com/microsoft/typespec#readme",
+  "dependencies": {
+    "@azure/identity": "^4.2.1",
+    "@azure/storage-blob": "^12.14.0",
+    "@types/node": "^18.16.0"
+  },
+  "devDependencies": {
+    "@typespec/eslint-config-typespec": "~0.55.0",
+    "eslint": "^8.50.0",
+    "rimraf": "^5.0.5",
+    "typescript": "~5.2.2"
+  }
+}
