@@ -39,7 +39,7 @@ const $lib: TypeSpecLibrary<object, Record<string, any>,
 | `duplicate-body.default` | `"Operation has multiple @body parameters declared"` | "Operation has multiple @body parameters declared" |
 | `duplicate-body.duplicateUnannotated` | `"Operation has multiple unannotated parameters. There can only be one representing the body"` | "Operation has multiple unannotated parameters. There can only be one representing the body" |
 | `duplicate-operation` | `object` | - |
-| `duplicate-operation.default` | `CallableMessage`<[`string`, `string`, `string`]\> | - |
+| `duplicate-operation.default` | `CallableMessage`<[`"operationName"`, `"verb"`, `"path"`]\> | - |
 | `duplicate-route-decorator` | `object` | - |
 | `duplicate-route-decorator.namespace` | `"@route was defined twice on this namespace and has different values."` | "@route was defined twice on this namespace and has different values." |
 | `formdata-no-part-name` | `object` | - |
@@ -47,19 +47,21 @@ const $lib: TypeSpecLibrary<object, Record<string, any>,
 | `header-format-required` | `object` | - |
 | `header-format-required.default` | "A format must be specified for @header when type is an array. e.g. @header(\{format: \"csv\"\})" | - |
 | `http-file-extra-property` | `object` | - |
-| `http-file-extra-property.default` | `CallableMessage`<[`string`]\> | - |
+| `http-file-extra-property.default` | `CallableMessage`<[`"propName"`]\> | - |
 | `http-verb-duplicate` | `object` | - |
-| `http-verb-duplicate.default` | `CallableMessage`<[`string`]\> | - |
+| `http-verb-duplicate.default` | `CallableMessage`<[`"entityName"`]\> | - |
+| `incompatible-uri-param` | `object` | - |
+| `incompatible-uri-param.default` | `CallableMessage`<[`"param"`, `"uriKind"`, `"annotationKind"`]\> | - |
 | `invalid-type-for-auth` | `object` | - |
-| `invalid-type-for-auth.default` | `CallableMessage`<[`string`]\> | - |
+| `invalid-type-for-auth.default` | `CallableMessage`<[`"kind"`]\> | - |
 | `metadata-ignored` | `object` | - |
-| `metadata-ignored.default` | `CallableMessage`<[`string`]\> | - |
-| `missing-path-param` | `object` | - |
-| `missing-path-param.default` | `CallableMessage`<[`string`]\> | - |
+| `metadata-ignored.default` | `CallableMessage`<[`"kind"`]\> | - |
 | `missing-server-param` | `object` | - |
-| `missing-server-param.default` | `CallableMessage`<[`string`]\> | - |
+| `missing-server-param.default` | `CallableMessage`<[`"param"`]\> | - |
+| `missing-uri-param` | `object` | - |
+| `missing-uri-param.default` | `CallableMessage`<[`"param"`]\> | - |
 | `multipart-invalid-content-type` | `object` | - |
-| `multipart-invalid-content-type.default` | `CallableMessage`<[`string`, `string`]\> | - |
+| `multipart-invalid-content-type.default` | `CallableMessage`<[`"contentType"`, `"supportedContentTypes"`]\> | - |
 | `multipart-model` | `object` | - |
 | `multipart-model.default` | `"Multipart request body must be a model."` | "Multipart request body must be a model." |
 | `multipart-nested` | `object` | - |
@@ -69,17 +71,17 @@ const $lib: TypeSpecLibrary<object, Record<string, any>,
 | `multiple-status-codes` | `object` | - |
 | `multiple-status-codes.default` | "Multiple \`@statusCode\` decorators defined for this operation response." | "Multiple \`@statusCode\` decorators defined for this operation response." |
 | `no-service-found` | `object` | - |
-| `no-service-found.default` | `CallableMessage`<[`string`]\> | - |
+| `no-service-found.default` | `CallableMessage`<[`"namespace"`]\> | - |
 | `operation-param-duplicate-type` | `object` | - |
-| `operation-param-duplicate-type.default` | `CallableMessage`<[`string`, `string`]\> | - |
+| `operation-param-duplicate-type.default` | `CallableMessage`<[`"paramName"`, `"types"`]\> | - |
 | `optional-path-param` | `object` | - |
-| `optional-path-param.default` | `CallableMessage`<[`string`]\> | - |
-| `query-format-required` | `object` | - |
-| `query-format-required.default` | "A format must be specified for @query when type is an array. e.g. @query(\{format: \"multi\"\})" | - |
+| `optional-path-param.default` | `CallableMessage`<[`"paramName"`]\> | - |
 | `shared-inconsistency` | `object` | - |
-| `shared-inconsistency.default` | `CallableMessage`<[`string`, `string`]\> | - |
+| `shared-inconsistency.default` | `CallableMessage`<[`"verb"`, `"path"`]\> | - |
 | `status-code-invalid` | `object` | - |
 | `status-code-invalid.default` | `"statusCode value must be a numeric or string literal or union of numeric or string literals"` | "statusCode value must be a numeric or string literal or union of numeric or string literals" |
 | `status-code-invalid.value` | `"statusCode value must be a three digit code between 100 and 599"` | "statusCode value must be a three digit code between 100 and 599" |
+| `use-uri-template` | `object` | - |
+| `use-uri-template.default` | `CallableMessage`<[`"param"`]\> | - |
 | `write-visibility-not-supported` | `object` | - |
 | `write-visibility-not-supported.default` | "@visibility(\"write\") is not supported. Use @visibility(\"update\"), @visibility(\"create\") or @visibility(\"create\", \"update\") as appropriate." | - |

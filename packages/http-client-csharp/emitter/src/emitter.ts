@@ -21,6 +21,7 @@ import { createModel } from "./lib/client-model-builder.js";
 import { LoggerLevel } from "./lib/log-level.js";
 import { Logger } from "./lib/logger.js";
 import { NetEmitterOptions, resolveOptions, resolveOutputFolder } from "./options.js";
+import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { Configuration } from "./type/configuration.js";
 
 /**
@@ -53,7 +54,11 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // Write out the dotnet model to the output path
-    const sdkContext = await createSdkContext(context, "@typespec/http-client-csharp");
+    const sdkContext = await createSdkContext(
+      context,
+      "@typespec/http-client-csharp",
+      defaultSDKContextOptions
+    );
     const root = createModel(sdkContext);
     if (
       context.program.diagnostics.length > 0 &&
@@ -136,7 +141,8 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
           : "";
         const debugFlag = (options.debug ?? false) ? " --debug" : "";
 
-        const projectRoot = findProjectRoot(dirname(fileURLToPath(import.meta.url)));
+        const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
+        const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
         const generatorPath = resolvePath(
           projectRoot + "/dist/generator/Microsoft.Generator.CSharp.dll"
         );

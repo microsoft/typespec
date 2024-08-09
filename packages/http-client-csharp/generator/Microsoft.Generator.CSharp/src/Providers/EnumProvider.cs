@@ -12,10 +12,10 @@ namespace Microsoft.Generator.CSharp.Providers
     {
         private readonly InputEnumType _inputType;
 
-        public static EnumProvider Create(InputEnumType input)
+        public static EnumProvider Create(InputEnumType input, TypeProvider? declaringType = null)
             => input.IsExtensible
-            ? new ExtensibleEnumProvider(input)
-            : new FixedEnumProvider(input);
+            ? new ExtensibleEnumProvider(input, declaringType)
+            : new FixedEnumProvider(input, declaringType);
 
         protected EnumProvider(InputEnumType input)
         {
@@ -41,11 +41,11 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return [.. CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType)];
+            return [.. CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType, this)];
         }
         protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
         protected override bool GetIsEnum() => true;
-        protected override CSharpType BuildEnumUnderlyingType() => CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(_inputType.ValueType);
+        protected override CSharpType BuildEnumUnderlyingType() => CodeModelPlugin.Instance.TypeFactory.CreatePrimitiveCSharpType(_inputType.ValueType);
     }
 }

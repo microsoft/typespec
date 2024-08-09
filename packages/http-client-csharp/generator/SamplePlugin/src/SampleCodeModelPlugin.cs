@@ -12,11 +12,9 @@ namespace SamplePlugin
     [method: ImportingConstructor]
     public class SampleCodeModelPlugin(GeneratorContext context) : ClientModelPlugin(context)
     {
-        public override SamplePluginTypeFactory TypeFactory { get; } = new SamplePluginTypeFactory();
-
         public override void Configure()
         {
-            OutputLibrary.AddVisitor(new SamplePluginOutputLibraryVisitor());
+            AddVisitor(new SamplePluginLibraryLibraryVisitor());
         }
     }
 }

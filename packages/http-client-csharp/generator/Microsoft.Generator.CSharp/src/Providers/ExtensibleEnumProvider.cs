@@ -20,7 +20,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
         private readonly InputEnumType _inputType;
-        internal ExtensibleEnumProvider(InputEnumType input): base(input)
+        internal ExtensibleEnumProvider(InputEnumType input, TypeProvider? declaringType): base(input)
         {
             _inputType = input;
             _allowedValues = input.Values;
@@ -32,6 +32,7 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             _valueField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, EnumUnderlyingType, "_value");
+            DeclaringTypeProvider = declaringType;
         }
 
         private readonly FieldProvider _valueField;
@@ -235,10 +236,10 @@ namespace Microsoft.Generator.CSharp.Providers
         }
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType).ToArray();
+            return CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType, this).ToArray();
         }
         protected override bool GetIsEnum() => true;
 
-        protected override CSharpType BuildEnumUnderlyingType() => CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(_inputType.ValueType);
+        protected override CSharpType BuildEnumUnderlyingType() => CodeModelPlugin.Instance.TypeFactory.CreatePrimitiveCSharpType(_inputType.ValueType) ?? throw new InvalidOperationException($"Failed to create CSharpType for {_inputType.ValueType}");
     }
 }

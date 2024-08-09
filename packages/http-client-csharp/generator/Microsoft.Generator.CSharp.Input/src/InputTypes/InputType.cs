@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+
 namespace Microsoft.Generator.CSharp.Input
 {
     /// <summary>
@@ -18,6 +20,8 @@ namespace Microsoft.Generator.CSharp.Input
         }
 
         public string Name { get; internal set; }
+
+        public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
 
         internal InputType GetCollectionEquivalent(InputType inputType)
         {

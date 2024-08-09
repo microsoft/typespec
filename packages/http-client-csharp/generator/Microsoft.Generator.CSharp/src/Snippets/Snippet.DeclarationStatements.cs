@@ -59,5 +59,12 @@ namespace Microsoft.Generator.CSharp.Snippets
             variable = variableExpression.As<T>();
             return new DeclarationExpression(variableExpression).Assign(value).Terminate();
         }
+
+        public static DeclarationExpression Declare<T>(string name, out ScopedApi<T> variable)
+        {
+            var variableExpression = new VariableExpression(typeof(T), name);
+            variable = variableExpression.As<T>();
+            return new DeclarationExpression(variableExpression);
+        }
     }
 }

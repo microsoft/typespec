@@ -8,11 +8,6 @@ namespace Microsoft.Generator.CSharp
 {
     public class OutputLibrary
     {
-        private List<OutputLibraryVisitor> _visitors = new();
-        public OutputLibrary()
-        {
-        }
-
         private IReadOnlyList<TypeProvider>? _typeProviders;
         public IReadOnlyList<TypeProvider> TypeProviders
         {
@@ -23,46 +18,54 @@ namespace Microsoft.Generator.CSharp
         private static TypeProvider[] BuildEnums()
         {
             var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
-            var enums = new TypeProvider[input.Enums.Count];
-            for (int i = 0; i < enums.Length; i++)
+            var enums = new List<TypeProvider>(input.Enums.Count);
+            foreach (var inputEnum in input.Enums)
             {
-                var inputEnum = input.Enums[i];
-                enums[i] = CodeModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
+                if (inputEnum.Usage.HasFlag(Input.InputModelTypeUsage.ApiVersionEnum))
+                    continue;
+                var outputEnum = CodeModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
+                if (outputEnum != null)
+                {
+                    enums.Add(outputEnum);
+                }
             }
-            return enums;
+
+            return [.. enums];
         }
 
         private static TypeProvider[] BuildModels()
         {
             var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
-            var models = new TypeProvider[input.Models.Count];
-            for (int i = 0; i < models.Length; i++)
+            var models = new List<TypeProvider>(input.Models.Count);
+            foreach (var inputModel in input.Models)
             {
-                var inputModel = input.Models[i];
-                models[i] = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
+                var outputModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
+                if (outputModel != null)
+                {
+                    models.Add(outputModel);
+                }
             }
-            return models;
+
+            return [.. models];
         }
 
         protected virtual TypeProvider[] BuildTypeProviders()
         {
-            return
-            [
-                ..BuildEnums(),
-                ..BuildModels(),
+            return [
+                .. BuildEnums(),
+                .. BuildModels(),
                 new ChangeTrackingListDefinition(),
                 new ChangeTrackingDictionaryDefinition(),
                 new ArgumentDefinition(),
                 new OptionalDefinition(),
+                .. BuildModelFactory()
             ];
         }
 
-        // TODO - make this more additive instead of replace https://github.com/microsoft/typespec/issues/3827
-        protected internal virtual IEnumerable<OutputLibraryVisitor> GetOutputLibraryVisitors() => _visitors;
-
-        public void AddVisitor(OutputLibraryVisitor visitor)
+        private static TypeProvider[] BuildModelFactory()
         {
-            _visitors.Add(visitor);
+            var modelFactory = new ModelFactoryProvider(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Models);
+            return modelFactory.Methods.Count > 0 ? [modelFactory] : [];
         }
     }
 }

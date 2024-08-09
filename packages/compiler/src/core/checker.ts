@@ -7874,7 +7874,7 @@ export function createChecker(program: Program): Checker {
 
   function isNumericAssignableToNumericScalar(source: Numeric, target: Scalar) {
     // if the target does not derive from numeric, then it can't be assigned a numeric literal
-    if (!areScalarsRelated(target, getStdType("numeric"))) {
+    if (!areScalarsRelated((target.projectionBase as any) ?? target, getStdType("numeric"))) {
       return false;
     }
 
@@ -7902,7 +7902,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function isStringLiteralRelatedTo(source: StringLiteral | StringTemplate, target: Scalar) {
-    if (!areScalarsRelated(target, getStdType("string"))) {
+    if (!areScalarsRelated((target.projectionBase as any) ?? target, getStdType("string"))) {
       return false;
     }
     if (source.kind === "StringTemplate") {
