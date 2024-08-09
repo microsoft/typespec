@@ -71,7 +71,21 @@ const tagName: string = "widgets";
 
 ## JavaScript decorator implementation
 
-Decorators can be implemented in JavaScript by prefixing the function name with `$`. A decorator function must have the following parameters:
+Decorators can be implemented in JavaScript in 2 ways:
+
+1. Prefixing the function name with `$`. e.g `export function $doc(target, name) {...}` **Great to get started/play with decorators**
+2. Exporting all decorators for your library using `$decorators` variable. **Recommended**
+
+```ts
+export const $decorators = {
+  // Namespace
+  "MyOrg.MyLib": {
+    doc: docDecoratorFn,
+  },
+};
+```
+
+A decorator implementation takes the following parameters:
 
 - `1`: `context` of type `DecoratorContext`
 - `2`: `target` The TypeSpec type target. (`Namespace`, `Interface`, etc.)
