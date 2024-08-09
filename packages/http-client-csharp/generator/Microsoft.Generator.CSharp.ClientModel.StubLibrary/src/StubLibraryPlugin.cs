@@ -14,7 +14,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
 
         public override void Configure()
         {
-            OutputLibrary.AddVisitor(new StubVisitor());
+            AddVisitor(new StubLibraryVisitor());
         }
     }
 }

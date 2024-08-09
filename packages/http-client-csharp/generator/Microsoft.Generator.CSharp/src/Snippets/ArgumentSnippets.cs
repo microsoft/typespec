@@ -27,7 +27,7 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static MethodBodyStatement AssertNotNullOrWhiteSpace(ValueExpression variable, ValueExpression? name = null)
         {
-            return Static<ArgumentDefinition>().Invoke(AssertNotNullOrWhiteSpaceMethodName, [variable, name ?? Snippet.Nameof(variable)]).Terminate();
+            return Static<ArgumentDefinition>().Invoke(AssertNotNullOrWhiteSpaceMethodName, [variable, name ?? Nameof(variable)]).Terminate();
         }
 
         public static MethodBodyStatement ValidateParameter(ParameterProvider parameter) => parameter.Validation switch

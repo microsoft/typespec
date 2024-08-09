@@ -248,8 +248,11 @@ function* emitRouteHandler(
 
     yield `else {`;
     const paramName = parameters.length === 1 ? parameters[0] : "param";
-    yield `  const [${paramName}, rest] = path.split("/", 1);`;
-    yield `  path = rest ?? "";`;
+    const idxName = `__${parseCase(paramName).snakeCase}_idx`;
+    yield `  let ${idxName} = path.indexOf("/");`;
+    yield `  ${idxName} = ${idxName} === -1 ? path.length : ${idxName};`;
+    yield `  const ${paramName} = path.slice(0, ${idxName});`;
+    yield `  path = path.slice(${idxName});`;
     if (parameters.length !== 1) {
       for (const p of parameters) {
         yield `  const ${parseCase(p).camelCase} = param;`;

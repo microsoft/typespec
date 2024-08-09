@@ -33,10 +33,14 @@ const $lib: TypeSpecLibrary<object, OpenAPI3EmitterOptions, never>;
 | `invalid-schema.default` | `CallableMessage`<[`"type"`]\> | - |
 | `invalid-server-variable` | `object` | - |
 | `invalid-server-variable.default` | `CallableMessage`<[`"propName"`]\> | - |
+| `invalid-style` | `object` | - |
+| `invalid-style.default` | `CallableMessage`<[`"style"`, `"paramType"`]\> | - |
 | `oneof-union` | `object` | - |
 | `oneof-union.default` | `"@oneOf decorator can only be used on a union or a model property which type is a union."` | "@oneOf decorator can only be used on a union or a model property which type is a union." |
 | `path-query` | `object` | - |
 | `path-query.default` | `"OpenAPI does not allow paths containing a query string."` | - |
+| `path-reserved-expansion` | `object` | - |
+| `path-reserved-expansion.default` | `"Reserved expansion of path parameter with '+' operator #{allowReserved: true} is not supported in OpenAPI3."` | - |
 | `resource-namespace` | `object` | - |
 | `resource-namespace.default` | `"Resource goes on namespace"` | "Resource goes on namespace" |
 | `status-code-in-default-response` | `object` | - |

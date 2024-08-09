@@ -10,6 +10,7 @@
    "Name": "InvalidAuth",
    "CrossLanguageDefinitionId": "Authentication.OAuth2.InvalidAuth",
    "Usage": "Output,Error,Json",
+   "Decorators": [],
    "Properties": [
     {
      "$id": "3",
@@ -18,7 +19,9 @@
      "Description": "",
      "Type": {
       "$id": "4",
-      "Kind": "string"
+      "Kind": "string",
+      "Name": "string",
+      "CrossLanguageDefinitionId": "TypeSpec.string"
      },
      "IsRequired": true,
      "IsReadOnly": false
@@ -45,7 +48,9 @@
        "NameInRequest": "endpoint",
        "Type": {
         "$id": "8",
-        "Kind": "string"
+        "Kind": "string",
+        "Name": "string",
+        "CrossLanguageDefinitionId": "TypeSpec.string"
        },
        "Location": "Uri",
        "IsApiVersion": false,
@@ -60,7 +65,9 @@
         "$id": "9",
         "Type": {
          "$id": "10",
-         "Kind": "string"
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
         },
         "Value": "http://localhost:3000"
        }
@@ -83,7 +90,8 @@
      "Path": "/authentication/oauth2/valid",
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Authentication.OAuth2.valid"
     },
     {
      "$id": "12",
@@ -104,7 +112,9 @@
         "Kind": "constant",
         "ValueType": {
          "$id": "15",
-         "Kind": "string"
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
         },
         "Value": "application/json"
        },
@@ -134,7 +144,8 @@
      "Path": "/authentication/oauth2/invalid",
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Authentication.OAuth2.invalid"
     }
    ],
    "Protocol": {

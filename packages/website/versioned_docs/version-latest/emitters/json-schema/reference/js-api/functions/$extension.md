@@ -18,7 +18,7 @@ function $extension(
 | `context` | `DecoratorContext` |
 | `target` | `Type` |
 | `key` | `string` |
-| `value` | `Type` |
+| `value` | `unknown` |
 
 ## Returns
 
