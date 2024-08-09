@@ -225,6 +225,7 @@ export type ReturnTypeChangedFromDecorator = (
   version: EnumMember,
   oldType: Type
 ) => void;
+
 export type TypeSpecVersioningDecorators = {
   versioned: VersionedDecorator;
   useDependency: UseDependencyDecorator;

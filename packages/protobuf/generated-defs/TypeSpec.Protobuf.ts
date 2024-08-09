@@ -126,6 +126,7 @@ export type PackageDecorator = (
  * ```
  */
 export type StreamDecorator = (context: DecoratorContext, target: Operation, mode: Type) => void;
+
 export type TypeSpecProtobufDecorators = {
   message: MessageDecorator;
   field: FieldDecorator;

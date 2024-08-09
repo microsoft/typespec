@@ -316,6 +316,7 @@ export type RouteDecorator = (
  * ```
  */
 export type SharedRouteDecorator = (context: DecoratorContext, target: Operation) => void;
+
 export type TypeSpecHttpDecorators = {
   statusCode: StatusCodeDecorator;
   body: BodyDecorator;

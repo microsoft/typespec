@@ -198,6 +198,7 @@ export type ExtensionDecorator = (
   key: string,
   value: Type | unknown
 ) => void;
+
 export type TypeSpecJsonSchemaDecorators = {
   jsonSchema: JsonSchemaDecorator;
   baseUri: BaseUriDecorator;

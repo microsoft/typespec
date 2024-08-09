@@ -170,6 +170,7 @@ export type NsDecorator = (
  * Mark an enum as declaring XML namespaces. See `@ns`
  */
 export type NsDeclarationsDecorator = (context: DecoratorContext, target: Enum) => void;
+
 export type TypeSpecXmlDecorators = {
   name: NameDecorator;
   attribute: AttributeDecorator;

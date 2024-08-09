@@ -5,6 +5,7 @@ export type ValidatesRawJsonDecorator = (
   target: Model,
   value: Type
 ) => void;
+
 export type TypeSpecJsonSchemaPrivateDecorators = {
   validatesRawJson: ValidatesRawJsonDecorator;
 };
