@@ -47,8 +47,7 @@ namespace Microsoft.Generator.CSharp.Input
                 discriminatorProperty: null,
                 discriminatedSubtypes: null!,
                 additionalProperties: null,
-                modelAsStruct: false,
-                decorators: Array.Empty<InputDecoratorInfo>());
+                modelAsStruct: false);
             resolver.AddReference(id, model);
 
             string? crossLanguageDefinitionId = null;

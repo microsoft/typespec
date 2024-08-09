@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp.Input
             id = id ?? throw new JsonException();
 
             // create an empty model to resolve circular references
-            var union = new InputUnionType(null!, null!, Array.Empty<InputDecoratorInfo>());
+            var union = new InputUnionType(null!, null!);
             resolver.AddReference(id, union);
 
             IReadOnlyList<InputType>? variantTypes = null;
@@ -55,7 +55,7 @@ namespace Microsoft.Generator.CSharp.Input
                 throw new JsonException("Union must have a least one union type");
             }
             union.VariantTypes = variantTypes;
-            union.Decorators = decorators ?? Array.Empty<InputDecoratorInfo>();
+            union.Decorators = decorators ?? [];
             return union;
         }
     }

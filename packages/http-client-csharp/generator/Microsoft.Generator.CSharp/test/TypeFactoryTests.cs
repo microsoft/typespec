@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -135,8 +134,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 InputModelTypeUsage.Input,
                 InputPrimitiveType.String,
                 [new InputEnumTypeValue("value1", "value1", null), new InputEnumTypeValue("value2", "value2", null)],
-                false,
-                []);
+                false);
             var declaringType = new Mock<TypeProvider>().Object;
             var expected = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input, declaringType);
             var actual = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input, declaringType);

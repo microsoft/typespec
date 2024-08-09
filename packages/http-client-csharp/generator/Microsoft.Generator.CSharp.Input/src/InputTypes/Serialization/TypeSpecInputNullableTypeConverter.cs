@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp.Input
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
                     || reader.TryReadString(nameof(InputNullableType.Name), ref name)
                     || reader.TryReadWithConverter(nameof(InputNullableType.Type), options, ref valueType)
-                    || reader.TryReadWithConverter(nameof(InputNullableType.Type), options, ref decorators);
+                    || reader.TryReadWithConverter(nameof(InputNullableType.Decorators), options, ref decorators);
 
                 if (!isKnownProperty)
                 {
