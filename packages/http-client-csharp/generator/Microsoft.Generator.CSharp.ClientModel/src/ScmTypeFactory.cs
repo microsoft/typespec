@@ -59,5 +59,28 @@ namespace Microsoft.Generator.CSharp.ClientModel
         }
 
         protected virtual ClientProvider CreateClientCore(InputClient inputClient) => new ClientProvider(inputClient);
+
+        /// <summary>
+        /// Factory method for creating a <see cref="MethodProviderCollection"/> based on an input operation <paramref name="operation"/>.
+        /// </summary>
+        /// <param name="operation">The <see cref="InputOperation"/> to convert.</param>
+        /// <param name="enclosingType">The <see cref="TypeProvider"/> that will contain the methods.</param>
+        /// <returns>An instance of <see cref="MethodProviderCollection"/> containing the chain of methods
+        /// associated with the input operation, or <c>null</c> if no methods are constructed.
+        /// </returns>
+        internal MethodProviderCollection? CreateMethods(InputOperation operation, TypeProvider enclosingType)
+        {
+            var methods = new MethodProviderCollection(operation, enclosingType);
+            var visitors = ClientModelPlugin.Instance.Visitors;
+
+            foreach (var visitor in visitors)
+            {
+                if (visitor is ScmLibraryVisitor scmVisitor)
+                {
+                    methods = scmVisitor.Visit(operation, enclosingType, methods);
+                }
+            }
+            return methods;
+        }
     }
 }

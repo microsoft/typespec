@@ -3,6 +3,7 @@
 
 import {
   AccessFlags,
+  DecoratorInfo,
   SdkBuiltInKinds,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
@@ -14,6 +15,7 @@ interface InputTypeBase {
   Kind: string;
   Description?: string;
   Deprecation?: string;
+  Decorators?: DecoratorInfo[];
 }
 
 export type InputType =

@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp.Providers
             _keyValuePair = new CSharpType(typeof(KeyValuePair<,>), _tKey, _tValue);
             _innerDictionaryField = new FieldProvider(FieldModifiers.Private, new CSharpType(typeof(IDictionary<,>), _tKey, _tValue), "_innerDictionary");
             _innerDictionary = _innerDictionaryField.AsDictionary(_tKey, _tValue);
-            _ensureDictionarySignature = new MethodSignature("EnsureDictionary", null, MethodSignatureModifiers.Public, _IDictionary, null, Array.Empty<ParameterProvider>());
+            _ensureDictionarySignature = new MethodSignature("EnsureDictionary", null, MethodSignatureModifiers.Public, _IDictionary, null, []);
             EnsureDictionary = new(This.Invoke(_ensureDictionarySignature));
         }
 
@@ -153,8 +153,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private PropertyProvider BuildIndexer()
         {
-            var indexParam = new ParameterProvider("key", $"The key.", _tKey);
-            return new IndexPropertyProvider(null, MethodSignatureModifiers.Public, _tValue, indexParam, new MethodPropertyBody(
+            return new IndexPropertyProvider(null, MethodSignatureModifiers.Public, _tValue, _indexParam, new MethodPropertyBody(
                 new MethodBodyStatement[]
                 {
                     new IfStatement(IsUndefined)
