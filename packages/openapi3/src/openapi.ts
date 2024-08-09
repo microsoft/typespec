@@ -306,6 +306,7 @@ function createOAPIEmitter(
       } as any,
       context
     );
+    diagnostics = createDiagnosticCollector();
 
     const securitySchemes = getOpenAPISecuritySchemes(allHttpAuthentications);
     const security = getOpenAPISecurity(defaultAuth);
@@ -331,7 +332,7 @@ function createOAPIEmitter(
         securitySchemes: securitySchemes,
       },
     };
-    diagnostics = createDiagnosticCollector();
+
     const servers = getServers(program, service.type);
     if (servers) {
       root.servers = resolveServers(servers);
