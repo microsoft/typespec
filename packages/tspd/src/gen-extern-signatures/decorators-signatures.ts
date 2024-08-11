@@ -339,16 +339,17 @@ function getDocComment(type: Type): string {
           : `@${tag.tagName.sv}`;
       for (const content of tag.content) {
         for (const line of content.text.split("\n")) {
+          const cleaned = sanitizeDocComment(line);
           if (first) {
             if (hasContentFirstLine) {
-              tagLines.push(`${tagStart} ${line}`);
+              tagLines.push(`${tagStart} ${cleaned}`);
             } else {
-              tagLines.push(tagStart, line);
+              tagLines.push(tagStart, cleaned);
             }
 
             first = false;
           } else {
-            tagLines.push(line);
+            tagLines.push(cleaned);
           }
         }
       }
@@ -357,6 +358,11 @@ function getDocComment(type: Type): string {
 
   const docLines = [...mainContentLines, ...(tagLines.length > 0 ? [""] : []), ...tagLines];
   return "/**\n" + docLines.map((x) => `* ${x}`).join("\n") + "\n*/\n";
+}
+
+const invisibleChar = "&#2063;"; // Issue to escape @internal and other tsdoc tags https://github.com/microsoft/TypeScript/issues/47679#issuecomment-1763863693
+function sanitizeDocComment(doc: string): string {
+  return doc.replaceAll("@internal", `@${invisibleChar}internal`);
 }
 
 function checkIfTagHasDocOnSameLine(tag: DocTag): boolean {
