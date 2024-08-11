@@ -360,9 +360,9 @@ function getDocComment(type: Type): string {
   return "/**\n" + docLines.map((x) => `* ${x}`).join("\n") + "\n*/\n";
 }
 
-const invisibleChar = "&#2063;"; // Issue to escape @internal and other tsdoc tags https://github.com/microsoft/TypeScript/issues/47679#issuecomment-1763863693
 function sanitizeDocComment(doc: string): string {
-  return doc.replaceAll("@internal", `@${invisibleChar}internal`);
+  // Issue to escape @internal and other tsdoc tags https://github.com/microsoft/TypeScript/issues/47679
+  return doc.replaceAll("@internal", `@_internal`);
 }
 
 function checkIfTagHasDocOnSameLine(tag: DocTag): boolean {
