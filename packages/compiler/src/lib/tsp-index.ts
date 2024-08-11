@@ -94,4 +94,5 @@ export const $decorators = {
 };
 
 // Projection function exports
+export const namespace = "TypeSpec";
 export { getProjectedName, hasProjectedName } from "./decorators.js";

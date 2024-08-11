@@ -35,10 +35,6 @@ import {
 } from "../generated-defs/TypeSpec.JsonSchema.js";
 import { createStateSymbol } from "./lib.js";
 
-export { JsonSchemaEmitter } from "./json-schema-emitter.js";
-export { $flags, $lib, EmitterOptionsSchema, JSONSchemaEmitterOptions } from "./lib.js";
-
-export const namespace = "TypeSpec.JsonSchema";
 export type JsonSchemaDeclaration = Model | Union | Enum | Scalar;
 
 const jsonSchemaKey = createStateSymbol("JsonSchema");
