@@ -2,12 +2,13 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import {
-  getAllModels,
   SdkClientType,
   SdkContext,
   SdkEndpointParameter,
   SdkHttpOperation,
   SdkServiceMethod,
+  UsageFlags,
+  getAllModels,
 } from "@azure-tools/typespec-client-generator-core";
 import { getDoc } from "@typespec/compiler";
 import { NetEmitterOptions, resolveOptions } from "../options.js";
@@ -34,7 +35,12 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
 
   navigateModels(sdkContext, modelMap, enumMap);
 
-  const rootApiVersions = getRootApiVersions(sdkPackage.clients);
+  const sdkApiVersionEnums = sdkPackage.enums.filter((e) => e.usage === UsageFlags.ApiVersionEnum);
+
+  const rootApiVersions =
+    sdkApiVersionEnums.length > 0
+      ? sdkApiVersionEnums[0].values.map((v) => v.value as string).flat()
+      : getRootApiVersions(sdkPackage.clients);
 
   const inputClients: InputClient[] = [];
   fromSdkClients(
