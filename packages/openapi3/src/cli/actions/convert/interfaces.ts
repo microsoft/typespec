@@ -4,7 +4,7 @@ import { OpenAPI3Encoding, OpenAPI3Schema, Refable } from "../../../types.js";
 export interface TypeSpecProgram {
   serviceInfo: TypeSpecServiceInfo;
   namespaces: Record<string, TypeSpecNamespace>;
-  models: TypeSpecModel[];
+  types: TypeSpecDataTypes[];
   augmentations: TypeSpecAugmentation[];
   operations: TypeSpecOperation[];
 }
@@ -12,12 +12,13 @@ export interface TypeSpecProgram {
 export interface TypeSpecDeclaration {
   name: string;
   doc?: string;
+  decorators: TypeSpecDecorator[];
   scope: string[];
 }
 
 export interface TypeSpecNamespace {
   namespaces: Record<string, TypeSpecNamespace>;
-  models: TypeSpecModel[];
+  types: TypeSpecDataTypes[];
   operations: TypeSpecOperation[];
 }
 
@@ -40,8 +41,11 @@ export interface TypeSpecAugmentation extends TypeSpecDecorator {
   target: string;
 }
 
+export type TypeSpecDataTypes = TypeSpecAlias | TypeSpecModel | TypeSpecScalar | TypeSpecUnion;
+
 export interface TypeSpecModel extends TypeSpecDeclaration {
-  decorators: TypeSpecDecorator[];
+  kind: "model";
+
   properties: TypeSpecModelProperty[];
   additionalProperties?: Refable<OpenAPI3Schema>;
   /**
@@ -58,6 +62,21 @@ export interface TypeSpecModel extends TypeSpecDeclaration {
   type?: OpenAPI3Schema["type"];
 }
 
+export interface TypeSpecAlias extends Pick<TypeSpecDeclaration, "name" | "doc" | "scope"> {
+  kind: "alias";
+  ref: string;
+}
+
+export interface TypeSpecUnion extends TypeSpecDeclaration {
+  kind: "union";
+  schema: OpenAPI3Schema;
+}
+
+export interface TypeSpecScalar extends TypeSpecDeclaration {
+  kind: "scalar";
+  schema: OpenAPI3Schema;
+}
+
 export interface TypeSpecModelProperty {
   name: string;
   isOptional: boolean;
@@ -72,9 +91,6 @@ export interface TypeSpecModelProperty {
 }
 
 export interface TypeSpecOperation extends TypeSpecDeclaration {
-  name: string;
-  doc?: string;
-  decorators: TypeSpecDecorator[];
   operationId?: string;
   parameters: Refable<TypeSpecOperationParameter>[];
   requestBodies: TypeSpecRequestBody[];
