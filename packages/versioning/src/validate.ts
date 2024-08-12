@@ -373,9 +373,10 @@ function validateVersionedNamespaceUsage(
     const dependencies = source && getVersionDependencies(program, source);
     for (const target of targets) {
       const targetVersionedNamespace = findVersionedNamespace(program, target);
+      const sourceVersionedNamespace = source && findVersionedNamespace(program, source);
       if (
         targetVersionedNamespace !== undefined &&
-        !(source && (isSubNamespace(target, source) || isSubNamespace(source, target))) &&
+        sourceVersionedNamespace !== targetVersionedNamespace &&
         dependencies?.get(targetVersionedNamespace) === undefined
       ) {
         reportDiagnostic(program, {
