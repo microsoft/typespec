@@ -1,6 +1,6 @@
 import { Model } from "@typespec/compiler";
 import { assert, describe, expect, it } from "vitest";
-import { tspForOpenAPI3 } from "./test-host.js";
+import { tspForOpenAPI3 } from "./utils/tsp-for-openapi3.js";
 
 describe("converts top-level schemas", () => {
   it("handles scalars", async () => {
