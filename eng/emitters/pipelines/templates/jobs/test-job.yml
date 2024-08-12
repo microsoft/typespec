@@ -78,4 +78,4 @@ jobs:
         outputs:
           - output: pipelineArtifact
             path: $(Build.ArtifactStagingDirectory)
-            artifact: test_artifacts_$(System.JobName)
+            artifact: test_artifacts_${{ parameters.LanguageShortName }}
