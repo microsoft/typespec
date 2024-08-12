@@ -372,6 +372,23 @@ describe("versioning: reference versioned library", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
+    it("doesn't emit diagnostic when referencing different sub namespace", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace DemoService {
+          enum Versions {v1, v2}
+          
+          namespace A {
+            model Foo {}
+          }
+          namespace B {
+            op use(): A.Foo;
+          }
+        }
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     it("doesn't emit diagnostic when referencing to versioned library from subnamespace with parent namespace with versioned dependency", async () => {
       const diagnostics = await runner.diagnose(`
         @versioned(Versions)
