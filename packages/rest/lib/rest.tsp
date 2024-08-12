@@ -1,6 +1,7 @@
 import "@typespec/http";
 import "./rest-decorators.tsp";
 import "./resource.tsp";
+import "../dist/src/tsp-index.js";
 
 namespace TypeSpec.Rest;
 
