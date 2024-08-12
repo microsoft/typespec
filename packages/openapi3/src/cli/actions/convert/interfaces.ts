@@ -41,7 +41,12 @@ export interface TypeSpecAugmentation extends TypeSpecDecorator {
   target: string;
 }
 
-export type TypeSpecDataTypes = TypeSpecAlias | TypeSpecModel | TypeSpecScalar | TypeSpecUnion;
+export type TypeSpecDataTypes =
+  | TypeSpecAlias
+  | TypeSpecEnum
+  | TypeSpecModel
+  | TypeSpecScalar
+  | TypeSpecUnion;
 
 export interface TypeSpecModel extends TypeSpecDeclaration {
   kind: "model";
@@ -65,6 +70,11 @@ export interface TypeSpecModel extends TypeSpecDeclaration {
 export interface TypeSpecAlias extends Pick<TypeSpecDeclaration, "name" | "doc" | "scope"> {
   kind: "alias";
   ref: string;
+}
+
+export interface TypeSpecEnum extends TypeSpecDeclaration {
+  kind: "enum";
+  schema: OpenAPI3Schema;
 }
 
 export interface TypeSpecUnion extends TypeSpecDeclaration {

@@ -63,26 +63,73 @@ describe("converts top-level schemas", () => {
     expect(arrayOfArrays?.indexer?.value).toBe(customArray);
   });
 
-  describe("handles unions", () => {
-    it("enums", async () => {
+  describe("handles enums", () => {
+    it("string enums", async () => {
       const serviceNamespace = await tspForOpenAPI3({
         schemas: {
-          EnumUnion: {
+          SimpleEnum: {
             type: "string",
             enum: ["foo", "bar"],
           },
         },
       });
 
+      expect(serviceNamespace.enums.size).toBe(1);
+
+      /* enum SimpleEnum { "foo", "bar", } */
+      const simpleEnum = serviceNamespace.enums.get("SimpleEnum");
+      expect(simpleEnum?.decorators.length).toBe(0);
+      const simpleEnumMembers = [...(simpleEnum?.members.values() ?? [])];
+      expect(simpleEnumMembers.length).toBe(2);
+      expect(simpleEnumMembers[0]).toMatchObject({ kind: "EnumMember", name: "foo" });
+      expect(simpleEnumMembers[1]).toMatchObject({ kind: "EnumMember", name: "bar" });
+    });
+  });
+
+  describe("handles unions", () => {
+    it("nullable enums", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          EnumUnion: {
+            type: "string",
+            enum: ["foo", "bar"],
+            nullable: true,
+          },
+        },
+      });
+
       expect(serviceNamespace.unions.size).toBe(1);
 
-      /* union EnumUnion { "foo", "bar", } */
+      /* union EnumUnion { "foo", "bar", null, } */
+      const enumUnion = serviceNamespace.unions.get("EnumUnion");
+      expect(enumUnion?.decorators.length).toBe(0);
+      const enumUnionVariants = [...(enumUnion?.variants.values() ?? [])];
+      expect(enumUnionVariants.length).toBe(3);
+      expect(enumUnionVariants[0].type).toMatchObject({ kind: "String", value: "foo" });
+      expect(enumUnionVariants[1].type).toMatchObject({ kind: "String", value: "bar" });
+      expect(enumUnionVariants[2].type).toMatchObject({ kind: "Intrinsic", name: "null" });
+    });
+
+    it("non-string enums", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          EnumUnion: {
+            type: "integer",
+            format: "int32",
+            enum: [1, 2],
+          },
+        },
+      });
+
+      expect(serviceNamespace.unions.size).toBe(1);
+
+      /* union EnumUnion { 1, 2, } */
       const enumUnion = serviceNamespace.unions.get("EnumUnion");
       expect(enumUnion?.decorators.length).toBe(0);
       const enumUnionVariants = [...(enumUnion?.variants.values() ?? [])];
       expect(enumUnionVariants.length).toBe(2);
-      expect(enumUnionVariants[0].type).toMatchObject({ kind: "String", value: "foo" });
-      expect(enumUnionVariants[1].type).toMatchObject({ kind: "String", value: "bar" });
+      expect(enumUnionVariants[0].type).toMatchObject({ kind: "Number", value: 1 });
+      expect(enumUnionVariants[1].type).toMatchObject({ kind: "Number", value: 2 });
     });
 
     it("anyOf", async () => {

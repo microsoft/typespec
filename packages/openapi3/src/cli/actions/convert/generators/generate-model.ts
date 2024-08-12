@@ -2,6 +2,7 @@ import { OpenAPI3Schema, Refable } from "../../../../types.js";
 import {
   TypeSpecAlias,
   TypeSpecDataTypes,
+  TypeSpecEnum,
   TypeSpecModel,
   TypeSpecModelProperty,
   TypeSpecScalar,
@@ -20,6 +21,8 @@ export function generateDataType(type: TypeSpecDataTypes): string {
   switch (type.kind) {
     case "alias":
       return generateAlias(type);
+    case "enum":
+      return generateEnum(type);
     case "model":
       return generateModel(type);
     case "scalar":
@@ -35,6 +38,27 @@ function generateAlias(alias: TypeSpecAlias): string {
   // May revisit to allow emitting actual alias.
   const { scope, name } = getRefScopeAndName(alias.ref);
   return `model ${alias.name} is ${[...scope, name].join(".")};`;
+}
+
+function generateEnum(tsEnum: TypeSpecEnum): string {
+  const definitions: string[] = [];
+
+  if (tsEnum.doc) {
+    definitions.push(generateDocs(tsEnum.doc));
+  }
+
+  definitions.push(...generateDecorators(tsEnum.decorators));
+  definitions.push(`enum ${tsEnum.name} {`);
+
+  const schema = tsEnum.schema;
+
+  if (schema.enum) {
+    definitions.push(...schema.enum.map((e) => `${JSON.stringify(e)},`));
+  }
+
+  definitions.push("}");
+
+  return definitions.join("\n");
 }
 
 function generateScalar(scalar: TypeSpecScalar): string {

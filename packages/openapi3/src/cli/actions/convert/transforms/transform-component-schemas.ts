@@ -9,6 +9,7 @@ import {
 } from "../generators/generate-types.js";
 import {
   TypeSpecDataTypes,
+  TypeSpecEnum,
   TypeSpecModel,
   TypeSpecModelProperty,
   TypeSpecUnion,
@@ -44,6 +45,8 @@ function transformComponentSchema(
   switch (kind) {
     case "alias":
       return populateAlias(types, name, schema);
+    case "enum":
+      return populateEnum(types, name, schema);
     case "model":
       return populateModel(types, name, schema);
     case "union":
@@ -68,6 +71,18 @@ function populateAlias(
     doc: schema.description,
     ref: getRefName(schema.$ref),
   });
+}
+
+function populateEnum(types: TypeSpecDataTypes[], name: string, schema: OpenAPI3Schema): void {
+  const tsEnum: TypeSpecEnum = {
+    kind: "enum",
+    ...getScopeAndName(name),
+    decorators: getDecoratorsForSchema(schema),
+    doc: schema.description,
+    schema,
+  };
+
+  types.push(tsEnum);
 }
 
 function populateScalar(types: TypeSpecDataTypes[], name: string, schema: OpenAPI3Schema): void {
@@ -173,7 +188,9 @@ function getTypeSpecKind(schema: OpenAPI3Schema): TypeSpecDataTypes["kind"] {
     return "alias";
   }
 
-  if (schema.anyOf || schema.oneOf || schema.enum || schema.nullable) {
+  if (schema.enum && schema.type === "string" && !schema.nullable) {
+    return "enum";
+  } else if (schema.anyOf || schema.oneOf || schema.enum || schema.nullable) {
     return "union";
   } else if (schema.type === "object" || schema.type === "array" || schema.allOf) {
     return "model";
