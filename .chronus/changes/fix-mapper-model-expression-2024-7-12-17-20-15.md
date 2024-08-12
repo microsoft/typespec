@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Fix: Model expression in template were not considered as template instances
+Fix: Model and union expression in template were not considered as template instances

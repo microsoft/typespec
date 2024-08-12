@@ -230,6 +230,26 @@ describe("versioning: reference versioned library", () => {
     `);
       expectDiagnosticEmpty(diagnostics);
     });
+
+    it("doesn't emit diagnostic when library template with union expression instantiated with user model", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace Library {
+        model Template<T> {
+            a: string | T;
+          }
+        }
+
+        @versioned(Versions)
+        namespace Api {
+          enum Versions { v1 }
+
+          model Model {}
+
+          model Issue is Library.Template<Model>;
+        }
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
   });
 
   describe("when using versioned library without @useDependency", () => {

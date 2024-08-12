@@ -2007,6 +2007,8 @@ export function createChecker(program: Program): Checker {
       }
     }
 
+    linkMapper(unionType, mapper);
+
     return unionType;
   }
 
