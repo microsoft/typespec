@@ -1,4 +1,4 @@
-// FORK of https://github.com/jamestalmage/supports-hyperlinks that work on new windows terminal
+// FORK of https://github.com/jamestalmage/supports-hyperlinks that work on new windows terminal and some more unix terminals.
 // and doesn't include some of the cli flags that won't work with our strict cli.
 
 /**
