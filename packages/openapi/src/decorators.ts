@@ -18,11 +18,10 @@ import {
   ExternalDocsDecorator,
   InfoDecorator,
   OperationIdDecorator,
+  TypeSpecOpenAPIDecorators,
 } from "../generated-defs/TypeSpec.OpenAPI.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { AdditionalInfo, ExtensionKey } from "./types.js";
-
-export const namespace = "TypeSpec.OpenAPI";
 
 const operationIdsKey = createStateSymbol("operationIds");
 /**
@@ -188,3 +187,14 @@ export function resolveInfo(program: Program, entity: Namespace): AdditionalInfo
 function omitUndefined<T extends Record<string, unknown>>(data: T): T {
   return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
 }
+
+/** @internal */
+export const $decorators = {
+  "TypeSpec.OpenAPI": {
+    defaultResponse: $defaultResponse,
+    extension: $extension,
+    externalDocs: $externalDocs,
+    info: $info,
+    operationId: $operationId,
+  } satisfies TypeSpecOpenAPIDecorators,
+};

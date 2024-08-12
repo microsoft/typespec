@@ -147,22 +147,23 @@ async function createRollupConfig(definition: TypeSpecBundleDefinition): Promise
   const program = await compile(NodeHost, libraryPath, {
     noEmit: true,
   });
-  const jsFiles: string[] = [];
+  const jsFiles = new Set([resolvePath(libraryPath, definition.packageJson.main)]);
   for (const file of program.jsSourceFiles.keys()) {
     if (file.startsWith(libraryPath)) {
-      jsFiles.push(file);
+      jsFiles.add(file);
     }
   }
   const typespecFiles: Record<string, string> = {
     [normalizePath(join(libraryPath, "package.json"))]: JSON.stringify(definition.packageJson),
   };
+
   for (const [filename, sourceFile] of program.sourceFiles) {
     typespecFiles[filename] = sourceFile.file.text;
   }
   const content = createBundleEntrypoint({
     libraryPath,
     mainFile: definition.main,
-    jsSourceFileNames: jsFiles,
+    jsSourceFileNames: [...jsFiles],
     typespecSourceFiles: typespecFiles,
   });
 

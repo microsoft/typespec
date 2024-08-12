@@ -1,7 +1,9 @@
 import { CreateSdkContextOptions } from "@azure-tools/typespec-client-generator-core";
 
 export let defaultSDKContextOptions: CreateSdkContextOptions = {
-  versioning: undefined,
+  versioning: {
+    previewStringRegex: /$/,
+  },
   additionalDecorators: [],
 };
 

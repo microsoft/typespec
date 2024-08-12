@@ -2148,6 +2148,8 @@ export type DiagnosticSeverity = "error" | "warning";
 
 export interface Diagnostic {
   code: string;
+  /** @internal Diagnostic documentation url */
+  readonly url?: string;
   severity: DiagnosticSeverity;
   message: string;
   target: DiagnosticTarget | typeof NoTarget;
@@ -2451,6 +2453,25 @@ export interface TypeSpecLibraryDef<
   readonly state?: Record<State, StateDef>;
 }
 
+/**
+ * Type for the $decorators export from libraries.
+ *
+ * @example
+ * ```
+ * export const $decorators = {
+ *   "Azure.Core": {
+ *     flags: $flags,
+ *     "foo-bar": fooBarDecorator
+ *   }
+ * }
+ * ```
+ */
+export interface DecoratorImplementations {
+  readonly [namespace: string]: {
+    readonly [name: string]: DecoratorFunction;
+  };
+}
+
 export interface PackageFlags {
   /**
    * Decorator arg marshalling algorithm. Specify how TypeSpec values are marshalled to decorator arguments.
@@ -2659,6 +2680,8 @@ export interface ProcessedLog {
   level: LogLevel;
   message: string;
   code?: string;
+  /** Documentation for the error code. */
+  url?: string;
   sourceLocation?: SourceLocation;
 }
 
