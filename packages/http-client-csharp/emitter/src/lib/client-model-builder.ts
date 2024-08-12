@@ -191,5 +191,8 @@ function getMethodUri(p: SdkEndpointParameter | undefined): string {
 
   if (p.type.kind === "endpoint" && p.type.templateArguments.length > 0) return p.type.serverUrl;
 
+  if (p.type.kind === "union" && p.type.values.length > 0)
+    return (p.type.values[0] as SdkEndpointType).serverUrl;
+
   return `{${p.name}}`;
 }
