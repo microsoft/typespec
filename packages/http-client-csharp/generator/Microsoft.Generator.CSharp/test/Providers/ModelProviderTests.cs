@@ -102,7 +102,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         };
 
         [Test]
-        public void BuildConstructor_ValidateConstructors()
+        public void TestBuildConstructor_ValidateConstructors()
         {
             var properties = new List<InputModelProperty>{
                     new InputModelProperty("requiredString", "requiredString", "", InputPrimitiveType.String, true, false, false),
@@ -132,15 +132,20 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             var ctors = modelTypeProvider.Constructors;
             Assert.IsNotNull(ctors);
 
-            Assert.AreEqual(1, ctors.Count);
+            Assert.AreEqual(2, ctors.Count);
 
-            var initializationCtor = ctors[0];
-            Assert.AreEqual(MethodSignatureModifiers.Public, initializationCtor.Signature.Modifiers);
+            var initializationCtor = ctors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(initializationCtor);
+            Assert.AreEqual(MethodSignatureModifiers.Public, initializationCtor!.Signature.Modifiers);
             Assert.AreEqual(3, initializationCtor.Signature.Parameters.Count);
+
+            var secondaryCtor = ctors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.IsNotNull(secondaryCtor);
+            Assert.AreEqual(6, secondaryCtor!.Signature.Parameters.Count);
         }
 
         [Test]
-        public void BuildConstructor_ValidateConstructorsInDerivedModel()
+        public void TestBuildConstructor_ValidateConstructorsInDerivedModel()
         {
             var baseProperties = new List<InputModelProperty>
             {
@@ -163,15 +168,18 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             Assert.NotNull(baseModel);
             var baseCtors = baseModel!.Constructors;
-            Assert.AreEqual(1, baseCtors.Count);
+            Assert.AreEqual(2, baseCtors.Count);
             Assert.NotNull(derivedModel);
             var derivedCtors = derivedModel!.Constructors;
-            Assert.AreEqual(1, derivedCtors.Count);
+            Assert.AreEqual(2, derivedCtors.Count);
 
-            var baseCtor = baseCtors[0];
-            var derivedCtor = derivedCtors[0];
-            var baseParameters = baseCtor.Signature.Parameters;
-            var derivedParameters = derivedCtor.Signature.Parameters;
+            var baseCtor = baseCtors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            var derivedCtor = derivedCtors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.NotNull(baseCtor);
+            Assert.NotNull(derivedCtor);
+
+            var baseParameters = baseCtor!.Signature.Parameters;
+            var derivedParameters = derivedCtor!.Signature.Parameters;
             Assert.AreEqual(1, baseParameters.Count);
             Assert.AreEqual("prop1", baseParameters[0].Name);
             Assert.AreEqual(new CSharpType(typeof(string)), baseParameters[0].Type);
@@ -180,6 +188,53 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.AreEqual(new CSharpType(typeof(string)), derivedParameters[0].Type);
             Assert.AreEqual("prop3", derivedParameters[1].Name);
             Assert.AreEqual(new CSharpType(typeof(string)), derivedParameters[1].Type);
+
+            // validate the secondary constructor
+            var secondaryCtor = baseCtors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            var derivedSecondaryCtor = derivedCtors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.NotNull(secondaryCtor);
+            Assert.NotNull(derivedSecondaryCtor);
+
+            var secondaryCtorParameters = secondaryCtor!.Signature.Parameters;
+            var derivedSecondaryCtorParams = derivedSecondaryCtor!.Signature.Parameters;
+
+            // validate secondary constructor
+            Assert.AreEqual(3, secondaryCtorParameters.Count); // 2 properties + 1 additionalRawData
+            Assert.AreEqual("prop1", secondaryCtorParameters[0].Name);
+            Assert.AreEqual(new CSharpType(typeof(string)), secondaryCtorParameters[0].Type);
+            Assert.AreEqual("prop2", secondaryCtorParameters[1].Name);
+            Assert.AreEqual(new CSharpType(typeof(string), true), secondaryCtorParameters[1].Type);
+            Assert.AreEqual("serializedAdditionalRawData", secondaryCtorParameters[2].Name);
+            Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), secondaryCtorParameters[2].Type);
+            // validate derived secondary constructor
+            Assert.AreEqual(5, derivedSecondaryCtorParams.Count); // all base props + 2 properties + 1 additionalRawData
+            Assert.AreEqual("prop1", derivedSecondaryCtorParams[0].Name);
+            Assert.AreEqual(new CSharpType(typeof(string)), derivedSecondaryCtorParams[0].Type);
+            Assert.AreEqual("prop2", derivedSecondaryCtorParams[1].Name);
+            Assert.AreEqual(new CSharpType(typeof(string), true), derivedSecondaryCtorParams[1].Type);
+            Assert.AreEqual("serializedAdditionalRawData", derivedSecondaryCtorParams[2].Name);
+            Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), derivedSecondaryCtorParams[2].Type);
+            Assert.AreEqual("prop3", derivedSecondaryCtorParams[3].Name);
+            Assert.AreEqual(new CSharpType(typeof(string)), derivedSecondaryCtorParams[3].Type);
+            Assert.AreEqual("prop4", derivedSecondaryCtorParams[4].Name);
+            Assert.AreEqual(new CSharpType(typeof(string), true), derivedSecondaryCtorParams[4].Type);
+        }
+
+        [Test]
+        public void TestBuildSecondaryConstructor()
+        {
+            var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.Input | InputModelTypeUsage.Output, [], null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var modelTypeProvider = new ModelProvider(inputModel);
+            var secondaryConstructor = modelTypeProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+
+            Assert.IsNotNull(secondaryConstructor);
+            var constructorSignature = secondaryConstructor?.Signature;
+            Assert.IsNotNull(constructorSignature);
+            Assert.AreEqual(1, constructorSignature?.Parameters.Count);
+
+            var param = constructorSignature?.Parameters[0];
+            Assert.IsNotNull(param);
+            Assert.AreEqual("serializedAdditionalRawData", param?.Name);
         }
 
         [Test]
@@ -224,6 +279,22 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             var modelTypeProvider = new ModelProvider(inputModel);
             Assert.AreEqual(TypeSignatureModifiers.Public | TypeSignatureModifiers.Struct | TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly, modelTypeProvider.DeclarationModifiers);
+        }
+
+        [Test]
+        public void TestBuildFields()
+        {
+            var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.Input | InputModelTypeUsage.Output, [], null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var modelTypeProvider = new ModelProvider(inputModel);
+            var fields = modelTypeProvider.Fields;
+
+            // Assert
+            Assert.IsNotNull(fields);
+            Assert.AreEqual(1, fields.Count);
+            Assert.AreEqual("_serializedAdditionalRawData", fields[0].Name);
+
+            var type = fields[0].Type;
+            Assert.IsTrue(type.IsCollection);
         }
     }
 }

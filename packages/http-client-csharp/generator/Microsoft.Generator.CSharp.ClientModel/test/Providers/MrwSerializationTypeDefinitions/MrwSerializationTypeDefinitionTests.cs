@@ -22,10 +22,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         public MrwSerializationTypeDefinitionTests()
         {
             MockHelpers.LoadMockPlugin(createSerializationsCore: (inputType, typeProvider) =>
-                inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, typeProvider)] : []);
+                inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : []);
         }
 
-        internal static (TypeProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel)
+        internal static (ModelProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel)
         {
             var model = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
             var serializations = model!.SerializationProviders;
@@ -33,7 +33,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.AreEqual(1, serializations.Count);
             Assert.IsInstanceOf<MrwSerializationTypeDefinition>(serializations[0]);
 
-            return (model, (MrwSerializationTypeDefinition)serializations[0]);
+            return ((model as ModelProvider)!, (MrwSerializationTypeDefinition)serializations[0]);
         }
 
         [Test]
@@ -472,36 +472,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         }
 
         [Test]
-        public void TestBuildSerializationConstructor()
-        {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.Input | InputModelTypeUsage.Output, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
-            var (model, serialization) = CreateModelAndSerialization(inputModel);
-            var constructor = serialization.BuildSerializationConstructor();
-
-            Assert.IsNotNull(constructor);
-            var constructorSignature = constructor?.Signature;
-            Assert.IsNotNull(constructorSignature);
-            Assert.AreEqual(1, constructorSignature?.Parameters.Count);
-
-            var param = constructorSignature?.Parameters[0];
-            Assert.IsNotNull(param);
-            Assert.AreEqual("serializedAdditionalRawData", param?.Name);
-        }
-
-        [Test]
         public void TestBuildFields()
         {
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.Input | InputModelTypeUsage.Output, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
-            var (model, serialization) = CreateModelAndSerialization(inputModel);
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
             var fields = serialization.Fields;
 
-            // Assert
             Assert.IsNotNull(fields);
-            Assert.AreEqual(1, fields.Count);
-            Assert.AreEqual("_serializedAdditionalRawData", fields[0].Name);
-
-            var type = fields[0].Type;
-            Assert.IsTrue(type.IsCollection);
+            Assert.AreEqual(0, fields.Count);
         }
 
         [Test]
@@ -517,17 +495,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
 
             var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.Input | InputModelTypeUsage.Output, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
 
-            var (model, serialization) = CreateModelAndSerialization(inputModel);
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
             var ctors = serialization.Constructors;
             Assert.IsNotNull(ctors);
 
-            Assert.AreEqual(2, ctors.Count);
+            Assert.AreEqual(1, ctors.Count);
 
-            var serializationCtor = ctors[0];
-            Assert.AreEqual(MethodSignatureModifiers.Internal, serializationCtor.Signature.Modifiers);
-            Assert.AreEqual(5, serializationCtor.Signature.Parameters.Count);
-
-            var emptyCtor = ctors[1];
+            var emptyCtor = ctors[0];
             Assert.AreEqual(MethodSignatureModifiers.Internal, emptyCtor.Signature.Modifiers);
             Assert.AreEqual(0, emptyCtor.Signature.Parameters.Count);
         }

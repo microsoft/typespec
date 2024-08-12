@@ -17,6 +17,7 @@ namespace Microsoft.Generator.CSharp.Providers
     internal class ModelFactoryProvider : TypeProvider
     {
         private const string ModelFactorySuffix = "ModelFactory";
+        private const string AdditionalRawDataParameterName = "serializedAdditionalRawData";
 
         private readonly IEnumerable<InputModelType> _models;
 
@@ -66,17 +67,18 @@ namespace Microsoft.Generator.CSharp.Providers
             var methods = new List<MethodProvider>(_models.Count());
             foreach (var model in _models)
             {
-                var modelProvider = CodeModelPlugin.Instance.TypeFactory.CreateModel(model);
+                var modelProvider = CodeModelPlugin.Instance.TypeFactory.CreateModel(model) as ModelProvider;
                 if (modelProvider is null || modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal))
                     continue;
 
+                var modelCtor = modelProvider.FullConstructor;
                 var signature = new MethodSignature(
                     modelProvider.Name,
                     null,
                     MethodSignatureModifiers.Static | MethodSignatureModifiers.Public,
                     modelProvider.Type,
                     $"A new {modelProvider.Type:C} instance for mocking.",
-                    GetParameters(modelProvider));
+                    GetParameters(modelCtor));
 
                 var docs = new XmlDocProvider();
                 docs.Summary = modelProvider.XmlDocs?.Summary;
@@ -98,7 +100,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return [.. methods];
         }
 
-        private IReadOnlyList<ValueExpression> GetCtorParams(MethodSignature signature)
+        private static IReadOnlyList<ValueExpression> GetCtorParams(MethodSignature signature)
         {
             var expressions = new List<ValueExpression>(signature.Parameters.Count);
             foreach (var param in signature.Parameters)
@@ -112,6 +114,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     expressions.Add(param);
                 }
             }
+
             expressions.Add(Null);
             return [.. expressions];
         }
@@ -133,20 +136,21 @@ namespace Microsoft.Generator.CSharp.Providers
             return [.. statements];
         }
 
-        private IReadOnlyList<ParameterProvider> GetParameters(TypeProvider modelProvider)
+        private static IReadOnlyList<ParameterProvider> GetParameters(ConstructorProvider modelFullConstructor)
         {
-            var parameters = new List<ParameterProvider>(modelProvider.Properties.Count);
-            foreach (var property in modelProvider.Properties)
+            var modelCtorParams = modelFullConstructor.Signature.Parameters;
+            var parameters = new List<ParameterProvider>(modelCtorParams.Count);
+            foreach (var param in modelCtorParams)
             {
-                if (property.Modifiers.HasFlag(MethodSignatureModifiers.Internal))
+                if (param.Name.Equals(AdditionalRawDataParameterName))
                     continue;
 
-                parameters.Add(GetModelFactoryParam(property.AsParameter));
+                parameters.Add(GetModelFactoryParam(param));
             }
             return [.. parameters];
         }
 
-        private ParameterProvider GetModelFactoryParam(ParameterProvider parameter)
+        private static ParameterProvider GetModelFactoryParam(ParameterProvider parameter)
         {
             return new ParameterProvider(
                 parameter.Name,
