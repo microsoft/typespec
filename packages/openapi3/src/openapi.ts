@@ -286,6 +286,7 @@ function createOAPIEmitter(
     defaultAuth: AuthenticationReference,
     version?: string
   ) {
+    diagnostics = createDiagnosticCollector();
     currentService = service;
     metadataInfo = createMetadataInfo(program, {
       canonicalVisibility: Visibility.Read,
@@ -306,7 +307,6 @@ function createOAPIEmitter(
       } as any,
       context
     );
-    diagnostics = createDiagnosticCollector();
 
     const securitySchemes = getOpenAPISecuritySchemes(allHttpAuthentications);
     const security = getOpenAPISecurity(defaultAuth);
