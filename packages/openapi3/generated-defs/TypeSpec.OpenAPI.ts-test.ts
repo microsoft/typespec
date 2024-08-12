@@ -1,14 +1,5 @@
 /** An error here would mean that the decorator is not exported or doesn't have the right name. */
-import { $oneOf, $useRef } from "@typespec/openapi3";
-import type { OneOfDecorator, UseRefDecorator } from "./TypeSpec.OpenAPI.js";
-
-type Decorators = {
-  $oneOf: OneOfDecorator;
-  $useRef: UseRefDecorator;
-};
-
+import { $decorators } from "@typespec/openapi3";
+import type { TypeSpecOpenAPIDecorators } from "./TypeSpec.OpenAPI.js";
 /** An error here would mean that the exported decorator is not using the same signature. Make sure to have export const $decName: DecNameDecorator = (...) => ... */
-const _: Decorators = {
-  $oneOf,
-  $useRef,
-};
+const _: TypeSpecOpenAPIDecorators = $decorators["TypeSpec.OpenAPI"];

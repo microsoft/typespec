@@ -749,3 +749,48 @@ export type ReturnTypeVisibilityDecorator = (
   target: Operation,
   ...visibilities: string[]
 ) => void;
+
+export type TypeSpecDecorators = {
+  encode: EncodeDecorator;
+  doc: DocDecorator;
+  withOptionalProperties: WithOptionalPropertiesDecorator;
+  withUpdateableProperties: WithUpdateablePropertiesDecorator;
+  withoutOmittedProperties: WithoutOmittedPropertiesDecorator;
+  withPickedProperties: WithPickedPropertiesDecorator;
+  withoutDefaultValues: WithoutDefaultValuesDecorator;
+  withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator;
+  summary: SummaryDecorator;
+  returnsDoc: ReturnsDocDecorator;
+  errorsDoc: ErrorsDocDecorator;
+  deprecated: DeprecatedDecorator;
+  service: ServiceDecorator;
+  error: ErrorDecorator;
+  format: FormatDecorator;
+  pattern: PatternDecorator;
+  minLength: MinLengthDecorator;
+  maxLength: MaxLengthDecorator;
+  minItems: MinItemsDecorator;
+  maxItems: MaxItemsDecorator;
+  minValue: MinValueDecorator;
+  maxValue: MaxValueDecorator;
+  minValueExclusive: MinValueExclusiveDecorator;
+  maxValueExclusive: MaxValueExclusiveDecorator;
+  secret: SecretDecorator;
+  list: ListDecorator;
+  tag: TagDecorator;
+  friendlyName: FriendlyNameDecorator;
+  knownValues: KnownValuesDecorator;
+  key: KeyDecorator;
+  overload: OverloadDecorator;
+  projectedName: ProjectedNameDecorator;
+  encodedName: EncodedNameDecorator;
+  discriminator: DiscriminatorDecorator;
+  example: ExampleDecorator;
+  opExample: OpExampleDecorator;
+  visibility: VisibilityDecorator;
+  withVisibility: WithVisibilityDecorator;
+  inspectType: InspectTypeDecorator;
+  inspectTypeName: InspectTypeNameDecorator;
+  parameterVisibility: ParameterVisibilityDecorator;
+  returnTypeVisibility: ReturnTypeVisibilityDecorator;
+};

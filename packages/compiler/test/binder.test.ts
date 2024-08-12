@@ -458,6 +458,39 @@ describe("compiler: binder", () => {
     });
   });
 
+  it("binds $decorators in JS file", () => {
+    const exports = {
+      $decorators: {
+        "Foo.Bar": { myDec2: () => {} },
+        Foo: { myDec: () => {} },
+      },
+    };
+
+    const sourceFile = bindJs(exports);
+    assertBindings("jsFile", sourceFile.symbol.exports!, {
+      Foo: {
+        flags: SymbolFlags.Namespace,
+        declarations: [SyntaxKind.JsNamespaceDeclaration],
+        exports: {
+          Bar: {
+            flags: SymbolFlags.Namespace,
+            declarations: [SyntaxKind.JsNamespaceDeclaration],
+            exports: {
+              "@myDec2": {
+                flags: SymbolFlags.Decorator | SymbolFlags.Implementation,
+                declarations: [SyntaxKind.JsSourceFile],
+              },
+            },
+          },
+          "@myDec": {
+            flags: SymbolFlags.Decorator | SymbolFlags.Implementation,
+            declarations: [SyntaxKind.JsSourceFile],
+          },
+        },
+      },
+    });
+  });
+
   function bindTypeSpec(code: string) {
     const sourceFile = parse(code);
     expectDiagnosticEmpty(sourceFile.parseDiagnostics);

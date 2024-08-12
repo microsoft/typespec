@@ -316,3 +316,25 @@ export type RouteDecorator = (
  * ```
  */
 export type SharedRouteDecorator = (context: DecoratorContext, target: Operation) => void;
+
+export type TypeSpecHttpDecorators = {
+  statusCode: StatusCodeDecorator;
+  body: BodyDecorator;
+  header: HeaderDecorator;
+  query: QueryDecorator;
+  path: PathDecorator;
+  bodyRoot: BodyRootDecorator;
+  bodyIgnore: BodyIgnoreDecorator;
+  multipartBody: MultipartBodyDecorator;
+  get: GetDecorator;
+  put: PutDecorator;
+  post: PostDecorator;
+  patch: PatchDecorator;
+  delete: DeleteDecorator;
+  head: HeadDecorator;
+  server: ServerDecorator;
+  useAuth: UseAuthDecorator;
+  includeInapplicableMetadataInPayload: IncludeInapplicableMetadataInPayloadDecorator;
+  route: RouteDecorator;
+  sharedRoute: SharedRouteDecorator;
+};

@@ -198,3 +198,22 @@ export type ExtensionDecorator = (
   key: string,
   value: Type | unknown
 ) => void;
+
+export type TypeSpecJsonSchemaDecorators = {
+  jsonSchema: JsonSchemaDecorator;
+  baseUri: BaseUriDecorator;
+  id: IdDecorator;
+  oneOf: OneOfDecorator;
+  multipleOf: MultipleOfDecorator;
+  contains: ContainsDecorator;
+  minContains: MinContainsDecorator;
+  maxContains: MaxContainsDecorator;
+  uniqueItems: UniqueItemsDecorator;
+  minProperties: MinPropertiesDecorator;
+  maxProperties: MaxPropertiesDecorator;
+  contentEncoding: ContentEncodingDecorator;
+  prefixItems: PrefixItemsDecorator;
+  contentMediaType: ContentMediaTypeDecorator;
+  contentSchema: ContentSchemaDecorator;
+  extension: ExtensionDecorator;
+};
