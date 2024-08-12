@@ -153,6 +153,13 @@ describe("parsing", () => {
 });
 
 describe("asString", () => {
+  it("0 is 0", () => {
+    expect(Numeric("0.0").toString()).toEqual("0");
+  });
+  it("1.0 is 1", () => {
+    expect(Numeric("1.0").toString()).toEqual("1");
+  });
+
   it("doesn't include decimal if is an integer", () => {
     expect(Numeric("123").toString()).toEqual("123");
   });

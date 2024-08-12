@@ -26,6 +26,21 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string GetNamespace() => GetFullyQualifiedNameFromDisplayString(_namedTypeSymbol.ContainingNamespace);
 
+        protected override ConstructorProvider[] BuildConstructors()
+        {
+            List<ConstructorProvider> constructors = new List<ConstructorProvider>();
+            foreach (var constructorSymbol in _namedTypeSymbol.Constructors)
+            {
+                var signature = new ConstructorSignature(
+                    Type,
+                    GetSymbolXmlDoc(constructorSymbol, "summary"),
+                    GetAccessModifier(constructorSymbol.DeclaredAccessibility),
+                    [.. constructorSymbol.Parameters.Select(p => ConvertToParameterProvider(constructorSymbol, p))]);
+                constructors.Add(new ConstructorProvider(signature, MethodBodyStatement.Empty, this));
+            }
+            return [.. constructors];
+        }
+
         protected override PropertyProvider[] BuildProperties()
         {
             List<PropertyProvider> properties = new List<PropertyProvider>();
