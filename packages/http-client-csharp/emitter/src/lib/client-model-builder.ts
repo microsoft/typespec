@@ -128,15 +128,14 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
 
   function fromSdkEndpointParameter(p: SdkEndpointParameter): InputParameter[] {
     // TODO: handle SdkUnionType
-    if (p.type.kind === "union"){
+    if (p.type.kind === "union") {
       return fromSdkEndpointType(p.type.values[0] as SdkEndpointType);
-    }
-    else {
+    } else {
       return fromSdkEndpointType(p.type);
     }
   }
 
-  function fromSdkEndpointType(type: SdkEndpointType) : InputParameter[] {
+  function fromSdkEndpointType(type: SdkEndpointType): InputParameter[] {
     // TODO: support free-style endpoint url with multiple parameters
     const endpointExpr = type.serverUrl
       .replace("https://", "")
