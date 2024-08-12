@@ -18,6 +18,8 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ScopedApi<T> As<T>(this PropertyProvider property) => ((MemberExpression)property).As<T>();
         public static ScopedApi<T> As<T>(this FieldProvider field) => ((MemberExpression)field).As<T>();
 
+        public static ValueExpression NullConditional(this ParameterProvider parameter) => new NullConditionalExpression(parameter);
+
         public static DictionaryExpression AsDictionary(this FieldProvider field, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), field);
         public static DictionaryExpression AsDictionary(this ParameterProvider parameter, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), parameter);
 

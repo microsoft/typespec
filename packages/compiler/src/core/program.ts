@@ -120,6 +120,9 @@ export interface Program {
    * Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located.
    */
   readonly projectRoot: string;
+
+  /** @internal */
+  getDiagnosticUrl(diagnostic: Diagnostic): string | undefined;
 }
 
 interface EmitterRef {
@@ -192,6 +195,7 @@ export async function compile(
     resolveTypeReference,
     getSourceFileLocationContext,
     projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
+    getDiagnosticUrl,
   };
 
   trace("compiler.options", JSON.stringify(options, null, 2));
@@ -204,6 +208,10 @@ export async function compile(
   await loadIntrinsicTypes();
   if (!options?.nostdlib) {
     await loadStandardLibrary();
+  }
+
+  function getDiagnosticUrl(diagnostic: Diagnostic): string | undefined {
+    return linter.getRuleUrl(diagnostic.code);
   }
 
   // Load additional imports prior to compilation

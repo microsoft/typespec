@@ -3,7 +3,7 @@
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
-    internal class DefaultScmVisitor : ScmVisitor
+    internal class DefaultScmLibraryVisitor : ScmLibraryVisitor
     {
     }
 }
