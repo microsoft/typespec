@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Diagnostic logged to the terminal now have clickable hyperlink to the diagnostic documentation url if applicable.
+Diagnostics logged to the terminal now have a clickable hyperlink to the diagnostic documentation url if applicable.
