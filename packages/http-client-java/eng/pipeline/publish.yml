@@ -1,0 +1,31 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - packages/http-client-java/
+
+pr: none
+
+extends:
+  template: /eng/common/pipelines/templates/1es-redirect.yml
+
+  parameters:
+    stages:
+      - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
+        parameters:
+          BuildPrereleaseVersion: true
+          UseTypeSpecNext: false
+          Publish: "internal"
+          PublishDependsOnTest: true
+          PackagePath: /packages/http-client-java
+          EmitterPackageJsonPath: packages/http-client-java/emitter/package.json
+          Packages:
+            - name: typespec-http-client-java
+              file: typespec-http-client-java-*.tgz
+              type: npm
+          UnitTestArgs: -UnitTests
+          StagePrefix: "Java"
+          LanguageShortName: "java"
+          HasNugetPackages: true

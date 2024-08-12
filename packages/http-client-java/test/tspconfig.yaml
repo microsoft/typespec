@@ -1,0 +1,13 @@
+emit:
+  - "@typespec/http-client-java"
+options:
+  "@typespec/http-client-java":
+    emitter-output-dir: "{project-root}/tsp-output"
+    partial-update: true
+    generate-samples: true
+    generate-tests: true
+    flavor: "Azure"
+    dev-options:
+      generate-code-model: true
+      loglevel: info
+      debug: false
