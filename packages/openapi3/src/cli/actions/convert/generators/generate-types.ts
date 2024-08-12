@@ -68,16 +68,7 @@ export function getRefName(ref: string): string {
 export function getRefScopeAndName(ref: string): ReturnType<typeof getScopeAndName> {
   const parts = ref.split("/");
   const name = parts.pop() ?? "";
-  const componentType = parts.pop() ?? "";
   const scopeAndName = getScopeAndName(name);
-
-  switch (componentType) {
-    case "schemas":
-      break;
-    case "parameters":
-      // scopeAndName.scope.unshift("Parameters");
-      break;
-  }
 
   return scopeAndName;
 }
