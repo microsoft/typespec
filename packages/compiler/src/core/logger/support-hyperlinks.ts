@@ -5,7 +5,16 @@
  * Check if the terminal supports hyperlink.
  */
 export function supportsHyperlink(stream: NodeJS.WriteStream) {
-  const { CI, TERM_PROGRAM, TERM_PROGRAM_VERSION, VTE_VERSION, FORCE_HYPERLINK } = process.env;
+  const {
+    CI,
+    TERM,
+    TERM_PROGRAM,
+    TERM_PROGRAM_VERSION,
+    VTE_VERSION,
+    FORCE_HYPERLINK,
+    COLORTERM,
+    TERMINAL_EMULATOR,
+  } = process.env;
 
   if (FORCE_HYPERLINK) {
     return !(FORCE_HYPERLINK.length > 0 && parseInt(FORCE_HYPERLINK, 10) === 0);
@@ -44,6 +53,18 @@ export function supportsHyperlink(stream: NodeJS.WriteStream) {
         return version.major > 1 || (version.major === 1 && version.minor >= 72);
       // No default
     }
+  }
+
+  /* cspell:disable-next-line */
+  if (TERM && ["xterm-kitty", "alacritty", "alacritty-direct"].includes(TERM)) {
+    return true;
+  }
+
+  if (COLORTERM === "xfce4-terminal") {
+    return true;
+  }
+  if (TERMINAL_EMULATOR === "JetBrains-JediTerm") {
+    return true;
   }
 
   if (VTE_VERSION) {
