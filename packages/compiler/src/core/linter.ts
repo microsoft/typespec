@@ -21,9 +21,6 @@ import {
 export interface Linter {
   extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]>;
   lint(): readonly Diagnostic[];
-
-  /** @internal */
-  getRuleUrl(ruleId: string): string | undefined;
 }
 
 /**
@@ -67,12 +64,7 @@ export function createLinter(
   return {
     extendRuleSet,
     lint,
-    getRuleUrl,
   };
-
-  function getRuleUrl(ruleId: string): string | undefined {
-    return ruleMap.get(ruleId)?.url;
-  }
 
   async function extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]> {
     tracer.trace("extend-rule-set.start", JSON.stringify(ruleSet, null, 2));
