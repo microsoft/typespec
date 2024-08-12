@@ -33,7 +33,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         public override void Configure()
         {
-            AddVisitor(new ScmVisitor());
+            AddVisitor(new DefaultScmLibraryVisitor());
         }
     }
 }

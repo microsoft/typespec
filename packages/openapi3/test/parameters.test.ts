@@ -422,6 +422,7 @@ describe("query parameters", () => {
       deepStrictEqual(res.paths["/"].post.requestBody.content["application/octet-stream"].schema, {
         type: "string",
       });
+      strictEqual(res.paths["/"].post.parameters.length, 0);
     });
 
     it("query named contentType doesn't get resolved as the content type parameter.", async () => {
@@ -453,6 +454,19 @@ describe("path parameters", () => {
   it("uses explicit name provided from @path", async () => {
     const res = await openApiFor(`op test(@path("my-custom-path") myParam: string): void;`);
     expect(res.paths).toHaveProperty("/{my-custom-path}");
+  });
+
+  it("inline adds an arbitrary extension to a parameter", async () => {
+    const oapi = await openApiFor(
+      `
+      op get(
+        @path
+        @extension("x-parameter-extension", "foobaz")
+        petId: string;
+      ): void;
+      `
+    );
+    strictEqual(oapi.paths["/{petId}"].get.parameters[0]["x-parameter-extension"], "foobaz");
   });
 
   describe("set explode: true", () => {

@@ -14,6 +14,7 @@ import { createTestHost, TestHost } from "@typespec/compiler/testing";
 import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
+import { XmlTestLibrary } from "@typespec/xml/testing";
 import { LoggerLevel } from "../../../src/lib/log-level.js";
 import { Logger } from "../../../src/lib/logger.js";
 import { getInputType } from "../../../src/lib/model.js";
@@ -28,6 +29,7 @@ export async function createEmitterTestHost(): Promise<TestHost> {
       VersioningTestLibrary,
       AzureCoreTestLibrary,
       SdkTestLibrary,
+      XmlTestLibrary,
     ],
   });
 }
@@ -36,6 +38,7 @@ export interface TypeSpecCompileOptions {
   IsNamespaceNeeded?: boolean;
   IsAzureCoreNeeded?: boolean;
   IsTCGCNeeded?: boolean;
+  IsXmlNeeded?: boolean;
 }
 
 export async function typeSpecCompile(
@@ -46,6 +49,7 @@ export async function typeSpecCompile(
   const needNamespaces = options?.IsNamespaceNeeded ?? true;
   const needAzureCore = options?.IsAzureCoreNeeded ?? false;
   const needTCGC = options?.IsTCGCNeeded ?? false;
+  const needXml = options?.IsXmlNeeded ?? false;
   const namespace = `
     @versioned(Versions)
     @useAuth(ApiKeyAuth<ApiKeyLocation.header, "api-key">)
@@ -65,11 +69,13 @@ export async function typeSpecCompile(
     import "@typespec/rest";
     import "@typespec/http";
     import "@typespec/versioning";
+    ${needXml ? 'import  "@typespec/xml";' : ""}
     ${needAzureCore ? 'import "@azure-tools/typespec-azure-core";' : ""}
     ${needTCGC ? 'import "@azure-tools/typespec-client-generator-core";' : ""}
     using TypeSpec.Rest; 
     using TypeSpec.Http;
     using TypeSpec.Versioning;
+    ${needXml ? "using TypeSpec.Xml;" : ""}
     ${needAzureCore ? "using Azure.Core;\nusing Azure.Core.Traits;" : ""}
     ${needTCGC ? "using Azure.ClientGenerator.Core;" : ""}
     
