@@ -4008,6 +4008,7 @@ export function createChecker(program: Program): Checker {
       derivedModels: [],
       sourceModels: [],
     });
+    linkMapper(type, mapper);
     checkModelProperties(node, properties, type, mapper);
     return finishType(type);
   }
