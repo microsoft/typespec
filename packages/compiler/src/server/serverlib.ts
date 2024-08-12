@@ -397,6 +397,13 @@ export function createServer(host: ServerHost): Server {
       const range = Range.create(start, end);
       const severity = convertSeverity(each.severity);
       const diagnostic = VSDiagnostic.create(range, each.message, severity, each.code, "TypeSpec");
+
+      const url = program.getDiagnosticUrl(each);
+      if (url) {
+        diagnostic.codeDescription = {
+          href: url,
+        };
+      }
       if (each.code === "deprecated") {
         diagnostic.tags = [DiagnosticTag.Deprecated];
       }
