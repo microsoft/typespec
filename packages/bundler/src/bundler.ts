@@ -148,7 +148,6 @@ async function createRollupConfig(definition: TypeSpecBundleDefinition): Promise
     noEmit: true,
   });
   const jsFiles = new Set([resolvePath(libraryPath, definition.packageJson.main)]);
-  console.log("JS", resolvePath(libraryPath, definition.packageJson.main));
   for (const file of program.jsSourceFiles.keys()) {
     if (file.startsWith(libraryPath)) {
       jsFiles.add(file);
