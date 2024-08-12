@@ -93,9 +93,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     "InternalModel",
                     InputModelTypeUsage.Input | InputModelTypeUsage.Output,
                     [
-                        new InputModelProperty("StringProp", "stringProp", "StringProp", StringInputType, false, false, false, [], null),
-                        new InputModelProperty("ListProp", "listProp", "ListProp", new InputArrayType("list", "list", StringInputType), false, false, false, [], null),
-                        new InputModelProperty("DictProp", "DictProp", "DictProp", new InputDictionaryType("dict", StringInputType, StringInputType), false, false, false, [], null)
+                        new InputModelProperty("StringProp", "stringProp", "StringProp", StringInputType, false, false, false, null),
+                        new InputModelProperty("ListProp", "listProp", "ListProp", new InputArrayType("list", "list", StringInputType), false, false, false, null),
+                        new InputModelProperty("DictProp", "DictProp", "DictProp", new InputDictionaryType("dict", StringInputType, StringInputType), false, false, false, null)
                     ],
                     null,
                     [],
@@ -112,9 +112,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     "PublicModel1",
                     InputModelTypeUsage.Input | InputModelTypeUsage.Output,
                     [
-                        new InputModelProperty("StringProp", "stringProp", "StringProp", StringInputType, false, false, false, [], null),
-                        new InputModelProperty("ListProp", "listProp", "ListProp", new InputArrayType("list", "list", StringInputType), false, false, false, [], null),
-                        new InputModelProperty("DictProp", "DictProp", "DictProp", new InputDictionaryType("dict", StringInputType, StringInputType), false, false, false, [], null)
+                        new InputModelProperty("StringProp", "stringProp", "StringProp", StringInputType, false, false, false, null),
+                        new InputModelProperty("ListProp", "listProp", "ListProp", new InputArrayType("list", "list", StringInputType), false, false, false, null),
+                        new InputModelProperty("DictProp", "DictProp", "DictProp", new InputDictionaryType("dict", StringInputType, StringInputType), false, false, false, null)
                     ],
                     null,
                     [],
@@ -131,9 +131,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     "PublicModel2",
                     InputModelTypeUsage.Input | InputModelTypeUsage.Output,
                     [
-                        new InputModelProperty("StringProp", "stringProp", "StringProp", StringInputType, false, false, false, [], null),
-                        new InputModelProperty("ListProp", "listProp", "ListProp", new InputArrayType("list", "list", StringInputType), false, false, false, [], null),
-                        new InputModelProperty("DictProp", "DictProp", "DictProp", new InputDictionaryType("dict", StringInputType, StringInputType), false, false, false, [], null)
+                        new InputModelProperty("StringProp", "stringProp", "StringProp", StringInputType, false, false, false, null),
+                        new InputModelProperty("ListProp", "listProp", "ListProp", new InputArrayType("list", "list", StringInputType), false, false, false, null),
+                        new InputModelProperty("DictProp", "DictProp", "DictProp", new InputDictionaryType("dict", StringInputType, StringInputType), false, false, false, null)
                     ],
                     null,
                     [],

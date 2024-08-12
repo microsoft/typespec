@@ -405,7 +405,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         {
             get
             {
-                yield return new TestCaseData(new InputClient(TestClientName, "TestClient description", [], [], null, []), true);
+                yield return new TestCaseData(new InputClient(TestClientName, "TestClient description", [], [], null), true);
                 yield return new TestCaseData(_animalClient, true);
                 yield return new TestCaseData(_dogClient, true);
                 yield return new TestCaseData(_huskyClient, false);
