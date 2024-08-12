@@ -67,17 +67,18 @@ namespace Microsoft.Generator.CSharp.Providers
             var methods = new List<MethodProvider>(_models.Count());
             foreach (var model in _models)
             {
-                var modelProvider = CodeModelPlugin.Instance.TypeFactory.CreateModel(model);
+                var modelProvider = CodeModelPlugin.Instance.TypeFactory.CreateModel(model) as ModelProvider;
                 if (modelProvider is null || modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal))
                     continue;
 
+                var modelCtor = modelProvider.FullConstructor;
                 var signature = new MethodSignature(
                     modelProvider.Name,
                     null,
                     MethodSignatureModifiers.Static | MethodSignatureModifiers.Public,
                     modelProvider.Type,
                     $"A new {modelProvider.Type:C} instance for mocking.",
-                    GetParameters(modelProvider));
+                    GetParameters(modelCtor));
 
                 var docs = new XmlDocProvider();
                 docs.Summary = modelProvider.XmlDocs?.Summary;
@@ -87,17 +88,11 @@ namespace Microsoft.Generator.CSharp.Providers
                     docs.Params.Add(new XmlDocParamStatement(param.Name, param.Description));
                 }
 
-                var modelCtor = GetSecondaryConstructor(modelProvider);
-                if (modelCtor == null)
-                {
-                    throw new InvalidOperationException($"Unable to find the secondary constructor for the model {modelProvider.Name}.");
-                }
-
                 var statements = new MethodBodyStatements(
                 [
                     .. GetCollectionInitialization(signature),
                     MethodBodyStatement.EmptyLine,
-                    Return(New.Instance(modelCtor.Signature, [.. GetCtorParams(modelCtor.Signature, signature)]))
+                    Return(New.Instance(modelProvider.Type, [.. GetCtorParams(signature)]))
                 ]);
 
                 methods.Add(new MethodProvider(signature, statements, this, docs));
@@ -105,29 +100,22 @@ namespace Microsoft.Generator.CSharp.Providers
             return [.. methods];
         }
 
-        private static IReadOnlyList<ValueExpression> GetCtorParams(
-            ConstructorSignature modelProviderCtor,
-            MethodSignature modelFactoryMethod)
+        private static IReadOnlyList<ValueExpression> GetCtorParams(MethodSignature signature)
         {
-            var modelProviderCtorParams = modelProviderCtor.Parameters;
-            var modelFactoryMethodParams = modelFactoryMethod.Parameters.ToDictionary(p => p.Name);
-            var expressions = new List<ValueExpression>(modelProviderCtorParams.Count);
-
-            foreach (var param in modelProviderCtorParams)
+            var expressions = new List<ValueExpression>(signature.Parameters.Count);
+            foreach (var param in signature.Parameters)
             {
-                if (modelFactoryMethodParams.TryGetValue(param.Name, out var factoryMethodParam))
+                if (param.Type.IsList)
                 {
-                    ValueExpression expression = factoryMethodParam.Type.IsList
-                        ? factoryMethodParam.NullConditional().ToList()
-                        : factoryMethodParam;
-                    expressions.Add(expression);
+                    expressions.Add(param.NullConditional().ToList());
                 }
                 else
                 {
-                    expressions.Add(Null);
+                    expressions.Add(param);
                 }
             }
 
+            expressions.Add(Null);
             return [.. expressions];
         }
 
@@ -148,20 +136,21 @@ namespace Microsoft.Generator.CSharp.Providers
             return [.. statements];
         }
 
-        private IReadOnlyList<ParameterProvider> GetParameters(TypeProvider modelProvider)
+        private static IReadOnlyList<ParameterProvider> GetParameters(ConstructorProvider modelFullConstructor)
         {
-            var parameters = new List<ParameterProvider>(modelProvider.Properties.Count);
-            foreach (var property in modelProvider.Properties)
+            var modelCtorParams = modelFullConstructor.Signature.Parameters;
+            var parameters = new List<ParameterProvider>(modelCtorParams.Count);
+            foreach (var param in modelCtorParams)
             {
-                if (property.Modifiers.HasFlag(MethodSignatureModifiers.Internal))
+                if (param.Name.Equals(AdditionalRawDataParameterName))
                     continue;
 
-                parameters.Add(GetModelFactoryParam(property.AsParameter));
+                parameters.Add(GetModelFactoryParam(param));
             }
             return [.. parameters];
         }
 
-        private ParameterProvider GetModelFactoryParam(ParameterProvider parameter)
+        private static ParameterProvider GetModelFactoryParam(ParameterProvider parameter)
         {
             return new ParameterProvider(
                 parameter.Name,
@@ -177,18 +166,6 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 Validation = ParameterValidationType.None,
             };
-        }
-
-        private static ConstructorProvider? GetSecondaryConstructor(TypeProvider model)
-        {
-            if (model.Constructors.Count == 1)
-            {
-                return model.Constructors[0];
-            }
-
-            return model.Constructors.FirstOrDefault(ctor =>
-                ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal) &&
-                ctor.Signature.Parameters.Any(p => p.Name == AdditionalRawDataParameterName));
         }
     }
 }

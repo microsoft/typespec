@@ -33,7 +33,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private const string PersistableModelCreateCoreMethodName = "PersistableModelCreateCore";
         private const string WriteAction = "writing";
         private const string ReadAction = "reading";
-        private const string AdditionalRawDataParameterName = "serializedAdditionalRawData";
         private readonly ParameterProvider _utf8JsonWriterParameter = new("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
         private readonly ParameterProvider _utf8JsonReaderParameter = new("reader", $"The JSON reader.", typeof(Utf8JsonReader), isRef: true);
         private readonly ParameterProvider _serializationOptionsParameter =
@@ -78,7 +77,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         protected override string GetNamespace() => _model.Type.Namespace;
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
-        private ConstructorProvider? SerializationConstructor => _serializationConstructor ??= GetSerializationConstructor();
+        private ConstructorProvider SerializationConstructor => _serializationConstructor ??= (_model as ModelProvider)!.FullConstructor;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
 
@@ -462,22 +461,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             );
         }
 
-        /// <summary>
-        /// Finds the serialization constructor for the model.
-        /// </summary>
-        /// <returns>The serialization constructor.</returns>
-        private ConstructorProvider? GetSerializationConstructor()
-        {
-            if (_model.Constructors.Count == 1)
-            {
-                return _model.Constructors[0];
-            }
-
-            return _model.Constructors.FirstOrDefault(ctor =>
-                ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal) &&
-                ctor.Signature.Parameters.Any(p => p.Name == AdditionalRawDataParameterName));
-        }
-
         private MethodBodyStatement[] BuildJsonModelWriteMethodBody(MethodProvider jsonModelWriteCoreMethod)
         {
             var coreMethodSignature = jsonModelWriteCoreMethod.Signature;
@@ -520,7 +503,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodBodyStatement GetPropertyVariableDeclarations()
         {
-            var parameters = SerializationConstructor?.Signature.Parameters ?? [];
+            var parameters = SerializationConstructor.Signature.Parameters;
             var propertyDeclarationStatements = new List<MethodBodyStatement>(parameters.Count);
 
             for (var i = 0; i < parameters.Count; i++)
@@ -626,7 +609,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         private ValueExpression[] GetSerializationCtorParameterValues()
         {
-            var parameters = SerializationConstructor?.Signature.Parameters ?? [];
+            var parameters = SerializationConstructor.Signature.Parameters;
             ValueExpression[] serializationCtorParameters = new ValueExpression[parameters.Count];
 
             // Map property variable names to their corresponding parameter values
@@ -671,7 +654,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private List<MethodBodyStatement> BuildDeserializePropertiesStatements(ScopedApi<JsonProperty> jsonProperty)
         {
             List<MethodBodyStatement> propertyDeserializationStatements = new();
-            var parameters = SerializationConstructor?.Signature.Parameters ?? [];
+            var parameters = SerializationConstructor.Signature.Parameters;
             // Create each property's deserialization statement
             for (int i = 0; i < parameters.Count; i++)
             {

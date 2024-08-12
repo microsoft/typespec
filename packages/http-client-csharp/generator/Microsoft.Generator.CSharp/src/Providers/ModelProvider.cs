@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly Lazy<TypeProvider?>? _baseTypeProvider;
         private FieldProvider? _rawDataField;
         private ModelProvider? _baseModelProvider;
-        private ConstructorProvider? _secondaryConstructor;
+        private ConstructorProvider? _fullConstructor;
 
         public ModelProvider(InputModelType inputModel)
         {
@@ -58,8 +58,9 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private ModelProvider? BaseModelProvider
             => _baseModelProvider ??= (_baseTypeProvider?.Value is ModelProvider baseModelProvider ? baseModelProvider : null);
-        private ConstructorProvider SecondaryConstructor => _secondaryConstructor ??= BuildSecondaryConstructor();
         private FieldProvider? RawDataField => _rawDataField ??= BuildRawDataField();
+
+        public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
 
         protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
@@ -110,7 +111,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             if (_inputModel.IsUnknownDiscriminatorModel)
             {
-                return [SecondaryConstructor];
+                return [FullConstructor];
             }
 
             // Build the initialization constructor
@@ -134,9 +135,9 @@ namespace Microsoft.Generator.CSharp.Providers
                 },
                 this);
 
-            if (!constructorParameters.SequenceEqual(SecondaryConstructor.Signature.Parameters))
+            if (!constructorParameters.SequenceEqual(FullConstructor.Signature.Parameters))
             {
-                return [constructor, SecondaryConstructor];
+                return [constructor, FullConstructor];
             }
 
             return [constructor];
@@ -146,7 +147,7 @@ namespace Microsoft.Generator.CSharp.Providers
         /// Builds the internal constructor for the model which contains all public properties
         /// as parameters.
         /// </summary>
-        private ConstructorProvider BuildSecondaryConstructor()
+        private ConstructorProvider BuildFullConstructor()
         {
             var (ctorParameters, ctorInitializer) = BuildConstructorParameters(false);
 
@@ -177,9 +178,9 @@ namespace Microsoft.Generator.CSharp.Providers
                     .Reverse()
                     .SelectMany(model => CodeModelPlugin.Instance.TypeFactory.CreateModel(model)?.Properties ?? []);
             }
-            else if (BaseModelProvider?.SecondaryConstructor.Signature != null)
+            else if (BaseModelProvider?.FullConstructor.Signature != null)
             {
-                baseParameters.AddRange(BaseModelProvider.SecondaryConstructor.Signature.Parameters);
+                baseParameters.AddRange(BaseModelProvider.FullConstructor.Signature.Parameters);
             }
 
             // add the base parameters, if any
