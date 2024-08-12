@@ -48,7 +48,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly CSharpType? _jsonModelObjectInterface;
         private readonly CSharpType _persistableModelTInterface;
         private readonly CSharpType? _persistableModelObjectInterface;
-        private TypeProvider _model;
+        private readonly ModelProvider _model;
         private readonly InputModelType _inputModel;
         private readonly FieldProvider? _rawDataField;
         private readonly bool _isStruct;
@@ -56,7 +56,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         // Flag to determine if the model should override the serialization methods
         private readonly bool _shouldOverrideMethods;
 
-        public MrwSerializationTypeDefinition(InputModelType inputModel, TypeProvider modelProvider)
+        public MrwSerializationTypeDefinition(InputModelType inputModel, ModelProvider modelProvider)
         {
             _model = modelProvider;
             _inputModel = inputModel;
@@ -77,7 +77,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         protected override string GetNamespace() => _model.Type.Namespace;
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
-        private ConstructorProvider SerializationConstructor => _serializationConstructor ??= (_model as ModelProvider)!.FullConstructor;
+        private ConstructorProvider SerializationConstructor => _serializationConstructor ??= _model.FullConstructor;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
 

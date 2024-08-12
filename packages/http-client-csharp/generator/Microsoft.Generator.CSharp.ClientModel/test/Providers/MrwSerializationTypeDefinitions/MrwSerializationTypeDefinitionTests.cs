@@ -22,10 +22,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         public MrwSerializationTypeDefinitionTests()
         {
             MockHelpers.LoadMockPlugin(createSerializationsCore: (inputType, typeProvider) =>
-                inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, typeProvider)] : []);
+                inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : []);
         }
 
-        internal static (TypeProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel)
+        internal static (ModelProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel)
         {
             var model = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
             var serializations = model!.SerializationProviders;
@@ -33,7 +33,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.AreEqual(1, serializations.Count);
             Assert.IsInstanceOf<MrwSerializationTypeDefinition>(serializations[0]);
 
-            return (model, (MrwSerializationTypeDefinition)serializations[0]);
+            return ((model as ModelProvider)!, (MrwSerializationTypeDefinition)serializations[0]);
         }
 
         [Test]
