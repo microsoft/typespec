@@ -5,6 +5,7 @@ import {
   SdkClientType,
   SdkContext,
   SdkEndpointParameter,
+  SdkEndpointType,
   SdkHttpOperation,
   SdkServiceMethod,
   UsageFlags,
@@ -127,45 +128,26 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
 
   function fromSdkEndpointParameter(p: SdkEndpointParameter): InputParameter[] {
     // TODO: handle SdkUnionType
-    if (p.type.kind === "union") return [];
+    if (p.type.kind === "union"){
+      return fromSdkEndpointType(p.type.values[0] as SdkEndpointType);
+    }
+    else {
+      return fromSdkEndpointType(p.type);
+    }
+  }
 
-    if (p.type.templateArguments.length === 0)
-      return [
-        {
-          Name: p.name,
-          NameInRequest: p.serializedName ?? p.name,
-          Type: fromSdkType(p.type, sdkContext, modelMap, enumMap),
-          Location: RequestLocation.Uri,
-          IsApiVersion: false,
-          IsResourceParameter: false,
-          IsContentType: false,
-          IsRequired: true,
-          IsEndpoint: true,
-          SkipUrlEncoding: false,
-          Explode: false,
-          Kind: InputOperationParameterKind.Client,
-          DefaultValue: {
-            Type: {
-              Kind: "string",
-              Name: "string",
-              CrossLanguageDefinitionId: "TypeSpec.string",
-            },
-            Value: p.type.serverUrl,
-          },
-        },
-      ];
-
+  function fromSdkEndpointType(type: SdkEndpointType) : InputParameter[] {
     // TODO: support free-style endpoint url with multiple parameters
-    const endpointExpr = p.type.serverUrl
+    const endpointExpr = type.serverUrl
       .replace("https://", "")
       .replace("http://", "")
       .split("/")[0];
     if (!/^\{\w+\}$/.test(endpointExpr))
-      throw new Error(`Unsupported server url "${p.type.serverUrl}"`);
+      throw new Error(`Unsupported server url "${type.serverUrl}"`);
     const endpointVariableName = endpointExpr.substring(1, endpointExpr.length - 1);
 
     const parameters: InputParameter[] = [];
-    for (const parameter of p.type.templateArguments) {
+    for (const parameter of type.templateArguments) {
       const isEndpoint = parameter.name === endpointVariableName;
       const parameterType: InputType = isEndpoint
         ? {
