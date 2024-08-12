@@ -1,6 +1,6 @@
 ---
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
-changeKind: fix
+changeKind: feature
 packages:
   - "@typespec/compiler"
 ---
