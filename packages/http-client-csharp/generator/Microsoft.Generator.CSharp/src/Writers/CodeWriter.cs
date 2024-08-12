@@ -260,6 +260,8 @@ namespace Microsoft.Generator.CSharp
             if (isPublicContext)
                 WriteXmlDocs(property.XmlDocs);
 
+            CodeScope? indexerScope = null;
+
             var modifiers = property.Modifiers;
             AppendRawIf("public ", modifiers.HasFlag(MethodSignatureModifiers.Public))
                 .AppendRawIf("protected ", modifiers.HasFlag(MethodSignatureModifiers.Protected))
@@ -277,7 +279,8 @@ namespace Microsoft.Generator.CSharp
             }
             if (property is IndexPropertyProvider indexer)
             {
-                Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {indexer.IndexerParameter.Name}]");
+                indexerScope = AmbientScope();
+                Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {indexer.IndexerParameter.AsExpression.Declaration}]");
             }
             else
             {
@@ -336,6 +339,7 @@ namespace Microsoft.Generator.CSharp
                     throw new InvalidOperationException($"Unhandled property body type {property.Body}");
             }
 
+            indexerScope?.Dispose();
             WriteLine();
 
             void WriteMethodPropertyAccessor(string name, MethodBodyStatement body, MethodSignatureModifiers modifiers = MethodSignatureModifiers.None)
@@ -401,7 +405,7 @@ namespace Microsoft.Generator.CSharp
             AppendRawIf("out ", parameter.IsOut);
             AppendRawIf("ref ", parameter.IsRef);
 
-            Append($"{parameter.Type} {parameter.Name:D}");
+            Append($"{parameter.Type} {parameter.AsExpression.Declaration}");
             if (parameter.DefaultValue != null)
             {
                 AppendRaw(" = ");
@@ -420,7 +424,7 @@ namespace Microsoft.Generator.CSharp
                 .AppendRawIf("static ", modifiers.HasFlag(FieldModifiers.Static))
                 .AppendRawIf("readonly ", modifiers.HasFlag(FieldModifiers.ReadOnly));
 
-            if (field.Declaration.HasBeenDeclared)
+            if (field.Declaration.HasBeenDeclared(_scopes))
             {
                 Append($"{field.Type} {field.Declaration:I}");
             }
@@ -684,12 +688,14 @@ namespace Microsoft.Generator.CSharp
                 throw new InvalidOperationException("Can't declare variables inside documentation.");
             }
 
-            if (!declaration.HasBeenDeclared)
+            var currentScope = _scopes.Peek();
+
+            if (!declaration.HasBeenDeclared(_scopes))
             {
-                declaration.SetActualName(GetTemporaryVariable(declaration.RequestedName));
+                declaration.SetActualName(GetTemporaryVariable(declaration.RequestedName), currentScope);
             }
 
-            return WriteDeclaration(declaration.ActualName);
+            return WriteDeclaration(declaration.GetActualName(currentScope));
         }
 
         public IDisposable WriteMethodDeclaration(MethodSignatureBase methodBase, params string[] disabledWarnings)
@@ -896,9 +902,9 @@ namespace Microsoft.Generator.CSharp
 
         internal void Append(CodeWriterDeclaration declaration)
         {
-            if (declaration.HasBeenDeclared)
+            if (declaration.HasBeenDeclared(_scopes))
             {
-                WriteIdentifier(declaration.ActualName);
+                WriteIdentifier(declaration.GetActualName(_scopes.Peek()));
             }
             else
             {
