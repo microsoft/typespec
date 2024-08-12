@@ -2148,6 +2148,8 @@ export type DiagnosticSeverity = "error" | "warning";
 
 export interface Diagnostic {
   code: string;
+  /** @internal Diagnostic documentation url */
+  readonly url?: string;
   severity: DiagnosticSeverity;
   message: string;
   target: DiagnosticTarget | typeof NoTarget;
@@ -2678,6 +2680,8 @@ export interface ProcessedLog {
   level: LogLevel;
   message: string;
   code?: string;
+  /** Documentation for the error code. */
+  url?: string;
   sourceLocation?: SourceLocation;
 }
 
