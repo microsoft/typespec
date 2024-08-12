@@ -476,6 +476,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       case "int16":
         return { type: "integer", minimum: -32768, maximum: 32767 };
       case "int32":
+      case "unixTimestamp32":
         return { type: "integer", minimum: -2147483648, maximum: 2147483647 };
       case "int64":
         const int64Strategy = this.emitter.getOptions()["int64-strategy"] ?? "string";
@@ -529,7 +530,12 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       case "bytes":
         return { type: "string", contentEncoding: "base64" };
       default:
-        compilerAssert(false, `Unknown built-in scalar type ${baseBuiltIn.name}`);
+        reportDiagnostic(this.emitter.getProgram(), {
+          code: "unknown-scalar",
+          format: { name: baseBuiltIn.name },
+          target: baseBuiltIn,
+        });
+        return {};
     }
   }
 
