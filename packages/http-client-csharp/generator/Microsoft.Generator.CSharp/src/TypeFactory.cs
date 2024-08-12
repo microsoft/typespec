@@ -33,9 +33,6 @@ namespace Microsoft.Generator.CSharp
         private Dictionary<InputModelProperty, PropertyProvider?>? _propertyCache;
         private Dictionary<InputModelProperty, PropertyProvider?> PropertyCache => _propertyCache ??= [];
 
-        private Dictionary<InputParameter, ParameterProvider>? _parameterCache;
-        private Dictionary<InputParameter, ParameterProvider> ParameterCache => _parameterCache ??= [];
-
         private Dictionary<InputType, IReadOnlyList<TypeProvider>>? _serializationsCache;
         private IReadOnlyList<LibraryVisitor> Visitors => CodeModelPlugin.Instance.Visitors;
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache => _serializationsCache ??= [];
@@ -220,14 +217,7 @@ namespace Microsoft.Generator.CSharp
         /// <param name="parameter">The <see cref="InputParameter"/> to convert.</param>
         /// <returns>An instance of <see cref="ParameterProvider"/>.</returns>
         public virtual ParameterProvider CreateParameter(InputParameter parameter)
-        {
-            if (ParameterCache.TryGetValue(parameter, out var parameterProvider))
-                return parameterProvider;
-
-            parameterProvider = new ParameterProvider(parameter);
-            ParameterCache.Add(parameter, parameterProvider);
-            return parameterProvider;
-        }
+            => new ParameterProvider(parameter);
 
         /// <summary>
         /// Creates a <see cref="PropertyProvider"/> based on an input property <paramref name="property"/>.

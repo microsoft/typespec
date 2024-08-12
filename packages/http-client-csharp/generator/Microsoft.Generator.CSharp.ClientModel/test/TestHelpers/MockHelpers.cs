@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -23,13 +24,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<CSharpType>? matchConditionsType = null,
             Func<CSharpType>? tokenCredentialType = null,
-            Func<InputOperation, TypeProvider, MethodProviderCollection>? createMethods = null,
             Func<InputParameter, ParameterProvider>? createParameter = null,
             Func<InputApiKeyAuth>? apiKeyAuth = null,
             Func<IReadOnlyList<string>>? apiVersions = null,
             Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
             Func<IReadOnlyList<InputClient>>? clients = null,
-            Func<InputLibrary>? createInputLibrary = null)
+            Func<InputLibrary>? createInputLibrary = null,
+            Func<InputClient, ClientProvider>? createClientCore = null)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
             IReadOnlyList<InputEnumType> inputNsEnums = inputEnums?.Invoke() ?? [];
@@ -71,6 +72,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
                 mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(createCSharpTypeCore);
             }
 
+            if ( createClientCore is not null)
+            {
+                mockTypeFactory.Protected().Setup<ClientProvider>("CreateClientCore", ItExpr.IsAny<InputClient>()).Returns(createClientCore);
+            }
+
             // initialize the mock singleton instance of the plugin
             var codeModelInstance = typeof(CodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
             var clientModelInstance = typeof(ClientModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
@@ -90,6 +96,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
             codeModelInstance!.SetValue(null, mockPluginInstance.Object);
             clientModelInstance!.SetValue(null, mockPluginInstance.Object);
+            mockPluginInstance.Object.Configure();
             return mockPluginInstance;
         }
     }
