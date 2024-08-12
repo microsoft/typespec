@@ -2007,6 +2007,8 @@ export function createChecker(program: Program): Checker {
       }
     }
 
+    linkMapper(unionType, mapper);
+
     return unionType;
   }
 
@@ -4010,6 +4012,7 @@ export function createChecker(program: Program): Checker {
       derivedModels: [],
       sourceModels: [],
     });
+    linkMapper(type, mapper);
     checkModelProperties(node, properties, type, mapper);
     return finishType(type);
   }
