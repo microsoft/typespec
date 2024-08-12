@@ -1,5 +1,4 @@
 import "@typespec/http";
-import "../dist/src/index.js";
 import "../dist/src/internal-decorators.js";
 
 namespace TypeSpec.Rest.Resource;

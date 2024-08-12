@@ -32,7 +32,11 @@ namespace Microsoft.Generator.CSharp.ClientModel
             switch (inputType)
             {
                 case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
-                    return [new MrwSerializationTypeDefinition(inputModel, typeProvider)];
+                    if (typeProvider is ModelProvider modelProvider)
+                    {
+                        return [new MrwSerializationTypeDefinition(inputModel, modelProvider)];
+                    }
+                    return [];
                 case InputEnumType { IsExtensible: true } inputEnumType:
                     if (ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputEnumType)?.UnderlyingEnumType.Equals(typeof(string)) == true)
                     {
