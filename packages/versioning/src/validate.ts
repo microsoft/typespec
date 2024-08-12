@@ -440,19 +440,6 @@ function validateVersionedPropertyNames(program: Program, source: Type) {
   }
 }
 
-function isSubNamespace(parent: Namespace, child: Namespace): boolean {
-  let current: Namespace | undefined = child;
-
-  while (current && current.name !== "") {
-    if (current === parent) {
-      return true;
-    }
-    current = current.namespace;
-  }
-
-  return false;
-}
-
 function validateMadeOptional(program: Program, target: Type) {
   if (target.kind === "ModelProperty") {
     const madeOptionalOn = getMadeOptionalOn(program, target);
