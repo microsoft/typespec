@@ -38,9 +38,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildPersistableModelCreateCoreMethod_DerivedType()
         {
-            var inputBase = new InputModelType("mockBaseModel", "mockNamespace", "public", null, null, InputModelTypeUsage.Input | InputModelTypeUsage.Output, [], null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, []);
+            var inputBase = new InputModelType("mockBaseModel", "mockNamespace", "public", null, null, InputModelTypeUsage.Input | InputModelTypeUsage.Output, [], null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
             var inputDerived = new InputModelType("mockDerivedModel", "mockNamespace", "public", null, null, InputModelTypeUsage.Input | InputModelTypeUsage.Output,
-                [], inputBase, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, []);
+                [], inputBase, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
             ((List<InputModelType>)inputBase.DerivedModels).Add(inputDerived);
             var (baseModel, baseSerialization) = MrwSerializationTypeDefinitionTests.CreateModelAndSerialization(inputBase);
             var (derivedModel, derivedSerialization) = MrwSerializationTypeDefinitionTests.CreateModelAndSerialization(inputDerived);

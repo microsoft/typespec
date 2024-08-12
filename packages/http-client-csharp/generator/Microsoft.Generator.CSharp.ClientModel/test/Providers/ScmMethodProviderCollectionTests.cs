@@ -17,7 +17,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [TestCaseSource(nameof(DefaultCSharpMethodCollectionTestCases))]
         public void TestDefaultCSharpMethodCollection(InputOperation inputOperation)
         {
-            var inputClient = new InputClient("TestClient", "TestClient description", [inputOperation], [], null, []);
+            var inputClient = new InputClient("TestClient", "TestClient description", [inputOperation], [], null);
 
             MockHelpers.LoadMockPlugin(
                 createCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)),
@@ -65,8 +65,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
                             false,
                             false,
                             null,
-                            null,
-                            [])
+                            null)
                     ],
                     responses: [new OperationResponse([200], null, BodyMediaType.Json, [], false, ["application/json"])],
                     httpMethod: "GET",
@@ -80,8 +79,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
                     paging: null,
                     generateProtocolMethod: true,
                     generateConvenienceMethod: true,
-                    crossLanguageDefinitionId: "TestService.CreateMessage",
-                    decorators: []
+                    crossLanguageDefinitionId: "TestService.CreateMessage"
                 ));
             }
         }

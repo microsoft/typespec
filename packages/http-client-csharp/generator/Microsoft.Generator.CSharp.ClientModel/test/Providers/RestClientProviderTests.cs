@@ -104,7 +104,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             accessibility: null,
             parameters:
             [
-                new InputParameter("message", "message", "The message to create.", InputPrimitiveType.Boolean, RequestLocation.Body, null, InputOperationParameterKind.Method, true, false, false, false, false, false, false, null, null, [])
+                new InputParameter("message", "message", "The message to create.", InputPrimitiveType.Boolean, RequestLocation.Body, null, InputOperationParameterKind.Method, true, false, false, false, false, false, false, null, null)
             ],
             responses: [new OperationResponse([200], null, BodyMediaType.Json, [], false, ["application/json"])],
             httpMethod: "GET",
@@ -118,10 +118,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             paging: null,
             generateProtocolMethod: true,
             generateConvenienceMethod: true,
-            crossLanguageDefinitionId: "TestService.CreateMessage",
-            decorators: []);
+            crossLanguageDefinitionId: "TestService.CreateMessage");
 
-        private readonly static InputClient SingleOpInputClient = new InputClient("TestClient", "TestClient description", [BasicOperation], [], null, []);
+        private readonly static InputClient SingleOpInputClient = new InputClient("TestClient", "TestClient description", [BasicOperation], [], null);
 
         private static IEnumerable<TestCaseData> DefaultCSharpMethodCollectionTestCases =>
         [

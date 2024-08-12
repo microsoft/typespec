@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var inputModelProperty =
                 new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any, "foo", "bar"), true, true, false);
             var inputModel = new InputModelType("foo", "id", "desc", "internal", "description",
-                InputModelTypeUsage.Input, [inputModelProperty], null, [], null, null, new Dictionary<string, InputModelType>(), null, false, []);
+                InputModelTypeUsage.Input, [inputModelProperty], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(new InputNamespace(
                 "test library",
@@ -62,7 +62,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var inputModelProperty =
                 new InputModelProperty("prop1", "prop1", "string", inputEnum, true, true, false);
             var inputModel = new InputModelType("foo", "id", "desc", "internal", "description",
-                InputModelTypeUsage.Input, [inputModelProperty], null, [], null, null, new Dictionary<string, InputModelType>(), null, false, []);
+                InputModelTypeUsage.Input, [inputModelProperty], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(new InputNamespace(
                 "test library",
@@ -85,12 +85,12 @@ namespace Microsoft.Generator.CSharp.Tests
             var inputModel1Property =
                 new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any, "foo", "bar"), true, true, false);
             var inputModel1 = new InputModelType("Model1", "id", "desc", "internal", "description",
-                InputModelTypeUsage.Input, [inputModel1Property], null, [], null, null, new Dictionary<string, InputModelType>(), null, false, []);
+                InputModelTypeUsage.Input, [inputModel1Property], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
             var inputModel2Property = new InputModelProperty("prop2", "prop1", "string", inputModel1, true, true, false);
 
             var inputModel2 = new InputModelType("Model2", "id", "desc", "internal", "description",
-                InputModelTypeUsage.Input, [inputModel2Property], null, [], null, null, new Dictionary<string, InputModelType>(), null, false, []);
+                InputModelTypeUsage.Input, [inputModel2Property], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(new InputNamespace(
                 "test library",
@@ -111,12 +111,12 @@ namespace Microsoft.Generator.CSharp.Tests
             var inputModel1Property =
                 new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any, "foo", "bar"), true, true, false);
             var inputModel1 = new InputModelType("Model1", "id", "desc", "internal", "description",
-                InputModelTypeUsage.Input, [inputModel1Property], null, [], null, null, new Dictionary<string, InputModelType>(), null, false, []);
+                InputModelTypeUsage.Input, [inputModel1Property], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
             var inputModel2Property = new InputModelProperty("prop2", "prop1", "string", inputModel1, true, true, false);
 
             var inputModel2 = new InputModelType("Model2", "id", "desc", "internal", "description",
-                InputModelTypeUsage.Input, [inputModel2Property], null, [], null, null, new Dictionary<string, InputModelType>(), null, false, []);
+                InputModelTypeUsage.Input, [inputModel2Property], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(new InputNamespace(
                 "test library",

@@ -10,7 +10,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
     {
         public static readonly ClientProvider Empty = new TestClientTypeProvider();
 
-        public TestClientTypeProvider() : base(new InputClient("TestClient", "TestClient description", [], [], null, []))
+        public TestClientTypeProvider() : base(new InputClient("TestClient", "TestClient description", [], [], null))
         {
         }
     }

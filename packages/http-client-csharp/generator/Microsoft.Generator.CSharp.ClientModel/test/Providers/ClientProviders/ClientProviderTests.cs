@@ -21,9 +21,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
     {
         private const string SubClientsCategory = "WithSubClients";
         private const string TestClientName = "TestClient";
-        private static readonly InputClient _animalClient = new("animal", "AnimalClient description", [], [], TestClientName, []);
-        private static readonly InputClient _dogClient = new("dog", "DogClient description", [], [], _animalClient.Name, []);
-        private static readonly InputClient _huskyClient = new("husky", "HuskyClient description", [], [], _dogClient.Name, []);
+        private static readonly InputClient _animalClient = new("animal", "AnimalClient description", [], [], TestClientName);
+        private static readonly InputClient _dogClient = new("dog", "DogClient description", [], [], _animalClient.Name);
+        private static readonly InputClient _huskyClient = new("husky", "HuskyClient description", [], [], _dogClient.Name);
 
         [SetUp]
         public void SetUp()
@@ -46,7 +46,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [Test]
         public void TestBuildProperties()
         {
-            var client = new InputClient(TestClientName, "TestClient description", [], [], null, []);
+            var client = new InputClient(TestClientName, "TestClient description", [], [], null);
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
@@ -66,7 +66,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [TestCaseSource(nameof(BuildFieldsTestCases))]
         public void TestBuildFields(List<InputParameter> inputParameters, bool containsAdditionalOptionalParams)
         {
-            var client = new InputClient(TestClientName, "TestClient description", [], inputParameters, null, []);
+            var client = new InputClient(TestClientName, "TestClient description", [], inputParameters, null);
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
@@ -140,7 +140,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [TestCaseSource(nameof(BuildConstructorsTestCases))]
         public void TestBuildConstructors_PrimaryConstructor(List<InputParameter> inputParameters)
         {
-            var client = new InputClient(TestClientName, "TestClient description", [], inputParameters, null, []);
+            var client = new InputClient(TestClientName, "TestClient description", [], inputParameters, null);
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
@@ -156,7 +156,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [TestCaseSource(nameof(BuildConstructorsTestCases))]
         public void TestBuildConstructors_SecondaryConstructor(List<InputParameter> inputParameters)
         {
-            var client = new InputClient(TestClientName, "TestClient description", [], inputParameters, null, []);
+            var client = new InputClient(TestClientName, "TestClient description", [], inputParameters, null);
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
@@ -259,7 +259,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [TestCaseSource(nameof(EndpointParamInitializationValueTestCases))]
         public void EndpointInitializationValue(InputParameter endpointParameter, ValueExpression? expectedValue)
         {
-            var client = new InputClient(TestClientName, "TestClient description", [], [endpointParameter], null, []);
+            var client = new InputClient(TestClientName, "TestClient description", [], [endpointParameter], null);
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
@@ -286,7 +286,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 parentClientName = "parent";
             }
 
-            var client = new InputClient(TestClientName, "TestClient description", [], [], parentClientName, []);
+            var client = new InputClient(TestClientName, "TestClient description", [], [], parentClientName);
             var clientProvider = new ClientProvider(client);
 
             if (isSubClient)
@@ -348,7 +348,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         RequestLocation.None,
                         defaultValue: null,
                         InputOperationParameterKind.Client,
-                        isRequired: false, false, false, false, false, false, false, null, null, []),
+                        isRequired: false, false, false, false, false, false, false, null, null),
                     new(
                         KnownParameters.Endpoint.Name,
                         "endpoint description",
@@ -357,7 +357,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         RequestLocation.None,
                         defaultValue: null,
                         InputOperationParameterKind.Client,
-                        isRequired: false, false, false, false, isEndpoint: true, false, false, null, null, [])
+                        isRequired: false, false, false, false, isEndpoint: true, false, false, null, null)
                 }, false);
                 yield return new TestCaseData(new List<InputParameter>
                 {
@@ -369,7 +369,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         RequestLocation.None,
                         defaultValue: new InputConstant("someValue", InputPrimitiveType.String),
                         InputOperationParameterKind.Client,
-                        isRequired: false, false, false, false, false, false, false, null, null, []),
+                        isRequired: false, false, false, false, false, false, false, null, null),
                     new(
                         "optionalParam2",
                         "optionalParam description",
@@ -378,7 +378,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         RequestLocation.None,
                         defaultValue: new InputConstant("someValue", InputPrimitiveType.String),
                         InputOperationParameterKind.Client,
-                        isRequired: false, false, false, false, false, false, false, null, null, []),
+                        isRequired: false, false, false, false, false, false, false, null, null),
                     new(
                         "optionalParam3",
                         "optionalParam description",
@@ -387,7 +387,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         RequestLocation.None,
                         defaultValue: new InputConstant(2, InputPrimitiveType.Int64),
                         InputOperationParameterKind.Client,
-                        isRequired: false, false, false, false, false, false, false, null, null, []),
+                        isRequired: false, false, false, false, false, false, false, null, null),
                     new(
                         KnownParameters.Endpoint.Name,
                         "endpoint description",
@@ -396,7 +396,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         RequestLocation.None,
                         defaultValue: null,
                         InputOperationParameterKind.Client,
-                        isRequired: false, false, false, false, isEndpoint: true, false, false, null, null, [])
+                        isRequired: false, false, false, false, isEndpoint: true, false, false, null, null)
                 }, true);
             }
         }
@@ -426,7 +426,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         RequestLocation.None,
                         defaultValue: null,
                         InputOperationParameterKind.Client,
-                        isRequired: false, false, false, false, false, false, false, null, null, []),
+                        isRequired: false, false, false, false, false, false, false, null, null),
                     new(
                         KnownParameters.Endpoint.Name,
                         "endpoint description",
@@ -435,7 +435,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         RequestLocation.None,
                         defaultValue: new InputConstant("someValue", InputPrimitiveType.String),
                         InputOperationParameterKind.Client,
-                        isRequired: false, false, false, false, isEndpoint: true, false, false, null, null, [])
+                        isRequired: false, false, false, false, isEndpoint: true, false, false, null, null)
                 });
                 // scenario where endpoint is required
                 yield return new TestCaseData(new List<InputParameter>
@@ -448,7 +448,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         RequestLocation.None,
                         defaultValue: null,
                         InputOperationParameterKind.Client,
-                        isRequired: true, false, false, false, isEndpoint: true, false, false, null, null, []),
+                        isRequired: true, false, false, false, isEndpoint: true, false, false, null, null),
                     new(
                         "optionalParam",
                         "optionalParam description",
@@ -457,7 +457,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         RequestLocation.None,
                         defaultValue: null,
                         InputOperationParameterKind.Client,
-                        isRequired: false, false, false, false, false, false, false, null, null, [])
+                        isRequired: false, false, false, false, false, false, false, null, null)
                 });
             }
         }
@@ -474,7 +474,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                     RequestLocation.None,
                     defaultValue: new InputConstant("mockValue", InputPrimitiveType.String),
                     InputOperationParameterKind.Client,
-                    isRequired: false, false, false, false, true, false, false, null, null, []),
+                    isRequired: false, false, false, false, true, false, false, null, null),
                 New.Instance(KnownParameters.Endpoint.Type, Literal("mockvalue")));
         }
     }
