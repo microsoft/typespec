@@ -24,7 +24,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<CSharpType>? matchConditionsType = null,
             Func<CSharpType>? tokenCredentialType = null,
-            Func<InputParameter, ParameterProvider>? createParameter = null,
+            Func<InputParameter, ParameterProvider>? createParameterCore = null,
             Func<InputApiKeyAuth>? apiKeyAuth = null,
             Func<IReadOnlyList<string>>? apiVersions = null,
             Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
@@ -57,9 +57,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
                 mockTypeFactory.Setup(p => p.TokenCredentialType()).Returns(tokenCredentialType);
             }
 
-            if (createParameter is not null)
+            if (createParameterCore is not null)
             {
-                mockTypeFactory.Setup(p => p.CreateParameter(It.IsAny<InputParameter>())).Returns(createParameter);
+                mockTypeFactory.Protected().Setup<ParameterProvider>("CreateParameterCore", ItExpr.IsAny<InputParameter>()).Returns(createParameterCore);
             }
 
             if (createSerializationsCore is not null)

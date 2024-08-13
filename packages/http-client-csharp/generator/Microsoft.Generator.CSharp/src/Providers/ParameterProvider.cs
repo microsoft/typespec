@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public ParameterValidationType Validation { get; init; } = ParameterValidationType.None;
         public bool IsRef { get; }
         public bool IsOut { get; }
-        public IReadOnlyList<AttributeStatement> Attributes { get; } = [];
+        internal IReadOnlyList<AttributeStatement> Attributes { get; } = [];
         public WireInformation WireInfo { get; }
 
         /// <summary>

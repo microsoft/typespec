@@ -346,7 +346,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             //4 methods, sync / async + protocol / convenience
             Assert.AreEqual(4, methods.Count);
             //two methods need to have the query parameter as an enum
-            var convenienceMethods = methods.Where(m => m.Signature.Parameters.Any(p => p.Name == "queryParam" && p.Type.Name == "InputEnum"));
             Assert.AreEqual(2, methods.Where(m => m.Signature.Parameters.Any(p => p.Name == "queryParam" && p.Type.Name == "InputEnum")).Count());
             //two methods need to have the query parameter as an string
             Assert.AreEqual(2, methods.Where(m => m.Signature.Parameters.Any(p => p.Name == "queryParam" && p.Type.IsFrameworkType && p.Type.FrameworkType == typeof(string))).Count());
