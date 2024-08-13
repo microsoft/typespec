@@ -15,7 +15,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.MultiClient
         private const string MultiClient = "multi-client";
 
         [Test]
-        public void Client_Structure_mulitple_client_methods()
+        public void VerifyMethods()
         {
             /*cheeck methods in ClientAClient. */
             var methodsOfClientA = typeof(ClientAClient).GetMethods();
