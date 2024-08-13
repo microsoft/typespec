@@ -11,7 +11,7 @@ import { hideBin } from "yargs/helpers";
 const exec = promisify(execCallback);
 
 // Get the directory of the current file
-const PLUGIN_DIR = resolve(fileURLToPath(import.meta.url), "../../../");
+const PLUGIN_DIR = resolve(fileURLToPath(import.meta.url), "../../../../");
 const CADL_RANCH_DIR = resolve(PLUGIN_DIR, "node_modules/@azure-tools/cadl-ranch-specs/http");
 
 const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
