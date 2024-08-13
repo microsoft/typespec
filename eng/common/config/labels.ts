@@ -56,7 +56,7 @@ export const AreaLabels = defineLabels({
     description: "Issue for the Java client emitter: @typespec/http-client-java",
   },
   "emitter:client:python": {
-    color: "ffa3f8",
+    color: "e1b300",
     description: "Issue for the Python client emitter: @typespec/http-client-python",
   },
   "emitter:json-schema": {
