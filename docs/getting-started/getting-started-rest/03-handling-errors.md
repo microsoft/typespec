@@ -6,7 +6,7 @@ title: Handling Errors
 
 ## Introduction
 
-In this section, we'll focus on handling errors in your REST API. We'll define error models and demonstrate how to use union types for different response scenarios.
+In this section, we'll focus on handling errors in your REST API. We'll define error models and demonstrate how to add them as possible responses to your CRUD operations.
 
 ## Why Use Error Models?
 
@@ -16,7 +16,6 @@ Using error models instead of raw status codes offers several advantages:
 2. **Clarity**: Error models provide clear, structured information about the error, including error codes, messages, and additional details. This helps developers understand what went wrong and how to fix it.
 3. **Extensibility**: Error models can be extended to include additional information, such as error details, validation issues, or links to documentation. This makes it easier to provide comprehensive error information.
 4. **Documentation**: Error models improve the generated API documentation by clearly defining the structure of error responses. This helps API consumers understand the possible error responses and how to handle them.
-5. **Type Safety**: In strongly-typed languages, using error models can provide type safety, ensuring that error responses conform to the expected structure.
 
 ## Defining Error Models
 
