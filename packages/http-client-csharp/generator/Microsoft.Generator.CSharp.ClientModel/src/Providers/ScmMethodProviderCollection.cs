@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
+using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -21,7 +22,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     public class ScmMethodProviderCollection : MethodProviderCollection
     {
         private string _cleanOperationName;
-        private ParameterProvider? _bodyParameter;
         private readonly MethodProvider _createRequestMethod;
 
         private readonly string _createRequestMethodName;
@@ -75,13 +75,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             MethodBodyStatement[] methodBody;
             if (responseBodyType is null)
             {
-                methodBody = [Return(This.Invoke(protocolMethod.Signature, [.. ConvenienceMethodParameters, Null], isAsync))];
+                methodBody = [Return(This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters), Null], isAsync))];
             }
             else
             {
                 methodBody =
                 [
-                    Declare("result", This.Invoke(protocolMethod.Signature, [.. ConvenienceMethodParameters, Null], isAsync).As<ClientResult>(), out ScopedApi<ClientResult> result),
+                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters), Null], isAsync).As<ClientResult>(), out ScopedApi<ClientResult> result),
                     Return(Static<ClientResult>().Invoke(
                         nameof(ClientResult.FromValue),
                         [
@@ -96,38 +96,27 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return convenienceMethod;
         }
 
+        private IReadOnlyList<ValueExpression> GetParamConversions(IReadOnlyList<ParameterProvider> convenienceMethodParameters)
+        {
+            List<ValueExpression> conversions = new List<ValueExpression>();
+            foreach (var param in convenienceMethodParameters)
+            {
+                if (param.Type.IsEnum)
+                {
+                    conversions.Add(param.Type.ToSerial(param));
+                }
+                else
+                {
+                    conversions.Add(param);
+                }
+            }
+            return conversions;
+        }
+
         public IReadOnlyList<ParameterProvider> MethodParameters => _createRequestMethod.Signature.Parameters;
 
         private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
-        private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= GetConvenienceMethodParameters();
-
-        private IReadOnlyList<ParameterProvider> GetConvenienceMethodParameters()
-        {
-            // replace binary content with body parameter
-            // skip last param since its requestOptions
-            List<ParameterProvider> methodParameters = new(MethodParameters.Count - 1);
-            var bodyInputParameter = Operation.Parameters.FirstOrDefault(p => p.Kind == InputOperationParameterKind.Method && p.Location == RequestLocation.Body);
-            if (bodyInputParameter is null)
-                return [.. MethodParameters.Take(MethodParameters.Count - 1)];
-
-            _bodyParameter = ClientModelPlugin.Instance.TypeFactory.CreateParameter(bodyInputParameter);
-            if (_bodyParameter != null)
-            {
-                for (int i = 0; i < MethodParameters.Count - 1; i++)
-                {
-                    if (ReferenceEquals(MethodParameters[i], ScmKnownParameters.BinaryContent))
-                    {
-                        methodParameters.Add(_bodyParameter);
-                    }
-                    else
-                    {
-                        methodParameters.Add(MethodParameters[i]);
-                    }
-                }
-            }
-
-            return methodParameters;
-        }
+        private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(Operation);
 
         private MethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync)
         {
