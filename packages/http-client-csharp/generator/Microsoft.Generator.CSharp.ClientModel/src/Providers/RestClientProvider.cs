@@ -147,10 +147,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     .. AppendQueryParameters(uri, operation, paramMap),
                     request.Uri().Assign(uri.ToUri()).Terminate(),
                     .. AppendHeaderParameters(request, operation, paramMap),
+                    .. GetSetContent(request, signature.Parameters),
                     message.Apply(options).Terminate(),
                     Return(message)
                 ]),
                 this);
+        }
+
+        private IReadOnlyList<MethodBodyStatement> GetSetContent(ScopedApi<PipelineRequest> request, IReadOnlyList<ParameterProvider> parameters)
+        {
+            var contentParam = parameters.FirstOrDefault(p => ReferenceEquals(p, ScmKnownParameters.BinaryContent));
+            return contentParam is null ? [] : [request.SetContent(contentParam)];
         }
 
         private PropertyProvider GetClassifier(InputOperation operation)
