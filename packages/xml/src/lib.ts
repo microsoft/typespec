@@ -1,10 +1,6 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
-export const {
-  reportDiagnostic,
-  createStateSymbol,
-  stateKeys: XmlStateKeys,
-} = createTypeSpecLibrary({
+export const $lib = createTypeSpecLibrary({
   name: "@typespec/xml",
   diagnostics: {
     "ns-enum-not-declaration": {
@@ -48,3 +44,5 @@ export const {
     nsDeclaration: { description: "Mark an enum that declares Xml Namespaces" },
   },
 } as const);
+
+export const { reportDiagnostic, createStateSymbol, stateKeys: XmlStateKeys } = $lib;

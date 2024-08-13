@@ -1,5 +1,5 @@
 import { printIdentifier } from "@typespec/compiler";
-import { OpenAPI3Components, OpenAPI3Schema } from "../../../../types.js";
+import { OpenAPI3Components, OpenAPI3Schema, Refable } from "../../../../types.js";
 import {
   getArrayType,
   getIntegerType,
@@ -7,7 +7,13 @@ import {
   getRefName,
   getStringType,
 } from "../generators/generate-types.js";
-import { TypeSpecModel, TypeSpecModelProperty } from "../interfaces.js";
+import {
+  TypeSpecDataTypes,
+  TypeSpecEnum,
+  TypeSpecModel,
+  TypeSpecModelProperty,
+  TypeSpecUnion,
+} from "../interfaces.js";
 import { getDecoratorsForSchema } from "../utils/decorators.js";
 import { getScopeAndName } from "../utils/get-scope-and-name.js";
 
@@ -31,13 +37,81 @@ export function transformComponentSchemas(
 }
 
 function transformComponentSchema(
-  models: TypeSpecModel[],
+  types: TypeSpecDataTypes[],
   name: string,
   schema: OpenAPI3Schema
 ): void {
+  const kind = getTypeSpecKind(schema);
+  switch (kind) {
+    case "alias":
+      return populateAlias(types, name, schema);
+    case "enum":
+      return populateEnum(types, name, schema);
+    case "model":
+      return populateModel(types, name, schema);
+    case "union":
+      return populateUnion(types, name, schema);
+    case "scalar":
+      return populateScalar(types, name, schema);
+  }
+}
+
+function populateAlias(
+  types: TypeSpecDataTypes[],
+  name: string,
+  schema: Refable<OpenAPI3Schema>
+): void {
+  if (!("$ref" in schema)) {
+    return;
+  }
+
+  types.push({
+    kind: "alias",
+    ...getScopeAndName(name),
+    doc: schema.description,
+    ref: getRefName(schema.$ref),
+  });
+}
+
+function populateEnum(types: TypeSpecDataTypes[], name: string, schema: OpenAPI3Schema): void {
+  const tsEnum: TypeSpecEnum = {
+    kind: "enum",
+    ...getScopeAndName(name),
+    decorators: getDecoratorsForSchema(schema),
+    doc: schema.description,
+    schema,
+  };
+
+  types.push(tsEnum);
+}
+
+function populateScalar(types: TypeSpecDataTypes[], name: string, schema: OpenAPI3Schema): void {
+  types.push({
+    kind: "scalar",
+    ...getScopeAndName(name),
+    decorators: getDecoratorsForSchema(schema),
+    doc: schema.description,
+    schema,
+  });
+}
+
+function populateUnion(types: TypeSpecDataTypes[], name: string, schema: OpenAPI3Schema): void {
+  const union: TypeSpecUnion = {
+    kind: "union",
+    ...getScopeAndName(name),
+    decorators: getDecoratorsForSchema(schema),
+    doc: schema.description,
+    schema,
+  };
+
+  types.push(union);
+}
+
+function populateModel(types: TypeSpecDataTypes[], name: string, schema: OpenAPI3Schema): void {
   const extendsParent = getModelExtends(schema);
   const isParent = getModelIs(schema);
-  models.push({
+  types.push({
+    kind: "model",
     ...getScopeAndName(name),
     decorators: [...getDecoratorsForSchema(schema)],
     doc: schema.description,
@@ -107,4 +181,20 @@ function getModelPropertiesFromObjectSchema({
   }
 
   return modelProperties;
+}
+
+function getTypeSpecKind(schema: OpenAPI3Schema): TypeSpecDataTypes["kind"] {
+  if ("$ref" in schema) {
+    return "alias";
+  }
+
+  if (schema.enum && schema.type === "string" && !schema.nullable) {
+    return "enum";
+  } else if (schema.anyOf || schema.oneOf || schema.enum || schema.nullable) {
+    return "union";
+  } else if (schema.type === "object" || schema.type === "array" || schema.allOf) {
+    return "model";
+  }
+
+  return "scalar";
 }

@@ -11,12 +11,14 @@ import {
   HttpPartDecorator,
   HttpPartOptions,
   PlainDataDecorator,
+  TypeSpecHttpPrivateDecorators,
 } from "../generated-defs/TypeSpec.Http.Private.js";
 import { HttpStateKeys } from "./lib.js";
 
+/** @internal */
 export const namespace = "TypeSpec.Http.Private";
 
-export const $plainData: PlainDataDecorator = (context: DecoratorContext, entity: Model) => {
+const $plainData: PlainDataDecorator = (context: DecoratorContext, entity: Model) => {
   const { program } = context;
 
   const decoratorsToRemove = ["$header", "$body", "$query", "$path", "$statusCode"];
@@ -44,7 +46,7 @@ export const $plainData: PlainDataDecorator = (context: DecoratorContext, entity
   }
 };
 
-export const $httpFile: HttpFileDecorator = (context: DecoratorContext, target: Model) => {
+const $httpFile: HttpFileDecorator = (context: DecoratorContext, target: Model) => {
   context.program.stateSet(HttpStateKeys.file).add(target);
 };
 
@@ -92,12 +94,7 @@ export function getHttpFileModel(program: Program, type: Type): HttpFileModel | 
   return { contents, contentType, filename, type };
 }
 
-export const $httpPart: HttpPartDecorator = (
-  context: DecoratorContext,
-  target: Model,
-  type,
-  options
-) => {
+const $httpPart: HttpPartDecorator = (context: DecoratorContext, target: Model, type, options) => {
   context.program.stateMap(HttpStateKeys.httpPart).set(target, { type, options });
 };
 
@@ -110,3 +107,12 @@ export interface HttpPart {
 export function getHttpPart(program: Program, target: Type): HttpPart | undefined {
   return program.stateMap(HttpStateKeys.httpPart).get(target);
 }
+
+/** @internal */
+export const $decorators = {
+  "TypeSpec.Http.Private": {
+    httpFile: $httpFile,
+    httpPart: $httpPart,
+    plainData: $plainData,
+  } satisfies TypeSpecHttpPrivateDecorators,
+};
