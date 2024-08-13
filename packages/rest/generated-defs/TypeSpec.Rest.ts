@@ -215,3 +215,22 @@ export type CopyResourceKeyParametersDecorator = (
   target: Model,
   filter?: string
 ) => void;
+
+export type TypeSpecRestDecorators = {
+  autoRoute: AutoRouteDecorator;
+  segment: SegmentDecorator;
+  segmentOf: SegmentOfDecorator;
+  actionSeparator: ActionSeparatorDecorator;
+  resource: ResourceDecorator;
+  parentResource: ParentResourceDecorator;
+  readsResource: ReadsResourceDecorator;
+  createsResource: CreatesResourceDecorator;
+  createsOrReplacesResource: CreatesOrReplacesResourceDecorator;
+  createsOrUpdatesResource: CreatesOrUpdatesResourceDecorator;
+  updatesResource: UpdatesResourceDecorator;
+  deletesResource: DeletesResourceDecorator;
+  listsResource: ListsResourceDecorator;
+  action: ActionDecorator;
+  collectionAction: CollectionActionDecorator;
+  copyResourceKeyParameters: CopyResourceKeyParametersDecorator;
+};
