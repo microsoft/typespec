@@ -112,6 +112,13 @@ export function $onValidate(program: Program) {
         for (const sourceModel of op.parameters.sourceModels) {
           validateReference(program, op, sourceModel.model);
         }
+
+        for (const prop of op.parameters.properties.values()) {
+          // Validate op -> property have correct versioning
+          validateTargetVersionCompatible(program, op, prop, {
+            isTargetADependent: true,
+          });
+        }
       },
       interface: (iface) => {
         for (const source of iface.sourceInterfaces) {
