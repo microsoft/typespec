@@ -96,7 +96,7 @@ configuration:
               - labelAdded:
                   label: emitter:client:java
               - labelAdded:
-                    label: emitter:client:python
+                  label: emitter:client:python
               - labelAdded:
                   label: emitter:json-schema
               - labelAdded:
