@@ -16,6 +16,7 @@ if ($null -eq $filter -or $filter -eq "Unbranded-TypeSpec") {
     $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
 
     $unbrandedTypespecTestProject = Join-Path $testProjectsLocalDir "Unbranded-TypeSpec"
+    $unbrandedTypespecTestProject = $unbrandedTypespecTestProject.Replace("\", "/")  # replace \ with / for the path to avoid path-unix-style warning
 
     Invoke (Get-TspCommand "$unbrandedTypespecTestProject/Unbranded-TypeSpec.tsp" $unbrandedTypespecTestProject)
 
@@ -125,6 +126,7 @@ foreach ($directory in $directories) {
     $generationDir = $cadlRanchRoot
     foreach ($folder in $folders) {
         $generationDir = Join-Path $generationDir $folder
+        $generationDir = $generationDir.Replace("\", "/")  # replace \ with / for the path to avoid path-unix-style warning
     }
 
     #create the directory if it doesn't exist

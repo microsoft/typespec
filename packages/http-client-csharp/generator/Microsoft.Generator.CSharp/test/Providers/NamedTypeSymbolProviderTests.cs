@@ -119,6 +119,24 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             }
         }
 
+        [Test]
+        public void ValidateFields()
+        {
+            Dictionary<string, FieldProvider> fields = _namedTypeSymbolProvider.Fields.ToDictionary(p => p.Name);
+            Assert.AreEqual(_namedSymbol.Fields.Count, fields.Count);
+            foreach (var expected in _namedSymbol.Fields)
+            {
+                var actual = fields[expected.Name];
+
+                Assert.IsTrue(fields.ContainsKey(expected.Name));
+                Assert.AreEqual(expected.Modifiers, actual.Modifiers);
+                Assert.AreEqual(expected.Type, actual.Type);
+                Assert.AreEqual(expected.Name, actual.Name);
+                Assert.AreEqual($"{expected.Description}.", actual.Description!.ToString()); // the writer adds a period
+                Assert.AreEqual(expected.InitializationValue, actual.InitializationValue);
+            }
+        }
+
         private class NamedSymbol : TypeProvider
         {
             protected override string BuildRelativeFilePath() => ".";
@@ -126,6 +144,17 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             protected override string BuildName() => "NamedSymbol";
 
             protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
+
+            protected override FieldProvider[] BuildFields()
+            {
+                return
+                [
+                    new FieldProvider(FieldModifiers.Public, typeof(int), "IntProperty", $"PublicIntProperty property"),
+                    new FieldProvider(FieldModifiers.Private, typeof(string), "StringProperty", $"PrivateStringProperty property no setter"),
+                    new FieldProvider(FieldModifiers.Internal, typeof(double),  "DoubleProperty", $"InternalDoubleProperty property"),
+                    new FieldProvider(FieldModifiers.Public | FieldModifiers.Static, typeof(float),  "FloatProperty", $"PublicStaticFloatProperty property"),
+                ];
+            }
 
             protected override PropertyProvider[] BuildProperties()
             {
@@ -138,19 +167,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 ];
             }
 
-            protected override MethodProvider[] BuildMethods()
-            {
-                var intParam = new ParameterProvider("intParam", $"intParam", new CSharpType(typeof(int)));
-
-                return
-                [
-                    new MethodProvider(
-                        new MethodSignature("Method1", $"Description of method1", MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual, typeof(Task<int>), null, [intParam]),
-                        Throw(New.Instance(typeof(NotImplementedException))),
-                        this)
-                ];
-            }
-
             protected override ConstructorProvider[] BuildConstructors()
             {
                 var intParam = new ParameterProvider("intParam", $"intParam", new CSharpType(typeof(int)));
@@ -159,6 +175,19 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 [
                     new ConstructorProvider(
                         new ConstructorSignature(Type, $"Initializes a new instance of {Type}", MethodSignatureModifiers.Public, [intParam]),
+                        Throw(New.Instance(typeof(NotImplementedException))),
+                        this)
+                ];
+            }
+
+            protected override MethodProvider[] BuildMethods()
+            {
+                var intParam = new ParameterProvider("intParam", $"intParam", new CSharpType(typeof(int)));
+
+                return
+                [
+                    new MethodProvider(
+                        new MethodSignature("Method1", $"Description of method1", MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual, typeof(Task<int>), null, [intParam]),
                         Throw(New.Instance(typeof(NotImplementedException))),
                         this)
                 ];
