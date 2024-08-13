@@ -126,7 +126,6 @@ foreach ($directory in $directories) {
     $generationDir = $cadlRanchRoot
     foreach ($folder in $folders) {
         $generationDir = Join-Path $generationDir $folder
-        $generationDir = $generationDir.Replace("\", "/")  # replace \ with / for the path to avoid path-unix-style warning
     }
 
     #create the directory if it doesn't exist
