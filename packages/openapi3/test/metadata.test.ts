@@ -661,6 +661,7 @@ describe("openapi3: metadata", () => {
         "Parameters.q": {
           name: "q",
           in: "query",
+          explode: false,
           required: true,
           schema: { type: "string" },
         },
@@ -717,6 +718,7 @@ describe("openapi3: metadata", () => {
               name: "q",
               in: "query",
               required: true,
+              explode: false,
               schema: { type: "string" },
             },
             {
