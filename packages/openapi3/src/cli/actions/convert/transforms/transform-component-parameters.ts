@@ -37,6 +37,7 @@ function transformComponentParameter(
   let model = models.find((m) => m.name === modelName && scopesMatch(m.scope, scope));
   if (!model) {
     model = {
+      kind: "model",
       scope,
       name: modelName,
       decorators: [],

@@ -1,0 +1,28 @@
+parameters:
+  - name: Condition
+    type: string
+    default: true
+  - name: DependsOn
+    type: object
+    default: []
+
+stages:
+  - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
+    parameters:
+      StagePrefix: Java
+      BuildPrereleaseVersion: true
+      UseTypeSpecNext: false
+      Publish: "none"
+      PackagePath: /packages/http-client-java
+      EmitterPackageJsonPath: packages/http-client-java/package.json
+      Packages:
+        - name: typespec-http-client-java
+          file: typespec-http-client-java-*.tgz
+          type: npm
+      UnitTestArgs: -UnitTests
+      TestMatrix:
+        RegenCheck:
+          TestArguments: -GenerationChecks
+      Condition: ${{ parameters.Condition }}
+      DependsOn: ${{ parameters.DependsOn }}
+      LanguageShortName: "java"

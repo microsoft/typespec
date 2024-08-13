@@ -398,10 +398,9 @@ export function createServer(host: ServerHost): Server {
       const severity = convertSeverity(each.severity);
       const diagnostic = VSDiagnostic.create(range, each.message, severity, each.code, "TypeSpec");
 
-      const url = program.getDiagnosticUrl(each);
-      if (url) {
+      if (each.url) {
         diagnostic.codeDescription = {
-          href: url,
+          href: each.url,
         };
       }
       if (each.code === "deprecated") {
@@ -597,11 +596,28 @@ export function createServer(host: ServerHost): Server {
     if (document === undefined) {
       return [];
     }
-    const formattedText = await formatTypeSpec(document.getText(), {
+    const path = await fileService.fileURLToRealPath(params.textDocument.uri);
+    const prettierConfig = await resolvePrettierConfig(path);
+    const resolvedConfig = prettierConfig ?? {
       tabWidth: params.options.tabSize,
       useTabs: !params.options.insertSpaces,
+    };
+    log({
+      level: "info",
+      message: `Formatting TypeSpec document: ${JSON.stringify({ fileUri: params.textDocument.uri, vscodeOptions: params.options, prettierConfig, resolvedConfig }, null, 2)}`,
     });
+    const formattedText = await formatTypeSpec(document.getText(), resolvedConfig);
     return [minimalEdit(document, formattedText)];
+  }
+
+  async function resolvePrettierConfig(path: string) {
+    try {
+      // Resolve prettier if it is installed.
+      const prettier = await import("prettier");
+      return prettier.resolveConfig(path);
+    } catch (e) {
+      return null;
+    }
   }
 
   function minimalEdit(document: TextDocument, string1: string): TextEdit {

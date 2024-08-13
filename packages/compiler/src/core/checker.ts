@@ -2007,6 +2007,8 @@ export function createChecker(program: Program): Checker {
       }
     }
 
+    linkMapper(unionType, mapper);
+
     return unionType;
   }
 
@@ -2409,6 +2411,7 @@ export function createChecker(program: Program): Checker {
 
   function getParentNamespaceType(
     node:
+      | AliasStatementNode
       | ModelStatementNode
       | ScalarStatementNode
       | NamespaceStatementNode
@@ -2432,6 +2435,7 @@ export function createChecker(program: Program): Checker {
       let parent: Node | undefined = node.parent;
       while (parent !== undefined) {
         if (
+          parent.kind === SyntaxKind.AliasStatement ||
           parent.kind === SyntaxKind.ModelStatement ||
           parent.kind === SyntaxKind.ScalarStatement ||
           parent.kind === SyntaxKind.OperationStatement ||
@@ -4008,6 +4012,7 @@ export function createChecker(program: Program): Checker {
       derivedModels: [],
       sourceModels: [],
     });
+    linkMapper(type, mapper);
     checkModelProperties(node, properties, type, mapper);
     return finishType(type);
   }

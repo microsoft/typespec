@@ -1,6 +1,7 @@
 import { Temporal } from "temporal-polyfill";
 import { ignoreDiagnostics } from "../core/diagnostics.js";
 import type { Program } from "../core/program.js";
+import { getProperty } from "../core/semantic-walker.js";
 import { isArrayModelType, isUnknownType } from "../core/type-utils.js";
 import {
   type ObjectValue,
@@ -55,7 +56,7 @@ export function serializeValueAsJson(
 function getPropertyOfType(type: Type, name: string): Type | undefined {
   switch (type.kind) {
     case "Model":
-      return type.properties.get(name) ?? type.indexer?.value;
+      return getProperty(type, name) ?? type.indexer?.value;
     case "Intrinsic":
       if (isUnknownType(type)) {
         return type;
