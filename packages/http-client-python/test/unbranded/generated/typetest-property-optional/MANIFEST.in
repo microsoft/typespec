@@ -1,7 +1,0 @@
-include *.md
-include LICENSE
-include typetest/property/optional/py.typed
-recursive-include tests *.py
-recursive-include samples *.py *.md
-include typetest/__init__.py
-include typetest/property/__init__.py

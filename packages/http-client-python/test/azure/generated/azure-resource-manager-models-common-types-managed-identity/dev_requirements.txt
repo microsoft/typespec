@@ -1,5 +1,0 @@
--e ../../../tools/azure-sdk-tools
-../../core/azure-core
-../../identity/azure-identity
-../../core/azure-mgmt-core
-aiohttp
