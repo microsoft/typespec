@@ -376,6 +376,7 @@ function validateVersionedNamespaceUsage(
       const sourceVersionedNamespace = source && findVersionedNamespace(program, source);
       if (
         targetVersionedNamespace !== undefined &&
+        !(source && (isSubNamespace(target, source) || isSubNamespace(source, target))) &&
         sourceVersionedNamespace !== targetVersionedNamespace &&
         dependencies?.get(targetVersionedNamespace) === undefined
       ) {
@@ -438,6 +439,19 @@ function validateVersionedPropertyNames(program: Program, source: Type) {
       }
     }
   }
+}
+
+function isSubNamespace(parent: Namespace, child: Namespace): boolean {
+  let current: Namespace | undefined = child;
+
+  while (current && current.name !== "") {
+    if (current === parent) {
+      return true;
+    }
+    current = current.namespace;
+  }
+
+  return false;
 }
 
 function validateMadeOptional(program: Program, target: Type) {
