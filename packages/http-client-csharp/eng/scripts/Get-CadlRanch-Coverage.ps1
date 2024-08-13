@@ -24,7 +24,7 @@ foreach ($directory in $directories) {
         continue
     }
 
-    $outputDir = $directory.FullName.Substring(0, $directory.FullName.IndexOf("src") - 1)
+    $outputDir = $directory.FullName.Substring(0, $directory.FullName.IndexOf("src") - 1).Replace("\", "/") # replace \ with / for the path to avoid path-unix-style warning
     $subPath = $outputDir.Substring($cadlRanchRoot.Length + 1)
 
     Write-Host "Regenerating $subPath" -ForegroundColor Cyan

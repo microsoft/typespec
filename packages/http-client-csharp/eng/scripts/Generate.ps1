@@ -16,6 +16,7 @@ if ($null -eq $filter -or $filter -eq "Unbranded-TypeSpec") {
     $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
 
     $unbrandedTypespecTestProject = Join-Path $testProjectsLocalDir "Unbranded-TypeSpec"
+    $unbrandedTypespecTestProject = $unbrandedTypespecTestProject.Replace("\", "/")  # replace \ with / for the path to avoid path-unix-style warning
 
     Invoke (Get-TspCommand "$unbrandedTypespecTestProject/Unbranded-TypeSpec.tsp" $unbrandedTypespecTestProject)
 
@@ -46,7 +47,6 @@ function IsSpecDir {
 
 $failingSpecs = @(
     Join-Path 'http' 'special-words'
-    Join-Path 'http' 'client' 'naming'
     Join-Path 'http' 'client' 'structure' 'default'
     Join-Path 'http' 'client' 'structure' 'multi-client'
     Join-Path 'http' 'client' 'structure' 'renamed-operation'
@@ -126,6 +126,7 @@ foreach ($directory in $directories) {
     $generationDir = $cadlRanchRoot
     foreach ($folder in $folders) {
         $generationDir = Join-Path $generationDir $folder
+        $generationDir = $generationDir.Replace("\", "/")  # replace \ with / for the path to avoid path-unix-style warning
     }
 
     #create the directory if it doesn't exist
@@ -151,6 +152,7 @@ if ($null -eq $filter) {
     $mgcExe = "`$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     $sampleExe = "`$(SolutionDir)/../generator/artifacts/bin/SamplePlugin/Debug/net8.0/Microsoft.Generator.CSharp.exe"
     $unbrandedSpec = "TestProjects/Local/Unbranded-TypeSpec"
+    $unbrandedPluginSpec = "TestProjects/Plugin/Unbranded-TypeSpec"
 
     $launchSettings = @{}
     $launchSettings.Add("profiles", @{})
@@ -159,7 +161,7 @@ if ($null -eq $filter) {
     $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandName", "Executable")
     $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("executablePath", $mgcExe)
     $launchSettings["profiles"].Add("Debug-Plugin-Test-TypeSpec", @{})
-    $launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSpec -p SampleCodeModelPlugin")
+    $launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedPluginSpec -p SampleCodeModelPlugin")
     $launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("commandName", "Executable")
     $launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("executablePath", $sampleExe)
 

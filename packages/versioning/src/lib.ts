@@ -1,10 +1,6 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
-export const {
-  reportDiagnostic,
-  createStateSymbol,
-  stateKeys: VersioningStateKeys,
-} = createTypeSpecLibrary({
+export const $lib = createTypeSpecLibrary({
   name: "@typespec/versioning",
   diagnostics: {
     "versioned-dependency-tuple": {
@@ -121,3 +117,5 @@ export const {
     returnTypeChangedFrom: { description: "State for @returnTypeChangedFrom decorator" },
   },
 });
+
+export const { reportDiagnostic, createStateSymbol, stateKeys: VersioningStateKeys } = $lib;

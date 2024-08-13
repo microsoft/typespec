@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -32,7 +30,11 @@ namespace Microsoft.Generator.CSharp.ClientModel
             switch (inputType)
             {
                 case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
-                    return [new MrwSerializationTypeDefinition(inputModel, typeProvider)];
+                    if (typeProvider is ModelProvider modelProvider)
+                    {
+                        return [new MrwSerializationTypeDefinition(inputModel, modelProvider)];
+                    }
+                    return [];
                 case InputEnumType { IsExtensible: true } inputEnumType:
                     if (ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputEnumType)?.UnderlyingEnumType.Equals(typeof(string)) == true)
                     {
@@ -70,12 +72,12 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </returns>
         internal MethodProviderCollection? CreateMethods(InputOperation operation, TypeProvider enclosingType)
         {
-            var methods = new MethodProviderCollection(operation, enclosingType);
+            MethodProviderCollection? methods = new ScmMethodProviderCollection(operation, enclosingType);
             var visitors = ClientModelPlugin.Instance.Visitors;
 
             foreach (var visitor in visitors)
             {
-                if (visitor is ScmVisitor scmVisitor)
+                if (visitor is ScmLibraryVisitor scmVisitor)
                 {
                     methods = scmVisitor.Visit(operation, enclosingType, methods);
                 }

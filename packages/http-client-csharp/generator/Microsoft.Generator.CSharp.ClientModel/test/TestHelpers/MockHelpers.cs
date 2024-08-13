@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -23,15 +24,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<CSharpType>? matchConditionsType = null,
             Func<CSharpType>? tokenCredentialType = null,
-            Func<InputOperation, TypeProvider, MethodProviderCollection>? createMethods = null,
-            Func<InputParameter, ParameterProvider>? createParameter = null,
+            Func<InputParameter, ParameterProvider>? createParameterCore = null,
             Func<InputApiKeyAuth>? apiKeyAuth = null,
             Func<IReadOnlyList<string>>? apiVersions = null,
             Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
-            Func<InputLibrary>? createInputLibrary = null)
+            Func<IReadOnlyList<InputClient>>? clients = null,
+            Func<InputLibrary>? createInputLibrary = null,
+            Func<InputClient, ClientProvider>? createClientCore = null)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
             IReadOnlyList<InputEnumType> inputNsEnums = inputEnums?.Invoke() ?? [];
+            IReadOnlyList<InputClient> inputNsClients = clients?.Invoke() ?? [];
             InputAuth inputNsAuth = apiKeyAuth != null ? new InputAuth(apiKeyAuth(), null) : new InputAuth();
             var mockTypeFactory = new Mock<ScmTypeFactory>() { CallBase = true };
             var mockInputNs = new Mock<InputNamespace>(
@@ -39,7 +42,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
                 inputNsApiVersions,
                 inputNsEnums,
                 Array.Empty<InputModelType>(),
-                Array.Empty<InputClient>(),
+                inputNsClients,
                 inputNsAuth);
             var mockInputLibrary = new Mock<InputLibrary>(_configFilePath);
             mockInputLibrary.Setup(p => p.InputNamespace).Returns(mockInputNs.Object);
@@ -54,9 +57,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
                 mockTypeFactory.Setup(p => p.TokenCredentialType()).Returns(tokenCredentialType);
             }
 
-            if (createParameter is not null)
+            if (createParameterCore is not null)
             {
-                mockTypeFactory.Setup(p => p.CreateParameter(It.IsAny<InputParameter>())).Returns(createParameter);
+                mockTypeFactory.Protected().Setup<ParameterProvider>("CreateParameterCore", ItExpr.IsAny<InputParameter>()).Returns(createParameterCore);
             }
 
             if (createSerializationsCore is not null)
@@ -67,6 +70,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             if (createCSharpTypeCore is not null)
             {
                 mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(createCSharpTypeCore);
+            }
+
+            if ( createClientCore is not null)
+            {
+                mockTypeFactory.Protected().Setup<ClientProvider>("CreateClientCore", ItExpr.IsAny<InputClient>()).Returns(createClientCore);
             }
 
             // initialize the mock singleton instance of the plugin
@@ -88,6 +96,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
             codeModelInstance!.SetValue(null, mockPluginInstance.Object);
             clientModelInstance!.SetValue(null, mockPluginInstance.Object);
+            mockPluginInstance.Object.Configure();
             return mockPluginInstance;
         }
     }
