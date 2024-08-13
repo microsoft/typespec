@@ -53,7 +53,6 @@ export function fromSdkType(
     } as InputNullableType;
   }
   if (sdkType.kind === "model") return fromSdkModelType(sdkType, context, models, enums);
-  if (sdkType.kind === "endpoint") return fromSdkEndpointType();
   if (sdkType.kind === "enum") return fromSdkEnumType(sdkType, context, enums);
   if (sdkType.kind === "enumvalue")
     return fromSdkEnumValueTypeToConstantType(sdkType, context, enums, literalTypeContext);
@@ -69,6 +68,7 @@ export function fromSdkType(
   // TODO -- endpoint and credential are handled separately in emitter, since we have specific locations for them in input model.
   // We can handle unify the way we handle them in the future, probably by chaning the input model schema and do the conversion in generator.
   if (sdkType.kind === "credential") throw new Error("Credential type is not supported yet.");
+  if (sdkType.kind === "endpoint") throw new Error("Endpoint type is not supported yet.");
 
   return fromSdkBuiltInType(sdkType);
 }
@@ -379,13 +379,5 @@ function fromSdkArrayType(
     Name: arrayType.name,
     ValueType: fromSdkType(arrayType.valueType, context, models, enums),
     CrossLanguageDefinitionId: arrayType.crossLanguageDefinitionId,
-  };
-}
-
-function fromSdkEndpointType(): InputPrimitiveType {
-  return {
-    Kind: "string",
-    Name: "string",
-    CrossLanguageDefinitionId: "TypeSpec.string",
   };
 }
