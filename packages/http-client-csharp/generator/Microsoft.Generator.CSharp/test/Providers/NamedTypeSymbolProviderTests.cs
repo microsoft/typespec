@@ -149,10 +149,10 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             {
                 return
                 [
-                    new FieldProvider(FieldModifiers.Public, typeof(int), "IntProperty", $"PublicIntProperty property"),
-                    new FieldProvider(FieldModifiers.Private, typeof(string), "StringProperty", $"PrivateStringProperty property no setter"),
-                    new FieldProvider(FieldModifiers.Internal, typeof(double),  "DoubleProperty", $"InternalDoubleProperty property"),
-                    new FieldProvider(FieldModifiers.Public | FieldModifiers.Static, typeof(float),  "FloatProperty", $"PublicStaticFloatProperty property"),
+                    new FieldProvider(FieldModifiers.Public, typeof(int), "IntField", $"PublicIntField field"),
+                    new FieldProvider(FieldModifiers.Private, typeof(string), "StringField", $"PrivateStringField field no setter"),
+                    new FieldProvider(FieldModifiers.Internal, typeof(double),  "DoubleField", $"InternalDoubleField field"),
+                    new FieldProvider(FieldModifiers.Public | FieldModifiers.Static, typeof(float),  "FloatField", $"PublicStaticFloatField field"),
                 ];
             }
 
@@ -206,7 +206,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             protected override string BuildRelativeFilePath() => ".";
 
-            protected override string BuildName()  => "PropertyType";
+            protected override string BuildName() => "PropertyType";
         }
 
         private static SyntaxTree GetTree(TypeProvider provider)
