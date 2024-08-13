@@ -598,6 +598,17 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
+    it("emit diagnostic when using versioned union variant of array in non versioned source", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model Versioned {}
+        op test(): Versioned[] | string;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+      });
+    });
+
     it("emit diagnostic when using versioned tuple element in nin versioned operation return type", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
