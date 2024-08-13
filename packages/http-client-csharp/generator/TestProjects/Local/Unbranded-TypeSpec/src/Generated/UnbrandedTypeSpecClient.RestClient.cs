@@ -56,6 +56,7 @@ namespace UnbrandedTypeSpec
             request.Headers.Set("p1", p1);
             request.Headers.Set("Content-Type", "text/plain");
             request.Headers.Set("Accept", "application/json");
+            request.Content = content;
             message.Apply(options);
             return message;
         }
@@ -74,6 +75,7 @@ namespace UnbrandedTypeSpec
             request.Headers.Set("p1", p1);
             request.Headers.Set("Content-Type", "application/json");
             request.Headers.Set("Accept", "application/json");
+            request.Content = content;
             message.Apply(options);
             return message;
         }
@@ -105,6 +107,7 @@ namespace UnbrandedTypeSpec
             request.Uri = uri.ToUri();
             request.Headers.Set("Content-Type", "application/json");
             request.Headers.Set("Accept", "application/json");
+            request.Content = content;
             message.Apply(options);
             return message;
         }
@@ -170,6 +173,7 @@ namespace UnbrandedTypeSpec
             request.Uri = uri.ToUri();
             request.Headers.Set("Content-Type", "application/json");
             request.Headers.Set("Accept", "application/json");
+            request.Content = content;
             message.Apply(options);
             return message;
         }
@@ -279,6 +283,7 @@ namespace UnbrandedTypeSpec
             request.Uri = uri.ToUri();
             request.Headers.Set("Content-Type", "application/json");
             request.Headers.Set("Accept", "application/json");
+            request.Content = content;
             message.Apply(options);
             return message;
         }
