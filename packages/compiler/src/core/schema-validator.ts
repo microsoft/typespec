@@ -22,9 +22,9 @@ function absolutePathStatus(path: string): "valid" | "not-absolute" | "windows-s
   if (path.startsWith(".") || !isPathAbsolute(path)) {
     return "not-absolute";
   }
-  if (path.includes("\\")) {
-    return "windows-style";
-  }
+  // if (path.includes("\\")) {
+  //   return "windows-style";
+  // }
   return "valid";
 }
 
@@ -75,20 +75,11 @@ function ajvErrorToDiagnostic(
   const tspTarget = resolveTarget(error, target);
   if (error.params.format === "absolute-path") {
     const value = getErrorValue(obj, error) as any;
-    const status = absolutePathStatus(value);
-    if (status === "windows-style") {
-      return createDiagnostic({
-        code: "path-unix-style",
-        format: { path: value },
-        target: tspTarget,
-      });
-    } else {
-      return createDiagnostic({
-        code: "config-path-absolute",
-        format: { path: value },
-        target: tspTarget,
-      });
-    }
+    return createDiagnostic({
+      code: "config-path-absolute",
+      format: { path: value },
+      target: tspTarget,
+    });
   }
 
   const messageLines = [`Schema violation: ${error.message} (${error.instancePath || "/"})`];

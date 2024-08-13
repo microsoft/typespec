@@ -118,7 +118,8 @@ describe("compiler: emitter options", () => {
       });
     });
 
-    it("emit diagnostic if passing windows style path", async () => {
+    // This was disabled due to making it impossible to use windows path via the cli https://github.com/microsoft/typespec/pull/4173
+    it.skip("emit diagnostic if passing windows style path", async () => {
       const diagnostics = await diagnoseEmitterOptions({
         "asset-dir": "C:\\abc\\def",
       });
