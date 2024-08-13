@@ -31,18 +31,32 @@ describe("query parameters", () => {
     strictEqual(param.name, "$select");
   });
 
-  describe("set explode: true", () => {
+  describe("doesn't set explode if explode: true (Openapi3.0 inverse default)", () => {
     it("with option", async () => {
       const param = await getQueryParam(`op test(@query(#{explode: true}) myParam: string): void;`);
-      expect(param).toMatchObject({
-        explode: true,
-      });
+      expect(param).not.toHaveProperty("explode");
     });
 
     it("with uri template", async () => {
       const param = await getQueryParam(`@route("{?myParam*}") op test(myParam: string): void;`);
+      expect(param).not.toHaveProperty("explode");
+    });
+  });
+
+  describe("set explode: false if explode is not set", () => {
+    it("with option", async () => {
+      const param = await getQueryParam(
+        `op test(@query(#{explode: false}) myParam: string): void;`
+      );
       expect(param).toMatchObject({
-        explode: true,
+        explode: false,
+      });
+    });
+
+    it("with uri template", async () => {
+      const param = await getQueryParam(`@route("{?myParam}") op test(myParam: string): void;`);
+      expect(param).toMatchObject({
+        explode: false,
       });
     });
   });
@@ -66,7 +80,6 @@ describe("query parameters", () => {
       in: "query",
       name: "$multi",
       required: true,
-      explode: true,
       schema: {
         type: "array",
         items: {
@@ -77,6 +90,7 @@ describe("query parameters", () => {
     deepStrictEqual(params[1], {
       in: "query",
       name: "$csv",
+      explode: false,
       schema: {
         type: "array",
         items: {
@@ -134,6 +148,7 @@ describe("query parameters", () => {
     deepStrictEqual(res.paths["/"].get.parameters[0], {
       in: "query",
       name: "id",
+      explode: false,
       required: true,
       schema: {
         type: "string",
