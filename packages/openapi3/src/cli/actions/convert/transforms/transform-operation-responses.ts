@@ -58,6 +58,7 @@ export function collectOperationResponses(
     if (!response.content) {
       // This is common when there is no actual request body, just a statusCode, e.g. for errors
       models.push({
+        kind: "model",
         scope: scopeAndName.scope,
         name: generateResponseModelName(scopeAndName.rawName, statusCode),
         decorators,
@@ -91,6 +92,7 @@ export function collectOperationResponses(
         }
 
         models.push({
+          kind: "model",
           scope: scopeAndName.scope,
           name: generateResponseModelName(scopeAndName.rawName, statusCode, contentType),
           decorators,
