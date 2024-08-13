@@ -19,7 +19,6 @@ import { InputOperationParameterKind } from "../type/input-operation-parameter-k
 import { InputParameter } from "../type/input-parameter.js";
 import { InputEnumType, InputModelType, InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
-import { fromSdkType } from "./converter.js";
 import { Logger } from "./logger.js";
 import { navigateModels } from "./model.js";
 import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
@@ -154,7 +153,11 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
             Name: "url",
             CrossLanguageDefinitionId: "TypeSpec.url",
           }
-        : fromSdkType(parameter.type, sdkContext, modelMap, enumMap);
+        : {
+            Kind: "string",
+            Name: "string",
+            CrossLanguageDefinitionId: "TypeSpec.string",
+          };
       parameters.push({
         Name: parameter.name,
         NameInRequest: parameter.serializedName,
