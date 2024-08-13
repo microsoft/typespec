@@ -94,4 +94,17 @@ describe("openapi3: info", () => {
       },
     });
   });
+
+  it("set the service description with /** */ Doc comments", async () => {
+    const res = await openApiFor(
+      `
+      /**
+       * My service description
+      */
+      @service
+      namespace Foo;
+      `
+    );
+    strictEqual(res.info.description, "My service description");
+  });
 });
