@@ -16,6 +16,7 @@ if ($null -eq $filter -or $filter -eq "Unbranded-TypeSpec") {
     $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
 
     $unbrandedTypespecTestProject = Join-Path $testProjectsLocalDir "Unbranded-TypeSpec"
+    $unbrandedTypespecTestProject = $unbrandedTypespecTestProject.Replace("\", "/")  # replace \ with / for the path to avoid path-unix-style warning
 
     Invoke (Get-TspCommand "$unbrandedTypespecTestProject/Unbranded-TypeSpec.tsp" $unbrandedTypespecTestProject)
 
@@ -46,7 +47,6 @@ function IsSpecDir {
 
 $failingSpecs = @(
     Join-Path 'http' 'special-words'
-    Join-Path 'http' 'client' 'naming'
     Join-Path 'http' 'client' 'structure' 'default'
     Join-Path 'http' 'client' 'structure' 'multi-client'
     Join-Path 'http' 'client' 'structure' 'renamed-operation'

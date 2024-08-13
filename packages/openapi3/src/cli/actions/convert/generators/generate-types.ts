@@ -1,6 +1,7 @@
 import { printIdentifier } from "@typespec/compiler";
 import { OpenAPI3Schema, Refable } from "../../../../types.js";
 import { getDecoratorsForSchema } from "../utils/decorators.js";
+import { getScopeAndName } from "../utils/get-scope-and-name.js";
 import { generateDecorators } from "./generate-decorators.js";
 
 export function generateTypeFromSchema(schema: Refable<OpenAPI3Schema>): string {
@@ -10,6 +11,19 @@ export function generateTypeFromSchema(schema: Refable<OpenAPI3Schema>): string 
 function getTypeFromRefableSchema(schema: Refable<OpenAPI3Schema>): string {
   const hasRef = "$ref" in schema;
   return hasRef ? getRefName(schema.$ref) : getTypeFromSchema(schema);
+}
+
+export function getTypeSpecPrimitiveFromSchema(schema: OpenAPI3Schema): string | undefined {
+  if (schema.type === "boolean") {
+    return "boolean";
+  } else if (schema.type === "integer") {
+    return getIntegerType(schema);
+  } else if (schema.type === "number") {
+    return getNumberType(schema);
+  } else if (schema.type === "string") {
+    return getStringType(schema);
+  }
+  return;
 }
 
 function getTypeFromSchema(schema: OpenAPI3Schema): string {
@@ -47,8 +61,16 @@ function getTypeFromSchema(schema: OpenAPI3Schema): string {
 }
 
 export function getRefName(ref: string): string {
-  const name = ref.split("/").pop() ?? "";
-  return name.split(".").map(printIdentifier).join(".");
+  const { scope, name } = getRefScopeAndName(ref);
+  return [...scope, name].join(".");
+}
+
+export function getRefScopeAndName(ref: string): ReturnType<typeof getScopeAndName> {
+  const parts = ref.split("/");
+  const name = parts.pop() ?? "";
+  const scopeAndName = getScopeAndName(name);
+
+  return scopeAndName;
 }
 
 function getAnyOfType(schema: OpenAPI3Schema): string {
@@ -92,7 +114,7 @@ function getObjectType(schema: OpenAPI3Schema): string {
         .join("");
       const isOptional = !requiredProps.includes(name) ? "?" : "";
       props.push(
-        `${decorators}${name}${isOptional}: ${getTypeFromRefableSchema(schema.properties[name])}`
+        `${decorators}${printIdentifier(name)}${isOptional}: ${getTypeFromRefableSchema(schema.properties[name])}`
       );
     }
   }

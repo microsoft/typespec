@@ -14,15 +14,6 @@ namespace UnbrandedTypeSpec.Models
     /// <summary></summary>
     public partial class ProjectedNameModelRequest : IJsonModel<ProjectedNameModelRequest>
     {
-        /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
-
-        internal ProjectedNameModelRequest(string name, IDictionary<string, BinaryData> serializedAdditionalRawData)
-        {
-            Name = name;
-            _serializedAdditionalRawData = serializedAdditionalRawData;
-        }
-
         internal ProjectedNameModelRequest()
         {
         }

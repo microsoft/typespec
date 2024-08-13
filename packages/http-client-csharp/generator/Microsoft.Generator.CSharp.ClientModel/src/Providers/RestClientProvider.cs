@@ -128,7 +128,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 MethodSignatureModifiers.Internal,
                 typeof(PipelineMessage),
                 null,
-                [.. GetMethodParameters(operation), options]);
+                [.. GetMethodParameters(operation, true), options]);
             var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
 
             var classifier = GetClassifier(operation);
@@ -147,10 +147,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     .. AppendQueryParameters(uri, operation, paramMap),
                     request.Uri().Assign(uri.ToUri()).Terminate(),
                     .. AppendHeaderParameters(request, operation, paramMap),
+                    .. GetSetContent(request, signature.Parameters),
                     message.Apply(options).Terminate(),
                     Return(message)
                 ]),
                 this);
+        }
+
+        private IReadOnlyList<MethodBodyStatement> GetSetContent(ScopedApi<PipelineRequest> request, IReadOnlyList<ParameterProvider> parameters)
+        {
+            var contentParam = parameters.FirstOrDefault(p => ReferenceEquals(p, ScmKnownParameters.BinaryContent));
+            return contentParam is null ? [] : [request.SetContent(contentParam)];
         }
 
         private PropertyProvider GetClassifier(InputOperation operation)
@@ -283,7 +290,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return MethodCache[operation];
         }
 
-        private List<ParameterProvider> GetMethodParameters(InputOperation operation)
+        internal static List<ParameterProvider> GetMethodParameters(InputOperation operation, bool isProtocol = false)
         {
             List<ParameterProvider> methodParameters = new();
             foreach (InputParameter inputParam in operation.Parameters)
@@ -291,9 +298,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 if (inputParam.Kind != InputOperationParameterKind.Method)
                     continue;
 
-                ParameterProvider? parameter = inputParam.Location == RequestLocation.Body
-                    ? ScmKnownParameters.BinaryContent
-                    : ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam);
+                ParameterProvider? parameter = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam);
+
+                if (isProtocol)
+                {
+                    if (inputParam.Location == RequestLocation.Body)
+                    {
+                        parameter = ScmKnownParameters.BinaryContent;
+                    }
+                    else
+                    {
+                        parameter.Type = parameter.Type.IsEnum ? parameter.Type.UnderlyingEnumType : parameter.Type;
+                    }
+                }
+
                 if (parameter is not null)
                     methodParameters.Add(parameter);
             }

@@ -1,0 +1,2829 @@
+{
+ "$id": "1",
+ "Name": "Payload.Xml",
+ "ApiVersions": [],
+ "Enums": [],
+ "Models": [
+  {
+   "$id": "2",
+   "Kind": "model",
+   "Name": "ModelWithEncodedNames",
+   "CrossLanguageDefinitionId": "Payload.Xml.ModelWithEncodedNames",
+   "Usage": "Input,Output,Xml",
+   "Description": "Uses encodedName instead of Xml.Name which is functionally equivalent.",
+   "Decorators": [],
+   "Properties": [
+    {
+     "$id": "3",
+     "Name": "modelData",
+     "SerializedName": "modelData",
+     "Description": "",
+     "Type": {
+      "$id": "4",
+      "Kind": "model",
+      "Name": "SimpleModel",
+      "CrossLanguageDefinitionId": "Payload.Xml.SimpleModel",
+      "Usage": "Input,Output,Xml",
+      "Description": "Contains fields of primitive types.",
+      "Decorators": [],
+      "Properties": [
+       {
+        "$id": "5",
+        "Name": "name",
+        "SerializedName": "name",
+        "Description": "",
+        "Type": {
+         "$id": "6",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "7",
+        "Name": "age",
+        "SerializedName": "age",
+        "Description": "",
+        "Type": {
+         "$id": "8",
+         "Kind": "int32",
+         "Name": "int32",
+         "CrossLanguageDefinitionId": "TypeSpec.int32"
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       }
+      ]
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "9",
+     "Name": "colors",
+     "SerializedName": "colors",
+     "Description": "",
+     "Type": {
+      "$id": "10",
+      "Kind": "array",
+      "Name": "Array",
+      "ValueType": {
+       "$id": "11",
+       "Kind": "string",
+       "Name": "string",
+       "CrossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "CrossLanguageDefinitionId": "TypeSpec.Array"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$ref": "4"
+  },
+  {
+   "$id": "12",
+   "Kind": "model",
+   "Name": "ModelWithDictionary",
+   "CrossLanguageDefinitionId": "Payload.Xml.ModelWithDictionary",
+   "Usage": "Input,Output,Xml",
+   "Description": "Contains a dictionary of key value pairs.",
+   "Decorators": [],
+   "Properties": [
+    {
+     "$id": "13",
+     "Name": "metadata",
+     "SerializedName": "metadata",
+     "Description": "",
+     "Type": {
+      "$id": "14",
+      "Kind": "dict",
+      "KeyType": {
+       "$id": "15",
+       "Kind": "string",
+       "Name": "string",
+       "CrossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "ValueType": {
+       "$id": "16",
+       "Kind": "string",
+       "Name": "string",
+       "CrossLanguageDefinitionId": "TypeSpec.string"
+      }
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "17",
+   "Kind": "model",
+   "Name": "ModelWithText",
+   "CrossLanguageDefinitionId": "Payload.Xml.ModelWithText",
+   "Usage": "Input,Output,Xml",
+   "Description": "Contains an attribute and text.",
+   "Decorators": [],
+   "Properties": [
+    {
+     "$id": "18",
+     "Name": "language",
+     "SerializedName": "language",
+     "Description": "",
+     "Type": {
+      "$id": "19",
+      "Kind": "string",
+      "Name": "string",
+      "CrossLanguageDefinitionId": "TypeSpec.string"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "20",
+     "Name": "content",
+     "SerializedName": "content",
+     "Description": "",
+     "Type": {
+      "$id": "21",
+      "Kind": "string",
+      "Name": "string",
+      "CrossLanguageDefinitionId": "TypeSpec.string"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "22",
+   "Kind": "model",
+   "Name": "ModelWithEmptyArray",
+   "CrossLanguageDefinitionId": "Payload.Xml.ModelWithEmptyArray",
+   "Usage": "Input,Output,Xml",
+   "Description": "Contains an array of models that's supposed to be sent/received as an empty XML element.",
+   "Decorators": [],
+   "Properties": [
+    {
+     "$id": "23",
+     "Name": "items",
+     "SerializedName": "items",
+     "Description": "",
+     "Type": {
+      "$id": "24",
+      "Kind": "array",
+      "Name": "ArraySimpleModel",
+      "ValueType": {
+       "$ref": "4"
+      },
+      "CrossLanguageDefinitionId": "TypeSpec.Array"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "25",
+   "Kind": "model",
+   "Name": "ModelWithRenamedFields",
+   "CrossLanguageDefinitionId": "Payload.Xml.ModelWithRenamedFields",
+   "Usage": "Input,Output,Xml",
+   "Description": "Contains fields of the same type that have different XML representation.",
+   "Decorators": [
+    {
+     "$id": "26",
+     "name": "TypeSpec.Xml.@name",
+     "arguments": {
+      "$id": "27",
+      "name": "ModelWithRenamedFieldsSrc"
+     }
+    }
+   ],
+   "Properties": [
+    {
+     "$id": "28",
+     "Name": "inputData",
+     "SerializedName": "inputData",
+     "Description": "",
+     "Type": {
+      "$ref": "4"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "29",
+     "Name": "outputData",
+     "SerializedName": "outputData",
+     "Description": "",
+     "Type": {
+      "$ref": "4"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "30",
+   "Kind": "model",
+   "Name": "ModelWithRenamedArrays",
+   "CrossLanguageDefinitionId": "Payload.Xml.ModelWithRenamedArrays",
+   "Usage": "Input,Output,Xml",
+   "Description": "Contains fields of wrapped and unwrapped arrays of primitive types that have different XML representations.",
+   "Decorators": [],
+   "Properties": [
+    {
+     "$id": "31",
+     "Name": "colors",
+     "SerializedName": "colors",
+     "Description": "",
+     "Type": {
+      "$id": "32",
+      "Kind": "array",
+      "Name": "Array",
+      "ValueType": {
+       "$id": "33",
+       "Kind": "string",
+       "Name": "string",
+       "CrossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "CrossLanguageDefinitionId": "TypeSpec.Array"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "34",
+     "Name": "counts",
+     "SerializedName": "counts",
+     "Description": "",
+     "Type": {
+      "$id": "35",
+      "Kind": "array",
+      "Name": "Array",
+      "ValueType": {
+       "$id": "36",
+       "Kind": "int32",
+       "Name": "int32",
+       "CrossLanguageDefinitionId": "TypeSpec.int32"
+      },
+      "CrossLanguageDefinitionId": "TypeSpec.Array"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "37",
+   "Kind": "model",
+   "Name": "ModelWithUnwrappedArray",
+   "CrossLanguageDefinitionId": "Payload.Xml.ModelWithUnwrappedArray",
+   "Usage": "Input,Output,Xml",
+   "Description": "Contains fields of wrapped and unwrapped arrays of primitive types.",
+   "Decorators": [],
+   "Properties": [
+    {
+     "$id": "38",
+     "Name": "colors",
+     "SerializedName": "colors",
+     "Description": "",
+     "Type": {
+      "$id": "39",
+      "Kind": "array",
+      "Name": "Array",
+      "ValueType": {
+       "$id": "40",
+       "Kind": "string",
+       "Name": "string",
+       "CrossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "CrossLanguageDefinitionId": "TypeSpec.Array"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "41",
+     "Name": "counts",
+     "SerializedName": "counts",
+     "Description": "",
+     "Type": {
+      "$id": "42",
+      "Kind": "array",
+      "Name": "Array",
+      "ValueType": {
+       "$id": "43",
+       "Kind": "int32",
+       "Name": "int32",
+       "CrossLanguageDefinitionId": "TypeSpec.int32"
+      },
+      "CrossLanguageDefinitionId": "TypeSpec.Array"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "44",
+   "Kind": "model",
+   "Name": "ModelWithAttributes",
+   "CrossLanguageDefinitionId": "Payload.Xml.ModelWithAttributes",
+   "Usage": "Input,Output,Xml",
+   "Description": "Contains fields that are XML attributes.",
+   "Decorators": [],
+   "Properties": [
+    {
+     "$id": "45",
+     "Name": "id1",
+     "SerializedName": "id1",
+     "Description": "",
+     "Type": {
+      "$id": "46",
+      "Kind": "int32",
+      "Name": "int32",
+      "CrossLanguageDefinitionId": "TypeSpec.int32"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "47",
+     "Name": "id2",
+     "SerializedName": "id2",
+     "Description": "",
+     "Type": {
+      "$id": "48",
+      "Kind": "string",
+      "Name": "string",
+      "CrossLanguageDefinitionId": "TypeSpec.string"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "49",
+     "Name": "enabled",
+     "SerializedName": "enabled",
+     "Description": "",
+     "Type": {
+      "$id": "50",
+      "Kind": "boolean",
+      "Name": "boolean",
+      "CrossLanguageDefinitionId": "TypeSpec.boolean"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "51",
+   "Kind": "model",
+   "Name": "ModelWithOptionalField",
+   "CrossLanguageDefinitionId": "Payload.Xml.ModelWithOptionalField",
+   "Usage": "Input,Output,Xml",
+   "Description": "Contains an optional field.",
+   "Decorators": [],
+   "Properties": [
+    {
+     "$id": "52",
+     "Name": "item",
+     "SerializedName": "item",
+     "Description": "",
+     "Type": {
+      "$id": "53",
+      "Kind": "string",
+      "Name": "string",
+      "CrossLanguageDefinitionId": "TypeSpec.string"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "54",
+     "Name": "value",
+     "SerializedName": "value",
+     "Description": "",
+     "Type": {
+      "$id": "55",
+      "Kind": "int32",
+      "Name": "int32",
+      "CrossLanguageDefinitionId": "TypeSpec.int32"
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "56",
+   "Kind": "model",
+   "Name": "ModelWithArrayOfModel",
+   "CrossLanguageDefinitionId": "Payload.Xml.ModelWithArrayOfModel",
+   "Usage": "Input,Output,Xml",
+   "Description": "Contains an array of models.",
+   "Decorators": [],
+   "Properties": [
+    {
+     "$id": "57",
+     "Name": "items",
+     "SerializedName": "items",
+     "Description": "",
+     "Type": {
+      "$id": "58",
+      "Kind": "array",
+      "Name": "ArraySimpleModel",
+      "ValueType": {
+       "$ref": "4"
+      },
+      "CrossLanguageDefinitionId": "TypeSpec.Array"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "59",
+   "Kind": "model",
+   "Name": "ModelWithSimpleArrays",
+   "CrossLanguageDefinitionId": "Payload.Xml.ModelWithSimpleArrays",
+   "Usage": "Input,Output,Xml",
+   "Description": "Contains fields of arrays of primitive types.",
+   "Decorators": [],
+   "Properties": [
+    {
+     "$id": "60",
+     "Name": "colors",
+     "SerializedName": "colors",
+     "Description": "",
+     "Type": {
+      "$id": "61",
+      "Kind": "array",
+      "Name": "Array",
+      "ValueType": {
+       "$id": "62",
+       "Kind": "string",
+       "Name": "string",
+       "CrossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "CrossLanguageDefinitionId": "TypeSpec.Array"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "63",
+     "Name": "counts",
+     "SerializedName": "counts",
+     "Description": "",
+     "Type": {
+      "$id": "64",
+      "Kind": "array",
+      "Name": "Array",
+      "ValueType": {
+       "$id": "65",
+       "Kind": "int32",
+       "Name": "int32",
+       "CrossLanguageDefinitionId": "TypeSpec.int32"
+      },
+      "CrossLanguageDefinitionId": "TypeSpec.Array"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  }
+ ],
+ "Clients": [
+  {
+   "$id": "66",
+   "Name": "XmlClient",
+   "Description": "Sends and receives bodies in XML format.",
+   "Operations": [],
+   "Protocol": {
+    "$id": "67"
+   },
+   "Parameters": [
+    {
+     "$id": "68",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Type": {
+      "$id": "69",
+      "Kind": "url",
+      "Name": "url",
+      "CrossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "70",
+      "Type": {
+       "$id": "71",
+       "Kind": "string",
+       "Name": "string",
+       "CrossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
+    }
+   ]
+  },
+  {
+   "$id": "72",
+   "Name": "SimpleModelValue",
+   "Description": "Operations for the SimpleModel type.",
+   "Operations": [
+    {
+     "$id": "73",
+     "Name": "get",
+     "ResourceName": "SimpleModelValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "74",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "75",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "76",
+        "Type": {
+         "$id": "77",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "78",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "79",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "80",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "81",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "4"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [
+        {
+         "$id": "82",
+         "Name": "contentType",
+         "NameInResponse": "content-type",
+         "Type": {
+          "$id": "83",
+          "Kind": "constant",
+          "ValueType": {
+           "$id": "84",
+           "Kind": "string",
+           "Name": "string",
+           "CrossLanguageDefinitionId": "TypeSpec.string"
+          },
+          "Value": "application/xml"
+         }
+        }
+       ],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/xml"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/simpleModel",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.SimpleModelValue.get"
+    },
+    {
+     "$id": "85",
+     "Name": "put",
+     "ResourceName": "SimpleModelValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "74"
+      },
+      {
+       "$id": "86",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "87",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "88",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      },
+      {
+       "$id": "89",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Type": {
+        "$ref": "4"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "90",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/simpleModel",
+     "RequestMediaTypes": [
+      "application/xml"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.SimpleModelValue.put"
+    }
+   ],
+   "Protocol": {
+    "$id": "91"
+   },
+   "Parent": "XmlClient",
+   "Parameters": [
+    {
+     "$ref": "74"
+    }
+   ]
+  },
+  {
+   "$id": "92",
+   "Name": "ModelWithSimpleArraysValue",
+   "Description": "Operations for the ModelWithSimpleArrays type.",
+   "Operations": [
+    {
+     "$id": "93",
+     "Name": "get",
+     "ResourceName": "ModelWithSimpleArraysValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "94",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "95",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "96",
+        "Type": {
+         "$id": "97",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "98",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "99",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "100",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "101",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "59"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [
+        {
+         "$id": "102",
+         "Name": "contentType",
+         "NameInResponse": "content-type",
+         "Type": {
+          "$id": "103",
+          "Kind": "constant",
+          "ValueType": {
+           "$id": "104",
+           "Kind": "string",
+           "Name": "string",
+           "CrossLanguageDefinitionId": "TypeSpec.string"
+          },
+          "Value": "application/xml"
+         }
+        }
+       ],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/xml"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithSimpleArrays",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithSimpleArraysValue.get"
+    },
+    {
+     "$id": "105",
+     "Name": "put",
+     "ResourceName": "ModelWithSimpleArraysValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "94"
+      },
+      {
+       "$id": "106",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "107",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "108",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      },
+      {
+       "$id": "109",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Type": {
+        "$ref": "59"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "110",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithSimpleArrays",
+     "RequestMediaTypes": [
+      "application/xml"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithSimpleArraysValue.put"
+    }
+   ],
+   "Protocol": {
+    "$id": "111"
+   },
+   "Parent": "XmlClient",
+   "Parameters": [
+    {
+     "$ref": "94"
+    }
+   ]
+  },
+  {
+   "$id": "112",
+   "Name": "ModelWithArrayOfModelValue",
+   "Description": "Operations for the ModelWithArrayOfModel type.",
+   "Operations": [
+    {
+     "$id": "113",
+     "Name": "get",
+     "ResourceName": "ModelWithArrayOfModelValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "114",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "115",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "116",
+        "Type": {
+         "$id": "117",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "118",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "119",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "120",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "121",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "56"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [
+        {
+         "$id": "122",
+         "Name": "contentType",
+         "NameInResponse": "content-type",
+         "Type": {
+          "$id": "123",
+          "Kind": "constant",
+          "ValueType": {
+           "$id": "124",
+           "Kind": "string",
+           "Name": "string",
+           "CrossLanguageDefinitionId": "TypeSpec.string"
+          },
+          "Value": "application/xml"
+         }
+        }
+       ],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/xml"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithArrayOfModel",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithArrayOfModelValue.get"
+    },
+    {
+     "$id": "125",
+     "Name": "put",
+     "ResourceName": "ModelWithArrayOfModelValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "114"
+      },
+      {
+       "$id": "126",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "127",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "128",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      },
+      {
+       "$id": "129",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Type": {
+        "$ref": "56"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "130",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithArrayOfModel",
+     "RequestMediaTypes": [
+      "application/xml"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithArrayOfModelValue.put"
+    }
+   ],
+   "Protocol": {
+    "$id": "131"
+   },
+   "Parent": "XmlClient",
+   "Parameters": [
+    {
+     "$ref": "114"
+    }
+   ]
+  },
+  {
+   "$id": "132",
+   "Name": "ModelWithOptionalFieldValue",
+   "Description": "Operations for the ModelWithOptionalField type.",
+   "Operations": [
+    {
+     "$id": "133",
+     "Name": "get",
+     "ResourceName": "ModelWithOptionalFieldValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "134",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "135",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "136",
+        "Type": {
+         "$id": "137",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "138",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "139",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "140",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "141",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "51"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [
+        {
+         "$id": "142",
+         "Name": "contentType",
+         "NameInResponse": "content-type",
+         "Type": {
+          "$id": "143",
+          "Kind": "constant",
+          "ValueType": {
+           "$id": "144",
+           "Kind": "string",
+           "Name": "string",
+           "CrossLanguageDefinitionId": "TypeSpec.string"
+          },
+          "Value": "application/xml"
+         }
+        }
+       ],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/xml"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithOptionalField",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithOptionalFieldValue.get"
+    },
+    {
+     "$id": "145",
+     "Name": "put",
+     "ResourceName": "ModelWithOptionalFieldValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "134"
+      },
+      {
+       "$id": "146",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "147",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "148",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      },
+      {
+       "$id": "149",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Type": {
+        "$ref": "51"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "150",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithOptionalField",
+     "RequestMediaTypes": [
+      "application/xml"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithOptionalFieldValue.put"
+    }
+   ],
+   "Protocol": {
+    "$id": "151"
+   },
+   "Parent": "XmlClient",
+   "Parameters": [
+    {
+     "$ref": "134"
+    }
+   ]
+  },
+  {
+   "$id": "152",
+   "Name": "ModelWithAttributesValue",
+   "Description": "Operations for the ModelWithAttributes type.",
+   "Operations": [
+    {
+     "$id": "153",
+     "Name": "get",
+     "ResourceName": "ModelWithAttributesValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "154",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "155",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "156",
+        "Type": {
+         "$id": "157",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "158",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "159",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "160",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "161",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "44"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [
+        {
+         "$id": "162",
+         "Name": "contentType",
+         "NameInResponse": "content-type",
+         "Type": {
+          "$id": "163",
+          "Kind": "constant",
+          "ValueType": {
+           "$id": "164",
+           "Kind": "string",
+           "Name": "string",
+           "CrossLanguageDefinitionId": "TypeSpec.string"
+          },
+          "Value": "application/xml"
+         }
+        }
+       ],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/xml"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithAttributes",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithAttributesValue.get"
+    },
+    {
+     "$id": "165",
+     "Name": "put",
+     "ResourceName": "ModelWithAttributesValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "154"
+      },
+      {
+       "$id": "166",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "167",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "168",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      },
+      {
+       "$id": "169",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Type": {
+        "$ref": "44"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "170",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithAttributes",
+     "RequestMediaTypes": [
+      "application/xml"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithAttributesValue.put"
+    }
+   ],
+   "Protocol": {
+    "$id": "171"
+   },
+   "Parent": "XmlClient",
+   "Parameters": [
+    {
+     "$ref": "154"
+    }
+   ]
+  },
+  {
+   "$id": "172",
+   "Name": "ModelWithUnwrappedArrayValue",
+   "Description": "Operations for the ModelWithUnwrappedArray type.",
+   "Operations": [
+    {
+     "$id": "173",
+     "Name": "get",
+     "ResourceName": "ModelWithUnwrappedArrayValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "174",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "175",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "176",
+        "Type": {
+         "$id": "177",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "178",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "179",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "180",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "181",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "37"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [
+        {
+         "$id": "182",
+         "Name": "contentType",
+         "NameInResponse": "content-type",
+         "Type": {
+          "$id": "183",
+          "Kind": "constant",
+          "ValueType": {
+           "$id": "184",
+           "Kind": "string",
+           "Name": "string",
+           "CrossLanguageDefinitionId": "TypeSpec.string"
+          },
+          "Value": "application/xml"
+         }
+        }
+       ],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/xml"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithUnwrappedArray",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithUnwrappedArrayValue.get"
+    },
+    {
+     "$id": "185",
+     "Name": "put",
+     "ResourceName": "ModelWithUnwrappedArrayValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "174"
+      },
+      {
+       "$id": "186",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "187",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "188",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      },
+      {
+       "$id": "189",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Type": {
+        "$ref": "37"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "190",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithUnwrappedArray",
+     "RequestMediaTypes": [
+      "application/xml"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithUnwrappedArrayValue.put"
+    }
+   ],
+   "Protocol": {
+    "$id": "191"
+   },
+   "Parent": "XmlClient",
+   "Parameters": [
+    {
+     "$ref": "174"
+    }
+   ]
+  },
+  {
+   "$id": "192",
+   "Name": "ModelWithRenamedArraysValue",
+   "Description": "Operations for the ModelWithRenamedArrays type.",
+   "Operations": [
+    {
+     "$id": "193",
+     "Name": "get",
+     "ResourceName": "ModelWithRenamedArraysValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "194",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "195",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "196",
+        "Type": {
+         "$id": "197",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "198",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "199",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "200",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "201",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "30"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [
+        {
+         "$id": "202",
+         "Name": "contentType",
+         "NameInResponse": "content-type",
+         "Type": {
+          "$id": "203",
+          "Kind": "constant",
+          "ValueType": {
+           "$id": "204",
+           "Kind": "string",
+           "Name": "string",
+           "CrossLanguageDefinitionId": "TypeSpec.string"
+          },
+          "Value": "application/xml"
+         }
+        }
+       ],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/xml"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithRenamedArrays",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithRenamedArraysValue.get"
+    },
+    {
+     "$id": "205",
+     "Name": "put",
+     "ResourceName": "ModelWithRenamedArraysValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "194"
+      },
+      {
+       "$id": "206",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "207",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "208",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      },
+      {
+       "$id": "209",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Type": {
+        "$ref": "30"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "210",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithRenamedArrays",
+     "RequestMediaTypes": [
+      "application/xml"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithRenamedArraysValue.put"
+    }
+   ],
+   "Protocol": {
+    "$id": "211"
+   },
+   "Parent": "XmlClient",
+   "Parameters": [
+    {
+     "$ref": "194"
+    }
+   ]
+  },
+  {
+   "$id": "212",
+   "Name": "ModelWithRenamedFieldsValue",
+   "Description": "Operations for the ModelWithRenamedFields type.",
+   "Operations": [
+    {
+     "$id": "213",
+     "Name": "get",
+     "ResourceName": "ModelWithRenamedFieldsValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "214",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "215",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "216",
+        "Type": {
+         "$id": "217",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "218",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "219",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "220",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "221",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "25"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [
+        {
+         "$id": "222",
+         "Name": "contentType",
+         "NameInResponse": "content-type",
+         "Type": {
+          "$id": "223",
+          "Kind": "constant",
+          "ValueType": {
+           "$id": "224",
+           "Kind": "string",
+           "Name": "string",
+           "CrossLanguageDefinitionId": "TypeSpec.string"
+          },
+          "Value": "application/xml"
+         }
+        }
+       ],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/xml"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithRenamedFields",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithRenamedFieldsValue.get"
+    },
+    {
+     "$id": "225",
+     "Name": "put",
+     "ResourceName": "ModelWithRenamedFieldsValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "214"
+      },
+      {
+       "$id": "226",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "227",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "228",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      },
+      {
+       "$id": "229",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Type": {
+        "$ref": "25"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "230",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithRenamedFields",
+     "RequestMediaTypes": [
+      "application/xml"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithRenamedFieldsValue.put"
+    }
+   ],
+   "Protocol": {
+    "$id": "231"
+   },
+   "Parent": "XmlClient",
+   "Parameters": [
+    {
+     "$ref": "214"
+    }
+   ]
+  },
+  {
+   "$id": "232",
+   "Name": "ModelWithEmptyArrayValue",
+   "Description": "Operations for the ModelWithEmptyArray type.",
+   "Operations": [
+    {
+     "$id": "233",
+     "Name": "get",
+     "ResourceName": "ModelWithEmptyArrayValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "234",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "235",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "236",
+        "Type": {
+         "$id": "237",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "238",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "239",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "240",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "241",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "22"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [
+        {
+         "$id": "242",
+         "Name": "contentType",
+         "NameInResponse": "content-type",
+         "Type": {
+          "$id": "243",
+          "Kind": "constant",
+          "ValueType": {
+           "$id": "244",
+           "Kind": "string",
+           "Name": "string",
+           "CrossLanguageDefinitionId": "TypeSpec.string"
+          },
+          "Value": "application/xml"
+         }
+        }
+       ],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/xml"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithEmptyArray",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithEmptyArrayValue.get"
+    },
+    {
+     "$id": "245",
+     "Name": "put",
+     "ResourceName": "ModelWithEmptyArrayValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "234"
+      },
+      {
+       "$id": "246",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "247",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "248",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      },
+      {
+       "$id": "249",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Type": {
+        "$ref": "22"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "250",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithEmptyArray",
+     "RequestMediaTypes": [
+      "application/xml"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithEmptyArrayValue.put"
+    }
+   ],
+   "Protocol": {
+    "$id": "251"
+   },
+   "Parent": "XmlClient",
+   "Parameters": [
+    {
+     "$ref": "234"
+    }
+   ]
+  },
+  {
+   "$id": "252",
+   "Name": "ModelWithTextValue",
+   "Description": "Operations for the ModelWithText type.",
+   "Operations": [
+    {
+     "$id": "253",
+     "Name": "get",
+     "ResourceName": "ModelWithTextValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "254",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "255",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "256",
+        "Type": {
+         "$id": "257",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "258",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "259",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "260",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "261",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "17"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [
+        {
+         "$id": "262",
+         "Name": "contentType",
+         "NameInResponse": "content-type",
+         "Type": {
+          "$id": "263",
+          "Kind": "constant",
+          "ValueType": {
+           "$id": "264",
+           "Kind": "string",
+           "Name": "string",
+           "CrossLanguageDefinitionId": "TypeSpec.string"
+          },
+          "Value": "application/xml"
+         }
+        }
+       ],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/xml"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithText",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithTextValue.get"
+    },
+    {
+     "$id": "265",
+     "Name": "put",
+     "ResourceName": "ModelWithTextValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "254"
+      },
+      {
+       "$id": "266",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "267",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "268",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      },
+      {
+       "$id": "269",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Type": {
+        "$ref": "17"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "270",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithText",
+     "RequestMediaTypes": [
+      "application/xml"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithTextValue.put"
+    }
+   ],
+   "Protocol": {
+    "$id": "271"
+   },
+   "Parent": "XmlClient",
+   "Parameters": [
+    {
+     "$ref": "254"
+    }
+   ]
+  },
+  {
+   "$id": "272",
+   "Name": "ModelWithDictionaryValue",
+   "Description": "Operations for the ModelWithDictionary type.",
+   "Operations": [
+    {
+     "$id": "273",
+     "Name": "get",
+     "ResourceName": "ModelWithDictionaryValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "274",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "275",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "276",
+        "Type": {
+         "$id": "277",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "278",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "279",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "280",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "281",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "12"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [
+        {
+         "$id": "282",
+         "Name": "contentType",
+         "NameInResponse": "content-type",
+         "Type": {
+          "$id": "283",
+          "Kind": "constant",
+          "ValueType": {
+           "$id": "284",
+           "Kind": "string",
+           "Name": "string",
+           "CrossLanguageDefinitionId": "TypeSpec.string"
+          },
+          "Value": "application/xml"
+         }
+        }
+       ],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/xml"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithDictionary",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithDictionaryValue.get"
+    },
+    {
+     "$id": "285",
+     "Name": "put",
+     "ResourceName": "ModelWithDictionaryValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "274"
+      },
+      {
+       "$id": "286",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "287",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "288",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      },
+      {
+       "$id": "289",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Type": {
+        "$ref": "12"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "290",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithDictionary",
+     "RequestMediaTypes": [
+      "application/xml"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithDictionaryValue.put"
+    }
+   ],
+   "Protocol": {
+    "$id": "291"
+   },
+   "Parent": "XmlClient",
+   "Parameters": [
+    {
+     "$ref": "274"
+    }
+   ]
+  },
+  {
+   "$id": "292",
+   "Name": "ModelWithEncodedNamesValue",
+   "Description": "Operations for the ModelWithEncodedNames type.",
+   "Operations": [
+    {
+     "$id": "293",
+     "Name": "get",
+     "ResourceName": "ModelWithEncodedNamesValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "294",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "295",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "296",
+        "Type": {
+         "$id": "297",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "298",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "299",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "300",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "301",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "2"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [
+        {
+         "$id": "302",
+         "Name": "contentType",
+         "NameInResponse": "content-type",
+         "Type": {
+          "$id": "303",
+          "Kind": "constant",
+          "ValueType": {
+           "$id": "304",
+           "Kind": "string",
+           "Name": "string",
+           "CrossLanguageDefinitionId": "TypeSpec.string"
+          },
+          "Value": "application/xml"
+         }
+        }
+       ],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/xml"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithEncodedNames",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithEncodedNamesValue.get"
+    },
+    {
+     "$id": "305",
+     "Name": "put",
+     "ResourceName": "ModelWithEncodedNamesValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "294"
+      },
+      {
+       "$id": "306",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "307",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "308",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "application/xml"
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant"
+      },
+      {
+       "$id": "309",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Type": {
+        "$ref": "2"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "310",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
+     "Path": "/payload/xml/modelWithEncodedNames",
+     "RequestMediaTypes": [
+      "application/xml"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithEncodedNamesValue.put"
+    }
+   ],
+   "Protocol": {
+    "$id": "311"
+   },
+   "Parent": "XmlClient",
+   "Parameters": [
+    {
+     "$ref": "294"
+    }
+   ]
+  }
+ ]
+}

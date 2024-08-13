@@ -16,6 +16,7 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
   tspd: ["packages/tspd/"],
   "emitter:client:csharp": ["packages/http-client-csharp/"],
   "emitter:client:java": ["packages/http-client-java/"],
+  "emitter:client:python": ["packages/http-client-python/"],
   "emitter:json-schema": ["packages/json-schema/"],
   "emitter:protobuf": ["packages/protobuf/"],
   "emitter:openapi3": ["packages/openapi3/"],
@@ -39,6 +40,7 @@ const isolatedEmitters = ["eng/emitters/"];
 
 export const CIRules = {
   CSharp: [...all, ...isolatedEmitters, ...AreaPaths["emitter:client:csharp"], ".editorconfig"],
+  Java: [...all, ...isolatedEmitters, ...AreaPaths["emitter:client:java"], ".editorconfig"],
 
   Core: [
     "**/*",
@@ -48,6 +50,7 @@ export const CIRules = {
     "!esling.config.json", // Eslint is already run as its dedicated CI(via github action)
     ...ignore(isolatedEmitters),
     ...ignore(AreaPaths["emitter:client:csharp"]),
+    ...ignore(AreaPaths["emitter:client:java"]),
   ],
 };
 
