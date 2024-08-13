@@ -154,7 +154,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
             Name: "url",
             CrossLanguageDefinitionId: "TypeSpec.url",
           }
-        : fromSdkType(parameter.type, sdkContext, modelMap, enumMap);
+        : fromSdkType(parameter.type, sdkContext, modelMap, enumMap); // TODO: consolidate with converter.fromSdkEndpointType
       parameters.push({
         Name: parameter.name,
         NameInRequest: parameter.serializedName,
