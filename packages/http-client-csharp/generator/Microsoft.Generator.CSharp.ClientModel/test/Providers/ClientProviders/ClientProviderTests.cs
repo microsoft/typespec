@@ -334,6 +334,114 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
         }
 
+        [Test]
+        public void ValidateQueryParamDiff()
+        {
+            MockHelpers.LoadMockPlugin();
+
+            //protocol and convenience methods should have a different type for enum query parameters
+            var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
+            Assert.IsNotNull(clientProvider);
+            var methods = clientProvider.Methods;
+            //4 methods, sync / async + protocol / convenience
+            Assert.AreEqual(4, methods.Count);
+            //two methods need to have the query parameter as an enum
+            Assert.AreEqual(2, methods.Where(m => m.Signature.Parameters.Any(p => p.Name == "queryParam" && p.Type.Name == "InputEnum")).Count());
+            //two methods need to have the query parameter as an string
+            Assert.AreEqual(2, methods.Where(m => m.Signature.Parameters.Any(p => p.Name == "queryParam" && p.Type.IsFrameworkType && p.Type.FrameworkType == typeof(string))).Count());
+        }
+
+        [Test]
+        public void ValidateQueryParamWriterDiff()
+        {
+            MockHelpers.LoadMockPlugin(
+                createClientCore: (client) => new ValidateQueryParamDiffClientProvider(client));
+
+            var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
+
+            TypeProviderWriter writer = new(clientProvider);
+            var codeFile = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), codeFile.Content);
+        }
+
+        private static InputClient GetEnumQueryParamClient()
+            => new InputClient(
+                TestClientName,
+                "TestClient description",
+                [
+                    new InputOperation(
+                        "Operation",
+                        null,
+                        "Operation",
+                        null,
+                        "public",
+                        [
+                            new InputParameter(
+                                "queryParam",
+                                "queryParam",
+                                "queryParam",
+                                new InputEnumType(
+                                    "InputEnum",
+                                    "InputEnum",
+                                    "public",
+                                    null,
+                                    "InputEnum",
+                                    InputModelTypeUsage.Input,
+                                    new InputPrimitiveType(InputPrimitiveTypeKind.String, "string", "string", null, null),
+                                    [
+                                        new InputEnumTypeValue("value1", "value1", "value1"),
+                                        new InputEnumTypeValue("value2", "value2", "value2"),
+                                    ],
+                                    true),
+                                RequestLocation.Query,
+                                defaultValue: null,
+                                InputOperationParameterKind.Method,
+                                isRequired: false, false, false, false, false, false, false, null, null)
+                        ],
+                        [
+                            new OperationResponse(
+                                [200],
+                                null,
+                                BodyMediaType.None,
+                                [],
+                                false,
+                                [])
+                        ],
+                        "GET",
+                        BodyMediaType.None,
+                        "/foo",
+                        "/foo",
+                        null,
+                        null,
+                        true,
+                        null,
+                        null,
+                    true,
+                    true,
+                        "Operation")
+                ],
+                [],
+                null);
+
+        private class ValidateQueryParamDiffClientProvider : ClientProvider
+        {
+            public ValidateQueryParamDiffClientProvider(InputClient client)
+                : base(client)
+            {
+            }
+
+            protected override MethodProvider[] BuildMethods()
+            {
+                var method = base.BuildMethods().Where(m => m.Signature.Parameters.Any(p => p.Name == "queryParam" && p.Type.Name == "InputEnum" && !m.Signature.Name.EndsWith("Async"))).First();
+                method.Update(xmlDocProvider: new XmlDocProvider()); // null out the docs
+                return [method];
+            }
+
+            protected override FieldProvider[] BuildFields() => [];
+            protected override ConstructorProvider[] BuildConstructors() => [];
+            protected override PropertyProvider[] BuildProperties() => [];
+        }
+
         public static IEnumerable<TestCaseData> BuildFieldsTestCases
         {
             get
