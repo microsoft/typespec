@@ -459,6 +459,7 @@ paths:
           required: true
           schema:
             type: string
+          explode: false
       responses:
         '200':
           description: The request has succeeded.
