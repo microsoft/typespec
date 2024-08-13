@@ -30,7 +30,7 @@ jobs:
       - run: pnpm install
         name: Install dependencies
 
-      - run: npx chronus verify
+      - run: npx chronus verify --since ${{ github.event.pull_request.base.ref }}
         name: Check changelog
         if: |
           !startsWith(github.head_ref, 'publish/') &&
