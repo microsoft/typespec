@@ -1645,7 +1645,7 @@
      "$id": "227",
      "Name": "sayHi",
      "ResourceName": "UnbrandedTypeSpec",
-     "Description": "Return hi",
+     "Summary": "Return hi",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1776,7 +1776,7 @@
      "$id": "240",
      "Name": "helloAgain",
      "ResourceName": "UnbrandedTypeSpec",
-     "Description": "Return hi again",
+     "Summary": "Return hi again",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1913,7 +1913,7 @@
      "$id": "253",
      "Name": "noContentType",
      "ResourceName": "UnbrandedTypeSpec",
-     "Description": "Return hi again",
+     "Summary": "Return hi again",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2051,7 +2051,7 @@
      "$id": "266",
      "Name": "helloDemo2",
      "ResourceName": "UnbrandedTypeSpec",
-     "Description": "Return hi in demo2",
+     "Summary": "Return hi in demo2",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2111,7 +2111,7 @@
      "$id": "271",
      "Name": "createLiteral",
      "ResourceName": "UnbrandedTypeSpec",
-     "Description": "Create with literal value",
+     "Summary": "Create with literal value",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2213,7 +2213,7 @@
      "$id": "280",
      "Name": "helloLiteral",
      "ResourceName": "UnbrandedTypeSpec",
-     "Description": "Send literal parameters",
+     "Summary": "Send literal parameters",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2342,7 +2342,7 @@
      "$id": "294",
      "Name": "topAction",
      "ResourceName": "UnbrandedTypeSpec",
-     "Description": "top level method",
+     "Summary": "top level method",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2427,7 +2427,7 @@
      "$id": "302",
      "Name": "topAction2",
      "ResourceName": "UnbrandedTypeSpec",
-     "Description": "top level method2",
+     "Summary": "top level method2",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2487,7 +2487,7 @@
      "$id": "307",
      "Name": "patchAction",
      "ResourceName": "UnbrandedTypeSpec",
-     "Description": "top level patch",
+     "Summary": "top level patch",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2589,7 +2589,7 @@
      "$id": "316",
      "Name": "anonymousBody",
      "ResourceName": "UnbrandedTypeSpec",
-     "Description": "body parameter without body decorator",
+     "Summary": "body parameter without body decorator",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2691,7 +2691,7 @@
      "$id": "325",
      "Name": "friendlyModel",
      "ResourceName": "UnbrandedTypeSpec",
-     "Description": "Model can have its friendly name",
+     "Summary": "Model can have its friendly name",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2848,7 +2848,7 @@
      "$id": "339",
      "Name": "projectedNameModel",
      "ResourceName": "UnbrandedTypeSpec",
-     "Description": "Model can have its projected name",
+     "Summary": "Model can have its projected name",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2950,7 +2950,7 @@
      "$id": "348",
      "Name": "returnsAnonymousModel",
      "ResourceName": "UnbrandedTypeSpec",
-     "Description": "return anonymous model",
+     "Summary": "return anonymous model",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3010,7 +3010,7 @@
      "$id": "353",
      "Name": "getUnknownValue",
      "ResourceName": "UnbrandedTypeSpec",
-     "Description": "get extensible enum",
+     "Summary": "get extensible enum",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3080,7 +3080,7 @@
      "$id": "359",
      "Name": "internalProtocol",
      "ResourceName": "UnbrandedTypeSpec",
-     "Description": "When set protocol false and convenient true, then the protocol method should be internal",
+     "Summary": "When set protocol false and convenient true, then the protocol method should be internal",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3182,7 +3182,7 @@
      "$id": "368",
      "Name": "stillConvenient",
      "ResourceName": "UnbrandedTypeSpec",
-     "Description": "When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one",
+     "Summary": "When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3213,7 +3213,7 @@
      "$id": "370",
      "Name": "headAsBoolean",
      "ResourceName": "UnbrandedTypeSpec",
-     "Description": "head as boolean.",
+     "Summary": "head as boolean.",
      "Accessibility": "public",
      "Parameters": [
       {

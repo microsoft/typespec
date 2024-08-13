@@ -39,7 +39,7 @@
      "$id": "6",
      "Name": "valid",
      "ResourceName": "ApiKey",
-     "Description": "Check whether client is authenticated",
+     "Summary": "Check whether client is authenticated",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -97,7 +97,7 @@
      "$id": "12",
      "Name": "invalid",
      "ResourceName": "ApiKey",
-     "Description": "Check whether client is authenticated.",
+     "Summary": "Check whether client is authenticated.",
      "Accessibility": "public",
      "Parameters": [
       {
