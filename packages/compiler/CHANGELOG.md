@@ -1,5 +1,12 @@
 # Change Log - @typespec/compiler
 
+## 0.59.1
+
+### Bug Fixes
+
+- [#4173](https://github.com/microsoft/typespec/pull/4173) Fix: Revert `unix-style` warning that was preventing windows path via the CLI as well
+
+
 ## 0.59.0
 
 ### Bug Fixes
