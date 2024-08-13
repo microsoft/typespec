@@ -50,6 +50,12 @@ extends:
           DependsOn: InitStage
           Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunJava'])
 
+      # Run python stages if RunPython == true
+      - template: /packages/http-client-python/eng/pipeline/templates/ci-stages.yml
+        parameters:
+          DependsOn: InitStage
+          Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunPython'])
+
       # Run core stages if RunCore == true
       - template: /eng/tsp-core/pipelines/stages/ci-stages.yml
         parameters:

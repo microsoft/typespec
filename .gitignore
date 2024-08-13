@@ -208,3 +208,6 @@ BenchmarkDotnet.Artifacts/
 
 # java emitter
 !packages/http-client-java/package-lock.json
+
+# python emitter
+!packages/http-client-python/package-lock.json

@@ -12,6 +12,11 @@
 /packages/http-client-java/                  @srnagar @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
 
 ######################
+# Python
+######################
+/packages/http-client-python/                @iscai-msft @tadelesh @msyyc
+
+######################
 # Emiter Shared
 ######################
 /eng/emitters/                               @m-nash
