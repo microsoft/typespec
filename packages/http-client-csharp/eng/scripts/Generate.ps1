@@ -16,7 +16,7 @@ if ($null -eq $filter -or $filter -eq "Unbranded-TypeSpec") {
     $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
 
     $unbrandedTypespecTestProject = Join-Path $testProjectsLocalDir "Unbranded-TypeSpec"
-    $unbrandedTypespecTestProject = $unbrandedTypespecTestProject.Replace("\", "/")  # replace \ with / for the path to avoid path-unix-style warning
+    $unbrandedTypespecTestProject = $unbrandedTypespecTestProject
 
     Invoke (Get-TspCommand "$unbrandedTypespecTestProject/Unbranded-TypeSpec.tsp" $unbrandedTypespecTestProject)
 
