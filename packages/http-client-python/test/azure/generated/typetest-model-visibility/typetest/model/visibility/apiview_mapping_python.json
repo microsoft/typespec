@@ -1,0 +1,12 @@
+{
+  "CrossLanguagePackageId": "Type.Model.Visibility",
+  "CrossLanguageDefinitionId": {
+    "typetest.model.visibility.models.VisibilityModel": "Type.Model.Visibility.VisibilityModel",
+    "typetest.model.visibility.VisibilityClient.get_model": "getModel",
+    "typetest.model.visibility.VisibilityClient.head_model": "headModel",
+    "typetest.model.visibility.VisibilityClient.put_model": "putModel",
+    "typetest.model.visibility.VisibilityClient.patch_model": "patchModel",
+    "typetest.model.visibility.VisibilityClient.post_model": "postModel",
+    "typetest.model.visibility.VisibilityClient.delete_model": "deleteModel"
+  }
+}

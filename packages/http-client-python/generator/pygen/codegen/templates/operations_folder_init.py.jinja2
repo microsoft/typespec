@@ -1,0 +1,17 @@
+{% import 'operation_tools.jinja2' as op_tools %}
+{% import 'keywords.jinja2' as keywords %}
+{# actual template starts here #}
+# coding=utf-8
+{{ code_model.options['license_header'] }}
+
+{{ op_tools.serialize(operation_group_imports()) }}
+{{ keywords.patch_imports() }}
+__all__ = [
+    {% for client in clients %}
+        {% for operation_group in client.operation_groups %}
+    '{{ operation_group.class_name }}',
+        {% endfor %}
+    {% endfor %}
+]
+{{ keywords.extend_all }}
+_patch_sdk()

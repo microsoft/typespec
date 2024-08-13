@@ -1,0 +1,8 @@
+# coding=utf-8
+# pylint: disable=too-many-lines
+{{ code_model.options['license_header'] }}
+
+{{ imports }}
+{% for nu in code_model.named_unions %}
+{{nu.name}} = {{nu.type_definition()}}
+{% endfor %}

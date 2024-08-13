@@ -1,0 +1,28 @@
+{% import 'keywords.jinja2' as keywords with context %}
+{% import 'operation_tools.jinja2' as op_tools with context %}
+{{ request_builder_serializer.method_signature_and_response_type_annotation(request_builder) }}
+{% if code_model.options["builders_visibility"] == "public" %}
+    {{ op_tools.description(request_builder, request_builder_serializer) | indent }}
+{% endif %}
+{% if not request_builder.is_overload %}
+        {% if request_builder_serializer.pop_kwargs_from_signature(request_builder) %}
+    {{ op_tools.serialize(request_builder_serializer.pop_kwargs_from_signature(request_builder)) | indent }}
+        {%- endif -%}
+    {% if request_builder_serializer.declare_non_inputtable_headers_queries(request_builder) %}
+    {{ op_tools.serialize(request_builder_serializer.declare_non_inputtable_headers_queries(request_builder)) | indent }}
+        {% endif %}
+    # Construct URL
+    {{ request_builder_serializer.construct_url(request_builder) }}
+    {% if request_builder.parameters.path %}
+    {{ op_tools.serialize(request_builder_serializer.serialize_path(request_builder)) | indent }}
+    _url: str = _url.format(**path_format_arguments)  # type: ignore
+        {% endif %}
+
+        {% if request_builder.parameters.query %}
+    {{ op_tools.serialize(request_builder_serializer.serialize_query(request_builder)) | indent }}
+        {% endif %}
+        {% if request_builder.parameters.headers %}
+    {{ op_tools.serialize(request_builder_serializer.serialize_headers(request_builder)) | indent }}
+        {% endif %}
+    {{ op_tools.serialize(request_builder_serializer.create_http_request(request_builder)) | indent }}
+{% endif %}

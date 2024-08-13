@@ -1,0 +1,12 @@
+{
+  "CrossLanguagePackageId": "Client.Structure.Service",
+  "CrossLanguageDefinitionId": {
+    "client.structure.renamedoperation.models.ClientType": "Client.Structure.Service.ClientType",
+    "client.structure.renamedoperation.RenamedOperationClient.group.renamed_two": "renamedTwo",
+    "client.structure.renamedoperation.RenamedOperationClient.group.renamed_four": "renamedFour",
+    "client.structure.renamedoperation.RenamedOperationClient.group.renamed_six": "renamedSix",
+    "client.structure.renamedoperation.RenamedOperationClient.renamed_one": "renamedOne",
+    "client.structure.renamedoperation.RenamedOperationClient.renamed_three": "renamedThree",
+    "client.structure.renamedoperation.RenamedOperationClient.renamed_five": "renamedFive"
+  }
+}

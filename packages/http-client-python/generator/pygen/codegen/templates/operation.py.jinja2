@@ -1,0 +1,21 @@
+{% import 'keywords.jinja2' as keywords with context %}
+{% import 'operation_tools.jinja2' as op_tools %}
+{# actual template starts here #}
+{% if operation.overloads and operation.include_documentation %}
+{{ op_tools.generate_overloads(operation_serializer, operation) }}
+{% endif %}
+{{ operation_serializer.method_signature_and_response_type_annotation(operation) }}
+{% if operation.include_documentation %}
+    {{ op_tools.description(operation, operation_serializer) | indent }}{% endif %}
+    {% if not operation.abstract %}
+        {% if operation.deprecated %}
+    warnings.warn('Method {{operation.name}} is deprecated', DeprecationWarning)
+        {% endif %}
+    {{ op_tools.serialize(operation_serializer.error_map(operation)) | indent }}
+        {% if operation_serializer.pop_kwargs_from_signature(operation) %}
+    {{ op_tools.serialize(operation_serializer.pop_kwargs_from_signature(operation)) | indent }}
+        {% endif %}
+    {{ op_tools.serialize(operation_serializer.call_request_builder(operation)) | indent }}
+    {{ op_tools.serialize(operation_serializer.make_pipeline_call(operation)) | indent }}
+    {{ op_tools.serialize(operation_serializer.handle_response(operation)) | indent }}
+    {% endif %}

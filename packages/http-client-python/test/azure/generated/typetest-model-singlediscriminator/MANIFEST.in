@@ -1,0 +1,7 @@
+include *.md
+include LICENSE
+include typetest/model/singlediscriminator/py.typed
+recursive-include tests *.py
+recursive-include samples *.py *.md
+include typetest/__init__.py
+include typetest/model/__init__.py

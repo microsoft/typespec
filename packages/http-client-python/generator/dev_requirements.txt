@@ -1,0 +1,5 @@
+-e ./generator
+-r ../../../eng/requirements.txt
+-r ../../../eng/dev_requirements.txt
+ptvsd==4.3.2
+types-PyYAML==6.0.12.8

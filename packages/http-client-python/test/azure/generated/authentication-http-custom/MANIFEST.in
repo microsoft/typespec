@@ -1,0 +1,7 @@
+include *.md
+include LICENSE
+include authentication/http/custom/py.typed
+recursive-include tests *.py
+recursive-include samples *.py *.md
+include authentication/__init__.py
+include authentication/http/__init__.py

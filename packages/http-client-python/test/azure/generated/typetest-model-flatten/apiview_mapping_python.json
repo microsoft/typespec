@@ -1,0 +1,11 @@
+{
+  "CrossLanguagePackageId": "Type.Model.Flatten",
+  "CrossLanguageDefinitionId": {
+    "typetest.model.flatten.models.ChildFlattenModel": "Type.Model.Flatten.ChildFlattenModel",
+    "typetest.model.flatten.models.ChildModel": "Type.Model.Flatten.ChildModel",
+    "typetest.model.flatten.models.FlattenModel": "Type.Model.Flatten.FlattenModel",
+    "typetest.model.flatten.models.NestedFlattenModel": "Type.Model.Flatten.NestedFlattenModel",
+    "typetest.model.flatten.FlattenClient.put_flatten_model": "Type.Model.Flatten.putFlattenModel",
+    "typetest.model.flatten.FlattenClient.put_nested_flatten_model": "Type.Model.Flatten.putNestedFlattenModel"
+  }
+}

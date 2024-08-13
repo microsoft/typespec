@@ -1,0 +1,29 @@
+{
+  "CrossLanguagePackageId": "Encode.Datetime",
+  "CrossLanguageDefinitionId": {
+    "encode.datetime.models.DefaultDatetimeProperty": "Encode.Datetime.DefaultDatetimeProperty",
+    "encode.datetime.models.Rfc3339DatetimeProperty": "Encode.Datetime.Rfc3339DatetimeProperty",
+    "encode.datetime.models.Rfc7231DatetimeProperty": "Encode.Datetime.Rfc7231DatetimeProperty",
+    "encode.datetime.models.UnixTimestampArrayDatetimeProperty": "Encode.Datetime.UnixTimestampArrayDatetimeProperty",
+    "encode.datetime.models.UnixTimestampDatetimeProperty": "Encode.Datetime.UnixTimestampDatetimeProperty",
+    "encode.datetime.DatetimeClient.query.default": "default",
+    "encode.datetime.DatetimeClient.query.rfc3339": "rfc3339",
+    "encode.datetime.DatetimeClient.query.rfc7231": "rfc7231",
+    "encode.datetime.DatetimeClient.query.unix_timestamp": "unixTimestamp",
+    "encode.datetime.DatetimeClient.query.unix_timestamp_array": "unixTimestampArray",
+    "encode.datetime.DatetimeClient.property.default": "default",
+    "encode.datetime.DatetimeClient.property.rfc3339": "rfc3339",
+    "encode.datetime.DatetimeClient.property.rfc7231": "rfc7231",
+    "encode.datetime.DatetimeClient.property.unix_timestamp": "unixTimestamp",
+    "encode.datetime.DatetimeClient.property.unix_timestamp_array": "unixTimestampArray",
+    "encode.datetime.DatetimeClient.header.default": "default",
+    "encode.datetime.DatetimeClient.header.rfc3339": "rfc3339",
+    "encode.datetime.DatetimeClient.header.rfc7231": "rfc7231",
+    "encode.datetime.DatetimeClient.header.unix_timestamp": "unixTimestamp",
+    "encode.datetime.DatetimeClient.header.unix_timestamp_array": "unixTimestampArray",
+    "encode.datetime.DatetimeClient.response_header.default": "default",
+    "encode.datetime.DatetimeClient.response_header.rfc3339": "rfc3339",
+    "encode.datetime.DatetimeClient.response_header.rfc7231": "rfc7231",
+    "encode.datetime.DatetimeClient.response_header.unix_timestamp": "unixTimestamp"
+  }
+}

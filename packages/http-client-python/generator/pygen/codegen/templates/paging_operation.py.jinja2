@@ -1,0 +1,21 @@
+{% import 'operation_tools.jinja2' as op_tools with context %}
+{# actual template starts here #}
+{% if operation.overloads and operation.include_documentation %}
+{{ op_tools.generate_overloads(operation_serializer, operation) }}
+{% endif %}
+{{ operation_serializer.method_signature_and_response_type_annotation(operation) }}
+{% if operation.include_documentation %}
+    {{ op_tools.description(operation, operation_serializer) | indent }}{% endif %}
+    {% if not operation.abstract %}
+        {% if operation.deprecated %}
+    warnings.warn('Method {{operation.name}} is deprecated', DeprecationWarning)
+        {% endif %}
+        {% if operation_serializer.pop_kwargs_from_signature(operation) %}
+    {{ op_tools.serialize(operation_serializer.pop_kwargs_from_signature(operation)) | indent }}
+        {% endif %}
+    {{ op_tools.serialize(operation_serializer.set_up_params_for_pager(operation)) | indent }}
+
+    return {{ operation.get_pager(async_mode) }}(
+        get_next, extract_data
+    )
+    {% endif %}

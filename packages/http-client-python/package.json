@@ -1,0 +1,96 @@
+{
+  "name": "@azure-tools/typespec-python",
+  "version": "0.27.1",
+  "author": "Microsoft Corporation",
+  "description": "TypeSpec emitter for Python SDKs",
+  "homepage": "https://github.com/Azure/autorest.python",
+  "readme": "https://github.com/Azure/autorest.python/packages/typespec-python/README.md",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azure/autorest.python.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Azure/autorest.python/issues"
+  },
+  "keywords": [
+    "typespec"
+  ],
+  "type": "module",
+  "main": "dist/src/index.js",
+  "exports": {
+    ".": "./dist/src/index.js",
+    "./testing": "./dist/src/testing/index.js"
+  },
+  "tspMain": "dist/src/index.js",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "clean": "rimraf ./dist ./temp",
+    "build": "tsc -p .",
+    "watch": "tsc -p . --watch",
+    "test": "mocha",
+    "test-official": "c8 mocha --forbid-only",
+    "lint": "eslint . --ext .ts --max-warnings=0",
+    "lint:fix": "eslint . --fix --ext .ts",
+    "install": "node ./scripts/run-python3.cjs ./scripts/install.py",
+    "prepare": "node ./scripts/run-python3.cjs ./scripts/prepare.py",
+    "regenerate": "node ./dist/scripts/regenerate.js"
+  },
+  "files": [
+    "dist/**",
+    "!dist/test/**",
+    "generator/**",
+    "scripts/**"
+  ],
+  "peerDependencies": {
+    "@azure-tools/typespec-azure-core": ">=0.45.0 <1.0.0",
+    "@azure-tools/typespec-azure-resource-manager": ">=0.45.0 <1.0.0",
+    "@azure-tools/typespec-autorest": ">=0.45.0 <1.0.0",
+    "@azure-tools/typespec-client-generator-core": ">=0.45.1 <1.0.0",
+    "@azure-tools/typespec-azure-rulesets": ">=0.45.0 <3.0.0",
+    "@typespec/compiler": ">=0.59.0 <1.0.0",
+    "@typespec/http": ">=0.59.0 <1.0.0",
+    "@typespec/rest": ">=0.59.0 <1.0.0",
+    "@typespec/versioning": ">=0.59.0 <1.0.0",
+    "@typespec/openapi": ">=0.59.0 <1.0.0"
+  },
+  "dependenciesMeta": {
+    "@azure-tools/typespec-client-generator-core": {
+      "injected": true
+    }
+  },
+  "dependencies": {
+    "js-yaml": "~4.1.0",
+    "@typespec/openapi3": "~0.59.0",
+    "@autorest/system-requirements": "~1.0.2",
+    "fs-extra": "~11.2.0",
+    "semver": "~7.6.2"
+  },
+  "devDependencies": {
+    "@azure-tools/typespec-azure-resource-manager": "~0.45.0",
+    "@azure-tools/typespec-autorest": "~0.45.0",
+    "@azure-tools/cadl-ranch-expect": "~0.14.1",
+    "@azure-tools/cadl-ranch-specs": "~0.34.5",
+    "@types/js-yaml": "~4.0.5",
+    "@types/mocha": "~10.0.1",
+    "@types/node": "^18.16.3",
+    "@types/yargs": "17.0.32",
+    "@typespec/eslint-config-typespec": "~0.55.0",
+    "@typespec/openapi": "~0.59.0",
+    "c8": "~7.13.0",
+    "eslint": "^8.57.0",
+    "mocha": "~10.2.0",
+    "rimraf": "~5.0.0",
+    "typescript": "~5.1.3",
+    "@azure-tools/typespec-azure-core": "~0.45.0",
+    "@azure-tools/typespec-client-generator-core": "0.45.1",
+    "@typespec/compiler": "~0.59.0",
+    "@typespec/http": "~0.59.0",
+    "@typespec/rest": "~0.59.0",
+    "@typespec/versioning": "~0.59.0",
+    "@azure-tools/typespec-azure-rulesets": "0.45.0",
+    "yargs": "~17.2.1"
+  }
+}

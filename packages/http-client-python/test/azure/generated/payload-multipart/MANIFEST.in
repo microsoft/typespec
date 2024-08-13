@@ -1,0 +1,6 @@
+include *.md
+include LICENSE
+include payload/multipart/py.typed
+recursive-include tests *.py
+recursive-include samples *.py *.md
+include payload/__init__.py

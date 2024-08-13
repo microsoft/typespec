@@ -1,0 +1,23 @@
+{
+  "CrossLanguagePackageId": "Client.Naming",
+  "CrossLanguageDefinitionId": {
+    "client.naming.models.ClientModel": "Client.Naming.Model.ModelWithClientClientName",
+    "client.naming.models.ClientNameAndJsonEncodedNameModel": "Client.Naming.Property.ClientNameAndJsonEncodedNameModel",
+    "client.naming.models.ClientNameModel": "Client.Naming.Property.ClientNameModel",
+    "client.naming.models.LanguageClientNameModel": "Client.Naming.Property.LanguageClientNameModel",
+    "client.naming.models.PythonModel": "Client.Naming.Model.ModelWithLanguageClientName",
+    "client.naming.models.ClientExtensibleEnum": "Client.Naming.UnionEnum.ServerExtensibleEnum",
+    "client.naming.models.ExtensibleEnum": "Client.Naming.UnionEnum.ExtensibleEnum",
+    "client.naming.NamingClient.model.client": "client",
+    "client.naming.NamingClient.model.language": "language",
+    "client.naming.NamingClient.union_enum.union_enum_name": "unionEnumName",
+    "client.naming.NamingClient.union_enum.union_enum_member_name": "unionEnumMemberName",
+    "client.naming.NamingClient.client_name": "clientName",
+    "client.naming.NamingClient.parameter": "parameter",
+    "client.naming.NamingClient.client": "client",
+    "client.naming.NamingClient.language": "language",
+    "client.naming.NamingClient.compatible_with_encoded_name": "compatibleWithEncodedName",
+    "client.naming.NamingClient.request": "request",
+    "client.naming.NamingClient.response": "response"
+  }
+}

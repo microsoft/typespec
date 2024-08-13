@@ -1,0 +1,7 @@
+include *.md
+include LICENSE
+include serialization/encodedname/json/py.typed
+recursive-include tests *.py
+recursive-include samples *.py *.md
+include serialization/__init__.py
+include serialization/encodedname/__init__.py

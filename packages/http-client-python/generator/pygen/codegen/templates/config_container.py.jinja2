@@ -1,0 +1,16 @@
+{% import 'keywords.jinja2' as keywords with context %}
+{% import 'operation_tools.jinja2' as op_tools %}
+{# actual template starts here #}
+# coding=utf-8
+{{ code_model.options['license_header'] }}
+
+{{ imports }}
+
+{% if not code_model.options['package_version'] %}
+VERSION = "unknown"
+{% endif %}
+
+{% for client in clients %}
+    {% set serializer = get_serializer(client) %}
+{% include "config.py.jinja2" %}
+{% endfor %}

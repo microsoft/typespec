@@ -1,0 +1,7 @@
+include *.md
+include LICENSE
+include client/structure/twooperationgroup/py.typed
+recursive-include tests *.py
+recursive-include samples *.py *.md
+include client/__init__.py
+include client/structure/__init__.py

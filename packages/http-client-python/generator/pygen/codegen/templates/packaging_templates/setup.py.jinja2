@@ -1,0 +1,108 @@
+# coding=utf-8
+{{ license_header }}
+# coding: utf-8
+{% if package_mode %}
+import os
+import re
+{% endif -%}
+from setuptools import setup, find_packages
+
+{% set package_name = package_name or code_model.clients[0].name %}
+
+PACKAGE_NAME = "{{ package_name|lower }}"
+{% if package_mode -%}
+PACKAGE_PPRINT_NAME = "{{ package_pprint_name }}"
+
+# a-b-c => a/b/c
+package_folder_path = PACKAGE_NAME.replace("-", "/")
+
+# Version extraction inspired from 'requests'
+with open(os.path.join(package_folder_path, "_version.py"), "r") as fd:
+    version = re.search(
+        r'^VERSION\s*=\s*[\'"]([^\'"]*)[\'"]', fd.read(), re.MULTILINE
+    ).group(1)
+
+if not version:
+    raise RuntimeError("Cannot find version information")
+{% set description = "\"" + code_model.options["company_name"] + " {} Client Library for Python\".format(PACKAGE_PPRINT_NAME)" %}
+{% set author_email = "azpysdkhelp@microsoft.com" %}
+{% set url = "https://github.com/Azure/azure-sdk-for-python/tree/main/sdk" %}
+{% else %}
+version = "{{ package_version }}"
+{% set description = "\"%s\""|format(package_name) %}
+{% set long_description = code_model.description %}
+{% set author_email = "" %}
+{% set url = "" %}
+{% endif -%}
+
+setup(
+    name=PACKAGE_NAME,
+    version=version,
+    description={{ description }},
+    {% if package_mode %}
+    long_description=open("README.md", "r").read(),
+    long_description_content_type="text/markdown",
+    license="MIT License",
+    author="{{ code_model.options["company_name"] }} Corporation",
+    {% endif %}
+    {% if code_model.is_azure_flavor %}
+    author_email="{{ author_email }}",
+    url="{{ url }}",
+    keywords="azure, azure sdk",
+    {% endif %}
+    {% if package_mode %}
+    classifiers=[
+        "Development Status :: {{ dev_status }}",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "License :: OSI Approved :: MIT License",
+    ],
+    zip_safe=False,
+    packages=find_packages(
+        exclude=[
+            "tests",
+            {% if pkgutil_names %}
+            # Exclude packages that will be covered by PEP420 or nspkg
+            {% endif %}
+            {%- for pkgutil_name in pkgutil_names %}
+            "{{ pkgutil_name }}",
+            {%- endfor %}
+        ]
+    ),
+    include_package_data=True,
+    package_data={
+        '{{ code_model.namespace }}': ['py.typed'],
+    },
+    {% else %}
+    packages=find_packages(),
+    include_package_data=True,
+    {% endif %}
+    install_requires=[
+        {% if code_model.is_legacy %}
+        "msrest>=0.7.1",
+        {% else %}
+        "isodate>=0.6.1",
+        {% endif %}
+        {% if azure_arm %}
+        "azure-mgmt-core>=1.3.2",
+        {% elif code_model.is_azure_flavor %}
+        "azure-core>=1.30.0",
+        {% else %}
+        "corehttp[requests]",
+        {% endif %}
+        "typing-extensions>=4.6.0",
+    ],
+    {% if package_mode %}
+    python_requires=">=3.8",
+    {% else %}
+    long_description="""\
+    {{ code_model.description }}
+    """
+    {% endif %}
+)

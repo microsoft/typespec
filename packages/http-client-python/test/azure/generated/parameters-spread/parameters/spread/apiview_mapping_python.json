@@ -1,0 +1,13 @@
+{
+  "CrossLanguagePackageId": "Parameters.Spread",
+  "CrossLanguageDefinitionId": {
+    "parameters.spread.models.BodyParameter": "Parameters.Spread.Model.BodyParameter",
+    "parameters.spread.models.SpreadAsRequestBodyRequest": "Parameters.Spread.Alias.",
+    "parameters.spread.models.SpreadAsRequestParameterRequest": "",
+    "parameters.spread.models.SpreadWithMultipleParametersRequest": "",
+    "parameters.spread.SpreadClient.model.spread_as_request_body": "spreadAsRequestBody",
+    "parameters.spread.SpreadClient.alias.spread_as_request_body": "spreadAsRequestBody",
+    "parameters.spread.SpreadClient.alias.spread_as_request_parameter": "spreadAsRequestParameter",
+    "parameters.spread.SpreadClient.alias.spread_with_multiple_parameters": "spreadWithMultipleParameters"
+  }
+}

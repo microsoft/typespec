@@ -1,0 +1,6 @@
+include *.md
+include LICENSE
+include specialheaders/repeatability/py.typed
+recursive-include tests *.py
+recursive-include samples *.py *.md
+include specialheaders/__init__.py

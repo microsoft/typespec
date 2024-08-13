@@ -1,0 +1,7 @@
+include *.md
+include LICENSE
+include server/path/single/py.typed
+recursive-include tests *.py
+recursive-include samples *.py *.md
+include server/__init__.py
+include server/path/__init__.py

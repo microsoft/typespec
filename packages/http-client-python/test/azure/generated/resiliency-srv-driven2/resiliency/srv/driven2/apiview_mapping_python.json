@@ -1,0 +1,9 @@
+{
+  "CrossLanguagePackageId": "Resiliency.ServiceDriven",
+  "CrossLanguageDefinitionId": {
+    "resiliency.srv.driven2.ResiliencyServiceDrivenClient.add_operation": "addOperation",
+    "resiliency.srv.driven2.ResiliencyServiceDrivenClient.from_none": "fromNone",
+    "resiliency.srv.driven2.ResiliencyServiceDrivenClient.from_one_required": "fromOneRequired",
+    "resiliency.srv.driven2.ResiliencyServiceDrivenClient.from_one_optional": "fromOneOptional"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "CrossLanguagePackageId": "Type.Scalar",
+  "CrossLanguageDefinitionId": {
+    "typetest.scalar.ScalarClient.string.get": "get",
+    "typetest.scalar.ScalarClient.string.put": "put",
+    "typetest.scalar.ScalarClient.boolean.get": "get",
+    "typetest.scalar.ScalarClient.boolean.put": "put",
+    "typetest.scalar.ScalarClient.unknown.get": "get",
+    "typetest.scalar.ScalarClient.unknown.put": "put",
+    "typetest.scalar.ScalarClient.decimal_type.response_body": "responseBody",
+    "typetest.scalar.ScalarClient.decimal_type.request_body": "requestBody",
+    "typetest.scalar.ScalarClient.decimal_type.request_parameter": "requestParameter",
+    "typetest.scalar.ScalarClient.decimal128_type.response_body": "responseBody",
+    "typetest.scalar.ScalarClient.decimal128_type.request_body": "requestBody",
+    "typetest.scalar.ScalarClient.decimal128_type.request_parameter": "requestParameter",
+    "typetest.scalar.ScalarClient.decimal_verify.prepare_verify": "prepareVerify",
+    "typetest.scalar.ScalarClient.decimal_verify.verify": "verify",
+    "typetest.scalar.ScalarClient.decimal128_verify.prepare_verify": "prepareVerify",
+    "typetest.scalar.ScalarClient.decimal128_verify.verify": "verify"
+  }
+}

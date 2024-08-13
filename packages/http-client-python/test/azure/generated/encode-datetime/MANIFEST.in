@@ -1,0 +1,6 @@
+include *.md
+include LICENSE
+include encode/datetime/py.typed
+recursive-include tests *.py
+recursive-include samples *.py *.md
+include encode/__init__.py

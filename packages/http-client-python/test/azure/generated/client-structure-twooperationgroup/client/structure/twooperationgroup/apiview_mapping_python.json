@@ -1,0 +1,12 @@
+{
+  "CrossLanguagePackageId": "Client.Structure.Service",
+  "CrossLanguageDefinitionId": {
+    "client.structure.twooperationgroup.models.ClientType": "Client.Structure.Service.ClientType",
+    "client.structure.twooperationgroup.TwoOperationGroupClient.group1.one": "one",
+    "client.structure.twooperationgroup.TwoOperationGroupClient.group1.three": "three",
+    "client.structure.twooperationgroup.TwoOperationGroupClient.group1.four": "four",
+    "client.structure.twooperationgroup.TwoOperationGroupClient.group2.two": "two",
+    "client.structure.twooperationgroup.TwoOperationGroupClient.group2.five": "five",
+    "client.structure.twooperationgroup.TwoOperationGroupClient.group2.six": "six"
+  }
+}
