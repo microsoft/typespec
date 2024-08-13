@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Providers
     {
         public string Name { get; }
         public FormattableString Description { get; }
-        public CSharpType Type { get; init; }
+        public CSharpType Type { get; set; }
 
         /// <summary>
         /// The default value of the parameter.
@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public ParameterValidationType Validation { get; init; } = ParameterValidationType.None;
         public bool IsRef { get; }
         public bool IsOut { get; }
-        internal IReadOnlyList<AttributeStatement> Attributes { get; } = Array.Empty<AttributeStatement>();
+        internal IReadOnlyList<AttributeStatement> Attributes { get; } = [];
         public WireInformation WireInfo { get; }
 
         /// <summary>

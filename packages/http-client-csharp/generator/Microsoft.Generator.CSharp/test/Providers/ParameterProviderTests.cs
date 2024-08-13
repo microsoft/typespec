@@ -31,6 +31,17 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.AreEqual(areEqual, result);
         }
 
+        [Test]
+        public void NotSameInstance()
+        {
+            MockHelpers.LoadMockPlugin();
+
+            var param = new InputParameter("name", "name", "description", new InputPrimitiveType(InputPrimitiveTypeKind.String, "string", "string"), RequestLocation.Body, null, InputOperationParameterKind.Spread, false, false, false, false, false, false, false, null, null);
+            var paramProvider1 = CodeModelPlugin.Instance.TypeFactory.CreateParameter(param);
+            var paramProvider2 = CodeModelPlugin.Instance.TypeFactory.CreateParameter(param);
+            Assert.IsFalse(ReferenceEquals(paramProvider1, paramProvider2));
+        }
+
         [TestCaseSource(nameof(ValueInputTypes))]
         public void ValueTypeHasNoValidation(InputType paramType)
         {
