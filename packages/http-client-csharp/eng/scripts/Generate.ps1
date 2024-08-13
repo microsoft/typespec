@@ -46,7 +46,6 @@ function IsSpecDir {
 
 $failingSpecs = @(
     Join-Path 'http' 'special-words'
-    Join-Path 'http' 'client' 'naming'
     Join-Path 'http' 'client' 'structure' 'default'
     Join-Path 'http' 'client' 'structure' 'multi-client'
     Join-Path 'http' 'client' 'structure' 'renamed-operation'
