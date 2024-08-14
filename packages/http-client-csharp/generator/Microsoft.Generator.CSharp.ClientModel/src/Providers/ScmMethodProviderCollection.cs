@@ -121,7 +121,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         conversions.Add(param.Type.ToSerial(param));
                     }
                 }
-                else if (param.Type.Equals(typeof(BinaryData)) && param.IsBodyParameter)
+                else if (param.Type.Equals(typeof(BinaryData)) && param.Location == ParameterLocation.Body)
                 {
                     conversions.Add(BinaryContentSnippets.Create(param));
                 }

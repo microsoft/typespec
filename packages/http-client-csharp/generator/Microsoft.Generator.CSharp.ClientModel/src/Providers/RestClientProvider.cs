@@ -335,7 +335,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     var csharpType = paramProvider.Field is null ? paramProvider.Type : paramProvider.Field.Type;
                     valueExpression = csharpType.ToSerial(paramProvider);
-                    isString = true;
                     format = null;
                 }
                 else
