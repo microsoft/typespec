@@ -3,11 +3,11 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.template;
 
-import com.azure.autorest.extension.base.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentUtils;
-import com.azure.autorest.model.javamodel.JavaClass;
-import com.azure.autorest.template.ServiceClientTemplate;
-import com.azure.autorest.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
+import com.microsoft.typespec.http.client.generator.core.template.ServiceClientTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 import com.azure.core.http.HttpHeaders;
 import com.azure.core.http.HttpResponse;
 import com.azure.core.http.rest.Response;

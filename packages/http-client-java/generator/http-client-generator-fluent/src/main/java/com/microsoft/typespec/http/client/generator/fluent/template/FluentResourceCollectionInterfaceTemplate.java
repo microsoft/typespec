@@ -5,9 +5,9 @@ package com.microsoft.typespec.http.client.generator.fluent.template;
 
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentResourceCollection;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.method.FluentDefineMethod;
-import com.azure.autorest.model.javamodel.JavaFile;
-import com.azure.autorest.template.ClientMethodTemplate;
-import com.azure.autorest.template.IJavaTemplate;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
+import com.microsoft.typespec.http.client.generator.core.template.ClientMethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.IJavaTemplate;
 
 import java.util.HashSet;
 import java.util.Set;

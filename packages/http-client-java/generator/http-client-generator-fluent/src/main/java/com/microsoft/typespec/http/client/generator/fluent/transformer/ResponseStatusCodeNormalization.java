@@ -3,9 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.transformer;
 
-import com.azure.autorest.extension.base.model.codemodel.CodeModel;
-import com.azure.autorest.extension.base.model.codemodel.Response;
-import com.azure.autorest.extension.base.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.fluent.util.Utils;
 import com.microsoft.typespec.http.client.generator.fluentnamer.FluentNamer;
 import com.azure.core.http.HttpMethod;

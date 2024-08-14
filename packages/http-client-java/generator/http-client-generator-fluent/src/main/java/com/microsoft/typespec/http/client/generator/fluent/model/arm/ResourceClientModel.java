@@ -4,10 +4,10 @@
 package com.microsoft.typespec.http.client.generator.fluent.model.arm;
 
 import com.microsoft.typespec.http.client.generator.fluent.model.ResourceTypeName;
-import com.azure.autorest.model.clientmodel.ClassType;
-import com.azure.autorest.model.clientmodel.ClientModel;
-import com.azure.autorest.model.clientmodel.ClientModelProperty;
-import com.azure.autorest.model.clientmodel.MapType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 
 import java.util.Arrays;
 import java.util.Collections;

@@ -3,11 +3,11 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.template;
 
-import com.azure.autorest.extension.base.model.codemodel.RequestParameterLocation;
-import com.azure.autorest.model.clientmodel.ProxyMethod;
-import com.azure.autorest.model.clientmodel.ProxyMethodParameter;
-import com.azure.autorest.model.javamodel.JavaInterface;
-import com.azure.autorest.template.ProxyTemplate;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaInterface;
+import com.microsoft.typespec.http.client.generator.core.template.ProxyTemplate;
 
 import java.util.HashMap;
 import java.util.Locale;

@@ -7,9 +7,9 @@ import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.Flu
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentLiveTestCase;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentLiveTestStep;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentLiveTests;
-import com.azure.autorest.model.clientmodel.examplemodel.ExampleHelperFeature;
-import com.azure.autorest.model.javamodel.JavaFile;
-import com.azure.autorest.template.example.ModelExampleWriter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleHelperFeature;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
+import com.microsoft.typespec.http.client.generator.core.template.example.ModelExampleWriter;
 import com.azure.core.util.CoreUtils;
 
 import java.util.ArrayList;

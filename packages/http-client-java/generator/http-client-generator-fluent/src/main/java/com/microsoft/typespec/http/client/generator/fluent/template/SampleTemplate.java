@@ -4,8 +4,8 @@
 package com.microsoft.typespec.http.client.generator.fluent.template;
 
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentExample;
-import com.azure.autorest.model.javamodel.JavaFile;
-import com.azure.autorest.postprocessor.implementation.CodeFormatterUtil;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
+import com.microsoft.typespec.http.client.generator.core.postprocessor.implementation.CodeFormatterUtil;
 
 import java.net.URL;
 import java.util.ArrayList;

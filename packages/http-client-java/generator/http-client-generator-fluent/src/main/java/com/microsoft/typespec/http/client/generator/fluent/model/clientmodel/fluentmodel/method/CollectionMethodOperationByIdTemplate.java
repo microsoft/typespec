@@ -3,25 +3,25 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.method;
 
-import com.azure.autorest.extension.base.model.codemodel.RequestParameterLocation;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.fluent.model.arm.UrlPathSegments;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentCollectionMethod;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentResourceModel;
-import com.azure.autorest.model.clientmodel.examplemodel.MethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.LocalVariable;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.ResourceLocalVariables;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.immutablemodel.ImmutableMethod;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.fluent.util.Utils;
-import com.azure.autorest.model.clientmodel.ClassType;
-import com.azure.autorest.model.clientmodel.ClientMethod;
-import com.azure.autorest.model.clientmodel.ClientMethodParameter;
-import com.azure.autorest.model.clientmodel.IType;
-import com.azure.autorest.model.clientmodel.PrimitiveType;
-import com.azure.autorest.model.clientmodel.ReturnValue;
-import com.azure.autorest.template.ClientMethodTemplate;
-import com.azure.autorest.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
+import com.microsoft.typespec.http.client.generator.core.template.ClientMethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 
 import java.util.ArrayList;
 import java.util.Collections;

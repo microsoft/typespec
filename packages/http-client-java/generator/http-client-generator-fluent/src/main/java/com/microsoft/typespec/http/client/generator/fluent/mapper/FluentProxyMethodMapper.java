@@ -3,14 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.mapper;
 
-import com.azure.autorest.extension.base.model.codemodel.Operation;
-import com.azure.autorest.extension.base.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.fluent.model.FluentType;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentStatic;
 import com.microsoft.typespec.http.client.generator.fluent.util.Utils;
-import com.azure.autorest.mapper.ProxyMethodMapper;
-import com.azure.autorest.model.clientmodel.ClassType;
-import com.azure.autorest.model.clientmodel.ProxyMethod;
+import com.microsoft.typespec.http.client.generator.core.mapper.ProxyMethodMapper;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.azure.core.util.CoreUtils;
 
 import java.util.List;

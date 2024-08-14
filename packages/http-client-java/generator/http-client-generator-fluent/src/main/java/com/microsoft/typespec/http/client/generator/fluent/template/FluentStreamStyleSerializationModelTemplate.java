@@ -3,13 +3,13 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.template;
 
-import com.azure.autorest.extension.base.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.fluent.model.arm.ErrorClientModel;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentUtils;
-import com.azure.autorest.model.clientmodel.ClientModel;
-import com.azure.autorest.model.clientmodel.ClientModelProperty;
-import com.azure.autorest.model.clientmodel.ClientModelPropertyReference;
-import com.azure.autorest.template.StreamSerializationModelTemplate;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyReference;
+import com.microsoft.typespec.http.client.generator.core.template.StreamSerializationModelTemplate;
 import com.azure.core.util.CoreUtils;
 
 import java.util.List;

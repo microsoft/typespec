@@ -5,11 +5,11 @@ package com.microsoft.typespec.http.client.generator.fluent.template;
 
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentUtils;
-import com.azure.autorest.model.javamodel.JavaFile;
-import com.azure.autorest.model.javamodel.JavaModifier;
-import com.azure.autorest.model.javamodel.JavaVisibility;
-import com.azure.autorest.template.IJavaTemplate;
-import com.azure.autorest.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import com.microsoft.typespec.http.client.generator.core.template.IJavaTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 import com.azure.core.http.rest.PagedFlux;
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.PagedResponse;

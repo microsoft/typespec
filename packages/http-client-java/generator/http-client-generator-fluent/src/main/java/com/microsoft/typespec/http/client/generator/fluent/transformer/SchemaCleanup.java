@@ -3,17 +3,17 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.transformer;
 
-import com.azure.autorest.extension.base.model.codemodel.ArraySchema;
-import com.azure.autorest.extension.base.model.codemodel.ChoiceSchema;
-import com.azure.autorest.extension.base.model.codemodel.CodeModel;
-import com.azure.autorest.extension.base.model.codemodel.DictionarySchema;
-import com.azure.autorest.extension.base.model.codemodel.ObjectSchema;
-import com.azure.autorest.extension.base.model.codemodel.Parameter;
-import com.azure.autorest.extension.base.model.codemodel.Property;
-import com.azure.autorest.extension.base.model.codemodel.Response;
-import com.azure.autorest.extension.base.model.codemodel.Schema;
-import com.azure.autorest.extension.base.model.codemodel.SealedChoiceSchema;
-import com.azure.autorest.extension.base.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DictionarySchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SealedChoiceSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.fluent.model.FluentType;
 import com.microsoft.typespec.http.client.generator.fluent.util.Utils;
 import com.microsoft.typespec.http.client.generator.fluentnamer.FluentNamer;

@@ -3,8 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.mapper;
 
-import com.azure.autorest.extension.base.model.codemodel.RequestParameterLocation;
-import com.azure.autorest.extension.base.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.fluent.FluentGen;
 import com.microsoft.typespec.http.client.generator.fluent.model.ResourceTypeName;
 import com.microsoft.typespec.http.client.generator.fluent.model.arm.ModelCategory;
@@ -13,7 +13,7 @@ import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.Flu
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentCollectionMethod;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentResourceCollection;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentResourceModel;
-import com.azure.autorest.model.clientmodel.examplemodel.MethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.ResourceLocalVariables;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.action.ResourceActions;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.create.ResourceCreate;
@@ -22,12 +22,12 @@ import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.flu
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.update.ResourceUpdate;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.fluent.util.Utils;
-import com.azure.autorest.model.clientmodel.ClassType;
-import com.azure.autorest.model.clientmodel.ClientMethod;
-import com.azure.autorest.model.clientmodel.ClientMethodType;
-import com.azure.autorest.model.clientmodel.ClientModel;
-import com.azure.autorest.template.prototype.MethodTemplate;
-import com.azure.autorest.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.azure.core.http.HttpMethod;
 import com.azure.core.management.Region;
 import com.azure.core.util.CoreUtils;

@@ -3,7 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel;
 
-import com.azure.autorest.extension.base.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.fluent.model.WellKnownMethodName;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.create.ResourceCreate;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.delete.ResourceDelete;
@@ -11,14 +11,14 @@ import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.flu
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.update.ResourceUpdate;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.fluent.util.Utils;
-import com.azure.autorest.model.clientmodel.ClassType;
-import com.azure.autorest.model.clientmodel.ClientMethod;
-import com.azure.autorest.model.clientmodel.ClientMethodParameter;
-import com.azure.autorest.model.clientmodel.ClientMethodType;
-import com.azure.autorest.model.clientmodel.MethodGroupClient;
-import com.azure.autorest.model.javamodel.JavaVisibility;
-import com.azure.autorest.template.prototype.MethodTemplate;
-import com.azure.autorest.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 
 import java.util.ArrayList;
 import java.util.HashSet;

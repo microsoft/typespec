@@ -7,9 +7,9 @@ import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.Flu
 import com.microsoft.typespec.http.client.generator.fluent.model.projectmodel.CodeSample;
 import com.microsoft.typespec.http.client.generator.fluent.model.projectmodel.FluentProject;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentUtils;
-import com.azure.autorest.util.TemplateUtil;
+import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 
-public class ReadmeTemplate extends com.azure.autorest.template.ReadmeTemplate {
+public class ReadmeTemplate extends com.microsoft.typespec.http.client.generator.core.template.ReadmeTemplate {
 
     public String write(FluentProject project) {
         StringBuilder sampleCodesBuilder = new StringBuilder();

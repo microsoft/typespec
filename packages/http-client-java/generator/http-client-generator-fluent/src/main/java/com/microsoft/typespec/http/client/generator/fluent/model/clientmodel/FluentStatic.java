@@ -4,7 +4,7 @@
 package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentJavaSettings;
-import com.azure.autorest.model.clientmodel.Client;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 
 /**
  * Convenient class for global variables.

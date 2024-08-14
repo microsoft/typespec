@@ -3,15 +3,15 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.mapper;
 
-import com.azure.autorest.extension.base.model.codemodel.ArraySchema;
-import com.azure.autorest.extension.base.model.codemodel.CodeModel;
-import com.azure.autorest.extension.base.model.codemodel.DictionarySchema;
-import com.azure.autorest.extension.base.model.codemodel.ObjectSchema;
-import com.azure.autorest.extension.base.model.codemodel.Operation;
-import com.azure.autorest.extension.base.model.codemodel.Response;
-import com.azure.autorest.extension.base.model.codemodel.Value;
-import com.azure.autorest.extension.base.plugin.JavaSettings;
-import com.azure.autorest.extension.base.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DictionarySchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Value;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.fluent.FluentGen;
 import com.microsoft.typespec.http.client.generator.fluent.model.FluentType;
 import com.microsoft.typespec.http.client.generator.fluent.model.ResourceCollectionAssociation;
@@ -24,10 +24,10 @@ import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.Flu
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentStatic;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentJavaSettings;
 import com.microsoft.typespec.http.client.generator.fluent.util.Utils;
-import com.azure.autorest.mapper.Mappers;
-import com.azure.autorest.model.clientmodel.Client;
-import com.azure.autorest.model.clientmodel.ClientModels;
-import com.azure.autorest.model.clientmodel.ModuleInfo;
+import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModuleInfo;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;

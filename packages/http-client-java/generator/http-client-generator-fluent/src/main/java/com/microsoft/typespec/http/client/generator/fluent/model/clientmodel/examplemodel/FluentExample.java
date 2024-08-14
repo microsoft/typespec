@@ -3,7 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.examplemodel;
 
-import com.azure.autorest.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentManager;
 
 import java.util.List;

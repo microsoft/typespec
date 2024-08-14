@@ -3,11 +3,11 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.model;
 
-import com.azure.autorest.extension.base.model.codemodel.ObjectSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.fluent.util.Utils;
-import com.azure.autorest.model.clientmodel.ClassType;
-import com.azure.autorest.model.clientmodel.GenericType;
-import com.azure.autorest.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.azure.core.management.ProxyResource;
 import com.azure.core.management.Region;
 import com.azure.core.management.Resource;

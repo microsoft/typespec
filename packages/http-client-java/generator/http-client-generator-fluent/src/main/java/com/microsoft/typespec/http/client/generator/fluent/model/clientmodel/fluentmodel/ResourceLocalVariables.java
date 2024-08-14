@@ -3,12 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel;
 
-import com.azure.autorest.extension.base.model.codemodel.RequestParameterLocation;
-import com.azure.autorest.model.clientmodel.examplemodel.MethodParameter;
-import com.azure.autorest.model.clientmodel.ClientMethod;
-import com.azure.autorest.model.clientmodel.ClientMethodParameter;
-import com.azure.autorest.model.clientmodel.ProxyMethodParameter;
-import com.azure.autorest.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 
 import java.util.LinkedHashMap;
 import java.util.List;

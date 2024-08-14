@@ -4,8 +4,8 @@
 package com.microsoft.typespec.http.client.generator.fluent.namer;
 
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentJavaSettings;
-import com.azure.autorest.util.ModelNamer;
-import com.azure.autorest.util.NamerFactory;
+import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
+import com.microsoft.typespec.http.client.generator.core.util.NamerFactory;
 
 public class FluentNamerFactory implements NamerFactory {
 

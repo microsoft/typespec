@@ -3,11 +3,11 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.mapper;
 
-import com.azure.autorest.extension.base.model.codemodel.PrimitiveSchema;
-import com.azure.autorest.extension.base.model.codemodel.Schema;
-import com.azure.autorest.mapper.PrimitiveMapper;
-import com.azure.autorest.model.clientmodel.ClassType;
-import com.azure.autorest.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.PrimitiveSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
+import com.microsoft.typespec.http.client.generator.core.mapper.PrimitiveMapper;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 
 public class FluentPrimitiveMapper extends PrimitiveMapper {
 

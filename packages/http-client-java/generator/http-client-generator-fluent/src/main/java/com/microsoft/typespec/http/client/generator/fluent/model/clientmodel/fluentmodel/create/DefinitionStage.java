@@ -3,7 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.create;
 
-import com.azure.autorest.model.clientmodel.ModelProperty;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelProperty;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.FluentInterfaceStage;
 
 public class DefinitionStage extends FluentInterfaceStage {

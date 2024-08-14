@@ -7,8 +7,8 @@ import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.Mod
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.method.FluentMethod;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.create.DefinitionStage;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.create.ResourceCreate;
-import com.azure.autorest.model.javamodel.JavaInterface;
-import com.azure.autorest.template.IJavaTemplate;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaInterface;
+import com.microsoft.typespec.http.client.generator.core.template.IJavaTemplate;
 
 import java.util.List;
 import java.util.stream.Collectors;

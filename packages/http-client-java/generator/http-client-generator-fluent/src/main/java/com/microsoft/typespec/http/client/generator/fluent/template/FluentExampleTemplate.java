@@ -10,13 +10,13 @@ import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.exa
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.examplemodel.FluentResourceCreateExample;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.examplemodel.FluentResourceUpdateExample;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.examplemodel.ParameterExample;
-import com.azure.autorest.model.clientmodel.ClassType;
-import com.azure.autorest.model.clientmodel.IType;
-import com.azure.autorest.model.clientmodel.PrimitiveType;
-import com.azure.autorest.model.clientmodel.examplemodel.ExampleHelperFeature;
-import com.azure.autorest.model.javamodel.JavaFile;
-import com.azure.autorest.template.example.ModelExampleWriter;
-import com.azure.autorest.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleHelperFeature;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
+import com.microsoft.typespec.http.client.generator.core.template.example.ModelExampleWriter;
+import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.azure.core.util.CoreUtils;
 
 import java.util.ArrayList;

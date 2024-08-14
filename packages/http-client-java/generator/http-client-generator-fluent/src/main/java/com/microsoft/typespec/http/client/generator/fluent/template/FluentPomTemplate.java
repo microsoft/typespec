@@ -3,9 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.template;
 
-import com.azure.autorest.model.clientmodel.Pom;
-import com.azure.autorest.model.xmlmodel.XmlBlock;
-import com.azure.autorest.template.PomTemplate;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Pom;
+import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlBlock;
+import com.microsoft.typespec.http.client.generator.core.template.PomTemplate;
 
 public class FluentPomTemplate extends PomTemplate {
 

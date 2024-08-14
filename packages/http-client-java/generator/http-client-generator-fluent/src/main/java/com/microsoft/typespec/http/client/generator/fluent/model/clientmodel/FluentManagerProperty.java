@@ -3,8 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel;
 
-import com.azure.autorest.model.clientmodel.ClassType;
-import com.azure.autorest.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 
 import java.util.List;
 import java.util.stream.Collectors;

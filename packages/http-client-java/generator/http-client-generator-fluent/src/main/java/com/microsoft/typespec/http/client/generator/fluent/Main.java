@@ -3,7 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.fluent;
 
-import com.azure.autorest.extension.base.jsonrpc.Connection;
+import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 
 public class Main {
 

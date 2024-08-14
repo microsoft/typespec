@@ -3,7 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel;
 
-import com.azure.autorest.extension.base.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.fluent.model.arm.ModelCategory;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.action.ResourceActions;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.create.ResourceCreate;
@@ -11,9 +11,9 @@ import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.flu
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.get.ResourceRefresh;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.update.ResourceUpdate;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentUtils;
-import com.azure.autorest.model.clientmodel.ClassType;
-import com.azure.autorest.model.clientmodel.ClientModel;
-import com.azure.autorest.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 
 import java.util.ArrayList;
 import java.util.Collection;

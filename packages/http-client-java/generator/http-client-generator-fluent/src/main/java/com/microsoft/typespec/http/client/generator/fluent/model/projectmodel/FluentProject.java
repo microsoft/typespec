@@ -3,14 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.model.projectmodel;
 
-import com.azure.autorest.extension.base.plugin.JavaSettings;
-import com.azure.autorest.extension.base.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.fluent.FluentGen;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentClient;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentStatic;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentJavaSettings;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentUtils;
-import com.azure.autorest.model.projectmodel.Project;
+import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
 import org.slf4j.Logger;
 
 import java.io.BufferedReader;

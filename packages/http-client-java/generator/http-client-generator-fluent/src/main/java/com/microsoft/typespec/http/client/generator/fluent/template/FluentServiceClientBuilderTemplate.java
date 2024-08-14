@@ -3,10 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.template;
 
-import com.azure.autorest.model.clientmodel.AsyncSyncClient;
-import com.azure.autorest.model.javamodel.JavaBlock;
-import com.azure.autorest.model.javamodel.JavaContext;
-import com.azure.autorest.template.ServiceClientBuilderTemplate;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaContext;
+import com.microsoft.typespec.http.client.generator.core.template.ServiceClientBuilderTemplate;
 
 import java.util.Set;
 

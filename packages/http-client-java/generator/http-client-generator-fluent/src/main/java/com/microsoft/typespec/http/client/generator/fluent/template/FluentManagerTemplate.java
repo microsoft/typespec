@@ -3,19 +3,19 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.template;
 
-import com.azure.autorest.extension.base.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.fluent.FluentGen;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentManager;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.fluent.model.projectmodel.FluentProject;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentUtils;
-import com.azure.autorest.model.clientmodel.ClassType;
-import com.azure.autorest.model.clientmodel.IType;
-import com.azure.autorest.model.clientmodel.ServiceClient;
-import com.azure.autorest.model.clientmodel.ServiceClientProperty;
-import com.azure.autorest.model.javamodel.JavaFile;
-import com.azure.autorest.util.ClientModelUtil;
-import com.azure.autorest.util.TemplateUtil;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClientProperty;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import com.azure.core.credential.TokenCredential;
 import com.azure.core.http.HttpClient;
 import com.azure.core.http.HttpPipeline;

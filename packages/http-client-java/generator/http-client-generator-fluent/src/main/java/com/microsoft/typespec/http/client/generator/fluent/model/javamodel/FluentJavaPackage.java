@@ -3,8 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.model.javamodel;
 
-import com.azure.autorest.extension.base.plugin.JavaSettings;
-import com.azure.autorest.extension.base.plugin.NewPlugin;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentExample;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentLiveTests;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentManager;
@@ -16,7 +16,7 @@ import com.microsoft.typespec.http.client.generator.fluent.model.projectmodel.Ch
 import com.microsoft.typespec.http.client.generator.fluent.model.projectmodel.FluentProject;
 import com.microsoft.typespec.http.client.generator.fluent.template.FluentMethodMockTestTemplate;
 import com.microsoft.typespec.http.client.generator.fluent.template.FluentLiveTestsTemplate;
-import com.azure.autorest.model.projectmodel.TextFile;
+import com.microsoft.typespec.http.client.generator.core.model.projectmodel.TextFile;
 import com.microsoft.typespec.http.client.generator.fluent.template.ChangelogTemplate;
 import com.microsoft.typespec.http.client.generator.fluent.template.FluentExampleTemplate;
 import com.microsoft.typespec.http.client.generator.fluent.template.FluentManagerTemplate;
@@ -27,10 +27,10 @@ import com.microsoft.typespec.http.client.generator.fluent.template.FluentResour
 import com.microsoft.typespec.http.client.generator.fluent.template.ReadmeTemplate;
 import com.microsoft.typespec.http.client.generator.fluent.template.SampleTemplate;
 import com.microsoft.typespec.http.client.generator.fluent.template.ResourceManagerUtilsTemplate;
-import com.azure.autorest.model.javamodel.JavaFile;
-import com.azure.autorest.model.javamodel.JavaPackage;
-import com.azure.autorest.util.ClassNameUtil;
-import com.azure.autorest.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
+import com.microsoft.typespec.http.client.generator.core.util.ClassNameUtil;
+import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 
 import java.util.List;
 

@@ -3,9 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel;
 
-import com.azure.autorest.extension.base.plugin.JavaSettings;
-import com.azure.autorest.model.clientmodel.ClassType;
-import com.azure.autorest.model.clientmodel.examplemodel.ExampleHelperFeature;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleHelperFeature;
 import com.azure.core.util.CoreUtils;
 
 import java.util.ArrayList;

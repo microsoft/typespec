@@ -3,9 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.mapper;
 
-import com.azure.autorest.mapper.ClientMapper;
-import com.azure.autorest.mapper.DefaultMapperFactory;
-import com.azure.autorest.mapper.PrimitiveMapper;
+import com.microsoft.typespec.http.client.generator.core.mapper.ClientMapper;
+import com.microsoft.typespec.http.client.generator.core.mapper.DefaultMapperFactory;
+import com.microsoft.typespec.http.client.generator.core.mapper.PrimitiveMapper;
 
 public class TypeSpecMapperFactory extends DefaultMapperFactory {
 

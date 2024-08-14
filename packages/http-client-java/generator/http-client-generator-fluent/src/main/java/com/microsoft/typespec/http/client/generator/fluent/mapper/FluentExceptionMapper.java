@@ -3,13 +3,13 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.mapper;
 
-import com.azure.autorest.extension.base.model.codemodel.ObjectSchema;
-import com.azure.autorest.extension.base.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.fluent.model.FluentType;
 import com.microsoft.typespec.http.client.generator.fluent.util.Utils;
-import com.azure.autorest.mapper.ExceptionMapper;
-import com.azure.autorest.model.clientmodel.ClassType;
-import com.azure.autorest.model.clientmodel.ClientException;
+import com.microsoft.typespec.http.client.generator.core.mapper.ExceptionMapper;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientException;
 
 public class FluentExceptionMapper extends ExceptionMapper {
 

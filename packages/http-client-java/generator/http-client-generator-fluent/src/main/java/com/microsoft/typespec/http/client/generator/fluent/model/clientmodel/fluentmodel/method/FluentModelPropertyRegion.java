@@ -6,12 +6,12 @@ package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fl
 import com.microsoft.typespec.http.client.generator.fluent.model.FluentType;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentResourceModel;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.ModelNaming;
-import com.azure.autorest.model.clientmodel.ModelProperty;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelProperty;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.FluentInterfaceStage;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.LocalVariable;
-import com.azure.autorest.model.clientmodel.ClientModel;
-import com.azure.autorest.template.prototype.MethodTemplate;
-import com.azure.autorest.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 
 import java.util.Set;
 

@@ -3,8 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator;
 
-import com.azure.autorest.extension.base.plugin.JavaSettings;
-import com.azure.autorest.extension.base.plugin.NewPlugin;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

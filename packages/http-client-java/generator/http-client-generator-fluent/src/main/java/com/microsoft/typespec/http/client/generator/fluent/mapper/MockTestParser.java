@@ -3,29 +3,29 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.mapper;
 
-import com.azure.autorest.extension.base.model.codemodel.RequestParameterLocation;
-import com.azure.autorest.extension.base.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.fluent.FluentGen;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentCollectionMethod;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentResourceCollection;
-import com.azure.autorest.model.clientmodel.ListType;
-import com.azure.autorest.model.clientmodel.examplemodel.MethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.examplemodel.FluentCollectionMethodExample;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.examplemodel.FluentMethodMockUnitTest;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.examplemodel.FluentResourceCreateExample;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.create.ResourceCreate;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentUtils;
-import com.azure.autorest.model.clientmodel.ClassType;
-import com.azure.autorest.model.clientmodel.ClientMethod;
-import com.azure.autorest.model.clientmodel.ClientMethodType;
-import com.azure.autorest.model.clientmodel.GenericType;
-import com.azure.autorest.model.clientmodel.IType;
-import com.azure.autorest.model.clientmodel.ProxyMethodExample;
-import com.azure.autorest.model.clientmodel.examplemodel.ExampleNode;
-import com.azure.autorest.util.MethodUtil;
-import com.azure.autorest.util.ModelExampleUtil;
-import com.azure.autorest.util.ModelTestCaseUtil;
-import com.azure.autorest.util.PossibleCredentialException;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodExample;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleNode;
+import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
+import com.microsoft.typespec.http.client.generator.core.util.ModelExampleUtil;
+import com.microsoft.typespec.http.client.generator.core.util.ModelTestCaseUtil;
+import com.microsoft.typespec.http.client.generator.core.util.PossibleCredentialException;
 import com.azure.core.http.HttpMethod;
 import org.slf4j.Logger;
 

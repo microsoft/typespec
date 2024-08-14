@@ -3,18 +3,18 @@
 
 package com.microsoft.typespec.http.client.generator.mapper;
 
-import com.azure.autorest.extension.base.model.codemodel.Client;
-import com.azure.autorest.extension.base.model.codemodel.CodeModel;
-import com.azure.autorest.extension.base.model.codemodel.OperationGroup;
-import com.azure.autorest.mapper.Mappers;
-import com.azure.autorest.mapper.ServiceClientMapper;
-import com.azure.autorest.model.clientmodel.MethodGroupClient;
-import com.azure.autorest.model.clientmodel.PipelinePolicyDetails;
-import com.azure.autorest.model.clientmodel.Proxy;
-import com.azure.autorest.model.clientmodel.ServiceClient;
-import com.azure.autorest.model.clientmodel.ServiceClientProperty;
-import com.azure.autorest.util.ClientModelUtil;
-import com.azure.autorest.util.SchemaUtil;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OperationGroup;
+import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
+import com.microsoft.typespec.http.client.generator.core.mapper.ServiceClientMapper;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PipelinePolicyDetails;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClientProperty;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import com.azure.core.util.CoreUtils;
 
 import java.util.ArrayList;

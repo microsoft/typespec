@@ -3,10 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.namer;
 
-import com.azure.autorest.model.clientmodel.ClientModelProperty;
-import com.azure.autorest.model.clientmodel.IType;
-import com.azure.autorest.util.CodeNamer;
-import com.azure.autorest.util.ModelNamer;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
 
 public class FluentModelNamer extends ModelNamer {
 

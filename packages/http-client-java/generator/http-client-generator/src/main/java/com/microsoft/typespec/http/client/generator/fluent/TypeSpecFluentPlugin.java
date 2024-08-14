@@ -4,14 +4,14 @@
 package com.microsoft.typespec.http.client.generator.fluent;
 
 import com.microsoft.typespec.http.client.generator.TypeSpecPlugin;
-import com.azure.autorest.extension.base.model.Message;
-import com.azure.autorest.extension.base.model.codemodel.CodeModel;
-import com.azure.autorest.extension.base.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.fluent.mapper.FluentMapper;
 import com.microsoft.typespec.http.client.generator.fluent.model.javamodel.FluentJavaPackage;
 import com.microsoft.typespec.http.client.generator.fluentnamer.FluentNamer;
-import com.azure.autorest.mapper.Mappers;
-import com.azure.autorest.model.clientmodel.Client;
+import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.azure.core.util.CoreUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.ReadValueCallback;

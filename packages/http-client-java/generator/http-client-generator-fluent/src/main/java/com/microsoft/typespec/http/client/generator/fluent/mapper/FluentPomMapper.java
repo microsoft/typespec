@@ -3,11 +3,11 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.mapper;
 
-import com.azure.autorest.extension.base.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.fluent.model.projectmodel.FluentProject;
-import com.azure.autorest.mapper.PomMapper;
-import com.azure.autorest.model.clientmodel.Pom;
-import com.azure.autorest.model.projectmodel.Project;
+import com.microsoft.typespec.http.client.generator.core.mapper.PomMapper;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Pom;
+import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
 
 import java.util.ArrayList;
 import java.util.HashSet;

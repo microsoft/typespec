@@ -4,7 +4,7 @@
 package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.examplemodel;
 
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.method.FluentMethod;
-import com.azure.autorest.model.clientmodel.examplemodel.ExampleNode;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleNode;
 
 import java.util.ArrayList;
 import java.util.Collection;

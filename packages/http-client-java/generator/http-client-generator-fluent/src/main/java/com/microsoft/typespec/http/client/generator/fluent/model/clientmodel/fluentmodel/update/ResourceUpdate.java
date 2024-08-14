@@ -3,15 +3,15 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.update;
 
-import com.azure.autorest.extension.base.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.fluent.FluentGen;
 import com.microsoft.typespec.http.client.generator.fluent.model.arm.UrlPathSegments;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentCollectionMethod;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentResourceCollection;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentResourceModel;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentStatic;
-import com.azure.autorest.model.clientmodel.examplemodel.MethodParameter;
-import com.azure.autorest.model.clientmodel.ModelProperty;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelProperty;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.ResourceOperation;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.method.FluentApplyMethod;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.method.FluentConstructorByInner;
@@ -20,12 +20,12 @@ import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.flu
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.method.FluentMethodType;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.method.FluentModelPropertyMethod;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.method.FluentUpdateMethod;
-import com.azure.autorest.model.clientmodel.ClientMethodParameter;
-import com.azure.autorest.model.clientmodel.ClientModel;
-import com.azure.autorest.model.clientmodel.IType;
-import com.azure.autorest.model.clientmodel.ListType;
-import com.azure.autorest.model.clientmodel.MapType;
-import com.azure.autorest.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
+import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;

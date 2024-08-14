@@ -5,7 +5,7 @@ package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.ex
 
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentManager;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentResourceCollection;
-import com.azure.autorest.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 
 import java.util.ArrayList;
 import java.util.List;

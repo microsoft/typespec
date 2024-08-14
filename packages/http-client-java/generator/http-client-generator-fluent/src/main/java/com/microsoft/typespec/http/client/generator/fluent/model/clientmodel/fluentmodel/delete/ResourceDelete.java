@@ -3,19 +3,19 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.delete;
 
-import com.azure.autorest.extension.base.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.fluent.FluentGen;
 import com.microsoft.typespec.http.client.generator.fluent.model.arm.UrlPathSegments;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentCollectionMethod;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentResourceCollection;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentResourceModel;
-import com.azure.autorest.model.clientmodel.examplemodel.MethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.ResourceOperation;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.method.CollectionMethodOperationByIdTemplate;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.method.FluentMethod;
 import com.microsoft.typespec.http.client.generator.fluent.util.Utils;
-import com.azure.autorest.model.clientmodel.ClientMethodParameter;
-import com.azure.autorest.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;

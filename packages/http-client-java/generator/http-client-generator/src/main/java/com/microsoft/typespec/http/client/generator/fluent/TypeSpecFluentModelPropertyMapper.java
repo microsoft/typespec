@@ -3,8 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.fluent;
 
-import com.azure.autorest.extension.base.model.codemodel.ObjectSchema;
-import com.azure.autorest.mapper.ModelPropertyMapper;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
+import com.microsoft.typespec.http.client.generator.core.mapper.ModelPropertyMapper;
 
 public class TypeSpecFluentModelPropertyMapper extends ModelPropertyMapper {
     private static final TypeSpecFluentModelPropertyMapper INSTANCE = new TypeSpecFluentModelPropertyMapper();

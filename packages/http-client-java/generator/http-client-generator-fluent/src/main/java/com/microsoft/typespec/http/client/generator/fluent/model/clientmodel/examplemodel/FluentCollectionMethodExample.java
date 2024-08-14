@@ -6,7 +6,7 @@ package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.ex
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentCollectionMethod;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentManager;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentResourceCollection;
-import com.azure.autorest.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 
 /**
  * Model of example for FluentCollectionMethod.

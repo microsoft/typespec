@@ -8,8 +8,8 @@ import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.Mod
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.method.FluentMethod;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.method.FluentMethodType;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.immutablemodel.ImmutableMethod;
-import com.azure.autorest.model.javamodel.JavaVisibility;
-import com.azure.autorest.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 
 import java.util.ArrayList;
 import java.util.Collection;

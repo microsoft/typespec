@@ -7,7 +7,7 @@ import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.Flu
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentResourceCollection;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentResourceModel;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.ResourceLocalVariables;
-import com.azure.autorest.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 
 import java.util.List;
 

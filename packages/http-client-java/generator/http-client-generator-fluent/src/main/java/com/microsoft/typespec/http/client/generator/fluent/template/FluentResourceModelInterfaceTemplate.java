@@ -5,8 +5,8 @@ package com.microsoft.typespec.http.client.generator.fluent.template;
 
 import com.microsoft.typespec.http.client.generator.fluent.model.arm.ModelCategory;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentResourceModel;
-import com.azure.autorest.model.javamodel.JavaFile;
-import com.azure.autorest.template.IJavaTemplate;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
+import com.microsoft.typespec.http.client.generator.core.template.IJavaTemplate;
 
 import java.util.HashSet;
 import java.util.Set;

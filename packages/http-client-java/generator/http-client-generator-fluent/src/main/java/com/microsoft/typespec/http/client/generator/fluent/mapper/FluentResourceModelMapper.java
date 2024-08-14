@@ -3,12 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.mapper;
 
-import com.azure.autorest.extension.base.model.codemodel.ObjectSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentResourceModel;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentUtils;
-import com.azure.autorest.mapper.IMapper;
-import com.azure.autorest.mapper.Mappers;
-import com.azure.autorest.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.mapper.IMapper;
+import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.azure.core.util.CoreUtils;
 
 import java.util.ArrayList;

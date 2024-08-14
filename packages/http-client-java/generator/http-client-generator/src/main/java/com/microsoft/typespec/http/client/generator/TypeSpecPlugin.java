@@ -3,20 +3,20 @@
 
 package com.microsoft.typespec.http.client.generator;
 
-import com.azure.autorest.Javagen;
-import com.azure.autorest.extension.base.jsonrpc.Connection;
-import com.azure.autorest.extension.base.model.Message;
-import com.azure.autorest.extension.base.model.codemodel.CodeModel;
-import com.azure.autorest.extension.base.plugin.JavaSettings;
-import com.azure.autorest.mapper.Mappers;
-import com.azure.autorest.model.clientmodel.AsyncSyncClient;
-import com.azure.autorest.model.clientmodel.Client;
-import com.azure.autorest.model.clientmodel.ClientModel;
-import com.azure.autorest.model.clientmodel.ConvenienceMethod;
-import com.azure.autorest.model.javamodel.JavaPackage;
-import com.azure.autorest.preprocessor.Preprocessor;
-import com.azure.autorest.preprocessor.tranformer.Transformer;
-import com.azure.autorest.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.Javagen;
+import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
+import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
+import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
+import com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer.Transformer;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.azure.core.util.CoreUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.ReadValueCallback;

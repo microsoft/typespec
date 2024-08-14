@@ -3,14 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.template;
 
-import com.azure.autorest.template.ClientMethodTemplate;
-import com.azure.autorest.template.DefaultTemplateFactory;
-import com.azure.autorest.template.ModelTemplate;
-import com.azure.autorest.template.PomTemplate;
-import com.azure.autorest.template.ProxyTemplate;
-import com.azure.autorest.template.ServiceClientBuilderTemplate;
-import com.azure.autorest.template.ServiceClientTemplate;
-import com.azure.autorest.template.StreamSerializationModelTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.ClientMethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.DefaultTemplateFactory;
+import com.microsoft.typespec.http.client.generator.core.template.ModelTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.PomTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.ProxyTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.ServiceClientBuilderTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.ServiceClientTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.StreamSerializationModelTemplate;
 
 public class FluentTemplateFactory extends DefaultTemplateFactory {
 

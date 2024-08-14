@@ -3,9 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel;
 
-import com.azure.autorest.extension.base.model.codemodel.RequestParameterLocation;
-import com.azure.autorest.model.clientmodel.ClientMethodParameter;
-import com.azure.autorest.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 
 /**
  * Class variable or local variable.

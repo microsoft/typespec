@@ -5,9 +5,9 @@ package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.ex
 
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentCollectionMethod;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentResourceCollection;
-import com.azure.autorest.model.clientmodel.IType;
-import com.azure.autorest.model.clientmodel.ProxyMethodExample;
-import com.azure.autorest.model.clientmodel.examplemodel.ExampleNode;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodExample;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleNode;
 
 public class FluentMethodMockUnitTest {
 

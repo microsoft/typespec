@@ -3,18 +3,18 @@
 
 package com.microsoft.typespec.http.client.generator;
 
-import com.azure.autorest.extension.base.model.codemodel.AnnotatedPropertyUtils;
-import com.azure.autorest.extension.base.model.codemodel.CodeModel;
-import com.azure.autorest.extension.base.model.codemodel.CodeModelCustomConstructor;
-import com.azure.autorest.extension.base.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AnnotatedPropertyUtils;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModelCustomConstructor;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.fluent.TypeSpecFluentPlugin;
 import com.microsoft.typespec.http.client.generator.fluent.model.javamodel.FluentJavaPackage;
-import com.azure.autorest.model.clientmodel.Client;
-import com.azure.autorest.model.clientmodel.ProxyMethodExample;
-import com.azure.autorest.model.javamodel.JavaFile;
-import com.azure.autorest.model.javamodel.JavaPackage;
-import com.azure.autorest.postprocessor.Postprocessor;
-import com.azure.autorest.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodExample;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
+import com.microsoft.typespec.http.client.generator.core.postprocessor.Postprocessor;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.azure.core.util.Configuration;
 import com.azure.core.util.CoreUtils;
 import com.azure.json.JsonProviders;

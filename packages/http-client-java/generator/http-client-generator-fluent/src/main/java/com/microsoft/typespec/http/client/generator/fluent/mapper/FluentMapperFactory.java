@@ -3,14 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.mapper;
 
-import com.azure.autorest.mapper.ClientMethodMapper;
-import com.azure.autorest.mapper.DefaultMapperFactory;
-import com.azure.autorest.mapper.ExceptionMapper;
-import com.azure.autorest.mapper.MethodGroupMapper;
-import com.azure.autorest.mapper.ModelMapper;
-import com.azure.autorest.mapper.ObjectMapper;
-import com.azure.autorest.mapper.PrimitiveMapper;
-import com.azure.autorest.mapper.ProxyMethodMapper;
+import com.microsoft.typespec.http.client.generator.core.mapper.ClientMethodMapper;
+import com.microsoft.typespec.http.client.generator.core.mapper.DefaultMapperFactory;
+import com.microsoft.typespec.http.client.generator.core.mapper.ExceptionMapper;
+import com.microsoft.typespec.http.client.generator.core.mapper.MethodGroupMapper;
+import com.microsoft.typespec.http.client.generator.core.mapper.ModelMapper;
+import com.microsoft.typespec.http.client.generator.core.mapper.ObjectMapper;
+import com.microsoft.typespec.http.client.generator.core.mapper.PrimitiveMapper;
+import com.microsoft.typespec.http.client.generator.core.mapper.ProxyMethodMapper;
 
 public class FluentMapperFactory extends DefaultMapperFactory {
 

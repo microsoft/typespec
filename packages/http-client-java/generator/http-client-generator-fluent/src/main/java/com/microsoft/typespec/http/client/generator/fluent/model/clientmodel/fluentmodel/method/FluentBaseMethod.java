@@ -3,7 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.method;
 
-import com.azure.autorest.extension.base.model.codemodel.RequestParameterLocation;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentCollectionMethod;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentManagerProperty;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentResourceCollection;
@@ -13,11 +13,11 @@ import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.Mod
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.LocalVariable;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.ResourceLocalVariables;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentUtils;
-import com.azure.autorest.model.clientmodel.ClientMethodParameter;
-import com.azure.autorest.model.clientmodel.IType;
-import com.azure.autorest.model.clientmodel.ReturnValue;
-import com.azure.autorest.model.javamodel.JavaJavadocComment;
-import com.azure.autorest.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
+import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 
 import java.util.HashSet;
 import java.util.List;

@@ -7,13 +7,13 @@ import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.imm
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.immutablemodel.PropertyTemplate;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.immutablemodel.PropertyTypeConversionTemplate;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentUtils;
-import com.azure.autorest.model.clientmodel.ClassType;
-import com.azure.autorest.model.clientmodel.ClientModelPropertyAccess;
-import com.azure.autorest.model.clientmodel.IType;
-import com.azure.autorest.model.clientmodel.ListType;
-import com.azure.autorest.model.clientmodel.MapType;
-import com.azure.autorest.model.clientmodel.ModelProperty;
-import com.azure.autorest.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyAccess;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelProperty;
+import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 
 import java.util.Set;
 

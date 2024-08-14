@@ -3,7 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.immutablemodel;
 
-import com.azure.autorest.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 
 public interface ImmutableMethod {
 

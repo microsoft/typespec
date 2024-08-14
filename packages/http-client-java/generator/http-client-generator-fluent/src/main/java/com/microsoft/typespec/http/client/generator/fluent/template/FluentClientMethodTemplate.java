@@ -3,16 +3,16 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.template;
 
-import com.azure.autorest.extension.base.plugin.JavaSettings;
-import com.azure.autorest.model.clientmodel.ClassType;
-import com.azure.autorest.model.clientmodel.ClientMethod;
-import com.azure.autorest.model.clientmodel.GenericType;
-import com.azure.autorest.model.clientmodel.IType;
-import com.azure.autorest.model.clientmodel.ProxyMethod;
-import com.azure.autorest.model.javamodel.JavaType;
-import com.azure.autorest.template.ClientMethodTemplate;
-import com.azure.autorest.util.CodeNamer;
-import com.azure.autorest.util.MethodNamer;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
+import com.microsoft.typespec.http.client.generator.core.template.ClientMethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 
 public class FluentClientMethodTemplate extends ClientMethodTemplate {
 

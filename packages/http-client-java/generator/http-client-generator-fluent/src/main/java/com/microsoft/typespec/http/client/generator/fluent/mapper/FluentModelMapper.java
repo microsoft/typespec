@@ -4,8 +4,8 @@
 package com.microsoft.typespec.http.client.generator.fluent.mapper;
 
 import com.microsoft.typespec.http.client.generator.fluent.model.FluentType;
-import com.azure.autorest.mapper.ModelMapper;
-import com.azure.autorest.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.mapper.ModelMapper;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 
 import java.util.HashSet;
 import java.util.Set;

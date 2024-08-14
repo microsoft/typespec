@@ -7,10 +7,10 @@ import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.Flu
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.fluent.util.TypeConversionUtils;
-import com.azure.autorest.model.clientmodel.IType;
-import com.azure.autorest.model.clientmodel.ListType;
-import com.azure.autorest.model.clientmodel.MapType;
-import com.azure.autorest.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
+import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 import com.azure.core.http.rest.SimpleResponse;
 
 import java.util.Collections;

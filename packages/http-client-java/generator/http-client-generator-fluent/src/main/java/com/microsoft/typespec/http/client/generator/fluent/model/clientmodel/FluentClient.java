@@ -4,8 +4,8 @@
 package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.examplemodel.FluentMethodMockUnitTest;
-import com.azure.autorest.model.clientmodel.Client;
-import com.azure.autorest.model.clientmodel.ModuleInfo;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModuleInfo;
 
 import java.util.ArrayList;
 import java.util.List;

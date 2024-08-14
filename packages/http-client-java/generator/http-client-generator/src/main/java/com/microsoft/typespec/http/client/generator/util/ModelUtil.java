@@ -3,14 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.util;
 
-import com.azure.autorest.model.clientmodel.ClassType;
-import com.azure.autorest.model.clientmodel.ClientModel;
-import com.azure.autorest.model.clientmodel.ClientResponse;
-import com.azure.autorest.model.clientmodel.EnumType;
-import com.azure.autorest.model.clientmodel.IType;
-import com.azure.autorest.model.clientmodel.ImplementationDetails;
-import com.azure.autorest.model.clientmodel.UnionModel;
-import com.azure.autorest.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientResponse;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.UnionModel;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 
 public class ModelUtil {
 

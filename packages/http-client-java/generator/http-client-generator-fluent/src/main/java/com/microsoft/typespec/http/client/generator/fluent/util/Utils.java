@@ -3,12 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.util;
 
-import com.azure.autorest.extension.base.model.codemodel.Client;
-import com.azure.autorest.extension.base.model.codemodel.Metadata;
-import com.azure.autorest.extension.base.model.codemodel.Parameter;
-import com.azure.autorest.extension.base.model.codemodel.Property;
-import com.azure.autorest.extension.base.plugin.JavaSettings;
-import com.azure.autorest.util.SchemaUtil;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Metadata;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Field;

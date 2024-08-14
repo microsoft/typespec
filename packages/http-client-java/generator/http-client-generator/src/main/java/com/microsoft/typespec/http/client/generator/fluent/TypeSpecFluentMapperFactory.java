@@ -4,11 +4,11 @@
 package com.microsoft.typespec.http.client.generator.fluent;
 
 import com.microsoft.typespec.http.client.generator.fluent.mapper.FluentMapperFactory;
-import com.azure.autorest.mapper.ClientMapper;
-import com.azure.autorest.mapper.ModelMapper;
-import com.azure.autorest.mapper.ModelPropertyMapper;
-import com.azure.autorest.mapper.ObjectMapper;
-import com.azure.autorest.mapper.PrimitiveMapper;
+import com.microsoft.typespec.http.client.generator.core.mapper.ClientMapper;
+import com.microsoft.typespec.http.client.generator.core.mapper.ModelMapper;
+import com.microsoft.typespec.http.client.generator.core.mapper.ModelPropertyMapper;
+import com.microsoft.typespec.http.client.generator.core.mapper.ObjectMapper;
+import com.microsoft.typespec.http.client.generator.core.mapper.PrimitiveMapper;
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecClientMapper;
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecPrimitiveMapper;
 

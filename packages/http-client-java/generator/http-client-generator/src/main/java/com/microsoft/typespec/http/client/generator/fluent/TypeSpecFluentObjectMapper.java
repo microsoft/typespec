@@ -3,7 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.fluent;
 
-import com.azure.autorest.extension.base.model.codemodel.ObjectSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.fluent.mapper.FluentObjectMapper;
 
 public class TypeSpecFluentObjectMapper extends FluentObjectMapper {

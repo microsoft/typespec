@@ -3,8 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.mapper;
 
-import com.azure.autorest.extension.base.model.codemodel.CodeModel;
-import com.azure.autorest.extension.base.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.fluent.FluentGen;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentClient;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentCollectionMethod;
@@ -23,11 +23,11 @@ import com.microsoft.typespec.http.client.generator.fluent.template.FluentExampl
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentJavaSettings;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.fluent.util.Utils;
-import com.azure.autorest.model.clientmodel.ExampleLiveTestStep;
-import com.azure.autorest.model.clientmodel.LiveTestStep;
-import com.azure.autorest.model.clientmodel.LiveTests;
-import com.azure.autorest.model.clientmodel.ProxyMethodExample;
-import com.azure.autorest.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ExampleLiveTestStep;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.LiveTestStep;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.LiveTests;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodExample;
+import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 
 import java.util.Optional;
 import java.util.function.Function;

@@ -3,18 +3,18 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.template;
 
-import com.azure.autorest.extension.base.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.fluent.model.FluentType;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentStatic;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentUtils;
-import com.azure.autorest.model.clientmodel.ClientModel;
-import com.azure.autorest.model.clientmodel.ClientModelProperty;
-import com.azure.autorest.model.clientmodel.ClientModelPropertyReference;
-import com.azure.autorest.model.clientmodel.MapType;
-import com.azure.autorest.model.javamodel.JavaClass;
-import com.azure.autorest.model.javamodel.JavaContext;
-import com.azure.autorest.template.ModelTemplate;
-import com.azure.autorest.util.ModelNamer;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyReference;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaContext;
+import com.microsoft.typespec.http.client.generator.core.template.ModelTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
 
 import java.util.ArrayList;
 import java.util.List;

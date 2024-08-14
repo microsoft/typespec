@@ -3,18 +3,18 @@
 
 package com.microsoft.typespec.http.client.generator.fluentnamer;
 
-import com.azure.autorest.extension.base.jsonrpc.Connection;
-import com.azure.autorest.extension.base.model.codemodel.CodeModel;
-import com.azure.autorest.extension.base.plugin.JavaSettings;
-import com.azure.autorest.extension.base.plugin.NewPlugin;
-import com.azure.autorest.extension.base.plugin.PluginLogger;
-import com.azure.autorest.extension.base.util.FileUtils;
+import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
 import com.microsoft.typespec.http.client.generator.fluent.namer.FluentNamerFactory;
 import com.microsoft.typespec.http.client.generator.fluent.transformer.FluentTransformer;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentJavaSettings;
-import com.azure.autorest.preprocessor.Preprocessor;
-import com.azure.autorest.preprocessor.tranformer.Transformer;
-import com.azure.autorest.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
+import com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer.Transformer;
+import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.azure.json.JsonProviders;
 import com.azure.json.JsonReader;
 import org.slf4j.Logger;

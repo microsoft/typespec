@@ -3,11 +3,11 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.mapper;
 
-import com.azure.autorest.extension.base.model.codemodel.OperationGroup;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OperationGroup;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentResourceCollection;
-import com.azure.autorest.mapper.IMapper;
-import com.azure.autorest.mapper.Mappers;
-import com.azure.autorest.model.clientmodel.MethodGroupClient;
+import com.microsoft.typespec.http.client.generator.core.mapper.IMapper;
+import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
 
 public class FluentResourceCollectionMapper implements IMapper<OperationGroup, FluentResourceCollection> {
 

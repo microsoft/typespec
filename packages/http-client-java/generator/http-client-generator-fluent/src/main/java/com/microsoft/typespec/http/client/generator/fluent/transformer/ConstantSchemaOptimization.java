@@ -3,8 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.transformer;
 
-import com.azure.autorest.extension.base.model.codemodel.CodeModel;
-import com.azure.autorest.preprocessor.Preprocessor;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
 
 public class ConstantSchemaOptimization {
 

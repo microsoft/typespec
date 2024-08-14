@@ -3,8 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.mapper;
 
-import com.azure.autorest.extension.base.model.codemodel.RequestParameterLocation;
-import com.azure.autorest.extension.base.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.fluent.FluentGen;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentCollectionMethod;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.FluentExample;
@@ -30,19 +30,19 @@ import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.flu
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.update.UpdateStageApply;
 import com.microsoft.typespec.http.client.generator.fluent.model.clientmodel.fluentmodel.update.UpdateStageMisc;
 import com.microsoft.typespec.http.client.generator.fluent.util.FluentUtils;
-import com.azure.autorest.model.clientmodel.ClassType;
-import com.azure.autorest.model.clientmodel.ClientMethod;
-import com.azure.autorest.model.clientmodel.ClientMethodParameter;
-import com.azure.autorest.model.clientmodel.ClientModel;
-import com.azure.autorest.model.clientmodel.MethodGroupClient;
-import com.azure.autorest.model.clientmodel.ModelProperty;
-import com.azure.autorest.model.clientmodel.ProxyMethodExample;
-import com.azure.autorest.model.clientmodel.examplemodel.ExampleNode;
-import com.azure.autorest.model.clientmodel.examplemodel.LiteralNode;
-import com.azure.autorest.model.clientmodel.examplemodel.MethodParameter;
-import com.azure.autorest.util.CodeNamer;
-import com.azure.autorest.util.MethodUtil;
-import com.azure.autorest.util.ModelExampleUtil;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelProperty;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodExample;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleNode;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.LiteralNode;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
+import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
+import com.microsoft.typespec.http.client.generator.core.util.ModelExampleUtil;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -140,7 +140,7 @@ public class ExampleParser {
         String methodName = clientMethod.getProxyMethod().getName();
         String name = CodeNamer.toPascalCase(groupName) + CodeNamer.toPascalCase(methodName);
         if (!this.aggregateExamples) {
-            name += com.azure.autorest.preprocessor.namer.CodeNamer.getTypeName(exampleName);
+            name += com.microsoft.typespec.http.client.generator.core.preprocessor.namer.CodeNamer.getTypeName(exampleName);
         }
         FluentExample example = examples.get(name);
         if (example == null) {

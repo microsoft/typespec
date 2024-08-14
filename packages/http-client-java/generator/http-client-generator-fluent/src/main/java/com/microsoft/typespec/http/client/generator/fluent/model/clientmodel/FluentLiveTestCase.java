@@ -3,7 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.fluent.model.clientmodel;
 
-import com.azure.autorest.model.clientmodel.examplemodel.ExampleHelperFeature;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleHelperFeature;
 
 import java.util.ArrayList;
 import java.util.Collections;

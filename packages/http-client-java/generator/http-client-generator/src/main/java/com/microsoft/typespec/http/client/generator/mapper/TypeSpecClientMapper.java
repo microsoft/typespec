@@ -3,13 +3,13 @@
 
 package com.microsoft.typespec.http.client.generator.mapper;
 
-import com.azure.autorest.extension.base.model.codemodel.Client;
-import com.azure.autorest.extension.base.model.codemodel.CodeModel;
-import com.azure.autorest.mapper.ClientMapper;
-import com.azure.autorest.model.clientmodel.ClientModel;
-import com.azure.autorest.model.clientmodel.ClientResponse;
-import com.azure.autorest.model.clientmodel.EnumType;
-import com.azure.autorest.model.clientmodel.ServiceClient;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.mapper.ClientMapper;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientResponse;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
 import com.microsoft.typespec.http.client.generator.util.ModelUtil;
 
 import java.util.ArrayList;
