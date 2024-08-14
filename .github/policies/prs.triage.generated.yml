@@ -95,6 +95,12 @@ configuration:
               - addLabel:
                   label: emitter:client:java
           - if:
+              - filesMatchPattern:
+                  pattern: packages/http-client-python/.*
+            then:
+              - addLabel:
+                  label: emitter:client:python
+          - if:
               - includesModifiedFiles:
                   files:
                     - packages/json-schema/**/*

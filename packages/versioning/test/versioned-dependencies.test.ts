@@ -449,6 +449,24 @@ describe("versioning: reference versioned library", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
+    // LEGACY test due to arm depending on it. Should remove when we relax using-versioned-library rule
+    it("doesn't emit diagnostic when parent namespace reference sub namespace that is versioned differently", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace MyService {
+          enum Versions {m1}
+          model Foo is SubNamespace.Bar;
+          
+          @versioned(SubNamespace.Versions)
+          namespace SubNamespace {
+            enum Versions { s1 }
+            model Bar {}
+          }
+        }
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     it("succeed if sub namespace of versioned service reference versioned library", async () => {
       const diagnostics = await runner.diagnose(`
         @versioned(Versions)
