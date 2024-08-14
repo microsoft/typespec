@@ -61,11 +61,6 @@
     "@typespec/versioning": ">=0.59.0 <1.0.0",
     "@typespec/openapi": ">=0.59.0 <1.0.0"
   },
-  "dependenciesMeta": {
-    "@azure-tools/typespec-client-generator-core": {
-      "injected": true
-    }
-  },
   "dependencies": {
     "js-yaml": "~4.1.0",
     "@typespec/openapi3": "~0.59.0",
