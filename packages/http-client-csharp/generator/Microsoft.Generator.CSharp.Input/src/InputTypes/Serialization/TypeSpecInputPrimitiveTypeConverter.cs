@@ -55,7 +55,10 @@ namespace Microsoft.Generator.CSharp.Input
                 throw new JsonException($"Unknown primitive type kind: {kind}");
             }
 
-            var primitiveType = new InputPrimitiveType(primitiveTypeKind, name, crossLanguageDefinitionId, encode, baseType, decorators);
+            var primitiveType = new InputPrimitiveType(primitiveTypeKind, name, crossLanguageDefinitionId, encode, baseType)
+            {
+                Decorators = decorators ?? Array.Empty<InputDecoratorInfo>()
+            };
             if (id != null)
             {
                 resolver.AddReference(id, primitiveType);

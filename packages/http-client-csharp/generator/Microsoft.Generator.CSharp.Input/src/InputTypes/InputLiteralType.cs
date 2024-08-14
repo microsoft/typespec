@@ -1,13 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-
 namespace Microsoft.Generator.CSharp.Input
 {
     public sealed class InputLiteralType : InputType
     {
-        public InputLiteralType(InputType valueType, object value, IReadOnlyList<InputDecoratorInfo>? decorators = null) : base("Literal", decorators)
+        public InputLiteralType(InputType valueType, object value) : base("Literal")
         {
             ValueType = valueType;
             Value = value;

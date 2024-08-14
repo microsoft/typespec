@@ -30,8 +30,7 @@ namespace Microsoft.Generator.CSharp.Input
             OperationPaging? paging,
             bool generateProtocolMethod,
             bool generateConvenienceMethod,
-            string crossLanguageDefinitionId,
-            IReadOnlyList<InputDecoratorInfo>? decorators = null)
+            string crossLanguageDefinitionId)
         {
             Name = name;
             ResourceName = resourceName;
@@ -52,7 +51,6 @@ namespace Microsoft.Generator.CSharp.Input
             GenerateProtocolMethod = generateProtocolMethod;
             GenerateConvenienceMethod = generateConvenienceMethod;
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
-            Decorators = decorators ?? [];
         }
 
         public InputOperation() : this(
@@ -74,8 +72,7 @@ namespace Microsoft.Generator.CSharp.Input
             paging: null,
             generateProtocolMethod: true,
             generateConvenienceMethod: false,
-            crossLanguageDefinitionId: string.Empty,
-            decorators: Array.Empty<InputDecoratorInfo>())
+            crossLanguageDefinitionId: string.Empty)
         { }
 
         public string Name { get; internal set; }
@@ -97,7 +94,7 @@ namespace Microsoft.Generator.CSharp.Input
         public bool GenerateProtocolMethod { get; internal set; }
         public bool GenerateConvenienceMethod { get; internal set; }
         public string CrossLanguageDefinitionId { get; internal set; }
-        public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; }
+        public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
 
         private IReadOnlyDictionary<string, InputOperationExample>? _examples;
         internal IReadOnlyDictionary<string, InputOperationExample> Examples => _examples ??= EnsureExamples();

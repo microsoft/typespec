@@ -14,14 +14,13 @@ namespace Microsoft.Generator.CSharp.Input
         /// Construct a new <see cref="InputType"/> instance
         /// </summary>
         /// <param name="name">The name of the input type.</param>
-        protected InputType(string name, IReadOnlyList<InputDecoratorInfo>? decorators = null)
+        protected InputType(string name)
         {
             Name = name;
-            Decorators = decorators ?? [];
         }
 
         public string Name { get; internal set; }
-        public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; }
+        public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
 
         internal InputType GetCollectionEquivalent(InputType inputType)
         {
@@ -31,14 +30,18 @@ namespace Microsoft.Generator.CSharp.Input
                     return new InputArrayType(
                         listType.Name,
                         listType.CrossLanguageDefinitionId,
-                        listType.ValueType.GetCollectionEquivalent(inputType),
-                        listType.Decorators);
+                        listType.ValueType.GetCollectionEquivalent(inputType))
+                    {
+                        Decorators = listType.Decorators
+                    };
                 case InputDictionaryType dictionaryType:
                     return new InputDictionaryType(
                         dictionaryType.Name,
                         dictionaryType.KeyType,
-                        dictionaryType.ValueType.GetCollectionEquivalent(inputType),
-                        dictionaryType.Decorators);
+                        dictionaryType.ValueType.GetCollectionEquivalent(inputType))
+                    {
+                        Decorators = dictionaryType.Decorators
+                    };
                 default:
                     return inputType;
             }

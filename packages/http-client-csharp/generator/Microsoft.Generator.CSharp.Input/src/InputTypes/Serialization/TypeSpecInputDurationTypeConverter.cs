@@ -57,7 +57,7 @@ namespace Microsoft.Generator.CSharp.Input
             encode = encode ?? throw new JsonException("Duration type must have encoding");
 
             var dateTimeType = Enum.TryParse<DurationKnownEncoding>(encode, ignoreCase: true, out var encodeKind)
-                ? new InputDurationType(encodeKind, name, crossLanguageDefinitionId, wireType, baseType, decorators)
+                ? new InputDurationType(encodeKind, name, crossLanguageDefinitionId, wireType, baseType) { Decorators = decorators ?? Array.Empty<InputDecoratorInfo>() }
                 : throw new JsonException($"Encoding of Duration type {encode} is unknown.");
 
             if (id != null)

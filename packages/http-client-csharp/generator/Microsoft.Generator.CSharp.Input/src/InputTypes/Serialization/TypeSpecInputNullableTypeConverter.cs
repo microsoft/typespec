@@ -42,7 +42,10 @@ namespace Microsoft.Generator.CSharp.Input
 
             valueType = valueType ?? throw new JsonException("InputNullableType must have value type");
 
-            var nullableType = new InputNullableType(valueType, decorators);
+            var nullableType = new InputNullableType(valueType)
+            {
+                Decorators = decorators ?? Array.Empty<InputDecoratorInfo>(),
+            };
             if (id != null)
             {
                 resolver.AddReference(id, nullableType);

@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.Input
 
             value = value ?? throw new JsonException("EnumValue must have value");
 
-            var enumValue = new InputEnumTypeValue(name, value, description, decorators);
+            var enumValue = new InputEnumTypeValue(name, value, description) { Decorators = decorators ?? Array.Empty<InputDecoratorInfo>() };
             if (id != null)
             {
                 resolver.AddReference(id, enumValue);

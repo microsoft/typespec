@@ -109,8 +109,10 @@ namespace Microsoft.Generator.CSharp.Input
                 skipUrlEncoding: skipUrlEncoding,
                 explode: explode,
                 arraySerializationDelimiter: arraySerializationDelimiter,
-                headerCollectionPrefix: headerCollectionPrefix,
-                decorators: decorators);
+                headerCollectionPrefix: headerCollectionPrefix)
+            {
+                Decorators = decorators ?? Array.Empty<InputDecoratorInfo>()
+            };
 
             if (id != null)
             {

@@ -7,18 +7,17 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public class InputEnumTypeValue
     {
-        public InputEnumTypeValue(string name, object value, string? description, IReadOnlyList<InputDecoratorInfo>? decorators = null)
+        public InputEnumTypeValue(string name, object value, string? description)
         {
             Name = name;
             Value = value;
             Description = description;
-            Decorators = decorators ?? [];
         }
 
         public string Name { get; }
         public object Value { get; }
         public string? Description { get; }
-        public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; }
+        public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
 
         public virtual string GetJsonValueString() => GetValueString();
         public string GetValueString() => Value.ToString() ?? string.Empty;

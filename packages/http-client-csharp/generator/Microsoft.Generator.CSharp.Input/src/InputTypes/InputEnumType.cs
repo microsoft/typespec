@@ -7,8 +7,8 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public class InputEnumType : InputType
     {
-        public InputEnumType(string name, string crossLanguageDefinitionId, string? accessibility, string? deprecated, string description, InputModelTypeUsage usage, InputPrimitiveType valueType, IReadOnlyList<InputEnumTypeValue> values, bool isExtensible, IReadOnlyList<InputDecoratorInfo>? decorators = null)
-            : base(name, decorators)
+        public InputEnumType(string name, string crossLanguageDefinitionId, string? accessibility, string? deprecated, string description, InputModelTypeUsage usage, InputPrimitiveType valueType, IReadOnlyList<InputEnumTypeValue> values, bool isExtensible)
+            : base(name)
         {
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
             Accessibility = accessibility;

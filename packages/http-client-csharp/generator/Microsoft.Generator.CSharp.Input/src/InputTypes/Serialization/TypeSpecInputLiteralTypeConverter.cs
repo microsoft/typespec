@@ -54,7 +54,10 @@ namespace Microsoft.Generator.CSharp.Input
 
             value = value ?? throw new JsonException("InputConstant must have value");
 
-            var literalType = new InputLiteralType(type, value, decorators);
+            var literalType = new InputLiteralType(type, value)
+            {
+                Decorators = decorators ?? Array.Empty<InputDecoratorInfo>()
+            };
 
             if (id != null)
             {

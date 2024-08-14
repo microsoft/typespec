@@ -1,25 +1,22 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-
 namespace Microsoft.Generator.CSharp.Input
 {
     public sealed class InputPrimitiveType : InputType
     {
-        public InputPrimitiveType(InputPrimitiveTypeKind kind, string name, string crossLanguageDefinitionId, IReadOnlyList<InputDecoratorInfo>? decorators = null) : base(name, decorators)
+        public InputPrimitiveType(InputPrimitiveTypeKind kind, string name, string crossLanguageDefinitionId) : base(name)
         {
             Kind = kind;
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
         }
 
-        public InputPrimitiveType(InputPrimitiveTypeKind kind, string name, string crossLanguageDefinitionId, string? encode, IReadOnlyList<InputDecoratorInfo>? decorators = null) : this(kind, name, crossLanguageDefinitionId, decorators)
+        public InputPrimitiveType(InputPrimitiveTypeKind kind, string name, string crossLanguageDefinitionId, string? encode) : this(kind, name, crossLanguageDefinitionId)
         {
             Encode = encode;
         }
 
-        public InputPrimitiveType(InputPrimitiveTypeKind kind, string name, string crossLanguageDefinitionId, string? encode, InputPrimitiveType? baseType, IReadOnlyList<InputDecoratorInfo>? decorators = null) : this(kind, name, crossLanguageDefinitionId, encode, decorators)
+        public InputPrimitiveType(InputPrimitiveTypeKind kind, string name, string crossLanguageDefinitionId, string? encode, InputPrimitiveType? baseType) : this(kind, name, crossLanguageDefinitionId, encode)
         {
             BaseType = baseType;
         }
