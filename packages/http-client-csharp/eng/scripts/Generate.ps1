@@ -48,7 +48,6 @@ function IsSpecDir {
 $failingSpecs = @(
     Join-Path 'http' 'special-words'
     Join-Path 'http' 'client' 'structure' 'default'
-    Join-Path 'http' 'client' 'structure' 'multi-client'
     Join-Path 'http' 'client' 'structure' 'renamed-operation'
     Join-Path 'http' 'client' 'structure' 'two-operation-group'
     Join-Path 'http' 'encode' 'datetime'
@@ -101,7 +100,10 @@ foreach ($directory in $directories) {
         continue
     }
 
-    $specFile = Join-Path $directory.FullName "main.tsp"
+    $specFile = Join-Path $directory.FullName "client.tsp"
+    if (-not (Test-Path $specFile)) {
+        $specFile = Join-Path $directory.FullName "main.tsp"
+    }
     $subPath = $directory.FullName.Substring($specsDirectory.Length + 1)
     $folders = $subPath.Split([System.IO.Path]::DirectorySeparatorChar)
 
