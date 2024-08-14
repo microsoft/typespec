@@ -126,11 +126,11 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 if (param.Type.IsList)
                 {
-                    statements.Add(param.Assign(New.Instance(new CSharpType(typeof(List<>), param.Type.Arguments))).Terminate());
+                    statements.Add(param.Assign(New.Instance(CodeModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(param.Type.Arguments))).Terminate());
                 }
                 else if (param.Type.IsDictionary)
                 {
-                    statements.Add(param.Assign(New.Instance(new CSharpType(typeof(Dictionary<,>), param.Type.Arguments))).Terminate());
+                    statements.Add(param.Assign(New.Instance(CodeModelPlugin.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(param.Type.Arguments))).Terminate());
                 }
             }
             return [.. statements];
