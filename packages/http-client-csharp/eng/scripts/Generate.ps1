@@ -103,6 +103,7 @@ foreach ($directory in $directories) {
     }
 
     $specFile = Join-Path $directory.FullName "main.tsp"
+    $specFile = $specFile.Replace("\", "/")  # replace \ with / for the path to avoid path-unix-style warning
     $subPath = $directory.FullName.Substring($specsDirectory.Length + 1)
     $folders = $subPath.Split([System.IO.Path]::DirectorySeparatorChar)
 
@@ -127,6 +128,7 @@ foreach ($directory in $directories) {
     foreach ($folder in $folders) {
         $generationDir = Join-Path $generationDir $folder
     }
+    $generationDir = $generationDir.Replace("\", "/")  # replace \ with / for the path to avoid path-unix-style warning
 
     #create the directory if it doesn't exist
     if (-not (Test-Path $generationDir)) {
