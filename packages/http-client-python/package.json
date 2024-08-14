@@ -29,7 +29,6 @@
       "default": "./dist/src/testing/index.js"
     }
   },
-  "tspMain": "dist/src/index.js",
   "engines": {
     "node": ">=18.0.0"
   },
@@ -39,9 +38,9 @@
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts",
-    "install": "node ./eng/scripts/run-python3.cjs ./eng/scripts/install.py",
-    "prepare": "node ./eng/scripts/run-python3.cjs ./eng/scripts/prepare.py",
-    "regenerate": "node ./dist/eng/scripts/regenerate.js"
+    "install": "tsx ./eng/scripts/run-python3.ts ./eng/scripts/install.py",
+    "prepare": "tsx ./eng/scripts/run-python3.ts ./eng/scripts/prepare.py",
+    "regenerate": "tsx ./eng/scripts/regenerate.ts"
   },
   "files": [
     "dist/**",
@@ -64,9 +63,8 @@
   "dependencies": {
     "js-yaml": "~4.1.0",
     "@typespec/openapi3": "~0.59.0",
-    "@autorest/system-requirements": "~1.0.2",
-    "fs-extra": "~11.2.0",
-    "semver": "~7.6.2"
+    "semver": "~7.6.2",
+    "tsx": "^4.16.2"
   },
   "devDependencies": {
     "@azure-tools/typespec-azure-resource-manager": "~0.45.0",
@@ -79,7 +77,6 @@
     "@typespec/eslint-config-typespec": "~0.55.0",
     "@typespec/openapi": "~0.59.0",
     "c8": "~7.13.0",
-    "eslint": "^8.57.0",
     "rimraf": "~5.0.0",
     "typescript": "~5.1.3",
     "@azure-tools/typespec-azure-core": "~0.45.0",
