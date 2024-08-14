@@ -4,16 +4,13 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Client.Structure.Service;
+using Client.Structure.Service.Models;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.MultiClient
 {
     public class MultiClientTests : CadlRanchTestBase
     {
-        //TODO We should pass in ClientType.MultiClient instead of this string once
-        // this is fixed https://github.com/microsoft/typespec/pull/4164
-        private const string MultiClient = "multi-client";
-
         [Test]
         public void VerifyMethods()
         {
@@ -37,42 +34,42 @@ namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.MultiClient
         [CadlRanchTest]
         public Task RenamedOne() => Test(async (host) =>
         {
-            var response = await new ClientAClient(host, MultiClient, null).RenamedOneAsync();
+            var response = await new ClientAClient(host, ClientType.MultiClient, null).RenamedOneAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
         [CadlRanchTest]
         public Task RenamedTwo() => Test(async (host) =>
         {
-            var response = await new ClientBClient(host, MultiClient, null).RenamedTwoAsync();
+            var response = await new ClientBClient(host, ClientType.MultiClient, null).RenamedTwoAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
         [CadlRanchTest]
         public Task RenamedThree() => Test(async (host) =>
         {
-            var response = await new ClientAClient(host, MultiClient, null).RenamedThreeAsync();
+            var response = await new ClientAClient(host, ClientType.MultiClient, null).RenamedThreeAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
         [CadlRanchTest]
         public Task RenamedFour() => Test(async (host) =>
         {
-            var response = await new ClientBClient(host, MultiClient, null).RenamedFourAsync();
+            var response = await new ClientBClient(host, ClientType.MultiClient, null).RenamedFourAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
         [CadlRanchTest]
         public Task RenamedFive() => Test(async (host) =>
         {
-            var response = await new ClientAClient(host, MultiClient, null).RenamedFiveAsync();
+            var response = await new ClientAClient(host, ClientType.MultiClient, null).RenamedFiveAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
         [CadlRanchTest]
         public Task RenamedSix() => Test(async (host) =>
         {
-            var response = await new ClientBClient(host, MultiClient, null).RenamedSixAsync();
+            var response = await new ClientBClient(host, ClientType.MultiClient, null).RenamedSixAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
     }

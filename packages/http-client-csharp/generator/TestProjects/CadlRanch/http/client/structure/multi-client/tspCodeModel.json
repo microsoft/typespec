@@ -79,10 +79,7 @@
        "NameInRequest": "client",
        "Description": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
        "Type": {
-        "$id": "13",
-        "Kind": "string",
-        "Name": "string",
-        "CrossLanguageDefinitionId": "TypeSpec.string"
+        "$ref": "2"
        },
        "Location": "Uri",
        "IsApiVersion": false,
@@ -97,7 +94,7 @@
      ],
      "Responses": [
       {
-       "$id": "14",
+       "$id": "13",
        "StatusCodes": [
         204
        ],
@@ -116,7 +113,7 @@
      "CrossLanguageDefinitionId": "Client.Structure.MultiClient.ClientA.renamedOne"
     },
     {
-     "$id": "15",
+     "$id": "14",
      "Name": "renamedThree",
      "ResourceName": "ClientA",
      "Accessibility": "public",
@@ -130,7 +127,7 @@
      ],
      "Responses": [
       {
-       "$id": "16",
+       "$id": "15",
        "StatusCodes": [
         204
        ],
@@ -149,7 +146,7 @@
      "CrossLanguageDefinitionId": "Client.Structure.MultiClient.ClientA.renamedThree"
     },
     {
-     "$id": "17",
+     "$id": "16",
      "Name": "renamedFive",
      "ResourceName": "ClientA",
      "Accessibility": "public",
@@ -163,7 +160,7 @@
      ],
      "Responses": [
       {
-       "$id": "18",
+       "$id": "17",
        "StatusCodes": [
         204
        ],
@@ -183,7 +180,7 @@
     }
    ],
    "Protocol": {
-    "$id": "19"
+    "$id": "18"
    },
    "Parameters": [
     {
@@ -195,22 +192,22 @@
    ]
   },
   {
-   "$id": "20",
+   "$id": "19",
    "Name": "ClientBClient",
    "Operations": [
     {
-     "$id": "21",
+     "$id": "20",
      "Name": "renamedTwo",
      "ResourceName": "ClientB",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "22",
+       "$id": "21",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Description": "Need to be set as 'http://localhost:3000' in client.",
        "Type": {
-        "$id": "23",
+        "$id": "22",
         "Kind": "url",
         "Name": "url",
         "CrossLanguageDefinitionId": "TypeSpec.url"
@@ -226,15 +223,12 @@
        "Kind": "Client"
       },
       {
-       "$id": "24",
+       "$id": "23",
        "Name": "client",
        "NameInRequest": "client",
        "Description": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
        "Type": {
-        "$id": "25",
-        "Kind": "string",
-        "Name": "string",
-        "CrossLanguageDefinitionId": "TypeSpec.string"
+        "$ref": "2"
        },
        "Location": "Uri",
        "IsApiVersion": false,
@@ -249,7 +243,7 @@
      ],
      "Responses": [
       {
-       "$id": "26",
+       "$id": "24",
        "StatusCodes": [
         204
        ],
@@ -268,21 +262,21 @@
      "CrossLanguageDefinitionId": "Client.Structure.MultiClient.ClientB.renamedTwo"
     },
     {
-     "$id": "27",
+     "$id": "25",
      "Name": "renamedFour",
      "ResourceName": "ClientB",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "22"
+       "$ref": "21"
       },
       {
-       "$ref": "24"
+       "$ref": "23"
       }
      ],
      "Responses": [
       {
-       "$id": "28",
+       "$id": "26",
        "StatusCodes": [
         204
        ],
@@ -301,21 +295,21 @@
      "CrossLanguageDefinitionId": "Client.Structure.MultiClient.ClientB.renamedFour"
     },
     {
-     "$id": "29",
+     "$id": "27",
      "Name": "renamedSix",
      "ResourceName": "ClientB",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "22"
+       "$ref": "21"
       },
       {
-       "$ref": "24"
+       "$ref": "23"
       }
      ],
      "Responses": [
       {
-       "$id": "30",
+       "$id": "28",
        "StatusCodes": [
         204
        ],
@@ -335,14 +329,14 @@
     }
    ],
    "Protocol": {
-    "$id": "31"
+    "$id": "29"
    },
    "Parameters": [
     {
-     "$ref": "22"
+     "$ref": "21"
     },
     {
-     "$ref": "24"
+     "$ref": "23"
     }
    ]
   }

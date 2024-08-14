@@ -6,6 +6,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
+using Client.Structure.Service.Models;
 
 namespace Client.Structure.Service
 {
@@ -13,9 +14,9 @@ namespace Client.Structure.Service
     {
         protected ClientBClient() => throw null;
 
-        public ClientBClient(Uri endpoint, string client) : this(endpoint, client, new ClientBClientOptions()) => throw null;
+        public ClientBClient(Uri endpoint, ClientType client) : this(endpoint, client, new ClientBClientOptions()) => throw null;
 
-        public ClientBClient(Uri endpoint, string client, ClientBClientOptions options) => throw null;
+        public ClientBClient(Uri endpoint, ClientType client, ClientBClientOptions options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
