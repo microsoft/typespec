@@ -224,7 +224,7 @@ function addOptions(spec: string, generatedFolder: string, flags: RegenerateFlag
     }
     options["examples-directory"] = toPosix(join(dirname(spec), "examples"));
     const configs = Object.entries(options).flatMap(([k, v]) => {
-      return `--option @azure-tools/typespec-python.${k}=${v}`;
+      return `--option @typespec/http-client-python.${k}=${v}`;
     });
     emitterConfigs.push(configs.join(" "));
   }

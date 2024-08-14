@@ -46,7 +46,7 @@ const EmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = {
 };
 
 export const $lib = createTypeSpecLibrary({
-  name: "@azure-tools/typespec-python",
+  name: "@typespec/http-client-python",
   diagnostics: {},
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<PythonEmitterOptions>,
