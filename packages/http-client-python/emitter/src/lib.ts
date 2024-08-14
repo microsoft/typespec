@@ -45,13 +45,11 @@ const EmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = {
   required: [],
 };
 
-const libDef = {
+export const $lib = createTypeSpecLibrary({
   name: "@azure-tools/typespec-python",
   diagnostics: {},
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<PythonEmitterOptions>,
   },
-} as const;
-
-export const $lib = createTypeSpecLibrary(libDef);
+});
 export const { reportDiagnostic, createStateSymbol, getTracer } = $lib;
