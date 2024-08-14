@@ -24,6 +24,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         private static readonly InputClient _animalClient = new("animal", "AnimalClient description", [], [], TestClientName);
         private static readonly InputClient _dogClient = new("dog", "DogClient description", [], [], _animalClient.Name);
         private static readonly InputClient _huskyClient = new("husky", "HuskyClient description", [], [], _dogClient.Name);
+        private static readonly InputModelType _spreadModel = new(
+            "spreadModel",
+            "spreadModel",
+            null,
+            null,
+            null,
+            InputModelTypeUsage.Spread,
+            [new InputModelProperty("p1", "p1", "property p1", InputPrimitiveType.String, true, false, false)],
+            null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
         [SetUp]
         public void SetUp()
@@ -364,6 +373,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.AreEqual(Helpers.GetExpectedFromFile(), codeFile.Content);
         }
 
+        [TestCaseSource(nameof(ValidateClientWithSpreadTestCases))]
+        public void ValidateClientWithSpread(InputClient inputClient)
+        {
+            var clientProvider = new ClientProviderWithSpread(inputClient);
+            var writer = new TypeProviderWriter(clientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         private static InputClient GetEnumQueryParamClient()
             => new InputClient(
                 TestClientName,
@@ -435,6 +453,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 var method = base.BuildMethods().Where(m => m.Signature.Parameters.Any(p => p.Name == "queryParam" && p.Type.Name == "InputEnum" && !m.Signature.Name.EndsWith("Async"))).First();
                 method.Update(xmlDocProvider: new XmlDocProvider()); // null out the docs
                 return [method];
+            }
+
+            protected override FieldProvider[] BuildFields() => [];
+            protected override ConstructorProvider[] BuildConstructors() => [];
+            protected override PropertyProvider[] BuildProperties() => [];
+        }
+
+        private class ClientProviderWithSpread : ClientProvider
+        {
+            public ClientProviderWithSpread(InputClient inputClient) : base(inputClient) { }
+
+            protected override MethodProvider[] BuildMethods()
+            {
+                return [.. base.BuildMethods()];
             }
 
             protected override FieldProvider[] BuildFields() => [];
@@ -517,6 +549,43 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 yield return new TestCaseData(_animalClient, true);
                 yield return new TestCaseData(_dogClient, true);
                 yield return new TestCaseData(_huskyClient, false);
+            }
+        }
+
+        public static IEnumerable<TestCaseData> ValidateClientWithSpreadTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(new InputClient(
+                    TestClientName,
+                    "TestClient description",
+                    [
+                        new(
+                        name: "CreateMessage",
+                        resourceName: null,
+                        deprecated: null,
+                        description: string.Empty,
+                        accessibility: null,
+                        parameters:
+                        [
+                            new InputParameter("spread", "spread", "Sample spread parameter.", _spreadModel, RequestLocation.Body, null, InputOperationParameterKind.Spread, true, false, false, false, false, false, false, null, null)
+                        ],
+                        responses: [new OperationResponse([200], null, BodyMediaType.Json, [], false, ["application/json"])],
+                        httpMethod: "GET",
+                        requestBodyMediaType: BodyMediaType.Json,
+                        uri: "localhost",
+                        path: "/api/messages",
+                        externalDocsUrl: null,
+                        requestMediaTypes: null,
+                        bufferResponse: false,
+                        longRunning: null,
+                        paging: null,
+                        generateProtocolMethod: true,
+                        generateConvenienceMethod: true,
+                        crossLanguageDefinitionId: "TestService.CreateMessage")
+                    ],
+                    [],
+                    null));
             }
         }
 

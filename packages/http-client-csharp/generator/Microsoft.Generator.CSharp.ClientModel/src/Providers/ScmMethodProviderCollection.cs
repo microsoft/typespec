@@ -25,6 +25,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly MethodProvider _createRequestMethod;
 
         private readonly string _createRequestMethodName;
+        private readonly InputModelType? _inputModelForSpreadParam;
 
         private ClientProvider Client { get; }
 
@@ -35,6 +36,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _createRequestMethodName = "Create" + _cleanOperationName + "Request";
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(Operation);
+            _inputModelForSpreadParam = Operation.Parameters
+                .Select(param => RestClientProvider.TryGetSpreadParameterModel(param, out var model) ? model : null)
+                .FirstOrDefault(model => model != null);
         }
 
         protected override IReadOnlyList<MethodProvider> BuildMethods()
@@ -63,6 +67,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 methodModifier |= MethodSignatureModifiers.Async;
             }
+
             var methodSignature = new MethodSignature(
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
                 FormattableStringHelpers.FromString(Operation.Description),
@@ -71,17 +76,43 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 null,
                 ConvenienceMethodParameters);
             var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
+            List<MethodBodyStatement> methodBody = new(2);
+            VariableExpression? spreadParamModelVarRef = null;
+            List<ParameterProvider> nonSpreadParams = [];
 
-            MethodBodyStatement[] methodBody;
+            if (_inputModelForSpreadParam != null
+                && ClientModelPlugin.Instance.TypeFactory.CreateModel(_inputModelForSpreadParam) is ModelProvider modelProvider)
+            {
+                var modelCtorSignature = modelProvider.FullConstructor.Signature;
+                var modelCtorParameters = modelCtorSignature.Parameters.ToDictionary(p => p.Name);
+                spreadParamModelVarRef = new VariableExpression(modelProvider.Type, modelProvider.Name.ToVariableName());
+                // var model = new ModelType { ... };
+                methodBody.Add(Declare(
+                    spreadParamModelVarRef,
+                    New.Instance(modelCtorSignature, GetSpreadParamModelCtorArgs(modelCtorSignature))));
+
+                foreach (var param in ConvenienceMethodParameters)
+                {
+                    if (!modelCtorParameters.ContainsKey(param.Name))
+                    {
+                        nonSpreadParams.Add(param);
+                    }
+                }
+            }
+
+            ValueExpression[] protocolMethodInvocationArgs = spreadParamModelVarRef != null
+                ? [.. GetParamConversions(nonSpreadParams), spreadParamModelVarRef, Null]
+                : [.. GetParamConversions(ConvenienceMethodParameters), Null];
+
             if (responseBodyType is null)
             {
-                methodBody = [Return(This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters), Null], isAsync))];
+                methodBody.Add(Return(This.Invoke(protocolMethod.Signature, protocolMethodInvocationArgs, isAsync)));
             }
             else
             {
-                methodBody =
+                MethodBodyStatement[] body =
                 [
-                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters), Null], isAsync).As<ClientResult>(), out ScopedApi<ClientResult> result),
+                    Declare("result", This.Invoke(protocolMethod.Signature, protocolMethodInvocationArgs, isAsync).As<ClientResult>(), out ScopedApi<ClientResult> result),
                     Return(Static<ClientResult>().Invoke(
                         nameof(ClientResult.FromValue),
                         [
@@ -89,6 +120,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                             result.Invoke("GetRawResponse")
                         ])),
                 ];
+                methodBody.Add(body);
             }
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType);
@@ -131,6 +163,38 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
             }
             return conversions;
+        }
+
+        private IReadOnlyList<ValueExpression> GetSpreadParamModelCtorArgs(ConstructorSignature modelProviderCtorSignature)
+        {
+            var convenienceMethodParams = ConvenienceMethodParameters.ToDictionary(p => p.Name);
+            var expressions = new List<ValueExpression>(modelProviderCtorSignature.Parameters.Count);
+
+            foreach (var param in modelProviderCtorSignature.Parameters)
+            {
+                if (convenienceMethodParams.TryGetValue(param.Name, out var convenienceParam))
+                {
+                    ValueExpression expression = convenienceParam.Type switch
+                    {
+                        { IsList: true } => NullCoalescing(
+                            new AsExpression(convenienceParam.NullConditional().ToList(), new CSharpType(typeof(IList<>), convenienceParam.Type.Arguments)),
+                            New.Instance(convenienceParam.Type.PropertyInitializationType, [])
+                        ),
+                        { IsDictionary: true } => NullCoalescing(
+                            convenienceParam,
+                            New.Instance(convenienceParam.Type.PropertyInitializationType, [])
+                        ),
+                        _ => convenienceParam
+                    };
+                    expressions.Add(expression);
+                }
+                else
+                {
+                    expressions.Add(Null);
+                }
+            }
+
+            return expressions;
         }
 
         public IReadOnlyList<ParameterProvider> MethodParameters => _createRequestMethod.Signature.Parameters;

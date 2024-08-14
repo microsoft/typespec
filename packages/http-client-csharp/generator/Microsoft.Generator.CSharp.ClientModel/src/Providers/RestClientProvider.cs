@@ -4,6 +4,7 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -345,6 +346,61 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
         }
 
+        private static IReadOnlyList<ParameterProvider> BuildOrderedSpreadParameters(InputModelType inputModel)
+        {
+            // create the model provider
+            if (ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel) is not ModelProvider modelProvider)
+                throw new InvalidOperationException($"Unable to create model for input model {inputModel.Name}.");
+
+            var fullConstructor = modelProvider.FullConstructor;
+            var primaryConstructor = modelProvider.Constructors.FirstOrDefault(c => c != fullConstructor);
+            var orderedParameters = new List<ParameterProvider>();
+            var primaryCtorParameterNames = new HashSet<string>();
+
+            // add the primary constructor parameters
+            if (primaryConstructor?.Signature.Parameters != null)
+            {
+                foreach (var param in primaryConstructor.Signature.Parameters)
+                {
+                    orderedParameters.Add(param);
+                    primaryCtorParameterNames.Add(param.Name);
+                }
+            }
+
+            // add the remaining constructor parameters from the full constructor, avoiding duplicates
+            foreach (var param in fullConstructor.Signature.Parameters)
+            {
+                var wireInfo = param.Property?.WireInfo;
+                if (wireInfo is null || primaryCtorParameterNames.Contains(param.Name))
+                    continue;
+
+                if (!wireInfo.IsRequired)
+                {
+                    orderedParameters.Add(new(
+                        param.Name,
+                        param.Description,
+                        param.Type.InputType,
+                        Default,
+                        param.IsRef,
+                        param.IsOut,
+                        [],
+                        param.Property,
+                        param.Field,
+                        param.InitializationValue)
+                    {
+                        Validation = param.Validation
+                    });
+
+                    continue;
+                }
+
+                orderedParameters.Add(param);
+            }
+
+            // sort the parameters by required
+            return [.. orderedParameters.OrderBy(p => p.DefaultValue == null ? 0 : 1)];
+        }
+
         internal MethodProvider GetCreateRequestMethod(InputOperation operation)
         {
             _ = Methods; // Ensure methods are built
@@ -356,7 +412,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             List<ParameterProvider> methodParameters = new();
             foreach (InputParameter inputParam in operation.Parameters)
             {
-                if (inputParam.Kind != InputOperationParameterKind.Method)
+                InputModelType? spreadInputModel = null;
+                if ((inputParam.Kind != InputOperationParameterKind.Method) && !TryGetSpreadParameterModel(inputParam, out spreadInputModel))
                     continue;
 
                 ParameterProvider? parameter = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam);
@@ -371,12 +428,32 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     {
                         parameter.Type = parameter.Type.IsEnum ? parameter.Type.UnderlyingEnumType : parameter.Type;
                     }
-                }
 
-                if (parameter is not null)
+                    if (parameter is not null)
+                        methodParameters.Add(parameter);
+                }
+                else if (spreadInputModel != null)
+                {
+                    methodParameters.AddRange(BuildOrderedSpreadParameters(spreadInputModel));
+                }
+                else if (parameter is not null)
+                {
                     methodParameters.Add(parameter);
+                }
             }
             return methodParameters;
+        }
+
+        internal static bool TryGetSpreadParameterModel(InputParameter inputParam, [NotNullWhen(true)] out InputModelType? inputModel)
+        {
+            inputModel = null;
+            if (inputParam.Kind.HasFlag(InputOperationParameterKind.Spread) && inputParam.Type is InputModelType model)
+            {
+                inputModel = model;
+                return true;
+            }
+
+            return false;
         }
     }
 }

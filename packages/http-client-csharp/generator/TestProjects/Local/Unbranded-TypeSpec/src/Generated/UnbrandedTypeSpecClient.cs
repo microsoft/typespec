@@ -5,6 +5,8 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnbrandedTypeSpec.Models;
 
@@ -637,12 +639,16 @@ namespace UnbrandedTypeSpec
         /// </item>
         /// </list>
         /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult AnonymousBody(RequestOptions options)
+        public virtual ClientResult AnonymousBody(BinaryContent content, RequestOptions options)
         {
-            using PipelineMessage message = CreateAnonymousBodyRequest(options);
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateAnonymousBodyRequest(content, options);
             return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
@@ -654,28 +660,98 @@ namespace UnbrandedTypeSpec
         /// </item>
         /// </list>
         /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> AnonymousBodyAsync(RequestOptions options)
+        public virtual async Task<ClientResult> AnonymousBodyAsync(BinaryContent content, RequestOptions options)
         {
-            using PipelineMessage message = CreateAnonymousBodyRequest(options);
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateAnonymousBodyRequest(content, options);
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> body parameter without body decorator. </summary>
+        /// <param name="name"> name of the Thing. </param>
+        /// <param name="requiredUnion"> required Union. </param>
+        /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
+        /// <param name="requiredNullableList"> required nullable collection. </param>
+        /// <param name="requiredLiteralString"> required literal string. </param>
+        /// <param name="requiredLiteralInt"> required literal int. </param>
+        /// <param name="requiredLiteralFloat"> required literal float. </param>
+        /// <param name="requiredLiteralBool"> required literal bool. </param>
+        /// <param name="optionalLiteralString"> optional literal string. </param>
+        /// <param name="optionalLiteralInt"> optional literal int. </param>
+        /// <param name="optionalLiteralFloat"> optional literal float. </param>
+        /// <param name="optionalLiteralBool"> optional literal bool. </param>
+        /// <param name="optionalNullableList"> optional nullable collection. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/> or <paramref name="requiredBadDescription"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<Thing> AnonymousBody()
+        public virtual ClientResult<Thing> AnonymousBody(string name, BinaryData requiredUnion, string requiredBadDescription, IEnumerable<int> requiredNullableList, AnonymousBodyRequestRequiredLiteralString requiredLiteralString, AnonymousBodyRequestRequiredLiteralInt requiredLiteralInt, AnonymousBodyRequestRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, AnonymousBodyRequestOptionalLiteralString? optionalLiteralString = default, AnonymousBodyRequestOptionalLiteralInt? optionalLiteralInt = default, AnonymousBodyRequestOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default)
         {
-            ClientResult result = AnonymousBody(null);
+            Argument.AssertNotNull(name, nameof(name));
+            Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
+            Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
+
+            AnonymousBodyRequest anonymousBodyRequest = new AnonymousBodyRequest(
+                name,
+                requiredUnion,
+                requiredLiteralString,
+                requiredLiteralInt,
+                requiredLiteralFloat,
+                requiredLiteralBool,
+                optionalLiteralString,
+                optionalLiteralInt,
+                optionalLiteralFloat,
+                optionalLiteralBool,
+                requiredBadDescription,
+                optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
+                requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
+                null);
+            ClientResult result = AnonymousBody(anonymousBodyRequest, null);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> body parameter without body decorator. </summary>
+        /// <param name="name"> name of the Thing. </param>
+        /// <param name="requiredUnion"> required Union. </param>
+        /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
+        /// <param name="requiredNullableList"> required nullable collection. </param>
+        /// <param name="requiredLiteralString"> required literal string. </param>
+        /// <param name="requiredLiteralInt"> required literal int. </param>
+        /// <param name="requiredLiteralFloat"> required literal float. </param>
+        /// <param name="requiredLiteralBool"> required literal bool. </param>
+        /// <param name="optionalLiteralString"> optional literal string. </param>
+        /// <param name="optionalLiteralInt"> optional literal int. </param>
+        /// <param name="optionalLiteralFloat"> optional literal float. </param>
+        /// <param name="optionalLiteralBool"> optional literal bool. </param>
+        /// <param name="optionalNullableList"> optional nullable collection. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/> or <paramref name="requiredBadDescription"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<Thing>> AnonymousBodyAsync()
+        public virtual async Task<ClientResult<Thing>> AnonymousBodyAsync(string name, BinaryData requiredUnion, string requiredBadDescription, IEnumerable<int> requiredNullableList, AnonymousBodyRequestRequiredLiteralString requiredLiteralString, AnonymousBodyRequestRequiredLiteralInt requiredLiteralInt, AnonymousBodyRequestRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, AnonymousBodyRequestOptionalLiteralString? optionalLiteralString = default, AnonymousBodyRequestOptionalLiteralInt? optionalLiteralInt = default, AnonymousBodyRequestOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default)
         {
-            ClientResult result = await AnonymousBodyAsync(null).ConfigureAwait(false);
+            Argument.AssertNotNull(name, nameof(name));
+            Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
+            Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
+
+            AnonymousBodyRequest anonymousBodyRequest = new AnonymousBodyRequest(
+                name,
+                requiredUnion,
+                requiredLiteralString,
+                requiredLiteralInt,
+                requiredLiteralFloat,
+                requiredLiteralBool,
+                optionalLiteralString,
+                optionalLiteralInt,
+                optionalLiteralFloat,
+                optionalLiteralBool,
+                requiredBadDescription,
+                optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
+                requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
+                null);
+            ClientResult result = await AnonymousBodyAsync(anonymousBodyRequest, null).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -687,12 +763,16 @@ namespace UnbrandedTypeSpec
         /// </item>
         /// </list>
         /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult FriendlyModel(RequestOptions options)
+        public virtual ClientResult FriendlyModel(BinaryContent content, RequestOptions options)
         {
-            using PipelineMessage message = CreateFriendlyModelRequest(options);
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateFriendlyModelRequest(content, options);
             return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
@@ -704,28 +784,42 @@ namespace UnbrandedTypeSpec
         /// </item>
         /// </list>
         /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> FriendlyModelAsync(RequestOptions options)
+        public virtual async Task<ClientResult> FriendlyModelAsync(BinaryContent content, RequestOptions options)
         {
-            using PipelineMessage message = CreateFriendlyModelRequest(options);
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateFriendlyModelRequest(content, options);
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Model can have its friendly name. </summary>
+        /// <param name="name"> name of the NotFriend. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<Friend> FriendlyModel()
+        public virtual ClientResult<Friend> FriendlyModel(string name)
         {
-            ClientResult result = FriendlyModel(null);
+            Argument.AssertNotNull(name, nameof(name));
+
+            FriendlyModelRequest friendlyModelRequest = new FriendlyModelRequest(name, null);
+            ClientResult result = FriendlyModel(friendlyModelRequest, null);
             return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
 
         /// <summary> Model can have its friendly name. </summary>
+        /// <param name="name"> name of the NotFriend. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<Friend>> FriendlyModelAsync()
+        public virtual async Task<ClientResult<Friend>> FriendlyModelAsync(string name)
         {
-            ClientResult result = await FriendlyModelAsync(null).ConfigureAwait(false);
+            Argument.AssertNotNull(name, nameof(name));
+
+            FriendlyModelRequest friendlyModelRequest = new FriendlyModelRequest(name, null);
+            ClientResult result = await FriendlyModelAsync(friendlyModelRequest, null).ConfigureAwait(false);
             return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
 
@@ -789,12 +883,16 @@ namespace UnbrandedTypeSpec
         /// </item>
         /// </list>
         /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult ProjectedNameModel(RequestOptions options)
+        public virtual ClientResult ProjectedNameModel(BinaryContent content, RequestOptions options)
         {
-            using PipelineMessage message = CreateProjectedNameModelRequest(options);
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateProjectedNameModelRequest(content, options);
             return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
@@ -806,28 +904,42 @@ namespace UnbrandedTypeSpec
         /// </item>
         /// </list>
         /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ProjectedNameModelAsync(RequestOptions options)
+        public virtual async Task<ClientResult> ProjectedNameModelAsync(BinaryContent content, RequestOptions options)
         {
-            using PipelineMessage message = CreateProjectedNameModelRequest(options);
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateProjectedNameModelRequest(content, options);
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Model can have its projected name. </summary>
+        /// <param name="name"> name of the ModelWithProjectedName. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<ProjectedModel> ProjectedNameModel()
+        public virtual ClientResult<ProjectedModel> ProjectedNameModel(string name)
         {
-            ClientResult result = ProjectedNameModel(null);
+            Argument.AssertNotNull(name, nameof(name));
+
+            ProjectedNameModelRequest projectedNameModelRequest = new ProjectedNameModelRequest(name, null);
+            ClientResult result = ProjectedNameModel(projectedNameModelRequest, null);
             return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
         }
 
         /// <summary> Model can have its projected name. </summary>
+        /// <param name="name"> name of the ModelWithProjectedName. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<ProjectedModel>> ProjectedNameModelAsync()
+        public virtual async Task<ClientResult<ProjectedModel>> ProjectedNameModelAsync(string name)
         {
-            ClientResult result = await ProjectedNameModelAsync(null).ConfigureAwait(false);
+            Argument.AssertNotNull(name, nameof(name));
+
+            ProjectedNameModelRequest projectedNameModelRequest = new ProjectedNameModelRequest(name, null);
+            ClientResult result = await ProjectedNameModelAsync(projectedNameModelRequest, null).ConfigureAwait(false);
             return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
         }
 
