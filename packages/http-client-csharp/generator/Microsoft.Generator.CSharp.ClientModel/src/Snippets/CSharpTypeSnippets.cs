@@ -34,26 +34,28 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             if (!type.IsEnum)
                 throw new InvalidOperationException($"Can't call ToSerial on non-enum type {type.Name}");
 
+            ValueExpression variable = param.Field is null ? param : param.Field;
+
             if (type.IsStruct) //extensible
             {
                 if (type.UnderlyingEnumType.Equals(typeof(string)))
                 {
-                    return param.AsExpression.Invoke("ToString");
+                    return variable.Invoke("ToString");
                 }
                 else
                 {
-                    return param.Invoke($"ToSerial{type.UnderlyingEnumType.Name}", type);
+                    return variable.Invoke($"ToSerial{type.UnderlyingEnumType.Name}", [], null, false, extensionType: type);
                 }
             }
             else
             {
                 if (type.UnderlyingEnumType.Equals(typeof(int)) || type.UnderlyingEnumType.Equals(typeof(long)))
                 {
-                    return param.AsExpression.CastTo(type.UnderlyingEnumType);
+                    return variable.CastTo(type.UnderlyingEnumType);
                 }
                 else
                 {
-                    return param.Invoke($"ToSerial{type.UnderlyingEnumType.Name}", type);
+                    return variable.Invoke($"ToSerial{type.UnderlyingEnumType.Name}", [], null, false, extensionType: type);
                 }
             }
         }
