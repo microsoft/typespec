@@ -13,6 +13,7 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Snippets;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializationTypeDefinitions
@@ -584,6 +585,51 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
 
             var methodBody = method?.BodyStatements;
             Assert.IsNotNull(methodBody);
+        }
+
+        [Test]
+        public void TestIntSerializationStatement(
+            [Values(
+            InputPrimitiveTypeKind.Integer,
+            InputPrimitiveTypeKind.SafeInt,
+            InputPrimitiveTypeKind.Int8,
+            // InputPrimitiveTypeKind.Int16, TODO: add them back when we decide the exact corresponding type
+            InputPrimitiveTypeKind.Int32,
+            InputPrimitiveTypeKind.Int64,
+            InputPrimitiveTypeKind.UInt8
+            // InputPrimitiveTypeKind.UInt16,
+            // InputPrimitiveTypeKind.UInt32,
+            // InputPrimitiveTypeKind.UInt64
+            )] InputPrimitiveTypeKind kind,
+            [Values("string", null)] string encode)
+        {
+            var name = kind.ToString().ToLower();
+            var properties = new List<InputModelProperty>
+            {
+                new InputModelProperty("requiredInt", "requiredInt", "", new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode), true, false, false),
+             };
+
+            var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+
+            Assert.IsTrue(TestHelpers.HasExpressionStatement(serialization.BuildJsonModelWriteCoreMethod().BodyStatements, encode is null ? "writer.WriteNumberValue(RequiredInt);\n" : "writer.WriteStringValue(RequiredInt.ToString());\n"));
+        }
+
+        [TestCase(typeof(long), SerializationFormat.String, ExpectedResult = "long.Parse(foo.GetString())")]
+        [TestCase(typeof(int), SerializationFormat.String, ExpectedResult = "int.Parse(foo.GetString())")]
+        [TestCase(typeof(short), SerializationFormat.String, ExpectedResult = "short.Parse(foo.GetString())")]
+        [TestCase(typeof(byte), SerializationFormat.String, ExpectedResult = "byte.Parse(foo.GetString())")]
+        [TestCase(typeof(sbyte), SerializationFormat.String, ExpectedResult = "sbyte.Parse(foo.GetString())")]
+        [TestCase(typeof(long), SerializationFormat.Default, ExpectedResult = "foo.GetInt64()")]
+        [TestCase(typeof(int), SerializationFormat.Default, ExpectedResult = "foo.GetInt32()")]
+        [TestCase(typeof(short), SerializationFormat.Default, ExpectedResult = "foo.GetInt16()")]
+        [TestCase(typeof(byte), SerializationFormat.Default, ExpectedResult = "foo.GetByte()")]
+        [TestCase(typeof(sbyte), SerializationFormat.Default, ExpectedResult = "foo.GetSByte()")]
+        public string TestIntDeserializeExpression(Type type, SerializationFormat format)
+        {
+            var expr = MrwSerializationTypeDefinition.GetValueTypeDeserializationExpression(type, new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")), format);
+            return TestHelpers.GetCode(expr);
         }
     }
 }

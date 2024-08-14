@@ -1,6 +1,6 @@
 {
   "requiredString": "Example String",
-  "requiredInt": 42,
+  "requiredInt": "42",
   "requiredCollection": ["1"],
   "requiredDictionary": {
     "key1": "EnumValue1",

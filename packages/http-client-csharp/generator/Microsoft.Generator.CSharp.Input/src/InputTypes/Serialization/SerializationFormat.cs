@@ -22,6 +22,7 @@ namespace Microsoft.Generator.CSharp.Input
         Duration_Seconds_Double,
         Time_ISO8601,
         Bytes_Base64Url,
-        Bytes_Base64
+        Bytes_Base64,
+        String,
     }
 }

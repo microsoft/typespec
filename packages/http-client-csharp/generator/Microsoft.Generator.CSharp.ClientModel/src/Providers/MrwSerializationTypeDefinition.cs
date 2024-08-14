@@ -1140,6 +1140,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 var t when t == typeof(JsonElement) =>
                     value.As<JsonElement>().WriteTo(_utf8JsonWriterSnippet),
+                var t when ValueTypeIsInt(t) && serializationFormat == SerializationFormat.String =>
+                    _utf8JsonWriterSnippet.WriteStringValue(value.InvokeToString()),
                 var t when ValueTypeIsNumber(t) =>
                     _utf8JsonWriterSnippet.WriteNumberValue(value),
                 var t when t == typeof(object) =>
@@ -1190,15 +1192,37 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Type t when t == typeof(char) =>
                     element.GetChar(),
                 Type t when t == typeof(sbyte) =>
-                    element.GetSByte(),
+                    format switch
+                    {
+                        // when `@encode(string)`, the type is serialized as string, so we need to deserialize it from string
+                        // sbyte.Parse(element.GetString())
+                        SerializationFormat.String => new InvokeMethodExpression(typeof(sbyte), nameof(sbyte.Parse), [element.GetString()]),
+                        _ => element.GetSByte()
+                    },
                 Type t when t == typeof(byte) =>
-                    element.GetByte(),
+                    format switch
+                    {
+                        SerializationFormat.String => new InvokeMethodExpression(typeof(byte), nameof(byte.Parse), [element.GetString()]),
+                        _ => element.GetByte()
+                    },
                 Type t when t == typeof(short) =>
-                    element.GetInt16(),
+                    format switch
+                    {
+                        SerializationFormat.String => new InvokeMethodExpression(typeof(short), nameof(short.Parse), [element.GetString()]),
+                        _ => element.GetInt16()
+                    },
                 Type t when t == typeof(int) =>
-                    element.GetInt32(),
+                    format switch
+                    {
+                        SerializationFormat.String => new InvokeMethodExpression(typeof(int), nameof(int.Parse), [element.GetString()]),
+                        _ => element.GetInt32()
+                    },
                 Type t when t == typeof(long) =>
-                    element.GetInt64(),
+                    format switch
+                    {
+                        SerializationFormat.String => new InvokeMethodExpression(typeof(long), nameof(long.Parse), [element.GetString()]),
+                        _ => element.GetInt64()
+                    },
                 Type t when t == typeof(float) =>
                     element.GetSingle(),
                 Type t when t == typeof(double) =>
@@ -1226,6 +1250,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 _ => throw new NotSupportedException($"Framework type {valueType} is not supported.")
             };
         }
+
+        private static bool ValueTypeIsInt(Type valueType) =>
+            valueType == typeof(long) ||
+            valueType == typeof(int) ||
+            valueType == typeof(short) ||
+            valueType == typeof(sbyte) ||
+            valueType == typeof(byte);
 
         private static bool ValueTypeIsNumber(Type valueType) =>
             valueType == typeof(decimal) ||

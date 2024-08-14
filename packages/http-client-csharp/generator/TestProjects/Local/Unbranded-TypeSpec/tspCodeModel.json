@@ -858,6 +858,7 @@
       "$id": "123",
       "Kind": "int32",
       "Name": "int32",
+      "Encode": "string",
       "CrossLanguageDefinitionId": "TypeSpec.int32"
      },
      "IsRequired": true,
