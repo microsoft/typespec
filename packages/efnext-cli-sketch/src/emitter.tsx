@@ -7,25 +7,38 @@ import {
   Operation,
   Union,
 } from "@typespec/compiler";
-import { mapJoin, Output, refkey } from "@alloy-js/core";
-import { FunctionDeclaration, node, Reference, SourceFile } from "@alloy-js/typescript";
-import { CommandArgParser } from "./components/CommandArgParser/CommandArgParser.js";
-import { ControllerInterface } from "./components/ControllerInterface.js";
+import { Output } from "@alloy-js/core";
+import { node} from "@alloy-js/typescript";
 import { HelperContext, getStateHelpers } from "./helpers.js";
 import { CLITable3 } from "./dependencies.js";
+import { CliParserSourceFile } from "./components/CliParserSourceFile.js";
 
 export type CliType = Namespace | Interface | Operation;
+
 export interface Command {
   cli: CliType;
   subcommands: Command[];
   options: Map<ModelProperty, string>;
 }
+
 export async function $onEmit(context: EmitContext) {
-  const helpers = getStateHelpers(context);
   if (context.program.compilerOptions.noEmit) {
     return;
   }
 
+  const helpers = getStateHelpers(context);
+  const commands = collectCommands(helpers);
+  const cliSfs = commands.map(
+    command => <CliParserSourceFile command={command} />
+  );
+
+
+  return <Output externals={[CLITable3, node.util]} basePath={context.emitterOutputDir}>
+    <HelperContext.Provider value={helpers}>{cliSfs}</HelperContext.Provider>
+  </Output>
+}
+
+export function collectCommands(helpers: ReturnType<typeof getStateHelpers>): Command[] {
   const commands: Command[] = [];
   const clis = helpers.listClis() as CliType[];
 
@@ -57,35 +70,7 @@ export async function $onEmit(context: EmitContext) {
     }
   }
 
-  const cliSfs = [];
-
-  for (const command of commands) {
-    const parsers = [
-      <CommandArgParser command={command} />
-    ]
-
-    for (const subcommand of command.subcommands) {
-      parsers.push(<CommandArgParser command={subcommand} />);
-    }
-
-    cliSfs.push(
-      <SourceFile path={command.cli.name + ".ts"}>
-        <ControllerInterface cli={command.cli} />
-
-        <FunctionDeclaration export name="parseArgs" parameters={{
-          args: "string[]",
-          handler: <Reference refkey={refkey("CommandInterface")} />
-        }}>
-          <Reference refkey={refkey(command, "parseArgs")} />(args);
-          {parsers}
-        </FunctionDeclaration>
-      </SourceFile>
-    );
-  }
-
-  return <Output externals={[CLITable3, node.util]}>
-    <HelperContext.Provider value={helpers}>{cliSfs}</HelperContext.Provider>
-  </Output>
+  return commands;
 }
 
 export function collectCommandOptions(command: CliType): Map<ModelProperty, string> {

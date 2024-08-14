@@ -1,7 +1,6 @@
 /* eslint-disable unicorn/filename-case */
 import { code, mapJoin, refkey } from "@alloy-js/core";
 import { useCommand } from "./CommandArgParser.js";
-import { Reference } from "@alloy-js/typescript";
 
 export interface PositionalTokenHandlerProps {}
 
@@ -14,7 +13,7 @@ export function PositionalTokenHandler({}: PositionalTokenHandlerProps) {
     const subcommandCases = mapJoin(subcommandMap, (name, subcommand) => {
       return code`
         case "${name}":
-          ${<Reference refkey={refkey(subcommand, "parseArgs")} />}(args.slice(token.index + 1));
+          ${refkey(subcommand, "parseArgs")}(args.slice(token.index + 1));
           return;
       `;
     });

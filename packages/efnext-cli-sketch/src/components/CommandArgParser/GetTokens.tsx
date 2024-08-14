@@ -4,7 +4,7 @@ import { useHelpers } from "../../helpers.js";
 import { useCommand } from "./CommandArgParser.js";
 
 export interface GetTokensProps {}
-node.fs
+
 // eslint-disable-next-line no-empty-pattern
 export function GetTokens({}: GetTokensProps) {
   const { command: { options } } = useCommand();
@@ -34,6 +34,6 @@ export function GetTokens({}: GetTokensProps) {
   }
 
   return <>
-    const {"{"} tokens {"}"} = <Reference refkey={node.util.parseArgs} />(<ObjectExpression jsValue={parseArgsArg} />);
+    const {"{"} tokens {"}"} = {node.util.parseArgs}(<ObjectExpression jsValue={parseArgsArg} />);
   </>
 }

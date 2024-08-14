@@ -10,7 +10,6 @@ import { useHelpers } from "../helpers.js";
 import { CliType } from "../index.js";
 import { useCommand } from "./CommandArgParser/CommandArgParser.js";
 import { CLITable3 } from "../dependencies.js";
-import { Reference } from "@alloy-js/typescript";
 
 function removeHashAndBold(s: string) {
   return pc.bold(s.replace(/^#+ /, ""));
@@ -52,7 +51,7 @@ export function HelpText({}: HelpTextProps) {
   const subcommandHelpLines = [];
   if (subcommandMap.size > 0) {
     subcommandHelpLines.push(code`
-      const subcommandTable = new ${<Reference refkey={CLITable3.default} />}({
+      const subcommandTable = new ${CLITable3.default}({
         chars: noFormatting,
       });
     `)
@@ -102,7 +101,7 @@ export function HelpText({}: HelpTextProps) {
           "right-mid": "",
         };
 
-        const table = new ${<Reference refkey={CLITable3.default} />}({
+        const table = new ${CLITable3.default}({
           chars: noFormatting,
         });
         table.push(["--help, -h", "Display this help message."])

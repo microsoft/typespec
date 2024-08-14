@@ -24,7 +24,7 @@ export function InterfaceMember({ type }: InterfaceMemberProps) {
     const params = <FunctionDeclaration.Parameters type={type.parameters} />;
     return (
       <>
-        {name}({params.children}): {returnType};
+        {name}({params}): {returnType};
       </>
     );
   }

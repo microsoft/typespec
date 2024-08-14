@@ -7,33 +7,28 @@ import {
   TypeDeclaration,
 } from "@typespec/emitter-framework/typescript";
 import { useHelpers } from "../helpers.js";
-import { CliType } from "../index.js";
+import { CliType, Command } from "../index.js";
 import { mapJoin } from "@alloy-js/core";
 
 export interface ControllerInterfaceProps {
-  cli: CliType;
+  command: Command;
 }
 
-export function ControllerInterface({ cli }: ControllerInterfaceProps) {
-  const commands: Operation[] = [];
-  const helpers = useHelpers();
-  if (cli.kind === "Interface" || cli.kind === "Namespace") {
-    // TODO: Namespaces might have operation templates, probably need to find those?
-    commands.push(...cli.operations.values());
-  } else {
-    commands.push(cli);
-  }
+export function ControllerInterface({ command }: ControllerInterfaceProps) {
+  const commands: Command[] = [command, ... command.subcommands]
+    .filter(command => command.cli.kind === "Operation");
 
-  const typeDecls = collectTypeDecls(cli).map((type) => <TypeDeclaration type={type} />);
+  // collect types from the root CLI command (which should include types from any subcommands)
+  const typeDecls = collectTypeDecls(command.cli).map((type) => <TypeDeclaration type={type} />);
 
   const memberDecls = mapJoin(commands, (command) => {
-    const optionsBagForm = helpers.toOptionsBag(command);
-    return <InterfaceMember type={optionsBagForm.type as Operation} />;
+    return <InterfaceMember type={command.cli as Operation} />;
   });
+
   return (
     <>
       <InterfaceDeclaration name="CommandInterface">
-        {`${cli.name}: () => void;`}
+        {`${command.cli.name}(): void;`}
         {memberDecls}
         version: string;
       </InterfaceDeclaration>

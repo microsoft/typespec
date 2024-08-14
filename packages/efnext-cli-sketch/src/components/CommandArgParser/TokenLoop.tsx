@@ -3,7 +3,6 @@ import { code, mapJoin, refkey } from "@alloy-js/core";
 import { useCommand } from "./CommandArgParser.js";
 import { OptionTokenHandler } from "./OptionTokenHandler.js";
 import { PositionalTokenHandler } from "./PositionalTokenHandler.js";
-import { Reference } from "@alloy-js/typescript";
 
 export interface TokenLoopProps {}
 // eslint-disable-next-line no-empty-pattern
@@ -22,7 +21,7 @@ export function TokenLoop({}: TokenLoopProps) {
         switch (token.name) {
           case "h":
           case "help":
-            ${<Reference refkey={refkey(command, "help")} />}();
+            ${refkey(command, "help")}();
             return;
           ${optionTokenHandlers}
         }
