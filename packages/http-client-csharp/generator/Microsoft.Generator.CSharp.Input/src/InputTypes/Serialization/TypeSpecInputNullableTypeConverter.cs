@@ -44,7 +44,7 @@ namespace Microsoft.Generator.CSharp.Input
 
             var nullableType = new InputNullableType(valueType)
             {
-                Decorators = decorators ?? Array.Empty<InputDecoratorInfo>(),
+                Decorators = decorators ?? [],
             };
             if (id != null)
             {

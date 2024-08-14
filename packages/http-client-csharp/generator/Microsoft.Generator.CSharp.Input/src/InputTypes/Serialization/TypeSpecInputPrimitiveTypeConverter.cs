@@ -57,7 +57,7 @@ namespace Microsoft.Generator.CSharp.Input
 
             var primitiveType = new InputPrimitiveType(primitiveTypeKind, name, crossLanguageDefinitionId, encode, baseType)
             {
-                Decorators = decorators ?? Array.Empty<InputDecoratorInfo>()
+                Decorators = decorators ?? []
             };
             if (id != null)
             {

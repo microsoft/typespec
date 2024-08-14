@@ -60,7 +60,7 @@ namespace Microsoft.Generator.CSharp.Input
             // description = BuilderHelpers.EscapeXmlDocDescription(description);
             propertyType = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");
 
-            var property = new InputModelProperty(name, serializedName ?? name, description, propertyType, isRequired, isReadOnly, isDiscriminator, flattenedNames) { Decorators = decorators ?? Array.Empty<InputDecoratorInfo>() };
+            var property = new InputModelProperty(name, serializedName ?? name, description, propertyType, isRequired, isReadOnly, isDiscriminator, flattenedNames) { Decorators = decorators ?? [] };
             if (id != null)
             {
                 resolver.AddReference(id, property);

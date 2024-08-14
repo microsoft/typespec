@@ -56,7 +56,7 @@ namespace Microsoft.Generator.CSharp.Input
 
             var literalType = new InputLiteralType(type, value)
             {
-                Decorators = decorators ?? Array.Empty<InputDecoratorInfo>()
+                Decorators = decorators ?? []
             };
 
             if (id != null)

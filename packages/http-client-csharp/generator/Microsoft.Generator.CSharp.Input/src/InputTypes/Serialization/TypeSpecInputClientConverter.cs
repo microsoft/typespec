@@ -61,7 +61,7 @@ namespace Microsoft.Generator.CSharp.Input
             client.Operations = operations ?? Array.Empty<InputOperation>();
             client.Parameters = parameters ?? Array.Empty<InputParameter>();
             client.Parent = parent;
-            client.Decorators = decorators ?? Array.Empty<InputDecoratorInfo>();
+            client.Decorators = decorators ?? [];
 
             return client;
         }

@@ -111,7 +111,7 @@ namespace Microsoft.Generator.CSharp.Input
                 arraySerializationDelimiter: arraySerializationDelimiter,
                 headerCollectionPrefix: headerCollectionPrefix)
             {
-                Decorators = decorators ?? Array.Empty<InputDecoratorInfo>()
+                Decorators = decorators ?? []
             };
 
             if (id != null)

@@ -105,7 +105,7 @@ namespace Microsoft.Generator.CSharp.Input
             operation.GenerateProtocolMethod = generateProtocolMethod;
             operation.GenerateConvenienceMethod = generateConvenienceMethod;
             operation.CrossLanguageDefinitionId = crossLanguageDefinitionId ?? throw new JsonException("InputOperation must have CrossLanguageDefinitionId");
-            operation.Decorators = decorators ?? Array.Empty<InputDecoratorInfo>();
+            operation.Decorators = decorators ?? [];
 
             return operation;
         }

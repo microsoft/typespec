@@ -80,7 +80,7 @@ namespace Microsoft.Generator.CSharp.Input
 
             var enumType = new InputEnumType(name, crossLanguageDefinitionId ?? string.Empty, accessibility, deprecated, description!, usage, inputValueType, NormalizeValues(values, inputValueType), isExtendable)
             {
-                Decorators = decorators ?? Array.Empty<InputDecoratorInfo>()
+                Decorators = decorators ?? []
             };
             if (id != null)
             {

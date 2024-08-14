@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.Input
 
             var dictType = new InputDictionaryType("Dictionary", keyType, valueType)
             {
-                Decorators = decorators ?? Array.Empty<InputDecoratorInfo>(),
+                Decorators = decorators ?? [],
             };
             if (id != null)
             {
