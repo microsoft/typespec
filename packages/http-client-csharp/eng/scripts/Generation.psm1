@@ -29,8 +29,6 @@ function Get-TspCommand {
     $command = "npx tsp compile $specFile"
     $command += " --trace @typespec/http-client-csharp"
     $command += " --emit @typespec/http-client-csharp"
-     # replace \ with / for the path to avoid path-unix-style warning - can be removed once new version of TCGC is released with fix in https://github.com/microsoft/typespec/pull/4173
-    $generationDir = $generationDir.Replace("\", "/")
     $configFile = Join-Path $generationDir "tspconfig.yaml"
     if (Test-Path $configFile) {
         $command += " --config=$configFile"
