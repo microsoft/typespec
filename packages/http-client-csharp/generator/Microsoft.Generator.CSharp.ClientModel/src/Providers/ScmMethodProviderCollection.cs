@@ -103,7 +103,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 if (param.Type.IsEnum)
                 {
-                    if (param.IsBodyParameter)
+                    if (param.Location == ParameterLocation.Body)
                     {
                         conversions.Add(BinaryContentSnippets.Create(BinaryDataSnippets.FromObjectAsJson(param.Type.ToSerial(param))));
                     }

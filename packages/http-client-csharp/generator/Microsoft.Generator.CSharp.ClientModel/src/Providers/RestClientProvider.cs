@@ -130,6 +130,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 null,
                 [.. GetMethodParameters(operation, true), options]);
             var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
+            foreach (var param in ClientProvider.GetUriParameters())
+            {
+                paramMap[param.Name] = param;
+            }
 
             var classifier = GetClassifier(operation);
 
@@ -235,8 +239,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             Dictionary<string, InputParameter> inputParamHash = new(operation.Parameters.ToDictionary(p => p.Name));
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
+            string? endpoint = ClientProvider.EndpointParameterName;
+            int uriOffset = endpoint is null || !operation.Uri.StartsWith(endpoint, StringComparison.Ordinal) ? 0 : endpoint.Length;
+            AddUriSegments(operation.Uri, uriOffset, uri, statements, inputParamHash, paramMap);
+            AddUriSegments(operation.Path, 0, uri, statements, inputParamHash, paramMap);
+            return statements;
+        }
 
-            var pathSpan = operation.Path.AsSpan();
+        private void AddUriSegments(
+            string segments,
+            int offset,
+            ScopedApi<ClientUriBuilderDefinition> uri,
+            List<MethodBodyStatement> statements,
+            Dictionary<string, InputParameter> inputParamHash,
+            Dictionary<string, ParameterProvider> paramMap)
+        {
+            var pathSpan = segments.AsSpan().Slice(offset);
             while (pathSpan.Length > 0)
             {
                 var paramIndex = pathSpan.IndexOf('{');
@@ -252,7 +270,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 var paramName = pathSpan.Slice(0, paramEndIndex).ToString();
                 var inputParam = inputParamHash[paramName];
 
-                if (inputParam.Location == RequestLocation.Path)
+                if (inputParam.Location == RequestLocation.Path || inputParam.Location == RequestLocation.Uri)
                 {
                     bool isString;
                     string? format;
@@ -265,7 +283,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
                 pathSpan = pathSpan.Slice(paramEndIndex + 1);
             }
-            return statements;
         }
 
         private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputParameter inputParam, out bool isString, out string? format, out ValueExpression valueExpression)
@@ -279,8 +296,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             else
             {
                 var paramProvider = paramMap[inputParam.Name];
-                valueExpression = paramProvider;
-                format = paramProvider.WireInfo.SerializationFormat.ToFormatSpecifier();
+                if (paramProvider.Type.IsEnum)
+                {
+                    var csharpType = paramProvider.Field is null ? paramProvider.Type : paramProvider.Field.Type;
+                    valueExpression = csharpType.ToSerial(paramProvider);
+                    isString = true;
+                    format = null;
+                }
+                else
+                {
+                    valueExpression = paramProvider.Field is null ? paramProvider : paramProvider.Field;
+                    format = paramProvider.WireInfo.SerializationFormat.ToFormatSpecifier();
+                }
             }
         }
 
