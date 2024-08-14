@@ -195,13 +195,33 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 if (inputParameter.Location != RequestLocation.Header)
                     continue;
 
-                bool isString;
+                CSharpType? type;
                 string? format;
                 ValueExpression valueExpression;
-                GetParamInfo(paramMap, inputParameter, out isString, out format, out valueExpression);
+                GetParamInfo(paramMap, inputParameter, out type, out format, out valueExpression);
                 ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
-                valueExpression = isString ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
-                statements.Add(request.SetHeaderValue(inputParameter.NameInRequest, valueExpression.As<string>()));
+                ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
+                MethodBodyStatement statement;
+                if (type?.Equals(typeof(BinaryData)) == true)
+                {
+                    statement = request.SetHeaderValue(
+                        inputParameter.NameInRequest,
+                        TypeFormattersSnippets.ToString(valueExpression.Invoke("ToArray"), Literal(format)));
+                }
+                else if (type?.Equals(typeof(IList<BinaryData>)) == true)
+                {
+                    statement =
+                        new ForeachStatement("item", valueExpression.As<IEnumerable<BinaryData>>(), out var item)
+                        {
+                            request.AddHeaderValue(inputParameter.NameInRequest, TypeFormattersSnippets.ToString(item.Invoke("ToArray"),
+                                Literal(format)))
+                        };
+                }
+                else
+                {
+                    statement = request.SetHeaderValue(inputParameter.NameInRequest, toStringExpression.As<string>());
+                }
+                statements.Add(statement);
             }
 
             return statements;
@@ -216,13 +236,28 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 if (inputParameter.Location != RequestLocation.Query)
                     continue;
 
-                bool isString;
                 string? format;
                 ValueExpression valueExpression;
-                GetParamInfo(paramMap, inputParameter, out isString, out format, out valueExpression);
+                GetParamInfo(paramMap, inputParameter, out var type, out format, out valueExpression);
                 ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
-                var toStringExpression = isString ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
-                var statement = uri.AppendQuery(Literal(inputParameter.NameInRequest), toStringExpression, true).Terminate();
+                var toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
+                MethodBodyStatement statement;
+                if (type?.Equals(typeof(BinaryData)) == true)
+                {
+                    statement = uri.AppendQuery(Literal(inputParameter.NameInRequest),
+                        valueExpression.Invoke("ToArray"), format, true).Terminate();
+                }
+                else if (type?.Equals(typeof(IList<BinaryData>)) == true)
+                {
+                    statement = uri.AppendQueryDelimited(Literal(inputParameter.NameInRequest),
+                        valueExpression, format, true).Terminate();
+                }
+                else
+                {
+                    statement = uri.AppendQuery(Literal(inputParameter.NameInRequest), toStringExpression, true)
+                        .Terminate();
+                }
+
                 statement = inputParameter.IsRequired
                     ? statement
                     : new IfStatement(valueExpression.NotEqual(Null))
@@ -272,12 +307,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
                 if (inputParam.Location == RequestLocation.Path || inputParam.Location == RequestLocation.Uri)
                 {
-                    bool isString;
+                    CSharpType? type;
                     string? format;
                     ValueExpression valueExpression;
-                    GetParamInfo(paramMap, inputParam, out isString, out format, out valueExpression);
+                    GetParamInfo(paramMap, inputParam, out type, out format, out valueExpression);
                     ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
-                    valueExpression = isString ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
+                    valueExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
                     statements.Add(uri.AppendPath(valueExpression, true).Terminate());
                 }
 
@@ -285,9 +320,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
         }
 
-        private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputParameter inputParam, out bool isString, out string? format, out ValueExpression valueExpression)
+        private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputParameter inputParam, out CSharpType? type, out string? format, out ValueExpression valueExpression)
         {
-            isString = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParam.Type)?.Equals(typeof(string)) == true;
+            type = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
             if (inputParam.Kind == InputOperationParameterKind.Constant)
             {
                 valueExpression = Literal((inputParam.Type as InputLiteralType)?.Value);
@@ -300,7 +335,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     var csharpType = paramProvider.Field is null ? paramProvider.Type : paramProvider.Field.Type;
                     valueExpression = csharpType.ToSerial(paramProvider);
-                    isString = true;
                     format = null;
                 }
                 else
