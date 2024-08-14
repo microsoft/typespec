@@ -296,8 +296,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             else
             {
                 var paramProvider = paramMap[inputParam.Name];
-                valueExpression = paramProvider.Field is null ? paramProvider : paramProvider.Field;
-                format = paramProvider.WireInfo.SerializationFormat.ToFormatSpecifier();
+                if (paramProvider.Type.IsEnum)
+                {
+                    var csharpType = paramProvider.Field is null ? paramProvider.Type : paramProvider.Field.Type;
+                    valueExpression = csharpType.ToSerial(paramProvider);
+                    isString = true;
+                    format = null;
+                }
+                else
+                {
+                    valueExpression = paramProvider.Field is null ? paramProvider : paramProvider.Field;
+                    format = paramProvider.WireInfo.SerializationFormat.ToFormatSpecifier();
+                }
             }
         }
 
