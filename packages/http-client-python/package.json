@@ -34,10 +34,9 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "clean": "rimraf ./dist ./temp",
+    "clean": "rimraf ./dist ./temp ./test/**/generated/ ./venv",
     "build": "tsc -p ./emitter/tsconfig.build.json",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
-    "test-official": "c8 mocha --forbid-only",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts",
     "install": "node ./eng/scripts/run-python3.cjs ./eng/scripts/install.py",
