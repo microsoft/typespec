@@ -255,11 +255,9 @@ describe("openapi3: security", () => {
       namespace MyService {}
       `
     );
-    expectDiagnostics(diagnostics, [
-      {
-        code: "@typespec/openapi3/unsupported-auth",
-      },
-    ]);
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/unsupported-auth",
+    });
   });
 
   it("can specify custom auth name with description", async () => {
