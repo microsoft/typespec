@@ -1191,38 +1191,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     element.GetBoolean(),
                 Type t when t == typeof(char) =>
                     element.GetChar(),
-                Type t when t == typeof(sbyte) =>
-                    format switch
-                    {
-                        // when `@encode(string)`, the type is serialized as string, so we need to deserialize it from string
-                        // sbyte.Parse(element.GetString())
-                        SerializationFormat.String => new InvokeMethodExpression(typeof(sbyte), nameof(sbyte.Parse), [element.GetString()]),
-                        _ => element.GetSByte()
-                    },
-                Type t when t == typeof(byte) =>
-                    format switch
-                    {
-                        SerializationFormat.String => new InvokeMethodExpression(typeof(byte), nameof(byte.Parse), [element.GetString()]),
-                        _ => element.GetByte()
-                    },
-                Type t when t == typeof(short) =>
-                    format switch
-                    {
-                        SerializationFormat.String => new InvokeMethodExpression(typeof(short), nameof(short.Parse), [element.GetString()]),
-                        _ => element.GetInt16()
-                    },
-                Type t when t == typeof(int) =>
-                    format switch
-                    {
-                        SerializationFormat.String => new InvokeMethodExpression(typeof(int), nameof(int.Parse), [element.GetString()]),
-                        _ => element.GetInt32()
-                    },
-                Type t when t == typeof(long) =>
-                    format switch
-                    {
-                        SerializationFormat.String => new InvokeMethodExpression(typeof(long), nameof(long.Parse), [element.GetString()]),
-                        _ => element.GetInt64()
-                    },
+                Type t when ValueTypeIsInt(t) =>
+                    GetIntTypeDeserializationExpress(element, t, format),
                 Type t when t == typeof(float) =>
                     element.GetSingle(),
                 Type t when t == typeof(double) =>
@@ -1267,6 +1237,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             valueType == typeof(short) ||
             valueType == typeof(sbyte) ||
             valueType == typeof(byte);
+
+        private static ValueExpression GetIntTypeDeserializationExpress(ScopedApi<JsonElement> element, Type type, SerializationFormat format) => format switch
+        {
+            // when `@encode(string)`, the type is serialized as string, so we need to deserialize it from string
+            // sbyte.Parse(element.GetString())
+            SerializationFormat.String => new InvokeMethodExpression(type, nameof(int.Parse), [element.GetString()]),
+            _ => type switch
+            {
+                Type t when t == typeof(long) => element.GetInt64(),
+                Type t when t == typeof(int) => element.GetInt32(),
+                Type t when t == typeof(short) => element.GetInt16(),
+                Type t when t == typeof(sbyte) => element.GetSByte(),
+                Type t when t == typeof(byte) => element.GetByte(),
+                _ => throw new NotSupportedException($"Framework type {type} is not int.")
+            }
+        };
 
         private MethodBodyStatement SerializeDateTimeRelatedTypes(Type valueType, SerializationFormat serializationFormat, ValueExpression value)
         {
