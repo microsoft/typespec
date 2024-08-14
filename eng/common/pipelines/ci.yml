@@ -7,6 +7,7 @@ pr:
   branches:
     include:
       - main
+      - release/*
 
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml

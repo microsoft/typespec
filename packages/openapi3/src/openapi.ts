@@ -1456,8 +1456,9 @@ function createOAPIEmitter(
   function getQueryParameterAttributes(parameter: HttpOperationParameter & { type: "query" }) {
     const attributes: { style?: string; explode?: boolean } = {};
 
-    if (parameter.explode) {
-      attributes.explode = true;
+    if (parameter.explode !== true) {
+      // For query parameters(style: form) the default is explode: true https://spec.openapis.org/oas/v3.0.2#fixed-fields-9
+      attributes.explode = false;
     }
 
     switch (parameter.format) {
@@ -1465,9 +1466,10 @@ function createOAPIEmitter(
         return { style: "spaceDelimited", explode: false };
       case "pipes":
         return { style: "pipeDelimited", explode: false };
-      case undefined:
       case "csv":
       case "simple":
+        return { explode: false };
+      case undefined:
       case "multi":
       case "form":
         return attributes;

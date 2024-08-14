@@ -1,0 +1,6 @@
+{
+  "output-folder": ".",
+  "namespace": "Payload.Xml",
+  "library-name": "Payload.Xml",
+  "use-model-reader-writer": true
+}
