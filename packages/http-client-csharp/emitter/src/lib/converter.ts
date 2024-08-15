@@ -172,6 +172,7 @@ export function fromSdkModelType(
           flattenedNamePrefixes.length > 0
             ? flattenedNamePrefixes.concat(property.name)
             : undefined,
+        Decorators: property.decorators,
       };
 
       return [modelProperty];
@@ -214,6 +215,7 @@ export function fromSdkEnumType(
       Description: enumType.description,
       IsExtensible: enumType.isFixed ? false : true,
       Usage: enumType.usage,
+      Decorators: enumType.decorators,
     };
     if (addToCollection) enums.set(enumName, inputEnumType);
   }
@@ -228,6 +230,7 @@ function fromSdkDateTimeType(dateTimeType: SdkDateTimeType): InputDateTimeType {
     WireType: fromSdkBuiltInType(dateTimeType.wireType),
     CrossLanguageDefinitionId: dateTimeType.crossLanguageDefinitionId,
     BaseType: dateTimeType.baseType ? fromSdkDateTimeType(dateTimeType.baseType) : undefined,
+    Decorators: dateTimeType.decorators,
   };
 }
 
@@ -239,6 +242,7 @@ function fromSdkDurationType(durationType: SdkDurationType): InputDurationType {
     WireType: fromSdkBuiltInType(durationType.wireType),
     CrossLanguageDefinitionId: durationType.crossLanguageDefinitionId,
     BaseType: durationType.baseType ? fromSdkDurationType(durationType.baseType) : undefined,
+    Decorators: durationType.decorators,
   };
 }
 
@@ -248,6 +252,7 @@ function fromTupleType(tupleType: SdkTupleType): InputPrimitiveType {
     Kind: "any",
     Name: "tuple",
     CrossLanguageDefinitionId: "",
+    Decorators: tupleType.decorators,
   };
 }
 
@@ -258,6 +263,7 @@ function fromSdkBuiltInType(builtInType: SdkBuiltInType): InputPrimitiveType {
     Encode: builtInType.encode !== builtInType.kind ? builtInType.encode : undefined, // In TCGC this is required, and when there is no encoding, it just has the same value as kind, we could remove this when TCGC decides to simplify
     CrossLanguageDefinitionId: builtInType.crossLanguageDefinitionId,
     BaseType: builtInType.baseType ? fromSdkBuiltInType(builtInType.baseType) : undefined,
+    Decorators: builtInType.decorators,
   };
 }
 
@@ -277,6 +283,7 @@ function fromUnionType(
     Kind: "union",
     Name: union.name,
     VariantTypes: variantTypes,
+    Decorators: union.decorators,
   };
 }
 
@@ -296,6 +303,7 @@ function fromSdkConstantType(
           // we might keep constant as-is, instead of creating an enum for it.
           convertConstantToEnum(constantType, enums, literalTypeContext),
     Value: constantType.value,
+    Decorators: constantType.decorators,
   };
 
   function convertConstantToEnum(
@@ -325,6 +333,7 @@ function fromSdkConstantType(
       Description: `The ${enumName}`, // TODO -- what should we put here?
       IsExtensible: true,
       Usage: literalTypeContext.Usage,
+      Decorators: constantType.decorators,
     };
     enums.set(enumName, enumType);
     return enumType;
@@ -344,6 +353,7 @@ function fromSdkEnumValueTypeToConstantType(
         ? fromSdkBuiltInType(enumValueType.valueType)
         : fromSdkEnumType(enumValueType.enumType, context, enums),
     Value: enumValueType.value,
+    Decorators: enumValueType.decorators,
   };
 }
 
@@ -352,6 +362,7 @@ function fromSdkEnumValueType(enumValueType: SdkEnumValueType): InputEnumTypeVal
     Name: enumValueType.name,
     Value: enumValueType.value,
     Description: enumValueType.description,
+    Decorators: enumValueType.decorators,
   };
 }
 
@@ -365,6 +376,7 @@ function fromSdkDictionaryType(
     Kind: "dict",
     KeyType: fromSdkType(dictionaryType.keyType, context, models, enums),
     ValueType: fromSdkType(dictionaryType.valueType, context, models, enums),
+    Decorators: dictionaryType.decorators,
   };
 }
 
@@ -379,6 +391,7 @@ function fromSdkArrayType(
     Name: arrayType.name,
     ValueType: fromSdkType(arrayType.valueType, context, models, enums),
     CrossLanguageDefinitionId: arrayType.crossLanguageDefinitionId,
+    Decorators: arrayType.decorators,
   };
 }
 

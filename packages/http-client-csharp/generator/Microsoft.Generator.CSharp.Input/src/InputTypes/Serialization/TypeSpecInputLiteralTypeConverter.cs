@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -26,11 +27,13 @@ namespace Microsoft.Generator.CSharp.Input
             var isFirstProperty = id == null && name == null;
             object? value = null;
             InputType? type = null;
+            IReadOnlyList<InputDecoratorInfo>? decorators = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadWithConverter(nameof(InputLiteralType.ValueType), options, ref type);
+                    || reader.TryReadWithConverter(nameof(InputLiteralType.ValueType), options, ref type)
+                    || reader.TryReadWithConverter(nameof(InputLiteralType.Decorators), options, ref decorators);
 
                 if (isKnownProperty)
                 {
@@ -51,7 +54,10 @@ namespace Microsoft.Generator.CSharp.Input
 
             value = value ?? throw new JsonException("InputConstant must have value");
 
-            var literalType = new InputLiteralType(type, value);
+            var literalType = new InputLiteralType(type, value)
+            {
+                Decorators = decorators ?? []
+            };
 
             if (id != null)
             {
