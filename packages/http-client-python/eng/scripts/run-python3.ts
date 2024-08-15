@@ -6,16 +6,16 @@
 //
 // Invoke it like so: "node run-python3.cjs script.py"
 
-const cp = require("child_process");
-const extension = require("./system-requirements.cjs");
+import { execSync } from "child_process";
+import { patchPythonPath } from "./system-requirements.ts";
 
-async function runPython3(scriptName, ...args) {
-  const command = await extension.patchPythonPath(["python", scriptName, ...args], {
+async function runPython3(scriptName: string, ...args: string[]): Promise<void> {
+  const command = await patchPythonPath(["python", scriptName, ...args], {
     version: ">=3.8",
     environmentVariable: "AUTOREST_PYTHON_EXE",
   });
-  cp.execSync(command.join(" "), {
-    stdio: [0, 1, 2],
+  execSync(command.join(" "), {
+    stdio: "inherit",
   });
 }
 

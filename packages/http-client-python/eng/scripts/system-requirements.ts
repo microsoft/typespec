@@ -1,5 +1,5 @@
 const semver = require("semver");
-const child_process = require("child_process");
+import { SpawnOptions, ChildProcess, spawn } from "child_process";
 
 /*
  * Copied from @autorest/system-requirements
@@ -8,13 +8,61 @@ const child_process = require("child_process");
 const PythonRequirement = "python";
 const PRINT_PYTHON_VERSION_SCRIPT = "import sys; print('.'.join(map(str, sys.version_info[:3])))";
 
-function execute(command, cmdlineargs, options = {}) {
+interface MoreOptions extends SpawnOptions {
+  onCreate?(cp: ChildProcess): void;
+  onStdOutData?(chunk: any): void;
+  onStdErrData?(chunk: any): void;
+}
+
+interface SystemRequirement {
+  version?: string;
+  /**
+   * Name of an environment variable where the user could provide the path to the exe.
+   * @example "AUTOREST_PYTHON_PATH"
+   */
+  environmentVariable?: string;
+}
+
+interface SystemRequirementResolution {
+  /**
+   * Name of the requirement.
+   * @example python, java, etc.
+   */
+  name: string;
+
+  /**
+   * Name of the command
+   * @example python3, /home/myuser/python39/python, java, etc.
+   */
+  command: string;
+
+  /**
+   * List of additional arguments to pass to this command.
+   * @example '-3' for 'py' to specify to use python 3
+   */
+  additionalArgs?: string[];
+}
+
+
+interface ExecResult {
+  stdout: string;
+  stderr: string;
+
+  /**
+   * Union of stdout and stderr.
+   */
+  log: string;
+  error: Error | null;
+  code: number | null;
+}
+
+const execute = (
+  command: string,
+  cmdlineargs: Array<string>,
+  options: MoreOptions = {},
+): Promise<ExecResult> => {
   return new Promise((resolve, reject) => {
-    const cp = child_process.spawn(command, cmdlineargs, {
-      ...options,
-      stdio: "pipe",
-      shell: true,
-    });
+    const cp = spawn(command, cmdlineargs, { ...options, stdio: "pipe", shell: true });
     if (options.onCreate) {
       options.onCreate(cp);
     }
@@ -44,10 +92,10 @@ function execute(command, cmdlineargs, options = {}) {
         log: all,
         error: code ? new Error("Process Failed.") : null,
         code,
-      })
+      }),
     );
   });
-}
+};
 
 function versionIsSatisfied(version, requirement) {
   const cleanedVersion = semver.coerce(version);
@@ -64,7 +112,11 @@ function versionIsSatisfied(version, requirement) {
  * @param requirement Requirement.
  * @returns the resolution if it is valid or an @see SystemRequirementError if not.
  */
-function validateVersionRequirement(resolution, actualVersion, requirement) {
+const validateVersionRequirement = (
+  resolution: SystemRequirementResolution,
+  actualVersion: string,
+  requirement: SystemRequirement,
+): SystemRequirementResolution | SystemRequirementError => {
   if (!requirement.version) {
     return resolution; // No version requirement.
   }
@@ -89,7 +141,7 @@ function validateVersionRequirement(resolution, actualVersion, requirement) {
       neededVersion: requirement.version,
     };
   }
-}
+};
 
 async function tryPython(requirement, command, additionalArgs = []) {
   const resolution = {
