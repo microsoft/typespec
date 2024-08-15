@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -28,6 +29,7 @@ namespace Microsoft.Generator.CSharp.Input
             string? crossLanguageDefinitionId = null;
             string? encode = null;
             InputPrimitiveType? baseType = null;
+            IReadOnlyList<InputDecoratorInfo>? decorators = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
@@ -35,7 +37,8 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadString(nameof(InputPrimitiveType.Name), ref name)
                     || reader.TryReadString(nameof(InputPrimitiveType.CrossLanguageDefinitionId), ref crossLanguageDefinitionId)
                     || reader.TryReadString(nameof(InputPrimitiveType.Encode), ref encode)
-                    || reader.TryReadWithConverter(nameof(InputPrimitiveType.BaseType), options, ref baseType);
+                    || reader.TryReadWithConverter(nameof(InputPrimitiveType.BaseType), options, ref baseType)
+                    || reader.TryReadWithConverter(nameof(InputPrimitiveType.Decorators), options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -52,7 +55,10 @@ namespace Microsoft.Generator.CSharp.Input
                 throw new JsonException($"Unknown primitive type kind: {kind}");
             }
 
-            var primitiveType = new InputPrimitiveType(primitiveTypeKind, name, crossLanguageDefinitionId, encode, baseType);
+            var primitiveType = new InputPrimitiveType(primitiveTypeKind, name, crossLanguageDefinitionId, encode, baseType)
+            {
+                Decorators = decorators ?? []
+            };
             if (id != null)
             {
                 resolver.AddReference(id, primitiveType);

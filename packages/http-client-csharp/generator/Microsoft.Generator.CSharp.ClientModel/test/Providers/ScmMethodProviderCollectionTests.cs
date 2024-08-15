@@ -21,7 +21,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             MockHelpers.LoadMockPlugin(
                 createCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)),
-                createParameter: (inputParameter) => new ParameterProvider("mockParam", $"mock description", typeof(bool), null));
+                createParameterCore: (inputParameter) => new ParameterProvider("mockParam", $"mock description", typeof(bool), null));
 
             var methodCollection = new ScmMethodProviderCollection(inputOperation, ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient));
             Assert.IsNotNull(methodCollection);

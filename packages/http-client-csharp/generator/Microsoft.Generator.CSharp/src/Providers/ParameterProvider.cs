@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Providers
     {
         public string Name { get; }
         public FormattableString Description { get; }
-        public CSharpType Type { get; init; }
+        public CSharpType Type { get; set; }
 
         /// <summary>
         /// The default value of the parameter.
@@ -28,8 +28,9 @@ namespace Microsoft.Generator.CSharp.Providers
         public ParameterValidationType Validation { get; init; } = ParameterValidationType.None;
         public bool IsRef { get; }
         public bool IsOut { get; }
-        internal IReadOnlyList<AttributeStatement> Attributes { get; } = Array.Empty<AttributeStatement>();
+        internal IReadOnlyList<AttributeStatement> Attributes { get; } = [];
         public WireInformation WireInfo { get; }
+        public ParameterLocation Location { get; }
 
         /// <summary>
         /// This property tracks which property this parameter is constructed from.
@@ -39,7 +40,7 @@ namespace Microsoft.Generator.CSharp.Providers
         /// <summary>
         /// This property tracks which field this parameter is constructed from.
         /// </summary>
-        public FieldProvider? Field { get; }
+        public FieldProvider? Field { get; set; }
 
         /// <summary>
         /// Creates a <see cref="ParameterProvider"/> from an <see cref="InputParameter"/>.
@@ -50,8 +51,9 @@ namespace Microsoft.Generator.CSharp.Providers
             Name = inputParameter.Name;
             Description = FormattableStringHelpers.FromString(inputParameter.Description) ?? FormattableStringHelpers.Empty;
             Type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");
-            Validation = inputParameter.IsRequired ? ParameterValidationType.AssertNotNull : ParameterValidationType.None;
+            Validation = inputParameter.IsRequired && !Type.IsValueType ? ParameterValidationType.AssertNotNull : ParameterValidationType.None;
             WireInfo = new WireInformation(CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParameter.Type), inputParameter.NameInRequest);
+            Location = inputParameter.Location.ToParameterLocation();
         }
 
         public ParameterProvider(

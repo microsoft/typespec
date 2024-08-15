@@ -70,6 +70,7 @@ describe("openapi3: shared routes", () => {
       {
         in: "query",
         name: "resourceGroup",
+        explode: false,
         required: false,
         schema: {
           type: "string",
@@ -78,6 +79,7 @@ describe("openapi3: shared routes", () => {
       {
         in: "query",
         name: "foo",
+        explode: false,
         required: true,
         schema: {
           type: "string",
@@ -86,6 +88,7 @@ describe("openapi3: shared routes", () => {
       {
         in: "query",
         name: "subscription",
+        explode: false,
         required: false,
         schema: {
           type: "string",
@@ -130,6 +133,7 @@ describe("openapi3: shared routes", () => {
       {
         in: "query",
         name: "filter",
+        explode: false,
         required: true,
         schema: {
           type: "string",
@@ -176,6 +180,7 @@ describe("openapi3: shared routes", () => {
         name: "filter",
         in: "query",
         required: false,
+        explode: false,
         schema: {
           type: "string",
           enum: ["resourceGroup"],

@@ -15,6 +15,7 @@ import {
   HttpOperation,
   HttpOperationParameter,
   HttpOperationParameters,
+  HttpOperationPathParameter,
   PathParameterOptions,
   RouteOptions,
   RoutePath,
@@ -223,22 +224,28 @@ const styleToOperator: Record<PathParameterOptions["style"], string> = {
   fragment: "#",
 };
 
-function addOperationTemplateToUriTemplate(uriTemplate: string, params: HttpOperationParameter[]) {
-  const pathParams = params
-    .filter((x) => x.type === "path")
-    .map((param) => {
-      const operator = param.allowReserved ? "+" : styleToOperator[param.style];
-      return `{${operator}${param.name}${param.explode ? "*" : ""}}`;
-    });
+export function getUriTemplatePathParam(param: HttpOperationPathParameter) {
+  const operator = param.allowReserved ? "+" : styleToOperator[param.style];
+  return `{${operator}${param.name}${param.explode ? "*" : ""}}`;
+}
+
+export function addQueryParamsToUriTemplate(uriTemplate: string, params: HttpOperationParameter[]) {
   const queryParams = params.filter((x) => x.type === "query");
 
-  const pathPart = joinPathSegments([uriTemplate, ...pathParams]);
   return (
-    pathPart +
+    uriTemplate +
     (queryParams.length > 0
       ? `{?${queryParams.map((x) => escapeUriTemplateParamName(x.name)).join(",")}}`
       : "")
   );
+}
+
+function addOperationTemplateToUriTemplate(uriTemplate: string, params: HttpOperationParameter[]) {
+  const pathParams = params.filter((x) => x.type === "path").map(getUriTemplatePathParam);
+  const queryParams = params.filter((x) => x.type === "query");
+
+  const pathPart = joinPathSegments([uriTemplate, ...pathParams]);
+  return addQueryParamsToUriTemplate(pathPart, queryParams);
 }
 
 function escapeUriTemplateParamName(name: string) {
