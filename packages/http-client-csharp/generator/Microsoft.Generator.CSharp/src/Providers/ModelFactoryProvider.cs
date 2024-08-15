@@ -130,7 +130,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
                 else if (param.Type.IsDictionary)
                 {
-                    statements.Add(param.Assign(New.Instance(CodeModelPlugin.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(param.Type.Arguments))).Terminate());
+                    statements.Add(param.Assign(New.Instance(param.Type.PropertyInitializationType)).Terminate());
                 }
             }
             return [.. statements];
