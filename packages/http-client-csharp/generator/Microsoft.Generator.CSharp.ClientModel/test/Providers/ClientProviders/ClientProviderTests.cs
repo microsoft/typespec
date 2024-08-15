@@ -80,7 +80,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             }
             else
             {
-                Assert.AreEqual(3, fields.Count);
+                Assert.AreEqual(4, fields.Count);
             }
 
             // validate the endpoint field
