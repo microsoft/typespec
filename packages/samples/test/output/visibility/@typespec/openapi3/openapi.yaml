@@ -86,7 +86,6 @@ paths:
             type: array
             items:
               type: string
-          explode: true
       responses:
         '200':
           description: The request has succeeded.

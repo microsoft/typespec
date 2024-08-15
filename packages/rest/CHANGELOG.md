@@ -1,5 +1,12 @@
 # Change Log - @typespec/rest
 
+## 0.59.1
+
+### Bug Fixes
+
+- [#4155](https://github.com/microsoft/typespec/pull/4155) HotFix: Uri template not correctly built when using `@autoRoute`
+
+
 ## 0.59.0
 
 ### Bump dependencies

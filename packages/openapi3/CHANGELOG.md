@@ -1,5 +1,12 @@
 # Change Log - @typespec/openapi3
 
+## 0.59.1
+
+### Bug Fixes
+
+- [#4168](https://github.com/microsoft/typespec/pull/4168) Fix: query params are `explode: true` by default in OpenAPI 3.0
+
+
 ## 0.59.0
 
 ### Bug Fixes

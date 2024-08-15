@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -27,12 +28,14 @@ namespace Microsoft.Generator.CSharp.Input
             var isFirstProperty = id == null;
             string? crossLanguageDefinitionId = null;
             InputType? valueType = null;
+            IReadOnlyList<InputDecoratorInfo>? decorators = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
                     || reader.TryReadString(nameof(InputArrayType.Name), ref name)
                     || reader.TryReadString(nameof(InputArrayType.CrossLanguageDefinitionId), ref crossLanguageDefinitionId)
-                    || reader.TryReadWithConverter(nameof(InputArrayType.ValueType), options, ref valueType);
+                    || reader.TryReadWithConverter(nameof(InputArrayType.ValueType), options, ref valueType)
+                    || reader.TryReadWithConverter(nameof(InputArrayType.Decorators), options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -41,7 +44,10 @@ namespace Microsoft.Generator.CSharp.Input
             }
 
             valueType = valueType ?? throw new JsonException("List must have element type");
-            var listType = new InputArrayType(name ?? "Array", crossLanguageDefinitionId ?? string.Empty, valueType);
+            var listType = new InputArrayType(name ?? "Array", crossLanguageDefinitionId ?? string.Empty, valueType)
+            {
+                Decorators = decorators ?? []
+            };
             if (id != null)
             {
                 resolver.AddReference(id, listType);

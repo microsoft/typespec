@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -43,6 +44,7 @@ namespace Microsoft.Generator.CSharp.Input
             bool explode = false;
             string? arraySerializationDelimiter = null;
             string? headerCollectionPrefix = null;
+            IReadOnlyList<InputDecoratorInfo>? decorators = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
@@ -61,7 +63,8 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadBoolean(nameof(InputParameter.SkipUrlEncoding), ref skipUrlEncoding)
                     || reader.TryReadBoolean(nameof(InputParameter.Explode), ref explode)
                     || reader.TryReadString(nameof(InputParameter.ArraySerializationDelimiter), ref arraySerializationDelimiter)
-                    || reader.TryReadString(nameof(InputParameter.HeaderCollectionPrefix), ref headerCollectionPrefix);
+                    || reader.TryReadString(nameof(InputParameter.HeaderCollectionPrefix), ref headerCollectionPrefix)
+                    || reader.TryReadWithConverter(nameof(InputParameter.Decorators), options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -106,7 +109,10 @@ namespace Microsoft.Generator.CSharp.Input
                 skipUrlEncoding: skipUrlEncoding,
                 explode: explode,
                 arraySerializationDelimiter: arraySerializationDelimiter,
-                headerCollectionPrefix: headerCollectionPrefix);
+                headerCollectionPrefix: headerCollectionPrefix)
+            {
+                Decorators = decorators ?? []
+            };
 
             if (id != null)
             {

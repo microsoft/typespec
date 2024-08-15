@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public bool IsOut { get; }
         internal IReadOnlyList<AttributeStatement> Attributes { get; } = [];
         public WireInformation WireInfo { get; }
-        public bool IsBodyParameter { get; }
+        public ParameterLocation Location { get; }
 
         /// <summary>
         /// This property tracks which property this parameter is constructed from.
@@ -40,7 +40,7 @@ namespace Microsoft.Generator.CSharp.Providers
         /// <summary>
         /// This property tracks which field this parameter is constructed from.
         /// </summary>
-        public FieldProvider? Field { get; }
+        public FieldProvider? Field { get; set; }
 
         /// <summary>
         /// Creates a <see cref="ParameterProvider"/> from an <see cref="InputParameter"/>.
@@ -53,7 +53,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");
             Validation = inputParameter.IsRequired && !Type.IsValueType ? ParameterValidationType.AssertNotNull : ParameterValidationType.None;
             WireInfo = new WireInformation(CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParameter.Type), inputParameter.NameInRequest);
-            IsBodyParameter = inputParameter.Location == RequestLocation.Body;
+            Location = inputParameter.Location.ToParameterLocation();
         }
 
         public ParameterProvider(

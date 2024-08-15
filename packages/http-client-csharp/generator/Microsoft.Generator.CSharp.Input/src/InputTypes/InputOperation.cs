@@ -94,6 +94,7 @@ namespace Microsoft.Generator.CSharp.Input
         public bool GenerateProtocolMethod { get; internal set; }
         public bool GenerateConvenienceMethod { get; internal set; }
         public string CrossLanguageDefinitionId { get; internal set; }
+        public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
 
         private IReadOnlyDictionary<string, InputOperationExample>? _examples;
         internal IReadOnlyDictionary<string, InputOperationExample> Examples => _examples ??= EnsureExamples();

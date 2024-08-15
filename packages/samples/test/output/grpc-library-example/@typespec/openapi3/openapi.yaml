@@ -270,6 +270,7 @@ components:
       schema:
         type: integer
         format: int32
+      explode: false
     ListRequestBase.page_token:
       name: page_token
       in: query
@@ -281,6 +282,7 @@ components:
         returned from the previous call to `ListShelves` method.
       schema:
         type: string
+      explode: false
     MergeShelvesRequest.name:
       name: name
       in: path

@@ -12,11 +12,13 @@ import {
   Type,
 } from "@typespec/compiler";
 import {
+  addQueryParamsToUriTemplate,
   DefaultRouteProducer,
   getOperationParameters,
   getOperationVerb,
   getRoutePath,
   getRouteProducer,
+  getUriTemplatePathParam,
   HttpOperation,
   HttpOperationParameter,
   HttpOperationParameters,
@@ -119,7 +121,7 @@ function autoRouteProducer(
   );
 
   for (const httpParam of parameters.parameters) {
-    const { type, param, name } = httpParam;
+    const { type, param } = httpParam;
     if (type === "path") {
       addSegmentFragment(program, param, segments);
 
@@ -137,7 +139,7 @@ function autoRouteProducer(
           segments.push(`/${param.type.value}`);
           continue; // Skip adding to the parameter list
         } else {
-          segments.push(`/{${name}}`);
+          segments.push(`/${getUriTemplatePathParam(httpParam)}`);
         }
       }
     }
@@ -155,8 +157,10 @@ function autoRouteProducer(
   // Add the operation's action segment if present
   addActionFragment(program, operation, segments);
 
+  const pathPart = joinPathSegments(segments);
+
   return diagnostics.wrap({
-    uriTemplate: joinPathSegments(segments),
+    uriTemplate: addQueryParamsToUriTemplate(pathPart, filteredParameters),
     parameters: {
       ...parameters,
       parameters: filteredParameters,

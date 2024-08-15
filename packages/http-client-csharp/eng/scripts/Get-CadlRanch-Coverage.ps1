@@ -29,7 +29,10 @@ foreach ($directory in $directories) {
 
     Write-Host "Regenerating $subPath" -ForegroundColor Cyan
 
-    $specFile = Join-Path $specsDirectory $subPath "main.tsp"
+    $specFile = Join-Path $specsDirectory $subPath "client.tsp"
+    if (-not (Test-Path $specFile)) {
+        $specFile = Join-Path $specsDirectory $subPath "main.tsp"
+    }
 
     $command = Get-TspCommand $specFile $outputDir
     Invoke $command
