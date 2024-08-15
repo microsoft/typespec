@@ -27,7 +27,10 @@
      },
      "IsRequired": true,
      "IsReadOnly": false,
-     "Decorators": []
+     "Decorators": [],
+     "InputModel": {
+      "$ref": "2"
+     }
     }
    ]
   },
@@ -54,7 +57,10 @@
      },
      "IsRequired": true,
      "IsReadOnly": false,
-     "Decorators": []
+     "Decorators": [],
+     "InputModel": {
+      "$ref": "5"
+     }
     }
    ]
   },
@@ -81,7 +87,10 @@
      },
      "IsRequired": true,
      "IsReadOnly": false,
-     "Decorators": []
+     "Decorators": [],
+     "InputModel": {
+      "$ref": "8"
+     }
     }
    ]
   },
@@ -123,7 +132,10 @@
      },
      "IsRequired": true,
      "IsReadOnly": false,
-     "Decorators": []
+     "Decorators": [],
+     "InputModel": {
+      "$ref": "11"
+     }
     }
    ]
   }

@@ -41,7 +41,10 @@
         },
         "IsRequired": true,
         "IsReadOnly": false,
-        "Decorators": []
+        "Decorators": [],
+        "InputModel": {
+         "$ref": "4"
+        }
        },
        {
         "$id": "7",
@@ -57,13 +60,19 @@
         },
         "IsRequired": true,
         "IsReadOnly": false,
-        "Decorators": []
+        "Decorators": [],
+        "InputModel": {
+         "$ref": "4"
+        }
        }
       ]
      },
      "IsRequired": true,
      "IsReadOnly": false,
-     "Decorators": []
+     "Decorators": [],
+     "InputModel": {
+      "$ref": "2"
+     }
     },
     {
      "$id": "9",
@@ -86,7 +95,10 @@
      },
      "IsRequired": true,
      "IsReadOnly": false,
-     "Decorators": []
+     "Decorators": [],
+     "InputModel": {
+      "$ref": "2"
+     }
     }
    ]
   },
@@ -128,7 +140,10 @@
      },
      "IsRequired": true,
      "IsReadOnly": false,
-     "Decorators": []
+     "Decorators": [],
+     "InputModel": {
+      "$ref": "12"
+     }
     }
    ]
   },
@@ -163,7 +178,10 @@
         "$id": "21"
        }
       }
-     ]
+     ],
+     "InputModel": {
+      "$ref": "17"
+     }
     },
     {
      "$id": "22",
@@ -187,7 +205,10 @@
         "$id": "25"
        }
       }
-     ]
+     ],
+     "InputModel": {
+      "$ref": "17"
+     }
     }
    ]
   },
@@ -217,7 +238,10 @@
      },
      "IsRequired": true,
      "IsReadOnly": false,
-     "Decorators": []
+     "Decorators": [],
+     "InputModel": {
+      "$ref": "26"
+     }
     }
    ]
   },
@@ -258,7 +282,10 @@
         "name": "InputData"
        }
       }
-     ]
+     ],
+     "InputModel": {
+      "$ref": "29"
+     }
     },
     {
      "$id": "35",
@@ -279,7 +306,10 @@
         "name": "OutputData"
        }
       }
-     ]
+     ],
+     "InputModel": {
+      "$ref": "29"
+     }
     }
    ]
   },
@@ -329,7 +359,10 @@
         "name": "Colors"
        }
       }
-     ]
+     ],
+     "InputModel": {
+      "$ref": "38"
+     }
     },
     {
      "$id": "46",
@@ -361,7 +394,10 @@
         "name": "Counts"
        }
       }
-     ]
+     ],
+     "InputModel": {
+      "$ref": "38"
+     }
     }
    ]
   },
@@ -403,7 +439,10 @@
         "$id": "56"
        }
       }
-     ]
+     ],
+     "InputModel": {
+      "$ref": "51"
+     }
     },
     {
      "$id": "57",
@@ -426,7 +465,10 @@
      },
      "IsRequired": true,
      "IsReadOnly": false,
-     "Decorators": []
+     "Decorators": [],
+     "InputModel": {
+      "$ref": "51"
+     }
     }
    ]
   },
@@ -461,7 +503,10 @@
         "$id": "64"
        }
       }
-     ]
+     ],
+     "InputModel": {
+      "$ref": "60"
+     }
     },
     {
      "$id": "65",
@@ -485,7 +530,10 @@
         "$id": "68"
        }
       }
-     ]
+     ],
+     "InputModel": {
+      "$ref": "60"
+     }
     },
     {
      "$id": "69",
@@ -501,7 +549,10 @@
      },
      "IsRequired": true,
      "IsReadOnly": false,
-     "Decorators": []
+     "Decorators": [],
+     "InputModel": {
+      "$ref": "60"
+     }
     }
    ]
   },
@@ -528,7 +579,10 @@
      },
      "IsRequired": true,
      "IsReadOnly": false,
-     "Decorators": []
+     "Decorators": [],
+     "InputModel": {
+      "$ref": "71"
+     }
     },
     {
      "$id": "74",
@@ -544,7 +598,10 @@
      },
      "IsRequired": false,
      "IsReadOnly": false,
-     "Decorators": []
+     "Decorators": [],
+     "InputModel": {
+      "$ref": "71"
+     }
     }
    ]
   },
@@ -574,7 +631,10 @@
      },
      "IsRequired": true,
      "IsReadOnly": false,
-     "Decorators": []
+     "Decorators": [],
+     "InputModel": {
+      "$ref": "76"
+     }
     }
    ]
   },
@@ -608,7 +668,10 @@
      },
      "IsRequired": true,
      "IsReadOnly": false,
-     "Decorators": []
+     "Decorators": [],
+     "InputModel": {
+      "$ref": "79"
+     }
     },
     {
      "$id": "83",
@@ -631,7 +694,10 @@
      },
      "IsRequired": true,
      "IsReadOnly": false,
-     "Decorators": []
+     "Decorators": [],
+     "InputModel": {
+      "$ref": "79"
+     }
     }
    ]
   }

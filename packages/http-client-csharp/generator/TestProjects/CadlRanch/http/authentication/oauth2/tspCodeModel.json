@@ -26,7 +26,10 @@
      },
      "IsRequired": true,
      "IsReadOnly": false,
-     "Decorators": []
+     "Decorators": [],
+     "InputModel": {
+      "$ref": "2"
+     }
     }
    ]
   }
