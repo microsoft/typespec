@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.microsoft.typespec.http.client.generator.mgmt;
+package com.microsoft.typespec.http.client.generator.fluent;
 
 import com.microsoft.typespec.http.client.generator.TypeSpecPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
-import com.microsoft.typespec.http.client.generator.mgmtnamer.FluentNamer;
 import com.azure.json.JsonReader;
 import com.azure.json.ReadValueCallback;
+import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 
 import java.nio.file.Path;
 import java.util.Map;

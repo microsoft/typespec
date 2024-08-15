@@ -57,6 +57,7 @@ words:
   - globby
   - graalvm
   - Gson
+  - imple
   - Infima
   - inlines
   - inmemory
@@ -121,6 +122,8 @@ words:
   - sfixed
   - sint
   - snakeyaml
+  - srnagar
+  - statment
   - sses
   - ssvs
   - strs
