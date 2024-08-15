@@ -82,7 +82,7 @@
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": [],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "9"
      }
     }
@@ -111,7 +111,7 @@
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": [],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "12"
      }
     }
@@ -140,7 +140,7 @@
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": [],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "15"
      }
     }
@@ -169,7 +169,7 @@
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": [],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "18"
      }
     }
@@ -198,7 +198,7 @@
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": [],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "21"
      }
     }

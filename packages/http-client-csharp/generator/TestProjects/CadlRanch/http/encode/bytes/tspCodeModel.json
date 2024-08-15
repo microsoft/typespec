@@ -28,7 +28,7 @@
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": [],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "2"
      }
     }
@@ -58,7 +58,7 @@
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": [],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "5"
      }
     }
@@ -88,7 +88,7 @@
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": [],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "8"
      }
     }
@@ -133,7 +133,7 @@
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": [],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "11"
      }
     }

@@ -42,7 +42,7 @@
         "IsRequired": true,
         "IsReadOnly": false,
         "Decorators": [],
-        "InputModel": {
+        "EnclosingType": {
          "$ref": "4"
         }
        },
@@ -61,7 +61,7 @@
         "IsRequired": true,
         "IsReadOnly": false,
         "Decorators": [],
-        "InputModel": {
+        "EnclosingType": {
          "$ref": "4"
         }
        }
@@ -70,7 +70,7 @@
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": [],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "2"
      }
     },
@@ -96,7 +96,7 @@
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": [],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "2"
      }
     }
@@ -141,7 +141,7 @@
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": [],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "12"
      }
     }
@@ -179,7 +179,7 @@
        }
       }
      ],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "17"
      }
     },
@@ -206,7 +206,7 @@
        }
       }
      ],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "17"
      }
     }
@@ -239,7 +239,7 @@
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": [],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "26"
      }
     }
@@ -283,7 +283,7 @@
        }
       }
      ],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "29"
      }
     },
@@ -307,7 +307,7 @@
        }
       }
      ],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "29"
      }
     }
@@ -360,7 +360,7 @@
        }
       }
      ],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "38"
      }
     },
@@ -395,7 +395,7 @@
        }
       }
      ],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "38"
      }
     }
@@ -440,7 +440,7 @@
        }
       }
      ],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "51"
      }
     },
@@ -466,7 +466,7 @@
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": [],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "51"
      }
     }
@@ -504,7 +504,7 @@
        }
       }
      ],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "60"
      }
     },
@@ -531,7 +531,7 @@
        }
       }
      ],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "60"
      }
     },
@@ -550,7 +550,7 @@
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": [],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "60"
      }
     }
@@ -580,7 +580,7 @@
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": [],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "71"
      }
     },
@@ -599,7 +599,7 @@
      "IsRequired": false,
      "IsReadOnly": false,
      "Decorators": [],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "71"
      }
     }
@@ -632,7 +632,7 @@
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": [],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "76"
      }
     }
@@ -669,7 +669,7 @@
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": [],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "79"
      }
     },
@@ -695,7 +695,7 @@
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": [],
-     "InputModel": {
+     "EnclosingType": {
       "$ref": "79"
      }
     }
