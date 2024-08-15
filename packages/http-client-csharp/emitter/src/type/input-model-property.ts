@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { DecoratorInfo } from "@azure-tools/typespec-client-generator-core";
-import { InputType } from "./input-type.js";
+import { InputModelType, InputType } from "./input-type.js";
 
 export interface InputModelProperty {
   Name: string;
@@ -14,4 +14,5 @@ export interface InputModelProperty {
   IsDiscriminator?: boolean;
   FlattenedNames?: string[];
   Decorators?: DecoratorInfo[];
+  InputModel: InputModelType;
 }
