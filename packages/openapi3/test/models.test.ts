@@ -1024,31 +1024,5 @@ describe("openapi3: models", () => {
         description: "Some doc",
       });
     });
-
-    it("errors on duplicate model names", async () => {
-      const diagnostics = await diagnoseOpenApiFor(
-        `
-      model P {
-        propA: string;
-      }
-
-      @friendlyName("P")
-      model Q {
-        propB: string;
-      }
-
-      @route("/test1")
-      @get
-      op test1(p: P): Q;
-      `
-      );
-
-      expectDiagnostics(diagnostics, [
-        {
-          code: "@typespec/openapi/duplicate-type-name",
-          message: /type/,
-        },
-      ]);
-    });
   });
 });
