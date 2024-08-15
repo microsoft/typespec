@@ -56,7 +56,7 @@ namespace Microsoft.Generator.CSharp.Input.Tests
             Assert.AreEqual(true, ns.Models[0].Properties[0].IsRequired);
             Assert.AreEqual(false, ns.Models[0].Properties[0].IsReadOnly);
             Assert.AreEqual("boolean", ns.Models[0].Properties[0].Type.Name);
-            Assert.AreEqual("ClientNameModel", ns!.Models[0].Properties[0].EnclosingType.Name);
+            Assert.AreEqual("ClientNameModel", ns.Models[0].Properties[0].EnclosingType.Name);
         }
     }
 }
