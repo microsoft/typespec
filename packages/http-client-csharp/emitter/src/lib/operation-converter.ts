@@ -100,6 +100,7 @@ export function fromSdkServiceMethod(
     GenerateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
     GenerateConvenienceMethod: generateConvenience,
     CrossLanguageDefinitionId: method.crossLanguageDefintionId,
+    Decorators: method.decorators,
   };
 }
 
@@ -203,6 +204,7 @@ function fromSdkHttpOperationParameter(
     IsRequired: !p.optional,
     Kind: getParameterKind(p, parameterType, rootApiVersions.length > 0),
     DefaultValue: getParameterDefaultValue(p.clientDefaultValue, parameterType),
+    Decorators: p.decorators,
   } as InputParameter;
 }
 
