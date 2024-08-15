@@ -124,11 +124,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var statements = new List<MethodBodyStatement>();
             foreach (var param in signature.Parameters)
             {
-                if (param.Type.IsList)
-                {
-                    statements.Add(param.Assign(New.Instance(param.Type.PropertyInitializationType)).Terminate());
-                }
-                else if (param.Type.IsDictionary)
+                if (param.Type.IsList || param.Type.IsDictionary)
                 {
                     statements.Add(param.Assign(New.Instance(param.Type.PropertyInitializationType)).Terminate());
                 }
