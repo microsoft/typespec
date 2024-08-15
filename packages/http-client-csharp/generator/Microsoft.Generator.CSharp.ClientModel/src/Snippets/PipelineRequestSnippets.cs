@@ -21,6 +21,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public static MethodBodyStatement SetHeaderValue(this ScopedApi<PipelineRequest> pipelineRequest, string name, ValueExpression value)
             => pipelineRequest.Property(nameof(PipelineRequest.Headers)).Invoke(nameof(PipelineRequestHeaders.Set), Literal(name), value).Terminate();
 
+        public static MethodBodyStatement AddHeaderValue(this ScopedApi<PipelineRequest> pipelineRequest, string name, ValueExpression value)
+            => pipelineRequest.Property(nameof(PipelineRequest.Headers)).Invoke(nameof(PipelineRequestHeaders.Add), [Literal(name), value]).Terminate();
+
         public static MethodBodyStatement SetContent(this ScopedApi<PipelineRequest> pipelineRequest, ValueExpression content)
             => pipelineRequest.Property(nameof(PipelineRequest.Content)).Assign(content).Terminate();
     }

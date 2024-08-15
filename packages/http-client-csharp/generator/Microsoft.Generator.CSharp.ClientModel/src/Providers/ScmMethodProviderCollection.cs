@@ -85,7 +85,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Return(Static<ClientResult>().Invoke(
                         nameof(ClientResult.FromValue),
                         [
-                            responseBodyType.Equals(typeof(string)) ? result.GetRawResponse().Content().InvokeToString() : result.CastTo(responseBodyType),
+                            responseBodyType.Equals(typeof(string)) ? result.GetRawResponse().Content().InvokeToString() : GetResultConversion(result, responseBodyType),
                             result.Invoke("GetRawResponse")
                         ])),
                 ];
@@ -96,6 +96,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return convenienceMethod;
         }
 
+        private ValueExpression GetResultConversion(ScopedApi<ClientResult> result, CSharpType resultType)
+        {
+            if (resultType.Equals(typeof(BinaryData)))
+            {
+                return result.GetRawResponse().Content();
+            }
+            return result.CastTo(resultType);
+        }
+
         private IReadOnlyList<ValueExpression> GetParamConversions(IReadOnlyList<ParameterProvider> convenienceMethodParameters)
         {
             List<ValueExpression> conversions = new List<ValueExpression>();
@@ -103,7 +112,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 if (param.Type.IsEnum)
                 {
-                    if (param.IsBodyParameter)
+                    if (param.Location == ParameterLocation.Body)
                     {
                         conversions.Add(BinaryContentSnippets.Create(BinaryDataSnippets.FromObjectAsJson(param.Type.ToSerial(param))));
                     }
@@ -111,6 +120,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     {
                         conversions.Add(param.Type.ToSerial(param));
                     }
+                }
+                else if (param.Type.Equals(typeof(BinaryData)) && param.Location == ParameterLocation.Body)
+                {
+                    conversions.Add(BinaryContentSnippets.Create(param));
                 }
                 else
                 {
