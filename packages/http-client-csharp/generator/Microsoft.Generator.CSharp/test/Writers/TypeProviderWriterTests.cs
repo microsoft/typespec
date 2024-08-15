@@ -13,6 +13,21 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
 {
     internal class TypeProviderWriterTests
     {
+        private static InputModelType _enclosingType = new InputModelType(
+            "enclosingType",
+            "enclosingType",
+            "public",
+            null,
+            null,
+            InputModelTypeUsage.Input,
+            [],
+            null,
+            [],
+            null,
+            null,
+            new Dictionary<string, InputModelType>(),
+            null,
+            false);
         public TypeProviderWriterTests()
         {
             MockHelpers.LoadMockPlugin();
@@ -104,12 +119,12 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
         }
 
         // common usages definitions
-        internal static readonly InputModelProperty RequiredStringProperty = new InputModelProperty("requiredString", "requiredString", "Required string, illustrating a reference type property.", InputPrimitiveType.String, true, false, false);
+        internal static readonly InputModelProperty RequiredStringProperty = new InputModelProperty("requiredString", "requiredString", "Required string, illustrating a reference type property.", InputPrimitiveType.String, true, false, false, _enclosingType);
 
-        internal static readonly InputModelProperty RequiredIntProperty = new InputModelProperty("requiredInt", "requiredInt", "Required int, illustrating a value type property.", InputPrimitiveType.Int32, true, false, false);
+        internal static readonly InputModelProperty RequiredIntProperty = new InputModelProperty("requiredInt", "requiredInt", "Required int, illustrating a value type property.", InputPrimitiveType.Int32, true, false, false, _enclosingType);
 
-        internal static readonly InputModelProperty RequiredStringListProperty = new InputModelProperty("requiredStringList", "requiredStringList", "Required collection of strings, illustrating a collection of reference types.", new InputArrayType("requiredStringList", "TypeSpec.Array", InputPrimitiveType.String), true, false, false);
+        internal static readonly InputModelProperty RequiredStringListProperty = new InputModelProperty("requiredStringList", "requiredStringList", "Required collection of strings, illustrating a collection of reference types.", new InputArrayType("requiredStringList", "TypeSpec.Array", InputPrimitiveType.String), true, false, false, _enclosingType);
 
-        internal static readonly InputModelProperty RequiredIntListProperty = new InputModelProperty("requiredIntList", "requiredIntList", "Required collection of ints, illustrating a collection of value types.", new InputArrayType("requiredIntList", "TypeSpec.Array", InputPrimitiveType.Int32), true, false, false);
+        internal static readonly InputModelProperty RequiredIntListProperty = new InputModelProperty("requiredIntList", "requiredIntList", "Required collection of ints, illustrating a collection of value types.", new InputArrayType("requiredIntList", "TypeSpec.Array", InputPrimitiveType.Int32), true, false, false, _enclosingType);
     }
 }

@@ -17,11 +17,12 @@ namespace Microsoft.Generator.CSharp.Perf
         public CodeWriterBenchmark()
         {
             PluginInitializer.Initialize();
+            var inputModel = new InputModelType("MyModel", string.Empty, null, null, "Test model", InputModelTypeUsage.Input | InputModelTypeUsage.Output, [], null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
             var properties = new[]
             {
-                new InputModelProperty("MyProperty", "myProperty", "The property of mine", InputPrimitiveType.Int32, true, false, false)
+                new InputModelProperty("MyProperty", "myProperty", "The property of mine", InputPrimitiveType.Int32, true, false, false, inputModel)
             };
-            var inputModel = new InputModelType("MyModel", string.Empty, null, null, "Test model", InputModelTypeUsage.Input | InputModelTypeUsage.Output, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            inputModel.Properties = properties;
             var modelProvider = new ModelProvider(inputModel);
             _writer = new TypeProviderWriter(modelProvider);
         }

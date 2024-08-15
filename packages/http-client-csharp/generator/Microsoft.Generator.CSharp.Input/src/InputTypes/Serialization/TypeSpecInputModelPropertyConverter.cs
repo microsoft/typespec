@@ -34,6 +34,7 @@ namespace Microsoft.Generator.CSharp.Input
             bool isDiscriminator = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             IReadOnlyList<string>? flattenedNames = null;
+            InputModelType? enclosingType = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -46,7 +47,8 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadBoolean(nameof(InputModelProperty.IsRequired), ref isRequired)
                     || reader.TryReadBoolean(nameof(InputModelProperty.IsDiscriminator), ref isDiscriminator)
                     || reader.TryReadWithConverter(nameof(InputModelProperty.Decorators), options, ref decorators)
-                    || reader.TryReadWithConverter(nameof(InputModelProperty.FlattenedNames), options, ref flattenedNames);
+                    || reader.TryReadWithConverter(nameof(InputModelProperty.FlattenedNames), options, ref flattenedNames)
+                    || reader.TryReadWithConverter(nameof(InputModelProperty.EnclosingType), options, ref enclosingType);
 
                 if (!isKnownProperty)
                 {
@@ -59,8 +61,9 @@ namespace Microsoft.Generator.CSharp.Input
             // TO-DO: Implement as part of autorest output classes migration https://github.com/Azure/autorest.csharp/issues/4198
             // description = BuilderHelpers.EscapeXmlDocDescription(description);
             propertyType = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");
+            enclosingType = enclosingType ?? throw new JsonException($"{nameof(InputModelProperty)} must have an enclosing type.");
 
-            var property = new InputModelProperty(name, serializedName ?? name, description, propertyType, isRequired, isReadOnly, isDiscriminator, flattenedNames) { Decorators = decorators ?? [] };
+            var property = new InputModelProperty(name, serializedName ?? name, description, propertyType, isRequired, isReadOnly, isDiscriminator, enclosingType, flattenedNames) { Decorators = decorators ?? [] };
             if (id != null)
             {
                 resolver.AddReference(id, property);

@@ -32,10 +32,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         public void PreVisitsMethods()
         {
             _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
-            var inputModelProperty =
-                new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any, "foo", "bar"), true, true, false);
             var inputModel = new InputModelType("foo", "id", "desc", "internal", "description",
-                InputModelTypeUsage.Input, [inputModelProperty], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
+                InputModelTypeUsage.Input, [], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModelProperty =
+                new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any, "foo", "bar"), true, true, false, inputModel);
+            inputModel.Properties = new[] { inputModelProperty };
 
             var param = new InputParameter("param", "name", "desc",
                 new InputLiteralType(new InputPrimitiveType(InputPrimitiveTypeKind.String, "foo", "bar"), "bar"),

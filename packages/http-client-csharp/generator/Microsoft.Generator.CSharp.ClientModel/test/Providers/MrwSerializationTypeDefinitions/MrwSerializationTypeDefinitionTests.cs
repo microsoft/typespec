@@ -19,6 +19,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
 {
     internal class MrwSerializationTypeDefinitionTests
     {
+        private static InputModelType _enclosingType = new InputModelType(
+            "enclosingType",
+            "enclosingType",
+            "public",
+            null,
+            null,
+            InputModelTypeUsage.Input,
+            [],
+            null,
+            [],
+            null,
+            null,
+            new Dictionary<string, InputModelType>(),
+            null,
+            false);
         public MrwSerializationTypeDefinitionTests()
         {
             MockHelpers.LoadMockPlugin(createSerializationsCore: (inputType, typeProvider) =>
@@ -487,10 +502,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         {
             var properties = new List<InputModelProperty>
             {
-                new InputModelProperty("requiredString", "requiredString", "", InputPrimitiveType.String, true, false, false),
-                new InputModelProperty("OptionalInt", "optionalInt", "", InputPrimitiveType.Int32, false, false, false),
-                new InputModelProperty("requiredCollection", "requiredCollection", "", new InputArrayType("List", "TypeSpec.Array", InputPrimitiveType.String), true, false, false),
-                new InputModelProperty("requiredDictionary", "requiredDictionary", "", new InputDictionaryType("Dictionary", InputPrimitiveType.String, InputPrimitiveType.String), true, false, false),
+                new InputModelProperty("requiredString", "requiredString", "", InputPrimitiveType.String, true, false, false, _enclosingType),
+                new InputModelProperty("OptionalInt", "optionalInt", "", InputPrimitiveType.Int32, false, false, false, _enclosingType),
+                new InputModelProperty("requiredCollection", "requiredCollection", "", new InputArrayType("List", "TypeSpec.Array", InputPrimitiveType.String), true, false, false, _enclosingType),
+                new InputModelProperty("requiredDictionary", "requiredDictionary", "", new InputDictionaryType("Dictionary", InputPrimitiveType.String, InputPrimitiveType.String), true, false, false, _enclosingType),
              };
 
             var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.Input | InputModelTypeUsage.Output, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);

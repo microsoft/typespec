@@ -14,5 +14,5 @@ export interface InputModelProperty {
   IsDiscriminator?: boolean;
   FlattenedNames?: string[];
   Decorators?: DecoratorInfo[];
-  InputModel: InputModelType;
+  EnclosingType: InputModelType;
 }

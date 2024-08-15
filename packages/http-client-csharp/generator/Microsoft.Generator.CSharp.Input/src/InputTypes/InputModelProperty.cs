@@ -7,7 +7,7 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public class InputModelProperty
     {
-        public InputModelProperty(string name, string serializedName, string description, InputType type, bool isRequired, bool isReadOnly, bool isDiscriminator, IReadOnlyList<string>? flattenedNames = null)
+        public InputModelProperty(string name, string serializedName, string description, InputType type, bool isRequired, bool isReadOnly, bool isDiscriminator, InputModelType enclosingType, IReadOnlyList<string>? flattenedNames = null)
         {
             Name = name;
             SerializedName = serializedName;
@@ -16,6 +16,7 @@ namespace Microsoft.Generator.CSharp.Input
             IsRequired = isRequired;
             IsReadOnly = isReadOnly;
             IsDiscriminator = isDiscriminator;
+            EnclosingType = enclosingType;
             FlattenedNames = flattenedNames ?? [];
         }
 
@@ -26,6 +27,7 @@ namespace Microsoft.Generator.CSharp.Input
         public bool IsRequired { get; }
         public bool IsReadOnly { get; }
         public bool IsDiscriminator { get; }
+        public InputModelType EnclosingType { get; }
         public IReadOnlyList<string> FlattenedNames { get; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
     }

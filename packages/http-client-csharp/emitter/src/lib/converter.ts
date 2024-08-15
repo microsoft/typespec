@@ -172,7 +172,7 @@ export function fromSdkModelType(
             ? flattenedNamePrefixes.concat(property.name)
             : undefined,
         Decorators: property.decorators,
-        InputModel: inputModelType!,
+        EnclosingType: inputModelType!,
       };
 
       return [modelProperty];

@@ -11,6 +11,21 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 {
     public class PropertyProviderTests
     {
+        private static InputModelType _enclosingType = new InputModelType(
+            "enclosingType",
+            "enclosingType",
+            "public",
+            null,
+            null,
+            InputModelTypeUsage.Input,
+            [],
+            null,
+            [],
+            null,
+            null,
+            new Dictionary<string, InputModelType>(),
+            null,
+            false);
         public PropertyProviderTests()
         {
             MockHelpers.LoadMockPlugin();
@@ -27,7 +42,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 InputPrimitiveType.String,
                 true,
                 false,
-                false);
+                false,
+                _enclosingType);
 
             var property = new PropertyProvider(inputModelProperty);
 
@@ -47,7 +63,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 InputPrimitiveType.String,
                 true,
                 false,
-                false);
+                false,
+                _enclosingType);
 
             var property = new PropertyProvider(inputModelProperty);
 
@@ -67,7 +84,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 InputPrimitiveType.String,
                 true,
                 false,
-                false);
+                false,
+                _enclosingType);
 
             var property = new PropertyProvider(inputModelProperty);
 
@@ -87,7 +105,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 InputPrimitiveType.String,
                     true,
                 false,
-                false);
+                false,
+                _enclosingType);
 
             var property = new PropertyProvider(inputModelProperty);
 
@@ -119,7 +138,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     new InputArrayType("List", "id", InputPrimitiveType.String),
                     true,
                     true,
-                    false),
+                    false,
+                    _enclosingType),
                 new CSharpType(typeof(IReadOnlyList<>), typeof(string)));
             // Dictionary<string, int> -> IReadOnlyDictionary<string, int>
             yield return new TestCaseData(
@@ -128,7 +148,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     new InputDictionaryType("Dictionary", InputPrimitiveType.String, InputPrimitiveType.Int32),
                     true,
                     true,
-                    false),
+                    false,
+                    _enclosingType),
                 new CSharpType(typeof(IReadOnlyDictionary<,>), typeof(string), typeof(int)));
             // string -> string
             yield return new TestCaseData(
@@ -137,7 +158,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     InputPrimitiveType.String,
                     true,
                     true,
-                    false),
+                    false,
+                    _enclosingType),
                 new CSharpType(typeof(string)));
         }
     }
