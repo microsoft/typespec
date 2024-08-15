@@ -977,6 +977,22 @@ describe("openapi3: models", () => {
     });
   });
 
+  it("@oneOf decorator can only be used on a union.", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
+      model Foo {
+        @oneOf
+        bar: string;
+      }
+      `
+    );
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/oneof-union",
+      message: /type/,
+    });
+  });
+
   describe("wraps property $ref in allOf when extra attributes", () => {
     it("with doc", async () => {
       const res = await openApiFor(
@@ -1007,6 +1023,32 @@ describe("openapi3: models", () => {
         allOf: [{ $ref: "#/components/schemas/Foo" }],
         description: "Some doc",
       });
+    });
+
+    it("errors on duplicate model names", async () => {
+      const diagnostics = await diagnoseOpenApiFor(
+        `
+      model P {
+        propA: string;
+      }
+
+      @friendlyName("P")
+      model Q {
+        propB: string;
+      }
+
+      @route("/test1")
+      @get
+      op test1(p: P): Q;
+      `
+      );
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "@typespec/openapi/duplicate-type-name",
+          message: /type/,
+        },
+      ]);
     });
   });
 });
