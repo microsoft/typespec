@@ -242,11 +242,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         [Test]
         public void BuildBaseType()
         {
+            MockHelpers.LoadMockPlugin();
+
             var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: []);
             var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: [], baseModel: inputBase);
             ((List<InputModelType>)inputBase.DerivedModels).Add(inputDerived);
-
-            MockHelpers.LoadMockPlugin();
 
             var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputBase);
             var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputDerived);
@@ -277,7 +277,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 }
             });
 
-            var inputModel = InputFactory.Model("TestModel", properties: properties);
+            var inputModel = InputFactory.Model("TestModel", properties: properties, modelAsStruct: true);
 
             var modelTypeProvider = new ModelProvider(inputModel);
             Assert.AreEqual(TypeSignatureModifiers.Public | TypeSignatureModifiers.Struct | TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly, modelTypeProvider.DeclarationModifiers);
