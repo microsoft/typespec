@@ -20,7 +20,6 @@ namespace Microsoft.Generator.CSharp.Input
         }
 
         public string Name { get; internal set; }
-
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
 
         internal InputType GetCollectionEquivalent(InputType inputType)
@@ -31,12 +30,18 @@ namespace Microsoft.Generator.CSharp.Input
                     return new InputArrayType(
                         listType.Name,
                         listType.CrossLanguageDefinitionId,
-                        listType.ValueType.GetCollectionEquivalent(inputType));
+                        listType.ValueType.GetCollectionEquivalent(inputType))
+                    {
+                        Decorators = listType.Decorators
+                    };
                 case InputDictionaryType dictionaryType:
                     return new InputDictionaryType(
                         dictionaryType.Name,
                         dictionaryType.KeyType,
-                        dictionaryType.ValueType.GetCollectionEquivalent(inputType));
+                        dictionaryType.ValueType.GetCollectionEquivalent(inputType))
+                    {
+                        Decorators = dictionaryType.Decorators
+                    };
                 default:
                     return inputType;
             }

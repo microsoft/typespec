@@ -41,7 +41,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
                 new InputLiteralType(new InputPrimitiveType(InputPrimitiveTypeKind.String, "foo", "bar"), "bar"),
                 RequestLocation.Header, null, InputOperationParameterKind.Method, true, false, true, false, false,
                 false, false, null, null);
-            var inputOperation = new InputOperation("testoperation", "name", "desc", null, null, [param], new[] {new OperationResponse([200], new InputLiteralType(InputPrimitiveType.Any, "foo"), BodyMediaType.Json, [], false, [] )},
+            var inputOperation = new InputOperation("testoperation", "name", "desc", null, null, [param], new[] { new OperationResponse([200], new InputLiteralType(InputPrimitiveType.Any, "foo"), BodyMediaType.Json, [], false, []) },
                 "GET", BodyMediaType.Json, "http://example.com", "baz", null, null, true, null, null, true, true, "foo");
             var inputClient = new InputClient(
                 "fooClient",
@@ -53,7 +53,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
                 "test library",
                 new List<string>(),
                 new List<InputEnumType>(),
-                new List<InputModelType> {inputModel},
+                new List<InputModelType> { inputModel },
                 new List<InputClient>
                 {
                     new InputClient(

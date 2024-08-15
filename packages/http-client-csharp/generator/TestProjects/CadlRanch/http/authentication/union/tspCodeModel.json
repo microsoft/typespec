@@ -66,7 +66,8 @@
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Authentication.Union.validKey"
+     "CrossLanguageDefinitionId": "Authentication.Union.validKey",
+     "Decorators": []
     },
     {
      "$id": "9",
@@ -97,7 +98,8 @@
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Authentication.Union.validToken"
+     "CrossLanguageDefinitionId": "Authentication.Union.validToken",
+     "Decorators": []
     }
    ],
    "Protocol": {
@@ -107,7 +109,8 @@
     {
      "$ref": "4"
     }
-   ]
+   ],
+   "Decorators": []
   }
  ],
  "Auth": {
