@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Tests.Common;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
@@ -32,8 +33,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void PreVisitsProperties()
         {
             _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
-            var inputModelProperty =
-                new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any, "foo", "bar"), true, true, false);
+            var inputModelProperty = InputFactory.Property("prop1", InputPrimitiveType.Any, true, true);
             var inputModel = new InputModelType("foo", "id", "desc", "internal", "description",
                 InputModelTypeUsage.Input, [inputModelProperty], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
@@ -59,8 +59,7 @@ namespace Microsoft.Generator.CSharp.Tests
             {
                 new InputEnumTypeValue("value", 1, "desc")
             }, false);
-            var inputModelProperty =
-                new InputModelProperty("prop1", "prop1", "string", inputEnum, true, true, false);
+            var inputModelProperty = InputFactory.Property("prop1", inputEnum, true, true);
             var inputModel = new InputModelType("foo", "id", "desc", "internal", "description",
                 InputModelTypeUsage.Input, [inputModelProperty], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
@@ -82,12 +81,11 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void RemovedInputModelCausesExceptionWhenReferencedInDifferentModel()
         {
-            var inputModel1Property =
-                new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any, "foo", "bar"), true, true, false);
+            var inputModel1Property = InputFactory.Property("prop1", InputPrimitiveType.Any, true, true);
             var inputModel1 = new InputModelType("Model1", "id", "desc", "internal", "description",
                 InputModelTypeUsage.Input, [inputModel1Property], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
-            var inputModel2Property = new InputModelProperty("prop2", "prop1", "string", inputModel1, true, true, false);
+            var inputModel2Property = InputFactory.Property("prop2", inputModel1, true, true);
 
             var inputModel2 = new InputModelType("Model2", "id", "desc", "internal", "description",
                 InputModelTypeUsage.Input, [inputModel2Property], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
@@ -108,12 +106,11 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void CanCleanUpRemovedReferencesToRemovedModels()
         {
-            var inputModel1Property =
-                new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any, "foo", "bar"), true, true, false);
+            var inputModel1Property = InputFactory.Property("prop1", InputPrimitiveType.Any, true, true);
             var inputModel1 = new InputModelType("Model1", "id", "desc", "internal", "description",
                 InputModelTypeUsage.Input, [inputModel1Property], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
 
-            var inputModel2Property = new InputModelProperty("prop2", "prop1", "string", inputModel1, true, true, false);
+            var inputModel2Property = InputFactory.Property("prop2", inputModel1, true, true);
 
             var inputModel2 = new InputModelType("Model2", "id", "desc", "internal", "description",
                 InputModelTypeUsage.Input, [inputModel2Property], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
