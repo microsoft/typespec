@@ -484,7 +484,7 @@ abstract class ConvenienceMethodTemplateBase {
                         // special handling for "+json", rfc https://datatracker.ietf.org/doc/html/rfc6839#section-3.1
                         type = SupportedMimeType.JSON;
 
-                        // TODO: we may need to hande "+xml" as well
+                        // TODO: we may need to handle "+xml" as well
                     }
 
                     if (type != null) {
@@ -600,7 +600,7 @@ abstract class ConvenienceMethodTemplateBase {
                     // EnumTypes should provide a toString implementation that represents the wire value.
                     // Circumvent the use of JacksonAdapter and handle this manually.
                     EnumType enumType = (EnumType) elementType;
-                    // Not enums will be backed by Strings. Get the backing value before stringifying it, this
+                    // Not enums will be backed by Strings. Get the backing value before converting to string, this
                     // will prevent using the enum name rather than the enum value when it isn't a String-based
                     // enum. Ex, a long-based enum with value 100 called HIGH will return "100" rather than
                     // "HIGH".

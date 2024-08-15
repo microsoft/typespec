@@ -17,7 +17,7 @@
 
     <modules>
       <module>http-client-generator</module>
-      <module>http-client-generator-fluent</module>
+      <module>http-client-generator-mgmt</module>
       <module>http-client-generator-core</module>
     </modules>
 </project>

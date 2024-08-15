@@ -846,10 +846,10 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     //     - Sawshark : sharktype
                     // So, if deserialization enters Fish and the "kind" is "Shark" then it needs to check the
                     // "sharktype" to determine if it's a Sawshark or another subtype of Shark.
-                    boolean sameDiscimrinator = Objects.equals(childType.getPolymorphicDiscriminatorName(),
+                    boolean sameDiscriminator = Objects.equals(childType.getPolymorphicDiscriminatorName(),
                         model.getPolymorphicDiscriminatorName());
 
-                    if (!sameDiscimrinator && !Objects.equals(childType.getParentModelName(), model.getName())) {
+                    if (!sameDiscriminator && !Objects.equals(childType.getParentModelName(), model.getName())) {
                         // Child model and parent model don't share the same discriminator and the child isn't a direct
                         // child of the parent model, so skip this child model. This is done as the child model should
                         // be deserialized by the subtype that defines the different polymorphic discriminator. Using
@@ -858,7 +858,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                         continue;
                     }
 
-                    String deserializationMethod = (isSuperTypeWithDiscriminator(childType) && sameDiscimrinator)
+                    String deserializationMethod = (isSuperTypeWithDiscriminator(childType) && sameDiscriminator)
                         ? ".fromJsonKnownDiscriminator(readerToUse.reset())"
                         : ".fromJson(readerToUse.reset())";
 

@@ -387,7 +387,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                             // Otherwise, convert the parameter to a string, mapping each element to the toString
                             // value, finally joining with the collection format.
                             EnumType enumType = (EnumType) elementType;
-                            // Not enums will be backed by Strings. Get the backing value before stringifying it, this
+                            // Not enums will be backed by Strings. Get the backing value before converting to string it, this
                             // will prevent using the enum name rather than the enum value when it isn't a String-based
                             // enum. Ex, a long-based enum with value 100 called HIGH will return "100" rather than
                             // "HIGH".
