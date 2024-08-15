@@ -126,7 +126,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 if (param.Type.IsList)
                 {
-                    statements.Add(param.Assign(New.Instance(CodeModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(param.Type.Arguments))).Terminate());
+                    statements.Add(param.Assign(New.Instance(param.Type.PropertyInitializationType)).Terminate());
                 }
                 else if (param.Type.IsDictionary)
                 {
