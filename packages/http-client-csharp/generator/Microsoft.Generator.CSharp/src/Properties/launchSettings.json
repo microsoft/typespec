@@ -45,6 +45,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-server-versions-not-versioned": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/server/versions/not-versioned -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "Unbranded-TypeSpec": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Unbranded-TypeSpec -p ClientModelPlugin",
       "commandName": "Executable",
