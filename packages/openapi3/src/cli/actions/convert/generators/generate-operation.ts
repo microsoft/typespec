@@ -40,12 +40,7 @@ function generateOperationParameter(
   context: Context
 ) {
   if ("$ref" in parameter) {
-    // check if referencing a model or a property
-    const refName = context.getRefName(parameter.$ref, operation.scope);
-    const paramName = refName.indexOf(".") >= 0 ? refName.split(".").pop() : refName;
-    // when refName and paramName match, we're referencing a model and can spread
-    // TODO: Handle optionality
-    return refName === paramName ? `...${refName}` : `${paramName}: ${refName}`;
+    return `...${context.getRefName(parameter.$ref, operation.scope)}`;
   }
 
   const definitions: string[] = [];

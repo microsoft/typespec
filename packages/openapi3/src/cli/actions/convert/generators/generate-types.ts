@@ -38,11 +38,36 @@ export class SchemaToExpressionGenerator {
 
   private getRefScopeAndName(
     ref: string,
-    _callingScope: string[]
+    callingScope: string[]
   ): ReturnType<typeof getScopeAndName> {
     const parts = ref.split("/");
     const name = parts.pop() ?? "";
+    const componentType = parts.pop()?.toLowerCase() ?? "";
     const scopeAndName = getScopeAndName(name);
+
+    switch (componentType) {
+      case "schemas":
+        if (callingScope.length) {
+          /* 
+            Since schemas are generated in the file namespace,
+            need to reference them against the file namespace
+            to prevent name collisions.
+            Example:
+              namespace Service;
+              scalar Foo extends string;
+              namespace Parameters {
+                model Foo {
+                  @query foo: Service.Foo
+                }      
+              }
+          */
+          scopeAndName.scope.unshift(this.rootNamespace);
+        }
+        break;
+      case "parameters":
+        scopeAndName.scope.unshift("Parameters");
+        break;
+    }
 
     return scopeAndName;
   }

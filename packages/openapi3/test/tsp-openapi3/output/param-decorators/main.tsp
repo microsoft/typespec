@@ -18,16 +18,6 @@ model Thing {
   @format("UUID") id: string;
 }
 
-model NameParameter {
-  /**
-   * Name parameter
-   */
-  @pattern("^[a-zA-Z0-9-]{3,24}$")
-  @format("UUID")
-  @path
-  name: string;
-}
-
 /**
  * The request has succeeded.
  */
@@ -57,6 +47,18 @@ model Operations_putThing200ApplicationJsonResponse {
 ): Operations_getThing200ApplicationJsonResponse;
 
 @route("/thing/{name}") @put op Operations_putThing(
-  ...NameParameter,
+  ...Parameters.NameParameter,
   @bodyRoot body: Thing,
 ): Operations_putThing200ApplicationJsonResponse;
+
+namespace Parameters {
+  model NameParameter {
+    /**
+     * Name parameter
+     */
+    @pattern("^[a-zA-Z0-9-]{3,24}$")
+    @format("UUID")
+    @path
+    name: string;
+  }
+}
