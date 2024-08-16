@@ -1,6 +1,7 @@
 import { printIdentifier } from "@typespec/compiler";
-import { OpenAPI3Components, OpenAPI3Parameter } from "../../../../types.js";
+import { OpenAPI3Parameter } from "../../../../types.js";
 import { TypeSpecModel, TypeSpecModelProperty } from "../interfaces.js";
+import { Context } from "../utils/context.js";
 import { getParameterDecorators } from "../utils/decorators.js";
 import { getScopeAndName, scopesMatch } from "../utils/get-scope-and-name.js";
 
@@ -12,10 +13,8 @@ import { getScopeAndName, scopesMatch } from "../utils/get-scope-and-name.js";
  * @param parameters
  * @returns
  */
-export function transformComponentParameters(
-  models: TypeSpecModel[],
-  parameters?: OpenAPI3Components["parameters"]
-): void {
+export function transformComponentParameters(context: Context, models: TypeSpecModel[]): void {
+  const parameters = context.openApi3Doc.components?.parameters;
   if (!parameters) return;
 
   for (const name of Object.keys(parameters)) {
