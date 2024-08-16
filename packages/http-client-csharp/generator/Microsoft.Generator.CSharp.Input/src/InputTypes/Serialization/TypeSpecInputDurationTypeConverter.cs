@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -27,6 +28,7 @@ namespace Microsoft.Generator.CSharp.Input
             string? crossLanguageDefinitionId = null;
             string? encode = null;
             InputType? type = null;
+            IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputDurationType? baseType = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
@@ -36,7 +38,8 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadString(nameof(InputDurationType.CrossLanguageDefinitionId), ref crossLanguageDefinitionId)
                     || reader.TryReadString(nameof(InputDurationType.Encode), ref encode)
                     || reader.TryReadWithConverter(nameof(InputDurationType.WireType), options, ref type)
-                    || reader.TryReadWithConverter(nameof(InputDurationType.BaseType), options, ref baseType);
+                    || reader.TryReadWithConverter(nameof(InputDurationType.BaseType), options, ref baseType)
+                    || reader.TryReadWithConverter(nameof(InputDurationType.Decorators), options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -54,7 +57,7 @@ namespace Microsoft.Generator.CSharp.Input
             encode = encode ?? throw new JsonException("Duration type must have encoding");
 
             var dateTimeType = Enum.TryParse<DurationKnownEncoding>(encode, ignoreCase: true, out var encodeKind)
-                ? new InputDurationType(encodeKind, name, crossLanguageDefinitionId, wireType, baseType)
+                ? new InputDurationType(encodeKind, name, crossLanguageDefinitionId, wireType, baseType) { Decorators = decorators ?? [] }
                 : throw new JsonException($"Encoding of Duration type {encode} is unknown.");
 
             if (id != null)

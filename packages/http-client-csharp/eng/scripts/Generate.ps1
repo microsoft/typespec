@@ -16,7 +16,7 @@ if ($null -eq $filter -or $filter -eq "Unbranded-TypeSpec") {
     $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
 
     $unbrandedTypespecTestProject = Join-Path $testProjectsLocalDir "Unbranded-TypeSpec"
-    $unbrandedTypespecTestProject = $unbrandedTypespecTestProject.Replace("\", "/")  # replace \ with / for the path to avoid path-unix-style warning
+    $unbrandedTypespecTestProject = $unbrandedTypespecTestProject
 
     Invoke (Get-TspCommand "$unbrandedTypespecTestProject/Unbranded-TypeSpec.tsp" $unbrandedTypespecTestProject)
 
@@ -48,10 +48,9 @@ function IsSpecDir {
 $failingSpecs = @(
     Join-Path 'http' 'special-words'
     Join-Path 'http' 'client' 'structure' 'default'
-    Join-Path 'http' 'client' 'structure' 'multi-client'
+    Join-Path 'http' 'client' 'structure' 'client-operation-group'
     Join-Path 'http' 'client' 'structure' 'renamed-operation'
     Join-Path 'http' 'client' 'structure' 'two-operation-group'
-    Join-Path 'http' 'encode' 'bytes'
     Join-Path 'http' 'encode' 'datetime'
     Join-Path 'http' 'encode' 'duration'
     Join-Path 'http' 'parameters' 'basic'
@@ -102,8 +101,10 @@ foreach ($directory in $directories) {
         continue
     }
 
-    $specFile = Join-Path $directory.FullName "main.tsp"
-    $specFile = $specFile.Replace("\", "/")  # replace \ with / for the path to avoid path-unix-style warning
+    $specFile = Join-Path $directory.FullName "client.tsp"
+    if (-not (Test-Path $specFile)) {
+        $specFile = Join-Path $directory.FullName "main.tsp"
+    }
     $subPath = $directory.FullName.Substring($specsDirectory.Length + 1)
     $folders = $subPath.Split([System.IO.Path]::DirectorySeparatorChar)
 

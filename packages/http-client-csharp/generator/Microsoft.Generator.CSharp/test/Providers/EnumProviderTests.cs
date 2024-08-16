@@ -78,7 +78,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         public void BuildEnumType_ValidateApiVersionEnum()
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(string));
-            
+
             string[] apiVersions = ["2024-07-16", "2024-07-17"];
             var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.ApiVersionEnum, InputPrimitiveType.String, [new InputEnumTypeValue(apiVersions[0], 1, null), new InputEnumTypeValue(apiVersions[1], 2, null)], false);
             var enumType = EnumProvider.Create(input);
