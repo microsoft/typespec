@@ -21,10 +21,12 @@
       "$id": "4",
       "Kind": "string",
       "Name": "string",
-      "CrossLanguageDefinitionId": "TypeSpec.string"
+      "CrossLanguageDefinitionId": "TypeSpec.string",
+      "Decorators": []
      },
      "IsRequired": true,
-     "IsReadOnly": false
+     "IsReadOnly": false,
+     "Decorators": []
     }
    ]
   }
@@ -91,7 +93,8 @@
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Authentication.ApiKey.valid"
+     "CrossLanguageDefinitionId": "Authentication.ApiKey.valid",
+     "Decorators": []
     },
     {
      "$id": "12",
@@ -114,9 +117,11 @@
          "$id": "15",
          "Kind": "string",
          "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string"
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
         },
-        "Value": "application/json"
+        "Value": "application/json",
+        "Decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -124,7 +129,8 @@
        "IsEndpoint": false,
        "Explode": false,
        "IsRequired": true,
-       "Kind": "Constant"
+       "Kind": "Constant",
+       "Decorators": []
       }
      ],
      "Responses": [
@@ -145,7 +151,8 @@
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Authentication.ApiKey.invalid"
+     "CrossLanguageDefinitionId": "Authentication.ApiKey.invalid",
+     "Decorators": []
     }
    ],
    "Protocol": {
@@ -155,7 +162,8 @@
     {
      "$ref": "7"
     }
-   ]
+   ],
+   "Decorators": []
   }
  ],
  "Auth": {
