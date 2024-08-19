@@ -1,0 +1,426 @@
+{
+ "$id": "1",
+ "Name": "Payload.MediaType",
+ "ApiVersions": [],
+ "Enums": [],
+ "Models": [],
+ "Clients": [
+  {
+   "$id": "2",
+   "Name": "MediaTypeClient",
+   "Description": "Test the payload with different media types and different types of the payload itself.",
+   "Operations": [],
+   "Protocol": {
+    "$id": "3"
+   },
+   "Parameters": [
+    {
+     "$id": "4",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Type": {
+      "$id": "5",
+      "Kind": "url",
+      "Name": "url",
+      "CrossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "6",
+      "Type": {
+       "$id": "7",
+       "Kind": "string",
+       "Name": "string",
+       "CrossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
+    }
+   ],
+   "Decorators": []
+  },
+  {
+   "$id": "8",
+   "Name": "StringBody",
+   "Operations": [
+    {
+     "$id": "9",
+     "Name": "sendAsText",
+     "ResourceName": "StringBody",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "10",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "11",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "12",
+        "Type": {
+         "$id": "13",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "14",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "15",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "16",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "text/plain",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      },
+      {
+       "$id": "17",
+       "Name": "text",
+       "NameInRequest": "text",
+       "Type": {
+        "$id": "18",
+        "Kind": "string",
+        "Name": "string",
+        "CrossLanguageDefinitionId": "TypeSpec.string",
+        "Decorators": []
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "19",
+       "StatusCodes": [
+        200
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "POST",
+     "RequestBodyMediaType": "Text",
+     "Uri": "{endpoint}",
+     "Path": "/payload/media-type/string-body/sendAsText",
+     "RequestMediaTypes": [
+      "text/plain"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.MediaType.StringBody.sendAsText",
+     "Decorators": []
+    },
+    {
+     "$id": "20",
+     "Name": "getAsText",
+     "ResourceName": "StringBody",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "10"
+      },
+      {
+       "$id": "21",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "22",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "23",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "text/plain",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "24",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "25",
+        "Kind": "string",
+        "Name": "string",
+        "CrossLanguageDefinitionId": "TypeSpec.string",
+        "Decorators": []
+       },
+       "BodyMediaType": "Json",
+       "Headers": [
+        {
+         "$id": "26",
+         "Name": "contentType",
+         "NameInResponse": "content-type",
+         "Type": {
+          "$id": "27",
+          "Kind": "constant",
+          "ValueType": {
+           "$id": "28",
+           "Kind": "string",
+           "Name": "string",
+           "CrossLanguageDefinitionId": "TypeSpec.string",
+           "Decorators": []
+          },
+          "Value": "text/plain",
+          "Decorators": []
+         }
+        }
+       ],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "text/plain"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/payload/media-type/string-body/getAsText",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.MediaType.StringBody.getAsText",
+     "Decorators": []
+    },
+    {
+     "$id": "29",
+     "Name": "sendAsJson",
+     "ResourceName": "StringBody",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "10"
+      },
+      {
+       "$id": "30",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "31",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "32",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      },
+      {
+       "$id": "33",
+       "Name": "text",
+       "NameInRequest": "text",
+       "Type": {
+        "$id": "34",
+        "Kind": "string",
+        "Name": "string",
+        "CrossLanguageDefinitionId": "TypeSpec.string",
+        "Decorators": []
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "35",
+       "StatusCodes": [
+        200
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "POST",
+     "RequestBodyMediaType": "Text",
+     "Uri": "{endpoint}",
+     "Path": "/payload/media-type/string-body/sendAsJson",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.MediaType.StringBody.sendAsJson",
+     "Decorators": []
+    },
+    {
+     "$id": "36",
+     "Name": "getAsJson",
+     "ResourceName": "StringBody",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "10"
+      },
+      {
+       "$id": "37",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "38",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "39",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "40",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "41",
+        "Kind": "string",
+        "Name": "string",
+        "CrossLanguageDefinitionId": "TypeSpec.string",
+        "Decorators": []
+       },
+       "BodyMediaType": "Json",
+       "Headers": [
+        {
+         "$id": "42",
+         "Name": "contentType",
+         "NameInResponse": "content-type",
+         "Type": {
+          "$id": "43",
+          "Kind": "constant",
+          "ValueType": {
+           "$id": "44",
+           "Kind": "string",
+           "Name": "string",
+           "CrossLanguageDefinitionId": "TypeSpec.string",
+           "Decorators": []
+          },
+          "Value": "application/json",
+          "Decorators": []
+         }
+        }
+       ],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/payload/media-type/string-body/getAsJson",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Payload.MediaType.StringBody.getAsJson",
+     "Decorators": []
+    }
+   ],
+   "Protocol": {
+    "$id": "45"
+   },
+   "Parent": "MediaTypeClient",
+   "Parameters": [
+    {
+     "$ref": "10"
+    }
+   ],
+   "Decorators": []
+  }
+ ]
+}
