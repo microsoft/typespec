@@ -36,12 +36,12 @@ import {
   InputUnionType,
 } from "../type/input-type.js";
 import { LiteralTypeContext } from "../type/literal-type-context.js";
-import { TypeCache } from "../type/type-cache.js";
+import { SdkTypeMap } from "../type/sdk-type-map.js";
 
 export function fromSdkType(
   sdkType: SdkType,
   context: SdkContext,
-  typeCache: TypeCache,
+  typeCache: SdkTypeMap,
   literalTypeContext?: LiteralTypeContext
 ): InputType {
   if (typeCache.has(sdkType)) {
@@ -107,7 +107,7 @@ export function fromSdkType(
 export function fromSdkModelType(
   modelType: SdkModelType,
   context: SdkContext,
-  typeCache: TypeCache
+  typeCache: SdkTypeMap
 ): InputModelType {
   const modelTypeName = modelType.name;
   let inputModelType = typeCache.models.get(modelTypeName);
@@ -223,7 +223,7 @@ export function fromSdkModelType(
 export function fromSdkEnumType(
   enumType: SdkEnumType,
   context: SdkContext,
-  typeCache: TypeCache,
+  typeCache: SdkTypeMap,
   addToCollection: boolean = true
 ): InputEnumType {
   const enumName = enumType.name;
@@ -252,7 +252,7 @@ export function fromSdkEnumType(
 }
 
 function fromSdkDateTimeType(
-  typeCache: TypeCache,
+  typeCache: SdkTypeMap,
   dateTimeType: SdkDateTimeType
 ): InputDateTimeType {
   return {
@@ -269,7 +269,7 @@ function fromSdkDateTimeType(
 }
 
 function fromSdkDurationType(
-  typeCache: TypeCache,
+  typeCache: SdkTypeMap,
   durationType: SdkDurationType
 ): InputDurationType {
   return {
@@ -286,7 +286,7 @@ function fromSdkDurationType(
 }
 
 // TODO: tuple is not officially supported
-function fromTupleType(typeCache: TypeCache, tupleType: SdkTupleType): InputType {
+function fromTupleType(typeCache: SdkTypeMap, tupleType: SdkTupleType): InputType {
   return {
     Kind: "any",
     Name: "tuple",
@@ -295,7 +295,7 @@ function fromTupleType(typeCache: TypeCache, tupleType: SdkTupleType): InputType
   };
 }
 
-function fromSdkBuiltInType(typeCache: TypeCache, builtInType: SdkBuiltInType): InputPrimitiveType {
+function fromSdkBuiltInType(typeCache: SdkTypeMap, builtInType: SdkBuiltInType): InputPrimitiveType {
   return {
     Kind: builtInType.kind,
     Name: builtInType.name,
@@ -311,7 +311,7 @@ function fromSdkBuiltInType(typeCache: TypeCache, builtInType: SdkBuiltInType): 
 function fromUnionType(
   union: SdkUnionType,
   context: SdkContext,
-  typeCache: TypeCache
+  typeCache: SdkTypeMap
 ): InputUnionType {
   const variantTypes: InputType[] = [];
   for (const value of union.values) {
@@ -329,7 +329,7 @@ function fromUnionType(
 
 function fromSdkConstantType(
   constantType: SdkConstantType,
-  typeCache: TypeCache,
+  typeCache: SdkTypeMap,
   literalTypeContext?: LiteralTypeContext
 ): InputLiteralType {
   return {
@@ -381,7 +381,7 @@ function fromSdkConstantType(
 function fromSdkEnumValueTypeToConstantType(
   enumValueType: SdkEnumValueType,
   context: SdkContext,
-  typeCache: TypeCache,
+  typeCache: SdkTypeMap,
   literalTypeContext?: LiteralTypeContext
 ): InputLiteralType {
   return {
@@ -407,7 +407,7 @@ function fromSdkEnumValueType(enumValueType: SdkEnumValueType): InputEnumTypeVal
 function fromSdkDictionaryType(
   dictionaryType: SdkDictionaryType,
   context: SdkContext,
-  typeCache: TypeCache
+  typeCache: SdkTypeMap
 ): InputDictionaryType {
   return {
     Kind: "dict",
@@ -420,7 +420,7 @@ function fromSdkDictionaryType(
 function fromSdkArrayType(
   arrayType: SdkArrayType,
   context: SdkContext,
-  typeCache: TypeCache
+  typeCache: SdkTypeMap
 ): InputArrayType {
   return {
     Kind: "array",

@@ -16,7 +16,7 @@ import {
 import { NetEmitterOptions } from "../options.js";
 import { InputType } from "../type/input-type.js";
 import { LiteralTypeContext } from "../type/literal-type-context.js";
-import { TypeCache } from "../type/type-cache.js";
+import { SdkTypeMap } from "../type/sdk-type-map.js";
 import { fromSdkEnumType, fromSdkModelType, fromSdkType } from "./converter.js";
 import { Logger } from "./logger.js";
 
@@ -73,7 +73,7 @@ export function getDefaultValue(type: Type): any {
 export function getInputType(
   context: SdkContext<NetEmitterOptions>,
   type: Type,
-  typeCache: TypeCache,
+  typeCache: SdkTypeMap,
   operation?: Operation,
   literalTypeContext?: LiteralTypeContext
 ): InputType {
@@ -83,7 +83,7 @@ export function getInputType(
   return fromSdkType(sdkType, context, typeCache, literalTypeContext);
 }
 
-export function navigateModels(context: SdkContext<NetEmitterOptions>, typeCache: TypeCache) {
+export function navigateModels(context: SdkContext<NetEmitterOptions>, typeCache: SdkTypeMap) {
   for (const type of getAllModels(context)) {
     if (type.name === "") {
       continue;
