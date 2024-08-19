@@ -295,7 +295,10 @@ function fromTupleType(typeCache: SdkTypeMap, tupleType: SdkTupleType): InputTyp
   };
 }
 
-function fromSdkBuiltInType(typeCache: SdkTypeMap, builtInType: SdkBuiltInType): InputPrimitiveType {
+function fromSdkBuiltInType(
+  typeCache: SdkTypeMap,
+  builtInType: SdkBuiltInType
+): InputPrimitiveType {
   return {
     Kind: builtInType.kind,
     Name: builtInType.name,
