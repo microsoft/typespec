@@ -37,15 +37,6 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     types: new Map<SdkType, InputType>(),
     models: new Map<string, InputModelType>(),
     enums: new Map<string, InputEnumType>(),
-    has(type: SdkType): boolean {
-      return this.types.has(type);
-    },
-    get(type: SdkType): InputType | undefined {
-      return this.types.get(type);
-    },
-    set(type: SdkType, inputType: InputType): void {
-      this.types.set(type, inputType);
-    },
   };
 
   navigateModels(sdkContext, sdkTypeMap);

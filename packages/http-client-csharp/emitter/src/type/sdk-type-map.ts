@@ -8,8 +8,4 @@ export interface SdkTypeMap {
   types: Map<SdkType, InputType>;
   models: Map<string, InputModelType>;
   enums: Map<string, InputEnumType>;
-
-  has(type: SdkType): boolean;
-  get(type: SdkType): InputType | undefined;
-  set(type: SdkType, inputType: InputType): void;
 }
