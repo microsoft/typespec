@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializationTypeDefinitions
@@ -38,29 +38,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void KebabCaseSerializedName()
         {
-            var inputModelProperty = new InputModelProperty(
-                "kebab-case",
-                "kebab-case",
-                "A property with kebab-case name",
-                InputPrimitiveType.String,
-                true,
-                false,
-                false);
-            var inputModel = new InputModelType(
-                "TestModel",
-                "TestModel",
-                "public",
-                null,
-                "Test model.",
-                InputModelTypeUsage.Input | InputModelTypeUsage.Output,
-                [inputModelProperty],
-                null,
-                [],
-                null,
-                null,
-                new Dictionary<string, InputModelType>(),
-                null,
-                false);
+            var inputModelProperty = InputFactory.Property("kebab-case", InputPrimitiveType.String, wireName: "kebab-case", isRequired: true);
+            var inputModel = InputFactory.Model("TestModel", properties: [inputModelProperty]);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
@@ -71,29 +50,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void SnakeCaseSerializedName()
         {
-            var inputModelProperty = new InputModelProperty(
-                "snake_case",
-                "snake_case",
-                "A property with snake_case name",
-                InputPrimitiveType.String,
-                true,
-                false,
-                false);
-            var inputModel = new InputModelType(
-                "TestModel",
-                "TestModel",
-                "public",
-                null,
-                "Test model.",
-                InputModelTypeUsage.Input | InputModelTypeUsage.Output,
-                [inputModelProperty],
-                null,
-                [],
-                null,
-                null,
-                new Dictionary<string, InputModelType>(),
-                null,
-                false);
+            var inputModelProperty = InputFactory.Property("snake_case", InputPrimitiveType.String, wireName: "snake_case", isRequired: true);
+            var inputModel = InputFactory.Model("TestModel", properties: [inputModelProperty]);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
@@ -104,29 +62,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void PascalCaseSerializedName()
         {
-            var inputModelProperty = new InputModelProperty(
-                "PascalCase",
-                "PascalCase",
-                "A property with PascalCase name",
-                InputPrimitiveType.String,
-                true,
-                false,
-                false);
-            var inputModel = new InputModelType(
-                "TestModel",
-                "TestModel",
-                "public",
-                null,
-                "Test model.",
-                InputModelTypeUsage.Input | InputModelTypeUsage.Output,
-                [inputModelProperty],
-                null,
-                [],
-                null,
-                null,
-                new Dictionary<string, InputModelType>(),
-                null,
-                false);
+            var inputModelProperty = InputFactory.Property("PascalCase", InputPrimitiveType.String, wireName: "PascalCase", isRequired: true);
+            var inputModel = InputFactory.Model("TestModel", properties: [inputModelProperty]);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
@@ -137,29 +74,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void CamelCaseSerializedName()
         {
-            var inputModelProperty = new InputModelProperty(
-                "camelCase",
-                "camelCase",
-                "A property with camelCase name",
-                InputPrimitiveType.String,
-                true,
-                false,
-                false);
-            var inputModel = new InputModelType(
-                "TestModel",
-                "TestModel",
-                "public",
-                null,
-                "Test model.",
-                InputModelTypeUsage.Input | InputModelTypeUsage.Output,
-                [inputModelProperty],
-                null,
-                [],
-                null,
-                null,
-                new Dictionary<string, InputModelType>(),
-                null,
-                false);
+            var inputModelProperty = InputFactory.Property("camelCase", InputPrimitiveType.String, wireName: "camelCase", isRequired: true);
+            var inputModel = InputFactory.Model("TestModel", properties: [inputModelProperty]);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);

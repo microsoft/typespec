@@ -7,6 +7,7 @@ using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
@@ -96,31 +97,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             Assert.IsFalse(pipelineMessageClassifier2xxAnd4xx.Body.HasSetter);
         }
 
-        private readonly static InputOperation BasicOperation = new InputOperation(
-            name: "CreateMessage",
-            resourceName: null,
-            deprecated: null,
-            description: string.Empty,
-            accessibility: null,
+        private readonly static InputOperation BasicOperation = InputFactory.Operation(
+            "CreateMessage",
             parameters:
             [
-                new InputParameter("message", "message", "The message to create.", InputPrimitiveType.Boolean, RequestLocation.Body, null, InputOperationParameterKind.Method, true, false, false, false, false, false, false, null, null)
-            ],
-            responses: [new OperationResponse([200], null, BodyMediaType.Json, [], false, ["application/json"])],
-            httpMethod: "GET",
-            requestBodyMediaType: BodyMediaType.Json,
-            uri: "localhost",
-            path: "/api/messages",
-            externalDocsUrl: null,
-            requestMediaTypes: null,
-            bufferResponse: false,
-            longRunning: null,
-            paging: null,
-            generateProtocolMethod: true,
-            generateConvenienceMethod: true,
-            crossLanguageDefinitionId: "TestService.CreateMessage");
+                InputFactory.Parameter("message", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
 
-        private readonly static InputClient SingleOpInputClient = new InputClient("TestClient", "TestClient description", [BasicOperation], [], null);
+        private readonly static InputClient SingleOpInputClient = InputFactory.Client("TestClient", operations: [BasicOperation]);
 
         private static IEnumerable<TestCaseData> DefaultCSharpMethodCollectionTestCases =>
         [

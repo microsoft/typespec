@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\src\Microsoft.Generator.CSharp.csproj" />
+    <ProjectReference Include="common\Microsoft.Generator.CSharp.Tests.Common.csproj" />
     <Compile Include="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/**/*.cs" Link="Generated/Helpers/%(RecursiveDir)/%(Filename)%(Extension)" />
     <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/ModelSerializationExtensions.cs" />
     <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/ClientPipelineExtensions.cs" />
@@ -10,6 +11,7 @@
 
   <ItemGroup>
     <Compile Remove="**\TestData\**\*.cs" />
+    <Compile Remove="**\common\**\*.cs" />
   </ItemGroup>
 
   <ItemGroup>
