@@ -41,7 +41,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 Assert.IsNotNull(model, "Null ModelProvider found");
                 var method = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == model!.Name);
                 Assert.IsNotNull(method);
-                foreach(var property in model!.Properties.Where(p => p.Type.IsList))
+                foreach (var property in model!.Properties.Where(p => p.Type.IsList))
                 {
                     var parameter = method!.Signature.Parameters.FirstOrDefault(p => p.Name == property.Name.ToVariableName());
                     Assert.IsNotNull(parameter);

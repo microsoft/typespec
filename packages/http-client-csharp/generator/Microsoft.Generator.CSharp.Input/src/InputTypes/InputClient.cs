@@ -27,6 +27,7 @@ namespace Microsoft.Generator.CSharp.Input
         public IReadOnlyList<InputOperation> Operations { get; internal set; }
         public IReadOnlyList<InputParameter> Parameters { get; internal set; }
         public string? Parent { get; internal set; }
+        public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
 
         public string Key
         {

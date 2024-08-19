@@ -34,10 +34,36 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var inputModelProperty = InputFactory.Property("prop1", InputPrimitiveType.Any, isRequired: true, isReadOnly: true);
             var inputModel = InputFactory.Model("foo", access: "internal", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
 
-            var param = InputFactory.Parameter("param", InputFactory.Literal.String("bar"), location: RequestLocation.Header, isRequired: true);
-            var inputOperation = InputFactory.Operation("testoperation", parameters: [param], responses: [InputFactory.OperationResponse(bodytype: InputFactory.Literal.Any("foo"))]);
-            var inputClient = InputFactory.Client("fooClient", operations: [inputOperation], parameters: [param]);
-            _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel], clients: []));
+            var param = new InputParameter("param", "name", "desc",
+                new InputLiteralType(new InputPrimitiveType(InputPrimitiveTypeKind.String, "foo", "bar"), "bar"),
+                RequestLocation.Header, null, InputOperationParameterKind.Method, true, false, true, false, false,
+                false, false, null, null);
+            var inputOperation = new InputOperation("testoperation", "name", "desc", null, null, [param], new[] { new OperationResponse([200], new InputLiteralType(InputPrimitiveType.Any, "foo"), BodyMediaType.Json, [], false, []) },
+                "GET", BodyMediaType.Json, "http://example.com", "baz", null, null, true, null, null, true, true, "foo");
+            var inputClient = new InputClient(
+                "fooClient",
+                "desc",
+                [inputOperation],
+                [param],
+                null);
+            _mockInputLibrary.Setup(l => l.InputNamespace).Returns(new InputNamespace(
+                "test library",
+                new List<string>(),
+                new List<InputEnumType>(),
+                new List<InputModelType> { inputModel },
+                new List<InputClient>
+                {
+                    new InputClient(
+                        "fooClient",
+                        "desc",
+                        new[]
+                        {
+                            inputOperation
+                        },
+                        [param],
+                        null)
+                },
+                new InputAuth()));
 
             var mockClientProvider = new Mock<ClientProvider>(inputClient) { CallBase = true };
             _ = mockClientProvider.Object.Methods;
