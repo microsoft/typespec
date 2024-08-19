@@ -9,8 +9,9 @@ import { NetEmitterOptions } from "../options.js";
 import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputParameter } from "../type/input-parameter.js";
-import { InputEnumType, InputModelType, InputType } from "../type/input-type.js";
+import { InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
+import { TypeCache } from "../type/type-cache.js";
 import { getDefaultValue, getInputType } from "./model.js";
 
 export interface TypeSpecServer {
@@ -22,8 +23,7 @@ export interface TypeSpecServer {
 export function resolveServers(
   context: SdkContext<NetEmitterOptions>,
   servers: HttpServer[],
-  models: Map<string, InputModelType>,
-  enums: Map<string, InputEnumType>
+  typeCache: TypeCache
 ): TypeSpecServer[] {
   return servers.map((server) => {
     const parameters: InputParameter[] = [];
@@ -39,7 +39,7 @@ export function resolveServers(
             Name: "url",
             CrossLanguageDefinitionId: "TypeSpec.url",
           }
-        : getInputType(context, prop, models, enums);
+        : getInputType(context, prop, typeCache);
 
       if (value) {
         defaultValue = {
