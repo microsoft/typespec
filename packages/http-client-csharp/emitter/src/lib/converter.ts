@@ -230,7 +230,10 @@ export function fromSdkEnumType(
   return inputEnumType;
 }
 
-function fromSdkDateTimeType(typeCache: TypeCache, dateTimeType: SdkDateTimeType): InputDateTimeType {
+function fromSdkDateTimeType(
+  typeCache: TypeCache,
+  dateTimeType: SdkDateTimeType
+): InputDateTimeType {
   if (typeCache.has(dateTimeType)) {
     return typeCache.get(dateTimeType) as InputDateTimeType;
   }
@@ -241,7 +244,9 @@ function fromSdkDateTimeType(typeCache: TypeCache, dateTimeType: SdkDateTimeType
     Encode: dateTimeType.encode,
     WireType: fromSdkBuiltInType(typeCache, dateTimeType.wireType),
     CrossLanguageDefinitionId: dateTimeType.crossLanguageDefinitionId,
-    BaseType: dateTimeType.baseType ? fromSdkDateTimeType(typeCache, dateTimeType.baseType) : undefined,
+    BaseType: dateTimeType.baseType
+      ? fromSdkDateTimeType(typeCache, dateTimeType.baseType)
+      : undefined,
     Decorators: dateTimeType.decorators,
   };
 
@@ -249,7 +254,10 @@ function fromSdkDateTimeType(typeCache: TypeCache, dateTimeType: SdkDateTimeType
   return inputDateTimeType;
 }
 
-function fromSdkDurationType(typeCache: TypeCache, durationType: SdkDurationType): InputDurationType {
+function fromSdkDurationType(
+  typeCache: TypeCache,
+  durationType: SdkDurationType
+): InputDurationType {
   if (typeCache.has(durationType)) {
     return typeCache.get(durationType) as InputDurationType;
   }
@@ -260,7 +268,9 @@ function fromSdkDurationType(typeCache: TypeCache, durationType: SdkDurationType
     Encode: durationType.encode,
     WireType: fromSdkBuiltInType(typeCache, durationType.wireType),
     CrossLanguageDefinitionId: durationType.crossLanguageDefinitionId,
-    BaseType: durationType.baseType ? fromSdkDurationType(typeCache, durationType.baseType) : undefined,
+    BaseType: durationType.baseType
+      ? fromSdkDurationType(typeCache, durationType.baseType)
+      : undefined,
     Decorators: durationType.decorators,
   };
 
@@ -295,7 +305,9 @@ function fromSdkBuiltInType(typeCache: TypeCache, builtInType: SdkBuiltInType): 
     Name: builtInType.name,
     Encode: builtInType.encode !== builtInType.kind ? builtInType.encode : undefined, // In TCGC this is required, and when there is no encoding, it just has the same value as kind, we could remove this when TCGC decides to simplify
     CrossLanguageDefinitionId: builtInType.crossLanguageDefinitionId,
-    BaseType: builtInType.baseType ? fromSdkBuiltInType(typeCache, builtInType.baseType) : undefined,
+    BaseType: builtInType.baseType
+      ? fromSdkBuiltInType(typeCache, builtInType.baseType)
+      : undefined,
     Decorators: builtInType.decorators,
   };
 
@@ -451,7 +463,7 @@ function fromSdkArrayType(
   typeCache: TypeCache
 ): InputArrayType {
   if (typeCache.has(arrayType)) {
-    return typeCache.get(arrayType) as InputArrayType; 
+    return typeCache.get(arrayType) as InputArrayType;
   }
   const inputArrayType: InputArrayType = {
     Kind: "array",

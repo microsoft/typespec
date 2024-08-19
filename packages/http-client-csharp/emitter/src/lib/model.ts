@@ -16,9 +16,9 @@ import {
 import { NetEmitterOptions } from "../options.js";
 import { InputType } from "../type/input-type.js";
 import { LiteralTypeContext } from "../type/literal-type-context.js";
+import { TypeCache } from "../type/type-cache.js";
 import { fromSdkEnumType, fromSdkModelType, fromSdkType } from "./converter.js";
 import { Logger } from "./logger.js";
-import { TypeCache } from "../type/type-cache.js";
 
 /**
  * If type is an anonymous model, tries to find a named model that has the same
@@ -83,10 +83,7 @@ export function getInputType(
   return fromSdkType(sdkType, context, typeCache, literalTypeContext);
 }
 
-export function navigateModels(
-  context: SdkContext<NetEmitterOptions>,
-  typeCache: TypeCache
-) {
+export function navigateModels(context: SdkContext<NetEmitterOptions>, typeCache: TypeCache) {
   for (const type of getAllModels(context)) {
     if (type.name === "") {
       continue;

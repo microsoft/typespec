@@ -11,8 +11,8 @@ import { InputOperationParameterKind } from "../type/input-operation-parameter-k
 import { InputParameter } from "../type/input-parameter.js";
 import { InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
-import { getDefaultValue, getInputType } from "./model.js";
 import { TypeCache } from "../type/type-cache.js";
+import { getDefaultValue, getInputType } from "./model.js";
 
 export interface TypeSpecServer {
   url: string;

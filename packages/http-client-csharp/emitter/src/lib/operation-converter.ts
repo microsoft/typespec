@@ -30,21 +30,18 @@ import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputOperation } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
-import {
-  InputPrimitiveType,
-  InputType,
-} from "../type/input-type.js";
+import { InputPrimitiveType, InputType } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
 import { OperationPaging } from "../type/operation-paging.js";
 import { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
+import { TypeCache } from "../type/type-cache.js";
 import { fromSdkType } from "./converter.js";
 import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { Logger } from "./logger.js";
 import { getInputType } from "./model.js";
-import { TypeCache } from "../type/type-cache.js";
 
 export function fromSdkServiceMethod(
   method: SdkServiceMethod<SdkHttpOperation>,
@@ -66,7 +63,7 @@ export function fromSdkServiceMethod(
     method.operation,
     rootApiVersions,
     sdkContext,
-    typeCache,
+    typeCache
   );
   return {
     Name: method.name,
@@ -81,11 +78,7 @@ export function fromSdkServiceMethod(
     Description: getDoc(sdkContext.program, method.__raw!),
     Accessibility: method.access,
     Parameters: [...clientParameters, ...parameterMap.values()],
-    Responses: fromSdkHttpOperationResponses(
-      method.operation.responses,
-      sdkContext,
-      typeCache
-    ),
+    Responses: fromSdkHttpOperationResponses(method.operation.responses, sdkContext, typeCache),
     HttpMethod: parseHttpRequestMethod(method.operation.verb),
     RequestBodyMediaType: getBodyMediaType(method.operation.bodyParam?.type),
     Uri: uri,
@@ -99,12 +92,7 @@ export function fromSdkServiceMethod(
     GenerateConvenienceMethod: generateConvenience,
     CrossLanguageDefinitionId: method.crossLanguageDefintionId,
     Decorators: method.decorators,
-    Examples: fromSdkHttpExamples(
-      sdkContext,
-      method.operation.examples,
-      parameterMap,
-      typeCache,
-    ),
+    Examples: fromSdkHttpExamples(sdkContext, method.operation.examples, parameterMap, typeCache),
   };
 }
 
@@ -150,7 +138,7 @@ function fromSdkOperationParameters(
   operation: SdkHttpOperation,
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeCache: TypeCache,
+  typeCache: TypeCache
 ): Map<SdkHttpParameter, InputParameter> {
   const parameters = new Map<SdkHttpParameter, InputParameter>();
   for (const p of operation.parameters) {
@@ -163,7 +151,7 @@ function fromSdkOperationParameters(
       operation.bodyParam,
       rootApiVersions,
       sdkContext,
-      typeCache,
+      typeCache
     );
     parameters.set(operation.bodyParam, bodyParam);
   }

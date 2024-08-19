@@ -20,12 +20,12 @@ import { InputOperationParameterKind } from "../type/input-operation-parameter-k
 import { InputParameter } from "../type/input-parameter.js";
 import { InputEnumType, InputModelType, InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
+import { TypeCache } from "../type/type-cache.js";
 import { fromSdkType } from "./converter.js";
 import { Logger } from "./logger.js";
 import { navigateModels } from "./model.js";
 import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
-import { TypeCache } from "../type/type-cache.js";
 
 export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeModel {
   // initialize tcgc model
@@ -45,7 +45,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     },
     set(type: SdkType, inputType: InputType): void {
       this.cache.set(type, inputType);
-    }
+    },
   };
 
   navigateModels(sdkContext, typeCache);
