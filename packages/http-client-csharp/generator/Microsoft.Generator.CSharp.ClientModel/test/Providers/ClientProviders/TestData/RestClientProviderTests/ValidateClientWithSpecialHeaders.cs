@@ -19,8 +19,6 @@ namespace sample.namespace
             request.Method = "GET";
             global::sample.namespace.ClientUriBuilder uri = new global::sample.namespace.ClientUriBuilder();
             uri.Reset(_endpoint);
-            uri.AppendPath("localhost", false);
-            uri.AppendPath("/api/messages", false);
             request.Uri = uri.ToUri();
             request.Headers.Set("repeatability-first-sent", global::System.DateTimeOffset.Now.ToString("R"));
             request.Headers.Set("repeatability-request-ID", global::System.Guid.NewGuid().ToString());

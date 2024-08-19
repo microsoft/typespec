@@ -8,6 +8,7 @@ using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
@@ -131,33 +132,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
-        private readonly static InputOperation BasicOperation = new InputOperation(
-            name: "CreateMessage",
-            resourceName: null,
-            deprecated: null,
-            description: string.Empty,
-            accessibility: null,
+        private readonly static InputOperation BasicOperation = InputFactory.Operation(
+            "CreateMessage",
             parameters:
             [
-                new InputParameter("repeatabilityFirstSent", "repeatability-first-sent", string.Empty, new InputDateTimeType(DateTimeKnownEncoding.Rfc7231, "utcDateTime", "TypeSpec.utcDateTime", InputPrimitiveType.String), RequestLocation.Header, null, InputOperationParameterKind.Method, false, false, false, false, false, false, false, null, null),
-                new InputParameter("repeatabilityRequestId", "repeatability-request-ID", string.Empty, InputPrimitiveType.String, RequestLocation.Header, null, InputOperationParameterKind.Method, false, false, false, false, false, false, false, null, null),
-                new InputParameter("message", "message", "The message to create.", InputPrimitiveType.Boolean, RequestLocation.Body, null, InputOperationParameterKind.Method, true, false, false, false, false, false, false, null, null)
-            ],
-            responses: [new OperationResponse([200], null, BodyMediaType.Json, [], false, ["application/json"])],
-            httpMethod: "GET",
-            requestBodyMediaType: BodyMediaType.Json,
-            uri: "localhost",
-            path: "/api/messages",
-            externalDocsUrl: null,
-            requestMediaTypes: null,
-            bufferResponse: false,
-            longRunning: null,
-            paging: null,
-            generateProtocolMethod: true,
-            generateConvenienceMethod: true,
-            crossLanguageDefinitionId: "TestService.CreateMessage");
+                InputFactory.Parameter(
+                    "repeatabilityFirstSent",
+                    new InputDateTimeType(DateTimeKnownEncoding.Rfc7231, "utcDateTime", "TypeSpec.utcDateTime", InputPrimitiveType.String),
+                    nameInRequest: "repeatability-first-sent",
+                    location: RequestLocation.Header,
+                    isRequired: false),
+                InputFactory.Parameter(
+                    "repeatabilityRequestId",
+                    InputPrimitiveType.String,
+                    nameInRequest: "repeatability-request-ID",
+                    location: RequestLocation.Header,
+                    isRequired: false),
+                InputFactory.Parameter("message", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
 
-        private readonly static InputClient SingleOpInputClient = new InputClient("TestClient", "TestClient description", [BasicOperation], [], null);
+        private readonly static InputClient SingleOpInputClient = InputFactory.Client("TestClient", operations: [BasicOperation]);
 
         private static IEnumerable<TestCaseData> DefaultCSharpMethodCollectionTestCases =>
         [
