@@ -8,6 +8,7 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
@@ -24,24 +25,24 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         {
             var intValues = new List<InputEnumTypeValue>
             {
-                new InputEnumTypeValue("One", 1, null),
-                new InputEnumTypeValue("Two", 2, null)
+                InputFactory.EnumMember.Int32("One", 1),
+                InputFactory.EnumMember.Int32("Two", 2)
             };
-            var intType = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.Int32, intValues, isExtensible);
+            var intType = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Int32, isExtensible: isExtensible, values: intValues);
 
             var floatValues = new List<InputEnumTypeValue>
             {
-                new InputEnumTypeValue("One", 1f, null),
-                new InputEnumTypeValue("Two", 2f, null)
+                InputFactory.EnumMember.Float32("One", 1f),
+                InputFactory.EnumMember.Float32("Two", 2f)
             };
-            var floatType = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.Float32, floatValues, isExtensible);
+            var floatType = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Float32, isExtensible: isExtensible, values: floatValues);
 
             var stringValues = new List<InputEnumTypeValue>
             {
-                new InputEnumTypeValue("One", "1", null),
-                new InputEnumTypeValue("Two", "2", null)
+                InputFactory.EnumMember.String("One", "1"),
+                InputFactory.EnumMember.String("Two", "2")
             };
-            var stringType = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.Input | InputModelTypeUsage.Output, InputPrimitiveType.String, stringValues, isExtensible);
+            var stringType = InputFactory.Enum("mockInputEnum", InputPrimitiveType.String, isExtensible: isExtensible, values: stringValues);
 
             return [intType, floatType, stringType];
         }
