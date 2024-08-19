@@ -1,5 +1,5 @@
 {
-  "name": "http-client-javascript",
+  "name": "@typespec/http-client-javascript",
   "version": "1.0.0",
   "type": "module",
   "private": true,
