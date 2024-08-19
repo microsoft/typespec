@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         public void ValueTypeHasNoValidation(InputType paramType)
         {
             MockHelpers.LoadMockPlugin();
-            var inputType = InputFactory.Parameter("testParam", paramType, isRequred: true);
+            var inputType = InputFactory.Parameter("testParam", paramType, isRequired: true);
             var parameter = CodeModelPlugin.Instance.TypeFactory.CreateParameter(inputType);
             Assert.AreEqual(ParameterValidationType.None, parameter.Validation);
         }

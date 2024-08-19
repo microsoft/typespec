@@ -1,11 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Tests.Common;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
@@ -32,41 +31,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         public void PreVisitsMethods()
         {
             _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
-            var inputModelProperty =
-                new InputModelProperty("prop1", "prop1", "string", new InputPrimitiveType(InputPrimitiveTypeKind.Any, "foo", "bar"), true, true, false);
-            var inputModel = new InputModelType("foo", "id", "desc", "internal", "description",
-                InputModelTypeUsage.Input, [inputModelProperty], null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModelProperty = InputFactory.Property("prop1", InputPrimitiveType.Any, isRequired: true, isReadOnly: true);
+            var inputModel = InputFactory.Model("foo", access: "internal", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
 
-            var param = new InputParameter("param", "name", "desc",
-                new InputLiteralType(new InputPrimitiveType(InputPrimitiveTypeKind.String, "foo", "bar"), "bar"),
-                RequestLocation.Header, null, InputOperationParameterKind.Method, true, false, true, false, false,
-                false, false, null, null);
-            var inputOperation = new InputOperation("testoperation", "name", "desc", null, null, [param], new[] {new OperationResponse([200], new InputLiteralType(InputPrimitiveType.Any, "foo"), BodyMediaType.Json, [], false, [] )},
-                "GET", BodyMediaType.Json, "http://example.com", "baz", null, null, true, null, null, true, true, "foo");
-            var inputClient = new InputClient(
-                "fooClient",
-                "desc",
-                [inputOperation],
-                [param],
-                null);
-            _mockInputLibrary.Setup(l => l.InputNamespace).Returns(new InputNamespace(
-                "test library",
-                new List<string>(),
-                new List<InputEnumType>(),
-                new List<InputModelType> {inputModel},
-                new List<InputClient>
-                {
-                    new InputClient(
-                        "fooClient",
-                        "desc",
-                        new[]
-                        {
-                            inputOperation
-                        },
-                        [param],
-                        null)
-                },
-                new InputAuth()));
+            var param = InputFactory.Parameter("param", InputFactory.Literal.String("bar"), location: RequestLocation.Header, isRequired: true);
+            var inputOperation = InputFactory.Operation("testoperation", parameters: [param], responses: [InputFactory.OperationResponse(bodytype: InputFactory.Literal.Any("foo"))]);
+            var inputClient = InputFactory.Client("fooClient", operations: [inputOperation], parameters: [param]);
+            _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel], clients: []));
 
             var mockClientProvider = new Mock<ClientProvider>(inputClient) { CallBase = true };
             _ = mockClientProvider.Object.Methods;

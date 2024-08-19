@@ -26,12 +26,40 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             }
         }
 
+        public static class Literal
+        {
+            public static InputLiteralType String(string value)
+            {
+                return new InputLiteralType(InputPrimitiveType.String, value);
+            }
+
+            public static InputLiteralType Any(object value)
+            {
+                return new InputLiteralType(InputPrimitiveType.Any, value);
+            }
+        }
+
+        public static class Constant
+        {
+            public static InputConstant String(string value)
+            {
+                return new InputConstant(value, InputPrimitiveType.String);
+            }
+
+            public static InputConstant Int64(long value)
+            {
+                return new InputConstant(value, InputPrimitiveType.Int64);
+            }
+        }
+
         public static InputParameter Parameter(
-            string name,
-            InputType type,
-            RequestLocation location = RequestLocation.Body,
-            bool isRequred = false,
-            InputOperationParameterKind kind = InputOperationParameterKind.Method)
+        string name,
+        InputType type,
+        InputConstant? defaultValue = null,
+        RequestLocation location = RequestLocation.Body,
+        bool isRequired = false,
+        InputOperationParameterKind kind = InputOperationParameterKind.Method,
+        bool isEndpoint = false)
         {
             return new InputParameter(
                 name,
@@ -39,27 +67,27 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 $"{name} description",
                 type,
                 location,
-                null,
+                defaultValue,
                 kind,
-                isRequred,
+                isRequired,
                 false,
                 false,
                 false,
-                false,
+                isEndpoint,
                 false,
                 false,
                 null,
                 null);
         }
 
-        public static InputNamespace Namespace(string name, IEnumerable<InputModelType>? models = null)
+        public static InputNamespace Namespace(string name, IEnumerable<InputModelType>? models = null, IEnumerable<InputClient>? clients = null)
         {
             return new InputNamespace(
                 name,
                 [],
                 [],
                 models is null ? [] : [.. models],
-                [],
+                clients is null ? [] : [.. clients],
                 new InputAuth());
         }
 
@@ -135,6 +163,55 @@ namespace Microsoft.Generator.CSharp.Tests.Common
         public static InputType Dictionary(InputType valueType, InputType? keyType = null)
         {
             return new InputDictionaryType("dictionary", keyType ?? InputPrimitiveType.String, valueType);
+        }
+
+        public static InputOperation Operation(
+            string name,
+            string access = "public",
+            IEnumerable<InputParameter>? parameters = null,
+            IEnumerable<OperationResponse>? responses = null)
+        {
+            return new InputOperation(
+                name,
+                null,
+                $"{name} description",
+                null,
+                access,
+                parameters is null ? [] : [.. parameters],
+                responses is null ? [OperationResponse()] : [.. responses],
+                "GET",
+                BodyMediaType.Json,
+                "",
+                "",
+                null,
+                null,
+                false,
+                null,
+                null,
+                true,
+                true,
+                name);
+        }
+
+        public static OperationResponse OperationResponse(IEnumerable<int>? statusCodes = null, InputType? bodytype = null)
+        {
+            return new OperationResponse(
+                statusCodes is null ? [200] : [.. statusCodes],
+                bodytype,
+                BodyMediaType.Json,
+                [],
+                false,
+                ["application/json"]);
+        }
+
+        public static InputClient Client(string name, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, string? parent = null)
+        {
+            return new InputClient(
+                name,
+                $"{name} description",
+                operations is null ? [] : [.. operations],
+                parameters is null ? [] : [.. parameters],
+                parent);
         }
     }
 }

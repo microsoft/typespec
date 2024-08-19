@@ -6,6 +6,7 @@ using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
@@ -30,7 +31,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [Test]
         public void ServiceClientWithSubClient()
         {
-            var client = new InputClient(TestClientName, "TestClient description", [], [], null);
+            var client = InputFactory.Client(TestClientName);
             string[] expectedSubClientFactoryMethodNames = [$"Get{_animalClient.Name.ToCleanName()}Client"];
             var clientProvider = new MockClientProvider(client, expectedSubClientFactoryMethodNames);
             var writer = new TypeProviderWriter(clientProvider);
