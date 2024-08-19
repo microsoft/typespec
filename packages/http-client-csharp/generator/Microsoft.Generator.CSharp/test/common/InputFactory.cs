@@ -59,7 +59,8 @@ namespace Microsoft.Generator.CSharp.Tests.Common
         RequestLocation location = RequestLocation.Body,
         bool isRequired = false,
         InputOperationParameterKind kind = InputOperationParameterKind.Method,
-        bool isEndpoint = false)
+        bool isEndpoint = false,
+        bool isResourceParameter = false)
         {
             return new InputParameter(
                 name,
@@ -71,7 +72,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 kind,
                 isRequired,
                 false,
-                false,
+                isResourceParameter,
                 false,
                 isEndpoint,
                 false,
