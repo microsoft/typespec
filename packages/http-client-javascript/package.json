@@ -1,5 +1,5 @@
 {
-  "name": "@typespec/http-client-javascript",
+  "name": "http-client-javascript",
   "version": "1.0.0",
   "type": "module",
   "private": true,
@@ -31,6 +31,7 @@
     "babel-preset-alloy": "https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@7628ae9",
     "concurrently": "^8.2.2",
     "typescript": "^5.5.3",
-    "vitest": "^2.0.3"
+    "vitest": "^2.0.3",
+    "ts-morph": "^23.0.0"
   }
 }
