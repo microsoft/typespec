@@ -45,7 +45,6 @@ export function fromSdkType(
   typeCache: TypeCache,
   literalTypeContext?: LiteralTypeContext
 ): InputType {
-  // TODO -- we need to add a global cache here to track the TCGC type vs our type
   if (sdkType.kind === "nullable") {
     const inputType = fromSdkType(sdkType.type, context, typeCache);
     return {
