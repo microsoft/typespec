@@ -668,6 +668,43 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
+  packages/http-client-javascript:
+    dependencies:
+      '@alloy-js/core':
+        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@7628ae9
+        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@7628ae9
+      '@alloy-js/typescript':
+        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@7628ae9
+        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@7628ae9
+      '@typespec/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+      '@typespec/emitter-framework':
+        specifier: workspace:*
+        version: link:../emitter-framework
+    devDependencies:
+      '@babel/cli':
+        specifier: ^7.24.8
+        version: 7.24.8(@babel/core@7.25.2)
+      '@babel/core':
+        specifier: ^7.24.9
+        version: 7.25.2
+      '@rollup/plugin-babel':
+        specifier: ^6.0.4
+        version: 6.0.4(@babel/core@7.25.2)(@types/babel__core@7.20.5)(rollup@4.18.0)
+      babel-preset-alloy:
+        specifier: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@7628ae9
+        version: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@7628ae9(@babel/core@7.25.2)
+      concurrently:
+        specifier: ^8.2.2
+        version: 8.2.2
+      typescript:
+        specifier: ^5.5.3
+        version: 5.5.3
+      vitest:
+        specifier: ^2.0.3
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@1.6.0(vitest@1.6.0))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+
   packages/http-server-javascript:
     dependencies:
       prettier:
@@ -17186,7 +17223,7 @@ snapshots:
 
   '@storybook/cli@8.1.11(@babel/preset-env@7.24.5(@babel/core@7.25.2))(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@babel/core': 7.24.7
+      '@babel/core': 7.25.2
       '@babel/types': 7.24.5
       '@ndelangen/get-tarball': 3.0.9
       '@storybook/codemod': 8.1.11
@@ -17211,7 +17248,7 @@ snapshots:
       get-npm-tarball-url: 2.1.0
       giget: 1.2.3
       globby: 14.0.2
-      jscodeshift: 0.15.2(@babel/preset-env@7.24.5(@babel/core@7.24.7))
+      jscodeshift: 0.15.2(@babel/preset-env@7.24.5(@babel/core@7.25.2))
       leven: 3.1.0
       ora: 5.4.1
       prettier: 3.3.2
@@ -17247,7 +17284,7 @@ snapshots:
       '@types/cross-spawn': 6.0.6
       cross-spawn: 7.0.3
       globby: 14.0.2
-      jscodeshift: 0.15.2(@babel/preset-env@7.24.5(@babel/core@7.24.7))
+      jscodeshift: 0.15.2(@babel/preset-env@7.24.5(@babel/core@7.25.2))
       lodash: 4.17.21
       prettier: 3.3.2
       recast: 0.23.7
@@ -22018,7 +22055,7 @@ snapshots:
 
   jsbn@1.1.0: {}
 
-  jscodeshift@0.15.2(@babel/preset-env@7.24.5(@babel/core@7.24.7)):
+  jscodeshift@0.15.2(@babel/preset-env@7.24.5(@babel/core@7.25.2)):
     dependencies:
       '@babel/core': 7.25.2
       '@babel/parser': 7.25.0
