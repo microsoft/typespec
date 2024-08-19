@@ -334,10 +334,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 valueExpression = Literal((inputParam.Type as InputLiteralType)?.Value);
                 format = ClientModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
             }
-            else if (TryGetSpecialHeaderParam(inputParam, out var parameterProvider) &&
-                parameterProvider.DefaultValue != null)
+            else if (TryGetSpecialHeaderParam(inputParam, out var parameterProvider))
             {
-                valueExpression = parameterProvider.DefaultValue;
+                valueExpression = parameterProvider.DefaultValue!;
                 format = ClientModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
             }
             else
