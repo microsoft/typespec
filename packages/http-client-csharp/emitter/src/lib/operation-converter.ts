@@ -31,8 +31,6 @@ import { InputOperationParameterKind } from "../type/input-operation-parameter-k
 import { InputOperation } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
 import {
-  InputEnumType,
-  InputModelType,
   InputPrimitiveType,
   InputType,
 } from "../type/input-type.js";
@@ -46,6 +44,7 @@ import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { Logger } from "./logger.js";
 import { getInputType } from "./model.js";
+import { TypeCache } from "../type/type-cache.js";
 
 export function fromSdkServiceMethod(
   method: SdkServiceMethod<SdkHttpOperation>,
@@ -53,9 +52,7 @@ export function fromSdkServiceMethod(
   clientParameters: InputParameter[],
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeCache: Map<SdkType, InputType>,
-  modelMap: Map<string, InputModelType>,
-  enumMap: Map<string, InputEnumType>
+  typeCache: TypeCache
 ): InputOperation {
   let generateConvenience = shouldGenerateConvenient(sdkContext, method.operation.__raw.operation);
   if (method.operation.verb === "patch" && generateConvenience) {
@@ -70,8 +67,6 @@ export function fromSdkServiceMethod(
     rootApiVersions,
     sdkContext,
     typeCache,
-    modelMap,
-    enumMap
   );
   return {
     Name: method.name,
@@ -89,9 +84,7 @@ export function fromSdkServiceMethod(
     Responses: fromSdkHttpOperationResponses(
       method.operation.responses,
       sdkContext,
-      typeCache,
-      modelMap,
-      enumMap
+      typeCache
     ),
     HttpMethod: parseHttpRequestMethod(method.operation.verb),
     RequestBodyMediaType: getBodyMediaType(method.operation.bodyParam?.type),
@@ -100,7 +93,7 @@ export function fromSdkServiceMethod(
     ExternalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
     RequestMediaTypes: getRequestMediaTypes(method.operation),
     BufferResponse: true,
-    LongRunning: loadLongRunningOperation(method, sdkContext, typeCache, modelMap, enumMap),
+    LongRunning: loadLongRunningOperation(method, sdkContext, typeCache),
     Paging: loadOperationPaging(method),
     GenerateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
     GenerateConvenienceMethod: generateConvenience,
@@ -111,8 +104,6 @@ export function fromSdkServiceMethod(
       method.operation.examples,
       parameterMap,
       typeCache,
-      modelMap,
-      enumMap
     ),
   };
 }
@@ -159,13 +150,11 @@ function fromSdkOperationParameters(
   operation: SdkHttpOperation,
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeCache: Map<SdkType, InputType>,
-  modelMap: Map<string, InputModelType>,
-  enumMap: Map<string, InputEnumType>
+  typeCache: TypeCache,
 ): Map<SdkHttpParameter, InputParameter> {
   const parameters = new Map<SdkHttpParameter, InputParameter>();
   for (const p of operation.parameters) {
-    const param = fromSdkHttpOperationParameter(p, rootApiVersions, sdkContext, typeCache, modelMap, enumMap);
+    const param = fromSdkHttpOperationParameter(p, rootApiVersions, sdkContext, typeCache);
     parameters.set(p, param);
   }
 
@@ -175,8 +164,6 @@ function fromSdkOperationParameters(
       rootApiVersions,
       sdkContext,
       typeCache,
-      modelMap,
-      enumMap
     );
     parameters.set(operation.bodyParam, bodyParam);
   }
@@ -189,13 +176,11 @@ function fromSdkHttpOperationParameter(
   p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter,
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeCache: Map<SdkType, InputType>,
-  modelMap: Map<string, InputModelType>,
-  enumMap: Map<string, InputEnumType>
+  typeCache: TypeCache
 ): InputParameter {
   const isContentType =
     p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type";
-  const parameterType = fromSdkType(p.type, sdkContext, typeCache, modelMap, enumMap);
+  const parameterType = fromSdkType(p.type, sdkContext, typeCache);
   // remove this after: https://github.com/Azure/typespec-azure/issues/1084
   if (p.type.kind === "bytes") {
     (parameterType as InputPrimitiveType).Encode = (
@@ -227,9 +212,7 @@ function fromSdkHttpOperationParameter(
 function loadLongRunningOperation(
   method: SdkServiceMethod<SdkHttpOperation>,
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeCache: Map<SdkType, InputType>,
-  modelMap: Map<string, InputModelType>,
-  enumMap: Map<string, InputEnumType>
+  typeCache: TypeCache
 ): import("../type/operation-long-running.js").OperationLongRunning | undefined {
   if (method.kind !== "lro") {
     return undefined;
@@ -248,8 +231,6 @@ function loadLongRunningOperation(
               sdkContext,
               method.__raw_lro_metadata.finalEnvelopeResult,
               typeCache,
-              modelMap,
-              enumMap,
               method.operation.__raw.operation
             )
           : undefined,
@@ -262,17 +243,15 @@ function loadLongRunningOperation(
 function fromSdkHttpOperationResponses(
   operationResponses: Map<HttpStatusCodeRange | number, SdkHttpResponse>,
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeCache: Map<SdkType, InputType>,
-  modelMap: Map<string, InputModelType>,
-  enumMap: Map<string, InputEnumType>
+  typeCache: TypeCache
 ): OperationResponse[] {
   const responses: OperationResponse[] = [];
   operationResponses.forEach((r, range) => {
     responses.push({
       StatusCodes: toStatusCodesArray(range),
-      BodyType: r.type ? fromSdkType(r.type, sdkContext, typeCache, modelMap, enumMap) : undefined,
+      BodyType: r.type ? fromSdkType(r.type, sdkContext, typeCache) : undefined,
       BodyMediaType: BodyMediaType.Json,
-      Headers: fromSdkServiceResponseHeaders(r.headers, sdkContext, typeCache, modelMap, enumMap),
+      Headers: fromSdkServiceResponseHeaders(r.headers, sdkContext, typeCache),
       IsErrorResponse: r.type !== undefined && isErrorModel(sdkContext.program, r.type.__raw!),
       ContentTypes: r.contentTypes,
     });
@@ -283,9 +262,7 @@ function fromSdkHttpOperationResponses(
 function fromSdkServiceResponseHeaders(
   headers: SdkServiceResponseHeader[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeCache: Map<SdkType, InputType>,
-  modelMap: Map<string, InputModelType>,
-  enumMap: Map<string, InputEnumType>
+  typeCache: TypeCache
 ): HttpResponseHeader[] {
   return headers.map(
     (h) =>
@@ -293,7 +270,7 @@ function fromSdkServiceResponseHeaders(
         Name: h.__raw!.name,
         NameInResponse: h.serializedName,
         Description: h.description,
-        Type: fromSdkType(h.type, sdkContext, typeCache, modelMap, enumMap),
+        Type: fromSdkType(h.type, sdkContext, typeCache),
       }) as HttpResponseHeader
   );
 }

@@ -3,7 +3,6 @@
 
 import {
   SdkContext,
-  SdkType,
   getAllModels,
   getClientType,
 } from "@azure-tools/typespec-client-generator-core";
@@ -15,10 +14,11 @@ import {
   isStatusCode,
 } from "@typespec/http";
 import { NetEmitterOptions } from "../options.js";
-import { InputEnumType, InputModelType, InputType } from "../type/input-type.js";
+import { InputType } from "../type/input-type.js";
 import { LiteralTypeContext } from "../type/literal-type-context.js";
 import { fromSdkEnumType, fromSdkModelType, fromSdkType } from "./converter.js";
 import { Logger } from "./logger.js";
+import { TypeCache } from "../type/type-cache.js";
 
 /**
  * If type is an anonymous model, tries to find a named model that has the same
@@ -73,32 +73,28 @@ export function getDefaultValue(type: Type): any {
 export function getInputType(
   context: SdkContext<NetEmitterOptions>,
   type: Type,
-  typeCache: Map<SdkType, InputType>,
-  models: Map<string, InputModelType>,
-  enums: Map<string, InputEnumType>,
+  typeCache: TypeCache,
   operation?: Operation,
   literalTypeContext?: LiteralTypeContext
 ): InputType {
   Logger.getInstance().debug(`getInputType for kind: ${type.kind}`);
 
   const sdkType = getClientType(context, type, operation);
-  return fromSdkType(sdkType, context, typeCache, models, enums, literalTypeContext);
+  return fromSdkType(sdkType, context, typeCache, literalTypeContext);
 }
 
 export function navigateModels(
   context: SdkContext<NetEmitterOptions>,
-  typeCache: Map<SdkType, InputType>,
-  models: Map<string, InputModelType>,
-  enums: Map<string, InputEnumType>
+  typeCache: TypeCache
 ) {
   for (const type of getAllModels(context)) {
     if (type.name === "") {
       continue;
     }
     if (type.kind === "model") {
-      fromSdkModelType(type, context, typeCache, models, enums);
+      fromSdkModelType(type, context, typeCache);
     } else {
-      fromSdkEnumType(type, context, typeCache, enums);
+      fromSdkEnumType(type, context, typeCache);
     }
   }
 }
