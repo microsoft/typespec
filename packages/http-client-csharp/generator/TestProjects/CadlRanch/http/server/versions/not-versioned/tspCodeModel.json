@@ -56,7 +56,8 @@
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Server.Versions.NotVersioned.withoutApiVersion"
+     "CrossLanguageDefinitionId": "Server.Versions.NotVersioned.withoutApiVersion",
+     "Decorators": []
     },
     {
      "$id": "7",
@@ -75,7 +76,8 @@
         "$id": "9",
         "Kind": "string",
         "Name": "string",
-        "CrossLanguageDefinitionId": "TypeSpec.string"
+        "CrossLanguageDefinitionId": "TypeSpec.string",
+        "Decorators": []
        },
        "Location": "Query",
        "IsApiVersion": true,
@@ -83,7 +85,8 @@
        "IsEndpoint": false,
        "Explode": false,
        "IsRequired": true,
-       "Kind": "Method"
+       "Kind": "Method",
+       "Decorators": []
       }
      ],
      "Responses": [
@@ -104,7 +107,8 @@
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Server.Versions.NotVersioned.withQueryApiVersion"
+     "CrossLanguageDefinitionId": "Server.Versions.NotVersioned.withQueryApiVersion",
+     "Decorators": []
     },
     {
      "$id": "11",
@@ -123,7 +127,8 @@
         "$id": "13",
         "Kind": "string",
         "Name": "string",
-        "CrossLanguageDefinitionId": "TypeSpec.string"
+        "CrossLanguageDefinitionId": "TypeSpec.string",
+        "Decorators": []
        },
        "Location": "Path",
        "IsApiVersion": true,
@@ -131,7 +136,8 @@
        "IsEndpoint": false,
        "Explode": false,
        "IsRequired": true,
-       "Kind": "Method"
+       "Kind": "Method",
+       "Decorators": []
       }
      ],
      "Responses": [
@@ -152,7 +158,8 @@
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Server.Versions.NotVersioned.withPathApiVersion"
+     "CrossLanguageDefinitionId": "Server.Versions.NotVersioned.withPathApiVersion",
+     "Decorators": []
     }
    ],
    "Protocol": {
@@ -162,7 +169,8 @@
     {
      "$ref": "4"
     }
-   ]
+   ],
+   "Decorators": []
   }
  ]
 }
