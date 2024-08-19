@@ -2,13 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
-using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.Primitives;
 using Moq;
-using Moq.Protected;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests
