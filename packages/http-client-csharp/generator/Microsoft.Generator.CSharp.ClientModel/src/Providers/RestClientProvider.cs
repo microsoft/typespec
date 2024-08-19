@@ -337,6 +337,24 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     valueExpression = csharpType.ToSerial(paramProvider);
                     format = null;
                 }
+                else if (paramProvider.Type.IsCollection)
+                {
+                    ValueExpression parameterValueExpression = paramProvider.Field is null ? paramProvider : paramProvider.Field;
+                    ValueExpression values = paramProvider;
+                    var serializationformat = ClientModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
+                    if (serializationformat != null)
+                    {
+                        var _t = typeof(IEnumerable<>).GetGenericArguments()[0];
+                        var value = parameterValueExpression.As(_t);
+
+                        var v = new VariableExpression(_t, "v");
+                        var convertToStringExpression = TypeFormattersSnippets.ConvertToString(v, Literal(serializationformat));
+                        var selector = new FuncExpression([v.Declaration], convertToStringExpression).As<string>();
+                        values = parameterValueExpression.Select(selector);
+                    }
+                    valueExpression = StringSnippets.Join(Literal(","), values);
+                    format = null;
+                }
                 else
                 {
                     valueExpression = paramProvider.Field is null ? paramProvider : paramProvider.Field;
