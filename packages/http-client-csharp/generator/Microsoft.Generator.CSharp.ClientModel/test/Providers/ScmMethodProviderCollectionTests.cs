@@ -7,27 +7,26 @@ using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 {
     internal class ScmMethodProviderCollectionTests
     {
-        private static readonly InputModelType _spreadModel = new(
+        private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
-            "spreadModel",
-            null,
-            null,
-            null,
-            InputModelTypeUsage.Spread,
-            [new InputModelProperty("p1", "p1", "property p1", InputPrimitiveType.String, true, false, false)],
-            null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
+            usage: InputModelTypeUsage.Spread,
+            properties:
+            [
+                InputFactory.Property("p1", InputPrimitiveType.String, isRequired: true),
+            ]);
 
         // Validate that the default method collection consists of the expected method kind(s)
         [TestCaseSource(nameof(DefaultCSharpMethodCollectionTestCases))]
         public void TestDefaultCSharpMethodCollection(InputOperation inputOperation)
         {
-            var inputClient = new InputClient("TestClient", "TestClient description", [inputOperation], [], null);
+            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
 
             MockHelpers.LoadMockPlugin(
                 createCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)),
@@ -68,89 +67,34 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         {
             get
             {
-                yield return new TestCaseData(new InputOperation(
-                    name: "CreateMessage",
-                    resourceName: null,
-                    deprecated: null,
-                    description: string.Empty,
-                    accessibility: null,
+                yield return new TestCaseData(InputFactory.Operation(
+                    "CreateMessage",
                     parameters:
                     [
-                        new InputParameter(
+                        InputFactory.Parameter(
                             "message",
-                            "message",
-                            "The message to create.",
                             InputPrimitiveType.Boolean,
-                            RequestLocation.Body,
-                            null,
-                            InputOperationParameterKind.Method,
-                            true,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            null,
-                            null)
-                    ],
-                    responses: [new OperationResponse([200], null, BodyMediaType.Json, [], false, ["application/json"])],
-                    httpMethod: "GET",
-                    requestBodyMediaType: BodyMediaType.Json,
-                    uri: "localhost",
-                    path: "/api/messages",
-                    externalDocsUrl: null,
-                    requestMediaTypes: null,
-                    bufferResponse: false,
-                    longRunning: null,
-                    paging: null,
-                    generateProtocolMethod: true,
-                    generateConvenienceMethod: true,
-                    crossLanguageDefinitionId: "TestService.CreateMessage"
-                ));
+                            isRequired: true)
+                    ]));
 
                 // Operation with spread parameter
-                yield return new TestCaseData(new InputOperation(
-                    name: "CreateMessage",
-                    resourceName: null,
-                    deprecated: null,
-                    description: string.Empty,
-                    accessibility: null,
+                yield return new TestCaseData(InputFactory.Operation(
+                    "CreateMessage",
                     parameters:
                     [
-                        new InputParameter("spread", "spread", "Sample spread parameter.", _spreadModel, RequestLocation.Body, null, InputOperationParameterKind.Spread, true, false, false, false, false, false, false, null, null),
-                        new InputParameter(
-                            "p1",
-                            "p1",
+                        InputFactory.Parameter(
+                            "spread",
+                            _spreadModel,
+                            location: RequestLocation.Body,
+                            isRequired: true,
+                            kind: InputOperationParameterKind.Spread),
+                        InputFactory.Parameter(
                             "p1",
                             InputPrimitiveType.Boolean,
-                            RequestLocation.Path,
-                            null,
-                            InputOperationParameterKind.Method,
-                            true,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            null,
-                            null)
-                    ],
-                    responses: [new OperationResponse([200], null, BodyMediaType.Json, [], false, ["application/json"])],
-                    httpMethod: "GET",
-                    requestBodyMediaType: BodyMediaType.Json,
-                    uri: "localhost",
-                    path: "/api/messages",
-                    externalDocsUrl: null,
-                    requestMediaTypes: null,
-                    bufferResponse: false,
-                    longRunning: null,
-                    paging: null,
-                    generateProtocolMethod: true,
-                    generateConvenienceMethod: true,
-                    crossLanguageDefinitionId: "TestService.CreateMessage"
-                ));
+                            location: RequestLocation.Path,
+                            isRequired: true,
+                            kind: InputOperationParameterKind.Method)
+                    ]));
             }
         }
     }

@@ -12,6 +12,7 @@ using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -24,15 +25,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         private static readonly InputClient _animalClient = new("animal", "AnimalClient description", [], [], TestClientName);
         private static readonly InputClient _dogClient = new("dog", "DogClient description", [], [], _animalClient.Name);
         private static readonly InputClient _huskyClient = new("husky", "HuskyClient description", [], [], _dogClient.Name);
-        private static readonly InputModelType _spreadModel = new(
+        private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
-            "spreadModel",
-            null,
-            null,
-            null,
-            InputModelTypeUsage.Spread,
-            [new InputModelProperty("p1", "p1", "property p1", InputPrimitiveType.String, true, false, false)],
-            null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
+            usage: InputModelTypeUsage.Spread,
+            properties:
+            [
+                InputFactory.Property("p1", InputPrimitiveType.String, isRequired: true),
+            ]);
 
         [SetUp]
         public void SetUp()
@@ -55,7 +54,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [Test]
         public void TestBuildProperties()
         {
-            var client = new InputClient(TestClientName, "TestClient description", [], [], null);
+            var client = InputFactory.Client(TestClientName);
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
@@ -75,7 +74,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [TestCaseSource(nameof(BuildFieldsTestCases))]
         public void TestBuildFields(List<InputParameter> inputParameters, bool containsAdditionalOptionalParams)
         {
-            var client = new InputClient(TestClientName, "TestClient description", [], inputParameters, null);
+            var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
@@ -149,7 +148,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [TestCaseSource(nameof(BuildConstructorsTestCases))]
         public void TestBuildConstructors_PrimaryConstructor(List<InputParameter> inputParameters)
         {
-            var client = new InputClient(TestClientName, "TestClient description", [], inputParameters, null);
+            var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
@@ -165,7 +164,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [TestCaseSource(nameof(BuildConstructorsTestCases))]
         public void TestBuildConstructors_SecondaryConstructor(List<InputParameter> inputParameters)
         {
-            var client = new InputClient(TestClientName, "TestClient description", [], inputParameters, null);
+            var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
@@ -268,7 +267,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [TestCaseSource(nameof(EndpointParamInitializationValueTestCases))]
         public void EndpointInitializationValue(InputParameter endpointParameter, ValueExpression? expectedValue)
         {
-            var client = new InputClient(TestClientName, "TestClient description", [], [endpointParameter], null);
+            var client = InputFactory.Client(TestClientName, parameters: [endpointParameter]);
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
@@ -295,7 +294,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 parentClientName = "parent";
             }
 
-            var client = new InputClient(TestClientName, "TestClient description", [], [], parentClientName);
+            var client = InputFactory.Client(TestClientName, parent: parentClientName);
             var clientProvider = new ClientProvider(client);
 
             if (isSubClient)
@@ -383,63 +382,29 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         }
 
         private static InputClient GetEnumQueryParamClient()
-            => new InputClient(
+            => InputFactory.Client(
                 TestClientName,
-                "TestClient description",
+                operations:
                 [
-                    new InputOperation(
+                    InputFactory.Operation(
                         "Operation",
-                        null,
-                        "Operation",
-                        null,
-                        "public",
+                        parameters:
                         [
-                            new InputParameter(
+                            InputFactory.Parameter(
                                 "queryParam",
-                                "queryParam",
-                                "queryParam",
-                                new InputEnumType(
+                                InputFactory.Enum(
                                     "InputEnum",
-                                    "InputEnum",
-                                    "public",
-                                    null,
-                                    "InputEnum",
-                                    InputModelTypeUsage.Input,
-                                    new InputPrimitiveType(InputPrimitiveTypeKind.String, "string", "string", null, null),
+                                    InputPrimitiveType.String,
+                                    usage: InputModelTypeUsage.Input,
+                                    isExtensible: true,
+                                    values:
                                     [
-                                        new InputEnumTypeValue("value1", "value1", "value1"),
-                                        new InputEnumTypeValue("value2", "value2", "value2"),
-                                    ],
-                                    true),
-                                RequestLocation.Query,
-                                defaultValue: null,
-                                InputOperationParameterKind.Method,
-                                isRequired: false, false, false, false, false, false, false, null, null)
-                        ],
-                        [
-                            new OperationResponse(
-                                [200],
-                                null,
-                                BodyMediaType.None,
-                                [],
-                                false,
-                                [])
-                        ],
-                        "GET",
-                        BodyMediaType.None,
-                        "/foo",
-                        "/foo",
-                        null,
-                        null,
-                        true,
-                        null,
-                        null,
-                    true,
-                    true,
-                        "Operation")
-                ],
-                [],
-                null);
+                                        InputFactory.EnumMember.String("value1", "value1"),
+                                        InputFactory.EnumMember.String("value2", "value2")
+                                    ]),
+                                location: RequestLocation.Query)
+                        ])
+                ]);
 
         private class ValidateQueryParamDiffClientProvider : ClientProvider
         {
@@ -480,63 +445,45 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             {
                 yield return new TestCaseData(new List<InputParameter>
                 {
-                    new(
-                        "optionalParam",
-                        "optionalParam description",
+                    InputFactory.Parameter(
                         "optionalParam",
                         InputPrimitiveType.String,
-                        RequestLocation.None,
-                        defaultValue: null,
-                        InputOperationParameterKind.Client,
-                        isRequired: false, false, false, false, false, false, false, null, null),
-                    new(
-                        KnownParameters.Endpoint.Name,
-                        "endpoint description",
+                        location: RequestLocation.None,
+                        kind: InputOperationParameterKind.Client),
+                    InputFactory.Parameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
-                        RequestLocation.None,
-                        defaultValue: null,
-                        InputOperationParameterKind.Client,
-                        isRequired: false, false, false, false, isEndpoint: true, false, false, null, null)
+                        location:RequestLocation.None,
+                        kind: InputOperationParameterKind.Client,
+                        isEndpoint: true)
                 }, false);
                 yield return new TestCaseData(new List<InputParameter>
                 {
-                    new(
-                        "optionalParam",
-                        "optionalParam description",
+                    InputFactory.Parameter(
                         "optionalParam",
                         InputPrimitiveType.String,
-                        RequestLocation.None,
-                        defaultValue: new InputConstant("someValue", InputPrimitiveType.String),
-                        InputOperationParameterKind.Client,
-                        isRequired: false, false, false, false, false, false, false, null, null),
-                    new(
-                        "optionalParam2",
-                        "optionalParam description",
+                        location: RequestLocation.None,
+                        defaultValue: InputFactory.Constant.String("someValue"),
+                        kind: InputOperationParameterKind.Client),
+                    InputFactory.Parameter(
                         "optionalParam2",
                         InputPrimitiveType.String,
-                        RequestLocation.None,
-                        defaultValue: new InputConstant("someValue", InputPrimitiveType.String),
-                        InputOperationParameterKind.Client,
-                        isRequired: false, false, false, false, false, false, false, null, null),
-                    new(
-                        "optionalParam3",
-                        "optionalParam description",
+                        location: RequestLocation.None,
+                        defaultValue: InputFactory.Constant.String("someValue"),
+                        kind: InputOperationParameterKind.Client),
+                    InputFactory.Parameter(
                         "optionalParam3",
                         InputPrimitiveType.Int64,
-                        RequestLocation.None,
-                        defaultValue: new InputConstant(2, InputPrimitiveType.Int64),
-                        InputOperationParameterKind.Client,
-                        isRequired: false, false, false, false, false, false, false, null, null),
-                    new(
-                        KnownParameters.Endpoint.Name,
-                        "endpoint description",
+                        location: RequestLocation.None,
+                        defaultValue: InputFactory.Constant.Int64(2),
+                        kind: InputOperationParameterKind.Client),
+                    InputFactory.Parameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
-                        RequestLocation.None,
+                        location: RequestLocation.None,
                         defaultValue: null,
-                        InputOperationParameterKind.Client,
-                        isRequired: false, false, false, false, isEndpoint: true, false, false, null, null)
+                        kind: InputOperationParameterKind.Client,
+                        isEndpoint: true)
                 }, true);
             }
         }
@@ -545,7 +492,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         {
             get
             {
-                yield return new TestCaseData(new InputClient(TestClientName, "TestClient description", [], [], null), true);
+                yield return new TestCaseData(InputFactory.Client(TestClientName), true);
                 yield return new TestCaseData(_animalClient, true);
                 yield return new TestCaseData(_dogClient, true);
                 yield return new TestCaseData(_huskyClient, false);
@@ -556,36 +503,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         {
             get
             {
-                yield return new TestCaseData(new InputClient(
+                yield return new TestCaseData(InputFactory.Client(
                     TestClientName,
-                    "TestClient description",
+                    operations:
                     [
-                        new(
-                        name: "CreateMessage",
-                        resourceName: null,
-                        deprecated: null,
-                        description: string.Empty,
-                        accessibility: null,
+                        InputFactory.Operation(
+                        "CreateMessage",
                         parameters:
                         [
-                            new InputParameter("spread", "spread", "Sample spread parameter.", _spreadModel, RequestLocation.Body, null, InputOperationParameterKind.Spread, true, false, false, false, false, false, false, null, null)
-                        ],
-                        responses: [new OperationResponse([200], null, BodyMediaType.Json, [], false, ["application/json"])],
-                        httpMethod: "GET",
-                        requestBodyMediaType: BodyMediaType.Json,
-                        uri: "localhost",
-                        path: "/api/messages",
-                        externalDocsUrl: null,
-                        requestMediaTypes: null,
-                        bufferResponse: false,
-                        longRunning: null,
-                        paging: null,
-                        generateProtocolMethod: true,
-                        generateConvenienceMethod: true,
-                        crossLanguageDefinitionId: "TestService.CreateMessage")
-                    ],
-                    [],
-                    null));
+                            InputFactory.Parameter(
+                                "spread",
+                                _spreadModel,
+                                location: RequestLocation.Body,
+                                isRequired: true,
+                                kind: InputOperationParameterKind.Spread),
+                        ])
+                    ]));
             }
         }
 
@@ -595,46 +528,34 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             {
                 yield return new TestCaseData(new List<InputParameter>
                 {
-                    new(
-                        "optionalParam",
-                        "optionalParam description",
+                    InputFactory.Parameter(
                         "optionalParam",
                         InputPrimitiveType.String,
-                        RequestLocation.None,
-                        defaultValue: null,
-                        InputOperationParameterKind.Client,
-                        isRequired: false, false, false, false, false, false, false, null, null),
-                    new(
-                        KnownParameters.Endpoint.Name,
-                        "endpoint description",
+                        location: RequestLocation.None,
+                        kind: InputOperationParameterKind.Client),
+                    InputFactory.Parameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
-                        RequestLocation.None,
-                        defaultValue: new InputConstant("someValue", InputPrimitiveType.String),
-                        InputOperationParameterKind.Client,
-                        isRequired: false, false, false, false, isEndpoint: true, false, false, null, null)
+                        location: RequestLocation.None,
+                        defaultValue: InputFactory.Constant.String("someValue"),
+                        kind: InputOperationParameterKind.Client,
+                        isEndpoint: true)
                 });
                 // scenario where endpoint is required
                 yield return new TestCaseData(new List<InputParameter>
                 {
-                    new(
-                        KnownParameters.Endpoint.Name,
-                        "endpoint description",
+                    InputFactory.Parameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
-                        RequestLocation.None,
-                        defaultValue: null,
-                        InputOperationParameterKind.Client,
-                        isRequired: true, false, false, false, isEndpoint: true, false, false, null, null),
-                    new(
-                        "optionalParam",
-                        "optionalParam description",
+                        location: RequestLocation.None,
+                        kind: InputOperationParameterKind.Client,
+                        isRequired: true,
+                        isEndpoint: true),
+                    InputFactory.Parameter(
                         "optionalParam",
                         InputPrimitiveType.String,
-                        RequestLocation.None,
-                        defaultValue: null,
-                        InputOperationParameterKind.Client,
-                        isRequired: false, false, false, false, false, false, false, null, null)
+                        location: RequestLocation.None,
+                        kind: InputOperationParameterKind.Client)
                 });
             }
         }
@@ -643,15 +564,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         {
             // string primitive type
             yield return new TestCaseData(
-                new InputParameter(
-                    "param",
-                    "param description",
+                InputFactory.Parameter(
                     "param",
                     InputPrimitiveType.String,
-                    RequestLocation.None,
-                    defaultValue: new InputConstant("mockValue", InputPrimitiveType.String),
-                    InputOperationParameterKind.Client,
-                    isRequired: false, false, false, false, true, false, false, null, null),
+                    location: RequestLocation.None,
+                    kind: InputOperationParameterKind.Client,
+                    isEndpoint: true,
+                    defaultValue: InputFactory.Constant.String("mockValue")),
                 New.Instance(KnownParameters.Endpoint.Type, Literal("mockvalue")));
         }
     }

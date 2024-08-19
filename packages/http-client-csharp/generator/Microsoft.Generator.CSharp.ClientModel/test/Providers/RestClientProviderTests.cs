@@ -8,6 +8,7 @@ using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 using Microsoft.Generator.CSharp.Snippets;
 
@@ -15,18 +16,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 {
     public class RestClientProviderTests
     {
-        private static readonly InputModelType _spreadModel = new(
+        private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
-            "spreadModel",
-            null,
-            null,
-            null,
-            InputModelTypeUsage.Spread,
+            usage: InputModelTypeUsage.Spread,
+            properties:
             [
-                new InputModelProperty("p1", "p1", "property p1", InputPrimitiveType.String, true, false, false),
-                new InputModelProperty("optionalProp", "optionalProp", "optional", InputPrimitiveType.String, false, false, false)
-            ],
-            null, [], null, null, new Dictionary<string, InputModelType>(), null, false);
+                InputFactory.Property("p1", InputPrimitiveType.String, isRequired: true),
+                InputFactory.Property("optionalProp", InputPrimitiveType.String, isRequired: false)
+            ]);
 
         public RestClientProviderTests()
         {
@@ -147,73 +144,32 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             }
         }
 
-        private readonly static InputOperation BasicOperation = new InputOperation(
-            name: "CreateMessage",
-            resourceName: null,
-            deprecated: null,
-            description: string.Empty,
-            accessibility: null,
+        private readonly static InputOperation BasicOperation = InputFactory.Operation(
+            "CreateMessage",
             parameters:
             [
-                new InputParameter("message", "message", "The message to create.", InputPrimitiveType.Boolean, RequestLocation.Body, null, InputOperationParameterKind.Method, true, false, false, false, false, false, false, null, null)
-            ],
-            responses: [new OperationResponse([200], null, BodyMediaType.Json, [], false, ["application/json"])],
-            httpMethod: "GET",
-            requestBodyMediaType: BodyMediaType.Json,
-            uri: "localhost",
-            path: "/api/messages",
-            externalDocsUrl: null,
-            requestMediaTypes: null,
-            bufferResponse: false,
-            longRunning: null,
-            paging: null,
-            generateProtocolMethod: true,
-            generateConvenienceMethod: true,
-            crossLanguageDefinitionId: "TestService.CreateMessage");
+                InputFactory.Parameter("message", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
 
-        private static readonly InputOperation OperationWithSpreadParam = new InputOperation(
-            name: "CreateMessageWithSpread",
-            resourceName: null,
-            deprecated: null,
-            description: string.Empty,
-            accessibility: null,
+        private readonly static InputOperation OperationWithSpreadParam = InputFactory.Operation(
+            "CreateMessageWithSpread",
             parameters:
             [
-                new InputParameter("spread", "spread", "Sample spread parameter.", _spreadModel, RequestLocation.Body, null, InputOperationParameterKind.Spread, true, false, false, false, false, false, false, null, null),
-                new InputParameter(
-                    "p2",
-                    "p2",
+                InputFactory.Parameter(
+                    "spread",
+                    _spreadModel,
+                    location: RequestLocation.Body,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Spread),
+                InputFactory.Parameter(
                     "p2",
                     InputPrimitiveType.Boolean,
-                    RequestLocation.Path,
-                    null,
-                    InputOperationParameterKind.Method,
-                    true,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    null,
-                    null)
-            ],
-            responses: [new OperationResponse([200], null, BodyMediaType.Json, [], false, ["application/json"])],
-            httpMethod: "GET",
-            requestBodyMediaType: BodyMediaType.Json,
-            uri: "localhost",
-            path: "/api/messages",
-            externalDocsUrl: null,
-            requestMediaTypes: null,
-            bufferResponse: false,
-            longRunning: null,
-            paging: null,
-            generateProtocolMethod: true,
-            generateConvenienceMethod: true,
-            crossLanguageDefinitionId: "TestService.CreateMessage"
-        );
+                    location: RequestLocation.Path,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Method)
+            ]);
 
-        private readonly static InputClient SingleOpInputClient = new InputClient("TestClient", "TestClient description", [BasicOperation], [], null);
+        private readonly static InputClient SingleOpInputClient = InputFactory.Client("TestClient", operations: [BasicOperation]);
 
         private static IEnumerable<TestCaseData> DefaultCSharpMethodCollectionTestCases =>
         [
@@ -229,9 +185,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         private static IEnumerable<TestCaseData> GetSpreadParameterModelTestCases =>
         [
             // spread param
-            new TestCaseData(new InputParameter("spread", "spread", "Sample spread parameter.", _spreadModel, RequestLocation.Body, null, InputOperationParameterKind.Spread, true, false, false, false, false, false, false, null, null)),
+            new TestCaseData(InputFactory.Parameter("spread", _spreadModel, location: RequestLocation.Body, kind: InputOperationParameterKind.Spread, isRequired: true)),
             // non spread param
-            new TestCaseData(new InputParameter("p1", "p1", "p1", InputPrimitiveType.Boolean, RequestLocation.Path, null, InputOperationParameterKind.Method, true, false, false, false, false, false, false, null, null))
+            new TestCaseData(InputFactory.Parameter("p1", InputPrimitiveType.Boolean, location: RequestLocation.Path, isRequired: true, kind: InputOperationParameterKind.Method))
 
         ];
     }

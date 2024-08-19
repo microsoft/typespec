@@ -14,7 +14,7 @@ namespace sample.namespace
     public partial class TestClient
     {
         /// <summary>
-        /// [Protocol Method] 
+        /// [Protocol Method] CreateMessage description
         /// <list type="bullet">
         /// <item>
         /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
@@ -35,7 +35,7 @@ namespace sample.namespace
         }
 
         /// <summary>
-        /// [Protocol Method] 
+        /// [Protocol Method] CreateMessage description
         /// <list type="bullet">
         /// <item>
         /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
@@ -55,8 +55,8 @@ namespace sample.namespace
             return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        /// <summary></summary>
-        /// <param name="p1"> property p1. </param>
+        /// <summary> CreateMessage description. </summary>
+        /// <param name="p1"> Description for p1. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="p1"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         public virtual global::System.ClientModel.ClientResult CreateMessage(string p1)
@@ -67,8 +67,8 @@ namespace sample.namespace
             return this.CreateMessage(spreadModel, null);
         }
 
-        /// <summary></summary>
-        /// <param name="p1"> property p1. </param>
+        /// <summary> CreateMessage description. </summary>
+        /// <param name="p1"> Description for p1. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="p1"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> CreateMessageAsync(string p1)
