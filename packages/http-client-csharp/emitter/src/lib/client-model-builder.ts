@@ -64,14 +64,14 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     []
   );
 
-  const clientModel = {
+  const clientModel: CodeModel = {
     Name: sdkPackage.rootNamespace,
     ApiVersions: rootApiVersions,
     Enums: Array.from(typeCache.enums.values()),
     Models: Array.from(typeCache.models.values()),
     Clients: inputClients,
     Auth: processServiceAuthentication(sdkPackage),
-  } as CodeModel;
+  };
   return clientModel;
 
   function fromSdkClients(
