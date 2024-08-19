@@ -8,6 +8,7 @@ import {
   SdkEndpointType,
   SdkHttpOperation,
   SdkServiceMethod,
+  SdkType,
   UsageFlags,
   getAllModels,
 } from "@azure-tools/typespec-client-generator-core";
@@ -31,10 +32,11 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
 
   const sdkPackage = sdkContext.sdkPackage;
 
+  const typeCache = new Map<SdkType, InputType>();
   const modelMap = new Map<string, InputModelType>();
   const enumMap = new Map<string, InputEnumType>();
 
-  navigateModels(sdkContext, modelMap, enumMap);
+  navigateModels(sdkContext, typeCache, modelMap, enumMap);
 
   const sdkApiVersionEnums = sdkPackage.enums.filter((e) => e.usage === UsageFlags.ApiVersionEnum);
 
@@ -95,6 +97,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
             clientParameters,
             rootApiVersions,
             sdkContext,
+            typeCache,
             modelMap,
             enumMap
           )
@@ -155,7 +158,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
             Name: "url",
             CrossLanguageDefinitionId: "TypeSpec.url",
           }
-        : fromSdkType(parameter.type, sdkContext, modelMap, enumMap); // TODO: consolidate with converter.fromSdkEndpointType
+        : fromSdkType(parameter.type, sdkContext, typeCache, modelMap, enumMap); // TODO: consolidate with converter.fromSdkEndpointType
       parameters.push({
         Name: parameter.name,
         NameInRequest: parameter.serializedName,

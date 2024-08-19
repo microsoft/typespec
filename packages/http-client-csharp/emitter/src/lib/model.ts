@@ -3,6 +3,7 @@
 
 import {
   SdkContext,
+  SdkType,
   getAllModels,
   getClientType,
 } from "@azure-tools/typespec-client-generator-core";
@@ -72,6 +73,7 @@ export function getDefaultValue(type: Type): any {
 export function getInputType(
   context: SdkContext<NetEmitterOptions>,
   type: Type,
+  typeCache: Map<SdkType, InputType>,
   models: Map<string, InputModelType>,
   enums: Map<string, InputEnumType>,
   operation?: Operation,
@@ -80,11 +82,12 @@ export function getInputType(
   Logger.getInstance().debug(`getInputType for kind: ${type.kind}`);
 
   const sdkType = getClientType(context, type, operation);
-  return fromSdkType(sdkType, context, models, enums, literalTypeContext);
+  return fromSdkType(sdkType, context, typeCache, models, enums, literalTypeContext);
 }
 
 export function navigateModels(
   context: SdkContext<NetEmitterOptions>,
+  typeCache: Map<SdkType, InputType>,
   models: Map<string, InputModelType>,
   enums: Map<string, InputEnumType>
 ) {
@@ -93,9 +96,9 @@ export function navigateModels(
       continue;
     }
     if (type.kind === "model") {
-      fromSdkModelType(type, context, models, enums);
+      fromSdkModelType(type, context, typeCache, models, enums);
     } else {
-      fromSdkEnumType(type, context, enums);
+      fromSdkEnumType(type, context, typeCache, enums);
     }
   }
 }

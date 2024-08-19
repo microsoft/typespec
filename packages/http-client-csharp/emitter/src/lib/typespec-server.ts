@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { SdkContext } from "@azure-tools/typespec-client-generator-core";
+import { SdkContext, SdkType } from "@azure-tools/typespec-client-generator-core";
 import { getDoc } from "@typespec/compiler";
 import { HttpServer } from "@typespec/http";
 import { getExtensions } from "@typespec/openapi";
@@ -22,6 +22,7 @@ export interface TypeSpecServer {
 export function resolveServers(
   context: SdkContext<NetEmitterOptions>,
   servers: HttpServer[],
+  typeCache: Map<SdkType, InputType>,
   models: Map<string, InputModelType>,
   enums: Map<string, InputEnumType>
 ): TypeSpecServer[] {
@@ -39,7 +40,7 @@ export function resolveServers(
             Name: "url",
             CrossLanguageDefinitionId: "TypeSpec.url",
           }
-        : getInputType(context, prop, models, enums);
+        : getInputType(context, prop, typeCache, models, enums);
 
       if (value) {
         defaultValue = {
