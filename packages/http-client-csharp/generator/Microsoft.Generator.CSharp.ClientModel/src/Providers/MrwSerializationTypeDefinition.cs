@@ -1232,11 +1232,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             valueType == typeof(decimal) ||
             valueType == typeof(double) ||
             valueType == typeof(float) ||
-            valueType == typeof(long) ||
-            valueType == typeof(int) ||
-            valueType == typeof(short) ||
-            valueType == typeof(sbyte) ||
-            valueType == typeof(byte);
+            ValueTypeIsInt(valueType);
 
         private static ValueExpression GetIntTypeDeserializationExpress(ScopedApi<JsonElement> element, Type type, SerializationFormat format) => format switch
         {
