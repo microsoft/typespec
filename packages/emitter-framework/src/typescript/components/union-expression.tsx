@@ -15,7 +15,7 @@ export function UnionExpression({ type, children }: UnionExpressionProps) {
     variants = mapJoin(
       type.members,
       (_, value) => {
-        return <ts.ValueExpression jsValue={value.value} />;
+        return <ts.ValueExpression jsValue={value.value ?? value.name} />;
       },
       { joiner: " | " }
     );
