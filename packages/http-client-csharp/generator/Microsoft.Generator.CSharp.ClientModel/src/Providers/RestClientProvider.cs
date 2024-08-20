@@ -341,7 +341,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
             else
             {
-                var paramProvider = paramMap[inputParam.Name];
+                var paramProvider = paramMap[inputParam.Name]; // breaks when list is of size 1 with only options
                 if (paramProvider.Type.IsEnum)
                 {
                     var csharpType = paramProvider.Field is null ? paramProvider.Type : paramProvider.Field.Type;
