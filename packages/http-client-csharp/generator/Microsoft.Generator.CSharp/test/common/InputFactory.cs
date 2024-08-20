@@ -119,7 +119,8 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             bool isRequired = false,
             bool isReadOnly = false,
             bool isDiscriminator = false,
-            string? wireName = null)
+            string? wireName = null,
+            InputModelType? enclosingType = null)
         {
             return new InputModelProperty(
                 name,
@@ -129,7 +130,9 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 isRequired,
                 isReadOnly,
                 isDiscriminator,
-                null);
+                // For ease of writing unit tests, we don't require the enclosing type to be passed into the factory method
+                // but the actual constructor requires it, so we default to a model with no properties.
+                enclosingType ?? Model("Model", properties: []));
         }
 
         public static InputModelType Model(
