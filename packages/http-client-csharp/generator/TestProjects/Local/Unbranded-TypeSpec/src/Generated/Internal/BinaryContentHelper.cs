@@ -31,7 +31,7 @@ namespace UnbrandedTypeSpec
             content.JsonWriter.WriteStartArray();
             foreach (var item in enumerable)
             {
-                if (item.Equals(null))
+                if (item == null)
                 {
                     content.JsonWriter.WriteNullValue();
                 }
