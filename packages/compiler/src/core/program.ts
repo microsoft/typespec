@@ -730,7 +730,6 @@ export async function compile(
       if (Array.isArray(sub.contents)) {
         await writeOutputDirectory(sub as OutputDirectory);
       } else {
-        console.log("emitting file with path", sub.path);
         await emitFile(program, {
           content: sub.contents as string,
           path: sub.path,

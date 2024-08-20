@@ -5,6 +5,7 @@ import { isArray, isDeclaration, isRecord } from "../../core/utils/typeguards.js
 import { UnionExpression } from "./union-expression.js";
 import {ArrayExpression} from "./array-expression.js";
 import { RecordExpression } from "./record-expression.js";
+import { InterfaceExpression } from "./interface-declaration.js";
 
 export interface TypeExpressionProps {
   type: Type;
@@ -57,8 +58,7 @@ export function TypeExpression({ type }: TypeExpressionProps) {
         return <RecordExpression elementType={elementType} />;
       }
 
-      // return <InterfaceExpression type={type} />;
-      throw new Error("ModelExpression not implemented");
+      return <InterfaceExpression type={type} />;
 
     default:
       throw new Error(type.kind + " not supported in TypeExpression");
