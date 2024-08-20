@@ -21,7 +21,7 @@ export function TokenLoop({}: TokenLoopProps) {
         switch (token.name) {
           case "h":
           case "help":
-            ${refkey(command, "help")}();
+            ${refkey(command, "help")} />}();
             return;
           ${optionTokenHandlers}
         }
