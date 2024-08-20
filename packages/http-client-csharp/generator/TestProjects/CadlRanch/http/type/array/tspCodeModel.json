@@ -27,7 +27,10 @@
      },
      "IsRequired": true,
      "IsReadOnly": false,
-     "Decorators": []
+     "Decorators": [],
+     "EnclosingType": {
+      "$ref": "2"
+     }
     },
     {
      "$id": "5",
@@ -46,7 +49,10 @@
      },
      "IsRequired": false,
      "IsReadOnly": false,
-     "Decorators": []
+     "Decorators": [],
+     "EnclosingType": {
+      "$ref": "2"
+     }
     }
    ]
   }
