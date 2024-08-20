@@ -206,27 +206,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 string? format;
                 ValueExpression valueExpression;
                 GetParamInfo(paramMap, inputParameter, out type, out format, out valueExpression);
-                ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
                 var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
-                //ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
                 ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : convertToStringExpression;
                 MethodBodyStatement statement;
-                if (type?.Equals(typeof(BinaryData)) == true)
-                {
-                    statement = request.SetHeaderValue(
-                        inputParameter.NameInRequest,
-                        TypeFormattersSnippets.ToString(valueExpression.Invoke("ToArray"), Literal(format)));
-                }
-                else if (type?.Equals(typeof(IList<BinaryData>)) == true)
-                {
-                    statement =
-                        new ForeachStatement("item", valueExpression.As<IEnumerable<BinaryData>>(), out var item)
-                        {
-                            request.AddHeaderValue(inputParameter.NameInRequest, TypeFormattersSnippets.ToString(item.Invoke("ToArray"),
-                                Literal(format)))
-                        };
-                }
-                else if (type?.IsCollection == true)
+                if (type?.IsCollection == true)
                 {
                     ValueExpression values = valueExpression;
                     if (format != null)
@@ -264,43 +247,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 string? format;
                 ValueExpression valueExpression;
                 GetParamInfo(paramMap, inputParameter, out var type, out format, out valueExpression);
-                ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
                 var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
                 ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : convertToStringExpression;
-                //var toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
                 MethodBodyStatement statement;
-                if (type?.Equals(typeof(BinaryData)) == true)
-                {
-                    statement = uri.AppendQuery(Literal(inputParameter.NameInRequest),
-                        valueExpression.Invoke("ToArray"), format, true).Terminate();
-                }
-                else if (type?.Equals(typeof(IList<BinaryData>)) == true)
+                if (type?.IsCollection == true)
                 {
                     statement = uri.AppendQueryDelimited(Literal(inputParameter.NameInRequest),
-                        valueExpression, format, true).Terminate();
-                }
-                else if (type?.IsCollection == true)
-                {
-                    ValueExpression values = valueExpression;
-                    if (format != null)
-                    {
-                        var _t = typeof(IEnumerable<>).GetGenericArguments()[0];
-                        var value = valueExpression.As(_t);
-
-                        var v = new VariableExpression(_t, "v");
-                        var convertToStringExpression2 = TypeFormattersSnippets.ConvertToString(v, Literal(format));
-                        var selector = new FuncExpression([v.Declaration], convertToStringExpression2).As<string>();
-                        values = valueExpression.Select(selector);
-                    }
-                    valueExpression = StringSnippets.Join(Literal(inputParameter.ArraySerializationDelimiter), values);
-                    statement = uri.AppendQuery(Literal(inputParameter.NameInRequest), valueExpression, true).Terminate();
+                       valueExpression, format, true).Terminate();
                 }
                 else
                 {
                     statement = uri.AppendQuery(Literal(inputParameter.NameInRequest), toStringExpression, true)
                         .Terminate();
                 }
-
                 statement = inputParameter.IsRequired
                     ? statement
                     : new IfStatement(valueExpression.NotEqual(Null))
@@ -385,26 +344,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     valueExpression = csharpType.ToSerial(paramProvider);
                     format = null;
                 }
-                /*
-                else if (paramProvider.Type.IsCollection)
-                {
-                    ValueExpression parameterValueExpression = paramProvider.Field is null ? paramProvider : paramProvider.Field;
-                    ValueExpression values = paramProvider;
-                    var serializationformat = ClientModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
-                    if (serializationformat != null)
-                    {
-                        var _t = typeof(IEnumerable<>).GetGenericArguments()[0];
-                        var value = parameterValueExpression.As(_t);
-
-                        var v = new VariableExpression(_t, "v");
-                        var convertToStringExpression = TypeFormattersSnippets.ConvertToString(v, Literal(serializationformat));
-                        var selector = new FuncExpression([v.Declaration], convertToStringExpression).As<string>();
-                        values = parameterValueExpression.Select(selector);
-                    }
-                    valueExpression = StringSnippets.Join(Literal(inputParam.ArraySerializationDelimiter), values);
-                    format = null;
-                }
-                */
                 else
                 {
                     valueExpression = paramProvider.Field is null ? paramProvider : paramProvider.Field;
