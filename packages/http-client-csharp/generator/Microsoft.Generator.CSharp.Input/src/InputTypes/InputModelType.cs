@@ -29,6 +29,10 @@ namespace Microsoft.Generator.CSharp.Input
             IsUnknownDiscriminatorModel = false;
             IsPropertyBag = false;
             ModelAsStruct = modelAsStruct;
+            foreach (var property in Properties)
+            {
+                property.EnclosingType = this;
+            }
         }
 
         public string CrossLanguageDefinitionId { get; internal set; }
