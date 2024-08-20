@@ -7,13 +7,13 @@ using System.Linq;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Providers
 {
     public class ModelFactoryProviderTests
     {
-        private static readonly InputType StringInputType = new InputPrimitiveType(InputPrimitiveTypeKind.String, "string", "string");
         private static readonly InputModelType[] ModelList = GetTestModels();
 
         public ModelFactoryProviderTests()
@@ -83,85 +83,18 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
         private static InputModelType[] GetTestModels()
         {
-            var inputModel1 = new InputModelType(
-                "InternalModel",
-                "InternalModel",
-                "internal",
-                null,
-                "InternalModel",
-                InputModelTypeUsage.Input | InputModelTypeUsage.Output,
-                [],
-                null,
-                [],
-                null,
-                null,
-                new Dictionary<string, InputModelType>(),
-                null,
-                false);
-            var properties1 = new[]
-            {
-                new InputModelProperty("StringProp", "stringProp", "StringProp", StringInputType, false, false,
-                    false, inputModel1),
-                new InputModelProperty("ListProp", "listProp", "ListProp",
-                    new InputArrayType("list", "list", StringInputType), false, false, false, inputModel1),
-                new InputModelProperty("DictProp", "DictProp", "DictProp",
-                    new InputDictionaryType("dict", StringInputType, StringInputType), false, false, false, inputModel1)
-            };
-            inputModel1.Properties = properties1;
-
-            var inputModel2 = new InputModelType(
-                "PublicModel1",
-                "PublicModel1",
-                "public1",
-                null,
-                "PublicModel1",
-                InputModelTypeUsage.Input | InputModelTypeUsage.Output,
-                [],
-                null,
-                [],
-                null,
-                null,
-                new Dictionary<string, InputModelType>(),
-                null,
-                false);
-            var properties2 = new[]
-            {
-                new InputModelProperty("StringProp", "stringProp", "StringProp", StringInputType, false, false,
-                    false, inputModel2),
-                new InputModelProperty("ListProp", "listProp", "ListProp",
-                    new InputArrayType("list", "list", StringInputType), false, false, false, inputModel2),
-                new InputModelProperty("DictProp", "DictProp", "DictProp",
-                    new InputDictionaryType("dict", StringInputType, StringInputType), false, false, false, inputModel2)
-            };
-            inputModel2.Properties = properties2;
-
-            var inputModel3 = new InputModelType(
-                "PublicModel2",
-                "PublicModel2",
-                "public2",
-                null,
-                "PublicModel2",
-                InputModelTypeUsage.Input | InputModelTypeUsage.Output,
-                [],
-                null,
-                [],
-                null,
-                null,
-                new Dictionary<string, InputModelType>(),
-                null,
-                false);
-            var properties3 = new[]
-            {
-                new InputModelProperty("StringProp", "stringProp", "StringProp", StringInputType, false, false,
-                    false, inputModel3),
-                new InputModelProperty("ListProp", "listProp", "ListProp",
-                    new InputArrayType("list", "list", StringInputType), false, false, false, inputModel3),
-                new InputModelProperty("DictProp", "DictProp", "DictProp",
-                    new InputDictionaryType("dict", StringInputType, StringInputType), false, false, false,
-                    inputModel3)
-            };
-            inputModel3.Properties = properties3;
-            return new[] {inputModel1, inputModel2, inputModel3};
+            InputModelProperty[] properties =
+            [
+                InputFactory.Property("StringProp", InputPrimitiveType.String),
+                InputFactory.Property("ListProp", InputFactory.Array(InputPrimitiveType.String)),
+                InputFactory.Property("DictProp", InputFactory.Dictionary(InputPrimitiveType.String, InputPrimitiveType.String))
+            ];
+            return
+            [
+                InputFactory.Model("InternalModel", "internal", properties: properties),
+                InputFactory.Model("PublicModel1", properties: properties),
+                InputFactory.Model("PublicModel2", properties: properties)
+            ];
         }
     }
 }

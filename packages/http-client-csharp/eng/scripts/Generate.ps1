@@ -1,7 +1,8 @@
 #Requires -Version 7.0
 param(
     $filter,
-    [bool]$Stubbed = $true
+    [bool]$Stubbed = $true,
+    [bool]$LaunchOnly = $false
 )
 
 Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
@@ -9,28 +10,30 @@ Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
 $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 $solutionDir = Join-Path $packageRoot 'generator'
 
-Refresh-Build
+if (-not $LaunchOnly) {
+    Refresh-Build
 
-if ($null -eq $filter -or $filter -eq "Unbranded-TypeSpec") {
-    Write-Host "Generating UnbrandedTypeSpec" -ForegroundColor Cyan
-    $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
+    if ($null -eq $filter -or $filter -eq "Unbranded-TypeSpec") {
+        Write-Host "Generating UnbrandedTypeSpec" -ForegroundColor Cyan
+        $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
 
-    $unbrandedTypespecTestProject = Join-Path $testProjectsLocalDir "Unbranded-TypeSpec"
-    $unbrandedTypespecTestProject = $unbrandedTypespecTestProject
+        $unbrandedTypespecTestProject = Join-Path $testProjectsLocalDir "Unbranded-TypeSpec"
+        $unbrandedTypespecTestProject = $unbrandedTypespecTestProject
 
-    Invoke (Get-TspCommand "$unbrandedTypespecTestProject/Unbranded-TypeSpec.tsp" $unbrandedTypespecTestProject)
+        Invoke (Get-TspCommand "$unbrandedTypespecTestProject/Unbranded-TypeSpec.tsp" $unbrandedTypespecTestProject)
 
-    # exit if the generation failed
-    if ($LASTEXITCODE -ne 0) {
-        exit $LASTEXITCODE
-    }
+        # exit if the generation failed
+        if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+        }
 
-    Write-Host "Building UnbrandedTypeSpec" -ForegroundColor Cyan
-    Invoke "dotnet build $packageRoot/generator/TestProjects/Local/Unbranded-TypeSpec/src/UnbrandedTypeSpec.csproj"
+        Write-Host "Building UnbrandedTypeSpec" -ForegroundColor Cyan
+        Invoke "dotnet build $packageRoot/generator/TestProjects/Local/Unbranded-TypeSpec/src/UnbrandedTypeSpec.csproj"
 
-    # exit if the generation failed
-    if ($LASTEXITCODE -ne 0) {
-        exit $LASTEXITCODE
+        # exit if the generation failed
+        if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+        }
     }
 }
 
@@ -59,7 +62,6 @@ $failingSpecs = @(
     Join-Path 'http' 'parameters' 'spread'
     Join-Path 'http' 'payload' 'content-negotiation'
     Join-Path 'http' 'payload' 'json-merge-patch'
-    Join-Path 'http' 'payload' 'media-type'
     Join-Path 'http' 'payload' 'multipart'
     Join-Path 'http' 'payload' 'pageable'
     Join-Path 'http' 'resiliency' 'srv-driven'
@@ -67,11 +69,9 @@ $failingSpecs = @(
     Join-Path 'http' 'server' 'endpoint' 'not-defined'
     Join-Path 'http' 'server' 'path' 'multiple'
     Join-Path 'http' 'server' 'path' 'single'
-    Join-Path 'http' 'server' 'versions' 'not-versioned'
     Join-Path 'http' 'server' 'versions' 'versioned'
     Join-Path 'http' 'special-headers' 'conditional-request'
     Join-Path 'http' 'special-headers' 'repeatability'
-    Join-Path 'http' 'type' 'array'
     Join-Path 'http' 'type' 'dictionary'
     Join-Path 'http' 'type' 'scalar'
     Join-Path 'http' 'type' 'union'
@@ -136,6 +136,9 @@ foreach ($directory in $directories) {
     }
 
     $cadlRanchLaunchProjects.Add(($folders -join "-"), ("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))"))
+    if ($LaunchOnly) {
+        continue
+    }
     Write-Host "Generating $subPath" -ForegroundColor Cyan
     Invoke (Get-TspCommand $specFile $generationDir $stubbed)
 

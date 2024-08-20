@@ -1,15 +1,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
+namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 {
     public class RestClientProviderTests
     {
@@ -34,7 +36,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             var parameters = signature.Parameters;
             Assert.IsNotNull(parameters);
-            Assert.AreEqual(inputOperation.Parameters.Count + 1, parameters.Count);
+            var specialHeaderParamCount = inputOperation.Parameters.Count(p => p.Location == RequestLocation.Header);
+            Assert.AreEqual(inputOperation.Parameters.Count - specialHeaderParamCount + 1, parameters.Count);
+
+            if (specialHeaderParamCount > 0)
+            {
+                Assert.IsFalse(parameters.Any(p =>
+                    p.Name.Equals("repeatabilityFirstSent", StringComparison.OrdinalIgnoreCase) &&
+                    p.Name.Equals("repeatabilityRequestId", StringComparison.OrdinalIgnoreCase)));
+            }
         }
 
         [Test]
@@ -96,35 +106,77 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             Assert.IsFalse(pipelineMessageClassifier2xxAnd4xx.Body.HasSetter);
         }
 
-        private readonly static InputOperation BasicOperation = new InputOperation(
-            name: "CreateMessage",
-            resourceName: null,
-            deprecated: null,
-            description: string.Empty,
-            accessibility: null,
+        [TestCaseSource(nameof(GetMethodParametersTestCases))]
+        public void TestGetMethodParameters(InputOperation inputOperation)
+        {
+            var methodParameters = RestClientProvider.GetMethodParameters(inputOperation);
+
+            Assert.IsTrue(methodParameters.Count > 0);
+
+            if (inputOperation.Parameters.Any(p => p.Location == RequestLocation.Header))
+            {
+                // validate no special header parameters are in the method parameters
+                Assert.IsFalse(methodParameters.Any(p =>
+                    p.Name.Equals("repeatabilityFirstSent", StringComparison.OrdinalIgnoreCase) &&
+                    p.Name.Equals("repeatabilityRequestId", StringComparison.OrdinalIgnoreCase)));
+            }
+        }
+
+        [Test]
+        public void ValidateClientWithSpecialHeaders()
+        {
+            var clientProvider = new ClientProvider(SingleOpInputClient);
+            var restClientProvider = new MockClientProvider(SingleOpInputClient, clientProvider);
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        private readonly static InputOperation BasicOperation = InputFactory.Operation(
+            "CreateMessage",
             parameters:
             [
-                new InputParameter("message", "message", "The message to create.", InputPrimitiveType.Boolean, RequestLocation.Body, null, InputOperationParameterKind.Method, true, false, false, false, false, false, false, null, null)
-            ],
-            responses: [new OperationResponse([200], null, BodyMediaType.Json, [], false, ["application/json"])],
-            httpMethod: "GET",
-            requestBodyMediaType: BodyMediaType.Json,
-            uri: "localhost",
-            path: "/api/messages",
-            externalDocsUrl: null,
-            requestMediaTypes: null,
-            bufferResponse: false,
-            longRunning: null,
-            paging: null,
-            generateProtocolMethod: true,
-            generateConvenienceMethod: true,
-            crossLanguageDefinitionId: "TestService.CreateMessage");
+                InputFactory.Parameter(
+                    "repeatabilityFirstSent",
+                    new InputDateTimeType(DateTimeKnownEncoding.Rfc7231, "utcDateTime", "TypeSpec.utcDateTime", InputPrimitiveType.String),
+                    nameInRequest: "repeatability-first-sent",
+                    location: RequestLocation.Header,
+                    isRequired: false),
+                InputFactory.Parameter(
+                    "repeatabilityRequestId",
+                    InputPrimitiveType.String,
+                    nameInRequest: "repeatability-request-ID",
+                    location: RequestLocation.Header,
+                    isRequired: false),
+                InputFactory.Parameter("message", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
 
-        private readonly static InputClient SingleOpInputClient = new InputClient("TestClient", "TestClient description", [BasicOperation], [], null);
+        private readonly static InputClient SingleOpInputClient = InputFactory.Client("TestClient", operations: [BasicOperation]);
 
         private static IEnumerable<TestCaseData> DefaultCSharpMethodCollectionTestCases =>
         [
             new TestCaseData(BasicOperation)
         ];
+
+        private static IEnumerable<TestCaseData> GetMethodParametersTestCases =>
+        [
+            new TestCaseData(BasicOperation)
+        ];
+
+        private class MockClientProvider : RestClientProvider
+        {
+            public MockClientProvider(InputClient inputClient, ClientProvider clientProvider) : base(inputClient, clientProvider) { }
+
+            protected override MethodProvider[] BuildMethods()
+            {
+                return [.. base.BuildMethods()];
+            }
+
+            protected override FieldProvider[] BuildFields() => [];
+            protected override ConstructorProvider[] BuildConstructors() => [];
+            protected override PropertyProvider[] BuildProperties() => [];
+
+            protected override TypeProvider[] BuildNestedTypes() => [];
+        }
     }
 }

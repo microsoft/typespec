@@ -13,6 +13,12 @@ namespace Microsoft.Generator.CSharp
     /// </summary>
     public class Configuration
     {
+        private static readonly string[] _badNamespaces =
+        [
+            "Type",
+            "Array"
+        ];
+
         private const string ConfigurationFileName = "Configuration.json";
 
         // for mocking
@@ -45,9 +51,65 @@ namespace Microsoft.Generator.CSharp
             GenerateTestProject = generateTestProject;
             LibraryName = libraryName;
             UseModelNamespace = useModelNamespace;
-            RootNamespace = libraryNamespace;
-            ModelNamespace = useModelNamespace ? $"{libraryNamespace}.Models" : libraryNamespace;
+            RootNamespace = GetCleanNameSpace(libraryNamespace);
+            ModelNamespace = useModelNamespace ? $"{RootNamespace}.Models" : RootNamespace;
             DisableXmlDocs = disableXmlDocs;
+        }
+
+        private string GetCleanNameSpace(string libraryNamespace)
+        {
+            Span<char> dest = stackalloc char[libraryNamespace.Length + GetSegmentCount(libraryNamespace)];
+            var source = libraryNamespace.AsSpan();
+            var destIndex = 0;
+            var nextDot = source.IndexOf('.');
+            while (nextDot != -1)
+            {
+                var segment = source.Slice(0, nextDot);
+                if (IsSpecialSegment(segment))
+                {
+                    dest[destIndex] = '_';
+                    destIndex++;
+                }
+                segment.CopyTo(dest.Slice(destIndex));
+                destIndex += segment.Length;
+                dest[destIndex] = '.';
+                destIndex++;
+                source = source.Slice(nextDot + 1);
+                nextDot = source.IndexOf('.');
+            }
+            if (IsSpecialSegment(source))
+            {
+                dest[destIndex] = '_';
+                destIndex++;
+            }
+            source.CopyTo(dest.Slice(destIndex));
+            destIndex += source.Length;
+            return dest.Slice(0, destIndex).ToString();
+        }
+
+        private bool IsSpecialSegment(ReadOnlySpan<char> readOnlySpan)
+        {
+            for (int i = 0; i < _badNamespaces.Length; i++)
+            {
+                if (readOnlySpan.Equals(_badNamespaces[i], StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static int GetSegmentCount(string libraryNamespace)
+        {
+            int count = 0;
+            for (int i = 0; i < libraryNamespace.Length; i++)
+            {
+                if (libraryNamespace[i] == '.')
+                {
+                    count++;
+                }
+            }
+            return ++count;
         }
 
         /// <summary>
