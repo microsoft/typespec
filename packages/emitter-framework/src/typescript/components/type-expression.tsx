@@ -1,8 +1,10 @@
 import { refkey } from "@alloy-js/core";
 import { ValueExpression, Reference } from "@alloy-js/typescript";
-import { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
-import { isDeclaration } from "../../core/utils/typeguards.js";
+import { IntrinsicType, Model, Scalar, Type, isArrayModelType } from "@typespec/compiler";
+import { isArray, isDeclaration, isRecord } from "../../core/utils/typeguards.js";
 import { UnionExpression } from "./union-expression.js";
+import {ArrayExpression} from "./array-expression.js";
+import { RecordExpression } from "./record-expression.js";
 
 export interface TypeExpressionProps {
   type: Type;
@@ -45,15 +47,15 @@ export function TypeExpression({ type }: TypeExpressionProps) {
         </>
       );
     case "Model":
-      // if (isArray(type)) {
-      //   const elementType = type.indexer.value;
-      //   return <ArrayExpression elementType={elementType} />;
-      // }
+      if (isArray(type)) {
+        const elementType = type.indexer.value;
+        return <ArrayExpression elementType={elementType} />;
+      }
 
-      // if (isRecord(type)) {
-      //   const elementType = type.indexer.value;
-      //   return <RecordExpression elementType={elementType} />;
-      // }
+      if (isRecord(type)) {
+        const elementType = type.indexer.value;
+        return <RecordExpression elementType={elementType} />;
+      }
 
       // return <InterfaceExpression type={type} />;
       throw new Error("ModelExpression not implemented");

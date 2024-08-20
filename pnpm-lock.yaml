@@ -682,6 +682,9 @@ importers:
       '@typespec/emitter-framework':
         specifier: workspace:*
         version: link:../emitter-framework
+      '@typespec/http':
+        specifier: workspace:*
+        version: link:../http
     devDependencies:
       '@babel/cli':
         specifier: ^7.24.8

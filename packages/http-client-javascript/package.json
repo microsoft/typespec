@@ -17,7 +17,8 @@
   "license": "ISC",
   "description": "",
   "peerDependencies": {
-    "@typespec/compiler": "workspace:*"
+    "@typespec/compiler": "workspace:*",
+    "@typespec/http": "workspace:*"
   },
   "dependencies": {
     "@typespec/emitter-framework": "workspace:*",

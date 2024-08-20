@@ -8,6 +8,7 @@ import { emitWithDiagnostics } from "./test-host.js";
 const SCENARIOS_LOCATION = "./test/scenarios";
 
 const SCENARIOS_UPDATE = process.env["SCENARIOS_UPDATE"] === "true";
+let hasOnlyScenarios = false;
 
 type EmitterFunction = (tsp: string, namedArgs: Record<string, string>) => Promise<string>;
 
@@ -26,6 +27,14 @@ const OUTPUT_CODE_BLOCK_TYPES: Record<string, EmitterFunction> = {
     const sourceFile = project.getSourceFileOrThrow(file);
 
     return sourceFile!.getInterfaceOrThrow(name ?? "No name specified!").getText();
+  },
+
+  "(ts|typescript) {file} type {name}": async (tsp, { file, name }) => {
+    const result = await emitWithDiagnostics(tsp);
+    const project = loadOutput(result);
+    const sourceFile = project.getSourceFileOrThrow(file);
+
+    return sourceFile!.getTypeAliasOrThrow(name ?? "No name specified!").getText();
   },
 
   // Snapshot of a particular function named {name} in the models file
@@ -53,96 +62,121 @@ const OUTPUT_CODE_BLOCK_TYPES: Record<string, EmitterFunction> = {
 };
 
 describe.only("Scenarios", function () {
-  describeScenarios(SCENARIOS_LOCATION);
+  // First, scan all the scenarios to see if any are marked with `only:`.
+  scanScenarios(SCENARIOS_LOCATION);
+
+  // If there are no `only:` scenarios, run all scenarios normally.
+  if (hasOnlyScenarios) {
+    describeScenarios(SCENARIOS_LOCATION, false);
+  } else {
+    describeScenarios(SCENARIOS_LOCATION, true);
+  }
 });
 
-function describeScenarios(location: string) {
+function describeScenarios(location: string, runAll = false) {
   const children = readdirSync(location);
   for (const child of children) {
     const fullPath = path.join(location, child);
     const stat = statSync(fullPath);
     if (stat.isDirectory()) {
       describe(child, function () {
-        describeScenarios(fullPath);
+        describeScenarios(fullPath, runAll);
       });
     } else {
-      describeScenario(fullPath);
+      describeScenario(fullPath, runAll);
     }
   }
 }
 
-function describeScenario(scenarioFile: string) {
+function describeScenario(scenarioFile: string, runAll: boolean) {
   let content = readFileSync(scenarioFile, { encoding: "utf-8" });
 
-  // Reads the first line, which should be a top-level header (h1).
-  // This becomes the name of the describe block for this scenario.
-  const scenarioName =
-    content.split("\n")[0]?.replace(/^#+\s+/, "") + (SCENARIOS_UPDATE ? " (UPDATING)" : "");
+  const sections = splitByH1(content);
 
-  // Mark the test as .only if the test title starts with "only:". Useful for
-  // debuggging and updating.
-  (scenarioName.toLowerCase().startsWith("only:") ? describe.only : describe)(
-    scenarioName!,
-    function () {
-      const codeBlocks = getCodeBlocks(content);
+  sections.forEach(({ title, content }) => {
+    const scenarioName = title + (SCENARIOS_UPDATE ? " (UPDATING)" : "");
+    const isOnly = scenarioName.toLowerCase().startsWith("only:");
 
-      // Find all TypeSpec codeblocks. If there are multiple, concat them and treat them as a single TypeSpec.
-      const typeSpecInput = codeBlocks
-        .filter((x) => x.heading === "tsp" || x.heading === "typespec")
-        .map((x) => x.content)
-        .join("\n");
-      const testCodeBlocks = codeBlocks.filter(
-        (x) => x.heading !== "tsp" && x.heading !== "typespec"
-      );
+    if (isOnly) {
+      hasOnlyScenarios = true;
+    }
 
-      for (const codeBlock of testCodeBlocks) {
-        let tested = false;
-        for (const [template, fn] of Object.entries(OUTPUT_CODE_BLOCK_TYPES)) {
-          // This regex creates a named capture group for each template argument
-          const templateRegex = new RegExp(
-            "^" + template.replace(/\{(\w+)\}/g, "(?<$1>[^\\s]+)") + "$"
-          );
+    if (runAll || isOnly) {
+      // Mark the test as .only if the test title starts with "only:". Useful for debugging and updating.
+      describe(scenarioName!, function () {
+        const codeBlocks = getCodeBlocks(content);
 
-          const match = codeBlock.heading.match(templateRegex);
+        // Find all TypeSpec codeblocks. If there are multiple, concat them and treat them as a single TypeSpec.
+        const typeSpecInput = codeBlocks
+          .filter((x) => x.heading === "tsp" || x.heading === "typespec")
+          .map((x) => x.content)
+          .join("\n");
+        const testCodeBlocks = codeBlocks.filter(
+          (x) => x.heading !== "tsp" && x.heading !== "typespec"
+        );
 
-          if (match !== null) {
-            const namedArgs = match.groups;
+        for (const codeBlock of testCodeBlocks) {
+          let tested = false;
+          for (const [template, fn] of Object.entries(OUTPUT_CODE_BLOCK_TYPES)) {
+            // This regex creates a named capture group for each template argument
+            const templateRegex = new RegExp(
+              "^" + template.replace(/\{(\w+)\}/g, "(?<$1>[^\\s]+)") + "$"
+            );
 
-            it(codeBlock.heading, async function () {
-              const result = await fn(typeSpecInput, namedArgs ?? {});
+            const match = codeBlock.heading.match(templateRegex);
 
-              if (SCENARIOS_UPDATE) {
-                content = updateCodeBlock(
-                  content,
-                  codeBlock.heading,
-                  (await format(result)).trim()
-                );
-              } else {
-                const expected = await format(codeBlock.content, { parser: "typescript" });
-                const actual = await format(result, { parser: "typescript" });
-                expect(actual).toBe(expected);
-              }
-            });
+            if (match !== null) {
+              const namedArgs = match.groups;
 
-            tested = true;
+              it(codeBlock.heading, async function () {
+                const result = await fn(typeSpecInput, namedArgs ?? {});
+
+                if (SCENARIOS_UPDATE) {
+                  content = updateCodeBlock(
+                    content,
+                    codeBlock.heading,
+                    (await format(result)).trim()
+                  );
+                } else {
+                  const expected = await format(codeBlock.content, { parser: "typescript" });
+                  const actual = await format(result, { parser: "typescript" });
+                  expect(actual).toBe(expected);
+                }
+              });
+
+              tested = true;
+            }
+          }
+
+          if (!tested) {
+            // Empty test case to mark it as skipped
+            console.log("Skipping test case: ", codeBlock.heading);
+            it.skip(codeBlock.heading, function () {});
           }
         }
 
-        if (!tested) {
-          // Empty test case to mark it as skipped
-          console.log("Skipping test case: ", codeBlock.heading);
-          it.skip(codeBlock.heading, function () {});
-        }
-      }
-
-      // Update after all the tests in the scenario if write mode was enabled
-      afterEach(function () {
-        if (SCENARIOS_UPDATE) {
-          writeFileSync(scenarioFile, content);
-        }
+        // Update after all the tests in the scenario if write mode was enabled
+        afterEach(function () {
+          if (SCENARIOS_UPDATE) {
+            writeFileSync(scenarioFile, content);
+          }
+        });
       });
     }
-  );
+  });
+}
+
+function splitByH1(content: string): { title: string; content: string }[] {
+  const sections = content.split(/\n(?=# )/).map((section) => {
+    const lines = section.split("\n");
+    const title = lines.shift()!.replace(/^#+\s+/, "");
+    return {
+      title,
+      content: lines.join("\n"),
+    };
+  });
+
+  return sections;
 }
 
 interface CodeBlock {
@@ -201,4 +235,30 @@ function loadOutput(emittedProject: [Record<string, string>, readonly Diagnostic
   }
 
   return program;
+}
+
+function scanScenarios(location: string) {
+  const children = readdirSync(location);
+  for (const child of children) {
+    const fullPath = path.join(location, child);
+    const stat = statSync(fullPath);
+    if (stat.isDirectory()) {
+      scanScenarios(fullPath);
+    } else {
+      scanScenario(fullPath);
+    }
+  }
+}
+
+function scanScenario(scenarioFile: string) {
+  let content = readFileSync(scenarioFile, { encoding: "utf-8" });
+
+  const sections = splitByH1(content);
+
+  sections.forEach(({ title }) => {
+    const scenarioName = title + (SCENARIOS_UPDATE ? " (UPDATING)" : "");
+    if (scenarioName.toLowerCase().startsWith("only:")) {
+      hasOnlyScenarios = true;
+    }
+  });
 }
