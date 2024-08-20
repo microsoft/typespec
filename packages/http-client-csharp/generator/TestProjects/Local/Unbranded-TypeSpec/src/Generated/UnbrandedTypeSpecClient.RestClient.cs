@@ -210,7 +210,7 @@ namespace UnbrandedTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateAddTimeHeaderRequest(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
+        internal PipelineMessage CreateAddTimeHeaderRequest(RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier204;
@@ -220,7 +220,7 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/", false);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Repeatability-First-Sent", repeatabilityFirstSent.ToString("R"));
+            request.Headers.Set("Repeatability-First-Sent", DateTimeOffset.Now.ToString("R"));
             message.Apply(options);
             return message;
         }
