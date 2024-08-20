@@ -57,7 +57,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), inputModel, ItExpr.Is<ModelProvider>(m => m.Name == new ModelProvider(inputModel).Name));
 
-            _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), inputEnum, ItExpr.IsNull<EnumProvider>());
+            _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), inputEnum, ItExpr.Is<EnumProvider>(m => m.Name == EnumProvider.Create(inputEnum, null).Name));
         }
 
         [Test]
@@ -117,7 +117,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 {
                     return null;
                 }
-                return base.Visit(inputModelProperty, propertyProvider);
+                return new PropertyProvider(inputModelProperty);
             }
         }
     }

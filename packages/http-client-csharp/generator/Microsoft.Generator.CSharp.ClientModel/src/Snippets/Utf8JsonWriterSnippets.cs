@@ -55,7 +55,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public static MethodBodyStatement Flush(this ScopedApi<Utf8JsonWriter> writer)
             => writer.Invoke(nameof(Utf8JsonWriter.Flush), Array.Empty<ValueExpression>()).Terminate();
 
-        public static ValueExpression FlushAsync(this ScopedApi<Utf8JsonWriter> writer, ValueExpression? cancellationToken = null)
+        public static InvokeMethodExpression FlushAsync(this ScopedApi<Utf8JsonWriter> writer, ValueExpression? cancellationToken = null)
         {
             var arguments = cancellationToken is null
                 ? Array.Empty<ValueExpression>()

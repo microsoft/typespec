@@ -13,5 +13,8 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static ScopedApi<long> Parse(ValueExpression value, ValueExpression formatProvider)
             => Static<long>().Invoke(nameof(long.Parse), [value, formatProvider]).As<long>();
+
+        public static ScopedApi<long> Add(this ScopedApi<long> longExpression, ScopedApi<long> value)
+            => new BinaryOperatorExpression("+", longExpression, value).As<long>();
     }
 }

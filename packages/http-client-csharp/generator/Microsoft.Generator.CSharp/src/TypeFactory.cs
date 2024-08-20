@@ -206,7 +206,7 @@ namespace Microsoft.Generator.CSharp
             }
             foreach (var visitor in Visitors)
             {
-                type = visitor.Visit(enumType, declaringType);
+                type = visitor.Visit(enumType, type);
             }
             return type;
         }
