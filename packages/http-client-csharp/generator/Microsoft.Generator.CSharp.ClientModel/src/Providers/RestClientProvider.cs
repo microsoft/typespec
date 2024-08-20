@@ -215,11 +215,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     if (format != null)
                     {
                         var _t = typeof(IEnumerable<>).GetGenericArguments()[0];
-                        var value = valueExpression.As(_t);
-
                         var v = new VariableExpression(_t, "v");
-                        var convertToStringExpression2 = TypeFormattersSnippets.ConvertToString(v, Literal(format));
-                        var selector = new FuncExpression([v.Declaration], convertToStringExpression2).As<string>();
+                        var convertValueToStringExpression = TypeFormattersSnippets.ConvertToString(v, Literal(format));
+                        var selector = new FuncExpression([v.Declaration], convertValueToStringExpression).As<string>();
                         values = valueExpression.Select(selector);
                     }
                     valueExpression = StringSnippets.Join(Literal(inputParameter.ArraySerializationDelimiter), values);
