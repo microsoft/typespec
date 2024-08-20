@@ -96,17 +96,17 @@ namespace Microsoft.Generator.CSharp
 
         protected internal virtual TypeProvider? Visit(InputModelType model, TypeProvider? type)
         {
-            return new ModelProvider(model);
+            return type;
         }
 
         protected internal virtual PropertyProvider? Visit(InputModelProperty property, PropertyProvider? propertyProvider)
         {
-            return new PropertyProvider(property);
+            return propertyProvider;
         }
 
         protected internal virtual TypeProvider? Visit(InputEnumType enumType, TypeProvider? type)
         {
-            return EnumProvider.Create(enumType, type);
+            return type;
         }
 
         protected virtual TypeProvider? Visit(TypeProvider type)
