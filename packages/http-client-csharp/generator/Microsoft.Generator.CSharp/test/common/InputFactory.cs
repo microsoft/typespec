@@ -60,7 +60,8 @@ namespace Microsoft.Generator.CSharp.Tests.Common
         bool isRequired = false,
         InputOperationParameterKind kind = InputOperationParameterKind.Method,
         bool isEndpoint = false,
-        bool isResourceParameter = false)
+        bool isResourceParameter = false,
+        bool isContentType = false)
         {
             return new InputParameter(
                 name,
@@ -73,7 +74,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 isRequired,
                 false,
                 isResourceParameter,
-                false,
+                isContentType,
                 isEndpoint,
                 false,
                 false,

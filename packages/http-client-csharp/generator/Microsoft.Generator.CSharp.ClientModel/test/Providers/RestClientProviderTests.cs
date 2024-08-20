@@ -119,14 +119,33 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             if (spreadInputParameter != null)
             {
                 Assert.AreEqual(_spreadModel.Properties.Count + 1, methodParameters.Count);
-                Assert.AreEqual(_spreadModel.Properties[0].Name, methodParameters[0].Name);
-                Assert.IsNull(methodParameters[0].DefaultValue);
+                // validate path parameter
+                Assert.AreEqual(inputOperation.Parameters[1].Name, methodParameters[0].Name);
+                // validate spread parameters
+                Assert.AreEqual(_spreadModel.Properties[0].Name, methodParameters[1].Name);
+                Assert.IsNull(methodParameters[1].DefaultValue);
                 // validate optional parameter
-                Assert.AreEqual(_spreadModel.Properties[1].Name, methodParameters[1].Name);
-                Assert.AreEqual(Snippet.Default, methodParameters[1].DefaultValue);
-                // validate non-spread parameter
-                Assert.AreEqual(inputOperation.Parameters[1].Name, methodParameters[2].Name);
+                Assert.AreEqual(_spreadModel.Properties[1].Name, methodParameters[2].Name);
+                Assert.AreEqual(Snippet.Default, methodParameters[2].DefaultValue);
             }
+        }
+
+        [TestCase]
+        public void TestGetMethodParameters_ProperOrdering()
+        {
+            var inputOperation = OperationWithMixedParamOrdering;
+            var methodParameters = RestClientProvider.GetMethodParameters(inputOperation);
+
+            Assert.AreEqual(inputOperation.Parameters.Count, methodParameters.Count);
+
+            // validate ordering
+            Assert.AreEqual("requiredPath", methodParameters[0].Name);
+            Assert.AreEqual("requiredQuery", methodParameters[1].Name);
+            Assert.AreEqual("requiredHeader", methodParameters[2].Name);
+            Assert.AreEqual("body", methodParameters[3].Name);
+            Assert.AreEqual("contentType", methodParameters[4].Name);
+            Assert.AreEqual("optionalQuery", methodParameters[5].Name);
+            Assert.AreEqual("optionalHeader", methodParameters[6].Name);
         }
 
         [TestCaseSource(nameof(GetSpreadParameterModelTestCases))]
@@ -169,6 +188,61 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
                     kind: InputOperationParameterKind.Method)
             ]);
 
+        private static readonly InputOperation OperationWithMixedParamOrdering = InputFactory.Operation(
+            "CreateMessage",
+            parameters:
+            [
+                // require query param
+                InputFactory.Parameter(
+                    "requiredQuery",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Query,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Method),
+                // optional query param
+                InputFactory.Parameter(
+                    "optionalQuery",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Query,
+                    isRequired: false,
+                    kind: InputOperationParameterKind.Method),
+                // required path param
+                InputFactory.Parameter(
+                    "requiredPath",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Path,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Method),
+                // required header param
+                InputFactory.Parameter(
+                    "requiredHeader",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Header,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Method),
+                // optional header param
+                InputFactory.Parameter(
+                    "optionalHeader",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Header,
+                    isRequired: false,
+                    kind: InputOperationParameterKind.Method),
+                // content type param
+                InputFactory.Parameter(
+                    "contentType",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Header,
+                    isContentType: true,
+                    kind: InputOperationParameterKind.Method),
+                // body param
+                InputFactory.Parameter(
+                    "body",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Body,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Method)
+            ]);
+
         private readonly static InputClient SingleOpInputClient = InputFactory.Client("TestClient", operations: [BasicOperation]);
 
         private static IEnumerable<TestCaseData> DefaultCSharpMethodCollectionTestCases =>
@@ -179,7 +253,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         private static IEnumerable<TestCaseData> GetMethodParametersTestCases =>
         [
             new TestCaseData(OperationWithSpreadParam),
-            new TestCaseData(BasicOperation)
+            new TestCaseData(BasicOperation),
+            new TestCaseData(OperationWithMixedParamOrdering)
         ];
 
         private static IEnumerable<TestCaseData> GetSpreadParameterModelTestCases =>

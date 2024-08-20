@@ -66,7 +66,8 @@ namespace Microsoft.Generator.CSharp.Providers
             IReadOnlyList<AttributeStatement>? attributes = null,
             PropertyProvider? property = null,
             FieldProvider? field = null,
-            ValueExpression? initializationValue = null)
+            ValueExpression? initializationValue = null,
+            ParameterLocation? location = null)
         {
             Debug.Assert(!(property is not null && field is not null), "A parameter cannot be both a property and a field");
 
@@ -82,6 +83,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Validation = GetParameterValidation();
             InitializationValue = initializationValue;
             WireInfo = new WireInformation(SerializationFormat.Default, name);
+            Location = location ?? ParameterLocation.Unknown;
         }
 
         private ParameterProvider? _inputParameter;

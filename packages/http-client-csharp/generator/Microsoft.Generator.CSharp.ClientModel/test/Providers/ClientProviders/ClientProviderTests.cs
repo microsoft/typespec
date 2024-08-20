@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
@@ -375,10 +376,28 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [TestCaseSource(nameof(ValidateClientWithSpreadTestCases))]
         public void ValidateClientWithSpread(InputClient inputClient)
         {
-            var clientProvider = new ClientProviderWithSpread(inputClient);
-            var writer = new TypeProviderWriter(clientProvider);
-            var file = writer.Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+            var clientProvider = new ClientProvider(inputClient);
+            var methods = clientProvider.Methods;
+
+            Assert.AreEqual(4, methods.Count);
+
+            var protocolMethods = methods.Where(m => m.Signature.Parameters.Any(p => p.Type.Equals(typeof(BinaryContent)))).ToList();
+            Assert.AreEqual(2, protocolMethods.Count);
+            Assert.AreEqual(2, protocolMethods[0].Signature.Parameters.Count);
+            Assert.AreEqual(2, protocolMethods[1].Signature.Parameters.Count);
+
+            Assert.AreEqual(new CSharpType(typeof(BinaryContent)), protocolMethods[0].Signature.Parameters[0].Type);
+            Assert.AreEqual(new CSharpType(typeof(RequestOptions)), protocolMethods[0].Signature.Parameters[1].Type);
+            Assert.AreEqual(new CSharpType(typeof(BinaryContent)), protocolMethods[1].Signature.Parameters[0].Type);
+            Assert.AreEqual(new CSharpType(typeof(RequestOptions)), protocolMethods[1].Signature.Parameters[1].Type);
+
+            var convenienceMethods = methods.Where(m => m.Signature.Parameters.Any(p => p.Type.Equals(typeof(string)))).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+            Assert.AreEqual(1, convenienceMethods[0].Signature.Parameters.Count);
+
+            Assert.AreEqual(new CSharpType(typeof(string)), convenienceMethods[0].Signature.Parameters[0].Type);
+            Assert.AreEqual("p1", convenienceMethods[0].Signature.Parameters[0].Name);
+
         }
 
         private static InputClient GetEnumQueryParamClient()
@@ -418,20 +437,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 var method = base.BuildMethods().Where(m => m.Signature.Parameters.Any(p => p.Name == "queryParam" && p.Type.Name == "InputEnum" && !m.Signature.Name.EndsWith("Async"))).First();
                 method.Update(xmlDocProvider: new XmlDocProvider()); // null out the docs
                 return [method];
-            }
-
-            protected override FieldProvider[] BuildFields() => [];
-            protected override ConstructorProvider[] BuildConstructors() => [];
-            protected override PropertyProvider[] BuildProperties() => [];
-        }
-
-        private class ClientProviderWithSpread : ClientProvider
-        {
-            public ClientProviderWithSpread(InputClient inputClient) : base(inputClient) { }
-
-            protected override MethodProvider[] BuildMethods()
-            {
-                return [.. base.BuildMethods()];
             }
 
             protected override FieldProvider[] BuildFields() => [];

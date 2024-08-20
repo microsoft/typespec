@@ -6,6 +6,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
@@ -81,15 +82,23 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             List<ParameterProvider> nonSpreadParams = [];
 
             if (_inputModelForSpreadParam != null
-                && ClientModelPlugin.Instance.TypeFactory.CreateModel(_inputModelForSpreadParam) is ModelProvider modelProvider)
+                && ClientModelPlugin.Instance.TypeFactory.CreateModel(_inputModelForSpreadParam) is TypeProvider provider)
             {
-                var modelCtorSignature = modelProvider.FullConstructor.Signature;
+                ConstructorProvider? fullConstructor = provider.Constructors.FirstOrDefault(c =>
+                    c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal) &&
+                    c.Signature.Parameters.Count == _inputModelForSpreadParam.Properties.Count + 1);
+                if (fullConstructor is null)
+                {
+                    throw new InvalidOperationException($"Could not find a constructor for {_inputModelForSpreadParam.Name} that matches the spread parameter model.");
+                }
+
+                var modelCtorSignature = fullConstructor.Signature;
                 var modelCtorParameters = modelCtorSignature.Parameters.ToDictionary(p => p.Name);
-                spreadParamModelVarRef = new VariableExpression(modelProvider.Type, modelProvider.Name.ToVariableName());
+                spreadParamModelVarRef = new VariableExpression(provider.Type, provider.Name.ToVariableName());
                 // var model = new ModelType { ... };
                 methodBody.Add(Declare(
                     spreadParamModelVarRef,
-                    New.Instance(modelCtorSignature, GetSpreadParamModelCtorArgs(modelCtorSignature))));
+                    New.Instance(modelCtorSignature, GetParamConversions(ConvenienceMethodParameters, modelCtorSignature.Parameters))));
 
                 foreach (var param in ConvenienceMethodParameters)
                 {
@@ -137,12 +146,40 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return result.CastTo(resultType);
         }
 
-        private IReadOnlyList<ValueExpression> GetParamConversions(IReadOnlyList<ParameterProvider> convenienceMethodParameters)
+        private IReadOnlyList<ValueExpression> GetParamConversions(
+            IReadOnlyList<ParameterProvider> convenienceMethodParameters,
+            IReadOnlyList<ParameterProvider>? spreadParams = null)
         {
-            List<ValueExpression> conversions = new List<ValueExpression>();
-            foreach (var param in convenienceMethodParameters)
+            Dictionary<string, ParameterProvider> convenienceMethodParamsDict = convenienceMethodParameters.ToDictionary(p => p.Name);
+            var paramsToConvert = spreadParams ?? convenienceMethodParameters;
+            List<ValueExpression> conversions = new(paramsToConvert.Count);
+
+            foreach (var param in paramsToConvert)
             {
-                if (param.Type.IsEnum)
+                if (spreadParams != null)
+                {
+                    if (convenienceMethodParamsDict.TryGetValue(param.Name, out var convenienceParam))
+                    {
+                        ValueExpression expression = convenienceParam.Type switch
+                        {
+                            { IsList: true } => NullCoalescing(
+                                new AsExpression(convenienceParam.NullConditional().ToList(), new CSharpType(typeof(IList<>), convenienceParam.Type.Arguments)),
+                                New.Instance(convenienceParam.Type.PropertyInitializationType, [])
+                            ),
+                            { IsDictionary: true } => NullCoalescing(
+                                convenienceParam,
+                                New.Instance(convenienceParam.Type.PropertyInitializationType, [])
+                            ),
+                            _ => convenienceParam
+                        };
+                        conversions.Add(expression);
+                    }
+                    else
+                    {
+                        conversions.Add(Null);
+                    }
+                }
+                else if (param.Type.IsEnum)
                 {
                     if (param.Location == ParameterLocation.Body)
                     {
@@ -163,38 +200,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
             }
             return conversions;
-        }
-
-        private IReadOnlyList<ValueExpression> GetSpreadParamModelCtorArgs(ConstructorSignature modelProviderCtorSignature)
-        {
-            var convenienceMethodParams = ConvenienceMethodParameters.ToDictionary(p => p.Name);
-            var expressions = new List<ValueExpression>(modelProviderCtorSignature.Parameters.Count);
-
-            foreach (var param in modelProviderCtorSignature.Parameters)
-            {
-                if (convenienceMethodParams.TryGetValue(param.Name, out var convenienceParam))
-                {
-                    ValueExpression expression = convenienceParam.Type switch
-                    {
-                        { IsList: true } => NullCoalescing(
-                            new AsExpression(convenienceParam.NullConditional().ToList(), new CSharpType(typeof(IList<>), convenienceParam.Type.Arguments)),
-                            New.Instance(convenienceParam.Type.PropertyInitializationType, [])
-                        ),
-                        { IsDictionary: true } => NullCoalescing(
-                            convenienceParam,
-                            New.Instance(convenienceParam.Type.PropertyInitializationType, [])
-                        ),
-                        _ => convenienceParam
-                    };
-                    expressions.Add(expression);
-                }
-                else
-                {
-                    expressions.Add(Null);
-                }
-            }
-
-            return expressions;
         }
 
         public IReadOnlyList<ParameterProvider> MethodParameters => _createRequestMethod.Signature.Parameters;
