@@ -1,7 +1,8 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { EmitContext, isStdNamespace, Type } from "@typespec/compiler";
+import { EmitContext, getNamespaceFullName, isStdNamespace, Type } from "@typespec/compiler";
 import { TypeCollector } from "@typespec/emitter-framework";
+import { namespace as HttpNamespace } from "@typespec/http";
 import { ModelsFile } from "./components/models-file.js";
 
 export async function $onEmit(context: EmitContext) {
@@ -22,7 +23,7 @@ function queryTypes(context: EmitContext) {
   const globalns = context.program.getGlobalNamespaceType();
   const allTypes = new TypeCollector(globalns).flat();
   for (const dataType of [...allTypes.models, ...allTypes.unions, ...allTypes.enums]) {
-    if (dataType.namespace && isStdNamespace(dataType.namespace)) {
+    if (isNoEmit(dataType)) {
       continue;
     }
 
@@ -30,4 +31,23 @@ function queryTypes(context: EmitContext) {
   }
 
   return { dataTypes: [...types] };
+}
+
+function isNoEmit(type: Type): boolean {
+  // Skip anonymous types
+  if (!(type as any).name) {
+    return true;
+  }
+
+  if ("namespace" in type && type.namespace) {
+    if (isStdNamespace(type.namespace)) {
+      return true;
+    }
+
+    if (getNamespaceFullName(type.namespace).includes(HttpNamespace)) {
+      return true;
+    }
+  }
+
+  return false;
 }

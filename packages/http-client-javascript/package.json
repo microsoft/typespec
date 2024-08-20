@@ -10,7 +10,8 @@
     "watch-src": "babel src -d dist/src --extensions '.ts,.tsx' --watch",
     "watch-tsc": "tsc -p . --watch",
     "watch": "concurrently --kill-others \"npm run watch-tsc\" \"npm run watch-src\"",
-    "test": "vitest run"
+    "test": "vitest run",
+    "build-sample": "tsp compile sample/main.tsp --emit http-client-javascript && babel tsp-output -d dist/tsp-output --extensions '.ts,.tsx'"
   },
   "keywords": [],
   "author": "",

@@ -1,6 +1,6 @@
 import { refkey } from "@alloy-js/core";
 import { ValueExpression, Reference } from "@alloy-js/typescript";
-import { IntrinsicType, Model, Scalar, Type, isArrayModelType } from "@typespec/compiler";
+import { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
 import { isArray, isDeclaration, isRecord } from "../../core/utils/typeguards.js";
 import { UnionExpression } from "./union-expression.js";
 import {ArrayExpression} from "./array-expression.js";
@@ -61,7 +61,7 @@ export function TypeExpression({ type }: TypeExpressionProps) {
       return <InterfaceExpression type={type} />;
 
     default:
-      throw new Error(type.kind + " not supported in TypeExpression");
+      console.warn("TypeExpression: unhandled type", type);
   }
 }
 
