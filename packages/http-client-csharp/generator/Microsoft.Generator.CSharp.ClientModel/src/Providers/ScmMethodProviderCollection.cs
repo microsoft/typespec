@@ -92,7 +92,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Return(Static<ClientResult>().Invoke(
                         nameof(ClientResult.FromValue),
                         [
-                            responseBodyType.Equals(typeof(string)) ? result.GetRawResponse().Content().InvokeToString() : GetResultConversion(result, responseBodyType, declarations),
+                            GetResultConversion(result, responseBodyType, declarations),
                             result.Invoke("GetRawResponse")
                         ])),
                 ];
@@ -120,6 +120,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     {
                         statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromEnumerable(parameter), out var content));
                         declarations["content"] = content;
+                    }
+                    else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)))
+                    {
+                        if (parameter.Type.Equals(typeof(string)))
+                        {
+                            var bdExpression = Operation.RequestMediaTypes?.Contains("application/json") == true
+                                ? BinaryDataSnippets.FromObjectAsJson(parameter)
+                                : BinaryDataSnippets.FromString(parameter);
+                            statements.Add(UsingDeclare("content", BinaryContentSnippets.Create(bdExpression), out var content));
+                            declarations["content"] = content;
+                        }
+                        else
+                        {
+                            statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromObject(parameter), out var content));
+                            declarations["content"] = content;
+                        }
                     }
                 }
             }
@@ -189,6 +205,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     return result.GetRawResponse().Content().ToObjectFromJson(responseBodyType);
                 }
             }
+            if (responseBodyType.IsFrameworkType)
+            {
+                if (responseBodyType.Equals(typeof(string)) && Operation.RequestMediaTypes?.Contains("text/plain") == true)
+                {
+                    return result.GetRawResponse().Content().InvokeToString();
+                }
+                else
+                {
+                    return result.GetRawResponse().Content().ToObjectFromJson(responseBodyType);
+                }
+            }
             return result.CastTo(responseBodyType);
         }
 
@@ -211,12 +238,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     {
                         conversions.Add(BinaryContentSnippets.Create(param));
                     }
-                    else if (param.Type.Equals(typeof(string)))
+                    else if (param.Type.IsFrameworkType)
                     {
-                        var bdExpression = Operation.RequestBodyMediaType == BodyMediaType.Json
-                          ? BinaryDataSnippets.FromObjectAsJson(param)
-                          : BinaryDataSnippets.FromString(param);
-                        conversions.Add(BinaryContentSnippets.Create(bdExpression));
+                        conversions.Add(declarations["content"]);
                     }
                     else
                     {
