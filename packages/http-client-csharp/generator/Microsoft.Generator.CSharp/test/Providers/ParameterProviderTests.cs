@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Providers
@@ -36,7 +37,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockHelpers.LoadMockPlugin();
 
-            var param = new InputParameter("name", "name", "description", new InputPrimitiveType(InputPrimitiveTypeKind.String, "string", "string"), RequestLocation.Body, null, InputOperationParameterKind.Spread, false, false, false, false, false, false, false, null, null);
+            var param = InputFactory.Parameter("name", InputPrimitiveType.String, kind: InputOperationParameterKind.Spread);
             var paramProvider1 = CodeModelPlugin.Instance.TypeFactory.CreateParameter(param);
             var paramProvider2 = CodeModelPlugin.Instance.TypeFactory.CreateParameter(param);
             Assert.IsFalse(ReferenceEquals(paramProvider1, paramProvider2));
@@ -46,46 +47,16 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         public void ValueTypeHasNoValidation(InputType paramType)
         {
             MockHelpers.LoadMockPlugin();
-            var inputType = GetInputParameter("testParam", paramType);
+            var inputType = InputFactory.Parameter("testParam", paramType, isRequired: true);
             var parameter = CodeModelPlugin.Instance.TypeFactory.CreateParameter(inputType);
             Assert.AreEqual(ParameterValidationType.None, parameter.Validation);
         }
 
-        private InputParameter GetInputParameter(string name, InputType inputType)
-        {
-            return new InputParameter(
-                name,
-                name,
-                name,
-                inputType,
-                RequestLocation.Body,
-                null,
-                InputOperationParameterKind.Method,
-                true,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                null,
-                null);
-        }
-
         private static IEnumerable<InputType> ValueInputTypes()
         {
-            yield return new InputPrimitiveType(InputPrimitiveTypeKind.Int32, "int", "int");
-            yield return new InputPrimitiveType(InputPrimitiveTypeKind.Float, "float", "float");
-            yield return new InputEnumType(
-                "inputEnum",
-                "inputEnum",
-                "public",
-                null,
-                "inputEnum",
-                InputModelTypeUsage.Input | InputModelTypeUsage.Output,
-                new InputPrimitiveType(InputPrimitiveTypeKind.Int32, "int", "int"),
-                [new InputEnumTypeValue("foo", 1, "foo")],
-                true);
+            yield return InputPrimitiveType.Int32;
+            yield return InputPrimitiveType.Float32;
+            yield return InputFactory.Enum("inputEnum", InputPrimitiveType.Int32, isExtensible: true, values: [InputFactory.EnumMember.Int32("foo", 1)]);
         }
 
         private static IEnumerable<TestCaseData> NotEqualsTestCases()

@@ -33,6 +33,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestProjects.CadlRanch.Test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Generator.CSharp.ClientModel.StubLibrary", "Microsoft.Generator.CSharp.ClientModel.StubLibrary\src\Microsoft.Generator.CSharp.ClientModel.StubLibrary.csproj", "{178CB351-5587-42CC-8EB7-C5C208E84BEB}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Generator.CSharp.Tests.Common", "Microsoft.Generator.CSharp\test\common\Microsoft.Generator.CSharp.Tests.Common.csproj", "{EA126741-2BE5-4CA4-BB76-DFE9B741653E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,10 @@ Global
 		{178CB351-5587-42CC-8EB7-C5C208E84BEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{178CB351-5587-42CC-8EB7-C5C208E84BEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{178CB351-5587-42CC-8EB7-C5C208E84BEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA126741-2BE5-4CA4-BB76-DFE9B741653E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA126741-2BE5-4CA4-BB76-DFE9B741653E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA126741-2BE5-4CA4-BB76-DFE9B741653E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA126741-2BE5-4CA4-BB76-DFE9B741653E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
