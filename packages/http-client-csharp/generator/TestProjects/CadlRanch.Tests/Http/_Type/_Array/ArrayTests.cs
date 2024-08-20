@@ -3,11 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
-using _Type_Array;
-using _Type_Array.Models;
+using _Type._Array;
+using _Type._Array.Models;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http._Type._Array
