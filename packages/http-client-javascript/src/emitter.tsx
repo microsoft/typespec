@@ -3,6 +3,7 @@ import * as ts from "@alloy-js/typescript";
 import { EmitContext, getNamespaceFullName, isStdNamespace, Type } from "@typespec/compiler";
 import { TypeCollector } from "@typespec/emitter-framework";
 import { namespace as HttpNamespace } from "@typespec/http";
+import { namespace as RestNamespace } from "@typespec/rest";
 import { ModelsFile } from "./components/models-file.js";
 
 export async function $onEmit(context: EmitContext) {
@@ -44,7 +45,12 @@ function isNoEmit(type: Type): boolean {
       return true;
     }
 
-    if (getNamespaceFullName(type.namespace).includes(HttpNamespace)) {
+    const fullNamespaceName = getNamespaceFullName(type.namespace);
+
+    if ([HttpNamespace].includes(fullNamespaceName)) {
+      return true;
+    }
+    if ([RestNamespace].includes(fullNamespaceName)) {
       return true;
     }
   }

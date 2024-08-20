@@ -1,33 +1,71 @@
+import "@typespec/rest";
+import "@typespec/openapi";
 import "@typespec/http";
 
 using TypeSpec.Http;
+
 @service({
-  title: "Widget Service",
+  title: "Pet Store Service",
 })
-namespace DemoService;
+@doc("This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters.")
+namespace PetStore;
 
-model Widget {
-  @visibility("read", "update")
-  @path
-  id: string;
+// Model types
+model Pet {
+  name: string;
+  tag?: string;
 
-  weight: int32;
-  color: "red" | "blue";
+  @minValue(0)
+  @maxValue(20)
+  age: int32;
 }
 
+model Toy {
+  id: int64;
+  petId: int64;
+  name: string;
+}
+
+@doc("Error")
 @error
 model Error {
   code: int32;
   message: string;
 }
 
-@route("/widgets")
-@tag("Widgets")
-interface Widgets {
-  @get list(): Widget[] | Error;
-  @get read(@path id: string): Widget | Error;
-  @post create(...Widget): Widget | Error;
-  @patch update(...Widget): Widget | Error;
-  @delete delete(@path id: string): void | Error;
-  @route("{id}/analyze") @post analyze(@path id: string): string | Error;
+@doc("Not modified")
+model NotModified<Body> {
+  @statusCode _: 304;
+  @body body: Body;
+}
+
+@friendlyName("{name}ListResults", Item)
+model ResponsePage<Item> {
+  items: Item[];
+  nextLink?: string;
+}
+
+model PetId {
+  @path petId: int32;
+}
+
+@doc("Manage your pets.")
+@route("/pets")
+namespace Pets {
+  @doc("Delete a pet.")
+  @delete
+  op delete(...PetId): OkResponse | Error;
+
+  @doc("List pets.")
+  op list(@query nextLink?: string): ResponsePage<Pet> | Error;
+
+  @doc("Returns a pet. Supports eTags.")
+  op read(...PetId): Pet | (NotModifiedResponse & Pet) | Error;
+
+  @post op create(@body pet: Pet): Pet | Error;
+}
+
+@route("/pets/{petId}/toys")
+namespace ListPetToysResponse {
+  op list(@path petId: string, @query nameFilter: string): ResponsePage<Toy> | Error;
 }

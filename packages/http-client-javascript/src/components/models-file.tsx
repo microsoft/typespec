@@ -10,18 +10,9 @@ export interface ModelsFileProps {
 export function ModelsFile(props: ModelsFileProps) {
   return (
     <ts.SourceFile path={props.path ?? "models.ts"}>
-      {props.types.map((type) => {
-        switch (type.kind) {
-          case "Model":
-          case "Interface":
-            return <ef.InterfaceDeclaration export type={type} />;
-          case "Union":
-          case "Enum":
-            return <ef.UnionDeclaration export type={type} />;
-          default:
-            return null;
-        }
-      })}
+      {props.types.map((type) => (
+        <ef.TypeDeclaration export type={type} />
+      ))}
     </ts.SourceFile>
   );
 }

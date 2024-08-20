@@ -19,7 +19,9 @@
   "description": "",
   "peerDependencies": {
     "@typespec/compiler": "workspace:*",
-    "@typespec/http": "workspace:*"
+    "@typespec/http": "workspace:*",
+    "@typespec/rest": "workspace:*",
+    "@typespec/openapi": "workspace:*"
   },
   "dependencies": {
     "@typespec/emitter-framework": "workspace:*",

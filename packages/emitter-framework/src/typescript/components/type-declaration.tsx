@@ -17,10 +17,11 @@ export function TypeDeclaration(props: TypeDeclarationProps) {
     return <ts.TypeDeclaration {...props as WithRequired<ts.TypeDeclarationProps, "name">} />
   }
 
-  switch (props.type.kind) {
+  const {type, ...restProps} = props;
+  switch (type.kind) {
     case "Model":
-      return <InterfaceDeclaration type={props.type} />
+      return <InterfaceDeclaration type={type} {...restProps} />
     case "Union":
-      return <UnionDeclaration type={props.type} />
+      return <UnionDeclaration type={type} {...restProps} />
   }
 }
