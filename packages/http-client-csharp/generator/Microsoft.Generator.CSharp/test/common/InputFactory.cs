@@ -131,7 +131,8 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 isReadOnly,
                 isDiscriminator,
                 // For ease of writing unit tests, we don't require the enclosing type to be passed into the factory method
-                // but the actual constructor requires it, so we default to a model with no properties.
+                // but the actual constructor requires it, so we default to a model with no properties. Testing of the enclosing type
+                // population is handled in InputModelPropertyTests.
                 enclosingType ?? Model("Model", properties: []));
         }
 
