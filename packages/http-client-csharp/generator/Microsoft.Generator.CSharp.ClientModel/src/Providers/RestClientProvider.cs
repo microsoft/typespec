@@ -4,6 +4,7 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -206,7 +207,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ValueExpression valueExpression;
                 GetParamInfo(paramMap, inputParameter, out type, out format, out valueExpression);
                 ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
-                ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
+                var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
+                //ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
+                ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : convertToStringExpression;
                 MethodBodyStatement statement;
                 if (type?.Equals(typeof(BinaryData)) == true)
                 {
@@ -222,6 +225,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                             request.AddHeaderValue(inputParameter.NameInRequest, TypeFormattersSnippets.ToString(item.Invoke("ToArray"),
                                 Literal(format)))
                         };
+                }
+                else if (type?.IsCollection == true)
+                {
+                    ValueExpression values = valueExpression;
+                    if (format != null)
+                    {
+                        var _t = typeof(IEnumerable<>).GetGenericArguments()[0];
+                        var value = valueExpression.As(_t);
+
+                        var v = new VariableExpression(_t, "v");
+                        var convertToStringExpression2 = TypeFormattersSnippets.ConvertToString(v, Literal(format));
+                        var selector = new FuncExpression([v.Declaration], convertToStringExpression2).As<string>();
+                        values = valueExpression.Select(selector);
+                    }
+                    valueExpression = StringSnippets.Join(Literal(inputParameter.ArraySerializationDelimiter), values);
+                    statement = request.SetHeaderValue(inputParameter.NameInRequest, valueExpression);
                 }
                 else
                 {
@@ -246,7 +265,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ValueExpression valueExpression;
                 GetParamInfo(paramMap, inputParameter, out var type, out format, out valueExpression);
                 ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
-                var toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
+                var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
+                ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : convertToStringExpression;
+                //var toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
                 MethodBodyStatement statement;
                 if (type?.Equals(typeof(BinaryData)) == true)
                 {
@@ -257,6 +278,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     statement = uri.AppendQueryDelimited(Literal(inputParameter.NameInRequest),
                         valueExpression, format, true).Terminate();
+                }
+                else if (type?.IsCollection == true)
+                {
+                    ValueExpression values = valueExpression;
+                    if (format != null)
+                    {
+                        var _t = typeof(IEnumerable<>).GetGenericArguments()[0];
+                        var value = valueExpression.As(_t);
+
+                        var v = new VariableExpression(_t, "v");
+                        var convertToStringExpression2 = TypeFormattersSnippets.ConvertToString(v, Literal(format));
+                        var selector = new FuncExpression([v.Declaration], convertToStringExpression2).As<string>();
+                        values = valueExpression.Select(selector);
+                    }
+                    valueExpression = StringSnippets.Join(Literal(inputParameter.ArraySerializationDelimiter), values);
+                    statement = uri.AppendQuery(Literal(inputParameter.NameInRequest), valueExpression, true).Terminate();
                 }
                 else
                 {
@@ -348,6 +385,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     valueExpression = csharpType.ToSerial(paramProvider);
                     format = null;
                 }
+                /*
                 else if (paramProvider.Type.IsCollection)
                 {
                     ValueExpression parameterValueExpression = paramProvider.Field is null ? paramProvider : paramProvider.Field;
@@ -363,9 +401,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         var selector = new FuncExpression([v.Declaration], convertToStringExpression).As<string>();
                         values = parameterValueExpression.Select(selector);
                     }
-                    valueExpression = StringSnippets.Join(Literal(","), values);
+                    valueExpression = StringSnippets.Join(Literal(inputParam.ArraySerializationDelimiter), values);
                     format = null;
                 }
+                */
                 else
                 {
                     valueExpression = paramProvider.Field is null ? paramProvider : paramProvider.Field;
