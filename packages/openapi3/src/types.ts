@@ -587,6 +587,9 @@ export type OpenAPI3Schema = Extensions & {
 
   /** Specifies that a schema is deprecated and SHOULD be transitioned out of usage.Default value is false. */
   deprecated?: boolean;
+
+  /** This MAY be used only on properties schemas. It has no effect on root schemas. Adds additional metadata to describe the XML representation of this property. */
+  xml?: any;
 };
 
 export type OpenAPI3ParameterBase = Extensions & {

@@ -645,6 +645,14 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
   }
 
+  #attachXmlObject(program: Program, type: ModelProperty, emitObject: OpenAPI3Schema) {
+    // Attach xml object
+    const xmlName = resolveEncodedName(program, type, "application/xml");
+    if (xmlName !== type.name) {
+      emitObject.xml = { name: xmlName };
+    }
+  }
+
   reference(
     targetDeclaration: Declaration<Record<string, unknown>>,
     pathUp: Scope<Record<string, unknown>>[],
@@ -785,6 +793,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       (p: Program, t: Type) => (getDeprecated(p, t) !== undefined ? true : undefined),
       "deprecated"
     );
+
+    this.#attachXmlObject(program, type as ModelProperty, schema);
 
     this.#attachExtensions(program, type, schema);
 
