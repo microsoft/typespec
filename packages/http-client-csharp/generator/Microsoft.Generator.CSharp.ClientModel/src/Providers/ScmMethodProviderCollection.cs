@@ -125,6 +125,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     conversions.Add(BinaryContentSnippets.Create(param));
                 }
+                else if (param.Location == ParameterLocation.Body && param.Type.Equals(typeof(string)))
+                {
+                    var bdExpression = Operation.RequestBodyMediaType == BodyMediaType.Json
+                        ? BinaryDataSnippets.FromObjectAsJson(param)
+                        : BinaryDataSnippets.FromString(param);
+                    conversions.Add(BinaryContentSnippets.Create(bdExpression));
+                }
                 else
                 {
                     conversions.Add(param);
