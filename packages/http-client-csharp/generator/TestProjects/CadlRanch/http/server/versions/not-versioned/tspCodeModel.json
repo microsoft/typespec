@@ -1,0 +1,176 @@
+{
+ "$id": "1",
+ "Name": "Server.Versions.NotVersioned",
+ "ApiVersions": [],
+ "Enums": [],
+ "Models": [],
+ "Clients": [
+  {
+   "$id": "2",
+   "Name": "NotVersionedClient",
+   "Description": "Illustrates not-versioned server.",
+   "Operations": [
+    {
+     "$id": "3",
+     "Name": "withoutApiVersion",
+     "ResourceName": "NotVersioned",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "4",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Description": "Need to be set as 'http://localhost:3000' in client.",
+       "Type": {
+        "$id": "5",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "6",
+       "StatusCodes": [
+        200
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "HEAD",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/server/versions/not-versioned/without-api-version",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Server.Versions.NotVersioned.withoutApiVersion",
+     "Decorators": []
+    },
+    {
+     "$id": "7",
+     "Name": "withQueryApiVersion",
+     "ResourceName": "NotVersioned",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "4"
+      },
+      {
+       "$id": "8",
+       "Name": "apiVersion",
+       "NameInRequest": "api-version",
+       "Type": {
+        "$id": "9",
+        "Kind": "string",
+        "Name": "string",
+        "CrossLanguageDefinitionId": "TypeSpec.string",
+        "Decorators": []
+       },
+       "Location": "Query",
+       "IsApiVersion": true,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "10",
+       "StatusCodes": [
+        200
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "HEAD",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/server/versions/not-versioned/with-query-api-version",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Server.Versions.NotVersioned.withQueryApiVersion",
+     "Decorators": []
+    },
+    {
+     "$id": "11",
+     "Name": "withPathApiVersion",
+     "ResourceName": "NotVersioned",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "4"
+      },
+      {
+       "$id": "12",
+       "Name": "apiVersion",
+       "NameInRequest": "apiVersion",
+       "Type": {
+        "$id": "13",
+        "Kind": "string",
+        "Name": "string",
+        "CrossLanguageDefinitionId": "TypeSpec.string",
+        "Decorators": []
+       },
+       "Location": "Path",
+       "IsApiVersion": true,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "14",
+       "StatusCodes": [
+        200
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "HEAD",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/server/versions/not-versioned/with-path-api-version/{apiVersion}",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Server.Versions.NotVersioned.withPathApiVersion",
+     "Decorators": []
+    }
+   ],
+   "Protocol": {
+    "$id": "15"
+   },
+   "Parameters": [
+    {
+     "$ref": "4"
+    }
+   ],
+   "Decorators": []
+  }
+ ]
+}
