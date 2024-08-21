@@ -3362,7 +3362,7 @@
         "Value": "Sunday",
         "Decorators": []
        },
-       "BodyMediaType": "None",
+       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [

@@ -127,7 +127,7 @@
         "CrossLanguageDefinitionId": "TypeSpec.string",
         "Decorators": []
        },
-       "BodyMediaType": "Json",
+       "BodyMediaType": "Text",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -210,7 +210,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -404,13 +404,13 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
+     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/boolean",
      "RequestMediaTypes": [
@@ -598,13 +598,13 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
+     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/unknown",
      "RequestMediaTypes": [
@@ -790,13 +790,13 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
+     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal/resquest_body",
      "RequestMediaTypes": [
@@ -844,7 +844,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -1033,13 +1033,13 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
+     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal128/resquest_body",
      "RequestMediaTypes": [
@@ -1087,7 +1087,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -1283,13 +1283,13 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
+     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal/verify",
      "RequestMediaTypes": [
@@ -1482,13 +1482,13 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
+     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal128/verify",
      "RequestMediaTypes": [

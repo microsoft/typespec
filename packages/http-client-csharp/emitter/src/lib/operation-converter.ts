@@ -276,16 +276,16 @@ function getBodyMediaType(type: SdkType | undefined) {
     return BodyMediaType.None;
   }
 
-  if (type.kind === "model") {
-    return BodyMediaType.Json;
-  } else if (type.kind === "string") {
-    return BodyMediaType.Text;
-  } else if (type.kind === "bytes") {
-    return BodyMediaType.Binary;
-  } else if (type.kind === "array") {
-    return BodyMediaType.Json;
+  switch (type.kind) {
+    case "model":
+      return BodyMediaType.Json;
+    case "string":
+      return BodyMediaType.Text; // TODO: we should dump BodyMediaType, this is a problem if users want a json encoded string
+    case "bytes":
+      return BodyMediaType.Binary;
+    default:
+      return BodyMediaType.Json;
   }
-  return BodyMediaType.None;
 }
 
 function getRequestMediaTypes(op: SdkHttpOperation): string[] | undefined {
