@@ -1,4 +1,4 @@
-import { DecoratorApplication, DecoratorFunction, RekeyableMap } from "../core/types.js";
+import type { DecoratorApplication, DecoratorFunction, RekeyableMap } from "../core/types.js";
 import { createRekeyableMap } from "../utils/misc.js";
 import { $ } from "./define-kit.js";
 

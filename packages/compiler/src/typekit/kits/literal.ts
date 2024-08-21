@@ -1,5 +1,5 @@
 import { Numeric } from "../../core/numeric.js";
-import { BooleanLiteral, NumericLiteral, StringLiteral, Type } from "../../core/types.js";
+import type { BooleanLiteral, NumericLiteral, StringLiteral, Type } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 interface LiteralKit {

@@ -1,4 +1,4 @@
-import { currentProgram, Program } from "../core/program.js";
+import { currentProgram, type Program } from "../core/program.js";
 
 export interface TypekitPrototype {
   program: Program;

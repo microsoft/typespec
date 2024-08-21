@@ -1,7 +1,7 @@
 import { isIntrinsicType } from "../../core/decorator-utils.js";
-import { IntrinsicScalarName, Scalar, Type } from "../../core/types.js";
-import { EncodeData, getEncode } from "../../lib/decorators.js";
-import { defineKit, TypekitPrototype } from "../define-kit.js";
+import type { IntrinsicScalarName, Scalar, Type } from "../../core/types.js";
+import { type EncodeData, getEncode } from "../../lib/decorators.js";
+import { defineKit, type TypekitPrototype } from "../define-kit.js";
 
 interface ScalarKit {
   /**

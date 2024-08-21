@@ -1,5 +1,5 @@
 import { ignoreDiagnostics } from "../../core/diagnostics.js";
-import { Type, Union, UnionVariant } from "../../core/types.js";
+import type { Type, Union, UnionVariant } from "../../core/types.js";
 import { createRekeyableMap } from "../../utils/misc.js";
 import { defineKit } from "../define-kit.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";

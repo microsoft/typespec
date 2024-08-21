@@ -1,4 +1,5 @@
-import { EmitContext, Program, Type } from "../../src/core/index.js";
+import type { Program } from "../../src/core/program.js";
+import type { EmitContext, Type } from "../../src/core/types.js";
 import { createTestHost } from "../../src/testing/test-host.js";
 import { createTestWrapper } from "../../src/testing/test-utils.js";
 
