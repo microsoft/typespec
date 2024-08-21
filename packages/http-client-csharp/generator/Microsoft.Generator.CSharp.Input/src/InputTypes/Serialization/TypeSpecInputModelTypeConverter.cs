@@ -40,7 +40,7 @@ namespace Microsoft.Generator.CSharp.Input
                 deprecation: null,
                 description: null,
                 usage: InputModelTypeUsage.None,
-                properties: null!,
+                properties: [],
                 baseModel: null,
                 derivedModels: [],
                 discriminatorValue: null,
