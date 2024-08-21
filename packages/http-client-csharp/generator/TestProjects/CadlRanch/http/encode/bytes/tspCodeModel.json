@@ -239,7 +239,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -291,7 +291,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -343,7 +343,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -411,7 +411,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -985,7 +985,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -1037,7 +1037,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -1089,7 +1089,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -1157,7 +1157,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -1279,7 +1279,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -1360,7 +1360,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -1441,7 +1441,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -1523,7 +1523,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -1605,7 +1605,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -1716,7 +1716,7 @@
         "CrossLanguageDefinitionId": "TypeSpec.bytes",
         "Decorators": []
        },
-       "BodyMediaType": "Json",
+       "BodyMediaType": "Binary",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1784,7 +1784,7 @@
         "CrossLanguageDefinitionId": "TypeSpec.bytes",
         "Decorators": []
        },
-       "BodyMediaType": "Json",
+       "BodyMediaType": "Binary",
        "Headers": [
         {
          "$id": "170",
@@ -1871,7 +1871,7 @@
         "CrossLanguageDefinitionId": "TypeSpec.bytes",
         "Decorators": []
        },
-       "BodyMediaType": "Json",
+       "BodyMediaType": "Binary",
        "Headers": [
         {
          "$id": "179",
@@ -1958,7 +1958,7 @@
         "CrossLanguageDefinitionId": "TypeSpec.bytes",
         "Decorators": []
        },
-       "BodyMediaType": "Json",
+       "BodyMediaType": "Binary",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2034,7 +2034,7 @@
         },
         "Decorators": []
        },
-       "BodyMediaType": "Json",
+       "BodyMediaType": "Binary",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [

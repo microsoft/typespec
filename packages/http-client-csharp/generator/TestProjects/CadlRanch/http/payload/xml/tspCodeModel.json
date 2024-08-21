@@ -851,7 +851,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -1053,7 +1053,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -1255,7 +1255,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -1457,7 +1457,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -1659,7 +1659,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -1861,7 +1861,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -2063,7 +2063,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -2265,7 +2265,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -2467,7 +2467,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -2669,7 +2669,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -2871,7 +2871,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -3073,7 +3073,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }

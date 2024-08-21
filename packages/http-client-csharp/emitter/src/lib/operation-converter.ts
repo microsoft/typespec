@@ -252,7 +252,7 @@ function fromSdkHttpOperationResponses(
     responses.push({
       StatusCodes: toStatusCodesArray(range),
       BodyType: r.type ? fromSdkType(r.type, sdkContext, modelMap, enumMap) : undefined,
-      BodyMediaType: BodyMediaType.Json,
+      BodyMediaType: getBodyMediaType(r.type), // TOOD: https://github.com/microsoft/typespec/issues/4225
       Headers: fromSdkServiceResponseHeaders(r.headers, sdkContext, modelMap, enumMap),
       IsErrorResponse: r.type !== undefined && isErrorModel(sdkContext.program, r.type.__raw!),
       ContentTypes: r.contentTypes,
@@ -299,6 +299,8 @@ function getBodyMediaType(type: SdkType | undefined) {
     return BodyMediaType.Text;
   } else if (type.kind === "bytes") {
     return BodyMediaType.Binary;
+  } else if (type.kind === "array") {
+    return BodyMediaType.Json;
   }
   return BodyMediaType.None;
 }

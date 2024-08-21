@@ -44,7 +44,7 @@
        "StatusCodes": [
         200
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -95,7 +95,7 @@
        "StatusCodes": [
         200
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -146,7 +146,7 @@
        "StatusCodes": [
         200
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }

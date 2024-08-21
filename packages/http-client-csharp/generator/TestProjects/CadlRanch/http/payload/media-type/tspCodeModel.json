@@ -140,7 +140,7 @@
        "StatusCodes": [
         200
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -207,7 +207,7 @@
         "CrossLanguageDefinitionId": "TypeSpec.string",
         "Decorators": []
        },
-       "BodyMediaType": "Json",
+       "BodyMediaType": "Text",
        "Headers": [
         {
          "$id": "26",
@@ -306,7 +306,7 @@
        "StatusCodes": [
         200
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -373,7 +373,7 @@
         "CrossLanguageDefinitionId": "TypeSpec.string",
         "Decorators": []
        },
-       "BodyMediaType": "Json",
+       "BodyMediaType": "Text",
        "Headers": [
         {
          "$id": "42",
