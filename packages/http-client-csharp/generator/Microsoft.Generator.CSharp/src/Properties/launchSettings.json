@@ -55,6 +55,16 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-type-array": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/array -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-type-scalar": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/scalar -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "Unbranded-TypeSpec": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Unbranded-TypeSpec -p ClientModelPlugin",
       "commandName": "Executable",

@@ -7,6 +7,8 @@
     <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/ModelSerializationExtensions.cs" />
     <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/ClientPipelineExtensions.cs" />
     <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/ErrorResult.cs" />
+    <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/BinaryContentHelper.cs" />
+    <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/Utf8JsonBinaryContent.cs" />
   </ItemGroup>
 
   <ItemGroup>
