@@ -38,8 +38,8 @@ import {
   InputPrimitiveType,
   InputUnionType,
 } from "../type/input-type.js";
-import { fromSdkType } from "./converter.js";
 import { SdkTypeMap } from "../type/sdk-type-map.js";
+import { fromSdkType } from "./converter.js";
 
 export function fromSdkHttpExamples(
   sdkContext: SdkContext<NetEmitterOptions>,

@@ -251,34 +251,26 @@ export function fromSdkEnumType(
   return inputEnumType;
 }
 
-function fromSdkDateTimeType(
-  dateTimeType: SdkDateTimeType
-): InputDateTimeType {
+function fromSdkDateTimeType(dateTimeType: SdkDateTimeType): InputDateTimeType {
   return {
     Kind: dateTimeType.kind,
     Name: dateTimeType.name,
     Encode: dateTimeType.encode,
     WireType: fromSdkBuiltInType(dateTimeType.wireType),
     CrossLanguageDefinitionId: dateTimeType.crossLanguageDefinitionId,
-    BaseType: dateTimeType.baseType
-      ? fromSdkDateTimeType(dateTimeType.baseType)
-      : undefined,
+    BaseType: dateTimeType.baseType ? fromSdkDateTimeType(dateTimeType.baseType) : undefined,
     Decorators: dateTimeType.decorators,
   };
 }
 
-function fromSdkDurationType(
-  durationType: SdkDurationType
-): InputDurationType {
+function fromSdkDurationType(durationType: SdkDurationType): InputDurationType {
   return {
     Kind: durationType.kind,
     Name: durationType.name,
     Encode: durationType.encode,
     WireType: fromSdkBuiltInType(durationType.wireType),
     CrossLanguageDefinitionId: durationType.crossLanguageDefinitionId,
-    BaseType: durationType.baseType
-      ? fromSdkDurationType(durationType.baseType)
-      : undefined,
+    BaseType: durationType.baseType ? fromSdkDurationType(durationType.baseType) : undefined,
     Decorators: durationType.decorators,
   };
 }
@@ -299,9 +291,7 @@ function fromSdkBuiltInType(builtInType: SdkBuiltInType): InputPrimitiveType {
     Name: builtInType.name,
     Encode: builtInType.encode !== builtInType.kind ? builtInType.encode : undefined, // In TCGC this is required, and when there is no encoding, it just has the same value as kind, we could remove this when TCGC decides to simplify
     CrossLanguageDefinitionId: builtInType.crossLanguageDefinitionId,
-    BaseType: builtInType.baseType
-      ? fromSdkBuiltInType(builtInType.baseType)
-      : undefined,
+    BaseType: builtInType.baseType ? fromSdkBuiltInType(builtInType.baseType) : undefined,
     Decorators: builtInType.decorators,
   };
 }
