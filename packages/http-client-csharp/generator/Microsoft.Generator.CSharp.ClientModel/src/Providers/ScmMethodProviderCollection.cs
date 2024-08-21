@@ -328,7 +328,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     {
                         conversions.Add(BinaryContentSnippets.Create(param));
                     }
-                    else if (param.Type.IsFrameworkType)
+                    else if (param.Type.IsFrameworkType && declarations != null)
                     {
                         conversions.Add(declarations["content"]);
                     }
