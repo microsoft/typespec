@@ -258,6 +258,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     statement = uri.AppendQuery(Literal(inputParameter.NameInRequest), toStringExpression, true)
                         .Terminate();
                 }
+
                 statement = inputParameter.IsRequired
                     ? statement
                     : new IfStatement(valueExpression.NotEqual(Null))
