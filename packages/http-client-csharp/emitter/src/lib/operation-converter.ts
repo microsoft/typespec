@@ -236,7 +236,7 @@ function fromSdkHttpOperationResponses(
     responses.push({
       StatusCodes: toStatusCodesArray(range),
       BodyType: r.type ? fromSdkType(r.type, sdkContext, typeCache) : undefined,
-      BodyMediaType: getBodyMediaType(r.type), // TOOD: https://github.com/microsoft/typespec/issues/4225
+      BodyMediaType: getBodyMediaType(r.type), // TODO: https://github.com/microsoft/typespec/issues/4225
       Headers: fromSdkServiceResponseHeaders(r.headers, sdkContext, typeCache),
       IsErrorResponse: r.type !== undefined && isErrorModel(sdkContext.program, r.type.__raw!),
       ContentTypes: r.contentTypes,
