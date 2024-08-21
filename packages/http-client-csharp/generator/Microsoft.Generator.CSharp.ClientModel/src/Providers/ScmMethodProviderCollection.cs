@@ -202,16 +202,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     return result.GetRawResponse().Content().ToObjectFromJson(responseBodyType);
                 }
             }
+            if (responseBodyType.Equals(typeof(string)) && Operation.RequestMediaTypes?.Contains("text/plain") == true)
+            {
+                return result.GetRawResponse().Content().InvokeToString();
+            }
             if (responseBodyType.IsFrameworkType)
             {
-                if (responseBodyType.Equals(typeof(string)) && Operation.RequestMediaTypes?.Contains("text/plain") == true)
-                {
-                    return result.GetRawResponse().Content().InvokeToString();
-                }
-                else
-                {
-                    return result.GetRawResponse().Content().ToObjectFromJson(responseBodyType);
-                }
+                return result.GetRawResponse().Content().ToObjectFromJson(responseBodyType);
             }
             return result.CastTo(responseBodyType);
         }
