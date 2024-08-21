@@ -8,6 +8,7 @@ import {
   SdkContext,
   SdkHeaderParameter,
   SdkHttpOperation,
+  SdkHttpParameter,
   SdkHttpResponse,
   SdkPathParameter,
   SdkQueryParameter,
@@ -29,17 +30,13 @@ import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputOperation } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
-import {
-  InputEnumType,
-  InputModelType,
-  InputPrimitiveType,
-  InputType,
-} from "../type/input-type.js";
+import { InputPrimitiveType, InputType } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
 import { OperationPaging } from "../type/operation-paging.js";
 import { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
+import { SdkTypeMap } from "../type/sdk-type-map.js";
 import { fromSdkType } from "./converter.js";
 import { getExternalDocs, getOperationId } from "./decorators.js";
 import { Logger } from "./logger.js";
@@ -51,8 +48,7 @@ export function fromSdkServiceMethod(
   clientParameters: InputParameter[],
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  modelMap: Map<string, InputModelType>,
-  enumMap: Map<string, InputEnumType>
+  typeCache: SdkTypeMap
 ): InputOperation {
   let generateConvenience = shouldGenerateConvenient(sdkContext, method.operation.__raw.operation);
   if (method.operation.verb === "patch" && generateConvenience) {
@@ -62,6 +58,12 @@ export function fromSdkServiceMethod(
     generateConvenience = false;
   }
 
+  const parameterMap = fromSdkOperationParameters(
+    method.operation,
+    rootApiVersions,
+    sdkContext,
+    typeCache
+  );
   return {
     Name: method.name,
     ResourceName:
@@ -74,20 +76,8 @@ export function fromSdkServiceMethod(
     Summary: getSummary(sdkContext.program, method.__raw!),
     Description: getDoc(sdkContext.program, method.__raw!),
     Accessibility: method.access,
-    Parameters: fromSdkOperationParameters(
-      method.operation,
-      clientParameters,
-      rootApiVersions,
-      sdkContext,
-      modelMap,
-      enumMap
-    ),
-    Responses: fromSdkHttpOperationResponses(
-      method.operation.responses,
-      sdkContext,
-      modelMap,
-      enumMap
-    ),
+    Parameters: [...clientParameters, ...parameterMap.values()],
+    Responses: fromSdkHttpOperationResponses(method.operation.responses, sdkContext, typeCache),
     HttpMethod: parseHttpRequestMethod(method.operation.verb),
     RequestBodyMediaType: getBodyMediaType(method.operation.bodyParam?.type),
     Uri: uri,
@@ -95,7 +85,7 @@ export function fromSdkServiceMethod(
     ExternalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
     RequestMediaTypes: getRequestMediaTypes(method.operation),
     BufferResponse: true,
-    LongRunning: loadLongRunningOperation(method, sdkContext, modelMap, enumMap),
+    LongRunning: loadLongRunningOperation(method, sdkContext, typeCache),
     Paging: loadOperationPaging(method),
     GenerateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
     GenerateConvenienceMethod: generateConvenience,
@@ -144,28 +134,26 @@ function getValueType(value: any): SdkBuiltInKinds {
 
 function fromSdkOperationParameters(
   operation: SdkHttpOperation,
-  clientParameters: InputParameter[],
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  modelMap: Map<string, InputModelType>,
-  enumMap: Map<string, InputEnumType>
-): InputParameter[] {
-  const params = clientParameters.concat(
-    operation.parameters.map((p) =>
-      fromSdkHttpOperationParameter(p, rootApiVersions, sdkContext, modelMap, enumMap)
-    )
-  );
-  return operation.bodyParam
-    ? params.concat(
-        fromSdkHttpOperationParameter(
-          operation.bodyParam,
-          rootApiVersions,
-          sdkContext,
-          modelMap,
-          enumMap
-        )
-      )
-    : params;
+  typeCache: SdkTypeMap
+): Map<SdkHttpParameter, InputParameter> {
+  const parameters = new Map<SdkHttpParameter, InputParameter>();
+  for (const p of operation.parameters) {
+    const param = fromSdkHttpOperationParameter(p, rootApiVersions, sdkContext, typeCache);
+    parameters.set(p, param);
+  }
+
+  if (operation.bodyParam) {
+    const bodyParam = fromSdkHttpOperationParameter(
+      operation.bodyParam,
+      rootApiVersions,
+      sdkContext,
+      typeCache
+    );
+    parameters.set(operation.bodyParam, bodyParam);
+  }
+  return parameters;
 }
 
 // TODO: roll back to SdkMethodParameter when we figure out how to represent the parameter location
@@ -174,12 +162,11 @@ function fromSdkHttpOperationParameter(
   p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter,
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  modelMap: Map<string, InputModelType>,
-  enumMap: Map<string, InputEnumType>
+  typeCache: SdkTypeMap
 ): InputParameter {
   const isContentType =
     p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type";
-  const parameterType = fromSdkType(p.type, sdkContext, modelMap, enumMap);
+  const parameterType = fromSdkType(p.type, sdkContext, typeCache);
   // remove this after: https://github.com/Azure/typespec-azure/issues/1084
   if (p.type.kind === "bytes") {
     (parameterType as InputPrimitiveType).Encode = (
@@ -211,8 +198,7 @@ function fromSdkHttpOperationParameter(
 function loadLongRunningOperation(
   method: SdkServiceMethod<SdkHttpOperation>,
   sdkContext: SdkContext<NetEmitterOptions>,
-  modelMap: Map<string, InputModelType>,
-  enumMap: Map<string, InputEnumType>
+  typeCache: SdkTypeMap
 ): import("../type/operation-long-running.js").OperationLongRunning | undefined {
   if (method.kind !== "lro") {
     return undefined;
@@ -230,8 +216,7 @@ function loadLongRunningOperation(
           ? getInputType(
               sdkContext,
               method.__raw_lro_metadata.finalEnvelopeResult,
-              modelMap,
-              enumMap,
+              typeCache,
               method.operation.__raw.operation
             )
           : undefined,
@@ -244,16 +229,15 @@ function loadLongRunningOperation(
 function fromSdkHttpOperationResponses(
   operationResponses: Map<HttpStatusCodeRange | number, SdkHttpResponse>,
   sdkContext: SdkContext<NetEmitterOptions>,
-  modelMap: Map<string, InputModelType>,
-  enumMap: Map<string, InputEnumType>
+  typeCache: SdkTypeMap
 ): OperationResponse[] {
   const responses: OperationResponse[] = [];
   operationResponses.forEach((r, range) => {
     responses.push({
       StatusCodes: toStatusCodesArray(range),
-      BodyType: r.type ? fromSdkType(r.type, sdkContext, modelMap, enumMap) : undefined,
+      BodyType: r.type ? fromSdkType(r.type, sdkContext, typeCache) : undefined,
       BodyMediaType: getBodyMediaType(r.type), // TOOD: https://github.com/microsoft/typespec/issues/4225
-      Headers: fromSdkServiceResponseHeaders(r.headers, sdkContext, modelMap, enumMap),
+      Headers: fromSdkServiceResponseHeaders(r.headers, sdkContext, typeCache),
       IsErrorResponse: r.type !== undefined && isErrorModel(sdkContext.program, r.type.__raw!),
       ContentTypes: r.contentTypes,
     });
@@ -264,8 +248,7 @@ function fromSdkHttpOperationResponses(
 function fromSdkServiceResponseHeaders(
   headers: SdkServiceResponseHeader[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  modelMap: Map<string, InputModelType>,
-  enumMap: Map<string, InputEnumType>
+  typeCache: SdkTypeMap
 ): HttpResponseHeader[] {
   return headers.map(
     (h) =>
@@ -273,7 +256,7 @@ function fromSdkServiceResponseHeaders(
         Name: h.__raw!.name,
         NameInResponse: h.serializedName,
         Description: h.description,
-        Type: fromSdkType(h.type, sdkContext, modelMap, enumMap),
+        Type: fromSdkType(h.type, sdkContext, typeCache),
       }) as HttpResponseHeader
   );
 }
