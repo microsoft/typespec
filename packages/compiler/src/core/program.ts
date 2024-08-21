@@ -73,6 +73,9 @@ import {
   TypeSpecScriptNode,
 } from "./types.js";
 
+// the last compiled program
+export let currentProgram: Program | undefined;
+
 export interface ProjectedProgram extends Program {
   projector: Projector;
 }
@@ -251,7 +254,7 @@ export async function compile(
 
   // let GC reclaim old program, we do not reuse it beyond this point.
   oldProgram = undefined;
-
+  currentProgram = program;
   const linter = createLinter(program, (name) => loadLibrary(basedir, name));
   if (options.linterRuleSet) {
     program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
@@ -714,7 +717,7 @@ export async function compile(
       },
     };
     try {
-      let result = (await emitter.emitFunction(context)) as any;
+      const result = (await emitter.emitFunction(context)) as any;
       if (typeof result === "function") {
         // assume this is an alloy component
         const tree = render(result);
@@ -879,7 +882,6 @@ export async function compile(
    */
   async function loadMain(mainPath: string): Promise<void> {
     await checkForCompilerVersionMismatch(mainPath);
-
     const sourceFileKind = host.getSourceFileKind(mainPath);
 
     const locationContext: LocationContext = { type: "project" };

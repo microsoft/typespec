@@ -1,5 +1,4 @@
-export * from "./boolean.js";
-export * from "./numeric.js";
-export * from "./scalar.js";
-export * from "./string.js";
-export * from "./type.js";
+import "./enum.js";
+import "./literal.js";
+import "./scalar.js";
+import "./union.js";

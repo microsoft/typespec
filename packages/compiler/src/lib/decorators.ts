@@ -45,19 +45,11 @@ import {
   isIntrinsicType,
   validateDecoratorNotOnType,
   validateDecoratorTarget,
+  validateDecoratorUniqueOnNode,
 } from "../core/decorator-utils.js";
 import { getDeprecationDetails, markDeprecated } from "../core/deprecation.js";
-import {
-  Numeric,
-  StdTypeName,
-  compilerAssert,
-  getDiscriminatedUnion,
-  getTypeName,
-  ignoreDiagnostics,
-  isArrayModelType,
-  reportDeprecated,
-  validateDecoratorUniqueOnNode,
-} from "../core/index.js";
+import { compilerAssert, ignoreDiagnostics, reportDeprecated } from "../core/diagnostics.js";
+import { getDiscriminatedUnion, getTypeName } from "../core/helpers/index.js";
 import {
   Discriminator,
   DocData,
@@ -82,7 +74,9 @@ import {
   setMinValueExclusive,
 } from "../core/intrinsic-type-state.js";
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
+import { Numeric } from "../core/numeric.js";
 import { Program, ProjectedProgram } from "../core/program.js";
+import { isArrayModelType } from "../core/type-utils.js";
 import {
   AugmentDecoratorStatementNode,
   DecoratorContext,
@@ -98,6 +92,7 @@ import {
   ObjectValue,
   Operation,
   Scalar,
+  StdTypeName,
   SyntaxKind,
   Type,
   Union,

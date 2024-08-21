@@ -1,4 +1,4 @@
-import { EmitContext, Program } from "../../src/core/index.js";
+import { EmitContext, Program, Type } from "../../src/core/index.js";
 import { createTestHost } from "../../src/testing/test-host.js";
 import { createTestWrapper } from "../../src/testing/test-utils.js";
 
@@ -18,4 +18,23 @@ export async function createContextMock(program?: Program): Promise<EmitContext<
       throw "Not implemented";
     },
   };
+}
+
+export async function getTypes<const T extends string>(
+  code: string,
+  names: T[]
+): Promise<{ [k in T]: Type } & { context: EmitContext }> {
+  const host = await createTestHost();
+  const runner = createTestWrapper(host);
+  await runner.compile(code);
+
+  const obj: any = {
+    context: await createContextMock(runner.program),
+  };
+
+  for (const name of names) {
+    obj[name] = runner.program.resolveTypeReference(name)[0]!;
+  }
+
+  return obj;
 }

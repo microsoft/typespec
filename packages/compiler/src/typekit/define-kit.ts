@@ -1,31 +1,66 @@
-import { EmitContext } from "../core/types.js";
+import { currentProgram, Program } from "../core/program.js";
 
-type KitFunction<T extends Record<string, any>> = (context: { context: EmitContext }) => T;
+export interface TypekitPrototype {
+  program: Program;
+}
 
-type KitReturnType<T> = T extends KitFunction<infer R> ? R : never;
+export const TypekitPrototype: Record<string, unknown> = {};
 
-type CombinedKit<T> = {
-  [K in keyof T]: KitReturnType<T[K]>;
+export function createTypekit(): TypekitPrototype {
+  let tk = Object.create(TypekitPrototype);
+
+  Object.defineProperty(tk, "program", {
+    get() {
+      return currentProgram;
+    },
+  });
+
+  const handler: ProxyHandler<TypekitPrototype> = {
+    get(target, prop, receiver) {
+      const value = Reflect.get(target, prop, receiver);
+
+      if (prop === "program") {
+        // don't wrap program (probably need to ensure this isn't a nested program somewhere)
+        return value;
+      }
+
+      if (typeof value === "function") {
+        return function (this: any, ...args: any[]) {
+          return value.apply(proxy, args);
+        };
+      }
+
+      if (typeof value === "object" && value !== null) {
+        return new Proxy(value, handler);
+      }
+
+      return value;
+    },
+  };
+
+  const proxy = new Proxy(tk, handler);
+  return proxy;
+}
+
+export interface TypekitContext {
+  program: Program;
+}
+
+// contextual typing to type guards is annoying (often have to restate the
+// signature), so this helper will remove the type assertions from the interface
+// you are currently defining.
+export type StripGuards<T> = {
+  [K in keyof T]: T[K] extends (...args: infer P) => infer R
+    ? (...args: P) => R
+    : StripGuards<T[K]>;
 };
 
-export function defineKit<const T extends Record<string, KitFunction<any>>>(
-  sources: T
-): (context: EmitContext) => CombinedKit<T>;
-export function defineKit<T extends KitFunction<any>>(fn: T): T;
-export function defineKit(
-  source: Record<string, KitFunction<any>> | KitFunction<any>
-): KitFunction<any> | ((context: EmitContext) => CombinedKit<any>) {
-  if (typeof source === "function") {
-    return source;
+export function defineKit<T extends Record<string, any>>(
+  source: StripGuards<T> & ThisType<TypekitPrototype>
+): void {
+  for (const [name, fnOrNs] of Object.entries(source)) {
+    TypekitPrototype[name] = fnOrNs;
   }
-
-  return ({ context }: { context: EmitContext }) => {
-    const combined: Record<string, KitFunction<any>> = {};
-
-    for (const [key, value] of Object.entries(source)) {
-      combined[key] = value({ context });
-    }
-
-    return combined;
-  };
 }
+
+export const $: TypekitPrototype = createTypekit();
