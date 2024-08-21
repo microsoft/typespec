@@ -65,6 +65,7 @@ export function fromSdkServiceMethod(
     sdkContext,
     typeMap
   );
+  const responseMap = fromSdkHttpOperationResponses(method.operation.responses, sdkContext, typeMap);
   return {
     Name: method.name,
     ResourceName:
@@ -78,7 +79,7 @@ export function fromSdkServiceMethod(
     Description: getDoc(sdkContext.program, method.__raw!),
     Accessibility: method.access,
     Parameters: [...clientParameters, ...parameterMap.values()],
-    Responses: fromSdkHttpOperationResponses(method.operation.responses, sdkContext, typeMap),
+    Responses: [...responseMap.values()],
     HttpMethod: parseHttpRequestMethod(method.operation.verb),
     RequestBodyMediaType: getBodyMediaType(method.operation.bodyParam?.type),
     Uri: uri,
@@ -92,7 +93,7 @@ export function fromSdkServiceMethod(
     GenerateConvenienceMethod: generateConvenience,
     CrossLanguageDefinitionId: method.crossLanguageDefintionId,
     Decorators: method.decorators,
-    Examples: fromSdkHttpExamples(sdkContext, method.operation.examples, parameterMap, typeMap),
+    Examples: fromSdkHttpExamples(sdkContext, method.operation.examples, parameterMap, responseMap, typeMap),
   };
 }
 
@@ -232,10 +233,10 @@ function fromSdkHttpOperationResponses(
   operationResponses: Map<HttpStatusCodeRange | number, SdkHttpResponse>,
   sdkContext: SdkContext<NetEmitterOptions>,
   typeMap: SdkTypeMap
-): OperationResponse[] {
-  const responses: OperationResponse[] = [];
-  operationResponses.forEach((r, range) => {
-    responses.push({
+): Map<SdkHttpResponse, OperationResponse> {
+  const responses = new Map<SdkHttpResponse, OperationResponse>();
+  for (const [range, r] of operationResponses) {
+    responses.set(r, {
       StatusCodes: toStatusCodesArray(range),
       BodyType: r.type ? fromSdkType(r.type, sdkContext, typeMap) : undefined,
       BodyMediaType: BodyMediaType.Json,
@@ -243,7 +244,7 @@ function fromSdkHttpOperationResponses(
       IsErrorResponse: r.type !== undefined && isErrorModel(sdkContext.program, r.type.__raw!),
       ContentTypes: r.contentTypes,
     });
-  });
+  }
   return responses;
 }
 

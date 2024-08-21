@@ -61,7 +61,7 @@ interface InputExampleBase {
 export interface InputHttpOperationExample extends InputExampleBase {
   kind: "http";
   parameters: InputParameterExample[];
-  // responses: Map<number, OperationResponseExample>;
+  responses: Map<number, OperationResponseExample>;
 }
 
 export interface InputParameterExample {
@@ -69,12 +69,11 @@ export interface InputParameterExample {
   value: InputTypeExample;
 }
 
-// introduce this later
-// export interface OperationResponseExample {
-//     response: OperationResponse;
-//     // headers: SdkHttpResponseHeaderExample[];
-//     bodyValue?: InputTypeExample;
-// }
+export interface OperationResponseExample {
+    response: OperationResponse;
+    // headers: SdkHttpResponseHeaderExample[];
+    bodyValue?: InputTypeExample;
+}
 
 export type InputTypeExample =
   | InputStringExample

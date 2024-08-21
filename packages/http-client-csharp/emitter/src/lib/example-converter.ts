@@ -7,6 +7,8 @@ import {
   SdkHttpOperationExample,
   SdkHttpParameter,
   SdkHttpParameterExample,
+  SdkHttpResponse,
+  SdkHttpResponseExample,
   SdkModelExample,
   SdkNullExample,
   SdkNumberExample,
@@ -28,6 +30,7 @@ import {
   InputStringExample,
   InputTypeExample,
   InputUnionExample,
+  OperationResponseExample,
 } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
 import {
@@ -40,11 +43,13 @@ import {
 } from "../type/input-type.js";
 import { SdkTypeMap } from "../type/sdk-type-map.js";
 import { fromSdkType } from "./converter.js";
+import { OperationResponse } from "../type/operation-response.js";
 
 export function fromSdkHttpExamples(
   sdkContext: SdkContext<NetEmitterOptions>,
   examples: SdkHttpOperationExample[] | undefined,
   parameterMap: Map<SdkHttpParameter, InputParameter>,
+  responseMap: Map<SdkHttpResponse, OperationResponse>,
   typeMap: SdkTypeMap
 ): InputHttpOperationExample[] | undefined {
   if (!examples) return undefined;
@@ -59,6 +64,7 @@ export function fromSdkHttpExamples(
       filePath: example.filePath,
       rawExample: example.rawExample,
       parameters: example.parameters.map((p) => fromSdkParameterExample(p)),
+      responses: fromSdkOperationResponses(example.responses),
     };
   }
 
@@ -66,6 +72,23 @@ export function fromSdkHttpExamples(
     return {
       parameter: parameterMap.get(parameter.parameter)!,
       value: fromSdkExample(parameter.value),
+    };
+  }
+
+  function fromSdkOperationResponses(
+    responses: Map<number, SdkHttpResponseExample>
+  ): Map<number, OperationResponseExample> {
+    const result = new Map<number, OperationResponseExample>();
+    for (const [status, response] of responses) {
+      result.set(status, fromSdkOperationResponse(response));
+    }
+    return result;
+  }
+
+  function fromSdkOperationResponse(response: SdkHttpResponseExample): OperationResponseExample {
+    return {
+      response: responseMap.get(response.response)!,
+      bodyValue: response.bodyValue ? fromSdkExample(response.bodyValue) : undefined,
     };
   }
 
