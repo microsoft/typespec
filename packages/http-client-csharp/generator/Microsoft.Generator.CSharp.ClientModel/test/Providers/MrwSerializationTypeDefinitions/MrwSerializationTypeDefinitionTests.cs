@@ -617,11 +617,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.IsTrue(TestHelpers.HasExpressionStatement(serialization.BuildJsonModelWriteCoreMethod().BodyStatements, encode is null ? "writer.WriteNumberValue(RequiredInt);\n" : "writer.WriteStringValue(RequiredInt.ToString());\n"));
         }
 
-        [TestCase(typeof(long), SerializationFormat.String, ExpectedResult = "long.Parse(foo.GetString())")]
-        [TestCase(typeof(int), SerializationFormat.String, ExpectedResult = "int.Parse(foo.GetString())")]
-        [TestCase(typeof(short), SerializationFormat.String, ExpectedResult = "short.Parse(foo.GetString())")]
-        [TestCase(typeof(byte), SerializationFormat.String, ExpectedResult = "byte.Parse(foo.GetString())")]
-        [TestCase(typeof(sbyte), SerializationFormat.String, ExpectedResult = "sbyte.Parse(foo.GetString())")]
+        [TestCase(typeof(long), SerializationFormat.Int_String, ExpectedResult = "long.Parse(foo.GetString())")]
+        [TestCase(typeof(int), SerializationFormat.Int_String, ExpectedResult = "int.Parse(foo.GetString())")]
+        [TestCase(typeof(short), SerializationFormat.Int_String, ExpectedResult = "short.Parse(foo.GetString())")]
+        [TestCase(typeof(byte), SerializationFormat.Int_String, ExpectedResult = "byte.Parse(foo.GetString())")]
+        [TestCase(typeof(sbyte), SerializationFormat.Int_String, ExpectedResult = "sbyte.Parse(foo.GetString())")]
         [TestCase(typeof(long), SerializationFormat.Default, ExpectedResult = "foo.GetInt64()")]
         [TestCase(typeof(int), SerializationFormat.Default, ExpectedResult = "foo.GetInt32()")]
         [TestCase(typeof(short), SerializationFormat.Default, ExpectedResult = "foo.GetInt16()")]

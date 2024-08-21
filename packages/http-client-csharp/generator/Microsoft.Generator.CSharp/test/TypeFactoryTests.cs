@@ -144,7 +144,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var name = kind.ToString().ToLower();
             var input = new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode, null);
 
-            Assert.AreEqual(encode == "string" ? SerializationFormat.String : SerializationFormat.Default, CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(input));
+            Assert.AreEqual(encode == "string" ? SerializationFormat.Int_String : SerializationFormat.Default, CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(input));
         }
     }
 }

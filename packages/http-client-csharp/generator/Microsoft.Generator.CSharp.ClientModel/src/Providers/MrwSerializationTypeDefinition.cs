@@ -1140,7 +1140,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 var t when t == typeof(JsonElement) =>
                     value.As<JsonElement>().WriteTo(_utf8JsonWriterSnippet),
-                var t when ValueTypeIsInt(t) && serializationFormat == SerializationFormat.String =>
+                var t when ValueTypeIsInt(t) && serializationFormat == SerializationFormat.Int_String =>
                     _utf8JsonWriterSnippet.WriteStringValue(value.InvokeToString()),
                 var t when ValueTypeIsNumber(t) =>
                     _utf8JsonWriterSnippet.WriteNumberValue(value),
@@ -1238,7 +1238,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             // when `@encode(string)`, the type is serialized as string, so we need to deserialize it from string
             // sbyte.Parse(element.GetString())
-            SerializationFormat.String => new InvokeMethodExpression(type, nameof(int.Parse), [element.GetString()]),
+            SerializationFormat.Int_String => new InvokeMethodExpression(type, nameof(int.Parse), [element.GetString()]),
             _ => type switch
             {
                 Type t when t == typeof(long) => element.GetInt64(),
