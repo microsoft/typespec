@@ -358,8 +358,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private static IReadOnlyList<ParameterProvider> BuildSpreadParametersForModel(InputModelType inputModel)
         {
-            var builtParameters = new List<ParameterProvider>();
+            var builtParameters = new ParameterProvider[inputModel.Properties.Count];
 
+            int index = 0;
             foreach (var property in inputModel.Properties)
             {
                 // convert the property to a parameter
@@ -386,10 +387,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 paramProvider.SpreadSource = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
                 paramProvider.Type = paramProvider.Type.InputType;
 
-                builtParameters.Add(paramProvider);
+                builtParameters[index++] = paramProvider;
             }
 
-            return [.. builtParameters.OrderBy(p => p.DefaultValue == null ? 0 : 1)];
+            return builtParameters;
         }
 
         private static bool TryGetSpecialHeaderParam(InputParameter inputParameter, [NotNullWhen(true)] out ParameterProvider? parameterProvider)
@@ -414,16 +415,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             SortedList<int, ParameterProvider> sortedParams = [];
             int path = 0;
             int required = 100;
-            int body = 200;
-            int contentType = 300;
-            int optional = 400;
+            int bodyRequired = 200;
+            int bodyOptional = 300;
+            int contentType = 400;
+            int optional = 500;
 
             foreach (InputParameter inputParam in operation.Parameters)
             {
-                InputModelType? spreadInputModel = null;
-                if ((inputParam.Kind != InputOperationParameterKind.Method && !TryGetSpreadParameterModel(inputParam, out spreadInputModel))
+                if ((inputParam.Kind != InputOperationParameterKind.Method && inputParam.Kind != InputOperationParameterKind.Spread)
                     || TryGetSpecialHeaderParam(inputParam, out var _))
                     continue;
+
+                var spreadInputModel = inputParam.Kind == InputOperationParameterKind.Spread ? GetSpreadParameterModel(inputParam) : null;
 
                 ParameterProvider? parameter = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam);
 
@@ -442,7 +445,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     foreach (var bodyParam in BuildSpreadParametersForModel(spreadInputModel))
                     {
-                        sortedParams.Add(body++, bodyParam);
+                        if (bodyParam.DefaultValue is null)
+                        {
+                            sortedParams.Add(bodyRequired++, bodyParam);
+                        }
+                        else
+                        {
+                            sortedParams.Add(bodyOptional++, bodyParam);
+                        }
                     }
                     continue;
                 }
@@ -472,7 +482,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         }
                         break;
                     case ParameterLocation.Body:
-                        sortedParams.Add(body++, parameter);
+                        sortedParams.Add(bodyRequired++, parameter);
                         break;
                     default:
                         sortedParams.Add(optional++, parameter);
@@ -483,16 +493,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return [.. sortedParams.Values];
         }
 
-        internal static bool TryGetSpreadParameterModel(InputParameter inputParam, [NotNullWhen(true)] out InputModelType? inputModel)
+        internal static InputModelType GetSpreadParameterModel(InputParameter inputParam)
         {
-            inputModel = null;
             if (inputParam.Kind.HasFlag(InputOperationParameterKind.Spread) && inputParam.Type is InputModelType model)
             {
-                inputModel = model;
-                return true;
+                return model;
             }
 
-            return false;
+            throw new InvalidOperationException($"inputParam `{inputParam.Name}` is `Spread` but not a model type");
         }
     }
 }
