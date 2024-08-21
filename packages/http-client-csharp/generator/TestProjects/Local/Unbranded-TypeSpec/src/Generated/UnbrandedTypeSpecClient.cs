@@ -695,7 +695,7 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
             Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
 
-            AnonymousBodyRequest anonymousBodyRequest = new AnonymousBodyRequest(
+            AnonymousBodyRequest spreadModel = new AnonymousBodyRequest(
                 name,
                 requiredUnion,
                 requiredLiteralString,
@@ -710,7 +710,7 @@ namespace UnbrandedTypeSpec
                 optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 null);
-            ClientResult result = AnonymousBody(anonymousBodyRequest, null);
+            ClientResult result = AnonymousBody(spreadModel, null);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -736,7 +736,7 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
             Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
 
-            AnonymousBodyRequest anonymousBodyRequest = new AnonymousBodyRequest(
+            AnonymousBodyRequest spreadModel = new AnonymousBodyRequest(
                 name,
                 requiredUnion,
                 requiredLiteralString,
@@ -751,7 +751,7 @@ namespace UnbrandedTypeSpec
                 optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 null);
-            ClientResult result = await AnonymousBodyAsync(anonymousBodyRequest, null).ConfigureAwait(false);
+            ClientResult result = await AnonymousBodyAsync(spreadModel, null).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -805,8 +805,8 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(name, nameof(name));
 
-            FriendlyModelRequest friendlyModelRequest = new FriendlyModelRequest(name, null);
-            ClientResult result = FriendlyModel(friendlyModelRequest, null);
+            FriendlyModelRequest spreadModel = new FriendlyModelRequest(name, null);
+            ClientResult result = FriendlyModel(spreadModel, null);
             return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
 
@@ -818,8 +818,8 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(name, nameof(name));
 
-            FriendlyModelRequest friendlyModelRequest = new FriendlyModelRequest(name, null);
-            ClientResult result = await FriendlyModelAsync(friendlyModelRequest, null).ConfigureAwait(false);
+            FriendlyModelRequest spreadModel = new FriendlyModelRequest(name, null);
+            ClientResult result = await FriendlyModelAsync(spreadModel, null).ConfigureAwait(false);
             return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
 
@@ -921,8 +921,8 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(name, nameof(name));
 
-            ProjectedNameModelRequest projectedNameModelRequest = new ProjectedNameModelRequest(name, null);
-            ClientResult result = ProjectedNameModel(projectedNameModelRequest, null);
+            ProjectedNameModelRequest spreadModel = new ProjectedNameModelRequest(name, null);
+            ClientResult result = ProjectedNameModel(spreadModel, null);
             return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
         }
 
@@ -934,8 +934,8 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(name, nameof(name));
 
-            ProjectedNameModelRequest projectedNameModelRequest = new ProjectedNameModelRequest(name, null);
-            ClientResult result = await ProjectedNameModelAsync(projectedNameModelRequest, null).ConfigureAwait(false);
+            ProjectedNameModelRequest spreadModel = new ProjectedNameModelRequest(name, null);
+            ClientResult result = await ProjectedNameModelAsync(spreadModel, null).ConfigureAwait(false);
             return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
         }
 

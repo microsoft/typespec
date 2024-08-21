@@ -382,22 +382,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     null);
 
                 var paramProvider = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParameter);
-                ValueExpression? defaultValue = !inputParameter.IsRequired ? Default : null;
+                paramProvider.DefaultValue = !inputParameter.IsRequired ? Default : null;
+                paramProvider.SpreadSource = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
+                paramProvider.Type = paramProvider.Type.InputType;
 
-                builtParameters.Add(new(
-                    paramProvider.Name,
-                    paramProvider.Description,
-                    paramProvider.Type.InputType,
-                    defaultValue,
-                    paramProvider.IsRef,
-                    paramProvider.IsOut,
-                    [],
-                    paramProvider.Property,
-                    paramProvider.Field,
-                    paramProvider.InitializationValue)
-                {
-                    Validation = paramProvider.Validation
-                });
+                builtParameters.Add(paramProvider);
             }
 
             return [.. builtParameters.OrderBy(p => p.DefaultValue == null ? 0 : 1)];

@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.Providers
         /// <summary>
         /// The default value of the parameter.
         /// </summary>
-        public ValueExpression? DefaultValue { get; init; }
+        public ValueExpression? DefaultValue { get; set; }
         public ValueExpression? InitializationValue { get; init; }
         public ParameterValidationType Validation { get; init; } = ParameterValidationType.None;
         public bool IsRef { get; }
@@ -170,6 +170,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private VariableExpression? _asVariable;
         public VariableExpression AsExpression => _asVariable ??= this;
+
+        public TypeProvider? SpreadSource { get; set; }
 
         private ParameterValidationType GetParameterValidation()
         {

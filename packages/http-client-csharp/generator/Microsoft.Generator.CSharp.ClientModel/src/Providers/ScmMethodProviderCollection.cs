@@ -23,12 +23,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     public class ScmMethodProviderCollection : MethodProviderCollection
     {
         private string _cleanOperationName;
-        private ConstructorProvider? _spreadParamModelFullCtor;
         private readonly MethodProvider _createRequestMethod;
 
         private readonly string _createRequestMethodName;
-        private readonly InputModelType? _inputModelForSpreadParam;
-        private readonly Lazy<TypeProvider?>? _providerForSpreadParam;
 
         private ClientProvider Client { get; }
 
@@ -39,27 +36,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _createRequestMethodName = "Create" + _cleanOperationName + "Request";
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(Operation);
-            _inputModelForSpreadParam = Operation.Parameters
-                .Select(param => RestClientProvider.TryGetSpreadParameterModel(param, out var model) ? model : null)
-                .FirstOrDefault(model => model != null);
-
-            if (_inputModelForSpreadParam != null)
-            {
-                _providerForSpreadParam = new(() => ClientModelPlugin.Instance.TypeFactory.CreateModel(_inputModelForSpreadParam));
-            }
-        }
-
-        private TypeProvider? ProviderForSpreadParam => _providerForSpreadParam?.Value;
-        private ConstructorProvider? SpreadParamModelFullCtor => _spreadParamModelFullCtor ??= GetSpreadParamModelFullCtor();
-
-        private ConstructorProvider? GetSpreadParamModelFullCtor()
-        {
-            if (ProviderForSpreadParam == null || _inputModelForSpreadParam == null)
-                return null;
-
-            return ProviderForSpreadParam.Constructors.FirstOrDefault(c =>
-                    c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal) &&
-                    c.Signature.Parameters.Count == _inputModelForSpreadParam.Properties.Count + 1);
         }
 
         protected override IReadOnlyList<MethodProvider> BuildMethods()
@@ -97,47 +73,28 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 null,
                 ConvenienceMethodParameters);
             var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
-            List<ParameterProvider> paramsToConvert = [.. ConvenienceMethodParameters];
 
-            if (SpreadParamModelFullCtor != null)
-            {
-                var modelCtorParameters = SpreadParamModelFullCtor.Signature.Parameters.ToDictionary(p => p.Name);
-                List<ParameterProvider> nonSpreadParams = [];
-                foreach (var param in ConvenienceMethodParameters)
-                {
-                    if (!modelCtorParameters.ContainsKey(param.Name))
-                    {
-                        nonSpreadParams.Add(param);
-                    }
-                }
-                paramsToConvert = nonSpreadParams;
-            }
-
-            var stackVarsForProtocolParamConversion = GetStackVariablesForProtocolParamConversion(paramsToConvert, out var paramDeclarations);
-            ValueExpression[] protocolMethodInvocationArgs = paramDeclarations.TryGetValue("spread", out var spreadParamModelVarRef)
-                ? [.. GetParamConversions(paramsToConvert, paramDeclarations), spreadParamModelVarRef, Null]
-                : [.. GetParamConversions(paramsToConvert, paramDeclarations), Null];
             MethodBodyStatement[] methodBody;
 
             if (responseBodyType is null)
             {
                 methodBody =
                 [
-                    .. stackVarsForProtocolParamConversion,
-                    Return(This.Invoke(protocolMethod.Signature, protocolMethodInvocationArgs, isAsync))
+                    .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var declarations),
+                    Return(This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, declarations), Null], isAsync))
                 ];
             }
             else
             {
                 methodBody =
                 [
-                    .. stackVarsForProtocolParamConversion,
-                    Declare("result", This.Invoke(protocolMethod.Signature, protocolMethodInvocationArgs, isAsync).As<ClientResult>(), out ScopedApi<ClientResult> result),
-                    .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var declarations),
+                    .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var paramDeclarations),
+                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, paramDeclarations), Null], isAsync).As<ClientResult>(), out ScopedApi<ClientResult> result),
+                    .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
                     Return(Static<ClientResult>().Invoke(
                         nameof(ClientResult.FromValue),
                         [
-                            GetResultConversion(result, responseBodyType, declarations),
+                            GetResultConversion(result, responseBodyType, resultDeclarations),
                             result.Invoke("GetRawResponse")
                         ])),
                 ];
@@ -154,6 +111,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             declarations = new Dictionary<string, ValueExpression>();
             foreach (var parameter in convenienceMethodParameters)
             {
+                if (parameter.SpreadSource is not null)
+                    continue;
+
                 if (parameter.Location == ParameterLocation.Body)
                 {
                     if (parameter.Type.IsReadOnlyMemory)
@@ -183,18 +143,49 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             // add spread parameter model variable declaration
-            if (SpreadParamModelFullCtor != null)
+            var spreadSource = convenienceMethodParameters.FirstOrDefault(p => p.SpreadSource is not null)?.SpreadSource;
+            if (spreadSource is not null)
             {
-                var modelCtorSignature = SpreadParamModelFullCtor.Signature;
-                var spreadParamModelVarRef = new VariableExpression(ProviderForSpreadParam!.Type, ProviderForSpreadParam.Name.ToVariableName());
-                // var model = new ModelType { ... };
-                statements.Add(Declare(
-                    spreadParamModelVarRef,
-                    New.Instance(modelCtorSignature, GetSpreadParamModelFullCtorArgs(modelCtorSignature))));
-                declarations["spread"] = spreadParamModelVarRef;
+                statements.Add(Declare("spreadModel", New.Instance(spreadSource.Type, [.. GetSpreadConversion(spreadSource)]).As(spreadSource.Type), out var spread));
+                declarations["spread"] = spread;
             }
 
             return statements;
+        }
+
+        private List<ValueExpression> GetSpreadConversion(TypeProvider spreadSource)
+        {
+            var convenienceMethodParams = ConvenienceMethodParameters.ToDictionary(p => p.Name);
+            List<ValueExpression> expressions = new(spreadSource.Properties.Count);
+            // we should make this find more deterministic
+            var ctor = spreadSource.Constructors.First(c => c.Signature.Parameters.Count == spreadSource.Properties.Count + 1 &&
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+
+            foreach (var param in ctor.Signature.Parameters)
+            {
+                if (convenienceMethodParams.TryGetValue(param.Name, out var convenienceParam))
+                {
+                    if (convenienceParam.Type.IsList)
+                    {
+                        var interfaceType = param.Property!.WireInfo?.IsReadOnly == true
+                            ? new CSharpType(typeof(IReadOnlyList<>), convenienceParam.Type.Arguments)
+                            : new CSharpType(typeof(IList<>), convenienceParam.Type.Arguments);
+                        expressions.Add(NullCoalescing(
+                            new AsExpression(convenienceParam.NullConditional().ToList(), interfaceType),
+                            New.Instance(convenienceParam.Type.PropertyInitializationType, [])));
+                    }
+                    else
+                    {
+                        expressions.Add(convenienceParam);
+                    }
+                }
+                else
+                {
+                    expressions.Add(Null);
+                }
+            }
+
+            return expressions;
         }
 
         private IEnumerable<MethodBodyStatement> GetStackVariablesForReturnValueConversion(ScopedApi<ClientResult> result, CSharpType responseBodyType, bool isAsync, out Dictionary<string, ValueExpression> declarations)
@@ -274,9 +265,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private IReadOnlyList<ValueExpression> GetParamConversions(IReadOnlyList<ParameterProvider> convenienceMethodParameters, Dictionary<string, ValueExpression> declarations)
         {
             List<ValueExpression> conversions = new List<ValueExpression>();
+            bool addedSpreadSource = false;
             foreach (var param in convenienceMethodParameters)
             {
-                if (param.Location == ParameterLocation.Body)
+                if (param.SpreadSource is not null)
+                {
+                    if (!addedSpreadSource)
+                    {
+                        conversions.Add(declarations["spread"]);
+                        addedSpreadSource = true;
+                    }
+                }
+                else if (param.Location == ParameterLocation.Body)
                 {
                     if (param.Type.IsReadOnlyMemory || param.Type.IsList)
                     {
@@ -309,38 +309,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
             }
             return conversions;
-        }
-
-        private IReadOnlyList<ValueExpression> GetSpreadParamModelFullCtorArgs(ConstructorSignature modelProviderCtorSignature)
-        {
-            var convenienceMethodParams = ConvenienceMethodParameters.ToDictionary(p => p.Name);
-            var expressions = new List<ValueExpression>(modelProviderCtorSignature.Parameters.Count);
-
-            foreach (var param in modelProviderCtorSignature.Parameters)
-            {
-                if (convenienceMethodParams.TryGetValue(param.Name, out var convenienceParam))
-                {
-                    ValueExpression expression = convenienceParam.Type switch
-                    {
-                        { IsList: true } => NullCoalescing(
-                            new AsExpression(convenienceParam.NullConditional().ToList(), new CSharpType(typeof(IList<>), convenienceParam.Type.Arguments)),
-                            New.Instance(convenienceParam.Type.PropertyInitializationType, [])
-                        ),
-                        { IsDictionary: true } => NullCoalescing(
-                            convenienceParam,
-                            New.Instance(convenienceParam.Type.PropertyInitializationType, [])
-                        ),
-                        _ => convenienceParam
-                    };
-                    expressions.Add(expression);
-                }
-                else
-                {
-                    expressions.Add(Null);
-                }
-            }
-
-            return expressions;
         }
 
         public IReadOnlyList<ParameterProvider> MethodParameters => _createRequestMethod.Signature.Parameters;
