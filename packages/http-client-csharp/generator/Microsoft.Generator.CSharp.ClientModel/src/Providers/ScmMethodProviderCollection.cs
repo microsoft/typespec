@@ -121,21 +121,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromEnumerable(parameter), out var content));
                         declarations["content"] = content;
                     }
+                    else if (parameter.Type.Equals(typeof(string)))
+                    {
+                        var bdExpression = Operation.RequestMediaTypes?.Contains("application/json") == true
+                            ? BinaryDataSnippets.FromObjectAsJson(parameter)
+                            : BinaryDataSnippets.FromString(parameter);
+                        statements.Add(UsingDeclare("content", BinaryContentSnippets.Create(bdExpression), out var content));
+                        declarations["content"] = content;
+                    }
                     else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)))
                     {
-                        if (parameter.Type.Equals(typeof(string)))
-                        {
-                            var bdExpression = Operation.RequestMediaTypes?.Contains("application/json") == true
-                                ? BinaryDataSnippets.FromObjectAsJson(parameter)
-                                : BinaryDataSnippets.FromString(parameter);
-                            statements.Add(UsingDeclare("content", BinaryContentSnippets.Create(bdExpression), out var content));
-                            declarations["content"] = content;
-                        }
-                        else
-                        {
-                            statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromObject(parameter), out var content));
-                            declarations["content"] = content;
-                        }
+                        statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromObject(parameter), out var content));
+                        declarations["content"] = content;
                     }
                 }
             }
