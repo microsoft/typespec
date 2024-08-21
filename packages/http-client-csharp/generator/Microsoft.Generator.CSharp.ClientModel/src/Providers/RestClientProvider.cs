@@ -48,10 +48,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             _inputClient = inputClient;
             ClientProvider = clientProvider;
-            _pipelineMessageClassifier200 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, typeof(PipelineMessageClassifier), "_pipelineMessageClassifier200");
-            _pipelineMessageClassifier204 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, typeof(PipelineMessageClassifier), "_pipelineMessageClassifier204");
+            _pipelineMessageClassifier200 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, typeof(PipelineMessageClassifier), "_pipelineMessageClassifier200", this);
+            _pipelineMessageClassifier204 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, typeof(PipelineMessageClassifier), "_pipelineMessageClassifier204", this);
             _classifier2xxAnd4xxDefinition = new Classifier2xxAnd4xxDefinition(this);
-            _pipelineMessageClassifier2xxAnd4xx = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, _classifier2xxAnd4xxDefinition.Type, "_pipelineMessageClassifier2xxAnd4xx");
+            _pipelineMessageClassifier2xxAnd4xx = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, _classifier2xxAnd4xxDefinition.Type, "_pipelineMessageClassifier2xxAnd4xx", this);
             _classifier200Property = GetResponseClassifierProperty(_pipelineMessageClassifier200, 200);
             _classifier204Property = GetResponseClassifierProperty(_pipelineMessageClassifier204, 204);
             _classifier2xxAnd4xxProperty = new PropertyProvider(
@@ -59,7 +59,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 MethodSignatureModifiers.Private | MethodSignatureModifiers.Static,
                 _classifier2xxAnd4xxDefinition.Type,
                 "PipelineMessageClassifier2xxAnd4xx",
-                new ExpressionPropertyBody(_pipelineMessageClassifier2xxAnd4xx.Assign(New.Instance(_classifier2xxAnd4xxDefinition.Type), true)));
+                new ExpressionPropertyBody(_pipelineMessageClassifier2xxAnd4xx.Assign(New.Instance(_classifier2xxAnd4xxDefinition.Type), true)),
+                this);
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.RestClient.cs");
@@ -87,7 +88,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         pipelineMessageClassifier.Assign(
                             Static<PipelineMessageClassifier>().Invoke(
                                 nameof(PipelineMessageClassifier.Create),
-                                [New.Array(typeof(ushort), true, true, [Literal(code)])]))));
+                                [New.Array(typeof(ushort), true, true, [Literal(code)])]))),
+                    this);
         }
 
         protected override FieldProvider[] BuildFields()

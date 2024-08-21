@@ -31,6 +31,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
 
+        public TypeProvider EnclosingType { get; }
+
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected FieldProvider()
@@ -42,6 +44,7 @@ namespace Microsoft.Generator.CSharp.Providers
             FieldModifiers modifiers,
             CSharpType type,
             string name,
+            TypeProvider enclosingType,
             FormattableString? description = null,
             ValueExpression? initializationValue = null)
         {
@@ -51,6 +54,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Description = description;
             InitializationValue = initializationValue;
             XmlDocs = Description is not null ? new XmlDocProvider() { Summary = new XmlDocSummaryStatement([Description]) } : null;
+            EnclosingType = enclosingType;
 
             InitializeParameter(name, description ?? FormattableStringHelpers.Empty, type);
         }
