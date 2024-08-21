@@ -14,8 +14,9 @@ import {
   isStatusCode,
 } from "@typespec/http";
 import { NetEmitterOptions } from "../options.js";
-import { InputEnumType, InputModelType, InputType } from "../type/input-type.js";
+import { InputType } from "../type/input-type.js";
 import { LiteralTypeContext } from "../type/literal-type-context.js";
+import { SdkTypeMap } from "../type/sdk-type-map.js";
 import { fromSdkEnumType, fromSdkModelType, fromSdkType } from "./converter.js";
 import { Logger } from "./logger.js";
 
@@ -72,30 +73,25 @@ export function getDefaultValue(type: Type): any {
 export function getInputType(
   context: SdkContext<NetEmitterOptions>,
   type: Type,
-  models: Map<string, InputModelType>,
-  enums: Map<string, InputEnumType>,
+  typeCache: SdkTypeMap,
   operation?: Operation,
   literalTypeContext?: LiteralTypeContext
 ): InputType {
   Logger.getInstance().debug(`getInputType for kind: ${type.kind}`);
 
   const sdkType = getClientType(context, type, operation);
-  return fromSdkType(sdkType, context, models, enums, literalTypeContext);
+  return fromSdkType(sdkType, context, typeCache, literalTypeContext);
 }
 
-export function navigateModels(
-  context: SdkContext<NetEmitterOptions>,
-  models: Map<string, InputModelType>,
-  enums: Map<string, InputEnumType>
-) {
+export function navigateModels(context: SdkContext<NetEmitterOptions>, typeCache: SdkTypeMap) {
   for (const type of getAllModels(context)) {
     if (type.name === "") {
       continue;
     }
     if (type.kind === "model") {
-      fromSdkModelType(type, context, models, enums);
+      fromSdkModelType(type, context, typeCache);
     } else {
-      fromSdkEnumType(type, context, enums);
+      fromSdkEnumType(type, context, typeCache);
     }
   }
 }
