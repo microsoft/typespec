@@ -356,6 +356,43 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
         }
 
+        private static IReadOnlyList<ParameterProvider> BuildSpreadParametersForModel(InputModelType inputModel)
+        {
+            var builtParameters = new ParameterProvider[inputModel.Properties.Count];
+
+            int index = 0;
+            foreach (var property in inputModel.Properties)
+            {
+                // convert the property to a parameter
+                var inputParameter = new InputParameter(
+                    property.Name,
+                    property.SerializedName,
+                    property.Description,
+                    property.Type,
+                    RequestLocation.Body,
+                    null,
+                    InputOperationParameterKind.Method,
+                    property.IsRequired,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    null,
+                    null);
+
+                var paramProvider = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParameter);
+                paramProvider.DefaultValue = !inputParameter.IsRequired ? Default : null;
+                paramProvider.SpreadSource = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
+                paramProvider.Type = paramProvider.Type.InputType;
+
+                builtParameters[index++] = paramProvider;
+            }
+
+            return builtParameters;
+        }
+
         private static bool TryGetSpecialHeaderParam(InputParameter inputParameter, [NotNullWhen(true)] out ParameterProvider? parameterProvider)
         {
             if (inputParameter.Location == RequestLocation.Header)
@@ -375,11 +412,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         internal static List<ParameterProvider> GetMethodParameters(InputOperation operation, bool isProtocol = false)
         {
-            List<ParameterProvider> methodParameters = new();
+            SortedList<int, ParameterProvider> sortedParams = [];
+            int path = 0;
+            int required = 100;
+            int bodyRequired = 200;
+            int bodyOptional = 300;
+            int contentType = 400;
+            int optional = 500;
+
             foreach (InputParameter inputParam in operation.Parameters)
             {
-                if (inputParam.Kind != InputOperationParameterKind.Method || TryGetSpecialHeaderParam(inputParam, out var _))
+                if ((inputParam.Kind != InputOperationParameterKind.Method && inputParam.Kind != InputOperationParameterKind.Spread)
+                    || TryGetSpecialHeaderParam(inputParam, out var _))
                     continue;
+
+                var spreadInputModel = inputParam.Kind == InputOperationParameterKind.Spread ? GetSpreadParameterModel(inputParam) : null;
 
                 ParameterProvider? parameter = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam);
 
@@ -394,11 +441,66 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         parameter.Type = parameter.Type.IsEnum ? parameter.Type.UnderlyingEnumType : parameter.Type;
                     }
                 }
+                else if (spreadInputModel != null)
+                {
+                    foreach (var bodyParam in BuildSpreadParametersForModel(spreadInputModel))
+                    {
+                        if (bodyParam.DefaultValue is null)
+                        {
+                            sortedParams.Add(bodyRequired++, bodyParam);
+                        }
+                        else
+                        {
+                            sortedParams.Add(bodyOptional++, bodyParam);
+                        }
+                    }
+                    continue;
+                }
 
-                if (parameter is not null)
-                    methodParameters.Add(parameter);
+                if (parameter is null)
+                    continue;
+
+                switch (parameter.Location)
+                {
+                    case ParameterLocation.Path:
+                    case ParameterLocation.Uri:
+                        sortedParams.Add(path++, parameter);
+                        break;
+                    case ParameterLocation.Query:
+                    case ParameterLocation.Header:
+                        if (inputParam.IsContentType)
+                        {
+                            sortedParams.Add(contentType++, parameter);
+                        }
+                        else if (parameter.Validation != ParameterValidationType.None)
+                        {
+                            sortedParams.Add(required++, parameter);
+                        }
+                        else
+                        {
+                            sortedParams.Add(optional++, parameter);
+                        }
+                        break;
+                    case ParameterLocation.Body:
+                        sortedParams.Add(bodyRequired++, parameter);
+                        break;
+                    default:
+                        sortedParams.Add(optional++, parameter);
+                        break;
+                }
             }
-            return methodParameters;
+
+            return [.. sortedParams.Values];
+        }
+
+        internal static InputModelType GetSpreadParameterModel(InputParameter inputParam)
+        {
+            if (inputParam.Kind.HasFlag(InputOperationParameterKind.Spread) && inputParam.Type is InputModelType model)
+            {
+                return model;
+            }
+
+            throw new InvalidOperationException($"inputParam `{inputParam.Name}` is `Spread` but not a model type");
         }
     }
 }
