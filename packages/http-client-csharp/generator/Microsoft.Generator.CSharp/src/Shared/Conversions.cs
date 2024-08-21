@@ -13,6 +13,9 @@ namespace Microsoft.Generator.CSharp
             {
                 RequestLocation.Body => ParameterLocation.Body,
                 RequestLocation.Uri => ParameterLocation.Uri,
+                RequestLocation.Path => ParameterLocation.Path,
+                RequestLocation.Query => ParameterLocation.Query,
+                RequestLocation.Header => ParameterLocation.Header,
                 _ => ParameterLocation.Unknown,
             };
     }
