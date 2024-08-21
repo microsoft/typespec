@@ -20,7 +20,7 @@ import { InputOperationParameterKind } from "../type/input-operation-parameter-k
 import { InputParameter } from "../type/input-parameter.js";
 import { InputEnumType, InputModelType, InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
-import { TypeCache } from "../type/type-cache.js";
+import { SdkTypeMap } from "../type/sdk-type-map.js";
 import { fromSdkType } from "./converter.js";
 import { Logger } from "./logger.js";
 import { navigateModels } from "./model.js";
@@ -33,22 +33,13 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
 
   const sdkPackage = sdkContext.sdkPackage;
 
-  const typeCache: TypeCache = {
-    cache: new Map<SdkType, InputType>(),
+  const sdkTypeMap: SdkTypeMap = {
+    types: new Map<SdkType, InputType>(),
     models: new Map<string, InputModelType>(),
     enums: new Map<string, InputEnumType>(),
-    has(type: SdkType): boolean {
-      return this.cache.has(type);
-    },
-    get(type: SdkType): InputType | undefined {
-      return this.cache.get(type);
-    },
-    set(type: SdkType, inputType: InputType): void {
-      this.cache.set(type, inputType);
-    },
   };
 
-  navigateModels(sdkContext, typeCache);
+  navigateModels(sdkContext, sdkTypeMap);
 
   const sdkApiVersionEnums = sdkPackage.enums.filter((e) => e.usage === UsageFlags.ApiVersionEnum);
 
@@ -64,14 +55,14 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     []
   );
 
-  const clientModel = {
+  const clientModel: CodeModel = {
     Name: sdkPackage.rootNamespace,
     ApiVersions: rootApiVersions,
-    Enums: Array.from(typeCache.enums.values()),
-    Models: Array.from(typeCache.models.values()),
+    Enums: Array.from(sdkTypeMap.enums.values()),
+    Models: Array.from(sdkTypeMap.models.values()),
     Clients: inputClients,
     Auth: processServiceAuthentication(sdkPackage),
-  } as CodeModel;
+  };
   return clientModel;
 
   function fromSdkClients(
@@ -109,7 +100,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
             clientParameters,
             rootApiVersions,
             sdkContext,
-            typeCache
+            sdkTypeMap
           )
         ),
       Protocol: {},
@@ -168,7 +159,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
             Name: "url",
             CrossLanguageDefinitionId: "TypeSpec.url",
           }
-        : fromSdkType(parameter.type, sdkContext, typeCache); // TODO: consolidate with converter.fromSdkEndpointType
+        : fromSdkType(parameter.type, sdkContext, sdkTypeMap); // TODO: consolidate with converter.fromSdkEndpointType
       parameters.push({
         Name: parameter.name,
         NameInRequest: parameter.serializedName,

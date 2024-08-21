@@ -39,7 +39,7 @@ describe("Test string format", () => {
                 source: url;
             }
 
-            op test(@body foo: Foo): Foo;
+            op test(@body foo: Foo): void;
       `,
       runner
     );

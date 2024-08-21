@@ -36,7 +36,7 @@ import { OperationPaging } from "../type/operation-paging.js";
 import { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
-import { TypeCache } from "../type/type-cache.js";
+import { SdkTypeMap } from "../type/sdk-type-map.js";
 import { fromSdkType } from "./converter.js";
 import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
@@ -49,7 +49,7 @@ export function fromSdkServiceMethod(
   clientParameters: InputParameter[],
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeCache: TypeCache
+  typeMap: SdkTypeMap
 ): InputOperation {
   let generateConvenience = shouldGenerateConvenient(sdkContext, method.operation.__raw.operation);
   if (method.operation.verb === "patch" && generateConvenience) {
@@ -63,7 +63,7 @@ export function fromSdkServiceMethod(
     method.operation,
     rootApiVersions,
     sdkContext,
-    typeCache
+    typeMap
   );
   return {
     Name: method.name,
@@ -78,7 +78,7 @@ export function fromSdkServiceMethod(
     Description: getDoc(sdkContext.program, method.__raw!),
     Accessibility: method.access,
     Parameters: [...clientParameters, ...parameterMap.values()],
-    Responses: fromSdkHttpOperationResponses(method.operation.responses, sdkContext, typeCache),
+    Responses: fromSdkHttpOperationResponses(method.operation.responses, sdkContext, typeMap),
     HttpMethod: parseHttpRequestMethod(method.operation.verb),
     RequestBodyMediaType: getBodyMediaType(method.operation.bodyParam?.type),
     Uri: uri,
@@ -86,13 +86,13 @@ export function fromSdkServiceMethod(
     ExternalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
     RequestMediaTypes: getRequestMediaTypes(method.operation),
     BufferResponse: true,
-    LongRunning: loadLongRunningOperation(method, sdkContext, typeCache),
+    LongRunning: loadLongRunningOperation(method, sdkContext, typeMap),
     Paging: loadOperationPaging(method),
     GenerateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
     GenerateConvenienceMethod: generateConvenience,
     CrossLanguageDefinitionId: method.crossLanguageDefintionId,
     Decorators: method.decorators,
-    Examples: fromSdkHttpExamples(sdkContext, method.operation.examples, parameterMap, typeCache),
+    Examples: fromSdkHttpExamples(sdkContext, method.operation.examples, parameterMap, typeMap),
   };
 }
 
@@ -138,11 +138,11 @@ function fromSdkOperationParameters(
   operation: SdkHttpOperation,
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeCache: TypeCache
+  typeMap: SdkTypeMap
 ): Map<SdkHttpParameter, InputParameter> {
   const parameters = new Map<SdkHttpParameter, InputParameter>();
   for (const p of operation.parameters) {
-    const param = fromSdkHttpOperationParameter(p, rootApiVersions, sdkContext, typeCache);
+    const param = fromSdkHttpOperationParameter(p, rootApiVersions, sdkContext, typeMap);
     parameters.set(p, param);
   }
 
@@ -151,7 +151,7 @@ function fromSdkOperationParameters(
       operation.bodyParam,
       rootApiVersions,
       sdkContext,
-      typeCache
+      typeMap
     );
     parameters.set(operation.bodyParam, bodyParam);
   }
@@ -164,11 +164,11 @@ function fromSdkHttpOperationParameter(
   p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter,
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeCache: TypeCache
+  typeMap: SdkTypeMap
 ): InputParameter {
   const isContentType =
     p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type";
-  const parameterType = fromSdkType(p.type, sdkContext, typeCache);
+  const parameterType = fromSdkType(p.type, sdkContext, typeMap);
   // remove this after: https://github.com/Azure/typespec-azure/issues/1084
   if (p.type.kind === "bytes") {
     (parameterType as InputPrimitiveType).Encode = (
@@ -200,7 +200,7 @@ function fromSdkHttpOperationParameter(
 function loadLongRunningOperation(
   method: SdkServiceMethod<SdkHttpOperation>,
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeCache: TypeCache
+  typeMap: SdkTypeMap
 ): import("../type/operation-long-running.js").OperationLongRunning | undefined {
   if (method.kind !== "lro") {
     return undefined;
@@ -218,7 +218,7 @@ function loadLongRunningOperation(
           ? getInputType(
               sdkContext,
               method.__raw_lro_metadata.finalEnvelopeResult,
-              typeCache,
+              typeMap,
               method.operation.__raw.operation
             )
           : undefined,
@@ -231,15 +231,15 @@ function loadLongRunningOperation(
 function fromSdkHttpOperationResponses(
   operationResponses: Map<HttpStatusCodeRange | number, SdkHttpResponse>,
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeCache: TypeCache
+  typeMap: SdkTypeMap
 ): OperationResponse[] {
   const responses: OperationResponse[] = [];
   operationResponses.forEach((r, range) => {
     responses.push({
       StatusCodes: toStatusCodesArray(range),
-      BodyType: r.type ? fromSdkType(r.type, sdkContext, typeCache) : undefined,
+      BodyType: r.type ? fromSdkType(r.type, sdkContext, typeMap) : undefined,
       BodyMediaType: BodyMediaType.Json,
-      Headers: fromSdkServiceResponseHeaders(r.headers, sdkContext, typeCache),
+      Headers: fromSdkServiceResponseHeaders(r.headers, sdkContext, typeMap),
       IsErrorResponse: r.type !== undefined && isErrorModel(sdkContext.program, r.type.__raw!),
       ContentTypes: r.contentTypes,
     });
@@ -250,7 +250,7 @@ function fromSdkHttpOperationResponses(
 function fromSdkServiceResponseHeaders(
   headers: SdkServiceResponseHeader[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeCache: TypeCache
+  typeMap: SdkTypeMap
 ): HttpResponseHeader[] {
   return headers.map(
     (h) =>
@@ -258,7 +258,7 @@ function fromSdkServiceResponseHeaders(
         Name: h.__raw!.name,
         NameInResponse: h.serializedName,
         Description: h.description,
-        Type: fromSdkType(h.type, sdkContext, typeCache),
+        Type: fromSdkType(h.type, sdkContext, typeMap),
       }) as HttpResponseHeader
   );
 }
