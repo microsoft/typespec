@@ -373,7 +373,7 @@
         "CrossLanguageDefinitionId": "TypeSpec.string",
         "Decorators": []
        },
-       "BodyMediaType": "Text",
+       "BodyMediaType": "Json",
        "Headers": [
         {
          "$id": "42",

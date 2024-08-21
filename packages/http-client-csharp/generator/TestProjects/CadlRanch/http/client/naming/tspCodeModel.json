@@ -935,7 +935,7 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
+     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/client/naming/union-enum/union-enum-name",
      "RequestMediaTypes": [
@@ -1012,7 +1012,7 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
+     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/client/naming/union-enum/union-enum-member-name",
      "RequestMediaTypes": [

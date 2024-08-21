@@ -276,7 +276,7 @@
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
+     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/int32",
      "RequestMediaTypes": [
@@ -482,7 +482,7 @@
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
+     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/int64",
      "RequestMediaTypes": [
@@ -688,7 +688,7 @@
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
+     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/boolean",
      "RequestMediaTypes": [
@@ -894,7 +894,7 @@
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
+     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/string",
      "RequestMediaTypes": [
@@ -1100,7 +1100,7 @@
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
+     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/float32",
      "RequestMediaTypes": [
@@ -1322,7 +1322,7 @@
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
+     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/datetime",
      "RequestMediaTypes": [
@@ -1544,7 +1544,7 @@
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
+     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/duration",
      "RequestMediaTypes": [
@@ -1750,7 +1750,7 @@
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
+     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/unknown",
      "RequestMediaTypes": [
@@ -1948,7 +1948,7 @@
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
+     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/model",
      "RequestMediaTypes": [
@@ -2162,7 +2162,7 @@
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
+     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/nullable-float",
      "RequestMediaTypes": [
@@ -2376,7 +2376,7 @@
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
+     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/nullable-int32",
      "RequestMediaTypes": [
@@ -2590,7 +2590,7 @@
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
+     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/nullable-boolean",
      "RequestMediaTypes": [
@@ -2804,7 +2804,7 @@
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
+     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/nullable-string",
      "RequestMediaTypes": [
@@ -3010,7 +3010,7 @@
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
+     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/nullable-model",
      "RequestMediaTypes": [

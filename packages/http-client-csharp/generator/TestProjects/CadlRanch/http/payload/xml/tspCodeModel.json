@@ -756,7 +756,7 @@
        "BodyType": {
         "$ref": "4"
        },
-       "BodyMediaType": "Json",
+       "BodyMediaType": "Xml",
        "Headers": [
         {
          "$id": "102",
@@ -958,7 +958,7 @@
        "BodyType": {
         "$ref": "79"
        },
-       "BodyMediaType": "Json",
+       "BodyMediaType": "Xml",
        "Headers": [
         {
          "$id": "122",
@@ -1160,7 +1160,7 @@
        "BodyType": {
         "$ref": "76"
        },
-       "BodyMediaType": "Json",
+       "BodyMediaType": "Xml",
        "Headers": [
         {
          "$id": "142",
@@ -1362,7 +1362,7 @@
        "BodyType": {
         "$ref": "71"
        },
-       "BodyMediaType": "Json",
+       "BodyMediaType": "Xml",
        "Headers": [
         {
          "$id": "162",
@@ -1564,7 +1564,7 @@
        "BodyType": {
         "$ref": "60"
        },
-       "BodyMediaType": "Json",
+       "BodyMediaType": "Xml",
        "Headers": [
         {
          "$id": "182",
@@ -1766,7 +1766,7 @@
        "BodyType": {
         "$ref": "51"
        },
-       "BodyMediaType": "Json",
+       "BodyMediaType": "Xml",
        "Headers": [
         {
          "$id": "202",
@@ -1968,7 +1968,7 @@
        "BodyType": {
         "$ref": "38"
        },
-       "BodyMediaType": "Json",
+       "BodyMediaType": "Xml",
        "Headers": [
         {
          "$id": "222",
@@ -2170,7 +2170,7 @@
        "BodyType": {
         "$ref": "29"
        },
-       "BodyMediaType": "Json",
+       "BodyMediaType": "Xml",
        "Headers": [
         {
          "$id": "242",
@@ -2372,7 +2372,7 @@
        "BodyType": {
         "$ref": "26"
        },
-       "BodyMediaType": "Json",
+       "BodyMediaType": "Xml",
        "Headers": [
         {
          "$id": "262",
@@ -2574,7 +2574,7 @@
        "BodyType": {
         "$ref": "17"
        },
-       "BodyMediaType": "Json",
+       "BodyMediaType": "Xml",
        "Headers": [
         {
          "$id": "282",
@@ -2776,7 +2776,7 @@
        "BodyType": {
         "$ref": "12"
        },
-       "BodyMediaType": "Json",
+       "BodyMediaType": "Xml",
        "Headers": [
         {
          "$id": "302",
@@ -2978,7 +2978,7 @@
        "BodyType": {
         "$ref": "2"
        },
-       "BodyMediaType": "Json",
+       "BodyMediaType": "Xml",
        "Headers": [
         {
          "$id": "322",

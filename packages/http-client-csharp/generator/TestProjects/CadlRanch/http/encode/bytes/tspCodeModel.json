@@ -1716,7 +1716,7 @@
         "CrossLanguageDefinitionId": "TypeSpec.bytes",
         "Decorators": []
        },
-       "BodyMediaType": "Binary",
+       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1958,7 +1958,7 @@
         "CrossLanguageDefinitionId": "TypeSpec.bytes",
         "Decorators": []
        },
-       "BodyMediaType": "Binary",
+       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2034,7 +2034,7 @@
         },
         "Decorators": []
        },
-       "BodyMediaType": "Binary",
+       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
