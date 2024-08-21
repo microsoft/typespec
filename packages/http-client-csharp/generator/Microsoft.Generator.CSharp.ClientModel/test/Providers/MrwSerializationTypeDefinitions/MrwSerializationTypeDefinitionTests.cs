@@ -14,6 +14,7 @@ using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.Statements;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
@@ -614,7 +615,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
 
             var (_, serialization) = CreateModelAndSerialization(inputModel);
 
-            Assert.IsTrue(TestHelpers.HasExpressionStatement(serialization.BuildJsonModelWriteCoreMethod().BodyStatements, encode is null ? "writer.WriteNumberValue(RequiredInt);\n" : "writer.WriteStringValue(RequiredInt.ToString());\n"));
+            Assert.IsTrue(HasMethodBodyStatement(serialization.BuildJsonModelWriteCoreMethod().BodyStatements, encode is null ? "writer.WriteNumberValue(RequiredInt);\n" : "writer.WriteStringValue(RequiredInt.ToString());\n"));
         }
 
         [TestCase(typeof(long), SerializationFormat.Int_String, ExpectedResult = "long.Parse(foo.GetString())")]
@@ -630,7 +631,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         public string TestIntDeserializeExpression(Type type, SerializationFormat format)
         {
             var expr = MrwSerializationTypeDefinition.GetValueTypeDeserializationExpression(type, new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")), format);
-            return TestHelpers.GetCode(expr);
+            return expr.ToDisplayString();
         }
+
+        /// <summary>
+        /// Determines whether the given statement is or contains a statement which is equal to the given code string.
+        /// </summary>
+        /// <param name="statement"> <c cref="MethodBodyStatement">MethodBodyStatement</c> to check. </param>
+        /// <param name="code"> Code string which the expression statement should be transformed to. </param>
+        /// <returns> True if there is a <c cref="MethodBodyStatement">MethodBodyStatement</c> matching the given code string. </returns>
+        private static bool HasMethodBodyStatement(MethodBodyStatement? statement, string code) => HasMethodBodyStatement(statement, s => s.ToDisplayString() == code);
+        private static bool HasMethodBodyStatement(MethodBodyStatement? statement, Func<MethodBodyStatement, bool> predicate) => statement switch
+        {
+            null => false,
+            MethodBodyStatements statements => statements.Statements.Any(s => HasMethodBodyStatement(s, predicate)),
+            _ => predicate(statement)
+        };
     }
 }
