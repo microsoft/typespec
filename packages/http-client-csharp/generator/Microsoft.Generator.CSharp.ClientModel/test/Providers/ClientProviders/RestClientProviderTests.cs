@@ -171,17 +171,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         }
 
         [TestCaseSource(nameof(GetSpreadParameterModelTestCases))]
-        public void TestTryGetSpreadParameterModel(InputParameter inputParameter)
+        public void TestGetSpreadParameterModel(InputParameter inputParameter)
         {
             if (inputParameter.Kind == InputOperationParameterKind.Spread)
             {
-                Assert.IsTrue(RestClientProvider.TryGetSpreadParameterModel(inputParameter, out var spreadModel));
-                Assert.AreEqual(_spreadModel, spreadModel);
+                var model = RestClientProvider.GetSpreadParameterModel(inputParameter);
+                Assert.AreEqual(_spreadModel, model);
             }
             else
             {
-                Assert.IsFalse(RestClientProvider.TryGetSpreadParameterModel(inputParameter, out var spreadModel));
-                Assert.IsNull(spreadModel);
+                // assert throws
+                Assert.Throws<InvalidOperationException>(() => RestClientProvider.GetSpreadParameterModel(inputParameter));
             }
         }
 
