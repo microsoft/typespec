@@ -17,6 +17,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.MediaType
         });
 
         [CadlRanchTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/4208")]
         public Task GetAsText() => Test(async (host) =>
         {
             var response2 = await new MediaTypeClient(host, null).GetStringBodyClient().GetAsTextAsync();
@@ -24,7 +25,6 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.MediaType
         });
 
         [CadlRanchTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/4208")]
         public Task SendAsJson() => Test(async (host) =>
         {
             var response3 = await new MediaTypeClient(host, null).GetStringBodyClient().SendAsJsonAsync("foo");
@@ -32,7 +32,6 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.MediaType
         });
 
         [CadlRanchTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/4208")]
         public Task GetAsJson() => Test(async (host) =>
         {
             var response4 = await new MediaTypeClient(host, null).GetStringBodyClient().GetAsJsonAsync();
