@@ -72,7 +72,6 @@ $failingSpecs = @(
     Join-Path 'http' 'special-headers' 'conditional-request'
     Join-Path 'http' 'special-headers' 'repeatability'
     Join-Path 'http' 'type' 'dictionary'
-    Join-Path 'http' 'type' 'scalar'
     Join-Path 'http' 'type' 'union'
     Join-Path 'http' 'type' 'enum' 'extensible'
     Join-Path 'http' 'type' 'enum' 'fixed'

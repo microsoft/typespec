@@ -1,14 +1,11 @@
 import { TestHost } from "@typespec/compiler/testing";
-import { getAllHttpServices } from "@typespec/http";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
-import { InputEnumType, InputModelType } from "../../src/type/input-type.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
   createNetSdkContext,
-  navigateModels,
   typeSpecCompile,
 } from "./utils/test-util.js";
 
@@ -102,16 +99,16 @@ describe("Test encode duration", () => {
                 @encode(DurationKnownEncoding.ISO8601)
                 value: duration;
             }
+
+            op test() : ISO8601DurationProperty;
       `,
       runner
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const [services] = getAllHttpServices(program);
-    const modelMap = new Map<string, InputModelType>();
-    const enumMap = new Map<string, InputEnumType>();
-    navigateModels(sdkContext, services[0].namespace, modelMap, enumMap);
-    const durationModel = modelMap.get("ISO8601DurationProperty");
+    const codeModel = createModel(sdkContext);
+    const models = codeModel.Models;
+    const durationModel = models.find((m) => m.Name === "ISO8601DurationProperty");
     ok(durationModel);
     const type = durationModel.Properties[0].Type;
     strictEqual(type.Kind, "duration");
@@ -131,16 +128,16 @@ describe("Test encode duration", () => {
                 @encode(DurationKnownEncoding.seconds, int32)
                 value: duration;
             }
+
+            op test() : Int32SecondsDurationProperty;
       `,
       runner
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const [services] = getAllHttpServices(program);
-    const modelMap = new Map<string, InputModelType>();
-    const enumMap = new Map<string, InputEnumType>();
-    navigateModels(sdkContext, services[0].namespace, modelMap, enumMap);
-    const durationModel = modelMap.get("Int32SecondsDurationProperty");
+    const codeModel = createModel(sdkContext);
+    const models = codeModel.Models;
+    const durationModel = models.find((m) => m.Name === "Int32SecondsDurationProperty");
     ok(durationModel);
     const type = durationModel.Properties[0].Type;
     strictEqual(type.Kind, "duration");
@@ -160,16 +157,16 @@ describe("Test encode duration", () => {
                 @encode(DurationKnownEncoding.seconds, float32)
                 value: duration;
             }
+
+            op test() : FloatSecondsDurationProperty;
       `,
       runner
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const [services] = getAllHttpServices(program);
-    const modelMap = new Map<string, InputModelType>();
-    const enumMap = new Map<string, InputEnumType>();
-    navigateModels(sdkContext, services[0].namespace, modelMap, enumMap);
-    const durationModel = modelMap.get("FloatSecondsDurationProperty");
+    const codeModel = createModel(sdkContext);
+    const models = codeModel.Models;
+    const durationModel = models.find((m) => m.Name === "FloatSecondsDurationProperty");
     ok(durationModel);
     const type = durationModel.Properties[0].Type;
     strictEqual(type.Kind, "duration");
