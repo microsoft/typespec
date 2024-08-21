@@ -65,7 +65,11 @@ export function fromSdkServiceMethod(
     sdkContext,
     typeMap
   );
-  const responseMap = fromSdkHttpOperationResponses(method.operation.responses, sdkContext, typeMap);
+  const responseMap = fromSdkHttpOperationResponses(
+    method.operation.responses,
+    sdkContext,
+    typeMap
+  );
   return {
     Name: method.name,
     ResourceName:
@@ -93,7 +97,13 @@ export function fromSdkServiceMethod(
     GenerateConvenienceMethod: generateConvenience,
     CrossLanguageDefinitionId: method.crossLanguageDefintionId,
     Decorators: method.decorators,
-    Examples: fromSdkHttpExamples(sdkContext, method.operation.examples, parameterMap, responseMap, typeMap),
+    Examples: fromSdkHttpExamples(
+      sdkContext,
+      method.operation.examples,
+      parameterMap,
+      responseMap,
+      typeMap
+    ),
   };
 }
 

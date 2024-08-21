@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
 import {
   SdkAnyExample,
   SdkArrayExample,
@@ -31,7 +34,7 @@ import {
   InputTypeExample,
   InputUnionExample,
   OperationResponseExample,
-} from "../type/input-operation.js";
+} from "../type/input-examples.js";
 import { InputParameter } from "../type/input-parameter.js";
 import {
   InputArrayType,
@@ -41,9 +44,9 @@ import {
   InputPrimitiveType,
   InputUnionType,
 } from "../type/input-type.js";
+import { OperationResponse } from "../type/operation-response.js";
 import { SdkTypeMap } from "../type/sdk-type-map.js";
 import { fromSdkType } from "./converter.js";
-import { OperationResponse } from "../type/operation-response.js";
 
 export function fromSdkHttpExamples(
   sdkContext: SdkContext<NetEmitterOptions>,
