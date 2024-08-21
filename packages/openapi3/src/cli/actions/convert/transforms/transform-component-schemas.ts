@@ -86,7 +86,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecMode
     schema: OpenAPI3Schema
   ): void {
     const { name, scope } = getScopeAndName(rawName);
-    const extendsParent = getModelExtends(schema, scope);
+    const allOfDetails = getAllOfDetails(schema, scope);
     const isParent = getModelIs(schema, scope);
     types.push({
       kind: "model",
@@ -94,12 +94,13 @@ export function transformComponentSchemas(context: Context, models: TypeSpecMode
       scope,
       decorators: [...getDecoratorsForSchema(schema)],
       doc: schema.description,
-      properties: getModelPropertiesFromObjectSchema(schema),
+      properties: [...getModelPropertiesFromObjectSchema(schema), ...allOfDetails.properties],
       additionalProperties:
         typeof schema.additionalProperties === "object" ? schema.additionalProperties : undefined,
-      extends: extendsParent,
+      extends: allOfDetails.extends,
       is: isParent,
       type: schema.type,
+      spread: allOfDetails.spread,
     });
   }
 
@@ -125,23 +126,56 @@ export function transformComponentSchemas(context: Context, models: TypeSpecMode
     });
   }
 
-  function getModelExtends(schema: OpenAPI3Schema, callingScope: string[]): string | undefined {
-    if (schema.type !== "object" || !schema.allOf) {
-      return;
+  interface AllOfDetails {
+    extends?: string;
+    properties: TypeSpecModelProperty[];
+    spread: string[];
+  }
+  function getAllOfDetails(schema: OpenAPI3Schema, callingScope: string[]): AllOfDetails {
+    const details: AllOfDetails = {
+      spread: [],
+      properties: [],
+    };
+
+    if (!schema.allOf) {
+      return details;
     }
 
-    if (schema.allOf.length !== 1) {
-      // TODO: Emit warning - can't extend more than 1 model
-      return;
+    let foundParentWithDiscriminator = false;
+
+    for (const member of schema.allOf) {
+      // inline-schemas treated as normal objects with properties
+      if (!("$ref" in member)) {
+        details.properties.push(...getModelPropertiesFromObjectSchema(member));
+        continue;
+      }
+
+      const refSchema = context.getSchemaByRef(member.$ref);
+
+      // Inheritance only supported if parent has a discriminator defined, otherwise prefer
+      // composition via spreading.
+      if (!refSchema?.discriminator) {
+        details.spread.push(context.getRefName(member.$ref, callingScope));
+        continue;
+      }
+
+      if (!foundParentWithDiscriminator) {
+        details.extends = context.getRefName(member.$ref, callingScope);
+        foundParentWithDiscriminator = true;
+        continue;
+      }
+
+      // can only extend once, so if we have multiple potential parents, spread them all
+      // user will need to resolve TypeSpec errors (e.g. duplicate fields) manually
+      if (details.extends) {
+        details.spread.push(details.extends);
+        details.extends = undefined;
+      }
+
+      details.spread.push(context.getRefName(member.$ref, callingScope));
     }
 
-    const parent = schema.allOf[0];
-    if (!parent || !("$ref" in parent)) {
-      // TODO: Error getting parent - must be a reference, not expression
-      return;
-    }
-
-    return context.getRefName(parent.$ref, callingScope);
+    return details;
   }
 
   function getModelIs(schema: OpenAPI3Schema, callingScope: string[]): string | undefined {
