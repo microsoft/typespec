@@ -150,10 +150,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [TestCase]
         public void TestGetMethodParameters_ProperOrdering()
         {
-            var inputOperation = OperationWithMixedParamOrdering;
-            var methodParameters = RestClientProvider.GetMethodParameters(inputOperation);
+            var methodParameters = RestClientProvider.GetMethodParameters(OperationWithMixedParamOrdering);
 
-            Assert.AreEqual(inputOperation.Parameters.Count, methodParameters.Count);
+            Assert.AreEqual(OperationWithMixedParamOrdering.Parameters.Count, methodParameters.Count);
 
             // validate ordering
             Assert.AreEqual("requiredPath", methodParameters[0].Name);
@@ -163,6 +162,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.AreEqual("contentType", methodParameters[4].Name);
             Assert.AreEqual("optionalQuery", methodParameters[5].Name);
             Assert.AreEqual("optionalHeader", methodParameters[6].Name);
+
+            var orderedPathParams = RestClientProvider.GetMethodParameters(OperationWithOnlyPathParams);
+            Assert.AreEqual(OperationWithOnlyPathParams.Parameters.Count, orderedPathParams.Count);
+            Assert.AreEqual("c", orderedPathParams[0].Name);
+            Assert.AreEqual("a", orderedPathParams[1].Name);
+            Assert.AreEqual("b", orderedPathParams[2].Name);
         }
 
         [TestCaseSource(nameof(GetSpreadParameterModelTestCases))]
@@ -278,6 +283,30 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                     "body",
                     InputPrimitiveType.String,
                     location: RequestLocation.Body,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Method)
+            ]);
+
+        private static readonly InputOperation OperationWithOnlyPathParams = InputFactory.Operation(
+            "CreateMessage",
+            parameters:
+            [
+                InputFactory.Parameter(
+                    "c",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Path,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Method),
+                InputFactory.Parameter(
+                    "a",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Path,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Method),
+                InputFactory.Parameter(
+                    "b",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Path,
                     isRequired: true,
                     kind: InputOperationParameterKind.Method)
             ]);

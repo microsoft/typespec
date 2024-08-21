@@ -6,7 +6,6 @@ using System.Linq;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
-using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
@@ -19,7 +18,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             usage: InputModelTypeUsage.Spread,
             properties:
             [
-                InputFactory.Property("p1", InputPrimitiveType.String, isRequired: true),
+                InputFactory.Property("p2", InputPrimitiveType.String, isRequired: true),
             ]);
 
         // Validate that the default method collection consists of the expected method kind(s)
@@ -29,8 +28,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
 
             MockHelpers.LoadMockPlugin(
-                createCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)),
-                createParameterCore: (inputParameter) => new ParameterProvider("mockParam", $"mock description", typeof(bool), null));
+                createCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)));
 
             var methodCollection = new ScmMethodProviderCollection(inputOperation, ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient));
             Assert.IsNotNull(methodCollection);
@@ -58,8 +56,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             {
                 var spreadModelProperties = _spreadModel.Properties;
                 Assert.AreEqual(spreadModelProperties.Count + 1, convenienceMethodParams.Count);
-                Assert.AreEqual(spreadModelProperties[0].Name, convenienceMethodParams[0].Name);
-                Assert.AreEqual("mockParam", convenienceMethodParams[1].Name);
+                Assert.AreEqual("p1", convenienceMethodParams[0].Name);
+                Assert.AreEqual(spreadModelProperties[0].Name, convenienceMethodParams[1].Name);
             }
         }
 

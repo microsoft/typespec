@@ -421,6 +421,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                                         InputFactory.EnumMember.String("value1", "value1"),
                                         InputFactory.EnumMember.String("value2", "value2")
                                     ]),
+                                isRequired: true,
                                 location: RequestLocation.Query)
                         ])
                 ]);

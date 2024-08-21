@@ -358,34 +358,45 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private static IReadOnlyList<ParameterProvider> BuildSpreadParametersForModel(InputModelType inputModel)
         {
-            var provider = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
-            if (provider is null)
-                return [];
-
             var builtParameters = new List<ParameterProvider>();
 
-            foreach (var property in provider.Properties)
+            foreach (var property in inputModel.Properties)
             {
-                var wireInfo = property.WireInfo;
-                if (wireInfo is null)
-                    continue;
+                // convert the property to a parameter
+                var inputParameter = new InputParameter(
+                    property.Name,
+                    property.SerializedName,
+                    property.Description,
+                    property.Type,
+                    RequestLocation.Body,
+                    null,
+                    InputOperationParameterKind.Method,
+                    property.IsRequired,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    null,
+                    null);
 
-                var param = property.AsParameter;
-                ValueExpression? defaultValue = !wireInfo.IsRequired ? Default : null;
+                var paramProvider = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParameter);
+                ValueExpression? defaultValue = !inputParameter.IsRequired ? Default : null;
 
                 builtParameters.Add(new(
-                    param.Name,
-                    param.Description,
-                    param.Type.InputType,
+                    paramProvider.Name,
+                    paramProvider.Description,
+                    paramProvider.Type.InputType,
                     defaultValue,
-                    param.IsRef,
-                    param.IsOut,
+                    paramProvider.IsRef,
+                    paramProvider.IsOut,
                     [],
-                    param.Property,
-                    param.Field,
-                    param.InitializationValue)
+                    paramProvider.Property,
+                    paramProvider.Field,
+                    paramProvider.InitializationValue)
                 {
-                    Validation = param.Validation
+                    Validation = paramProvider.Validation
                 });
             }
 
@@ -411,13 +422,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         internal static List<ParameterProvider> GetMethodParameters(InputOperation operation, bool isProtocol = false)
         {
-            List<ParameterProvider> orderedParams = new(operation.Parameters.Count);
-            List<ParameterProvider> pathParams = [];
-            List<ParameterProvider> requiredRequestParams = [];
-            List<ParameterProvider> optionalRequestParams = [];
-            List<ParameterProvider> paramsFromSpreadModel = [];
-            ParameterProvider? bodyParameter = null;
-            ParameterProvider? contentTypeParam = null;
+            SortedList<int, ParameterProvider> sortedParams = [];
+            int path = 0;
+            int required = 100;
+            int body = 200;
+            int contentType = 300;
+            int optional = 400;
 
             foreach (InputParameter inputParam in operation.Parameters)
             {
@@ -441,7 +451,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
                 else if (spreadInputModel != null)
                 {
-                    paramsFromSpreadModel.AddRange(BuildSpreadParametersForModel(spreadInputModel));
+                    foreach (var bodyParam in BuildSpreadParametersForModel(spreadInputModel))
+                    {
+                        sortedParams.Add(body++, bodyParam);
+                    }
                     continue;
                 }
 
@@ -452,46 +465,33 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     case ParameterLocation.Path:
                     case ParameterLocation.Uri:
-                        pathParams.Add(parameter);
+                        sortedParams.Add(path++, parameter);
                         break;
                     case ParameterLocation.Query:
                     case ParameterLocation.Header:
                         if (inputParam.IsContentType)
                         {
-                            contentTypeParam = parameter;
+                            sortedParams.Add(contentType++, parameter);
                         }
                         else if (parameter.Validation != ParameterValidationType.None)
                         {
-                            requiredRequestParams.Add(parameter);
+                            sortedParams.Add(required++, parameter);
                         }
                         else
                         {
-                            optionalRequestParams.Add(parameter);
+                            sortedParams.Add(optional++, parameter);
                         }
                         break;
                     case ParameterLocation.Body:
-                        bodyParameter = parameter;
+                        sortedParams.Add(body++, parameter);
                         break;
                     default:
-                        optionalRequestParams.Add(parameter);
+                        sortedParams.Add(optional++, parameter);
                         break;
                 }
             }
 
-            orderedParams.AddRange(pathParams);
-            orderedParams.AddRange(requiredRequestParams);
-            if (bodyParameter is not null)
-            {
-                orderedParams.Add(bodyParameter);
-            }
-            if (contentTypeParam is not null)
-            {
-                orderedParams.Add(contentTypeParam);
-            }
-            orderedParams.AddRange(paramsFromSpreadModel);
-            orderedParams.AddRange(optionalRequestParams);
-
-            return orderedParams;
+            return [.. sortedParams.Values];
         }
 
         internal static bool TryGetSpreadParameterModel(InputParameter inputParam, [NotNullWhen(true)] out InputModelType? inputModel)
