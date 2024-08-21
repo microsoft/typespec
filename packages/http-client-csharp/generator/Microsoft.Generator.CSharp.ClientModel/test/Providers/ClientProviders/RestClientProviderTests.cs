@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -12,7 +13,7 @@ using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 using Microsoft.Generator.CSharp.Snippets;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
+namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 {
     public class RestClientProviderTests
     {
@@ -46,7 +47,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             var parameters = signature.Parameters;
             Assert.IsNotNull(parameters);
-            Assert.AreEqual(inputOperation.Parameters.Count + 1, parameters.Count);
+            var specialHeaderParamCount = inputOperation.Parameters.Count(p => p.Location == RequestLocation.Header);
+            Assert.AreEqual(inputOperation.Parameters.Count - specialHeaderParamCount + 1, parameters.Count);
+
+            if (specialHeaderParamCount > 0)
+            {
+                Assert.IsFalse(parameters.Any(p =>
+                    p.Name.Equals("repeatabilityFirstSent", StringComparison.OrdinalIgnoreCase) &&
+                    p.Name.Equals("repeatabilityRequestId", StringComparison.OrdinalIgnoreCase)));
+            }
         }
 
         [Test]
@@ -115,6 +124,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             Assert.IsTrue(methodParameters.Count > 0);
 
+            if (inputOperation.Parameters.Any(p => p.Location == RequestLocation.Header))
+            {
+                // validate no special header parameters are in the method parameters
+                Assert.IsFalse(methodParameters.Any(p =>
+                    p.Name.Equals("repeatabilityFirstSent", StringComparison.OrdinalIgnoreCase) &&
+                    p.Name.Equals("repeatabilityRequestId", StringComparison.OrdinalIgnoreCase)));
+            }
+
             var spreadInputParameter = inputOperation.Parameters.FirstOrDefault(p => p.Kind == InputOperationParameterKind.Spread);
             if (spreadInputParameter != null)
             {
@@ -163,10 +180,32 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             }
         }
 
+        [Test]
+        public void ValidateClientWithSpecialHeaders()
+        {
+            var clientProvider = new ClientProvider(SingleOpInputClient);
+            var restClientProvider = new MockClientProvider(SingleOpInputClient, clientProvider);
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         private readonly static InputOperation BasicOperation = InputFactory.Operation(
             "CreateMessage",
             parameters:
             [
+                InputFactory.Parameter(
+                    "repeatabilityFirstSent",
+                    new InputDateTimeType(DateTimeKnownEncoding.Rfc7231, "utcDateTime", "TypeSpec.utcDateTime", InputPrimitiveType.String),
+                    nameInRequest: "repeatability-first-sent",
+                    location: RequestLocation.Header,
+                    isRequired: false),
+                InputFactory.Parameter(
+                    "repeatabilityRequestId",
+                    InputPrimitiveType.String,
+                    nameInRequest: "repeatability-request-ID",
+                    location: RequestLocation.Header,
+                    isRequired: false),
                 InputFactory.Parameter("message", InputPrimitiveType.Boolean, isRequired: true)
             ]);
 
@@ -265,5 +304,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             new TestCaseData(InputFactory.Parameter("p1", InputPrimitiveType.Boolean, location: RequestLocation.Path, isRequired: true, kind: InputOperationParameterKind.Method))
 
         ];
+
+        private class MockClientProvider : RestClientProvider
+        {
+            public MockClientProvider(InputClient inputClient, ClientProvider clientProvider) : base(inputClient, clientProvider) { }
+
+            protected override MethodProvider[] BuildMethods()
+            {
+                return [.. base.BuildMethods()];
+            }
+
+            protected override FieldProvider[] BuildFields() => [];
+            protected override ConstructorProvider[] BuildConstructors() => [];
+            protected override PropertyProvider[] BuildProperties() => [];
+
+            protected override TypeProvider[] BuildNestedTypes() => [];
+        }
     }
 }

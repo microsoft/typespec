@@ -83,7 +83,7 @@ namespace TestProjects.CadlRanch.Tests
 
         private static string FixName(string part)
         {
-            return ToKebabCase().Replace(part, "-$1").ToLower();
+            return ToKebabCase().Replace(part.StartsWith("_", StringComparison.Ordinal) ? part.Substring(1) : part, "-$1").ToLower();
         }
     }
 }

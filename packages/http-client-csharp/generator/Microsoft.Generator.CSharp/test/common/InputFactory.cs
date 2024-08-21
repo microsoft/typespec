@@ -55,6 +55,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
         public static InputParameter Parameter(
         string name,
         InputType type,
+        string? nameInRequest = null,
         InputConstant? defaultValue = null,
         RequestLocation location = RequestLocation.Body,
         bool isRequired = false,
@@ -65,7 +66,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
         {
             return new InputParameter(
                 name,
-                name,
+                nameInRequest ?? name,
                 $"{name} description",
                 type,
                 location,

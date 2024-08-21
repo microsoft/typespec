@@ -22,6 +22,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     public class RestClientProvider : TypeProvider
     {
+        private const string RepeatabilityRequestIdHeader = "Repeatability-Request-ID";
+        private const string RepeatabilityFirstSentHeader = "Repeatability-First-Sent";
+        private static readonly Dictionary<string, ParameterProvider> _knownSpecialHeaderParams = new(StringComparer.OrdinalIgnoreCase)
+        {
+            { RepeatabilityRequestIdHeader, ScmKnownParameters.RepeatabilityRequestId },
+            { RepeatabilityFirstSentHeader, ScmKnownParameters.RepeatabilityFirstSent }
+        };
         private Dictionary<InputOperation, MethodProvider>? _methodCache;
         private Dictionary<InputOperation, MethodProvider> MethodCache => _methodCache ??= [];
 
@@ -187,8 +194,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private IEnumerable<MethodBodyStatement> AppendHeaderParameters(ScopedApi<PipelineRequest> request, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
         {
-            //TODO handle special headers like Repeatability-First-Sent which shouldn't be params but sent as DateTimeOffset.Now.ToString("R")
-            //https://github.com/microsoft/typespec/issues/3936
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
             foreach (var inputParameter in operation.Parameters)
@@ -329,6 +334,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 valueExpression = Literal((inputParam.Type as InputLiteralType)?.Value);
                 format = ClientModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
             }
+            else if (TryGetSpecialHeaderParam(inputParam, out var parameterProvider))
+            {
+                valueExpression = parameterProvider.DefaultValue!;
+                format = ClientModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
+            }
             else
             {
                 var paramProvider = paramMap[inputParam.Name];
@@ -382,6 +392,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return [.. builtParameters.OrderBy(p => p.DefaultValue == null ? 0 : 1)];
         }
 
+        private static bool TryGetSpecialHeaderParam(InputParameter inputParameter, [NotNullWhen(true)] out ParameterProvider? parameterProvider)
+        {
+            if (inputParameter.Location == RequestLocation.Header)
+            {
+                return _knownSpecialHeaderParams.TryGetValue(inputParameter.NameInRequest, out parameterProvider);
+            }
+
+            parameterProvider = null;
+            return false;
+        }
+
         internal MethodProvider GetCreateRequestMethod(InputOperation operation)
         {
             _ = Methods; // Ensure methods are built
@@ -401,7 +422,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             foreach (InputParameter inputParam in operation.Parameters)
             {
                 InputModelType? spreadInputModel = null;
-                if ((inputParam.Kind != InputOperationParameterKind.Method) && !TryGetSpreadParameterModel(inputParam, out spreadInputModel))
+                if ((inputParam.Kind != InputOperationParameterKind.Method && !TryGetSpreadParameterModel(inputParam, out spreadInputModel))
+                    || TryGetSpecialHeaderParam(inputParam, out var _))
                     continue;
 
                 ParameterProvider? parameter = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam);

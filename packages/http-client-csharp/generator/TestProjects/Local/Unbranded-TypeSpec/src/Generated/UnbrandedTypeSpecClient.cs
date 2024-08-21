@@ -831,13 +831,12 @@ namespace UnbrandedTypeSpec
         /// </item>
         /// </list>
         /// </summary>
-        /// <param name="repeatabilityFirstSent"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult AddTimeHeader(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
+        public virtual ClientResult AddTimeHeader(RequestOptions options)
         {
-            using PipelineMessage message = CreateAddTimeHeaderRequest(repeatabilityFirstSent, options);
+            using PipelineMessage message = CreateAddTimeHeaderRequest(options);
             return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
@@ -849,30 +848,27 @@ namespace UnbrandedTypeSpec
         /// </item>
         /// </list>
         /// </summary>
-        /// <param name="repeatabilityFirstSent"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> AddTimeHeaderAsync(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
+        public virtual async Task<ClientResult> AddTimeHeaderAsync(RequestOptions options)
         {
-            using PipelineMessage message = CreateAddTimeHeaderRequest(repeatabilityFirstSent, options);
+            using PipelineMessage message = CreateAddTimeHeaderRequest(options);
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> addTimeHeader. </summary>
-        /// <param name="repeatabilityFirstSent"></param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult AddTimeHeader(DateTimeOffset repeatabilityFirstSent)
+        public virtual ClientResult AddTimeHeader()
         {
-            return AddTimeHeader(repeatabilityFirstSent, null);
+            return AddTimeHeader(null);
         }
 
         /// <summary> addTimeHeader. </summary>
-        /// <param name="repeatabilityFirstSent"></param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> AddTimeHeaderAsync(DateTimeOffset repeatabilityFirstSent)
+        public virtual async Task<ClientResult> AddTimeHeaderAsync()
         {
-            return await AddTimeHeaderAsync(repeatabilityFirstSent, null).ConfigureAwait(false);
+            return await AddTimeHeaderAsync(null).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1044,7 +1040,7 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(accept, nameof(accept));
 
             ClientResult result = GetUnknownValue(accept, null);
-            return ClientResult.FromValue(result.GetRawResponse().Content.ToString(), result.GetRawResponse());
+            return ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());
         }
 
         /// <summary> get extensible enum. </summary>
@@ -1056,7 +1052,7 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(accept, nameof(accept));
 
             ClientResult result = await GetUnknownValueAsync(accept, null).ConfigureAwait(false);
-            return ClientResult.FromValue(result.GetRawResponse().Content.ToString(), result.GetRawResponse());
+            return ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());
         }
 
         /// <summary>
