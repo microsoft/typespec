@@ -259,6 +259,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 return result.GetRawResponse().Content().ToObjectFromJson(responseBodyType);
             }
+            if (responseBodyType.IsEnum)
+            {
+                return responseBodyType.ToEnum(result.GetRawResponse().Content().ToObjectFromJson(responseBodyType.UnderlyingEnumType));
+            }
             return result.CastTo(responseBodyType);
         }
 
