@@ -1,7 +1,8 @@
 import { CustomKeyMap } from "../emitter-framework/custom-key-map.js";
-import { $doc, isArrayModelType, isVisible } from "../index.js";
+import { $doc, isVisible } from "../lib/decorators.js";
 import { Program } from "./program.js";
 import { Realm } from "./realm.js";
+import { isArrayModelType } from "./type-utils.js";
 import {
   Decorator,
   DecoratorFunction,

@@ -1,4 +1,4 @@
-import { compilerAssert } from "../index.js";
+import { compilerAssert } from "./diagnostics.js";
 import { Program } from "./program.js";
 import { createTypeFactory } from "./type-factory.js";
 import { Type } from "./types.js";
