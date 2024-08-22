@@ -95,7 +95,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Union
         {
             var response = await new UnionClient(host, null).GetModelsOnlyClient().GetAsync();
             Assert.AreEqual(200, response.GetRawResponse().Status);
-            AssertEqual(new Cat("test"), (Cat)response);
+            AssertEqual(new Cat("test"), ModelReaderWriter.Read<Cat>(response.Value.Prop)!);
         });
 
         [CadlRanchTest]
