@@ -121,6 +121,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromEnumerable(parameter), out var content));
                         declarations["content"] = content;
                     }
+                    else if (parameter.Type.IsDictionary)
+                    {
+                        statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromDictionary(parameter), out var content));
+                        declarations["content"] = content;
+                    }
                     else if (parameter.Type.Equals(typeof(string)))
                     {
                         var bdExpression = Operation.RequestMediaTypes?.Contains("application/json") == true
@@ -161,6 +166,27 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     return statements;
                 }
             }
+            else if (responseBodyType.IsDictionary)
+            {
+                var keyType = responseBodyType.Arguments[0];
+                var valueType = responseBodyType.Arguments[1];
+                if (!valueType.IsFrameworkType || valueType.Equals(typeof(TimeSpan)) || valueType.Equals(typeof(BinaryData)))
+                {
+                    var valueDeclaration = Declare("value", New.Instance(new CSharpType(typeof(Dictionary<,>), keyType, valueType)).As(responseBodyType), out var value);
+                    MethodBodyStatement[] statements =
+                    [
+                        valueDeclaration,
+                        UsingDeclare("document", JsonDocumentSnippets.Parse(result.GetRawResponse().ContentStream(), isAsync), out var document),
+                        ForeachStatement.Create("item", document.RootElement().EnumerateObject(), out ScopedApi<JsonProperty> item)
+                            .Add(GetElementConversion(valueType, item, value))
+                    ];
+                    declarations = new Dictionary<string, ValueExpression>
+                    {
+                        { "value", value }
+                    };
+                    return statements;
+                }
+            }
 
             declarations = [];
             return [];
@@ -185,6 +211,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
         }
 
+        private MethodBodyStatement GetElementConversion(CSharpType elementType, ScopedApi<JsonProperty> item, ScopedApi value)
+        {
+            if (elementType.Equals(typeof(TimeSpan)))
+            {
+                return value.Add(item.Name(), item.Value().Invoke("GetTimeSpan", Literal("P")));
+            }
+            else if (elementType.Equals(typeof(BinaryData)))
+            {
+                return new IfElseStatement(
+                    item.Value().ValueKind().Equal(JsonValueKindSnippets.Null),
+                    value.Add(item.Name(), Null),
+                    value.Add(item.Name(), BinaryDataSnippets.FromString(item.Value().GetRawText())));
+            }
+            else
+            {
+                return value.Add(item.Name(), Static(elementType).Invoke($"Deserialize{elementType.Name}", item.Value(), ModelSerializationExtensionsSnippets.Wire));
+            }
+        }
+
         private ValueExpression GetResultConversion(ScopedApi<ClientResult> result, CSharpType responseBodyType, Dictionary<string, ValueExpression> declarations)
         {
             if (responseBodyType.Equals(typeof(BinaryData)))
@@ -194,6 +239,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (responseBodyType.IsList)
             {
                 if (!responseBodyType.Arguments[0].IsFrameworkType || responseBodyType.Arguments[0].Equals(typeof(TimeSpan)) || responseBodyType.Arguments[0].Equals(typeof(BinaryData)))
+                {
+                    return declarations["value"];
+                }
+                else
+                {
+                    return result.GetRawResponse().Content().ToObjectFromJson(responseBodyType);
+                }
+            }
+            if (responseBodyType.IsDictionary)
+            {
+                if (!responseBodyType.Arguments[1].IsFrameworkType || responseBodyType.Arguments[1].Equals(typeof(TimeSpan)) || responseBodyType.Arguments[1].Equals(typeof(BinaryData)))
                 {
                     return declarations["value"];
                 }
