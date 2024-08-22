@@ -148,7 +148,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
             Assert.IsTrue(CodeModelPlugin.Instance.Configuration.DisableXmlDocs);
 
-            PropertyProvider property = new($"IntProperty description", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true));
+            PropertyProvider property = new($"IntProperty description", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), new TestTypeProvider());
             using var writer = new CodeWriter();
             writer.WriteProperty(property, true);
             Assert.AreEqual("public int IntProperty { get; set; }\n", writer.ToString(false));
@@ -213,7 +213,7 @@ namespace Microsoft.Generator.CSharp.Tests
             MockHelpers.LoadMockPlugin(configuration: mockJson);
 
             Assert.IsTrue(CodeModelPlugin.Instance.Configuration.DisableXmlDocs);
-            FieldProvider field = new(FieldModifiers.Public, typeof(int), "_field", $"Field Description");
+            FieldProvider field = new(FieldModifiers.Public, typeof(int), "_field", new TestTypeProvider(), $"Field Description");
             using var writer = new CodeWriter();
             writer.WriteField(field);
             Assert.AreEqual("public int _field;\n", writer.ToString(false));

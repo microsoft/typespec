@@ -39,7 +39,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             _ensureListSignature = new MethodSignature("EnsureList", null, MethodSignatureModifiers.Public, _iListOfT, null, Array.Empty<ParameterProvider>());
             _getEnumeratorSignature = new MethodSignature("GetEnumerator", null, MethodSignatureModifiers.Public, new CSharpType(typeof(IEnumerator<>), _t), null, Array.Empty<ParameterProvider>());
-            _innerListField = new FieldProvider(FieldModifiers.Private, _iListOfT, "_innerList");
+            _innerListField = new FieldProvider(FieldModifiers.Private, _iListOfT, "_innerList", this);
             _innerList = new VariableExpression(_iListOfT, _innerListField.Declaration);
             _tArray = typeof(ChangeTrackingListTemplate<>).GetGenericArguments()[0].MakeArrayType();
             _tParam = new ParameterProvider("item", $"The item.", _t);
@@ -102,7 +102,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override PropertyProvider[] BuildProperties() =>
             [
-                new PropertyProvider(null, MethodSignatureModifiers.Public, typeof(bool), "IsUndefined", new ExpressionPropertyBody(_innerList.Equal(Null))),
+                new PropertyProvider(null, MethodSignatureModifiers.Public, typeof(bool), "IsUndefined", new ExpressionPropertyBody(_innerList.Equal(Null)), this),
                 BuildCount(),
                 BuildIsReadOnly(),
                 BuildIndexer()
@@ -114,7 +114,8 @@ namespace Microsoft.Generator.CSharp.Providers
                         new ExpressionPropertyBody(new TernaryConditionalExpression(
                             IsUndefined,
                             False,
-                            new MemberExpression(EnsureList, "IsReadOnly"))));
+                            new MemberExpression(EnsureList, "IsReadOnly"))),
+                        this);
         }
 
         private PropertyProvider BuildCount()
@@ -123,7 +124,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 new ExpressionPropertyBody(new TernaryConditionalExpression(
                     IsUndefined,
                     Literal(0),
-                    new MemberExpression(EnsureList, "Count"))));
+                    new MemberExpression(EnsureList, "Count"))),
+                this);
         }
 
         private PropertyProvider BuildIndexer()
@@ -144,7 +146,8 @@ namespace Microsoft.Generator.CSharp.Providers
                         Throw(New.Instance(typeof(ArgumentOutOfRangeException), Nameof(_indexParam)))
                     },
                     EnsureList[_indexParam].Assign(Value).Terminate()
-                }));
+                }),
+                this);
         }
 
         protected override MethodProvider[] BuildMethods()

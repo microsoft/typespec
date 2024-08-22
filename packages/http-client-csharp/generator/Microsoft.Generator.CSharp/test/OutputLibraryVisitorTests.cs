@@ -46,7 +46,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
-            _mockVisitor.Protected().Verify<MethodProvider>("Visit", Times.Once(), _mockTypeProvider.Object, mockMethodProvider.Object);
+            _mockVisitor.Protected().Verify<MethodProvider>("Visit", Times.Once(), mockMethodProvider.Object);
         }
 
         [Test]
@@ -59,7 +59,7 @@ namespace Microsoft.Generator.CSharp.Tests
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
-            _mockVisitor.Protected().Verify<ConstructorProvider>("Visit", Times.Once(), _mockTypeProvider.Object, mockConstructorProvider.Object);
+            _mockVisitor.Protected().Verify<ConstructorProvider>("Visit", Times.Once(), mockConstructorProvider.Object);
         }
 
         [Test]
@@ -72,7 +72,7 @@ namespace Microsoft.Generator.CSharp.Tests
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
-            _mockVisitor.Protected().Verify<PropertyProvider>("Visit", Times.Once(), _mockTypeProvider.Object, mockPropertyProvider.Object);
+            _mockVisitor.Protected().Verify<PropertyProvider>("Visit", Times.Once(), mockPropertyProvider.Object);
         }
 
         [Test]
@@ -85,7 +85,7 @@ namespace Microsoft.Generator.CSharp.Tests
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
-            _mockVisitor.Protected().Verify<FieldProvider>("Visit", Times.Once(), _mockTypeProvider.Object, mockFieldProvider.Object);
+            _mockVisitor.Protected().Verify<FieldProvider>("Visit", Times.Once(), mockFieldProvider.Object);
         }
 
         [Test]
@@ -100,7 +100,7 @@ namespace Microsoft.Generator.CSharp.Tests
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
-            _mockVisitor.Protected().Verify<MethodProvider>("Visit", Times.Never(), _mockTypeProvider.Object, mockMethodProvider.Object);
+            _mockVisitor.Protected().Verify<MethodProvider>("Visit", Times.Never(), mockMethodProvider.Object);
         }
 
         [Test]
@@ -115,7 +115,7 @@ namespace Microsoft.Generator.CSharp.Tests
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
-            _mockVisitor.Protected().Verify<ConstructorProvider>("Visit", Times.Never(), _mockTypeProvider.Object, mockConstructorProvider.Object);
+            _mockVisitor.Protected().Verify<ConstructorProvider>("Visit", Times.Never(), mockConstructorProvider.Object);
         }
 
         [Test]
@@ -130,7 +130,7 @@ namespace Microsoft.Generator.CSharp.Tests
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
-            _mockVisitor.Protected().Verify<PropertyProvider>("Visit", Times.Never(), _mockTypeProvider.Object, mockFieldProvider.Object);
+            _mockVisitor.Protected().Verify<PropertyProvider>("Visit", Times.Never(), mockFieldProvider.Object);
         }
 
         [Test]
@@ -145,7 +145,7 @@ namespace Microsoft.Generator.CSharp.Tests
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), _mockTypeProvider.Object);
-            _mockVisitor.Protected().Verify<FieldProvider>("Visit", Times.Never(), _mockTypeProvider.Object, mockFieldProvider.Object);
+            _mockVisitor.Protected().Verify<FieldProvider>("Visit", Times.Never(), mockFieldProvider.Object);
         }
     }
 }
