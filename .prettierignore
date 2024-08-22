@@ -67,3 +67,4 @@ packages/http-client-csharp/generator/TestProjects/**/tspCodeModel.json
 packages/emitter-framework/**/*.tsx
 packages/emitter-sample/**/*.tsx
 packages/efnext-cli-sketch/**/*.tsx
+packages/http-client-javascript/**/*.tsx

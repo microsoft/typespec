@@ -1,4 +1,4 @@
-import { refkey } from "@alloy-js/core";
+import { mapJoin, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Model, Type } from "@typespec/compiler";
 
@@ -28,10 +28,46 @@ export function ModelSerializer(props: ModelSerializerProps) {
 
   const functionName = props.name ? props.name : `${modelName}Serializer`;
   return (
-    <ts.FunctionDeclaration export name={functionName}>
+    <ts.FunctionDeclaration export name={functionName} refkey={getSerializerRefkey(props.type)}>
       <ts.FunctionDeclaration.Parameters
         parameters={{ input: <ts.Reference refkey={refkey(props.type)} /> }}
       ></ts.FunctionDeclaration.Parameters>
+      <>
+        return <ts.ObjectExpression>
+          {mapJoin(
+            props.type.properties,
+            (_, property) => {
+              const inputProperty = `input.${namePolicy.getName(property.name, "interface-member")}`;
+              return (
+                <ts.ObjectProperty
+                  name={property.name}
+                  // TODO: Alloy to support ref to interface properties
+                  // value={<ts.Reference refkey={refkey(property)} />}
+                  value={getSerializer(property.type, inputProperty)}
+                />
+              );
+            },
+            { joiner: ",\n" }
+          )}
+        </ts.ObjectExpression>
+      </>
     </ts.FunctionDeclaration>
   );
+}
+
+function getSerializerRefkey(type: Model) {
+  return refkey(type, "serializer");
+}
+
+function getSerializer(type: Type, input: string) {
+  switch (type.kind) {
+    case "Model":
+      return (
+        <>
+          <ts.Reference refkey={getSerializerRefkey(type)} />({input})
+        </>
+      );
+    default:
+      return input;
+  }
 }
