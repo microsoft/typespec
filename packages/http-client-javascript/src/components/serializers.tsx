@@ -49,7 +49,7 @@ export function ModelSerializer(props: ModelSerializerProps) {
             },
             { joiner: ",\n" }
           )}
-        </ts.ObjectExpression>
+        </ts.ObjectExpression>;
       </>
     </ts.FunctionDeclaration>
   );
