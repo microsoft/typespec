@@ -31,7 +31,7 @@ import {
   InputNumberExampleValue,
   InputParameterExampleValue,
   InputStringExampleValue,
-  InputTypeExampleValue,
+  InputExampleValue,
   InputUnionExampleValue,
   OperationResponseExample,
 } from "../type/input-examples.js";
@@ -93,7 +93,7 @@ export function fromSdkHttpExamples(
     };
   }
 
-  function fromSdkExample(example: SdkTypeExample): InputTypeExampleValue {
+  function fromSdkExample(example: SdkTypeExample): InputExampleValue {
     switch (example.kind) {
       case "string":
         return fromSdkStringExample(example);
@@ -193,13 +193,13 @@ export function fromSdkHttpExamples(
 
   function fromExampleRecord(
     value: Record<string, SdkTypeExample>
-  ): Record<string, InputTypeExampleValue> {
+  ): Record<string, InputExampleValue> {
     return Object.entries(value).reduce(
       (acc, [key, value]) => {
         acc[key] = fromSdkExample(value);
         return acc;
       },
-      {} as Record<string, InputTypeExampleValue>
+      {} as Record<string, InputExampleValue>
     );
   }
 }

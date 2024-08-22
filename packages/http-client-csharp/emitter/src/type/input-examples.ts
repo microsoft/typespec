@@ -30,17 +30,17 @@ export interface InputHttpOperationExample extends InputExampleBase {
 
 export interface InputParameterExampleValue {
   parameter: InputParameter;
-  value: InputTypeExampleValue;
+  value: InputExampleValue;
 }
 
 export interface OperationResponseExample {
   response: OperationResponse;
   // TODO -- enable this when we are ready to write headers in responses.
   // headers: SdkHttpResponseHeaderExample[];
-  bodyValue?: InputTypeExampleValue;
+  bodyValue?: InputExampleValue;
 }
 
-export type InputTypeExampleValue =
+export type InputExampleValue =
   | InputStringExampleValue
   | InputNumberExampleValue
   | InputBooleanExampleValue
@@ -84,12 +84,12 @@ export interface InputAnyExampleValue extends InputExampleTypeValueBase {
 export interface InputArrayExampleValue extends InputExampleTypeValueBase {
   kind: "array";
   type: InputArrayType;
-  value: InputTypeExampleValue[];
+  value: InputExampleValue[];
 }
 export interface InputDictionaryExampleValue extends InputExampleTypeValueBase {
   kind: "dict";
   type: InputDictionaryType;
-  value: Record<string, InputTypeExampleValue>;
+  value: Record<string, InputExampleValue>;
 }
 export interface InputUnionExampleValue extends InputExampleTypeValueBase {
   kind: "union";
@@ -99,6 +99,6 @@ export interface InputUnionExampleValue extends InputExampleTypeValueBase {
 export interface InputModelExampleValue extends InputExampleTypeValueBase {
   kind: "model";
   type: InputModelType;
-  value: Record<string, InputTypeExampleValue>;
-  additionalPropertiesValue?: Record<string, InputTypeExampleValue>;
+  value: Record<string, InputExampleValue>;
+  additionalPropertiesValue?: Record<string, InputExampleValue>;
 }
