@@ -40,6 +40,10 @@ configuration:
                 - hasLabel:
                     label: emitter:client:csharp
                 - hasLabel:
+                    label: emitter:client:java
+                - hasLabel:
+                    label: emitter:client:python
+                - hasLabel:
                     label: emitter:json-schema
                 - hasLabel:
                     label: emitter:protobuf
@@ -89,6 +93,10 @@ configuration:
                   label: tspd
               - labelAdded:
                   label: emitter:client:csharp
+              - labelAdded:
+                  label: emitter:client:java
+              - labelAdded:
+                  label: emitter:client:python
               - labelAdded:
                   label: emitter:json-schema
               - labelAdded:
@@ -141,6 +149,10 @@ configuration:
               - labelRemoved:
                   label: emitter:client:csharp
               - labelRemoved:
+                  label: emitter:client:java
+              - labelRemoved:
+                  label: emitter:client:python
+              - labelRemoved:
                   label: emitter:json-schema
               - labelRemoved:
                   label: emitter:protobuf
@@ -182,6 +194,10 @@ configuration:
                     label: tspd
                 - hasLabel:
                     label: emitter:client:csharp
+                - hasLabel:
+                    label: emitter:client:java
+                - hasLabel:
+                    label: emitter:client:python
                 - hasLabel:
                     label: emitter:json-schema
                 - hasLabel:

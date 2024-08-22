@@ -13,5 +13,7 @@ namespace Microsoft.Generator.CSharp.Input
 
         public InputType ValueType { get; }
         public object Value { get; }
+
+        public static implicit operator InputConstant(InputLiteralType literal) => new(literal.Value, literal.ValueType);
     }
 }

@@ -361,6 +361,22 @@ describe("json serialization of examples", () => {
     });
   });
 
+  it("serialize models with parent", async () => {
+    const result = await getJsonValueOfExample(`
+      @example(#{ a: "one", b: "two" })
+      @test("test") model B extends A {
+        b: string;
+      }
+
+      model A {
+        a: string;
+      }
+
+    `);
+
+    expect(result).toEqual({ a: "one", b: "two" });
+  });
+
   it("serialize nested models", async () => {
     const result = await getJsonValueOfExample(`
       @example(#{ a: #{ name: "one" } })

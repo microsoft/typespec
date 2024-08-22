@@ -1,6 +1,6 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
-export const libDef = {
+export const $lib = createTypeSpecLibrary({
   name: "@typespec/openapi",
   diagnostics: {
     "invalid-extension-key": {
@@ -17,5 +17,6 @@ export const libDef = {
       },
     },
   },
-} as const;
-export const { reportDiagnostic, createStateSymbol } = createTypeSpecLibrary(libDef);
+});
+
+export const { reportDiagnostic, createStateSymbol } = $lib;

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/playground",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "author": "Microsoft Corporation",
   "description": "TypeSpec playground UI components.",
   "homepage": "https://typespec.io",
@@ -68,8 +68,8 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@fluentui/react-components": "~9.54.2",
-    "@fluentui/react-icons": "^2.0.247",
+    "@fluentui/react-components": "~9.54.5",
+    "@fluentui/react-icons": "^2.0.249",
     "@typespec/bundler": "workspace:~",
     "@typespec/compiler": "workspace:~",
     "@typespec/html-program-viewer": "workspace:~",
@@ -91,18 +91,18 @@
     "vscode-languageserver-textdocument": "~1.0.11"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.7",
-    "@playwright/test": "^1.45.0",
-    "@storybook/addon-actions": "^8.1.11",
-    "@storybook/cli": "^8.1.11",
-    "@storybook/react-vite": "^8.1.11",
-    "@storybook/react": "^8.1.11",
-    "@storybook/test": "^8.1.11",
-    "@storybook/types": "^8.1.11",
+    "@babel/core": "^7.24.9",
+    "@playwright/test": "^1.45.3",
+    "@storybook/addon-actions": "^8.2.5",
+    "@storybook/cli": "^8.2.5",
+    "@storybook/react": "^8.2.5",
+    "@storybook/react-vite": "^8.2.5",
+    "@storybook/test": "^8.2.5",
+    "@storybook/types": "^8.2.5",
     "@types/debounce": "~1.2.4",
     "@types/node": "~18.11.19",
-    "@types/react-dom": "~18.3.0",
     "@types/react": "~18.3.3",
+    "@types/react-dom": "~18.3.0",
     "@types/swagger-ui-dist": "~3.30.5",
     "@typespec/bundler": "workspace:~",
     "@typespec/react-components": "workspace:~",
@@ -110,10 +110,10 @@
     "c8": "^10.1.2",
     "cross-env": "~7.0.3",
     "es-module-shims": "~1.10.0",
-    "rimraf": "~5.0.7",
-    "typescript": "~5.5.3",
-    "vite-plugin-checker": "^0.7.0",
-    "vite-plugin-dts": "^3.9.1",
-    "vite": "^5.3.2"
+    "rimraf": "~6.0.1",
+    "typescript": "~5.5.4",
+    "vite": "^5.3.4",
+    "vite-plugin-checker": "^0.7.2",
+    "vite-plugin-dts": "4.0.0-beta.1"
   }
 }

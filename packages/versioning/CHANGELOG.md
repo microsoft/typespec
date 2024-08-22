@@ -1,5 +1,17 @@
 # Change Log - @typespec/versioning
 
+## 0.59.0
+
+### Bug Fixes
+
+- [#3911](https://github.com/microsoft/typespec/pull/3911) Allow spreading a model that has props added in previous version
+- [#3951](https://github.com/microsoft/typespec/pull/3951) Fixes issue where spreading a versioned model as a parameter to an incompatible versioned operation would cause the compiler to crash.
+
+### Bump dependencies
+
+- [#3948](https://github.com/microsoft/typespec/pull/3948) Update dependencies
+
+
 ## 0.58.0
 
 ### Bump dependencies

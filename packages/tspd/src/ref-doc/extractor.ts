@@ -8,6 +8,7 @@ import {
   DocUnknownTagNode,
   Enum,
   EnumMember,
+  getDeprecated,
   getDoc,
   getLocationContext,
   getSourceLocation,
@@ -44,6 +45,7 @@ import { pathToFileURL } from "url";
 import { reportDiagnostic } from "./lib.js";
 import {
   DecoratorRefDoc,
+  DeprecationNotice,
   EmitterOptionRefDoc,
   EnumMemberRefDoc,
   EnumRefDoc,
@@ -58,6 +60,7 @@ import {
   NamespaceRefDoc,
   OperationRefDoc,
   RefDocEntity,
+  ReferencableElement,
   ScalarRefDoc,
   TypeSpecLibraryRefDoc,
   TypeSpecRefDocBase,
@@ -305,8 +308,7 @@ function extractInterfaceRefDocs(program: Program, iface: Interface): InterfaceR
   }
   return {
     kind: "interface",
-    id: getNamedTypeId(iface),
-    name: iface.name,
+    ...extractBase(program, iface),
     signature: getTypeSignature(iface),
     type: iface,
     templateParameters: extractTemplateParameterDocs(program, iface),
@@ -315,6 +317,19 @@ function extractInterfaceRefDocs(program: Program, iface: Interface): InterfaceR
     ),
     doc: doc,
     examples: extractExamples(iface),
+  };
+}
+
+function extractBase(
+  program: Program,
+  type: Type & { name: string }
+): ReferencableElement & { readonly deprecated?: DeprecationNotice } {
+  const deprecated = getDeprecated(program, type);
+
+  return {
+    id: getNamedTypeId(type),
+    name: type.name,
+    deprecated: deprecated ? { message: deprecated } : undefined,
   };
 }
 
@@ -343,7 +358,7 @@ function extractOperationRefDoc(
   }
   return {
     kind: "operation",
-    id: getNamedTypeId(operation),
+    ...extractBase(program, operation),
     name: interfaceName ? `${interfaceName}.${operation.name}` : operation.name,
     signature: getTypeSignature(operation),
     type: operation,
@@ -387,8 +402,7 @@ function extractDecoratorRefDoc(program: Program, decorator: Decorator): Decorat
   }
   return {
     kind: "decorator",
-    id: getNamedTypeId(decorator),
-    name: decorator.name,
+    ...extractBase(program, decorator),
     type: decorator,
     signature: getTypeSignature(decorator),
     doc: mainDoc,
@@ -417,8 +431,7 @@ function extractModelRefDocs(program: Program, type: Model): ModelRefDoc {
   }
   return {
     kind: "model",
-    id: getNamedTypeId(type),
-    name: type.name,
+    ...extractBase(program, type),
     signature: getTypeSignature(type),
     type,
     templateParameters: extractTemplateParameterDocs(program, type),
@@ -433,8 +446,7 @@ function extractModelRefDocs(program: Program, type: Model): ModelRefDoc {
 function extractModelPropertyRefDocs(program: Program, type: ModelProperty): ModelPropertyRefDoc {
   const doc = extractMainDoc(program, type);
   return {
-    id: getNamedTypeId(type),
-    name: type.name,
+    ...extractBase(program, type),
     signature: getTypeSignature(type),
     type,
     doc: doc,
@@ -454,8 +466,7 @@ function extractEnumRefDoc(program: Program, type: Enum): EnumRefDoc {
   }
   return {
     kind: "enum",
-    id: getNamedTypeId(type),
-    name: type.name,
+    ...extractBase(program, type),
     signature: getTypeSignature(type),
     type,
     doc: doc,
@@ -469,8 +480,7 @@ function extractEnumRefDoc(program: Program, type: Enum): EnumRefDoc {
 function extractEnumMemberRefDocs(program: Program, type: EnumMember): EnumMemberRefDoc {
   const doc = extractMainDoc(program, type);
   return {
-    id: getNamedTypeId(type),
-    name: type.name,
+    ...extractBase(program, type),
     signature: getTypeSignature(type),
     type,
     doc: doc,
@@ -490,8 +500,7 @@ function extractUnionRefDocs(program: Program, type: Union & { name: string }): 
   }
   return {
     kind: "union",
-    id: getNamedTypeId(type),
-    name: type.name,
+    ...extractBase(program, type),
     signature: getTypeSignature(type),
     type,
     templateParameters: extractTemplateParameterDocs(program, type),
@@ -512,8 +521,7 @@ function extractScalarRefDocs(program: Program, type: Scalar): ScalarRefDoc {
   }
   return {
     kind: "scalar",
-    id: getNamedTypeId(type),
-    name: type.name,
+    ...extractBase(program, type),
     signature: getTypeSignature(type),
     type,
     doc: doc,
@@ -528,7 +536,7 @@ function extractMainDoc(program: Program, type: Type): string {
       mainDocs.push(dContent.text);
     }
   }
-  return mainDocs.length > 0 ? mainDocs.join("\n") : getDoc(program, type) ?? "";
+  return mainDocs.length > 0 ? mainDocs.join("\n") : (getDoc(program, type) ?? "");
 }
 
 function extractExamples(type: Type): ExampleRefDoc[] {

@@ -68,6 +68,10 @@ parameters:
     type: boolean
     default: false
 
+  - name: CadlRanchName
+    type: string
+    default: ""
+
 stages:
   # Build stage
   # Responsible for building the autorest generator and typespec emitter packages
@@ -165,6 +169,7 @@ stages:
                   NodeVersion: 20.x
                   Os: linux
                   EmitArtifacts: true # Emit artifacts only for the first job
+                  CadlRanchName: ${{ parameters.CadlRanchName }} # only needed for first job
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
                 parameters:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
@@ -236,9 +241,10 @@ stages:
         dependsOn:
           - ${{ parameters.DependsOn }}
           - ${{ parameters.StagePrefix }}_Build
-          - ${{ if and(parameters.PublishDependsOnTest, ne(length(parameters.TestMatrix), 0)) }}:
+          - ${{ if parameters.PublishDependsOnTest }}:
               - ${{ parameters.StagePrefix }}_Test
-              - ${{ parameters.StagePrefix }}_Regen_Test
+              - ${{ if ne(length(parameters.TestMatrix), 0) }}:
+                  - ${{ parameters.StagePrefix }}_Regen_Test
         variables:
           toolsRepositoryPath: $(Build.SourcesDirectory)
           buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts_${{ parameters.LanguageShortName }}

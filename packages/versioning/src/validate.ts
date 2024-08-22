@@ -6,12 +6,15 @@ import {
   isTemplateInstance,
   isType,
   navigateProgram,
+  type ModelProperty,
   type Namespace,
   type Program,
   type Type,
   type TypeNameOptions,
 } from "@typespec/compiler";
 import {
+  $added,
+  $removed,
   findVersionedNamespace,
   getMadeOptionalOn,
   getMadeRequiredOn,
@@ -104,6 +107,11 @@ export function $onValidate(program: Program) {
           validateTargetVersionCompatible(program, op.interface, op, { isTargetADependent: true });
         }
         validateReference(program, op, op.returnType);
+
+        // Check that any spread/is/aliased models are valid for this operation
+        for (const sourceModel of op.parameters.sourceModels) {
+          validateReference(program, op, sourceModel.model);
+        }
       },
       interface: (iface) => {
         for (const source of iface.sourceInterfaces) {
@@ -365,9 +373,11 @@ function validateVersionedNamespaceUsage(
     const dependencies = source && getVersionDependencies(program, source);
     for (const target of targets) {
       const targetVersionedNamespace = findVersionedNamespace(program, target);
+      const sourceVersionedNamespace = source && findVersionedNamespace(program, source);
       if (
         targetVersionedNamespace !== undefined &&
         !(source && (isSubNamespace(target, source) || isSubNamespace(source, target))) &&
+        sourceVersionedNamespace !== targetVersionedNamespace &&
         dependencies?.get(targetVersionedNamespace) === undefined
       ) {
         reportDiagnostic(program, {
@@ -772,6 +782,30 @@ function validateAvailabilityForRef(
   }
 }
 
+function canIgnoreDependentVersioning(type: Type, versioning: "added" | "removed") {
+  if (type.kind === "ModelProperty") {
+    return canIgnoreVersioningOnProperty(type, versioning);
+  }
+  return false;
+}
+
+function canIgnoreVersioningOnProperty(
+  prop: ModelProperty,
+  versioning: "added" | "removed"
+): boolean {
+  if (prop.sourceProperty === undefined) {
+    return false;
+  }
+
+  const decoratorFn = versioning === "added" ? $added : $removed;
+  // Check if the decorator was defined on this property or a source property. If source property ignore.
+  const selfDecorators = prop.decorators.filter((x) => x.decorator === decoratorFn);
+  const sourceDecorators = prop.sourceProperty.decorators.filter(
+    (x) => x.decorator === decoratorFn
+  );
+  return !selfDecorators.some((x) => !sourceDecorators.some((y) => x.node === y.node));
+}
+
 function validateAvailabilityForContains(
   program: Program,
   sourceAvail: Map<string, Availability> | undefined,
@@ -791,7 +825,8 @@ function validateAvailabilityForContains(
     if (sourceVal === targetVal) continue;
     if (
       [Availability.Added].includes(targetVal) &&
-      [Availability.Removed, Availability.Unavailable].includes(sourceVal)
+      [Availability.Removed, Availability.Unavailable].includes(sourceVal) &&
+      !canIgnoreDependentVersioning(target, "added")
     ) {
       const sourceAddedOn = findAvailabilityOnOrBeforeVersion(key, Availability.Added, sourceAvail);
       reportDiagnostic(program, {
@@ -808,7 +843,8 @@ function validateAvailabilityForContains(
     }
     if (
       [Availability.Removed].includes(sourceVal) &&
-      [Availability.Added, Availability.Available].includes(targetVal)
+      [Availability.Added, Availability.Available].includes(targetVal) &&
+      !canIgnoreDependentVersioning(target, "removed")
     ) {
       const targetRemovedOn = findAvailabilityAfterVersion(key, Availability.Removed, targetAvail);
       reportDiagnostic(program, {

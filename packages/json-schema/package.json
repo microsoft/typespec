@@ -1,6 +1,6 @@
 {
   "name": "@typespec/json-schema",
-  "version": "0.58.0",
+  "version": "0.59.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting TypeSpec to JSON Schema and converting JSON Schema to TypeSpec",
   "homepage": "https://github.com/microsoft/typespec",
@@ -60,14 +60,14 @@
     "@typespec/internal-build-utils": "workspace:~",
     "@typespec/library-linter": "workspace:~",
     "@typespec/tspd": "workspace:~",
-    "@vitest/coverage-v8": "^1.6.0",
-    "@vitest/ui": "^1.6.0",
-    "ajv": "~8.16.0",
+    "@vitest/coverage-v8": "^2.0.4",
+    "@vitest/ui": "^2.0.4",
+    "ajv": "~8.17.1",
     "ajv-formats": "~3.0.1",
     "c8": "^10.1.2",
-    "rimraf": "~5.0.7",
-    "typescript": "~5.5.3",
-    "vitest": "^1.6.0"
+    "rimraf": "~6.0.1",
+    "typescript": "~5.5.4",
+    "vitest": "^2.0.4"
   },
   "dependencies": {
     "yaml": "~2.4.5"

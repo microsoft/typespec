@@ -311,7 +311,7 @@ function resolveMultiPartBodyFromModel(
   for (const item of type.properties.values()) {
     const part = diagnostics.pipe(resolvePartOrParts(program, item.type, visibility));
     if (part) {
-      parts.push({ ...part, name: item.name, optional: item.optional });
+      parts.push({ ...part, name: part.name ?? item.name, optional: item.optional });
     }
   }
 

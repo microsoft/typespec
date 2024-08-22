@@ -1,5 +1,16 @@
 # Change Log - @typespec/protobuf
 
+## 0.59.0
+
+### Bug Fixes
+
+- [#3933](https://github.com/microsoft/typespec/pull/3933) Fix some diagnostic not showing the right message
+
+### Bump dependencies
+
+- [#3948](https://github.com/microsoft/typespec/pull/3948) Update dependencies
+
+
 ## 0.58.0
 
 ### Bump dependencies

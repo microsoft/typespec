@@ -60,6 +60,44 @@ describe("compiler: binder", () => {
       },
     });
   });
+
+  it("namespace inside blockless namespace with the same name", () => {
+    const code = `
+      namespace A.B;
+      namespace A.B {
+        model D { }
+      }
+    `;
+    const script = bindTypeSpec(code);
+    strictEqual(script.namespaces.length, 4);
+    assertBindings("root", script.symbol.exports!, {
+      A: {
+        declarations: [SyntaxKind.NamespaceStatement],
+        flags: SymbolFlags.Namespace,
+        exports: {
+          B: {
+            flags: SymbolFlags.Namespace,
+            exports: {
+              A: {
+                declarations: [SyntaxKind.NamespaceStatement],
+                flags: SymbolFlags.Namespace,
+                exports: {
+                  B: {
+                    flags: SymbolFlags.Namespace,
+                    exports: {
+                      D: {
+                        flags: SymbolFlags.Model,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  });
   it("binds namespaces", () => {
     const code = `
       namespace A {
@@ -413,6 +451,39 @@ describe("compiler: binder", () => {
           },
           fn: {
             flags: SymbolFlags.Function | SymbolFlags.Implementation,
+            declarations: [SyntaxKind.JsSourceFile],
+          },
+        },
+      },
+    });
+  });
+
+  it("binds $decorators in JS file", () => {
+    const exports = {
+      $decorators: {
+        "Foo.Bar": { myDec2: () => {} },
+        Foo: { myDec: () => {} },
+      },
+    };
+
+    const sourceFile = bindJs(exports);
+    assertBindings("jsFile", sourceFile.symbol.exports!, {
+      Foo: {
+        flags: SymbolFlags.Namespace,
+        declarations: [SyntaxKind.JsNamespaceDeclaration],
+        exports: {
+          Bar: {
+            flags: SymbolFlags.Namespace,
+            declarations: [SyntaxKind.JsNamespaceDeclaration],
+            exports: {
+              "@myDec2": {
+                flags: SymbolFlags.Decorator | SymbolFlags.Implementation,
+                declarations: [SyntaxKind.JsSourceFile],
+              },
+            },
+          },
+          "@myDec": {
+            flags: SymbolFlags.Decorator | SymbolFlags.Implementation,
             declarations: [SyntaxKind.JsSourceFile],
           },
         },

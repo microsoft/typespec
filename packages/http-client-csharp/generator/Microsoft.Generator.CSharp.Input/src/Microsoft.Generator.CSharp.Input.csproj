@@ -4,5 +4,9 @@
     <PackageId>Microsoft.Generator.CSharp.Input</PackageId>
     <Version>1.0.0-beta.1</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Memory.Data" />
+  </ItemGroup>
   
 </Project>

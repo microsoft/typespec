@@ -12,7 +12,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         public void InvalidDocComment()
         {
             var statement = new XmlDocParamStatement("foo", $"<|endoftext|>");
-            var writer = new CodeWriter();
+            using var writer = new CodeWriter();
             statement.Write(writer);
             Assert.AreEqual("/// <param name=\"foo\"> &lt;|endoftext|&gt;. </param>\n", writer.ToString(false));
         }
@@ -21,7 +21,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         public void InvalidDocCommentWithExtra()
         {
             var statement = new XmlDocParamStatement("foo", $"description with xml <|endoftext|>");
-            var writer = new CodeWriter();
+            using var writer = new CodeWriter();
             statement.Write(writer);
             Assert.AreEqual("/// <param name=\"foo\"> description with xml &lt;|endoftext|&gt;. </param>\n", writer.ToString(false));
         }

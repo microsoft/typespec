@@ -8,4 +8,4 @@ title: "[I] RouteProducerResult"
 | Property | Type |
 | ------ | ------ |
 | `parameters` | [`HttpOperationParameters`](HttpOperationParameters.md) |
-| `segments` | `string`[] |
+| `uriTemplate` | `string` |

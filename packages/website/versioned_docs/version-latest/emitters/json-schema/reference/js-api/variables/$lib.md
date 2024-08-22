@@ -12,8 +12,8 @@ const $lib: TypeSpecLibrary<object, JSONSchemaEmitterOptions, never>;
 | Name | Type |
 | ------ | ------ |
 | `duplicate-id` | `object` |
-| `duplicate-id.default` | `CallableMessage`<[`string`]\> |
+| `duplicate-id.default` | `CallableMessage`<[`"id"`]\> |
 | `invalid-default` | `object` |
-| `invalid-default.default` | `CallableMessage`<[`string`]\> |
+| `invalid-default.default` | `CallableMessage`<[`"type"`]\> |
 | `unknown-scalar` | `object` |
-| `unknown-scalar.default` | `CallableMessage`<[`string`]\> |
+| `unknown-scalar.default` | `CallableMessage`<[`"name"`]\> |

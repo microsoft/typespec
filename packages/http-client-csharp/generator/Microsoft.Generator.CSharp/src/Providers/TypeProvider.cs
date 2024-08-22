@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
@@ -35,8 +36,6 @@ namespace Microsoft.Generator.CSharp.Providers
             private set => _xmlDocs = value;
         }
 
-        internal virtual Type? SerializeAs => null;
-
         public string? Deprecated
         {
             get => _deprecated;
@@ -51,6 +50,7 @@ namespace Microsoft.Generator.CSharp.Providers
             GetBaseType());
 
         protected virtual bool GetIsEnum() => false;
+        public bool IsEnum => GetIsEnum();
 
         protected virtual string GetNamespace() => CodeModelPlugin.Instance.Configuration.RootNamespace;
 
@@ -87,7 +87,7 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             // we always add partial when possible
-            if (!modifiers.HasFlag(TypeSignatureModifiers.Enum))
+            if (!modifiers.HasFlag(TypeSignatureModifiers.Enum) && DeclaringTypeProvider is null)
             {
                 modifiers |= TypeSignatureModifiers.Partial;
             }
@@ -141,6 +141,12 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected virtual TypeProvider[] BuildSerializationProviders() => Array.Empty<TypeProvider>();
 
+        protected virtual CSharpType BuildEnumUnderlyingType() => throw new InvalidOperationException("Not an EnumProvider type");
+
+        private CSharpType? _enumUnderlyingType;
+
+        public CSharpType EnumUnderlyingType => _enumUnderlyingType ??= BuildEnumUnderlyingType(); // Each member in the EnumProvider has to have this type
+
         protected virtual XmlDocProvider BuildXmlDocs()
         {
             var docs = new XmlDocProvider();
@@ -151,20 +157,70 @@ namespace Microsoft.Generator.CSharp.Providers
         protected abstract string BuildRelativeFilePath();
         protected abstract string BuildName();
 
-        public void Update(List<MethodProvider>? methods = default, List<PropertyProvider>? properties = default, List<FieldProvider>? fields = default)
+        public void Update(
+            IEnumerable<MethodProvider>? methods = null,
+            IEnumerable<ConstructorProvider>? constructors = null,
+            IEnumerable<PropertyProvider>? properties = null,
+            IEnumerable<FieldProvider>? fields = null,
+            IEnumerable<TypeProvider>? serializations = null,
+            IEnumerable<TypeProvider>? nestedTypes = null,
+            XmlDocProvider? xmlDocs = null)
         {
             if (methods != null)
             {
-                _methods = methods;
+                _methods = (methods as IReadOnlyList<MethodProvider>) ?? methods.ToList();
             }
             if (properties != null)
             {
-                _properties = properties;
+                _properties = (properties as IReadOnlyList<PropertyProvider>) ?? properties.ToList();
             }
             if (fields != null)
             {
-                _fields = fields;
+                _fields = (fields as IReadOnlyList<FieldProvider>) ?? fields.ToList();
+            }
+            if (constructors != null)
+            {
+                _constructors = (constructors as IReadOnlyList<ConstructorProvider>) ?? constructors.ToList();
+            }
+            if (serializations != null)
+            {
+                _serializationProviders = (serializations as IReadOnlyList<TypeProvider>) ?? serializations.ToList();
+            }
+            if (nestedTypes != null)
+            {
+                _nestedTypes = (nestedTypes as IReadOnlyList<TypeProvider>) ?? nestedTypes.ToList();
+            }
+            if (xmlDocs != null)
+            {
+                XmlDocs = xmlDocs;
             }
         }
+        public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
+
+        protected virtual IReadOnlyList<EnumTypeMember> BuildEnumValues() => throw new InvalidOperationException("Not an EnumProvider type");
+
+        internal void EnsureBuilt()
+        {
+            _ = Methods;
+            _ = Constructors;
+            _ = Properties;
+            _ = Fields;
+            _ = Implements;
+            if (IsEnum)
+            {
+                _ = EnumValues;
+                _ = EnumUnderlyingType;
+            }
+            foreach (var type in SerializationProviders)
+            {
+                type.EnsureBuilt();
+            }
+            foreach (var type in NestedTypes)
+            {
+                type.EnsureBuilt();
+            }
+        }
+
+        private IReadOnlyList<EnumTypeMember>? _enumValues;
     }
 }

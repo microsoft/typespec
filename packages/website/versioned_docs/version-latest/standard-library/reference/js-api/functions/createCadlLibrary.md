@@ -7,8 +7,6 @@ title: "[F] createCadlLibrary"
 function createCadlLibrary<T, E, State>(lib): TypeSpecLibrary<T, E, State>
 ```
 
-Create a new TypeSpec library definition.
-
 ## Type Parameters
 
 | Type Parameter | Default type |
@@ -27,21 +25,6 @@ Create a new TypeSpec library definition.
 
 [`TypeSpecLibrary`](../interfaces/TypeSpecLibrary.md)<`T`, `E`, `State`\>
 
-Library with utility functions.
+## Deprecated
 
-## Tutorial
-
-Create the lib object with `as const` to get the full typing.
-
-## Example
-
-```ts
-const libDef = {
-  name: "myLib",
-  diagnostics: {
-   "my-code": {serverity: "error", messages: {default: "Foo bar"}}
-  },
-} as const;
-
-const lib = createTypeSpecLibrary(libDef);
-```
+use createTypeSpecLibrary

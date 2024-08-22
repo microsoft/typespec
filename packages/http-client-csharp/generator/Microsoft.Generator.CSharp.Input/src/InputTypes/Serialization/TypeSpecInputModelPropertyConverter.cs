@@ -32,6 +32,7 @@ namespace Microsoft.Generator.CSharp.Input
             bool isReadOnly = false;
             bool isRequired = false;
             bool isDiscriminator = false;
+            IReadOnlyList<InputDecoratorInfo>? decorators = null;
             IReadOnlyList<string>? flattenedNames = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
@@ -44,6 +45,7 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadBoolean(nameof(InputModelProperty.IsReadOnly), ref isReadOnly)
                     || reader.TryReadBoolean(nameof(InputModelProperty.IsRequired), ref isRequired)
                     || reader.TryReadBoolean(nameof(InputModelProperty.IsDiscriminator), ref isDiscriminator)
+                    || reader.TryReadWithConverter(nameof(InputModelProperty.Decorators), options, ref decorators)
                     || reader.TryReadWithConverter(nameof(InputModelProperty.FlattenedNames), options, ref flattenedNames);
 
                 if (!isKnownProperty)
@@ -58,7 +60,7 @@ namespace Microsoft.Generator.CSharp.Input
             // description = BuilderHelpers.EscapeXmlDocDescription(description);
             propertyType = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");
 
-            var property = new InputModelProperty(name, serializedName ?? name, description, propertyType, isRequired, isReadOnly, isDiscriminator, flattenedNames);
+            var property = new InputModelProperty(name, serializedName ?? name, description, propertyType, isRequired, isReadOnly, isDiscriminator, flattenedNames) { Decorators = decorators ?? [] };
             if (id != null)
             {
                 resolver.AddReference(id, property);

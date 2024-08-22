@@ -18,17 +18,18 @@ namespace Microsoft.Generator.CSharp
             container.ComposeExportedValue(new GeneratorContext(Configuration.Load(options.OutputDirectory)));
             container.ComposeParts(this);
 
-            SelectPlugin(options.PluginName!);
+            SelectPlugin(options);
         }
 
-        internal void SelectPlugin(string pluginName)
+        internal void SelectPlugin(CommandLineOptions options)
         {
             bool loaded = false;
             foreach (var plugin in Plugins!)
             {
-                if (plugin.Metadata.PluginName == pluginName)
+                if (plugin.Metadata.PluginName == options.PluginName!)
                 {
                     CodeModelPlugin.Instance = plugin.Value;
+                    CodeModelPlugin.Instance.IsNewProject = options.IsNewProject;
                     loaded = true;
                     CodeModelPlugin.Instance.Configure();
                     break;
@@ -37,7 +38,7 @@ namespace Microsoft.Generator.CSharp
 
             if (!loaded)
             {
-                throw new InvalidOperationException($"Plugin {pluginName} not found.");
+                throw new InvalidOperationException($"Plugin {options.PluginName} not found.");
             }
         }
 

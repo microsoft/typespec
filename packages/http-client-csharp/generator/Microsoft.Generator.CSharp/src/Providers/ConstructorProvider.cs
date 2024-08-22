@@ -10,12 +10,21 @@ namespace Microsoft.Generator.CSharp.Providers
     /// <summary>
     /// Represents a C# method consisting of a signature, body, and expression.
     /// </summary>
-    public sealed class ConstructorProvider
+    public class ConstructorProvider
     {
-        public ConstructorSignature Signature { get; }
-        public MethodBodyStatement? BodyStatements { get; }
-        public ValueExpression? BodyExpression { get; }
-        public XmlDocProvider? XmlDocs { get; }
+        public ConstructorSignature Signature { get; private set; }
+        public MethodBodyStatement? BodyStatements { get; private set; }
+        public ValueExpression? BodyExpression { get; private set; }
+        public XmlDocProvider? XmlDocs { get; private set; }
+
+        public TypeProvider EnclosingType { get; }
+
+        // for mocking
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        protected ConstructorProvider()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConstructorProvider"/> class with a body statement and method signature.
@@ -33,6 +42,7 @@ namespace Microsoft.Generator.CSharp.Providers
             XmlDocs = xmlDocProvider ?? (MethodProviderHelpers.IsMethodPublic(enclosingType.DeclarationModifiers, signature.Modifiers)
                 ? MethodProviderHelpers.BuildXmlDocs(signature.Parameters, signature.Description, null, paramHash)
                 : null);
+            EnclosingType = enclosingType;
         }
 
         /// <summary>
@@ -49,6 +59,33 @@ namespace Microsoft.Generator.CSharp.Providers
             XmlDocs = xmlDocProvider ?? (MethodProviderHelpers.IsMethodPublic(enclosingType.DeclarationModifiers, signature.Modifiers)
                 ? MethodProviderHelpers.BuildXmlDocs(signature.Parameters, signature.Description, null, null)
                 : null);
+            EnclosingType = enclosingType;
+        }
+
+        public void Update(
+            MethodBodyStatement? bodyStatements = null,
+            ConstructorSignature? signature = null,
+            ValueExpression? bodyExpression = null,
+            XmlDocProvider? xmlDocs = null)
+        {
+            if (signature != null)
+            {
+                Signature = signature;
+            }
+            if (bodyExpression != null)
+            {
+                BodyExpression = bodyExpression;
+                BodyStatements = null;
+            }
+            if (bodyStatements != null)
+            {
+                BodyStatements = bodyStatements;
+                BodyExpression = null;
+            }
+            if (xmlDocs != null)
+            {
+                XmlDocs = xmlDocs;
+            }
         }
     }
 }

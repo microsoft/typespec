@@ -7,7 +7,7 @@ import { Enum, EnumMember, Model, ModelProperty, Operation, Scalar } from "@type
 import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputParameter } from "../type/input-parameter.js";
-import { InputType } from "../type/input-type.js";
+import { InputPrimitiveType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
 
 export function capitalize(str: string): string {
@@ -45,8 +45,10 @@ export function createContentTypeOrAcceptParameter(
   nameInRequest: string
 ): InputParameter {
   const isContentType: boolean = nameInRequest.toLowerCase() === "content-type";
-  const inputType: InputType = {
+  const inputType: InputPrimitiveType = {
     Kind: "string",
+    Name: "string",
+    CrossLanguageDefinitionId: "TypeSpec.string",
   };
   return {
     Name: name,
@@ -68,5 +70,5 @@ export function createContentTypeOrAcceptParameter(
             Value: mediaTypes[0],
           } as InputConstant)
         : undefined,
-  } as InputParameter;
+  };
 }

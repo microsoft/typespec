@@ -109,6 +109,11 @@ export type NamedTypeRefDoc = ReferencableElement & {
   readonly signature: string;
   readonly doc: string;
   readonly examples: readonly ExampleRefDoc[];
+  readonly deprecated?: DeprecationNotice;
+};
+
+export type DeprecationNotice = {
+  readonly message: string;
 };
 
 export type DecoratorRefDoc = NamedTypeRefDoc & {

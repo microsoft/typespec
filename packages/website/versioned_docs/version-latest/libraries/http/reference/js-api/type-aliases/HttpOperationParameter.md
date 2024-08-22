@@ -4,11 +4,5 @@ title: "[T] HttpOperationParameter"
 
 ---
 ```ts
-type HttpOperationParameter: HeaderFieldOptions | QueryParameterOptions | PathParameterOptions & object;
+type HttpOperationParameter: HttpOperationHeaderParameter | HttpOperationQueryParameter | HttpOperationPathParameter;
 ```
-
-## Type declaration
-
-| Name | Type |
-| ------ | ------ |
-| `param` | `ModelProperty` |

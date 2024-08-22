@@ -7,6 +7,7 @@ pr:
   branches:
     include:
       - main
+      - release/*
 
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
@@ -22,24 +23,32 @@ extends:
           - job: InitJob
             displayName: Initialize
             steps:
+              - script: |
+                  corepack enable
+                  corepack prepare pnpm --activate
+                displayName: Install pnpm
+
+              - script: pnpm install
+                displayName: Install JavaScript Dependencies
+
               - script: node $(Build.SourcesDirectory)/eng/common/scripts/resolve-target-branch.js
                 displayName: Resolve target branch
 
-              - task: PowerShell@2
+              - script: pnpm tsx ./eng/common/scripts/dispatch-area-triggers.ts --target-branch $(TARGET_BRANCH)
                 displayName: "Analyze PR changes"
                 name: InitStep
-                inputs:
-                  pwsh: true
-                  filePath: $(Build.SourcesDirectory)/eng/common/scripts/Analyze-Changes.ps1
-                  arguments: >
-                    -TargetBranch $(TARGET_BRANCH)
-                  workingDirectory: $(Build.SourcesDirectory)
 
       # Run csharp stages if RunCSharp == true
       - template: /packages/http-client-csharp/eng/pipeline/templates/ci-stages.yml
         parameters:
           DependsOn: InitStage
           Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCSharp'])
+
+      # Run java stages if RunJava == true
+      - template: /packages/http-client-java/eng/pipeline/templates/ci-stages.yml
+        parameters:
+          DependsOn: InitStage
+          Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunJava'])
 
       # Run core stages if RunCore == true
       - template: /eng/tsp-core/pipelines/stages/ci-stages.yml

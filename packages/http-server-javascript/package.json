@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-server-javascript",
-  "version": "0.58.0",
+  "version": "0.58.0-alpha.2",
   "author": "Microsoft Corporation",
   "description": "TypeSpec HTTP server code generator for JavaScript",
   "homepage": "https://github.com/microsoft/typespec",
@@ -43,13 +43,13 @@
     "@typespec/http": "workspace:~"
   },
   "dependencies": {
-    "prettier": "~3.3.2"
+    "prettier": "~3.3.3"
   },
   "devDependencies": {
     "@types/node": "~18.11.19",
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
-    "typescript": "~5.5.3",
-    "tsx": "^4.16.0"
+    "tsx": "^4.16.2",
+    "typescript": "~5.5.4"
   }
 }

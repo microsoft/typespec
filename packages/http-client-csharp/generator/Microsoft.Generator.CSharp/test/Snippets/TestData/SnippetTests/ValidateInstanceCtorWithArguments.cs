@@ -1,4 +1,4 @@
-new global::Microsoft.Generator.CSharp.Tests.Snippets.TestClass(20)
+new global::Microsoft.Generator.CSharp.Tests.Snippets.SnippetTests.TestClass(20)
 {
     Y = 200
 }

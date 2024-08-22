@@ -1,5 +1,81 @@
 # Change Log - @typespec/compiler
 
+## 0.59.1
+
+### Bug Fixes
+
+- [#4173](https://github.com/microsoft/typespec/pull/4173) Fix: Revert `unix-style` warning that was preventing windows path via the CLI as well
+
+
+## 0.59.0
+
+### Bug Fixes
+
+- [#3881](https://github.com/microsoft/typespec/pull/3881) Fixes a bug where ending a non-terminal line in a multi-line comment with a backslash caused the next star to show up in the parsed doc string.
+- [#4050](https://github.com/microsoft/typespec/pull/4050) Allow using compact namespace form `Foo.Bar` when inside another namespace
+  ```tsp
+  namespace MyOrg.MyProject {
+    namespace MyModule.MySubmodule { // <-- this used to emit an error
+      // ...
+    }
+  }
+  ```
+- [#3898](https://github.com/microsoft/typespec/pull/3898) Fix decimal numeric with leading zeros
+- [#4046](https://github.com/microsoft/typespec/pull/4046) Fix type comparison of literal and scalar when in projection context
+- [#4022](https://github.com/microsoft/typespec/pull/4022) `tsp compile --watch` will not stop when a crash happens during compilation
+- [#3933](https://github.com/microsoft/typespec/pull/3933) Add `const` template parameter to get the precise lib type
+
+### Bump dependencies
+
+- [#3948](https://github.com/microsoft/typespec/pull/3948) Update dependencies
+
+### Features
+
+- [#3906](https://github.com/microsoft/typespec/pull/3906) Support completion for template parameter extending model or object value
+
+  Example
+  ```tsp
+  model User<T extends {name: string, age: int16}> {
+  }
+  alias user = User< {┆
+                      | [age]
+                      | [name]
+  ```
+- [#4020](https://github.com/microsoft/typespec/pull/4020) Add support for encoding numeric types as string
+- [#4023](https://github.com/microsoft/typespec/pull/4023) Warn when using `\` in config file field that expect a path.
+- [#3932](https://github.com/microsoft/typespec/pull/3932) Add `ArrayEncoding` enum to define simple serialization of arrays
+
+### Breaking Changes
+
+- [#4050](https://github.com/microsoft/typespec/pull/4050) Fix issue where naming a namespace with the same name as the blockless namespace would merge with it instead of creating a subnamespace like any other name would.
+
+  ```tsp
+  namespace MyOrg.MyProject;
+
+  namespace MyOrg.MyProject.MyArea {
+    model A {}
+  }
+
+  namespace MyArea2 {
+    model B {}
+  }
+  ```
+
+  Previously model `A` would end-up in namespace `MyOrg.MyProject.MyArea` and model `B` in `MyOrg.MyProject.MyArea2`. With this change model `A` will now be in `MyOrg.MyProject.MyOrg.MyProject.MyArea`. To achieve the previous behavior the above code should be written as:
+
+  ```tsp
+  namespace MyOrg.MyProject;
+
+  namespace MyArea {
+    model A {}
+  }
+
+  namespace MyArea2 {
+    model B {}
+  }
+  ```
+
+
 ## 0.58.1
 
 ### Bug Fixes

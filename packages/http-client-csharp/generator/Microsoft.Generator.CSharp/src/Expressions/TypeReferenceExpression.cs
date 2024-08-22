@@ -31,9 +31,14 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         private TypeReferenceExpression(CSharpType? type)
         {
+            Type = GetTypeFromDefinition(type);
+        }
+
+        internal static CSharpType? GetTypeFromDefinition(CSharpType? type)
+        {
             if (type is null || !type.IsFrameworkType)
             {
-                Type = type;
+                return type;
             }
             else
             {
@@ -44,11 +49,11 @@ namespace Microsoft.Generator.CSharp.Expressions
                         result = (TypeProvider)Activator.CreateInstance(type.FrameworkType, true)!;
                         _cache[type.FrameworkType] = result;
                     }
-                    Type = _cache[type.FrameworkType].Type;
+                    return _cache[type.FrameworkType].Type;
                 }
                 else
                 {
-                    Type = type;
+                    return type;
                 }
             }
         }

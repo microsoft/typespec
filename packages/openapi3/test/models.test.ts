@@ -976,4 +976,37 @@ describe("openapi3: models", () => {
       });
     });
   });
+
+  describe("wraps property $ref in allOf when extra attributes", () => {
+    it("with doc", async () => {
+      const res = await openApiFor(
+        `
+        model Foo {
+          /** Some doc */ prop: Bar;
+        };
+        model Bar {}
+        `
+      );
+
+      deepStrictEqual(res.components.schemas.Foo.properties.prop, {
+        allOf: [{ $ref: "#/components/schemas/Bar" }],
+        description: "Some doc",
+      });
+    });
+
+    it("circular reference", async () => {
+      const res = await openApiFor(
+        `
+        model Foo {
+          /** Some doc */ prop: Foo;
+        };
+        `
+      );
+
+      deepStrictEqual(res.components.schemas.Foo.properties.prop, {
+        allOf: [{ $ref: "#/components/schemas/Foo" }],
+        description: "Some doc",
+      });
+    });
+  });
 });

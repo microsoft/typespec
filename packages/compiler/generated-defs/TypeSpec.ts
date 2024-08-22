@@ -1,6 +1,7 @@
 import type {
   DecoratorContext,
   Enum,
+  EnumValue,
   Interface,
   Model,
   ModelProperty,
@@ -26,7 +27,7 @@ export interface OperationExample {
 /**
  * Specify how to encode the target type.
  *
- * @param encoding Known name of an encoding.
+ * @param encodingOrEncodeAs Known name of an encoding or a scalar type to encode as(Only for numeric types to encode as string).
  * @param encodedAs What target type is this being encoded as. Default to string.
  * @example offsetDateTime encoded with rfc7231
  *
@@ -40,11 +41,18 @@ export interface OperationExample {
  * @encode("unixTimestamp", int32)
  * scalar myDateTime extends unixTimestamp;
  * ```
+ * @example encode numeric type to string
+ *
+ * ```tsp
+ * model Pet {
+ *   @encode(string) id: int64;
+ * }
+ * ```
  */
 export type EncodeDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  encoding: Type,
+  encodingOrEncodeAs: Scalar | string | EnumValue,
   encodedAs?: Scalar
 ) => void;
 
@@ -741,3 +749,48 @@ export type ReturnTypeVisibilityDecorator = (
   target: Operation,
   ...visibilities: string[]
 ) => void;
+
+export type TypeSpecDecorators = {
+  encode: EncodeDecorator;
+  doc: DocDecorator;
+  withOptionalProperties: WithOptionalPropertiesDecorator;
+  withUpdateableProperties: WithUpdateablePropertiesDecorator;
+  withoutOmittedProperties: WithoutOmittedPropertiesDecorator;
+  withPickedProperties: WithPickedPropertiesDecorator;
+  withoutDefaultValues: WithoutDefaultValuesDecorator;
+  withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator;
+  summary: SummaryDecorator;
+  returnsDoc: ReturnsDocDecorator;
+  errorsDoc: ErrorsDocDecorator;
+  deprecated: DeprecatedDecorator;
+  service: ServiceDecorator;
+  error: ErrorDecorator;
+  format: FormatDecorator;
+  pattern: PatternDecorator;
+  minLength: MinLengthDecorator;
+  maxLength: MaxLengthDecorator;
+  minItems: MinItemsDecorator;
+  maxItems: MaxItemsDecorator;
+  minValue: MinValueDecorator;
+  maxValue: MaxValueDecorator;
+  minValueExclusive: MinValueExclusiveDecorator;
+  maxValueExclusive: MaxValueExclusiveDecorator;
+  secret: SecretDecorator;
+  list: ListDecorator;
+  tag: TagDecorator;
+  friendlyName: FriendlyNameDecorator;
+  knownValues: KnownValuesDecorator;
+  key: KeyDecorator;
+  overload: OverloadDecorator;
+  projectedName: ProjectedNameDecorator;
+  encodedName: EncodedNameDecorator;
+  discriminator: DiscriminatorDecorator;
+  example: ExampleDecorator;
+  opExample: OpExampleDecorator;
+  visibility: VisibilityDecorator;
+  withVisibility: WithVisibilityDecorator;
+  inspectType: InspectTypeDecorator;
+  inspectTypeName: InspectTypeNameDecorator;
+  parameterVisibility: ParameterVisibilityDecorator;
+  returnTypeVisibility: ReturnTypeVisibilityDecorator;
+};

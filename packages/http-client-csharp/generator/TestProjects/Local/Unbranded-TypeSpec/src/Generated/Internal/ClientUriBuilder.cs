@@ -19,13 +19,10 @@ namespace UnbrandedTypeSpec
         {
         }
 
-        /// <summary> Gets the uribuilder. </summary>
         private UriBuilder UriBuilder => _uriBuilder  ??=  new UriBuilder();
 
-        /// <summary> Gets the pathbuilder. </summary>
         private StringBuilder PathBuilder => _pathBuilder  ??=  new StringBuilder(UriBuilder.Path);
 
-        /// <summary> Gets the querybuilder. </summary>
         private StringBuilder QueryBuilder => _queryBuilder  ??=  new StringBuilder(UriBuilder.Query);
 
         public void Reset(Uri uri)

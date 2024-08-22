@@ -13,6 +13,7 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializationTypeDefinitions
@@ -21,25 +22,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
     {
         public MrwSerializationTypeDefinitionTests()
         {
-            MockHelpers.LoadMockPlugin(createSerializationsCore: inputType => inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType)] : []);
+            MockHelpers.LoadMockPlugin(createSerializationsCore: (inputType, typeProvider) =>
+                inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : []);
         }
 
-        internal static (TypeProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel)
+        internal static (ModelProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel)
         {
             var model = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
-            var serializations = model.SerializationProviders;
+            var serializations = model!.SerializationProviders;
 
             Assert.AreEqual(1, serializations.Count);
             Assert.IsInstanceOf<MrwSerializationTypeDefinition>(serializations[0]);
 
-            return (model, (MrwSerializationTypeDefinition)serializations[0]);
+            return ((model as ModelProvider)!, (MrwSerializationTypeDefinition)serializations[0]);
         }
 
         [Test]
         public void TestBuildImplements()
         {
             // mock the model type provider
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
 
             var interfaces = serialization.Implements;
@@ -56,7 +58,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildJsonModelWriteCoreMethod()
         {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildJsonModelWriteCoreMethod();
 
@@ -91,7 +93,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildJsonModelWriteMethodObjectDeclaration()
         {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, true);
+            var inputModel = InputFactory.Model("mockInputModel", modelAsStruct: true);
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildJsonModelWriteMethodObjectDeclaration();
 
@@ -125,7 +127,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildJsonModelCreateMethod()
         {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildJsonModelCreateMethod();
 
@@ -145,7 +147,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildJsonModelCreateCoreMethod()
         {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildJsonModelCreateCoreMethod();
 
@@ -180,7 +182,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildJsonModelCreateMethodObjectDeclaration()
         {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, true);
+            var inputModel = InputFactory.Model("mockInputModel", modelAsStruct: true);
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildJsonModelCreateMethodObjectDeclaration();
 
@@ -215,7 +217,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildPersistableModelWriteMethod()
         {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildPersistableModelWriteMethod();
 
@@ -235,7 +237,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildPersistableModelWriteCoreMethod()
         {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildPersistableModelWriteCoreMethod();
 
@@ -270,7 +272,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildPersistableModelWriteMethodObjectDeclaration()
         {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, true);
+            var inputModel = InputFactory.Model("mockInputModel", modelAsStruct: true);
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildPersistableModelWriteMethodObjectDeclaration();
 
@@ -304,7 +306,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildPersistableModelCreateMethod()
         {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildPersistableModelCreateMethod();
 
@@ -334,7 +336,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildPersistableModelCreateCoreMethod()
         {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
 
             Assert.IsNotNull(serialization);
@@ -363,7 +365,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void BuildPersistableModelCreateMethodObjectDeclaration()
         {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, true);
+            var inputModel = InputFactory.Model("mockInputModel", modelAsStruct: true);
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildPersistableModelCreateMethodObjectDeclaration();
 
@@ -397,7 +399,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildPersistableModelDeserializationMethod()
         {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildPersistableModelCreateMethod();
 
@@ -417,7 +419,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildPersistableModelGetFormatMethod()
         {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildPersistableModelGetFormatFromOptionsMethod();
 
@@ -440,7 +442,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildPersistableModelGetFormatMethodObjectDeclaration()
         {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, true);
+            var inputModel = InputFactory.Model("mockInputModel", modelAsStruct: true);
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildPersistableModelGetFormatFromOptionsObjectDeclaration();
 
@@ -471,36 +473,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         }
 
         [Test]
-        public void TestBuildSerializationConstructor()
-        {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
-            var (model, serialization) = CreateModelAndSerialization(inputModel);
-            var constructor = serialization.BuildSerializationConstructor();
-
-            Assert.IsNotNull(constructor);
-            var constructorSignature = constructor?.Signature;
-            Assert.IsNotNull(constructorSignature);
-            Assert.AreEqual(1, constructorSignature?.Parameters.Count);
-
-            var param = constructorSignature?.Parameters[0];
-            Assert.IsNotNull(param);
-            Assert.AreEqual("serializedAdditionalRawData", param?.Name);
-        }
-
-        [Test]
         public void TestBuildFields()
         {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
-            var (model, serialization) = CreateModelAndSerialization(inputModel);
+            var inputModel = InputFactory.Model("mockInputModel");
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
             var fields = serialization.Fields;
 
-            // Assert
             Assert.IsNotNull(fields);
-            Assert.AreEqual(1, fields.Count);
-            Assert.AreEqual("_serializedAdditionalRawData", fields[0].Name);
-
-            var type = fields[0].Type;
-            Assert.IsTrue(type.IsCollection);
+            Assert.AreEqual(0, fields.Count);
         }
 
         [Test]
@@ -508,25 +488,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         {
             var properties = new List<InputModelProperty>
             {
-                new InputModelProperty("requiredString", "requiredString", "", InputPrimitiveType.String, true, false, false),
-                new InputModelProperty("OptionalInt", "optionalInt", "", InputPrimitiveType.Int32, false, false, false),
-                new InputModelProperty("requiredCollection", "requiredCollection", "", new InputArrayType("List", "TypeSpec.Array", new InputPrimitiveType(InputPrimitiveTypeKind.String)), true, false, false),
-                new InputModelProperty("requiredDictionary", "requiredDictionary", "", new InputDictionaryType("Dictionary", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.String)), true, false, false),
+                InputFactory.Property("requiredString", InputPrimitiveType.String, isRequired: true),
+                InputFactory.Property("OptionalInt", InputPrimitiveType.Int32),
+                InputFactory.Property("requiredCollection", InputFactory.Array(InputPrimitiveType.String), isRequired: true),
+                InputFactory.Property("requiredDictionary", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: true),
              };
 
-            var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModel = InputFactory.Model("TestModel", properties: properties);
 
-            var (model, serialization) = CreateModelAndSerialization(inputModel);
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
             var ctors = serialization.Constructors;
             Assert.IsNotNull(ctors);
 
-            Assert.AreEqual(2, ctors.Count);
+            Assert.AreEqual(1, ctors.Count);
 
-            var serializationCtor = ctors[0];
-            Assert.AreEqual(MethodSignatureModifiers.Internal, serializationCtor.Signature.Modifiers);
-            Assert.AreEqual(5, serializationCtor.Signature.Parameters.Count);
-
-            var emptyCtor = ctors[1];
+            var emptyCtor = ctors[0];
             Assert.AreEqual(MethodSignatureModifiers.Internal, emptyCtor.Signature.Modifiers);
             Assert.AreEqual(0, emptyCtor.Signature.Parameters.Count);
         }
@@ -534,7 +510,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildDeserializationMethod()
         {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
 
             var deserializationMethod = serialization.BuildDeserializationMethod();
@@ -556,7 +532,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildImplicitToBinaryContent()
         {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var methods = serialization.Methods;
 
@@ -584,7 +560,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildExplicitFromClientResult()
         {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var methods = serialization.Methods;
 
@@ -598,7 +574,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.IsNotNull(methodSignature);
 
             var expectedModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
-            Assert.AreEqual(inputModel.Name.FirstCharToUpperCase(), methodSignature?.Name);
+            Assert.AreEqual(inputModel.Name.ToCleanName(), methodSignature?.Name);
             Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers);
 
             var methodParameters = methodSignature?.Parameters;

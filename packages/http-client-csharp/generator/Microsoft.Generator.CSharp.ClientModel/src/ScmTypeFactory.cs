@@ -13,13 +13,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
 {
     public class ScmTypeFactory : TypeFactory
     {
-        /// <summary>
-        /// Creates a <see cref="MethodProviderCollection"/> for the given operation. If the operation is a <see cref="InputOperationKinds.DefaultValue"/> operation,
-        /// a method collection will be created. Otherwise, <c>null</c> will be returned.
-        /// </summary>
-        /// <param name="operation">The input operation to create methods for.</param>
-        /// <param name="enclosingType">The enclosing type of the operation.</param>
-        public override MethodProviderCollection CreateMethods(InputOperation operation, TypeProvider enclosingType) => new ScmMethodProviderCollection(operation, enclosingType);
+        private Dictionary<InputClient, ClientProvider>? _clientCache;
+        private Dictionary<InputClient, ClientProvider> ClientCache => _clientCache ??= [];
 
         public virtual CSharpType MatchConditionsType() => typeof(PipelineMessageClassifier);
 
@@ -29,15 +24,65 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// Returns the serialization type providers for the given input type.
         /// </summary>
         /// <param name="inputType">The input type.</param>
-        protected override IReadOnlyList<TypeProvider> CreateSerializationsCore(InputType inputType)
+        /// <param name="typeProvider">The type provider.</param>
+        protected override IReadOnlyList<TypeProvider> CreateSerializationsCore(InputType inputType, TypeProvider typeProvider)
         {
             switch (inputType)
             {
                 case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
-                    return [new MrwSerializationTypeDefinition(inputModel)];
+                    if (typeProvider is ModelProvider modelProvider)
+                    {
+                        return [new MrwSerializationTypeDefinition(inputModel, modelProvider)];
+                    }
+                    return [];
+                case InputEnumType { IsExtensible: true } inputEnumType:
+                    if (ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputEnumType)?.UnderlyingEnumType.Equals(typeof(string)) == true)
+                    {
+                        return [];
+                    }
+                    return [new ExtensibleEnumSerializationProvider(inputEnumType, typeProvider)];
+                case InputEnumType inputEnumType:
+                    return [new FixedEnumSerializationProvider(inputEnumType, typeProvider)];
                 default:
-                    return base.CreateSerializationsCore(inputType);
+                    return base.CreateSerializationsCore(inputType, typeProvider);
             }
+        }
+
+        public ClientProvider CreateClient(InputClient inputClient)
+        {
+            if (ClientCache.TryGetValue(inputClient, out var client))
+            {
+                return client;
+            }
+
+            client = CreateClientCore(inputClient);
+            ClientCache[inputClient] = client;
+            return client;
+        }
+
+        protected virtual ClientProvider CreateClientCore(InputClient inputClient) => new ClientProvider(inputClient);
+
+        /// <summary>
+        /// Factory method for creating a <see cref="MethodProviderCollection"/> based on an input operation <paramref name="operation"/>.
+        /// </summary>
+        /// <param name="operation">The <see cref="InputOperation"/> to convert.</param>
+        /// <param name="enclosingType">The <see cref="TypeProvider"/> that will contain the methods.</param>
+        /// <returns>An instance of <see cref="MethodProviderCollection"/> containing the chain of methods
+        /// associated with the input operation, or <c>null</c> if no methods are constructed.
+        /// </returns>
+        internal MethodProviderCollection? CreateMethods(InputOperation operation, TypeProvider enclosingType)
+        {
+            MethodProviderCollection? methods = new ScmMethodProviderCollection(operation, enclosingType);
+            var visitors = ClientModelPlugin.Instance.Visitors;
+
+            foreach (var visitor in visitors)
+            {
+                if (visitor is ScmLibraryVisitor scmVisitor)
+                {
+                    methods = scmVisitor.Visit(operation, enclosingType, methods);
+                }
+            }
+            return methods;
         }
     }
 }

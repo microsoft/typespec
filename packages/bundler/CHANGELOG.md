@@ -1,5 +1,12 @@
 # Change Log - @typespec/bundler
 
+## 0.1.6
+
+### Bump dependencies
+
+- [#3948](https://github.com/microsoft/typespec/pull/3948) Update dependencies
+
+
 ## 0.1.5
 
 ### Bump dependencies

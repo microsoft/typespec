@@ -3,21 +3,25 @@
 #nullable disable
 
 using System;
-using UnbrandedTypeSpec;
+using System.Collections.Generic;
 
 namespace UnbrandedTypeSpec.Models
 {
     /// <summary> The FriendlyModelRequest. </summary>
     public partial class FriendlyModelRequest
     {
-        /// <summary> Initializes a new instance of <see cref="FriendlyModelRequest"/>. </summary>
-        /// <param name="name"> name of the NotFriend. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
-        public FriendlyModelRequest(string name)
-        {
-            Argument.AssertNotNull(name, nameof(name));
+        /// <summary> Keeps track of any properties unknown to the library. </summary>
+        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
+        internal FriendlyModelRequest(string name)
+        {
             Name = name;
+        }
+
+        internal FriendlyModelRequest(string name, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        {
+            Name = name;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
         /// <summary> name of the NotFriend. </summary>

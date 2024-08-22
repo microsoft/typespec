@@ -23,6 +23,7 @@ import {
   ReserveDecorator,
   StreamDecorator,
 } from "../generated-defs/TypeSpec.Protobuf.js";
+import { ExternRefDecorator } from "../generated-defs/TypeSpec.Protobuf.Private.js";
 import { StreamingMode } from "./ast.js";
 import { ProtobufEmitterOptions, reportDiagnostic, state, TypeSpecProtobufLibrary } from "./lib.js";
 import { createProtobufEmitter } from "./transform/index.js";
@@ -100,14 +101,16 @@ export function $_map(ctx: DecoratorContext, target: Model) {
   ctx.program.stateSet(state._map).add(target);
 }
 
-export function $externRef(
+export const $externRef: ExternRefDecorator = (
   ctx: DecoratorContext,
   target: Model,
-  path: StringLiteral,
-  name: StringLiteral
-) {
-  ctx.program.stateMap(state.externRef).set(target, [path.value, name.value]);
-}
+  path: Type,
+  name: Type
+) => {
+  ctx.program
+    .stateMap(state.externRef)
+    .set(target, [(path as StringLiteral).value, (name as StringLiteral).value]);
+};
 
 export const $stream: StreamDecorator = (ctx: DecoratorContext, target: Operation, mode: Type) => {
   const emitStreamingMode = {

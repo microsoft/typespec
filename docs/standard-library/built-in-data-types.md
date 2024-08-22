@@ -54,6 +54,9 @@ model ExampleOptions
 | description? | [`string`](#string) | Description of the example |
 
 ### `object` {#object}
+:::warning
+**Deprecated**: object is deprecated. Please use {} for an empty model, `Record<unknown>` for a record with unknown property types, `unknown[]` for an array.
+:::
 
 Represent a model
 ```typespec
@@ -190,6 +193,19 @@ model UpdateableProperties<Source>
 
 #### Properties
 None
+
+### `ArrayEncoding` {#ArrayEncoding}
+
+Encoding for serializing arrays
+```typespec
+enum ArrayEncoding
+```
+
+| Name | Value | Description |
+|------|-------|-------------|
+| pipeDelimited |  | Each values of the array is separated by a \| |
+| spaceDelimited |  | Each values of the array is separated by a <space> |
+
 
 ### `BytesKnownEncoding` {#BytesKnownEncoding}
 

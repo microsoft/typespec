@@ -251,7 +251,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Parameters: [],
                     Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { fooDeclaration, switchStatement },
-                MockTypeProvider.Empty);
+                TestTypeProvider.Empty);
 
             // Verify the expected behavior
             using var writer = new CodeWriter();
@@ -293,7 +293,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Parameters: [],
                     Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { fooDeclaration, switchStatement },
-                MockTypeProvider.Empty);
+                TestTypeProvider.Empty);
 
             // Verify the expected behavior
             using var writer = new CodeWriter();
@@ -445,7 +445,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Parameters: [],
                     Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { tryCatchFinally },
-                MockTypeProvider.Empty);
+                TestTypeProvider.Empty);
 
             // Verify the expected behavior
             using var writer = new CodeWriter();
@@ -477,7 +477,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Parameters: [],
                     Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { xDeclaration, ifElsePreprocessor },
-                MockTypeProvider.Empty);
+                TestTypeProvider.Empty);
 
             // Verify the expected behavior
             using var writer = new CodeWriter();

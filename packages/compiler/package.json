@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "0.58.1",
+  "version": "0.59.1",
   "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -86,16 +86,16 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "@alloy-js/core": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@e890104",
+    "@alloy-js/core": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@de1edfc",
     "@babel/code-frame": "~7.24.7",
-    "ajv": "~8.16.0",
+    "ajv": "~8.17.1",
     "change-case": "~5.4.4",
     "globby": "~14.0.2",
     "mustache": "~4.2.0",
     "picocolors": "~1.0.1",
-    "prettier": "~3.3.2",
+    "prettier": "~3.3.3",
     "prompts": "~2.4.2",
-    "semver": "^7.6.2",
+    "semver": "^7.6.3",
     "temporal-polyfill": "^0.2.5",
     "vscode-languageserver": "~9.0.1",
     "vscode-languageserver-textdocument": "~1.0.11",
@@ -110,17 +110,17 @@
     "@types/semver": "^7.5.8",
     "@types/yargs": "~17.0.32",
     "@typespec/internal-build-utils": "workspace:~",
-    "@vitest/coverage-v8": "^1.6.0",
-    "@vitest/ui": "^1.6.0",
+    "@vitest/coverage-v8": "^2.0.4",
+    "@vitest/ui": "^2.0.4",
     "c8": "^10.1.2",
     "grammarkdown": "~3.3.2",
-    "rimraf": "~5.0.7",
+    "rimraf": "~6.0.1",
     "source-map-support": "~0.5.21",
     "tmlanguage-generator": "workspace:~",
     "ts-node": "~10.9.2",
-    "typescript": "~5.5.3",
-    "vitest": "^1.6.0",
+    "typescript": "~5.5.4",
+    "vitest": "^2.0.4",
     "vscode-oniguruma": "~2.0.1",
-    "vscode-textmate": "~9.0.0"
+    "vscode-textmate": "~9.1.0"
   }
 }

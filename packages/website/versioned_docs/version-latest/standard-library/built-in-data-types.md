@@ -54,6 +54,9 @@ model ExampleOptions
 | description? | [`string`](#string) | Description of the example |
 
 ### `object` {#object}
+:::warning
+**Deprecated**: object is deprecated. Please use {} for an empty model, `Record<unknown>` for a record with unknown property types, `unknown[]` for an array.
+:::
 
 Represent a model
 ```typespec
@@ -191,6 +194,19 @@ model UpdateableProperties<Source>
 #### Properties
 None
 
+### `ArrayEncoding` {#ArrayEncoding}
+
+Encoding for serializing arrays
+```typespec
+enum ArrayEncoding
+```
+
+| Name | Value | Description |
+|------|-------|-------------|
+| pipeDelimited |  | Each values of the array is separated by a \| |
+| spaceDelimited |  | Each values of the array is separated by a <space> |
+
+
 ### `BytesKnownEncoding` {#BytesKnownEncoding}
 
 Known encoding to use on bytes
@@ -198,6 +214,10 @@ Known encoding to use on bytes
 enum BytesKnownEncoding
 ```
 
+| Name | Value | Description |
+|------|-------|-------------|
+| base64 | `"base64"` | Encode to Base64 |
+| base64url | `"base64url"` | Encode to Base64 Url |
 
 
 ### `DateTimeKnownEncoding` {#DateTimeKnownEncoding}
@@ -207,6 +227,11 @@ Known encoding to use on utcDateTime or offsetDateTime
 enum DateTimeKnownEncoding
 ```
 
+| Name | Value | Description |
+|------|-------|-------------|
+| rfc3339 | `"rfc3339"` | RFC 3339 standard. https://www.ietf.org/rfc/rfc3339.txt<br />Encode to string. |
+| rfc7231 | `"rfc7231"` | RFC 7231 standard. https://www.ietf.org/rfc/rfc7231.txt<br />Encode to string. |
+| unixTimestamp | `"unixTimestamp"` | Encode a datetime to a unix timestamp.<br />Unix timestamps are represented as an integer number of seconds since the Unix epoch and usually encoded as an int32. |
 
 
 ### `DurationKnownEncoding` {#DurationKnownEncoding}
@@ -216,6 +241,10 @@ Known encoding to use on duration
 enum DurationKnownEncoding
 ```
 
+| Name | Value | Description |
+|------|-------|-------------|
+| ISO8601 | `"ISO8601"` | ISO8601 duration |
+| seconds | `"seconds"` | Encode to integer or float |
 
 
 ### `boolean` {#boolean}

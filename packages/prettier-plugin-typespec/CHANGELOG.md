@@ -1,5 +1,12 @@
 # Change Log - @typespec/prettier-plugin-typespec
 
+## 0.59.0
+
+### Bump dependencies
+
+- [#3948](https://github.com/microsoft/typespec/pull/3948) Update dependencies
+
+
 ## 0.58.0
 
 ### Bump dependencies

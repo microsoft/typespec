@@ -34,9 +34,11 @@ export function collectOperationResponses(
 
     // These headers will be applied to all of the models for this operation/statusCode
     const commonProperties: TypeSpecModelProperty[] = [];
-    for (const name of Object.keys(response.headers ?? {})) {
-      const property = convertHeaderToProperty(name, response.headers[name]);
-      if (property) commonProperties.push(property);
+    if (response.headers) {
+      for (const name of Object.keys(response.headers)) {
+        const property = convertHeaderToProperty(name, response.headers[name]);
+        if (property) commonProperties.push(property);
+      }
     }
 
     decorators.push(...getExtensions(response));
@@ -56,6 +58,7 @@ export function collectOperationResponses(
     if (!response.content) {
       // This is common when there is no actual request body, just a statusCode, e.g. for errors
       models.push({
+        kind: "model",
         scope: scopeAndName.scope,
         name: generateResponseModelName(scopeAndName.rawName, statusCode),
         decorators,
@@ -89,6 +92,7 @@ export function collectOperationResponses(
         }
 
         models.push({
+          kind: "model",
           scope: scopeAndName.scope,
           name: generateResponseModelName(scopeAndName.rawName, statusCode, contentType),
           decorators,

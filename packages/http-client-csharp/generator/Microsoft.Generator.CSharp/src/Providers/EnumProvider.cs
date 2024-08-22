@@ -2,65 +2,50 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    public abstract class EnumProvider : TypeProvider
+    internal abstract class EnumProvider : TypeProvider
     {
-        public static EnumProvider Create(InputEnumType input)
+        private readonly InputEnumType _inputType;
+
+        public static EnumProvider Create(InputEnumType input, TypeProvider? declaringType = null)
             => input.IsExtensible
-            ? new ExtensibleEnumProvider(input)
-            : new FixedEnumProvider(input);
+            ? new ExtensibleEnumProvider(input, declaringType)
+            : new FixedEnumProvider(input, declaringType);
 
         protected EnumProvider(InputEnumType input)
         {
+            _inputType = input;
             _deprecated = input.Deprecated;
-            _input = input;
-
             IsExtensible = input.IsExtensible;
-            ValueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input.ValueType);
-            IsStringValueType = ValueType.Equals(typeof(string));
-            IsIntValueType = ValueType.Equals(typeof(int)) || ValueType.Equals(typeof(long));
-            IsFloatValueType = ValueType.Equals(typeof(float)) || ValueType.Equals(typeof(double));
-            IsNumericValueType = IsIntValueType || IsFloatValueType;
-
             Description = input.Description != null ? FormattableStringHelpers.FromString(input.Description) : $"The {Name}.";
         }
 
-        public CSharpType ValueType { get; }
         public bool IsExtensible { get; }
-        internal bool IsIntValueType { get; }
-        internal bool IsFloatValueType { get; }
-        internal bool IsStringValueType { get; }
-        internal bool IsNumericValueType { get; }
+        private bool? _isIntValue;
+        internal bool IsIntValueType => _isIntValue ??= EnumUnderlyingType.Equals(typeof(int)) || EnumUnderlyingType.Equals(typeof(long));
+        private bool? _isFloatValue;
+        internal bool IsFloatValueType => _isFloatValue ??= EnumUnderlyingType.Equals(typeof(float)) || EnumUnderlyingType.Equals(typeof(double));
+        private bool? _isStringValue;
+        internal bool IsStringValueType => _isStringValue ??= EnumUnderlyingType.Equals(typeof(string));
+        internal bool IsNumericValueType => IsIntValueType || IsFloatValueType;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        protected override string BuildName() => _input.Name.ToCleanName();
+        protected override string BuildName() => _inputType.Name.ToCleanName();
         protected override FormattableString Description { get; }
-
-        private IReadOnlyList<EnumTypeMember>? _members;
-        private readonly InputEnumType _input;
-        public IReadOnlyList<EnumTypeMember> Members => _members ??= BuildMembers();
-
-        protected abstract IReadOnlyList<EnumTypeMember> BuildMembers();
-
-        public abstract ValueExpression ToSerial(ValueExpression enumExpression);
-
-        public abstract ValueExpression ToEnum(ValueExpression valueExpression);
-
-        protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
-
-        protected override bool GetIsEnum() => true;
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return [.. CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_input)];
+            return [.. CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType, this)];
         }
+        protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
+
+        protected override bool GetIsEnum() => true;
+        protected override CSharpType BuildEnumUnderlyingType() => CodeModelPlugin.Instance.TypeFactory.CreatePrimitiveCSharpType(_inputType.ValueType);
     }
 }

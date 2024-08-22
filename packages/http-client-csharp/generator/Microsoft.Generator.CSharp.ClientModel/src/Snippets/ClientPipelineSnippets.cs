@@ -16,6 +16,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         private const string _processHeadAsBoolMessageAsync = "ProcessHeadAsBoolMessageAsync";
         private const string _processHeadAsBoolMessage = "ProcessHeadAsBoolMessage";
 
+        public static ScopedApi<PipelineMessage> CreateMessage(this ScopedApi<ClientPipeline> pipeline)
+            => pipeline.Invoke(nameof(ClientPipeline.CreateMessage)).As<PipelineMessage>();
+
         public static ScopedApi<PipelineMessage> CreateMessage(this ScopedApi<ClientPipeline> pipeline, ScopedApi<RequestOptions> requestOptions, ValueExpression responseClassifier)
             => pipeline.Invoke(nameof(ClientPipeline.CreateMessage), requestOptions, responseClassifier).As<PipelineMessage>();
 
@@ -26,5 +29,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             => pipeline.Invoke(isAsync ? _processHeadAsBoolMessageAsync : _processHeadAsBoolMessage, [message, requestContext ?? Null], isAsync).As<ClientResult>();
 
         public static ScopedApi<ClientPipeline> Create() => Static<ClientPipeline>().Invoke(nameof(ClientPipeline.Create)).As<ClientPipeline>();
+        public static ScopedApi<ClientPipeline> Create(params ValueExpression[] arguments)
+            => Static<ClientPipeline>().Invoke(nameof(ClientPipeline.Create), arguments).As<ClientPipeline>();
     }
 }

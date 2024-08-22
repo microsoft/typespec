@@ -7,8 +7,6 @@ title: "[F] checkFormatCadl"
 function checkFormatCadl(code, prettierConfig?): Promise<boolean>
 ```
 
-Check the given is correctly formatted.
-
 ## Parameters
 
 | Parameter | Type |
@@ -20,4 +18,6 @@ Check the given is correctly formatted.
 
 `Promise`<`boolean`\>
 
-true if code is formatted correctly.
+## Deprecated
+
+use checkFormatTypeSpec

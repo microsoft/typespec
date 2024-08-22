@@ -7,8 +7,6 @@ tags:
 paths:
   /string/base64Encoding:
     get:
-      tags:
-        - String Operations
       operationId: String_getBase64Encoding
       description: Get value that is base64 encoded
       parameters: []
@@ -26,9 +24,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    put:
       tags:
         - String Operations
+    put:
       operationId: String_putBase64Encoding
       description: Put value that is base64 encoded
       parameters: []
@@ -41,6 +39,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      tags:
+        - String Operations
       requestBody:
         required: true
         content:
@@ -50,8 +50,6 @@ paths:
               format: byte
   /string/empty:
     get:
-      tags:
-        - String Operations
       operationId: String_getEmpty
       description: Get empty string value
       parameters: []
@@ -70,9 +68,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    put:
       tags:
         - String Operations
+    put:
       operationId: String_putEmpty
       description: Put empty string value
       parameters: []
@@ -85,6 +83,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      tags:
+        - String Operations
       requestBody:
         required: true
         content:
@@ -95,8 +95,6 @@ paths:
                 - ''
   /string/enum/constant:
     get:
-      tags:
-        - String Operations
       operationId: Enums_getConstant
       description: Gets value 'green-color' from a constant
       parameters: []
@@ -113,9 +111,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    put:
       tags:
         - String Operations
+    put:
       operationId: Enums_putConstant
       description: Sends value 'green-color' from a constant
       parameters: []
@@ -128,6 +126,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      tags:
+        - String Operations
       requestBody:
         required: true
         content:
@@ -136,8 +136,6 @@ paths:
               $ref: '#/components/schemas/Colors'
   /string/enum/empty:
     get:
-      tags:
-        - String Operations
       operationId: Enums_getNotExpandable
       description: Get non expandable string enum value
       parameters: []
@@ -154,9 +152,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    put:
       tags:
         - String Operations
+    put:
       operationId: Enums_putNotExpandable
       description: Put non expandable string enum value
       parameters: []
@@ -169,6 +167,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      tags:
+        - String Operations
       requestBody:
         required: true
         content:
@@ -177,8 +177,6 @@ paths:
               $ref: '#/components/schemas/Colors'
   /string/mbcs:
     get:
-      tags:
-        - String Operations
       operationId: String_getMbcs
       description: Get mbcs string value '啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€'
       parameters: []
@@ -197,9 +195,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    put:
       tags:
         - String Operations
+    put:
       operationId: String_putMbCs
       description: Put mbcs string value '啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€'
       parameters: []
@@ -212,6 +210,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      tags:
+        - String Operations
       requestBody:
         required: true
         content:
@@ -222,8 +222,6 @@ paths:
                 - 啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€
   /string/null:
     get:
-      tags:
-        - String Operations
       operationId: String_getNull
       description: Get null string value
       parameters: []
@@ -241,9 +239,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    put:
       tags:
         - String Operations
+    put:
       operationId: String_putNull
       description: Put null string value
       parameters: []
@@ -256,6 +254,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      tags:
+        - String Operations
       requestBody:
         required: true
         content:
@@ -265,8 +265,6 @@ paths:
               nullable: true
   /string/whitespace:
     get:
-      tags:
-        - String Operations
       operationId: String_getWhitespace
       description: Get string value with leading and trailing whitespace '<tab><space><space>Now is the time for all good men to come to the aid of their country<tab><space><space>'
       parameters: []
@@ -285,9 +283,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    put:
       tags:
         - String Operations
+    put:
       operationId: String_putWhitespace
       description: Get string value with leading and trailing whitespace '<tab><space><space>Now is the time for all good men to come to the aid of their country<tab><space><space>'
       parameters: []
@@ -300,6 +298,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      tags:
+        - String Operations
       requestBody:
         required: true
         content:

@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { Model, Type, Union } from "../../src/core/types.js";
+import { Model, Namespace, Type, Union } from "../../src/core/types.js";
 import {
   TestHost,
   createTestHost,
@@ -192,6 +192,28 @@ describe("compiler: aliases", () => {
     };
 
     strictEqual(Baz.properties.get("x")!.type, Bar);
+  });
+
+  it("model expression defined in alias use containing namespace", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      @test namespace Foo {
+        alias B = {a: string};
+      }
+      @test model Test {
+        prop: Foo.B;
+      }
+      `
+    );
+
+    const { Test, Foo } = (await testHost.compile("./")) as {
+      Foo: Namespace;
+      Test: Model;
+    };
+
+    const expr = Test.properties.get("prop")!.type as Model;
+    strictEqual(expr.namespace, Foo);
   });
 
   it("emit diagnostics if assign itself", async () => {

@@ -1,5 +1,44 @@
 # Change Log - @typespec/http
 
+## 0.59.1
+
+### Bug Fixes
+
+- [#4155](https://github.com/microsoft/typespec/pull/4155) HotFix: Uri template not correctly built when using `@autoRoute`
+
+
+## 0.59.0
+
+### Bug Fixes
+
+- [#3909](https://github.com/microsoft/typespec/pull/3909) Fix `HttpPart` not respecting explicit part name by always using the property name
+- [#3933](https://github.com/microsoft/typespec/pull/3933) Fix some diagnostic not showing the right message
+
+### Bump dependencies
+
+- [#3948](https://github.com/microsoft/typespec/pull/3948) Update dependencies
+
+### Features
+
+- [#4046](https://github.com/microsoft/typespec/pull/4046) API: Expose `properties: HttpProperty[]` on operation parameter and response which reference all the properties of interest(Body, statusCode, contentType, implicitBodyProperty, etc.)
+- [#3932](https://github.com/microsoft/typespec/pull/3932) `@route` can now take a uri template as defined by [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)
+
+  ```tsp
+  @route("files{+path}") download(path: string): void;
+  ```
+
+### Deprecations
+
+- [#3932](https://github.com/microsoft/typespec/pull/3932) API deprecation: `HttpOperation#pathSegments` is deprecated. Use `HttpOperation#uriTemplate` instead.
+- [#3932](https://github.com/microsoft/typespec/pull/3932) Deprecated `@query({format: })` option. Use `@query(#{explode: true})` instead of `form` or `multi` format. Previously `csv`/`simple` is the default now.
+  Decorator is also expecting an object value now instead of a model. A deprecation warning with a codefix will help migrating.
+
+  ```diff
+  - @query({format: "form"}) select: string[];
+  + @query(#{explode: true}) select: string[];
+  ```
+
+
 ## 0.58.0
 
 ### Bump dependencies

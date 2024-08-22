@@ -1,5 +1,12 @@
 # Change Log - typespec-vs
 
+## 0.59.0
+
+### Bug Fixes
+
+- [#4115](https://github.com/microsoft/typespec/pull/4115) Fixed a router bug where paths would sometimes fail to match after a parameter was bound.
+
+
 ## 0.58.0
 
 No changes, version bump only.

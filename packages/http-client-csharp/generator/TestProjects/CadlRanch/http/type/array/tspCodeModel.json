@@ -1,0 +1,3038 @@
+{
+ "$id": "1",
+ "Name": "Type.Array",
+ "ApiVersions": [],
+ "Enums": [],
+ "Models": [
+  {
+   "$id": "2",
+   "Kind": "model",
+   "Name": "InnerModel",
+   "CrossLanguageDefinitionId": "Type.Array.InnerModel",
+   "Usage": "Input,Output,Json",
+   "Description": "Array inner model",
+   "Decorators": [],
+   "Properties": [
+    {
+     "$id": "3",
+     "Name": "property",
+     "SerializedName": "property",
+     "Description": "Required string property",
+     "Type": {
+      "$id": "4",
+      "Kind": "string",
+      "Name": "string",
+      "CrossLanguageDefinitionId": "TypeSpec.string",
+      "Decorators": []
+     },
+     "IsRequired": true,
+     "IsReadOnly": false,
+     "Decorators": []
+    },
+    {
+     "$id": "5",
+     "Name": "children",
+     "SerializedName": "children",
+     "Description": "",
+     "Type": {
+      "$id": "6",
+      "Kind": "array",
+      "Name": "ArrayInnerModel",
+      "ValueType": {
+       "$ref": "2"
+      },
+      "CrossLanguageDefinitionId": "TypeSpec.Array",
+      "Decorators": []
+     },
+     "IsRequired": false,
+     "IsReadOnly": false,
+     "Decorators": []
+    }
+   ]
+  }
+ ],
+ "Clients": [
+  {
+   "$id": "7",
+   "Name": "ArrayClient",
+   "Description": "Illustrates various types of arrays.",
+   "Operations": [],
+   "Protocol": {
+    "$id": "8"
+   },
+   "Parameters": [
+    {
+     "$id": "9",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Type": {
+      "$id": "10",
+      "Kind": "url",
+      "Name": "url",
+      "CrossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "11",
+      "Type": {
+       "$id": "12",
+       "Kind": "string",
+       "Name": "string",
+       "CrossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
+    }
+   ],
+   "Decorators": []
+  },
+  {
+   "$id": "13",
+   "Name": "Int32Value",
+   "Description": "Array of int32 values",
+   "Operations": [
+    {
+     "$id": "14",
+     "Name": "get",
+     "ResourceName": "Int32Value",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "15",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "16",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "17",
+        "Type": {
+         "$id": "18",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "19",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "20",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "21",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "22",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "23",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "24",
+         "Kind": "int32",
+         "Name": "int32",
+         "CrossLanguageDefinitionId": "TypeSpec.int32",
+         "Decorators": []
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/int32",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.Int32Value.get",
+     "Decorators": []
+    },
+    {
+     "$id": "25",
+     "Name": "put",
+     "ResourceName": "Int32Value",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "15"
+      },
+      {
+       "$id": "26",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "27",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "28",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      },
+      {
+       "$id": "29",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$id": "30",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "31",
+         "Kind": "int32",
+         "Name": "int32",
+         "CrossLanguageDefinitionId": "TypeSpec.int32",
+         "Decorators": []
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "32",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/int32",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.Int32Value.put",
+     "Decorators": []
+    }
+   ],
+   "Protocol": {
+    "$id": "33"
+   },
+   "Parent": "ArrayClient",
+   "Parameters": [
+    {
+     "$ref": "15"
+    }
+   ],
+   "Decorators": []
+  },
+  {
+   "$id": "34",
+   "Name": "Int64Value",
+   "Description": "Array of int64 values",
+   "Operations": [
+    {
+     "$id": "35",
+     "Name": "get",
+     "ResourceName": "Int64Value",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "36",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "37",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "38",
+        "Type": {
+         "$id": "39",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "40",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "41",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "42",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "43",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "44",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "45",
+         "Kind": "int64",
+         "Name": "int64",
+         "CrossLanguageDefinitionId": "TypeSpec.int64",
+         "Decorators": []
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/int64",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.Int64Value.get",
+     "Decorators": []
+    },
+    {
+     "$id": "46",
+     "Name": "put",
+     "ResourceName": "Int64Value",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "36"
+      },
+      {
+       "$id": "47",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "48",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "49",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      },
+      {
+       "$id": "50",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$id": "51",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "52",
+         "Kind": "int64",
+         "Name": "int64",
+         "CrossLanguageDefinitionId": "TypeSpec.int64",
+         "Decorators": []
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "53",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/int64",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.Int64Value.put",
+     "Decorators": []
+    }
+   ],
+   "Protocol": {
+    "$id": "54"
+   },
+   "Parent": "ArrayClient",
+   "Parameters": [
+    {
+     "$ref": "36"
+    }
+   ],
+   "Decorators": []
+  },
+  {
+   "$id": "55",
+   "Name": "BooleanValue",
+   "Description": "Array of boolean values",
+   "Operations": [
+    {
+     "$id": "56",
+     "Name": "get",
+     "ResourceName": "BooleanValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "57",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "58",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "59",
+        "Type": {
+         "$id": "60",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "61",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "62",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "63",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "64",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "65",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "66",
+         "Kind": "boolean",
+         "Name": "boolean",
+         "CrossLanguageDefinitionId": "TypeSpec.boolean",
+         "Decorators": []
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/boolean",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.BooleanValue.get",
+     "Decorators": []
+    },
+    {
+     "$id": "67",
+     "Name": "put",
+     "ResourceName": "BooleanValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "57"
+      },
+      {
+       "$id": "68",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "69",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "70",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      },
+      {
+       "$id": "71",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$id": "72",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "73",
+         "Kind": "boolean",
+         "Name": "boolean",
+         "CrossLanguageDefinitionId": "TypeSpec.boolean",
+         "Decorators": []
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "74",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/boolean",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.BooleanValue.put",
+     "Decorators": []
+    }
+   ],
+   "Protocol": {
+    "$id": "75"
+   },
+   "Parent": "ArrayClient",
+   "Parameters": [
+    {
+     "$ref": "57"
+    }
+   ],
+   "Decorators": []
+  },
+  {
+   "$id": "76",
+   "Name": "StringValue",
+   "Description": "Array of string values",
+   "Operations": [
+    {
+     "$id": "77",
+     "Name": "get",
+     "ResourceName": "StringValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "78",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "79",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "80",
+        "Type": {
+         "$id": "81",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "82",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "83",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "84",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "85",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "86",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "87",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/string",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.StringValue.get",
+     "Decorators": []
+    },
+    {
+     "$id": "88",
+     "Name": "put",
+     "ResourceName": "StringValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "78"
+      },
+      {
+       "$id": "89",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "90",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "91",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      },
+      {
+       "$id": "92",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$id": "93",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "94",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "95",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/string",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.StringValue.put",
+     "Decorators": []
+    }
+   ],
+   "Protocol": {
+    "$id": "96"
+   },
+   "Parent": "ArrayClient",
+   "Parameters": [
+    {
+     "$ref": "78"
+    }
+   ],
+   "Decorators": []
+  },
+  {
+   "$id": "97",
+   "Name": "Float32Value",
+   "Description": "Array of float values",
+   "Operations": [
+    {
+     "$id": "98",
+     "Name": "get",
+     "ResourceName": "Float32Value",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "99",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "100",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "101",
+        "Type": {
+         "$id": "102",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "103",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "104",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "105",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "106",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "107",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "108",
+         "Kind": "float32",
+         "Name": "float32",
+         "CrossLanguageDefinitionId": "TypeSpec.float32",
+         "Decorators": []
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/float32",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.Float32Value.get",
+     "Decorators": []
+    },
+    {
+     "$id": "109",
+     "Name": "put",
+     "ResourceName": "Float32Value",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "99"
+      },
+      {
+       "$id": "110",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "111",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "112",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      },
+      {
+       "$id": "113",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$id": "114",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "115",
+         "Kind": "float32",
+         "Name": "float32",
+         "CrossLanguageDefinitionId": "TypeSpec.float32",
+         "Decorators": []
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "116",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/float32",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.Float32Value.put",
+     "Decorators": []
+    }
+   ],
+   "Protocol": {
+    "$id": "117"
+   },
+   "Parent": "ArrayClient",
+   "Parameters": [
+    {
+     "$ref": "99"
+    }
+   ],
+   "Decorators": []
+  },
+  {
+   "$id": "118",
+   "Name": "DatetimeValue",
+   "Description": "Array of datetime values",
+   "Operations": [
+    {
+     "$id": "119",
+     "Name": "get",
+     "ResourceName": "DatetimeValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "120",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "121",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "122",
+        "Type": {
+         "$id": "123",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "124",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "125",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "126",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "127",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "128",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "129",
+         "Kind": "utcDateTime",
+         "Name": "utcDateTime",
+         "Encode": "rfc3339",
+         "WireType": {
+          "$id": "130",
+          "Kind": "string",
+          "Name": "string",
+          "CrossLanguageDefinitionId": "TypeSpec.string",
+          "Decorators": []
+         },
+         "CrossLanguageDefinitionId": "TypeSpec.utcDateTime",
+         "Decorators": []
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/datetime",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.DatetimeValue.get",
+     "Decorators": []
+    },
+    {
+     "$id": "131",
+     "Name": "put",
+     "ResourceName": "DatetimeValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "120"
+      },
+      {
+       "$id": "132",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "133",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "134",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      },
+      {
+       "$id": "135",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$id": "136",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "137",
+         "Kind": "utcDateTime",
+         "Name": "utcDateTime",
+         "Encode": "rfc3339",
+         "WireType": {
+          "$id": "138",
+          "Kind": "string",
+          "Name": "string",
+          "CrossLanguageDefinitionId": "TypeSpec.string",
+          "Decorators": []
+         },
+         "CrossLanguageDefinitionId": "TypeSpec.utcDateTime",
+         "Decorators": []
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "139",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/datetime",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.DatetimeValue.put",
+     "Decorators": []
+    }
+   ],
+   "Protocol": {
+    "$id": "140"
+   },
+   "Parent": "ArrayClient",
+   "Parameters": [
+    {
+     "$ref": "120"
+    }
+   ],
+   "Decorators": []
+  },
+  {
+   "$id": "141",
+   "Name": "DurationValue",
+   "Description": "Array of duration values",
+   "Operations": [
+    {
+     "$id": "142",
+     "Name": "get",
+     "ResourceName": "DurationValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "143",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "144",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "145",
+        "Type": {
+         "$id": "146",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "147",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "148",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "149",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "150",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "151",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "152",
+         "Kind": "duration",
+         "Name": "duration",
+         "Encode": "ISO8601",
+         "WireType": {
+          "$id": "153",
+          "Kind": "string",
+          "Name": "string",
+          "CrossLanguageDefinitionId": "TypeSpec.string",
+          "Decorators": []
+         },
+         "CrossLanguageDefinitionId": "TypeSpec.duration",
+         "Decorators": []
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/duration",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.DurationValue.get",
+     "Decorators": []
+    },
+    {
+     "$id": "154",
+     "Name": "put",
+     "ResourceName": "DurationValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "143"
+      },
+      {
+       "$id": "155",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "156",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "157",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      },
+      {
+       "$id": "158",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$id": "159",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "160",
+         "Kind": "duration",
+         "Name": "duration",
+         "Encode": "ISO8601",
+         "WireType": {
+          "$id": "161",
+          "Kind": "string",
+          "Name": "string",
+          "CrossLanguageDefinitionId": "TypeSpec.string",
+          "Decorators": []
+         },
+         "CrossLanguageDefinitionId": "TypeSpec.duration",
+         "Decorators": []
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "162",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/duration",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.DurationValue.put",
+     "Decorators": []
+    }
+   ],
+   "Protocol": {
+    "$id": "163"
+   },
+   "Parent": "ArrayClient",
+   "Parameters": [
+    {
+     "$ref": "143"
+    }
+   ],
+   "Decorators": []
+  },
+  {
+   "$id": "164",
+   "Name": "UnknownValue",
+   "Description": "Array of unknown values",
+   "Operations": [
+    {
+     "$id": "165",
+     "Name": "get",
+     "ResourceName": "UnknownValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "166",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "167",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "168",
+        "Type": {
+         "$id": "169",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "170",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "171",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "172",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "173",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "174",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "175",
+         "Kind": "any",
+         "Name": "unknown",
+         "CrossLanguageDefinitionId": "",
+         "Decorators": []
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/unknown",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.UnknownValue.get",
+     "Decorators": []
+    },
+    {
+     "$id": "176",
+     "Name": "put",
+     "ResourceName": "UnknownValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "166"
+      },
+      {
+       "$id": "177",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "178",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "179",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      },
+      {
+       "$id": "180",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$id": "181",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "182",
+         "Kind": "any",
+         "Name": "unknown",
+         "CrossLanguageDefinitionId": "",
+         "Decorators": []
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "183",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/unknown",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.UnknownValue.put",
+     "Decorators": []
+    }
+   ],
+   "Protocol": {
+    "$id": "184"
+   },
+   "Parent": "ArrayClient",
+   "Parameters": [
+    {
+     "$ref": "166"
+    }
+   ],
+   "Decorators": []
+  },
+  {
+   "$id": "185",
+   "Name": "ModelValue",
+   "Description": "Array of model values",
+   "Operations": [
+    {
+     "$id": "186",
+     "Name": "get",
+     "ResourceName": "ModelValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "187",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "188",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "189",
+        "Type": {
+         "$id": "190",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "191",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "192",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "193",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "194",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "195",
+        "Kind": "array",
+        "Name": "ArrayInnerModel",
+        "ValueType": {
+         "$ref": "2"
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/model",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.ModelValue.get",
+     "Decorators": []
+    },
+    {
+     "$id": "196",
+     "Name": "put",
+     "ResourceName": "ModelValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "187"
+      },
+      {
+       "$id": "197",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "198",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "199",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      },
+      {
+       "$id": "200",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$id": "201",
+        "Kind": "array",
+        "Name": "ArrayInnerModel",
+        "ValueType": {
+         "$ref": "2"
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "202",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/model",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.ModelValue.put",
+     "Decorators": []
+    }
+   ],
+   "Protocol": {
+    "$id": "203"
+   },
+   "Parent": "ArrayClient",
+   "Parameters": [
+    {
+     "$ref": "187"
+    }
+   ],
+   "Decorators": []
+  },
+  {
+   "$id": "204",
+   "Name": "NullableFloatValue",
+   "Description": "Array of nullable float values",
+   "Operations": [
+    {
+     "$id": "205",
+     "Name": "get",
+     "ResourceName": "NullableFloatValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "206",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "207",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "208",
+        "Type": {
+         "$id": "209",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "210",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "211",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "212",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "213",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "214",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "215",
+         "Kind": "nullable",
+         "Type": {
+          "$id": "216",
+          "Kind": "float32",
+          "Name": "float32",
+          "CrossLanguageDefinitionId": "TypeSpec.float32",
+          "Decorators": []
+         }
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/nullable-float",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.NullableFloatValue.get",
+     "Decorators": []
+    },
+    {
+     "$id": "217",
+     "Name": "put",
+     "ResourceName": "NullableFloatValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "206"
+      },
+      {
+       "$id": "218",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "219",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "220",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      },
+      {
+       "$id": "221",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$id": "222",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "223",
+         "Kind": "nullable",
+         "Type": {
+          "$id": "224",
+          "Kind": "float32",
+          "Name": "float32",
+          "CrossLanguageDefinitionId": "TypeSpec.float32",
+          "Decorators": []
+         }
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "225",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/nullable-float",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.NullableFloatValue.put",
+     "Decorators": []
+    }
+   ],
+   "Protocol": {
+    "$id": "226"
+   },
+   "Parent": "ArrayClient",
+   "Parameters": [
+    {
+     "$ref": "206"
+    }
+   ],
+   "Decorators": []
+  },
+  {
+   "$id": "227",
+   "Name": "NullableInt32Value",
+   "Description": "Array of nullable int32 values",
+   "Operations": [
+    {
+     "$id": "228",
+     "Name": "get",
+     "ResourceName": "NullableInt32Value",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "229",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "230",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "231",
+        "Type": {
+         "$id": "232",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "233",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "234",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "235",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "236",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "237",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "238",
+         "Kind": "nullable",
+         "Type": {
+          "$id": "239",
+          "Kind": "int32",
+          "Name": "int32",
+          "CrossLanguageDefinitionId": "TypeSpec.int32",
+          "Decorators": []
+         }
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/nullable-int32",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.NullableInt32Value.get",
+     "Decorators": []
+    },
+    {
+     "$id": "240",
+     "Name": "put",
+     "ResourceName": "NullableInt32Value",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "229"
+      },
+      {
+       "$id": "241",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "242",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "243",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      },
+      {
+       "$id": "244",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$id": "245",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "246",
+         "Kind": "nullable",
+         "Type": {
+          "$id": "247",
+          "Kind": "int32",
+          "Name": "int32",
+          "CrossLanguageDefinitionId": "TypeSpec.int32",
+          "Decorators": []
+         }
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "248",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/nullable-int32",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.NullableInt32Value.put",
+     "Decorators": []
+    }
+   ],
+   "Protocol": {
+    "$id": "249"
+   },
+   "Parent": "ArrayClient",
+   "Parameters": [
+    {
+     "$ref": "229"
+    }
+   ],
+   "Decorators": []
+  },
+  {
+   "$id": "250",
+   "Name": "NullableBooleanValue",
+   "Description": "Array of nullable boolean values",
+   "Operations": [
+    {
+     "$id": "251",
+     "Name": "get",
+     "ResourceName": "NullableBooleanValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "252",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "253",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "254",
+        "Type": {
+         "$id": "255",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "256",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "257",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "258",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "259",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "260",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "261",
+         "Kind": "nullable",
+         "Type": {
+          "$id": "262",
+          "Kind": "boolean",
+          "Name": "boolean",
+          "CrossLanguageDefinitionId": "TypeSpec.boolean",
+          "Decorators": []
+         }
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/nullable-boolean",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.NullableBooleanValue.get",
+     "Decorators": []
+    },
+    {
+     "$id": "263",
+     "Name": "put",
+     "ResourceName": "NullableBooleanValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "252"
+      },
+      {
+       "$id": "264",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "265",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "266",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      },
+      {
+       "$id": "267",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$id": "268",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "269",
+         "Kind": "nullable",
+         "Type": {
+          "$id": "270",
+          "Kind": "boolean",
+          "Name": "boolean",
+          "CrossLanguageDefinitionId": "TypeSpec.boolean",
+          "Decorators": []
+         }
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "271",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/nullable-boolean",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.NullableBooleanValue.put",
+     "Decorators": []
+    }
+   ],
+   "Protocol": {
+    "$id": "272"
+   },
+   "Parent": "ArrayClient",
+   "Parameters": [
+    {
+     "$ref": "252"
+    }
+   ],
+   "Decorators": []
+  },
+  {
+   "$id": "273",
+   "Name": "NullableStringValue",
+   "Description": "Array of nullable string values",
+   "Operations": [
+    {
+     "$id": "274",
+     "Name": "get",
+     "ResourceName": "NullableStringValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "275",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "276",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "277",
+        "Type": {
+         "$id": "278",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "279",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "280",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "281",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "282",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "283",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "284",
+         "Kind": "nullable",
+         "Type": {
+          "$id": "285",
+          "Kind": "string",
+          "Name": "string",
+          "CrossLanguageDefinitionId": "TypeSpec.string",
+          "Decorators": []
+         }
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/nullable-string",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.NullableStringValue.get",
+     "Decorators": []
+    },
+    {
+     "$id": "286",
+     "Name": "put",
+     "ResourceName": "NullableStringValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "275"
+      },
+      {
+       "$id": "287",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "288",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "289",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      },
+      {
+       "$id": "290",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$id": "291",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "292",
+         "Kind": "nullable",
+         "Type": {
+          "$id": "293",
+          "Kind": "string",
+          "Name": "string",
+          "CrossLanguageDefinitionId": "TypeSpec.string",
+          "Decorators": []
+         }
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "294",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/nullable-string",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.NullableStringValue.put",
+     "Decorators": []
+    }
+   ],
+   "Protocol": {
+    "$id": "295"
+   },
+   "Parent": "ArrayClient",
+   "Parameters": [
+    {
+     "$ref": "275"
+    }
+   ],
+   "Decorators": []
+  },
+  {
+   "$id": "296",
+   "Name": "NullableModelValue",
+   "Description": "Array of nullable model values",
+   "Operations": [
+    {
+     "$id": "297",
+     "Name": "get",
+     "ResourceName": "NullableModelValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "298",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "299",
+        "Kind": "url",
+        "Name": "url",
+        "CrossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "300",
+        "Type": {
+         "$id": "301",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "302",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "303",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "304",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "305",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "306",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "307",
+         "Kind": "nullable",
+         "Type": {
+          "$ref": "2"
+         }
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/nullable-model",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.NullableModelValue.get",
+     "Decorators": []
+    },
+    {
+     "$id": "308",
+     "Name": "put",
+     "ResourceName": "NullableModelValue",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "298"
+      },
+      {
+       "$id": "309",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "310",
+        "Kind": "constant",
+        "ValueType": {
+         "$id": "311",
+         "Kind": "string",
+         "Name": "string",
+         "CrossLanguageDefinitionId": "TypeSpec.string",
+         "Decorators": []
+        },
+        "Value": "application/json",
+        "Decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": []
+      },
+      {
+       "$id": "312",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$id": "313",
+        "Kind": "array",
+        "Name": "Array",
+        "ValueType": {
+         "$id": "314",
+         "Kind": "nullable",
+         "Type": {
+          "$ref": "2"
+         }
+        },
+        "CrossLanguageDefinitionId": "TypeSpec.Array",
+        "Decorators": []
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": []
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "315",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/array/nullable-model",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Array.NullableModelValue.put",
+     "Decorators": []
+    }
+   ],
+   "Protocol": {
+    "$id": "316"
+   },
+   "Parent": "ArrayClient",
+   "Parameters": [
+    {
+     "$ref": "298"
+    }
+   ],
+   "Decorators": []
+  }
+ ]
+}

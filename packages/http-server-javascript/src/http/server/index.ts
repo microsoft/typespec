@@ -276,7 +276,7 @@ function* emitRawServerOperation(
 
   if (hasOptions) {
     paramLines.push(
-      `{ ${[...optionalParams.entries()].map(([name, expr]) => `${name}: ${expr},`)} }`
+      `{ ${[...optionalParams.entries()].map(([name, expr]) => (name === expr ? name : `${name}: ${expr}`)).join(", ")} }`
     );
   }
 
@@ -397,7 +397,13 @@ function* emitHeaderParamBinding(
 ): Iterable<string> {
   const nameCase = parseCase(parameter.param.name);
 
-  yield `const ${nameCase.camelCase} = request.headers[${JSON.stringify(parameter.name)}];`;
+  // See https://nodejs.org/api/http.html#messageheaders
+  // Apparently, only set-cookie can be an array.
+  const canBeArrayType = parameter.name === "set-cookie";
+
+  const assertion = canBeArrayType ? "" : " as string | undefined";
+
+  yield `const ${nameCase.camelCase} = request.headers[${JSON.stringify(parameter.name)}]${assertion};`;
 
   if (!parameter.param.optional) {
     yield `if (${nameCase.camelCase} === undefined) {`;
@@ -422,7 +428,8 @@ function* emitQueryParamBinding(
 ): Iterable<string> {
   const nameCase = parseCase(parameter.param.name);
 
-  yield `const ${nameCase.camelCase} = __query_params.get(${JSON.stringify(parameter.name)});`;
+  // UrlSearchParams annoyingly returns null for missing parameters instead of undefined.
+  yield `const ${nameCase.camelCase} = __query_params.get(${JSON.stringify(parameter.name)}) ?? undefined;`;
 
   if (!parameter.param.optional) {
     yield `if (${nameCase.camelCase} === null) {`;

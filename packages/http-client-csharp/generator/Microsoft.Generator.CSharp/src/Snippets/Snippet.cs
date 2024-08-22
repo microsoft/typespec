@@ -13,9 +13,12 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public static partial class Snippet
     {
-        public static ScopedApi<T> As<T>(this ParameterProvider parameter) => parameter.AsExpression.As<T>();
         public static ScopedApi As(this ParameterProvider parameter, CSharpType type) => parameter.AsExpression.As(type);
+        public static ScopedApi<T> As<T>(this ParameterProvider parameter) => parameter.AsExpression.As<T>();
         public static ScopedApi<T> As<T>(this PropertyProvider property) => ((MemberExpression)property).As<T>();
+        public static ScopedApi<T> As<T>(this FieldProvider field) => ((MemberExpression)field).As<T>();
+
+        public static ValueExpression NullConditional(this ParameterProvider parameter) => new NullConditionalExpression(parameter);
 
         public static DictionaryExpression AsDictionary(this FieldProvider field, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), field);
         public static DictionaryExpression AsDictionary(this ParameterProvider parameter, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), parameter);
@@ -81,10 +84,11 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ValueExpression ArrayEmpty(CSharpType arrayItemType)
             => Static<Array>().Invoke(nameof(Array.Empty), [], [arrayItemType], false);
 
-        public static AssignmentExpression Assign(this ValueExpression to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
         public static AssignmentExpression Assign(this ParameterProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
         public static AssignmentExpression Assign(this FieldProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
         public static AssignmentExpression Assign(this PropertyProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
+
+        public static CatchStatement Catch(DeclarationExpression declare, params MethodBodyStatement[] statements) => new CatchStatement(declare) { statements };
 
         public static MethodBodyStatement InvokeConsoleWriteLine(ValueExpression expression)
             => Static(typeof(Console)).Invoke(nameof(Console.WriteLine), expression).Terminate();
@@ -93,13 +97,16 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static InvokeMethodExpression Invoke(this ParameterProvider parameter, string methodName, ValueExpression arg)
             => new InvokeMethodExpression(parameter, methodName, [arg]);
 
+        public static InvokeMethodExpression Invoke(this ParameterProvider parameter, string methodName, params ValueExpression[] args)
+            => new InvokeMethodExpression(parameter, methodName, args);
+
         public static InvokeMethodExpression Invoke(this ParameterProvider parameter, string methodName, CSharpType? extensionType = null)
             => new InvokeMethodExpression(parameter, methodName, Array.Empty<ValueExpression>()) { ExtensionType = extensionType};
 
         public static ValueExpression Property(this ParameterProvider parameter, string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(parameter) : parameter, propertyName);
 
-        public static ValueExpression Invoke(this FieldProvider field,
+        public static InvokeMethodExpression Invoke(this FieldProvider field,
             string methodName,
             IEnumerable<ValueExpression> parameters,
             bool isAsync,

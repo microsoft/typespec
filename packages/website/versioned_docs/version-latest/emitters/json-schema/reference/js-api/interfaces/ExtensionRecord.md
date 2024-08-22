@@ -8,4 +8,4 @@ title: "[I] ExtensionRecord"
 | Property | Type |
 | ------ | ------ |
 | `key` | `string` |
-| `value` | `Type` |
+| `value` | `unknown` |

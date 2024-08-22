@@ -64,3 +64,8 @@ By default, TypeSpec csharp generates all protocol APIs and convenience APIs.
 A few exceptions are API of JSON Merge Patch, and API of long-running operation with ambiguous response type.
 
 You can configure whether generate convenience API or not via `convenienceAPI` decorator.
+
+## CadlRanch Tests
+
+We run the generator against the common set of test defined in https://github.com/Azure/cadl-ranch/tree/main/packages/cadl-ranch-specs.
+For details on how to run and debug these tests see [CadlRanch Testing](generator/docs/cadl-ranch.md)

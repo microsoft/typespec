@@ -135,7 +135,9 @@ function parse(original: string): InternalData {
   return { n, e: exp, s: sign, d: decimal };
 }
 
-function stringify(value: InternalData) {
+function stringify(value: InternalData): string {
+  if (value.n === 0n) return "0";
+
   const n = value.n.toString();
   const sign = value.s === -1 ? "-" : "";
   const int = value.e === 0 ? "0" : n.slice(0, value.e);

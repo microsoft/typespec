@@ -6,6 +6,9 @@ toc_max_heading_level: 3
 # Built-in Decorators
 ## TypeSpec
 ### `@deprecated` {#@deprecated}
+:::warning
+**Deprecated**: @deprecated decorator is deprecated. Use the `#deprecated` directive instead.
+:::
 
 Mark this type as deprecated.
 
@@ -97,7 +100,7 @@ model Pet {}
 
 Specify how to encode the target type.
 ```typespec
-@encode(encoding: string | EnumMember, encodedAs?: Scalar)
+@encode(encodingOrEncodeAs: Scalar | valueof string | EnumMember, encodedAs?: Scalar)
 ```
 
 #### Target
@@ -107,7 +110,7 @@ Specify how to encode the target type.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| encoding | `string \| EnumMember` | Known name of an encoding. |
+| encodingOrEncodeAs | `Scalar` \| `valueof string \| EnumMember` | Known name of an encoding or a scalar type to encode as(Only for numeric types to encode as string). |
 | encodedAs | `Scalar` | What target type is this being encoded as. Default to string. |
 
 #### Examples
@@ -125,6 +128,15 @@ scalar myDateTime extends offsetDateTime;
 ```tsp
 @encode("unixTimestamp", int32)
 scalar myDateTime extends unixTimestamp;
+```
+
+##### encode numeric type to string
+
+
+```tsp
+model Pet {
+  @encode(string) id: int64;
+}
 ```
 
 
@@ -358,6 +370,9 @@ model Pet {
 
 
 ### `@knownValues` {#@knownValues}
+:::warning
+**Deprecated**: This decorator has been deprecated. Use a named union of string literals with a string variant to achieve the same result without a decorator.
+:::
 
 Provide a set of known values to a string type.
 ```typespec
@@ -701,6 +716,9 @@ scalar LowerAlpha extends string;
 
 
 ### `@projectedName` {#@projectedName}
+:::warning
+**Deprecated**: Use `@encodedName` instead for changing the name over the wire.
+:::
 
 DEPRECATED: Use `@encodedName` instead.
 

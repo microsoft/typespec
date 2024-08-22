@@ -7,20 +7,20 @@ title: "[F] getOperationParameters"
 function getOperationParameters(
    program, 
    operation, 
+   partialUriTemplate, 
    overloadBase?, 
-   knownPathParamNames?, 
    options?): [HttpOperationParameters, readonly Diagnostic[]]
 ```
 
 ## Parameters
 
-| Parameter | Type | Default value |
-| ------ | ------ | ------ |
-| `program` | `Program` | `undefined` |
-| `operation` | `Operation` | `undefined` |
-| `overloadBase`? | [`HttpOperation`](../interfaces/HttpOperation.md) | `undefined` |
-| `knownPathParamNames`? | `string`[] | `[]` |
-| `options`? | [`OperationParameterOptions`](../interfaces/OperationParameterOptions.md) | `{}` |
+| Parameter | Type |
+| ------ | ------ |
+| `program` | `Program` |
+| `operation` | `Operation` |
+| `partialUriTemplate` | `string` |
+| `overloadBase`? | [`HttpOperation`](../interfaces/HttpOperation.md) |
+| `options`? | [`OperationParameterOptions`](../interfaces/OperationParameterOptions.md) |
 
 ## Returns
 

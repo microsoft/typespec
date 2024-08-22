@@ -7,8 +7,6 @@ title: "[F] setCadlNamespace"
 function setCadlNamespace(namespace, ...functions): void
 ```
 
-Set the TypeSpec namespace for that function.
-
 ## Parameters
 
 | Parameter | Type | Description |
@@ -19,3 +17,7 @@ Set the TypeSpec namespace for that function.
 ## Returns
 
 `void`
+
+## Deprecated
+
+use setTypeSpecNamespace

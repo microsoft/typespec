@@ -1,5 +1,16 @@
 # Changelog - @typespec/xml
 
+## 0.59.0
+
+### Bump dependencies
+
+- [#3948](https://github.com/microsoft/typespec/pull/3948) Update dependencies
+
+### Features
+
+- [#4020](https://github.com/microsoft/typespec/pull/4020) Add support for encoding numeric types as string
+
+
 ## 0.58.0
 
 ### Bump dependencies

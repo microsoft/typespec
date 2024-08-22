@@ -28,4 +28,4 @@ options): DiagnosticResult<object>
 | ------ | ------ |
 | `parameters` | [`HttpOperationParameters`](../interfaces/HttpOperationParameters.md) |
 | `path` | `string` |
-| `pathSegments` | `string`[] |
+| `uriTemplate` | `string` |

@@ -2008,6 +2008,8 @@ export function createChecker(program: Program): Checker {
       }
     }
 
+    linkMapper(unionType, mapper);
+
     return unionType;
   }
 
@@ -2410,6 +2412,7 @@ export function createChecker(program: Program): Checker {
 
   function getParentNamespaceType(
     node:
+      | AliasStatementNode
       | ModelStatementNode
       | ScalarStatementNode
       | NamespaceStatementNode
@@ -2433,6 +2436,7 @@ export function createChecker(program: Program): Checker {
       let parent: Node | undefined = node.parent;
       while (parent !== undefined) {
         if (
+          parent.kind === SyntaxKind.AliasStatement ||
           parent.kind === SyntaxKind.ModelStatement ||
           parent.kind === SyntaxKind.ScalarStatement ||
           parent.kind === SyntaxKind.OperationStatement ||
@@ -4009,6 +4013,7 @@ export function createChecker(program: Program): Checker {
       derivedModels: [],
       sourceModels: [],
     });
+    linkMapper(type, mapper);
     checkModelProperties(node, properties, type, mapper);
     return finishType(type);
   }
@@ -5670,7 +5675,7 @@ export function createChecker(program: Program): Checker {
     node: Node & { decorators: readonly DecoratorExpressionNode[] },
     mapper: TypeMapper | undefined
   ) {
-    const sym = isMemberNode(node) ? getSymbolForMember(node) ?? node.symbol : node.symbol;
+    const sym = isMemberNode(node) ? (getSymbolForMember(node) ?? node.symbol) : node.symbol;
     const decorators: DecoratorApplication[] = [];
 
     const augmentDecoratorNodes = augmentDecoratorsForSym.get(sym) ?? [];
@@ -7875,7 +7880,7 @@ export function createChecker(program: Program): Checker {
 
   function isNumericAssignableToNumericScalar(source: Numeric, target: Scalar) {
     // if the target does not derive from numeric, then it can't be assigned a numeric literal
-    if (!areScalarsRelated(target, getStdType("numeric"))) {
+    if (!areScalarsRelated((target.projectionBase as any) ?? target, getStdType("numeric"))) {
       return false;
     }
 
@@ -7903,7 +7908,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function isStringLiteralRelatedTo(source: StringLiteral | StringTemplate, target: Scalar) {
-    if (!areScalarsRelated(target, getStdType("string"))) {
+    if (!areScalarsRelated((target.projectionBase as any) ?? target, getStdType("string"))) {
       return false;
     }
     if (source.kind === "StringTemplate") {

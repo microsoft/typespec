@@ -13,6 +13,13 @@ namespace Microsoft.Generator.CSharp
     /// </summary>
     public class Configuration
     {
+        private static readonly string[] _badNamespaces =
+        [
+            "Type",
+            "Array",
+            "Enum",
+        ];
+
         private const string ConfigurationFileName = "Configuration.json";
 
         // for mocking
@@ -34,7 +41,8 @@ namespace Microsoft.Generator.CSharp
             bool generateTestProject,
             string libraryName,
             bool useModelNamespace,
-            string libraryNamespace)
+            string libraryNamespace,
+            bool disableXmlDocs)
         {
             OutputDirectory = outputPath;
             AdditionalConfigOptions = additionalConfigOptions;
@@ -44,8 +52,65 @@ namespace Microsoft.Generator.CSharp
             GenerateTestProject = generateTestProject;
             LibraryName = libraryName;
             UseModelNamespace = useModelNamespace;
-            RootNamespace = libraryNamespace;
-            ModelNamespace = useModelNamespace ? $"{libraryNamespace}.Models" : libraryNamespace;
+            RootNamespace = GetCleanNameSpace(libraryNamespace);
+            ModelNamespace = useModelNamespace ? $"{RootNamespace}.Models" : RootNamespace;
+            DisableXmlDocs = disableXmlDocs;
+        }
+
+        private string GetCleanNameSpace(string libraryNamespace)
+        {
+            Span<char> dest = stackalloc char[libraryNamespace.Length + GetSegmentCount(libraryNamespace)];
+            var source = libraryNamespace.AsSpan();
+            var destIndex = 0;
+            var nextDot = source.IndexOf('.');
+            while (nextDot != -1)
+            {
+                var segment = source.Slice(0, nextDot);
+                if (IsSpecialSegment(segment))
+                {
+                    dest[destIndex] = '_';
+                    destIndex++;
+                }
+                segment.CopyTo(dest.Slice(destIndex));
+                destIndex += segment.Length;
+                dest[destIndex] = '.';
+                destIndex++;
+                source = source.Slice(nextDot + 1);
+                nextDot = source.IndexOf('.');
+            }
+            if (IsSpecialSegment(source))
+            {
+                dest[destIndex] = '_';
+                destIndex++;
+            }
+            source.CopyTo(dest.Slice(destIndex));
+            destIndex += source.Length;
+            return dest.Slice(0, destIndex).ToString();
+        }
+
+        private bool IsSpecialSegment(ReadOnlySpan<char> readOnlySpan)
+        {
+            for (int i = 0; i < _badNamespaces.Length; i++)
+            {
+                if (readOnlySpan.Equals(_badNamespaces[i], StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static int GetSegmentCount(string libraryNamespace)
+        {
+            int count = 0;
+            for (int i = 0; i < libraryNamespace.Length; i++)
+            {
+                if (libraryNamespace[i] == '.')
+                {
+                    count++;
+                }
+            }
+            return ++count;
         }
 
         /// <summary>
@@ -60,7 +125,13 @@ namespace Microsoft.Generator.CSharp
             public const string LibraryName = "library-name";
             public const string Namespace = "namespace";
             public const string UseModelNamespace = "use-model-namespace";
+            public const string DisableXmlDocs = "disable-xml-docs";
         }
+
+        /// <summary>
+        /// Gets whether XML docs are disabled.
+        /// </summary>
+        public bool DisableXmlDocs { get; }
 
         /// <summary> Gets the root namespace for the library. </summary>
         public string RootNamespace { get; }
@@ -121,7 +192,7 @@ namespace Microsoft.Generator.CSharp
                 : JsonDocument.Parse(json).RootElement;
 
             return new Configuration(
-                outputPath.Equals(string.Empty) ? outputPath : Path.GetFullPath(outputPath),
+                Path.GetFullPath(outputPath),
                 ParseAdditionalConfigOptions(root),
                 ReadOption(root, Options.ClearOutputFolder),
                 ReadOption(root, Options.GenerateModelFactory),
@@ -129,7 +200,8 @@ namespace Microsoft.Generator.CSharp
                 ReadOption(root, Options.GenerateTestProject),
                 ReadRequiredStringOption(root, Options.LibraryName),
                 ReadOption(root, Options.UseModelNamespace),
-                ReadRequiredStringOption(root, Options.Namespace));
+                ReadRequiredStringOption(root, Options.Namespace),
+                ReadOption(root, Options.DisableXmlDocs));
         }
 
         /// <summary>
@@ -141,7 +213,8 @@ namespace Microsoft.Generator.CSharp
             { Options.GenerateModelFactory, true },
             { Options.GenerateSampleProject, true },
             { Options.ClearOutputFolder, true },
-            { Options.GenerateTestProject, false }
+            { Options.GenerateTestProject, false },
+            { Options.DisableXmlDocs, false },
         };
 
         /// <summary>
@@ -156,6 +229,7 @@ namespace Microsoft.Generator.CSharp
             Options.LibraryName,
             Options.UseModelNamespace,
             Options.Namespace,
+            Options.DisableXmlDocs,
         };
 
         private static bool ReadOption(JsonElement root, string option)

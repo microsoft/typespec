@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
+  "mainEntryPointFilePath": "./dist/emitter/index.d.ts",
+  "projectFolder": "./emitter",
+  "compiler": {
+    "tsconfigFilePath": "./emitter/tsconfig.build.json"
+  },
+  "apiReport": {
+    "enabled": true,
+    "reportFolder": "./emitter/temp",
+    "reportFileName": "typespec-http-client-java.api.md"
+  },
+  "docModel": {
+    "enabled": true,
+    "apiJsonFilePath": "./emitter/temp/typespec-http-client-java.api.json"
+  },
+  "dtsRollup": {
+    "enabled": true,
+    "publicTrimmedFilePath": "./dist/typespec-http-client-java.d.ts",
+    "untrimmedFilePath": ""
+  },
+  "messages": {
+    "compilerMessageReporting": {
+      "default": {
+        "logLevel": "warning"
+      }
+    },
+    "extractorMessageReporting": {
+      "default": {
+        "logLevel": "warning"
+      }
+    },
+    "tsdocMessageReporting": {
+      "default": {
+        "logLevel": "warning"
+      }
+    }
+  }
+}

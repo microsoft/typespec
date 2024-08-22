@@ -2,319 +2,202 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import {
-  SdkClient,
+  SdkClientType,
   SdkContext,
-  SdkOperationGroup,
+  SdkEndpointParameter,
+  SdkEndpointType,
+  SdkHttpOperation,
+  SdkServiceMethod,
+  SdkType,
+  UsageFlags,
   getAllModels,
-  getLibraryName,
-  listClients,
-  listOperationGroups,
-  listOperationsInOperationGroup,
 } from "@azure-tools/typespec-client-generator-core";
-import {
-  EmitContext,
-  NoTarget,
-  Service,
-  getDoc,
-  getNamespaceFullName,
-  ignoreDiagnostics,
-  listServices,
-} from "@typespec/compiler";
-import {
-  HttpOperation,
-  getAllHttpServices,
-  getAuthentication,
-  getHttpOperation,
-  getServers,
-} from "@typespec/http";
-import { getVersions } from "@typespec/versioning";
+import { getDoc } from "@typespec/compiler";
 import { NetEmitterOptions, resolveOptions } from "../options.js";
-import { ClientKind } from "../type/client-kind.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputClient } from "../type/input-client.js";
-import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
-import { InputOperation } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
-import { InputEnumType, InputModelType } from "../type/input-type.js";
+import { InputEnumType, InputModelType, InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
-import { Usage } from "../type/usage.js";
-import { reportDiagnostic } from "./lib.js";
+import { SdkTypeMap } from "../type/sdk-type-map.js";
+import { fromSdkType } from "./converter.js";
 import { Logger } from "./logger.js";
-import { getUsages, navigateModels } from "./model.js";
-import { loadOperation } from "./operation.js";
+import { navigateModels } from "./model.js";
+import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
-import { resolveServers } from "./typespec-server.js";
-import { createContentTypeOrAcceptParameter } from "./utils.js";
 
 export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeModel {
   // initialize tcgc model
   if (!sdkContext.operationModelsMap) getAllModels(sdkContext);
 
-  const services = listServices(sdkContext.emitContext.program);
-  if (services.length === 0) {
-    services.push({
-      type: sdkContext.emitContext.program.getGlobalNamespaceType(),
-    });
-  }
+  const sdkPackage = sdkContext.sdkPackage;
 
-  // TODO: support multiple service. Current only chose the first service.
-  const service = services[0];
-  const serviceNamespaceType = service.type;
-  if (serviceNamespaceType === undefined) {
-    throw Error("Can not emit yaml for a namespace that doesn't exist.");
-  }
+  const sdkTypeMap: SdkTypeMap = {
+    types: new Map<SdkType, InputType>(),
+    models: new Map<string, InputModelType>(),
+    enums: new Map<string, InputEnumType>(),
+  };
 
-  return createModelForService(sdkContext, service);
-}
+  navigateModels(sdkContext, sdkTypeMap);
 
-export function createModelForService(
-  sdkContext: SdkContext<NetEmitterOptions>,
-  service: Service
-): CodeModel {
-  const program = sdkContext.emitContext.program;
-  const serviceNamespaceType = service.type;
+  const sdkApiVersionEnums = sdkPackage.enums.filter((e) => e.usage === UsageFlags.ApiVersionEnum);
 
-  const apiVersions: Set<string> | undefined = new Set<string>();
-  let defaultApiVersion: string | undefined = undefined;
-  let versions = getVersions(program, service.type)[1]
-    ?.getVersions()
-    .map((v) => v.value);
-  const targetApiVersion = sdkContext.emitContext.options["api-version"];
-  if (
-    versions !== undefined &&
-    targetApiVersion !== undefined &&
-    targetApiVersion !== "all" &&
-    targetApiVersion !== "latest"
-  ) {
-    const targetApiVersionIndex = versions.findIndex((v) => v === targetApiVersion);
-    versions = versions.slice(0, targetApiVersionIndex + 1);
-  }
-  if (versions && versions.length > 0) {
-    for (const ver of versions) {
-      apiVersions.add(ver);
-    }
-    defaultApiVersion = versions[versions.length - 1];
-  }
-  const defaultApiVersionConstant: InputConstant | undefined = defaultApiVersion
-    ? {
-        Type: {
-          Kind: "string",
-        },
-        Value: defaultApiVersion,
-      }
-    : undefined;
+  const rootApiVersions =
+    sdkApiVersionEnums.length > 0
+      ? sdkApiVersionEnums[0].values.map((v) => v.value as string).flat()
+      : getRootApiVersions(sdkPackage.clients);
 
-  const servers = getServers(program, serviceNamespaceType);
-  const namespace = getNamespaceFullName(serviceNamespaceType) || "client";
-  const authentication = getAuthentication(program, serviceNamespaceType);
-  let auth = undefined;
-  if (authentication) {
-    auth = processServiceAuthentication(authentication);
-  }
+  const inputClients: InputClient[] = [];
+  fromSdkClients(
+    sdkPackage.clients.filter((c) => c.initialization.access === "public"),
+    inputClients,
+    []
+  );
 
-  const modelMap = new Map<string, InputModelType>();
-  const enumMap = new Map<string, InputEnumType>();
-  let urlParameters: InputParameter[] | undefined = undefined;
-  let url: string = "";
-  const convenienceOperations: HttpOperation[] = [];
-
-  //create endpoint parameter from servers
-  if (servers !== undefined) {
-    const typespecServers = resolveServers(sdkContext, servers, modelMap, enumMap);
-    if (typespecServers.length > 0) {
-      /* choose the first server as endpoint. */
-      url = typespecServers[0].url;
-      urlParameters = typespecServers[0].parameters;
-    }
-  }
-  const [services] = getAllHttpServices(program);
-  const routes = services[0].operations;
-  if (routes.length === 0) {
-    reportDiagnostic(program, {
-      code: "no-route",
-      format: { service: services[0].namespace.name },
-      target: NoTarget,
-    });
-  }
-  Logger.getInstance().info("routes:" + routes.length);
-
-  const clients: InputClient[] = [];
-  const dpgClients = listClients(sdkContext);
-  for (const client of dpgClients) {
-    clients.push(emitClient(client));
-    addChildClients(sdkContext.emitContext, client, clients);
-  }
-
-  navigateModels(sdkContext, modelMap, enumMap);
-
-  const usages = getUsages(sdkContext, convenienceOperations, modelMap);
-  setUsage(usages, modelMap);
-  setUsage(usages, enumMap);
-
-  for (const client of clients) {
-    for (const op of client.Operations) {
-      /* TODO: remove this when adopt tcgc.
-       *set Multipart usage for models.
-       */
-      const bodyParameter = op.Parameters.find((value) => value.Location === RequestLocation.Body);
-      if (bodyParameter && bodyParameter.Type && (bodyParameter.Type as InputModelType)) {
-        const inputModelType = bodyParameter.Type as InputModelType;
-        op.RequestMediaTypes?.forEach((item) => {
-          if (item === "multipart/form-data" && !inputModelType.Usage.includes(Usage.Multipart)) {
-            if (inputModelType.Usage.trim().length === 0) {
-              inputModelType.Usage = inputModelType.Usage.concat(Usage.Multipart);
-            } else {
-              inputModelType.Usage = inputModelType.Usage.trim()
-                .concat(",")
-                .concat(Usage.Multipart);
-            }
-          }
-        });
-      }
-
-      const apiVersionIndex = op.Parameters.findIndex(
-        (value: InputParameter) => value.IsApiVersion
-      );
-      if (apiVersionIndex === -1) {
-        continue;
-      }
-      const apiVersionInOperation = op.Parameters[apiVersionIndex];
-      if (defaultApiVersionConstant !== undefined) {
-        if (!apiVersionInOperation.DefaultValue?.Value) {
-          apiVersionInOperation.DefaultValue = defaultApiVersionConstant;
-        }
-      } else {
-        apiVersionInOperation.Kind = InputOperationParameterKind.Method;
-      }
-    }
-  }
-
-  const clientModel = {
-    Name: namespace,
-    ApiVersions: Array.from(apiVersions.values()),
-    Enums: Array.from(enumMap.values()),
-    Models: Array.from(modelMap.values()),
-    Clients: clients,
-    Auth: auth,
-  } as CodeModel;
+  const clientModel: CodeModel = {
+    Name: sdkPackage.rootNamespace,
+    ApiVersions: rootApiVersions,
+    Enums: Array.from(sdkTypeMap.enums.values()),
+    Models: Array.from(sdkTypeMap.models.values()),
+    Clients: inputClients,
+    Auth: processServiceAuthentication(sdkPackage),
+  };
   return clientModel;
 
-  function addChildClients(
-    context: EmitContext<NetEmitterOptions>,
-    client: SdkClient | SdkOperationGroup,
-    clients: InputClient[]
+  function fromSdkClients(
+    clients: SdkClientType<SdkHttpOperation>[],
+    inputClients: InputClient[],
+    parentClientNames: string[]
   ) {
-    const dpgOperationGroups = listOperationGroups(sdkContext, client as SdkClient);
-    for (const dpgGroup of dpgOperationGroups) {
-      const subClient = emitClient(dpgGroup, client);
-      clients.push(subClient);
-      addChildClients(context, dpgGroup, clients);
+    for (const client of clients) {
+      const inputClient = emitClient(client, parentClientNames);
+      inputClients.push(inputClient);
+      const subClients = client.methods
+        .filter((m) => m.kind === "clientaccessor")
+        .map((m) => m.response as SdkClientType<SdkHttpOperation>);
+      parentClientNames.push(inputClient.Name);
+      fromSdkClients(subClients, inputClients, parentClientNames);
+      parentClientNames.pop();
     }
   }
 
-  function getClientName(client: SdkClient | SdkOperationGroup): string {
-    if (client.kind === ClientKind.SdkClient) {
-      return client.name;
-    }
+  function emitClient(client: SdkClientType<SdkHttpOperation>, parentNames: string[]): InputClient {
+    const endpointParameter = client.initialization.properties.find(
+      (p) => p.kind === "endpoint"
+    ) as SdkEndpointParameter;
+    const uri = getMethodUri(endpointParameter);
+    const clientParameters = fromSdkEndpointParameter(endpointParameter);
+    return {
+      Name: getClientName(client, parentNames),
+      Description: client.description,
+      Operations: client.methods
+        .filter((m) => m.kind !== "clientaccessor")
+        .map((m) =>
+          fromSdkServiceMethod(
+            m as SdkServiceMethod<SdkHttpOperation>,
+            uri,
+            clientParameters,
+            rootApiVersions,
+            sdkContext,
+            sdkTypeMap
+          )
+        ),
+      Protocol: {},
+      Parent: parentNames.length > 0 ? parentNames[parentNames.length - 1] : undefined,
+      Parameters: clientParameters,
+      Decorators: client.decorators,
+    };
+  }
 
-    const pathParts = client.groupPath.split(".");
-    if (pathParts?.length >= 3) {
-      return pathParts.slice(pathParts.length - 2).join("");
-    }
+  function getClientName(
+    client: SdkClientType<SdkHttpOperation>,
+    parentClientNames: string[]
+  ): string {
+    const clientName = client.name;
 
-    const clientName = getLibraryName(sdkContext, client.type);
+    if (parentClientNames.length === 0) return clientName;
+    if (parentClientNames.length >= 2)
+      return `${parentClientNames.slice(parentClientNames.length - 1).join("")}${clientName}`;
+
     if (
       clientName === "Models" &&
       resolveOptions(sdkContext.emitContext)["model-namespace"] !== false
     ) {
-      reportDiagnostic(program, {
-        code: "invalid-name",
-        format: { name: clientName },
-        target: client.type,
-      });
+      Logger.getInstance().warn(`Invalid client name "${clientName}"`);
       return "ModelsOps";
     }
+
     return clientName;
   }
 
-  function emitClient(
-    client: SdkClient | SdkOperationGroup,
-    parent?: SdkClient | SdkOperationGroup
-  ): InputClient {
-    const operations = listOperationsInOperationGroup(sdkContext, client);
-    let clientDesc = "";
-    if (operations.length > 0) {
-      const container = ignoreDiagnostics(getHttpOperation(program, operations[0])).container;
-      clientDesc = getDoc(program, container) ?? "";
-    }
-
-    const inputClient: InputClient = {
-      Name: getClientName(client),
-      Description: clientDesc,
-      Operations: [],
-      Protocol: {},
-      Parent: parent === undefined ? undefined : getClientName(parent),
-      Parameters: urlParameters,
-    };
-    for (const op of operations) {
-      const httpOperation = ignoreDiagnostics(getHttpOperation(program, op));
-      const inputOperation: InputOperation = loadOperation(
-        sdkContext,
-        httpOperation,
-        url,
-        urlParameters,
-        serviceNamespaceType,
-        modelMap,
-        enumMap
-      );
-
-      applyDefaultContentTypeAndAcceptParameter(inputOperation);
-      inputClient.Operations.push(inputOperation);
-      if (inputOperation.GenerateConvenienceMethod) convenienceOperations.push(httpOperation);
-    }
-    return inputClient;
-  }
-}
-
-function setUsage(
-  usages: { inputs: string[]; outputs: string[]; roundTrips: string[] },
-  models: Map<string, InputModelType | InputEnumType>
-) {
-  for (const [name, m] of models) {
-    if (m.Usage !== undefined && m.Usage !== Usage.None) continue;
-    if (usages.inputs.includes(name)) {
-      m.Usage = Usage.Input;
-    } else if (usages.outputs.includes(name)) {
-      m.Usage = Usage.Output;
-    } else if (usages.roundTrips.includes(name)) {
-      m.Usage = Usage.RoundTrip;
+  function fromSdkEndpointParameter(p: SdkEndpointParameter): InputParameter[] {
+    // TODO: handle SdkUnionType
+    if (p.type.kind === "union") {
+      return fromSdkEndpointType(p.type.values[0] as SdkEndpointType);
     } else {
-      m.Usage = Usage.None;
+      return fromSdkEndpointType(p.type);
     }
+  }
+
+  function fromSdkEndpointType(type: SdkEndpointType): InputParameter[] {
+    // TODO: support free-style endpoint url with multiple parameters
+    const endpointExpr = type.serverUrl
+      .replace("https://", "")
+      .replace("http://", "")
+      .split("/")[0];
+    if (!/^\{\w+\}$/.test(endpointExpr))
+      throw new Error(`Unsupported server url "${type.serverUrl}"`);
+    const endpointVariableName = endpointExpr.substring(1, endpointExpr.length - 1);
+
+    const parameters: InputParameter[] = [];
+    for (const parameter of type.templateArguments) {
+      const isEndpoint = parameter.name === endpointVariableName;
+      const parameterType: InputType = isEndpoint
+        ? {
+            Kind: "url",
+            Name: "url",
+            CrossLanguageDefinitionId: "TypeSpec.url",
+          }
+        : fromSdkType(parameter.type, sdkContext, sdkTypeMap); // TODO: consolidate with converter.fromSdkEndpointType
+      parameters.push({
+        Name: parameter.name,
+        NameInRequest: parameter.serializedName,
+        // TODO: remove this workaround after https://github.com/Azure/typespec-azure/issues/1212 is fixed
+        Description: parameter.__raw ? getDoc(sdkContext.program, parameter.__raw) : undefined,
+        // TODO: we should do the magic in generator
+        Type: parameterType,
+        Location: RequestLocation.Uri,
+        IsApiVersion: parameter.isApiVersionParam,
+        IsResourceParameter: false,
+        IsContentType: false,
+        IsRequired: !parameter.optional,
+        IsEndpoint: isEndpoint,
+        SkipUrlEncoding: false,
+        Explode: false,
+        Kind: InputOperationParameterKind.Client,
+        DefaultValue: getParameterDefaultValue(parameter.clientDefaultValue, parameterType),
+      });
+    }
+    return parameters;
   }
 }
 
-function applyDefaultContentTypeAndAcceptParameter(operation: InputOperation): void {
-  const defaultValue: string = "application/json";
-  if (
-    operation.Parameters.some((value) => value.Location === RequestLocation.Body) &&
-    !operation.Parameters.some((value) => value.IsContentType === true)
-  ) {
-    operation.Parameters.push(
-      createContentTypeOrAcceptParameter([defaultValue], "contentType", "Content-Type")
-    );
-    operation.RequestMediaTypes = [defaultValue];
-  }
+function getRootApiVersions(clients: SdkClientType<SdkHttpOperation>[]): string[] {
+  // find any root client since they should have the same api versions
+  const oneRootClient = clients.find((c) => c.initialization.access === "public");
+  if (!oneRootClient) throw new Error("Root client not found");
 
-  if (
-    !operation.Parameters.some(
-      (value) =>
-        value.Location === RequestLocation.Header && value.NameInRequest.toLowerCase() === "accept"
-    )
-  ) {
-    operation.Parameters.push(
-      createContentTypeOrAcceptParameter([defaultValue], "accept", "Accept")
-    );
-  }
+  return oneRootClient.apiVersions;
+}
+
+function getMethodUri(p: SdkEndpointParameter | undefined): string {
+  if (!p) return "";
+
+  if (p.type.kind === "endpoint" && p.type.templateArguments.length > 0) return p.type.serverUrl;
+
+  if (p.type.kind === "union" && p.type.values.length > 0)
+    return (p.type.values[0] as SdkEndpointType).serverUrl;
+
+  return `{${p.name}}`;
 }

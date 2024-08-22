@@ -12,15 +12,20 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private static TypeProvider[] BuildClients()
         {
             var inputClients = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
-            var clients = new List<TypeProvider>();
-
+            var clients = new List<TypeProvider>(inputClients.Count * 3);
             foreach (var inputClient in inputClients)
             {
-                clients.Add(new RestClientProvider(inputClient));
-                clients.Add(new ClientProvider(inputClient));
+                var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+                clients.Add(client);
+                clients.Add(client.RestClient);
+                var clientOptions = client.ClientOptions;
+                if (clientOptions != null)
+                {
+                    clients.Add(clientOptions);
+                }
             }
 
-            return clients.ToArray();
+            return [.. clients];
         }
 
         protected override TypeProvider[] BuildTypeProviders()
@@ -44,6 +49,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 new ClientPipelineExtensionsDefinition(),
                 new ErrorResultDefinition(),
                 new ClientUriBuilderDefinition(),
+                new Utf8JsonBinaryContentDefinition(),
+                new BinaryContentHelperDefinition(),
             ];
         }
     }

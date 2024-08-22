@@ -1,5 +1,33 @@
 # Change Log - @typespec/openapi3
 
+## 0.59.1
+
+### Bug Fixes
+
+- [#4168](https://github.com/microsoft/typespec/pull/4168) Fix: query params are `explode: true` by default in OpenAPI 3.0
+
+
+## 0.59.0
+
+### Bug Fixes
+
+- [#4046](https://github.com/microsoft/typespec/pull/4046) Fix issue where operation example would produce an empty object when `@body`/`@bodyRoot` was used
+- [#4046](https://github.com/microsoft/typespec/pull/4046) Fix operation response body examples showing up for each response.
+- [#3912](https://github.com/microsoft/typespec/pull/3912) Fixes bug where union documentation was being applied to each union member in emitted output.
+- [#3908](https://github.com/microsoft/typespec/pull/3908) Fixes bug where circular references in unions caused an empty object to be emitted instead of a ref.
+
+### Bump dependencies
+
+- [#3948](https://github.com/microsoft/typespec/pull/3948) Update dependencies
+
+### Features
+
+- [#3894](https://github.com/microsoft/typespec/pull/3894) Add support for `@useRef` on responses
+- [#4020](https://github.com/microsoft/typespec/pull/4020) Add support for encoding numeric types as string
+- [#3890](https://github.com/microsoft/typespec/pull/3890) `@extension` used on the service namespace will set extension at the root of the document
+- [#3932](https://github.com/microsoft/typespec/pull/3932) Add support for URI templates in routes
+
+
 ## 0.58.0
 
 ### Bug Fixes

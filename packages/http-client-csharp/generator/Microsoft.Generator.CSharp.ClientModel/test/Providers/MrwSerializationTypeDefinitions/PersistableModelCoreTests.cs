@@ -7,6 +7,7 @@ using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializationTypeDefinitions
@@ -15,14 +16,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
     {
         public PersistableModelCoreTests()
         {
-            MockHelpers.LoadMockPlugin(createSerializationsCore: inputType
-                => inputType is InputModelType modeltype ? [new MockMrwProvider(modeltype)] : []);
+            MockHelpers.LoadMockPlugin(createSerializationsCore: (inputType, typeProvider)
+                => inputType is InputModelType modeltype ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)] : []);
         }
 
         private class MockMrwProvider : MrwSerializationTypeDefinition
         {
-            public MockMrwProvider(InputModelType inputModel)
-                : base(inputModel)
+            public MockMrwProvider(InputModelType inputModel, ModelProvider modelProvider)
+                : base(inputModel, modelProvider)
             {
             }
 
@@ -38,9 +39,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildPersistableModelCreateCoreMethod_DerivedType()
         {
-            var inputBase = new InputModelType("mockBaseModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, [], null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
-            var inputDerived = new InputModelType("mockDerivedModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip,
-                [], inputBase, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputBase = InputFactory.Model("mockBaseModel");
+            var inputDerived = InputFactory.Model("mockDerivedModel", baseModel: inputBase);
             ((List<InputModelType>)inputBase.DerivedModels).Add(inputDerived);
             var (baseModel, baseSerialization) = MrwSerializationTypeDefinitionTests.CreateModelAndSerialization(inputBase);
             var (derivedModel, derivedSerialization) = MrwSerializationTypeDefinitionTests.CreateModelAndSerialization(inputDerived);

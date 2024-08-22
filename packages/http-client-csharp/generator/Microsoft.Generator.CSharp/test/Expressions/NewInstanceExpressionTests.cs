@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -44,9 +45,14 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         [Test]
         public void ValidateNullableValueType()
         {
-            InputEnumType enumType = new InputEnumType("MyEnum", "MyEnum", "public", null, "MyEnum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.String), [new InputEnumTypeValue("One", "one", null), new InputEnumTypeValue("Two", "two", null)], true);
+            InputEnumType enumType = InputFactory.Enum("MyEnum", InputPrimitiveType.String, isExtensible: true, values:
+            [
+                InputFactory.EnumMember.Int32("One", 1),
+                InputFactory.EnumMember.Int32("Two", 2)
+            ]);
             var provider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(enumType);
-            var expr = New.Instance(provider.Type, Literal("three"));
+            Assert.NotNull(provider);
+            var expr = New.Instance(provider!.Type, Literal("three"));
             using CodeWriter writer = new CodeWriter();
             expr.Write(writer);
             Assert.AreEqual("new global::Sample.Models.MyEnum(\"three\")", writer.ToString(false));

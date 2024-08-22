@@ -40,7 +40,7 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
         [Test]
         public void TestWriteValueExpression_CustomExpression()
         {
-            var mockCastExpression = new MockExpression();
+            var mockCastExpression = new TestExpression();
             using var codeWriter = new CodeWriter();
             mockCastExpression.Write(codeWriter);
 

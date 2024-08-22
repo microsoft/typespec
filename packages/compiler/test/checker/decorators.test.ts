@@ -1,6 +1,12 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { PackageFlags, isNullType, setTypeSpecNamespace } from "../../src/core/index.js";
+import {
+  DecoratorFunction,
+  Namespace,
+  PackageFlags,
+  isNullType,
+  setTypeSpecNamespace,
+} from "../../src/core/index.js";
 import { numericRanges } from "../../src/core/numeric-ranges.js";
 import { Numeric } from "../../src/core/numeric.js";
 import {
@@ -35,42 +41,74 @@ describe("compiler: checker: decorators", () => {
       });
     });
 
-    it("bind implementation to declaration", async () => {
-      await runner.compile(`
-        extern dec testDec(target: unknown);
-      `);
+    describe("bind implementation to declaration", () => {
+      let $otherDec: DecoratorFunction;
+      function expectDecorator(ns: Namespace) {
+        const otherDecDecorator = ns.decoratorDeclarations.get("otherDec");
+        ok(otherDecDecorator);
+        strictEqual(otherDecDecorator.implementation, $otherDec);
+      }
 
-      const testDecDecorator = runner.program
-        .getGlobalNamespaceType()
-        .decoratorDeclarations.get("testDec");
-      ok(testDecDecorator);
+      describe("with $fn", () => {
+        beforeEach(() => {
+          $otherDec = () => {};
+          testJs.$otherDec = $otherDec;
+        });
 
-      strictEqual(testDecDecorator.implementation, $testDec);
-    });
+        it("defined at root", async () => {
+          await runner.compile(`
+            extern dec otherDec(target: unknown);
+          `);
 
-    it("bind implementation to declaration when in a namespace", async () => {
-      const $otherDec = () => {};
-      testJs.$otherDec = $otherDec;
-      setTypeSpecNamespace("MyLib", $otherDec);
+          expectDecorator(runner.program.getGlobalNamespaceType());
+        });
 
-      await runner.compile(`
-        extern dec testDec(target: unknown);
-        namespace MyLib {
-          extern dec otherDec(target: unknown);
-        }
-      `);
+        it("in a namespace", async () => {
+          setTypeSpecNamespace("Foo.Bar", $otherDec);
 
-      const testDecDecorator = runner.program
-        .getGlobalNamespaceType()
-        .decoratorDeclarations.get("testDec");
-      ok(testDecDecorator);
+          await runner.compile(`
+            namespace Foo.Bar {
+              extern dec otherDec(target: unknown);
+            }
+          `);
 
-      const myLib = runner.program.getGlobalNamespaceType().namespaces.get("MyLib");
-      ok(myLib);
-      const otherDecDecorator = myLib.decoratorDeclarations.get("otherDec");
-      ok(otherDecDecorator);
+          const ns = runner.program
+            .getGlobalNamespaceType()
+            .namespaces.get("Foo")
+            ?.namespaces.get("Bar");
+          ok(ns);
+          expectDecorator(ns);
+        });
+      });
 
-      strictEqual(otherDecDecorator.implementation, $otherDec);
+      describe("with $decorators", () => {
+        it("defined at root", async () => {
+          testJs.$decorators = { "": { otherDec: $otherDec } };
+
+          await runner.compile(`
+            extern dec otherDec(target: unknown);
+          `);
+
+          expectDecorator(runner.program.getGlobalNamespaceType());
+        });
+
+        it("in a namespace", async () => {
+          testJs.$decorators = { "Foo.Bar": { otherDec: $otherDec } };
+
+          await runner.compile(`
+            namespace Foo.Bar {
+              extern dec otherDec(target: unknown);
+            }
+          `);
+
+          const ns = runner.program
+            .getGlobalNamespaceType()
+            .namespaces.get("Foo")
+            ?.namespaces.get("Bar");
+          ok(ns);
+          expectDecorator(ns);
+        });
+      });
     });
 
     it("errors if decorator is missing extern modifier", async () => {

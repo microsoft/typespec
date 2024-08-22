@@ -24,7 +24,7 @@ describe("openapi3: overloads", () => {
       const operation = res.paths["/upload"].post;
       ok(operation);
       strictEqual(operation.operationId, "upload");
-      deepStrictEqual(Object.keys(operation.requestBody.content), [
+      deepStrictEqual(Object.keys(operation.requestBody!.content), [
         "text/plain",
         "application/octet-stream",
       ]);
@@ -56,8 +56,8 @@ describe("openapi3: overloads", () => {
       strictEqual(stringOperation.operationId, "uploadString");
       strictEqual(bytesOperation.operationId, "uploadBytes");
 
-      deepStrictEqual(Object.keys(stringOperation.requestBody.content), ["text/plain"]);
-      deepStrictEqual(Object.keys(bytesOperation.requestBody.content), [
+      deepStrictEqual(Object.keys(stringOperation.requestBody!.content), ["text/plain"]);
+      deepStrictEqual(Object.keys(bytesOperation.requestBody!.content), [
         "application/octet-stream",
       ]);
     });
@@ -67,7 +67,7 @@ describe("openapi3: overloads", () => {
       ok(baseOperation);
       strictEqual(baseOperation.operationId, "upload");
 
-      deepStrictEqual(Object.keys(baseOperation.requestBody.content), [
+      deepStrictEqual(Object.keys(baseOperation.requestBody!.content), [
         "text/plain",
         "application/octet-stream",
       ]);

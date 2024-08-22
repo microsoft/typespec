@@ -1,7 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { AccessFlags, SdkBuiltInKinds } from "@azure-tools/typespec-client-generator-core";
+import {
+  AccessFlags,
+  DecoratorInfo,
+  SdkBuiltInKinds,
+  UsageFlags,
+} from "@azure-tools/typespec-client-generator-core";
 import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler";
 import { InputEnumTypeValue } from "./input-enum-type-value.js";
 import { InputModelProperty } from "./input-model-property.js";
@@ -10,6 +15,7 @@ interface InputTypeBase {
   Kind: string;
   Description?: string;
   Deprecation?: string;
+  Decorators?: DecoratorInfo[];
 }
 
 export type InputType =
@@ -26,7 +32,10 @@ export type InputType =
 
 export interface InputPrimitiveType extends InputTypeBase {
   Kind: SdkBuiltInKinds;
+  Name: string;
   Encode?: string; // In TCGC this is required, and when there is no encoding, it just has the same value as kind
+  CrossLanguageDefinitionId: string;
+  BaseType?: InputPrimitiveType;
 }
 
 export interface InputLiteralType extends InputTypeBase {
@@ -42,8 +51,11 @@ export function isInputLiteralType(type: InputType): type is InputLiteralType {
 export type InputDateTimeType = InputUtcDateTimeType | InputOffsetDateTimeType;
 
 interface InputDateTimeTypeBase extends InputTypeBase {
+  Name: string;
   Encode: DateTimeKnownEncoding;
   WireType: InputPrimitiveType;
+  CrossLanguageDefinitionId: string;
+  BaseType?: InputDateTimeType;
 }
 
 export interface InputUtcDateTimeType extends InputDateTimeTypeBase {
@@ -56,8 +68,11 @@ export interface InputOffsetDateTimeType extends InputDateTimeTypeBase {
 
 export interface InputDurationType extends InputTypeBase {
   Kind: "duration";
+  Name: string;
   Encode: DurationKnownEncoding;
   WireType: InputPrimitiveType;
+  CrossLanguageDefinitionId: string;
+  BaseType?: InputDurationType;
 }
 
 export interface InputUnionType extends InputTypeBase {
@@ -76,7 +91,7 @@ export interface InputModelType extends InputTypeBase {
   Name: string;
   CrossLanguageDefinitionId: string;
   Access?: AccessFlags;
-  Usage: string; // TODO -- replace this with UsageFlags in TCGC
+  Usage: UsageFlags;
   AdditionalProperties?: InputType;
   DiscriminatorValue?: string;
   DiscriminatedSubtypes?: Record<string, InputModelType>;
@@ -97,7 +112,7 @@ export interface InputEnumType extends InputTypeBase {
   Accessibility?: string;
   Deprecated?: string;
   IsExtensible: boolean;
-  Usage: string;
+  Usage: UsageFlags;
 }
 
 export interface InputNullableType extends InputTypeBase {

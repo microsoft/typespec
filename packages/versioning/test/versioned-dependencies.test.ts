@@ -208,6 +208,48 @@ describe("versioning: reference versioned library", () => {
           "The provided version 'v2' from 'TestServiceVersions' is not declared as a version enum. Use '@versioned(TestServiceVersions)' on the containing namespace.",
       });
     });
+
+    it("doesn't emit diagnostic when library template with model expression instantiated with user model", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace Library {
+        model Template<T> {
+            a: {
+              b: T;
+            };
+          }
+        }
+
+        @versioned(Versions)
+        namespace Api {
+          enum Versions { v1 }
+
+          model Model {}
+
+          model Issue is Library.Template<Model>;
+        }
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("doesn't emit diagnostic when library template with union expression instantiated with user model", async () => {
+      const diagnostics = await runner.diagnose(`
+        namespace Library {
+        model Template<T> {
+            a: string | T;
+          }
+        }
+
+        @versioned(Versions)
+        namespace Api {
+          enum Versions { v1 }
+
+          model Model {}
+
+          model Issue is Library.Template<Model>;
+        }
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
   });
 
   describe("when using versioned library without @useDependency", () => {
@@ -372,6 +414,23 @@ describe("versioning: reference versioned library", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
+    it("doesn't emit diagnostic when referencing different sub namespace", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace DemoService {
+          enum Versions {v1, v2}
+          
+          namespace A {
+            model Foo {}
+          }
+          namespace B {
+            op use(): A.Foo;
+          }
+        }
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     it("doesn't emit diagnostic when referencing to versioned library from subnamespace with parent namespace with versioned dependency", async () => {
       const diagnostics = await runner.diagnose(`
         @versioned(Versions)
@@ -384,6 +443,24 @@ describe("versioning: reference versioned library", () => {
         namespace MyService {
           namespace SubNamespace {
             op use(): Lib.Foo;
+          }
+        }
+    `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    // LEGACY test due to arm depending on it. Should remove when we relax using-versioned-library rule
+    it("doesn't emit diagnostic when parent namespace reference sub namespace that is versioned differently", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace MyService {
+          enum Versions {m1}
+          model Foo is SubNamespace.Bar;
+          
+          @versioned(SubNamespace.Versions)
+          namespace SubNamespace {
+            enum Versions { s1 }
+            model Bar {}
           }
         }
     `);

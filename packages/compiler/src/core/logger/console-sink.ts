@@ -2,6 +2,7 @@ import { codeFrameColumns } from "@babel/code-frame";
 import pc from "picocolors";
 import { Formatter } from "picocolors/types.js";
 import { LogLevel, LogSink, ProcessedLog, SourceLocation } from "../types.js";
+import { supportsHyperlink } from "./support-hyperlinks.js";
 
 export interface FormatLogOptions {
   pretty?: boolean;
@@ -20,8 +21,16 @@ export function createConsoleSink(options: ConsoleSinkOptions = {}): LogSink {
   };
 }
 
+const supportHyperLinks = supportsHyperlink(process.stdout);
+function hyperlink(text: string, url: string | undefined, options: FormatLogOptions) {
+  if (supportHyperLinks && url && options.pretty) {
+    return `\u001B]8;;${url}\u0007${text}\u001B]8;;\u0007`;
+  }
+  return text;
+}
+
 export function formatLog(log: ProcessedLog, options: FormatLogOptions): string {
-  const code = color(options, log.code ? ` ${log.code}` : "", pc.gray);
+  const code = log.code ? hyperlink(color(options, ` ${log.code}`, pc.gray), log.url, options) : "";
   const level = formatLevel(options, log.level);
   const content = `${level}${code}: ${log.message}`;
   const location = log.sourceLocation;

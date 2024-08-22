@@ -18,22 +18,29 @@ namespace Microsoft.Generator.CSharp.Providers
     {
         public string Name { get; }
         public FormattableString Description { get; }
-        public CSharpType Type { get; init; }
-        public ValueExpression? DefaultValue { get; init; }
+        public CSharpType Type { get; set; }
+
+        /// <summary>
+        /// The default value of the parameter.
+        /// </summary>
+        public ValueExpression? DefaultValue { get; set; }
+        public ValueExpression? InitializationValue { get; init; }
         public ParameterValidationType Validation { get; init; } = ParameterValidationType.None;
         public bool IsRef { get; }
         public bool IsOut { get; }
-        internal IReadOnlyList<AttributeStatement> Attributes { get; } = Array.Empty<AttributeStatement>();
+        internal IReadOnlyList<AttributeStatement> Attributes { get; } = [];
+        public WireInformation WireInfo { get; }
+        public ParameterLocation Location { get; }
 
         /// <summary>
-        /// This property tracks which property this parameter is constructed from
+        /// This property tracks which property this parameter is constructed from.
         /// </summary>
         public PropertyProvider? Property { get; }
 
         /// <summary>
-        /// This property tracks which field this parameter is constructed from
+        /// This property tracks which field this parameter is constructed from.
         /// </summary>
-        public FieldProvider? Field { get; }
+        public FieldProvider? Field { get; set; }
 
         /// <summary>
         /// Creates a <see cref="ParameterProvider"/> from an <see cref="InputParameter"/>.
@@ -43,8 +50,17 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             Name = inputParameter.Name;
             Description = FormattableStringHelpers.FromString(inputParameter.Description) ?? FormattableStringHelpers.Empty;
-            Type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
-            Validation = inputParameter.IsRequired ? ParameterValidationType.AssertNotNull : ParameterValidationType.None;
+            var type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");
+            if (!inputParameter.IsRequired && !type.IsCollection)
+            {
+                type = type.WithNullable(true);
+            }
+            Type = type;
+            Validation = inputParameter.IsRequired && !Type.IsValueType && !Type.IsNullable
+                ? ParameterValidationType.AssertNotNull
+                : ParameterValidationType.None;
+            WireInfo = new WireInformation(CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParameter.Type), inputParameter.NameInRequest);
+            Location = inputParameter.Location.ToParameterLocation();
         }
 
         public ParameterProvider(
@@ -56,7 +72,9 @@ namespace Microsoft.Generator.CSharp.Providers
             bool isOut = false,
             IReadOnlyList<AttributeStatement>? attributes = null,
             PropertyProvider? property = null,
-            FieldProvider? field = null)
+            FieldProvider? field = null,
+            ValueExpression? initializationValue = null,
+            ParameterLocation? location = null)
         {
             Debug.Assert(!(property is not null && field is not null), "A parameter cannot be both a property and a field");
 
@@ -70,6 +88,9 @@ namespace Microsoft.Generator.CSharp.Providers
             Property = property;
             Field = field;
             Validation = GetParameterValidation();
+            InitializationValue = initializationValue;
+            WireInfo = new WireInformation(SerializationFormat.Default, name);
+            Location = location ?? ParameterLocation.Unknown;
         }
 
         private ParameterProvider? _inputParameter;
@@ -141,9 +162,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             if (parameter._asVariable == null)
             {
-                var decl = new CodeWriterDeclaration(parameter.Name, parameter.IsRef);
-                decl.SetActualName(parameter.Name);
-                parameter._asVariable = new VariableExpression(parameter.Type, decl);
+                parameter._asVariable = new VariableExpression(parameter.Type, parameter.Name, parameter.IsRef);
             }
 
             return parameter._asVariable;
@@ -152,8 +171,13 @@ namespace Microsoft.Generator.CSharp.Providers
         private VariableExpression? _asVariable;
         public VariableExpression AsExpression => _asVariable ??= this;
 
+        public TypeProvider? SpreadSource { get; set; }
+
         private ParameterValidationType GetParameterValidation()
         {
+            if (Field is not null && !Field.Type.IsNullable)
+                return ParameterValidationType.AssertNotNull;
+
             if (Property is null || Property.WireInfo is null)
                 return ParameterValidationType.None;
 
@@ -174,6 +198,25 @@ namespace Microsoft.Generator.CSharp.Providers
                 return ParameterValidationType.None;
 
             return ParameterValidationType.AssertNotNull;
+        }
+
+        internal ParameterProvider WithRef()
+        {
+            return new ParameterProvider(
+                Name,
+                Description,
+                Type,
+                DefaultValue,
+                true,
+                false,
+                Attributes,
+                Property,
+                Field,
+                InitializationValue)
+            {
+                Validation = Validation,
+                _asVariable = AsExpression,
+            };
         }
     }
 }

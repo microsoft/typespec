@@ -11,116 +11,154 @@ configuration:
           - payloadType: Pull_Request
         then:
           - if:
-              - filesMatchPattern:
-                  pattern: packages/compiler/.*
+              - includesModifiedFiles:
+                  files:
+                    - packages/compiler/**/*
             then:
               - addLabel:
                   label: compiler:core
           - if:
-              - filesMatchPattern:
-                  pattern: packages/typespec-vscode/.*
+              - includesModifiedFiles:
+                  files: []
+            then:
+              - addLabel:
+                  label: compiler:emitter-framework
+          - if:
+              - includesModifiedFiles:
+                  files:
+                    - packages/typespec-vscode/**/*
+                    - packages/typespec-vs/**/*
             then:
               - addLabel:
                   label: ide
           - if:
-              - filesMatchPattern:
-                  pattern: packages/typespec-vs/.*
-            then:
-              - addLabel:
-                  label: ide
-          - if:
-              - filesMatchPattern:
-                  pattern: packages/http/.*
+              - includesModifiedFiles:
+                  files:
+                    - packages/http/**/*
             then:
               - addLabel:
                   label: lib:http
           - if:
-              - filesMatchPattern:
-                  pattern: packages/openapi/.*
+              - includesModifiedFiles:
+                  files:
+                    - packages/openapi/**/*
             then:
               - addLabel:
                   label: lib:openapi
           - if:
-              - filesMatchPattern:
-                  pattern: packages/rest/.*
+              - includesModifiedFiles:
+                  files:
+                    - packages/rest/**/*
             then:
               - addLabel:
                   label: lib:rest
           - if:
-              - filesMatchPattern:
-                  pattern: packages/versioning/.*
+              - includesModifiedFiles:
+                  files:
+                    - packages/versioning/**/*
             then:
               - addLabel:
                   label: lib:versioning
           - if:
-              - filesMatchPattern:
-                  pattern: blog/.*
+              - includesModifiedFiles:
+                  files:
+                    - blog/**/*
             then:
               - addLabel:
                   label: meta:blog
           - if:
-              - filesMatchPattern:
-                  pattern: website/.*
+              - includesModifiedFiles:
+                  files:
+                    - website/**/*
             then:
               - addLabel:
                   label: meta:website
           - if:
-              - filesMatchPattern:
-                  pattern: packages/tspd/.*
+              - includesModifiedFiles:
+                  files:
+                    - packages/tspd/**/*
             then:
               - addLabel:
                   label: tspd
           - if:
-              - filesMatchPattern:
-                  pattern: packages/http-client-csharp/.*
+              - includesModifiedFiles:
+                  files:
+                    - packages/http-client-csharp/**/*
             then:
               - addLabel:
                   label: emitter:client:csharp
           - if:
+              - includesModifiedFiles:
+                  files:
+                    - packages/http-client-java/**/*
+            then:
+              - addLabel:
+                  label: emitter:client:java
+          - if:
               - filesMatchPattern:
-                  pattern: packages/json-schema/.*
+                  pattern: packages/http-client-python/.*
+            then:
+              - addLabel:
+                  label: emitter:client:python
+          - if:
+              - includesModifiedFiles:
+                  files:
+                    - packages/json-schema/**/*
             then:
               - addLabel:
                   label: emitter:json-schema
           - if:
-              - filesMatchPattern:
-                  pattern: packages/protobuf/.*
+              - includesModifiedFiles:
+                  files:
+                    - packages/protobuf/**/*
             then:
               - addLabel:
                   label: emitter:protobuf
           - if:
-              - filesMatchPattern:
-                  pattern: packages/openapi3/.*
+              - includesModifiedFiles:
+                  files:
+                    - packages/openapi3/**/*
             then:
               - addLabel:
                   label: emitter:openapi3
           - if:
-              - filesMatchPattern:
-                  pattern: packages/openapi3/src/cli/actions/convert/.*
+              - includesModifiedFiles:
+                  files:
+                    - packages/openapi3/src/cli/actions/convert/**/*
             then:
               - addLabel:
                   label: openapi3:converter
           - if:
-              - filesMatchPattern:
-                  pattern: eng/.*
+              - includesModifiedFiles:
+                  files: []
+            then:
+              - addLabel:
+                  label: emitter:service:csharp
+          - if:
+              - includesModifiedFiles:
+                  files: []
+            then:
+              - addLabel:
+                  label: emitter:service:js
+          - if:
+              - includesModifiedFiles:
+                  files:
+                    - eng/**/*
+                    - .github/**/*
             then:
               - addLabel:
                   label: eng
           - if:
-              - filesMatchPattern:
-                  pattern: .github/.*
-            then:
-              - addLabel:
-                  label: eng
-          - if:
-              - filesMatchPattern:
-                  pattern: packages/playground/.*
+              - includesModifiedFiles:
+                  files:
+                    - packages/playground/**/*
             then:
               - addLabel:
                   label: ui:playground
           - if:
-              - filesMatchPattern:
-                  pattern: packages/html-program-viewer/.*
+              - includesModifiedFiles:
+                  files:
+                    - packages/html-program-viewer/**/*
             then:
               - addLabel:
                   label: ui:type-graph-viewer

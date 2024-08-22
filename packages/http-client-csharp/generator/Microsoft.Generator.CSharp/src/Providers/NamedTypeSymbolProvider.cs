@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
 
@@ -26,6 +27,31 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string GetNamespace() => GetFullyQualifiedNameFromDisplayString(_namedTypeSymbol.ContainingNamespace);
 
+        protected override FieldProvider[] BuildFields()
+        {
+            List<FieldProvider> fields = new List<FieldProvider>();
+            foreach (var fieldSymbol in _namedTypeSymbol.GetMembers().OfType<IFieldSymbol>())
+            {
+                if (!fieldSymbol.Name.EndsWith("k__BackingField"))
+                {
+                    var modifiers = GetFieldsAccessModifier(fieldSymbol.DeclaredAccessibility);
+                    if (fieldSymbol.IsStatic)
+                    {
+                        modifiers |= FieldModifiers.Static;
+                    }
+
+                    var fieldProvider = new FieldProvider(
+                    modifiers,
+                    GetCSharpType(fieldSymbol.Type),
+                    fieldSymbol.Name,
+                    this,
+                    GetSymbolXmlDoc(fieldSymbol, "summary"));
+                    fields.Add(fieldProvider);
+                }
+            }
+            return [.. fields];
+        }
+
         protected override PropertyProvider[] BuildProperties()
         {
             List<PropertyProvider> properties = new List<PropertyProvider>();
@@ -36,10 +62,26 @@ namespace Microsoft.Generator.CSharp.Providers
                     GetAccessModifier(propertySymbol.DeclaredAccessibility),
                     GetCSharpType(propertySymbol.Type),
                     propertySymbol.Name,
-                    new AutoPropertyBody(propertySymbol.SetMethod is not null));
+                    new AutoPropertyBody(propertySymbol.SetMethod is not null),
+                    this);
                 properties.Add(propertyProvider);
             }
             return [.. properties];
+        }
+
+        protected override ConstructorProvider[] BuildConstructors()
+        {
+            List<ConstructorProvider> constructors = new List<ConstructorProvider>();
+            foreach (var constructorSymbol in _namedTypeSymbol.Constructors)
+            {
+                var signature = new ConstructorSignature(
+                    Type,
+                    GetSymbolXmlDoc(constructorSymbol, "summary"),
+                    GetAccessModifier(constructorSymbol.DeclaredAccessibility),
+                    [.. constructorSymbol.Parameters.Select(p => ConvertToParameterProvider(constructorSymbol, p))]);
+                constructors.Add(new ConstructorProvider(signature, MethodBodyStatement.Empty, this));
+            }
+            return [.. constructors];
         }
 
         protected override MethodProvider[] BuildMethods()
@@ -125,6 +167,15 @@ namespace Microsoft.Generator.CSharp.Providers
             Accessibility.Internal => MethodSignatureModifiers.Internal,
             Accessibility.Public => MethodSignatureModifiers.Public,
             _ => MethodSignatureModifiers.None
+        };
+
+        private static FieldModifiers GetFieldsAccessModifier(Accessibility accessibility) => accessibility switch
+        {
+            Accessibility.Private => FieldModifiers.Private,
+            Accessibility.Protected => FieldModifiers.Protected,
+            Accessibility.Internal => FieldModifiers.Internal,
+            Accessibility.Public => FieldModifiers.Public,
+            _ => FieldModifiers.Public
         };
 
         private static CSharpType GetCSharpType(ITypeSymbol typeSymbol)

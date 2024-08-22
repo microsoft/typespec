@@ -2,14 +2,18 @@
 
   <ItemGroup>
     <ProjectReference Include="..\src\Microsoft.Generator.CSharp.csproj" />
+    <ProjectReference Include="common\Microsoft.Generator.CSharp.Tests.Common.csproj" />
     <Compile Include="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/**/*.cs" Link="Generated/Helpers/%(RecursiveDir)/%(Filename)%(Extension)" />
     <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/ModelSerializationExtensions.cs" />
     <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/ClientPipelineExtensions.cs" />
     <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/ErrorResult.cs" />
+    <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/BinaryContentHelper.cs" />
+    <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/Utf8JsonBinaryContent.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="**\TestData\**\*.cs" />
+    <Compile Remove="**\common\**\*.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,7 +23,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Mocks\Configuration.json">
+    <None Update="TestHelpers\Configuration.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="TestHelpers\tspCodeModel.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
