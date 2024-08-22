@@ -5,9 +5,9 @@
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
-using _Type.Enum.Extensible.Models;
+using _Type._Enum.Extensible.Models;
 
-namespace _Type.Enum.Extensible
+namespace _Type._Enum.Extensible
 {
     public partial class String
     {

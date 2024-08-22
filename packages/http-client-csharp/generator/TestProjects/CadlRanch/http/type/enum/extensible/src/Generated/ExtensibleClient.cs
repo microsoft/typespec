@@ -5,7 +5,7 @@
 using System;
 using System.ClientModel.Primitives;
 
-namespace _Type.Enum.Extensible
+namespace _Type._Enum.Extensible
 {
     public partial class ExtensibleClient
     {

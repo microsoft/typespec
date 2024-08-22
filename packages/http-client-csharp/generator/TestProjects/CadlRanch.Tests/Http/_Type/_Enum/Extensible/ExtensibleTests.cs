@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using System.Threading.Tasks;
-using _Type.Enum.Extensible;
-using _Type.Enum.Extensible.Models;
+using _Type._Enum.Extensible;
+using _Type._Enum.Extensible.Models;
 using NUnit.Framework;
 
-namespace TestProjects.CadlRanch.Tests.Http._Type.Enum.Extensible
+namespace TestProjects.CadlRanch.Tests.Http._Type._Enum.Extensible
 {
     internal class ExtensibleTests : CadlRanchTestBase
     {
