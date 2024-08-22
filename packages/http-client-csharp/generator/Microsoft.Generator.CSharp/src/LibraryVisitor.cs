@@ -11,6 +11,12 @@ namespace Microsoft.Generator.CSharp
     {
         internal virtual void Visit(OutputLibrary library)
         {
+            // Ensure all types are built before visiting them
+            foreach (var type in library.TypeProviders)
+            {
+                type.EnsureBuilt();
+            }
+
             var types = new List<TypeProvider>();
             foreach (var typeProvider in library.TypeProviders)
             {
