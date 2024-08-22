@@ -19,7 +19,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     internal class ClientPipelineExtensionsDefinition : TypeProvider
     {
         private const string _processMessageAsync = "ProcessMessageAsync";
-        private const string _processMessage = "ProcessMessage";
+        private const string _processMessage = "ProcessMmessage";
         private const string _processHeadAsBoolMessageAsync = "ProcessHeadAsBoolMessageAsync";
         private const string _processHeadAsBoolMessage = "ProcessHeadAsBoolMessage";
 

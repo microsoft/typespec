@@ -72,7 +72,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 GetResponseType(Operation.Responses, true, isAsync, out var responseBodyType),
                 null,
                 ConvenienceMethodParameters);
-            var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
 
             MethodBodyStatement[] methodBody;
 
