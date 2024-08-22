@@ -211,17 +211,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 MethodBodyStatement statement;
                 if (type?.IsCollection == true)
                 {
-                    ValueExpression values = valueExpression;
-                    if (format != null)
-                    {
-                        var _t = typeof(IEnumerable<>).GetGenericArguments()[0];
-                        var v = new VariableExpression(_t, "v");
-                        var convertValueToStringExpression = TypeFormattersSnippets.ConvertToString(v, Literal(format));
-                        var selector = new FuncExpression([v.Declaration], convertValueToStringExpression).As<string>();
-                        values = valueExpression.Select(selector);
-                    }
-                    valueExpression = StringSnippets.Join(Literal(inputParameter.ArraySerializationDelimiter), values);
-                    statement = request.SetHeaderValue(inputParameter.NameInRequest, valueExpression);
+                    statement = request.SetHeaderDelimited(inputParameter.NameInRequest, valueExpression, Literal(inputParameter.ArraySerializationDelimiter), format != null ? Literal(format) : null);
                 }
                 else
                 {
