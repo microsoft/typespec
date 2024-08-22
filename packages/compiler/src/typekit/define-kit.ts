@@ -7,7 +7,7 @@ export interface TypekitPrototype {
 export const TypekitPrototype: Record<string, unknown> = {};
 
 export function createTypekit(): TypekitPrototype {
-  let tk = Object.create(TypekitPrototype);
+  const tk = Object.create(TypekitPrototype);
 
   Object.defineProperty(tk, "program", {
     get() {
