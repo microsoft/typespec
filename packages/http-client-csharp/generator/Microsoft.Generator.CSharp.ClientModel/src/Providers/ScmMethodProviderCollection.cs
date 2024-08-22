@@ -64,6 +64,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 methodModifier |= MethodSignatureModifiers.Async;
             }
+
             var methodSignature = new MethodSignature(
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
                 FormattableStringHelpers.FromString(Operation.Description),
@@ -74,12 +75,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
 
             MethodBodyStatement[] methodBody;
+
             if (responseBodyType is null)
             {
                 methodBody =
                 [
-                    .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var paramDeclarations),
-                    Return(This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, paramDeclarations), Null], isAsync))
+                    .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var declarations),
+                    Return(This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, declarations), Null], isAsync))
                 ];
             }
             else
@@ -88,11 +90,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 [
                     .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var paramDeclarations),
                     Declare("result", This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, paramDeclarations), Null], isAsync).As<ClientResult>(), out ScopedApi<ClientResult> result),
-                    .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var declarations),
+                    .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
                     Return(Static<ClientResult>().Invoke(
                         nameof(ClientResult.FromValue),
                         [
-                            GetResultConversion(result, responseBodyType, declarations),
+                            GetResultConversion(result, responseBodyType, resultDeclarations),
                             result.Invoke("GetRawResponse")
                         ])),
                 ];
@@ -109,6 +111,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             declarations = new Dictionary<string, ValueExpression>();
             foreach (var parameter in convenienceMethodParameters)
             {
+                if (parameter.SpreadSource is not null)
+                    continue;
+
                 if (parameter.Location == ParameterLocation.Body)
                 {
                     if (parameter.Type.IsReadOnlyMemory)
@@ -136,7 +141,51 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     }
                 }
             }
+
+            // add spread parameter model variable declaration
+            var spreadSource = convenienceMethodParameters.FirstOrDefault(p => p.SpreadSource is not null)?.SpreadSource;
+            if (spreadSource is not null)
+            {
+                statements.Add(Declare("spreadModel", New.Instance(spreadSource.Type, [.. GetSpreadConversion(spreadSource)]).As(spreadSource.Type), out var spread));
+                declarations["spread"] = spread;
+            }
+
             return statements;
+        }
+
+        private List<ValueExpression> GetSpreadConversion(TypeProvider spreadSource)
+        {
+            var convenienceMethodParams = ConvenienceMethodParameters.ToDictionary(p => p.Name);
+            List<ValueExpression> expressions = new(spreadSource.Properties.Count);
+            // we should make this find more deterministic
+            var ctor = spreadSource.Constructors.First(c => c.Signature.Parameters.Count == spreadSource.Properties.Count + 1 &&
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+
+            foreach (var param in ctor.Signature.Parameters)
+            {
+                if (convenienceMethodParams.TryGetValue(param.Name, out var convenienceParam))
+                {
+                    if (convenienceParam.Type.IsList)
+                    {
+                        var interfaceType = param.Property!.WireInfo?.IsReadOnly == true
+                            ? new CSharpType(typeof(IReadOnlyList<>), convenienceParam.Type.Arguments)
+                            : new CSharpType(typeof(IList<>), convenienceParam.Type.Arguments);
+                        expressions.Add(NullCoalescing(
+                            new AsExpression(convenienceParam.NullConditional().ToList(), interfaceType),
+                            New.Instance(convenienceParam.Type.PropertyInitializationType, [])));
+                    }
+                    else
+                    {
+                        expressions.Add(convenienceParam);
+                    }
+                }
+                else
+                {
+                    expressions.Add(Null);
+                }
+            }
+
+            return expressions;
         }
 
         private IEnumerable<MethodBodyStatement> GetStackVariablesForReturnValueConversion(ScopedApi<ClientResult> result, CSharpType responseBodyType, bool isAsync, out Dictionary<string, ValueExpression> declarations)
@@ -216,9 +265,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private IReadOnlyList<ValueExpression> GetParamConversions(IReadOnlyList<ParameterProvider> convenienceMethodParameters, Dictionary<string, ValueExpression> declarations)
         {
             List<ValueExpression> conversions = new List<ValueExpression>();
+            bool addedSpreadSource = false;
             foreach (var param in convenienceMethodParameters)
             {
-                if (param.Location == ParameterLocation.Body)
+                if (param.SpreadSource is not null)
+                {
+                    if (!addedSpreadSource)
+                    {
+                        conversions.Add(declarations["spread"]);
+                        addedSpreadSource = true;
+                    }
+                }
+                else if (param.Location == ParameterLocation.Body)
                 {
                     if (param.Type.IsReadOnlyMemory || param.Type.IsList)
                     {
