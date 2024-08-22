@@ -24,80 +24,80 @@ interface InputExampleBase {
 
 export interface InputHttpOperationExample extends InputExampleBase {
   kind: "http";
-  parameters: InputParameterExample[];
+  parameters: InputParameterExampleValue[];
   responses: Map<number, OperationResponseExample>;
 }
 
-export interface InputParameterExample {
+export interface InputParameterExampleValue {
   parameter: InputParameter;
-  value: InputTypeExample;
+  value: InputTypeExampleValue;
 }
 
 export interface OperationResponseExample {
   response: OperationResponse;
   // headers: SdkHttpResponseHeaderExample[];
-  bodyValue?: InputTypeExample;
+  bodyValue?: InputTypeExampleValue;
 }
 
-export type InputTypeExample =
-  | InputStringExample
-  | InputNumberExample
-  | InputBooleanExample
-  | InputNullExample
-  | InputAnyExample
-  | InputArrayExample
-  | InputDictionaryExample
-  | InputUnionExample
-  | InputModelExample;
+export type InputTypeExampleValue =
+  | InputStringExampleValue
+  | InputNumberExampleValue
+  | InputBooleanExampleValue
+  | InputNullExampleValue
+  | InputAnyExampleValue
+  | InputArrayExampleValue
+  | InputDictionaryExampleValue
+  | InputUnionExampleValue
+  | InputModelExampleValue;
 
-export interface InputExampleTypeBase {
+export interface InputExampleTypeValueBase {
   kind: string;
   type: InputType;
   value: unknown;
 }
-export interface InputStringExample extends InputExampleTypeBase {
+export interface InputStringExampleValue extends InputExampleTypeValueBase {
   kind: "string";
   type: InputType;
   value: string;
 }
-export interface InputNumberExample extends InputExampleTypeBase {
+export interface InputNumberExampleValue extends InputExampleTypeValueBase {
   kind: "number";
   type: InputType;
   value: number;
 }
-export interface InputBooleanExample extends InputExampleTypeBase {
+export interface InputBooleanExampleValue extends InputExampleTypeValueBase {
   kind: "boolean";
   type: InputPrimitiveType | InputLiteralType;
   value: boolean;
 }
-export interface InputNullExample extends InputExampleTypeBase {
+export interface InputNullExampleValue extends InputExampleTypeValueBase {
   kind: "null";
   type: InputNullableType;
   value: null;
 }
-export interface InputAnyExample extends InputExampleTypeBase {
+export interface InputAnyExampleValue extends InputExampleTypeValueBase {
   kind: "any";
   type: InputPrimitiveType;
   value: unknown;
 }
-export interface InputArrayExample extends InputExampleTypeBase {
+export interface InputArrayExampleValue extends InputExampleTypeValueBase {
   kind: "array";
   type: InputArrayType;
-  value: InputTypeExample[];
+  value: InputTypeExampleValue[];
 }
-export interface InputDictionaryExample extends InputExampleTypeBase {
+export interface InputDictionaryExampleValue extends InputExampleTypeValueBase {
   kind: "dict";
   type: InputDictionaryType;
-  value: Record<string, InputTypeExample>;
+  value: Record<string, InputTypeExampleValue>;
 }
-export interface InputUnionExample extends InputExampleTypeBase {
+export interface InputUnionExampleValue extends InputExampleTypeValueBase {
   kind: "union";
   type: InputUnionType;
   value: unknown;
 }
-export interface InputModelExample extends InputExampleTypeBase {
+export interface InputModelExampleValue extends InputExampleTypeValueBase {
   kind: "model";
   type: InputModelType;
-  value: Record<string, InputTypeExample>;
-  additionalPropertiesValue?: Record<string, InputTypeExample>;
+  value: Record<string, InputTypeExampleValue>;
+  additionalPropertiesValue?: Record<string, InputTypeExampleValue>;
 }
