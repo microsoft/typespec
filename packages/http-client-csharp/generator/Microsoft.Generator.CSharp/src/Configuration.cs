@@ -16,7 +16,8 @@ namespace Microsoft.Generator.CSharp
         private static readonly string[] _badNamespaces =
         [
             "Type",
-            "Array"
+            "Array",
+            "Enum",
         ];
 
         private const string ConfigurationFileName = "Configuration.json";

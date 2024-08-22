@@ -75,7 +75,6 @@ $failingSpecs = @(
     Join-Path 'http' 'type' 'dictionary'
     Join-Path 'http' 'type' 'union'
     Join-Path 'http' 'type' 'enum' 'extensible'
-    Join-Path 'http' 'type' 'enum' 'fixed'
     Join-Path 'http' 'type' 'model' 'empty'
     Join-Path 'http' 'type' 'model' 'flatten'
     Join-Path 'http' 'type' 'model' 'usage'
