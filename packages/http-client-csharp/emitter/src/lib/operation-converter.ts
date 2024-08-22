@@ -97,13 +97,15 @@ export function fromSdkServiceMethod(
     GenerateConvenienceMethod: generateConvenience,
     CrossLanguageDefinitionId: method.crossLanguageDefintionId,
     Decorators: method.decorators,
-    Examples: method.operation.examples ? fromSdkHttpExamples(
-      sdkContext,
-      method.operation.examples,
-      parameterMap,
-      responseMap,
-      typeMap
-    ) : undefined,
+    Examples: method.operation.examples
+      ? fromSdkHttpExamples(
+          sdkContext,
+          method.operation.examples,
+          parameterMap,
+          responseMap,
+          typeMap
+        )
+      : undefined,
   };
 }
 
