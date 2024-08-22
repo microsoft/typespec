@@ -79,7 +79,7 @@ export function fromSdkServiceMethod(
     Parameters: [...clientParameters, ...parameterMap.values()],
     Responses: fromSdkHttpOperationResponses(method.operation.responses, sdkContext, typeCache),
     HttpMethod: parseHttpRequestMethod(method.operation.verb),
-    RequestBodyMediaType: getBodyMediaType(method.operation.bodyParam?.type),
+    RequestBodyMediaType: getBodyMediaTypeFromDataType(method.operation.bodyParam?.type),
     Uri: uri,
     Path: method.operation.path,
     ExternalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
@@ -236,7 +236,7 @@ function fromSdkHttpOperationResponses(
     responses.push({
       StatusCodes: toStatusCodesArray(range),
       BodyType: r.type ? fromSdkType(r.type, sdkContext, typeCache) : undefined,
-      BodyMediaType: BodyMediaType.Json,
+      BodyMediaType: getBodyMediaType(r.type, r.contentTypes), // TODO: https://github.com/microsoft/typespec/issues/4225
       Headers: fromSdkServiceResponseHeaders(r.headers, sdkContext, typeCache),
       IsErrorResponse: r.type !== undefined && isErrorModel(sdkContext.program, r.type.__raw!),
       ContentTypes: r.contentTypes,
@@ -271,19 +271,40 @@ function toStatusCodesArray(range: number | HttpStatusCodeRange): number[] {
   return statusCodes;
 }
 
-function getBodyMediaType(type: SdkType | undefined) {
+function getBodyMediaTypeFromDataType(type: SdkType | undefined): BodyMediaType {
   if (type === undefined) {
     return BodyMediaType.None;
   }
 
-  if (type.kind === "model") {
-    return BodyMediaType.Json;
-  } else if (type.kind === "string") {
-    return BodyMediaType.Text;
-  } else if (type.kind === "bytes") {
-    return BodyMediaType.Binary;
+  switch (type.kind) {
+    case "model":
+      return BodyMediaType.Json;
+    case "string":
+      return BodyMediaType.Text;
+    case "bytes":
+      return BodyMediaType.Binary;
+    default:
+      return BodyMediaType.None;
   }
-  return BodyMediaType.None;
+}
+
+function getBodyMediaType(type?: SdkType, contentTypes?: string[]): BodyMediaType {
+  if (contentTypes) {
+    for (const contentType of contentTypes) {
+      switch (contentType.toLocaleLowerCase()) {
+        case "application/json":
+          return BodyMediaType.Json;
+        case "application/xml":
+        case "text/xml":
+          return BodyMediaType.Xml;
+      }
+      const types = contentType.split("/");
+      if (types[0].toLocaleLowerCase() === "text") {
+        return BodyMediaType.Text;
+      }
+    }
+  }
+  return getBodyMediaTypeFromDataType(type);
 }
 
 function getRequestMediaTypes(op: SdkHttpOperation): string[] | undefined {

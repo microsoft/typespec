@@ -239,7 +239,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -290,7 +290,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -364,7 +364,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -441,7 +441,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -518,7 +518,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -572,7 +572,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -603,7 +603,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [
         {
          "$id": "59",
@@ -732,7 +732,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -809,7 +809,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -929,7 +929,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
@@ -1006,7 +1006,7 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
+       "BodyMediaType": "None",
        "Headers": [],
        "IsErrorResponse": false
       }
