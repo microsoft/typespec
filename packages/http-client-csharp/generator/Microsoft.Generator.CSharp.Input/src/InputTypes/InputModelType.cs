@@ -11,7 +11,7 @@ namespace Microsoft.Generator.CSharp.Input
     public class InputModelType : InputType
     {
         // TODO: Follow up issue https://github.com/microsoft/typespec/issues/3619. After https://github.com/Azure/typespec-azure/pull/966 is completed, update this type and remove the "modelAsStruct" parameter.
-        public InputModelType(string name, string crossLanguageDefinitionId, string? access, string? deprecation, string? description, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputModelProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties, bool modelAsStruct)
+        public InputModelType(string name, string crossLanguageDefinitionId, string? access, string? deprecation, string? description, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputModelProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties)
             : base(name)
         {
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
@@ -28,7 +28,6 @@ namespace Microsoft.Generator.CSharp.Input
             AdditionalProperties = additionalProperties;
             IsUnknownDiscriminatorModel = false;
             IsPropertyBag = false;
-            ModelAsStruct = modelAsStruct;
         }
 
         public string CrossLanguageDefinitionId { get; internal set; }
@@ -52,7 +51,7 @@ namespace Microsoft.Generator.CSharp.Input
         }
 
         private IReadOnlyList<InputModelProperty> _properties = [];
-        public bool ModelAsStruct { get; internal set; }
+        public bool ModelAsStruct => Decorators.Any(d => d.Name == "modelAsStruct");
         public InputModelType? BaseModel { get; internal set; }
         public IReadOnlyList<InputModelType> DerivedModels => DerivedModelsInternal;
         internal List<InputModelType> DerivedModelsInternal { get; }

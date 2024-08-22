@@ -148,14 +148,18 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 null,
                 $"{name} description",
                 usage,
-                properties is null ? [InputFactory.Property("StringProperty", InputPrimitiveType.String)] : [.. properties],
+                properties is null
+                    ? [InputFactory.Property("StringProperty", InputPrimitiveType.String)]
+                    : [.. properties],
                 baseModel,
                 [],
                 null,
                 null,
                 new Dictionary<string, InputModelType>(),
-                null,
-                modelAsStruct);
+                null)
+            {
+                Decorators = modelAsStruct ? new List<InputDecoratorInfo> { new InputDecoratorInfo("modelAsStruct", null)} : []
+            };
         }
 
         public static InputType Array(InputType elementType)

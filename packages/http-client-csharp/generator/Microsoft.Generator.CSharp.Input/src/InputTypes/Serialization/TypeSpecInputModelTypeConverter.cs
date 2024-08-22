@@ -46,8 +46,7 @@ namespace Microsoft.Generator.CSharp.Input
                 discriminatorValue: null,
                 discriminatorProperty: null,
                 discriminatedSubtypes: null!,
-                additionalProperties: null,
-                modelAsStruct: false);
+                additionalProperties: null);
             resolver.AddReference(id, model);
 
             string? crossLanguageDefinitionId = null;
@@ -61,7 +60,6 @@ namespace Microsoft.Generator.CSharp.Input
             InputModelType? baseModel = null;
             IReadOnlyList<InputModelProperty>? properties = null;
             IReadOnlyDictionary<string, InputModelType>? discriminatedSubtypes = null;
-            bool modelAsStruct = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
 
             // read all possible properties and throw away the unknown properties
@@ -79,7 +77,6 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadWithConverter(nameof(InputModelType.BaseModel), options, ref baseModel)
                     || reader.TryReadWithConverter(nameof(InputModelType.Properties), options, ref properties)
                     || reader.TryReadWithConverter(nameof(InputModelType.DiscriminatedSubtypes), options, ref discriminatedSubtypes)
-                    || reader.TryReadBoolean(nameof(InputModelType.ModelAsStruct), ref modelAsStruct)
                     || reader.TryReadWithConverter(nameof(InputModelType.Decorators), options, ref decorators);
 
                 if (!isKnownProperty)
@@ -103,7 +100,6 @@ namespace Microsoft.Generator.CSharp.Input
             model.BaseModel = baseModel;
             model.Properties = properties ?? Array.Empty<InputModelProperty>();
             model.DiscriminatedSubtypes = discriminatedSubtypes ?? new Dictionary<string, InputModelType>();
-            model.ModelAsStruct = modelAsStruct;
             model.Decorators = decorators ?? Array.Empty<InputDecoratorInfo>();
 
             // if this model has a base, it means this model is a derived model of the base model, add it into the list.
