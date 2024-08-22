@@ -76,7 +76,6 @@ $failingSpecs = @(
     Join-Path 'http' 'type' 'enum' 'fixed'
     Join-Path 'http' 'type' 'model' 'empty'
     Join-Path 'http' 'type' 'model' 'flatten'
-    Join-Path 'http' 'type' 'model' 'usage'
     Join-Path 'http' 'type' 'model' 'visibility'
     Join-Path 'http' 'type' 'model' 'inheritance' 'enum-discriminator'
     Join-Path 'http' 'type' 'model' 'inheritance' 'nested-discriminator'
