@@ -35,6 +35,7 @@ export interface InputParameterExampleValue {
 
 export interface OperationResponseExample {
   response: OperationResponse;
+  // TODO -- enable this when we are ready to write headers in responses.
   // headers: SdkHttpResponseHeaderExample[];
   bodyValue?: InputTypeExampleValue;
 }
