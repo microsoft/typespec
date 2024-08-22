@@ -5,14 +5,17 @@ import { TypeCollector } from "@typespec/emitter-framework";
 import { namespace as HttpNamespace } from "@typespec/http";
 import { namespace as RestNamespace } from "@typespec/rest";
 import { ModelsFile } from "./components/models-file.js";
+import { ModelSerializers } from "./components/serializers.jsx";
 
 export async function $onEmit(context: EmitContext) {
   const types = queryTypes(context);
+  const tsNamePolicy = ts.createTSNamePolicy();
 
   return (
-    <ay.Output>
+    <ay.Output namePolicy={tsNamePolicy}>
       <ts.PackageDirectory name="test-package" version="1.0.0" path={context.emitterOutputDir}>
         <ModelsFile types={types.dataTypes} />
+        <ModelSerializers types={types.dataTypes} />
         <ts.BarrelFile />
       </ts.PackageDirectory>
     </ay.Output>

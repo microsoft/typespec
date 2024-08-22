@@ -4,6 +4,7 @@ import {
   InterfaceDeclaration,
   UnionDeclaration
 } from "@typespec/emitter-framework/typescript";
+import { EnumDeclaration } from "./enum-declaration.js";
 
 export interface TypeDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
   name?: string;
@@ -23,5 +24,7 @@ export function TypeDeclaration(props: TypeDeclarationProps) {
       return <InterfaceDeclaration type={type} {...restProps} />
     case "Union":
       return <UnionDeclaration type={type} {...restProps} />
+    case "Enum":
+      return <EnumDeclaration type={type} {...restProps} />
   }
 }

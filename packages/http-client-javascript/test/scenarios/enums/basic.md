@@ -14,8 +14,12 @@ enum Foo {
 
 Should generate a type for type with name `Foo`
 
-```ts models.ts type Foo
-export type Foo = "one" | "two" | "three";
+```ts models.ts
+export enum Foo {
+  one = "one",
+  two = "two",
+  three = "three",
+}
 ```
 
 # Should generate a type declaration for an enum with named values
@@ -34,6 +38,10 @@ enum Foo {
 
 Should generate a type for a type with name `Foo`
 
-```ts models.ts type Foo
-export type Foo = "ONE" | "TWO" | "THREE";
-```
+````ts models.ts
+export enum Foo {
+  one = "ONE",
+  two = "TWO",
+  three = "THREE",
+}```
+````
