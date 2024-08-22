@@ -31,7 +31,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 _modifiers |= TypeSignatureModifiers.Internal;
             }
 
-            _valueField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, EnumUnderlyingType, "_value");
+            _valueField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, EnumUnderlyingType, "_value", this);
             DeclaringTypeProvider = declaringType;
         }
 
@@ -57,6 +57,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     modifiers,
                     EnumUnderlyingType,
                     name,
+                    this,
                     FormattableStringHelpers.FromString(inputValue.Description),
                     initializationValue);
 
@@ -87,7 +88,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
                     type: Type,
                     name: name,
-                    body: new AutoPropertyBody(false, InitializationExpression: New.Instance(Type, field)));
+                    body: new AutoPropertyBody(false, InitializationExpression: New.Instance(Type, field)),
+                    this);
             }
 
             return properties;

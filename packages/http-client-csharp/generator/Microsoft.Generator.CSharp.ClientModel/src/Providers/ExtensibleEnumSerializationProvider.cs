@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 // internal float ToSerialSingle() => _value; // when ValueType is float
                 // internal int ToSerialInt32() => _value; // when ValueType is int
                 // etc
-                var valueField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, _enumProvider.EnumUnderlyingType, "_value");
+                var valueField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, _enumProvider.EnumUnderlyingType, "_value", this);
                 return [new MethodProvider(toSerialSignature, valueField, this)];
             }
             else
