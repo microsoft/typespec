@@ -44,6 +44,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     modifiers,
                     GetCSharpType(fieldSymbol.Type),
                     fieldSymbol.Name,
+                    this,
                     GetSymbolXmlDoc(fieldSymbol, "summary"));
                     fields.Add(fieldProvider);
                 }
@@ -61,7 +62,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     GetAccessModifier(propertySymbol.DeclaredAccessibility),
                     GetCSharpType(propertySymbol.Type),
                     propertySymbol.Name,
-                    new AutoPropertyBody(propertySymbol.SetMethod is not null));
+                    new AutoPropertyBody(propertySymbol.SetMethod is not null),
+                    this);
                 properties.Add(propertyProvider);
             }
             return [.. properties];

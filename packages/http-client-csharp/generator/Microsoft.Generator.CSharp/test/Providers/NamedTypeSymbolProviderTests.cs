@@ -149,10 +149,10 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             {
                 return
                 [
-                    new FieldProvider(FieldModifiers.Public, typeof(int), "IntField", $"PublicIntField field"),
-                    new FieldProvider(FieldModifiers.Private, typeof(string), "StringField", $"PrivateStringField field no setter"),
-                    new FieldProvider(FieldModifiers.Internal, typeof(double),  "DoubleField", $"InternalDoubleField field"),
-                    new FieldProvider(FieldModifiers.Public | FieldModifiers.Static, typeof(float),  "FloatField", $"PublicStaticFloatField field"),
+                    new FieldProvider(FieldModifiers.Public, typeof(int), "IntField", new TestTypeProvider(), $"PublicIntField field"),
+                    new FieldProvider(FieldModifiers.Private, typeof(string), "StringField", new TestTypeProvider(), $"PrivateStringField field no setter"),
+                    new FieldProvider(FieldModifiers.Internal, typeof(double),  "DoubleField", new TestTypeProvider(), $"InternalDoubleField field"),
+                    new FieldProvider(FieldModifiers.Public | FieldModifiers.Static, typeof(float),  "FloatField", new TestTypeProvider(), $"PublicStaticFloatField field"),
                 ];
             }
 
@@ -160,10 +160,10 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             {
                 return
                 [
-                    new PropertyProvider($"IntProperty property", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true)),
-                    new PropertyProvider($"StringProperty property no setter", MethodSignatureModifiers.Public, typeof(string), "StringProperty", new AutoPropertyBody(false)),
-                    new PropertyProvider($"InternalStringProperty property no setter", MethodSignatureModifiers.Public, typeof(string), "InternalStringProperty", new AutoPropertyBody(false)),
-                    new PropertyProvider($"PropertyTypeProperty property", MethodSignatureModifiers.Public, new PropertyType().Type, "PropertyTypeProperty", new AutoPropertyBody(true)),
+                    new PropertyProvider($"IntProperty property", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), this),
+                    new PropertyProvider($"StringProperty property no setter", MethodSignatureModifiers.Public, typeof(string), "StringProperty", new AutoPropertyBody(false), this),
+                    new PropertyProvider($"InternalStringProperty property no setter", MethodSignatureModifiers.Public, typeof(string), "InternalStringProperty", new AutoPropertyBody(false), this),
+                    new PropertyProvider($"PropertyTypeProperty property", MethodSignatureModifiers.Public, new PropertyType().Type, "PropertyTypeProperty", new AutoPropertyBody(true), this),
                 ];
             }
 
@@ -200,7 +200,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             {
                 return
                 [
-                    new PropertyProvider($"Foo property", MethodSignatureModifiers.Public, typeof(int), "Foo", new AutoPropertyBody(true)),
+                    new PropertyProvider($"Foo property", MethodSignatureModifiers.Public, typeof(int), "Foo", new AutoPropertyBody(true), this),
                 ];
             }
 
