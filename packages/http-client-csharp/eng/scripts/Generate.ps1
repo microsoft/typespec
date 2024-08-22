@@ -80,7 +80,6 @@ $failingSpecs = @(
     Join-Path 'http' 'type' 'model' 'inheritance' 'recursive'
     Join-Path 'http' 'type' 'model' 'inheritance' 'single-discriminator'
     Join-Path 'http' 'type' 'property' 'additional-properties'
-    Join-Path 'http' 'type' 'property' 'nullable'
     Join-Path 'http' 'type' 'property' 'optionality'
     Join-Path 'http' 'type' 'property' 'value-types'
 )
