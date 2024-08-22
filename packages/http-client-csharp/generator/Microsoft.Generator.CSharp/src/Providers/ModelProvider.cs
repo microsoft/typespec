@@ -97,7 +97,7 @@ namespace Microsoft.Generator.CSharp.Providers
             for (int i = 0; i < propertiesCount; i++)
             {
                 var property = _inputModel.Properties[i];
-                var outputProperty = CodeModelPlugin.Instance.TypeFactory.CreatePropertyProvider(property);
+                var outputProperty = CodeModelPlugin.Instance.TypeFactory.CreatePropertyProvider(property, this);
                 if (outputProperty != null)
                 {
                     propertyDeclarations.Add(outputProperty);
@@ -315,7 +315,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 modifiers: modifiers,
                 type: _privateAdditionalRawDataPropertyType,
                 description: FormattableStringHelpers.FromString(PrivateAdditionalPropertiesPropertyDescription),
-                name: PrivateAdditionalPropertiesPropertyName);
+                name: PrivateAdditionalPropertiesPropertyName,
+                enclosingType: this);
 
             return rawDataField;
         }

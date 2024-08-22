@@ -100,7 +100,7 @@ describe("Test encode duration", () => {
                 value: duration;
             }
 
-            op test() : ISO8601DurationProperty;
+            op test(): ISO8601DurationProperty;
       `,
       runner
     );
@@ -129,7 +129,7 @@ describe("Test encode duration", () => {
                 value: duration;
             }
 
-            op test() : Int32SecondsDurationProperty;
+            op test(): Int32SecondsDurationProperty;
       `,
       runner
     );
@@ -158,7 +158,7 @@ describe("Test encode duration", () => {
                 value: duration;
             }
 
-            op test() : FloatSecondsDurationProperty;
+            op test(): FloatSecondsDurationProperty;
       `,
       runner
     );
