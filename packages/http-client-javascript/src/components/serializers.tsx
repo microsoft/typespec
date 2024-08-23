@@ -1,7 +1,7 @@
 import * as ts from "@alloy-js/typescript";
 import { Type } from "@typespec/compiler";
 import { ModelSerializer } from "./model-serializer.js";
-import { ModelDeserializer } from "./model-deserializer.jsx";
+import { ModelDeserializer } from "./model-deserializer.js";
 
 export interface ModelSerializersProps {
   types: Type[];

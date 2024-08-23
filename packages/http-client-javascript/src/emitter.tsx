@@ -3,9 +3,10 @@ import * as ts from "@alloy-js/typescript";
 import { EmitContext, getNamespaceFullName, isStdNamespace, Type } from "@typespec/compiler";
 import { TypeCollector } from "@typespec/emitter-framework";
 import { namespace as HttpNamespace } from "@typespec/http";
-import { namespace as RestNamespace } from "@typespec/rest";
 import { ModelsFile } from "./components/models-file.js";
-import { ModelSerializers } from "./components/serializers.jsx";
+import { ModelSerializers } from "./components/serializers.js";
+
+const RestNamespace = "TypeSpec.Rest";
 
 export async function $onEmit(context: EmitContext) {
   const types = queryTypes(context);

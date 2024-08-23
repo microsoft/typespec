@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getEmitOutput } from "../../utils.js";
-import { EnumDeclaration } from "../../../src/typescript/components/enum-declaration.jsx";
+import { EnumDeclaration } from "../../../src/typescript/components/enum-declaration.js";
 import { Enum, Union } from "@typespec/compiler";
 import { d } from "@alloy-js/core/testing";
 import { refkey } from "@alloy-js/core";
