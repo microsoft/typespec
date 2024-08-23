@@ -227,7 +227,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         valueDeclaration,
                         UsingDeclare("document", JsonDocumentSnippets.Parse(result.GetRawResponse().ContentStream(), isAsync), out var document),
                         ForeachStatement.Create("item", document.RootElement().EnumerateObject(), out ScopedApi<JsonProperty> item)
-                            .Add(GetElementConversion(valueType, item, value))
+                            .Add(GetElementConversion(valueType, item.Value(), value, item.Name()))
                     ];
                     declarations = new Dictionary<string, ValueExpression>
                     {
@@ -241,42 +241,34 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return [];
         }
 
-        private MethodBodyStatement GetElementConversion(CSharpType elementType, ScopedApi<JsonElement> item, ScopedApi value)
+        private MethodBodyStatement GetElementConversion(CSharpType elementType, ScopedApi<JsonElement> item, ScopedApi value, ValueExpression? dictKey = null)
         {
             if (elementType.Equals(typeof(TimeSpan)))
             {
-                return value.Add(item.Invoke("GetTimeSpan", Literal("P")));
+                return AddElement(dictKey, item.Invoke("GetTimeSpan", Literal("P")), value);
             }
             else if (elementType.Equals(typeof(BinaryData)))
             {
                 return new IfElseStatement(
                     item.ValueKind().Equal(JsonValueKindSnippets.Null),
-                    value.Add(Null),
-                    value.Add(BinaryDataSnippets.FromString(item.GetRawText())));
+                    AddElement(dictKey, Null, value),
+                    AddElement(dictKey, BinaryDataSnippets.FromString(item.GetRawText()), value));
             }
             else
             {
-                return value.Add(Static(elementType).Invoke($"Deserialize{elementType.Name}", item, ModelSerializationExtensionsSnippets.Wire));
+                return AddElement(dictKey, Static(elementType).Invoke($"Deserialize{elementType.Name}", item, ModelSerializationExtensionsSnippets.Wire), value);
             }
         }
 
-        private MethodBodyStatement GetElementConversion(CSharpType elementType, ScopedApi<JsonProperty> item, ScopedApi value)
+        private MethodBodyStatement AddElement(ValueExpression? dictKey, ValueExpression element, ScopedApi scopedApi)
         {
-            if (elementType.Equals(typeof(TimeSpan)))
+            if (dictKey != null)
             {
-                return value.Add(item.Name(), item.Value().Invoke("GetTimeSpan", Literal("P")));
+                // Add items to dictionary
+                return scopedApi.Add(dictKey, element);
             }
-            else if (elementType.Equals(typeof(BinaryData)))
-            {
-                return new IfElseStatement(
-                    item.Value().ValueKind().Equal(JsonValueKindSnippets.Null),
-                    value.Add(item.Name(), Null),
-                    value.Add(item.Name(), BinaryDataSnippets.FromString(item.Value().GetRawText())));
-            }
-            else
-            {
-                return value.Add(item.Name(), Static(elementType).Invoke($"Deserialize{elementType.Name}", item.Value(), ModelSerializationExtensionsSnippets.Wire));
-            }
+            // Add items to list
+            return scopedApi.Add(element);
         }
 
         private ValueExpression GetResultConversion(ScopedApi<ClientResult> result, CSharpType responseBodyType, Dictionary<string, ValueExpression> declarations)
