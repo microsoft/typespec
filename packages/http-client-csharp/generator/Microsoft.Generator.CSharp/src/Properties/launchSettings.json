@@ -40,6 +40,16 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-encode-duration": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/encode/duration -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-parameters-basic": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/parameters/basic -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-payload-media-type": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/payload/media-type -p StubLibraryPlugin",
       "commandName": "Executable",
@@ -60,13 +70,38 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-type-dictionary": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/dictionary -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-type-enum-extensible": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/enum/extensible -p StubLibraryPlugin",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-type-enum-fixed": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/enum/fixed -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-type-model-empty": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/model/empty -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-type-model-inheritance-single-discriminator": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/model/inheritance/single-discriminator -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-type-model-usage": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/model/usage -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-type-property-nullable": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/property/nullable -p StubLibraryPlugin",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },

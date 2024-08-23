@@ -269,6 +269,7 @@ namespace Microsoft.Generator.CSharp
             InputLiteralType literalType => GetSerializationFormat(literalType.ValueType),
             InputArrayType listType => GetSerializationFormat(listType.ValueType),
             InputDictionaryType dictionaryType => GetSerializationFormat(dictionaryType.ValueType),
+            InputNullableType nullableType => GetSerializationFormat(nullableType.Type),
             InputDateTimeType dateTimeType => dateTimeType.Encode switch
             {
                 DateTimeKnownEncoding.Rfc3339 => SerializationFormat.DateTime_RFC3339,

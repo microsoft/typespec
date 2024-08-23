@@ -89,7 +89,7 @@ namespace UnbrandedTypeSpec
             foreach (var item in dictionary)
             {
                 content.JsonWriter.WritePropertyName(item.Key);
-                if (item.Value.Equals(null))
+                if (item.Value == null)
                 {
                     content.JsonWriter.WriteNullValue();
                 }
