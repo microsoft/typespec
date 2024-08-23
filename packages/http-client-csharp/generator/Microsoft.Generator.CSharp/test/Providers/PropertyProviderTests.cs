@@ -22,7 +22,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             InputModelProperty inputModelProperty = InputFactory.Property("snake_case", InputPrimitiveType.String, wireName: "snake_case", isRequired: true);
 
-            var property = new PropertyProvider(inputModelProperty);
+            var property = new PropertyProvider(inputModelProperty, new TestTypeProvider());
 
             Assert.AreEqual("SnakeCase", property.Name);
             Assert.AreEqual("snake_case", property.WireInfo?.SerializedName);
@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             InputModelProperty inputModelProperty = InputFactory.Property("PascalCase", InputPrimitiveType.String, wireName: "PascalCase", isRequired: true);
 
-            var property = new PropertyProvider(inputModelProperty);
+            var property = new PropertyProvider(inputModelProperty, new TestTypeProvider());
 
             Assert.AreEqual("PascalCase", property.Name);
             Assert.AreEqual("PascalCase", property.WireInfo?.SerializedName);
@@ -46,7 +46,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             InputModelProperty inputModelProperty = InputFactory.Property("camelCase", InputPrimitiveType.String, wireName: "camelCase", isRequired: true);
 
-            var property = new PropertyProvider(inputModelProperty);
+            var property = new PropertyProvider(inputModelProperty, new TestTypeProvider());
 
             Assert.AreEqual("CamelCase", property.Name);
             Assert.AreEqual("camelCase", property.WireInfo?.SerializedName);
@@ -58,7 +58,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             InputModelProperty inputModelProperty = InputFactory.Property("kebab-case", InputPrimitiveType.String, wireName: "kebab-case", isRequired: true);
 
-            var property = new PropertyProvider(inputModelProperty);
+            var property = new PropertyProvider(inputModelProperty, new TestTypeProvider());
 
             Assert.AreEqual("KebabCase", property.Name);
             Assert.AreEqual("kebab-case", property.WireInfo?.SerializedName);
@@ -68,7 +68,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         [TestCaseSource(nameof(CollectionPropertyTestCases))]
         public void CollectionProperty(CSharpType coreType, InputModelProperty collectionProperty, CSharpType expectedType)
         {
-            var property = new PropertyProvider(collectionProperty);
+            var property = new PropertyProvider(collectionProperty, new TestTypeProvider());
             Assert.AreEqual(collectionProperty.Name.ToCleanName(), property.Name);
             Assert.AreEqual(expectedType, property.Type);
 

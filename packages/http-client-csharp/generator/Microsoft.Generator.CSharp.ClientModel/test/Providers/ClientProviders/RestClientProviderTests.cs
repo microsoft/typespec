@@ -4,17 +4,28 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 {
     public class RestClientProviderTests
     {
+        private static readonly InputModelType _spreadModel = InputFactory.Model(
+            "spreadModel",
+            usage: InputModelTypeUsage.Spread,
+            properties:
+            [
+                InputFactory.Property("p1", InputPrimitiveType.String, isRequired: true),
+                InputFactory.Property("optionalProp", InputPrimitiveType.String, isRequired: false)
+            ]);
+
         public RestClientProviderTests()
         {
             MockHelpers.LoadMockPlugin();
@@ -120,6 +131,58 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                     p.Name.Equals("repeatabilityFirstSent", StringComparison.OrdinalIgnoreCase) &&
                     p.Name.Equals("repeatabilityRequestId", StringComparison.OrdinalIgnoreCase)));
             }
+
+            var spreadInputParameter = inputOperation.Parameters.FirstOrDefault(p => p.Kind == InputOperationParameterKind.Spread);
+            if (spreadInputParameter != null)
+            {
+                Assert.AreEqual(_spreadModel.Properties.Count + 1, methodParameters.Count);
+                // validate path parameter
+                Assert.AreEqual(inputOperation.Parameters[1].Name, methodParameters[0].Name);
+                // validate spread parameters
+                Assert.AreEqual(_spreadModel.Properties[0].Name, methodParameters[1].Name);
+                Assert.IsNull(methodParameters[1].DefaultValue);
+                // validate optional parameter
+                Assert.AreEqual(_spreadModel.Properties[1].Name, methodParameters[2].Name);
+                Assert.AreEqual(Snippet.Default, methodParameters[2].DefaultValue);
+            }
+        }
+
+        [TestCase]
+        public void TestGetMethodParameters_ProperOrdering()
+        {
+            var methodParameters = RestClientProvider.GetMethodParameters(OperationWithMixedParamOrdering);
+
+            Assert.AreEqual(OperationWithMixedParamOrdering.Parameters.Count, methodParameters.Count);
+
+            // validate ordering
+            Assert.AreEqual("requiredPath", methodParameters[0].Name);
+            Assert.AreEqual("requiredQuery", methodParameters[1].Name);
+            Assert.AreEqual("requiredHeader", methodParameters[2].Name);
+            Assert.AreEqual("body", methodParameters[3].Name);
+            Assert.AreEqual("contentType", methodParameters[4].Name);
+            Assert.AreEqual("optionalQuery", methodParameters[5].Name);
+            Assert.AreEqual("optionalHeader", methodParameters[6].Name);
+
+            var orderedPathParams = RestClientProvider.GetMethodParameters(OperationWithOnlyPathParams);
+            Assert.AreEqual(OperationWithOnlyPathParams.Parameters.Count, orderedPathParams.Count);
+            Assert.AreEqual("c", orderedPathParams[0].Name);
+            Assert.AreEqual("a", orderedPathParams[1].Name);
+            Assert.AreEqual("b", orderedPathParams[2].Name);
+        }
+
+        [TestCaseSource(nameof(GetSpreadParameterModelTestCases))]
+        public void TestGetSpreadParameterModel(InputParameter inputParameter)
+        {
+            if (inputParameter.Kind == InputOperationParameterKind.Spread)
+            {
+                var model = RestClientProvider.GetSpreadParameterModel(inputParameter);
+                Assert.AreEqual(_spreadModel, model);
+            }
+            else
+            {
+                // assert throws
+                Assert.Throws<InvalidOperationException>(() => RestClientProvider.GetSpreadParameterModel(inputParameter));
+            }
         }
 
         [Test]
@@ -151,6 +214,103 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 InputFactory.Parameter("message", InputPrimitiveType.Boolean, isRequired: true)
             ]);
 
+        private readonly static InputOperation OperationWithSpreadParam = InputFactory.Operation(
+            "CreateMessageWithSpread",
+            parameters:
+            [
+                InputFactory.Parameter(
+                    "spread",
+                    _spreadModel,
+                    location: RequestLocation.Body,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Spread),
+                InputFactory.Parameter(
+                    "p2",
+                    InputPrimitiveType.Boolean,
+                    location: RequestLocation.Path,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Method)
+            ]);
+
+        private static readonly InputOperation OperationWithMixedParamOrdering = InputFactory.Operation(
+            "CreateMessage",
+            parameters:
+            [
+                // require query param
+                InputFactory.Parameter(
+                    "requiredQuery",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Query,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Method),
+                // optional query param
+                InputFactory.Parameter(
+                    "optionalQuery",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Query,
+                    isRequired: false,
+                    kind: InputOperationParameterKind.Method),
+                // required path param
+                InputFactory.Parameter(
+                    "requiredPath",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Path,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Method),
+                // required header param
+                InputFactory.Parameter(
+                    "requiredHeader",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Header,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Method),
+                // optional header param
+                InputFactory.Parameter(
+                    "optionalHeader",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Header,
+                    isRequired: false,
+                    kind: InputOperationParameterKind.Method),
+                // content type param
+                InputFactory.Parameter(
+                    "contentType",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Header,
+                    isContentType: true,
+                    kind: InputOperationParameterKind.Method),
+                // body param
+                InputFactory.Parameter(
+                    "body",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Body,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Method)
+            ]);
+
+        private static readonly InputOperation OperationWithOnlyPathParams = InputFactory.Operation(
+            "CreateMessage",
+            parameters:
+            [
+                InputFactory.Parameter(
+                    "c",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Path,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Method),
+                InputFactory.Parameter(
+                    "a",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Path,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Method),
+                InputFactory.Parameter(
+                    "b",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Path,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Method)
+            ]);
+
         private readonly static InputClient SingleOpInputClient = InputFactory.Client("TestClient", operations: [BasicOperation]);
 
         private static IEnumerable<TestCaseData> DefaultCSharpMethodCollectionTestCases =>
@@ -160,7 +320,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
         private static IEnumerable<TestCaseData> GetMethodParametersTestCases =>
         [
-            new TestCaseData(BasicOperation)
+            new TestCaseData(OperationWithSpreadParam),
+            new TestCaseData(BasicOperation),
+            new TestCaseData(OperationWithMixedParamOrdering)
+        ];
+
+        private static IEnumerable<TestCaseData> GetSpreadParameterModelTestCases =>
+        [
+            // spread param
+            new TestCaseData(InputFactory.Parameter("spread", _spreadModel, location: RequestLocation.Body, kind: InputOperationParameterKind.Spread, isRequired: true)),
+            // non spread param
+            new TestCaseData(InputFactory.Parameter("p1", InputPrimitiveType.Boolean, location: RequestLocation.Path, isRequired: true, kind: InputOperationParameterKind.Method))
+
         ];
 
         private class MockClientProvider : RestClientProvider

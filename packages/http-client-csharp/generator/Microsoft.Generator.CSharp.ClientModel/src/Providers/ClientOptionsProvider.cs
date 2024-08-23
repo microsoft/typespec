@@ -38,7 +38,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     MethodSignatureModifiers.Internal,
                     typeof(string),
                     VersionPropertyName,
-                    new AutoPropertyBody(false));
+                    new AutoPropertyBody(false),
+                    this);
             }
         }
 
@@ -54,6 +55,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 modifiers: FieldModifiers.Private | FieldModifiers.Const,
                 type: ServiceVersionEnum.Type,
                 name: LatestVersionFieldName,
+                enclosingType: this,
                 initializationValue: Static(ServiceVersionEnum.Type).Property(ServiceVersionEnum.EnumValues[^1].Name));
         }
 
@@ -135,7 +137,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                             MethodSignatureModifiers.Public,
                             type,
                             p.Name.ToCleanName(),
-                            new AutoPropertyBody(true)));
+                            new AutoPropertyBody(true),
+                            this));
                     }
                 }
             }

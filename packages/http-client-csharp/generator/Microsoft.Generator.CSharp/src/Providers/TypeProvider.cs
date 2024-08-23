@@ -36,8 +36,6 @@ namespace Microsoft.Generator.CSharp.Providers
             private set => _xmlDocs = value;
         }
 
-        internal virtual Type? SerializeAs => null;
-
         public string? Deprecated
         {
             get => _deprecated;
@@ -200,6 +198,28 @@ namespace Microsoft.Generator.CSharp.Providers
         public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
 
         protected virtual IReadOnlyList<EnumTypeMember> BuildEnumValues() => throw new InvalidOperationException("Not an EnumProvider type");
+
+        internal void EnsureBuilt()
+        {
+            _ = Methods;
+            _ = Constructors;
+            _ = Properties;
+            _ = Fields;
+            _ = Implements;
+            if (IsEnum)
+            {
+                _ = EnumValues;
+                _ = EnumUnderlyingType;
+            }
+            foreach (var type in SerializationProviders)
+            {
+                type.EnsureBuilt();
+            }
+            foreach (var type in NestedTypes)
+            {
+                type.EnsureBuilt();
+            }
+        }
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
     }
