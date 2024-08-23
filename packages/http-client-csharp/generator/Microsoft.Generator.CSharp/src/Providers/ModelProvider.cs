@@ -18,6 +18,7 @@ namespace Microsoft.Generator.CSharp.Providers
     {
         private const string PrivateAdditionalPropertiesPropertyDescription = "Keeps track of any properties unknown to the library.";
         private const string PrivateAdditionalPropertiesPropertyName = "_serializedAdditionalRawData";
+        private const string AdditionalPropertiesPropertyName = "AdditionalProperties";
         private readonly InputModelType _inputModel;
 
         protected override FormattableString Description { get; }
@@ -25,8 +26,10 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly bool _isStruct;
         private readonly TypeSignatureModifiers _declarationModifiers;
         private readonly CSharpType _privateAdditionalRawDataPropertyType = typeof(IDictionary<string, BinaryData>);
+        private readonly Type _additionalPropsUnknownType = typeof(BinaryData);
         private readonly Lazy<TypeProvider?>? _baseTypeProvider;
         private FieldProvider? _rawDataField;
+        private PropertyProvider? _additionalProperties;
         private ModelProvider? _baseModelProvider;
         private ConstructorProvider? _fullConstructor;
 
@@ -81,6 +84,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private ModelProvider? BaseModelProvider
             => _baseModelProvider ??= (_baseTypeProvider?.Value is ModelProvider baseModelProvider ? baseModelProvider : null);
         private FieldProvider? RawDataField => _rawDataField ??= BuildRawDataField();
+        private PropertyProvider? AdditionalPropertiesProperty => _additionalProperties ??= BuildAdditionalProperties();
 
         public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
 
@@ -114,7 +118,7 @@ namespace Microsoft.Generator.CSharp.Providers
         protected override PropertyProvider[] BuildProperties()
         {
             var propertiesCount = _inputModel.Properties.Count;
-            var properties = new List<PropertyProvider>(propertiesCount);
+            var properties = new List<PropertyProvider>(propertiesCount + 1);
 
             for (int i = 0; i < propertiesCount; i++)
             {
@@ -130,7 +134,12 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
             }
 
-            return properties.ToArray();
+            if (AdditionalPropertiesProperty != null)
+            {
+                properties.Add(AdditionalPropertiesProperty);
+            }
+
+            return [.. properties];
         }
 
         protected override ConstructorProvider[] BuildConstructors()
@@ -225,9 +234,12 @@ namespace Microsoft.Generator.CSharp.Providers
 
             constructorParameters.AddRange(_inputModel.IsUnknownDiscriminatorModel ? baseParameters : baseParameters.Where(p => p.Property is null || !p.Property.IsDiscriminator));
 
-            if (RawDataField != null && !isPrimaryConstructor)
+            if (!isPrimaryConstructor)
             {
-                constructorParameters.Add(RawDataField.AsParameter);
+                if (AdditionalPropertiesProperty != null)
+                    constructorParameters.Add(AdditionalPropertiesProperty.AsParameter);
+                if (RawDataField != null)
+                    constructorParameters.Add(RawDataField.AsParameter);
             }
 
             return (constructorParameters, constructorInitializer);
@@ -321,6 +333,15 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
             }
 
+            if (AdditionalPropertiesProperty != null)
+            {
+                var assignment = isPrimaryConstructor
+                    ? AdditionalPropertiesProperty.Assign(New.Instance(AdditionalPropertiesProperty.Type.PropertyInitializationType))
+                    : AdditionalPropertiesProperty.Assign(AdditionalPropertiesProperty.AsParameter);
+
+                methodBodyStatements.Add(assignment.Terminate());
+            }
+
             if (!isPrimaryConstructor && RawDataField != null)
             {
                 methodBodyStatements.Add(RawDataField.Assign(RawDataField.AsParameter).Terminate());
@@ -341,6 +362,15 @@ namespace Microsoft.Generator.CSharp.Providers
                 return null;
             }
 
+            // validate if the additional properties property exists & if its' value type is also BinaryData
+            if ((AdditionalPropertiesProperty != null
+                && AdditionalPropertiesProperty.Type.ElementType.Equals(_additionalPropsUnknownType, ignoreNullable: true)) ||
+                (BaseModelProvider?.AdditionalPropertiesProperty != null
+                && BaseModelProvider.AdditionalPropertiesProperty.Type.ElementType.Equals(_additionalPropsUnknownType, ignoreNullable: true)))
+            {
+                return null;
+            }
+
             var modifiers = FieldModifiers.Private;
             if (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Sealed))
             {
@@ -356,5 +386,54 @@ namespace Microsoft.Generator.CSharp.Providers
 
             return rawDataField;
         }
+
+        private PropertyProvider? BuildAdditionalProperties()
+        {
+            var additionalProperties = _inputModel.AdditionalProperties;
+            if (additionalProperties is null)
+            {
+                return null;
+            }
+
+            var valueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(additionalProperties);
+            if (valueType is null)
+                throw new InvalidOperationException($"Failed to create CSharpType for additional properties of model {_inputModel.Name}");
+
+            var originalType = new CSharpType(typeof(IDictionary<,>), typeof(string), valueType);
+            var additionalPropsType = !_inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
+                ? ReplaceUnverifiableType(originalType).OutputType
+                : ReplaceUnverifiableType(originalType);
+
+            return new PropertyProvider(
+                null,
+                MethodSignatureModifiers.Public,
+                additionalPropsType,
+                name: AdditionalPropertiesPropertyName,
+                new AutoPropertyBody(false),
+                enclosingType: this);
+        }
+
+        private CSharpType ReplaceUnverifiableType(CSharpType type)
+        {
+            return type switch
+            {
+                _ when type.Equals(_additionalPropsUnknownType, ignoreNullable: true) => type,
+                _ when type.IsFrameworkType && _verifiableAdditionalPropertyTypes.Contains(type.FrameworkType) => type,
+                _ when type.IsUnion => type,
+                _ when type.IsList => type.MakeGenericType([ReplaceUnverifiableType(type.Arguments[0])]),
+                _ when type.IsDictionary => type.MakeGenericType([ReplaceUnverifiableType(type.Arguments[0]), ReplaceUnverifiableType(type.Arguments[1])]),
+                _ => CSharpType.FromUnion([type])
+            };
+        }
+
+        private static readonly HashSet<Type> _verifiableAdditionalPropertyTypes =
+        [
+            typeof(byte), typeof(byte[]), typeof(sbyte),
+            typeof(DateTime), typeof(DateTimeOffset),
+            typeof(decimal), typeof(double), typeof(short), typeof(int), typeof(long), typeof(float),
+            typeof(ushort), typeof(uint), typeof(ulong),
+            typeof(Guid),
+            typeof(string), typeof(bool)
+        ];
     }
 }

@@ -142,6 +142,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             InputModelType? baseModel = null,
             bool modelAsStruct = false,
             string? discriminatedKind = null,
+            InputType? additionalProperties = null,
             IDictionary<string, InputModelType>? discriminatedModels = null,
             IEnumerable<InputModelType>? derivedModels = null)
         {
@@ -159,7 +160,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 discriminatedKind,
                 propertiesList.FirstOrDefault(p => p.IsDiscriminator),
                 discriminatedModels is null ? new Dictionary<string, InputModelType>() : discriminatedModels.AsReadOnly(),
-                null,
+                additionalProperties,
                 modelAsStruct);
         }
 
