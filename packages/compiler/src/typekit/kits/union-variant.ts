@@ -47,7 +47,7 @@ declare module "../define-kit.js" {
   interface TypekitPrototype extends UnionVariantKit {}
 }
 
-export const UnionKit = defineKit<UnionVariantKit>({
+defineKit<UnionVariantKit>({
   unionVariant: {
     create(desc) {
       const variant: UnionVariant = this.program.checker.createType({

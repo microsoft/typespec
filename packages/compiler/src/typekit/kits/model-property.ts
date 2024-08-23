@@ -2,18 +2,20 @@ import type { ModelProperty, Type } from "../../core/types.js";
 import { EncodeData, getEncode } from "../../lib/decorators.js";
 import { defineKit } from "../define-kit.js";
 
-interface ModelPropertyKit {
-  modelProperty: {
-    is(type: Type): type is ModelProperty;
-    getEncoding(property: ModelProperty): EncodeData | undefined;
-  };
+export interface ModelPropertyKit {
+  is(type: Type): type is ModelProperty;
+  getEncoding(property: ModelProperty): EncodeData | undefined;
+}
+
+interface TypeKit {
+  modelProperty: ModelPropertyKit;
 }
 
 declare module "../define-kit.js" {
-  interface TypekitPrototype extends ModelPropertyKit {}
+  interface TypekitPrototype extends TypeKit {}
 }
 
-defineKit<ModelPropertyKit>({
+defineKit<TypeKit>({
   modelProperty: {
     is(type) {
       return type.kind === "ModelProperty";
