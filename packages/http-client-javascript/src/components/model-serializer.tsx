@@ -1,6 +1,6 @@
 import { mapJoin, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Model, Type, DateTimeKnownEncoding } from "@typespec/compiler";
+import { Model, Type, DateTimeKnownEncoding, ModelProperty, getEncode } from "@typespec/compiler";
 import {$} from "@typespec/compiler/typekit"
 
 export interface ModelSerializerProps {
@@ -28,7 +28,7 @@ export function ModelSerializer(props: ModelSerializerProps) {
                   name={property.name}
                   // TODO: Alloy to support ref to interface properties
                   // value={<ts.Reference refkey={refkey(property)} />}
-                  value={getSerializer(property.type, itemPath)}
+                  value={getPropertySerializer(property, itemPath)}
                 />
               );
             },
@@ -44,7 +44,8 @@ function getSerializerRefkey(type: Model) {
   return refkey(type, "serializer");
 }
 
-function getSerializer(type: Type, itemPath: string) {
+function getPropertySerializer(property: ModelProperty, itemPath: string) {
+  const { type } = property; 
   switch (type.kind) {
     case "Model":
       return (
@@ -54,8 +55,8 @@ function getSerializer(type: Type, itemPath: string) {
       );
     case "Scalar":{
       if($.scalar.isUtcDateTime(type) || $.scalar.extendsUtcDateTime(type)) {
-        const encoding = $.scalar.getEncoding(type) as DateTimeKnownEncoding | undefined;
-        switch(encoding) {
+        const encoding = getEncode($.program, property) ?? $.scalar.getEncoding(type);
+        switch(encoding?.encoding) {
           case "rfc7231":
             return `${itemPath}.toUTCString()`;
           case "unixTimestamp":

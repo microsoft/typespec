@@ -10,7 +10,7 @@ const SCENARIOS_LOCATION = "./test/scenarios";
 const SCENARIOS_UPDATE = process.env["SCENARIOS_UPDATE"] === "true";
 let hasOnlyScenarios = false;
 
-type EmitterFunction = (tsp: string, namedArgs: Record<string, string>) => Promise<string>;
+type EmitterFunction = (project: Project, namedArgs: Record<string, string>) => Promise<string>;
 
 /**
  * Mapping of different snapshot types to how to get them.
@@ -21,42 +21,26 @@ type EmitterFunction = (tsp: string, namedArgs: Record<string, string>) => Promi
  */
 const OUTPUT_CODE_BLOCK_TYPES: Record<string, EmitterFunction> = {
   // Snapshot of a particular interface named {name} in the models file
-  "(ts|typescript) {file} interface {name}": async (tsp, { file, name }) => {
-    const result = await emitWithDiagnostics(tsp);
-    const project = loadOutput(result);
+  "(ts|typescript) {file} interface {name}": async (project, { file, name }) => {
     const sourceFile = project.getSourceFileOrThrow(file);
 
     return sourceFile!.getInterfaceOrThrow(name ?? "No name specified!").getText();
   },
 
-  "(ts|typescript) {file} type {name}": async (tsp, { file, name }) => {
-    const result = await emitWithDiagnostics(tsp);
-    const project = loadOutput(result);
+  "(ts|typescript) {file} type {name}": async (project, { file, name }) => {
     const sourceFile = project.getSourceFileOrThrow(file);
-
     return sourceFile!.getTypeAliasOrThrow(name ?? "No name specified!").getText();
   },
 
   // Snapshot of a particular function named {name} in the models file
-  "(ts|typescript) {file} function {name}": async (tsp, { file, name }) => {
-    const result = await emitWithDiagnostics(tsp);
-
-    if (result[0] === undefined) {
-      return "// (file was not generated)";
-    }
-
-    const project = loadOutput(result);
+  "(ts|typescript) {file} function {name}": async (project, { file, name }) => {
     const sourceFile = project.getSourceFileOrThrow(file);
-
     return sourceFile.getFunctionOrThrow(name ?? "No name specified!").getText();
   },
 
   // Snapshot of the entire file
-  "(ts|typescript) {file}": async (tsp, { file }) => {
-    const result = await emitWithDiagnostics(tsp);
-    const project = loadOutput(result);
+  "(ts|typescript) {file}": async (project, { file }) => {
     const sourceFile = project.getSourceFileOrThrow(file);
-
     return sourceFile.getFullText();
   },
 };
@@ -129,7 +113,9 @@ function describeScenario(scenarioFile: string, runAll: boolean) {
               const namedArgs = match.groups;
 
               it(codeBlock.heading, async function () {
-                const result = await fn(typeSpecInput, namedArgs ?? {});
+                const compiled = await emitWithDiagnostics(typeSpecInput);
+                const project = loadOutput(compiled);
+                const result = await fn(project, namedArgs ?? {});
 
                 if (SCENARIOS_UPDATE) {
                   content = updateCodeBlock(

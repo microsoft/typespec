@@ -31,14 +31,14 @@
   },
   "dependencies": {
     "@typespec/http": "workspace:~",
-    "@alloy-js/core": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@de1edfc",
-    "@alloy-js/typescript": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@de1edfc"
+    "@alloy-js/core": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@7d274fd",
+    "@alloy-js/typescript": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@7d274fd"
   },
   "devDependencies": {
     "@babel/cli": "^7.24.8",
     "@babel/core": "^7.24.9",
     "@rollup/plugin-babel": "^6.0.4",
-    "babel-preset-alloy": "https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@de1edfc",
+    "babel-preset-alloy": "https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@7d274fd",
     "concurrently": "^8.2.2",
     "typescript": "^5.5.3",
     "vitest": "^2.0.3"
