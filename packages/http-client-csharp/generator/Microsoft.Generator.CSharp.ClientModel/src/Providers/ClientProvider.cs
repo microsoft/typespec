@@ -64,27 +64,32 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 FieldModifiers.Private | FieldModifiers.ReadOnly,
                 typeof(ApiKeyCredential),
                 ApiKeyCredentialFieldName,
+                this,
                 description: $"A credential used to authenticate to the service.") : null;
             _authorizationHeaderConstant = apiKey?.Name != null ? new(
                 FieldModifiers.Private | FieldModifiers.Const,
                 typeof(string),
                 AuthorizationHeaderConstName,
+                this,
                 initializationValue: Literal(apiKey.Name)) : null;
             _authorizationApiKeyPrefixConstant = apiKey?.Prefix != null ? new(
                 FieldModifiers.Private | FieldModifiers.Const,
                 typeof(string),
                 AuthorizationApiKeyPrefixConstName,
+                this,
                 initializationValue: Literal(apiKey.Prefix)) : null;
             EndpointField = new(
                 FieldModifiers.Private | FieldModifiers.ReadOnly,
                 typeof(Uri),
-                EndpointFieldName);
+                EndpointFieldName,
+                this);
             PipelineProperty = new(
                 description: $"The HTTP pipeline for sending and receiving REST requests and responses.",
                 modifiers: MethodSignatureModifiers.Public,
                 type: typeof(ClientPipeline),
                 name: "Pipeline",
-                body: new AutoPropertyBody(false));
+                body: new AutoPropertyBody(false),
+                enclosingType: this);
 
             _subClientInternalConstructorParams = _apiKeyAuthField != null
                 ? [PipelineProperty.AsParameter, _apiKeyAuthField.AsParameter, _endpointParameter]
@@ -95,7 +100,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 _clientCachingField = new FieldProvider(
                     FieldModifiers.Private,
                     Type,
-                    $"_cached{Name}");
+                    $"_cached{Name}",
+                    this);
             }
 
             _endpointParameterName = new(GetEndpointParameterName);
@@ -167,7 +173,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         fields.Add(new(
                             FieldModifiers.Private | FieldModifiers.ReadOnly,
                             type,
-                            "_" + p.Name.ToVariableName()));
+                            "_" + p.Name.ToVariableName(),
+                            this));
                     }
                 }
             }

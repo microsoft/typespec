@@ -210,7 +210,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     writer.WritePropertyName(item.Property("Key")),
                     new IfElseStatement(
-                        item.Property("Value").InvokeEquals(Null),
+                        item.Property("Value").Equal(Null),
                         writer.WriteNullValue(),
                         writer.WriteBinaryData(item.Property("Value")))
                 },
