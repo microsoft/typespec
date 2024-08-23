@@ -103,7 +103,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 new ForeachStatement("item", enumerableParameter.As<IEnumerable<BinaryData>>(), out var item)
                 {
                     new IfElseStatement(
-                        item.InvokeEquals(Null),
+                        item.Equal(Null),
                         writer.WriteNullValue(),
                         writer.WriteBinaryData(item))
                 },
@@ -138,7 +138,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             body.AddRange(
             [
                 writer.WriteStartArray(),
-                Declare<int>("i", Int(0), out var i),
+                Declare("i", Int(0), out var i),
                 new ForStatement(null, i.LessThan(spanParameter.Property(nameof(ReadOnlySpan<byte>.Length))), i.Increment())
                 {
                     writer.WriteObjectValue(new IndexerExpression(spanParameter, i).As(tType), ModelSerializationExtensionsSnippets.Wire)
