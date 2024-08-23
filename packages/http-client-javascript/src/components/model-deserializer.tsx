@@ -1,6 +1,7 @@
 import { mapJoin, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Model, Type } from "@typespec/compiler";
+import { DateTimeKnownEncoding, Model, Type } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 
 
 export interface ModelDeserializerProps {
@@ -43,15 +44,28 @@ function getDeserializerRefkey(type: Model) {
   return refkey(type, "deserializer");
 }
 
-function getDeserializer(type: Type, input: string) {
+function getDeserializer(type: Type, itemPath: string) {
   switch (type.kind) {
     case "Model":
       return (
         <>
-          <ts.Reference refkey={getDeserializerRefkey(type)} />({input})
+          <ts.Reference refkey={getDeserializerRefkey(type)} />({itemPath})
         </>
       );
+    case "Scalar":{
+      if($.scalar.isUtcDateTime(type)) {
+        const encoding = $.scalar.getEncoding(type) as DateTimeKnownEncoding | undefined;
+        switch(encoding) {
+          case "unixTimestamp":
+            return `new Date(${itemPath} * 1000)`;
+          case "rfc3339":
+          case "rfc7231":
+          default:
+            return `new Date(${itemPath})`;
+        }
+      }
+    }
     default:
-      return input;
+      return itemPath;
   }
 }

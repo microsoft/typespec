@@ -1,6 +1,7 @@
 import { mapJoin, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Model, Type } from "@typespec/compiler";
+import { Model, Type, DateTimeKnownEncoding } from "@typespec/compiler";
+import {$} from "@typespec/compiler/typekit"
 
 export interface ModelSerializerProps {
   type: Model;
@@ -51,6 +52,21 @@ function getSerializer(type: Type, itemPath: string) {
           <ts.Reference refkey={getSerializerRefkey(type)} />({itemPath})
         </>
       );
+    case "Scalar":{
+      if($.scalar.isUtcDateTime(type) || $.scalar.extendsUtcDateTime(type)) {
+        const encoding = $.scalar.getEncoding(type) as DateTimeKnownEncoding | undefined;
+        switch(encoding) {
+          case "rfc7231":
+            return `${itemPath}.toUTCString()`;
+          case "unixTimestamp":
+            return `Math.floor(${itemPath}.getTime() / 1000)`;
+          case "rfc3339":
+          default:
+            return `${itemPath}.toISOString()`;
+        }
+      }
+    }
+     
     default:
       return itemPath;
   }
