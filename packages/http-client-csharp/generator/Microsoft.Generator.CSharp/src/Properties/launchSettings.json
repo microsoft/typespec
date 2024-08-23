@@ -65,6 +65,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-type-dictionary": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/dictionary -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-type-enum-extensible": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/enum/extensible -p StubLibraryPlugin",
       "commandName": "Executable",
