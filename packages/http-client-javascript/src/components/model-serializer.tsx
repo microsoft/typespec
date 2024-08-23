@@ -28,7 +28,7 @@ export function ModelSerializer(props: ModelSerializerProps) {
                   name={property.name}
                   // TODO: Alloy to support ref to interface properties
                   // value={<ts.Reference refkey={refkey(property)} />}
-                  value={getPropertySerializer(property, itemPath)}
+                  value={getSerializer(property, property.type, itemPath)}
                 />
               );
             },
@@ -44,8 +44,8 @@ function getSerializerRefkey(type: Model) {
   return refkey(type, "serializer");
 }
 
-function getPropertySerializer(property: ModelProperty, itemPath: string) {
-  const { type } = property; 
+function getSerializer(property: ModelProperty, type: Type, itemPath: string) {
+  console.log("Prop encode", getEncode($.program, property));
   switch (type.kind) {
     case "Model":
       return (

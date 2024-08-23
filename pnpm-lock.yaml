@@ -248,8 +248,8 @@ importers:
   packages/compiler:
     dependencies:
       '@alloy-js/core':
-        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@7d274fd
-        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@7d274fd
+        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@de1edfc
+        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@de1edfc
       '@babel/code-frame':
         specifier: ~7.24.7
         version: 7.24.7
@@ -354,11 +354,11 @@ importers:
   packages/efnext-cli-sketch:
     dependencies:
       '@alloy-js/core':
-        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@7d274fd
-        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@7d274fd
+        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@de1edfc
+        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@de1edfc
       '@alloy-js/typescript':
-        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@7d274fd
-        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@7d274fd
+        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@de1edfc
+        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@de1edfc
       '@typespec/emitter-framework':
         specifier: workspace:~
         version: link:../emitter-framework
@@ -430,8 +430,8 @@ importers:
         specifier: ~3.0.1
         version: 3.0.1(ajv@8.13.0)
       babel-preset-alloy:
-        specifier: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@7d274fd
-        version: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@7d274fd(@babel/core@7.25.2)
+        specifier: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@de1edfc
+        version: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@de1edfc(@babel/core@7.25.2)
       c8:
         specifier: ^9.1.0
         version: 9.1.0
@@ -451,11 +451,11 @@ importers:
   packages/emitter-framework:
     dependencies:
       '@alloy-js/core':
-        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@7d274fd
-        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@7d274fd
+        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@de1edfc
+        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@de1edfc
       '@alloy-js/typescript':
-        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@7d274fd
-        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@7d274fd
+        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@de1edfc
+        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@de1edfc
       '@typespec/compiler':
         specifier: workspace:~
         version: link:../compiler
@@ -473,8 +473,8 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.25.2)(@types/babel__core@7.20.5)(rollup@4.19.0)
       babel-preset-alloy:
-        specifier: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@7d274fd
-        version: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@7d274fd(@babel/core@7.25.2)
+        specifier: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@de1edfc
+        version: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@de1edfc(@babel/core@7.25.2)
       concurrently:
         specifier: ^8.2.2
         version: 8.2.2
@@ -488,11 +488,11 @@ importers:
   packages/emitter-sample:
     dependencies:
       '@alloy-js/core':
-        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@7d274fd
-        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@7d274fd
+        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@de1edfc
+        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@de1edfc
       '@alloy-js/typescript':
-        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@7d274fd
-        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@7d274fd
+        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@de1edfc
+        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@de1edfc
       '@typespec/compiler':
         specifier: workspace:*
         version: link:../compiler
@@ -510,8 +510,8 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.25.2)(@types/babel__core@7.20.5)(rollup@4.19.0)
       babel-preset-alloy:
-        specifier: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@7d274fd
-        version: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@7d274fd(@babel/core@7.25.2)
+        specifier: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@de1edfc
+        version: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@de1edfc(@babel/core@7.25.2)
       concurrently:
         specifier: ^8.2.2
         version: 8.2.2
@@ -677,11 +677,11 @@ importers:
   packages/http-client-javascript:
     dependencies:
       '@alloy-js/core':
-        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@7d274fd
-        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@7d274fd
+        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@de1edfc
+        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@de1edfc
       '@alloy-js/typescript':
-        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@7d274fd
-        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@7d274fd
+        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@de1edfc
+        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@de1edfc
       '@typespec/compiler':
         specifier: workspace:*
         version: link:../compiler
@@ -708,8 +708,8 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.25.2)(@types/babel__core@7.20.5)(rollup@4.19.0)
       babel-preset-alloy:
-        specifier: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@7d274fd
-        version: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@7d274fd(@babel/core@7.25.2)
+        specifier: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@de1edfc
+        version: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@de1edfc(@babel/core@7.25.2)
       concurrently:
         specifier: ^8.2.2
         version: 8.2.2
@@ -1945,24 +1945,24 @@ packages:
   '@algolia/transporter@4.23.2':
     resolution: {integrity: sha512-GY3aGKBy+8AK4vZh8sfkatDciDVKad5rTY2S10Aefyjh7e7UGBP4zigf42qVXwU8VOPwi7l/L7OACGMOFcjB0Q==}
 
-  '@alloy-js/babel-plugin-alloy@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-plugin-alloy@7d274fd':
-    resolution: {tarball: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-plugin-alloy@7d274fd}
+  '@alloy-js/babel-plugin-alloy@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-plugin-alloy@de1edfc':
+    resolution: {tarball: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-plugin-alloy@de1edfc}
     version: 1.0.0
     peerDependencies:
       '@babel/core': ^7.24.7
 
-  '@alloy-js/babel-plugin-jsx-dom-expressions@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-plugin-jsx-dom-expressions@7d274fd':
-    resolution: {tarball: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-plugin-jsx-dom-expressions@7d274fd}
+  '@alloy-js/babel-plugin-jsx-dom-expressions@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-plugin-jsx-dom-expressions@de1edfc':
+    resolution: {tarball: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-plugin-jsx-dom-expressions@de1edfc}
     version: 0.37.21
     peerDependencies:
       '@babel/core': ^7.24.7
 
-  '@alloy-js/core@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@7d274fd':
-    resolution: {tarball: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@7d274fd}
+  '@alloy-js/core@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@de1edfc':
+    resolution: {tarball: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@de1edfc}
     version: 1.0.0
 
-  '@alloy-js/typescript@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@7d274fd':
-    resolution: {tarball: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@7d274fd}
+  '@alloy-js/typescript@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@de1edfc':
+    resolution: {tarball: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@de1edfc}
     version: 1.0.0
 
   '@ampproject/remapping@2.3.0':
@@ -5964,8 +5964,8 @@ packages:
     peerDependencies:
       '@babel/core': ^7.4.0 || ^8.0.0-0 <8.0.0
 
-  babel-preset-alloy@https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@7d274fd:
-    resolution: {tarball: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@7d274fd}
+  babel-preset-alloy@https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@de1edfc:
+    resolution: {tarball: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@de1edfc}
     version: 1.0.0
 
   bail@2.0.2:
@@ -12261,7 +12261,7 @@ snapshots:
       '@algolia/logger-common': 4.23.2
       '@algolia/requester-common': 4.23.2
 
-  '@alloy-js/babel-plugin-alloy@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-plugin-alloy@7d274fd(@babel/core@7.25.2)':
+  '@alloy-js/babel-plugin-alloy@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-plugin-alloy@de1edfc(@babel/core@7.25.2)':
     dependencies:
       '@babel/core': 7.25.2
       '@babel/generator': 7.25.4
@@ -12269,7 +12269,7 @@ snapshots:
       '@babel/plugin-syntax-jsx': 7.24.7(@babel/core@7.25.2)
       '@babel/types': 7.25.4
 
-  '@alloy-js/babel-plugin-jsx-dom-expressions@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-plugin-jsx-dom-expressions@7d274fd(@babel/core@7.25.2)':
+  '@alloy-js/babel-plugin-jsx-dom-expressions@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-plugin-jsx-dom-expressions@de1edfc(@babel/core@7.25.2)':
     dependencies:
       '@babel/core': 7.25.2
       '@babel/helper-module-imports': 7.18.6
@@ -12278,19 +12278,19 @@ snapshots:
       html-entities: 2.3.3
       validate-html-nesting: 1.2.2
 
-  '@alloy-js/core@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@7d274fd':
+  '@alloy-js/core@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@de1edfc':
     dependencies:
       '@babel/core': 7.25.2
       '@babel/preset-typescript': 7.24.7(@babel/core@7.25.2)
       '@vue/reactivity': 3.4.38
-      babel-preset-alloy: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@7d274fd(@babel/core@7.25.2)
+      babel-preset-alloy: https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@de1edfc(@babel/core@7.25.2)
       pathe: 1.1.2
     transitivePeerDependencies:
       - supports-color
 
-  '@alloy-js/typescript@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@7d274fd':
+  '@alloy-js/typescript@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@de1edfc':
     dependencies:
-      '@alloy-js/core': https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@7d274fd
+      '@alloy-js/core': https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@de1edfc
       change-case: 5.4.4
       pathe: 1.1.2
     transitivePeerDependencies:
@@ -12526,7 +12526,7 @@ snapshots:
 
   '@babel/helper-annotate-as-pure@7.22.5':
     dependencies:
-      '@babel/types': 7.24.9
+      '@babel/types': 7.25.4
 
   '@babel/helper-annotate-as-pure@7.24.7':
     dependencies:
@@ -12534,7 +12534,7 @@ snapshots:
 
   '@babel/helper-builder-binary-assignment-operator-visitor@7.22.15':
     dependencies:
-      '@babel/types': 7.24.9
+      '@babel/types': 7.25.4
 
   '@babel/helper-compilation-targets@7.24.8':
     dependencies:
@@ -12645,7 +12645,7 @@ snapshots:
 
   '@babel/helper-member-expression-to-functions@7.24.5':
     dependencies:
-      '@babel/types': 7.24.9
+      '@babel/types': 7.25.4
 
   '@babel/helper-member-expression-to-functions@7.24.8':
     dependencies:
@@ -12699,7 +12699,7 @@ snapshots:
 
   '@babel/helper-optimise-call-expression@7.22.5':
     dependencies:
-      '@babel/types': 7.24.9
+      '@babel/types': 7.25.4
 
   '@babel/helper-optimise-call-expression@7.24.7':
     dependencies:
@@ -12757,11 +12757,11 @@ snapshots:
 
   '@babel/helper-skip-transparent-expression-wrappers@7.22.5':
     dependencies:
-      '@babel/types': 7.24.9
+      '@babel/types': 7.25.4
 
   '@babel/helper-skip-transparent-expression-wrappers@7.24.7':
     dependencies:
-      '@babel/traverse': 7.25.4
+      '@babel/traverse': 7.24.8
       '@babel/types': 7.25.4
     transitivePeerDependencies:
       - supports-color
@@ -12786,7 +12786,7 @@ snapshots:
     dependencies:
       '@babel/helper-function-name': 7.24.7
       '@babel/template': 7.24.7
-      '@babel/types': 7.24.9
+      '@babel/types': 7.25.4
 
   '@babel/helpers@7.24.8':
     dependencies:
@@ -12997,7 +12997,7 @@ snapshots:
   '@babel/plugin-syntax-jsx@7.24.7(@babel/core@7.25.2)':
     dependencies:
       '@babel/core': 7.25.2
-      '@babel/helper-plugin-utils': 7.24.8
+      '@babel/helper-plugin-utils': 7.24.7
 
   '@babel/plugin-syntax-logical-assignment-operators@7.10.4(@babel/core@7.24.9)':
     dependencies:
@@ -13440,7 +13440,7 @@ snapshots:
   '@babel/plugin-transform-modules-commonjs@7.24.8(@babel/core@7.25.2)':
     dependencies:
       '@babel/core': 7.25.2
-      '@babel/helper-module-transforms': 7.25.2(@babel/core@7.25.2)
+      '@babel/helper-module-transforms': 7.24.9(@babel/core@7.25.2)
       '@babel/helper-plugin-utils': 7.24.8
       '@babel/helper-simple-access': 7.24.7
     transitivePeerDependencies:
@@ -13677,8 +13677,8 @@ snapshots:
       '@babel/helper-annotate-as-pure': 7.22.5
       '@babel/helper-module-imports': 7.24.7
       '@babel/helper-plugin-utils': 7.24.7
-      '@babel/plugin-syntax-jsx': 7.24.1(@babel/core@7.25.2)
-      '@babel/types': 7.24.9
+      '@babel/plugin-syntax-jsx': 7.24.7(@babel/core@7.25.2)
+      '@babel/types': 7.25.4
     transitivePeerDependencies:
       - supports-color
 
@@ -14073,7 +14073,7 @@ snapshots:
   '@babel/preset-typescript@7.24.7(@babel/core@7.25.2)':
     dependencies:
       '@babel/core': 7.25.2
-      '@babel/helper-plugin-utils': 7.24.8
+      '@babel/helper-plugin-utils': 7.24.7
       '@babel/helper-validator-option': 7.24.8
       '@babel/plugin-syntax-jsx': 7.24.7(@babel/core@7.25.2)
       '@babel/plugin-transform-modules-commonjs': 7.24.8(@babel/core@7.25.2)
@@ -17516,7 +17516,7 @@ snapshots:
 
   '@svgr/hast-util-to-babel-ast@8.0.0':
     dependencies:
-      '@babel/types': 7.24.9
+      '@babel/types': 7.25.4
       entities: 4.5.0
 
   '@svgr/plugin-jsx@8.1.0(@svgr/core@8.1.0(typescript@5.5.4))':
@@ -18830,10 +18830,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  babel-preset-alloy@https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@7d274fd(@babel/core@7.25.2):
+  babel-preset-alloy@https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@de1edfc(@babel/core@7.25.2):
     dependencies:
-      '@alloy-js/babel-plugin-alloy': https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-plugin-alloy@7d274fd(@babel/core@7.25.2)
-      '@alloy-js/babel-plugin-jsx-dom-expressions': https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-plugin-jsx-dom-expressions@7d274fd(@babel/core@7.25.2)
+      '@alloy-js/babel-plugin-alloy': https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-plugin-alloy@de1edfc(@babel/core@7.25.2)
+      '@alloy-js/babel-plugin-jsx-dom-expressions': https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-plugin-jsx-dom-expressions@de1edfc(@babel/core@7.25.2)
     transitivePeerDependencies:
       - '@babel/core'
 

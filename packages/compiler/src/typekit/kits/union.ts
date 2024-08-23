@@ -23,29 +23,6 @@ interface UnionDescriptor {
   variants?: Record<string | symbol, string | number> | UnionVariant[];
 }
 
-interface UnionVariantDescriptor {
-  /**
-   * The name of the union variant.
-   */
-  name?: string | symbol;
-
-  /**
-   * Decorators to apply to the union variant.
-   */
-  decorators?: DecoratorArgs[];
-
-  /**
-   * The type of the union variant.
-   */
-  type: Type;
-
-  /**
-   * The union that the variant belongs to. If not provided here, it is assumed
-   * that it will be set in `union.build`.
-   */
-  union?: Union;
-}
-
 export interface UnionKit {
   union: {
     /**
@@ -54,13 +31,6 @@ export interface UnionKit {
      * @param desc The descriptor of the union.
      */
     create(desc: UnionDescriptor): Union;
-
-    /**
-     * Create a union variant.
-     *
-     * @param desc The descriptor of the union variant.
-     */
-    createVariant(desc: UnionVariantDescriptor): UnionVariant;
 
     /**
      * Check if the given `type` is a union.
@@ -116,26 +86,13 @@ export const UnionKit = defineKit<UnionKit>({
         for (const [name, value] of Object.entries(desc.variants)) {
           union.variants.set(
             name,
-            this.union.createVariant({ name, type: this.literal.create(value) })
+            this.unionVariant.create({ name, type: this.literal.create(value) })
           );
         }
       }
 
       this.program.checker.finishType(union);
       return union;
-    },
-
-    createVariant(desc) {
-      const variant: UnionVariant = this.program.checker.createType({
-        kind: "UnionVariant",
-        name: desc.name ?? Symbol("name"),
-        decorators: decoratorApplication(desc.decorators),
-        type: desc.type,
-        node: undefined as any,
-        union: desc.union as any,
-      });
-      this.program.checker.finishType(variant);
-      return variant;
     },
 
     is(type) {

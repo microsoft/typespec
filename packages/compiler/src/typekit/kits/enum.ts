@@ -56,12 +56,6 @@ interface EnumKit {
     create(desc: EnumDescriptor): Enum;
 
     /**
-     * Build an enum type. The enum type will be finished (i.e. decorators are
-     * run).
-     */
-    createMember(desc: EnumMemberDescriptor): EnumMember;
-
-    /**
      * Build an equivalent enum from the given union. Union variants which are
      * not valid enum members are skipped. You can check if a union is a valid
      * enum with {@link UnionKit.union}'s `isEnumValue`.
@@ -99,25 +93,12 @@ defineKit<EnumKit>({
         }
       } else {
         for (const [name, member] of Object.entries(desc.members ?? {})) {
-          en.members.set(name, this.enum.createMember({ name, value: member, enum: en }));
+          en.members.set(name, this.enumMember.create({ name, value: member, enum: en }));
         }
       }
 
       this.program.checker.finishType(en);
       return en;
-    },
-
-    createMember(desc) {
-      const member: EnumMember = this.program.checker.createType({
-        kind: "EnumMember",
-        name: desc.name,
-        value: desc.value,
-        decorators: decoratorApplication(desc.decorators),
-        node: undefined as any,
-        enum: desc.enum as any, // initialized in enum.build if not provided here
-      });
-      this.program.checker.finishType(member);
-      return member;
     },
 
     is(type) {
@@ -137,7 +118,7 @@ defineKit<EnumKit>({
         ) {
           continue;
         }
-        enumMembers.push(this.enum.createMember({ name: variant.name, value: variant.type.value }));
+        enumMembers.push(this.enumMember.create({ name: variant.name, value: variant.type.value }));
       }
 
       return this.enum.create({ name: type.name, members: enumMembers });
