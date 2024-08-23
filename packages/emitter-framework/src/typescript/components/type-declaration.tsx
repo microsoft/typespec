@@ -1,10 +1,9 @@
 import * as ts from "@alloy-js/typescript";
 import { Type } from "@typespec/compiler";
-import {
-  InterfaceDeclaration,
-  UnionDeclaration
-} from "@typespec/emitter-framework/typescript";
 import { EnumDeclaration } from "./enum-declaration.js";
+import { InterfaceDeclaration } from "./interface-declaration.jsx";
+import { UnionDeclaration } from "./union-declaration.jsx";
+import { TypeAliasDeclaration } from "./type-alias-declaration.jsx";
 
 export interface TypeDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
   name?: string;
@@ -26,5 +25,7 @@ export function TypeDeclaration(props: TypeDeclarationProps) {
       return <UnionDeclaration type={type} {...restProps} />
     case "Enum":
       return <EnumDeclaration type={type} {...restProps} />
+    case "Scalar":
+      return <TypeAliasDeclaration type={type} {...restProps} />
   }
 }

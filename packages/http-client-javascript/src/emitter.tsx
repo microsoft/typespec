@@ -27,7 +27,7 @@ function queryTypes(context: EmitContext) {
   const types = new Set<Type>();
   const globalns = context.program.getGlobalNamespaceType();
   const allTypes = new TypeCollector(globalns).flat();
-  for (const dataType of [...allTypes.models, ...allTypes.unions, ...allTypes.enums]) {
+  for (const dataType of [...allTypes.models, ...allTypes.unions, ...allTypes.enums, ...allTypes.scalars]) {
     if (isNoEmit(dataType)) {
       continue;
     }

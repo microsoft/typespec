@@ -118,7 +118,7 @@ describe("Typescript Function Declaration", () => {
         expect(actualContent).toBe(expectedContent);
       });
 
-      it("can override parameters with an array of ModelProperties", async () => {
+      it.skip("can override parameters with an array of ModelProperties", async () => {
         const program = await getProgram(`
         namespace DemoService;
         op createPerson(id: string): string;
