@@ -122,7 +122,7 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/helloLiteral/", false);
             uri.AppendPath(123.ToString(), true);
-            uri.AppendQuery("p3", true.ToString(), true);
+            uri.AppendQuery("p3", TypeFormatters.ConvertToString(true, null), true);
             request.Uri = uri.ToUri();
             request.Headers.Set("p1", "test");
             request.Headers.Set("Accept", "application/json");
@@ -222,7 +222,7 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/", false);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Repeatability-First-Sent", DateTimeOffset.Now.ToString("R"));
+            request.Headers.Set("Repeatability-First-Sent", TypeFormatters.ConvertToString(DateTimeOffset.Now, "R"));
             message.Apply(options);
             return message;
         }

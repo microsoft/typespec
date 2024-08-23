@@ -40,6 +40,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-encode-duration": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/encode/duration -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-parameters-basic": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/parameters/basic -p StubLibraryPlugin",
       "commandName": "Executable",
