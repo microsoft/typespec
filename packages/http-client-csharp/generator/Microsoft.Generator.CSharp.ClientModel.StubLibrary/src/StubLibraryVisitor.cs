@@ -37,7 +37,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
             return type;
         }
 
-        protected override ConstructorProvider? Visit(TypeProvider enclosingType, ConstructorProvider constructor)
+        protected override ConstructorProvider? Visit(ConstructorProvider constructor)
         {
             if (!ShouldKeep(constructor.Signature.Modifiers))
                 return null;
@@ -50,12 +50,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
             return constructor;
         }
 
-        protected override FieldProvider? Visit(TypeProvider enclosingType, FieldProvider field)
+        protected override FieldProvider? Visit(FieldProvider field)
         {
             return field.Modifiers.HasFlag(FieldModifiers.Public) ? field : null;
         }
 
-        protected override MethodProvider? Visit(TypeProvider enclosingType, MethodProvider method)
+        protected override MethodProvider? Visit(MethodProvider method)
         {
             if (method.Signature.ExplicitInterface is null && !ShouldKeep(method.Signature.Modifiers))
                 return null;
@@ -70,7 +70,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
             return method;
         }
 
-        protected override PropertyProvider? Visit(TypeProvider enclosingType, PropertyProvider property)
+        protected override PropertyProvider? Visit(PropertyProvider property)
         {
             if (!ShouldKeep(property.Modifiers))
                 return null;
