@@ -101,15 +101,27 @@ namespace Microsoft.Generator.CSharp.Input
             model.DiscriminatorProperty = discriminatorProperty;
             model.AdditionalProperties = additionalProperties;
             model.BaseModel = baseModel;
-            model.Properties = properties ?? Array.Empty<InputModelProperty>();
-            model.DiscriminatedSubtypes = discriminatedSubtypes ?? new Dictionary<string, InputModelType>();
+            if (properties != null)
+            {
+                foreach (var property in properties)
+                {
+                    property.EnclosingType = model;
+                }
+            }
+            if (discriminatedSubtypes != null)
+            {
+                model.DiscriminatedSubtypes = discriminatedSubtypes;
+            }
             model.ModelAsStruct = modelAsStruct;
-            model.Decorators = decorators ?? Array.Empty<InputDecoratorInfo>();
+            if (decorators != null)
+            {
+                model.Decorators = decorators;
+            }
 
             // if this model has a base, it means this model is a derived model of the base model, add it into the list.
             if (baseModel != null)
             {
-                baseModel.DerivedModelsInternal.Add(model);
+                baseModel.AddDerivedModel(model);
             }
 
             return model;

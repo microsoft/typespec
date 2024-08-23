@@ -39,7 +39,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
 
         protected override ConstructorProvider? Visit(ConstructorProvider constructor)
         {
-            if (!ShouldKeep(constructor.Signature.Modifiers))
+            if (constructor.Signature.Initializer?.IsBase == false && !ShouldKeep(constructor.Signature.Modifiers))
                 return null;
 
             constructor.Update(

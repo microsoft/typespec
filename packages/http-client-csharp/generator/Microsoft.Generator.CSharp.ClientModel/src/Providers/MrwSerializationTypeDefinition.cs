@@ -62,9 +62,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _inputModel = inputModel;
             _isStruct = _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             // Initialize the serialization interfaces
-            _jsonModelTInterface = new CSharpType(typeof(IJsonModel<>), _model.Type);
+            var interfaceType = inputModel.IsUnknownDiscriminatorModel ? ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel.BaseModel!)! : _model;
+            _jsonModelTInterface = new CSharpType(typeof(IJsonModel<>), interfaceType.Type);
             _jsonModelObjectInterface = _isStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
-            _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), _model.Type);
+            _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), interfaceType.Type);
             _persistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
             _rawDataField = _model.Fields.FirstOrDefault(f => f.Name == PrivateAdditionalPropertiesPropertyName);
             _shouldOverrideMethods = _model.Type.BaseType != null && _model.Type.BaseType is { IsFrameworkType: false };
@@ -82,6 +83,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
 
         protected override string BuildName() => _model.Name;
+
+        protected override IReadOnlyList<AttributeStatement> BuildAttributes()
+        {
+            if (_model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
+            {
+                var unknownVariant = _model.DerivedModels.First(m => m.IsUnknownDiscriminatorModel);
+                return [new AttributeStatement(typeof(PersistableModelProxyAttribute), TypeOf(unknownVariant.Type))];
+            }
+            return [];
+        }
 
         protected override ConstructorProvider[] BuildConstructors()
         {
@@ -130,10 +141,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 BuildPersistableModelCreateMethod(),
                 BuildPersistableModelCreateCoreMethod(),
                 BuildPersistableModelGetFormatFromOptionsMethod(),
-                //cast operators
-                BuildImplicitToBinaryContent(),
-                BuildExplicitFromClientResult()
             };
+
+            if (!_inputModel.IsUnknownDiscriminatorModel)
+            {
+                //cast operators
+                methods.Add(BuildImplicitToBinaryContent());
+                methods.Add(BuildExplicitFromClientResult());
+            }
 
             if (_isStruct)
             {
@@ -347,7 +362,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // T IJsonModel<T>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
             return new MethodProvider
             (
-                new MethodSignature(nameof(IJsonModel<object>.Create), null, MethodSignatureModifiers.None, _model.Type, null, [_utf8JsonReaderParameter, _serializationOptionsParameter], ExplicitInterface: _jsonModelTInterface),
+                new MethodSignature(nameof(IJsonModel<object>.Create), null, MethodSignatureModifiers.None, _jsonModelTInterface.Arguments[0], null, [_utf8JsonReaderParameter, _serializationOptionsParameter], ExplicitInterface: _jsonModelTInterface),
                 This.Invoke(JsonModelCreateCoreMethodName, [_utf8JsonReaderParameter, _serializationOptionsParameter]).CastTo(_model.Type),
                 this
             );
@@ -364,13 +379,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
 
+            var typeForDeserialize = _model.IsUnknownDiscriminatorModel ? _model.Type.BaseType! : _model.Type;
+
             var methodBody = new MethodBodyStatement[]
             {
                 CreateValidateJsonFormat( _persistableModelTInterface, ReadAction),
                 // using var document = JsonDocument.ParseValue(ref reader);
                 UsingDeclare("document", typeof(JsonDocument), JsonDocumentSnippets.ParseValue(_utf8JsonReaderParameter), out var docVariable),
                 // return DeserializeT(doc.RootElement, options);
-                Return(_model.Type.Deserialize(JsonDocumentSnippets.RootElement(docVariable.As<JsonDocument>()), _mrwOptionsParameterSnippet))
+                Return(typeForDeserialize.Deserialize(JsonDocumentSnippets.RootElement(docVariable.As<JsonDocument>()), _mrwOptionsParameterSnippet))
             };
 
             // T JsonModelCreateCore(ref reader, ModelReaderWriterOptions options)
@@ -394,9 +411,39 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new MethodProvider
             (
               new MethodSignature(methodName, null, signatureModifiers, _model.Type, null, [_jsonElementDeserializationParam, _serializationOptionsParameter]),
-              BuildDeserializationMethodBody(),
+              _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract) ? BuildAbstractDeserializationMethodBody() : BuildDeserializationMethodBody(),
               this
             );
+        }
+
+        private MethodBodyStatement[] BuildAbstractDeserializationMethodBody()
+        {
+            var unknownVariant = _model.DerivedModels.First(m => m.Name == $"Unknown{_model.Name}");
+            return
+            [
+                new IfStatement(_jsonElementParameterSnippet.ValueKindEqualsNull()) { Return(Null) },
+                new IfStatement(_jsonElementParameterSnippet.TryGetProperty("kind", out var discriminator))
+                {
+                    new SwitchStatement(discriminator.GetString(), GetAbstractSwitchCases(unknownVariant))
+                },
+                Return(unknownVariant.Type.Deserialize(_jsonElementParameterSnippet, _serializationOptionsParameter))
+            ];
+        }
+
+        private SwitchCaseStatement[] GetAbstractSwitchCases(ModelProvider unknownVariant)
+        {
+            SwitchCaseStatement[] cases = new SwitchCaseStatement[_model.DerivedModels.Count - 1];
+            int index = 0;
+            for (int i = 0; i < cases.Length; i++)
+            {
+                var model = _model.DerivedModels[i];
+                if (ReferenceEquals(model, unknownVariant))
+                    continue;
+                cases[index++] = new SwitchCaseStatement(
+                    Literal(model.DiscriminatorValue!),
+                    Return(model.Type.Deserialize(_jsonElementParameterSnippet, _serializationOptionsParameter)));
+            }
+            return cases;
         }
 
         /// <summary>
@@ -423,7 +470,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // IPersistableModel<T>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
             return new MethodProvider
             (
-                new MethodSignature(nameof(IPersistableModel<object>.Create), null, MethodSignatureModifiers.None, _model.Type, null, [dataParameter, _serializationOptionsParameter], ExplicitInterface: _persistableModelTInterface),
+                new MethodSignature(nameof(IPersistableModel<object>.Create), null, MethodSignatureModifiers.None, _persistableModelTInterface.Arguments[0], null, [dataParameter, _serializationOptionsParameter], ExplicitInterface: _persistableModelTInterface),
                 This.Invoke(PersistableModelCreateCoreMethodName, [dataParameter, _serializationOptionsParameter]).CastTo(_model.Type),
                 this
             );
@@ -553,13 +600,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodBodyStatement[] BuildPersistableModelCreateCoreMethodBody()
         {
+            var typeForDeserialize = _model.IsUnknownDiscriminatorModel ? _model.Type.BaseType! : _model.Type;
+
             var switchCase = new SwitchCaseStatement(
                 ModelReaderWriterOptionsSnippets.JsonFormat,
                 new MethodBodyStatement[]
                 {
                     new UsingScopeStatement(typeof(JsonDocument), "document", JsonDocumentSnippets.Parse(_dataParameter), out var jsonDocumentVar)
                     {
-                        Return(_model.Type.Deserialize(jsonDocumentVar.As<JsonDocument>().RootElement(), _serializationOptionsParameter))
+                        Return(typeForDeserialize.Deserialize(jsonDocumentVar.As<JsonDocument>().RootElement(), _serializationOptionsParameter))
                     },
                });
             var typeOfT = _persistableModelTInterface.Arguments[0];
