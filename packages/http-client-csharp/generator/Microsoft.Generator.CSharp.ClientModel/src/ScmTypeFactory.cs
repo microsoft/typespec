@@ -48,19 +48,19 @@ namespace Microsoft.Generator.CSharp.ClientModel
             }
         }
 
-        public ClientProvider CreateClient(InputClient inputClient)
+        public ClientProvider CreateClient(InputClient inputClient, ClientProvider? parent = null)
         {
             if (ClientCache.TryGetValue(inputClient, out var client))
             {
                 return client;
             }
 
-            client = CreateClientCore(inputClient);
+            client = CreateClientCore(inputClient, parent);
             ClientCache[inputClient] = client;
             return client;
         }
 
-        protected virtual ClientProvider CreateClientCore(InputClient inputClient) => new ClientProvider(inputClient);
+        protected virtual ClientProvider CreateClientCore(InputClient inputClient, ClientProvider? parent = null) => new ClientProvider(inputClient, parent);
 
         /// <summary>
         /// Factory method for creating a <see cref="MethodProviderCollection"/> based on an input operation <paramref name="operation"/>.

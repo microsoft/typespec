@@ -108,12 +108,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         protected override MethodProvider[] BuildMethods()
         {
             List<MethodProvider> methods = new List<MethodProvider>();
-
-            foreach (var operation in _inputClient.Operations)
+            int x = 0;
+            foreach (var operation in _inputClient.Operations) // has with renamedTwo, Four, Six, _inputClient only has 3 things in it, why do we go in more times?
             {
+                x += 1;
                 var method = BuildCreateRequestMethod(operation);
                 methods.Add(method);
-                MethodCache[operation] = method;
+                MethodCache[operation] = method; // cache gets renamedOne, Three, Five added to it and then we still go through renamedTwo which breaks
             }
 
             return [.. methods];
@@ -138,7 +139,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 null,
                 [.. GetMethodParameters(operation, true), options]);
             var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
-            foreach (var param in ClientProvider.GetUriParameters())
+            foreach (var param in ClientProvider.GetUriParameters()) // look for Group because works for 1, 3, and 5, fails for groups - client is not on ClientProvider for Groups?
             {
                 paramMap[param.Name] = param;
             }
@@ -341,7 +342,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
             else
             {
-                var paramProvider = paramMap[inputParam.Name]; // breaks when list is of size 1 with only options
+                var paramProvider = paramMap[inputParam.Name]; // breaks when list is of size 1 with only options for old methods - shouldn't be going in here at all?
                 if (paramProvider.Type.IsEnum)
                 {
                     var csharpType = paramProvider.Field is null ? paramProvider.Type : paramProvider.Field.Type;

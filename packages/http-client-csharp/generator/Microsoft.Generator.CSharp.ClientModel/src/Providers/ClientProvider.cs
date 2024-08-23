@@ -52,7 +52,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
         }
 
-        public ClientProvider(InputClient inputClient)
+        public ClientProvider(InputClient inputClient, ClientProvider? parent = null)
         {
             _inputClient = inputClient;
             _inputAuth = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Auth;
@@ -104,6 +104,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private List<ParameterProvider>? _uriParameters;
         internal IReadOnlyList<ParameterProvider> GetUriParameters()
         {
+            // stop recursing when parent's uriParamters is null
+            if (this.)
             if (_uriParameters is null)
             {
                 _ = Constructors;
@@ -434,6 +436,23 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             foreach (var client in inputClients)
             {
                 // add direct child clients
+                if (client.Parent != null && client.Parent == _inputClient.Key)
+                {
+                    subClients.Add(new(() => ClientModelPlugin.Instance.TypeFactory.CreateClient(client, this)));
+                }
+            }
+
+            return subClients;
+        }
+
+        private IReadOnlyList<Lazy<ClientProvider>> GetParentClient()
+        {
+            var inputClients = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
+            var subClients = new List<Lazy<ClientProvider>>(inputClients.Count);
+
+            foreach (var client in inputClients)
+            {
+                // add direct parent clients
                 if (client.Parent != null && client.Parent == _inputClient.Key)
                 {
                     subClients.Add(new(() => ClientModelPlugin.Instance.TypeFactory.CreateClient(client)));
