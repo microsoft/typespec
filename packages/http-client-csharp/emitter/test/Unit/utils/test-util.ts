@@ -109,7 +109,7 @@ export function createEmitterContext(program: Program): EmitContext<NetEmitterOp
       "generate-convenience-methods": true,
       "package-name": undefined,
     },
-  };
+  } as EmitContext<NetEmitterOptions>;
 }
 
 /* Navigate all the models in the whole namespace. */

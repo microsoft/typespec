@@ -8,5 +8,8 @@ namespace Microsoft.Generator.CSharp.Primitives
         Unknown,
         Body,
         Uri,
+        Path,
+        Query,
+        Header,
     }
 }

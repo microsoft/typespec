@@ -25,8 +25,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public ErrorResultDefinition()
         {
-            _responseField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, typeof(PipelineResponse), "_response");
-            _exceptionField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, typeof(ClientResultException), "_exception");
+            _responseField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, typeof(PipelineResponse), "_response", this);
+            _exceptionField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, typeof(ClientResultException), "_exception", this);
             _response = new VariableExpression(_responseField.Type, _responseField.Declaration);
             _exception = new VariableExpression(_exceptionField.Type, _exceptionField.Declaration);
         }
@@ -81,8 +81,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private PropertyProvider BuildValue()
         {
             return new PropertyProvider(null, MethodSignatureModifiers.Public | MethodSignatureModifiers.Override, _t, "Value", new ExpressionPropertyBody(
-                ThrowExpression(_exception)
-            ));
+                ThrowExpression(_exception)),
+                this);
         }
     }
 }

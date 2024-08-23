@@ -36,7 +36,22 @@ namespace Microsoft.Generator.CSharp.Input
         public string? Deprecation { get; internal set; }
         public string? Description { get; internal set; }
         public InputModelTypeUsage Usage { get; internal set; }
-        public IReadOnlyList<InputModelProperty> Properties { get; internal set; }
+
+        public IReadOnlyList<InputModelProperty> Properties
+        {
+            get => _properties;
+            internal set
+            {
+                foreach (var property in value)
+                {
+                    property.EnclosingType = this;
+                }
+
+                _properties = value;
+            }
+        }
+
+        private IReadOnlyList<InputModelProperty> _properties = [];
         public bool ModelAsStruct { get; internal set; }
         public InputModelType? BaseModel { get; internal set; }
         public IReadOnlyList<InputModelType> DerivedModels => DerivedModelsInternal;
