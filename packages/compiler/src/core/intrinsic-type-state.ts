@@ -9,6 +9,10 @@ function createStateSymbol(name: string) {
   return Symbol.for(`TypeSpec.${name}`);
 }
 
+function createXmlStateSymbol(name: string) {
+  return Symbol.for(`@typespec/xml/${name}`);
+}
+
 const stateKeys = {
   minValues: createStateSymbol("minValues"),
   maxValues: createStateSymbol("maxValues"),
@@ -24,6 +28,12 @@ const stateKeys = {
   errorsDocs: createStateSymbol("errorDocs"),
 
   discriminator: createStateSymbol("discriminator"),
+};
+
+const XmlStateKeys = {
+  attribute: createXmlStateSymbol("attribute"),
+  unwrapped: createXmlStateSymbol("unwrapped"),
+  nsDeclaration: createXmlStateSymbol("nsDeclaration"),
 };
 
 // #region @minValue
@@ -149,6 +159,22 @@ export function getMaxItems(program: Program, target: Type): number | undefined 
   return getMaxItemsAsNumeric(program, target)?.asNumber() ?? undefined;
 }
 // #endregion @maxItems
+
+// #region @xml object
+export function isXmlAttribute(program: Program, target: Type): boolean {
+  return program.stateSet(XmlStateKeys.attribute).has(target);
+}
+export function isXmlUnwrapped(program: Program, target: Type): boolean {
+  return program.stateSet(XmlStateKeys.unwrapped).has(target);
+}
+export function getXmlNs(program: Program, target: Type): XmlNamespace | undefined {
+  return program.stateMap(XmlStateKeys.nsDeclaration).get(target);
+}
+export interface XmlNamespace {
+  readonly namespace: string;
+  readonly prefix: string;
+}
+// #endregion @xml object
 
 // #region doc
 

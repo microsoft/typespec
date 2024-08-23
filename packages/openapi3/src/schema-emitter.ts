@@ -40,12 +40,15 @@ import {
   getPattern,
   getSummary,
   getTypeName,
+  getXmlNs,
   ignoreDiagnostics,
   isArrayModelType,
   isNeverType,
   isNullType,
   isSecret,
   isTemplateDeclaration,
+  isXmlAttribute,
+  isXmlUnwrapped,
   resolveEncodedName,
   serializeValueAsJson,
 } from "@typespec/compiler";
@@ -77,7 +80,12 @@ import { applyEncoding } from "./encoding.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
-import { OpenAPI3Discriminator, OpenAPI3Schema, OpenAPI3SchemaProperty } from "./types.js";
+import {
+  OpenAPI3Discriminator,
+  OpenAPI3Schema,
+  OpenAPI3SchemaProperty,
+  OpenAPI3XmlSchema,
+} from "./types.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 
 /**
@@ -645,11 +653,47 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
   }
 
-  #attachXmlObject(program: Program, type: ModelProperty, emitObject: OpenAPI3Schema) {
+  #attachXmlObject(program: Program, prop: ModelProperty, emitObject: OpenAPI3Schema) {
     // Attach xml object
-    const xmlName = resolveEncodedName(program, type, "application/xml");
-    if (xmlName !== type.name) {
-      emitObject.xml = { name: xmlName };
+    const schema = new ObjectBuilder({});
+
+    // Utility function to apply constraints
+    const applyConstraint = (fn: (p: Program, t: Type) => any, key: keyof OpenAPI3XmlSchema) => {
+      const value = fn(program, prop);
+      if (value !== undefined && value !== false) {
+        schema[key] = value;
+      }
+    };
+
+    // Resolve XML name
+    const xmlName = resolveEncodedName(program, prop, "application/xml");
+
+    if (xmlName !== prop.name) {
+      schema.name = xmlName;
+    }
+
+    // Get and set XML namespace if present
+    const currNs = getXmlNs(program, prop);
+    if (currNs) {
+      schema.prefix = currNs.prefix;
+      schema.namespace = currNs.namespace;
+    }
+
+    applyConstraint(isXmlAttribute, "attribute");
+
+    // Handle array wrapping if necessary
+    if (
+      prop.type?.kind === "Model" &&
+      isArrayModelType(program, prop.type) &&
+      xmlName !== prop.name &&
+      !isXmlUnwrapped(program, prop)
+    ) {
+      schema.wrapped = true;
+    }
+
+    // Attach schema to emitObject if not empty
+    if (Object.keys(schema).length !== 0) {
+      emitObject.xml = schema;
     }
   }
 

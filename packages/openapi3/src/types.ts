@@ -376,6 +376,13 @@ export type JsonType = "array" | "boolean" | "integer" | "number" | "object" | "
  */
 export type OpenAPI3SchemaProperty = Ref<OpenAPI3Schema> | OpenAPI3Schema;
 
+export type OpenAPI3XmlSchema = Extensions & {
+  name?: string;
+  namespace?: string;
+  prefix?: string;
+  attribute?: boolean;
+  wrapped?: boolean;
+};
 export type OpenAPI3Schema = Extensions & {
   /**
    * This attribute is a string that provides a short description of the instance property.
