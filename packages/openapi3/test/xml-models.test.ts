@@ -70,6 +70,22 @@ describe("openapi3: xml models", () => {
         required: ["content"],
       });
     });
+
+    it("set the value via @name on scalar", async () => {
+      const res = await oapiForModel(
+        "Book",
+        `
+        @name("xmlBook")
+        scalar Book extends string;`
+      );
+
+      deepStrictEqual(res.schemas.Book, {
+        type: "string",
+        xml: {
+          name: "xmlBook",
+        },
+      });
+    });
   });
 
   describe("@attribute", () => {
@@ -299,7 +315,7 @@ describe("openapi3: xml models", () => {
         },
       });
     });
-    it.skip("Scenario 1.3", async () => {
+    it("Scenario 1.3", async () => {
       const res = await oapiForModel(
         "Book",
         `
@@ -309,9 +325,17 @@ describe("openapi3: xml models", () => {
         @name("xmlBook")
         model Book {
           @unwrapped
+          @name("ItemsTags")
           tags: tag[]
         }`
       );
+
+      deepStrictEqual(res.schemas.tag, {
+        type: "string",
+        xml: {
+          name: "ItemsName",
+        },
+      });
 
       deepStrictEqual(res.schemas.Book, {
         type: "object",
@@ -322,10 +346,7 @@ describe("openapi3: xml models", () => {
               name: "ItemsTags",
             },
             items: {
-              type: "string",
-              xml: {
-                name: "ItemsName",
-              },
+              $ref: "#/components/schemas/tag",
             },
           },
         },
@@ -336,7 +357,7 @@ describe("openapi3: xml models", () => {
       });
     });
 
-    it.skip("Scenario 1.4", async () => {
+    it("Scenario 1.4", async () => {
       const res = await oapiForModel(
         "Book",
         `
@@ -350,6 +371,13 @@ describe("openapi3: xml models", () => {
         }`
       );
 
+      deepStrictEqual(res.schemas.tag, {
+        type: "string",
+        xml: {
+          name: "ItemsName",
+        },
+      });
+
       deepStrictEqual(res.schemas.Book, {
         type: "object",
         properties: {
@@ -360,10 +388,7 @@ describe("openapi3: xml models", () => {
               wrapped: true,
             },
             items: {
-              type: "string",
-              xml: {
-                name: "ItemsName",
-              },
+              $ref: "#/components/schemas/tag",
             },
           },
         },
