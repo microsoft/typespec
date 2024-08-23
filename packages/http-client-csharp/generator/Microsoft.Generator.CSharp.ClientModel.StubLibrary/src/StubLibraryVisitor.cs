@@ -16,7 +16,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
 
         protected override TypeProvider? Visit(TypeProvider type)
         {
-            if (!type.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+            if (!type.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) && !type.Name.StartsWith("Unknown"))
                 return null;
 
             type.Update(xmlDocs: _emptyDocs);

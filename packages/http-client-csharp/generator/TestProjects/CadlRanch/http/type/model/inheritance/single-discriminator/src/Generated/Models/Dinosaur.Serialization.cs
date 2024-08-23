@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace _Type.Model.Inheritance.SingleDiscriminator.Models
 {
-    [PersistableModelProxy(typeof(Models.UnknownDinosaur))]
+    [PersistableModelProxy(typeof(UnknownDinosaur))]
     public abstract partial class Dinosaur : IJsonModel<Dinosaur>
     {
         void IJsonModel<Dinosaur>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
