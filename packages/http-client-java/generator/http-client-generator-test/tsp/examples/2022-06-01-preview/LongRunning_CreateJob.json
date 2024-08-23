@@ -1,0 +1,31 @@
+{
+  "operationId": "CreateJob",
+  "title": "LongRunning CreateJob",
+  "parameters": {
+    "body": {
+      "configuration": "{}",
+      "nullableFloatDict": {
+        "max": 15.0,
+        "min": 14.0,
+        "average": 14.3
+      }
+    }
+  },
+  "responses": {
+    "202": {
+      "headers": {
+        "Operation-Location": "https://www.example.org"
+      }
+    },
+    "default": {
+      "headers": {
+        "Content-Type": "application/json",
+        "x-ms-error-code": "Error Code"
+      },
+      "body": {
+        "code": "Error Code",
+        "message": "Error Message"
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "operationId": "TopLevelArmResourceInterface_Post",
+  "title": "TopLevelArmResourceInterface Action",
+  "parameters": {
+    "resourceGroupName": "resource-group-name",
+    "topLevelArmResourceName": "resource-name",
+    "api-version": "2023-12-01-preview"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "reason": "action"
+      }
+    }
+  }
+}

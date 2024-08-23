@@ -9,7 +9,6 @@ import {
 import {
   DecoratedType,
   DecoratorApplication,
-  EncodeData,
   EnumMember,
   IntrinsicScalarName,
   Model,
@@ -27,7 +26,6 @@ import {
   isTemplateInstance,
   isTypeSpecValueTypeOf,
 } from "@typespec/compiler";
-import { Version } from "@typespec/versioning";
 import { DurationSchema } from "./common/schemas/time.js";
 import { getNamespace } from "./utils.js";
 
@@ -56,8 +54,8 @@ export class ProcessingCache<In, Out> {
   }
 }
 
-export function isStable(version: Version): boolean {
-  return !version.value.toLowerCase().includes("preview");
+export function isStable(version: string): boolean {
+  return !version.toLowerCase().includes("preview");
 }
 
 /** adds only if the item is not in the collection already
@@ -118,24 +116,6 @@ export function getDefaultValue(value: Value | undefined): any {
     }
   }
   return undefined;
-}
-
-export function getDurationFormat(encode: EncodeData): DurationSchema["format"] {
-  let format: DurationSchema["format"] = "duration-rfc3339";
-  // duration encoded as seconds
-  if (encode.encoding === "seconds") {
-    const scalarName = encode.type.name;
-    if (scalarName.startsWith("int") || scalarName.startsWith("uint") || scalarName === "safeint") {
-      format = "seconds-integer";
-    } else if (scalarName.startsWith("float")) {
-      format = "seconds-number";
-    } else {
-      throw new Error(
-        `Unrecognized scalar type used by duration encoded as seconds: '${scalarName}'.`
-      );
-    }
-  }
-  return format;
 }
 
 export function getDurationFormatFromSdkType(type: SdkDurationType): DurationSchema["format"] {
@@ -339,7 +319,7 @@ function getDecoratorScopedValue<T>(
     .filter(
       (it) =>
         it.decorator.name === decorator &&
-        it.args.length === 2 &&
+        it.args.length == 2 &&
         (it.args[1].value as StringLiteral).value === "java"
     )
     .map((it) => mapFunc(it))
@@ -351,7 +331,7 @@ function getDecoratorScopedValue<T>(
     .filter(
       (it) =>
         it.decorator.name === decorator &&
-        it.args.length === 2 &&
+        it.args.length == 2 &&
         (it.args[1].value as StringLiteral).value === "client"
     )
     .map((it) => mapFunc(it))
@@ -360,7 +340,7 @@ function getDecoratorScopedValue<T>(
     return value;
   }
   value = type.decorators
-    .filter((it) => it.decorator.name === decorator && it.args.length === 1)
+    .filter((it) => it.decorator.name === decorator && it.args.length == 1)
     .map((it) => mapFunc(it))
     .find(() => true);
   if (value) {

@@ -1,0 +1,32 @@
+{
+  "operationId": "ModelOp_PutNested",
+  "title": "ModelOp PutNested",
+  "parameters": {
+    "nested1": {
+      "nested2": {
+        "data": "123"
+      }
+    }
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "nested1": {
+          "nested2": {
+            "data": "123"
+          }
+        }
+      }
+    },
+    "default": {
+      "headers": {
+        "Content-Type": "application/json",
+        "x-ms-error-code": "Error Code"
+      },
+      "body": {
+        "code": "Error Code",
+        "message": "Error Message"
+      }
+    }
+  }
+}
