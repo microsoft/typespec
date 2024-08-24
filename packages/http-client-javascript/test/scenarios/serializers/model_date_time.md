@@ -37,7 +37,7 @@ export function fooDeserializer(item: any) {
 }
 ```
 
-# only:Should generate the correct properties and handle deserialization for models with utcDateTime type with rfc7231 encoding
+# Should generate the correct properties and handle deserialization for models with utcDateTime type with rfc7231 encoding
 
 ## TypeSpec
 
