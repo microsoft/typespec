@@ -1,8 +1,9 @@
 import { isIntrinsicType } from "../../core/decorator-utils.js";
 import type { IntrinsicScalarName, Scalar, Type } from "../../core/types.js";
-import { type EncodeData, getEncode } from "../../lib/decorators.js";
+import { type EncodeData, getEncode, getFormat } from "../../lib/decorators.js";
 import { defineKit, type TypekitPrototype } from "../define-kit.js";
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { ModelPropertyKit } from "./model-property.js";
 interface ScalarKit {
   /**
    * Operations for scalar types like strings, numerics, booleans, dates, etc.
@@ -379,9 +380,27 @@ interface ScalarKit {
      * Get the encoding information for a scalar type. Returns undefined if no
      * encoding data is specified.
      *
+     * Note: This will return the encoding data for the scalar type itself, not
+     * the model property that uses the scalar type. If this scalar might be
+     * referenced from a model property, use {@link modelProperty.getEncoding}
+     * instead.
+     *
      * @param scalar The scalar to get the encoding data for.
      */
     getEncoding(scalar: Scalar): EncodeData | undefined;
+
+    /**
+     * Get the well-known format for a string scalar. Returns undefined if no
+     * format is specified.
+     *
+     * Note: This will return the format data for the scalar type itself, not
+     * the model property that uses the scalar type. If this scalar might be
+     * referenced from a model property, use {@link ModelPropertyKit.getEncoding}
+     * instead.
+     *
+     * @param scalar The scalar to get the format for.
+     */
+    getFormat(scalar: Scalar): string | undefined;
   };
 }
 
@@ -462,6 +481,9 @@ defineKit<ScalarKit>({
 
     getEncoding(type) {
       return getEncode(this.program, type);
+    },
+    getFormat(type) {
+      return getFormat(this.program, type);
     },
   },
 });
