@@ -1,6 +1,6 @@
 import { mapJoin, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Model, ModelProperty, getEncode } from "@typespec/compiler";
+import { Model, ModelProperty, Type, getEncode } from "@typespec/compiler";
 import {$} from "@typespec/compiler/typekit"
 
 export interface ModelSerializerProps {
