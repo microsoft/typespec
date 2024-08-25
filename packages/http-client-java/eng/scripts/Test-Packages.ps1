@@ -6,7 +6,6 @@ param(
     [string] $Filter = "."
 )
 
-$ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 3.0
 $packageRoot = (Resolve-Path "$PSScriptRoot/../..").Path.Replace('\', '/')
 . "$packageRoot/../../eng/emitters/scripts/CommandInvocation-Helpers.ps1"

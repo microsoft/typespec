@@ -139,7 +139,6 @@ if (Test-Path tsp-output) {
 }
 npm install 
 
-
 New-Item -Path ./existingcode/src/main/java/com/cadl/ -ItemType Directory -Force | Out-Null
 
 if (Test-Path ./src/main/java/com/cadl/partialupdate) {
@@ -148,6 +147,8 @@ if (Test-Path ./src/main/java/com/cadl/partialupdate) {
 
 if (Test-Path ./src/main) {
   Remove-Item ./src/main -Recurse -Force
+}
+if (Test-Path ./src/samples) {
   Remove-Item ./src/samples -Recurse -Force
 }
 if (Test-Path ./tsp-output) {
