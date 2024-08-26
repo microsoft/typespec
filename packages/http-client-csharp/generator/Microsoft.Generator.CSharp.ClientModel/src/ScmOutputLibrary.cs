@@ -49,6 +49,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 new ClientPipelineExtensionsDefinition(),
                 new ErrorResultDefinition(),
                 new ClientUriBuilderDefinition(),
+                new Utf8JsonBinaryContentDefinition(),
+                new BinaryContentHelperDefinition(),
+                new PipelineRequestHeadersExtensionsDefinition(),
             ];
         }
     }

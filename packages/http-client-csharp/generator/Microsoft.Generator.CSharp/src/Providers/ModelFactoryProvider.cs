@@ -67,9 +67,13 @@ namespace Microsoft.Generator.CSharp.Providers
             var methods = new List<MethodProvider>(_models.Count());
             foreach (var model in _models)
             {
-                var modelProvider = CodeModelPlugin.Instance.TypeFactory.CreateModel(model) as ModelProvider;
+                var modelProvider = CodeModelPlugin.Instance.TypeFactory.CreateModel(model);
                 if (modelProvider is null || modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal))
                     continue;
+
+                var typeToInstantiate = modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
+                    ? modelProvider.DerivedModels.First(m => m.IsUnknownDiscriminatorModel)
+                    : modelProvider;
 
                 var modelCtor = modelProvider.FullConstructor;
                 var signature = new MethodSignature(
@@ -92,7 +96,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 [
                     .. GetCollectionInitialization(signature),
                     MethodBodyStatement.EmptyLine,
-                    Return(New.Instance(modelProvider.Type, [.. GetCtorParams(signature)]))
+                    Return(New.Instance(typeToInstantiate.Type, [.. GetCtorParams(signature)]))
                 ]);
 
                 methods.Add(new MethodProvider(signature, statements, this, docs));
@@ -124,13 +128,9 @@ namespace Microsoft.Generator.CSharp.Providers
             var statements = new List<MethodBodyStatement>();
             foreach (var param in signature.Parameters)
             {
-                if (param.Type.IsList)
+                if (param.Type.IsList || param.Type.IsDictionary)
                 {
-                    statements.Add(param.Assign(New.Instance(new CSharpType(typeof(List<>), param.Type.Arguments))).Terminate());
-                }
-                else if (param.Type.IsDictionary)
-                {
-                    statements.Add(param.Assign(New.Instance(new CSharpType(typeof(Dictionary<,>), param.Type.Arguments))).Terminate());
+                    statements.Add(param.Assign(New.Instance(param.Type.PropertyInitializationType)).Terminate());
                 }
             }
             return [.. statements];

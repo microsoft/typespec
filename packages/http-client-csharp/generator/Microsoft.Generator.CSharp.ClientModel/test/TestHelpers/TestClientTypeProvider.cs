@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Generator.CSharp.ClientModel.Providers;
-using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Tests.Common;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests
 {
@@ -10,7 +10,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
     {
         public static readonly ClientProvider Empty = new TestClientTypeProvider();
 
-        public TestClientTypeProvider() : base(new InputClient("TestClient", "TestClient description", [], [], null))
+        public TestClientTypeProvider() : base(InputFactory.Client("TestClient"))
         {
         }
     }

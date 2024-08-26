@@ -27,11 +27,14 @@ namespace Microsoft.Generator.CSharp.Providers
         public CSharpType? ExplicitInterface { get; }
         public XmlDocProvider XmlDocs { get; private set; }
         public PropertyWireInformation? WireInfo { get; }
+        public bool IsDiscriminator { get; }
 
         /// <summary>
         /// Converts this property to a parameter.
         /// </summary>
         public ParameterProvider AsParameter => _parameter.Value;
+
+        public TypeProvider EnclosingType { get; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -40,7 +43,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
         }
 
-        internal static bool TryCreate(InputModelProperty inputProperty, [NotNullWhen(true)] out PropertyProvider? property)
+        internal static bool TryCreate(InputModelProperty inputProperty, TypeProvider enclosingType, [NotNullWhen(true)] out PropertyProvider? property)
         {
             var type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
             if (type == null)
@@ -48,16 +51,19 @@ namespace Microsoft.Generator.CSharp.Providers
                 property = null;
                 return false;
             }
-            property = new PropertyProvider(inputProperty, type);
+            property = new PropertyProvider(inputProperty, type, enclosingType);
             return true;
         }
 
-        public PropertyProvider(InputModelProperty inputProperty)
-        : this(inputProperty, CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type) ?? throw new InvalidOperationException($"Could not create CSharpType for property {inputProperty.Name}"))
+        public PropertyProvider(InputModelProperty inputProperty, TypeProvider enclosingType)
+        : this(
+            inputProperty,
+            CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type) ?? throw new InvalidOperationException($"Could not create CSharpType for property {inputProperty.Name}"),
+            enclosingType)
         {
         }
 
-        private PropertyProvider(InputModelProperty inputProperty, CSharpType propertyType)
+        private PropertyProvider(InputModelProperty inputProperty, CSharpType propertyType, TypeProvider enclosingType)
         {
             if (!inputProperty.IsRequired && !propertyType.IsCollection)
             {
@@ -68,13 +74,15 @@ namespace Microsoft.Generator.CSharp.Providers
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
 
             Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
-            Modifiers = MethodSignatureModifiers.Public;
+            Modifiers = inputProperty.IsDiscriminator ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
             Name = inputProperty.Name.ToCleanName();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
             Description = string.IsNullOrEmpty(inputProperty.Description) ? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter) : $"{inputProperty.Description}";
             XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);
             XmlDocs = GetXmlDocs();
             WireInfo = new PropertyWireInformation(inputProperty);
+            EnclosingType = enclosingType;
+            IsDiscriminator = inputProperty.IsDiscriminator;
 
             InitializeParameter(Name, FormattableStringHelpers.FromString(inputProperty.Description), Type);
         }
@@ -85,6 +93,7 @@ namespace Microsoft.Generator.CSharp.Providers
             CSharpType type,
             string name,
             PropertyBody body,
+            TypeProvider enclosingType,
             CSharpType? explicitInterface = null,
             PropertyWireInformation? wireInfo = null)
         {
@@ -97,6 +106,7 @@ namespace Microsoft.Generator.CSharp.Providers
             ExplicitInterface = explicitInterface;
             XmlDocs = GetXmlDocs();
             WireInfo = wireInfo;
+            EnclosingType = enclosingType;
 
             InitializeParameter(Name, description ?? FormattableStringHelpers.Empty, Type);
         }

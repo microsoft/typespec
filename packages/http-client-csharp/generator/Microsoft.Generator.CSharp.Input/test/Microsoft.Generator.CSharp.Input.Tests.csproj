@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Microsoft.Generator.CSharp\test\common\Microsoft.Generator.CSharp.Tests.Common.csproj" />
     <ProjectReference Include="..\src\Microsoft.Generator.CSharp.Input.csproj" />
   </ItemGroup>
 

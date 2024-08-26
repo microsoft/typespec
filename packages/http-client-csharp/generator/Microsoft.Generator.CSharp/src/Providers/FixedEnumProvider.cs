@@ -77,6 +77,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     modifiers,
                     EnumUnderlyingType,
                     name,
+                    this,
                     inputValue.Description is null ? $"{name}" : FormattableStringHelpers.FromString(inputValue.Description),
                     initializationValue);
 
