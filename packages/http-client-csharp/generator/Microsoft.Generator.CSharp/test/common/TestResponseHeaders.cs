@@ -5,7 +5,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Tests
+namespace Microsoft.Generator.CSharp.Tests.Common
 {
     public class TestResponseHeaders : PipelineResponseHeaders
     {

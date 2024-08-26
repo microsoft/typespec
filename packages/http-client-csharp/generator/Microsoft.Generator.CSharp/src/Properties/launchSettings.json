@@ -95,6 +95,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-type-model-inheritance-single-discriminator": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/model/inheritance/single-discriminator -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-type-model-usage": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/model/usage -p StubLibraryPlugin",
       "commandName": "Executable",

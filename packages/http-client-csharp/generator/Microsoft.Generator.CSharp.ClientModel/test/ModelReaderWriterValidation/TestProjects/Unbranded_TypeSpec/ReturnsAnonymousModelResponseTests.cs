@@ -3,14 +3,15 @@
 
 using System.ClientModel;
 using System.IO;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 using UnbrandedTypeSpec.Models;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidation
+namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidation.TestProjects.Unbranded_TypeSpec
 {
-    internal class ReturnsAnonymousModelResponseTests : ModelJsonTests<ReturnsAnonymousModelResponse>
+    internal class ReturnsAnonymousModelResponseTests : LocalModelJsonTests<ReturnsAnonymousModelResponse>
     {
-        protected override string JsonPayload => File.ReadAllText(TestData.GetLocation("Unbranded-TypeSpec/TestData/ReturnsAnonymousModelResp/Model.json"));
+        protected override string JsonPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/ReturnsAnonymousModelResp/Model.json"));
         protected override string WirePayload => "{}";
         protected override ReturnsAnonymousModelResponse ToModel(ClientResult result) => (ReturnsAnonymousModelResponse)result;
         protected override BinaryContent ToBinaryContent(ReturnsAnonymousModelResponse model) => model;

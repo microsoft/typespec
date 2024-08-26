@@ -71,7 +71,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         {
             var discriminatorDeclaration = new VariableExpression(typeof(JsonElement), "discriminator");
             discriminator = discriminatorDeclaration.As<JsonElement>();
-            var invocation = jsonElement.Invoke(nameof(JsonElement.TryGetProperty), [Literal(propertyName), new DeclarationExpression(discriminatorDeclaration, true)], null, false);
+            var invocation = jsonElement.Invoke(nameof(JsonElement.TryGetProperty), [LiteralU8(propertyName), new DeclarationExpression(discriminatorDeclaration, true)], null, false);
             return invocation.As<bool>();
         }
 

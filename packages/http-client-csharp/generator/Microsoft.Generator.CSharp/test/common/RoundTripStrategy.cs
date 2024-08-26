@@ -9,7 +9,7 @@ using System.Text;
 using System.Text.Json;
 
 
-namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidation
+namespace Microsoft.Generator.CSharp.Tests.Common
 {
     public abstract class RoundTripStrategy<T>
     {

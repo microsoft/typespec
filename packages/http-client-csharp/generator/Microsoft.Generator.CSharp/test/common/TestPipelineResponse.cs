@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Tests
+namespace Microsoft.Generator.CSharp.Tests.Common
 {
     public class TestPipelineResponse : PipelineResponse
     {

@@ -27,6 +27,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public CSharpType? ExplicitInterface { get; }
         public XmlDocProvider XmlDocs { get; private set; }
         public PropertyWireInformation? WireInfo { get; }
+        public bool IsDiscriminator { get; }
 
         /// <summary>
         /// Converts this property to a parameter.
@@ -73,7 +74,7 @@ namespace Microsoft.Generator.CSharp.Providers
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
 
             Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
-            Modifiers = MethodSignatureModifiers.Public;
+            Modifiers = inputProperty.IsDiscriminator ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
             Name = inputProperty.Name.ToCleanName();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
             Description = string.IsNullOrEmpty(inputProperty.Description) ? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter) : $"{inputProperty.Description}";
@@ -81,6 +82,7 @@ namespace Microsoft.Generator.CSharp.Providers
             XmlDocs = GetXmlDocs();
             WireInfo = new PropertyWireInformation(inputProperty);
             EnclosingType = enclosingType;
+            IsDiscriminator = inputProperty.IsDiscriminator;
 
             InitializeParameter(Name, FormattableStringHelpers.FromString(inputProperty.Description), Type);
         }
