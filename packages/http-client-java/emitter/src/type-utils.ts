@@ -319,7 +319,7 @@ function getDecoratorScopedValue<T>(
     .filter(
       (it) =>
         it.decorator.name === decorator &&
-        it.args.length == 2 &&
+        it.args.length === 2 &&
         (it.args[1].value as StringLiteral).value === "java"
     )
     .map((it) => mapFunc(it))
@@ -331,7 +331,7 @@ function getDecoratorScopedValue<T>(
     .filter(
       (it) =>
         it.decorator.name === decorator &&
-        it.args.length == 2 &&
+        it.args.length === 2 &&
         (it.args[1].value as StringLiteral).value === "client"
     )
     .map((it) => mapFunc(it))
@@ -340,7 +340,7 @@ function getDecoratorScopedValue<T>(
     return value;
   }
   value = type.decorators
-    .filter((it) => it.decorator.name === decorator && it.args.length == 1)
+    .filter((it) => it.decorator.name === decorator && it.args.length === 1)
     .map((it) => mapFunc(it))
     .find(() => true);
   if (value) {
