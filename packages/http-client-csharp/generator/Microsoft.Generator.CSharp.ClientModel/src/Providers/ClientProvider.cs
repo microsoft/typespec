@@ -39,6 +39,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private ParameterProvider? _clientOptionsParameter;
         private ClientOptionsProvider? _clientOptions;
         private RestClientProvider? _restClient;
+        private ClientProvider? _parent;
 
         private ParameterProvider? ClientOptionsParameter => _clientOptionsParameter ??= ClientOptions != null
             ? ScmKnownParameters.ClientOptions(ClientOptions.Type)
@@ -104,19 +105,40 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     this);
             }
 
+            _parent = parent;
             _endpointParameterName = new(GetEndpointParameterName);
         }
 
         private List<ParameterProvider>? _uriParameters;
         internal IReadOnlyList<ParameterProvider> GetUriParameters()
         {
-            // stop recursing when parent's uriParamters is null
-            if (this.)
             if (_uriParameters is null)
             {
                 _ = Constructors;
+                foreach (var parent in _family!)
+                {
+                    _ = parent.BuildConstructors();
+                }
+                //HashSet<ConstructorProvider> combinedConstructors = Constructors.Concat(_parent?.Constructors ?? Enumerable.Empty<ConstructorProvider>()).ToHashSet();
+                //Constructors = combinedConstructors.ToList();
             }
             return _uriParameters ?? [];
+        }
+
+        // enumerate through list of parents/tree
+        // distinct on param name
+        private static List<ClientProvider>? _family = new List<ClientProvider>();
+        private static IEnumerable<ClientProvider> FindParents(ClientProvider client)
+        {
+            if (client._parent is null)
+            {
+                return _family!;
+            }
+            else
+            {
+                _family!.Add(client._parent);
+                return FindParents(client._parent);
+            }
         }
 
         private Lazy<string?> _endpointParameterName;
@@ -446,23 +468,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 if (client.Parent != null && client.Parent == _inputClient.Key)
                 {
                     subClients.Add(new(() => ClientModelPlugin.Instance.TypeFactory.CreateClient(client, this)));
-                }
-            }
-
-            return subClients;
-        }
-
-        private IReadOnlyList<Lazy<ClientProvider>> GetParentClient()
-        {
-            var inputClients = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
-            var subClients = new List<Lazy<ClientProvider>>(inputClients.Count);
-
-            foreach (var client in inputClients)
-            {
-                // add direct parent clients
-                if (client.Parent != null && client.Parent == _inputClient.Key)
-                {
-                    subClients.Add(new(() => ClientModelPlugin.Instance.TypeFactory.CreateClient(client)));
                 }
             }
 
