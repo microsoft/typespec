@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using _Type.Property.Nullable;
-using System.Threading.Tasks;
-using NUnit.Framework;
-using AutoRest.TestServer.Tests.Infrastructure;
 using System;
-using System.Xml;
 using System.ClientModel;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Xml;
+using _Type.Property.Nullable;
+using AutoRest.TestServer.Tests.Infrastructure;
+using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http._Type.Property.Nullable
 {

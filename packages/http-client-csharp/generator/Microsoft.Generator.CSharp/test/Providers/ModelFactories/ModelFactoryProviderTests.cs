@@ -10,7 +10,7 @@ using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.Tests.Providers
+namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
 {
     public class ModelFactoryProviderTests
     {

@@ -11,7 +11,7 @@ using System.Reflection;
 using System.Text.Json;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidation
+namespace Microsoft.Generator.CSharp.Tests.Common
 {
     public abstract class ModelTests<T> where T : IPersistableModel<T>
     {
@@ -46,28 +46,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
         protected abstract string JsonPayload { get; }
         protected abstract string WirePayload { get; }
 
-        [TestCase("J")]
-        [TestCase("W")]
-        public void RoundTripWithModelReaderWriter(string format)
+        public void RoundTripWithModelReaderWriterBase(string format)
             => RoundTripTest(format, new ModelReaderWriterStrategy<T>());
 
-        [TestCase("J")]
-        [TestCase("W")]
-        public void RoundTripWithModelReaderWriterNonGeneric(string format)
+        public void RoundTripWithModelReaderWriterNonGenericBase(string format)
             => RoundTripTest(format, new ModelReaderWriterNonGenericStrategy<T>());
 
-        [TestCase("J")]
-        [TestCase("W")]
-        public void RoundTripWithModelInterface(string format)
+        public void RoundTripWithModelInterfaceBase(string format)
             => RoundTripTest(format, new ModelInterfaceStrategy<T>());
 
-        [TestCase("J")]
-        [TestCase("W")]
-        public void RoundTripWithModelInterfaceNonGeneric(string format)
+        public void RoundTripWithModelInterfaceNonGenericBase(string format)
             => RoundTripTest(format, new ModelInterfaceAsObjectStrategy<T>());
 
-        [TestCase("W")]
-        public void RoundTripWithModelCast(string format)
+        public void RoundTripWithModelCastBase(string format)
             => RoundTripTest(format, new CastStrategy<T>(ToBinaryContent, ToModel));
 
         protected void RoundTripTest(string format, RoundTripStrategy<T> strategy)
@@ -200,7 +191,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
             return result;
         }
 
-        internal static IDictionary<string, BinaryData> GetRawData(object model)
+        public static IDictionary<string, BinaryData> GetRawData(object model)
         {
             Type modelType = model.GetType();
             while (modelType.BaseType != typeof(object) && modelType.BaseType != typeof(ValueType))
@@ -211,8 +202,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
             return propertyInfo?.GetValue(model) as IDictionary<string, BinaryData> ?? throw new InvalidOperationException($"unable to get raw data from {model.GetType().Name}");
         }
 
-        [Test]
-        public void ThrowsIfUnknownFormat()
+        public void ThrowsIfUnknownFormatBase()
         {
             ModelReaderWriterOptions options = new ModelReaderWriterOptions("x");
             Assert.Throws<FormatException>(() => ModelReaderWriter.Write(ModelInstance, options));
@@ -256,8 +246,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
             }
         }
 
-        [Test]
-        public void ThrowsIfWireIsNotJson()
+        public void ThrowsIfWireIsNotJsonBase()
         {
             if (ModelInstance is IJsonModel<T> jsonModel && IsXmlWireFormat)
             {

@@ -4,15 +4,16 @@
 using System.ClientModel;
 using System.IO;
 using System.Text.Json;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 using UnbrandedTypeSpec.Models;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidation
+namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidation.TestProjects.Unbranded_TypeSpec
 {
-    internal class ThingTests : ModelJsonTests<Thing>
+    internal class ThingTests : LocalModelJsonTests<Thing>
     {
-        protected override string JsonPayload => File.ReadAllText(TestData.GetLocation("Unbranded-TypeSpec/TestData/Thing/Thing.json"));
-        protected override string WirePayload => File.ReadAllText(TestData.GetLocation("Unbranded-TypeSpec/TestData/Thing/ThingWireFormat.json"));
+        protected override string JsonPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/Thing/Thing.json"));
+        protected override string WirePayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/Thing/ThingWireFormat.json"));
         protected override Thing ToModel(ClientResult result) => (Thing)result;
         protected override BinaryContent ToBinaryContent(Thing model) => model;
 

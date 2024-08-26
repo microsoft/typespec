@@ -10,7 +10,7 @@ using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.Tests.Providers
+namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
 {
     public class ModelProviderTests
     {
@@ -159,9 +159,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 InputFactory.Property("prop3", InputPrimitiveType.String, isRequired: true),
                 InputFactory.Property("prop4", InputPrimitiveType.String)
             };
-            var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: baseProperties);
-            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: derivedProperties, baseModel: inputBase);
-            ((List<InputModelType>)inputBase.DerivedModels).Add(inputDerived);
+            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: derivedProperties);
+            var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: baseProperties, derivedModels: [inputDerived]);
 
             MockHelpers.LoadMockPlugin();
 
@@ -186,9 +185,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.AreEqual("prop1", baseParameters[0].Name);
             Assert.AreEqual(new CSharpType(typeof(string)), baseParameters[0].Type);
             Assert.AreEqual(2, derivedParameters.Count);
-            Assert.AreEqual("prop1", derivedParameters[0].Name);
+            Assert.AreEqual("prop3", derivedParameters[0].Name);
             Assert.AreEqual(new CSharpType(typeof(string)), derivedParameters[0].Type);
-            Assert.AreEqual("prop3", derivedParameters[1].Name);
+            Assert.AreEqual("prop1", derivedParameters[1].Name);
             Assert.AreEqual(new CSharpType(typeof(string)), derivedParameters[1].Type);
 
             // validate the secondary constructor
@@ -210,16 +209,16 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), secondaryCtorParameters[2].Type);
             // validate derived secondary constructor
             Assert.AreEqual(5, derivedSecondaryCtorParams.Count); // all base props + 2 properties + 1 additionalRawData
-            Assert.AreEqual("prop1", derivedSecondaryCtorParams[0].Name);
+            Assert.AreEqual("prop3", derivedSecondaryCtorParams[0].Name);
             Assert.AreEqual(new CSharpType(typeof(string)), derivedSecondaryCtorParams[0].Type);
-            Assert.AreEqual("prop2", derivedSecondaryCtorParams[1].Name);
+            Assert.AreEqual("prop4", derivedSecondaryCtorParams[1].Name);
             Assert.AreEqual(new CSharpType(typeof(string), true), derivedSecondaryCtorParams[1].Type);
-            Assert.AreEqual("serializedAdditionalRawData", derivedSecondaryCtorParams[2].Name);
-            Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), derivedSecondaryCtorParams[2].Type);
-            Assert.AreEqual("prop3", derivedSecondaryCtorParams[3].Name);
-            Assert.AreEqual(new CSharpType(typeof(string)), derivedSecondaryCtorParams[3].Type);
-            Assert.AreEqual("prop4", derivedSecondaryCtorParams[4].Name);
-            Assert.AreEqual(new CSharpType(typeof(string), true), derivedSecondaryCtorParams[4].Type);
+            Assert.AreEqual("prop1", derivedSecondaryCtorParams[2].Name);
+            Assert.AreEqual(new CSharpType(typeof(string)), derivedSecondaryCtorParams[2].Type);
+            Assert.AreEqual("prop2", derivedSecondaryCtorParams[3].Name);
+            Assert.AreEqual(new CSharpType(typeof(string), true), derivedSecondaryCtorParams[3].Type);
+            Assert.AreEqual("serializedAdditionalRawData", derivedSecondaryCtorParams[4].Name);
+            Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), derivedSecondaryCtorParams[4].Type);
         }
 
         [Test]
@@ -244,9 +243,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockHelpers.LoadMockPlugin();
 
-            var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: []);
-            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: [], baseModel: inputBase);
-            ((List<InputModelType>)inputBase.DerivedModels).Add(inputDerived);
+            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: []);
+            var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: [], derivedModels: [inputDerived]);
 
             var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputBase);
             var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputDerived);

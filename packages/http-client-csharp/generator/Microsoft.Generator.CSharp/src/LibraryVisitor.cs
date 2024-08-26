@@ -100,7 +100,7 @@ namespace Microsoft.Generator.CSharp
             return type;
         }
 
-        protected internal virtual TypeProvider? Visit(InputModelType model, TypeProvider? type)
+        protected internal virtual ModelProvider? Visit(InputModelType model, ModelProvider? type)
         {
             return type;
         }

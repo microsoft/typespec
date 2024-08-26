@@ -4,15 +4,16 @@
 using System.ClientModel;
 using System.IO;
 using System.Text.Json;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 using UnbrandedTypeSpec.Models;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidation
+namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidation.TestProjects.Unbranded_TypeSpec
 {
-    internal class RoundTripModelTests : ModelJsonTests<RoundTripModel>
+    internal class RoundTripModelTests : LocalModelJsonTests<RoundTripModel>
     {
-        protected override string JsonPayload => File.ReadAllText(TestData.GetLocation("Unbranded-TypeSpec/TestData/RoundTripModel/RoundTripModel.json"));
-        protected override string WirePayload => File.ReadAllText(TestData.GetLocation("Unbranded-TypeSpec/TestData/RoundTripModel/RoundTripModelWireFormat.json"));
+        protected override string JsonPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/RoundTripModel/RoundTripModel.json"));
+        protected override string WirePayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/RoundTripModel/RoundTripModelWireFormat.json"));
         protected override RoundTripModel ToModel(ClientResult result) => (RoundTripModel)result;
         protected override BinaryContent ToBinaryContent(RoundTripModel model) => model;
 

@@ -30,5 +30,10 @@ namespace Microsoft.Generator.CSharp.Statements
             Write(writer);
             return writer.ToString(false);
         }
+
+        public string ToDisplayString()
+        {
+            return GetDebuggerDisplay();
+        }
     }
 }

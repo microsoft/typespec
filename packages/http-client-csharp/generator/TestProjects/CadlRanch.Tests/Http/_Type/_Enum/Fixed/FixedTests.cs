@@ -13,21 +13,21 @@ namespace TestProjects.CadlRanch.Tests.Http._Type._Enum.Fixed
     internal class FixedTests : CadlRanchTestBase
     {
         [CadlRanchTest]
-        public Task Type_Enum_Fixed_String_getKnownValue() => Test(async (host) =>
+        public Task GetKnownValue() => Test(async (host) =>
         {
             var response = await new FixedClient(host, null).GetStringClient().GetKnownValueAsync();
             Assert.AreEqual(DaysOfWeekEnum.Monday, response.Value);
         });
 
         [CadlRanchTest]
-        public Task Type_Enum_Fixed_String_putKnownValue() => Test(async (host) =>
+        public Task PutKnownValue() => Test(async (host) =>
         {
             var response = await new FixedClient(host, null).GetStringClient().PutKnownValueAsync(DaysOfWeekEnum.Monday);
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
         [CadlRanchTest]
-        public Task Type_Enum_Fixed_String_putUnknownValue() => Test((host) =>
+        public Task PutUnknownValue() => Test((host) =>
         {
             var exception = Assert.ThrowsAsync<ClientResultException>(() => new FixedClient(host, null).GetStringClient().PutUnknownValueAsync(BinaryContent.Create(BinaryData.FromObjectAsJson("Weekend")), null));
             Assert.IsNotNull(exception?.GetRawResponse());
