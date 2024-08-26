@@ -18,6 +18,27 @@ describe("@name", () => {
 
     expect(resolveEncodedName(runner.program, Blob, "application/xml")).toEqual("XmlBlob");
   });
+
+  it("set the attribute value via encodedName", async () => {
+    const { title } = (await runner.compile(
+      `model Blob {@Xml.name("xmlTitle") @test title:string}`
+    )) as {
+      title: Model;
+    };
+
+    expect(resolveEncodedName(runner.program, title, "application/xml")).toEqual("xmlTitle");
+  });
+
+  it("set the value on scalar via encodedName", async () => {
+    const { Blob } = (await runner.compile(
+      `@name("XmlBlob")
+       @test scalar Blob extends string;`
+    )) as {
+      Blob: Model;
+    };
+
+    expect(resolveEncodedName(runner.program, Blob, "application/xml")).toEqual("XmlBlob");
+  });
 });
 
 describe("@attribute", () => {
