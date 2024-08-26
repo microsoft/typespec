@@ -13,6 +13,8 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.Statements;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
@@ -586,5 +588,64 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             var methodBody = method?.BodyStatements;
             Assert.IsNotNull(methodBody);
         }
+
+        [Test]
+        public void TestIntSerializationStatement(
+            [Values(
+            InputPrimitiveTypeKind.Integer,
+            InputPrimitiveTypeKind.SafeInt,
+            InputPrimitiveTypeKind.Int8,
+            // InputPrimitiveTypeKind.Int16, TODO: add them back when we decide the exact corresponding type
+            InputPrimitiveTypeKind.Int32,
+            InputPrimitiveTypeKind.Int64,
+            InputPrimitiveTypeKind.UInt8
+            // InputPrimitiveTypeKind.UInt16,
+            // InputPrimitiveTypeKind.UInt32,
+            // InputPrimitiveTypeKind.UInt64
+            )] InputPrimitiveTypeKind kind,
+            [Values("string", null)] string encode)
+        {
+            var name = kind.ToString().ToLower();
+            var properties = new List<InputModelProperty>
+            {
+                new InputModelProperty("requiredInt", "requiredInt", "", new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode), true, false, false),
+             };
+
+            var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+
+            Assert.IsTrue(HasMethodBodyStatement(serialization.BuildJsonModelWriteCoreMethod().BodyStatements, encode is null ? "writer.WriteNumberValue(RequiredInt);\n" : "writer.WriteStringValue(RequiredInt.ToString());\n"));
+        }
+
+        [TestCase(typeof(long), SerializationFormat.Int_String, ExpectedResult = "long.Parse(foo.GetString())")]
+        [TestCase(typeof(int), SerializationFormat.Int_String, ExpectedResult = "int.Parse(foo.GetString())")]
+        [TestCase(typeof(short), SerializationFormat.Int_String, ExpectedResult = "short.Parse(foo.GetString())")]
+        [TestCase(typeof(byte), SerializationFormat.Int_String, ExpectedResult = "byte.Parse(foo.GetString())")]
+        [TestCase(typeof(sbyte), SerializationFormat.Int_String, ExpectedResult = "sbyte.Parse(foo.GetString())")]
+        [TestCase(typeof(long), SerializationFormat.Default, ExpectedResult = "foo.GetInt64()")]
+        [TestCase(typeof(int), SerializationFormat.Default, ExpectedResult = "foo.GetInt32()")]
+        [TestCase(typeof(short), SerializationFormat.Default, ExpectedResult = "foo.GetInt16()")]
+        [TestCase(typeof(byte), SerializationFormat.Default, ExpectedResult = "foo.GetByte()")]
+        [TestCase(typeof(sbyte), SerializationFormat.Default, ExpectedResult = "foo.GetSByte()")]
+        public string TestIntDeserializeExpression(Type type, SerializationFormat format)
+        {
+            var expr = MrwSerializationTypeDefinition.GetValueTypeDeserializationExpression(type, new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")), format);
+            return expr.ToDisplayString();
+        }
+
+        /// <summary>
+        /// Determines whether the given statement is or contains a statement which is equal to the given code string.
+        /// </summary>
+        /// <param name="statement"> <c cref="MethodBodyStatement">MethodBodyStatement</c> to check. </param>
+        /// <param name="code"> Code string which the expression statement should be transformed to. </param>
+        /// <returns> True if there is a <c cref="MethodBodyStatement">MethodBodyStatement</c> matching the given code string. </returns>
+        private static bool HasMethodBodyStatement(MethodBodyStatement? statement, string code) => HasMethodBodyStatement(statement, s => s.ToDisplayString() == code);
+        private static bool HasMethodBodyStatement(MethodBodyStatement? statement, Func<MethodBodyStatement, bool> predicate) => statement switch
+        {
+            null => false,
+            MethodBodyStatements statements => statements.Statements.Any(s => HasMethodBodyStatement(s, predicate)),
+            _ => predicate(statement)
+        };
     }
 }

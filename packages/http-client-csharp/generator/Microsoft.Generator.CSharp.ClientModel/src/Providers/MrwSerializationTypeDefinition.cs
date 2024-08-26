@@ -1189,6 +1189,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 var t when t == typeof(JsonElement) =>
                     value.As<JsonElement>().WriteTo(_utf8JsonWriterSnippet),
+                var t when ValueTypeIsInt(t) && serializationFormat == SerializationFormat.Int_String =>
+                    _utf8JsonWriterSnippet.WriteStringValue(value.InvokeToString()),
                 var t when ValueTypeIsNumber(t) =>
                     _utf8JsonWriterSnippet.WriteNumberValue(value),
                 var t when t == typeof(object) =>
@@ -1238,16 +1240,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     element.GetBoolean(),
                 Type t when t == typeof(char) =>
                     element.GetChar(),
-                Type t when t == typeof(sbyte) =>
-                    element.GetSByte(),
-                Type t when t == typeof(byte) =>
-                    element.GetByte(),
-                Type t when t == typeof(short) =>
-                    element.GetInt16(),
-                Type t when t == typeof(int) =>
-                    element.GetInt32(),
-                Type t when t == typeof(long) =>
-                    element.GetInt64(),
+                Type t when ValueTypeIsInt(t) =>
+                    GetIntTypeDeserializationExpress(element, t, format),
                 Type t when t == typeof(float) =>
                     element.GetSingle(),
                 Type t when t == typeof(double) =>
@@ -1276,15 +1270,34 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             };
         }
 
-        private static bool ValueTypeIsNumber(Type valueType) =>
-            valueType == typeof(decimal) ||
-            valueType == typeof(double) ||
-            valueType == typeof(float) ||
+        private static bool ValueTypeIsInt(Type valueType) =>
             valueType == typeof(long) ||
             valueType == typeof(int) ||
             valueType == typeof(short) ||
             valueType == typeof(sbyte) ||
             valueType == typeof(byte);
+
+        private static bool ValueTypeIsNumber(Type valueType) =>
+            valueType == typeof(decimal) ||
+            valueType == typeof(double) ||
+            valueType == typeof(float) ||
+            ValueTypeIsInt(valueType);
+
+        private static ValueExpression GetIntTypeDeserializationExpress(ScopedApi<JsonElement> element, Type type, SerializationFormat format) => format switch
+        {
+            // when `@encode(string)`, the type is serialized as string, so we need to deserialize it from string
+            // sbyte.Parse(element.GetString())
+            SerializationFormat.Int_String => new InvokeMethodExpression(type, nameof(int.Parse), [element.GetString()]),
+            _ => type switch
+            {
+                Type t when t == typeof(long) => element.GetInt64(),
+                Type t when t == typeof(int) => element.GetInt32(),
+                Type t when t == typeof(short) => element.GetInt16(),
+                Type t when t == typeof(sbyte) => element.GetSByte(),
+                Type t when t == typeof(byte) => element.GetByte(),
+                _ => throw new NotSupportedException($"Framework type {type} is not int.")
+            }
+        };
 
         private MethodBodyStatement SerializeDateTimeRelatedTypes(Type valueType, SerializationFormat serializationFormat, ValueExpression value)
         {

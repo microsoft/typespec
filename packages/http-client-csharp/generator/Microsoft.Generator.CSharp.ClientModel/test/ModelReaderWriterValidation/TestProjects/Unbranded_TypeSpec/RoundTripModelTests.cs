@@ -101,7 +101,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
             Assert.IsNotNull(parsedWireJson);
 
             Assert.AreEqual(parsedWireJson.GetProperty("requiredString").GetString(), model.RequiredString);
-            Assert.AreEqual(parsedWireJson.GetProperty("requiredInt").GetInt32(), model.RequiredInt);
+            Assert.AreEqual(int.Parse(parsedWireJson.GetProperty("requiredInt").GetString()!), model.RequiredInt);
             Assert.AreEqual(1, model.RequiredCollection.Count);
             Assert.AreEqual(new IntExtensibleEnum(1), model.IntExtensibleEnum);
             Assert.AreEqual(2, model.IntExtensibleEnumCollection.Count);
