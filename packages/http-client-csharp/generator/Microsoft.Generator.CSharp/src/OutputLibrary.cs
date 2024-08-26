@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
@@ -43,6 +44,15 @@ namespace Microsoft.Generator.CSharp
                 if (outputModel != null)
                 {
                     models.Add(outputModel);
+                    var unknownVariant = inputModel.DiscriminatedSubtypes.Values.FirstOrDefault(m => m.IsUnknownDiscriminatorModel);
+                    if (unknownVariant != null)
+                    {
+                        var unknownModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(unknownVariant);
+                        if (unknownModel != null)
+                        {
+                            models.Add(unknownModel);
+                        }
+                    }
                 }
             }
 

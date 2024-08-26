@@ -24,6 +24,8 @@ namespace Microsoft.Generator.CSharp.Statements
         public static readonly MethodBodyStatement Empty = new();
         public static readonly MethodBodyStatement EmptyLine = new PrivateEmptyLineStatement();
 
+        public string ToDisplayString() => GetDebuggerDisplay();
+
         private string GetDebuggerDisplay()
         {
             using CodeWriter writer = new CodeWriter();
