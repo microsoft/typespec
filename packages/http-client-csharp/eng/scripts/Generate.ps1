@@ -54,7 +54,6 @@ $failingSpecs = @(
     Join-Path 'http' 'client' 'structure' 'client-operation-group'
     Join-Path 'http' 'client' 'structure' 'renamed-operation'
     Join-Path 'http' 'client' 'structure' 'two-operation-group'
-    Join-Path 'http' 'encode' 'datetime'
     Join-Path 'http' 'parameters' 'body-optionality'
     Join-Path 'http' 'parameters' 'collection-format'
     Join-Path 'http' 'parameters' 'spread'
@@ -76,9 +75,7 @@ $failingSpecs = @(
     Join-Path 'http' 'type' 'model' 'inheritance' 'nested-discriminator'
     Join-Path 'http' 'type' 'model' 'inheritance' 'not-discriminated'
     Join-Path 'http' 'type' 'model' 'inheritance' 'recursive'
-    Join-Path 'http' 'type' 'model' 'inheritance' 'single-discriminator'
     Join-Path 'http' 'type' 'property' 'additional-properties'
-    Join-Path 'http' 'type' 'property' 'optionality'
 )
 
 $cadlRanchLaunchProjects = @{}

@@ -18,8 +18,8 @@ namespace Microsoft.Generator.CSharp
         private ChangeTrackingDictionaryDefinition? _changeTrackingDictionaryProvider;
         private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
 
-        private Dictionary<InputType, TypeProvider?>? _csharpToTypeProvider;
-        private Dictionary<InputType, TypeProvider?> CSharpToTypeProvider => _csharpToTypeProvider ??= [];
+        private Dictionary<InputModelType, ModelProvider?>? _csharpToModelProvider;
+        private Dictionary<InputModelType, ModelProvider?> CSharpToModelProvider => _csharpToModelProvider ??= [];
 
         private Dictionary<EnumCacheKey, TypeProvider?>? _enumCache;
         private Dictionary<EnumCacheKey, TypeProvider?> EnumCache => _enumCache ??= [];
@@ -155,19 +155,19 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="model">The <see cref="InputModelType"/> to convert.</param>
         /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
-        public TypeProvider? CreateModel(InputModelType model)
+        public ModelProvider? CreateModel(InputModelType model)
         {
-            if (CSharpToTypeProvider.TryGetValue(model, out var modelProvider))
+            if (CSharpToModelProvider.TryGetValue(model, out var modelProvider))
                 return modelProvider;
 
             modelProvider = CreateModelCore(model);
-            CSharpToTypeProvider.Add(model, modelProvider);
+            CSharpToModelProvider.Add(model, modelProvider);
             return modelProvider;
         }
 
-        private TypeProvider? CreateModelCore(InputModelType model)
+        private ModelProvider? CreateModelCore(InputModelType model)
         {
-            TypeProvider? type = new ModelProvider(model);
+            ModelProvider? type = new ModelProvider(model);
             if (Visitors.Count == 0)
             {
                 return type;
@@ -300,6 +300,9 @@ namespace Microsoft.Generator.CSharp
                     BytesKnownEncoding.Base64Url => SerializationFormat.Bytes_Base64Url,
                     _ => throw new IndexOutOfRangeException($"unknown encode {primitiveType.Encode}")
                 },
+                InputPrimitiveTypeKind.Integer or InputPrimitiveTypeKind.Int8 or InputPrimitiveTypeKind.Int16 or InputPrimitiveTypeKind.Int32
+                    or InputPrimitiveTypeKind.Int64 or InputPrimitiveTypeKind.UInt8 or InputPrimitiveTypeKind.UInt16 or InputPrimitiveTypeKind.UInt32
+                    or InputPrimitiveTypeKind.UInt64 or InputPrimitiveTypeKind.SafeInt when primitiveType.Encode is "string" => SerializationFormat.Int_String,
                 _ => SerializationFormat.Default
             },
             _ => SerializationFormat.Default

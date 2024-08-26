@@ -4,7 +4,7 @@
 using System;
 using NUnit.Framework;
 
-namespace AutoRest.TestServer.Tests.Infrastructure
+namespace TestProjects.CadlRanch.Tests
 {
     public static class BinaryDataAssert
     {
