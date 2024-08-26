@@ -418,7 +418,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodBodyStatement[] BuildAbstractDeserializationMethodBody()
         {
-            var unknownVariant = _model.DerivedModels.First(m => m.Name == $"Unknown{_model.Name}");
+            var unknownVariant = _model.DerivedModels.First(m => m.IsUnknownDiscriminatorModel);
             return
             [
                 new IfStatement(_jsonElementParameterSnippet.ValueKindEqualsNull()) { Return(Null) },

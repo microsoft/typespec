@@ -39,7 +39,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
 
         protected override ConstructorProvider? Visit(ConstructorProvider constructor)
         {
-            if ((constructor.Signature.Initializer is null || !constructor.Signature.Initializer.IsBase || constructor.Signature.Initializer.Arguments.Count == 0) &&
+            if (!IsCallingBaseCtor(constructor) &&
                 !IsEffectivelyPublic(constructor.Signature.Modifiers) &&
                 (constructor.EnclosingType is not ModelProvider model || model.DerivedModels.Count == 0))
                 return null;
@@ -50,6 +50,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
                 xmlDocs: _emptyDocs);
 
             return constructor;
+        }
+
+        private static bool IsCallingBaseCtor(ConstructorProvider constructor)
+        {
+            return constructor.Signature.Initializer is not null &&
+                constructor.Signature.Initializer.IsBase &&
+                constructor.Signature.Initializer.Arguments.Count > 0;
         }
 
         protected override FieldProvider? Visit(FieldProvider field)

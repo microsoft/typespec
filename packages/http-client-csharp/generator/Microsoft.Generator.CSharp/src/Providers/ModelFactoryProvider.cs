@@ -72,7 +72,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     continue;
 
                 var typeToInstantiate = modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
-                    ? modelProvider.DerivedModels.First(m => m.Name.StartsWith("Unknown", StringComparison.Ordinal))
+                    ? modelProvider.DerivedModels.First(m => m.IsUnknownDiscriminatorModel)
                     : modelProvider;
 
                 var modelCtor = modelProvider.FullConstructor;

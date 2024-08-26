@@ -34,11 +34,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
         [Test]
         public void BaseShouldReturnUnknownVariant()
         {
-            MockHelpers.LoadMockPlugin(inputModelTypes: [_baseModel, _catModel, _dogModel]);
-            var outputLibrary = CodeModelPlugin.Instance.OutputLibrary;
-            var modelFactory = outputLibrary.TypeProviders.OfType<ModelFactoryProvider>().FirstOrDefault();
-            Assert.IsNotNull(modelFactory);
-            var baseModelMethod = modelFactory!.Methods.FirstOrDefault(m => m.Signature.Name == "Pet");
+            ModelFactoryProvider modelFactory = SetupModelFactory();
+            var baseModelMethod = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "Pet");
             Assert.IsNotNull(baseModelMethod);
             Assert.IsTrue(baseModelMethod!.BodyStatements!.ToDisplayString().Contains("return new global::Sample.Models.UnknownPet("));
         }
@@ -46,11 +43,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
         [Test]
         public void BaseShouldHaveDiscriminatorParameter()
         {
-            MockHelpers.LoadMockPlugin(inputModelTypes: [_baseModel, _catModel, _dogModel]);
-            var outputLibrary = CodeModelPlugin.Instance.OutputLibrary;
-            var modelFactory = outputLibrary.TypeProviders.OfType<ModelFactoryProvider>().FirstOrDefault();
-            Assert.IsNotNull(modelFactory);
-            var baseModelMethod = modelFactory!.Methods.FirstOrDefault(m => m.Signature.Name == "Pet");
+            ModelFactoryProvider modelFactory = SetupModelFactory();
+            var baseModelMethod = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "Pet");
             Assert.IsNotNull(baseModelMethod);
             var discriminatorParameter = baseModelMethod!.Signature.Parameters.FirstOrDefault(p => p.Name == "kind");
             Assert.IsNotNull(discriminatorParameter);
@@ -59,14 +53,20 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
         [Test]
         public void DerivedShouldNotHaveDiscriminatorParameter()
         {
+            ModelFactoryProvider modelFactory = SetupModelFactory();
+            var catModelMethod = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "Cat");
+            Assert.IsNotNull(catModelMethod);
+            var discriminatorParameter = catModelMethod!.Signature.Parameters.FirstOrDefault(p => p.Name == "kind");
+            Assert.IsNull(discriminatorParameter);
+        }
+
+        private static ModelFactoryProvider SetupModelFactory()
+        {
             MockHelpers.LoadMockPlugin(inputModelTypes: [_baseModel, _catModel, _dogModel]);
             var outputLibrary = CodeModelPlugin.Instance.OutputLibrary;
             var modelFactory = outputLibrary.TypeProviders.OfType<ModelFactoryProvider>().FirstOrDefault();
             Assert.IsNotNull(modelFactory);
-            var catModelMethod = modelFactory!.Methods.FirstOrDefault(m => m.Signature.Name == "Cat");
-            Assert.IsNotNull(catModelMethod);
-            var discriminatorParameter = catModelMethod!.Signature.Parameters.FirstOrDefault(p => p.Name == "kind");
-            Assert.IsNull(discriminatorParameter);
+            return modelFactory!;
         }
     }
 }

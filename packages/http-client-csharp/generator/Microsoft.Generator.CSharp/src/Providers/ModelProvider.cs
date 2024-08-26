@@ -60,26 +60,22 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public string? DiscriminatorValue => _inputModel.DiscriminatorValue;
 
-        private List<ModelProvider>? _derivedModels;
-        public IReadOnlyList<ModelProvider> DerivedModels
-        {
-            get
-            {
-                if (_derivedModels == null)
-                {
-                    _derivedModels = new List<ModelProvider>(_inputModel.DiscriminatedSubtypes.Count);
-                    foreach (var subtype in _inputModel.DiscriminatedSubtypes)
-                    {
-                        var model = CodeModelPlugin.Instance.TypeFactory.CreateModel(subtype.Value);
-                        if (model != null)
-                        {
-                            _derivedModels.Add(model);
-                        }
-                    }
-                }
+        private IReadOnlyList<ModelProvider>? _derivedModels;
+        public IReadOnlyList<ModelProvider> DerivedModels => _derivedModels ??= BuildDerivedModels();
 
-                return _derivedModels;
+        private IReadOnlyList<ModelProvider> BuildDerivedModels()
+        {
+            var derivedModels = new List<ModelProvider>(_inputModel.DiscriminatedSubtypes.Count);
+            foreach (var subtype in _inputModel.DiscriminatedSubtypes)
+            {
+                var model = CodeModelPlugin.Instance.TypeFactory.CreateModel(subtype.Value);
+                if (model != null)
+                {
+                    derivedModels.Add(model);
+                }
             }
+
+            return derivedModels;
         }
 
         private ModelProvider? BaseModelProvider
