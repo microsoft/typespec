@@ -14,6 +14,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public static ScopedApi<BinaryContent> FromEnumerable(ValueExpression body)
             => Static<BinaryContentHelperDefinition>().Invoke("FromEnumerable", body).As<BinaryContent>();
 
+        public static ScopedApi<BinaryContent> FromDictionary(ValueExpression body)
+            => Static<BinaryContentHelperDefinition>().Invoke("FromDictionary", body).As<BinaryContent>();
+
         public static ScopedApi<BinaryContent> FromReadOnlyMemory(ValueExpression body)
             => Static<BinaryContentHelperDefinition>().Invoke("FromReadOnlyMemory", body).As<BinaryContent>();
 

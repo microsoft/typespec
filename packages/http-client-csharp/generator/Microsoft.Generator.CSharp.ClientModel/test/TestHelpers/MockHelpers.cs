@@ -28,6 +28,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             Func<InputApiKeyAuth>? apiKeyAuth = null,
             Func<IReadOnlyList<string>>? apiVersions = null,
             Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
+            Func<IReadOnlyList<InputModelType>>? inputModels = null,
             Func<IReadOnlyList<InputClient>>? clients = null,
             Func<InputLibrary>? createInputLibrary = null,
             Func<InputClient, ClientProvider>? createClientCore = null)
@@ -35,13 +36,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
             IReadOnlyList<InputEnumType> inputNsEnums = inputEnums?.Invoke() ?? [];
             IReadOnlyList<InputClient> inputNsClients = clients?.Invoke() ?? [];
+            IReadOnlyList<InputModelType> inputNsModels = inputModels?.Invoke() ?? [];
             InputAuth inputNsAuth = apiKeyAuth != null ? new InputAuth(apiKeyAuth(), null) : new InputAuth();
             var mockTypeFactory = new Mock<ScmTypeFactory>() { CallBase = true };
             var mockInputNs = new Mock<InputNamespace>(
                 string.Empty,
                 inputNsApiVersions,
                 inputNsEnums,
-                Array.Empty<InputModelType>(),
+                inputNsModels,
                 inputNsClients,
                 inputNsAuth);
             var mockInputLibrary = new Mock<InputLibrary>(_configFilePath);

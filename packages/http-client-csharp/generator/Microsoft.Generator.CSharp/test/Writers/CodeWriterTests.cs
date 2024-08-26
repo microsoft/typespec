@@ -445,5 +445,34 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var result = codeWriter.ToString(false);
             Assert.AreEqual(expected, result);
         }
+
+        [TestCase(TypeSignatureModifiers.Private | TypeSignatureModifiers.Class)]
+        [TestCase(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class)]
+        [TestCase(TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Class)]
+        [TestCase(TypeSignatureModifiers.Public | TypeSignatureModifiers.Abstract | TypeSignatureModifiers.Class)]
+        [TestCase(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Abstract | TypeSignatureModifiers.Class)]
+        public void TypeModifiersTest(TypeSignatureModifiers modifiers)
+        {
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteTypeModifiers(modifiers);
+            var result = codeWriter.ToString(false);
+
+            foreach (var bit in Enum.GetValues<TypeSignatureModifiers>())
+            {
+                if (bit == TypeSignatureModifiers.None)
+                    continue;
+
+                var expected = bit.ToString().ToLower();
+                if (modifiers.HasFlag(bit))
+                {
+                    Assert.IsTrue(result.Contains(expected), $"Expected bit `{expected}` to be present");
+                }
+                else
+                {
+                    Assert.IsFalse(result.Contains(expected), $"Expected bit `{expected}` to be absent");
+
+                }
+            }
+        }
     }
 }

@@ -126,5 +126,7 @@ namespace Microsoft.Generator.CSharp.Expressions
             Write(writer);
             return writer.ToString(false);
         }
+
+        public string ToDisplayString() => GetDebuggerDisplay();
     }
 }
