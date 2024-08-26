@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using _Type.Property.Nullable;
-using AutoRest.TestServer.Tests.Infrastructure;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http._Type.Property.Nullable
