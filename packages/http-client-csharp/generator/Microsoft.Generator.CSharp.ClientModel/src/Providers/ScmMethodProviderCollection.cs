@@ -43,12 +43,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var syncProtocol = BuildProtocolMethod(_createRequestMethod, false);
             var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true);
 
+            if (Operation.GenerateConvenienceMethod)
+            {
+                return
+                [
+                    syncProtocol,
+                    asyncProtocol,
+                    BuildConvenienceMethod(syncProtocol, false),
+                    BuildConvenienceMethod(asyncProtocol, true),
+                ];
+            }
+
             return
             [
                 syncProtocol,
                 asyncProtocol,
-                BuildConvenienceMethod(syncProtocol, false),
-                BuildConvenienceMethod(asyncProtocol, true),
             ];
         }
 
@@ -64,6 +73,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 methodModifier |= MethodSignatureModifiers.Async;
             }
+
             var methodSignature = new MethodSignature(
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
                 FormattableStringHelpers.FromString(Operation.Description),
@@ -74,12 +84,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
 
             MethodBodyStatement[] methodBody;
+
             if (responseBodyType is null)
             {
                 methodBody =
                 [
-                    .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var paramDeclarations),
-                    Return(This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, paramDeclarations), Null], isAsync))
+                    .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var declarations),
+                    Return(This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, declarations), Null], isAsync))
                 ];
             }
             else
@@ -88,11 +99,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 [
                     .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var paramDeclarations),
                     Declare("result", This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, paramDeclarations), Null], isAsync).As<ClientResult>(), out ScopedApi<ClientResult> result),
-                    .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var declarations),
+                    .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
                     Return(Static<ClientResult>().Invoke(
                         nameof(ClientResult.FromValue),
                         [
-                            responseBodyType.Equals(typeof(string)) ? result.GetRawResponse().Content().InvokeToString() : GetResultConversion(result, responseBodyType, declarations),
+                            GetResultConversion(result, responseBodyType, resultDeclarations),
                             result.Invoke("GetRawResponse")
                         ])),
                 ];
@@ -109,6 +120,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             declarations = new Dictionary<string, ValueExpression>();
             foreach (var parameter in convenienceMethodParameters)
             {
+                if (parameter.SpreadSource is not null)
+                    continue;
+
                 if (parameter.Location == ParameterLocation.Body)
                 {
                     if (parameter.Type.IsReadOnlyMemory)
@@ -121,9 +135,71 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromEnumerable(parameter), out var content));
                         declarations["content"] = content;
                     }
+                    else if (parameter.Type.IsDictionary)
+                    {
+                        statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromDictionary(parameter), out var content));
+                        declarations["content"] = content;
+                    }
+                    else if (parameter.Type.Equals(typeof(string)))
+                    {
+                        var bdExpression = Operation.RequestMediaTypes?.Contains("application/json") == true
+                            ? BinaryDataSnippets.FromObjectAsJson(parameter)
+                            : BinaryDataSnippets.FromString(parameter);
+                        statements.Add(UsingDeclare("content", BinaryContentSnippets.Create(bdExpression), out var content));
+                        declarations["content"] = content;
+                    }
+                    else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)))
+                    {
+                        statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromObject(parameter), out var content));
+                        declarations["content"] = content;
+                    }
                 }
             }
+
+            // add spread parameter model variable declaration
+            var spreadSource = convenienceMethodParameters.FirstOrDefault(p => p.SpreadSource is not null)?.SpreadSource;
+            if (spreadSource is not null)
+            {
+                statements.Add(Declare("spreadModel", New.Instance(spreadSource.Type, [.. GetSpreadConversion(spreadSource)]).As(spreadSource.Type), out var spread));
+                declarations["spread"] = spread;
+            }
+
             return statements;
+        }
+
+        private List<ValueExpression> GetSpreadConversion(TypeProvider spreadSource)
+        {
+            var convenienceMethodParams = ConvenienceMethodParameters.ToDictionary(p => p.Name);
+            List<ValueExpression> expressions = new(spreadSource.Properties.Count);
+            // we should make this find more deterministic
+            var ctor = spreadSource.Constructors.First(c => c.Signature.Parameters.Count == spreadSource.Properties.Count + 1 &&
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+
+            foreach (var param in ctor.Signature.Parameters)
+            {
+                if (convenienceMethodParams.TryGetValue(param.Name, out var convenienceParam))
+                {
+                    if (convenienceParam.Type.IsList)
+                    {
+                        var interfaceType = param.Property!.WireInfo?.IsReadOnly == true
+                            ? new CSharpType(typeof(IReadOnlyList<>), convenienceParam.Type.Arguments)
+                            : new CSharpType(typeof(IList<>), convenienceParam.Type.Arguments);
+                        expressions.Add(NullCoalescing(
+                            new AsExpression(convenienceParam.NullConditional().ToList(), interfaceType),
+                            New.Instance(convenienceParam.Type.PropertyInitializationType, [])));
+                    }
+                    else
+                    {
+                        expressions.Add(convenienceParam);
+                    }
+                }
+                else
+                {
+                    expressions.Add(Null);
+                }
+            }
+
+            return expressions;
         }
 
         private IEnumerable<MethodBodyStatement> GetStackVariablesForReturnValueConversion(ScopedApi<ClientResult> result, CSharpType responseBodyType, bool isAsync, out Dictionary<string, ValueExpression> declarations)
@@ -148,28 +224,60 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     return statements;
                 }
             }
+            else if (responseBodyType.IsDictionary)
+            {
+                var keyType = responseBodyType.Arguments[0];
+                var valueType = responseBodyType.Arguments[1];
+                if (!valueType.IsFrameworkType || valueType.Equals(typeof(TimeSpan)) || valueType.Equals(typeof(BinaryData)))
+                {
+                    var valueDeclaration = Declare("value", New.Instance(new CSharpType(typeof(Dictionary<,>), keyType, valueType)).As(responseBodyType), out var value);
+                    MethodBodyStatement[] statements =
+                    [
+                        valueDeclaration,
+                        UsingDeclare("document", JsonDocumentSnippets.Parse(result.GetRawResponse().ContentStream(), isAsync), out var document),
+                        ForeachStatement.Create("item", document.RootElement().EnumerateObject(), out ScopedApi<JsonProperty> item)
+                            .Add(GetElementConversion(valueType, item.Value(), value, item.Name()))
+                    ];
+                    declarations = new Dictionary<string, ValueExpression>
+                    {
+                        { "value", value }
+                    };
+                    return statements;
+                }
+            }
 
             declarations = [];
             return [];
         }
 
-        private MethodBodyStatement GetElementConversion(CSharpType elementType, ScopedApi<JsonElement> item, ScopedApi value)
+        private MethodBodyStatement GetElementConversion(CSharpType elementType, ScopedApi<JsonElement> item, ScopedApi value, ValueExpression? dictKey = null)
         {
             if (elementType.Equals(typeof(TimeSpan)))
             {
-                return value.Add(item.Invoke("GetTimeSpan", Literal("P")));
+                return AddElement(dictKey, item.Invoke("GetTimeSpan", Literal("P")), value);
             }
             else if (elementType.Equals(typeof(BinaryData)))
             {
                 return new IfElseStatement(
                     item.ValueKind().Equal(JsonValueKindSnippets.Null),
-                    value.Add(Null),
-                    value.Add(BinaryDataSnippets.FromString(item.GetRawText())));
+                    AddElement(dictKey, Null, value),
+                    AddElement(dictKey, BinaryDataSnippets.FromString(item.GetRawText()), value));
             }
             else
             {
-                return value.Add(Static(elementType).Invoke($"Deserialize{elementType.Name}", item, ModelSerializationExtensionsSnippets.Wire));
+                return AddElement(dictKey, Static(elementType).Invoke($"Deserialize{elementType.Name}", item, ModelSerializationExtensionsSnippets.Wire), value);
             }
+        }
+
+        private MethodBodyStatement AddElement(ValueExpression? dictKey, ValueExpression element, ScopedApi scopedApi)
+        {
+            if (dictKey != null)
+            {
+                // Add items to dictionary
+                return scopedApi.Add(dictKey, element);
+            }
+            // Add items to list
+            return scopedApi.Add(element);
         }
 
         private ValueExpression GetResultConversion(ScopedApi<ClientResult> result, CSharpType responseBodyType, Dictionary<string, ValueExpression> declarations)
@@ -189,15 +297,47 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     return result.GetRawResponse().Content().ToObjectFromJson(responseBodyType);
                 }
             }
+            if (responseBodyType.IsDictionary)
+            {
+                if (!responseBodyType.Arguments[1].IsFrameworkType || responseBodyType.Arguments[1].Equals(typeof(TimeSpan)) || responseBodyType.Arguments[1].Equals(typeof(BinaryData)))
+                {
+                    return declarations["value"];
+                }
+                else
+                {
+                    return result.GetRawResponse().Content().ToObjectFromJson(responseBodyType);
+                }
+            }
+            if (responseBodyType.Equals(typeof(string)) && Operation.RequestMediaTypes?.Contains("text/plain") == true)
+            {
+                return result.GetRawResponse().Content().InvokeToString();
+            }
+            if (responseBodyType.IsFrameworkType)
+            {
+                return result.GetRawResponse().Content().ToObjectFromJson(responseBodyType);
+            }
+            if (responseBodyType.IsEnum)
+            {
+                return responseBodyType.ToEnum(result.GetRawResponse().Content().ToObjectFromJson(responseBodyType.UnderlyingEnumType));
+            }
             return result.CastTo(responseBodyType);
         }
 
         private IReadOnlyList<ValueExpression> GetParamConversions(IReadOnlyList<ParameterProvider> convenienceMethodParameters, Dictionary<string, ValueExpression> declarations)
         {
             List<ValueExpression> conversions = new List<ValueExpression>();
+            bool addedSpreadSource = false;
             foreach (var param in convenienceMethodParameters)
             {
-                if (param.Location == ParameterLocation.Body)
+                if (param.SpreadSource is not null)
+                {
+                    if (!addedSpreadSource)
+                    {
+                        conversions.Add(declarations["spread"]);
+                        addedSpreadSource = true;
+                    }
+                }
+                else if (param.Location == ParameterLocation.Body)
                 {
                     if (param.Type.IsReadOnlyMemory || param.Type.IsList)
                     {
@@ -211,12 +351,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     {
                         conversions.Add(BinaryContentSnippets.Create(param));
                     }
-                    else if (param.Type.Equals(typeof(string)))
+                    else if (param.Type.IsFrameworkType)
                     {
-                        var bdExpression = Operation.RequestBodyMediaType == BodyMediaType.Json
-                          ? BinaryDataSnippets.FromObjectAsJson(param)
-                          : BinaryDataSnippets.FromString(param);
-                        conversions.Add(BinaryContentSnippets.Create(bdExpression));
+                        conversions.Add(declarations["content"]);
                     }
                     else
                     {

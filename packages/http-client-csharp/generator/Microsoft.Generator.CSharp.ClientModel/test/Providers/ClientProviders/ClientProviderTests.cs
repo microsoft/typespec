@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         private static readonly InputClient _animalClient = new("animal", "AnimalClient description", [], [], TestClientName);
         private static readonly InputClient _dogClient = new("dog", "DogClient description", [], [], _animalClient.Name);
         private static readonly InputClient _huskyClient = new("husky", "HuskyClient description", [], [], _dogClient.Name);
+        private static readonly InputModelType _spreadModel = InputFactory.Model(
+            "spreadModel",
+            usage: InputModelTypeUsage.Spread,
+            properties:
+            [
+                InputFactory.Property("p1", InputPrimitiveType.String, isRequired: true),
+            ]);
 
         [SetUp]
         public void SetUp()
@@ -365,6 +373,33 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.AreEqual(Helpers.GetExpectedFromFile(), codeFile.Content);
         }
 
+        [TestCaseSource(nameof(ValidateClientWithSpreadTestCases))]
+        public void ValidateClientWithSpread(InputClient inputClient)
+        {
+            var clientProvider = new ClientProvider(inputClient);
+            var methods = clientProvider.Methods;
+
+            Assert.AreEqual(4, methods.Count);
+
+            var protocolMethods = methods.Where(m => m.Signature.Parameters.Any(p => p.Type.Equals(typeof(BinaryContent)))).ToList();
+            Assert.AreEqual(2, protocolMethods.Count);
+            Assert.AreEqual(2, protocolMethods[0].Signature.Parameters.Count);
+            Assert.AreEqual(2, protocolMethods[1].Signature.Parameters.Count);
+
+            Assert.AreEqual(new CSharpType(typeof(BinaryContent)), protocolMethods[0].Signature.Parameters[0].Type);
+            Assert.AreEqual(new CSharpType(typeof(RequestOptions)), protocolMethods[0].Signature.Parameters[1].Type);
+            Assert.AreEqual(new CSharpType(typeof(BinaryContent)), protocolMethods[1].Signature.Parameters[0].Type);
+            Assert.AreEqual(new CSharpType(typeof(RequestOptions)), protocolMethods[1].Signature.Parameters[1].Type);
+
+            var convenienceMethods = methods.Where(m => m.Signature.Parameters.Any(p => p.Type.Equals(typeof(string)))).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+            Assert.AreEqual(1, convenienceMethods[0].Signature.Parameters.Count);
+
+            Assert.AreEqual(new CSharpType(typeof(string)), convenienceMethods[0].Signature.Parameters[0].Type);
+            Assert.AreEqual("p1", convenienceMethods[0].Signature.Parameters[0].Name);
+
+        }
+
         private static InputClient GetEnumQueryParamClient()
             => InputFactory.Client(
                 TestClientName,
@@ -386,6 +421,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                                         InputFactory.EnumMember.String("value1", "value1"),
                                         InputFactory.EnumMember.String("value2", "value2")
                                     ]),
+                                isRequired: true,
                                 location: RequestLocation.Query)
                         ])
                 ]);
@@ -466,6 +502,29 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 yield return new TestCaseData(_animalClient, true);
                 yield return new TestCaseData(_dogClient, true);
                 yield return new TestCaseData(_huskyClient, false);
+            }
+        }
+
+        public static IEnumerable<TestCaseData> ValidateClientWithSpreadTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(InputFactory.Client(
+                    TestClientName,
+                    operations:
+                    [
+                        InputFactory.Operation(
+                        "CreateMessage",
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "spread",
+                                _spreadModel,
+                                location: RequestLocation.Body,
+                                isRequired: true,
+                                kind: InputOperationParameterKind.Spread),
+                        ])
+                    ]));
             }
         }
 

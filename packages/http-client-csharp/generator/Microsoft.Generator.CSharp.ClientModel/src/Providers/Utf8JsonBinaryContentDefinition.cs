@@ -31,17 +31,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _streamField = new FieldProvider(
                 modifiers: FieldModifiers.Private | FieldModifiers.ReadOnly,
                 type: typeof(MemoryStream),
-                name: "_stream");
+                name: "_stream",
+                enclosingType: this);
             _contentField = new FieldProvider(
                 modifiers: FieldModifiers.Private | FieldModifiers.ReadOnly,
                 type: typeof(BinaryContent),
-                name: "_content");
+                name: "_content",
+                enclosingType: this);
             _writerProperty = new PropertyProvider(
                 description: null,
                 modifiers: MethodSignatureModifiers.Public,
                 type: typeof(Utf8JsonWriter),
                 name: _jsonWriterName,
-                body: new AutoPropertyBody(false));
+                body: new AutoPropertyBody(false),
+                enclosingType: this);
         }
 
         protected override string BuildName() => "Utf8JsonBinaryContent";

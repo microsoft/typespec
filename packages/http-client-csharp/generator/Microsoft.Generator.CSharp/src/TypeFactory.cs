@@ -206,7 +206,7 @@ namespace Microsoft.Generator.CSharp
             }
             foreach (var visitor in Visitors)
             {
-                type = visitor.Visit(enumType, declaringType);
+                type = visitor.Visit(enumType, type);
             }
             return type;
         }
@@ -227,12 +227,12 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="property">The input property.</param>
         /// <returns>The property provider.</returns>
-        public PropertyProvider? CreatePropertyProvider(InputModelProperty property)
+        public PropertyProvider? CreatePropertyProvider(InputModelProperty property, TypeProvider enclosingType)
         {
             if (PropertyCache.TryGetValue(property, out var propertyProvider))
                 return propertyProvider;
 
-            propertyProvider = CreatePropertyProviderCore(property);
+            propertyProvider = CreatePropertyProviderCore(property, enclosingType);
             PropertyCache.Add(property, propertyProvider);
             return propertyProvider;
         }
@@ -241,11 +241,12 @@ namespace Microsoft.Generator.CSharp
         /// Factory method for creating a <see cref="PropertyProvider"/> based on an input property <paramref name="property"/>.
         /// </summary>
         /// <param name="property">The input model property.</param>
+        /// <param name="enclosingType">The enclosing type.</param>
         /// <returns>An instance of <see cref="PropertyProvider"/>.</returns>
-        private PropertyProvider? CreatePropertyProviderCore(InputModelProperty property)
+        private PropertyProvider? CreatePropertyProviderCore(InputModelProperty property, TypeProvider enclosingType)
         {
             {
-                PropertyProvider.TryCreate(property, out var propertyProvider);
+                PropertyProvider.TryCreate(property, enclosingType, out var propertyProvider);
                 if (Visitors.Count == 0)
                 {
                     return propertyProvider;
@@ -268,6 +269,7 @@ namespace Microsoft.Generator.CSharp
             InputLiteralType literalType => GetSerializationFormat(literalType.ValueType),
             InputArrayType listType => GetSerializationFormat(listType.ValueType),
             InputDictionaryType dictionaryType => GetSerializationFormat(dictionaryType.ValueType),
+            InputNullableType nullableType => GetSerializationFormat(nullableType.Type),
             InputDateTimeType dateTimeType => dateTimeType.Encode switch
             {
                 DateTimeKnownEncoding.Rfc3339 => SerializationFormat.DateTime_RFC3339,

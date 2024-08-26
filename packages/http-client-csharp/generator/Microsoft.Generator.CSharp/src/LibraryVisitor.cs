@@ -11,6 +11,12 @@ namespace Microsoft.Generator.CSharp
     {
         internal virtual void Visit(OutputLibrary library)
         {
+            // Ensure all types are built before visiting them
+            foreach (var type in library.TypeProviders)
+            {
+                type.EnsureBuilt();
+            }
+
             var types = new List<TypeProvider>();
             foreach (var typeProvider in library.TypeProviders)
             {
@@ -31,7 +37,7 @@ namespace Microsoft.Generator.CSharp
                 var methods = new List<MethodProvider>();
                 foreach (var methodProvider in typeProvider.Methods)
                 {
-                    var method = Visit(typeProvider, methodProvider);
+                    var method = Visit(methodProvider);
                     if (method != null)
                     {
                         methods.Add(method);
@@ -41,7 +47,7 @@ namespace Microsoft.Generator.CSharp
                 var constructors = new List<ConstructorProvider>();
                 foreach (var constructorProvider in typeProvider.Constructors)
                 {
-                    var constructor = Visit(typeProvider, constructorProvider);
+                    var constructor = Visit(constructorProvider);
                     if (constructor != null)
                     {
                         constructors.Add(constructor);
@@ -51,7 +57,7 @@ namespace Microsoft.Generator.CSharp
                 var properties = new List<PropertyProvider>();
                 foreach (var propertyProvider in typeProvider.Properties)
                 {
-                    var property = Visit(typeProvider, propertyProvider);
+                    var property = Visit(propertyProvider);
                     if (property != null)
                     {
                         properties.Add(property);
@@ -61,7 +67,7 @@ namespace Microsoft.Generator.CSharp
                 var fields = new List<FieldProvider>();
                 foreach (var fieldProvider in typeProvider.Fields)
                 {
-                    var field = Visit(typeProvider, fieldProvider);
+                    var field = Visit(fieldProvider);
                     if (field != null)
                     {
                         fields.Add(field);
@@ -96,17 +102,17 @@ namespace Microsoft.Generator.CSharp
 
         protected internal virtual TypeProvider? Visit(InputModelType model, TypeProvider? type)
         {
-            return new ModelProvider(model);
+            return type;
         }
 
         protected internal virtual PropertyProvider? Visit(InputModelProperty property, PropertyProvider? propertyProvider)
         {
-            return new PropertyProvider(property);
+            return propertyProvider;
         }
 
         protected internal virtual TypeProvider? Visit(InputEnumType enumType, TypeProvider? type)
         {
-            return EnumProvider.Create(enumType, type);
+            return type;
         }
 
         protected virtual TypeProvider? Visit(TypeProvider type)
@@ -119,22 +125,22 @@ namespace Microsoft.Generator.CSharp
             return type;
         }
 
-        protected virtual ConstructorProvider? Visit(TypeProvider enclosingType, ConstructorProvider constructor)
+        protected virtual ConstructorProvider? Visit(ConstructorProvider constructor)
         {
             return constructor;
         }
 
-        protected virtual MethodProvider? Visit(TypeProvider enclosingType, MethodProvider method)
+        protected virtual MethodProvider? Visit(MethodProvider method)
         {
             return method;
         }
 
-        protected virtual PropertyProvider? Visit(TypeProvider enclosingType, PropertyProvider property)
+        protected virtual PropertyProvider? Visit(PropertyProvider property)
         {
             return property;
         }
 
-        protected virtual FieldProvider? Visit(TypeProvider enclosingType, FieldProvider field)
+        protected virtual FieldProvider? Visit(FieldProvider field)
         {
             return field;
         }
