@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.Collections.Generic;
 
 namespace _Type._Array.Models
@@ -9,6 +10,8 @@ namespace _Type._Array.Models
     public partial class InnerModel
     {
         public InnerModel(string @property) => throw null;
+
+        internal InnerModel(string @property, IList<InnerModel> children, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
 
         public string Property
         {

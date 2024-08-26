@@ -11,6 +11,8 @@ namespace _Type.Union.Models
 {
     public partial class Dog : IJsonModel<Dog>
     {
+        internal Dog() => throw null;
+
         void IJsonModel<Dog>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

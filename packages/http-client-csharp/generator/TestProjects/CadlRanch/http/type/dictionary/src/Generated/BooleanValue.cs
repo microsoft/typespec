@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
@@ -12,6 +13,8 @@ namespace _Type.Dictionary
     public partial class BooleanValue
     {
         protected BooleanValue() => throw null;
+
+        internal BooleanValue(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

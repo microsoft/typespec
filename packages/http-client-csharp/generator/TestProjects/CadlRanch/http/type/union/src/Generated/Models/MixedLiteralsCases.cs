@@ -3,12 +3,15 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
 
 namespace _Type.Union.Models
 {
     public partial class MixedLiteralsCases
     {
         public MixedLiteralsCases(BinaryData stringLiteral, BinaryData intLiteral, BinaryData floatLiteral, BinaryData booleanLiteral) => throw null;
+
+        internal MixedLiteralsCases(BinaryData stringLiteral, BinaryData intLiteral, BinaryData floatLiteral, BinaryData booleanLiteral, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
 
         public BinaryData StringLiteral
         {

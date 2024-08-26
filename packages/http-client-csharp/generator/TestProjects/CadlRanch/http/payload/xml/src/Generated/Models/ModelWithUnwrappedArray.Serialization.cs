@@ -11,6 +11,8 @@ namespace Payload.Xml.Models
 {
     public partial class ModelWithUnwrappedArray : IJsonModel<ModelWithUnwrappedArray>
     {
+        internal ModelWithUnwrappedArray() => throw null;
+
         void IJsonModel<ModelWithUnwrappedArray>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

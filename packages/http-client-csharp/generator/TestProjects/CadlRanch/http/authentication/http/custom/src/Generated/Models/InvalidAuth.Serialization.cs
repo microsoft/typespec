@@ -11,6 +11,8 @@ namespace Authentication.Http.Custom.Models
 {
     public partial class InvalidAuth : IJsonModel<InvalidAuth>
     {
+        internal InvalidAuth() => throw null;
+
         void IJsonModel<InvalidAuth>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

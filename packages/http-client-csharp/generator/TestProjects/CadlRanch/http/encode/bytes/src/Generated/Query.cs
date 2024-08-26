@@ -14,6 +14,8 @@ namespace Encode.Bytes
     {
         protected Query() => throw null;
 
+        internal Query(ClientPipeline pipeline, Uri endpoint) => throw null;
+
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Default(BinaryData value, RequestOptions options) => throw null;

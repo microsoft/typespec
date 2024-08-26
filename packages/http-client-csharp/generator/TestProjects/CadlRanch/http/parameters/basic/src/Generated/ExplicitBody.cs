@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
@@ -12,6 +13,8 @@ namespace Parameters.Basic
     public partial class ExplicitBody
     {
         protected ExplicitBody() => throw null;
+
+        internal ExplicitBody(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -11,6 +11,8 @@ namespace Client.Naming.Models
 {
     public partial class CSModel : IJsonModel<CSModel>
     {
+        internal CSModel() => throw null;
+
         void IJsonModel<CSModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

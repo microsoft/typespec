@@ -2,11 +2,16 @@
 
 #nullable disable
 
+using System;
+using System.Collections.Generic;
+
 namespace _Type.Union.Models
 {
     public partial class EnumsOnlyCases
     {
         public EnumsOnlyCases(EnumsOnlyCasesLr lr, EnumsOnlyCasesUd ud) => throw null;
+
+        internal EnumsOnlyCases(EnumsOnlyCasesLr lr, EnumsOnlyCasesUd ud, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
 
         public EnumsOnlyCasesLr Lr
         {

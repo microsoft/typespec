@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
@@ -12,6 +13,8 @@ namespace _Type._Array
     public partial class Float32Value
     {
         protected Float32Value() => throw null;
+
+        internal Float32Value(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

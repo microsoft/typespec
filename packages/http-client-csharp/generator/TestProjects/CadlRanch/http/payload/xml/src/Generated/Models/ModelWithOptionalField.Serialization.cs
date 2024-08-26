@@ -11,6 +11,8 @@ namespace Payload.Xml.Models
 {
     public partial class ModelWithOptionalField : IJsonModel<ModelWithOptionalField>
     {
+        internal ModelWithOptionalField() => throw null;
+
         void IJsonModel<ModelWithOptionalField>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

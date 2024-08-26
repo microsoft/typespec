@@ -3,11 +3,16 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
 
 namespace _Type.Union.Models
 {
     public partial class SendRequest4
     {
+        internal SendRequest4(BinaryData prop) => throw null;
+
+        internal SendRequest4(BinaryData prop, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
+
         public BinaryData Prop
         {
             get => throw null;

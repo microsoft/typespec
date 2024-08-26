@@ -11,6 +11,8 @@ namespace Encode.Datetime.Models
     {
         public UnixTimestampArrayDatetimeProperty(IEnumerable<DateTimeOffset> value) => throw null;
 
+        internal UnixTimestampArrayDatetimeProperty(IList<DateTimeOffset> value, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
+
         public IList<DateTimeOffset> Value => throw null;
     }
 }

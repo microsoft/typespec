@@ -2,11 +2,16 @@
 
 #nullable disable
 
+using System;
+using System.Collections.Generic;
+
 namespace _Type.Union.Models
 {
     public partial class Cat
     {
         public Cat(string name) => throw null;
+
+        internal Cat(string name, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
 
         public string Name
         {

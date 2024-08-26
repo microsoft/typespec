@@ -13,6 +13,8 @@ namespace Encode.Bytes
     {
         protected RequestBody() => throw null;
 
+        internal RequestBody(ClientPipeline pipeline, Uri endpoint) => throw null;
+
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Default(BinaryContent content, RequestOptions options) => throw null;

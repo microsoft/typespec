@@ -3,11 +3,16 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
 
 namespace _Type.Property.Nullable.Models
 {
     public partial class DurationProperty
     {
+        internal DurationProperty(string requiredProperty, TimeSpan? nullableProperty) => throw null;
+
+        internal DurationProperty(string requiredProperty, TimeSpan? nullableProperty, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
+
         public string RequiredProperty
         {
             get => throw null;

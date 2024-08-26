@@ -14,6 +14,8 @@ namespace Encode.Datetime
     {
         protected Query() => throw null;
 
+        internal Query(ClientPipeline pipeline, Uri endpoint) => throw null;
+
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Default(DateTimeOffset value, RequestOptions options) => throw null;

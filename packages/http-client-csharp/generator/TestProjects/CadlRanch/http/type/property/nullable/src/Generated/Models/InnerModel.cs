@@ -2,10 +2,17 @@
 
 #nullable disable
 
+using System;
+using System.Collections.Generic;
+
 namespace _Type.Property.Nullable.Models
 {
     public partial class InnerModel
     {
+        internal InnerModel(string @property) => throw null;
+
+        internal InnerModel(string @property, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
+
         public string Property
         {
             get => throw null;

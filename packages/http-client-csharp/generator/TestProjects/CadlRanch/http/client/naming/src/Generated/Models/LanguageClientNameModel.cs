@@ -2,11 +2,16 @@
 
 #nullable disable
 
+using System;
+using System.Collections.Generic;
+
 namespace Client.Naming.Models
 {
     public partial class LanguageClientNameModel
     {
         public LanguageClientNameModel(bool csName) => throw null;
+
+        internal LanguageClientNameModel(bool csName, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
 
         public bool CSName
         {

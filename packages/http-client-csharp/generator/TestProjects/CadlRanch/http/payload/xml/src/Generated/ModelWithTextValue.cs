@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
@@ -12,6 +13,8 @@ namespace Payload.Xml
     public partial class ModelWithTextValue
     {
         protected ModelWithTextValue() => throw null;
+
+        internal ModelWithTextValue(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

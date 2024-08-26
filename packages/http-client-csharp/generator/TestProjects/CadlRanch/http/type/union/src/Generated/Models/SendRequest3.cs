@@ -2,10 +2,17 @@
 
 #nullable disable
 
+using System;
+using System.Collections.Generic;
+
 namespace _Type.Union.Models
 {
     public partial class SendRequest3
     {
+        internal SendRequest3(EnumsOnlyCases prop) => throw null;
+
+        internal SendRequest3(EnumsOnlyCases prop, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
+
         public EnumsOnlyCases Prop
         {
             get => throw null;

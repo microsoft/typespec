@@ -3,12 +3,15 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
 
 namespace Encode.Datetime.Models
 {
     public partial class UnixTimestampDatetimeProperty
     {
         public UnixTimestampDatetimeProperty(DateTimeOffset value) => throw null;
+
+        internal UnixTimestampDatetimeProperty(DateTimeOffset value, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
 
         public DateTimeOffset Value
         {

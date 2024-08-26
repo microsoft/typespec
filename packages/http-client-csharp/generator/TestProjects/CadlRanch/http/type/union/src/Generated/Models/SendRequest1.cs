@@ -2,10 +2,17 @@
 
 #nullable disable
 
+using System;
+using System.Collections.Generic;
+
 namespace _Type.Union.Models
 {
     public partial class SendRequest1
     {
+        internal SendRequest1(MixedLiteralsCases prop) => throw null;
+
+        internal SendRequest1(MixedLiteralsCases prop, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
+
         public MixedLiteralsCases Prop
         {
             get => throw null;

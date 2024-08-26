@@ -2,12 +2,17 @@
 
 #nullable disable
 
+using System;
 using System.Collections.Generic;
 
 namespace Payload.Xml.Models
 {
     public partial class ModelWithEmptyArray
     {
+        internal ModelWithEmptyArray(IEnumerable<SimpleModel> items) => throw null;
+
+        internal ModelWithEmptyArray(IList<SimpleModel> items, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
+
         public IList<SimpleModel> Items => throw null;
     }
 }

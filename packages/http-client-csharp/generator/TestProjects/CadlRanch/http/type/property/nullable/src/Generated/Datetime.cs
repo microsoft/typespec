@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
@@ -12,6 +13,8 @@ namespace _Type.Property.Nullable
     public partial class Datetime
     {
         protected Datetime() => throw null;
+
+        internal Datetime(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

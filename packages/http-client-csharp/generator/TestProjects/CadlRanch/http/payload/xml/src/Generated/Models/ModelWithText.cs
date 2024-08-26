@@ -2,10 +2,17 @@
 
 #nullable disable
 
+using System;
+using System.Collections.Generic;
+
 namespace Payload.Xml.Models
 {
     public partial class ModelWithText
     {
+        internal ModelWithText(string language, string content) => throw null;
+
+        internal ModelWithText(string language, string content, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
+
         public string Language
         {
             get => throw null;

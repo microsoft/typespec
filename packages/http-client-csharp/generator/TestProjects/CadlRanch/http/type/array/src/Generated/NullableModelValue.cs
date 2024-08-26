@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
@@ -13,6 +14,8 @@ namespace _Type._Array
     public partial class NullableModelValue
     {
         protected NullableModelValue() => throw null;
+
+        internal NullableModelValue(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

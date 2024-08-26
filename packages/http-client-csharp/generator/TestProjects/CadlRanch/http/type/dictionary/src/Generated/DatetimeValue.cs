@@ -14,6 +14,8 @@ namespace _Type.Dictionary
     {
         protected DatetimeValue() => throw null;
 
+        internal DatetimeValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;

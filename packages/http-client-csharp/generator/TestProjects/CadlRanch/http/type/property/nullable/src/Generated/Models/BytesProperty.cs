@@ -3,11 +3,16 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
 
 namespace _Type.Property.Nullable.Models
 {
     public partial class BytesProperty
     {
+        internal BytesProperty(string requiredProperty, BinaryData nullableProperty) => throw null;
+
+        internal BytesProperty(string requiredProperty, BinaryData nullableProperty, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
+
         public string RequiredProperty
         {
             get => throw null;

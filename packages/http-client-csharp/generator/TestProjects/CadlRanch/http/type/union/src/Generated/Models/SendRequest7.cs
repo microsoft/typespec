@@ -2,10 +2,17 @@
 
 #nullable disable
 
+using System;
+using System.Collections.Generic;
+
 namespace _Type.Union.Models
 {
     public partial class SendRequest7
     {
+        internal SendRequest7(StringExtensibleNamedUnion prop) => throw null;
+
+        internal SendRequest7(StringExtensibleNamedUnion prop, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
+
         public StringExtensibleNamedUnion Prop
         {
             get => throw null;

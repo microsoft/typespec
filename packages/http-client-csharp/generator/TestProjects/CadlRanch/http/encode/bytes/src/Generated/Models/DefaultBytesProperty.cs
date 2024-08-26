@@ -3,12 +3,15 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
 
 namespace Encode.Bytes.Models
 {
     public partial class DefaultBytesProperty
     {
         public DefaultBytesProperty(BinaryData value) => throw null;
+
+        internal DefaultBytesProperty(BinaryData value, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
 
         public BinaryData Value
         {
