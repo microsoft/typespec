@@ -174,6 +174,19 @@ describe("@ns", () => {
     });
   });
 
+  it("emit error if missing the 2nd argument", async () => {
+    const diagnostics = await runner.diagnose(`
+      model Blob {
+        @Xml.ns("notvalidurl") id : string;
+      }
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/xml/ns-missing-prefix",
+      message: "When using a string namespace you must provide a prefix as the 2nd argument.",
+    });
+  });
+
   it("emit error if providing prefix param with enum member namespace", async () => {
     const diagnostics = await runner.diagnose(`
       @Xml.nsDeclarations
