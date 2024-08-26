@@ -1,7 +1,9 @@
-import { mapJoin, refkey } from "@alloy-js/core";
+import { Child, mapJoin, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Model, ModelProperty, Type, getEncode } from "@typespec/compiler";
 import {$} from "@typespec/compiler/typekit"
+import { ArraySerializerRefkey } from "./static-serializers.jsx";
+import { buildArraySerializer, buildRecordSerializer, BuildSerializerOptions, Serializer, SerializerExpression } from "./serializers-utils.jsx";
 
 export interface ModelSerializerProps {
   type: Model;
@@ -28,7 +30,7 @@ export function ModelSerializer(props: ModelSerializerProps) {
                   name={property.name}
                   // TODO: Alloy to support ref to interface properties
                   // value={<ts.Reference refkey={refkey(property)} />}
-                  value={getSerializer(property, property.type, itemPath)}
+                  value={Serializer(property.type, buildSerializer, itemPath, {wrapperEncoding: getEncode($.program, property)})}
                 />
               );
             },
@@ -44,31 +46,38 @@ function getSerializerRefkey(type: Model) {
   return refkey(type, "serializer");
 }
 
-function getSerializer(property: ModelProperty, type: Type, itemPath: string) {
-  console.log("Prop encode", getEncode($.program, property));
+function buildSerializer(type: Type, itemPath: string, options: BuildSerializerOptions = {}): SerializerExpression {
   switch (type.kind) {
     case "Model":
-      return (
-        <>
-          <ts.Reference refkey={getSerializerRefkey(type)} />({itemPath})
-        </>
-      );
+      if($.array.is(type)) {
+        return buildArraySerializer(type, buildSerializer, itemPath, options);
+      }
+
+      if($.record.is(type)) {
+        return buildRecordSerializer(type, buildSerializer, itemPath, options);
+      }
+      
+      return {
+        serializer:(<ts.Reference refkey={getSerializerRefkey(type)} />),
+        params: itemPath
+      }
+      
     case "Scalar":{
       if($.scalar.isUtcDateTime(type) || $.scalar.extendsUtcDateTime(type)) {
-        const encoding = getEncode($.program, property) ?? $.scalar.getEncoding(type);
+        const encoding = options.wrapperEncoding ?? $.scalar.getEncoding(type);
         switch(encoding?.encoding) {
           case "rfc7231":
-            return `${itemPath}.toUTCString()`;
+            return {serializer: `${itemPath}.toUTCString()`}
           case "unixTimestamp":
-            return `Math.floor(${itemPath}.getTime() / 1000)`;
+            return {serializer: `Math.floor(${itemPath}.getTime() / 1000)`}
           case "rfc3339":
           default:
-            return `${itemPath}.toISOString()`;
+            return {serializer: `${itemPath}.toISOString()`}
         }
       }
     }
      
     default:
-      return itemPath;
+      return undefined;
   }
 }

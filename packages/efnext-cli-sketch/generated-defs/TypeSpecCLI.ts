@@ -20,3 +20,10 @@ export type CliDecorator = (
   context: DecoratorContext,
   target: Namespace | Interface | Operation
 ) => void;
+
+export type TypeSpecCLIDecorators = {
+  short: ShortDecorator;
+  positional: PositionalDecorator;
+  invertable: InvertableDecorator;
+  cli: CliDecorator;
+};

@@ -1,7 +1,9 @@
-import { mapJoin, refkey } from "@alloy-js/core";
+import { Child, mapJoin, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { DateTimeKnownEncoding, Model, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
+import { ArraySerializerRefkey } from "./static-serializers.jsx";
+import { buildArraySerializer, buildRecordSerializer, Serializer, SerializerExpression } from "./serializers-utils.jsx";
 
 
 export interface ModelDeserializerProps {
@@ -28,7 +30,7 @@ export function ModelDeserializer(props: ModelDeserializerProps) {
               return (
                 <ts.ObjectProperty
                   name={propertyName}
-                  value={getDeserializer(property.type, itemPath)}
+                  value={Serializer(property.type, buildDeserializer, itemPath)}
                 />
               );
             },
@@ -40,32 +42,42 @@ export function ModelDeserializer(props: ModelDeserializerProps) {
   );
 }
 
+
 function getDeserializerRefkey(type: Model) {
   return refkey(type, "deserializer");
 }
 
-function getDeserializer(type: Type, itemPath: string) {
+function buildDeserializer(type: Type, itemPath: string):  SerializerExpression{
   switch (type.kind) {
     case "Model":
+      if($.array.is(type)) {
+       return buildArraySerializer(type, buildDeserializer, itemPath);
+      }
+
+      if($.record.is(type)) {
+        return buildRecordSerializer(type, buildDeserializer, itemPath);
+      }
+      
       return (
-        <>
-          <ts.Reference refkey={getDeserializerRefkey(type)} />({itemPath})
-        </>
+        {serializer: (<>
+          <ts.Reference refkey={getDeserializerRefkey(type)} />
+        </>),
+        params: itemPath}
       );
     case "Scalar":{
       if($.scalar.isUtcDateTime(type)) {
         const encoding = $.scalar.getEncoding(type) as DateTimeKnownEncoding | undefined;
         switch(encoding) {
           case "unixTimestamp":
-            return `new Date(${itemPath} * 1000)`;
+            return {serializer:`new Date(${itemPath}* 1000)`, params: undefined};
           case "rfc3339":
           case "rfc7231":
           default:
-            return `new Date(${itemPath})`;
+            return {serializer:`new Date(${itemPath})`, params: undefined};
         }
       }
     }
     default:
-      return itemPath;
+      return undefined;
   }
 }
