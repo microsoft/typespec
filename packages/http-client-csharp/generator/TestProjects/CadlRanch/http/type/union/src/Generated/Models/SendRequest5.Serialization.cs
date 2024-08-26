@@ -11,8 +11,6 @@ namespace _Type.Union.Models
 {
     public partial class SendRequest5 : IJsonModel<SendRequest5>
     {
-        internal SendRequest5() => throw null;
-
         void IJsonModel<SendRequest5>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

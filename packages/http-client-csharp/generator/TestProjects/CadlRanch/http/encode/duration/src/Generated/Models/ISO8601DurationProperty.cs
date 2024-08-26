@@ -3,15 +3,12 @@
 #nullable disable
 
 using System;
-using System.Collections.Generic;
 
 namespace Encode.Duration.Models
 {
     public partial class ISO8601DurationProperty
     {
         public ISO8601DurationProperty(TimeSpan value) => throw null;
-
-        internal ISO8601DurationProperty(TimeSpan value, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
 
         public TimeSpan Value
         {

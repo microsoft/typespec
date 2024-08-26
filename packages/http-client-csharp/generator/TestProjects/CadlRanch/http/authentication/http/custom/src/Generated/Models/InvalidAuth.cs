@@ -2,17 +2,10 @@
 
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-
 namespace Authentication.Http.Custom.Models
 {
     public partial class InvalidAuth
     {
-        internal InvalidAuth(string error) => throw null;
-
-        internal InvalidAuth(string error, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
-
         public string Error
         {
             get => throw null;

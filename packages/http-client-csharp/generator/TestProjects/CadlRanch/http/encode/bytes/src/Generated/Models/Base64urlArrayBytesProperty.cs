@@ -11,8 +11,6 @@ namespace Encode.Bytes.Models
     {
         public Base64urlArrayBytesProperty(IEnumerable<BinaryData> value) => throw null;
 
-        internal Base64urlArrayBytesProperty(IList<BinaryData> value, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
-
         public IList<BinaryData> Value => throw null;
     }
 }

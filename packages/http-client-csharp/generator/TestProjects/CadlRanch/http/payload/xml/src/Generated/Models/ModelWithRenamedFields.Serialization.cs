@@ -11,8 +11,6 @@ namespace Payload.Xml.Models
 {
     public partial class ModelWithRenamedFields : IJsonModel<ModelWithRenamedFields>
     {
-        internal ModelWithRenamedFields() => throw null;
-
         void IJsonModel<ModelWithRenamedFields>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

@@ -2,17 +2,10 @@
 
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-
 namespace _Type.Union.Models
 {
     public partial class GetResponse5
     {
-        internal GetResponse5(GetResponseProp1 prop) => throw null;
-
-        internal GetResponse5(GetResponseProp1 prop, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
-
         public GetResponseProp1 Prop
         {
             get => throw null;

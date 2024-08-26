@@ -11,8 +11,6 @@ namespace _Type.Union.Models
 {
     public partial class EnumsOnlyCases : IJsonModel<EnumsOnlyCases>
     {
-        internal EnumsOnlyCases() => throw null;
-
         void IJsonModel<EnumsOnlyCases>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

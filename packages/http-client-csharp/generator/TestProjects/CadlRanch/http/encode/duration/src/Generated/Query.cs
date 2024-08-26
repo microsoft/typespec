@@ -14,8 +14,6 @@ namespace Encode.Duration
     {
         protected Query() => throw null;
 
-        internal Query(ClientPipeline pipeline, Uri endpoint) => throw null;
-
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Default(TimeSpan input, RequestOptions options) => throw null;

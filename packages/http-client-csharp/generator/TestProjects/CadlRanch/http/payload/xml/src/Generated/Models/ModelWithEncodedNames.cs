@@ -2,17 +2,12 @@
 
 #nullable disable
 
-using System;
 using System.Collections.Generic;
 
 namespace Payload.Xml.Models
 {
     public partial class ModelWithEncodedNames
     {
-        internal ModelWithEncodedNames(SimpleModel modelData, IEnumerable<string> colors) => throw null;
-
-        internal ModelWithEncodedNames(SimpleModel modelData, IList<string> colors, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
-
         public SimpleModel ModelData
         {
             get => throw null;

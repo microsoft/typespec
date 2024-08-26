@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
@@ -13,8 +12,6 @@ namespace _Type._Array
     public partial class NullableInt32Value
     {
         protected NullableInt32Value() => throw null;
-
-        internal NullableInt32Value(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

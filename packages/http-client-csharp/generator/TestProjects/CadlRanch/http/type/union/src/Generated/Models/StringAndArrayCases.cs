@@ -3,15 +3,12 @@
 #nullable disable
 
 using System;
-using System.Collections.Generic;
 
 namespace _Type.Union.Models
 {
     public partial class StringAndArrayCases
     {
         public StringAndArrayCases(BinaryData @string, BinaryData array) => throw null;
-
-        internal StringAndArrayCases(BinaryData @string, BinaryData array, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
 
         public BinaryData String
         {

@@ -11,8 +11,6 @@ namespace _Type.Property.Nullable.Models
 {
     public partial class DatetimeProperty : IJsonModel<DatetimeProperty>
     {
-        internal DatetimeProperty() => throw null;
-
         void IJsonModel<DatetimeProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

@@ -11,8 +11,6 @@ namespace Encode.Datetime.Models
 {
     public partial class DefaultDatetimeProperty : IJsonModel<DefaultDatetimeProperty>
     {
-        internal DefaultDatetimeProperty() => throw null;
-
         void IJsonModel<DefaultDatetimeProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

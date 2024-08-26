@@ -2,16 +2,11 @@
 
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-
 namespace Parameters.Basic.Models
 {
     public partial class User
     {
         public User(string name) => throw null;
-
-        internal User(string name, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
 
         public string Name
         {

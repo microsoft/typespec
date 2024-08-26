@@ -2,16 +2,11 @@
 
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-
 namespace _Type.Union.Models
 {
     public partial class Dog
     {
         public Dog(string bark) => throw null;
-
-        internal Dog(string bark, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
 
         public string Bark
         {

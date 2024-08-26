@@ -2,17 +2,10 @@
 
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-
 namespace Payload.Xml.Models
 {
     public partial class ModelWithAttributes
     {
-        internal ModelWithAttributes(int id1, string id2, bool enabled) => throw null;
-
-        internal ModelWithAttributes(int id1, string id2, bool enabled, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
-
         public int Id1
         {
             get => throw null;

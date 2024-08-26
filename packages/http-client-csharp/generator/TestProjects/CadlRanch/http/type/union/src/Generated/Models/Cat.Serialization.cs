@@ -11,8 +11,6 @@ namespace _Type.Union.Models
 {
     public partial class Cat : IJsonModel<Cat>
     {
-        internal Cat() => throw null;
-
         void IJsonModel<Cat>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

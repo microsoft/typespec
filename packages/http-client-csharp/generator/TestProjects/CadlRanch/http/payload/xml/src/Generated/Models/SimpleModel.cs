@@ -2,17 +2,10 @@
 
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-
 namespace Payload.Xml.Models
 {
     public partial class SimpleModel
     {
-        internal SimpleModel(string name, int age) => throw null;
-
-        internal SimpleModel(string name, int age, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
-
         public string Name
         {
             get => throw null;

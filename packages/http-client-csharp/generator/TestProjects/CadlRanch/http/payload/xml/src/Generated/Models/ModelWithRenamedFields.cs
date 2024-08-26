@@ -2,17 +2,10 @@
 
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-
 namespace Payload.Xml.Models
 {
     public partial class ModelWithRenamedFields
     {
-        internal ModelWithRenamedFields(SimpleModel inputData, SimpleModel outputData) => throw null;
-
-        internal ModelWithRenamedFields(SimpleModel inputData, SimpleModel outputData, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
-
         public SimpleModel InputData
         {
             get => throw null;

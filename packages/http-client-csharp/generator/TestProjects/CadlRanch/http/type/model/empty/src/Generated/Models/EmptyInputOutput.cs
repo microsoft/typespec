@@ -2,15 +2,10 @@
 
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-
 namespace _Type.Model.Empty.Models
 {
     public partial class EmptyInputOutput
     {
         public EmptyInputOutput() => throw null;
-
-        internal EmptyInputOutput(IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
     }
 }

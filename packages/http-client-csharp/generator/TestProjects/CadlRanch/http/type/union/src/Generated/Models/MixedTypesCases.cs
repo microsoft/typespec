@@ -11,8 +11,6 @@ namespace _Type.Union.Models
     {
         public MixedTypesCases(BinaryData model, BinaryData literal, BinaryData @int, BinaryData boolean, IEnumerable<BinaryData> array) => throw null;
 
-        internal MixedTypesCases(BinaryData model, BinaryData literal, BinaryData @int, BinaryData boolean, IList<BinaryData> array, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
-
         public BinaryData Model
         {
             get => throw null;

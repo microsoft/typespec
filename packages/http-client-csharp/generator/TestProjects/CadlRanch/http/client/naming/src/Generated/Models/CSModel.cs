@@ -2,16 +2,11 @@
 
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-
 namespace Client.Naming.Models
 {
     public partial class CSModel
     {
         public CSModel(bool defaultName) => throw null;
-
-        internal CSModel(bool defaultName, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
 
         public bool DefaultName
         {

@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
@@ -13,8 +12,6 @@ namespace _Type.Property.Nullable
     public partial class Duration
     {
         protected Duration() => throw null;
-
-        internal Duration(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -3,15 +3,12 @@
 #nullable disable
 
 using System;
-using System.Collections.Generic;
 
 namespace Encode.Datetime.Models
 {
     public partial class Rfc3339DatetimeProperty
     {
         public Rfc3339DatetimeProperty(DateTimeOffset value) => throw null;
-
-        internal Rfc3339DatetimeProperty(DateTimeOffset value, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
 
         public DateTimeOffset Value
         {

@@ -11,8 +11,6 @@ namespace Encode.Duration.Models
 {
     public partial class DefaultDurationProperty : IJsonModel<DefaultDurationProperty>
     {
-        internal DefaultDurationProperty() => throw null;
-
         void IJsonModel<DefaultDurationProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

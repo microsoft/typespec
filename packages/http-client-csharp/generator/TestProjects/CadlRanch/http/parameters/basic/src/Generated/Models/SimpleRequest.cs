@@ -2,17 +2,10 @@
 
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-
 namespace Parameters.Basic.Models
 {
     public partial class SimpleRequest
     {
-        internal SimpleRequest(string name) => throw null;
-
-        internal SimpleRequest(string name, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
-
         public string Name
         {
             get => throw null;

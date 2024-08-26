@@ -3,16 +3,11 @@
 #nullable disable
 
 using System;
-using System.Collections.Generic;
 
 namespace _Type.Property.Nullable.Models
 {
     public partial class DatetimeProperty
     {
-        internal DatetimeProperty(string requiredProperty, DateTimeOffset? nullableProperty) => throw null;
-
-        internal DatetimeProperty(string requiredProperty, DateTimeOffset? nullableProperty, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
-
         public string RequiredProperty
         {
             get => throw null;

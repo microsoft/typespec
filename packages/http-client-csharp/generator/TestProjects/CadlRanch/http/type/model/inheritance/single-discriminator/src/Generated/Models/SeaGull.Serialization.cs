@@ -11,8 +11,6 @@ namespace _Type.Model.Inheritance.SingleDiscriminator.Models
 {
     public partial class SeaGull : IJsonModel<SeaGull>
     {
-        internal SeaGull() => throw null;
-
         void IJsonModel<SeaGull>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

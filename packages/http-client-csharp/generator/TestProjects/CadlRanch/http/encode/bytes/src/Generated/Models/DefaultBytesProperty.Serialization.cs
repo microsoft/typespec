@@ -11,8 +11,6 @@ namespace Encode.Bytes.Models
 {
     public partial class DefaultBytesProperty : IJsonModel<DefaultBytesProperty>
     {
-        internal DefaultBytesProperty() => throw null;
-
         void IJsonModel<DefaultBytesProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

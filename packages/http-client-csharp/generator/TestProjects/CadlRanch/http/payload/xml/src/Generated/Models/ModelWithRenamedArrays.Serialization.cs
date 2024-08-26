@@ -11,8 +11,6 @@ namespace Payload.Xml.Models
 {
     public partial class ModelWithRenamedArrays : IJsonModel<ModelWithRenamedArrays>
     {
-        internal ModelWithRenamedArrays() => throw null;
-
         void IJsonModel<ModelWithRenamedArrays>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

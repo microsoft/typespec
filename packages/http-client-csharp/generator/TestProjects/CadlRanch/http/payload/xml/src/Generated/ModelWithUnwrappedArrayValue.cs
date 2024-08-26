@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
@@ -13,8 +12,6 @@ namespace Payload.Xml
     public partial class ModelWithUnwrappedArrayValue
     {
         protected ModelWithUnwrappedArrayValue() => throw null;
-
-        internal ModelWithUnwrappedArrayValue(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

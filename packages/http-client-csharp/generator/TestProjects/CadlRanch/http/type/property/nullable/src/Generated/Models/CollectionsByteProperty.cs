@@ -9,10 +9,6 @@ namespace _Type.Property.Nullable.Models
 {
     public partial class CollectionsByteProperty
     {
-        internal CollectionsByteProperty(string requiredProperty, IEnumerable<BinaryData> nullableProperty) => throw null;
-
-        internal CollectionsByteProperty(string requiredProperty, IList<BinaryData> nullableProperty, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
-
         public string RequiredProperty
         {
             get => throw null;

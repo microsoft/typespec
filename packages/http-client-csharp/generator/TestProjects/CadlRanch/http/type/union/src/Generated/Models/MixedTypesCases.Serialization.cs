@@ -11,8 +11,6 @@ namespace _Type.Union.Models
 {
     public partial class MixedTypesCases : IJsonModel<MixedTypesCases>
     {
-        internal MixedTypesCases() => throw null;
-
         void IJsonModel<MixedTypesCases>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

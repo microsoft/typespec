@@ -2,16 +2,11 @@
 
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-
 namespace Client.Naming.Models
 {
     public partial class ClientNameAndJsonEncodedNameModel
     {
         public ClientNameAndJsonEncodedNameModel(bool clientName) => throw null;
-
-        internal ClientNameAndJsonEncodedNameModel(bool clientName, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
 
         public bool ClientName
         {

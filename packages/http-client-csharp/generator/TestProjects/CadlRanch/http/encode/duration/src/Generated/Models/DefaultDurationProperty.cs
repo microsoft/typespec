@@ -3,15 +3,12 @@
 #nullable disable
 
 using System;
-using System.Collections.Generic;
 
 namespace Encode.Duration.Models
 {
     public partial class DefaultDurationProperty
     {
         public DefaultDurationProperty(TimeSpan value) => throw null;
-
-        internal DefaultDurationProperty(TimeSpan value, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
 
         public TimeSpan Value
         {

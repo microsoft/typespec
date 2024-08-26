@@ -39,7 +39,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
 
         protected override ConstructorProvider? Visit(ConstructorProvider constructor)
         {
-            if (constructor.Signature.Initializer?.IsBase == false && !ShouldKeep(constructor.Signature.Modifiers))
+            if ((constructor.Signature.Initializer is null || !constructor.Signature.Initializer.IsBase || constructor.Signature.Initializer.Arguments.Count == 0) &&
+                !IsEffectivelyPublic(constructor.Signature.Modifiers) &&
+                (constructor.EnclosingType is not ModelProvider model || model.DerivedModels.Count == 0))
                 return null;
 
             constructor.Update(
@@ -57,7 +59,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
 
         protected override MethodProvider? Visit(MethodProvider method)
         {
-            if (method.Signature.ExplicitInterface is null && !ShouldKeep(method.Signature.Modifiers))
+            if (method.Signature.ExplicitInterface is null && !IsEffectivelyPublic(method.Signature.Modifiers))
                 return null;
 
             method.Signature.Update(modifiers: method.Signature.Modifiers & ~MethodSignatureModifiers.Async);
@@ -72,7 +74,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
 
         protected override PropertyProvider? Visit(PropertyProvider property)
         {
-            if (!property.IsDiscriminator && !ShouldKeep(property.Modifiers))
+            if (!property.IsDiscriminator && !IsEffectivelyPublic(property.Modifiers))
                 return null;
 
             var propertyBody = new ExpressionPropertyBody(_throwNull, property.Body.HasSetter ? _throwNull : null);
@@ -84,7 +86,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
             return property;
         }
 
-        private bool ShouldKeep(MethodSignatureModifiers modifiers)
+        private bool IsEffectivelyPublic(MethodSignatureModifiers modifiers)
         {
             if (modifiers.HasFlag(MethodSignatureModifiers.Public))
                 return true;

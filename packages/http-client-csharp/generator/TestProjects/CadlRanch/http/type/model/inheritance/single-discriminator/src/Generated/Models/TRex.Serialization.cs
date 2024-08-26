@@ -11,8 +11,6 @@ namespace _Type.Model.Inheritance.SingleDiscriminator.Models
 {
     public partial class TRex : IJsonModel<TRex>
     {
-        internal TRex() => throw null;
-
         void IJsonModel<TRex>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

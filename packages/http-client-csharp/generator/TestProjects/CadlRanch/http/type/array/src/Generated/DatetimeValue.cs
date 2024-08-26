@@ -14,8 +14,6 @@ namespace _Type._Array
     {
         protected DatetimeValue() => throw null;
 
-        internal DatetimeValue(ClientPipeline pipeline, Uri endpoint) => throw null;
-
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;

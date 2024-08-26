@@ -2,17 +2,10 @@
 
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-
 namespace _Type.Model.Usage.Models
 {
     public partial class OutputRecord
     {
-        internal OutputRecord(string requiredProp) => throw null;
-
-        internal OutputRecord(string requiredProp, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
-
         public string RequiredProp
         {
             get => throw null;

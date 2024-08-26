@@ -11,8 +11,6 @@ namespace Encode.Duration.Models
     {
         public FloatSecondsDurationArrayProperty(IEnumerable<TimeSpan> value) => throw null;
 
-        internal FloatSecondsDurationArrayProperty(IList<TimeSpan> value, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
-
         public IList<TimeSpan> Value => throw null;
     }
 }

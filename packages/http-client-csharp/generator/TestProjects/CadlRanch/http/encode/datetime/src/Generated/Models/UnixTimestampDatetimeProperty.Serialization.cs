@@ -11,8 +11,6 @@ namespace Encode.Datetime.Models
 {
     public partial class UnixTimestampDatetimeProperty : IJsonModel<UnixTimestampDatetimeProperty>
     {
-        internal UnixTimestampDatetimeProperty() => throw null;
-
         void IJsonModel<UnixTimestampDatetimeProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

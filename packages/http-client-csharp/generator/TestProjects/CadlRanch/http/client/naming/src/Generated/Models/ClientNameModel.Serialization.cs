@@ -11,8 +11,6 @@ namespace Client.Naming.Models
 {
     public partial class ClientNameModel : IJsonModel<ClientNameModel>
     {
-        internal ClientNameModel() => throw null;
-
         void IJsonModel<ClientNameModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

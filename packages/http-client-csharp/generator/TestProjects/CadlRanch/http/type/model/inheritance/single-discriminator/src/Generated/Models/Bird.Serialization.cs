@@ -12,8 +12,6 @@ namespace _Type.Model.Inheritance.SingleDiscriminator.Models
     [PersistableModelProxy(typeof(UnknownBird))]
     public abstract partial class Bird : IJsonModel<Bird>
     {
-        internal Bird() => throw null;
-
         void IJsonModel<Bird>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

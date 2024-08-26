@@ -2,17 +2,12 @@
 
 #nullable disable
 
-using System;
 using System.Collections.Generic;
 
 namespace _Type.Property.Nullable.Models
 {
     public partial class CollectionsModelProperty
     {
-        internal CollectionsModelProperty(string requiredProperty, IEnumerable<InnerModel> nullableProperty) => throw null;
-
-        internal CollectionsModelProperty(string requiredProperty, IList<InnerModel> nullableProperty, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
-
         public string RequiredProperty
         {
             get => throw null;

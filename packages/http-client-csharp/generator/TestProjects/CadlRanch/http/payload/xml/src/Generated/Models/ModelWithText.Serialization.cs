@@ -11,8 +11,6 @@ namespace Payload.Xml.Models
 {
     public partial class ModelWithText : IJsonModel<ModelWithText>
     {
-        internal ModelWithText() => throw null;
-
         void IJsonModel<ModelWithText>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

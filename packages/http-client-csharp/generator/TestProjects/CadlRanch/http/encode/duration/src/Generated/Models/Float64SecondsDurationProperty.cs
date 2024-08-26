@@ -3,15 +3,12 @@
 #nullable disable
 
 using System;
-using System.Collections.Generic;
 
 namespace Encode.Duration.Models
 {
     public partial class Float64SecondsDurationProperty
     {
         public Float64SecondsDurationProperty(TimeSpan value) => throw null;
-
-        internal Float64SecondsDurationProperty(TimeSpan value, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
 
         public TimeSpan Value
         {

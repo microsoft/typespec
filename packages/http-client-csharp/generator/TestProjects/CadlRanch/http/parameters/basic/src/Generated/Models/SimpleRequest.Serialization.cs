@@ -11,8 +11,6 @@ namespace Parameters.Basic.Models
 {
     public partial class SimpleRequest : IJsonModel<SimpleRequest>
     {
-        internal SimpleRequest() => throw null;
-
         void IJsonModel<SimpleRequest>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
