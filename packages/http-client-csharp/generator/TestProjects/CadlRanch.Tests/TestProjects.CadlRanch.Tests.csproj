@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Http\_Type\Model\Inheritance\SingleDiscriminator\TestData\**\*.json">
+    <None Update="Http\**\TestData\**\*.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
