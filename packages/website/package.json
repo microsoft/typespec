@@ -30,7 +30,7 @@
     "@docusaurus/preset-classic": "^3.4.0",
     "@docusaurus/theme-classic": "~3.4.0",
     "@docusaurus/theme-common": "~3.4.0",
-    "@docusaurus/theme-mermaid": "^3.4.0",
+    "@docusaurus/theme-mermaid": "^3.5.2",
     "@fluentui/react-components": "~9.54.5",
     "@fluentui/react-icons": "^2.0.249",
     "@mdx-js/react": "^3.0.1",
