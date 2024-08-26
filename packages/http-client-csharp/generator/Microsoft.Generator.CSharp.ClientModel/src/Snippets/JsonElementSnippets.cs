@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.Generator.CSharp.Expressions;
@@ -88,6 +89,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             var longValueDeclaration = new VariableExpression(typeof(long), "longValue");
             longValue = longValueDeclaration.As<long>();
             var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetInt64), [new DeclarationExpression(longValueDeclaration, true)]);
+            return invocation.As<bool>();
+        }
+
+        public static ScopedApi<bool> TryGetValue<T>(this ScopedApi<JsonElement> jsonElement, string methodName, out ScopedApi<T> value)
+        {
+            var valueDeclaration = new VariableExpression(typeof(T), "value");
+            value = valueDeclaration.As<T>();
+            var invocation = new InvokeMethodExpression(jsonElement, methodName, [new DeclarationExpression(valueDeclaration, true)]);
             return invocation.As<bool>();
         }
     }

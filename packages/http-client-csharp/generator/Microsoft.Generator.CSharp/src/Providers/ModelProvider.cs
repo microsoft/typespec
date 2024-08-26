@@ -65,14 +65,29 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private IReadOnlyList<ModelProvider>? _derivedModels;
         public IReadOnlyList<ModelProvider> DerivedModels => _derivedModels ??= BuildDerivedModels();
+        public ModelProvider? BaseModelProvider
+            => _baseModelProvider ??= (_baseTypeProvider?.Value is ModelProvider baseModelProvider ? baseModelProvider : null);
 
         private IReadOnlyList<ModelProvider> BuildDerivedModels()
         {
-            var derivedModels = new List<ModelProvider>(_inputModel.DiscriminatedSubtypes.Count);
+            var discriminatedSubTypes = new HashSet<ModelProvider>();
+            var derivedModels = new List<ModelProvider>(_inputModel.DiscriminatedSubtypes.Count + _inputModel.DerivedModels.Count);
             foreach (var subtype in _inputModel.DiscriminatedSubtypes)
             {
                 var model = CodeModelPlugin.Instance.TypeFactory.CreateModel(subtype.Value);
                 if (model != null)
+                {
+                    discriminatedSubTypes.Add(model);
+                }
+            }
+
+            derivedModels.AddRange(discriminatedSubTypes);
+
+            // add any derived models that are not in the discriminated subtypes
+            foreach (var derivedModel in _inputModel.DerivedModels)
+            {
+                var model = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedModel);
+                if (model != null && !discriminatedSubTypes.Contains(model))
                 {
                     derivedModels.Add(model);
                 }
@@ -81,8 +96,6 @@ namespace Microsoft.Generator.CSharp.Providers
             return derivedModels;
         }
 
-        private ModelProvider? BaseModelProvider
-            => _baseModelProvider ??= (_baseTypeProvider?.Value is ModelProvider baseModelProvider ? baseModelProvider : null);
         private FieldProvider? RawDataField => _rawDataField ??= BuildRawDataField();
         private PropertyProvider? AdditionalPropertiesProperty => _additionalProperties ??= BuildAdditionalProperties();
 
@@ -426,25 +439,12 @@ namespace Microsoft.Generator.CSharp.Providers
             return type switch
             {
                 _ when type.Equals(_additionalPropsUnknownType, ignoreNullable: true) => type,
-                _ when type.IsFrameworkType && _verifiableAdditionalPropertyTypes.Contains(type.FrameworkType) => type,
+                _ when type.IsFrameworkType && ModelSerializationHelper.VerifiableAdditionalPropertyTypes.Contains(type.FrameworkType) => type,
                 _ when type.IsUnion => type,
                 _ when type.IsList => type.MakeGenericType([ReplaceUnverifiableType(type.Arguments[0])]),
                 _ when type.IsDictionary => type.MakeGenericType([ReplaceUnverifiableType(type.Arguments[0]), ReplaceUnverifiableType(type.Arguments[1])]),
                 _ => CSharpType.FromUnion([type])
             };
         }
-
-        /// <summary>
-        /// The set of known verifiable additional property value types that have value kind checks during deserialization.
-        /// </summary>
-        private static readonly HashSet<Type> _verifiableAdditionalPropertyTypes =
-        [
-            typeof(byte), typeof(byte[]), typeof(sbyte),
-            typeof(DateTime), typeof(DateTimeOffset),
-            typeof(decimal), typeof(double), typeof(short), typeof(int), typeof(long), typeof(float),
-            typeof(ushort), typeof(uint), typeof(ulong),
-            typeof(Guid),
-            typeof(string), typeof(bool)
-        ];
     }
 }
