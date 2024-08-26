@@ -3,7 +3,6 @@
 
 using System.Threading.Tasks;
 using NUnit.Framework;
-using AutoRest.TestServer.Tests.Infrastructure;
 using System;
 using System.Xml;
 using _Type.Property.ValueTypes;
