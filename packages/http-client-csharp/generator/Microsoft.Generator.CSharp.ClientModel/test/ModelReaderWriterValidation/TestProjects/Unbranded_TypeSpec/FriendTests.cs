@@ -5,17 +5,18 @@ using System.ClientModel;
 using System.IO;
 using NUnit.Framework;
 using UnbrandedTypeSpec.Models;
+using Microsoft.Generator.CSharp.Tests.Common;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidation
+namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidation.TestProjects.Unbranded_TypeSpec
 {
-    internal class ProjectedModelTests : ModelJsonTests<ProjectedModel>
+    internal class FriendTests : LocalModelJsonTests<Friend>
     {
-        protected override string JsonPayload => File.ReadAllText(TestData.GetLocation("Unbranded-TypeSpec/TestData/ProjectedModel/ProjectedModel.json"));
-        protected override string WirePayload => File.ReadAllText(TestData.GetLocation("Unbranded-TypeSpec/TestData/ProjectedModel/ProjectedModelWireFormat.json"));
-        protected override ProjectedModel ToModel(ClientResult result) => (ProjectedModel)result;
-        protected override BinaryContent ToBinaryContent(ProjectedModel model) => model;
+        protected override string JsonPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/Friend/Friend.json"));
+        protected override string WirePayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/Friend/FriendWireFormat.json"));
+        protected override Friend ToModel(ClientResult result) => (Friend)result;
+        protected override BinaryContent ToBinaryContent(Friend model) => model;
 
-        protected override void CompareModels(ProjectedModel model, ProjectedModel model2, string format)
+        protected override void CompareModels(Friend model, Friend model2, string format)
         {
             Assert.AreEqual(model.Name, model2.Name);
 
@@ -30,9 +31,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
             }
         }
 
-        protected override void VerifyModel(ProjectedModel model, string format)
+        protected override void VerifyModel(Friend model, string format)
         {
-            Assert.AreEqual("projectedModel", model.Name);
+            Assert.AreEqual("friendModel", model.Name);
 
             var rawData = GetRawData(model);
             Assert.IsNotNull(rawData);

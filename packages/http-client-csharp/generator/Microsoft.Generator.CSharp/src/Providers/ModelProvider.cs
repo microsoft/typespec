@@ -239,7 +239,12 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private ValueExpression GetExpression(ParameterProvider parameter)
         {
-            return parameter.Property is not null && parameter.Property.IsDiscriminator ? Literal(_inputModel.DiscriminatorValue) : parameter.AsExpression;
+            if (parameter.Property is not null && parameter.Property.IsDiscriminator)
+            {
+                return IsUnknownDiscriminatorModel ? NullCoalescing(parameter.AsExpression, Literal(_inputModel.DiscriminatorValue)) : Literal(_inputModel.DiscriminatorValue);
+            }
+
+            return parameter.AsExpression;
         }
 
         private static void AddInitializationParameterForCtor(

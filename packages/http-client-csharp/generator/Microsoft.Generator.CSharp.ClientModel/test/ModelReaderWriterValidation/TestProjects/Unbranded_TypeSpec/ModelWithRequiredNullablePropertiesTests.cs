@@ -4,15 +4,16 @@
 using System.ClientModel;
 using System.IO;
 using System.Text.Json;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 using UnbrandedTypeSpec.Models;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidation
+namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidation.TestProjects.Unbranded_TypeSpec
 {
-    internal class ModelWithRequiredNullablePropertiesTests : ModelJsonTests<ModelWithRequiredNullableProperties>
+    internal class ModelWithRequiredNullablePropertiesTests : LocalModelJsonTests<ModelWithRequiredNullableProperties>
     {
-        protected override string JsonPayload => File.ReadAllText(TestData.GetLocation("Unbranded-TypeSpec/TestData/ModelWithRequiredNullable/Model.json"));
-        protected override string WirePayload => File.ReadAllText(TestData.GetLocation("Unbranded-TypeSpec/TestData/ModelWithRequiredNullable/ModelWireFormat.json"));
+        protected override string JsonPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/ModelWithRequiredNullable/Model.json"));
+        protected override string WirePayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/ModelWithRequiredNullable/ModelWireFormat.json"));
         protected override ModelWithRequiredNullableProperties ToModel(ClientResult result) => (ModelWithRequiredNullableProperties)result;
         protected override BinaryContent ToBinaryContent(ModelWithRequiredNullableProperties model) => model;
 

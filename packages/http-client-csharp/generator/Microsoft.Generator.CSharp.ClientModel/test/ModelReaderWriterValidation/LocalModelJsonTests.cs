@@ -2,16 +2,17 @@
 // Licensed under the MIT License.
 
 using System.ClientModel.Primitives;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidation
 {
-    internal abstract class ModelJsonTests<T> : ModelTests<T> where T : IJsonModel<T>
+    public abstract class LocalModelJsonTests<T> : LocalModelTests<T> where T : IJsonModel<T>
     {
         [TestCase("J")]
         [TestCase("W")]
         public void RoundTripWithJsonInterfaceOfT(string format)
-            => RoundTripTest(format, new JsonInterfaceStrategy<T>());
+          => RoundTripTest(format, new JsonInterfaceStrategy<T>());
 
         [TestCase("J")]
         [TestCase("W")]

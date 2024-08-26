@@ -11,6 +11,8 @@ namespace _Type.Model.Inheritance.SingleDiscriminator.Models
 {
     public partial class Goose : IJsonModel<Goose>
     {
+        internal Goose() => throw null;
+
         void IJsonModel<Goose>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

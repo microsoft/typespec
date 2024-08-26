@@ -144,5 +144,28 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                     $"Expected DeserializeUnknownPet to contain a property lookup statement for {property.Name}");
             }
         }
+
+        [Test]
+        public void UnknownVariantShouldPassKindToBase()
+        {
+            MockHelpers.LoadMockPlugin(inputModels: () => [_baseModel, _catModel, _dogModel]);
+            var outputLibrary = ClientModelPlugin.Instance.OutputLibrary;
+            var unknownModel = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "UnknownPet");
+            Assert.IsNotNull(unknownModel);
+            Assert.IsNotNull(unknownModel!.FullConstructor.Signature.Initializer);
+            Assert.IsTrue(unknownModel.FullConstructor.Signature.Initializer!.Arguments.Any(a => a.ToDisplayString() == ("(kind ?? \"unknown\")")));
+        }
+
+        [Test]
+        public void DerivedShouldPassLiteralForKindToBase()
+        {
+            MockHelpers.LoadMockPlugin(inputModels: () => [_baseModel, _catModel, _dogModel]);
+            var outputLibrary = ClientModelPlugin.Instance.OutputLibrary;
+            var catModel = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "Cat");
+            Assert.IsNotNull(catModel);
+            Assert.IsNotNull(catModel!.FullConstructor.Signature.Initializer);
+            Assert.IsFalse(catModel.FullConstructor.Signature.Initializer!.Arguments.Any(a => a.ToDisplayString().Contains("kind")));
+            Assert.IsTrue(catModel.FullConstructor.Signature.Initializer!.Arguments.Any(a => a.ToDisplayString() == "\"cat\""));
+        }
     }
 }

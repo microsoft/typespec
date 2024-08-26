@@ -103,10 +103,7 @@ namespace Microsoft.Generator.CSharp.Input
             model.BaseModel = baseModel;
             if (properties != null)
             {
-                foreach (var property in properties)
-                {
-                    property.EnclosingType = model;
-                }
+                model.Properties = properties;
             }
             if (discriminatedSubtypes != null)
             {

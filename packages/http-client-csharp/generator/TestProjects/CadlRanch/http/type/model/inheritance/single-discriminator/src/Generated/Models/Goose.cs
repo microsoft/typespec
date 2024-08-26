@@ -9,8 +9,8 @@ namespace _Type.Model.Inheritance.SingleDiscriminator.Models
 {
     public partial class Goose : Bird
     {
-        public Goose() => throw null;
+        public Goose(int wingspan) : base("goose", wingspan) => throw null;
 
-        internal Goose(IDictionary<string, BinaryData> serializedAdditionalRawData) : base(serializedAdditionalRawData) => throw null;
+        internal Goose(int wingspan, IDictionary<string, BinaryData> serializedAdditionalRawData) : base("goose", wingspan, serializedAdditionalRawData) => throw null;
     }
 }

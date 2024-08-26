@@ -9,8 +9,8 @@ namespace _Type.Model.Inheritance.SingleDiscriminator.Models
 {
     public partial class SeaGull : Bird
     {
-        public SeaGull() => throw null;
+        public SeaGull(int wingspan) : base("seagull", wingspan) => throw null;
 
-        internal SeaGull(IDictionary<string, BinaryData> serializedAdditionalRawData) : base(serializedAdditionalRawData) => throw null;
+        internal SeaGull(int wingspan, IDictionary<string, BinaryData> serializedAdditionalRawData) : base("seagull", wingspan, serializedAdditionalRawData) => throw null;
     }
 }

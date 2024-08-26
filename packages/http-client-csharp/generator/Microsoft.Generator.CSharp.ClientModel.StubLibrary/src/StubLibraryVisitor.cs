@@ -72,7 +72,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
 
         protected override PropertyProvider? Visit(PropertyProvider property)
         {
-            if (!ShouldKeep(property.Modifiers))
+            if (!property.IsDiscriminator && !ShouldKeep(property.Modifiers))
                 return null;
 
             var propertyBody = new ExpressionPropertyBody(_throwNull, property.Body.HasSetter ? _throwNull : null);

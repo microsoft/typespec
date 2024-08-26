@@ -9,8 +9,8 @@ namespace _Type.Model.Inheritance.SingleDiscriminator.Models
 {
     public partial class TRex : Dinosaur
     {
-        internal TRex() => throw null;
+        internal TRex(int size) : base("t-rex", size) => throw null;
 
-        internal TRex(IDictionary<string, BinaryData> serializedAdditionalRawData) : base(serializedAdditionalRawData) => throw null;
+        internal TRex(int size, IDictionary<string, BinaryData> serializedAdditionalRawData) : base("t-rex", size, serializedAdditionalRawData) => throw null;
     }
 }
