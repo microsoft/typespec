@@ -181,3 +181,10 @@ Remove-Item ./http -Recurse -Force
 Copy-Item -Path ./tsp-output/*/src -Destination ./ -Recurse -Force -Exclude @("ReadmeSamples.java", "module-info.java")
 
 Remove-Item ./tsp-output -Recurse -Force
+
+if (Test-Path ./src/main/resources/META-INF/client-structure-service_apiview_properties.json) {
+  # client structure is generated from multiple client.tsp files and the last one to execute overwrites
+  # the api view properties file. Because the tests run in parallel, the order is not guaranteed. This
+  # causes git diff check to fail as the checked in file is not the same as the generated one.
+  Remove-Item ./src/main/resources/META-INF/client-structure-service_apiview_properties.json -Force
+}
