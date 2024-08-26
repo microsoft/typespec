@@ -125,5 +125,26 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.IsFalse(ReferenceEquals(actual3, actual));
             Assert.IsFalse(ReferenceEquals(actual3, actual2));
         }
+
+        [Test]
+        public void IntSerializationFormat([Values(
+            InputPrimitiveTypeKind.Integer,
+            InputPrimitiveTypeKind.SafeInt,
+            InputPrimitiveTypeKind.Int8,
+            InputPrimitiveTypeKind.Int16,
+            InputPrimitiveTypeKind.Int32,
+            InputPrimitiveTypeKind.Int64,
+            InputPrimitiveTypeKind.UInt8,
+            InputPrimitiveTypeKind.UInt16,
+            InputPrimitiveTypeKind.UInt32,
+            InputPrimitiveTypeKind.UInt64
+            )] InputPrimitiveTypeKind kind,
+            [Values(null, "string")] string? encode)
+        {
+            var name = kind.ToString().ToLower();
+            var input = new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode, null);
+
+            Assert.AreEqual(encode == "string" ? SerializationFormat.Int_String : SerializationFormat.Default, CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(input));
+        }
     }
 }
