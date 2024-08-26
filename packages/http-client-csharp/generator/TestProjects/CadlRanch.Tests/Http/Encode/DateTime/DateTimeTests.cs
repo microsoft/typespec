@@ -12,7 +12,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Encode.DateTime
     public class DateTimeTests : CadlRanchTestBase
     {
         [CadlRanchTest]
-        public Task Encode_Datetime_ResponseHeader_default() => Test(async (host) =>
+        public Task ResponseHeaderDefault() => Test(async (host) =>
         {
             var response = await new DatetimeClient(host, null).GetResponseHeaderClient().DefaultAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
@@ -22,7 +22,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Encode.DateTime
         });
 
         [CadlRanchTest]
-        public Task Encode_Datetime_ResponseHeader_rfc3339() => Test(async (host) =>
+        public Task ResponseHeaderRfc3339() => Test(async (host) =>
         {
             var response = await new DatetimeClient(host, null).GetResponseHeaderClient().Rfc3339Async();
             Assert.AreEqual(204, response.GetRawResponse().Status);
@@ -32,7 +32,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Encode.DateTime
         });
 
         [CadlRanchTest]
-        public Task Encode_Datetime_ResponseHeader_rfc7231() => Test(async (host) =>
+        public Task ResponseHeaderRfc7231() => Test(async (host) =>
         {
             var response = await new DatetimeClient(host, null).GetResponseHeaderClient().Rfc7231Async();
             Assert.AreEqual(204, response.GetRawResponse().Status);
@@ -42,7 +42,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Encode.DateTime
         });
 
         [CadlRanchTest]
-        public Task Encode_Datetime_ResponseHeader_unixTimestamp() => Test(async (host) =>
+        public Task ResponseHeaderUnixTimestamp() => Test(async (host) =>
         {
             var response = await new DatetimeClient(host, null).GetResponseHeaderClient().UnixTimestampAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
@@ -52,7 +52,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Encode.DateTime
         });
 
         [CadlRanchTest]
-        public Task Encode_DateTime_Header_Default() => Test(async (host) =>
+        public Task HeaderDefault() => Test(async (host) =>
         {
             DateTimeOffset data = DateTimeOffset.Parse("Fri, 26 Aug 2022 14:38:00 GMT");
             var response = await new DatetimeClient(host, null).GetHeaderClient().DefaultAsync(data);
@@ -60,7 +60,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Encode.DateTime
         });
 
         [CadlRanchTest]
-        public Task Encode_DateTime_Header_Rfc3339() => Test(async (host) =>
+        public Task HeaderRfc3339() => Test(async (host) =>
         {
             DateTimeOffset data = DateTimeOffset.Parse("2022-08-26T18:38:00.000Z");
             var response = await new DatetimeClient(host, null).GetHeaderClient().Rfc3339Async(data);
@@ -68,7 +68,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Encode.DateTime
         });
 
         [CadlRanchTest]
-        public Task Encode_DateTime_Header_Rfc7231() => Test(async (host) =>
+        public Task HeaderRfc7231() => Test(async (host) =>
         {
             DateTimeOffset data = DateTimeOffset.Parse("Fri, 26 Aug 2022 14:38:00 GMT");
             var response = await new DatetimeClient(host, null).GetHeaderClient().Rfc7231Async(data);
@@ -76,7 +76,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Encode.DateTime
         });
 
         [CadlRanchTest]
-        public Task Encode_DateTime_Header_unixTimestamp() => Test(async (host) =>
+        public Task HeaderUnixTimestamp() => Test(async (host) =>
         {
             DateTimeOffset data = DateTimeOffset.FromUnixTimeSeconds(1686566864);
             var response = await new DatetimeClient(host, null).GetHeaderClient().UnixTimestampAsync(data);
@@ -84,7 +84,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Encode.DateTime
         });
 
         [CadlRanchTest]
-        public Task Encode_DateTime_Header_unixTimestampArray() => Test(async (host) =>
+        public Task HeaderUnixTimestampArray() => Test(async (host) =>
         {
             DateTimeOffset data1 = DateTimeOffset.FromUnixTimeSeconds(1686566864);
             DateTimeOffset data2 = DateTimeOffset.FromUnixTimeSeconds(1686734256);
@@ -93,7 +93,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Encode.DateTime
         });
 
         [CadlRanchTest]
-        public Task Encode_DateTime_Query_Default() => Test(async (host) =>
+        public Task QueryDefault() => Test(async (host) =>
         {
             DateTimeOffset data = DateTimeOffset.Parse("2022-08-26T18:38:00.000Z");
             var response = await new DatetimeClient(host, null).GetQueryClient().DefaultAsync(data);
@@ -101,7 +101,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Encode.DateTime
         });
 
         [CadlRanchTest]
-        public Task Encode_DateTime_Query_Rfc3339() => Test(async (host) =>
+        public Task QueryRfc3339() => Test(async (host) =>
         {
             DateTimeOffset data = DateTimeOffset.Parse("2022-08-26T18:38:00.000Z");
             var response = await new DatetimeClient(host, null).GetQueryClient().Rfc3339Async(data);
@@ -109,7 +109,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Encode.DateTime
         });
 
         [CadlRanchTest]
-        public Task Encode_DateTime_Query_Rfc7231() => Test(async (host) =>
+        public Task QueryRfc7231() => Test(async (host) =>
         {
             DateTimeOffset data = DateTimeOffset.Parse("Fri, 26 Aug 2022 14:38:00 GMT");
             var response = await new DatetimeClient(host, null).GetQueryClient().Rfc7231Async(data);
@@ -117,7 +117,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Encode.DateTime
         });
 
         [CadlRanchTest]
-        public Task Encode_DateTime_Query_unixTimestamp() => Test(async (host) =>
+        public Task QueryUnixTimestamp() => Test(async (host) =>
         {
             DateTimeOffset data = DateTimeOffset.FromUnixTimeSeconds(1686566864);
             var response = await new DatetimeClient(host, null).GetQueryClient().UnixTimestampAsync(data);
@@ -125,7 +125,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Encode.DateTime
         });
 
         [CadlRanchTest]
-        public Task Encode_DateTime_Query_unixTimestampArray() => Test(async (host) =>
+        public Task QueryUnixTimestampArray() => Test(async (host) =>
         {
             DateTimeOffset data1 = DateTimeOffset.FromUnixTimeSeconds(1686566864);
             DateTimeOffset data2 = DateTimeOffset.FromUnixTimeSeconds(1686734256);
@@ -134,7 +134,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Encode.DateTime
         });
 
         [CadlRanchTest]
-        public Task Encode_DateTime_Property_Default() => Test(async (host) =>
+        public Task PropertyDefault() => Test(async (host) =>
         {
             DateTimeOffset data = DateTimeOffset.Parse("2022-08-26T18:38:00.000Z");
             var body = new DefaultDatetimeProperty(data);
@@ -143,7 +143,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Encode.DateTime
         });
 
         [CadlRanchTest]
-        public Task Encode_DateTime_Property_Rfc3339() => Test(async (host) =>
+        public Task PropertyRfc3339() => Test(async (host) =>
         {
             DateTimeOffset data = DateTimeOffset.Parse("2022-08-26T18:38:00.000Z");
             var body = new Rfc3339DatetimeProperty(data);
@@ -152,7 +152,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Encode.DateTime
         });
 
         [CadlRanchTest]
-        public Task Encode_DateTime_Property_Rfc7231() => Test(async (host) =>
+        public Task PropertyRfc7231() => Test(async (host) =>
         {
             DateTimeOffset data = DateTimeOffset.Parse("Fri, 26 Aug 2022 14:38:00 GMT");
             var body = new Rfc7231DatetimeProperty(data);
@@ -162,7 +162,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Encode.DateTime
 
 
         [CadlRanchTest]
-        public Task Encode_DateTime_Property_unixTimestamp() => Test(async (host) =>
+        public Task PropertyUnixTimestamp() => Test(async (host) =>
         {
             DateTimeOffset data = DateTimeOffset.FromUnixTimeSeconds(1686566864);
             var body = new UnixTimestampDatetimeProperty(data);
@@ -171,7 +171,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Encode.DateTime
         });
 
         [CadlRanchTest]
-        public Task Encode_DateTime_Property_unixTimestampArray() => Test(async (host) =>
+        public Task PropertyUnixTimestampArray() => Test(async (host) =>
         {
             DateTimeOffset data1 = DateTimeOffset.FromUnixTimeSeconds(1686566864);
             DateTimeOffset data2 = DateTimeOffset.FromUnixTimeSeconds(1686734256);

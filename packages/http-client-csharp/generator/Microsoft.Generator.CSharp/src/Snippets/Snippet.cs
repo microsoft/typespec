@@ -23,6 +23,8 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static DictionaryExpression AsDictionary(this FieldProvider field, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), field);
         public static DictionaryExpression AsDictionary(this ParameterProvider parameter, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), parameter);
 
+        public static TypeOfExpression TypeOf(CSharpType type) => new TypeOfExpression(type);
+
         public static ValueExpression Static<T>() => TypeReferenceExpression.FromType(typeof(T));
         //overload needed since static types cannot be usd as type arguments
         public static ValueExpression Static(Type type) => TypeReferenceExpression.FromType(type);
