@@ -102,7 +102,7 @@ namespace Microsoft.Generator.CSharp.Tests
             {
                 _cleanupReference = cleanupReference;
             }
-            protected internal override TypeProvider? Visit(InputModelType inputModel, TypeProvider? typeProvider)
+            protected internal override ModelProvider? Visit(InputModelType inputModel, ModelProvider? typeProvider)
             {
                 if (inputModel.Name == "Model1")
                 {

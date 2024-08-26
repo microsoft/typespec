@@ -37,6 +37,10 @@ namespace Microsoft.Generator.CSharp.Primitives
             {
                 writer.WriteXmlDocs(_provider.XmlDocs);
             }
+            foreach (var attribute in _provider.Attributes)
+            {
+                attribute.Write(writer);
+            }
             writer.WriteTypeModifiers(_provider.DeclarationModifiers); // class, struct, enum and interface is written as modifiers in this part
             writer.Append($"{_provider.Type:D}")
                 .AppendRawIf(" : ", _provider.Type.BaseType != null || _provider.Implements.Any())
