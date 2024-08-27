@@ -237,7 +237,6 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             if (parameter.Property is not null && parameter.Property.IsDiscriminator)
             {
-                ValueExpression value;
                 var type = parameter.Property.Type;
                 if (IsUnknownDiscriminatorModel)
                 {
@@ -245,16 +244,16 @@ namespace Microsoft.Generator.CSharp.Providers
                     {
                         if (type.IsStruct)
                         {
-                            value = new TernaryConditionalExpression(parameter.AsExpression.NotEqual(Default), parameter.AsExpression, Literal(_inputModel.DiscriminatorValue));
+                            return new TernaryConditionalExpression(parameter.AsExpression.NotEqual(Default), parameter.AsExpression, Literal(_inputModel.DiscriminatorValue));
                         }
                         else
                         {
-                            value = parameter.AsExpression;
+                            return parameter.AsExpression;
                         }
                     }
                     else
                     {
-                        value = NullCoalescing(parameter.AsExpression, Literal(_inputModel.DiscriminatorValue));
+                        return NullCoalescing(parameter.AsExpression, Literal(_inputModel.DiscriminatorValue));
                     }
                 }
                 else
@@ -262,14 +261,13 @@ namespace Microsoft.Generator.CSharp.Providers
                     if (!type.IsFrameworkType && type.IsEnum && _inputModel.DiscriminatorValue != null)
                     {
                         var enumMember = type.EnumTypeMembers.FirstOrDefault(e => e.Value.ToString() == _inputModel.DiscriminatorValue) ?? throw new InvalidProgramException($"invalid discriminator value {_inputModel.DiscriminatorValue}");
-                        value = TypeReferenceExpression.FromType(type).Property(enumMember.Name);
+                        return TypeReferenceExpression.FromType(type).Property(enumMember.Name);
                     }
                     else
                     {
-                        value = Literal(_inputModel.DiscriminatorValue);
+                        return Literal(_inputModel.DiscriminatorValue);
                     }
                 }
-                return value;
             }
 
             return parameter.AsExpression;
