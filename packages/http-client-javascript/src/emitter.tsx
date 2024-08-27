@@ -6,6 +6,7 @@ import { namespace as HttpNamespace } from "@typespec/http";
 import { ModelsFile } from "./components/models-file.js";
 import { ModelSerializers } from "./components/serializers.js";
 import path from "path";
+import { ClientContext } from "./components/client-context.jsx";
 
 const RestNamespace = "TypeSpec.Rest";
 
@@ -23,14 +24,15 @@ export async function $onEmit(context: EmitContext) {
       <ts.PackageDirectory name="test-package" version="1.0.0" path={outputDir}>
         <ay.SourceDirectory path={sourcesDir}>
           <ay.SourceDirectory path={modelsDir}>
+            <ts.BarrelFile />
             <ModelsFile types={types.dataTypes} />
             <ModelSerializers types={types.dataTypes} />
           </ay.SourceDirectory>
           <ay.SourceDirectory path={apiDir}>
-            
+            <ClientContext service={service} />
+            <ts.BarrelFile />
           </ay.SourceDirectory>
         </ay.SourceDirectory>
-        <ts.BarrelFile />
       </ts.PackageDirectory>
     </ay.Output>
   );
@@ -64,10 +66,10 @@ function isNoEmit(type: Type): boolean {
 
     const fullNamespaceName = getNamespaceFullName(type.namespace);
 
-    if ([HttpNamespace].includes(fullNamespaceName)) {
+    if (fullNamespaceName.startsWith(HttpNamespace)) {
       return true;
     }
-    if ([RestNamespace].includes(fullNamespaceName)) {
+    if (fullNamespaceName.startsWith(RestNamespace)) {
       return true;
     }
   }

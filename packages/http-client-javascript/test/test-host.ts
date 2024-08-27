@@ -5,12 +5,14 @@ import {
   createTestWrapper,
   expectDiagnosticEmpty,
 } from "@typespec/compiler/testing";
+import { HttpTestLibrary } from "@typespec/http/testing";
+import { RestTestLibrary } from "@typespec/rest/testing";
 import { join, relative } from "path";
 import { HttpClientJavascriptEmitterTestLibrary } from "../src/testing/index.js";
 
 export async function createSampleEmitterTestHost() {
   return createTestHost({
-    libraries: [HttpClientJavascriptEmitterTestLibrary],
+    libraries: [HttpClientJavascriptEmitterTestLibrary, HttpTestLibrary, RestTestLibrary],
   });
 }
 
@@ -18,6 +20,8 @@ export async function createHttpClientJavascriptEmitterTestRunner() {
   const host = await createSampleEmitterTestHost();
 
   return createTestWrapper(host, {
+    autoImports: ["@typespec/http", "@typespec/rest"],
+    autoUsings: ["TypeSpec.Http", "TypeSpec.Rest"],
     compilerOptions: {
       noEmit: false,
       emit: ["http-client-javascript"],
