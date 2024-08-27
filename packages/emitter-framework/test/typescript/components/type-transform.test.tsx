@@ -13,7 +13,7 @@ import {
   TypeTransformDeclaration,
 } from "../../../src/typescript/components/type-transform.js";
 import { TypeDeclaration } from "../../../src/typescript/index.js";
-import { createEmitterFrameworkTestRunner } from "../test-host.js";
+import { createEmitterFrameworkTestRunner } from "../../utils.js";
 
 describe("Typescript Type Transform", () => {
   let testRunner: BasicTestRunner;

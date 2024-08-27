@@ -3,9 +3,10 @@ import {
   getDiscriminatedUnion,
   getDiscriminator,
   isErrorType,
+  isTemplateDeclaration,
 } from "../../../core/index.js";
-import type { Enum, Model, Scalar, Type, Union } from "../../../core/types.js";
-import { getDoc, getSummary, resolveEncodedName } from "../../../lib/decorators.js";
+import type { Enum, Model, Scalar, TemplatedType, Type, Union } from "../../core/types.js";
+import { getDoc, getSummary, resolveEncodedName } from "../../lib/decorators.js";
 import { $, defineKit } from "../define-kit.js";
 import { copyMap } from "../utils.js";
 import { getPlausibleName } from "../utils/get-plausible-name.js";
@@ -62,6 +63,13 @@ export interface TypeKit {
    * @param type
    */
   getDiscriminator(type: Model | Union): Discriminator | undefined;
+
+  /**
+   * Determines if the given type is a template declaration
+   *
+   * @param type The type to check
+   */
+  isTemplateDeclaration(type: TemplatedType): boolean;
 }
 
 interface BaseTypeKit {
@@ -160,5 +168,8 @@ defineKit<BaseTypeKit>({
         variants,
       });
     },
+    isTemplateDeclaration(type) {
+      return isTemplateDeclaration(type);
+    }
   },
 });

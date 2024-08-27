@@ -79,6 +79,10 @@ export function getTypeScriptProjectRules(root) {
       "**/packages/http-client-python/**/*",
     ], // Ignore isolated modules
     plugins: {},
+    files: ["**/*.ts", "**/*.tsx"],
+    plugins: {
+      deprecation,
+    },
     languageOptions: {
       parserOptions: {
         projectService: {

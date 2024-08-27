@@ -5,7 +5,7 @@ import { SourceFile } from "@alloy-js/typescript";
 import { Namespace } from "@typespec/compiler";
 import { format } from "prettier";
 import { assert, describe, expect, it } from "vitest";
-import { getProgram } from "../test-host.js";
+import { getProgram } from "../../utils.js";
 
 describe("Typescript Interface", () => {
   describe("Interface bound to Typespec Types", () => {

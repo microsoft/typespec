@@ -60,8 +60,8 @@
       "args": [
         "compile",
         "../samples/scratch",
-        "--output-dir=temp/scratch-output",
-        "--emit=@typespec/openapi3"
+        "--output-dir=${workspaceFolder}/packages/efnext-pydantic-sketch/scratch-output",
+        "--emit=@typespec/efnext-pydantic-sketch"
       ],
       "smartStep": true,
       "sourceMaps": true,

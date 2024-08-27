@@ -53,7 +53,8 @@
     "@typespec/openapi3": "workspace:~",
     "http-client-javascript": "workspace:~",
     "@typespec/rest": "workspace:~",
-    "@typespec/versioning": "workspace:~"
+    "@typespec/versioning": "workspace:~",
+    "@typespec/efnext-pydantic-sketch": "workspace:~"
   },
   "devDependencies": {
     "@types/node": "~22.5.4",

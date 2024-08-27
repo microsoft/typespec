@@ -30,10 +30,10 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build-src": "babel src -d dist/src --extensions '.ts,.tsx'",
+    "build-src": "babel src -d dist/src --extensions .ts,.tsx",
     "build-tsc": "tsc -p .",
     "build": "npm run gen-extern-signature && npm run build-src && npm run build-tsc && npm run lint-typespec-library",
-    "watch-src": "babel src -d dist/src --extensions '.ts,.tsx' --watch",
+    "watch-src": "babel src -d dist/src --extensions .ts,.tsx --watch",
     "watch-tsc": "tsc -p . --watch",
     "watch": "concurrently --kill-others \"npm run watch-tsc\" \"npm run watch-src\"",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
@@ -44,7 +44,7 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/emitters/json-schema/reference",
-    "build-sample": "tsp compile sample/main.tsp --emit @typespec/efnext-cli-sketch && babel tsp-output -d dist/tsp-output --extensions '.ts,.tsx'"
+    "build-sample": "tsp compile sample/main.tsp --emit @typespec/efnext-cli-sketch && babel tsp-output -d dist/tsp-output --extensions .ts,.tsx"
   },
   "files": [
     "lib/*.tsp",

@@ -5,9 +5,9 @@
   "private": true,
   "main": "dist/src/index.js",
   "scripts": {
-    "build-src": "babel src -d dist/src --extensions '.ts,.tsx'",
+    "build-src": "babel src -d dist/src --extensions .ts,.tsx",
     "build": "tsc -p . && npm run build-src",
-    "watch-src": "babel src -d dist/src --extensions '.ts,.tsx' --watch",
+    "watch-src": "babel src -d dist/src --extensions .ts,.tsx --watch",
     "watch-tsc": "tsc -p . --watch",
     "watch": "concurrently --kill-others \"npm run watch-tsc\" \"npm run watch-src\"",
     "test": "vitest run"

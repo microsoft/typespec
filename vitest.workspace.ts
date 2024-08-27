@@ -1,6 +1,7 @@
 import { defineConfig } from "vitest/config";
 
 export default [
+  "packages/*/vitest.config.js",
   "packages/*/vitest.config.ts",
   "packages/*/vitest.config.mts",
   "eng/vitest.config.ts",

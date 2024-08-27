@@ -3,8 +3,8 @@ import { SourceFile } from "@alloy-js/typescript";
 import { Namespace } from "@typespec/compiler";
 import { format } from "prettier";
 import { assert, describe, expect, it } from "vitest";
-import { getProgram } from "../test-host.js";
 import { TypeAliasDeclaration } from "../../../src/typescript/components/type-alias-declaration.jsx";
+import { getProgram } from "../../utils.js";
 
 describe("Typescript Type Alias Declaration", () => {
   describe("Type Alias bound to Typespec Scalar", () => {

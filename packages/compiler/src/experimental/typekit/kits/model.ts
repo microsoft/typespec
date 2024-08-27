@@ -73,6 +73,12 @@ export interface ModelKit {
      * properties.
      */
     getEffectiveModel(model: Model, filter?: (property: ModelProperty) => boolean): Model;
+
+    /**
+     * Checks whether a given model has an indexer property or not.
+     * @param model The model to check
+     */
+    hasIndexer(model: Model): boolean;
   };
 }
 
@@ -108,6 +114,9 @@ export const ModelKit = defineKit<ModelKit>({
     },
     getEffectiveModel(model, filter?: (property: ModelProperty) => boolean) {
       return getEffectiveModelType(this.program, model, filter);
+    },
+    hasIndexer(model) {
+      return model.indexer !== undefined;
     },
   },
 });
