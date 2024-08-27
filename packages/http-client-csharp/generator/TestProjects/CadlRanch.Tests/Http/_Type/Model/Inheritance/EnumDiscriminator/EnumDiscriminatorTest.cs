@@ -4,9 +4,7 @@
 using System.Threading.Tasks;
 using _Type.Model.Inheritance.EnumDiscriminator;
 using _Type.Model.Inheritance.EnumDiscriminator.Models;
-using AutoRest.TestServer.Tests.Infrastructure;
 using NUnit.Framework;
-using TestProjects.CadlRanch.Tests;
 
 namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Inheritance.EnumDiscriminator
 {
