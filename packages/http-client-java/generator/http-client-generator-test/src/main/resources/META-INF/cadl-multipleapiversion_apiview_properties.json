@@ -1,0 +1,28 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.cadl.multipleapiversion.FirstAsyncClient": "Cadl.MultipleApiVersion",
+    "com.cadl.multipleapiversion.FirstAsyncClient.get": "Cadl.MultipleApiVersion.Client.get",
+    "com.cadl.multipleapiversion.FirstAsyncClient.getWithResponse": "Cadl.MultipleApiVersion.Client.get",
+    "com.cadl.multipleapiversion.FirstClient": "Cadl.MultipleApiVersion",
+    "com.cadl.multipleapiversion.FirstClient.get": "Cadl.MultipleApiVersion.Client.get",
+    "com.cadl.multipleapiversion.FirstClient.getWithResponse": "Cadl.MultipleApiVersion.Client.get",
+    "com.cadl.multipleapiversion.FirstClientBuilder": "Cadl.MultipleApiVersion",
+    "com.cadl.multipleapiversion.NoApiVersionAsyncClient": "Cadl.MultipleApiVersion3",
+    "com.cadl.multipleapiversion.NoApiVersionAsyncClient.action": "Cadl.MultipleApiVersion3.Client.action",
+    "com.cadl.multipleapiversion.NoApiVersionAsyncClient.actionWithResponse": "Cadl.MultipleApiVersion3.Client.action",
+    "com.cadl.multipleapiversion.NoApiVersionClient": "Cadl.MultipleApiVersion3",
+    "com.cadl.multipleapiversion.NoApiVersionClient.action": "Cadl.MultipleApiVersion3.Client.action",
+    "com.cadl.multipleapiversion.NoApiVersionClient.actionWithResponse": "Cadl.MultipleApiVersion3.Client.action",
+    "com.cadl.multipleapiversion.NoApiVersionClientBuilder": "Cadl.MultipleApiVersion3",
+    "com.cadl.multipleapiversion.SecondAsyncClient": "Cadl.MultipleApiVersion2",
+    "com.cadl.multipleapiversion.SecondAsyncClient.get": "Cadl.MultipleApiVersion2.Client.get",
+    "com.cadl.multipleapiversion.SecondAsyncClient.getWithResponse": "Cadl.MultipleApiVersion2.Client.get",
+    "com.cadl.multipleapiversion.SecondClient": "Cadl.MultipleApiVersion2",
+    "com.cadl.multipleapiversion.SecondClient.get": "Cadl.MultipleApiVersion2.Client.get",
+    "com.cadl.multipleapiversion.SecondClient.getWithResponse": "Cadl.MultipleApiVersion2.Client.get",
+    "com.cadl.multipleapiversion.SecondClientBuilder": "Cadl.MultipleApiVersion2",
+    "com.cadl.multipleapiversion.models.Resource": "Cadl.MultipleApiVersion.Resource",
+    "com.cadl.multipleapiversion.models.Resource2": "Cadl.MultipleApiVersion2.Resource2"
+  }
+}

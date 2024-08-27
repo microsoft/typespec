@@ -1,0 +1,48 @@
+{
+  "operationId": "BuiltinOp_Read",
+  "title": "BuiltinOp Read",
+  "parameters": {
+    "filter": "myFilter"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "boolean": true,
+        "string": "myString",
+        "safeint": 32,
+        "long": 64,
+        "float": 32.0,
+        "double": 64.0,
+        "duration": "PT15M",
+        "date": "2023-08-29",
+        "dateTime": "2019-10-12T07:20:50.520Z",
+        "nullableFloatDict": {
+          "max": 15.0,
+          "min": 14.0,
+          "average": 14.3
+        },
+        "url": "https://www.github.com",
+        "stringList": ["a", "b", "c"],
+        "encoded": {
+          "timeInSeconds": "PT15M",
+          "timeInSecondsFraction": "PT20.345S",
+          "dateTime": "1966-03-03T00:06:56.52Z",
+          "dateTimeRfc7231": "Sun, 06 Nov 1994 08:49:37 GMT",
+          "unixTimestamp": "1693362903",
+          "base64": "aHR0cHM6Ly93d3cuZ2l0aHViLmNvbQ==",
+          "base64url": "aHR0cHM6Ly93d3cuZ2l0aHViLmNvbQ=="
+        }
+      }
+    },
+    "default": {
+      "headers": {
+        "Content-Type": "application/json",
+        "x-ms-error-code": "Error Code"
+      },
+      "body": {
+        "code": "Error Code",
+        "message": "Error Message"
+      }
+    }
+  }
+}

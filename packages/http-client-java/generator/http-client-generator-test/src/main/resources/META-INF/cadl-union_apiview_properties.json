@@ -1,0 +1,31 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.cadl.union.UnionAsyncClient": "null",
+    "com.cadl.union.UnionAsyncClient.beginGenerate": "Cadl.Union.UnionFlattenOp.generate",
+    "com.cadl.union.UnionAsyncClient.beginGenerateWithModel": "Cadl.Union.UnionFlattenOp.generate",
+    "com.cadl.union.UnionAsyncClient.get": "Cadl.Union.UnionFlattenOp.get",
+    "com.cadl.union.UnionAsyncClient.getWithResponse": "Cadl.Union.UnionFlattenOp.get",
+    "com.cadl.union.UnionAsyncClient.send": "Cadl.Union.UnionFlattenOp.send",
+    "com.cadl.union.UnionAsyncClient.sendLong": "Cadl.Union.UnionFlattenOp.sendLong",
+    "com.cadl.union.UnionAsyncClient.sendLongWithResponse": "Cadl.Union.UnionFlattenOp.sendLong",
+    "com.cadl.union.UnionAsyncClient.sendWithResponse": "Cadl.Union.UnionFlattenOp.send",
+    "com.cadl.union.UnionClient": "null",
+    "com.cadl.union.UnionClient.beginGenerate": "Cadl.Union.UnionFlattenOp.generate",
+    "com.cadl.union.UnionClient.beginGenerateWithModel": "Cadl.Union.UnionFlattenOp.generate",
+    "com.cadl.union.UnionClient.get": "Cadl.Union.UnionFlattenOp.get",
+    "com.cadl.union.UnionClient.getWithResponse": "Cadl.Union.UnionFlattenOp.get",
+    "com.cadl.union.UnionClient.send": "Cadl.Union.UnionFlattenOp.send",
+    "com.cadl.union.UnionClient.sendLong": "Cadl.Union.UnionFlattenOp.sendLong",
+    "com.cadl.union.UnionClient.sendLongWithResponse": "Cadl.Union.UnionFlattenOp.sendLong",
+    "com.cadl.union.UnionClient.sendWithResponse": "Cadl.Union.UnionFlattenOp.send",
+    "com.cadl.union.UnionClientBuilder": "Cadl.Union",
+    "com.cadl.union.implementation.models.SendLongRequest": "sendLong.Request.anonymous",
+    "com.cadl.union.implementation.models.SendRequest": "send.Request.anonymous",
+    "com.cadl.union.implementation.models.SubResult": "Cadl.Union.SubResult",
+    "com.cadl.union.models.ArrayData": "Cadl.Union.ArrayData",
+    "com.cadl.union.models.Result": "Cadl.Union.Result",
+    "com.cadl.union.models.SendLongOptions": "null",
+    "com.cadl.union.models.User": "Cadl.Union.User"
+  }
+}

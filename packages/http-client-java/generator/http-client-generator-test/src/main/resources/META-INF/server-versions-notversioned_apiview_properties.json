@@ -1,0 +1,20 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.server.versions.notversioned.NotVersionedAsyncClient": "Server.Versions.NotVersioned",
+    "com.server.versions.notversioned.NotVersionedAsyncClient.withPathApiVersion": "Server.Versions.NotVersioned.withPathApiVersion",
+    "com.server.versions.notversioned.NotVersionedAsyncClient.withPathApiVersionWithResponse": "Server.Versions.NotVersioned.withPathApiVersion",
+    "com.server.versions.notversioned.NotVersionedAsyncClient.withQueryApiVersion": "Server.Versions.NotVersioned.withQueryApiVersion",
+    "com.server.versions.notversioned.NotVersionedAsyncClient.withQueryApiVersionWithResponse": "Server.Versions.NotVersioned.withQueryApiVersion",
+    "com.server.versions.notversioned.NotVersionedAsyncClient.withoutApiVersion": "Server.Versions.NotVersioned.withoutApiVersion",
+    "com.server.versions.notversioned.NotVersionedAsyncClient.withoutApiVersionWithResponse": "Server.Versions.NotVersioned.withoutApiVersion",
+    "com.server.versions.notversioned.NotVersionedClient": "Server.Versions.NotVersioned",
+    "com.server.versions.notversioned.NotVersionedClient.withPathApiVersion": "Server.Versions.NotVersioned.withPathApiVersion",
+    "com.server.versions.notversioned.NotVersionedClient.withPathApiVersionWithResponse": "Server.Versions.NotVersioned.withPathApiVersion",
+    "com.server.versions.notversioned.NotVersionedClient.withQueryApiVersion": "Server.Versions.NotVersioned.withQueryApiVersion",
+    "com.server.versions.notversioned.NotVersionedClient.withQueryApiVersionWithResponse": "Server.Versions.NotVersioned.withQueryApiVersion",
+    "com.server.versions.notversioned.NotVersionedClient.withoutApiVersion": "Server.Versions.NotVersioned.withoutApiVersion",
+    "com.server.versions.notversioned.NotVersionedClient.withoutApiVersionWithResponse": "Server.Versions.NotVersioned.withoutApiVersion",
+    "com.server.versions.notversioned.NotVersionedClientBuilder": "Server.Versions.NotVersioned"
+  }
+}

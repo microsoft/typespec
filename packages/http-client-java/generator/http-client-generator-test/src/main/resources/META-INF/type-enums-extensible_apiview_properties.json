@@ -1,0 +1,25 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.type.enums.extensible.ExtensibleAsyncClient": "null",
+    "com.type.enums.extensible.ExtensibleAsyncClient.getKnownValue": "Type.Enum.Extensible.String.getKnownValue",
+    "com.type.enums.extensible.ExtensibleAsyncClient.getKnownValueWithResponse": "Type.Enum.Extensible.String.getKnownValue",
+    "com.type.enums.extensible.ExtensibleAsyncClient.getUnknownValue": "Type.Enum.Extensible.String.getUnknownValue",
+    "com.type.enums.extensible.ExtensibleAsyncClient.getUnknownValueWithResponse": "Type.Enum.Extensible.String.getUnknownValue",
+    "com.type.enums.extensible.ExtensibleAsyncClient.putKnownValue": "Type.Enum.Extensible.String.putKnownValue",
+    "com.type.enums.extensible.ExtensibleAsyncClient.putKnownValueWithResponse": "Type.Enum.Extensible.String.putKnownValue",
+    "com.type.enums.extensible.ExtensibleAsyncClient.putUnknownValue": "Type.Enum.Extensible.String.putUnknownValue",
+    "com.type.enums.extensible.ExtensibleAsyncClient.putUnknownValueWithResponse": "Type.Enum.Extensible.String.putUnknownValue",
+    "com.type.enums.extensible.ExtensibleClient": "null",
+    "com.type.enums.extensible.ExtensibleClient.getKnownValue": "Type.Enum.Extensible.String.getKnownValue",
+    "com.type.enums.extensible.ExtensibleClient.getKnownValueWithResponse": "Type.Enum.Extensible.String.getKnownValue",
+    "com.type.enums.extensible.ExtensibleClient.getUnknownValue": "Type.Enum.Extensible.String.getUnknownValue",
+    "com.type.enums.extensible.ExtensibleClient.getUnknownValueWithResponse": "Type.Enum.Extensible.String.getUnknownValue",
+    "com.type.enums.extensible.ExtensibleClient.putKnownValue": "Type.Enum.Extensible.String.putKnownValue",
+    "com.type.enums.extensible.ExtensibleClient.putKnownValueWithResponse": "Type.Enum.Extensible.String.putKnownValue",
+    "com.type.enums.extensible.ExtensibleClient.putUnknownValue": "Type.Enum.Extensible.String.putUnknownValue",
+    "com.type.enums.extensible.ExtensibleClient.putUnknownValueWithResponse": "Type.Enum.Extensible.String.putUnknownValue",
+    "com.type.enums.extensible.ExtensibleClientBuilder": "Type.Enum.Extensible",
+    "com.type.enums.extensible.models.DaysOfWeekExtensibleEnum": "Type.Enum.Extensible.DaysOfWeekExtensibleEnum"
+  }
+}

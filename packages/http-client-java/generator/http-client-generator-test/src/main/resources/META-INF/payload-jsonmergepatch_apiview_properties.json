@@ -1,0 +1,23 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.payload.jsonmergepatch.JsonMergePatchAsyncClient": "Payload.JsonMergePatch",
+    "com.payload.jsonmergepatch.JsonMergePatchAsyncClient.createResource": "Payload.JsonMergePatch.createResource",
+    "com.payload.jsonmergepatch.JsonMergePatchAsyncClient.createResourceWithResponse": "Payload.JsonMergePatch.createResource",
+    "com.payload.jsonmergepatch.JsonMergePatchAsyncClient.updateOptionalResource": "Payload.JsonMergePatch.updateOptionalResource",
+    "com.payload.jsonmergepatch.JsonMergePatchAsyncClient.updateOptionalResourceWithResponse": "Payload.JsonMergePatch.updateOptionalResource",
+    "com.payload.jsonmergepatch.JsonMergePatchAsyncClient.updateResource": "Payload.JsonMergePatch.updateResource",
+    "com.payload.jsonmergepatch.JsonMergePatchAsyncClient.updateResourceWithResponse": "Payload.JsonMergePatch.updateResource",
+    "com.payload.jsonmergepatch.JsonMergePatchClient": "Payload.JsonMergePatch",
+    "com.payload.jsonmergepatch.JsonMergePatchClient.createResource": "Payload.JsonMergePatch.createResource",
+    "com.payload.jsonmergepatch.JsonMergePatchClient.createResourceWithResponse": "Payload.JsonMergePatch.createResource",
+    "com.payload.jsonmergepatch.JsonMergePatchClient.updateOptionalResource": "Payload.JsonMergePatch.updateOptionalResource",
+    "com.payload.jsonmergepatch.JsonMergePatchClient.updateOptionalResourceWithResponse": "Payload.JsonMergePatch.updateOptionalResource",
+    "com.payload.jsonmergepatch.JsonMergePatchClient.updateResource": "Payload.JsonMergePatch.updateResource",
+    "com.payload.jsonmergepatch.JsonMergePatchClient.updateResourceWithResponse": "Payload.JsonMergePatch.updateResource",
+    "com.payload.jsonmergepatch.JsonMergePatchClientBuilder": "Payload.JsonMergePatch",
+    "com.payload.jsonmergepatch.models.InnerModel": "Payload.JsonMergePatch.InnerModel",
+    "com.payload.jsonmergepatch.models.Resource": "Payload.JsonMergePatch.Resource",
+    "com.payload.jsonmergepatch.models.ResourcePatch": "Payload.JsonMergePatch.ResourcePatch"
+  }
+}

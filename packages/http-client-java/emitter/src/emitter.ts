@@ -29,7 +29,6 @@ export interface EmitterOptions {
 
   "generate-samples"?: boolean;
   "generate-tests"?: boolean;
-  "examples-directory"?: string;
 
   "enable-sync-stack"?: boolean;
   "stream-style-serialization"?: boolean;
@@ -80,7 +79,6 @@ const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
     // sample and test
     "generate-samples": { type: "boolean", nullable: true, default: true },
     "generate-tests": { type: "boolean", nullable: true, default: true },
-    "examples-directory": { type: "string", nullable: true },
 
     "enable-sync-stack": { type: "boolean", nullable: true, default: true },
     "stream-style-serialization": { type: "boolean", nullable: true, default: true },
