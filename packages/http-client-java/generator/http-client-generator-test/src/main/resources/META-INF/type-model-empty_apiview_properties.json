@@ -1,0 +1,23 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.type.model.empty.EmptyAsyncClient": "Type.Model.Empty",
+    "com.type.model.empty.EmptyAsyncClient.getEmpty": "Type.Model.Empty.getEmpty",
+    "com.type.model.empty.EmptyAsyncClient.getEmptyWithResponse": "Type.Model.Empty.getEmpty",
+    "com.type.model.empty.EmptyAsyncClient.postRoundTripEmpty": "Type.Model.Empty.postRoundTripEmpty",
+    "com.type.model.empty.EmptyAsyncClient.postRoundTripEmptyWithResponse": "Type.Model.Empty.postRoundTripEmpty",
+    "com.type.model.empty.EmptyAsyncClient.putEmpty": "Type.Model.Empty.putEmpty",
+    "com.type.model.empty.EmptyAsyncClient.putEmptyWithResponse": "Type.Model.Empty.putEmpty",
+    "com.type.model.empty.EmptyClient": "Type.Model.Empty",
+    "com.type.model.empty.EmptyClient.getEmpty": "Type.Model.Empty.getEmpty",
+    "com.type.model.empty.EmptyClient.getEmptyWithResponse": "Type.Model.Empty.getEmpty",
+    "com.type.model.empty.EmptyClient.postRoundTripEmpty": "Type.Model.Empty.postRoundTripEmpty",
+    "com.type.model.empty.EmptyClient.postRoundTripEmptyWithResponse": "Type.Model.Empty.postRoundTripEmpty",
+    "com.type.model.empty.EmptyClient.putEmpty": "Type.Model.Empty.putEmpty",
+    "com.type.model.empty.EmptyClient.putEmptyWithResponse": "Type.Model.Empty.putEmpty",
+    "com.type.model.empty.EmptyClientBuilder": "Type.Model.Empty",
+    "com.type.model.empty.models.EmptyInput": "Type.Model.Empty.EmptyInput",
+    "com.type.model.empty.models.EmptyInputOutput": "Type.Model.Empty.EmptyInputOutput",
+    "com.type.model.empty.models.EmptyOutput": "Type.Model.Empty.EmptyOutput"
+  }
+}

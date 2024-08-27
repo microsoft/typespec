@@ -96,7 +96,7 @@ export class PreNamer {
 
     const deduplicateSchemaNames =
       !!this.options["lenient-model-deduplication"] ||
-      !!this.options["resolve-schema-name-collisions"];
+      !!this.options["resolve-schema-name-collisons"];
 
     const scopeNamer = new ScopeNamer({
       deduplicateNames: deduplicateSchemaNames,
