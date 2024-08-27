@@ -363,6 +363,8 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             // validate if the additional properties property exists & if its' value type is also BinaryData
+            // if so, we do not have to have a raw data field since the additional properties property will be used for serialization
+            // of raw data
             if ((AdditionalPropertiesProperty != null
                 && AdditionalPropertiesProperty.Type.ElementType.Equals(_additionalPropsUnknownType, ignoreNullable: true)) ||
                 (BaseModelProvider?.AdditionalPropertiesProperty != null
