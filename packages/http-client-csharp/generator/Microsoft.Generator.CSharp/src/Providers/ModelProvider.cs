@@ -415,6 +415,12 @@ namespace Microsoft.Generator.CSharp.Providers
                 enclosingType: this);
         }
 
+        /// <summary>
+        /// Replaces unverifiable types, types that do not have value kind checks during deserialization of additional properties,
+        /// with the corresponding verifiable types. By default, BinaryData is used as the value type for unknown additional properties.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         private CSharpType ReplaceUnverifiableType(CSharpType type)
         {
             return type switch
@@ -428,6 +434,9 @@ namespace Microsoft.Generator.CSharp.Providers
             };
         }
 
+        /// <summary>
+        /// The set of known verifiable additional property value types that have value kind checks during deserialization.
+        /// </summary>
         private static readonly HashSet<Type> _verifiableAdditionalPropertyTypes =
         [
             typeof(byte), typeof(byte[]), typeof(sbyte),
