@@ -11,6 +11,7 @@ import com.azure.core.util.Context;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.resourcemanager.models.resources.fluent.TopLevelTrackedResourcesClient;
 import com.azure.resourcemanager.models.resources.fluent.models.TopLevelTrackedResourceInner;
+import com.azure.resourcemanager.models.resources.models.NotificationDetails;
 import com.azure.resourcemanager.models.resources.models.TopLevelTrackedResource;
 import com.azure.resourcemanager.models.resources.models.TopLevelTrackedResources;
 
@@ -76,6 +77,16 @@ public final class TopLevelTrackedResourcesImpl implements TopLevelTrackedResour
     public PagedIterable<TopLevelTrackedResource> list(Context context) {
         PagedIterable<TopLevelTrackedResourceInner> inner = this.serviceClient().list(context);
         return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelTrackedResourceImpl(inner1, this.manager()));
+    }
+
+    public Response<Void> actionSyncWithResponse(String resourceGroupName, String topLevelTrackedResourceName,
+        NotificationDetails body, Context context) {
+        return this.serviceClient()
+            .actionSyncWithResponse(resourceGroupName, topLevelTrackedResourceName, body, context);
+    }
+
+    public void actionSync(String resourceGroupName, String topLevelTrackedResourceName, NotificationDetails body) {
+        this.serviceClient().actionSync(resourceGroupName, topLevelTrackedResourceName, body);
     }
 
     public TopLevelTrackedResource getById(String id) {

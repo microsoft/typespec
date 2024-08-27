@@ -20,8 +20,12 @@ import com.payload.multipart.implementation.FormDatasImpl;
 import com.payload.multipart.implementation.MultipartFormDataHelper;
 import com.payload.multipart.implementation.models.AnonymousModelRequest;
 import com.payload.multipart.models.BinaryArrayPartsRequest;
+import com.payload.multipart.models.ComplexHttpPartsModelRequest;
 import com.payload.multipart.models.ComplexPartsRequest;
-import com.payload.multipart.models.JsonArrayPartsRequest;
+import com.payload.multipart.models.FileRequiredMetaData;
+import com.payload.multipart.models.FileWithHttpPartOptionalContentTypeRequest;
+import com.payload.multipart.models.FileWithHttpPartRequiredContentTypeRequest;
+import com.payload.multipart.models.FileWithHttpPartSpecificContentTypeRequest;
 import com.payload.multipart.models.JsonPartRequest;
 import com.payload.multipart.models.MultiBinaryPartsRequest;
 import com.payload.multipart.models.MultiPartRequest;
@@ -125,25 +129,6 @@ public final class MultiPartAsyncClient {
     }
 
     /**
-     * Test content-type: multipart/form-data for scenario contains multi json parts.
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the {@link Response} on successful completion of {@link Mono}.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> jsonArrayPartsWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Protocol API requires serialization of parts with content-disposition and data, as operation 'jsonArrayParts'
-        // is 'multipart/form-data'
-        return this.serviceClient.jsonArrayPartsWithResponseAsync(body, requestOptions);
-    }
-
-    /**
      * Test content-type: multipart/form-data for scenario contains multi binary parts.
      * 
      * @param body The body parameter.
@@ -204,6 +189,85 @@ public final class MultiPartAsyncClient {
      * Test content-type: multipart/form-data.
      * 
      * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<Response<Void>> fileWithHttpPartSpecificContentTypeWithResponse(BinaryData body,
+        RequestOptions requestOptions) {
+        // Protocol API requires serialization of parts with content-disposition and data, as operation
+        // 'fileWithHttpPartSpecificContentType' is 'multipart/form-data'
+        return this.serviceClient.fileWithHttpPartSpecificContentTypeWithResponseAsync(body, requestOptions);
+    }
+
+    /**
+     * Test content-type: multipart/form-data.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<Response<Void>> fileWithHttpPartRequiredContentTypeWithResponse(BinaryData body,
+        RequestOptions requestOptions) {
+        // Protocol API requires serialization of parts with content-disposition and data, as operation
+        // 'fileWithHttpPartRequiredContentType' is 'multipart/form-data'
+        return this.serviceClient.fileWithHttpPartRequiredContentTypeWithResponseAsync(body, requestOptions);
+    }
+
+    /**
+     * Test content-type: multipart/form-data for optional content type.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<Response<Void>> fileWithHttpPartOptionalContentTypeWithResponse(BinaryData body,
+        RequestOptions requestOptions) {
+        // Protocol API requires serialization of parts with content-disposition and data, as operation
+        // 'fileWithHttpPartOptionalContentType' is 'multipart/form-data'
+        return this.serviceClient.fileWithHttpPartOptionalContentTypeWithResponseAsync(body, requestOptions);
+    }
+
+    /**
+     * Test content-type: multipart/form-data for mixed scenarios.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<Response<Void>> complexWithHttpPartWithResponse(BinaryData body, RequestOptions requestOptions) {
+        // Protocol API requires serialization of parts with content-disposition and data, as operation
+        // 'complexWithHttpPart' is 'multipart/form-data'
+        return this.serviceClient.complexWithHttpPartWithResponseAsync(body, requestOptions);
+    }
+
+    /**
+     * Test content-type: multipart/form-data.
+     * 
+     * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -245,7 +309,6 @@ public final class MultiPartAsyncClient {
             .serializeJsonField("address", body.getAddress())
             .serializeFileField("profileImage", body.getProfileImage().getContent(),
                 body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-            .serializeJsonField("previousAddresses", body.getPreviousAddresses())
             .serializeFileFields("pictures",
                 body.getPictures().stream().map(PicturesFileDetails::getContent).collect(Collectors.toList()),
                 body.getPictures().stream().map(PicturesFileDetails::getContentType).collect(Collectors.toList()),
@@ -306,31 +369,6 @@ public final class MultiPartAsyncClient {
                 .end()
                 .getRequestBody(),
             requestOptions).flatMap(FluxUtil::toMono);
-    }
-
-    /**
-     * Test content-type: multipart/form-data for scenario contains multi json parts.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> jsonArrayParts(JsonArrayPartsRequest body) {
-        // Generated convenience method for jsonArrayPartsWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return jsonArrayPartsWithResponse(new MultipartFormDataHelper(requestOptions)
-            .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-            .serializeJsonField("previousAddresses", body.getPreviousAddresses())
-            .end()
-            .getRequestBody(), requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -412,5 +450,109 @@ public final class MultiPartAsyncClient {
                 .end()
                 .getRequestBody();
         return anonymousModelWithResponse(anonymousModelRequest, requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * Test content-type: multipart/form-data.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> fileWithHttpPartSpecificContentType(FileWithHttpPartSpecificContentTypeRequest body) {
+        // Generated convenience method for fileWithHttpPartSpecificContentTypeWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return fileWithHttpPartSpecificContentTypeWithResponse(new MultipartFormDataHelper(requestOptions)
+            .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+            .end()
+            .getRequestBody(), requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * Test content-type: multipart/form-data.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> fileWithHttpPartRequiredContentType(FileWithHttpPartRequiredContentTypeRequest body) {
+        // Generated convenience method for fileWithHttpPartRequiredContentTypeWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return fileWithHttpPartRequiredContentTypeWithResponse(new MultipartFormDataHelper(requestOptions)
+            .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+            .end()
+            .getRequestBody(), requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * Test content-type: multipart/form-data for optional content type.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> fileWithHttpPartOptionalContentType(FileWithHttpPartOptionalContentTypeRequest body) {
+        // Generated convenience method for fileWithHttpPartOptionalContentTypeWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return fileWithHttpPartOptionalContentTypeWithResponse(new MultipartFormDataHelper(requestOptions)
+            .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+            .end()
+            .getRequestBody(), requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * Test content-type: multipart/form-data for mixed scenarios.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> complexWithHttpPart(ComplexHttpPartsModelRequest body) {
+        // Generated convenience method for complexWithHttpPartWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return complexWithHttpPartWithResponse(
+            new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
+                .serializeJsonField("address", body.getAddress())
+                .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+                .serializeJsonField("previousAddresses", body.getPreviousAddresses())
+                .serializeFileFields("pictures",
+                    body.getPictures().stream().map(FileRequiredMetaData::getContent).collect(Collectors.toList()),
+                    body.getPictures().stream().map(FileRequiredMetaData::getContentType).collect(Collectors.toList()),
+                    body.getPictures().stream().map(FileRequiredMetaData::getFilename).collect(Collectors.toList()))
+                .end()
+                .getRequestBody(),
+            requestOptions).flatMap(FluxUtil::toMono);
     }
 }

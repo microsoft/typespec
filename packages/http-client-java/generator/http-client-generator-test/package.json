@@ -9,7 +9,7 @@
     "testserver-run": "npx cadl-ranch serve ./node_modules/@azure-tools/cadl-ranch-specs/http --coverageFile ./cadl-ranch-coverage-java.json"
   },
   "dependencies": {
-    "@azure-tools/cadl-ranch-specs": "0.35.2",
+    "@azure-tools/cadl-ranch-specs": "0.36.1",
     "@typespec/http-client-java": "file:/../../typespec-http-client-java-0.1.0.tgz",
     "@typespec/http-client-java-tests": "file:"
   },

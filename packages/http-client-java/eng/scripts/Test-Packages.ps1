@@ -6,7 +6,7 @@ param(
     [string] $Filter = "."
 )
 
-$ErrorActionPreference = 'Continue'
+$ErrorActionPreference = 'Stop'
 
 Set-StrictMode -Version 3.0
 $packageRoot = (Resolve-Path "$PSScriptRoot/../..").Path.Replace('\', '/')
@@ -53,6 +53,15 @@ try {
         }
         catch {
             Write-Error 'Generated code is not up to date. Please run: eng/Generate.ps1'
+        }
+
+        try {
+            Write-Host 'Executing cadl ranch tests'
+            & "$packageRoot/http-client-generator-test/CadlRanch-Tests.ps1"
+            Write-Host 'Cadl ranch tests passed'
+        } 
+        catch {
+            Write-Error 'Cadl ranch tests failed'
         }
     }
 }

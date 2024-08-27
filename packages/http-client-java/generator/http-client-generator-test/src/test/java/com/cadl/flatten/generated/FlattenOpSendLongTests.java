@@ -17,7 +17,7 @@ public final class FlattenOpSendLongTests extends FlattenClientTestBase {
     public void testFlattenOpSendLongTests() {
         // method invocation
         flattenClient.sendLong(
-            new SendLongOptions("myRequiredId", "myRequiredInput", 11, "title", SendLongRequestStatus.NOT_STARTED)
+            new SendLongOptions("myRequiredId", "myRequiredInput", 11, null, "title", SendLongRequestStatus.NOT_STARTED)
                 .setFilter("name=myName")
                 .setUser(new User("myOptionalUser"))
                 .setDataIntOptional(12)
