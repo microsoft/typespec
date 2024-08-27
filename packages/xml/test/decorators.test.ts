@@ -177,7 +177,7 @@ describe("@ns", () => {
   it("emit error if missing the 2nd argument", async () => {
     const diagnostics = await runner.diagnose(`
       model Blob {
-        @Xml.ns("notvalidurl") id : string;
+        @Xml.ns("https://example.com/ns1") id : string;
       }
     `);
 
