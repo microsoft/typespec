@@ -27,6 +27,7 @@ words:
   - cobertura
   - codehaus
   - codeql
+  - collisons
   - Contoso
   - CORGE
   - createsorreplacesresource
@@ -74,6 +75,7 @@ words:
   - LINUXNEXTVMIMAGE
   - LINUXOS
   - LINUXVMIMAGE
+  - lropaging
   - lzutf
   - MACVMIMAGE
   - mgmt
@@ -123,9 +125,9 @@ words:
   - sint
   - snakeyaml
   - srnagar
-  - statment
   - sses
   - ssvs
+  - statment
   - strs
   - syncpack
   - TCGC
@@ -178,6 +180,7 @@ ignorePaths:
   - common/scripts/*
   - "**/ThirdPartyNotices.txt"
   - packages/compiler/test/formatter/scenarios/**
+  - packages/http-client-java/generator/http-client-generator-test/**
   - pnpm-lock.yaml
   - "**/*.mp4"
   - .git/**

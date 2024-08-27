@@ -1,0 +1,20 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.resiliency.servicedriven.v1.ResiliencyServiceDrivenAsyncClient": "Resiliency.ServiceDriven",
+    "com.resiliency.servicedriven.v1.ResiliencyServiceDrivenAsyncClient.fromNone": "Resiliency.ServiceDriven.AddOptionalParam.fromNone",
+    "com.resiliency.servicedriven.v1.ResiliencyServiceDrivenAsyncClient.fromNoneWithResponse": "Resiliency.ServiceDriven.AddOptionalParam.fromNone",
+    "com.resiliency.servicedriven.v1.ResiliencyServiceDrivenAsyncClient.fromOneOptional": "Resiliency.ServiceDriven.AddOptionalParam.fromOneOptional",
+    "com.resiliency.servicedriven.v1.ResiliencyServiceDrivenAsyncClient.fromOneOptionalWithResponse": "Resiliency.ServiceDriven.AddOptionalParam.fromOneOptional",
+    "com.resiliency.servicedriven.v1.ResiliencyServiceDrivenAsyncClient.fromOneRequired": "Resiliency.ServiceDriven.AddOptionalParam.fromOneRequired",
+    "com.resiliency.servicedriven.v1.ResiliencyServiceDrivenAsyncClient.fromOneRequiredWithResponse": "Resiliency.ServiceDriven.AddOptionalParam.fromOneRequired",
+    "com.resiliency.servicedriven.v1.ResiliencyServiceDrivenClient": "Resiliency.ServiceDriven",
+    "com.resiliency.servicedriven.v1.ResiliencyServiceDrivenClient.fromNone": "Resiliency.ServiceDriven.AddOptionalParam.fromNone",
+    "com.resiliency.servicedriven.v1.ResiliencyServiceDrivenClient.fromNoneWithResponse": "Resiliency.ServiceDriven.AddOptionalParam.fromNone",
+    "com.resiliency.servicedriven.v1.ResiliencyServiceDrivenClient.fromOneOptional": "Resiliency.ServiceDriven.AddOptionalParam.fromOneOptional",
+    "com.resiliency.servicedriven.v1.ResiliencyServiceDrivenClient.fromOneOptionalWithResponse": "Resiliency.ServiceDriven.AddOptionalParam.fromOneOptional",
+    "com.resiliency.servicedriven.v1.ResiliencyServiceDrivenClient.fromOneRequired": "Resiliency.ServiceDriven.AddOptionalParam.fromOneRequired",
+    "com.resiliency.servicedriven.v1.ResiliencyServiceDrivenClient.fromOneRequiredWithResponse": "Resiliency.ServiceDriven.AddOptionalParam.fromOneRequired",
+    "com.resiliency.servicedriven.v1.ResiliencyServiceDrivenClientBuilder": "Resiliency.ServiceDriven"
+  }
+}

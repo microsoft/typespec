@@ -1,0 +1,28 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.cadl.protocolandconvenient.ProtocolAndConvenientAsyncClient": "null",
+    "com.cadl.protocolandconvenient.ProtocolAndConvenientAsyncClient.beginCreateOrReplace": "Cadl.ProtocolAndConvenient.ProtocolAndConvenienceOp.createOrReplace",
+    "com.cadl.protocolandconvenient.ProtocolAndConvenientAsyncClient.beginCreateOrReplaceWithModel": "Cadl.ProtocolAndConvenient.ProtocolAndConvenienceOp.createOrReplace",
+    "com.cadl.protocolandconvenient.ProtocolAndConvenientAsyncClient.bothConvenientAndProtocol": "Cadl.ProtocolAndConvenient.ProtocolAndConvenienceOp.bothConvenientAndProtocol",
+    "com.cadl.protocolandconvenient.ProtocolAndConvenientAsyncClient.bothConvenientAndProtocolWithResponse": "Cadl.ProtocolAndConvenient.ProtocolAndConvenienceOp.bothConvenientAndProtocol",
+    "com.cadl.protocolandconvenient.ProtocolAndConvenientAsyncClient.list": "Cadl.ProtocolAndConvenient.ProtocolAndConvenienceOp.list",
+    "com.cadl.protocolandconvenient.ProtocolAndConvenientAsyncClient.onlyConvenient": "Cadl.ProtocolAndConvenient.ProtocolAndConvenienceOp.onlyConvenient",
+    "com.cadl.protocolandconvenient.ProtocolAndConvenientAsyncClient.onlyConvenientWithResponse": "Cadl.ProtocolAndConvenient.ProtocolAndConvenienceOp.onlyConvenient",
+    "com.cadl.protocolandconvenient.ProtocolAndConvenientClient": "null",
+    "com.cadl.protocolandconvenient.ProtocolAndConvenientClient.beginCreateOrReplace": "Cadl.ProtocolAndConvenient.ProtocolAndConvenienceOp.createOrReplace",
+    "com.cadl.protocolandconvenient.ProtocolAndConvenientClient.beginCreateOrReplaceWithModel": "Cadl.ProtocolAndConvenient.ProtocolAndConvenienceOp.createOrReplace",
+    "com.cadl.protocolandconvenient.ProtocolAndConvenientClient.bothConvenientAndProtocol": "Cadl.ProtocolAndConvenient.ProtocolAndConvenienceOp.bothConvenientAndProtocol",
+    "com.cadl.protocolandconvenient.ProtocolAndConvenientClient.bothConvenientAndProtocolWithResponse": "Cadl.ProtocolAndConvenient.ProtocolAndConvenienceOp.bothConvenientAndProtocol",
+    "com.cadl.protocolandconvenient.ProtocolAndConvenientClient.list": "Cadl.ProtocolAndConvenient.ProtocolAndConvenienceOp.list",
+    "com.cadl.protocolandconvenient.ProtocolAndConvenientClient.onlyConvenient": "Cadl.ProtocolAndConvenient.ProtocolAndConvenienceOp.onlyConvenient",
+    "com.cadl.protocolandconvenient.ProtocolAndConvenientClient.onlyConvenientWithResponse": "Cadl.ProtocolAndConvenient.ProtocolAndConvenienceOp.onlyConvenient",
+    "com.cadl.protocolandconvenient.ProtocolAndConvenientClientBuilder": "Cadl.ProtocolAndConvenient",
+    "com.cadl.protocolandconvenient.models.ResourceA": "Cadl.ProtocolAndConvenient.ResourceA",
+    "com.cadl.protocolandconvenient.models.ResourceB": "Cadl.ProtocolAndConvenient.ResourceB",
+    "com.cadl.protocolandconvenient.models.ResourceE": "Cadl.ProtocolAndConvenient.ResourceE",
+    "com.cadl.protocolandconvenient.models.ResourceF": "Cadl.ProtocolAndConvenient.ResourceF",
+    "com.cadl.protocolandconvenient.models.ResourceI": "Cadl.ProtocolAndConvenient.ResourceI",
+    "com.cadl.protocolandconvenient.models.ResourceJ": "Cadl.ProtocolAndConvenient.ResourceJ"
+  }
+}

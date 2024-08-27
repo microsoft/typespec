@@ -44,7 +44,6 @@
       <artifactId>slf4j-api</artifactId>
       <version>1.7.36</version>
     </dependency>
-
     <dependency>
       <groupId>com.github.javaparser</groupId>
       <artifactId>javaparser-core</artifactId>

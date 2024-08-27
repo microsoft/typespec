@@ -18,4 +18,7 @@ Invoke "npm run build:emitter"
 
 $testDir = Join-Path $repoRoot 'test' 
 
-Invoke "npx tsp compile $testDir/literal.tsp --trace @typespec/http-client-java --emit @typespec/http-client-java --option @typespec/http-client-java.emitter-output-dir=$testDir/tsp-output --option @typespec/http-client-java.save-inputs=true"
+$generatorTestDir = Join-Path $repoRoot 'generator/http-client-generator-test'
+Set-Location $generatorTestDir
+./Generate.ps1
+Set-Location $PSScriptRoot

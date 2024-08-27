@@ -1,0 +1,24 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.payload.mediatype.MediaTypeAsyncClient": "null",
+    "com.payload.mediatype.MediaTypeAsyncClient.getAsJson": "Payload.MediaType.StringBody.getAsJson",
+    "com.payload.mediatype.MediaTypeAsyncClient.getAsJsonWithResponse": "Payload.MediaType.StringBody.getAsJson",
+    "com.payload.mediatype.MediaTypeAsyncClient.getAsText": "Payload.MediaType.StringBody.getAsText",
+    "com.payload.mediatype.MediaTypeAsyncClient.getAsTextWithResponse": "Payload.MediaType.StringBody.getAsText",
+    "com.payload.mediatype.MediaTypeAsyncClient.sendAsJson": "Payload.MediaType.StringBody.sendAsJson",
+    "com.payload.mediatype.MediaTypeAsyncClient.sendAsJsonWithResponse": "Payload.MediaType.StringBody.sendAsJson",
+    "com.payload.mediatype.MediaTypeAsyncClient.sendAsText": "Payload.MediaType.StringBody.sendAsText",
+    "com.payload.mediatype.MediaTypeAsyncClient.sendAsTextWithResponse": "Payload.MediaType.StringBody.sendAsText",
+    "com.payload.mediatype.MediaTypeClient": "null",
+    "com.payload.mediatype.MediaTypeClient.getAsJson": "Payload.MediaType.StringBody.getAsJson",
+    "com.payload.mediatype.MediaTypeClient.getAsJsonWithResponse": "Payload.MediaType.StringBody.getAsJson",
+    "com.payload.mediatype.MediaTypeClient.getAsText": "Payload.MediaType.StringBody.getAsText",
+    "com.payload.mediatype.MediaTypeClient.getAsTextWithResponse": "Payload.MediaType.StringBody.getAsText",
+    "com.payload.mediatype.MediaTypeClient.sendAsJson": "Payload.MediaType.StringBody.sendAsJson",
+    "com.payload.mediatype.MediaTypeClient.sendAsJsonWithResponse": "Payload.MediaType.StringBody.sendAsJson",
+    "com.payload.mediatype.MediaTypeClient.sendAsText": "Payload.MediaType.StringBody.sendAsText",
+    "com.payload.mediatype.MediaTypeClient.sendAsTextWithResponse": "Payload.MediaType.StringBody.sendAsText",
+    "com.payload.mediatype.MediaTypeClientBuilder": "Payload.MediaType"
+  }
+}

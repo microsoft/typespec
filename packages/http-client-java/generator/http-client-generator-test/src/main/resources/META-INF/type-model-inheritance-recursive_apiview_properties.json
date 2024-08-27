@@ -1,0 +1,18 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.type.model.inheritance.recursive.RecursiveAsyncClient": "Type.Model.Inheritance.Recursive",
+    "com.type.model.inheritance.recursive.RecursiveAsyncClient.get": "Type.Model.Inheritance.Recursive.get",
+    "com.type.model.inheritance.recursive.RecursiveAsyncClient.getWithResponse": "Type.Model.Inheritance.Recursive.get",
+    "com.type.model.inheritance.recursive.RecursiveAsyncClient.put": "Type.Model.Inheritance.Recursive.put",
+    "com.type.model.inheritance.recursive.RecursiveAsyncClient.putWithResponse": "Type.Model.Inheritance.Recursive.put",
+    "com.type.model.inheritance.recursive.RecursiveClient": "Type.Model.Inheritance.Recursive",
+    "com.type.model.inheritance.recursive.RecursiveClient.get": "Type.Model.Inheritance.Recursive.get",
+    "com.type.model.inheritance.recursive.RecursiveClient.getWithResponse": "Type.Model.Inheritance.Recursive.get",
+    "com.type.model.inheritance.recursive.RecursiveClient.put": "Type.Model.Inheritance.Recursive.put",
+    "com.type.model.inheritance.recursive.RecursiveClient.putWithResponse": "Type.Model.Inheritance.Recursive.put",
+    "com.type.model.inheritance.recursive.RecursiveClientBuilder": "Type.Model.Inheritance.Recursive",
+    "com.type.model.inheritance.recursive.models.Element": "Type.Model.Inheritance.Recursive.Element",
+    "com.type.model.inheritance.recursive.models.Extension": "Type.Model.Inheritance.Recursive.Extension"
+  }
+}
