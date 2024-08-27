@@ -235,7 +235,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private ValueExpression GetExpression(ParameterProvider parameter)
         {
-            if (parameter.Property is not null && parameter.Property.IsDiscriminator)
+            if (parameter.Property is not null && parameter.Property.IsDiscriminator && _inputModel.DiscriminatorValue != null)
             {
                 var type = parameter.Property.Type;
                 if (IsUnknownDiscriminatorModel)
@@ -260,7 +260,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
                 else
                 {
-                    if (!type.IsFrameworkType && type.IsEnum && _inputModel.DiscriminatorValue != null)
+                    if (!type.IsFrameworkType && type.IsEnum)
                     {
                         var enumMember = type.EnumTypeMembers.FirstOrDefault(e => e.Value.ToString() == _inputModel.DiscriminatorValue) ?? throw new InvalidProgramException($"invalid discriminator value {_inputModel.DiscriminatorValue}");
                         /* {KindType}.{enumMember} */
