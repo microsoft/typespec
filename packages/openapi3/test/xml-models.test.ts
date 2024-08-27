@@ -325,7 +325,6 @@ describe("openapi3: xml models", () => {
         @name("xmlBook")
         model Book {
           @unwrapped
-          @name("ItemsTags")
           tags: tag[]
         }`
       );
@@ -342,9 +341,6 @@ describe("openapi3: xml models", () => {
         properties: {
           tags: {
             type: "array",
-            xml: {
-              name: "ItemsTags",
-            },
             items: {
               $ref: "#/components/schemas/tag",
             },
