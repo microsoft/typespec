@@ -96,7 +96,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 [
                     .. GetCollectionInitialization(signature),
                     MethodBodyStatement.EmptyLine,
-                    Return(New.Instance(typeToInstantiate.Type, [.. GetCtorParams(signature, modelCtor.Signature)]))
+                    Return(New.Instance(typeToInstantiate.Type, [.. GetCtorArgs(signature, modelCtor.Signature)]))
                 ]);
 
                 methods.Add(new MethodProvider(signature, statements, this, docs));
@@ -104,7 +104,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return [.. methods];
         }
 
-        private static IReadOnlyList<ValueExpression> GetCtorParams(
+        private static IReadOnlyList<ValueExpression> GetCtorArgs(
             MethodSignature signature,
             ConstructorSignature modelCtorFullSignature)
         {
