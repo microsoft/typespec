@@ -237,12 +237,43 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             if (parameter.Property is not null && parameter.Property.IsDiscriminator)
             {
-                return IsUnknownDiscriminatorModel ? NullCoalescing(parameter.AsExpression, Literal(_inputModel.DiscriminatorValue)) : Literal(_inputModel.DiscriminatorValue);
+                ValueExpression value;
+                var type = parameter.Property.Type;
+                if (IsUnknownDiscriminatorModel)
+                {
+                    if (!type.IsFrameworkType && type.IsEnum)
+                    {
+                        if (type.IsStruct)
+                        {
+                            value = new TernaryConditionalExpression(parameter.AsExpression.NotEqual(Default), parameter.AsExpression, Literal(_inputModel.DiscriminatorValue));
+                        }
+                        else
+                        {
+                            value = parameter.AsExpression;
+                        }
+                    }
+                    else
+                    {
+                        value = NullCoalescing(parameter.AsExpression, Literal(_inputModel.DiscriminatorValue));
+                    }
+                }
+                else
+                {
+                    if (!type.IsFrameworkType && type.IsEnum && _inputModel.DiscriminatorValue != null)
+                    {
+                        var enumMember = type.EnumTypeMembers.FirstOrDefault(e => e.Value.ToString() == _inputModel.DiscriminatorValue) ?? throw new InvalidProgramException($"invalid discriminator value {_inputModel.DiscriminatorValue}");
+                        value = TypeReferenceExpression.FromType(type).Property(enumMember.Name);
+                    }
+                    else
+                    {
+                        value = Literal(_inputModel.DiscriminatorValue);
+                    }
+                }
+                return value;
             }
 
             return parameter.AsExpression;
         }
-
         private static void AddInitializationParameterForCtor(
             List<ParameterProvider> parameters,
             PropertyProvider property,

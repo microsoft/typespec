@@ -21,6 +21,7 @@ namespace Microsoft.Generator.CSharp.Primitives
         private object? _literal;
         private readonly Type? _underlyingType;
         private IReadOnlyList<CSharpType>? _unionItemTypes;
+        private IReadOnlyList<EnumTypeMember>? _enumMemberTypes;
 
         private bool? _isReadOnlyMemory;
         private bool? _isList;
@@ -146,7 +147,8 @@ namespace Microsoft.Generator.CSharp.Primitives
                   implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) && arguments.All(t => t.IsPublic),
                   implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct),
                   baseType,
-                  implementation.IsEnum? implementation.EnumUnderlyingType.FrameworkType : null)
+                  implementation.IsEnum ? implementation.EnumUnderlyingType.FrameworkType : null,
+                  implementation.IsEnum ? implementation.EnumValues: null)
         {
         }
 
@@ -160,7 +162,8 @@ namespace Microsoft.Generator.CSharp.Primitives
             bool isPublic,
             bool isStruct,
             CSharpType? baseType = null,
-            Type? underlyingEnumType = null)
+            Type? underlyingEnumType = null,
+            IReadOnlyList<EnumTypeMember>? enumValues = null)
         {
             ArgumentNullException.ThrowIfNull(name, nameof(name));
             ArgumentNullException.ThrowIfNull(ns, nameof(ns));
@@ -176,6 +179,7 @@ namespace Microsoft.Generator.CSharp.Primitives
             IsStruct = isStruct;
             BaseType = baseType;
             _underlyingType = underlyingEnumType;
+            _enumMemberTypes = enumValues;
         }
 
         public string Namespace { get; private init; }
@@ -207,6 +211,7 @@ namespace Microsoft.Generator.CSharp.Primitives
         public CSharpType InputType => _inputType ??= GetInputType();
         public CSharpType OutputType => _outputType ??= GetOutputType();
         public IReadOnlyList<CSharpType> UnionItemTypes => _unionItemTypes ?? throw new InvalidOperationException("Not a union type");
+        public IReadOnlyList<EnumTypeMember> EnumTypeMembers => _enumMemberTypes ?? throw new InvalidOperationException("Not an enum type");
 
         private bool TypeIsReadOnlyMemory()
             => IsFrameworkType && _type == typeof(ReadOnlyMemory<>);
