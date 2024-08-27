@@ -1,0 +1,6 @@
+{
+  "output-folder": ".",
+  "namespace": "Type.Property.Optional",
+  "library-name": "Type.Property.Optional",
+  "use-model-reader-writer": true
+}

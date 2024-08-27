@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using _Type.Union;
 using _Type.Union.Models;
-using AutoRest.TestServer.Tests.Infrastructure;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http._Type.Union

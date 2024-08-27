@@ -120,13 +120,13 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public AssignmentExpression Assign(ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(this, value, nullCoalesce);
 
+        public string ToDisplayString() => GetDebuggerDisplay();
+
         private string GetDebuggerDisplay()
         {
             using CodeWriter writer = new CodeWriter();
             Write(writer);
             return writer.ToString(false);
         }
-
-        public string ToDisplayString() => GetDebuggerDisplay();
     }
 }

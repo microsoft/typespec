@@ -6,7 +6,7 @@ title: Handling Errors
 
 ## Introduction
 
-In this section, we'll focus on handling errors in your REST API. We'll define error models and demonstrate how to use union types for different response scenarios.
+In this section, we'll focus on handling errors in your REST API. We'll define error models and demonstrate how to add them as possible responses to your CRUD operations.
 
 ## Why Use Error Models?
 
