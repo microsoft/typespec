@@ -6,8 +6,11 @@ dictionaries:
   - typescript
 words:
   - Adoptium
+  - alzimmer
+  - amqp
   - AQID
   - atrule
+  - atteo
   - autorest
   - azsdk
   - azsdkengsys
@@ -22,6 +25,7 @@ words:
   - cadlplayground
   - clsx
   - cobertura
+  - codehaus
   - codeql
   - Contoso
   - CORGE
@@ -31,15 +35,19 @@ words:
   - dbaeumer
   - Dcodegen
   - debouncer
+  - Declipse
   - Dedupes
   - destructures
   - devdiv
   - Diagnoser
+  - Dlog
   - dogfood
   - Dorg
+  - Dosgi
   - Dskip
   - eastus
   - ecmarkup
+  - EMBEDME
   - esbenp
   - esbuild
   - espt
@@ -47,13 +55,19 @@ words:
   - fluentui
   - genproto
   - globby
+  - graalvm
+  - Gson
+  - imple
   - Infima
   - inlines
   - inmemory
   - instanceid
   - interner
   - intrinsics
+  - itor
+  - Jacoco
   - jdwp
+  - jobject
   - jsyaml
   - keyer
   - lifecyle
@@ -62,7 +76,9 @@ words:
   - LINUXVMIMAGE
   - lzutf
   - MACVMIMAGE
+  - mgmt
   - mocharc
+  - mqtt
   - msbuild
   - MSRC
   - multis
@@ -73,9 +89,11 @@ words:
   - noopener
   - noreferrer
   - nostdlib
+  - noverify
   - npmjs
   - nupkg
   - oapi
+  - ODATA
   - OIDC
   - oneds
   - oneof
@@ -92,6 +110,7 @@ words:
   - protoc
   - psscriptanalyzer
   - pwsh
+  - reactivex
   - recase
   - regen
   - respecify
@@ -99,8 +118,13 @@ words:
   - rushx
   - safeint
   - segmentof
+  - serde
   - sfixed
   - sint
+  - snakeyaml
+  - srnagar
+  - statment
+  - sses
   - ssvs
   - strs
   - syncpack
@@ -120,6 +144,7 @@ words:
   - Uncapitalize
   - uncollapsed
   - undifferentiable
+  - Ungroup
   - uninstantiated
   - unioned
   - unparented
@@ -139,6 +164,7 @@ words:
   - WINDOWSVMIMAGE
   - xiaofei
   - xlarge
+  - xors
   - xplat
 ignorePaths:
   - "**/node_modules/**"

@@ -36,8 +36,6 @@ namespace Microsoft.Generator.CSharp.Providers
             private set => _xmlDocs = value;
         }
 
-        internal virtual Type? SerializeAs => null;
-
         public string? Deprecated
         {
             get => _deprecated;
@@ -127,23 +125,28 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public virtual IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
 
-        protected virtual CSharpType[] GetTypeArguments() => Array.Empty<CSharpType>();
+        private IReadOnlyList<AttributeStatement>? _attributes;
+        public IReadOnlyList<AttributeStatement> Attributes => _attributes ??= BuildAttributes();
 
-        protected virtual PropertyProvider[] BuildProperties() => Array.Empty<PropertyProvider>();
+        protected virtual CSharpType[] GetTypeArguments() => [];
 
-        protected virtual FieldProvider[] BuildFields() => Array.Empty<FieldProvider>();
+        protected virtual PropertyProvider[] BuildProperties() => [];
 
-        protected virtual CSharpType[] BuildImplements() => Array.Empty<CSharpType>();
+        protected virtual FieldProvider[] BuildFields() => [];
 
-        protected virtual MethodProvider[] BuildMethods() => Array.Empty<MethodProvider>();
+        protected virtual CSharpType[] BuildImplements() => [];
 
-        protected virtual ConstructorProvider[] BuildConstructors() => Array.Empty<ConstructorProvider>();
+        protected virtual MethodProvider[] BuildMethods() => [];
 
-        protected virtual TypeProvider[] BuildNestedTypes() => Array.Empty<TypeProvider>();
+        protected virtual ConstructorProvider[] BuildConstructors() => [];
 
-        protected virtual TypeProvider[] BuildSerializationProviders() => Array.Empty<TypeProvider>();
+        protected virtual TypeProvider[] BuildNestedTypes() => [];
+
+        protected virtual TypeProvider[] BuildSerializationProviders() => [];
 
         protected virtual CSharpType BuildEnumUnderlyingType() => throw new InvalidOperationException("Not an EnumProvider type");
+
+        protected virtual IReadOnlyList<AttributeStatement> BuildAttributes() => [];
 
         private CSharpType? _enumUnderlyingType;
 
@@ -200,6 +203,28 @@ namespace Microsoft.Generator.CSharp.Providers
         public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
 
         protected virtual IReadOnlyList<EnumTypeMember> BuildEnumValues() => throw new InvalidOperationException("Not an EnumProvider type");
+
+        internal void EnsureBuilt()
+        {
+            _ = Methods;
+            _ = Constructors;
+            _ = Properties;
+            _ = Fields;
+            _ = Implements;
+            if (IsEnum)
+            {
+                _ = EnumValues;
+                _ = EnumUnderlyingType;
+            }
+            foreach (var type in SerializationProviders)
+            {
+                type.EnsureBuilt();
+            }
+            foreach (var type in NestedTypes)
+            {
+                type.EnsureBuilt();
+            }
+        }
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
     }

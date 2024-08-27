@@ -8,6 +8,7 @@ using System.Linq;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
@@ -26,21 +27,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             if (containsApiVersions)
             {
                 List<string> apiVersions = ["1.0", "2.0"];
-                InputEnumTypeValue[] enumValues = new InputEnumTypeValue[apiVersions.Count];
-                for (var i = 0; i < apiVersions.Count; i++)
-                {
-                    enumValues[i] = new InputEnumTypeValue(apiVersions[i], apiVersions[i], null);
-                }
-                var inputEnum = new InputEnumType(
-                    "ServiceVersion",
-                    string.Empty,
-                    null,
-                    null,
-                    "ServiceVersion description",
-                    InputModelTypeUsage.ApiVersionEnum,
-                    InputPrimitiveType.Int64,
-                    enumValues,
-                    false);
+                var enumValues = apiVersions.Select(a => InputFactory.EnumMember.String(a, a));
+                var inputEnum = InputFactory.Enum("ServiceVersion", InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
 
                 MockHelpers.LoadMockPlugin(
                     apiVersions: () => apiVersions,
@@ -55,7 +43,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [Test]
         public void TestImplements()
         {
-            var client = new InputClient("TestClient", "TestClient description", [], [], null);
+            var client = InputFactory.Client("TestClient");
             var clientProvider = new ClientProvider(client);
             var clientOptionsProvider = new ClientOptionsProvider(client, clientProvider);
 
@@ -71,7 +59,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [TestCase(false)]
         public void TestFields(bool containsApiVersions)
         {
-            var client = new InputClient("TestClient", "TestClient description", [], [], null);
+            var client = InputFactory.Client("TestClient");
             var clientProvider = new ClientProvider(client);
             var clientOptionsProvider = new ClientOptionsProvider(client, clientProvider);
 
@@ -94,7 +82,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [TestCase(false)]
         public void TestNestedTypes(bool containsApiVersions)
         {
-            var client = new InputClient("TestClient", "TestClient description", [], [], null);
+            var client = InputFactory.Client("TestClient");
             var clientProvider = new ClientProvider(client);
             var clientOptionsProvider = new ClientOptionsProvider(client, clientProvider);
 
@@ -122,7 +110,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [TestCase(false)]
         public void TestConstructors(bool containsApiVersions)
         {
-            var client = new InputClient("TestClient", "TestClient description", [], [], null);
+            var client = InputFactory.Client("TestClient");
             var clientProvider = new ClientProvider(client);
             var clientOptionsProvider = new ClientOptionsProvider(client, clientProvider);
 
@@ -151,7 +139,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [TestCase(false)]
         public void TestProperties(bool containsApiVersions)
         {
-            var client = new InputClient("TestClient", "TestClient description", [], [], null);
+            var client = InputFactory.Client("TestClient");
             var clientProvider = new ClientProvider(client);
             var clientOptionsProvider = new ClientOptionsProvider(client, clientProvider);
 

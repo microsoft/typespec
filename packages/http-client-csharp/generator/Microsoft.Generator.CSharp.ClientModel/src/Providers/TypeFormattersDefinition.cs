@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Xml;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
@@ -28,6 +29,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         internal TypeFormattersDefinition()
         {
+            _roundtripZFormatField = new(FieldModifiers.Private | FieldModifiers.Const, typeof(string), "RoundtripZFormat", this, initializationValue: Literal("yyyy-MM-ddTHH:mm:ss.fffffffZ"));
+            _defaultNumberFormatField = new(FieldModifiers.Public | FieldModifiers.Const, typeof(string), "DefaultNumberFormat", this, initializationValue: Literal("G"));
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
@@ -39,8 +42,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildName() => "TypeFormatters";
 
-        private readonly FieldProvider _roundtripZFormatField = new(FieldModifiers.Private | FieldModifiers.Const, typeof(string), "RoundtripZFormat", initializationValue: Literal("yyyy-MM-ddTHH:mm:ss.fffffffZ"));
-        private readonly FieldProvider _defaultNumberFormatField = new(FieldModifiers.Public | FieldModifiers.Const, typeof(string), "DefaultNumberFormat", initializationValue: Literal("G"));
+        private readonly FieldProvider _roundtripZFormatField;
+        private readonly FieldProvider _defaultNumberFormatField;
 
         protected override FieldProvider[] BuildFields()
         {

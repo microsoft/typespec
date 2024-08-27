@@ -56,6 +56,28 @@ namespace Microsoft.Generator.CSharp.Providers
             _isStruct = inputModel.ModelAsStruct;
         }
 
+        public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;
+
+        public string? DiscriminatorValue => _inputModel.DiscriminatorValue;
+
+        private IReadOnlyList<ModelProvider>? _derivedModels;
+        public IReadOnlyList<ModelProvider> DerivedModels => _derivedModels ??= BuildDerivedModels();
+
+        private IReadOnlyList<ModelProvider> BuildDerivedModels()
+        {
+            var derivedModels = new List<ModelProvider>(_inputModel.DiscriminatedSubtypes.Count);
+            foreach (var subtype in _inputModel.DiscriminatedSubtypes)
+            {
+                var model = CodeModelPlugin.Instance.TypeFactory.CreateModel(subtype.Value);
+                if (model != null)
+                {
+                    derivedModels.Add(model);
+                }
+            }
+
+            return derivedModels;
+        }
+
         private ModelProvider? BaseModelProvider
             => _baseModelProvider ??= (_baseTypeProvider?.Value is ModelProvider baseModelProvider ? baseModelProvider : null);
         private FieldProvider? RawDataField => _rawDataField ??= BuildRawDataField();
@@ -92,19 +114,23 @@ namespace Microsoft.Generator.CSharp.Providers
         protected override PropertyProvider[] BuildProperties()
         {
             var propertiesCount = _inputModel.Properties.Count;
-            var propertyDeclarations = new List<PropertyProvider>(propertiesCount);
+            var properties = new List<PropertyProvider>(propertiesCount);
 
             for (int i = 0; i < propertiesCount; i++)
             {
                 var property = _inputModel.Properties[i];
-                var outputProperty = CodeModelPlugin.Instance.TypeFactory.CreatePropertyProvider(property);
+
+                if (property.IsDiscriminator && Type.BaseType is not null)
+                    continue;
+
+                var outputProperty = CodeModelPlugin.Instance.TypeFactory.CreatePropertyProvider(property, this);
                 if (outputProperty != null)
                 {
-                    propertyDeclarations.Add(outputProperty);
+                    properties.Add(outputProperty);
                 }
             }
 
-            return propertyDeclarations.ToArray();
+            return properties.ToArray();
         }
 
         protected override ConstructorProvider[] BuildConstructors()
@@ -189,15 +215,15 @@ namespace Microsoft.Generator.CSharp.Providers
                 AddInitializationParameterForCtor(baseParameters, property, _isStruct, isPrimaryConstructor);
             }
 
-            constructorParameters.AddRange(baseParameters);
-
             // construct the initializer using the parameters from base signature
-            var constructorInitializer = new ConstructorInitializer(true, baseParameters);
+            var constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(GetExpression)]);
 
             foreach (var property in Properties)
             {
                 AddInitializationParameterForCtor(constructorParameters, property, _isStruct, isPrimaryConstructor);
             }
+
+            constructorParameters.AddRange(_inputModel.IsUnknownDiscriminatorModel ? baseParameters : baseParameters.Where(p => p.Property is null || !p.Property.IsDiscriminator));
 
             if (RawDataField != null && !isPrimaryConstructor)
             {
@@ -205,6 +231,16 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             return (constructorParameters, constructorInitializer);
+        }
+
+        private ValueExpression GetExpression(ParameterProvider parameter)
+        {
+            if (parameter.Property is not null && parameter.Property.IsDiscriminator)
+            {
+                return IsUnknownDiscriminatorModel ? NullCoalescing(parameter.AsExpression, Literal(_inputModel.DiscriminatorValue)) : Literal(_inputModel.DiscriminatorValue);
+            }
+
+            return parameter.AsExpression;
         }
 
         private static void AddInitializationParameterForCtor(
@@ -221,7 +257,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             if (isPrimaryConstructor)
             {
-                if (isStruct || (wireInfo.IsRequired && !wireInfo.IsDiscriminator && !property.Type.IsLiteral))
+                if (isStruct || (wireInfo.IsRequired && !property.Type.IsLiteral))
                 {
                     if (!wireInfo.IsReadOnly)
                     {
@@ -315,7 +351,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 modifiers: modifiers,
                 type: _privateAdditionalRawDataPropertyType,
                 description: FormattableStringHelpers.FromString(PrivateAdditionalPropertiesPropertyDescription),
-                name: PrivateAdditionalPropertiesPropertyName);
+                name: PrivateAdditionalPropertiesPropertyName,
+                enclosingType: this);
 
             return rawDataField;
         }

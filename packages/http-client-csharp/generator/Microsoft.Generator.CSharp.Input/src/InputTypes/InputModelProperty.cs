@@ -26,6 +26,7 @@ namespace Microsoft.Generator.CSharp.Input
         public bool IsRequired { get; }
         public bool IsReadOnly { get; }
         public bool IsDiscriminator { get; }
+        public InputModelType? EnclosingType { get; internal set; }
         public IReadOnlyList<string> FlattenedNames { get; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
     }
