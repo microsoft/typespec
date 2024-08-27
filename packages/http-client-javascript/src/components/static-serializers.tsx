@@ -7,13 +7,13 @@ export function RecordSerializer() {
   const convertFnType = `(item: any) => any`;
   return (
     <ts.FunctionDeclaration export name="RecordSerializer" returnType={recordType} refkey={RecordSerializerRefkey}>
-      <ts.FunctionDeclaration.Parameters>item: {recordType}, convertFn: {convertFnType}</ts.FunctionDeclaration.Parameters>
+      <ts.FunctionDeclaration.Parameters>record: {recordType}, convertFn: {convertFnType}</ts.FunctionDeclaration.Parameters>
       {code`
         const output: Record<string, any> = {};
 
-        for (const key in input) {
-          if (Object.prototype.hasOwnProperty.call(input, key)) {
-            const item = input[key];
+        for (const key in record) {
+          if (Object.prototype.hasOwnProperty.call(record, key)) {
+            const item = record[key];
             output[key] = convertFn(item);
           }
         }

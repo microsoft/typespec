@@ -12,7 +12,7 @@ model Widget {
 
 Should generate a model with name `Widget` that contains dictionary properties
 
-```ts models.ts interface Widget
+```ts src/models/models.ts interface Widget
 export interface Widget {
   prop: Record<string, number>;
 }
@@ -32,7 +32,7 @@ model Widget {
 
 Should generate a model with name `Widget` that contains dictionary properties with array
 
-```ts models.ts interface Widget
+```ts src/models/models.ts interface Widget
 export interface Widget {
   prop: Record<string, number[]>;
 }

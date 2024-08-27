@@ -14,7 +14,7 @@ model Widget {
 
 Should generate a model with name `Widget`
 
-```ts models.ts interface Widget
+```ts src/models/models.ts interface Widget
 export interface Widget {
   id: string;
   weight: number;
@@ -36,7 +36,7 @@ namespace Test {
 
 ## TypeScript
 
-```ts models.ts interface TestWidget
+```ts src/models/models.ts interface TestWidget
 export interface TestWidget {
   id: string;
   weight: number;
@@ -60,7 +60,7 @@ namespace Test {
 
 ## TypeScript
 
-```ts models.ts interface TestFooWidget
+```ts src/models/models.ts interface TestFooWidget
 export interface TestFooWidget {
   id: string;
   weight: number;
@@ -92,7 +92,7 @@ namespace Test {
 
 ## TypeScript
 
-```ts models.ts interface Widget
+```ts src/models/models.ts interface Widget
 export interface Widget {
   id: string;
   kind: "1";
@@ -103,7 +103,7 @@ export interface Widget {
 
 The framework utomatically resolves the name conflict.
 
-```ts models.ts interface Widget_2
+```ts src/models/models.ts interface Widget_2
 export interface Widget_2 {
   id: string;
   kind: "2";

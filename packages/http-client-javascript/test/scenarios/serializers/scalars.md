@@ -16,7 +16,7 @@ scalar MyUnixDate extends utcDateTime;
 
 ## TypeScript
 
-```ts models.ts
+```ts src/models/models.ts
 export type MyDate = Date;
 export type MyUtcDate = Date;
 export type MyIsoDate = Date;

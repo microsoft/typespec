@@ -1,22 +1,35 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { EmitContext, getNamespaceFullName, isStdNamespace, Type } from "@typespec/compiler";
+import { EmitContext, getNamespaceFullName, isStdNamespace, Type, listServices } from "@typespec/compiler";
 import { TypeCollector } from "@typespec/emitter-framework";
 import { namespace as HttpNamespace } from "@typespec/http";
 import { ModelsFile } from "./components/models-file.js";
 import { ModelSerializers } from "./components/serializers.js";
+import path from "path";
 
 const RestNamespace = "TypeSpec.Rest";
 
 export async function $onEmit(context: EmitContext) {
   const types = queryTypes(context);
   const tsNamePolicy = ts.createTSNamePolicy();
+  const outputDir = context.emitterOutputDir;
+  const sourcesDir = path.join(outputDir, "src");
+  const modelsDir = path.join(sourcesDir, "models");
+  const apiDir = path.join(sourcesDir, "api");
+  const service = listServices(context.program)[0]!;
 
   return (
     <ay.Output namePolicy={tsNamePolicy}>
-      <ts.PackageDirectory name="test-package" version="1.0.0" path={context.emitterOutputDir}>
-        <ModelsFile types={types.dataTypes} />
-        <ModelSerializers types={types.dataTypes} />
+      <ts.PackageDirectory name="test-package" version="1.0.0" path={outputDir}>
+        <ay.SourceDirectory path={sourcesDir}>
+          <ay.SourceDirectory path={modelsDir}>
+            <ModelsFile types={types.dataTypes} />
+            <ModelSerializers types={types.dataTypes} />
+          </ay.SourceDirectory>
+          <ay.SourceDirectory path={apiDir}>
+            
+          </ay.SourceDirectory>
+        </ay.SourceDirectory>
         <ts.BarrelFile />
       </ts.PackageDirectory>
     </ay.Output>

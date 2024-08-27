@@ -31,7 +31,7 @@ union DaysOfWeekEnum {
 
 Should generate a type for union with name `DaysOfWeekEnum`
 
-```ts models.ts type DaysOfWeekEnum
+```ts src/models/models.ts type DaysOfWeekEnum
 export type DaysOfWeekEnum =
   | "Monday"
   | "Tuesday"
@@ -77,7 +77,7 @@ union DaysOfWeekExtensibleEnum {
 
 Should generate a type for union with name `DaysOfWeekExtensibleEnum`
 
-```ts models.ts type DaysOfWeekExtensibleEnum
+```ts src/models/models.ts type DaysOfWeekExtensibleEnum
 export type DaysOfWeekExtensibleEnum =
   | string
   | "Monday"

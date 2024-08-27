@@ -1,9 +1,11 @@
-import { Diagnostic, resolvePath } from "@typespec/compiler";
+import { Diagnostic } from "@typespec/compiler";
 import {
+  BasicTestRunner,
   createTestHost,
   createTestWrapper,
   expectDiagnosticEmpty,
 } from "@typespec/compiler/testing";
+import { join, relative } from "path";
 import { HttpClientJavascriptEmitterTestLibrary } from "../src/testing/index.js";
 
 export async function createSampleEmitterTestHost() {
@@ -23,6 +25,8 @@ export async function createHttpClientJavascriptEmitterTestRunner() {
   });
 }
 
+const emitterOutputDir = join("tsp-output", "http-client-javascript");
+
 export async function emitWithDiagnostics(
   code: string
 ): Promise<[Record<string, string>, readonly Diagnostic[]]> {
@@ -30,14 +34,35 @@ export async function emitWithDiagnostics(
   await runner.compileAndDiagnose(code, {
     outputDir: "tsp-output",
   });
-  const emitterOutputDir = "./tsp-output/http-client-javascript";
-  const files = await runner.program.host.readDir(emitterOutputDir);
-
-  const result: Record<string, string> = {};
-  for (const file of files) {
-    result[file] = (await runner.program.host.readFile(resolvePath(emitterOutputDir, file))).text;
-  }
+  const result = await readFilesRecursively(emitterOutputDir, runner);
   return [result, runner.program.diagnostics];
+}
+
+async function readFilesRecursively(
+  dir: string,
+  runner: BasicTestRunner
+): Promise<Record<string, string>> {
+  const entries = await runner.program.host.readDir(dir);
+  const result: Record<string, string> = {};
+
+  for (const entry of entries) {
+    const fullPath = join(dir, entry);
+    const stat = await runner.program.host.stat(fullPath);
+
+    if (stat.isDirectory()) {
+      // Recursively read files in the directory
+      const nestedFiles = await readFilesRecursively(fullPath, runner);
+      Object.assign(result, nestedFiles);
+    } else if (stat.isFile()) {
+      // Read the file
+      // Read the file and store it with a relative path
+      const relativePath = relative(emitterOutputDir, fullPath);
+      const fileContent = await runner.program.host.readFile(fullPath);
+      result[relativePath] = fileContent.text;
+    }
+  }
+
+  return result;
 }
 
 export async function emit(code: string): Promise<Record<string, string>> {

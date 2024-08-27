@@ -16,7 +16,7 @@ model Widget {
 
 ## Typescript
 
-```ts models.ts interface Widget
+```ts src/models/models.ts interface Widget
 export interface Widget {
   name: string;
   subWidget: {

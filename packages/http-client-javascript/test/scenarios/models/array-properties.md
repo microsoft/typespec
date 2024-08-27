@@ -14,7 +14,7 @@ model Widget {
 
 Should generate a model with name `Widget` that contains array properties
 
-```ts models.ts interface Widget
+```ts src/models/models.ts interface Widget
 export interface Widget {
   id: string[];
   weight: number[];
@@ -36,7 +36,7 @@ model Widget {
 
 Should generate a model with name `Widget` that contains array properties of record type
 
-```ts models.ts interface Widget
+```ts src/models/models.ts interface Widget
 export interface Widget {
   id: Record<string, number>[];
 }

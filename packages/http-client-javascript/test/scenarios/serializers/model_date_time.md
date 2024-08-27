@@ -12,16 +12,16 @@ model Foo {
 
 ## TypeScript
 
-Should generate a type for type with name `Foo` in the `models.ts` file along with a serializer named `fooSerializer` and a deserializer named `fooDeserializer` in `serializers.ts`.
+Should generate a type for type with name `Foo` in the `src/models/models.ts` file along with a serializer named `fooSerializer` and a deserializer named `fooDeserializer` in `src/models/serializers.ts`.
 The generated model should have a property `createdOn` of type `Date`, the generated serializer `fooSerializer` should convert a Date into a string.
 
-```ts models.ts interface Foo
+```ts src/models/models.ts interface Foo
 export interface Foo {
   createdOn: Date;
 }
 ```
 
-```ts serializers.ts function fooSerializer
+```ts src/models/serializers.ts function fooSerializer
 export function fooSerializer(item: Foo) {
   return {
     created_on: item.createdOn.toISOString(),
@@ -29,7 +29,7 @@ export function fooSerializer(item: Foo) {
 }
 ```
 
-```ts serializers.ts function fooDeserializer
+```ts src/models/serializers.ts function fooDeserializer
 export function fooDeserializer(item: any) {
   return {
     createdOn: new Date(item.created_on),
@@ -50,10 +50,10 @@ model Foo {
 
 ## TypeScript
 
-Should generate a type for type with name `Foo` in the `models.ts` file along with a serializer named `fooSerializer` and a deserializer named `fooDeserializer` in `serializers.ts`.
+Should generate a type for type with name `Foo` in the `src/models/models.ts` file along with a serializer named `fooSerializer` and a deserializer named `fooDeserializer` in `src/models/serializers.ts`.
 The generated model should have a property `createdOn` of type `Date`, the generated serializer `fooSerializer` should convert a Date into a string using `toUTCString()`
 
-```ts serializers.ts function fooSerializer
+```ts src/models/serializers.ts function fooSerializer
 export function fooSerializer(item: Foo) {
   return {
     created_on: item.createdOn.toUTCString(),

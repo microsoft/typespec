@@ -12,13 +12,13 @@ model Foo {
 
 Should generate a model `Foo` and also a `fooSerializer` and `fooDeserializer` functions that call the `arraySerializer` internally.
 
-```ts models.ts interface Foo
+```ts src/models/models.ts interface Foo
 export interface Foo {
   myValues: number[];
 }
 ```
 
-```ts serializers.ts function fooSerializer
+```ts src/models/serializers.ts function fooSerializer
 export function fooSerializer(item: Foo) {
   return {
     my_values: arraySerializer(item.myValues),
@@ -26,7 +26,7 @@ export function fooSerializer(item: Foo) {
 }
 ```
 
-```ts serializers.ts function fooDeserializer
+```ts src/models/serializers.ts function fooDeserializer
 export function fooDeserializer(item: any) {
   return {
     myValues: arraySerializer(item.my_values),
@@ -52,19 +52,19 @@ model Foo {
 
 Should generate models `Foo` and `Bar` and also a `fooSerializer`, `fooDeserializer`, `barSerializer` and `barDeserializer` functions that call the `arraySerializer` passing `barSerializer` or `barDeserialize` as the serialization callback.
 
-```ts models.ts interface Foo
+```ts src/models/models.ts interface Foo
 export interface Foo {
   myValues: Bar[];
 }
 ```
 
-```ts models.ts interface Bar
+```ts src/models/models.ts interface Bar
 export interface Bar {
   barValue: string;
 }
 ```
 
-```ts serializers.ts function fooSerializer
+```ts src/models/serializers.ts function fooSerializer
 export function fooSerializer(item: Foo) {
   return {
     my_values: arraySerializer(item.myValues, barSerializer),
@@ -72,7 +72,7 @@ export function fooSerializer(item: Foo) {
 }
 ```
 
-```ts serializers.ts function fooDeserializer
+```ts src/models/serializers.ts function fooDeserializer
 export function fooDeserializer(item: any) {
   return {
     myValues: arraySerializer(item.my_values, barDeserializer),
