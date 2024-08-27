@@ -1,0 +1,15 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.cadl.literalservice.LiteralServiceAsyncClient": "null",
+    "com.cadl.literalservice.LiteralServiceAsyncClient.put": "Cadl.LiteralService.LiteralOp.put",
+    "com.cadl.literalservice.LiteralServiceAsyncClient.putWithResponse": "Cadl.LiteralService.LiteralOp.put",
+    "com.cadl.literalservice.LiteralServiceClient": "null",
+    "com.cadl.literalservice.LiteralServiceClient.put": "Cadl.LiteralService.LiteralOp.put",
+    "com.cadl.literalservice.LiteralServiceClient.putWithResponse": "Cadl.LiteralService.LiteralOp.put",
+    "com.cadl.literalservice.LiteralServiceClientBuilder": "Cadl.LiteralService",
+    "com.cadl.literalservice.models.Model": "Cadl.LiteralService.Model",
+    "com.cadl.literalservice.models.ModelOptionalLiteral": "null",
+    "com.cadl.literalservice.models.PutRequestOptionalLiteralParam": "null"
+  }
+}

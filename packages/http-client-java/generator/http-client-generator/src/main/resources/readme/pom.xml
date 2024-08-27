@@ -16,9 +16,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.azure.tools</groupId>
-      <artifactId>azure-autorest-customization</artifactId>
-      <version>1.0.0-beta.8</version>
+      <groupId>com.microsoft.typespec</groupId>
+      <artifactId>http-client-generator-core</artifactId>
+      <version>1.0.0-beta.1</version>
     </dependency>
   </dependencies>
 
