@@ -114,6 +114,9 @@ export class TypeCollector {
     for (const scalar of type.scalars.values()) {
       this.#collectFromType(scalar);
     }
+    for (const iface of type.interfaces.values()) {
+      this.#collectFromType(iface);
+    }
   }
 
   #collectFromModel(type: Model): void {
