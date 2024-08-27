@@ -12,8 +12,10 @@ export function ClientContext(props: ClientContextProps): Children {
   if (!props.service) {
     return null;
   }
+
   const namePolicy = ts.useTSNamePolicy();
   const serviceName = namePolicy.getName(props.service.type.name, "interface");
+  const contextInterface = ts.useTSNamePolicy().getName( `${serviceName}Context`, "interface");
   const factoryFunctionName = namePolicy.getName(`create${serviceName}Context`, "function");
   const clientOptionsName = namePolicy.getName(`${serviceName}Options`, "interface");
 
@@ -36,9 +38,12 @@ export function ClientContext(props: ClientContextProps): Children {
   }
 
   clientParameters["options"] = { type: clientOptionsName, refkey: getClientOptionsRefkey(props.service) };
-
+  const clientContextInterfaceRefkey = getClientContextRefkey(props.service)
   return (
     <ts.SourceFile path="clientContext.ts">
+      <ts.InterfaceDeclaration name={contextInterface} refkey={clientContextInterfaceRefkey}>
+        <ts.InterfaceMember name="endpoint" type="string" />
+      </ts.InterfaceDeclaration>
       <ts.InterfaceDeclaration name={clientOptionsName} refkey={getClientOptionsRefkey(props.service)}>
         {mapJoin(clientOptions, (key, value) => (
           <ts.InterfaceMember name={key} type={value} />
@@ -50,7 +55,8 @@ export function ClientContext(props: ClientContextProps): Children {
         export
         name={factoryFunctionName}
         parameters={clientParameters}
-        refkey={getClientContextRefkey(props.service)}
+        returnType={<ts.Reference refkey={clientContextInterfaceRefkey} />}
+        refkey={getClientContextFactoryRefkey(props.service)}
       >
         {mapJoin(bodyVars, (key, value) => {
           return <ts.VarDeclaration name={key} value={value} />;
@@ -67,6 +73,10 @@ function getClientOptionsRefkey(service: Service) {
   return refkey(service.type, "clientOptions");
 }
 
-function getClientContextRefkey(service: Service) {
+export function getClientContextFactoryRefkey(service: Service) {
+  return refkey(service.type, "clientContextFactory");
+}
+
+export function getClientContextRefkey(service: Service) {
   return refkey(service.type, "clientContext");
 }

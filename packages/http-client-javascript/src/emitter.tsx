@@ -1,12 +1,13 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { EmitContext, getNamespaceFullName, isStdNamespace, Type, listServices } from "@typespec/compiler";
+import { EmitContext, getNamespaceFullName, isStdNamespace, Type, listServices, Operation } from "@typespec/compiler";
 import { TypeCollector } from "@typespec/emitter-framework";
 import { namespace as HttpNamespace } from "@typespec/http";
 import { ModelsFile } from "./components/models-file.js";
 import { ModelSerializers } from "./components/serializers.js";
 import path from "path";
-import { ClientContext } from "./components/client-context.jsx";
+import { ClientContext } from "./components/client-context.js";
+import { OperationsFile } from "./components/operations-file.js";
 
 const RestNamespace = "TypeSpec.Rest";
 
@@ -30,6 +31,7 @@ export async function $onEmit(context: EmitContext) {
           </ay.SourceDirectory>
           <ay.SourceDirectory path={apiDir}>
             <ClientContext service={service} />
+            <OperationsFile operations={types.operations} service={service} />
             <ts.BarrelFile />
           </ay.SourceDirectory>
         </ay.SourceDirectory>
@@ -40,17 +42,22 @@ export async function $onEmit(context: EmitContext) {
 
 function queryTypes(context: EmitContext) {
   const types = new Set<Type>();
+  const operations = new Set<Operation>();
   const globalns = context.program.getGlobalNamespaceType();
   const allTypes = new TypeCollector(globalns).flat();
-  for (const dataType of [...allTypes.models, ...allTypes.unions, ...allTypes.enums, ...allTypes.scalars]) {
+  for (const dataType of [...allTypes.models, ...allTypes.unions, ...allTypes.enums, ...allTypes.scalars, ...allTypes.operations]) {
     if (isNoEmit(dataType)) {
       continue;
     }
 
-    types.add(dataType);
+    if(dataType.kind === "Operation") {
+      operations.add(dataType);
+    } else {
+      types.add(dataType);
+    }
   }
 
-  return { dataTypes: [...types] };
+  return { dataTypes: [...types], operations: [...operations] };
 }
 
 function isNoEmit(type: Type): boolean {

@@ -1,7 +1,7 @@
+import { Children, refkey as getRefkey, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Model, Operation } from "@typespec/compiler";
 import { TypeExpression } from "./type-expression.js";
-import {refkey as getRefkey} from "@alloy-js/core"
 
 export interface FunctionDeclarationPropsWithType
   extends Omit<ts.FunctionDeclarationProps, "name"> {
@@ -27,22 +27,22 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
     ? props.name
     : ts.useTSNamePolicy().getName(type.name, "function");
 
-  const returnType = props.returnType ? (
-    props.returnType
-  ) : (
-    <TypeExpression type={type.returnType} />
-  );
+  const returnType = props.returnType ?? <TypeExpression type={type.returnType} />;
 
   coreProps.refkey ??= getRefkey(type);
-  
+
   const _props: ts.FunctionDeclarationProps = {
     ...coreProps,
     name: functionName,
-    parameters: props.parameters ?? getParameters(type.parameters),
     returnType,
   };
 
-  return <ts.FunctionDeclaration {..._props} refkey={refkey} />;
+  return (
+    <ts.FunctionDeclaration {..._props} refkey={refkey}>
+      {getParameters(type.parameters, { params: props.parameters })}
+      {props.children}
+    </ts.FunctionDeclaration>
+  );
 }
 
 export interface TypedFunctionParametersProps extends Omit<ts.FunctionDeclarationProps, "name"> {
@@ -63,21 +63,53 @@ FunctionDeclaration.Parameters = function Parameters(props: FunctionParametersPr
   return <ts.FunctionDeclaration.Parameters {...coreProps} parameters={parameters} />;
 };
 
-function getParameters(type: Model): Record<string, string> {
+function getParameters(
+  type: Model,
+  { params = {}, location = "start" }: { params?: Record<string, Children | ts.ParameterDescriptor>; location?: "start" | "end" } = {}
+) {
   const namePolicy = ts.useTSNamePolicy();
 
-  const params: Record<string, string> = {};
+  // Utility function to create parameter name
+  const createParameterName = (key: string, isOptional: boolean) => {
+    let name = namePolicy.getName(key, "parameter");
+    return isOptional ? `${name}?` : name;
+  };
 
-  for (const [key, prop] of type.properties) {
-    let propertyName = namePolicy.getName(key, "parameter");
-    if (prop.optional) {
-      propertyName += "?";
-    }
-    params[propertyName] = <TypeExpression type={prop.type} />;
-  }
+  // Utility function to convert type properties to parameters
+  const getOperationParams = (type: Model): Map<string, Children | ts.ParameterDescriptor> => {
+    const params = new Map<string, Children | ts.ParameterDescriptor>();
 
-  return params;
+    type.properties.forEach((prop, key) => {
+      const paramName = createParameterName(key, prop.optional);
+      params.set(paramName, <TypeExpression type={prop.type} />);
+    });
+
+    return params;
+  };
+
+  const operationParams = getOperationParams(type);
+  const extraParamsMap = new Map(Object.entries(params));
+
+  // Merge parameters based on location
+  const allParams = location === "end"
+    ? new Map([...operationParams, ...extraParamsMap])
+    : new Map([...extraParamsMap, ...operationParams]);
+
+  return (
+    <ts.FunctionDeclaration.Parameters>
+      {mapJoin(
+        allParams,
+        (key, value) => (
+          <>
+            {key}: {value}
+          </>
+        ),
+        { joiner: ", " }
+      )}
+    </ts.FunctionDeclaration.Parameters>
+  );
 }
+
 
 function isTypedFunctionDeclarationProps(
   props: FunctionDeclarationProps

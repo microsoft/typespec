@@ -28,6 +28,6 @@ interface Widgets {
   @get read(@path id: string): Widget | Error;
   @post create(...Widget): Widget | Error;
   @patch update(...Widget): Widget | Error;
-  @delete delete(@path id: string): void | Error;
+  @delete deleteWidget(@path id: string): void | Error;
   @route("{id}/analyze") @post analyze(@path id: string): string | Error;
 }
