@@ -5,7 +5,6 @@ using System;
 using System.ClientModel;
 using System.IO;
 using System.Threading.Tasks;
-using AutoRest.TestServer.Tests.Infrastructure;
 using Encode.Bytes;
 using Encode.Bytes.Models;
 using NUnit.Framework;

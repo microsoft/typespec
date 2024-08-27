@@ -166,6 +166,7 @@ model RoundTripModel {
   requiredString: string;
 
   @doc("Required int, illustrating a value type property.")
+  @encode(string)
   requiredInt: int32;
 
   @doc("Required collection of enums")
