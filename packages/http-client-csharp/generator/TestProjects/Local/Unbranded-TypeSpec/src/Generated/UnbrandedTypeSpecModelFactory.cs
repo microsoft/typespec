@@ -29,8 +29,8 @@ namespace UnbrandedTypeSpec.Models
         /// <returns> A new <see cref="Models.Thing"/> instance for mocking. </returns>
         public static Thing Thing(string name = default, BinaryData requiredUnion = default, ThingRequiredLiteralString requiredLiteralString = default, ThingRequiredLiteralInt requiredLiteralInt = default, ThingRequiredLiteralFloat requiredLiteralFloat = default, bool requiredLiteralBool = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default)
         {
-            optionalNullableList ??= new ChangeTrackingList<int>();
-            requiredNullableList ??= new ChangeTrackingList<int>();
+            optionalNullableList = new ChangeTrackingList<int>();
+            requiredNullableList = new ChangeTrackingList<int>();
 
             return new Thing(
                 name,
@@ -77,16 +77,16 @@ namespace UnbrandedTypeSpec.Models
         /// <returns> A new <see cref="Models.RoundTripModel"/> instance for mocking. </returns>
         public static RoundTripModel RoundTripModel(string requiredString = default, int requiredInt = default, IEnumerable<StringFixedEnum> requiredCollection = default, IDictionary<string, StringExtensibleEnum> requiredDictionary = default, Thing requiredModel = default, IntExtensibleEnum? intExtensibleEnum = default, IEnumerable<IntExtensibleEnum> intExtensibleEnumCollection = default, FloatExtensibleEnum? floatExtensibleEnum = default, FloatExtensibleEnumWithIntValue? floatExtensibleEnumWithIntValue = default, IEnumerable<FloatExtensibleEnum> floatExtensibleEnumCollection = default, FloatFixedEnum? floatFixedEnum = default, FloatFixedEnumWithIntValue? floatFixedEnumWithIntValue = default, IEnumerable<FloatFixedEnum> floatFixedEnumCollection = default, IntFixedEnum? intFixedEnum = default, IEnumerable<IntFixedEnum> intFixedEnumCollection = default, StringFixedEnum? stringFixedEnum = default, BinaryData requiredUnknown = default, BinaryData optionalUnknown = default, IDictionary<string, BinaryData> requiredRecordUnknown = default, IDictionary<string, BinaryData> optionalRecordUnknown = default, IReadOnlyDictionary<string, BinaryData> readOnlyRequiredRecordUnknown = default, IReadOnlyDictionary<string, BinaryData> readOnlyOptionalRecordUnknown = default, ModelWithRequiredNullableProperties modelWithRequiredNullable = default, BinaryData requiredBytes = default)
         {
-            requiredCollection ??= new ChangeTrackingList<StringFixedEnum>();
-            requiredDictionary ??= new ChangeTrackingDictionary<string, StringExtensibleEnum>();
-            intExtensibleEnumCollection ??= new ChangeTrackingList<IntExtensibleEnum>();
-            floatExtensibleEnumCollection ??= new ChangeTrackingList<FloatExtensibleEnum>();
-            floatFixedEnumCollection ??= new ChangeTrackingList<FloatFixedEnum>();
-            intFixedEnumCollection ??= new ChangeTrackingList<IntFixedEnum>();
-            requiredRecordUnknown ??= new ChangeTrackingDictionary<string, BinaryData>();
-            optionalRecordUnknown ??= new ChangeTrackingDictionary<string, BinaryData>();
-            readOnlyRequiredRecordUnknown ??= new ChangeTrackingDictionary<string, BinaryData>();
-            readOnlyOptionalRecordUnknown ??= new ChangeTrackingDictionary<string, BinaryData>();
+            requiredCollection = new ChangeTrackingList<StringFixedEnum>();
+            requiredDictionary = new ChangeTrackingDictionary<string, StringExtensibleEnum>();
+            intExtensibleEnumCollection = new ChangeTrackingList<IntExtensibleEnum>();
+            floatExtensibleEnumCollection = new ChangeTrackingList<FloatExtensibleEnum>();
+            floatFixedEnumCollection = new ChangeTrackingList<FloatFixedEnum>();
+            intFixedEnumCollection = new ChangeTrackingList<IntFixedEnum>();
+            requiredRecordUnknown = new ChangeTrackingDictionary<string, BinaryData>();
+            optionalRecordUnknown = new ChangeTrackingDictionary<string, BinaryData>();
+            readOnlyRequiredRecordUnknown = new ChangeTrackingDictionary<string, BinaryData>();
+            readOnlyOptionalRecordUnknown = new ChangeTrackingDictionary<string, BinaryData>();
 
             return new RoundTripModel(
                 requiredString,
@@ -144,8 +144,8 @@ namespace UnbrandedTypeSpec.Models
         /// <returns> A new <see cref="Models.AnonymousBodyRequest"/> instance for mocking. </returns>
         public static AnonymousBodyRequest AnonymousBodyRequest(string name = default, BinaryData requiredUnion = default, AnonymousBodyRequestRequiredLiteralString requiredLiteralString = default, AnonymousBodyRequestRequiredLiteralInt requiredLiteralInt = default, AnonymousBodyRequestRequiredLiteralFloat requiredLiteralFloat = default, bool requiredLiteralBool = default, AnonymousBodyRequestOptionalLiteralString? optionalLiteralString = default, AnonymousBodyRequestOptionalLiteralInt? optionalLiteralInt = default, AnonymousBodyRequestOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default)
         {
-            optionalNullableList ??= new ChangeTrackingList<int>();
-            requiredNullableList ??= new ChangeTrackingList<int>();
+            optionalNullableList = new ChangeTrackingList<int>();
+            requiredNullableList = new ChangeTrackingList<int>();
 
             return new AnonymousBodyRequest(
                 name,
