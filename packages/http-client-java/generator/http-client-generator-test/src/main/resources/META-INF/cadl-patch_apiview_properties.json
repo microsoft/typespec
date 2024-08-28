@@ -1,0 +1,27 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.cadl.patch.PatchAsyncClient": "null",
+    "com.cadl.patch.PatchAsyncClient.createOrUpdateFish": "Cadl.Patch.Patch.createOrUpdateFish",
+    "com.cadl.patch.PatchAsyncClient.createOrUpdateFishWithResponse": "Cadl.Patch.Patch.createOrUpdateFish",
+    "com.cadl.patch.PatchAsyncClient.createOrUpdateOptionalResource": "Cadl.Patch.Patch.createOrUpdateOptionalResource",
+    "com.cadl.patch.PatchAsyncClient.createOrUpdateOptionalResourceWithResponse": "Cadl.Patch.Patch.createOrUpdateOptionalResource",
+    "com.cadl.patch.PatchAsyncClient.createOrUpdateResource": "Cadl.Patch.Patch.createOrUpdateResource",
+    "com.cadl.patch.PatchAsyncClient.createOrUpdateResourceWithResponse": "Cadl.Patch.Patch.createOrUpdateResource",
+    "com.cadl.patch.PatchClient": "null",
+    "com.cadl.patch.PatchClient.createOrUpdateFish": "Cadl.Patch.Patch.createOrUpdateFish",
+    "com.cadl.patch.PatchClient.createOrUpdateFishWithResponse": "Cadl.Patch.Patch.createOrUpdateFish",
+    "com.cadl.patch.PatchClient.createOrUpdateOptionalResource": "Cadl.Patch.Patch.createOrUpdateOptionalResource",
+    "com.cadl.patch.PatchClient.createOrUpdateOptionalResourceWithResponse": "Cadl.Patch.Patch.createOrUpdateOptionalResource",
+    "com.cadl.patch.PatchClient.createOrUpdateResource": "Cadl.Patch.Patch.createOrUpdateResource",
+    "com.cadl.patch.PatchClient.createOrUpdateResourceWithResponse": "Cadl.Patch.Patch.createOrUpdateResource",
+    "com.cadl.patch.PatchClientBuilder": "Cadl.Patch",
+    "com.cadl.patch.models.Fish": "Cadl.Patch.Fish",
+    "com.cadl.patch.models.InnerModel": "Cadl.Patch.InnerModel",
+    "com.cadl.patch.models.Resource": "Cadl.Patch.Resource",
+    "com.cadl.patch.models.ResourceEnumValue": "Resource.enumValue.anonymous",
+    "com.cadl.patch.models.Salmon": "Cadl.Patch.Salmon",
+    "com.cadl.patch.models.SawShark": "Cadl.Patch.SawShark",
+    "com.cadl.patch.models.Shark": "Cadl.Patch.Shark"
+  }
+}

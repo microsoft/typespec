@@ -1,0 +1,16 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.authentication.oauth2.OAuth2AsyncClient": "Authentication.OAuth2",
+    "com.authentication.oauth2.OAuth2AsyncClient.invalid": "Authentication.OAuth2.invalid",
+    "com.authentication.oauth2.OAuth2AsyncClient.invalidWithResponse": "Authentication.OAuth2.invalid",
+    "com.authentication.oauth2.OAuth2AsyncClient.valid": "Authentication.OAuth2.valid",
+    "com.authentication.oauth2.OAuth2AsyncClient.validWithResponse": "Authentication.OAuth2.valid",
+    "com.authentication.oauth2.OAuth2Client": "Authentication.OAuth2",
+    "com.authentication.oauth2.OAuth2Client.invalid": "Authentication.OAuth2.invalid",
+    "com.authentication.oauth2.OAuth2Client.invalidWithResponse": "Authentication.OAuth2.invalid",
+    "com.authentication.oauth2.OAuth2Client.valid": "Authentication.OAuth2.valid",
+    "com.authentication.oauth2.OAuth2Client.validWithResponse": "Authentication.OAuth2.valid",
+    "com.authentication.oauth2.OAuth2ClientBuilder": "Authentication.OAuth2"
+  }
+}

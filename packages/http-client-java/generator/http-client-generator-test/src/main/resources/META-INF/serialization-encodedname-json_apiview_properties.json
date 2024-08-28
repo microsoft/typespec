@@ -1,0 +1,17 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.serialization.encodedname.json.JsonAsyncClient": "null",
+    "com.serialization.encodedname.json.JsonAsyncClient.get": "Serialization.EncodedName.Json.Property.get",
+    "com.serialization.encodedname.json.JsonAsyncClient.getWithResponse": "Serialization.EncodedName.Json.Property.get",
+    "com.serialization.encodedname.json.JsonAsyncClient.send": "Serialization.EncodedName.Json.Property.send",
+    "com.serialization.encodedname.json.JsonAsyncClient.sendWithResponse": "Serialization.EncodedName.Json.Property.send",
+    "com.serialization.encodedname.json.JsonClient": "null",
+    "com.serialization.encodedname.json.JsonClient.get": "Serialization.EncodedName.Json.Property.get",
+    "com.serialization.encodedname.json.JsonClient.getWithResponse": "Serialization.EncodedName.Json.Property.get",
+    "com.serialization.encodedname.json.JsonClient.send": "Serialization.EncodedName.Json.Property.send",
+    "com.serialization.encodedname.json.JsonClient.sendWithResponse": "Serialization.EncodedName.Json.Property.send",
+    "com.serialization.encodedname.json.JsonClientBuilder": "Serialization.EncodedName.Json",
+    "com.serialization.encodedname.json.models.JsonEncodedNameModel": "Serialization.EncodedName.Json.Property.JsonEncodedNameModel"
+  }
+}

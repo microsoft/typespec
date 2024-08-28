@@ -1,0 +1,12 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.server.endpoint.notdefined.NotDefinedAsyncClient": "Server.Endpoint.NotDefined",
+    "com.server.endpoint.notdefined.NotDefinedAsyncClient.valid": "Server.Endpoint.NotDefined.valid",
+    "com.server.endpoint.notdefined.NotDefinedAsyncClient.validWithResponse": "Server.Endpoint.NotDefined.valid",
+    "com.server.endpoint.notdefined.NotDefinedClient": "Server.Endpoint.NotDefined",
+    "com.server.endpoint.notdefined.NotDefinedClient.valid": "Server.Endpoint.NotDefined.valid",
+    "com.server.endpoint.notdefined.NotDefinedClient.validWithResponse": "Server.Endpoint.NotDefined.valid",
+    "com.server.endpoint.notdefined.NotDefinedClientBuilder": "Server.Endpoint.NotDefined"
+  }
+}

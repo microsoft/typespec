@@ -1,0 +1,16 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.server.path.multiple.MultipleAsyncClient": "Server.Path.Multiple",
+    "com.server.path.multiple.MultipleAsyncClient.noOperationParams": "Server.Path.Multiple.noOperationParams",
+    "com.server.path.multiple.MultipleAsyncClient.noOperationParamsWithResponse": "Server.Path.Multiple.noOperationParams",
+    "com.server.path.multiple.MultipleAsyncClient.withOperationPathParam": "Server.Path.Multiple.withOperationPathParam",
+    "com.server.path.multiple.MultipleAsyncClient.withOperationPathParamWithResponse": "Server.Path.Multiple.withOperationPathParam",
+    "com.server.path.multiple.MultipleClient": "Server.Path.Multiple",
+    "com.server.path.multiple.MultipleClient.noOperationParams": "Server.Path.Multiple.noOperationParams",
+    "com.server.path.multiple.MultipleClient.noOperationParamsWithResponse": "Server.Path.Multiple.noOperationParams",
+    "com.server.path.multiple.MultipleClient.withOperationPathParam": "Server.Path.Multiple.withOperationPathParam",
+    "com.server.path.multiple.MultipleClient.withOperationPathParamWithResponse": "Server.Path.Multiple.withOperationPathParam",
+    "com.server.path.multiple.MultipleClientBuilder": "Server.Path.Multiple"
+  }
+}

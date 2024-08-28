@@ -1,0 +1,14 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.versioning.removed.RemovedAsyncClient": "Versioning.Removed",
+    "com.versioning.removed.RemovedAsyncClient.v2": "Versioning.Removed.v2",
+    "com.versioning.removed.RemovedAsyncClient.v2WithResponse": "Versioning.Removed.v2",
+    "com.versioning.removed.RemovedClient": "Versioning.Removed",
+    "com.versioning.removed.RemovedClient.v2": "Versioning.Removed.v2",
+    "com.versioning.removed.RemovedClient.v2WithResponse": "Versioning.Removed.v2",
+    "com.versioning.removed.RemovedClientBuilder": "Versioning.Removed",
+    "com.versioning.removed.models.EnumV2": "Versioning.Removed.EnumV2",
+    "com.versioning.removed.models.ModelV2": "Versioning.Removed.ModelV2"
+  }
+}

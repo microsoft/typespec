@@ -1,0 +1,29 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com._specs_.azure.core.scalar.ScalarAsyncClient": "null",
+    "com._specs_.azure.core.scalar.ScalarAsyncClient.get": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.get",
+    "com._specs_.azure.core.scalar.ScalarAsyncClient.getWithResponse": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.get",
+    "com._specs_.azure.core.scalar.ScalarAsyncClient.headerMethod": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.header",
+    "com._specs_.azure.core.scalar.ScalarAsyncClient.headerMethodWithResponse": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.header",
+    "com._specs_.azure.core.scalar.ScalarAsyncClient.post": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.post",
+    "com._specs_.azure.core.scalar.ScalarAsyncClient.postWithResponse": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.post",
+    "com._specs_.azure.core.scalar.ScalarAsyncClient.put": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.put",
+    "com._specs_.azure.core.scalar.ScalarAsyncClient.putWithResponse": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.put",
+    "com._specs_.azure.core.scalar.ScalarAsyncClient.query": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.query",
+    "com._specs_.azure.core.scalar.ScalarAsyncClient.queryWithResponse": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.query",
+    "com._specs_.azure.core.scalar.ScalarClient": "null",
+    "com._specs_.azure.core.scalar.ScalarClient.get": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.get",
+    "com._specs_.azure.core.scalar.ScalarClient.getWithResponse": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.get",
+    "com._specs_.azure.core.scalar.ScalarClient.headerMethod": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.header",
+    "com._specs_.azure.core.scalar.ScalarClient.headerMethodWithResponse": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.header",
+    "com._specs_.azure.core.scalar.ScalarClient.post": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.post",
+    "com._specs_.azure.core.scalar.ScalarClient.postWithResponse": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.post",
+    "com._specs_.azure.core.scalar.ScalarClient.put": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.put",
+    "com._specs_.azure.core.scalar.ScalarClient.putWithResponse": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.put",
+    "com._specs_.azure.core.scalar.ScalarClient.query": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.query",
+    "com._specs_.azure.core.scalar.ScalarClient.queryWithResponse": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.query",
+    "com._specs_.azure.core.scalar.ScalarClientBuilder": "_Specs_.Azure.Core.Scalar",
+    "com._specs_.azure.core.scalar.models.AzureLocationModel": "_Specs_.Azure.Core.Scalar.AzureLocationModel"
+  }
+}
