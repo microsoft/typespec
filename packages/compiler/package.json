@@ -40,6 +40,10 @@
     "./emitter-framework": {
       "types": "./dist/src/emitter-framework/index.d.ts",
       "default": "./dist/src/emitter-framework/index.js"
+    },
+    "./experimental": {
+      "types": "./dist/src/experimental/index.d.ts",
+      "default": "./dist/src/experimental/index.js"
     }
   },
   "browser": {
