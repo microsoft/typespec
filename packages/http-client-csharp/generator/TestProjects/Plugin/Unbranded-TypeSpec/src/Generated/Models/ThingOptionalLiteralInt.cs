@@ -51,5 +51,7 @@ namespace UnbrandedTypeSpec.Models
 
         /// <inheritdoc/>
         public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
+
+        internal int ToSerialInt32() => _value;
     }
 }

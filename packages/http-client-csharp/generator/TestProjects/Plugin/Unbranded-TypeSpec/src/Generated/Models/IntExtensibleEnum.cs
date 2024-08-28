@@ -23,13 +23,13 @@ namespace UnbrandedTypeSpec.Models
             _value = value;
         }
 
-        /// <summary> Gets the One. </summary>
+        /// <summary> Gets the one. </summary>
         public static IntExtensibleEnum One { get; } = new IntExtensibleEnum(OneValue);
 
-        /// <summary> Gets the Two. </summary>
+        /// <summary> Gets the two. </summary>
         public static IntExtensibleEnum Two { get; } = new IntExtensibleEnum(TwoValue);
 
-        /// <summary> Gets the Four. </summary>
+        /// <summary> Gets the four. </summary>
         public static IntExtensibleEnum Four { get; } = new IntExtensibleEnum(FourValue);
 
         /// <summary> Determines if two <see cref="IntExtensibleEnum"/> values are the same. </summary>
@@ -58,5 +58,7 @@ namespace UnbrandedTypeSpec.Models
 
         /// <inheritdoc/>
         public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
+
+        internal int ToSerialInt32() => _value;
     }
 }

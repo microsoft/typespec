@@ -26,13 +26,13 @@ namespace UnbrandedTypeSpec.Models
             _value = value;
         }
 
-        /// <summary> Gets the One. </summary>
+        /// <summary> Gets the one. </summary>
         public static StringExtensibleEnum One { get; } = new StringExtensibleEnum(OneValue);
 
-        /// <summary> Gets the Two. </summary>
+        /// <summary> Gets the two. </summary>
         public static StringExtensibleEnum Two { get; } = new StringExtensibleEnum(TwoValue);
 
-        /// <summary> Gets the Four. </summary>
+        /// <summary> Gets the four. </summary>
         public static StringExtensibleEnum Four { get; } = new StringExtensibleEnum(FourValue);
 
         /// <summary> Determines if two <see cref="StringExtensibleEnum"/> values are the same. </summary>
