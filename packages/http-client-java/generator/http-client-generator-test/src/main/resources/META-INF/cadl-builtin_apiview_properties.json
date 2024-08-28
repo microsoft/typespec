@@ -1,0 +1,14 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.cadl.builtin.BuiltinAsyncClient": "null",
+    "com.cadl.builtin.BuiltinAsyncClient.read": "Cadl.Builtin.BuiltinOp.read",
+    "com.cadl.builtin.BuiltinAsyncClient.readWithResponse": "Cadl.Builtin.BuiltinOp.read",
+    "com.cadl.builtin.BuiltinClient": "null",
+    "com.cadl.builtin.BuiltinClient.read": "Cadl.Builtin.BuiltinOp.read",
+    "com.cadl.builtin.BuiltinClient.readWithResponse": "Cadl.Builtin.BuiltinOp.read",
+    "com.cadl.builtin.BuiltinClientBuilder": "Cadl.Builtin",
+    "com.cadl.builtin.models.Builtin": "Cadl.Builtin.Builtin",
+    "com.cadl.builtin.models.Encoded": "Cadl.Builtin.Encoded"
+  }
+}

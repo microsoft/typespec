@@ -286,6 +286,7 @@ function createOAPIEmitter(
     defaultAuth: AuthenticationReference,
     version?: string
   ) {
+    diagnostics = createDiagnosticCollector();
     currentService = service;
     metadataInfo = createMetadataInfo(program, {
       canonicalVisibility: Visibility.Read,
@@ -331,7 +332,7 @@ function createOAPIEmitter(
         securitySchemes: securitySchemes,
       },
     };
-    diagnostics = createDiagnosticCollector();
+
     const servers = getServers(program, service.type);
     if (servers) {
       root.servers = resolveServers(servers);

@@ -1,0 +1,20 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.type.model.flatten.FlattenAsyncClient": "Type.Model.Flatten",
+    "com.type.model.flatten.FlattenAsyncClient.putFlattenModel": "Type.Model.Flatten.putFlattenModel",
+    "com.type.model.flatten.FlattenAsyncClient.putFlattenModelWithResponse": "Type.Model.Flatten.putFlattenModel",
+    "com.type.model.flatten.FlattenAsyncClient.putNestedFlattenModel": "Type.Model.Flatten.putNestedFlattenModel",
+    "com.type.model.flatten.FlattenAsyncClient.putNestedFlattenModelWithResponse": "Type.Model.Flatten.putNestedFlattenModel",
+    "com.type.model.flatten.FlattenClient": "Type.Model.Flatten",
+    "com.type.model.flatten.FlattenClient.putFlattenModel": "Type.Model.Flatten.putFlattenModel",
+    "com.type.model.flatten.FlattenClient.putFlattenModelWithResponse": "Type.Model.Flatten.putFlattenModel",
+    "com.type.model.flatten.FlattenClient.putNestedFlattenModel": "Type.Model.Flatten.putNestedFlattenModel",
+    "com.type.model.flatten.FlattenClient.putNestedFlattenModelWithResponse": "Type.Model.Flatten.putNestedFlattenModel",
+    "com.type.model.flatten.FlattenClientBuilder": "Type.Model.Flatten",
+    "com.type.model.flatten.models.ChildFlattenModel": "Type.Model.Flatten.ChildFlattenModel",
+    "com.type.model.flatten.models.ChildModel": "Type.Model.Flatten.ChildModel",
+    "com.type.model.flatten.models.FlattenModel": "Type.Model.Flatten.FlattenModel",
+    "com.type.model.flatten.models.NestedFlattenModel": "Type.Model.Flatten.NestedFlattenModel"
+  }
+}

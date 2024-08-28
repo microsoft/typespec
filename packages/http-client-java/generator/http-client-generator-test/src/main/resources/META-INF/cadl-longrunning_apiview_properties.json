@@ -1,0 +1,26 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.cadl.longrunning.LongRunningAsyncClient": "Cadl.LongRunning",
+    "com.cadl.longrunning.LongRunningAsyncClient.beginCreateJob": "Cadl.LongRunning.createJob",
+    "com.cadl.longrunning.LongRunningAsyncClient.beginCreateJobWithModel": "Cadl.LongRunning.createJob",
+    "com.cadl.longrunning.LongRunningAsyncClient.beginLongRunning": "Cadl.LongRunning.longRunning",
+    "com.cadl.longrunning.LongRunningAsyncClient.beginLongRunningWithModel": "Cadl.LongRunning.longRunning",
+    "com.cadl.longrunning.LongRunningAsyncClient.getJob": "Cadl.LongRunning.getJob",
+    "com.cadl.longrunning.LongRunningAsyncClient.getJobWithResponse": "Cadl.LongRunning.getJob",
+    "com.cadl.longrunning.LongRunningClient": "Cadl.LongRunning",
+    "com.cadl.longrunning.LongRunningClient.beginCreateJob": "Cadl.LongRunning.createJob",
+    "com.cadl.longrunning.LongRunningClient.beginCreateJobWithModel": "Cadl.LongRunning.createJob",
+    "com.cadl.longrunning.LongRunningClient.beginLongRunning": "Cadl.LongRunning.longRunning",
+    "com.cadl.longrunning.LongRunningClient.beginLongRunningWithModel": "Cadl.LongRunning.longRunning",
+    "com.cadl.longrunning.LongRunningClient.getJob": "Cadl.LongRunning.getJob",
+    "com.cadl.longrunning.LongRunningClient.getJobWithResponse": "Cadl.LongRunning.getJob",
+    "com.cadl.longrunning.LongRunningClientBuilder": "Cadl.LongRunning",
+    "com.cadl.longrunning.models.JobData": "Cadl.LongRunning.JobData",
+    "com.cadl.longrunning.models.JobResult": "Cadl.LongRunning.JobResult",
+    "com.cadl.longrunning.models.JobResultResult": "Cadl.LongRunning.JobResult.result.anonymous",
+    "com.cadl.longrunning.models.JobStatus": "Cadl.LongRunning.JobStatus",
+    "com.cadl.longrunning.models.OperationState": "Azure.Core.Foundations.OperationState",
+    "com.cadl.longrunning.models.PollResponse": "Cadl.LongRunning.PollResponse"
+  }
+}
