@@ -31,7 +31,6 @@ describe("compiler: Mutators", () => {
       );
 
       const mutatedModel = mutated.type as Model;
-      console.log([...mutatedModel.properties]);
       expect(mutatedModel.properties.size).toBe(1);
       expect(mutatedModel.properties.get("x")).toBeUndefined();
       expect(mutatedModel.properties.get("y")).toBeDefined();
