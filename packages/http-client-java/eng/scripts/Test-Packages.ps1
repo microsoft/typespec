@@ -57,7 +57,10 @@ try {
 
         try {
             Write-Host 'Executing cadl ranch tests'
-            & "$packageRoot/http-client-generator-test/CadlRanch-Tests.ps1"
+            $generatorTestDir = Join-Path $packageRoot 'generator/http-client-generator-test'
+            Set-Location $generatorTestDir
+            & CadlRanch-Tests.ps1
+            Set-Location $packageRoot
             Write-Host 'Cadl ranch tests passed'
         } 
         catch {
