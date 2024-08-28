@@ -262,7 +262,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     if (!type.IsFrameworkType && type.IsEnum)
                     {
-                        var enumMember = type.EnumTypeMembers.FirstOrDefault(e => e.Value.ToString() == _inputModel.DiscriminatorValue) ?? throw new InvalidProgramException($"invalid discriminator value {_inputModel.DiscriminatorValue}");
+                        var enumMember = type.EnumTypeMembers.FirstOrDefault(e => e.Value.ToString() == _inputModel.DiscriminatorValue) ?? throw new InvalidOperationException($"invalid discriminator value {_inputModel.DiscriminatorValue}");
                         /* {KindType}.{enumMember} */
                         return TypeReferenceExpression.FromType(type).Property(enumMember.Name);
                     }
