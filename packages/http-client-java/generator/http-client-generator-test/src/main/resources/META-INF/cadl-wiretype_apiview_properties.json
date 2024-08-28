@@ -1,0 +1,25 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.cadl.wiretype.WireTypeAsyncClient": "null",
+    "com.cadl.wiretype.WireTypeAsyncClient.bothClassMismatch": "Cadl.WireType.WireTypeOp.bothClassMismatch",
+    "com.cadl.wiretype.WireTypeAsyncClient.bothClassMismatchWithResponse": "Cadl.WireType.WireTypeOp.bothClassMismatch",
+    "com.cadl.wiretype.WireTypeAsyncClient.subClassMismatch": "Cadl.WireType.WireTypeOp.subClassMismatch",
+    "com.cadl.wiretype.WireTypeAsyncClient.subClassMismatchWithResponse": "Cadl.WireType.WireTypeOp.subClassMismatch",
+    "com.cadl.wiretype.WireTypeAsyncClient.superClassMismatch": "Cadl.WireType.WireTypeOp.superClassMismatch",
+    "com.cadl.wiretype.WireTypeAsyncClient.superClassMismatchWithResponse": "Cadl.WireType.WireTypeOp.superClassMismatch",
+    "com.cadl.wiretype.WireTypeClient": "null",
+    "com.cadl.wiretype.WireTypeClient.bothClassMismatch": "Cadl.WireType.WireTypeOp.bothClassMismatch",
+    "com.cadl.wiretype.WireTypeClient.bothClassMismatchWithResponse": "Cadl.WireType.WireTypeOp.bothClassMismatch",
+    "com.cadl.wiretype.WireTypeClient.subClassMismatch": "Cadl.WireType.WireTypeOp.subClassMismatch",
+    "com.cadl.wiretype.WireTypeClient.subClassMismatchWithResponse": "Cadl.WireType.WireTypeOp.subClassMismatch",
+    "com.cadl.wiretype.WireTypeClient.superClassMismatch": "Cadl.WireType.WireTypeOp.superClassMismatch",
+    "com.cadl.wiretype.WireTypeClient.superClassMismatchWithResponse": "Cadl.WireType.WireTypeOp.superClassMismatch",
+    "com.cadl.wiretype.WireTypeClientBuilder": "Cadl.WireType",
+    "com.cadl.wiretype.models.SubClass": "Cadl.WireType.SubClass",
+    "com.cadl.wiretype.models.SubClassBothMismatch": "Cadl.WireType.SubClassBothMismatch",
+    "com.cadl.wiretype.models.SubClassMismatch": "Cadl.WireType.SubClassMismatch",
+    "com.cadl.wiretype.models.SuperClass": "Cadl.WireType.SuperClass",
+    "com.cadl.wiretype.models.SuperClassMismatch": "Cadl.WireType.SuperClassMismatch"
+  }
+}

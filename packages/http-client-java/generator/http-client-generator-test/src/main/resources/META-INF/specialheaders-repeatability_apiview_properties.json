@@ -1,0 +1,12 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.specialheaders.repeatability.RepeatabilityAsyncClient": "SpecialHeaders.Repeatability",
+    "com.specialheaders.repeatability.RepeatabilityAsyncClient.immediateSuccess": "SpecialHeaders.Repeatability.immediateSuccess",
+    "com.specialheaders.repeatability.RepeatabilityAsyncClient.immediateSuccessWithResponse": "SpecialHeaders.Repeatability.immediateSuccess",
+    "com.specialheaders.repeatability.RepeatabilityClient": "SpecialHeaders.Repeatability",
+    "com.specialheaders.repeatability.RepeatabilityClient.immediateSuccess": "SpecialHeaders.Repeatability.immediateSuccess",
+    "com.specialheaders.repeatability.RepeatabilityClient.immediateSuccessWithResponse": "SpecialHeaders.Repeatability.immediateSuccess",
+    "com.specialheaders.repeatability.RepeatabilityClientBuilder": "SpecialHeaders.Repeatability"
+  }
+}

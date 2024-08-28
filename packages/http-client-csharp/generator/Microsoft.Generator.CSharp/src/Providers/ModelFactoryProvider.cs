@@ -96,7 +96,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 [
                     .. GetCollectionInitialization(signature),
                     MethodBodyStatement.EmptyLine,
-                    Return(New.Instance(typeToInstantiate.Type, [.. GetCtorParams(signature)]))
+                    Return(New.Instance(typeToInstantiate.Type, [.. GetCtorArgs(signature, modelCtor.Signature)]))
                 ]);
 
                 methods.Add(new MethodProvider(signature, statements, this, docs));
@@ -104,7 +104,9 @@ namespace Microsoft.Generator.CSharp.Providers
             return [.. methods];
         }
 
-        private static IReadOnlyList<ValueExpression> GetCtorParams(MethodSignature signature)
+        private static IReadOnlyList<ValueExpression> GetCtorArgs(
+            MethodSignature signature,
+            ConstructorSignature modelCtorFullSignature)
         {
             var expressions = new List<ValueExpression>(signature.Parameters.Count);
             foreach (var param in signature.Parameters)
@@ -119,7 +121,12 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
             }
 
-            expressions.Add(Null);
+            var modelContainsAdditionalRawData = modelCtorFullSignature.Parameters.Any(p => p.Name.Equals(AdditionalRawDataParameterName));
+            if (modelContainsAdditionalRawData)
+            {
+                expressions.Add(Null);
+            }
+
             return [.. expressions];
         }
 
@@ -130,7 +137,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 if (param.Type.IsList || param.Type.IsDictionary)
                 {
-                    statements.Add(param.Assign(New.Instance(param.Type.PropertyInitializationType)).Terminate());
+                    statements.Add(param.Assign(New.Instance(param.Type.PropertyInitializationType), nullCoalesce: true).Terminate());
                 }
             }
             return [.. statements];
