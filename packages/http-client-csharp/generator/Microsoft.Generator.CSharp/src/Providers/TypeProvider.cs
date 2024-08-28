@@ -6,12 +6,30 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
     public abstract class TypeProvider
     {
+        private Lazy<NamedTypeSymbolProvider?> _customization;
+        protected TypeProvider()
+        {
+            var sourceInputModel = SourceInputModel.Instance;
+            _customization = new(GetCustomizationProvider);
+        }
+
+        private NamedTypeSymbolProvider? GetCustomizationProvider()
+        {
+            if (this is NamedTypeSymbolProvider)
+                return null;
+            var type = SourceInputModel.Instance.FindForType(GetNamespace(), BuildName());
+            return type != null ? new NamedTypeSymbolProvider(type) : null;
+        }
+
+        public NamedTypeSymbolProvider? Customization => _customization.Value;
+
         protected string? _deprecated;
 
         /// <summary>
@@ -22,9 +40,12 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private string? _relativeFilePath;
 
-        public string Name => _name ??= BuildName();
+        public string Name => _name ??= GetName();
 
         private string? _name;
+
+        private string GetName()
+            => Customization?.Name ?? BuildName();
 
         protected virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
 
@@ -45,7 +66,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private CSharpType? _type;
         public CSharpType Type => _type ??= new(
             this,
-            GetNamespace(),
+            Customization?.GetNamespace() ?? GetNamespace(),
             GetTypeArguments(),
             GetBaseType());
 

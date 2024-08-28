@@ -11,7 +11,6 @@ using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Customization;
 using Microsoft.Generator.CSharp.Primitives;
-using Microsoft.Generator.CSharp.Providers;
 using NuGet.Configuration;
 
 namespace Microsoft.Generator.CSharp.SourceInput
@@ -21,9 +20,9 @@ namespace Microsoft.Generator.CSharp.SourceInput
         private static SourceInputModel? _instance;
         public static SourceInputModel Instance => _instance ?? throw new InvalidOperationException("SourceInputModel has not been initialized");
 
-        public static void Initialize(Compilation customization, CompilationCustomCode? existingCompilation = null)
+        public static void Initialize(Compilation customization, CompilationCustomCode? previousContract = null)
         {
-            _instance = new SourceInputModel(customization, existingCompilation);
+            _instance = new SourceInputModel(customization, previousContract);
         }
 
         private readonly CompilationCustomCode? _existingCompilation;
@@ -77,9 +76,8 @@ namespace Microsoft.Generator.CSharp.SourceInput
             return _existingCompilation?.FindMethod(namespaceName, typeName, methodName, parameters);
         }
 
-        public INamedTypeSymbol? FindForType(string name)
+        public INamedTypeSymbol? FindForType(string ns, string name)
         {
-            var ns = CodeModelPlugin.Instance.Configuration.ModelNamespace;
             var fullyQualifiedMetadataName = $"{ns}.{name}";
             if (!_nameMap.TryGetValue(name, out var type) &&
                 !_nameMap.TryGetValue(fullyQualifiedMetadataName, out type))

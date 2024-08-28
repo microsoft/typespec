@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.SourceInput;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -29,6 +30,8 @@ namespace Microsoft.Generator.CSharp
             var generatedTestOutputPath = Path.Combine(outputPath, "..", "..", "tests", GeneratedFolderName);
 
             GeneratedCodeWorkspace workspace = await GeneratedCodeWorkspace.Create();
+            GeneratedCodeWorkspace existingCode = GeneratedCodeWorkspace.CreateExistingCodeProject(CodeModelPlugin.Instance.Configuration.ProjectDirectory, generatedSourceOutputPath);
+            SourceInputModel.Initialize(await existingCode.GetCompilationAsync());
 
             var output = CodeModelPlugin.Instance.OutputLibrary;
             Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));

@@ -193,11 +193,11 @@ namespace UnbrandedTypeSpec.Models
 
         /// <summary> this is a model with a projected name. </summary>
         /// <param name="name"> name of the ModelWithProjectedName. </param>
-        /// <returns> A new <see cref="Models.ProjectedModel"/> instance for mocking. </returns>
-        public static ProjectedModel ProjectedModel(string name = default)
+        /// <returns> A new <see cref="Models.NewProjectedModel"/> instance for mocking. </returns>
+        public static NewProjectedModel NewProjectedModel(string name = default)
         {
 
-            return new ProjectedModel(name, null);
+            return new NewProjectedModel(name, null);
         }
 
         /// <summary> The ReturnsAnonymousModelResponse. </summary>

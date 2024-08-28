@@ -845,26 +845,26 @@ namespace UnbrandedTypeSpec
         /// <param name="name"> name of the ModelWithProjectedName. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<ProjectedModel> ProjectedNameModel(string name)
+        public virtual ClientResult<NewProjectedModel> ProjectedNameModel(string name)
         {
             Argument.AssertNotNull(name, nameof(name));
 
             ProjectedNameModelRequest spreadModel = new ProjectedNameModelRequest(name, null);
             ClientResult result = ProjectedNameModel(spreadModel, null);
-            return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
+            return ClientResult.FromValue((NewProjectedModel)result, result.GetRawResponse());
         }
 
         /// <summary> Model can have its projected name. </summary>
         /// <param name="name"> name of the ModelWithProjectedName. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<ProjectedModel>> ProjectedNameModelAsync(string name)
+        public virtual async Task<ClientResult<NewProjectedModel>> ProjectedNameModelAsync(string name)
         {
             Argument.AssertNotNull(name, nameof(name));
 
             ProjectedNameModelRequest spreadModel = new ProjectedNameModelRequest(name, null);
             ClientResult result = await ProjectedNameModelAsync(spreadModel, null).ConfigureAwait(false);
-            return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
+            return ClientResult.FromValue((NewProjectedModel)result, result.GetRawResponse());
         }
 
         /// <summary>
