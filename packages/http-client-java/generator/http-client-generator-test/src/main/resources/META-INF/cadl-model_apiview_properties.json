@@ -1,0 +1,33 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.cadl.model.ModelAsyncClient": "null",
+    "com.cadl.model.ModelAsyncClient.get3": "Cadl.Model.ModelOp.get3",
+    "com.cadl.model.ModelAsyncClient.get3WithResponse": "Cadl.Model.ModelOp.get3",
+    "com.cadl.model.ModelAsyncClient.put1": "Cadl.Model.ModelOp.put1",
+    "com.cadl.model.ModelAsyncClient.put1WithResponse": "Cadl.Model.ModelOp.put1",
+    "com.cadl.model.ModelAsyncClient.put2": "Cadl.Model.ModelOp.put2",
+    "com.cadl.model.ModelAsyncClient.put2WithResponse": "Cadl.Model.ModelOp.put2",
+    "com.cadl.model.ModelAsyncClient.putNested": "Cadl.Model.ModelOp.putNested",
+    "com.cadl.model.ModelAsyncClient.putNestedWithResponse": "Cadl.Model.ModelOp.putNested",
+    "com.cadl.model.ModelClient": "null",
+    "com.cadl.model.ModelClient.get3": "Cadl.Model.ModelOp.get3",
+    "com.cadl.model.ModelClient.get3WithResponse": "Cadl.Model.ModelOp.get3",
+    "com.cadl.model.ModelClient.put1": "Cadl.Model.ModelOp.put1",
+    "com.cadl.model.ModelClient.put1WithResponse": "Cadl.Model.ModelOp.put1",
+    "com.cadl.model.ModelClient.put2": "Cadl.Model.ModelOp.put2",
+    "com.cadl.model.ModelClient.put2WithResponse": "Cadl.Model.ModelOp.put2",
+    "com.cadl.model.ModelClient.putNested": "Cadl.Model.ModelOp.putNested",
+    "com.cadl.model.ModelClient.putNestedWithResponse": "Cadl.Model.ModelOp.putNested",
+    "com.cadl.model.ModelClientBuilder": "Cadl.Model",
+    "com.cadl.model.models.InputOutputData2": "Cadl.Model.InputOutputData2",
+    "com.cadl.model.models.NestedModel": "Cadl.Model.NestedModel",
+    "com.cadl.model.models.NestedModel1": "Cadl.Model.NestedModel1",
+    "com.cadl.model.models.NestedModel2": "Cadl.Model.NestedModel2",
+    "com.cadl.model.models.OutputData": "Cadl.Model.OutputData",
+    "com.cadl.model.models.OutputData3": "Cadl.Model.OutputData3",
+    "com.cadl.model.models.Resource1": "Cadl.Model.Resource1",
+    "com.cadl.model.models.Resource2": "Cadl.Model.Resource2",
+    "com.cadl.model.models.Resource3": "Cadl.Model.Resource3"
+  }
+}

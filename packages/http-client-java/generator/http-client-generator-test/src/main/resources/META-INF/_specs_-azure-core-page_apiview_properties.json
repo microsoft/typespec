@@ -1,0 +1,26 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com._specs_.azure.core.page.PageAsyncClient": "_Specs_.Azure.Core.Page",
+    "com._specs_.azure.core.page.PageAsyncClient.listWithCustomPageModel": "_Specs_.Azure.Core.Page.listWithCustomPageModel",
+    "com._specs_.azure.core.page.PageAsyncClient.listWithPage": "_Specs_.Azure.Core.Page.listWithPage",
+    "com._specs_.azure.core.page.PageAsyncClient.listWithParameters": "_Specs_.Azure.Core.Page.listWithParameters",
+    "com._specs_.azure.core.page.PageClient": "_Specs_.Azure.Core.Page",
+    "com._specs_.azure.core.page.PageClient.listWithCustomPageModel": "_Specs_.Azure.Core.Page.listWithCustomPageModel",
+    "com._specs_.azure.core.page.PageClient.listWithPage": "_Specs_.Azure.Core.Page.listWithPage",
+    "com._specs_.azure.core.page.PageClient.listWithParameters": "_Specs_.Azure.Core.Page.listWithParameters",
+    "com._specs_.azure.core.page.PageClientBuilder": "_Specs_.Azure.Core.Page",
+    "com._specs_.azure.core.page.TwoModelsAsPageItemAsyncClient": "null",
+    "com._specs_.azure.core.page.TwoModelsAsPageItemAsyncClient.listFirstItem": "_Specs_.Azure.Core.Page.TwoModelsAsPageItem.listFirstItem",
+    "com._specs_.azure.core.page.TwoModelsAsPageItemAsyncClient.listSecondItem": "_Specs_.Azure.Core.Page.TwoModelsAsPageItem.listSecondItem",
+    "com._specs_.azure.core.page.TwoModelsAsPageItemClient": "null",
+    "com._specs_.azure.core.page.TwoModelsAsPageItemClient.listFirstItem": "_Specs_.Azure.Core.Page.TwoModelsAsPageItem.listFirstItem",
+    "com._specs_.azure.core.page.TwoModelsAsPageItemClient.listSecondItem": "_Specs_.Azure.Core.Page.TwoModelsAsPageItem.listSecondItem",
+    "com._specs_.azure.core.page.models.FirstItem": "_Specs_.Azure.Core.Page.FirstItem",
+    "com._specs_.azure.core.page.models.ListItemInputBody": "_Specs_.Azure.Core.Page.ListItemInputBody",
+    "com._specs_.azure.core.page.models.ListItemInputExtensibleEnum": "_Specs_.Azure.Core.Page.ListItemInputExtensibleEnum",
+    "com._specs_.azure.core.page.models.SecondItem": "_Specs_.Azure.Core.Page.SecondItem",
+    "com._specs_.azure.core.page.models.User": "_Specs_.Azure.Core.Page.User",
+    "com._specs_.azure.core.page.models.UserOrder": "_Specs_.Azure.Core.Page.UserOrder"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.cadl.optional.OptionalAsyncClient": "null",
+    "com.cadl.optional.OptionalAsyncClient.put": "Cadl.Optional.OptionalOp.put",
+    "com.cadl.optional.OptionalAsyncClient.putWithResponse": "Cadl.Optional.OptionalOp.put",
+    "com.cadl.optional.OptionalClient": "null",
+    "com.cadl.optional.OptionalClient.put": "Cadl.Optional.OptionalOp.put",
+    "com.cadl.optional.OptionalClient.putWithResponse": "Cadl.Optional.OptionalOp.put",
+    "com.cadl.optional.OptionalClientBuilder": "Cadl.Optional",
+    "com.cadl.optional.models.AllPropertiesOptional": "Cadl.Optional.AllPropertiesOptional",
+    "com.cadl.optional.models.ImmutableModel": "Cadl.Optional.Immutable",
+    "com.cadl.optional.models.Optional": "Cadl.Optional.Optional"
+  }
+}

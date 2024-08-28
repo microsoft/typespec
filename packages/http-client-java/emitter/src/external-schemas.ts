@@ -15,7 +15,7 @@ import {
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
 import { CrossLanguageDefinition } from "./common/client.js";
-import { getJavaNamespace, getNamespace, pascalCase } from "./utils.js";
+import { getNamespace, pascalCase } from "./utils.js";
 
 /*
  * These schema need to reflect
@@ -142,7 +142,12 @@ export function createPollOperationDetailsSchema(
 
 const fileDetailsMap: Map<string, ObjectSchema> = new Map();
 
-function getFileSchemaName(baseName: string) {
+function getFileSchemaName(baseName: string, sdkModelType?: SdkModelType): string {
+  // If the TypeSpec Model exists and is not TypeSpec.Http.File, directly use its name
+  if (sdkModelType && sdkModelType.crossLanguageDefinitionId !== "TypeSpec.Http.File") {
+    return baseName;
+  }
+
   // make sure suffix "FileDetails"
   if (baseName.toLocaleLowerCase().endsWith("filedetails")) {
     return pascalCase(baseName);
@@ -157,6 +162,7 @@ function createFileDetailsSchema(
   schemaName: string,
   propertyName: string,
   namespace: string,
+  javaNamespace: string | undefined,
   schemas: Schemas
 ) {
   const fileDetailsSchema = new ObjectSchema(
@@ -168,7 +174,7 @@ function createFileDetailsSchema(
           namespace: namespace,
         },
         java: {
-          namespace: getJavaNamespace(namespace),
+          namespace: javaNamespace,
         },
       },
       serializationFormats: [KnownMediaType.Multipart],
@@ -238,6 +244,7 @@ function addContentTypeProperty(
 export function getFileDetailsSchema(
   property: SdkBodyModelPropertyType,
   namespace: string,
+  javaNamespace: string | undefined,
   schemas: Schemas,
   binarySchema: BinarySchema,
   stringSchema: StringSchema,
@@ -262,7 +269,7 @@ export function getFileDetailsSchema(
      */
     const filePropertyName = property.name;
     const fileSchemaName = fileSdkType.name;
-    const schemaName = getFileSchemaName(fileSchemaName);
+    const schemaName = getFileSchemaName(fileSchemaName, fileSdkType);
     let fileDetailsSchema = fileDetailsMap.get(schemaName);
     if (!fileDetailsSchema) {
       const typeNamespace = getNamespace(property.type.__raw) ?? namespace;
@@ -270,6 +277,7 @@ export function getFileDetailsSchema(
         schemaName,
         filePropertyName,
         typeNamespace,
+        javaNamespace,
         schemas
       );
 
@@ -316,7 +324,13 @@ export function getFileDetailsSchema(
     const schemaName = getFileSchemaName(filePropertyName);
     let fileDetailsSchema = fileDetailsMap.get(schemaName);
     if (!fileDetailsSchema) {
-      fileDetailsSchema = createFileDetailsSchema(schemaName, filePropertyName, namespace, schemas);
+      fileDetailsSchema = createFileDetailsSchema(
+        schemaName,
+        filePropertyName,
+        namespace,
+        javaNamespace,
+        schemas
+      );
 
       addContentProperty(fileDetailsSchema, binarySchema);
       addFilenameProperty(fileDetailsSchema, stringSchema);
