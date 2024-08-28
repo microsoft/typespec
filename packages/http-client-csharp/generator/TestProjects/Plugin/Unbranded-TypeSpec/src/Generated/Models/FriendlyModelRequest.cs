@@ -4,10 +4,10 @@
 
 namespace UnbrandedTypeSpec.Models
 {
-    /// <summary> this is not a friendly model but with a friendly name. </summary>
-    public partial class Friend
+    /// <summary> The FriendlyModelRequest. </summary>
+    public partial class FriendlyModelRequest
     {
-        internal Friend(string name)
+        internal FriendlyModelRequest(string name)
         {
             Name = name;
         }

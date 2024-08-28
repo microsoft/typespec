@@ -4,10 +4,10 @@
 
 namespace UnbrandedTypeSpec.Models
 {
-    /// <summary> this is a model with a projected name. </summary>
-    public partial class ProjectedModel
+    /// <summary> The ProjectedNameModelRequest. </summary>
+    public partial class ProjectedNameModelRequest
     {
-        internal ProjectedModel(string name)
+        internal ProjectedNameModelRequest(string name)
         {
             Name = name;
         }

@@ -12,22 +12,22 @@ using UnbrandedTypeSpec;
 namespace UnbrandedTypeSpec.Models
 {
     /// <summary></summary>
-    public partial class ProjectedModel : IJsonModel<ProjectedModel>
+    public partial class ProjectedNameModelRequest : IJsonModel<ProjectedNameModelRequest>
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
-        internal ProjectedModel(string name, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        internal ProjectedNameModelRequest(string name, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             Name = name;
             _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
-        internal ProjectedModel()
+        internal ProjectedNameModelRequest()
         {
         }
 
-        void IJsonModel<ProjectedModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void IJsonModel<ProjectedNameModelRequest>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
             JsonModelWriteCore(writer, options);
@@ -38,10 +38,10 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<ProjectedModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<ProjectedNameModelRequest>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
-                throw new FormatException($"The model {nameof(ProjectedModel)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(ProjectedNameModelRequest)} does not support writing '{format}' format.");
             }
             writer.WritePropertyName("name"u8);
             writer.WriteStringValue(Name);
@@ -62,22 +62,22 @@ namespace UnbrandedTypeSpec.Models
             }
         }
 
-        ProjectedModel IJsonModel<ProjectedModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
+        ProjectedNameModelRequest IJsonModel<ProjectedNameModelRequest>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual ProjectedModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        protected virtual ProjectedNameModelRequest JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<ProjectedModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<ProjectedNameModelRequest>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
-                throw new FormatException($"The model {nameof(ProjectedModel)} does not support reading '{format}' format.");
+                throw new FormatException($"The model {nameof(ProjectedNameModelRequest)} does not support reading '{format}' format.");
             }
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeProjectedModel(document.RootElement, options);
+            return DeserializeProjectedNameModelRequest(document.RootElement, options);
         }
 
-        internal static ProjectedModel DeserializeProjectedModel(JsonElement element, ModelReaderWriterOptions options)
+        internal static ProjectedNameModelRequest DeserializeProjectedNameModelRequest(JsonElement element, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
             {
@@ -97,57 +97,57 @@ namespace UnbrandedTypeSpec.Models
                     serializedAdditionalRawData.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new ProjectedModel(name, serializedAdditionalRawData);
+            return new ProjectedNameModelRequest(name, serializedAdditionalRawData);
         }
 
-        BinaryData IPersistableModel<ProjectedModel>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<ProjectedNameModelRequest>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<ProjectedModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<ProjectedNameModelRequest>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
                     return ModelReaderWriter.Write(this, options);
                 default:
-                    throw new FormatException($"The model {nameof(ProjectedModel)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(ProjectedNameModelRequest)} does not support writing '{options.Format}' format.");
             }
         }
 
-        ProjectedModel IPersistableModel<ProjectedModel>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+        ProjectedNameModelRequest IPersistableModel<ProjectedNameModelRequest>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual ProjectedModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        protected virtual ProjectedNameModelRequest PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<ProjectedModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<ProjectedNameModelRequest>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
                     using (JsonDocument document = JsonDocument.Parse(data))
                     {
-                        return DeserializeProjectedModel(document.RootElement, options);
+                        return DeserializeProjectedNameModelRequest(document.RootElement, options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(ProjectedModel)} does not support reading '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(ProjectedNameModelRequest)} does not support reading '{options.Format}' format.");
             }
         }
 
-        string IPersistableModel<ProjectedModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<ProjectedNameModelRequest>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        /// <param name="projectedModel"> The <see cref="ProjectedModel"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(ProjectedModel projectedModel)
+        /// <param name="projectedNameModelRequest"> The <see cref="ProjectedNameModelRequest"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(ProjectedNameModelRequest projectedNameModelRequest)
         {
-            return BinaryContent.Create(projectedModel, ModelSerializationExtensions.WireOptions);
+            return BinaryContent.Create(projectedNameModelRequest, ModelSerializationExtensions.WireOptions);
         }
 
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ProjectedModel"/> from. </param>
-        public static explicit operator ProjectedModel(ClientResult result)
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ProjectedNameModelRequest"/> from. </param>
+        public static explicit operator ProjectedNameModelRequest(ClientResult result)
         {
             using PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content);
-            return DeserializeProjectedModel(document.RootElement, ModelSerializationExtensions.WireOptions);
+            return DeserializeProjectedNameModelRequest(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }

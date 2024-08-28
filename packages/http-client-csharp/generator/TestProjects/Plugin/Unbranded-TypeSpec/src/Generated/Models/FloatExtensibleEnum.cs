@@ -23,13 +23,13 @@ namespace UnbrandedTypeSpec.Models
             _value = value;
         }
 
-        /// <summary> Gets the onedotone. </summary>
+        /// <summary> Gets the OneDotOne. </summary>
         public static FloatExtensibleEnum OneDotOne { get; } = new FloatExtensibleEnum(OneDotOneValue);
 
-        /// <summary> Gets the twodottwo. </summary>
+        /// <summary> Gets the TwoDotTwo. </summary>
         public static FloatExtensibleEnum TwoDotTwo { get; } = new FloatExtensibleEnum(TwoDotTwoValue);
 
-        /// <summary> Gets the fourdotfour. </summary>
+        /// <summary> Gets the FourDotFour. </summary>
         public static FloatExtensibleEnum FourDotFour { get; } = new FloatExtensibleEnum(FourDotFourValue);
 
         /// <summary> Determines if two <see cref="FloatExtensibleEnum"/> values are the same. </summary>
@@ -58,7 +58,5 @@ namespace UnbrandedTypeSpec.Models
 
         /// <inheritdoc/>
         public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
-
-        internal float ToSerialSingle() => _value;
     }
 }

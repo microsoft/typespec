@@ -11,6 +11,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.Generator.CSharp.Primitives;
@@ -20,6 +22,7 @@ namespace Microsoft.Generator.CSharp
     internal class GeneratedCodeWorkspace
     {
         private const string GeneratedFolder = "Generated";
+        private const string InternalFolder = "Internal";
         private const string GeneratedCodeProjectName = "GeneratedCode";
 
         private static readonly Lazy<IReadOnlyList<MetadataReference>> _assemblyMetadataReferences = new(() => new List<MetadataReference>()
@@ -30,6 +33,8 @@ namespace Microsoft.Generator.CSharp
         private static readonly string _newLine = "\n";
 
         private Project _project;
+        private Compilation? _compilation;
+
         private Dictionary<string, string> PlainFiles { get; }
 
         private GeneratedCodeWorkspace(Project generatedCodeProject)
@@ -66,9 +71,15 @@ namespace Microsoft.Generator.CSharp
         public async IAsyncEnumerable<(string Name, string Text)> GetGeneratedFilesAsync()
         {
             List<Task<Document>> documents = new List<Task<Document>>();
+            var used = new Dictionary<Document, bool>();
             foreach (Document document in _project.Documents)
             {
                 if (!IsGeneratedDocument(document))
+                {
+                    continue;
+                }
+
+                if (IsInternalGeneratedDocument(document) && !(await IsUsedAsync(_project.Solution, document, used)))
                 {
                     continue;
                 }
@@ -97,7 +108,9 @@ namespace Microsoft.Generator.CSharp
             return document;
         }
 
-        public static bool IsGeneratedDocument(Document document) => document.Folders.Contains(GeneratedFolder);
+        private static bool IsGeneratedDocument(Document document) => document.Folders.Contains(GeneratedFolder);
+
+        private static bool IsInternalGeneratedDocument(Document document) => IsGeneratedDocument(document) && document.Name.Contains(InternalFolder);
 
         /// <summary>
         /// Create a new AdHoc workspace using the Roslyn SDK and add a project with all the necessary compilation options.
@@ -192,6 +205,80 @@ namespace Microsoft.Generator.CSharp
             }
 
             return project;
+        }
+
+        private async Task<bool> IsUsedAsync(Solution solution, Document document, IDictionary<Document, bool> used)
+        {
+            if (used.TryGetValue(document, out var value))
+            {
+                return value;
+            }
+            var model = await document.GetSemanticModelAsync();
+            var declarations = (await document.GetSyntaxRootAsync())!.DescendantNodes().Where(n => n is TypeDeclarationSyntax or EnumDeclarationSyntax);
+            foreach (var declaration in declarations)
+            {
+                var type = (INamedTypeSymbol)model!.GetDeclaredSymbol(declaration)!;
+                if (await IsUsedAsync(solution, type, used))
+                {
+                    used[document] = true;
+                    return true;
+                }
+            }
+
+            used[document] = false;
+            return false;
+        }
+
+        private async Task<bool> IsUsedAsync(Solution solution, ISymbol type, IDictionary<Document, bool> used)
+        {
+            if (type.IsStatic)
+            {
+                var extMethods = ((INamedTypeSymbol)type).GetMembers().Where(s => s.Kind == SymbolKind.Method).Where(m => ((IMethodSymbol)m).IsExtensionMethod);
+                var enumerable = extMethods as ISymbol[] ?? extMethods.ToArray();
+                if (enumerable.Length != 0)
+                {
+                    return true;
+                }
+            }
+            return await IsUsedCore(solution, type, used);
+        }
+        private async Task<bool> IsUsedCore(Solution solution, ISymbol type, IDictionary<Document, bool> used)
+        {
+            var typeRefs = await SymbolFinder.FindReferencesAsync(type, solution);
+            foreach (var typeRef in typeRefs)
+            {
+                foreach (var loc in typeRef.Locations)
+                {
+                    // recursively search for non-internal generated code
+                    if (IsInternalGeneratedDocument(loc.Document))
+                    {
+                        return await IsUsedAsync(solution, loc.Document, used);
+                    }
+
+                    var node = (await loc.Location.SourceTree?.GetRootAsync()!).FindNode(loc.Location.SourceSpan);
+                    while (node != null && !node.IsKind(SyntaxKind.ClassDeclaration) && !node.IsKind(SyntaxKind.InterfaceDeclaration) && !node.IsKind(SyntaxKind.StructDeclaration))
+                    {
+                        node = node.Parent;
+                    }
+                    if (node == null)
+                    {
+                        continue;
+                    }
+                    Compilation compilation = await GetProjectCompilation();
+                    ISymbol nodeSymbol = compilation.GetSemanticModel(loc.Location.SourceTree!).GetDeclaredSymbol(node)!;
+                    if (!SymbolEqualityComparer.Default.Equals(nodeSymbol, type))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private async Task<Compilation> GetProjectCompilation()
+        {
+            _compilation ??= await _project.GetCompilationAsync();
+            return _compilation!;
         }
     }
 }

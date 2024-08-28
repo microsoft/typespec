@@ -12,12 +12,12 @@ using UnbrandedTypeSpec;
 namespace UnbrandedTypeSpec.Models
 {
     /// <summary></summary>
-    public partial class Thing : IJsonModel<Thing>
+    public partial class AnonymousBodyRequest : IJsonModel<AnonymousBodyRequest>
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
-        internal Thing(string name, BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, ThingOptionalLiteralString? optionalLiteralString, ThingOptionalLiteralInt? optionalLiteralInt, ThingOptionalLiteralFloat? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        internal AnonymousBodyRequest(string name, BinaryData requiredUnion, AnonymousBodyRequestRequiredLiteralString requiredLiteralString, AnonymousBodyRequestRequiredLiteralInt requiredLiteralInt, AnonymousBodyRequestRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, AnonymousBodyRequestOptionalLiteralString? optionalLiteralString, AnonymousBodyRequestOptionalLiteralInt? optionalLiteralInt, AnonymousBodyRequestOptionalLiteralFloat? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             Name = name;
             RequiredUnion = requiredUnion;
@@ -35,11 +35,11 @@ namespace UnbrandedTypeSpec.Models
             _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
-        internal Thing()
+        internal AnonymousBodyRequest()
         {
         }
 
-        void IJsonModel<Thing>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void IJsonModel<AnonymousBodyRequest>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
             JsonModelWriteCore(writer, options);
@@ -50,10 +50,10 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<AnonymousBodyRequest>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
-                throw new FormatException($"The model {nameof(Thing)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(AnonymousBodyRequest)} does not support writing '{format}' format.");
             }
             writer.WritePropertyName("name"u8);
             writer.WriteStringValue(Name);
@@ -144,22 +144,22 @@ namespace UnbrandedTypeSpec.Models
             }
         }
 
-        Thing IJsonModel<Thing>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
+        AnonymousBodyRequest IJsonModel<AnonymousBodyRequest>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual Thing JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        protected virtual AnonymousBodyRequest JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<AnonymousBodyRequest>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
-                throw new FormatException($"The model {nameof(Thing)} does not support reading '{format}' format.");
+                throw new FormatException($"The model {nameof(AnonymousBodyRequest)} does not support reading '{format}' format.");
             }
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeThing(document.RootElement, options);
+            return DeserializeAnonymousBodyRequest(document.RootElement, options);
         }
 
-        internal static Thing DeserializeThing(JsonElement element, ModelReaderWriterOptions options)
+        internal static AnonymousBodyRequest DeserializeAnonymousBodyRequest(JsonElement element, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
             {
@@ -167,13 +167,13 @@ namespace UnbrandedTypeSpec.Models
             }
             string name = default;
             BinaryData requiredUnion = default;
-            ThingRequiredLiteralString requiredLiteralString = default;
-            ThingRequiredLiteralInt requiredLiteralInt = default;
-            ThingRequiredLiteralFloat requiredLiteralFloat = default;
+            AnonymousBodyRequestRequiredLiteralString requiredLiteralString = default;
+            AnonymousBodyRequestRequiredLiteralInt requiredLiteralInt = default;
+            AnonymousBodyRequestRequiredLiteralFloat requiredLiteralFloat = default;
             bool requiredLiteralBool = default;
-            ThingOptionalLiteralString? optionalLiteralString = default;
-            ThingOptionalLiteralInt? optionalLiteralInt = default;
-            ThingOptionalLiteralFloat? optionalLiteralFloat = default;
+            AnonymousBodyRequestOptionalLiteralString? optionalLiteralString = default;
+            AnonymousBodyRequestOptionalLiteralInt? optionalLiteralInt = default;
+            AnonymousBodyRequestOptionalLiteralFloat? optionalLiteralFloat = default;
             bool? optionalLiteralBool = default;
             string requiredBadDescription = default;
             IList<int> optionalNullableList = default;
@@ -193,17 +193,17 @@ namespace UnbrandedTypeSpec.Models
                 }
                 if (prop.NameEquals("requiredLiteralString"u8))
                 {
-                    requiredLiteralString = new ThingRequiredLiteralString(prop.Value.GetString());
+                    requiredLiteralString = new AnonymousBodyRequestRequiredLiteralString(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("requiredLiteralInt"u8))
                 {
-                    requiredLiteralInt = new ThingRequiredLiteralInt(prop.Value.GetInt32());
+                    requiredLiteralInt = new AnonymousBodyRequestRequiredLiteralInt(prop.Value.GetInt32());
                     continue;
                 }
                 if (prop.NameEquals("requiredLiteralFloat"u8))
                 {
-                    requiredLiteralFloat = new ThingRequiredLiteralFloat(prop.Value.GetSingle());
+                    requiredLiteralFloat = new AnonymousBodyRequestRequiredLiteralFloat(prop.Value.GetSingle());
                     continue;
                 }
                 if (prop.NameEquals("requiredLiteralBool"u8))
@@ -218,7 +218,7 @@ namespace UnbrandedTypeSpec.Models
                         optionalLiteralString = null;
                         continue;
                     }
-                    optionalLiteralString = new ThingOptionalLiteralString(prop.Value.GetString());
+                    optionalLiteralString = new AnonymousBodyRequestOptionalLiteralString(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("optionalLiteralInt"u8))
@@ -228,7 +228,7 @@ namespace UnbrandedTypeSpec.Models
                         optionalLiteralInt = null;
                         continue;
                     }
-                    optionalLiteralInt = new ThingOptionalLiteralInt(prop.Value.GetInt32());
+                    optionalLiteralInt = new AnonymousBodyRequestOptionalLiteralInt(prop.Value.GetInt32());
                     continue;
                 }
                 if (prop.NameEquals("optionalLiteralFloat"u8))
@@ -238,7 +238,7 @@ namespace UnbrandedTypeSpec.Models
                         optionalLiteralFloat = null;
                         continue;
                     }
-                    optionalLiteralFloat = new ThingOptionalLiteralFloat(prop.Value.GetSingle());
+                    optionalLiteralFloat = new AnonymousBodyRequestOptionalLiteralFloat(prop.Value.GetSingle());
                     continue;
                 }
                 if (prop.NameEquals("optionalLiteralBool"u8))
@@ -290,7 +290,7 @@ namespace UnbrandedTypeSpec.Models
                     serializedAdditionalRawData.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new Thing(
+            return new AnonymousBodyRequest(
                 name,
                 requiredUnion,
                 requiredLiteralString,
@@ -307,54 +307,54 @@ namespace UnbrandedTypeSpec.Models
                 serializedAdditionalRawData);
         }
 
-        BinaryData IPersistableModel<Thing>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<AnonymousBodyRequest>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<AnonymousBodyRequest>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
                     return ModelReaderWriter.Write(this, options);
                 default:
-                    throw new FormatException($"The model {nameof(Thing)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(AnonymousBodyRequest)} does not support writing '{options.Format}' format.");
             }
         }
 
-        Thing IPersistableModel<Thing>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+        AnonymousBodyRequest IPersistableModel<AnonymousBodyRequest>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual Thing PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        protected virtual AnonymousBodyRequest PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<AnonymousBodyRequest>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
                     using (JsonDocument document = JsonDocument.Parse(data))
                     {
-                        return DeserializeThing(document.RootElement, options);
+                        return DeserializeAnonymousBodyRequest(document.RootElement, options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(Thing)} does not support reading '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(AnonymousBodyRequest)} does not support reading '{options.Format}' format.");
             }
         }
 
-        string IPersistableModel<Thing>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<AnonymousBodyRequest>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        /// <param name="thing"> The <see cref="Thing"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(Thing thing)
+        /// <param name="anonymousBodyRequest"> The <see cref="AnonymousBodyRequest"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(AnonymousBodyRequest anonymousBodyRequest)
         {
-            return BinaryContent.Create(thing, ModelSerializationExtensions.WireOptions);
+            return BinaryContent.Create(anonymousBodyRequest, ModelSerializationExtensions.WireOptions);
         }
 
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Thing"/> from. </param>
-        public static explicit operator Thing(ClientResult result)
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="AnonymousBodyRequest"/> from. </param>
+        public static explicit operator AnonymousBodyRequest(ClientResult result)
         {
             using PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content);
-            return DeserializeThing(document.RootElement, ModelSerializationExtensions.WireOptions);
+            return DeserializeAnonymousBodyRequest(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }
