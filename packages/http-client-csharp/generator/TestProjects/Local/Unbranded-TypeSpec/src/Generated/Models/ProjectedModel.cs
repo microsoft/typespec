@@ -8,17 +8,17 @@ using System.Collections.Generic;
 namespace UnbrandedTypeSpec.Models
 {
     /// <summary> this is a model with a projected name. </summary>
-    public partial class NewProjectedModel
+    public partial class ProjectedModel
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
-        internal NewProjectedModel(string name)
+        internal ProjectedModel(string name)
         {
             Name = name;
         }
 
-        internal NewProjectedModel(string name, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        internal ProjectedModel(string name, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             Name = name;
             _serializedAdditionalRawData = serializedAdditionalRawData;
