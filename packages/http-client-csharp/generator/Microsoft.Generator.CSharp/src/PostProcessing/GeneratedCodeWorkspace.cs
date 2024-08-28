@@ -247,6 +247,12 @@ namespace Microsoft.Generator.CSharp
             var typeRefs = await SymbolFinder.FindReferencesAsync(type, solution);
             foreach (var typeRef in typeRefs)
             {
+                // Skip self-references
+                if (SymbolEqualityComparer.Default.Equals(typeRef.Definition, type))
+                {
+                    continue;
+                }
+
                 foreach (var loc in typeRef.Locations)
                 {
                     // recursively search for non-internal generated code
