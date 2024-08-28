@@ -16,7 +16,6 @@ namespace Microsoft.Generator.CSharp.Providers
         private Lazy<NamedTypeSymbolProvider?> _customization;
         protected TypeProvider()
         {
-            var sourceInputModel = SourceInputModel.Instance;
             _customization = new(GetCustomizationProvider);
         }
 

@@ -1,14 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.IO;
 using System;
-using System.Collections.Generic;
+using System.IO;
+using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
-using Moq.Protected;
-using Moq;
+using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Tests.Common;
+using Moq;
+using Moq.Protected;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
@@ -20,7 +21,8 @@ namespace Microsoft.Generator.CSharp.Tests
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<OutputLibrary>? createOutputLibrary = null,
             string? configuration = null,
-            InputModelType[]? inputModelTypes = null)
+            InputModelType[]? inputModelTypes = null,
+            Compilation? customization = null)
         {
             var configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
             // initialize the singleton instance of the plugin
@@ -48,6 +50,18 @@ namespace Microsoft.Generator.CSharp.Tests
             mockPlugin.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
 
             CodeModelPlugin.Instance = mockPlugin.Object;
+
+            if (customization == null)
+            {
+                var workspace = new AdhocWorkspace();
+                Project project = workspace.AddProject("ExistingCode", LanguageNames.CSharp);
+                customization = project.GetCompilationAsync().GetAwaiter().GetResult()!;
+            }
+
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(customization, null)) { CallBase = true };
+
+            SourceInputModel.Instance = sourceInputModel.Object;
+
             return mockPlugin;
         }
     }

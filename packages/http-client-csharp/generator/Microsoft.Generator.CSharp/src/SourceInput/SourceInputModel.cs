@@ -15,10 +15,20 @@ using NuGet.Configuration;
 
 namespace Microsoft.Generator.CSharp.SourceInput
 {
-    internal sealed class SourceInputModel
+    internal class SourceInputModel
     {
         private static SourceInputModel? _instance;
-        public static SourceInputModel Instance => _instance ?? throw new InvalidOperationException("SourceInputModel has not been initialized");
+        public static SourceInputModel Instance
+        {
+            get
+            {
+                return _instance ?? throw new InvalidOperationException("SourceInputModel has not been initialized");
+            }
+            set
+            {
+                _instance = value;
+            }
+        }
 
         public static void Initialize(Compilation customization, CompilationCustomCode? previousContract = null)
         {
@@ -32,7 +42,7 @@ namespace Microsoft.Generator.CSharp.SourceInput
         public Compilation Customization { get; }
         public Compilation? PreviousContract { get; }
 
-        private SourceInputModel(Compilation customization, CompilationCustomCode? existingCompilation = null)
+        internal SourceInputModel(Compilation customization, CompilationCustomCode? existingCompilation = null)
         {
             Customization = customization;
             PreviousContract = LoadBaselineContract().GetAwaiter().GetResult();
