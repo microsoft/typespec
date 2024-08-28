@@ -104,7 +104,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
           )
         ),
       Protocol: {},
-      Parent: parentNames.length > 0 ? parentNames[parentNames.length - 1] : undefined,
+      // Parent: parentNames.length > 0 ? parentNames[parentNames.length - 1] : undefined,
       Parameters: clientParameters,
       Decorators: client.decorators,
     };

@@ -15,7 +15,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             var clients = new List<TypeProvider>(inputClients.Count * 3);
             foreach (var inputClient in inputClients)
             {
-                var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+                var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient); // TODO: pass in parent, convert from string Parent to ClientProvider? parent
+                //var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient, inputClient.Parent!); // TODO: pass in parent, convert from string Parent to ClientProvider? parent
                 clients.Add(client);
                 clients.Add(client.RestClient);
                 var clientOptions = client.ClientOptions;

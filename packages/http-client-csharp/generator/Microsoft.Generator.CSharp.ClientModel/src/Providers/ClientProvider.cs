@@ -53,7 +53,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
         }
 
-        public ClientProvider(InputClient inputClient, ClientProvider? parent = null)
+        public ClientProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
             _inputAuth = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Auth;
@@ -103,9 +103,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Type,
                     $"_cached{Name}",
                     this);
+                _parent = ClientModelPlugin.Instance.TypeFactory.CreateClient(_inputClient.Parent);
             }
 
-            _parent = parent;
             _endpointParameterName = new(GetEndpointParameterName);
         }
 
@@ -115,31 +115,36 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (_uriParameters is null)
             {
                 _ = Constructors;
-                foreach (var parent in _family!)
+                var parent = GetParentClient();
+                if (parent is not null)
                 {
-                    _ = parent.BuildConstructors();
+                    var combined = new HashSet<ParameterProvider>(_uriParameters ?? []);
+                    combined.UnionWith(parent.GetUriParameters());
+                    _uriParameters = combined.ToList();
                 }
-                //HashSet<ConstructorProvider> combinedConstructors = Constructors.Concat(_parent?.Constructors ?? Enumerable.Empty<ConstructorProvider>()).ToHashSet();
-                //Constructors = combinedConstructors.ToList();
             }
             return _uriParameters ?? [];
         }
 
-        // enumerate through list of parents/tree
-        // distinct on param name
-        private static List<ClientProvider>? _family = new List<ClientProvider>();
-        private static IEnumerable<ClientProvider> FindParents(ClientProvider client)
-        {
-            if (client._parent is null)
-            {
-                return _family!;
-            }
-            else
-            {
-                _family!.Add(client._parent);
-                return FindParents(client._parent);
-            }
-        }
+        //// enumerate through list of parents/tree
+        //// distinct on param name
+        //private static List<ClientProvider>? _family = new List<ClientProvider>();
+        //private static IEnumerable<ClientProvider> FindParents(ClientProvider client)
+        //{
+        //    if (client._parent is null)
+        //    {
+        //        return _family!;
+        //    }
+        //    else
+        //    {
+        //        if (!_family!.Contains(client._parent))
+        //        {
+        //            _family!.Add(client._parent);
+        //        }
+
+        //        return FindParents(client._parent);
+        //    }
+        //}
 
         private Lazy<string?> _endpointParameterName;
         internal string? EndpointParameterName => _endpointParameterName.Value;
@@ -472,6 +477,23 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             return subClients;
+        }
+
+        private ClientProvider? GetParentClient()
+        {
+            IReadOnlyList<InputClient> inputClients = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
+            //var subClients = new List<Lazy<ClientProvider>>(inputClients.Count);
+
+            foreach (var client in inputClients)
+            {
+                //// add direct child clients
+                if (client.Parent == this._inputClient.Parent)
+                {
+                    return ClientModelPlugin.Instance.TypeFactory.CreateClient(client, this);
+                }
+            }
+
+            return null;
         }
     }
 }

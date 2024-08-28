@@ -11,7 +11,7 @@ export interface InputClient {
   Description?: string;
   Operations: InputOperation[];
   Protocol?: Protocols;
-  Parent?: string;
+  Parent?: InputClient;
   Parameters?: InputParameter[];
   Decorators?: DecoratorInfo[];
 }
