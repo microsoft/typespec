@@ -1,6 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { EmitContext, getNamespaceFullName, isStdNamespace, Type, listServices, Operation } from "@typespec/compiler";
+import { EmitContext, getNamespaceFullName, isStdNamespace, Type, listServices, Operation, getEffectiveModelType } from "@typespec/compiler";
 import { TypeCollector } from "@typespec/emitter-framework";
 import { namespace as HttpNamespace } from "@typespec/http";
 import { ModelsFile } from "./components/models-file.js";
@@ -8,6 +8,8 @@ import { ModelSerializers } from "./components/serializers.js";
 import path from "path";
 import { ClientContext } from "./components/client-context.js";
 import { OperationsFile } from "./components/operations-file.js";
+import { HttpFetch, HttpRequestOptions } from "./components/static-fetch-wrapper.jsx";
+import { $ } from "@typespec/compiler/typekit";
 
 const RestNamespace = "TypeSpec.Rest";
 
@@ -18,6 +20,7 @@ export async function $onEmit(context: EmitContext) {
   const sourcesDir = path.join(outputDir, "src");
   const modelsDir = path.join(sourcesDir, "models");
   const apiDir = path.join(sourcesDir, "api");
+  const  utilitiesDir = path.join(sourcesDir, "utilities");
   const service = listServices(context.program)[0]!;
 
   return (
@@ -33,6 +36,12 @@ export async function $onEmit(context: EmitContext) {
             <ClientContext service={service} />
             <OperationsFile operations={types.operations} service={service} />
             <ts.BarrelFile />
+          </ay.SourceDirectory>
+          <ay.SourceDirectory path={utilitiesDir}>
+            <ts.SourceFile path="http-fetch.ts">
+              <HttpRequestOptions />
+              <HttpFetch />
+            </ts.SourceFile>
           </ay.SourceDirectory>
         </ay.SourceDirectory>
       </ts.PackageDirectory>
@@ -57,6 +66,18 @@ function queryTypes(context: EmitContext) {
     }
   }
 
+  // Collect all the types that are used in the body of the operations
+  // might want to make this part of the TypeCollector
+  for(const operation of operations) {
+    const httpOperation = $.httpOperation.get(operation);
+    if(httpOperation.parameters.body) {
+      let bodyType = httpOperation.parameters.body.type;
+      if(bodyType.kind === "Model") {
+        bodyType = getEffectiveModelType(context.program, bodyType);
+      }
+      types.add(bodyType);
+    }
+  }
   return { dataTypes: [...types], operations: [...operations] };
 }
 

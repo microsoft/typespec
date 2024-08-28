@@ -5,6 +5,7 @@ import { format } from "prettier";
 import { assert, describe, expect, it } from "vitest";
 import { FunctionDeclaration } from "../../../src/typescript/components/function-declaration.js";
 import { getProgram } from "../test-host.js";
+import { d } from "@alloy-js/core/testing";
 describe("Typescript Function Declaration", () => {
   describe("Function bound to Typespec Types", () => {
     describe("Bound to Operation", () => {
@@ -29,6 +30,35 @@ describe("Typescript Function Declaration", () => {
         assert(testFile, "test.ts file not rendered");
         const actualContent = await format(testFile.contents as string, { parser: "typescript" });
         const expectedContent = await format(`function getName(id: string): string{}`, {
+          parser: "typescript",
+        });
+        expect(actualContent).toBe(expectedContent);
+      });
+
+      it("creates an async function", async () => {
+        const program = await getProgram(`
+        namespace DemoService;
+        op getName(id: string): string;
+        `);
+
+        const [namespace] = program.resolveTypeReference("DemoService");
+        const operation = Array.from((namespace as Namespace).operations.values())[0];
+
+        let res = render(
+          <Output>
+            <SourceFile path="test.ts">
+              <FunctionDeclaration async type={operation} />
+            </SourceFile>
+          </Output>
+        );
+
+        const testFile = res.contents.find((file) => file.path === "test.ts");
+        assert(testFile, "test.ts file not rendered");
+        const actualContent = await format(testFile.contents as string, { parser: "typescript" });
+        const expectedContent = await format(d`async function getName(id: string): Promise<string> {
+          
+          
+          }`, {
           parser: "typescript",
         });
         expect(actualContent).toBe(expectedContent);
@@ -86,7 +116,7 @@ describe("Typescript Function Declaration", () => {
         expect(actualContent).toBe(expectedContent);
       });
 
-      it("can override parameters with raw params provided", async () => {
+      it("can append extra parameters with raw params provided", async () => {
         const program = await getProgram(`
         namespace DemoService;
         op createPerson(id: string): string;
@@ -110,7 +140,7 @@ describe("Typescript Function Declaration", () => {
         assert(testFile, "test.ts file not rendered");
         const actualContent = await format(testFile.contents as string, { parser: "typescript" });
         const expectedContent = await format(
-          `function createPerson(name: string, age: number): string{}`,
+          `function createPerson(name: string, age: number, id: string): string{}`,
           {
             parser: "typescript",
           }

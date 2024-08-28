@@ -14,7 +14,10 @@ namespace DemoService;
 Should generate a factory function named after the namespace `createDemoServiceContext`. Since there is no url defined the factory takes an endpoint parameter
 
 ```ts src/api/clientContext.ts function createDemoServiceContext
-export function createDemoServiceContext(endpoint: string, options: DemoServiceOptions) {
+export function createDemoServiceContext(
+  endpoint: string,
+  options: DemoServiceOptions
+): DemoServiceContext {
   return {
     endpoint,
   };
@@ -40,7 +43,7 @@ Should generate a factory function named after the namespace `createDemoServiceC
 Endpoint should be overridable with options, if no options.endpoint provided it fallsback to the default defined in the `@server` decorator
 
 ```ts src/api/clientContext.ts function createDemoServiceContext
-export function createDemoServiceContext(options: DemoServiceOptions) {
+export function createDemoServiceContext(options: DemoServiceOptions): DemoServiceContext {
   const endpoint = options.endpoint ?? "https://example.org/api";
   return {
     endpoint,

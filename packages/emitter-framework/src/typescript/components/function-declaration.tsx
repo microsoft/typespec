@@ -1,6 +1,11 @@
 import { Children, refkey as getRefkey, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Model, Operation } from "@typespec/compiler";
+import {
+  Model,
+  Operation,
+  isErrorModel,
+} from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import { TypeExpression } from "./type-expression.js";
 
 export interface FunctionDeclarationPropsWithType
@@ -27,7 +32,7 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
     ? props.name
     : ts.useTSNamePolicy().getName(type.name, "function");
 
-  const returnType = props.returnType ?? <TypeExpression type={type.returnType} />;
+  const returnType = props.returnType ?? getReturnType(type);
 
   coreProps.refkey ??= getRefkey(type);
 
@@ -65,7 +70,10 @@ FunctionDeclaration.Parameters = function Parameters(props: FunctionParametersPr
 
 function getParameters(
   type: Model,
-  { params = {}, location = "start" }: { params?: Record<string, Children | ts.ParameterDescriptor>; location?: "start" | "end" } = {}
+  {
+    params = {},
+    location = "start",
+  }: { params?: Record<string, Children | ts.ParameterDescriptor>; location?: "start" | "end" } = {}
 ) {
   const namePolicy = ts.useTSNamePolicy();
 
@@ -91,9 +99,10 @@ function getParameters(
   const extraParamsMap = new Map(Object.entries(params));
 
   // Merge parameters based on location
-  const allParams = location === "end"
-    ? new Map([...operationParams, ...extraParamsMap])
-    : new Map([...extraParamsMap, ...operationParams]);
+  const allParams =
+    location === "end"
+      ? new Map([...operationParams, ...extraParamsMap])
+      : new Map([...extraParamsMap, ...operationParams]);
 
   return (
     <ts.FunctionDeclaration.Parameters>
@@ -110,7 +119,6 @@ function getParameters(
   );
 }
 
-
 function isTypedFunctionDeclarationProps(
   props: FunctionDeclarationProps
 ): props is FunctionDeclarationPropsWithType {
@@ -121,4 +129,21 @@ function isTypedFunctionParametersProps(
   props: FunctionParametersProps
 ): props is TypedFunctionParametersProps {
   return "type" in props;
+}
+
+
+function getReturnType(
+  type: Operation,
+  options: { skipErrorFiltering: boolean } = { skipErrorFiltering: false }
+) {
+  const returnType = type.returnType;
+
+  if (options.skipErrorFiltering || returnType.kind !== "Union") {
+    return <TypeExpression type={returnType} />; 
+  }
+  
+  const variants = [...returnType.variants.values()].filter(v => !isErrorModel($.program, v.type));
+  return mapJoin(variants, (variant) => {
+    return <TypeExpression type={variant.type} />;
+  }, { joiner: " | " });
 }

@@ -42,11 +42,11 @@ export function ModelSerializer(props: ModelSerializerProps) {
   );
 }
 
-function getSerializerRefkey(type: Model) {
+export function getSerializerRefkey(type: Model) {
   return refkey(type, "serializer");
 }
 
-function buildSerializer(type: Type, itemPath: string, options: BuildSerializerOptions = {}): SerializerExpression {
+export function buildSerializer(type: Type, itemPath: string, options: BuildSerializerOptions = {}): SerializerExpression {
   switch (type.kind) {
     case "Model":
       if($.array.is(type)) {

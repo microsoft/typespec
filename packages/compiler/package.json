@@ -86,7 +86,7 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "@alloy-js/core": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@7d274fd",
+    "@alloy-js/core": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@c7857f6",
     "@babel/code-frame": "~7.24.7",
     "ajv": "~8.17.1",
     "change-case": "~5.4.4",

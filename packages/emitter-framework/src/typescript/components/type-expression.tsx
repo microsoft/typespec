@@ -86,6 +86,7 @@ const intrinsicNameToTSType = new Map<string, string>([
   ["float64", "number"], // TODO: bigint?
   ["safeint", "number"],
   ["utcDateTime", "Date"],
+  ["duration", "string"],
   ["url", "string"],
 ]);
 
