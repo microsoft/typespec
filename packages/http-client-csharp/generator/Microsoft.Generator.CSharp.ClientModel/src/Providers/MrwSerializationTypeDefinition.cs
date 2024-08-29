@@ -980,8 +980,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private MethodBodyStatement[] CreateWritePropertiesStatements()
         {
             var propertyCount = _model.Properties.Count;
-            var propertyStatements = new MethodBodyStatement[propertyCount];
-            for (var i = 0; i < propertyCount; i++)
+            List<MethodBodyStatement> propertyStatements = new(propertyCount);
+            for (int i = 0; i < propertyCount; i++)
             {
                 var property = _model.Properties[i];
                 // we should only write those properties with a wire info. Those properties without wireinfo indicate they are not spec properties.
@@ -1011,10 +1011,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         wrapInIsDefinedStatement
                     };
                 }
-                propertyStatements[i] = wrapInIsDefinedStatement;
+                propertyStatements.Add(wrapInIsDefinedStatement);
             }
 
-            return propertyStatements;
+            return [.. propertyStatements];
         }
 
         /// <summary>
