@@ -417,12 +417,6 @@ namespace Microsoft.Generator.CSharp
             return document.Name.EndsWith("Client.cs", StringComparison.Ordinal);
         }
 
-        private static string GetCleanName(CrefSyntax cref)
-        {
-            var fullString = cref.ToFullString();
-            return fullString.Split('.', StringSplitOptions.RemoveEmptyEntries).Last();
-        }
-
         private static void AddInList<TKey, TValue, TList>(Dictionary<TKey, TList> dictionary,
             TKey key,
             TValue value,
