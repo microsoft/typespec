@@ -3,35 +3,33 @@ import { assert, describe, expect, it } from "vitest";
 import { tspForOpenAPI3 } from "./utils/tsp-for-openapi3.js";
 
 describe("converts top-level parameters", () => {
-  (["query", "header", "path"] as const).forEach((location) => {
-    it(`Supports location: ${location}`, async () => {
-      const serviceNamespace = await tspForOpenAPI3({
-        parameters: {
-          Foo: {
-            name: "foo",
-            in: location,
-            required: true,
-            schema: {
-              type: "string",
-            },
+  it.each(["query", "header", "path"] as const)(`Supports location: %s`, async (location) => {
+    const serviceNamespace = await tspForOpenAPI3({
+      parameters: {
+        Foo: {
+          name: "foo",
+          in: location,
+          required: true,
+          schema: {
+            type: "string",
           },
         },
-      });
+      },
+    });
 
-      const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
-      assert(parametersNamespace, "Parameters namespace not found");
+    const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+    assert(parametersNamespace, "Parameters namespace not found");
 
-      const models = parametersNamespace.models;
+    const models = parametersNamespace.models;
 
-      /* model Foo { @<location> foo: string, } */
-      const Foo = models.get("Foo");
-      assert(Foo, "Foo model not found");
-      expect(Foo.properties.size).toBe(1);
-      expect(Foo.properties.get("foo")).toMatchObject({
-        optional: false,
-        type: { kind: "Scalar", name: "string" },
-        decorators: [{ definition: { name: `@${location}` } }],
-      });
+    /* model Foo { @<location> foo: string, } */
+    const Foo = models.get("Foo");
+    assert(Foo, "Foo model not found");
+    expect(Foo.properties.size).toBe(1);
+    expect(Foo.properties.get("foo")).toMatchObject({
+      optional: false,
+      type: { kind: "Scalar", name: "string" },
+      decorators: [{ definition: { name: `@${location}` } }],
     });
   });
 
