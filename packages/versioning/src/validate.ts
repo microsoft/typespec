@@ -112,6 +112,21 @@ export function $onValidate(program: Program) {
         for (const sourceModel of op.parameters.sourceModels) {
           validateReference(program, op, sourceModel.model);
         }
+
+        for (const prop of op.parameters.properties.values()) {
+          // Validate op -> property have correct versioning
+          validateTargetVersionCompatible(program, op, prop, {
+            isTargetADependent: true,
+          });
+
+          // Validate model property -> type have correct versioning
+          const typeChangedFrom = getTypeChangedFrom(program, prop);
+          if (typeChangedFrom !== undefined) {
+            validateMultiTypeReference(program, prop);
+          } else {
+            validateReference(program, prop, prop.type);
+          }
+        }
       },
       interface: (iface) => {
         for (const source of iface.sourceInterfaces) {
@@ -511,7 +526,7 @@ function validateReference(program: Program, source: Type, target: Type) {
   if ("templateMapper" in target) {
     for (const param of target.templateMapper?.args ?? []) {
       if (isType(param)) {
-        validateTargetVersionCompatible(program, source, param);
+        validateReference(program, source, param);
       }
     }
   }
@@ -519,12 +534,12 @@ function validateReference(program: Program, source: Type, target: Type) {
   switch (target.kind) {
     case "Union":
       for (const variant of target.variants.values()) {
-        validateTargetVersionCompatible(program, source, variant.type);
+        validateReference(program, source, variant.type);
       }
       break;
     case "Tuple":
       for (const value of target.values) {
-        validateTargetVersionCompatible(program, source, value);
+        validateReference(program, source, value);
       }
       break;
   }

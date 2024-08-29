@@ -540,6 +540,20 @@ describe("versioning: validate incompatible references", () => {
     });
   });
 
+  describe("operations", () => {
+    it("emit diagnostic when unversioned parameter type is a versioned model", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model Foo {}
+
+        op test(param: Foo): void;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+      });
+    });
+  });
+
   describe("complex type references", () => {
     it("emit diagnostic when using versioned model as template argument in non versioned property", async () => {
       const diagnostics = await runner.diagnose(`
@@ -581,6 +595,17 @@ describe("versioning: validate incompatible references", () => {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' is referencing versioned type 'TestService.Versioned' but is not versioned itself.",
+      });
+    });
+
+    it("emit diagnostic when using versioned union variant of array in non versioned source", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model Versioned {}
+        op test(): Versioned[] | string;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
       });
     });
 
