@@ -190,7 +190,7 @@ namespace Microsoft.Generator.CSharp
         }
 
         /// <summary>
-        /// Add the files in the directory to a project per a given predicate with the folders specified
+        /// Add the files in the directory to a project per a given predicate with the folders specified.
         /// </summary>
         /// <param name="project"></param>
         /// <param name="directory"></param>
@@ -216,7 +216,8 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         public async Task PostProcessAsync()
         {
-            var postProcessor = new PostProcessor(new HashSet<string>(new[] {ModelFactoryProvider.FromInputLibrary().Name}));
+            var modelFactory = ModelFactoryProvider.FromInputLibrary();
+            var postProcessor = new PostProcessor([], modelFactoryFullName: $"{modelFactory.Namespace}.{modelFactory.Name}");
             switch (Configuration.UnreferencedTypesHandling)
             {
                 case Configuration.UnreferencedTypesHandlingOption.KeepAll:

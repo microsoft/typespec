@@ -19,7 +19,8 @@ namespace Microsoft.Generator.CSharp
         private readonly string? _aspExtensionClassName;
         private readonly HashSet<string> _modelsToKeep;
 
-        public PostProcessor(HashSet<string> modelsToKeep,
+        public PostProcessor(
+            HashSet<string> modelsToKeep,
             string? modelFactoryFullName = null,
             string? aspExtensionClassName = null)
         {
@@ -77,7 +78,7 @@ namespace Microsoft.Generator.CSharp
                             !document.Name.StartsWith("Internal/", StringComparison.Ordinal))
                             continue;
 
-                        // we do not add the model factory symbol to the declared symbol list so that it will never be included in any process of internalization or removal
+                        // we do not add the model factory and aspDotNetExtension symbol to the declared symbol list so that it will never be included in any process of internalization or removal
                         if (!SymbolEqualityComparer.Default.Equals(symbol, modelFactorySymbol)
                             && !SymbolEqualityComparer.Default.Equals(symbol, aspDotNetExtensionSymbol))
                             result.Add(symbol);

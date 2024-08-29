@@ -26,6 +26,9 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private string? _name;
 
+        public string Namespace => _namespace ??= GetNamespace();
+        private string? _namespace;
+
         protected virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
 
         private XmlDocProvider? _xmlDocs;
