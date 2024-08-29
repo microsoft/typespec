@@ -22,8 +22,8 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             if (this is NamedTypeSymbolProvider)
                 return null;
-            var type = CodeModelPlugin.Instance.SourceInputModel.FindForType(GetNamespace(), BuildName());
-            return type != null ? new NamedTypeSymbolProvider(type) : null;
+
+            return CodeModelPlugin.Instance.SourceInputModel.FindForType(GetNamespace(), BuildName());
         }
 
         public NamedTypeSymbolProvider? Customization => _customization.Value;

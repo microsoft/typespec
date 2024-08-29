@@ -8,7 +8,7 @@ using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
+namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is crucial to get correct test data file.
 {
     public class ModelCustomizationTests
     {
@@ -16,7 +16,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         [TestCase]
         public void TestCustomization_CanChangeModelName()
         {
-            SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(_customizationCode);
+            // we are borrowing this GetExpectedFromFile method to read the content of the corresponding asset file, we are not using it as expected here.
+            SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile());
             CSharpCompilation compilation = CSharpCompilation.Create("ExistingCode")
                 .WithOptions(new CSharpCompilationOptions(OutputKind.ConsoleApplication))
                 .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
@@ -34,31 +35,5 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual("CustomizedModel", modelTypeProvider.Type.Name);
             Assert.AreEqual("NewNamespace.Models", modelTypeProvider.Type.Namespace);
         }
-
-        private const string _customizationCode = @"#nullable disable
-
-using System;
-
-namespace NewNamespace
-{
-    [AttributeUsage(AttributeTargets.Class)]
-    internal class CodeGenTypeAttribute : Attribute
-    {
-        public string OriginalName { get; }
-
-        public CodeGenTypeAttribute(string originalName)
-        {
-            OriginalName = originalName;
-        }
-    }
-}
-namespace NewNamespace.Models
-{
-    [CodeGenType(""MockInputModel"")]
-    public partial class CustomizedModel
-    {
-    }
-}
-";
     }
 }
