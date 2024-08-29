@@ -12,8 +12,12 @@
     <version>1.0.0-beta.1</version>
   </parent>
 
-  <dependencies>
+  <properties>
+    <shade.finalName>emitter</shade.finalName>
+    <shade.mainClass>com.microsoft.typespec.http.client.generator.Main</shade.mainClass>
+  </properties>
 
+  <dependencies>
     <dependency>
       <groupId>com.microsoft.typespec</groupId>
       <artifactId>http-client-generator-mgmt</artifactId>
@@ -39,30 +43,18 @@
     </dependency>
   </dependencies>
 
-
   <build>
     <finalName>emitter</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
+        <artifactId>maven-shade-plugin</artifactId>
         <executions>
           <execution>
             <phase>package</phase>
             <goals>
-              <goal>single</goal>
+              <goal>shade</goal>
             </goals>
-            <configuration>
-              <appendAssemblyId>false</appendAssemblyId>
-              <archive>
-                <manifest>
-                  <mainClass>com.microsoft.typespec.http.client.generator.Main</mainClass>
-                </manifest>
-              </archive>
-              <descriptorRefs>
-                <descriptorRef>jar-with-dependencies</descriptorRef>
-              </descriptorRefs>
-            </configuration>
           </execution>
         </executions>
       </plugin>
