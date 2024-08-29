@@ -566,8 +566,7 @@ function getAvailabilityMapFromStack(
   program: Program,
   typeStack: Type[]
 ): Map<string, Availability> | undefined {
-  let type;
-  while ((type = typeStack.shift())) {
+  for (const type of typeStack) {
     const map = getAvailabilityMap(program, type);
     if (map) {
       return map;
