@@ -13,14 +13,18 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.Generator.CSharp.Customization;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
     internal class GeneratedCodeWorkspace
     {
+        private const string SharedFolder = "shared";
         private const string GeneratedFolder = "Generated";
         private const string GeneratedCodeProjectName = "GeneratedCode";
+        private const string GeneratedTestFolder = "GeneratedTests";
 
         private static readonly Lazy<IReadOnlyList<MetadataReference>> _assemblyMetadataReferences = new(() => new List<MetadataReference>()
             { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) });
@@ -30,6 +34,7 @@ namespace Microsoft.Generator.CSharp
         private static readonly string _newLine = "\n";
 
         private Project _project;
+        private Compilation? _compilation;
         private Dictionary<string, string> PlainFiles { get; }
 
         private GeneratedCodeWorkspace(Project generatedCodeProject)
@@ -93,11 +98,23 @@ namespace Microsoft.Generator.CSharp
 
         private async Task<Document> ProcessDocument(Document document)
         {
+            var syntaxTree = await document.GetSyntaxTreeAsync();
+            var compilation = await GetProjectCompilationAsync();
+            if (syntaxTree != null)
+            {
+                var semanticModel = compilation.GetSemanticModel(syntaxTree);
+                var modelRemoveRewriter = new MemberRemoverRewriter(_project, semanticModel);
+                document = document.WithSyntaxRoot(modelRemoveRewriter.Visit(await syntaxTree.GetRootAsync()));
+            }
+
             document = await Simplifier.ReduceAsync(document);
             return document;
         }
 
         public static bool IsGeneratedDocument(Document document) => document.Folders.Contains(GeneratedFolder);
+        public static bool IsCustomDocument(Document document) => !IsGeneratedDocument(document) && !IsSharedDocument(document);
+        public static bool IsSharedDocument(Document document) => document.Folders.Contains(SharedFolder);
+        public static bool IsGeneratedTestDocument(Document document) => document.Folders.Contains(GeneratedTestFolder);
 
         /// <summary>
         /// Create a new AdHoc workspace using the Roslyn SDK and add a project with all the necessary compilation options.
@@ -192,6 +209,43 @@ namespace Microsoft.Generator.CSharp
             }
 
             return project;
+        }
+
+        internal static ImmutableHashSet<string> GetSuppressedTypeNames(Compilation compilation)
+        {
+            var suppressTypeAttribute = compilation.GetTypeByMetadataName(typeof(CodeGenSuppressTypeAttribute).FullName!)!;
+            return compilation.Assembly.GetAttributes()
+                .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, suppressTypeAttribute))
+                .Select(a => a.ConstructorArguments[0].Value)
+                .OfType<string>()
+                .ToImmutableHashSet();
+        }
+
+        /// <summary>
+        /// This method invokes the postProcessor to do some post processing work
+        /// Depending on the configuration, it will either remove + internalize, just internalize or do nothing
+        /// </summary>
+        public async Task PostProcessAsync()
+        {
+            var postProcessor = new PostProcessor(new HashSet<string>(new[] {ModelFactoryProvider.FromInputLibrary().Name}).ToImmutableHashSet());
+            switch (Configuration.UnreferencedTypesHandling)
+            {
+                case Configuration.UnreferencedTypesHandlingOption.KeepAll:
+                    break;
+                case Configuration.UnreferencedTypesHandlingOption.Internalize:
+                    _project = await postProcessor.InternalizeAsync(_project);
+                    break;
+                case Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize:
+                    _project = await postProcessor.InternalizeAsync(_project);
+                    _project = await postProcessor.RemoveAsync(_project);
+                    break;
+            }
+        }
+
+        private async Task<Compilation> GetProjectCompilationAsync()
+        {
+            _compilation ??= await _project.GetCompilationAsync();
+            return _compilation!;
         }
     }
 }

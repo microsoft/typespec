@@ -74,7 +74,7 @@ namespace Microsoft.Generator.CSharp
 
         private static TypeProvider[] BuildModelFactory()
         {
-            var modelFactory = new ModelFactoryProvider(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Models);
+            var modelFactory = ModelFactoryProvider.FromInputLibrary();
             return modelFactory.Methods.Count > 0 ? [modelFactory] : [];
         }
     }

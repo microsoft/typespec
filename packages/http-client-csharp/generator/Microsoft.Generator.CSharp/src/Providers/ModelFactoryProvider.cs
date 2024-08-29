@@ -21,6 +21,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private readonly IEnumerable<InputModelType> _models;
 
+        public static ModelFactoryProvider FromInputLibrary() => new ModelFactoryProvider(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Models);
+
         public ModelFactoryProvider(IEnumerable<InputModelType> models)
         {
             _models = models;
