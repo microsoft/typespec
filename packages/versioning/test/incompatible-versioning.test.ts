@@ -541,6 +541,17 @@ describe("versioning: validate incompatible references", () => {
   });
 
   describe("operations", () => {
+    it("ok if operation is added before model used in params", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model Foo {}
+
+        @added(Versions.v2)
+        op test(param: Foo): void;
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     it("emit diagnostic when unversioned parameter type is a versioned model", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
