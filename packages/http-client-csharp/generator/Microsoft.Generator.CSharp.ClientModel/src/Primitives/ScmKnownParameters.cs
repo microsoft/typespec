@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
+using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
@@ -38,11 +39,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Primitives
         // Known header parameters
         public static readonly ParameterProvider RepeatabilityRequestId = new("repeatabilityRequestId", FormattableStringHelpers.Empty, typeof(Guid))
         {
-            DefaultValue = Static(typeof(Guid)).Invoke(nameof(Guid.NewGuid)).Invoke(nameof(string.ToString))
+            Value = Static(typeof(Guid)).Invoke(nameof(Guid.NewGuid)).Invoke(nameof(string.ToString)),
         };
         public static readonly ParameterProvider RepeatabilityFirstSent = new("repeatabilityFirstSent", FormattableStringHelpers.Empty, typeof(DateTimeOffset))
         {
-            DefaultValue = Static(typeof(DateTimeOffset)).Property(nameof(DateTimeOffset.Now))
+            Value = Static(typeof(DateTimeOffset)).Property(nameof(DateTimeOffset.Now)),
         };
     }
 }

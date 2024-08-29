@@ -10,6 +10,7 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
@@ -25,11 +26,12 @@ namespace Microsoft.Generator.CSharp.Providers
         /// </summary>
         public ValueExpression? DefaultValue { get; set; }
         public ValueExpression? InitializationValue { get; init; }
+        public ValueExpression? Value { get; set; }
         public ParameterValidationType Validation { get; init; } = ParameterValidationType.None;
         public bool IsRef { get; }
         public bool IsOut { get; }
         internal IReadOnlyList<AttributeStatement> Attributes { get; } = [];
-        public WireInformation WireInfo { get; }
+        public WireInformation WireInfo { get; init; }
         public ParameterLocation Location { get; }
 
         /// <summary>
@@ -61,6 +63,10 @@ namespace Microsoft.Generator.CSharp.Providers
                 : ParameterValidationType.None;
             WireInfo = new WireInformation(CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParameter.Type), inputParameter.NameInRequest);
             Location = inputParameter.Location.ToParameterLocation();
+            if (inputParameter.Kind == InputOperationParameterKind.Constant)
+            {
+                Value = Literal((inputParameter.Type as InputLiteralType)?.Value);
+            }
         }
 
         public ParameterProvider(
