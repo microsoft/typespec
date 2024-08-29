@@ -1,0 +1,19 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.cadl.server.HttpbinAsyncClient": "Cadl.Server.ServerOp",
+    "com.cadl.server.HttpbinAsyncClient.status": "Cadl.Server.ServerOp.status",
+    "com.cadl.server.HttpbinAsyncClient.statusWithResponse": "Cadl.Server.ServerOp.status",
+    "com.cadl.server.HttpbinClient": "Cadl.Server.ServerOp",
+    "com.cadl.server.HttpbinClient.status": "Cadl.Server.ServerOp.status",
+    "com.cadl.server.HttpbinClient.statusWithResponse": "Cadl.Server.ServerOp.status",
+    "com.cadl.server.HttpbinClientBuilder": "Cadl.Server.ServerOp",
+    "com.cadl.server.contoso.sub.ContosoAsyncClient": "Cadl.ContosoServer.ServerOp",
+    "com.cadl.server.contoso.sub.ContosoAsyncClient.get": "Cadl.ContosoServer.ServerOp.get",
+    "com.cadl.server.contoso.sub.ContosoAsyncClient.getWithResponse": "Cadl.ContosoServer.ServerOp.get",
+    "com.cadl.server.contoso.sub.ContosoClient": "Cadl.ContosoServer.ServerOp",
+    "com.cadl.server.contoso.sub.ContosoClient.get": "Cadl.ContosoServer.ServerOp.get",
+    "com.cadl.server.contoso.sub.ContosoClient.getWithResponse": "Cadl.ContosoServer.ServerOp.get",
+    "com.cadl.server.contoso.sub.ContosoClientBuilder": "Cadl.ContosoServer.ServerOp"
+  }
+}

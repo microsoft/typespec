@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp.Tests.Common
@@ -61,7 +62,8 @@ namespace Microsoft.Generator.CSharp.Tests.Common
         bool isRequired = false,
         InputOperationParameterKind kind = InputOperationParameterKind.Method,
         bool isEndpoint = false,
-        bool isResourceParameter = false)
+        bool isResourceParameter = false,
+        bool isContentType = false)
         {
             return new InputParameter(
                 name,
@@ -74,7 +76,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 isRequired,
                 false,
                 isResourceParameter,
-                false,
+                isContentType,
                 isEndpoint,
                 false,
                 false,
@@ -135,11 +137,16 @@ namespace Microsoft.Generator.CSharp.Tests.Common
         public static InputModelType Model(
             string name,
             string access = "public",
-            InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input,
+            InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input | InputModelTypeUsage.Json,
             IEnumerable<InputModelProperty>? properties = null,
             InputModelType? baseModel = null,
-            bool modelAsStruct = false)
+            bool modelAsStruct = false,
+            string? discriminatedKind = null,
+            InputType? additionalProperties = null,
+            IDictionary<string, InputModelType>? discriminatedModels = null,
+            IEnumerable<InputModelType>? derivedModels = null)
         {
+            IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
             return new InputModelType(
                 name,
                 name,
@@ -147,13 +154,13 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 null,
                 $"{name} description",
                 usage,
-                properties is null ? [InputFactory.Property("StringProperty", InputPrimitiveType.String)] : [.. properties],
+                [.. propertiesList],
                 baseModel,
-                [],
-                null,
-                null,
-                new Dictionary<string, InputModelType>(),
-                null,
+                derivedModels is null ? [] : [.. derivedModels],
+                discriminatedKind,
+                propertiesList.FirstOrDefault(p => p.IsDiscriminator),
+                discriminatedModels is null ? new Dictionary<string, InputModelType>() : discriminatedModels.AsReadOnly(),
+                additionalProperties,
                 modelAsStruct);
         }
 

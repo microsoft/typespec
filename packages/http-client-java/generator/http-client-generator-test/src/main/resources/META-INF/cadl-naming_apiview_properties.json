@@ -1,0 +1,29 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.cadl.naming.NamingAsyncClient": "null",
+    "com.cadl.naming.NamingAsyncClient.getAnonymous": "Cadl.Naming.NamingOp.getAnonymous",
+    "com.cadl.naming.NamingAsyncClient.getAnonymousWithResponse": "Cadl.Naming.NamingOp.getAnonymous",
+    "com.cadl.naming.NamingAsyncClient.post": "Cadl.Naming.NamingOp.post",
+    "com.cadl.naming.NamingAsyncClient.postWithResponse": "Cadl.Naming.NamingOp.post",
+    "com.cadl.naming.NamingClient": "null",
+    "com.cadl.naming.NamingClient.getAnonymous": "Cadl.Naming.NamingOp.getAnonymous",
+    "com.cadl.naming.NamingClient.getAnonymousWithResponse": "Cadl.Naming.NamingOp.getAnonymous",
+    "com.cadl.naming.NamingClient.post": "Cadl.Naming.NamingOp.post",
+    "com.cadl.naming.NamingClient.postWithResponse": "Cadl.Naming.NamingOp.post",
+    "com.cadl.naming.NamingClientBuilder": "Cadl.Naming",
+    "com.cadl.naming.models.BinaryData": "Cadl.Naming.DataModel",
+    "com.cadl.naming.models.BytesData": "Cadl.Naming.BytesData",
+    "com.cadl.naming.models.Data": "Cadl.Naming.Data",
+    "com.cadl.naming.models.DataRequest": "Cadl.Naming.Request",
+    "com.cadl.naming.models.DataResponse": "Cadl.Naming.Response",
+    "com.cadl.naming.models.DataStatus": "Cadl.Naming.StatusModel",
+    "com.cadl.naming.models.GetAnonymousResponse": "Cadl.Naming.getAnonymous.Response.anonymous",
+    "com.cadl.naming.models.RequestParameters": "Cadl.Naming.Request.parameters.anonymous",
+    "com.cadl.naming.models.RequestParametersType": "Request.parameters.type.anonymous",
+    "com.cadl.naming.models.RunObject": "Cadl.Naming.RunObject",
+    "com.cadl.naming.models.RunObjectLastError": "Cadl.Naming.RunObject.last_error.anonymous",
+    "com.cadl.naming.models.RunObjectLastErrorCode": "RunObject.last_error.code.anonymous",
+    "com.cadl.naming.models.TypesModel": "Cadl.Naming.TypesModel"
+  }
+}

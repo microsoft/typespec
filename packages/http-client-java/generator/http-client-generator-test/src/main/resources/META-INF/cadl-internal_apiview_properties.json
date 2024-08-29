@@ -1,0 +1,26 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.cadl.internal.InternalAsyncClient": "null",
+    "com.cadl.internal.InternalAsyncClient.getInternal": "Cadl.Internal.InternalOp.getInternal",
+    "com.cadl.internal.InternalAsyncClient.getInternalWithResponse": "Cadl.Internal.InternalOp.getInternal",
+    "com.cadl.internal.InternalAsyncClient.postInternal": "Cadl.Internal.InternalOp.postInternal",
+    "com.cadl.internal.InternalAsyncClient.postInternalWithResponse": "Cadl.Internal.InternalOp.postInternal",
+    "com.cadl.internal.InternalClient": "null",
+    "com.cadl.internal.InternalClient.getInternal": "Cadl.Internal.InternalOp.getInternal",
+    "com.cadl.internal.InternalClient.getInternalWithResponse": "Cadl.Internal.InternalOp.getInternal",
+    "com.cadl.internal.InternalClient.postInternal": "Cadl.Internal.InternalOp.postInternal",
+    "com.cadl.internal.InternalClient.postInternalWithResponse": "Cadl.Internal.InternalOp.postInternal",
+    "com.cadl.internal.InternalClientBuilder": "Cadl.Internal",
+    "com.cadl.internal.implementation.models.Color": "Cadl.Internal.Color",
+    "com.cadl.internal.implementation.models.ColorModel": "Cadl.Internal.ColorModel",
+    "com.cadl.internal.models.ApiRequest": "Cadl.Internal.ApiRequest",
+    "com.cadl.internal.models.ApiResponse": "Cadl.Internal.ApiResponse",
+    "com.cadl.internal.models.RequestInner": "Cadl.Internal.RequestInner",
+    "com.cadl.internal.models.ResponseInternal": "Cadl.Internal.ResponseInternal",
+    "com.cadl.internal.models.ResponseInternalInner": "Cadl.Internal.ResponseInternalInner",
+    "com.cadl.internal.models.StandAloneData": "Cadl.Internal.StandAloneData",
+    "com.cadl.internal.models.StandAloneDataInner": "Cadl.Internal.StandAloneDataInner",
+    "com.cadl.internal.models.UnusedEnum": "Cadl.Internal.UnusedEnum"
+  }
+}

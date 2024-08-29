@@ -1,36 +1,112 @@
+import { Numeric } from "@typespec/compiler";
 import { assert, describe, expect, it } from "vitest";
 import { tspForOpenAPI3 } from "./utils/tsp-for-openapi3.js";
 
 describe("converts top-level parameters", () => {
-  (["query", "header", "path"] as const).forEach((location) => {
-    it(`Supports location: ${location}`, async () => {
-      const serviceNamespace = await tspForOpenAPI3({
-        parameters: {
-          Foo: {
-            name: "foo",
-            in: location,
-            required: true,
-            schema: {
-              type: "string",
-            },
+  it.each(["query", "header", "path"] as const)(`Supports location: %s`, async (location) => {
+    const serviceNamespace = await tspForOpenAPI3({
+      parameters: {
+        Foo: {
+          name: "foo",
+          in: location,
+          required: true,
+          schema: {
+            type: "string",
           },
         },
-      });
+      },
+    });
 
-      const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
-      assert(parametersNamespace, "Parameters namespace not found");
+    const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+    assert(parametersNamespace, "Parameters namespace not found");
 
-      const models = parametersNamespace.models;
+    const models = parametersNamespace.models;
 
-      /* model Foo { @<location> foo: string, } */
-      const Foo = models.get("Foo");
-      assert(Foo, "Foo model not found");
-      expect(Foo.properties.size).toBe(1);
-      expect(Foo.properties.get("foo")).toMatchObject({
-        optional: false,
-        type: { kind: "Scalar", name: "string" },
-        decorators: [{ definition: { name: `@${location}` } }],
-      });
+    /* model Foo { @<location> foo: string, } */
+    const Foo = models.get("Foo");
+    assert(Foo, "Foo model not found");
+    expect(Foo.properties.size).toBe(1);
+    expect(Foo.properties.get("foo")).toMatchObject({
+      optional: false,
+      type: { kind: "Scalar", name: "string" },
+      decorators: [{ definition: { name: `@${location}` } }],
+    });
+  });
+
+  it(`Supports string schema constraints`, async () => {
+    const serviceNamespace = await tspForOpenAPI3({
+      parameters: {
+        Foo: {
+          name: "foo",
+          in: "query",
+          required: true,
+          schema: {
+            type: "string",
+            minLength: 3,
+            maxLength: 10,
+            pattern: "^[a-z]+$",
+            format: "UUID",
+          },
+        },
+      },
+    });
+
+    const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+    assert(parametersNamespace, "Parameters namespace not found");
+
+    const models = parametersNamespace.models;
+
+    /* model Foo { @query @format("UUID") @pattern("^[a-z]+$") @maxLength(10) @minLength(3) foo: string, } */
+    const Foo = models.get("Foo");
+    assert(Foo, "Foo model not found");
+    expect(Foo.properties.size).toBe(1);
+    expect(Foo.properties.get("foo")).toMatchObject({
+      optional: false,
+      type: { kind: "Scalar", name: "string" },
+      decorators: [
+        { definition: { name: "@query" } },
+        { definition: { name: "@format" }, args: [{ jsValue: "UUID" }] },
+        { definition: { name: "@pattern" }, args: [{ jsValue: "^[a-z]+$" }] },
+        { definition: { name: "@maxLength" }, args: [{ jsValue: Numeric("10") }] },
+        { definition: { name: "@minLength" }, args: [{ jsValue: Numeric("3") }] },
+      ],
+    });
+  });
+
+  it(`Supports numeric schema constraints`, async () => {
+    const serviceNamespace = await tspForOpenAPI3({
+      parameters: {
+        Foo: {
+          name: "foo",
+          in: "query",
+          required: true,
+          schema: {
+            type: "integer",
+            minimum: 3,
+            maximum: 10,
+            format: "int32",
+          },
+        },
+      },
+    });
+
+    const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+    assert(parametersNamespace, "Parameters namespace not found");
+
+    const models = parametersNamespace.models;
+
+    /* model Foo { @query @maxValue(10) @minValue(3) foo: string, } */
+    const Foo = models.get("Foo");
+    assert(Foo, "Foo model not found");
+    expect(Foo.properties.size).toBe(1);
+    expect(Foo.properties.get("foo")).toMatchObject({
+      optional: false,
+      type: { kind: "Scalar", name: "int32" },
+      decorators: [
+        { definition: { name: "@query" } },
+        { definition: { name: "@maxValue" }, args: [{ jsValue: Numeric("10") }] },
+        { definition: { name: "@minValue" }, args: [{ jsValue: Numeric("3") }] },
+      ],
     });
   });
 
@@ -152,4 +228,37 @@ describe("converts top-level parameters", () => {
     });
     expect(Foo.properties.get("foo")?.type).toBe(serviceNamespace.scalars.get("Foo"));
   });
+
+  it.each(["model", "interface", "namespace", "hyphen-name"])(
+    `escapes invalid names: %s`,
+    async (reservedKeyword) => {
+      const serviceNamespace = await tspForOpenAPI3({
+        parameters: {
+          [reservedKeyword]: {
+            name: reservedKeyword,
+            in: "query",
+            required: true,
+            schema: {
+              type: "string",
+            },
+          },
+        },
+      });
+
+      const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+      assert(parametersNamespace, "Parameters namespace not found");
+
+      const models = parametersNamespace.models;
+
+      /* model `{reservedKeyWord}` { @query `{reservedKeyword}`: string, } */
+      const escapedModel = models.get(reservedKeyword);
+      assert(escapedModel, "escapedModel model not found");
+      expect(escapedModel.properties.size).toBe(1);
+      expect(escapedModel.properties.get(reservedKeyword)).toMatchObject({
+        optional: false,
+        type: { kind: "Scalar", name: "string" },
+        decorators: [{ definition: { name: "@query" } }],
+      });
+    }
+  );
 });

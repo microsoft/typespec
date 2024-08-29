@@ -1,0 +1,27 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.payload.contentnegotiation.ContentNegotiationClientBuilder": "Payload.ContentNegotiation",
+    "com.payload.contentnegotiation.DifferentBodyAsyncClient": "null",
+    "com.payload.contentnegotiation.DifferentBodyAsyncClient.getAvatarAsJson": "Payload.ContentNegotiation.DifferentBody.getAvatarAsJson",
+    "com.payload.contentnegotiation.DifferentBodyAsyncClient.getAvatarAsJsonWithResponse": "Payload.ContentNegotiation.DifferentBody.getAvatarAsJson",
+    "com.payload.contentnegotiation.DifferentBodyAsyncClient.getAvatarAsPng": "Payload.ContentNegotiation.DifferentBody.getAvatarAsPng",
+    "com.payload.contentnegotiation.DifferentBodyAsyncClient.getAvatarAsPngWithResponse": "Payload.ContentNegotiation.DifferentBody.getAvatarAsPng",
+    "com.payload.contentnegotiation.DifferentBodyClient": "null",
+    "com.payload.contentnegotiation.DifferentBodyClient.getAvatarAsJson": "Payload.ContentNegotiation.DifferentBody.getAvatarAsJson",
+    "com.payload.contentnegotiation.DifferentBodyClient.getAvatarAsJsonWithResponse": "Payload.ContentNegotiation.DifferentBody.getAvatarAsJson",
+    "com.payload.contentnegotiation.DifferentBodyClient.getAvatarAsPng": "Payload.ContentNegotiation.DifferentBody.getAvatarAsPng",
+    "com.payload.contentnegotiation.DifferentBodyClient.getAvatarAsPngWithResponse": "Payload.ContentNegotiation.DifferentBody.getAvatarAsPng",
+    "com.payload.contentnegotiation.SameBodyAsyncClient": "null",
+    "com.payload.contentnegotiation.SameBodyAsyncClient.getAvatarAsJpeg": "Payload.ContentNegotiation.SameBody.getAvatarAsJpeg",
+    "com.payload.contentnegotiation.SameBodyAsyncClient.getAvatarAsJpegWithResponse": "Payload.ContentNegotiation.SameBody.getAvatarAsJpeg",
+    "com.payload.contentnegotiation.SameBodyAsyncClient.getAvatarAsPng": "Payload.ContentNegotiation.SameBody.getAvatarAsPng",
+    "com.payload.contentnegotiation.SameBodyAsyncClient.getAvatarAsPngWithResponse": "Payload.ContentNegotiation.SameBody.getAvatarAsPng",
+    "com.payload.contentnegotiation.SameBodyClient": "null",
+    "com.payload.contentnegotiation.SameBodyClient.getAvatarAsJpeg": "Payload.ContentNegotiation.SameBody.getAvatarAsJpeg",
+    "com.payload.contentnegotiation.SameBodyClient.getAvatarAsJpegWithResponse": "Payload.ContentNegotiation.SameBody.getAvatarAsJpeg",
+    "com.payload.contentnegotiation.SameBodyClient.getAvatarAsPng": "Payload.ContentNegotiation.SameBody.getAvatarAsPng",
+    "com.payload.contentnegotiation.SameBodyClient.getAvatarAsPngWithResponse": "Payload.ContentNegotiation.SameBody.getAvatarAsPng",
+    "com.payload.contentnegotiation.models.PngImageAsJson": "Payload.ContentNegotiation.DifferentBody.PngImageAsJson"
+  }
+}

@@ -37,7 +37,7 @@ namespace UnbrandedTypeSpec.Models
             writer.WritePropertyName("requiredString"u8);
             writer.WriteStringValue(RequiredString);
             writer.WritePropertyName("requiredInt"u8);
-            writer.WriteNumberValue(RequiredInt);
+            writer.WriteStringValue(RequiredInt.ToString());
             writer.WritePropertyName("requiredCollection"u8);
             writer.WriteStartArray();
             foreach (var item in RequiredCollection)
@@ -316,7 +316,7 @@ namespace UnbrandedTypeSpec.Models
                 }
                 if (prop.NameEquals("requiredInt"u8))
                 {
-                    requiredInt = prop.Value.GetInt32();
+                    requiredInt = int.Parse(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("requiredCollection"u8))

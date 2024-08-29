@@ -40,7 +40,7 @@ namespace Microsoft.Generator.CSharp.Tests
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), inputModel, ItExpr.Is<ModelProvider>(m => m.Name == new ModelProvider(inputModel).Name));
-            _mockVisitor.Protected().Verify<PropertyProvider>("Visit", Times.Once(), inputModelProperty, ItExpr.Is<PropertyProvider>(m => m.Name == new PropertyProvider(inputModelProperty).Name));
+            _mockVisitor.Protected().Verify<PropertyProvider>("Visit", Times.Once(), inputModelProperty, ItExpr.Is<PropertyProvider>(m => m.Name == new PropertyProvider(inputModelProperty, new TestTypeProvider()).Name));
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), inputModel, ItExpr.Is<ModelProvider>(m => m.Name == new ModelProvider(inputModel).Name));
 
-            _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), inputEnum, ItExpr.IsNull<EnumProvider>());
+            _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), inputEnum, ItExpr.Is<EnumProvider>(m => m.Name == EnumProvider.Create(inputEnum, null).Name));
         }
 
         [Test]
@@ -102,7 +102,7 @@ namespace Microsoft.Generator.CSharp.Tests
             {
                 _cleanupReference = cleanupReference;
             }
-            protected internal override TypeProvider? Visit(InputModelType inputModel, TypeProvider? typeProvider)
+            protected internal override ModelProvider? Visit(InputModelType inputModel, ModelProvider? typeProvider)
             {
                 if (inputModel.Name == "Model1")
                 {
@@ -117,7 +117,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 {
                     return null;
                 }
-                return base.Visit(inputModelProperty, propertyProvider);
+                return new PropertyProvider(inputModelProperty, new TestTypeProvider());
             }
         }
     }
