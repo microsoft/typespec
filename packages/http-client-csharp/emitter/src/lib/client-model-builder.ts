@@ -8,6 +8,7 @@ import {
   SdkEndpointType,
   SdkHttpOperation,
   SdkServiceMethod,
+  SdkType,
   UsageFlags,
   getAllModels,
 } from "@azure-tools/typespec-client-generator-core";
@@ -19,6 +20,7 @@ import { InputOperationParameterKind } from "../type/input-operation-parameter-k
 import { InputParameter } from "../type/input-parameter.js";
 import { InputEnumType, InputModelType, InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
+import { SdkTypeMap } from "../type/sdk-type-map.js";
 import { fromSdkType } from "./converter.js";
 import { Logger } from "./logger.js";
 import { navigateModels } from "./model.js";
@@ -31,10 +33,13 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
 
   const sdkPackage = sdkContext.sdkPackage;
 
-  const modelMap = new Map<string, InputModelType>();
-  const enumMap = new Map<string, InputEnumType>();
+  const sdkTypeMap: SdkTypeMap = {
+    types: new Map<SdkType, InputType>(),
+    models: new Map<string, InputModelType>(),
+    enums: new Map<string, InputEnumType>(),
+  };
 
-  navigateModels(sdkContext, modelMap, enumMap);
+  navigateModels(sdkContext, sdkTypeMap);
 
   const sdkApiVersionEnums = sdkPackage.enums.filter((e) => e.usage === UsageFlags.ApiVersionEnum);
 
@@ -50,14 +55,14 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     []
   );
 
-  const clientModel = {
+  const clientModel: CodeModel = {
     Name: sdkPackage.rootNamespace,
     ApiVersions: rootApiVersions,
-    Enums: Array.from(enumMap.values()),
-    Models: Array.from(modelMap.values()),
+    Enums: Array.from(sdkTypeMap.enums.values()),
+    Models: Array.from(sdkTypeMap.models.values()),
     Clients: inputClients,
     Auth: processServiceAuthentication(sdkPackage),
-  } as CodeModel;
+  };
   return clientModel;
 
   function fromSdkClients(
@@ -95,13 +100,13 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
             clientParameters,
             rootApiVersions,
             sdkContext,
-            modelMap,
-            enumMap
+            sdkTypeMap
           )
         ),
       Protocol: {},
       Parent: parentNames.length > 0 ? parentNames[parentNames.length - 1] : undefined,
       Parameters: clientParameters,
+      Decorators: client.decorators,
     };
   }
 
@@ -154,7 +159,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
             Name: "url",
             CrossLanguageDefinitionId: "TypeSpec.url",
           }
-        : fromSdkType(parameter.type, sdkContext, modelMap, enumMap); // TODO: consolidate with converter.fromSdkEndpointType
+        : fromSdkType(parameter.type, sdkContext, sdkTypeMap); // TODO: consolidate with converter.fromSdkEndpointType
       parameters.push({
         Name: parameter.name,
         NameInRequest: parameter.serializedName,

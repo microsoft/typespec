@@ -1,0 +1,13 @@
+# Release History
+
+## {{artifact-version}} ({{date-utc}})
+
+- Azure {{service-name}} client library for Java. {{service-description}}
+
+### Features Added
+
+### Breaking Changes
+
+### Bugs Fixed
+
+### Other Changes

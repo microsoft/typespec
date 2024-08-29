@@ -40,7 +40,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 modifiers: FieldModifiers.Internal | FieldModifiers.Static | FieldModifiers.ReadOnly,
                 type: typeof(ModelReaderWriterOptions),
                 name: _wireOptionsName,
-                initializationValue: New.Instance(typeof(ModelReaderWriterOptions), Literal("W")));
+                initializationValue: New.Instance(typeof(ModelReaderWriterOptions), Literal("W")),
+                enclosingType: this);
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()

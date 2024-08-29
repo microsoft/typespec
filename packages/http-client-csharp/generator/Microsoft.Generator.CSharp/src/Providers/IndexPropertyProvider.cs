@@ -9,8 +9,8 @@ namespace Microsoft.Generator.CSharp.Providers
     internal class IndexPropertyProvider : PropertyProvider
     {
         public ParameterProvider IndexerParameter { get; }
-        public IndexPropertyProvider(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType propertyType, ParameterProvider indexerParameter, PropertyBody propertyBody, CSharpType? explicitInterface = null)
-            : base(description, modifiers, propertyType, "this", propertyBody, explicitInterface)
+        public IndexPropertyProvider(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType propertyType, ParameterProvider indexerParameter, PropertyBody propertyBody, TypeProvider enclosingType, CSharpType? explicitInterface = null)
+            : base(description, modifiers, propertyType, "this", propertyBody, enclosingType, explicitInterface)
         {
             IndexerParameter = indexerParameter;
         }

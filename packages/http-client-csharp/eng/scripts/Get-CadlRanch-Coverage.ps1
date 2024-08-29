@@ -24,12 +24,15 @@ foreach ($directory in $directories) {
         continue
     }
 
-    $outputDir = $directory.FullName.Substring(0, $directory.FullName.IndexOf("src") - 1).Replace("\", "/") # replace \ with / for the path to avoid path-unix-style warning
+    $outputDir = $directory.FullName.Substring(0, $directory.FullName.IndexOf("src") - 1)
     $subPath = $outputDir.Substring($cadlRanchRoot.Length + 1)
 
     Write-Host "Regenerating $subPath" -ForegroundColor Cyan
 
-    $specFile = Join-Path $specsDirectory $subPath "main.tsp"
+    $specFile = Join-Path $specsDirectory $subPath "client.tsp"
+    if (-not (Test-Path $specFile)) {
+        $specFile = Join-Path $specsDirectory $subPath "main.tsp"
+    }
 
     $command = Get-TspCommand $specFile $outputDir
     Invoke $command

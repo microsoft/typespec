@@ -64,27 +64,32 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 FieldModifiers.Private | FieldModifiers.ReadOnly,
                 typeof(ApiKeyCredential),
                 ApiKeyCredentialFieldName,
+                this,
                 description: $"A credential used to authenticate to the service.") : null;
             _authorizationHeaderConstant = apiKey?.Name != null ? new(
                 FieldModifiers.Private | FieldModifiers.Const,
                 typeof(string),
                 AuthorizationHeaderConstName,
+                this,
                 initializationValue: Literal(apiKey.Name)) : null;
             _authorizationApiKeyPrefixConstant = apiKey?.Prefix != null ? new(
                 FieldModifiers.Private | FieldModifiers.Const,
                 typeof(string),
                 AuthorizationApiKeyPrefixConstName,
+                this,
                 initializationValue: Literal(apiKey.Prefix)) : null;
             EndpointField = new(
                 FieldModifiers.Private | FieldModifiers.ReadOnly,
                 typeof(Uri),
-                EndpointFieldName);
+                EndpointFieldName,
+                this);
             PipelineProperty = new(
                 description: $"The HTTP pipeline for sending and receiving REST requests and responses.",
                 modifiers: MethodSignatureModifiers.Public,
                 type: typeof(ClientPipeline),
                 name: "Pipeline",
-                body: new AutoPropertyBody(false));
+                body: new AutoPropertyBody(false),
+                enclosingType: this);
 
             _subClientInternalConstructorParams = _apiKeyAuthField != null
                 ? [PipelineProperty.AsParameter, _apiKeyAuthField.AsParameter, _endpointParameter]
@@ -95,8 +100,37 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 _clientCachingField = new FieldProvider(
                     FieldModifiers.Private,
                     Type,
-                    $"_cached{Name}");
+                    $"_cached{Name}",
+                    this);
             }
+
+            _endpointParameterName = new(GetEndpointParameterName);
+        }
+
+        private List<ParameterProvider>? _uriParameters;
+        internal IReadOnlyList<ParameterProvider> GetUriParameters()
+        {
+            if (_uriParameters is null)
+            {
+                _ = Constructors;
+            }
+            return _uriParameters ?? [];
+        }
+
+        private Lazy<string?> _endpointParameterName;
+        internal string? EndpointParameterName => _endpointParameterName.Value;
+
+        private string? GetEndpointParameterName()
+        {
+            foreach (var param in _inputClient.Parameters)
+            {
+                if (param.IsEndpoint)
+                {
+                    //this will be the beginning of the url string so we will skip it when creating the uri builder
+                    return $"{{{param.Name}}}";
+                }
+            }
+            return null;
         }
 
         internal RestClientProvider RestClient => _restClient ??= new RestClientProvider(_inputClient, this);
@@ -129,14 +163,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // Add optional client parameters as fields
             foreach (var p in _inputClient.Parameters)
             {
-                if (!p.IsEndpoint && p.DefaultValue != null)
+                if (!p.IsEndpoint)
                 {
-                    FormattableString? description = null;
-                    if (p.Description != null)
-                    {
-                        description = $"{p.Description}";
-                    }
-
                     var type = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type);
                     if (type != null)
                     {
@@ -144,7 +172,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                             FieldModifiers.Private | FieldModifiers.ReadOnly,
                             type,
                             "_" + p.Name.ToVariableName(),
-                            description));
+                            this));
                     }
                 }
             }
@@ -189,27 +217,48 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 return [mockingConstructor, subClientConstructor];
             }
 
-            ParameterProvider[] primaryConstructorParameters = _apiKeyAuthField != null
-                ? [_endpointParameter, _apiKeyAuthField.AsParameter, ClientOptionsParameter]
-                : [_endpointParameter, ClientOptionsParameter];
+            var requiredParameters = GetRequiredParameters();
+            ParameterProvider[] primaryConstructorParameters = [_endpointParameter, .. requiredParameters, ClientOptionsParameter];
             var primaryConstructor = new ConstructorProvider(
                 new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Public, primaryConstructorParameters),
                 BuildPrimaryConstructorBody(primaryConstructorParameters),
                 this);
 
-            // build the required parameters for the secondary constructor.
             // If the endpoint parameter contains an initialization value, it is not required.
-            List<ParameterProvider> requiredParameters = _endpointParameter.InitializationValue == null ? [_endpointParameter] : [];
-            if (_apiKeyAuthField != null)
-            {
-                requiredParameters.Add(_apiKeyAuthField.AsParameter);
-            }
-
-            var secondaryConstructor = BuildSecondaryConstructor(requiredParameters, primaryConstructorParameters);
-            var shouldIncludeMockingConstructor = requiredParameters.Count > 0 || _apiKeyAuthField != null;
+            ParameterProvider[] secondaryConstructorParameters = _endpointParameter.InitializationValue is null
+                ? [_endpointParameter, .. requiredParameters]
+                : [.. requiredParameters];
+            var secondaryConstructor = BuildSecondaryConstructor(secondaryConstructorParameters, primaryConstructorParameters);
+            var shouldIncludeMockingConstructor = secondaryConstructorParameters.Length > 0 || _apiKeyAuthField != null;
             return shouldIncludeMockingConstructor
                 ? [ConstructorProviderHelper.BuildMockingConstructor(this), secondaryConstructor, primaryConstructor]
                 : [secondaryConstructor, primaryConstructor];
+        }
+
+        private IReadOnlyList<ParameterProvider> GetRequiredParameters()
+        {
+            List<ParameterProvider> requiredParameters = [];
+            _uriParameters = [];
+
+            ParameterProvider? currentParam = null;
+            foreach (var parameter in _inputClient.Parameters)
+            {
+                if (parameter.IsRequired && !parameter.IsEndpoint)
+                {
+                    currentParam = ClientModelPlugin.Instance.TypeFactory.CreateParameter(parameter);
+                    currentParam.Field = Fields.FirstOrDefault(f => f.Name == "_" + parameter.Name);
+                    requiredParameters.Add(currentParam);
+                }
+                if (parameter.Location == RequestLocation.Uri)
+                {
+                    _uriParameters.Add(currentParam ?? ClientModelPlugin.Instance.TypeFactory.CreateParameter(parameter));
+                }
+            }
+
+            if (_apiKeyAuthField is not null)
+                requiredParameters.Add(_apiKeyAuthField.AsParameter);
+
+            return requiredParameters;
         }
 
         private MethodBodyStatement[] BuildPrimaryConstructorBody(IReadOnlyList<ParameterProvider> primaryConstructorParameters)
@@ -268,10 +317,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// <summary>
         /// Builds the secondary constructor for the client. The secondary constructor contains all required parameters as arguments.
         /// </summary>
-        /// <param name="requiredParams">The required parameters for the client.</param>
+        /// <param name="secondaryConstructorParameters">The required parameters for the client.</param>
         /// <param name="primaryCtorOrderedParams">The ordered parameters for the primary constructor.</param>
         private ConstructorProvider BuildSecondaryConstructor(
-            IReadOnlyList<ParameterProvider> requiredParams,
+            IReadOnlyList<ParameterProvider> secondaryConstructorParameters,
             IReadOnlyList<ParameterProvider> primaryCtorOrderedParams)
         {
             // initialize the arguments to reference the primary constructor
@@ -283,7 +332,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Type,
                 _publicCtorDescription,
                 MethodSignatureModifiers.Public,
-                requiredParams,
+                secondaryConstructorParameters,
                 Initializer: primaryCtorInitializer);
 
             return new ConstructorProvider(

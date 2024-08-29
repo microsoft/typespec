@@ -11,8 +11,11 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public static class BinaryDataSnippets
     {
-        public static ScopedApi ToObjectFromJson(this ScopedApi<BinaryData> binaryData, Type responseType)
-            => binaryData.Invoke(nameof(BinaryData.ToObjectFromJson), [], [new CSharpType(responseType)], false).As(responseType);
+        public static ScopedApi ToObjectFromJson(this ScopedApi<BinaryData> binaryData, CSharpType responseType)
+            => binaryData.Invoke(nameof(BinaryData.ToObjectFromJson), [], [responseType], false).As(responseType);
+
+        public static ScopedApi ToObjectFromJson(this ScopedApi<BinaryData> binaryData, CSharpType responseType, ValueExpression jsonSerializerOptions)
+            => binaryData.Invoke(nameof(BinaryData.ToObjectFromJson), [jsonSerializerOptions], [responseType], false).As(responseType);
 
         public static ScopedApi<byte[]> ToArray(this ScopedApi<BinaryData> binaryData) => binaryData.Invoke(nameof(BinaryData.ToArray)).As<byte[]>();
 

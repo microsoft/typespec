@@ -1,0 +1,23 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.type.model.usage.UsageAsyncClient": "Type.Model.Usage",
+    "com.type.model.usage.UsageAsyncClient.input": "Type.Model.Usage.input",
+    "com.type.model.usage.UsageAsyncClient.inputAndOutput": "Type.Model.Usage.inputAndOutput",
+    "com.type.model.usage.UsageAsyncClient.inputAndOutputWithResponse": "Type.Model.Usage.inputAndOutput",
+    "com.type.model.usage.UsageAsyncClient.inputWithResponse": "Type.Model.Usage.input",
+    "com.type.model.usage.UsageAsyncClient.output": "Type.Model.Usage.output",
+    "com.type.model.usage.UsageAsyncClient.outputWithResponse": "Type.Model.Usage.output",
+    "com.type.model.usage.UsageClient": "Type.Model.Usage",
+    "com.type.model.usage.UsageClient.input": "Type.Model.Usage.input",
+    "com.type.model.usage.UsageClient.inputAndOutput": "Type.Model.Usage.inputAndOutput",
+    "com.type.model.usage.UsageClient.inputAndOutputWithResponse": "Type.Model.Usage.inputAndOutput",
+    "com.type.model.usage.UsageClient.inputWithResponse": "Type.Model.Usage.input",
+    "com.type.model.usage.UsageClient.output": "Type.Model.Usage.output",
+    "com.type.model.usage.UsageClient.outputWithResponse": "Type.Model.Usage.output",
+    "com.type.model.usage.UsageClientBuilder": "Type.Model.Usage",
+    "com.type.model.usage.models.InputOutputRecord": "Type.Model.Usage.InputOutputRecord",
+    "com.type.model.usage.models.InputRecord": "Type.Model.Usage.InputRecord",
+    "com.type.model.usage.models.OutputRecord": "Type.Model.Usage.OutputRecord"
+  }
+}
