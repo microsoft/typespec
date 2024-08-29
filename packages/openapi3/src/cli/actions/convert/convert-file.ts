@@ -6,15 +6,17 @@ import { handleInternalCompilerError } from "../../utils.js";
 import { ConvertCliArgs } from "./args.js";
 import { generateMain } from "./generators/generate-main.js";
 import { transform } from "./transforms/transforms.js";
+import { createContext } from "./utils/context.js";
 
 export async function convertAction(host: CliHost, args: ConvertCliArgs) {
   // attempt to read the file
   const fullPath = resolvePath(process.cwd(), args.path);
   const model = await parseOpenApiFile(fullPath);
-  const program = transform(model);
+  const context = createContext(model);
+  const program = transform(context);
   let mainTsp: string;
   try {
-    mainTsp = generateMain(program);
+    mainTsp = generateMain(program, context);
   } catch (err) {
     handleInternalCompilerError(err);
   }
