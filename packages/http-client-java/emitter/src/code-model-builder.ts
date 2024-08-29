@@ -67,7 +67,6 @@ import {
   SdkServiceMethod,
   SdkType,
   SdkUnionType,
-  UsageFlags,
   createSdkContext,
   getAllModels,
   getClientType,
@@ -107,10 +106,7 @@ import {
   getHeaderFieldName,
   getPathParamName,
   getQueryParamName,
-  isBody,
-  isBodyRoot,
   isHeader,
-  isMultipartBodyProperty,
   isPathParam,
   isQueryParam,
 } from "@typespec/http";
@@ -463,6 +459,7 @@ export class CodeModelBuilder {
       schema instanceof ConstantSchema
     ) {
       const schemaUsage: SchemaContext[] | undefined = schema.usage;
+
       // Public override Internal
       if (schemaUsage?.includes(SchemaContext.Public)) {
         const index = schemaUsage.indexOf(SchemaContext.Internal);
@@ -471,11 +468,17 @@ export class CodeModelBuilder {
         }
       }
 
-      // Internal on Anonymous
-      if (schemaUsage?.includes(SchemaContext.Anonymous)) {
-        const index = schemaUsage.indexOf(SchemaContext.Internal);
-        if (index < 0) {
-          schemaUsage.push(SchemaContext.Internal);
+      // Internal on PublicSpread, but Public takes precedence
+      if (schemaUsage?.includes(SchemaContext.PublicSpread)) {
+        // remove PublicSpread as it now served its purpose
+        schemaUsage.splice(schemaUsage.indexOf(SchemaContext.PublicSpread), 1);
+
+        // Public would override PublicSpread, hence do nothing if this schema is Public
+        if (!schemaUsage?.includes(SchemaContext.Public)) {
+          // set the model as Internal, so that it is not exposed to user
+          if (!schemaUsage.includes(SchemaContext.Internal)) {
+            schemaUsage.push(SchemaContext.Internal);
+          }
         }
       }
     }
@@ -1350,6 +1353,12 @@ export class CodeModelBuilder {
     });
     op.addParameter(parameter);
 
+    const jsonMergePatch = operationIsJsonMergePatch(sdkHttpOperation);
+
+    const schemaIsPublicBeforeProcess =
+      schema instanceof ObjectSchema &&
+      (schema as SchemaUsage).usage?.includes(SchemaContext.Public);
+
     this.trackSchemaUsage(schema, { usage: [SchemaContext.Input] });
 
     if (op.convenienceApi) {
@@ -1359,130 +1368,143 @@ export class CodeModelBuilder {
       });
     }
 
-    if (operationIsJsonMergePatch(sdkHttpOperation)) {
+    if (jsonMergePatch) {
       this.trackSchemaUsage(schema, { usage: [SchemaContext.JsonMergePatch] });
     }
     if (op.convenienceApi && operationIsMultipart(sdkHttpOperation)) {
       this.trackSchemaUsage(schema, { serializationFormats: [KnownMediaType.Multipart] });
     }
 
-    // Implicit body parameter would have usage flag: UsageFlags.Spread, for this case we need to do body parameter flatten
-    const bodyParameterFlatten =
-      sdkType.kind === "model" && sdkType.usage & UsageFlags.Spread && !this.isArm();
+    if (op.convenienceApi) {
+      // Explicit body parameter @body or @bodyRoot would result to the existance of rawHttpOperation.parameters.body.property
+      // Implicit body parameter would result to rawHttpOperation.parameters.body.property be undefined
+      // see https://typespec.io/docs/libraries/http/cheat-sheet#data-types
+      const bodyParameterFlatten =
+        schema instanceof ObjectSchema &&
+        sdkType.kind === "model" &&
+        !rawHttpOperation.parameters.body?.property &&
+        !this.isArm();
 
-    if (schema instanceof ObjectSchema && bodyParameterFlatten) {
-      // flatten body parameter
-      const parameters = sdkHttpOperation.parameters;
-      const bodyParameter = sdkHttpOperation.bodyParam;
-      // name the schema for documentation
-      schema.language.default.name = pascalCase(op.language.default.name) + "Request";
+      if (schema instanceof ObjectSchema && bodyParameterFlatten) {
+        // flatten body parameter
+        const parameters = sdkHttpOperation.parameters;
+        const bodyParameter = sdkHttpOperation.bodyParam;
 
-      if (!parameter.language.default.name) {
-        // name the parameter for documentation
-        parameter.language.default.name = "request";
-      }
-
-      if (operationIsJsonMergePatch(sdkHttpOperation)) {
-        // skip model flatten, if "application/merge-patch+json"
-        schema.language.default.name = pascalCase(op.language.default.name) + "PatchRequest";
-        return;
-      }
-
-      this.trackSchemaUsage(schema, { usage: [SchemaContext.Anonymous] });
-
-      if (op.convenienceApi && op.parameters) {
-        op.convenienceApi.requests = [];
-        const request = new Request({
-          protocol: op.requests![0].protocol,
-        });
-        request.parameters = [];
-        op.convenienceApi.requests.push(request);
-
-        // header/query/path params
-        for (const opParameter of parameters) {
-          this.addParameterOrBodyPropertyToCodeModelRequest(
-            opParameter,
-            op,
-            request,
-            schema,
-            parameter
-          );
+        if (!parameter.language.default.name) {
+          // name the parameter for documentation
+          parameter.language.default.name = "request";
         }
-        // body param
-        if (bodyParameter) {
-          if (bodyParameter.type.kind === "model") {
-            for (const bodyProperty of bodyParameter.type.properties) {
-              if (bodyProperty.kind === "property") {
-                this.addParameterOrBodyPropertyToCodeModelRequest(
-                  bodyProperty,
-                  op,
-                  request,
-                  schema,
-                  parameter
-                );
+
+        if (jsonMergePatch) {
+          // skip model flatten, if "application/merge-patch+json"
+          if (sdkType.isGeneratedName) {
+            schema.language.default.name = pascalCase(op.language.default.name) + "PatchRequest";
+          }
+          return;
+        }
+
+        const schemaUsage = (schema as SchemaUsage).usage;
+        if (!schemaIsPublicBeforeProcess && schemaUsage?.includes(SchemaContext.Public)) {
+          // Public added in this op, change it to PublicSpread
+          // This means that if this op would originally add Public to this schema, it adds PublicSpread instead
+          schemaUsage?.splice(schemaUsage?.indexOf(SchemaContext.Public), 1);
+          this.trackSchemaUsage(schema, { usage: [SchemaContext.PublicSpread] });
+        }
+
+        if (op.convenienceApi && op.parameters) {
+          op.convenienceApi.requests = [];
+          const request = new Request({
+            protocol: op.requests![0].protocol,
+          });
+          request.parameters = [];
+          op.convenienceApi.requests.push(request);
+
+          // header/query/path params
+          for (const opParameter of parameters) {
+            this.addParameterOrBodyPropertyToCodeModelRequest(
+              opParameter,
+              op,
+              request,
+              schema,
+              parameter
+            );
+          }
+          // body param
+          if (bodyParameter) {
+            if (bodyParameter.type.kind === "model") {
+              for (const bodyProperty of bodyParameter.type.properties) {
+                if (bodyProperty.kind === "property") {
+                  this.addParameterOrBodyPropertyToCodeModelRequest(
+                    bodyProperty,
+                    op,
+                    request,
+                    schema,
+                    parameter
+                  );
+                }
               }
             }
           }
-        }
-        request.signatureParameters = request.parameters;
+          request.signatureParameters = request.parameters;
 
-        if (request.signatureParameters.length > 6) {
-          // create an option bag
-          const name = op.language.default.name + "Options";
-          const namespace = getNamespace(rawHttpOperation.operation);
-          // option bag schema
-          const optionBagSchema = this.codeModel.schemas.add(
-            new GroupSchema(name, `Options for ${op.language.default.name} API`, {
-              language: {
-                default: {
-                  namespace: namespace,
+          if (request.signatureParameters.length > 6) {
+            // create an option bag
+            const name = op.language.default.name + "Options";
+            const namespace = getNamespace(rawHttpOperation.operation);
+            // option bag schema
+            const optionBagSchema = this.codeModel.schemas.add(
+              new GroupSchema(name, `Options for ${op.language.default.name} API`, {
+                language: {
+                  default: {
+                    namespace: namespace,
+                  },
+                  java: {
+                    namespace: this.getJavaNamespace(namespace),
+                  },
                 },
-                java: {
-                  namespace: this.getJavaNamespace(namespace),
-                },
-              },
-            })
-          );
-          request.parameters.forEach((it) => {
-            optionBagSchema.add(
-              new GroupProperty(
-                it.language.default.name,
-                it.language.default.description,
-                it.schema,
-                {
-                  originalParameter: [it],
-                  summary: it.summary,
-                  required: it.required,
-                  nullable: it.nullable,
-                  readOnly: false,
-                  serializedName: it.language.default.serializedName,
-                }
-              )
+              })
             );
-          });
-
-          this.trackSchemaUsage(optionBagSchema, { usage: [SchemaContext.Input] });
-          if (op.convenienceApi) {
-            this.trackSchemaUsage(optionBagSchema, {
-              usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+            request.parameters.forEach((it) => {
+              optionBagSchema.add(
+                new GroupProperty(
+                  it.language.default.name,
+                  it.language.default.description,
+                  it.schema,
+                  {
+                    originalParameter: [it],
+                    summary: it.summary,
+                    required: it.required,
+                    nullable: it.nullable,
+                    readOnly: false,
+                    serializedName: it.language.default.serializedName,
+                  }
+                )
+              );
             });
-          }
 
-          // option bag parameter
-          const optionBagParameter = new Parameter(
-            "options",
-            optionBagSchema.language.default.description,
-            optionBagSchema,
-            {
-              implementation: ImplementationLocation.Method,
-              required: true,
-              nullable: false,
+            this.trackSchemaUsage(optionBagSchema, { usage: [SchemaContext.Input] });
+            if (op.convenienceApi) {
+              this.trackSchemaUsage(optionBagSchema, {
+                usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+              });
             }
-          );
 
-          request.signatureParameters = [optionBagParameter];
-          request.parameters.forEach((it) => (it.groupedBy = optionBagParameter));
-          request.parameters.push(optionBagParameter);
+            // option bag parameter
+            const optionBagParameter = new Parameter(
+              "options",
+              optionBagSchema.language.default.description,
+              optionBagSchema,
+              {
+                implementation: ImplementationLocation.Method,
+                required: true,
+                nullable: false,
+              }
+            );
+
+            request.signatureParameters = [optionBagParameter];
+            request.parameters.forEach((it) => (it.groupedBy = optionBagParameter));
+            request.parameters.push(optionBagParameter);
+          }
         }
       }
     }
@@ -2244,14 +2266,14 @@ export class CodeModelBuilder {
       case "Model":
         if (isArrayModelType(this.program, type)) {
           ++option.depth;
-          if (option.depth === 1) {
+          if (option.depth == 1) {
             return this.getUnionVariantName(type.indexer.value, option) + "List";
           } else {
             return "ListOf" + this.getUnionVariantName(type.indexer.value, option);
           }
         } else if (isRecordModelType(this.program, type)) {
           ++option.depth;
-          if (option.depth === 1) {
+          if (option.depth == 1) {
             return this.getUnionVariantName(type.indexer.value, option) + "Map";
           } else {
             return "MapOf" + this.getUnionVariantName(type.indexer.value, option);
@@ -2337,24 +2359,6 @@ export class CodeModelBuilder {
     } else {
       // TODO: currently this is only for JSON
       return getWireName(this.sdkContext, target);
-    }
-  }
-
-  private getParameterLocation(target: ModelProperty): ParameterLocation | "BodyProperty" {
-    if (isHeader(this.program, target)) {
-      return ParameterLocation.Header;
-    } else if (isQueryParam(this.program, target)) {
-      return ParameterLocation.Query;
-    } else if (isPathParam(this.program, target)) {
-      return ParameterLocation.Path;
-    } else if (
-      isBody(this.program, target) ||
-      isBodyRoot(this.program, target) ||
-      isMultipartBodyProperty(this.program, target)
-    ) {
-      return ParameterLocation.Body;
-    } else {
-      return "BodyProperty";
     }
   }
 
@@ -2609,7 +2613,7 @@ export class CodeModelBuilder {
           schema.properties?.forEach((p) => {
             if (p.readOnly && schemaUsage.usage?.includes(SchemaContext.Input)) {
               const schemaUsageWithoutInput = {
-                usage: schemaUsage.usage.filter((it) => it !== SchemaContext.Input),
+                usage: schemaUsage.usage.filter((it) => it != SchemaContext.Input),
                 serializationFormats: schemaUsage.serializationFormats,
               };
               innerApplySchemaUsage(p.schema, schemaUsageWithoutInput);
@@ -2646,10 +2650,21 @@ export class CodeModelBuilder {
     };
 
     // Exclude context that not to be propagated
+    const updatedSchemaUsage = (schema as SchemaUsage).usage?.filter(
+      (it) => it !== SchemaContext.Paged && it !== SchemaContext.PublicSpread
+    );
+    const indexSpread = (schema as SchemaUsage).usage?.indexOf(SchemaContext.PublicSpread);
+    if (
+      updatedSchemaUsage &&
+      indexSpread &&
+      indexSpread >= 0 &&
+      !(schema as SchemaUsage).usage?.includes(SchemaContext.Public)
+    ) {
+      // Propagate Public, if schema is PublicSpread
+      updatedSchemaUsage.push(SchemaContext.Public);
+    }
     const schemaUsage = {
-      usage: (schema as SchemaUsage).usage?.filter(
-        (it) => it !== SchemaContext.Paged && it !== SchemaContext.Anonymous
-      ),
+      usage: updatedSchemaUsage,
       serializationFormats: (schema as SchemaUsage).serializationFormats?.filter(
         (it) => it !== KnownMediaType.Multipart
       ),
