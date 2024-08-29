@@ -231,8 +231,9 @@ describe("converts top-level parameters", () => {
     expect(Foo.properties.get("foo")?.type).toBe(serviceNamespace.scalars.get("Foo"));
   });
 
-  ["model", "interface", "namespace", "hyphen-name"].forEach((reservedKeyword) => {
-    it(`escapes invalid names: ${reservedKeyword}`, async () => {
+  it.each(["model", "interface", "namespace", "hyphen-name"])(
+    `escapes invalid names: %s`,
+    async (reservedKeyword) => {
       const serviceNamespace = await tspForOpenAPI3({
         parameters: {
           [reservedKeyword]: {
@@ -260,6 +261,6 @@ describe("converts top-level parameters", () => {
         type: { kind: "Scalar", name: "string" },
         decorators: [{ definition: { name: "@query" } }],
       });
-    });
-  });
+    }
+  );
 });
