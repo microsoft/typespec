@@ -207,6 +207,7 @@ function fromSdkHttpOperationParameter(
     Kind: getParameterKind(p, parameterType, rootApiVersions.length > 0),
     DefaultValue: getParameterDefaultValue(p.clientDefaultValue, parameterType),
     Decorators: p.decorators,
+    SkipUrlEncoding: (p as SdkPathParameter).allowReserved === true
   } as InputParameter;
 }
 
