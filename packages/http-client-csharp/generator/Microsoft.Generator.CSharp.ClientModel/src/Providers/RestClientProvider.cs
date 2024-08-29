@@ -4,12 +4,10 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Reflection.Metadata;
 using Microsoft.Generator.CSharp.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
@@ -152,6 +150,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     if (TryGetSpecialHeaderParam(inputParam, out var parameterProvider))
                     {
+                        /* update the WireInfo */
                         var specialHeaderParameterProvider = new ParameterProvider(parameterProvider.Name,
                                                                         parameterProvider.Description,
                                                                         parameterProvider.Type,
@@ -232,7 +231,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 CSharpType? type;
                 string? format;
                 ValueExpression valueExpression;
-                //GetParamInfo(paramMap, inputParameter, out type, out format, out valueExpression);
                 var paramProvider = paramMap[inputParameter.Name] ?? throw new InvalidOperationException($"parameter {inputParameter.Name} missing");
                 GetParamInfo(paramProvider, out type, out format, out valueExpression);
                 var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
@@ -263,7 +261,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
                 string? format;
                 ValueExpression valueExpression;
-                //GetParamInfo(paramMap, inputParameter, out var type, out format, out valueExpression);
                 var paramProvider = paramMap[inputParameter.Name] ?? throw new InvalidOperationException($"parameter {inputParameter.Name} missing");
                 GetParamInfo(paramProvider, out var type, out format, out valueExpression);
                 var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
@@ -355,37 +352,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 format = parameterProvider.WireInfo.SerializationFormat.ToFormatSpecifier();
             }
         }
-        /*
-        private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputParameter inputParam, out CSharpType? type, out string? format, out ValueExpression valueExpression)
-        {
-            type = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
-            if (inputParam.Kind == InputOperationParameterKind.Constant)
-            {
-                valueExpression = Literal((inputParam.Type as InputLiteralType)?.Value);
-                format = ClientModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
-            }
-            else if (TryGetSpecialHeaderParam(inputParam, out var parameterProvider))
-            {
-                valueExpression = parameterProvider.DefaultValue!;
-                format = ClientModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
-            }
-            else
-            {
-                var paramProvider = paramMap[inputParam.Name];
-                if (paramProvider.Type.IsEnum)
-                {
-                    var csharpType = paramProvider.Field is null ? paramProvider.Type : paramProvider.Field.Type;
-                    valueExpression = csharpType.ToSerial(paramProvider);
-                    format = null;
-                }
-                else
-                {
-                    valueExpression = paramProvider.Field is null ? paramProvider : paramProvider.Field;
-                    format = paramProvider.WireInfo.SerializationFormat.ToFormatSpecifier();
-                }
-            }
-        }
-        */
+
         private static IReadOnlyList<ParameterProvider> BuildSpreadParametersForModel(InputModelType inputModel)
         {
             var builtParameters = new ParameterProvider[inputModel.Properties.Count];
