@@ -17,14 +17,14 @@ namespace Microsoft.Generator.CSharp
     {
         private readonly string? _modelFactoryFullName;
         private readonly string? _aspExtensionClassName;
-        private readonly HashSet<string> _modelsToKeep;
+        private readonly HashSet<string> _typesToKeep;
 
         public PostProcessor(
-            HashSet<string> modelsToKeep,
+            HashSet<string> typesToKeep,
             string? modelFactoryFullName = null,
             string? aspExtensionClassName = null)
         {
-            _modelsToKeep = modelsToKeep;
+            _typesToKeep = typesToKeep;
             _modelFactoryFullName = modelFactoryFullName;
             _aspExtensionClassName = aspExtensionClassName;
         }
@@ -396,10 +396,10 @@ namespace Microsoft.Generator.CSharp
             // 2. it is a client
             // 3. user exceptions
             return GeneratedCodeWorkspace.IsCustomDocument(document) || IsClientDocument(document) ||
-                   ShouldKeepModel(root, _modelsToKeep);
+                   ShouldKeepType(root, _typesToKeep);
         }
 
-        private static bool ShouldKeepModel(SyntaxNode? root, HashSet<string> modelsToKeep)
+        private static bool ShouldKeepType(SyntaxNode? root, HashSet<string> typesToKeep)
         {
             if (root is null)
                 return false;
@@ -408,7 +408,7 @@ namespace Microsoft.Generator.CSharp
             // `ClassDeclarationSyntax` and `StructDeclarationSyntax` both inherit `TypeDeclarationSyntax`
             var typeNodes = root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>();
             // there is possibility that we have multiple types defined in the same document (for instance, custom code)
-            return typeNodes.Any(t => modelsToKeep.Contains(t.Identifier.Text));
+            return typeNodes.Any(t => typesToKeep.Contains(t.Identifier.Text));
         }
 
         private static bool IsClientDocument(Document document)
