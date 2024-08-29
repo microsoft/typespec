@@ -32,7 +32,7 @@ public class FluentStreamStyleSerializationModelTemplate extends StreamSerializa
     }
 
     @Override
-    protected boolean isManagementErrorSubclass(ClientModel model, JavaSettings settings) {
+    protected boolean isManagementErrorSubclass(ClientModel model) {
         if (CoreUtils.isNullOrEmpty(model.getParentModelName())) {
             return false;
         }
