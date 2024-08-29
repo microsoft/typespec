@@ -233,7 +233,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 string? format;
                 ValueExpression valueExpression;
                 //GetParamInfo(paramMap, inputParameter, out type, out format, out valueExpression);
-                var paramProvider = paramMap[inputParameter.Name] ?? throw new InvalidOperationException($"url paramter {inputParameter.Name} missing");
+                var paramProvider = paramMap[inputParameter.Name] ?? throw new InvalidOperationException($"parameter {inputParameter.Name} missing");
                 GetParamInfo(paramProvider, out type, out format, out valueExpression);
                 var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
                 ValueExpression toStringExpression = type?.Equals(typeof(string)) == true || type?.Equals(typeof(Guid)) == true ? valueExpression : convertToStringExpression;
@@ -264,7 +264,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 string? format;
                 ValueExpression valueExpression;
                 //GetParamInfo(paramMap, inputParameter, out var type, out format, out valueExpression);
-                var paramProvider = paramMap[inputParameter.Name] ?? throw new InvalidOperationException($"url paramter {inputParameter.Name} missing");
+                var paramProvider = paramMap[inputParameter.Name] ?? throw new InvalidOperationException($"parameter {inputParameter.Name} missing");
                 GetParamInfo(paramProvider, out var type, out format, out valueExpression);
                 var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
                 ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : convertToStringExpression;
@@ -325,7 +325,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 pathSpan = pathSpan.Slice(paramIndex + 1);
                 var paramEndIndex = pathSpan.IndexOf('}');
                 var paramName = pathSpan.Slice(0, paramEndIndex).ToString();
-                var paramProvider = paramMap[paramName] ?? throw new InvalidOperationException($"url paramter {paramName} missing");
+                var paramProvider = paramMap[paramName] ?? throw new InvalidOperationException($"parameter {paramName} missing");
                 if (paramProvider.Location == ParameterLocation.Path || paramProvider.Location == ParameterLocation.Uri)
                 {
                     CSharpType? type;
