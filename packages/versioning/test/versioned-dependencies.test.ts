@@ -551,6 +551,32 @@ describe("versioning: dependencies", () => {
     runner = await createVersioningTestRunner();
   });
 
+  it("cross namespace operation", async () => {
+    const diagnostics = await runner.diagnose(`
+      @versioned(Versions)
+      namespace Service {
+        enum Versions {
+          v1,
+          v2,
+        }
+
+        @added(Versions.v2)
+        op test(purpose: FilePurpose): void;
+
+        @added(Versions.v2)
+        model FilePurpose {
+          a: string;
+        }
+      }
+
+      @useDependency(Service.Versions.v2)
+      namespace Client {
+        op testClient is Service.test;
+      }
+    `);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
   it("use model defined in non versioned library spreading properties", async () => {
     const { MyService, Test } = (await runner.compile(`
       namespace NonVersionedLib {
