@@ -8,6 +8,7 @@ export interface Context {
 
   generateTypeFromRefableSchema(schema: Refable<OpenAPI3Schema>, callingScope: string[]): string;
   getRefName(ref: string, callingScope: string[]): string;
+  getSchemaByRef(ref: string): OpenAPI3Schema | undefined;
 }
 
 export function createContext(openApi3Doc: OpenAPI3Document): Context {
@@ -22,6 +23,11 @@ export function createContext(openApi3Doc: OpenAPI3Document): Context {
     },
     generateTypeFromRefableSchema(schema: Refable<OpenAPI3Schema>, callingScope: string[]) {
       return schemaExpressionGenerator.generateTypeFromRefableSchema(schema, callingScope);
+    },
+    getSchemaByRef(ref) {
+      const schemaName = ref.replace("#/components/schemas/", "");
+      const schema = openApi3Doc.components?.schemas?.[schemaName];
+      return schema;
     },
   };
 

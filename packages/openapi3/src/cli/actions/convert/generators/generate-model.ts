@@ -122,6 +122,10 @@ function generateModel(model: TypeSpecModel, context: Context): string {
   definitions.push(...generateDecorators(model.decorators));
   definitions.push(modelDeclaration.open);
 
+  if (model.spread?.length) {
+    definitions.push(...model.spread.map((spread) => `...${spread};`));
+  }
+
   definitions.push(
     ...model.properties.map((prop) => {
       // Decorators will be a combination of top-level (parameters) and
@@ -152,17 +156,12 @@ type ModelDeclarationOutput = { open: string; close?: string };
 
 function generateModelDeclaration(model: TypeSpecModel): ModelDeclarationOutput {
   const modelName = model.name;
-  const modelType = model.type ?? "object";
 
   if (model.is) {
     return { open: `model ${modelName} is ${model.is};` };
   }
 
-  if (!model.extends) {
-    return { open: `model ${modelName} {`, close: "}" };
-  }
-
-  if (modelType === "object") {
+  if (model.extends) {
     return { open: `model ${modelName} extends ${model.extends} {`, close: "}" };
   }
 
