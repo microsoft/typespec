@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -211,14 +210,14 @@ namespace Microsoft.Generator.CSharp
             return project;
         }
 
-        internal static ImmutableHashSet<string> GetSuppressedTypeNames(Compilation compilation)
+        internal static HashSet<string> GetSuppressedTypeNames(Compilation compilation)
         {
             var suppressTypeAttribute = compilation.GetTypeByMetadataName(typeof(CodeGenSuppressTypeAttribute).FullName!)!;
             return compilation.Assembly.GetAttributes()
                 .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, suppressTypeAttribute))
                 .Select(a => a.ConstructorArguments[0].Value)
                 .OfType<string>()
-                .ToImmutableHashSet();
+                .ToHashSet();
         }
 
         /// <summary>
@@ -227,7 +226,7 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         public async Task PostProcessAsync()
         {
-            var postProcessor = new PostProcessor(new HashSet<string>(new[] {ModelFactoryProvider.FromInputLibrary().Name}).ToImmutableHashSet());
+            var postProcessor = new PostProcessor(new HashSet<string>(new[] {ModelFactoryProvider.FromInputLibrary().Name}));
             switch (Configuration.UnreferencedTypesHandling)
             {
                 case Configuration.UnreferencedTypesHandlingOption.KeepAll:

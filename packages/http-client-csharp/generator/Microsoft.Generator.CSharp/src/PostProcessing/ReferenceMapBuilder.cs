@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -25,7 +24,7 @@ namespace Microsoft.Generator.CSharp
             _project = project;
         }
 
-        public async Task<ReferenceMap> BuildPublicReferenceMapAsync(IEnumerable<INamedTypeSymbol> definitions, IReadOnlyDictionary<INamedTypeSymbol, ImmutableHashSet<BaseTypeDeclarationSyntax>> nodeCache)
+        public async Task<ReferenceMap> BuildPublicReferenceMapAsync(IEnumerable<INamedTypeSymbol> definitions, IReadOnlyDictionary<INamedTypeSymbol, HashSet<BaseTypeDeclarationSyntax>> nodeCache)
         {
             var referenceMap = new ReferenceMap();
             foreach (var definition in definitions)
@@ -36,7 +35,7 @@ namespace Microsoft.Generator.CSharp
             return referenceMap;
         }
 
-        public async Task<ReferenceMap> BuildAllReferenceMapAsync(IEnumerable<INamedTypeSymbol> definitions, IReadOnlyDictionary<Document, ImmutableHashSet<INamedTypeSymbol>> documentCache)
+        public async Task<ReferenceMap> BuildAllReferenceMapAsync(IEnumerable<INamedTypeSymbol> definitions, IReadOnlyDictionary<Document, HashSet<INamedTypeSymbol>> documentCache)
         {
             var referenceMap = new ReferenceMap();
             foreach (var definition in definitions)
@@ -47,7 +46,7 @@ namespace Microsoft.Generator.CSharp
             return referenceMap;
         }
 
-        private async Task ProcessPublicSymbolAsync(INamedTypeSymbol symbol, ReferenceMap referenceMap, IReadOnlyDictionary<INamedTypeSymbol, ImmutableHashSet<BaseTypeDeclarationSyntax>> cache)
+        private async Task ProcessPublicSymbolAsync(INamedTypeSymbol symbol, ReferenceMap referenceMap, IReadOnlyDictionary<INamedTypeSymbol, HashSet<BaseTypeDeclarationSyntax>> cache)
         {
             // only add to reference when myself is public
             if (symbol.DeclaredAccessibility != Accessibility.Public)
@@ -95,7 +94,7 @@ namespace Microsoft.Generator.CSharp
             }
         }
 
-        private async Task ProcessSymbolAsync(INamedTypeSymbol symbol, ReferenceMap referenceMap, IReadOnlyDictionary<Document, ImmutableHashSet<INamedTypeSymbol>> documentCache)
+        private async Task ProcessSymbolAsync(INamedTypeSymbol symbol, ReferenceMap referenceMap, IReadOnlyDictionary<Document, HashSet<INamedTypeSymbol>> documentCache)
         {
             foreach (var reference in await SymbolFinder.FindReferencesAsync(symbol, _project.Solution))
             {
@@ -107,7 +106,7 @@ namespace Microsoft.Generator.CSharp
             await ProcessExtensionSymbol(symbol, referenceMap, documentCache);
         }
 
-        private async Task ProcessExtensionSymbol(INamedTypeSymbol extensionClassSymbol, ReferenceMap referenceMap, IReadOnlyDictionary<Document, ImmutableHashSet<INamedTypeSymbol>> documentCache)
+        private async Task ProcessExtensionSymbol(INamedTypeSymbol extensionClassSymbol, ReferenceMap referenceMap, IReadOnlyDictionary<Document, HashSet<INamedTypeSymbol>> documentCache)
         {
             if (!extensionClassSymbol.IsStatic)
                 return;
@@ -144,7 +143,7 @@ namespace Microsoft.Generator.CSharp
             }
         }
 
-        private async Task AddReferenceToReferenceMapAsync(INamedTypeSymbol symbol, ReferencedSymbol reference, ReferenceMap referenceMap, IReadOnlyDictionary<Document, ImmutableHashSet<INamedTypeSymbol>> documentCache)
+        private async Task AddReferenceToReferenceMapAsync(INamedTypeSymbol symbol, ReferencedSymbol reference, ReferenceMap referenceMap, IReadOnlyDictionary<Document, HashSet<INamedTypeSymbol>> documentCache)
         {
             foreach (var location in reference.Locations)
             {

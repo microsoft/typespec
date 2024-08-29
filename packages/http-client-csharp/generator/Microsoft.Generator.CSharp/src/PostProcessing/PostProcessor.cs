@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,9 +17,9 @@ namespace Microsoft.Generator.CSharp
     {
         private readonly string? _modelFactoryFullName;
         private readonly string? _aspExtensionClassName;
-        private readonly ImmutableHashSet<string> _modelsToKeep;
+        private readonly HashSet<string> _modelsToKeep;
 
-        public PostProcessor(ImmutableHashSet<string> modelsToKeep,
+        public PostProcessor(HashSet<string> modelsToKeep,
             string? modelFactoryFullName = null,
             string? aspExtensionClassName = null)
         {
@@ -30,10 +29,10 @@ namespace Microsoft.Generator.CSharp
         }
 
         private record TypeSymbols(
-            ImmutableHashSet<INamedTypeSymbol> DeclaredSymbols,
+            HashSet<INamedTypeSymbol> DeclaredSymbols,
             INamedTypeSymbol? ModelFactorySymbol,
-            IReadOnlyDictionary<INamedTypeSymbol, ImmutableHashSet<BaseTypeDeclarationSyntax>> DeclaredNodesCache,
-            IReadOnlyDictionary<Document, ImmutableHashSet<INamedTypeSymbol>> DocumentsCache);
+            IReadOnlyDictionary<INamedTypeSymbol, HashSet<BaseTypeDeclarationSyntax>> DeclaredNodesCache,
+            IReadOnlyDictionary<Document, HashSet<INamedTypeSymbol>> DocumentsCache);
 
         /// <summary>
         /// This method reads the project, returns the types defined in it and build symbol caches to acceralate the calculation
@@ -90,12 +89,12 @@ namespace Microsoft.Generator.CSharp
                 }
             }
 
-            return new TypeSymbols(result.ToImmutableHashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default),
+            return new TypeSymbols(result,
                 modelFactorySymbol,
-                declarationCache.ToDictionary(kv => kv.Key, kv => kv.Value.ToImmutableHashSet(),
+                declarationCache.ToDictionary(kv => kv.Key, kv => kv.Value.ToHashSet(),
                     (IEqualityComparer<INamedTypeSymbol>)SymbolEqualityComparer.Default),
                 documentCache.ToDictionary(kv => kv.Key,
-                    kv => kv.Value.ToImmutableHashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default)));
+                    kv => kv.Value.ToHashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default)));
         }
 
         protected virtual bool ShouldIncludeDocument(Document document) =>
@@ -251,8 +250,9 @@ namespace Microsoft.Generator.CSharp
             return project;
         }
 
-        private IEnumerable<INamedTypeSymbol> AddSampleSymbols(IEnumerable<INamedTypeSymbol> referencedSymbols,
-            ImmutableHashSet<INamedTypeSymbol> declaredSymbols)
+        private IEnumerable<INamedTypeSymbol> AddSampleSymbols(
+            IEnumerable<INamedTypeSymbol> referencedSymbols,
+            HashSet<INamedTypeSymbol> declaredSymbols)
         {
             List<INamedTypeSymbol> symbolsToAdd = new List<INamedTypeSymbol>();
             foreach (var symbol in declaredSymbols)
@@ -400,7 +400,7 @@ namespace Microsoft.Generator.CSharp
                    ShouldKeepModel(root, _modelsToKeep);
         }
 
-        private static bool ShouldKeepModel(SyntaxNode? root, ImmutableHashSet<string> modelsToKeep)
+        private static bool ShouldKeepModel(SyntaxNode? root, HashSet<string> modelsToKeep)
         {
             if (root is null)
                 return false;
