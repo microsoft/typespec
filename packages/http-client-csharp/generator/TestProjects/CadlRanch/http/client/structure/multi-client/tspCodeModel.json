@@ -57,50 +57,10 @@
      "Name": "renamedOne",
      "ResourceName": "ClientA",
      "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "10",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Description": "Need to be set as 'http://localhost:3000' in client.",
-       "Type": {
-        "$id": "11",
-        "Kind": "url",
-        "Name": "url",
-        "CrossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client"
-      },
-      {
-       "$id": "12",
-       "Name": "client",
-       "NameInRequest": "client",
-       "Description": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
-       "Type": {
-        "$ref": "2"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": false,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client"
-      }
-     ],
+     "Parameters": [],
      "Responses": [
       {
-       "$id": "13",
+       "$id": "10",
        "StatusCodes": [
         204
        ],
@@ -120,21 +80,14 @@
      "Decorators": []
     },
     {
-     "$id": "14",
+     "$id": "11",
      "Name": "renamedThree",
      "ResourceName": "ClientA",
      "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "10"
-      },
-      {
-       "$ref": "12"
-      }
-     ],
+     "Parameters": [],
      "Responses": [
       {
-       "$id": "15",
+       "$id": "12",
        "StatusCodes": [
         204
        ],
@@ -154,21 +107,14 @@
      "Decorators": []
     },
     {
-     "$id": "16",
+     "$id": "13",
      "Name": "renamedFive",
      "ResourceName": "ClientA",
      "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "10"
-      },
-      {
-       "$ref": "12"
-      }
-     ],
+     "Parameters": [],
      "Responses": [
       {
-       "$id": "17",
+       "$id": "14",
        "StatusCodes": [
         204
        ],
@@ -189,14 +135,47 @@
     }
    ],
    "Protocol": {
-    "$id": "18"
+    "$id": "15"
    },
    "Parameters": [
     {
-     "$ref": "10"
+     "$id": "16",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Description": "Need to be set as 'http://localhost:3000' in client.",
+     "Type": {
+      "$id": "17",
+      "Kind": "url",
+      "Name": "url",
+      "CrossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client"
     },
     {
-     "$ref": "12"
+     "$id": "18",
+     "Name": "client",
+     "NameInRequest": "client",
+     "Description": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
+     "Type": {
+      "$ref": "2"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": false,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client"
     }
    ],
    "Decorators": []
@@ -210,50 +189,10 @@
      "Name": "renamedTwo",
      "ResourceName": "ClientB",
      "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "21",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Description": "Need to be set as 'http://localhost:3000' in client.",
-       "Type": {
-        "$id": "22",
-        "Kind": "url",
-        "Name": "url",
-        "CrossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client"
-      },
-      {
-       "$id": "23",
-       "Name": "client",
-       "NameInRequest": "client",
-       "Description": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
-       "Type": {
-        "$ref": "2"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": false,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client"
-      }
-     ],
+     "Parameters": [],
      "Responses": [
       {
-       "$id": "24",
+       "$id": "21",
        "StatusCodes": [
         204
        ],
@@ -273,21 +212,14 @@
      "Decorators": []
     },
     {
-     "$id": "25",
+     "$id": "22",
      "Name": "renamedFour",
      "ResourceName": "ClientB",
      "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "21"
-      },
-      {
-       "$ref": "23"
-      }
-     ],
+     "Parameters": [],
      "Responses": [
       {
-       "$id": "26",
+       "$id": "23",
        "StatusCodes": [
         204
        ],
@@ -307,21 +239,14 @@
      "Decorators": []
     },
     {
-     "$id": "27",
+     "$id": "24",
      "Name": "renamedSix",
      "ResourceName": "ClientB",
      "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "21"
-      },
-      {
-       "$ref": "23"
-      }
-     ],
+     "Parameters": [],
      "Responses": [
       {
-       "$id": "28",
+       "$id": "25",
        "StatusCodes": [
         204
        ],
@@ -342,14 +267,47 @@
     }
    ],
    "Protocol": {
-    "$id": "29"
+    "$id": "26"
    },
    "Parameters": [
     {
-     "$ref": "21"
+     "$id": "27",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Description": "Need to be set as 'http://localhost:3000' in client.",
+     "Type": {
+      "$id": "28",
+      "Kind": "url",
+      "Name": "url",
+      "CrossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client"
     },
     {
-     "$ref": "23"
+     "$id": "29",
+     "Name": "client",
+     "NameInRequest": "client",
+     "Description": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
+     "Type": {
+      "$ref": "2"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": false,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client"
     }
    ],
    "Decorators": []
