@@ -22,7 +22,6 @@ try {
     if ($UnitTests) {
         Push-Location "$packageRoot"
         try {
-            
             Write-Host "Current PATH: $env:PATH"
             Write-Host "Current JAVA_HOME: $Env:JAVA_HOME"
             $env:JAVA_HOME = $env:JAVA_HOME_21_X64
@@ -56,7 +55,6 @@ try {
         }
 
         try {
-            Write-Host 'Executing cadl ranch tests'
             $generatorTestDir = Join-Path $packageRoot 'generator/http-client-generator-test'
             Set-Location $generatorTestDir
             & CadlRanch-Tests.ps1
