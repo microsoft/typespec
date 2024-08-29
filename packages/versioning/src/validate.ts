@@ -605,7 +605,17 @@ function validateTargetVersionCompatible(
 ) {
   const sourceAvailability = resolveAvailabilityForStack(program, source);
   const [sourceNamespace] = getVersions(program, sourceAvailability.type);
-
+  // If we cannot get source availability check if there is some different versioning across the stack which would mean we verify across namespace and is causing issues.
+  if (sourceAvailability.map === undefined) {
+    const sources = Array.isArray(source) ? source : [source];
+    const baseNs = getVersions(program, sources[0]);
+    for (const type of sources) {
+      const ns = getVersions(program, type);
+      if (ns !== baseNs) {
+        return undefined;
+      }
+    }
+  }
   const targetAvailability = resolveAvailabilityForStack(program, target);
   const [targetNamespace] = getVersions(program, targetAvailability.type);
   if (!targetAvailability.map || !targetNamespace) return;
