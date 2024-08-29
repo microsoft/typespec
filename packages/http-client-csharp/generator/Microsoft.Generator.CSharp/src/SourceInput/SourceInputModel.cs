@@ -10,55 +10,38 @@ using System.Threading.Tasks;
 using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Customization;
-using Microsoft.Generator.CSharp.Primitives;
 using NuGet.Configuration;
 
 namespace Microsoft.Generator.CSharp.SourceInput
 {
-    internal class SourceInputModel
+    public class SourceInputModel
     {
-        private static SourceInputModel? _instance;
-        public static SourceInputModel Instance
-        {
-            get
-            {
-                return _instance ?? throw new InvalidOperationException("SourceInputModel has not been initialized");
-            }
-            set
-            {
-                _instance = value;
-            }
-        }
-
-        public static void Initialize(Compilation customization, CompilationCustomCode? previousContract = null)
-        {
-            _instance = new SourceInputModel(customization, previousContract);
-        }
-
-        private readonly CompilationCustomCode? _existingCompilation;
         private readonly CodeGenAttributes _codeGenAttributes;
         private readonly Dictionary<string, INamedTypeSymbol> _nameMap = new Dictionary<string, INamedTypeSymbol>(StringComparer.OrdinalIgnoreCase);
 
-        public Compilation Customization { get; }
-        public Compilation? PreviousContract { get; }
+        public Compilation? Customization { get; }
+        private Lazy<Compilation?> _previousContract;
+        public Compilation? PreviousContract => _previousContract.Value;
 
-        internal SourceInputModel(Compilation customization, CompilationCustomCode? existingCompilation = null)
+        public SourceInputModel(Compilation? customization)
         {
             Customization = customization;
-            PreviousContract = LoadBaselineContract().GetAwaiter().GetResult();
-            _existingCompilation = existingCompilation;
+            _previousContract = new(() => LoadBaselineContract().GetAwaiter().GetResult());
 
             _codeGenAttributes = new CodeGenAttributes();
 
-            IAssemblySymbol assembly = Customization.Assembly;
-
-            foreach (IModuleSymbol module in assembly.Modules)
+            if (Customization != null)
             {
-                foreach (var type in SourceInputHelper.GetSymbols(module.GlobalNamespace))
+                IAssemblySymbol assembly = Customization.Assembly;
+
+                foreach (IModuleSymbol module in assembly.Modules)
                 {
-                    if (type is INamedTypeSymbol namedTypeSymbol && TryGetName(type, out var schemaName))
+                    foreach (var type in SourceInputHelper.GetSymbols(module.GlobalNamespace))
                     {
-                        _nameMap.Add(schemaName, namedTypeSymbol);
+                        if (type is INamedTypeSymbol namedTypeSymbol && TryGetName(type, out var schemaName))
+                        {
+                            _nameMap.Add(schemaName, namedTypeSymbol);
+                        }
                     }
                 }
             }
@@ -66,6 +49,9 @@ namespace Microsoft.Generator.CSharp.SourceInput
 
         public IReadOnlyList<string>? GetServiceVersionOverrides()
         {
+            if (Customization == null)
+                return null;
+
             var osvAttributeType = Customization.GetTypeByMetadataName(typeof(CodeGenOverrideServiceVersionsAttribute).FullName!)!;
             var osvAttribute = Customization.Assembly.GetAttributes()
                 .FirstOrDefault(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, osvAttributeType));
@@ -81,13 +67,12 @@ namespace Microsoft.Generator.CSharp.SourceInput
             return new ModelTypeMapping(_codeGenAttributes, symbol);
         }
 
-        internal IMethodSymbol? FindMethod(string namespaceName, string typeName, string methodName, IEnumerable<CSharpType> parameters)
-        {
-            return _existingCompilation?.FindMethod(namespaceName, typeName, methodName, parameters);
-        }
-
         public INamedTypeSymbol? FindForType(string ns, string name)
         {
+            if (Customization == null)
+            {
+                return null;
+            }
             var fullyQualifiedMetadataName = $"{ns}.{name}";
             if (!_nameMap.TryGetValue(name, out var type) &&
                 !_nameMap.TryGetValue(fullyQualifiedMetadataName, out type))

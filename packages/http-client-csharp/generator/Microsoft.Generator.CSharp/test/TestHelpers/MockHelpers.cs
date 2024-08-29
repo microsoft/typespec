@@ -49,18 +49,12 @@ namespace Microsoft.Generator.CSharp.Tests
 
             mockPlugin.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
 
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(customization)) { CallBase = true };
+
+            mockPlugin.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
+
             CodeModelPlugin.Instance = mockPlugin.Object;
 
-            if (customization == null)
-            {
-                var workspace = new AdhocWorkspace();
-                Project project = workspace.AddProject("ExistingCode", LanguageNames.CSharp);
-                customization = project.GetCompilationAsync().GetAwaiter().GetResult()!;
-            }
-
-            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(customization, null)) { CallBase = true };
-
-            SourceInputModel.Instance = sourceInputModel.Object;
 
             return mockPlugin;
         }

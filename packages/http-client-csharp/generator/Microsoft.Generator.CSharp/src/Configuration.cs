@@ -20,6 +20,7 @@ namespace Microsoft.Generator.CSharp
             "Enum",
         ];
 
+        private const string GeneratedFolderName = "Generated";
         private const string ConfigurationFileName = "Configuration.json";
 
         // for mocking
@@ -143,6 +144,25 @@ namespace Microsoft.Generator.CSharp
 
         private string? _projectDirectory;
         internal string ProjectDirectory => _projectDirectory ??= Path.Combine(OutputDirectory, "src");
+
+        private string? _generatedOutputDirectory;
+        internal string GeneratedSourceOutputDirectory => _generatedOutputDirectory ??= ParseGeneratedSourceOutputPath();
+
+        private string? _generatedTestOutputDirectory;
+        internal string GeneratedTestOutputDirectory => _generatedTestOutputDirectory ??= Path.Combine(OutputDirectory, "tests", GeneratedFolderName);
+
+        private string ParseGeneratedSourceOutputPath()
+        {
+            var outputPath = OutputDirectory;
+            if (!outputPath.EndsWith("src", StringComparison.Ordinal) && !outputPath.EndsWith("src/", StringComparison.Ordinal))
+            {
+                outputPath = Path.Combine(outputPath, "src");
+            }
+
+            outputPath = Path.Combine(outputPath, GeneratedFolderName);
+
+            return outputPath;
+        }
 
         internal string LibraryName { get; }
 

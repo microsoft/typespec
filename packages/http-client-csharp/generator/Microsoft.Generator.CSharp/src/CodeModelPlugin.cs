@@ -4,10 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.SourceInput;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -41,6 +43,7 @@ namespace Microsoft.Generator.CSharp
         public CodeModelPlugin(GeneratorContext context)
         {
             Configuration = context.Configuration;
+            _sourceInputModel = new(() => InitializeSourceInputModel().GetAwaiter().GetResult());
             _inputLibrary = new(() => new InputLibrary(Instance.Configuration.OutputDirectory));
             TypeFactory = new TypeFactory();
         }
@@ -54,10 +57,12 @@ namespace Microsoft.Generator.CSharp
 
         internal bool IsNewProject { get; set; }
 
+        private Lazy<SourceInputModel> _sourceInputModel;
         private Lazy<InputLibrary> _inputLibrary;
 
         // Extensibility points to be implemented by a plugin
         public virtual TypeFactory TypeFactory { get; }
+        public virtual SourceInputModel SourceInputModel => _sourceInputModel.Value;
         public virtual string LicenseString => string.Empty;
         public virtual OutputLibrary OutputLibrary { get; } = new();
         public virtual InputLibrary InputLibrary => _inputLibrary.Value;
@@ -71,6 +76,12 @@ namespace Microsoft.Generator.CSharp
         public virtual void AddVisitor(LibraryVisitor visitor)
         {
             _visitors.Add(visitor);
+        }
+
+        private async Task<SourceInputModel> InitializeSourceInputModel()
+        {
+            GeneratedCodeWorkspace existingCode = GeneratedCodeWorkspace.CreateExistingCodeProject(Instance.Configuration.ProjectDirectory, Instance.Configuration.GeneratedSourceOutputDirectory);
+            return new SourceInputModel(await existingCode.GetCompilationAsync());
         }
     }
 }

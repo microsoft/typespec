@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
-using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
@@ -23,7 +22,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             if (this is NamedTypeSymbolProvider)
                 return null;
-            var type = SourceInputModel.Instance.FindForType(GetNamespace(), BuildName());
+            var type = CodeModelPlugin.Instance.SourceInputModel.FindForType(GetNamespace(), BuildName());
             return type != null ? new NamedTypeSymbolProvider(type) : null;
         }
 
