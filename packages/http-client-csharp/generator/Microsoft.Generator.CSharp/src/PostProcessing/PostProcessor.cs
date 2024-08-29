@@ -117,8 +117,6 @@ namespace Microsoft.Generator.CSharp
             if (compilation == null)
                 return project;
 
-            // get the type names suppressed by the attribute
-            var suppressedTypeNames = GeneratedCodeWorkspace.GetSuppressedTypeNames(compilation);
             // first get all the declared symbols
             var definitions = await GetTypeSymbolsAsync(compilation, project, true);
             // build the reference map
@@ -147,7 +145,7 @@ namespace Microsoft.Generator.CSharp
             }
 
             var modelNamesToRemove =
-                nodesToInternalize.Keys.Select(item => item.Identifier.Text).Concat(suppressedTypeNames);
+                nodesToInternalize.Keys.Select(item => item.Identifier.Text);
             project = await RemoveMethodsFromModelFactoryAsync(project, definitions, modelNamesToRemove.ToHashSet());
 
             return project;

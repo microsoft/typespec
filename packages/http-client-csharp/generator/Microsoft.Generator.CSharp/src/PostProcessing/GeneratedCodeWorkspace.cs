@@ -210,16 +210,6 @@ namespace Microsoft.Generator.CSharp
             return project;
         }
 
-        internal static HashSet<string> GetSuppressedTypeNames(Compilation compilation)
-        {
-            var suppressTypeAttribute = compilation.GetTypeByMetadataName(typeof(CodeGenSuppressTypeAttribute).FullName!)!;
-            return compilation.Assembly.GetAttributes()
-                .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, suppressTypeAttribute))
-                .Select(a => a.ConstructorArguments[0].Value)
-                .OfType<string>()
-                .ToHashSet();
-        }
-
         /// <summary>
         /// This method invokes the postProcessor to do some post processing work
         /// Depending on the configuration, it will either remove + internalize, just internalize or do nothing
