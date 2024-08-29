@@ -746,8 +746,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
             }
 
-            // if the model has a base model and the raw data field + additional props are
-            // not defined in the model, use the base model's field and property to deserialize the raw data.
+            // if the model has a base model and the additional props are
+            // not defined in the model, use the base model's property to deserialize the additional props.
             var additionalProperties = _additionalPropertiesProperty
                 ?? (_model.BaseModelProvider?.Properties.FirstOrDefault(p => p.Name == AdditionalPropertiesPropertyName));
             if (additionalProperties != null)
@@ -755,15 +755,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 propertyDeserializationStatements.Add(DeserializeAdditionalProperties(additionalProperties, jsonProperty));
             }
 
-            var rawDataField = _rawDataField
-                ?? (_model.BaseModelProvider?.Fields.FirstOrDefault(f => f.Name == PrivateAdditionalPropertiesPropertyName));
-            if (rawDataField != null)
+            if (_rawDataField != null)
             {
-                var elementType = rawDataField.Type.Arguments[1].FrameworkType;
+                var elementType = _rawDataField.Type.Arguments[1].FrameworkType;
                 var rawDataDeserializationValue = GetValueTypeDeserializationExpression(elementType, jsonProperty.Value(), SerializationFormat.Default);
                 propertyDeserializationStatements.Add(new IfStatement(_isNotEqualToWireConditionSnippet)
                 {
-                    rawDataField.AsVariableExpression.AsDictionary(rawDataField.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
+                    _rawDataField.AsVariableExpression.AsDictionary(_rawDataField.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
                 });
             }
 
