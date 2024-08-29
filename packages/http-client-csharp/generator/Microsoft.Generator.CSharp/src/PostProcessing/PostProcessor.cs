@@ -37,7 +37,7 @@ namespace Microsoft.Generator.CSharp
 
         /// <summary>
         /// This method reads the project, returns the types defined in it and build symbol caches to acceralate the calculation
-        /// By default, the types defined in shared documents are not included. Please override <see cref="ShouldIncludeDocument(Document)"/> to tweak this behaviour
+        /// By default, the types defined in shared documents are not included. Please override <see cref="ShouldIncludeDocument(Document)"/> to tweak this behavior
         /// </summary>
         /// <param name="compilation">The <see cref="Compilation"/> of the <paramref name="project"/> </param>
         /// <param name="project">The project to extract type symbols from</param>

@@ -188,7 +188,7 @@ namespace Microsoft.Generator.CSharp
         }
 
         /// <summary>
-        /// This method recusively adds all related types in <paramref name="valueSymbol"/> to the reference map as the value of key <paramref name="keySymbol"/>
+        /// This method recursively adds all related types in <paramref name="valueSymbol"/> to the reference map as the value of key <paramref name="keySymbol"/>
         /// </summary>
         /// <param name="keySymbol"></param>
         /// <param name="valueSymbol"></param>
@@ -242,10 +242,10 @@ namespace Microsoft.Generator.CSharp
                 return;
             }
 
-            var xdoc = XDocument.Parse(xml);
-            var crefs = xdoc.Descendants().Attributes("cref").Select(a => a.Value).Where(a => a[0] == 'T' && a[1] == ':').Select(a => a.Substring(2));
+            var xDocument = XDocument.Parse(xml);
+            var cRefs = xDocument.Descendants().Attributes("cref").Select(a => a.Value).Where(a => a[0] == 'T' && a[1] == ':').Select(a => a.Substring(2));
 
-            foreach (var cref in crefs)
+            foreach (var cref in cRefs)
             {
                 var symbol = _compilation.GetTypeByMetadataName(cref);
                 AddTypeSymbol(keySymbol, symbol, referenceMap);

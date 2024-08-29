@@ -79,7 +79,7 @@ namespace Microsoft.Generator.CSharp
             return ShouldRemoveMember(symbol) ? null : base.VisitFieldDeclaration(node);
         }
 
-        private List<Supression>? GetSupressions(INamedTypeSymbol namedTypeSymbol)
+        private List<Supression>? GetSuppressions(INamedTypeSymbol namedTypeSymbol)
         {
             if (_suppressionCache.TryGetValue(namedTypeSymbol, out var suppressions))
             {
@@ -169,7 +169,7 @@ namespace Microsoft.Generator.CSharp
                 INamedTypeSymbol? containingType = symbol.ContainingType;
                 IMethodSymbol? methodSymbol = symbol as IMethodSymbol;
 
-                var suppressions = GetSupressions(symbol.ContainingType);
+                var suppressions = GetSuppressions(symbol.ContainingType);
                 if (suppressions != null)
                 {
                     foreach (var suppression in suppressions)
