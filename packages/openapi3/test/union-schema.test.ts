@@ -463,6 +463,15 @@ describe("openapi3: union type", () => {
     });
   });
 
+  it("throws diagnostics for null enum definitions", async () => {
+    const diagnostics = await diagnoseOpenApiFor(`union Pet {null}`);
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/union-null",
+      message: "Cannot have a union containing only null types.",
+    });
+  });
+
   it("supports description on unions that reduce to enums", async () => {
     const res = await oapiForModel(
       "Foo",

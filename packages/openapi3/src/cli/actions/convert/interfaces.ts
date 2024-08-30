@@ -65,6 +65,8 @@ export interface TypeSpecModel extends TypeSpecDeclaration {
    * Defaults to 'object'
    */
   type?: OpenAPI3Schema["type"];
+
+  spread?: string[];
 }
 
 export interface TypeSpecAlias extends Pick<TypeSpecDeclaration, "name" | "doc" | "scope"> {
