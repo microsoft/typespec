@@ -10,16 +10,16 @@ namespace _Type.Model.Inheritance.SingleDiscriminator.Models
     {
         public static Bird Bird(string kind = default, int wingspan = default) => throw null;
 
-        public static Models.SeaGull SeaGull(int wingspan = default) => throw null;
+        public static SeaGull SeaGull(int wingspan = default) => throw null;
 
-        public static Models.Sparrow Sparrow(int wingspan = default) => throw null;
+        public static Sparrow Sparrow(int wingspan = default) => throw null;
 
-        public static Models.Goose Goose(int wingspan = default) => throw null;
+        public static Goose Goose(int wingspan = default) => throw null;
 
-        public static Models.Eagle Eagle(IEnumerable<Bird> friends = default, IDictionary<string, Bird> hate = default, Bird partner = default, int wingspan = default) => throw null;
+        public static Eagle Eagle(IEnumerable<Bird> friends = default, IDictionary<string, Bird> hate = default, Bird partner = default, int wingspan = default) => throw null;
 
         public static Dinosaur Dinosaur(string kind = default, int size = default) => throw null;
 
-        public static Models.TRex TRex(int size = default) => throw null;
+        public static TRex TRex(int size = default) => throw null;
     }
 }

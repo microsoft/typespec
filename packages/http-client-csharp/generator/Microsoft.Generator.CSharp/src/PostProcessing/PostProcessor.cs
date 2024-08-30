@@ -234,12 +234,17 @@ namespace Microsoft.Generator.CSharp
             var referencedSymbols = VisitSymbolsFromRootAsync(rootSymbols, referenceMap);
 
             referencedSymbols = AddSampleSymbols(referencedSymbols, definitions.DeclaredSymbols);
+            var referencedSet = new HashSet<INamedTypeSymbol>(referencedSymbols, SymbolEqualityComparer.Default);
 
-            var symbolsToRemove = definitions.DeclaredSymbols.Except(referencedSymbols);
+            var symbolsToRemove = definitions.DeclaredSymbols.Except(referencedSet);
 
             var nodesToRemove = new List<BaseTypeDeclarationSyntax>();
             foreach (var symbol in symbolsToRemove)
             {
+                if (referencedSet.Contains(GetBase(symbol)))
+                {
+                    continue;
+                }
                 nodesToRemove.AddRange(definitions.DeclaredNodesCache[symbol]);
             }
 
@@ -247,6 +252,14 @@ namespace Microsoft.Generator.CSharp
             project = await RemoveModelsAsync(project, nodesToRemove);
 
             return project;
+        }
+
+        private INamedTypeSymbol GetBase(INamedTypeSymbol symbol)
+        {
+            var baseType = symbol.BaseType;
+            if (baseType == null || baseType.SpecialType == SpecialType.System_Object)
+                return symbol;
+            return GetBase(baseType);
         }
 
         private IEnumerable<INamedTypeSymbol> AddSampleSymbols(
