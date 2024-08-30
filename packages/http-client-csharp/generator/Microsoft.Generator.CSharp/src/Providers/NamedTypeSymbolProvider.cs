@@ -20,7 +20,7 @@ namespace Microsoft.Generator.CSharp.Providers
             _namedTypeSymbol = namedTypeSymbol;
         }
 
-        private protected override bool IsCodeViewProvider => true;
+        private protected sealed override TypeProvider? GetCustomCodeView() => null;
 
         protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writting in generation");
 
