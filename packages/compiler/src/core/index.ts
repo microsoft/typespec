@@ -26,9 +26,6 @@ export {
   getMinValueAsNumeric,
   getMinValueExclusive,
   getMinValueExclusiveAsNumeric,
-  getXmlNs,
-  isXmlAttribute,
-  isXmlUnwrapped,
   type Discriminator,
 } from "./intrinsic-type-state.js";
 export {

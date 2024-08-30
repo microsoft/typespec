@@ -40,15 +40,12 @@ import {
   getPattern,
   getSummary,
   getTypeName,
-  getXmlNs,
   ignoreDiagnostics,
   isArrayModelType,
   isNeverType,
   isNullType,
   isSecret,
   isTemplateDeclaration,
-  isXmlAttribute,
-  isXmlUnwrapped,
   resolveEncodedName,
   serializeValueAsJson,
 } from "@typespec/compiler";
@@ -77,6 +74,7 @@ import {
 } from "@typespec/openapi";
 import { getOneOf, getRef } from "./decorators.js";
 import { applyEncoding } from "./encoding.js";
+import { getXmlNs, isXmlAttribute, isXmlUnwrapped } from "./intrinsic-type-state.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
@@ -838,7 +836,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       "deprecated"
     );
 
-    this.#attachXmlObject(program, type as ModelProperty, schema);
+    //this.#attachXmlObject(program, type as ModelProperty, schema);
 
     this.#attachExtensions(program, type, schema);
 
