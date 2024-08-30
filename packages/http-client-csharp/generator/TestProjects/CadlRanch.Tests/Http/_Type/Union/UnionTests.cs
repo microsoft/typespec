@@ -4,6 +4,7 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using _Type.Union;
 using _Type.Union.Models;
@@ -98,9 +99,18 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Union
         [CadlRanchTest]
         public Task SendModelsOnly() => Test(async (host) =>
         {
-            var response = await new UnionClient(host, null).GetModelsOnlyClient().SendAsync(BinaryData.FromObjectAsJson("test"));
+            var response = await new UnionClient(host, null).GetModelsOnlyClient().SendAsync(WriteCat());
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
+
+        private static BinaryData WriteCat()
+        {
+            // We need to use reflection because the Cat model gets deleted in Stubbed mode which is what we check in.
+            // The type will exist when actually running the test using the ClientModelPlugin.
+            var catType = typeof(UnionClient).Assembly.GetType("_Type.Union.Models.Cat");
+            var cat= Activator.CreateInstance(catType!, "test");
+            return ModelReaderWriter.Write(cat!);
+        }
 
 
         [CadlRanchTest]
@@ -172,13 +182,13 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Union
         public Task SendMixedTypesOnlyOnly() => Test(async (host) =>
         {
             var response = await new UnionClient(host, null).GetMixedTypesClient().SendAsync(new MixedTypesCases(
-                null,
+                WriteCat(),
                 BinaryData.FromObjectAsJson("a"),
                 BinaryData.FromObjectAsJson(2),
                 BinaryData.FromObjectAsJson(true),
                 new[]
                 {
-                    null,
+                    WriteCat(),
                     BinaryData.FromObjectAsJson("a"),
                     BinaryData.FromObjectAsJson(2),
                     BinaryData.FromObjectAsJson(true)
