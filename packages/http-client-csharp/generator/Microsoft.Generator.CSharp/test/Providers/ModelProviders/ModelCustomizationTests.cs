@@ -23,9 +23,13 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
             var modelTypeProvider = new ModelProvider(inputModel);
+            var customCodeView = modelTypeProvider.CustomCodeView;
 
+            Assert.IsNotNull(customCodeView);
             Assert.AreEqual("CustomizedModel", modelTypeProvider.Type.Name);
             Assert.AreEqual("NewNamespace.Models", modelTypeProvider.Type.Namespace);
+            Assert.AreEqual(customCodeView?.Name, modelTypeProvider.Type.Name);
+            Assert.AreEqual(customCodeView?.Type.Namespace, modelTypeProvider.Type.Namespace);
         }
     }
 }

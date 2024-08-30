@@ -26,7 +26,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return CodeModelPlugin.Instance.SourceInputModel.FindForType(GetNamespace(), BuildName());
         }
 
-        protected TypeProvider? CustomCodeView => _customCodeView.Value;
+        public TypeProvider? CustomCodeView => _customCodeView.Value;
 
         protected string? _deprecated;
 
