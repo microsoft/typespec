@@ -38,12 +38,9 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private string? _relativeFilePath;
 
-        public string Name => _name ??= GetName();
+        public string Name => _name ??= Customization?.Name ?? BuildName();
 
         private string? _name;
-
-        private string GetName()
-            => Customization?.Name ?? BuildName();
 
         protected virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
 
