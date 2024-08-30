@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public static ModelFactoryProvider FromInputLibrary() => new ModelFactoryProvider(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Models);
 
-        public ModelFactoryProvider(IEnumerable<InputModelType> models)
+        private ModelFactoryProvider(IEnumerable<InputModelType> models)
         {
             _models = models;
         }

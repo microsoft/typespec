@@ -99,7 +99,6 @@ namespace Microsoft.Generator.CSharp
         }
 
         protected virtual bool ShouldIncludeDocument(Document document) =>
-            !GeneratedCodeWorkspace.IsSharedDocument(document) &&
             !GeneratedCodeWorkspace.IsGeneratedTestDocument(document);
 
         /// <summary>

@@ -12,7 +12,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
-using Microsoft.Generator.CSharp.Customization;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 
@@ -20,7 +19,6 @@ namespace Microsoft.Generator.CSharp
 {
     internal class GeneratedCodeWorkspace
     {
-        private const string SharedFolder = "shared";
         private const string GeneratedFolder = "Generated";
         private const string GeneratedCodeProjectName = "GeneratedCode";
         private const string GeneratedTestFolder = "GeneratedTests";
@@ -111,8 +109,7 @@ namespace Microsoft.Generator.CSharp
         }
 
         public static bool IsGeneratedDocument(Document document) => document.Folders.Contains(GeneratedFolder);
-        public static bool IsCustomDocument(Document document) => !IsGeneratedDocument(document) && !IsSharedDocument(document);
-        public static bool IsSharedDocument(Document document) => document.Folders.Contains(SharedFolder);
+        public static bool IsCustomDocument(Document document) => !IsGeneratedDocument(document);
         public static bool IsGeneratedTestDocument(Document document) => document.Folders.Contains(GeneratedTestFolder);
 
         /// <summary>

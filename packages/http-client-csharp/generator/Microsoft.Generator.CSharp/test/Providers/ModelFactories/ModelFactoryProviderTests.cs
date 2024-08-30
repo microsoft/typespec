@@ -18,20 +18,20 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
 
         public ModelFactoryProviderTests()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockPlugin(inputModelTypes: ModelList);
         }
 
         [Test]
         public void SkipInternalModels()
         {
-            var modelFactory = new ModelFactoryProvider(ModelList);
+            var modelFactory = ModelFactoryProvider.FromInputLibrary();
             Assert.AreEqual(ModelList.Length - ModelList.Where(m => m.Access == "internal").Count(), modelFactory.Methods.Count);
         }
 
         [Test]
         public void ListParamShape()
         {
-            var modelFactory = new ModelFactoryProvider(ModelList);
+            var modelFactory = ModelFactoryProvider.FromInputLibrary();
             var models = ModelList.Select(CodeModelPlugin.Instance.TypeFactory.CreateModel);
             foreach (var model in models)
             {
@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
         [Test]
         public void DictionaryParamShape()
         {
-            var modelFactory = new ModelFactoryProvider(ModelList);
+            var modelFactory = ModelFactoryProvider.FromInputLibrary();
             var models = ModelList.Select(CodeModelPlugin.Instance.TypeFactory.CreateModel);
             foreach (var model in models)
             {
@@ -77,7 +77,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
         [Test]
         public void ModelFactoryName()
         {
-            var modelFactory = new ModelFactoryProvider(ModelList);
+            var modelFactory = ModelFactoryProvider.FromInputLibrary();
             Assert.AreEqual("SampleNamespaceModelFactory", modelFactory.Name);
         }
 
