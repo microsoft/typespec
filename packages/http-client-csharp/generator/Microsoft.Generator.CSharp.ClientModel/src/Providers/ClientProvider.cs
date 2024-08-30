@@ -115,36 +115,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (_uriParameters is null)
             {
                 _ = Constructors;
-                var parent = GetParentClient();
-                if (parent is not null)
+                if (_parent is not null)
                 {
                     var combined = new HashSet<ParameterProvider>(_uriParameters ?? []);
-                    combined.UnionWith(parent.GetUriParameters());
+                    combined.UnionWith(_parent.GetUriParameters());
                     _uriParameters = combined.ToList();
                 }
             }
             return _uriParameters ?? [];
         }
-
-        //// enumerate through list of parents/tree
-        //// distinct on param name
-        //private static List<ClientProvider>? _family = new List<ClientProvider>();
-        //private static IEnumerable<ClientProvider> FindParents(ClientProvider client)
-        //{
-        //    if (client._parent is null)
-        //    {
-        //        return _family!;
-        //    }
-        //    else
-        //    {
-        //        if (!_family!.Contains(client._parent))
-        //        {
-        //            _family!.Add(client._parent);
-        //        }
-
-        //        return FindParents(client._parent);
-        //    }
-        //}
 
         private Lazy<string?> _endpointParameterName;
         internal string? EndpointParameterName => _endpointParameterName.Value;
@@ -470,30 +449,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             foreach (var client in inputClients)
             {
                 // add direct child clients
-                if (client.Parent != null && client.Parent == _inputClient.Key)
+                if (client.Parent != null && client.Parent.Name == _inputClient.Name)
                 {
-                    subClients.Add(new(() => ClientModelPlugin.Instance.TypeFactory.CreateClient(client, this)));
+                    subClients.Add(new(() => ClientModelPlugin.Instance.TypeFactory.CreateClient(client)));
                 }
             }
 
             return subClients;
-        }
-
-        private ClientProvider? GetParentClient()
-        {
-            IReadOnlyList<InputClient> inputClients = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
-            //var subClients = new List<Lazy<ClientProvider>>(inputClients.Count);
-
-            foreach (var client in inputClients)
-            {
-                //// add direct child clients
-                if (client.Parent == this._inputClient.Parent)
-                {
-                    return ClientModelPlugin.Instance.TypeFactory.CreateClient(client, this);
-                }
-            }
-
-            return null;
         }
     }
 }

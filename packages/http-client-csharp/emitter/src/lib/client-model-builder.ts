@@ -68,7 +68,8 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   function fromSdkClients(
     clients: SdkClientType<SdkHttpOperation>[],
     inputClients: InputClient[],
-    parentClientNames: string[]
+    parentClientNames: string[],
+    parent?: InputClient
   ) {
     for (const client of clients) {
       const inputClient = emitClient(client, parentClientNames);
@@ -77,12 +78,19 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
         .filter((m) => m.kind === "clientaccessor")
         .map((m) => m.response as SdkClientType<SdkHttpOperation>);
       parentClientNames.push(inputClient.Name);
-      fromSdkClients(subClients, inputClients, parentClientNames);
+      fromSdkClients(subClients, inputClients, parentClientNames, inputClient);
+      // for (const child of subClients) {
+      //   child.Parent = inputClient;
+      // }
+      // for (const child of subClients) {
+      //   child.Parent = client;
+      // }
       parentClientNames.pop();
     }
+
   }
 
-  function emitClient(client: SdkClientType<SdkHttpOperation>, parentNames: string[]): InputClient {
+  function emitClient(client: SdkClientType<SdkHttpOperation>, parentNames: string[], parent?: InputClient): InputClient {
     const endpointParameter = client.initialization.properties.find(
       (p) => p.kind === "endpoint"
     ) as SdkEndpointParameter;
@@ -91,6 +99,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     return {
       Name: getClientName(client, parentNames),
       Description: client.description,
+      Parent: parent,
       Operations: client.methods
         .filter((m) => m.kind !== "clientaccessor")
         .map((m) =>
