@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Tests.Common;
@@ -16,13 +14,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
         [TestCase]
         public void TestCustomization_CanChangeModelName()
         {
-            // we are borrowing this GetExpectedFromFile method to read the content of the corresponding asset file, we are not using it as expected here.
-            SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile());
-            CSharpCompilation compilation = CSharpCompilation.Create("ExistingCode")
-                .WithOptions(new CSharpCompilationOptions(OutputKind.ConsoleApplication))
-                .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
-                .AddSyntaxTrees(syntaxTree);
-            MockHelpers.LoadMockPlugin(customization: compilation);
+            MockHelpers.LoadMockPlugin(customization: Helpers.GetCompilationFromFile());
 
             var props = new[]
             {
