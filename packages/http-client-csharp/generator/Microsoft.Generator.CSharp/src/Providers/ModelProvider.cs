@@ -50,12 +50,14 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 _declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
-            _isStruct = inputModel.ModelAsStruct;
+
             if (inputModel.BaseModel is not null)
             {
                 _baseTypeProvider = new(() => CodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel.BaseModel));
                 DiscriminatorValueExpression = EnsureDiscriminatorValueExpression();
             }
+
+            _isStruct = inputModel.ModelAsStruct;
         }
 
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;
@@ -301,6 +303,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             return parameter.AsExpression;
         }
+
         private static void AddInitializationParameterForCtor(
             List<ParameterProvider> parameters,
             PropertyProvider property,
