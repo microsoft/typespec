@@ -12,13 +12,13 @@ namespace Microsoft.Generator.CSharp.Providers
 {
     public abstract class TypeProvider
     {
-        private Lazy<NamedTypeSymbolProvider?> _customization;
+        private Lazy<TypeProvider?> _customCodeView;
         protected TypeProvider()
         {
-            _customization = new(GetCustomizationProvider);
+            _customCodeView = new(GetCustomCodeView);
         }
 
-        private NamedTypeSymbolProvider? GetCustomizationProvider()
+        private TypeProvider? GetCustomCodeView()
         {
             if (this is NamedTypeSymbolProvider)
                 return null;
@@ -26,7 +26,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return CodeModelPlugin.Instance.SourceInputModel.FindForType(GetNamespace(), BuildName());
         }
 
-        public NamedTypeSymbolProvider? Customization => _customization.Value;
+        protected TypeProvider? CustomCodeView => _customCodeView.Value;
 
         protected string? _deprecated;
 
@@ -38,7 +38,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private string? _relativeFilePath;
 
-        public string Name => _name ??= Customization?.Name ?? BuildName();
+        public string Name => _name ??= CustomCodeView?.Name ?? BuildName();
 
         private string? _name;
 
@@ -61,7 +61,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private CSharpType? _type;
         public CSharpType Type => _type ??= new(
             this,
-            Customization?.GetNamespace() ?? GetNamespace(),
+            CustomCodeView?.GetNamespace() ?? GetNamespace(),
             GetTypeArguments(),
             GetBaseType());
 

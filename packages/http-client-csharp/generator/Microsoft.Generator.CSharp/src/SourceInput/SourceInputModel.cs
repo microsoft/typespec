@@ -57,7 +57,7 @@ namespace Microsoft.Generator.CSharp.SourceInput
             return nameMap;
         }
 
-        public NamedTypeSymbolProvider? FindForType(string ns, string name)
+        public TypeProvider? FindForType(string ns, string name)
         {
             if (Customization == null)
             {
