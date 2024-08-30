@@ -18,9 +18,11 @@ namespace Microsoft.Generator.CSharp.Providers
             _customCodeView = new(GetCustomCodeView);
         }
 
+        private protected virtual bool IsCodeViewProvider => false;
+
         private TypeProvider? GetCustomCodeView()
         {
-            if (this is NamedTypeSymbolProvider)
+            if (IsCodeViewProvider)
                 return null;
 
             return CodeModelPlugin.Instance.SourceInputModel.FindForType(GetNamespace(), BuildName());
