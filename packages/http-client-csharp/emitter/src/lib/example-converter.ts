@@ -78,10 +78,10 @@ export function fromSdkHttpExamples(
 
   function fromSdkOperationResponses(
     responses: Map<number, SdkHttpResponseExample>
-  ): Map<number, OperationResponseExample> {
-    const result = new Map<number, OperationResponseExample>();
+  ): Record<number, OperationResponseExample> {
+    const result: Record<number, OperationResponseExample> = {};
     for (const [status, response] of responses) {
-      result.set(status, fromSdkOperationResponse(response));
+      result[status] = fromSdkOperationResponse(response);
     }
     return result;
   }
