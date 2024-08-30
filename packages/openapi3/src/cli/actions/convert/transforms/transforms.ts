@@ -1,13 +1,14 @@
-import { OpenAPI3Document } from "../../../../types.js";
 import { TypeSpecModel, TypeSpecProgram } from "../interfaces.js";
+import { Context } from "../utils/context.js";
 import { transformComponentParameters } from "./transform-component-parameters.js";
 import { transformComponentSchemas } from "./transform-component-schemas.js";
 import { transformNamespaces } from "./transform-namespaces.js";
 import { transformPaths } from "./transform-paths.js";
 import { transformServiceInfo } from "./transform-service-info.js";
 
-export function transform(openapi: OpenAPI3Document): TypeSpecProgram {
-  const models = collectModels(openapi);
+export function transform(context: Context): TypeSpecProgram {
+  const openapi = context.openApi3Doc;
+  const models = collectDataTypes(context);
   const operations = transformPaths(models, openapi.paths);
 
   return {
@@ -17,13 +18,12 @@ export function transform(openapi: OpenAPI3Document): TypeSpecProgram {
   };
 }
 
-function collectModels(document: OpenAPI3Document): TypeSpecModel[] {
+function collectDataTypes(context: Context): TypeSpecModel[] {
   const models: TypeSpecModel[] = [];
-  const components = document.components;
   // get models from `#/components/schema
-  transformComponentSchemas(models, components?.schemas);
+  transformComponentSchemas(context, models);
   // get models from `#/components/parameters
-  transformComponentParameters(models, components?.parameters);
+  transformComponentParameters(context, models);
 
   return models;
 }
