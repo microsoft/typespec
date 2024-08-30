@@ -4,6 +4,7 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
 using _Type.Union;
@@ -108,7 +109,8 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Union
             // We need to use reflection because the Cat model gets deleted in Stubbed mode which is what we check in.
             // The type will exist when actually running the test using the ClientModelPlugin.
             var catType = typeof(UnionClient).Assembly.GetType("_Type.Union.Models.Cat");
-            var cat= Activator.CreateInstance(catType!, "test");
+            Debug.Assert(catType != null);
+            var cat = Activator.CreateInstance(catType, "test");
             return ModelReaderWriter.Write(cat!);
         }
 
