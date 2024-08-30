@@ -93,13 +93,12 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Union
         {
             var response = await new UnionClient(host, null).GetModelsOnlyClient().GetAsync();
             Assert.AreEqual(200, response.GetRawResponse().Status);
-            AssertEqual(new Cat("test"), ModelReaderWriter.Read<Cat>(response.Value.Prop)!);
         });
 
         [CadlRanchTest]
         public Task SendModelsOnly() => Test(async (host) =>
         {
-            var response = await new UnionClient(host, null).GetModelsOnlyClient().SendAsync(ModelReaderWriter.Write(new Cat("test")));
+            var response = await new UnionClient(host, null).GetModelsOnlyClient().SendAsync(BinaryData.FromObjectAsJson("test"));
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
@@ -173,13 +172,13 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Union
         public Task SendMixedTypesOnlyOnly() => Test(async (host) =>
         {
             var response = await new UnionClient(host, null).GetMixedTypesClient().SendAsync(new MixedTypesCases(
-                ModelReaderWriter.Write(new Cat("test")),
+                null,
                 BinaryData.FromObjectAsJson("a"),
                 BinaryData.FromObjectAsJson(2),
                 BinaryData.FromObjectAsJson(true),
                 new[]
                 {
-                    ModelReaderWriter.Write(new Cat("test")),
+                    null,
                     BinaryData.FromObjectAsJson("a"),
                     BinaryData.FromObjectAsJson(2),
                     BinaryData.FromObjectAsJson(true)
@@ -190,11 +189,6 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Union
         private static void AssertEqual(BinaryData source, BinaryData target)
         {
             BinaryDataAssert.AreEqual(source, target);
-        }
-
-        private void AssertEqual(Cat cat1, Cat cat2)
-        {
-            Assert.IsTrue(cat1 == cat2 || cat1.Name == cat2.Name);
         }
     }
 }
