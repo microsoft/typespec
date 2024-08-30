@@ -35,7 +35,13 @@ foreach ($directory in $directories) {
 
     $testFilter = "TestProjects.CadlRanch.Tests"
     foreach ($folder in $folders) {
-        $testFilter += ".$(Get-Namespace $folder)"
+        $segment = "$(Get-Namespace $folder)"
+        # if the segment is a reserved keyword, prefix it with an underscore to match the generator behavior for reserved keywords in namespaces
+        # see Configuration.cs
+        if ($segment -eq "Type" -or $segment -eq "Array" -or $segment -eq "Enum") {
+            $segment = "_$($segment)"
+        }
+        $testFilter += ".$segment"
     }
 
     Write-Host "Regenerating $subPath" -ForegroundColor Cyan
