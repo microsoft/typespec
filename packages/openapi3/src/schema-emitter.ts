@@ -658,7 +658,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     // Utility function to apply constraints
     const applyConstraint = (fn: (p: Program, t: Type) => any, key: keyof OpenAPI3XmlSchema) => {
       const value = fn(program, prop);
-      if (value !== undefined && value !== false) {
+      if (value === true) {
         schema[key] = value;
       }
     };
@@ -836,7 +836,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       "deprecated"
     );
 
-    //this.#attachXmlObject(program, type as ModelProperty, schema);
+    this.#attachXmlObject(program, type as ModelProperty, schema);
 
     this.#attachExtensions(program, type, schema);
 

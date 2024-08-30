@@ -2,186 +2,185 @@ import { deepStrictEqual } from "assert";
 import { describe, it } from "vitest";
 import { oapiForModel } from "./test-host.js";
 
-describe("openapi3: xml models", () => {
-  describe("@name", () => {
-    it("set the element value via @name", async () => {
-      const res = await oapiForModel(
-        "Book",
-        `
+describe("@name", () => {
+  it("set the element value via @name", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `
         @name("xmlBook")
         model Book {        
           content: string;
         };`
-      );
+    );
 
-      deepStrictEqual(res.schemas.Book, {
-        type: "object",
-        properties: {
-          content: { type: "string" },
-        },
-        required: ["content"],
-        xml: {
-          name: "xmlBook",
-        },
-      });
+    deepStrictEqual(res.schemas.Book, {
+      type: "object",
+      properties: {
+        content: { type: "string" },
+      },
+      required: ["content"],
+      xml: {
+        name: "xmlBook",
+      },
     });
+  });
 
-    it("set the element value via @name on array property", async () => {
-      const res = await oapiForModel(
-        "Book",
-        `
+  it("set the element value for array property via @name", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `
         @name("xmlBook")
         model Book {        
           tags: string[];
         };`
-      );
+    );
 
-      deepStrictEqual(res.schemas.Book, {
-        type: "object",
-        properties: {
-          tags: {
-            type: "array",
-            items: {
-              type: "string",
-            },
-          },
-        },
-        required: ["tags"],
-        xml: {
-          name: "xmlBook",
-        },
-      });
-    });
-
-    it("set the attribute value via @name", async () => {
-      const res = await oapiForModel(
-        "Book",
-        `model Book {
-          @name("xmlcontent")
-          content: string;
-        };`
-      );
-
-      deepStrictEqual(res.schemas.Book, {
-        type: "object",
-        properties: {
-          content: { type: "string", xml: { name: "xmlcontent" } },
-        },
-        required: ["content"],
-      });
-    });
-
-    it("set the value via @name on scalar", async () => {
-      const res = await oapiForModel(
-        "Book",
-        `
-        @name("xmlBook")
-        scalar Book extends string;`
-      );
-
-      deepStrictEqual(res.schemas.Book, {
-        type: "string",
-        xml: {
-          name: "xmlBook",
-        },
-      });
-    });
-  });
-
-  describe("@attribute", () => {
-    it("mark property as being an attribute", async () => {
-      const res = await oapiForModel(
-        "Book",
-        `model Book {
-          @attribute
-          id: string;
-        };`
-      );
-
-      deepStrictEqual(res.schemas.Book, {
-        type: "object",
-        properties: {
-          id: { type: "string", xml: { attribute: true } },
-        },
-        required: ["id"],
-      });
-    });
-  });
-
-  describe("@unwrapped", () => {
-    it("provide the namespace and prefix using string", async () => {
-      const res = await oapiForModel(
-        "Book",
-        `model Book {
-          @unwrapped
-          id: string;
-        };`
-      );
-
-      deepStrictEqual(res.schemas.Book, {
-        type: "object",
-        properties: {
-          id: {
+    deepStrictEqual(res.schemas.Book, {
+      type: "object",
+      properties: {
+        tags: {
+          type: "array",
+          items: {
             type: "string",
           },
         },
-        required: ["id"],
-      });
+      },
+      required: ["tags"],
+      xml: {
+        name: "xmlBook",
+      },
     });
   });
 
-  describe("@ns", () => {
-    it("provide the namespace and prefix", async () => {
-      const res = await oapiForModel(
-        "Book",
-        `
+  it("set the attribute value via @name", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `model Book {
+          @name("xmlcontent")
+          content: string;
+        };`
+    );
+
+    deepStrictEqual(res.schemas.Book, {
+      type: "object",
+      properties: {
+        content: { type: "string", xml: { name: "xmlcontent" } },
+      },
+      required: ["content"],
+    });
+  });
+
+  it("set the value on scalar via @name", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `
+        @name("xmlBook")
+        scalar Book extends string;`
+    );
+
+    deepStrictEqual(res.schemas.Book, {
+      type: "string",
+      xml: {
+        name: "xmlBook",
+      },
+    });
+  });
+});
+
+describe("@attribute", () => {
+  it("mark property as being an attribute", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `model Book {
+          @attribute
+          id: string;
+        };`
+    );
+
+    deepStrictEqual(res.schemas.Book, {
+      type: "object",
+      properties: {
+        id: { type: "string", xml: { attribute: true } },
+      },
+      required: ["id"],
+    });
+  });
+});
+
+describe("@unwrapped", () => {
+  it("provide the namespace and prefix using string", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `model Book {
+          @unwrapped
+          id: string;
+        };`
+    );
+
+    deepStrictEqual(res.schemas.Book, {
+      type: "object",
+      properties: {
+        id: {
+          type: "string",
+        },
+      },
+      required: ["id"],
+    });
+  });
+});
+
+describe("@ns", () => {
+  it("provide the namespace and prefix", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `
         @ns("https://example.com/ns1", "ns1")
         model Book {
           id: string;
         };`
-      );
-      deepStrictEqual(res.schemas.Book, {
-        type: "object",
-        properties: {
-          id: {
-            type: "string",
-          },
+    );
+    deepStrictEqual(res.schemas.Book, {
+      type: "object",
+      properties: {
+        id: {
+          type: "string",
         },
-        required: ["id"],
-        xml: {
-          namespace: "https://example.com/ns1",
-          prefix: "ns1",
-        },
-      });
+      },
+      required: ["id"],
+      xml: {
+        namespace: "https://example.com/ns1",
+        prefix: "ns1",
+      },
     });
+  });
 
-    it("provide the namespace and prefix using string", async () => {
-      const res = await oapiForModel(
-        "Book",
-        `model Book {
+  it("provide the namespace and prefix using string", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `model Book {
           @ns("https://example.com/ns1", "ns1")
           id: string;
         };`
-      );
+    );
 
-      deepStrictEqual(res.schemas.Book, {
-        type: "object",
-        properties: {
-          id: {
-            type: "string",
-            xml: {
-              namespace: "https://example.com/ns1",
-              prefix: "ns1",
-            },
+    deepStrictEqual(res.schemas.Book, {
+      type: "object",
+      properties: {
+        id: {
+          type: "string",
+          xml: {
+            namespace: "https://example.com/ns1",
+            prefix: "ns1",
           },
         },
-        required: ["id"],
-      });
+      },
+      required: ["id"],
     });
-    it("provide the namespace and prefix using enum on model", async () => {
-      const res = await oapiForModel(
-        "Book",
-        `
+  });
+  it("provide the namespace and prefix using enum on model", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `
         @nsDeclarations
         enum Namespaces {
           smp:"http://example.com/schema",
@@ -191,26 +190,26 @@ describe("openapi3: xml models", () => {
         model Book {
           id: string;
         };`
-      );
+    );
 
-      deepStrictEqual(res.schemas.Book, {
-        type: "object",
-        properties: {
-          id: {
-            type: "string",
-          },
+    deepStrictEqual(res.schemas.Book, {
+      type: "object",
+      properties: {
+        id: {
+          type: "string",
         },
-        required: ["id"],
-        xml: {
-          namespace: "http://example.com/schema",
-          prefix: "smp",
-        },
-      });
+      },
+      required: ["id"],
+      xml: {
+        namespace: "http://example.com/schema",
+        prefix: "smp",
+      },
     });
-    it("provide the namespace and prefix using enum on model and properties", async () => {
-      const res = await oapiForModel(
-        "Book",
-        `
+  });
+  it("provide the namespace and prefix using enum on model and properties", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `
         @nsDeclarations
         enum Namespaces {
           smp:"http://example.com/schema",
@@ -225,100 +224,100 @@ describe("openapi3: xml models", () => {
           @ns(Namespaces.ns2)
           author: string;
         };`
-      );
+    );
 
-      deepStrictEqual(res.schemas.Book, {
-        type: "object",
-        properties: {
-          id: {
-            type: "string",
-          },
-          title: {
-            type: "string",
-            xml: {
-              namespace: "http://example.com/schema",
-              prefix: "smp",
-            },
-          },
-          author: {
-            type: "string",
-            xml: {
-              namespace: "http://example.com/ns2",
-              prefix: "ns2",
-            },
+    deepStrictEqual(res.schemas.Book, {
+      type: "object",
+      properties: {
+        id: {
+          type: "string",
+        },
+        title: {
+          type: "string",
+          xml: {
+            namespace: "http://example.com/schema",
+            prefix: "smp",
           },
         },
-        required: ["id", "title", "author"],
-        xml: {
-          namespace: "http://example.com/schema",
-          prefix: "smp",
+        author: {
+          type: "string",
+          xml: {
+            namespace: "http://example.com/ns2",
+            prefix: "ns2",
+          },
         },
-      });
+      },
+      required: ["id", "title", "author"],
+      xml: {
+        namespace: "http://example.com/schema",
+        prefix: "smp",
+      },
     });
   });
-  describe("Array of primitive types", () => {
-    it("Scenario 1.1", async () => {
-      const res = await oapiForModel(
-        "Book",
-        `
+});
+describe("Array of primitive types", () => {
+  it("unwrapped tags array in the xmlBook model.", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `
       @name("xmlBook")
       model Book {
         @unwrapped 
         tags: string[];
       };`
-      );
+    );
 
-      deepStrictEqual(res.schemas.Book, {
-        type: "object",
-        properties: {
-          tags: {
-            type: "array",
-            items: {
-              type: "string",
-            },
+    deepStrictEqual(res.schemas.Book, {
+      type: "object",
+      properties: {
+        tags: {
+          type: "array",
+          items: {
+            type: "string",
           },
         },
-        required: ["tags"],
-        xml: {
-          name: "xmlBook",
-        },
-      });
+      },
+      required: ["tags"],
+      xml: {
+        name: "xmlBook",
+      },
     });
-    it("Scenario 1.2", async () => {
-      const res = await oapiForModel(
-        "Book",
-        `
+  });
+  it("wrapped tags array in the xmlBook model.", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `
       @name("xmlBook")
       model Book {
         @name("ItemsTags")
         tags: string[];
       };`
-      );
+    );
 
-      deepStrictEqual(res.schemas.Book, {
-        type: "object",
-        properties: {
-          tags: {
-            type: "array",
-            xml: {
-              name: "ItemsTags",
-              wrapped: true,
-            },
-            items: {
-              type: "string",
-            },
+    deepStrictEqual(res.schemas.Book, {
+      type: "object",
+      properties: {
+        tags: {
+          type: "array",
+          xml: {
+            name: "ItemsTags",
+            wrapped: true,
+          },
+          items: {
+            type: "string",
           },
         },
-        required: ["tags"],
-        xml: {
-          name: "xmlBook",
-        },
-      });
+      },
+      required: ["tags"],
+      xml: {
+        name: "xmlBook",
+      },
     });
-    it("Scenario 1.3", async () => {
-      const res = await oapiForModel(
-        "Book",
-        `
+  });
+  it("unwrapped tags array in xmlBook Model, using the tag scalar renamed as ItemsName.", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `
         @name("ItemsName")
         scalar tag extends string;
 
@@ -327,36 +326,36 @@ describe("openapi3: xml models", () => {
           @unwrapped
           tags: tag[]
         }`
-      );
+    );
 
-      deepStrictEqual(res.schemas.tag, {
-        type: "string",
-        xml: {
-          name: "ItemsName",
-        },
-      });
-
-      deepStrictEqual(res.schemas.Book, {
-        type: "object",
-        properties: {
-          tags: {
-            type: "array",
-            items: {
-              $ref: "#/components/schemas/tag",
-            },
-          },
-        },
-        required: ["tags"],
-        xml: {
-          name: "xmlBook",
-        },
-      });
+    deepStrictEqual(res.schemas.tag, {
+      type: "string",
+      xml: {
+        name: "ItemsName",
+      },
     });
 
-    it("Scenario 1.4", async () => {
-      const res = await oapiForModel(
-        "Book",
-        `
+    deepStrictEqual(res.schemas.Book, {
+      type: "object",
+      properties: {
+        tags: {
+          type: "array",
+          items: {
+            $ref: "#/components/schemas/tag",
+          },
+        },
+      },
+      required: ["tags"],
+      xml: {
+        name: "xmlBook",
+      },
+    });
+  });
+
+  it("wrapped tags array in xmlBook Model, using the tag scalar renamed as ItemsName.", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `
         @name("ItemsName")
         scalar tag extends string;
 
@@ -365,42 +364,42 @@ describe("openapi3: xml models", () => {
           @name("ItemsTags")
           tags: tag[]
         }`
-      );
+    );
 
-      deepStrictEqual(res.schemas.tag, {
-        type: "string",
-        xml: {
-          name: "ItemsName",
-        },
-      });
+    deepStrictEqual(res.schemas.tag, {
+      type: "string",
+      xml: {
+        name: "ItemsName",
+      },
+    });
 
-      deepStrictEqual(res.schemas.Book, {
-        type: "object",
-        properties: {
-          tags: {
-            type: "array",
-            xml: {
-              name: "ItemsTags",
-              wrapped: true,
-            },
-            items: {
-              $ref: "#/components/schemas/tag",
-            },
+    deepStrictEqual(res.schemas.Book, {
+      type: "object",
+      properties: {
+        tags: {
+          type: "array",
+          xml: {
+            name: "ItemsTags",
+            wrapped: true,
+          },
+          items: {
+            $ref: "#/components/schemas/tag",
           },
         },
-        required: ["tags"],
-        xml: {
-          name: "xmlBook",
-        },
-      });
+      },
+      required: ["tags"],
+      xml: {
+        name: "xmlBook",
+      },
     });
   });
+});
 
-  describe("Complex array types", () => {
-    it("Scenario 2.1", async () => {
-      const res = await oapiForModel(
-        "Pet",
-        `
+describe("Complex array types", () => {
+  it("unwrapped the tags object array in the XmlPet model.", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
         @name("XmlPet")
         model Pet {
           @unwrapped
@@ -411,41 +410,41 @@ describe("openapi3: xml models", () => {
         model Tag {
           name: string;
         }`
-      );
+    );
 
-      deepStrictEqual(res.schemas.Tag, {
-        type: "object",
-        properties: {
-          name: {
-            type: "string",
-          },
+    deepStrictEqual(res.schemas.Tag, {
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
         },
-        required: ["name"],
-        xml: {
-          name: "XmlTag",
-        },
-      });
-
-      deepStrictEqual(res.schemas.Pet, {
-        type: "object",
-        properties: {
-          tags: {
-            type: "array",
-            items: {
-              $ref: "#/components/schemas/Tag",
-            },
-          },
-        },
-        required: ["tags"],
-        xml: {
-          name: "XmlPet",
-        },
-      });
+      },
+      required: ["name"],
+      xml: {
+        name: "XmlTag",
+      },
     });
-    it("Scenario 2.2", async () => {
-      const res = await oapiForModel(
-        "Pet",
-        `
+
+    deepStrictEqual(res.schemas.Pet, {
+      type: "object",
+      properties: {
+        tags: {
+          type: "array",
+          items: {
+            $ref: "#/components/schemas/Tag",
+          },
+        },
+      },
+      required: ["tags"],
+      xml: {
+        name: "XmlPet",
+      },
+    });
+  });
+  it("wrapped the tags object array in the XmlPet model.", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
         @name("XmlPet")
         model Pet {
           @name("ItemsTags")    
@@ -456,45 +455,45 @@ describe("openapi3: xml models", () => {
         model Tag {
           name: string;
         }`
-      );
+    );
 
-      deepStrictEqual(res.schemas.Tag, {
-        type: "object",
-        properties: {
-          name: {
-            type: "string",
-          },
+    deepStrictEqual(res.schemas.Tag, {
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
         },
-        required: ["name"],
-        xml: {
-          name: "XmlTag",
-        },
-      });
-
-      deepStrictEqual(res.schemas.Pet, {
-        type: "object",
-        properties: {
-          tags: {
-            type: "array",
-            xml: {
-              name: "ItemsTags",
-              wrapped: true,
-            },
-            items: {
-              $ref: "#/components/schemas/Tag",
-            },
-          },
-        },
-        required: ["tags"],
-        xml: {
-          name: "XmlPet",
-        },
-      });
+      },
+      required: ["name"],
+      xml: {
+        name: "XmlTag",
+      },
     });
-    it("Scenario 2.3", async () => {
-      const res = await oapiForModel(
-        "Pet",
-        `
+
+    deepStrictEqual(res.schemas.Pet, {
+      type: "object",
+      properties: {
+        tags: {
+          type: "array",
+          xml: {
+            name: "ItemsTags",
+            wrapped: true,
+          },
+          items: {
+            $ref: "#/components/schemas/Tag",
+          },
+        },
+      },
+      required: ["tags"],
+      xml: {
+        name: "XmlPet",
+      },
+    });
+  });
+  it("unwrapped and renamed Tags object array in xmlPet Model.", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
         @name("XmlPet")
         model Pet {
           @name("ItemsTags")
@@ -506,44 +505,44 @@ describe("openapi3: xml models", () => {
         model Tag {
           name: string;
         }`
-      );
+    );
 
-      deepStrictEqual(res.schemas.Tag, {
-        type: "object",
-        properties: {
-          name: {
-            type: "string",
-          },
+    deepStrictEqual(res.schemas.Tag, {
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
         },
-        required: ["name"],
-        xml: {
-          name: "XmlTag",
-        },
-      });
-
-      deepStrictEqual(res.schemas.Pet, {
-        type: "object",
-        properties: {
-          tags: {
-            type: "array",
-            xml: {
-              name: "ItemsTags",
-            },
-            items: {
-              $ref: "#/components/schemas/Tag",
-            },
-          },
-        },
-        required: ["tags"],
-        xml: {
-          name: "XmlPet",
-        },
-      });
+      },
+      required: ["name"],
+      xml: {
+        name: "XmlTag",
+      },
     });
-    it("Scenario 2.4", async () => {
-      const res = await oapiForModel(
-        "Pet",
-        `
+
+    deepStrictEqual(res.schemas.Pet, {
+      type: "object",
+      properties: {
+        tags: {
+          type: "array",
+          xml: {
+            name: "ItemsTags",
+          },
+          items: {
+            $ref: "#/components/schemas/Tag",
+          },
+        },
+      },
+      required: ["tags"],
+      xml: {
+        name: "XmlPet",
+      },
+    });
+  });
+  it("wrapped and renamed Tags object array in xmlPet Model.", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
         @name("XmlPet")
         model Pet {
           @name("ItemsTags")
@@ -554,48 +553,48 @@ describe("openapi3: xml models", () => {
         model Tag {
           name: string;
         }`
-      );
+    );
 
-      deepStrictEqual(res.schemas.Tag, {
-        type: "object",
-        properties: {
-          name: {
-            type: "string",
+    deepStrictEqual(res.schemas.Tag, {
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
+        },
+      },
+      required: ["name"],
+      xml: {
+        name: "XmlTag",
+      },
+    });
+
+    deepStrictEqual(res.schemas.Pet, {
+      type: "object",
+      properties: {
+        tags: {
+          type: "array",
+          xml: {
+            name: "ItemsTags",
+            wrapped: true,
+          },
+          items: {
+            $ref: "#/components/schemas/Tag",
           },
         },
-        required: ["name"],
-        xml: {
-          name: "XmlTag",
-        },
-      });
-
-      deepStrictEqual(res.schemas.Pet, {
-        type: "object",
-        properties: {
-          tags: {
-            type: "array",
-            xml: {
-              name: "ItemsTags",
-              wrapped: true,
-            },
-            items: {
-              $ref: "#/components/schemas/Tag",
-            },
-          },
-        },
-        required: ["tags"],
-        xml: {
-          name: "XmlPet",
-        },
-      });
+      },
+      required: ["tags"],
+      xml: {
+        name: "XmlPet",
+      },
     });
   });
+});
 
-  describe("Nested models", () => {
-    it("Scenario 3.1", async () => {
-      const res = await oapiForModel(
-        "Book",
-        `
+describe("Nested models", () => {
+  it("author object in Book Model", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `
         model Book {
           author: Author;
         }
@@ -603,32 +602,32 @@ describe("openapi3: xml models", () => {
         model Author {
           name: string;
         }`
-      );
+    );
 
-      deepStrictEqual(res.schemas.Book, {
-        type: "object",
-        properties: {
-          author: {
-            $ref: "#/components/schemas/Author",
-          },
+    deepStrictEqual(res.schemas.Book, {
+      type: "object",
+      properties: {
+        author: {
+          $ref: "#/components/schemas/Author",
         },
-        required: ["author"],
-      });
-
-      deepStrictEqual(res.schemas.Author, {
-        type: "object",
-        properties: {
-          name: {
-            type: "string",
-          },
-        },
-        required: ["name"],
-      });
+      },
+      required: ["author"],
     });
-    it("Scenario 3.2", async () => {
-      const res = await oapiForModel(
-        "Book",
-        `
+
+    deepStrictEqual(res.schemas.Author, {
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
+        },
+      },
+      required: ["name"],
+    });
+  });
+  it("object rename as XmlAuthor in Book Model", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `
         model Book {
           author: Author;
         }
@@ -636,30 +635,29 @@ describe("openapi3: xml models", () => {
         model Author {
           name: string;
         }`
-      );
+    );
 
-      deepStrictEqual(res.schemas.Book, {
-        type: "object",
-        properties: {
-          author: {
-            $ref: "#/components/schemas/Author",
-          },
+    deepStrictEqual(res.schemas.Book, {
+      type: "object",
+      properties: {
+        author: {
+          $ref: "#/components/schemas/Author",
         },
-        required: ["author"],
-      });
+      },
+      required: ["author"],
+    });
 
-      deepStrictEqual(res.schemas.Author, {
-        type: "object",
-        properties: {
-          name: {
-            type: "string",
-          },
+    deepStrictEqual(res.schemas.Author, {
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
         },
-        required: ["name"],
-        xml: {
-          name: "XmlAuthor",
-        },
-      });
+      },
+      required: ["name"],
+      xml: {
+        name: "XmlAuthor",
+      },
     });
   });
 });
