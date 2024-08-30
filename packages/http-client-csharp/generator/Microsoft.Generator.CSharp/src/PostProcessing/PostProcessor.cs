@@ -18,6 +18,7 @@ namespace Microsoft.Generator.CSharp
         private readonly string? _modelFactoryFullName;
         private readonly string? _aspExtensionClassName;
         private readonly HashSet<string> _typesToKeep;
+        private INamedTypeSymbol? _modelFactorySymbol;
 
         public PostProcessor(
             HashSet<string> typesToKeep,
@@ -52,9 +53,8 @@ namespace Microsoft.Generator.CSharp
                 new Dictionary<INamedTypeSymbol, HashSet<BaseTypeDeclarationSyntax>>(SymbolEqualityComparer.Default);
             var documentCache = new Dictionary<Document, HashSet<INamedTypeSymbol>>();
 
-            INamedTypeSymbol? modelFactorySymbol = null;
             if (_modelFactoryFullName != null)
-                modelFactorySymbol = compilation.GetTypeByMetadataName(_modelFactoryFullName);
+                _modelFactorySymbol = compilation.GetTypeByMetadataName(_modelFactoryFullName);
             INamedTypeSymbol? aspDotNetExtensionSymbol = null;
             if (_aspExtensionClassName != null)
                 aspDotNetExtensionSymbol = compilation.GetTypeByMetadataName(_aspExtensionClassName);
@@ -79,7 +79,7 @@ namespace Microsoft.Generator.CSharp
                             continue;
 
                         // we do not add the model factory and aspDotNetExtension symbol to the declared symbol list so that it will never be included in any process of internalization or removal
-                        if (!SymbolEqualityComparer.Default.Equals(symbol, modelFactorySymbol)
+                        if (!SymbolEqualityComparer.Default.Equals(symbol, _modelFactorySymbol)
                             && !SymbolEqualityComparer.Default.Equals(symbol, aspDotNetExtensionSymbol))
                             result.Add(symbol);
 
@@ -91,7 +91,7 @@ namespace Microsoft.Generator.CSharp
             }
 
             return new TypeSymbols(result,
-                modelFactorySymbol,
+                _modelFactorySymbol,
                 declarationCache.ToDictionary(kv => kv.Key, kv => kv.Value.ToHashSet(),
                     (IEqualityComparer<INamedTypeSymbol>)SymbolEqualityComparer.Default),
                 documentCache.ToDictionary(kv => kv.Key,
@@ -229,6 +229,10 @@ namespace Microsoft.Generator.CSharp
                     definitions.DeclaredSymbols, definitions.DocumentsCache);
             // get root symbols
             var rootSymbols = await GetRootSymbolsAsync(project, definitions);
+            // include model factory as a root symbol when doing the remove pass so that we are sure to include any internal
+            // helpers that are required by the model factory.
+            if (_modelFactorySymbol != null)
+                rootSymbols.Add(_modelFactorySymbol);
             // traverse the map to determine the declarations that we are about to remove, starting from root nodes
             var referencedSymbols = VisitSymbolsFromRootAsync(rootSymbols, referenceMap);
 
