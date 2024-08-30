@@ -282,7 +282,7 @@ namespace Microsoft.Generator.CSharp
 
         private static T ReadEnumOption<T>(JsonElement root, string option) where T : struct, Enum
         {
-            if (Enum.TryParse<T>(option, true, out var enumValue))
+            if (root.TryGetProperty(option, out JsonElement value) && Enum.TryParse<T>(value.ToString(), true, out var enumValue))
             {
                 return enumValue;
             }

@@ -155,6 +155,24 @@ namespace Microsoft.Generator.CSharp.Tests
         }
 
         [Test]
+        [TestCase("removeOrInternalize", Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize)]
+        [TestCase("keepAll", Configuration.UnreferencedTypesHandlingOption.KeepAll)]
+        [TestCase("internalize", Configuration.UnreferencedTypesHandlingOption.Internalize)]
+        public void UnreferencedTypeHandling(string input, Configuration.UnreferencedTypesHandlingOption expectedOption)
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""library-name"": ""libraryName"",
+                ""namespace"": ""namespace"",
+                ""unreferenced-types-handling"": ""keepAll""
+                }";
+
+            MockHelpers.LoadMockPlugin(configuration: mockJson);
+
+            StringAssert.AreEqualIgnoringCase(expectedOption.ToString(), input);
+        }
+
+        [Test]
         public void DisableDocsForMethod()
         {
             var mockJson = @"{
