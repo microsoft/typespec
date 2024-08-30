@@ -25,6 +25,7 @@ const stateKeys = {
 
   discriminator: createStateSymbol("discriminator"),
 };
+
 // #region @minValue
 
 export function setMinValue(program: Program, target: Type, value: Numeric): void {
