@@ -213,7 +213,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 ["application/json"]);
         }
 
-        public static InputClient Client(string name, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, string? parent = null)
+        public static InputClient Client(string name, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null)
         {
             return new InputClient(
                 name,

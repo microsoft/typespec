@@ -1,5 +1,5 @@
 import { TestHost } from "@typespec/compiler/testing";
-import assert, { deepStrictEqual, ok, strictEqual } from "assert";
+import { strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
@@ -18,24 +18,18 @@ describe("Parent property", () => {
 
   it("Base model has parent property", async () => {
     const program = await typeSpecCompile(
-      `import "@typespec/http";
-
-        using TypeSpec.Http;
-        @service({
-          title: "Widget Service",
-        })
-        namespace DemoService;
-
-        model Widget {
-          id: string;
-        }
-        @route("/widgets")
-        interface Widgets {
-          @get list(): Widget[];
-        }
-
-        interface Foo extends Widgets{
-        }
+      `
+      model Widget{
+        name: string;
+      }
+      model Foo extends Widget{
+        id: string;
+      }
+      @route("/widgets")
+      interface Widgets {
+        @get list(): Widget[];
+        @get read(@path id: string): Foo;
+      }
       `,
       runner
     );
@@ -44,9 +38,8 @@ describe("Parent property", () => {
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const models = root.Models;
-    const petModel = models.find((m) => m.Name === "Pet");
-    const catModel = models.find((m) => m.Name === "Cat");
+    const petModel = models.find((m) => m.Name === "Widget");
+    const catModel = models.find((m) => m.Name === "Foo");
     strictEqual(catModel?.BaseModel, petModel);
-    //strictEqual(catModel?.Parent, petModel);
     });
 });

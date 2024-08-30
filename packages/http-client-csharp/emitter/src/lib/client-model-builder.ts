@@ -72,7 +72,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     parent?: InputClient
   ) {
     for (const client of clients) {
-      const inputClient = emitClient(client, parentClientNames);
+      const inputClient = emitClient(client, parentClientNames, parent);
       inputClients.push(inputClient);
       const subClients = client.methods
         .filter((m) => m.kind === "clientaccessor")
