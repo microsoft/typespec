@@ -83,10 +83,10 @@ New-Item -ItemType Directory -Force -Path "$outputPath/packages" | Out-Null
 
 Write-Host "Getting existing versions"
 $emitterVersion = node -p -e "require('$packageRoot/package.json').version"
-$mgcVersion = Get-CsprojVersion -csprojFilePath "$packageRoot/generator/Microsoft.Generator.CSharp/src/Microsoft.Generator.CSharp.csproj"
-$mgcClientModelVersion = Get-CsprojVersion -csprojFilePath "$packageRoot/generator/Microsoft.Generator.CSharp.ClientModel/src/Microsoft.Generator.CSharp.ClientModel.csproj"
-$mgcInputVersion = Get-CsprojVersion -csprojFilePath "$packageRoot/generator/Microsoft.Generator.CSharp.Input/src/Microsoft.Generator.CSharp.Input.csproj"
-$mgcCustomizationVersion = Get-CsprojVersion -csprojFilePath "$packageRoot/generator/Microsoft.Generator.CSharp.Customization/src/Microsoft.Generator.CSharp.Customization.csproj"
+$mgcVersion = Get-CsprojVersion -csprojFilePath "$packageRoot/generator/TypeSpec.Generator/src/TypeSpec.Generator.csproj"
+$mgcClientModelVersion = Get-CsprojVersion -csprojFilePath "$packageRoot/generator/TypeSpec.Generator.ClientModel/src/TypeSpec.Generator.ClientModel.csproj"
+$mgcInputVersion = Get-CsprojVersion -csprojFilePath "$packageRoot/generator/TypeSpec.Generator.Input/src/TypeSpec.Generator.Input.csproj"
+$mgcCustomizationVersion = Get-CsprojVersion -csprojFilePath "$packageRoot/generator/TypeSpec.Generator.Customization/src/TypeSpec.Generator.Customization.csproj"
 
 if ($BuildNumber) {
     # set package versions
@@ -144,10 +144,10 @@ Push-Location "$packageRoot/generator"
 try {
     Write-Host "Working in $PWD"
 
-    Pack-And-Write-Info -package "Microsoft.Generator.CSharp" -version $mgcVersion
-    Pack-And-Write-Info -package "Microsoft.Generator.CSharp.ClientModel" -version $mgcClientModelVersion
-    Pack-And-Write-Info -package "Microsoft.Generator.CSharp.Input" -version $mgcInputVersion
-    Pack-And-Write-Info -package "Microsoft.Generator.CSharp.Customization" -version $mgcCustomizationVersion
+    Pack-And-Write-Info -package "TypeSpec.Generator" -version $mgcVersion
+    Pack-And-Write-Info -package "TypeSpec.Generator.ClientModel" -version $mgcClientModelVersion
+    Pack-And-Write-Info -package "TypeSpec.Generator.Input" -version $mgcInputVersion
+    Pack-And-Write-Info -package "TypeSpec.Generator.Customization" -version $mgcCustomizationVersion
 }
 finally
 {

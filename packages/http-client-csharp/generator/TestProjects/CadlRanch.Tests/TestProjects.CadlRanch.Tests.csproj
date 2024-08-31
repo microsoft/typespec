@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Microsoft.Generator.CSharp\test\common\Microsoft.Generator.CSharp.Tests.Common.csproj" />
+    <ProjectReference Include="..\..\TypeSpec.Generator\test\common\TypeSpec.Generator.Tests.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
