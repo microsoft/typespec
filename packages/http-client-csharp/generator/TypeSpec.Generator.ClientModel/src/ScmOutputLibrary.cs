@@ -1,0 +1,58 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System.Collections.Generic;
+using TypeSpec.Generator.ClientModel.Providers;
+using TypeSpec.Generator.Providers;
+
+namespace TypeSpec.Generator.ClientModel
+{
+    public class ScmOutputLibrary : OutputLibrary
+    {
+        private static TypeProvider[] BuildClients()
+        {
+            var inputClients = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
+            var clients = new List<TypeProvider>(inputClients.Count * 3);
+            foreach (var inputClient in inputClients)
+            {
+                var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+                clients.Add(client);
+                clients.Add(client.RestClient);
+                var clientOptions = client.ClientOptions;
+                if (clientOptions != null)
+                {
+                    clients.Add(clientOptions);
+                }
+            }
+
+            return [.. clients];
+        }
+
+        protected override TypeProvider[] BuildTypeProviders()
+        {
+            var baseTypes = base.BuildTypeProviders();
+            var systemOptionalProvider = new SystemOptionalDefinition();
+
+            for (var i = 0; i < baseTypes.Length; i++)
+            {
+                if (baseTypes[i] is OptionalDefinition)
+                {
+                    baseTypes[i] = systemOptionalProvider;
+                }
+            }
+
+            return [
+                ..baseTypes,
+                ..BuildClients(),
+                new ModelSerializationExtensionsDefinition(),
+                new TypeFormattersDefinition(),
+                new ClientPipelineExtensionsDefinition(),
+                new ErrorResultDefinition(),
+                new ClientUriBuilderDefinition(),
+                new Utf8JsonBinaryContentDefinition(),
+                new BinaryContentHelperDefinition(),
+                new PipelineRequestHeadersExtensionsDefinition(),
+            ];
+        }
+    }
+}

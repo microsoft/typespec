@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>TypeSpec.Generator.Tests.Common</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../../src/Shared/**/*.cs" Link="Shared/%(RecursiveDir)/%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\TypeSpec.Generator.csproj" />
+    <PackageReference Include="System.ClientModel" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>TypeSpec.Generator.Input.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\TypeSpec.Generator\test\common\TypeSpec.Generator.Tests.Common.csproj" />
+    <ProjectReference Include="..\src\TypeSpec.Generator.Input.csproj" />
+  </ItemGroup>
+
+</Project>

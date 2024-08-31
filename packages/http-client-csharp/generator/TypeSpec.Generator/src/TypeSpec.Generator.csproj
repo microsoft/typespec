@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>TypeSpec.Generator</PackageId>
+    <OutputType>Exe</OutputType>
+    <Version>1.0.0-beta.1</Version>
+    <RootNamespace>TypeSpec.Generator</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" />
+    <PackageReference Include="Microsoft.Build" />
+    <PackageReference Include="System.ComponentModel.Composition" />
+    <PackageReference Include="NuGet.Configuration" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+    <PackageReference Include="System.Memory.Data" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\TypeSpec.Generator.Customization\src\TypeSpec.Generator.Customization.csproj" />
+    <ProjectReference Include="..\..\TypeSpec.Generator.Input\src\TypeSpec.Generator.Input.csproj" />
+  </ItemGroup>
+
+</Project>

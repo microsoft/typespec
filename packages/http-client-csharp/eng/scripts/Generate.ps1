@@ -139,8 +139,8 @@ foreach ($directory in $directories) {
 # only write new launch settings if no filter was passed in
 if ($null -eq $filter) {
     Write-Host "Writing new launch settings" -ForegroundColor Cyan
-    $mgcExe = "`$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
-    $sampleExe = "`$(SolutionDir)/../generator/artifacts/bin/SamplePlugin/Debug/net8.0/Microsoft.Generator.CSharp.exe"
+    $mgcExe = "`$(SolutionDir)/../dist/generator/TypeSpec.Generator.exe"
+    $sampleExe = "`$(SolutionDir)/../generator/artifacts/bin/SamplePlugin/Debug/net8.0/TypeSpec.Generator.exe"
     $unbrandedSpec = "TestProjects/Local/Unbranded-TypeSpec"
     $unbrandedPluginSpec = "TestProjects/Plugin/Unbranded-TypeSpec"
 
@@ -179,6 +179,6 @@ if ($null -eq $filter) {
     }
 
     # Write the launch settings to the launchSettings.json file
-    $launchSettingsPath = Join-Path $solutionDir "Microsoft.Generator.CSharp" "src" "Properties" "launchSettings.json"
+    $launchSettingsPath = Join-Path $solutionDir "TypeSpec.Generator" "src" "Properties" "launchSettings.json"
     $sortedLaunchSettings | ConvertTo-Json | Set-Content $launchSettingsPath
 }
