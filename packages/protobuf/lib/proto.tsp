@@ -315,3 +315,17 @@ namespace Private {
   extern dec externRef(target: Reflection.Model, path: string, name: string);
   extern dec _map(target: Reflection.Model);
 }
+/**
+ * Decorate a model property with an optional keyword. This will emit the "optional" keyword for the decorated field.
+ * Doesn't have affect on arrays.
+ *
+ * @example
+ *
+ * ```typespec
+ * model Example {
+ *   @optional
+ *   property: string;
+ * }
+ * ```
+ */
+extern dec optional(target: TypeSpec.Reflection.ModelProperty);

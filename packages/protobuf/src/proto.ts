@@ -19,6 +19,7 @@ import {
 import {
   FieldDecorator,
   MessageDecorator,
+  OptionalDecorator,
   PackageDecorator,
   ReserveDecorator,
   StreamDecorator,
@@ -213,5 +214,16 @@ export async function $onValidate(program: Program) {
     await emitter("", options);
   }
 }
+
+/**
+ * Decorate a model property with a optional keyword.
+ *
+ * @param param0
+ * @param target
+ * @returns
+ */
+export const $optional: OptionalDecorator = (ctx: DecoratorContext, target: ModelProperty) => {
+  ctx.program.stateMap(state.optional).set(target, true);
+};
 
 export const namespace = "TypeSpec.Protobuf";
