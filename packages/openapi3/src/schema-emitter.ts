@@ -673,7 +673,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
 
     // Handle array wrapping if necessary
-    if (prop.type?.kind === "Model" && isArrayModelType(program, prop.type)) {
+    if (prop.type?.kind === "Model" && isArrayModelType(program, prop.type) && xmlObject.name) {
       xmlObject.wrapped = true;
     }
 
