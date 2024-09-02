@@ -80,7 +80,7 @@ namespace Microsoft.Generator.CSharp
 
         private async Task<SourceInputModel> InitializeSourceInputModel()
         {
-            GeneratedCodeWorkspace existingCode = GeneratedCodeWorkspace.CreateExistingCodeProject(Instance.Configuration.ProjectDirectory, Instance.Configuration.GeneratedSourceOutputDirectory);
+            GeneratedCodeWorkspace existingCode = GeneratedCodeWorkspace.CreateExistingCodeProject(Instance.Configuration.ProjectDirectory, Instance.Configuration.ProjectGeneratedDirectory);
             return new SourceInputModel(await existingCode.GetCompilationAsync());
         }
     }

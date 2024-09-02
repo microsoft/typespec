@@ -63,8 +63,8 @@ namespace Microsoft.Generator.CSharp.Tests
             var configuration = Configuration.Load(MockHelpers.TestHelpersFolder, mockJson);
 
             Assert.AreEqual(expected, configuration.OutputDirectory);
-            Assert.AreEqual(Path.Combine(expected, "src", "Generated"), configuration.GeneratedSourceOutputDirectory);
-            Assert.AreEqual(Path.Combine(expected, "tests", "Generated"), configuration.GeneratedTestOutputDirectory);
+            Assert.AreEqual(Path.Combine(expected, "src", "Generated"), configuration.ProjectGeneratedDirectory);
+            Assert.AreEqual(Path.Combine(expected, "tests", "Generated"), configuration.TestGeneratedDirectory);
         }
 
         // Validates that the LibraryName field is parsed correctly from the configuration

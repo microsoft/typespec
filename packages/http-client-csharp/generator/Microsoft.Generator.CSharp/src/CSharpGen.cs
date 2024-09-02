@@ -25,8 +25,8 @@ namespace Microsoft.Generator.CSharp
         {
             GeneratedCodeWorkspace.Initialize();
             var outputPath = CodeModelPlugin.Instance.Configuration.OutputDirectory;
-            var generatedSourceOutputPath = CodeModelPlugin.Instance.Configuration.GeneratedSourceOutputDirectory;
-            var generatedTestOutputPath = CodeModelPlugin.Instance.Configuration.GeneratedTestOutputDirectory;
+            var generatedSourceOutputPath = CodeModelPlugin.Instance.Configuration.ProjectGeneratedDirectory;
+            var generatedTestOutputPath = CodeModelPlugin.Instance.Configuration.TestGeneratedDirectory;
 
             GeneratedCodeWorkspace workspace = await GeneratedCodeWorkspace.Create();
 

@@ -145,11 +145,11 @@ namespace Microsoft.Generator.CSharp
         private string? _projectDirectory;
         internal string ProjectDirectory => _projectDirectory ??= Path.Combine(OutputDirectory, "src");
 
-        private string? _generatedOutputDirectory;
-        internal string GeneratedSourceOutputDirectory => _generatedOutputDirectory ??= ParseGeneratedSourceOutputPath();
+        private string? _projectGeneratedDirectory;
+        internal string ProjectGeneratedDirectory => _projectGeneratedDirectory ??= ParseGeneratedSourceOutputPath();
 
-        private string? _generatedTestOutputDirectory;
-        internal string GeneratedTestOutputDirectory => _generatedTestOutputDirectory ??= Path.Combine(OutputDirectory, "tests", GeneratedFolderName);
+        private string? _testGeneratedDirectory;
+        internal string TestGeneratedDirectory => _testGeneratedDirectory ??= Path.Combine(OutputDirectory, "tests", GeneratedFolderName);
 
         private string ParseGeneratedSourceOutputPath()
         {
