@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -43,7 +42,7 @@ namespace Microsoft.Generator.CSharp
         public CodeModelPlugin(GeneratorContext context)
         {
             Configuration = context.Configuration;
-            _sourceInputModel = new(() => InitializeSourceInputModel().GetAwaiter().GetResult());
+            _sourceInputModel = new(InitializeSourceInputModel);
             _inputLibrary = new(() => new InputLibrary(Instance.Configuration.OutputDirectory));
             TypeFactory = new TypeFactory();
         }
@@ -78,10 +77,10 @@ namespace Microsoft.Generator.CSharp
             _visitors.Add(visitor);
         }
 
-        private async Task<SourceInputModel> InitializeSourceInputModel()
+        private SourceInputModel InitializeSourceInputModel()
         {
             GeneratedCodeWorkspace existingCode = GeneratedCodeWorkspace.CreateExistingCodeProject(Instance.Configuration.ProjectDirectory, Instance.Configuration.ProjectGeneratedDirectory);
-            return new SourceInputModel(await existingCode.GetCompilationAsync());
+            return new SourceInputModel(existingCode.GetCompilation());
         }
     }
 }
