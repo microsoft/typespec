@@ -43,6 +43,9 @@ describe("@name", () => {
           items: {
             type: "string",
           },
+          xml: {
+            wrapped: true,
+          },
         },
       },
       required: ["tags"],
@@ -525,9 +528,6 @@ describe("Complex array types", () => {
       properties: {
         tags: {
           type: "array",
-          xml: {
-            name: "ItemsTags",
-          },
           items: {
             $ref: "#/components/schemas/Tag",
           },

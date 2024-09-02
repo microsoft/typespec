@@ -72,9 +72,9 @@ import {
   isReadonlyProperty,
   shouldInline,
 } from "@typespec/openapi";
+import { getNs, isAttribute, isUnwrapped } from "@typespec/xml";
 import { getOneOf, getRef } from "./decorators.js";
 import { applyEncoding } from "./encoding.js";
-import { getXmlNs, isXmlAttribute, isXmlUnwrapped } from "./intrinsic-type-state.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
@@ -652,41 +652,47 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   }
 
   #attachXmlObject(program: Program, prop: ModelProperty, emitObject: OpenAPI3Schema) {
-    // Attach xml object
-    const schema = new ObjectBuilder({});
-
-    // Utility function to apply constraints
-    const applyConstraint = (fn: (p: Program, t: Type) => any, key: keyof OpenAPI3XmlSchema) => {
-      const value = fn(program, prop);
-      if (value === true) {
-        schema[key] = value;
-      }
-    };
+    const xmlObject: OpenAPI3XmlSchema = {};
 
     // Resolve XML name
     const xmlName = resolveEncodedName(program, prop, "application/xml");
-
     if (xmlName !== prop.name) {
-      schema.name = xmlName;
+      xmlObject.name = xmlName;
     }
 
     // Get and set XML namespace if present
-    const currNs = getXmlNs(program, prop);
+    const currNs = getNs(program, prop);
     if (currNs) {
-      schema.prefix = currNs.prefix;
-      schema.namespace = currNs.namespace;
+      xmlObject.prefix = currNs.prefix;
+      xmlObject.namespace = currNs.namespace;
     }
 
-    applyConstraint(isXmlAttribute, "attribute");
+    // Set XML attribute if present
+    if (isAttribute(program, prop)) {
+      xmlObject.attribute = true;
+    }
 
     // Handle array wrapping if necessary
-    if (
-      prop.type?.kind === "Model" &&
-      isArrayModelType(program, prop.type) &&
-      xmlName !== prop.name &&
-      !isXmlUnwrapped(program, prop)
-    ) {
-      schema.wrapped = true;
+    if (prop.type?.kind === "Model" && isArrayModelType(program, prop.type)) {
+      xmlObject.wrapped = true;
+    }
+
+    // Set XML unwrapped if present
+    if (isUnwrapped(program, prop)) {
+      xmlObject.wrapped = false;
+    }
+
+    // if wrapped is false, xml.name of the wrapping element is ignored.
+    if (xmlObject.wrapped === false) {
+      xmlObject.name = undefined;
+    }
+
+    // only apply properties with the value is true.
+    const schema = new ObjectBuilder<OpenAPI3XmlSchema>();
+    for (const [key, value] of Object.entries(xmlObject)) {
+      if (value) {
+        schema[key] = value;
+      }
     }
 
     // Attach schema to emitObject if not empty
@@ -835,9 +841,9 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       (p: Program, t: Type) => (getDeprecated(p, t) !== undefined ? true : undefined),
       "deprecated"
     );
-
-    this.#attachXmlObject(program, type as ModelProperty, schema);
-
+    if (!this.#isStdType(type)) {
+      this.#attachXmlObject(program, type as ModelProperty, schema);
+    }
     this.#attachExtensions(program, type, schema);
 
     const values = getKnownValues(program, type as any);

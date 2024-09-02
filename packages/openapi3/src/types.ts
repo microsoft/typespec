@@ -596,7 +596,7 @@ export type OpenAPI3Schema = Extensions & {
   deprecated?: boolean;
 
   /** This MAY be used only on properties schemas. It has no effect on root schemas. Adds additional metadata to describe the XML representation of this property. */
-  xml?: any;
+  xml?: OpenAPI3XmlSchema;
 };
 
 export type OpenAPI3ParameterBase = Extensions & {
