@@ -280,6 +280,9 @@ namespace Microsoft.Generator.CSharp.Providers
                     {
                         if (!type.IsFrameworkType && type.IsEnum)
                         {
+                            /* TODO: when customize the discriminator type to a enum, then we may not be able to get the correct TypeProvider in this way.
+                             * We will handle this when issue https://github.com/microsoft/typespec/issues/4313 is resolved.
+                             * */
                             var discriminatorProvider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(enumType: (InputEnumType)_inputModel.BaseModel.DiscriminatorProperty!.Type);
                             var enumMember = discriminatorProvider!.EnumValues.FirstOrDefault(e => e.Value.ToString() == _inputModel.DiscriminatorValue) ?? throw new InvalidOperationException($"invalid discriminator value {_inputModel.DiscriminatorValue}");
                             /* {KindType}.{enumMember} */
