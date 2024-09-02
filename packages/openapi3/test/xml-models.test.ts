@@ -43,6 +43,9 @@ describe("@name", () => {
           items: {
             type: "string",
           },
+          xml: {
+            wrapped: true,
+          },
         },
       },
       required: ["tags"],

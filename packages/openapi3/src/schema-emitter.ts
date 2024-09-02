@@ -654,6 +654,9 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   #attachXmlObject(program: Program, prop: ModelProperty, emitObject: OpenAPI3Schema) {
     const xmlObject: OpenAPI3XmlSchema = {};
 
+    const isXmlModel =
+      prop.model && prop.model?.name !== resolveEncodedName(program, prop.model, "application/xml");
+
     // Resolve XML name
     const xmlName = resolveEncodedName(program, prop, "application/xml");
     if (xmlName !== prop.name) {
@@ -673,7 +676,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
 
     // Handle array wrapping if necessary
-    if (prop.type?.kind === "Model" && isArrayModelType(program, prop.type) && xmlObject.name) {
+    if (
+      prop.type?.kind === "Model" &&
+      isArrayModelType(program, prop.type) &&
+      (xmlObject.name || isXmlModel)
+    ) {
       xmlObject.wrapped = true;
     }
 
