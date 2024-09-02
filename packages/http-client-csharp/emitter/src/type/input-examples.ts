@@ -25,7 +25,7 @@ interface InputExampleBase {
 export interface InputHttpOperationExample extends InputExampleBase {
   kind: "http";
   parameters: InputParameterExampleValue[];
-  responses: Record<number, OperationResponseExample>; // TODO -- our stringify-ref library cannot properly handle a `Map` type, because it is using `for (...in)` when it gets an object.
+  responses: OperationResponseExample[];
 }
 
 export interface InputParameterExampleValue {
