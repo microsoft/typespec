@@ -145,24 +145,14 @@ namespace Microsoft.Generator.CSharp
         private string? _projectDirectory;
         internal string ProjectDirectory => _projectDirectory ??= Path.Combine(OutputDirectory, "src");
 
+        private string? _testProjectDirectory;
+        internal string TestProjectDirectory => _testProjectDirectory ??= Path.Combine(OutputDirectory, "tests");
+
         private string? _projectGeneratedDirectory;
-        internal string ProjectGeneratedDirectory => _projectGeneratedDirectory ??= ParseGeneratedSourceOutputPath();
+        internal string ProjectGeneratedDirectory => _projectGeneratedDirectory ??= Path.Combine(ProjectDirectory, GeneratedFolderName);
 
         private string? _testGeneratedDirectory;
-        internal string TestGeneratedDirectory => _testGeneratedDirectory ??= Path.Combine(OutputDirectory, "tests", GeneratedFolderName);
-
-        private string ParseGeneratedSourceOutputPath()
-        {
-            var outputPath = OutputDirectory;
-            if (!outputPath.EndsWith("src", StringComparison.Ordinal) && !outputPath.EndsWith("src/", StringComparison.Ordinal))
-            {
-                outputPath = Path.Combine(outputPath, "src");
-            }
-
-            outputPath = Path.Combine(outputPath, GeneratedFolderName);
-
-            return outputPath;
-        }
+        internal string TestGeneratedDirectory => _testGeneratedDirectory ??= Path.Combine(TestProjectDirectory, GeneratedFolderName);
 
         internal string LibraryName { get; }
 
