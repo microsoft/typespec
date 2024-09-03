@@ -19,8 +19,12 @@ import com.payload.multipart.implementation.FormDatasImpl;
 import com.payload.multipart.implementation.MultipartFormDataHelper;
 import com.payload.multipart.implementation.models.AnonymousModelRequest;
 import com.payload.multipart.models.BinaryArrayPartsRequest;
+import com.payload.multipart.models.ComplexHttpPartsModelRequest;
 import com.payload.multipart.models.ComplexPartsRequest;
-import com.payload.multipart.models.JsonArrayPartsRequest;
+import com.payload.multipart.models.FileRequiredMetaData;
+import com.payload.multipart.models.FileWithHttpPartOptionalContentTypeRequest;
+import com.payload.multipart.models.FileWithHttpPartRequiredContentTypeRequest;
+import com.payload.multipart.models.FileWithHttpPartSpecificContentTypeRequest;
 import com.payload.multipart.models.JsonPartRequest;
 import com.payload.multipart.models.MultiBinaryPartsRequest;
 import com.payload.multipart.models.MultiPartRequest;
@@ -123,25 +127,6 @@ public final class MultiPartClient {
     }
 
     /**
-     * Test content-type: multipart/form-data for scenario contains multi json parts.
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the {@link Response}.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> jsonArrayPartsWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Protocol API requires serialization of parts with content-disposition and data, as operation 'jsonArrayParts'
-        // is 'multipart/form-data'
-        return this.serviceClient.jsonArrayPartsWithResponse(body, requestOptions);
-    }
-
-    /**
      * Test content-type: multipart/form-data for scenario contains multi binary parts.
      * 
      * @param body The body parameter.
@@ -202,6 +187,82 @@ public final class MultiPartClient {
      * Test content-type: multipart/form-data.
      * 
      * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Response<Void> fileWithHttpPartSpecificContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
+        // Protocol API requires serialization of parts with content-disposition and data, as operation
+        // 'fileWithHttpPartSpecificContentType' is 'multipart/form-data'
+        return this.serviceClient.fileWithHttpPartSpecificContentTypeWithResponse(body, requestOptions);
+    }
+
+    /**
+     * Test content-type: multipart/form-data.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Response<Void> fileWithHttpPartRequiredContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
+        // Protocol API requires serialization of parts with content-disposition and data, as operation
+        // 'fileWithHttpPartRequiredContentType' is 'multipart/form-data'
+        return this.serviceClient.fileWithHttpPartRequiredContentTypeWithResponse(body, requestOptions);
+    }
+
+    /**
+     * Test content-type: multipart/form-data for optional content type.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Response<Void> fileWithHttpPartOptionalContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
+        // Protocol API requires serialization of parts with content-disposition and data, as operation
+        // 'fileWithHttpPartOptionalContentType' is 'multipart/form-data'
+        return this.serviceClient.fileWithHttpPartOptionalContentTypeWithResponse(body, requestOptions);
+    }
+
+    /**
+     * Test content-type: multipart/form-data for mixed scenarios.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Response<Void> complexWithHttpPartWithResponse(BinaryData body, RequestOptions requestOptions) {
+        // Protocol API requires serialization of parts with content-disposition and data, as operation
+        // 'complexWithHttpPart' is 'multipart/form-data'
+        return this.serviceClient.complexWithHttpPartWithResponse(body, requestOptions);
+    }
+
+    /**
+     * Test content-type: multipart/form-data.
+     * 
+     * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -241,7 +302,6 @@ public final class MultiPartClient {
             .serializeJsonField("address", body.getAddress())
             .serializeFileField("profileImage", body.getProfileImage().getContent(),
                 body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-            .serializeJsonField("previousAddresses", body.getPreviousAddresses())
             .serializeFileFields("pictures",
                 body.getPictures().stream().map(PicturesFileDetails::getContent).collect(Collectors.toList()),
                 body.getPictures().stream().map(PicturesFileDetails::getContentType).collect(Collectors.toList()),
@@ -296,30 +356,6 @@ public final class MultiPartClient {
                 body.getPictures().stream().map(PicturesFileDetails::getContent).collect(Collectors.toList()),
                 body.getPictures().stream().map(PicturesFileDetails::getContentType).collect(Collectors.toList()),
                 body.getPictures().stream().map(PicturesFileDetails::getFilename).collect(Collectors.toList()))
-            .end()
-            .getRequestBody(), requestOptions).getValue();
-    }
-
-    /**
-     * Test content-type: multipart/form-data for scenario contains multi json parts.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void jsonArrayParts(JsonArrayPartsRequest body) {
-        // Generated convenience method for jsonArrayPartsWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        jsonArrayPartsWithResponse(new MultipartFormDataHelper(requestOptions)
-            .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-            .serializeJsonField("previousAddresses", body.getPreviousAddresses())
             .end()
             .getRequestBody(), requestOptions).getValue();
     }
@@ -400,5 +436,105 @@ public final class MultiPartClient {
                 .end()
                 .getRequestBody();
         anonymousModelWithResponse(anonymousModelRequest, requestOptions).getValue();
+    }
+
+    /**
+     * Test content-type: multipart/form-data.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void fileWithHttpPartSpecificContentType(FileWithHttpPartSpecificContentTypeRequest body) {
+        // Generated convenience method for fileWithHttpPartSpecificContentTypeWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        fileWithHttpPartSpecificContentTypeWithResponse(new MultipartFormDataHelper(requestOptions)
+            .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+            .end()
+            .getRequestBody(), requestOptions).getValue();
+    }
+
+    /**
+     * Test content-type: multipart/form-data.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void fileWithHttpPartRequiredContentType(FileWithHttpPartRequiredContentTypeRequest body) {
+        // Generated convenience method for fileWithHttpPartRequiredContentTypeWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        fileWithHttpPartRequiredContentTypeWithResponse(new MultipartFormDataHelper(requestOptions)
+            .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+            .end()
+            .getRequestBody(), requestOptions).getValue();
+    }
+
+    /**
+     * Test content-type: multipart/form-data for optional content type.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void fileWithHttpPartOptionalContentType(FileWithHttpPartOptionalContentTypeRequest body) {
+        // Generated convenience method for fileWithHttpPartOptionalContentTypeWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        fileWithHttpPartOptionalContentTypeWithResponse(new MultipartFormDataHelper(requestOptions)
+            .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+            .end()
+            .getRequestBody(), requestOptions).getValue();
+    }
+
+    /**
+     * Test content-type: multipart/form-data for mixed scenarios.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void complexWithHttpPart(ComplexHttpPartsModelRequest body) {
+        // Generated convenience method for complexWithHttpPartWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        complexWithHttpPartWithResponse(
+            new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
+                .serializeJsonField("address", body.getAddress())
+                .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+                .serializeJsonField("previousAddresses", body.getPreviousAddresses())
+                .serializeFileFields("pictures",
+                    body.getPictures().stream().map(FileRequiredMetaData::getContent).collect(Collectors.toList()),
+                    body.getPictures().stream().map(FileRequiredMetaData::getContentType).collect(Collectors.toList()),
+                    body.getPictures().stream().map(FileRequiredMetaData::getFilename).collect(Collectors.toList()))
+                .end()
+                .getRequestBody(),
+            requestOptions).getValue();
     }
 }
