@@ -52,7 +52,11 @@ export interface LoadSourceOptions {
 }
 
 export interface SourceLoader {
-  importFile(path: string, locationContext: LocationContext): Promise<void>;
+  importFile(
+    path: string,
+    locationContext: LocationContext,
+    kind?: "import" | "entrypoint"
+  ): Promise<void>;
   importPath(
     path: string,
     target: DiagnosticTarget | typeof NoTarget,
@@ -79,7 +83,11 @@ export async function createSourceLoader(
   const jsSourceFiles = new Map<string, JsSourceFileNode>();
   const loadedLibraries = new Map<string, TypeSpecLibraryReference>();
 
-  async function importFile(path: string, locationContext: LocationContext) {
+  async function importFile(
+    path: string,
+    locationContext: LocationContext,
+    kind: "import" | "entrypoint" = "import"
+  ) {
     const sourceFileKind = host.getSourceFileKind(path);
 
     switch (sourceFileKind) {
@@ -90,7 +98,13 @@ export async function createSourceLoader(
         await loadTypeSpecFile(path, locationContext, NoTarget);
         break;
       default:
-        diagnostics.add(createDiagnostic({ code: "invalid-import", target: NoTarget }));
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-import",
+            target: NoTarget,
+            messageId: kind === "import" ? "default" : "entrypoint",
+          })
+        );
     }
   }
 

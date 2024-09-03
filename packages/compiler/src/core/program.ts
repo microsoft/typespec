@@ -315,7 +315,7 @@ export async function compile(
     }
 
     // main entrypoint
-    await sourceLoader.importFile(entrypoint, { type: "project" });
+    await sourceLoader.importFile(entrypoint, { type: "project" }, "entrypoint");
 
     // additional imports
     for (const additionalImport of options?.additionalImports ?? []) {

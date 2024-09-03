@@ -631,6 +631,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Import paths must reference either a directory, a .tsp file, or .js file",
+      entrypoint: "Main path must either a directory, a .tsp file, or .js file",
     },
   },
   "import-not-found": {
