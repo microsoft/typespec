@@ -11,33 +11,14 @@ beforeEach(async () => {
 });
 
 describe("@name", () => {
-  it("set the value via encodedName", async () => {
-    const { Blob } = (await runner.compile(`@test @Xml.name("XmlBlob") model Blob {}`)) as {
-      Blob: Model;
-    };
-
-    expect(resolveEncodedName(runner.program, Blob, "application/xml")).toEqual("XmlBlob");
-  });
-
-  it("set the attribute value via encodedName", async () => {
-    const { title } = (await runner.compile(
-      `model Blob {@Xml.name("xmlTitle") @test title:string}`
-    )) as {
-      title: Model;
-    };
-
-    expect(resolveEncodedName(runner.program, title, "application/xml")).toEqual("xmlTitle");
-  });
-
-  it("set the value on scalar via encodedName", async () => {
-    const { Blob } = (await runner.compile(
-      `@name("XmlBlob")
-       @test scalar Blob extends string;`
-    )) as {
-      Blob: Model;
-    };
-
-    expect(resolveEncodedName(runner.program, Blob, "application/xml")).toEqual("XmlBlob");
+  it.each([
+    ["model", `@test @Xml.name("XmlName") model Blob {}`],
+    ["model prop", `model Blob {@Xml.name("XmlName") @test title:string}`],
+    ["scalar", `@Xml.name("XmlName") @test scalar Blob extends string;`],
+  ])("%s", async (_, code) => {
+    const result = await runner.compile(`${code}`);
+    const curr = (result.Blob || result.title) as Model;
+    expect(resolveEncodedName(runner.program, curr, "application/xml")).toEqual("XmlName");
   });
 });
 
