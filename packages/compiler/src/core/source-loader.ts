@@ -54,14 +54,14 @@ export interface LoadSourceOptions {
 export interface SourceLoader {
   importFile(
     path: string,
-    locationContext: LocationContext,
+    locationContext?: LocationContext,
     kind?: "import" | "entrypoint"
   ): Promise<void>;
   importPath(
     path: string,
     target: DiagnosticTarget | typeof NoTarget,
     relativeTo: string,
-    locationContext: LocationContext
+    locationContext?: LocationContext
   ): Promise<void>;
   readonly resolution: SourceResolution;
 }
@@ -199,7 +199,7 @@ export async function createSourceLoader(
     path: string,
     target: DiagnosticTarget | typeof NoTarget,
     relativeTo: string,
-    locationContext: LocationContext
+    locationContext: LocationContext = { type: "project" }
   ) {
     const library = await resolveTypeSpecLibrary(path, relativeTo, target);
     if (library === undefined) {
