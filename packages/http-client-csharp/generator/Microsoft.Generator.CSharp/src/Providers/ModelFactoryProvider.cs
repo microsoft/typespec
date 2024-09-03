@@ -70,9 +70,12 @@ namespace Microsoft.Generator.CSharp.Providers
             foreach (var model in _models)
             {
                 var modelProvider = CodeModelPlugin.Instance.TypeFactory.CreateModel(model);
-                if (modelProvider is null || modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal)
-                    || modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
+                if (modelProvider is null || modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal))
                     continue;
+
+                var typeToInstantiate = modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
+                    ? modelProvider.DerivedModels.First(m => m.IsUnknownDiscriminatorModel)
+                    : modelProvider;
 
                 var modelCtor = modelProvider.FullConstructor;
                 var signature = new MethodSignature(
@@ -95,7 +98,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 [
                     .. GetCollectionInitialization(signature),
                     MethodBodyStatement.EmptyLine,
-                    Return(New.Instance(modelProvider.Type, [.. GetCtorArgs(signature, modelCtor.Signature)]))
+                    Return(New.Instance(typeToInstantiate.Type, [.. GetCtorArgs(signature, modelCtor.Signature)]))
                 ]);
 
                 methods.Add(new MethodProvider(signature, statements, this, docs));
@@ -108,11 +111,16 @@ namespace Microsoft.Generator.CSharp.Providers
             ConstructorSignature modelCtorFullSignature)
         {
             var expressions = new List<ValueExpression>(signature.Parameters.Count);
-            foreach (var param in signature.Parameters)
+            for (int i = 0; i < signature.Parameters.Count; i++)
             {
+                var param = signature.Parameters[i];
                 if (param.Type.IsList)
                 {
                     expressions.Add(param.NullConditional().ToList());
+                }
+                else if (modelCtorFullSignature.Parameters[i].Property?.IsDiscriminator == true)
+                {
+                    expressions.Add(((ValueExpression)param).CastTo(modelCtorFullSignature.Parameters[i].Type));
                 }
                 else
                 {
@@ -161,7 +169,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return new ParameterProvider(
                 parameter.Name,
                 parameter.Description,
-                parameter.Type.InputType,
+                // in order to avoid exposing discriminator enums as public, we will use the underlying types in the model factory methods
+                parameter.Property?.IsDiscriminator == true && parameter.Type.IsEnum ? parameter.Type.UnderlyingEnumType : parameter.Type.InputType,
                 Default,
                 parameter.IsRef,
                 parameter.IsOut,

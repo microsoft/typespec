@@ -6,7 +6,11 @@ namespace _Type.Model.Inheritance.EnumDiscriminator.Models
 {
     public static partial class TypeModelInheritanceEnumDiscriminatorModelFactory
     {
+        public static Dog Dog(string kind = default, int weight = default) => throw null;
+
         public static Golden Golden(int weight = default) => throw null;
+
+        public static Snake Snake(string kind = default, int length = default) => throw null;
 
         public static Cobra Cobra(int length = default) => throw null;
     }
