@@ -6,7 +6,7 @@ param(
     [string] $Filter = "."
 )
 
-$ErrorActionPreference = 'Continue'
+$ErrorActionPreference = 'Stop'
 
 Set-StrictMode -Version 3.0
 $packageRoot = (Resolve-Path "$PSScriptRoot/../..").Path.Replace('\', '/')
@@ -22,7 +22,6 @@ try {
     if ($UnitTests) {
         Push-Location "$packageRoot"
         try {
-            
             Write-Host "Current PATH: $env:PATH"
             Write-Host "Current JAVA_HOME: $Env:JAVA_HOME"
             $env:JAVA_HOME = $env:JAVA_HOME_21_X64
@@ -53,6 +52,17 @@ try {
         }
         catch {
             Write-Error 'Generated code is not up to date. Please run: eng/Generate.ps1'
+        }
+
+        try {
+            $generatorTestDir = Join-Path $packageRoot 'generator/http-client-generator-test'
+            Set-Location $generatorTestDir
+            & ./CadlRanch-Tests.ps1
+            Set-Location $packageRoot
+            Write-Host 'Cadl ranch tests passed'
+        } 
+        catch {
+            Write-Error "Cadl ranch tests failed:  $_"
         }
     }
 }
