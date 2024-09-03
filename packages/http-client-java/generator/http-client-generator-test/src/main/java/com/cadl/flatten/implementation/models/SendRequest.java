@@ -19,6 +19,12 @@ import java.io.IOException;
 @Fluent
 public final class SendRequest implements JsonSerializable<SendRequest> {
     /*
+     * The endpoint property.
+     */
+    @Generated
+    private final String endpoint;
+
+    /*
      * The user property.
      */
     @Generated
@@ -36,14 +42,34 @@ public final class SendRequest implements JsonSerializable<SendRequest> {
     @Generated
     private final String constant = "constant";
 
+    /*
+     * The requiredInt property.
+     */
+    @Generated
+    private final int requiredInt;
+
     /**
      * Creates an instance of SendRequest class.
      * 
+     * @param endpoint the endpoint value to set.
      * @param input the input value to set.
+     * @param requiredInt the requiredInt value to set.
      */
     @Generated
-    public SendRequest(String input) {
+    public SendRequest(String endpoint, String input, int requiredInt) {
+        this.endpoint = endpoint;
         this.input = input;
+        this.requiredInt = requiredInt;
+    }
+
+    /**
+     * Get the endpoint property: The endpoint property.
+     * 
+     * @return the endpoint value.
+     */
+    @Generated
+    public String getEndpoint() {
+        return this.endpoint;
     }
 
     /**
@@ -89,14 +115,26 @@ public final class SendRequest implements JsonSerializable<SendRequest> {
     }
 
     /**
+     * Get the requiredInt property: The requiredInt property.
+     * 
+     * @return the requiredInt value.
+     */
+    @Generated
+    public int getRequiredInt() {
+        return this.requiredInt;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Generated
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
+        jsonWriter.writeStringField("endpoint", this.endpoint);
         jsonWriter.writeStringField("input", this.input);
         jsonWriter.writeStringField("constant", this.constant);
+        jsonWriter.writeIntField("requiredInt", this.requiredInt);
         jsonWriter.writeJsonField("user", this.user);
         return jsonWriter.writeEndObject();
     }
@@ -113,21 +151,27 @@ public final class SendRequest implements JsonSerializable<SendRequest> {
     @Generated
     public static SendRequest fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
+            String endpoint = null;
             String input = null;
+            int requiredInt = 0;
             User user = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
-                if ("input".equals(fieldName)) {
+                if ("endpoint".equals(fieldName)) {
+                    endpoint = reader.getString();
+                } else if ("input".equals(fieldName)) {
                     input = reader.getString();
+                } else if ("requiredInt".equals(fieldName)) {
+                    requiredInt = reader.getInt();
                 } else if ("user".equals(fieldName)) {
                     user = User.fromJson(reader);
                 } else {
                     reader.skipChildren();
                 }
             }
-            SendRequest deserializedSendRequest = new SendRequest(input);
+            SendRequest deserializedSendRequest = new SendRequest(endpoint, input, requiredInt);
             deserializedSendRequest.user = user;
 
             return deserializedSendRequest;

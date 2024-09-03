@@ -20,6 +20,12 @@ import java.util.Map;
 public final class ExtendsUnknownAdditionalPropertiesDiscriminatedDerived
     extends ExtendsUnknownAdditionalPropertiesDiscriminated {
     /*
+     * The discriminator
+     */
+    @Generated
+    private String kind = "derived";
+
+    /*
      * The index property
      */
     @Generated
@@ -41,7 +47,17 @@ public final class ExtendsUnknownAdditionalPropertiesDiscriminatedDerived
     public ExtendsUnknownAdditionalPropertiesDiscriminatedDerived(String name, int index) {
         super(name);
         this.index = index;
-        this.kind = "derived";
+    }
+
+    /**
+     * Get the kind property: The discriminator.
+     * 
+     * @return the kind value.
+     */
+    @Generated
+    @Override
+    public String getKind() {
+        return this.kind;
     }
 
     /**
@@ -83,8 +99,9 @@ public final class ExtendsUnknownAdditionalPropertiesDiscriminatedDerived
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        toJsonShared(jsonWriter);
+        jsonWriter.writeStringField("name", getName());
         jsonWriter.writeIntField("index", this.index);
+        jsonWriter.writeStringField("kind", this.kind);
         jsonWriter.writeNumberField("age", this.age);
         if (getAdditionalProperties() != null) {
             for (Map.Entry<String, Object> additionalProperty : getAdditionalProperties().entrySet()) {

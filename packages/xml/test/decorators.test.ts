@@ -11,12 +11,14 @@ beforeEach(async () => {
 });
 
 describe("@name", () => {
-  it("set the value via encodedName", async () => {
-    const { Blob } = (await runner.compile(`@test @Xml.name("XmlBlob") model Blob {}`)) as {
-      Blob: Model;
-    };
-
-    expect(resolveEncodedName(runner.program, Blob, "application/xml")).toEqual("XmlBlob");
+  it.each([
+    ["model", `@test @Xml.name("XmlName") model Blob {}`],
+    ["model prop", `model Blob {@Xml.name("XmlName") @test title:string}`],
+    ["scalar", `@Xml.name("XmlName") @test scalar Blob extends string;`],
+  ])("%s", async (_, code) => {
+    const result = await runner.compile(`${code}`);
+    const curr = (result.Blob || result.title) as Model;
+    expect(resolveEncodedName(runner.program, curr, "application/xml")).toEqual("XmlName");
   });
 });
 
@@ -150,6 +152,19 @@ describe("@ns", () => {
     expectDiagnostics(diagnostics, {
       code: "@typespec/xml/invalid-ns-declaration-member",
       message: "Enum member ns1 must have a value that is the XML namespace url.",
+    });
+  });
+
+  it("emit error if missing the 2nd argument", async () => {
+    const diagnostics = await runner.diagnose(`
+      model Blob {
+        @Xml.ns("https://example.com/ns1") id : string;
+      }
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/xml/ns-missing-prefix",
+      message: "When using a string namespace you must provide a prefix as the 2nd argument.",
     });
   });
 

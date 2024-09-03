@@ -10,7 +10,7 @@ import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
-import com.type.union.models.GetResponseProp2;
+import com.type.union.models.EnumsOnlyCases;
 import java.io.IOException;
 
 /**
@@ -22,7 +22,7 @@ public final class SendRequest3 implements JsonSerializable<SendRequest3> {
      * The prop property.
      */
     @Generated
-    private final GetResponseProp2 prop;
+    private final EnumsOnlyCases prop;
 
     /**
      * Creates an instance of SendRequest3 class.
@@ -30,7 +30,7 @@ public final class SendRequest3 implements JsonSerializable<SendRequest3> {
      * @param prop the prop value to set.
      */
     @Generated
-    public SendRequest3(GetResponseProp2 prop) {
+    public SendRequest3(EnumsOnlyCases prop) {
         this.prop = prop;
     }
 
@@ -40,7 +40,7 @@ public final class SendRequest3 implements JsonSerializable<SendRequest3> {
      * @return the prop value.
      */
     @Generated
-    public GetResponseProp2 getProp() {
+    public EnumsOnlyCases getProp() {
         return this.prop;
     }
 
@@ -51,7 +51,7 @@ public final class SendRequest3 implements JsonSerializable<SendRequest3> {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeNumberField("prop", this.prop == null ? null : this.prop.toInt());
+        jsonWriter.writeJsonField("prop", this.prop);
         return jsonWriter.writeEndObject();
     }
 
@@ -67,13 +67,13 @@ public final class SendRequest3 implements JsonSerializable<SendRequest3> {
     @Generated
     public static SendRequest3 fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            GetResponseProp2 prop = null;
+            EnumsOnlyCases prop = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 if ("prop".equals(fieldName)) {
-                    prop = GetResponseProp2.fromInt(reader.getInt());
+                    prop = EnumsOnlyCases.fromJson(reader);
                 } else {
                     reader.skipChildren();
                 }

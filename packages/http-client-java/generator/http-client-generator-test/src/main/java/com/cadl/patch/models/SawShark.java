@@ -19,6 +19,18 @@ import java.util.Set;
  */
 @Fluent
 public final class SawShark extends Shark {
+    /*
+     * Discriminator property for Fish.
+     */
+    @Generated
+    private String kind = "shark";
+
+    /*
+     * The sharktype property.
+     */
+    @Generated
+    private String sharktype = "saw";
+
     /**
      * Stores updated model property, the value is property name, not serialized name.
      */
@@ -30,8 +42,28 @@ public final class SawShark extends Shark {
      */
     @Generated
     public SawShark() {
-        this.kind = "shark";
-        this.sharktype = "saw";
+    }
+
+    /**
+     * Get the kind property: Discriminator property for Fish.
+     * 
+     * @return the kind value.
+     */
+    @Generated
+    @Override
+    public String getKind() {
+        return this.kind;
+    }
+
+    /**
+     * Get the sharktype property: The sharktype property.
+     * 
+     * @return the sharktype value.
+     */
+    @Generated
+    @Override
+    public String getSharktype() {
+        return this.sharktype;
     }
 
     /**
@@ -128,8 +160,19 @@ public final class SawShark extends Shark {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
-                if (Shark.fromJsonShared(reader, fieldName, deserializedSawShark)) {
-                    continue;
+                if ("id".equals(fieldName)) {
+                    JsonMergePatchHelper.getFishAccessor().setId(deserializedSawShark, reader.getString());
+                } else if ("name".equals(fieldName)) {
+                    JsonMergePatchHelper.getFishAccessor().setName(deserializedSawShark, reader.getString());
+                } else if ("age".equals(fieldName)) {
+                    JsonMergePatchHelper.getFishAccessor().setAge(deserializedSawShark, reader.getInt());
+                } else if ("color".equals(fieldName)) {
+                    JsonMergePatchHelper.getFishAccessor().setColor(deserializedSawShark, reader.getString());
+                } else if ("weight".equals(fieldName)) {
+                    JsonMergePatchHelper.getSharkAccessor()
+                        .setWeight(deserializedSawShark, reader.getNullable(JsonReader::getInt));
+                } else if ("sharktype".equals(fieldName)) {
+                    deserializedSawShark.sharktype = reader.getString();
                 } else {
                     reader.skipChildren();
                 }
