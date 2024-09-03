@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  * Golden dog model.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "kind", defaultImpl = Golden.class, visible = true)
-@JsonTypeName("golden")
+@JsonTypeName("golden_dog")
 @Fluent
 public final class Golden extends Dog {
     /**
