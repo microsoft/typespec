@@ -13,11 +13,13 @@ using OpenAPI;
 })
 namespace OneAnyAllService;
 
-model Cat extends Pet {
+model Cat {
+  ...Pet;
   hunts: boolean;
 }
 
-model Dog extends Pet {
+model Dog {
+  ...Pet;
   bark: boolean;
   breed: "Husky" | "Corgi" | "Terrier";
 }

@@ -16,7 +16,7 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.type.union.implementation.EnumsOnliesImpl;
-import com.type.union.implementation.models.SendRequest6;
+import com.type.union.implementation.models.SendRequest3;
 import com.type.union.models.EnumsOnlyCases;
 import com.type.union.models.GetResponse3;
 
@@ -125,7 +125,7 @@ public final class EnumsOnlyClient {
     public void send(EnumsOnlyCases prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest6 sendRequest3Obj = new SendRequest6(prop);
+        SendRequest3 sendRequest3Obj = new SendRequest3(prop);
         BinaryData sendRequest3 = BinaryData.fromObject(sendRequest3Obj);
         sendWithResponse(sendRequest3, requestOptions).getValue();
     }

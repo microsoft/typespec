@@ -25,7 +25,7 @@ interface InputExampleBase {
 export interface InputHttpOperationExample extends InputExampleBase {
   kind: "http";
   parameters: InputParameterExampleValue[];
-  responses: Map<number, OperationResponseExample>;
+  responses: OperationResponseExample[];
 }
 
 export interface InputParameterExampleValue {

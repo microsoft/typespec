@@ -32,12 +32,6 @@ public final class ComplexPartsRequest {
     private final ProfileImageFileDetails profileImage;
 
     /*
-     * The previousAddresses property.
-     */
-    @Generated
-    private final List<Address> previousAddresses;
-
-    /*
      * The pictures property.
      */
     @Generated
@@ -49,16 +43,14 @@ public final class ComplexPartsRequest {
      * @param id the id value to set.
      * @param address the address value to set.
      * @param profileImage the profileImage value to set.
-     * @param previousAddresses the previousAddresses value to set.
      * @param pictures the pictures value to set.
      */
     @Generated
     public ComplexPartsRequest(String id, Address address, ProfileImageFileDetails profileImage,
-        List<Address> previousAddresses, List<PicturesFileDetails> pictures) {
+        List<PicturesFileDetails> pictures) {
         this.id = id;
         this.address = address;
         this.profileImage = profileImage;
-        this.previousAddresses = previousAddresses;
         this.pictures = pictures;
     }
 
@@ -90,16 +82,6 @@ public final class ComplexPartsRequest {
     @Generated
     public ProfileImageFileDetails getProfileImage() {
         return this.profileImage;
-    }
-
-    /**
-     * Get the previousAddresses property: The previousAddresses property.
-     * 
-     * @return the previousAddresses value.
-     */
-    @Generated
-    public List<Address> getPreviousAddresses() {
-        return this.previousAddresses;
     }
 
     /**

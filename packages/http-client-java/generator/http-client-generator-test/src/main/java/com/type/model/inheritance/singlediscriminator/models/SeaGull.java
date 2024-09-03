@@ -16,6 +16,12 @@ import java.io.IOException;
  */
 @Immutable
 public final class SeaGull extends Bird {
+    /*
+     * The kind property.
+     */
+    @Generated
+    private String kind = "seagull";
+
     /**
      * Creates an instance of SeaGull class.
      * 
@@ -24,7 +30,17 @@ public final class SeaGull extends Bird {
     @Generated
     public SeaGull(int wingspan) {
         super(wingspan);
-        this.kind = "seagull";
+    }
+
+    /**
+     * Get the kind property: The kind property.
+     * 
+     * @return the kind value.
+     */
+    @Generated
+    @Override
+    public String getKind() {
+        return this.kind;
     }
 
     /**
@@ -34,7 +50,8 @@ public final class SeaGull extends Bird {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        toJsonShared(jsonWriter);
+        jsonWriter.writeIntField("wingspan", getWingspan());
+        jsonWriter.writeStringField("kind", this.kind);
         return jsonWriter.writeEndObject();
     }
 

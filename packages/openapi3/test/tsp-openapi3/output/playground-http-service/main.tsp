@@ -19,7 +19,7 @@ model Error {
 }
 
 model Widget {
-  @path id: string;
+  id: string;
   weight: int32;
   color: "red" | "blue";
 }
@@ -160,7 +160,7 @@ op Widgets_read(
 @route("/widgets/{id}")
 @patch
 op Widgets_update(
-  id: Widget.id,
+  ...Parameters.Widget.id,
   @bodyRoot body: WidgetUpdate,
 ): Widgets_update200ApplicationJsonResponse | Widgets_updateDefaultApplicationJsonResponse;
 
@@ -170,3 +170,11 @@ op Widgets_update(
 op Widgets_analyze(
   @path id: string,
 ): Widgets_analyze200ApplicationJsonResponse | Widgets_analyzeDefaultApplicationJsonResponse;
+
+namespace Parameters {
+  namespace Widget {
+    model id {
+      @path id: string;
+    }
+  }
+}
