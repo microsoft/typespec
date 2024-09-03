@@ -9,6 +9,7 @@ import { readFile } from "fs/promises";
 import { stringify } from "yaml";
 import {
   DecoratorRefDoc,
+  DeprecationNotice,
   EmitterOptionRefDoc,
   EnumRefDoc,
   ExampleRefDoc,
@@ -105,6 +106,15 @@ export class MarkdownRenderer {
     return `${item.name.toLowerCase().replace(/ /g, "-")}`;
   }
 
+  deprecationNotice(notice: DeprecationNotice): MarkdownDoc {
+    return `_Deprecated: ${notice.message}_`;
+  }
+
+  typeSection(type: NamedTypeRefDoc, content: MarkdownDoc) {
+    const deprecated = type.deprecated ? this.deprecationNotice(type.deprecated) : [];
+    return section(this.headingTitle(type), [deprecated, content]);
+  }
+
   //#region TypeSpec types
   operation(op: OperationRefDoc) {
     const content: MarkdownDoc = ["", op.doc, codeblock(op.signature, "typespec"), ""];
@@ -115,7 +125,7 @@ export class MarkdownRenderer {
 
     content.push(this.examples(op.examples));
 
-    return section(this.headingTitle(op), content);
+    return this.typeSection(op, content);
   }
 
   interface(iface: InterfaceRefDoc) {
@@ -133,7 +143,7 @@ export class MarkdownRenderer {
 
     content.push(this.examples(iface.examples));
 
-    return section(this.headingTitle(iface), content);
+    return this.typeSection(iface, content);
   }
 
   model(model: ModelRefDoc) {
@@ -145,7 +155,7 @@ export class MarkdownRenderer {
 
     content.push(this.examples(model.examples));
     content.push(this.modelProperties(model));
-    return section(this.headingTitle(model), content);
+    return this.typeSection(model, content);
   }
 
   modelProperties(model: ModelRefDoc) {
@@ -175,8 +185,9 @@ export class MarkdownRenderer {
   }
 
   modelPropertyRows(prop: ModelPropertyRefDoc): { name: string; type: string; doc: string }[] {
+    const name = `${prop.name}${prop.type.optional ? "?" : ""}`;
     const base = {
-      name: `${prop.name}${prop.type.optional ? "?" : ""}`,
+      name: prop.deprecated ? `~~${name}~~ _DEPRECATED_` : name,
       type: this.ref(prop.type.type),
       doc: prop.doc,
     };
@@ -220,10 +231,26 @@ export class MarkdownRenderer {
       e.doc,
       codeblock(e.signature, "typespec"),
       "",
+      this.enumMembers(e),
       this.examples(e.examples),
     ];
 
-    return section(this.headingTitle(e), content);
+    return this.typeSection(e, content);
+  }
+
+  enumMembers(e: EnumRefDoc): MarkdownDoc {
+    const rows = [...e.members.values()].map((x) => {
+      return [
+        x.name,
+        x.type.value
+          ? inlinecode(
+              typeof x.type.value === "string" ? `"${x.type.value}"` : x.type.value.toString()
+            )
+          : "",
+        x.doc,
+      ];
+    });
+    return table([["Name", "Value", "Description"], ...rows]);
   }
 
   union(union: UnionRefDoc): MarkdownDoc {
@@ -235,7 +262,7 @@ export class MarkdownRenderer {
 
     content.push(this.examples(union.examples));
 
-    return section(this.headingTitle(union), content);
+    return this.typeSection(union, content);
   }
 
   scalar(scalar: ScalarRefDoc): MarkdownDoc {
@@ -247,7 +274,7 @@ export class MarkdownRenderer {
 
     content.push(this.examples(scalar.examples));
 
-    return section(this.headingTitle(scalar), content);
+    return this.typeSection(scalar, content);
   }
 
   templateParameters(templateParameters: readonly TemplateParameterRefDoc[]): MarkdownDoc {
@@ -276,7 +303,7 @@ export class MarkdownRenderer {
 
     content.push(this.examples(dec.examples));
 
-    return section(this.headingTitle(dec), content);
+    return this.typeSection(dec, content);
   }
 
   MixedParameterConstraint(constraint: MixedParameterConstraint): string {
@@ -345,6 +372,11 @@ export class MarkdownRenderer {
         codeblock(`tsp compile . --emit=${refDoc.name}`, "bash"),
         "2. Via the config",
         codeblock(`emit:\n  - "${refDoc.name}" `, "yaml"),
+        "The config can be extended with options as follows:",
+        codeblock(
+          `emit:\n  - "${refDoc.name}"\noptions:\n  "${refDoc.name}":\n    option: value`,
+          "yaml"
+        ),
       ]),
       this.emitterOptions(refDoc.emitter.options),
     ]);

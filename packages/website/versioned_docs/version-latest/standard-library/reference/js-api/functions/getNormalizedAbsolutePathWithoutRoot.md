@@ -10,7 +10,7 @@ function getNormalizedAbsolutePathWithoutRoot(fileName, currentDirectory): strin
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `fileName` | `string` |
 | `currentDirectory` | `undefined` \| `string` |
 

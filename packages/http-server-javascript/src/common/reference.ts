@@ -253,7 +253,7 @@ export function emitTypeReference(
         default:
           reportDiagnostic(ctx.program, {
             code: "unrecognized-intrinsic",
-            format: { name: (type satisfies never as IntrinsicType).name },
+            format: { intrinsic: (type satisfies never as IntrinsicType).name },
             target: position,
           });
           return "unknown";

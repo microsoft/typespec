@@ -20,7 +20,7 @@ path parameter's name field.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `entity` | `Model` \| `ModelProperty` \| `Operation` |
 | `name` | `string` |

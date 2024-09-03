@@ -10,7 +10,7 @@ function getResourceTypeKey(program, resourceType): ResourceKey | undefined
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `resourceType` | `Model` |
 

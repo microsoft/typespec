@@ -8,7 +8,7 @@ Represent an part in a multipart body.
 ## Properties
 
 | Property | Modifier | Type | Description |
-| :------ | :------ | :------ | :------ |
+| ------ | ------ | ------ | ------ |
 | `body` | `readonly` | [`HttpOperationBody`](HttpOperationBody.md) | Part body |
 | `filename?` | `readonly` | `ModelProperty` | If the Part is an HttpFile this is the property defining the filename |
 | `headers` | `readonly` | `HeaderProperty`[] | Part headers |

@@ -10,7 +10,7 @@ function definePackageFlags(flags): PackageFlags
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `flags` | [`PackageFlags`](../interfaces/PackageFlags.md) |
 
 ## Returns

@@ -10,7 +10,7 @@ function isSharedRoute(program, operation): boolean
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `operation` | `Operation` |
 

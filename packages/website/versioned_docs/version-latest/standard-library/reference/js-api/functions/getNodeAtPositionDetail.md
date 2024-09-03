@@ -13,7 +13,7 @@ function getNodeAtPositionDetail(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `script` | [`TypeSpecScriptNode`](../interfaces/TypeSpecScriptNode.md) |
 | `position` | `number` |
 | `filter` | (`node`, `flag`) => `boolean` |

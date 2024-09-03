@@ -6,6 +6,6 @@ title: "[I] ExtensionRecord"
 ## Properties
 
 | Property | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `key` | `string` |
-| `value` | `Type` |
+| `value` | `unknown` |

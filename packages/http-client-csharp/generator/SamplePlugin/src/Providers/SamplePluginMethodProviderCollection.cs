@@ -9,6 +9,7 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -36,23 +37,18 @@ namespace SamplePlugin.Providers
 
                 // Convert to a method with a body statement so we can add tracing.
                 ConvertToBodyStatementMethodProvider(method);
-                var ex = new VariableExpression(typeof(Exception), "ex");
-                var decl = new DeclarationExpression(ex);
                 var statements = new TryCatchFinallyStatement(
-                    new[]
-                    {
+                    [
                         InvokeConsoleWriteLine(Literal($"Entering method {method.Signature.Name}.")),
                         method.BodyStatements!
-                    },
-                    new CatchExpression(
-                        decl,
-                        new[]
-                        {
-                            InvokeConsoleWriteLine(new FormattableStringExpression(
-                                $"An exception was thrown in method {method.Signature.Name}: {{0}}", new[] { ex })),
-                            Throw()
-                        }),
-                    InvokeConsoleWriteLine(Literal($"Exiting method {method.Signature.Name}.")));
+                    ],
+                    Catch(Declare("ex", out ScopedApi<Exception> ex),
+                    [
+                        InvokeConsoleWriteLine(new FormattableStringExpression(
+                            $"An exception was thrown in method {method.Signature.Name}: {{0}}", new[] { ex })),
+                        Throw()
+                    ]),
+                    [InvokeConsoleWriteLine(Literal($"Exiting method {method.Signature.Name}."))]);
 
                 method.Update(bodyStatements: statements);
             }

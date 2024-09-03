@@ -13,7 +13,7 @@ function setRouteOptionsForNamespace(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `namespace` | `Namespace` |
 | `options` | [`RouteOptions`](../interfaces/RouteOptions.md) |

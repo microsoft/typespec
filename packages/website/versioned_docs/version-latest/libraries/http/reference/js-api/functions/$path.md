@@ -7,16 +7,16 @@ title: "[F] $path"
 function $path(
    context, 
    target, 
-   paramName?): void
+   paramNameOrOptions?): void
 ```
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `ModelProperty` |
-| `paramName`? | `string` |
+| `paramNameOrOptions`? | `string` \| `PathOptions` |
 
 ## Returns
 

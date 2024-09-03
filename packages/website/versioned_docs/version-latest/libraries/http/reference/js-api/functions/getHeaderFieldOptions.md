@@ -10,7 +10,7 @@ function getHeaderFieldOptions(program, entity): HeaderFieldOptions
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `entity` | `Type` |
 

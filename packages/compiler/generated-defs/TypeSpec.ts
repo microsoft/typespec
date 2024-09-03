@@ -1,6 +1,7 @@
 import type {
   DecoratorContext,
   Enum,
+  EnumValue,
   Interface,
   Model,
   ModelProperty,
@@ -10,12 +11,23 @@ import type {
   Scalar,
   Type,
   Union,
+  UnionVariant,
 } from "../src/index.js";
+
+export interface ExampleOptions {
+  readonly title?: string;
+  readonly description?: string;
+}
+
+export interface OperationExample {
+  readonly parameters?: unknown;
+  readonly returnType?: unknown;
+}
 
 /**
  * Specify how to encode the target type.
  *
- * @param encoding Known name of an encoding.
+ * @param encodingOrEncodeAs Known name of an encoding or a scalar type to encode as(Only for numeric types to encode as string).
  * @param encodedAs What target type is this being encoded as. Default to string.
  * @example offsetDateTime encoded with rfc7231
  *
@@ -29,11 +41,18 @@ import type {
  * @encode("unixTimestamp", int32)
  * scalar myDateTime extends unixTimestamp;
  * ```
+ * @example encode numeric type to string
+ *
+ * ```tsp
+ * model Pet {
+ *   @encode(string) id: int64;
+ * }
+ * ```
  */
 export type EncodeDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  encoding: Type,
+  encodingOrEncodeAs: Scalar | string | EnumValue,
   encodedAs?: Scalar
 ) => void;
 
@@ -572,6 +591,45 @@ export type DiscriminatorDecorator = (
 ) => void;
 
 /**
+ * Provide an example value for a data type.
+ *
+ * @param example Example value.
+ * @param options Optional metadata for the example.
+ * @example
+ * ```tsp
+ * @example(#{name: "Fluffy", age: 2})
+ * model Pet {
+ *  name: string;
+ *  age: int32;
+ * }
+ * ```
+ */
+export type ExampleDecorator = (
+  context: DecoratorContext,
+  target: Model | Enum | Scalar | Union | ModelProperty | UnionVariant,
+  example: unknown,
+  options?: ExampleOptions
+) => void;
+
+/**
+ * Provide example values for an operation's parameters and corresponding return type.
+ *
+ * @param example Example value.
+ * @param options Optional metadata for the example.
+ * @example
+ * ```tsp
+ * @example(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+ * op createPet(pet: Pet): Pet;
+ * ```
+ */
+export type OpExampleDecorator = (
+  context: DecoratorContext,
+  target: Operation,
+  example: OperationExample,
+  options?: ExampleOptions
+) => void;
+
+/**
  * Indicates that a property is only considered to be present or applicable ("visible") with
  * the in the given named contexts ("visibilities"). When a property has no visibilities applied
  * to it, it is implicitly visible always.
@@ -691,3 +749,48 @@ export type ReturnTypeVisibilityDecorator = (
   target: Operation,
   ...visibilities: string[]
 ) => void;
+
+export type TypeSpecDecorators = {
+  encode: EncodeDecorator;
+  doc: DocDecorator;
+  withOptionalProperties: WithOptionalPropertiesDecorator;
+  withUpdateableProperties: WithUpdateablePropertiesDecorator;
+  withoutOmittedProperties: WithoutOmittedPropertiesDecorator;
+  withPickedProperties: WithPickedPropertiesDecorator;
+  withoutDefaultValues: WithoutDefaultValuesDecorator;
+  withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator;
+  summary: SummaryDecorator;
+  returnsDoc: ReturnsDocDecorator;
+  errorsDoc: ErrorsDocDecorator;
+  deprecated: DeprecatedDecorator;
+  service: ServiceDecorator;
+  error: ErrorDecorator;
+  format: FormatDecorator;
+  pattern: PatternDecorator;
+  minLength: MinLengthDecorator;
+  maxLength: MaxLengthDecorator;
+  minItems: MinItemsDecorator;
+  maxItems: MaxItemsDecorator;
+  minValue: MinValueDecorator;
+  maxValue: MaxValueDecorator;
+  minValueExclusive: MinValueExclusiveDecorator;
+  maxValueExclusive: MaxValueExclusiveDecorator;
+  secret: SecretDecorator;
+  list: ListDecorator;
+  tag: TagDecorator;
+  friendlyName: FriendlyNameDecorator;
+  knownValues: KnownValuesDecorator;
+  key: KeyDecorator;
+  overload: OverloadDecorator;
+  projectedName: ProjectedNameDecorator;
+  encodedName: EncodedNameDecorator;
+  discriminator: DiscriminatorDecorator;
+  example: ExampleDecorator;
+  opExample: OpExampleDecorator;
+  visibility: VisibilityDecorator;
+  withVisibility: WithVisibilityDecorator;
+  inspectType: InspectTypeDecorator;
+  inspectTypeName: InspectTypeNameDecorator;
+  parameterVisibility: ParameterVisibilityDecorator;
+  returnTypeVisibility: ReturnTypeVisibilityDecorator;
+};

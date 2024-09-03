@@ -9,11 +9,11 @@ const $lib: TypeSpecLibrary<object, JSONSchemaEmitterOptions, never>;
 
 ## Type declaration
 
-| Member | Type | Value |
-| :------ | :------ | :------ |
-| `duplicate-id` | `object` | ... |
-| `duplicate-id.default` | `CallableMessage`<[`string`]\> | ... |
-| `invalid-default` | `object` | ... |
-| `invalid-default.default` | `CallableMessage`<[`string`]\> | ... |
-| `unknown-scalar` | `object` | ... |
-| `unknown-scalar.default` | `CallableMessage`<[`string`]\> | ... |
+| Name | Type |
+| ------ | ------ |
+| `duplicate-id` | `object` |
+| `duplicate-id.default` | `CallableMessage`<[`"id"`]\> |
+| `invalid-default` | `object` |
+| `invalid-default.default` | `CallableMessage`<[`"type"`]\> |
+| `unknown-scalar` | `object` |
+| `unknown-scalar.default` | `CallableMessage`<[`"name"`]\> |

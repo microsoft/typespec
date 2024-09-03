@@ -13,7 +13,7 @@ function $copyResourceKeyParameters(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `entity` | `Model` |
 | `filter`? | `string` |

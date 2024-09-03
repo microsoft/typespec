@@ -12,7 +12,7 @@ Represent any possible numeric value
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `stringValue` | `string` |
 
 ## Returns

@@ -13,7 +13,7 @@ function getFirstAncestor(
 ## Parameters
 
 | Parameter | Type | Default value |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `node` | [`Node`](../type-aliases/Node.md) | `undefined` |
 | `test` | [`NodeCallback`](../type-aliases/NodeCallback.md)<`boolean`\> | `undefined` |
 | `includeSelf` | `boolean` | `false` |

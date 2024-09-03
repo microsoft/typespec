@@ -14,7 +14,7 @@ function setExtension(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `entity` | `Type` |
 | `extensionName` | \`x-$\{string\}\` |

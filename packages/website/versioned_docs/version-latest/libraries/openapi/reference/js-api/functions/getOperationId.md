@@ -10,7 +10,7 @@ function getOperationId(program, entity): string | undefined
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `entity` | `Operation` |
 

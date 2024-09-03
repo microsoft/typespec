@@ -6,7 +6,7 @@ title: "[I] Server"
 ## Properties
 
 | Property | Modifier | Type |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `pendingMessages` | `readonly` | readonly [`ServerLog`](ServerLog.md)[] |
 | `workspaceFolders` | `readonly` | readonly [`ServerWorkspaceFolder`](ServerWorkspaceFolder.md)[] |
 
@@ -21,7 +21,7 @@ buildSemanticTokens(params): Promise<SemanticTokens>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `params` | `SemanticTokensParams` |
 
 #### Returns
@@ -39,7 +39,7 @@ checkChange(change): Promise<void>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `change` | `TextDocumentChangeEvent`<`TextDocument`\> |
 
 #### Returns
@@ -57,7 +57,7 @@ compile(document): Promise<undefined | CompileResult>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `document` | `TextDocument` \| `TextDocumentIdentifier` |
 
 #### Returns
@@ -75,7 +75,7 @@ complete(params): Promise<CompletionList>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `params` | `CompletionParams` |
 
 #### Returns
@@ -93,7 +93,7 @@ documentClosed(change): void
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `change` | `TextDocumentChangeEvent`<`TextDocument`\> |
 
 #### Returns
@@ -111,7 +111,7 @@ executeCommand(params): Promise<void>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `params` | `ExecuteCommandParams` |
 
 #### Returns
@@ -129,7 +129,7 @@ findDocumentHighlight(params): Promise<DocumentHighlight[]>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `params` | `DocumentHighlightParams` |
 
 #### Returns
@@ -147,7 +147,7 @@ findReferences(params): Promise<Location[]>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `params` | `ReferenceParams` |
 
 #### Returns
@@ -165,7 +165,7 @@ formatDocument(params): Promise<TextEdit[]>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `params` | `DocumentFormattingParams` |
 
 #### Returns
@@ -183,7 +183,7 @@ getCodeActions(params): Promise<CodeAction[]>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `params` | `CodeActionParams` |
 
 #### Returns
@@ -201,7 +201,7 @@ getDocumentSymbols(params): Promise<DocumentSymbol[]>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `params` | `DocumentSymbolParams` |
 
 #### Returns
@@ -219,7 +219,7 @@ getFoldingRanges(getFoldingRanges): Promise<FoldingRange[]>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `getFoldingRanges` | `FoldingRangeParams` |
 
 #### Returns
@@ -237,7 +237,7 @@ getHover(params): Promise<Hover>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `params` | `HoverParams` |
 
 #### Returns
@@ -255,7 +255,7 @@ getSemanticTokens(params): Promise<SemanticToken[]>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `params` | `SemanticTokensParams` |
 
 #### Returns
@@ -273,7 +273,7 @@ getSignatureHelp(params): Promise<undefined | SignatureHelp>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `params` | `SignatureHelpParams` |
 
 #### Returns
@@ -291,7 +291,7 @@ gotoDefinition(params): Promise<Location[]>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `params` | `DefinitionParams` |
 
 #### Returns
@@ -309,7 +309,7 @@ initialize(params): Promise<InitializeResult<any>>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `params` | `InitializeParams` |
 
 #### Returns
@@ -327,7 +327,7 @@ initialized(params): void
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `params` | `InitializedParams` |
 
 #### Returns
@@ -345,7 +345,7 @@ log(log): void
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `log` | [`ServerLog`](ServerLog.md) |
 
 #### Returns
@@ -363,7 +363,7 @@ prepareRename(params): Promise<undefined | Range>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `params` | `PrepareRenameParams` |
 
 #### Returns
@@ -381,7 +381,7 @@ rename(params): Promise<WorkspaceEdit>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `params` | `RenameParams` |
 
 #### Returns
@@ -399,7 +399,7 @@ watchedFilesChanged(params): void
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `params` | `DidChangeWatchedFilesParams` |
 
 #### Returns
@@ -417,7 +417,7 @@ workspaceFoldersChanged(e): Promise<void>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `e` | `WorkspaceFoldersChangeEvent` |
 
 #### Returns

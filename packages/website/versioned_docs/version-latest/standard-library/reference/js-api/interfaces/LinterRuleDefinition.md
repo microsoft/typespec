@@ -7,17 +7,17 @@ title: "[I] LinterRuleDefinition"
 
 - [`LinterRule`](LinterRule.md)
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `N` *extends* `string` |
 | `DM` *extends* [`DiagnosticMessages`](DiagnosticMessages.md) |
 
 ## Properties
 
 | Property | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `description` | `string` | Short description of the rule |
 | `messages` | `DM` | Messages that can be reported with the diagnostic. |
 | `name` | `N` | Rule name (without the library name) |
@@ -37,7 +37,7 @@ Creator
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`LinterRuleContext`](LinterRuleContext.md)<`DM`\> |
 
 #### Returns

@@ -13,7 +13,7 @@ function $reserve(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Type` |
 | ...`reservations` | `unknown`[] |

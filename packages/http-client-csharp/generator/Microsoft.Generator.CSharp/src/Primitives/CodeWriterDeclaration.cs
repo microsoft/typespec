@@ -2,43 +2,50 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.Generator.CSharp.Primitives
 {
     public sealed class CodeWriterDeclaration
     {
-        private string? _actualName;
-        private string? _debuggerName;
+        private Dictionary<CodeWriter.CodeScope, string> _actualNames = [];
 
-        public bool HasBeenDeclared => _actualName != null;
+        internal bool HasBeenDeclared(Stack<CodeWriter.CodeScope> scopes)
+        {
+            var top = scopes.Peek();
+            foreach (var scope in scopes)
+            {
+                if (_actualNames.ContainsKey(scope))
+                {
+                    if (!ReferenceEquals(scope, top))
+                    {
+                        //move the declaration to make it easy to find
+                        _actualNames.Add(top, _actualNames[scope]);
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
 
-        public CodeWriterDeclaration(string name, bool isRef = false)
+        public CodeWriterDeclaration(string name)
         {
             RequestedName = name;
-            IsRef = isRef;
         }
 
         public string RequestedName { get; }
 
-        public string ActualName => _actualName ?? _debuggerName ?? throw new InvalidOperationException($"Declaration {RequestedName} is not initialized");
-        internal bool IsRef { get; }
-
-        internal void SetActualName(string? actualName)
+        internal string GetActualName(CodeWriter.CodeScope scope)
         {
-            if (_actualName != null && actualName != null)
-            {
-                throw new InvalidOperationException($"Declaration {_actualName} already initialized, can't initialize it with {actualName} name.");
-            }
+            if (!_actualNames.TryGetValue(scope, out var actualName))
+                throw new InvalidOperationException($"Declaration {RequestedName} is not initialized");
 
-            _actualName = actualName;
+            return actualName;
         }
 
-        internal void SetDebuggerName(string? debuggerName)
+        internal void SetActualName(string actualName, CodeWriter.CodeScope scope)
         {
-            if (_actualName == null)
-            {
-                _debuggerName = debuggerName;
-            }
+            _actualNames[scope] = actualName;
         }
     }
 }

@@ -14,14 +14,6 @@ namespace UnbrandedTypeSpec.Models
     /// <summary></summary>
     public partial class ReturnsAnonymousModelResponse : IJsonModel<ReturnsAnonymousModelResponse>
     {
-        /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
-
-        internal ReturnsAnonymousModelResponse(IDictionary<string, BinaryData> serializedAdditionalRawData)
-        {
-            _serializedAdditionalRawData = serializedAdditionalRawData;
-        }
-
         void IJsonModel<ReturnsAnonymousModelResponse>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
@@ -76,16 +68,14 @@ namespace UnbrandedTypeSpec.Models
             {
                 return null;
             }
-            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
-            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
+            IDictionary<string, BinaryData> serializedAdditionalRawData = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (options.Format != "W")
                 {
-                    rawDataDictionary.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                    serializedAdditionalRawData.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            serializedAdditionalRawData = rawDataDictionary;
             return new ReturnsAnonymousModelResponse(serializedAdditionalRawData);
         }
 

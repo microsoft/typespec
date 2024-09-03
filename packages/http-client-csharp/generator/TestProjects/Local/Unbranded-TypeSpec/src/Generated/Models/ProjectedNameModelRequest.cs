@@ -3,21 +3,25 @@
 #nullable disable
 
 using System;
-using UnbrandedTypeSpec;
+using System.Collections.Generic;
 
 namespace UnbrandedTypeSpec.Models
 {
     /// <summary> The ProjectedNameModelRequest. </summary>
     public partial class ProjectedNameModelRequest
     {
-        /// <summary> Initializes a new instance of <see cref="ProjectedNameModelRequest"/>. </summary>
-        /// <param name="name"> name of the ModelWithProjectedName. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
-        public ProjectedNameModelRequest(string name)
-        {
-            Argument.AssertNotNull(name, nameof(name));
+        /// <summary> Keeps track of any properties unknown to the library. </summary>
+        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
+        internal ProjectedNameModelRequest(string name)
+        {
             Name = name;
+        }
+
+        internal ProjectedNameModelRequest(string name, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        {
+            Name = name;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
         /// <summary> name of the ModelWithProjectedName. </summary>

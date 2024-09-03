@@ -16,7 +16,7 @@ auto-generated routes.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Interface` \| `Operation` |
 

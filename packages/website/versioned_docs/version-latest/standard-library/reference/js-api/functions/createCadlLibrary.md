@@ -7,19 +7,19 @@ title: "[F] createCadlLibrary"
 function createCadlLibrary<T, E, State>(lib): TypeSpecLibrary<T, E, State>
 ```
 
-## Type parameters
+## Type Parameters
 
-| Type parameter | Value |
-| :------ | :------ |
+| Type Parameter | Default type |
+| ------ | ------ |
 | `T` *extends* `object` | - |
 | `E` *extends* `Record`<`string`, `any`\> | - |
 | `State` *extends* `string` | `never` |
 
 ## Parameters
 
-| Parameter | Type |
-| :------ | :------ |
-| `lib` | `Readonly`<[`TypeSpecLibraryDef`](../interfaces/TypeSpecLibraryDef.md)<`T`, `E`, `State`\>\> |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `lib` | `Readonly`<[`TypeSpecLibraryDef`](../interfaces/TypeSpecLibraryDef.md)<`T`, `E`, `State`\>\> | Library definition. |
 
 ## Returns
 

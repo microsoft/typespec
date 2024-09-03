@@ -16,6 +16,7 @@ import type {
 import { XmlStateKeys, reportDiagnostic } from "./lib.js";
 import type { XmlNamespace } from "./types.js";
 
+/** @internal */
 export const namespace = "TypeSpec.Xml";
 
 export const $name: NameDecorator = (context, target, name) => {

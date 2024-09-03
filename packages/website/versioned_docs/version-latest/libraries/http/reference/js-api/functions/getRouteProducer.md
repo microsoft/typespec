@@ -10,7 +10,7 @@ function getRouteProducer(program, operation): RouteProducer
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `operation` | `Operation` |
 

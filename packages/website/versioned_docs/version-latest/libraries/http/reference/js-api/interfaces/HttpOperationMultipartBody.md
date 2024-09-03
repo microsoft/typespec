@@ -12,7 +12,7 @@ Body marked with `@multipartBody`
 ## Properties
 
 | Property | Modifier | Type | Description | Inherited from |
-| :------ | :------ | :------ | :------ | :------ |
+| ------ | ------ | ------ | ------ | ------ |
 | `bodyKind` | `readonly` | `"multipart"` | - | - |
 | `contentTypeProperty?` | `readonly` | `ModelProperty` | Property used to set the content type if exists | [`HttpOperationBodyBase`](HttpOperationBodyBase.md).`contentTypeProperty` |
 | `contentTypes` | `readonly` | `string`[] | Content types. | [`HttpOperationBodyBase`](HttpOperationBodyBase.md).`contentTypes` |

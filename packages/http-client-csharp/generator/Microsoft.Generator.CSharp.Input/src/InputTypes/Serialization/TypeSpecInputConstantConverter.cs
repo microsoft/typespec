@@ -71,7 +71,7 @@ namespace Microsoft.Generator.CSharp.Input
                         case InputPrimitiveTypeKind.String:
                             value = reader.GetString() ?? throw new JsonException();
                             break;
-                        case InputPrimitiveTypeKind.Uri:
+                        case InputPrimitiveTypeKind.Url:
                             var stringvalue = reader.GetString() ?? throw new JsonException();
                             value = new Uri(stringvalue);
                             break;

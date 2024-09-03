@@ -19,6 +19,7 @@ namespace Microsoft.Generator.CSharp
     [ExportMetadata("PluginName", nameof(CodeModelPlugin))]
     public abstract class CodeModelPlugin
     {
+        private List<LibraryVisitor> _visitors = new();
         private static CodeModelPlugin? _instance;
         internal static CodeModelPlugin Instance
         {
@@ -34,39 +35,42 @@ namespace Microsoft.Generator.CSharp
 
         public Configuration Configuration { get; }
 
+        public virtual IReadOnlyList<LibraryVisitor> Visitors => _visitors;
+
         [ImportingConstructor]
         public CodeModelPlugin(GeneratorContext context)
         {
             Configuration = context.Configuration;
             _inputLibrary = new(() => new InputLibrary(Instance.Configuration.OutputDirectory));
+            TypeFactory = new TypeFactory();
         }
+
+        // for mocking
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        protected CodeModelPlugin()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        {
+        }
+
+        internal bool IsNewProject { get; set; }
 
         private Lazy<InputLibrary> _inputLibrary;
 
         // Extensibility points to be implemented by a plugin
-        public abstract TypeFactory TypeFactory { get; }
+        public virtual TypeFactory TypeFactory { get; }
         public virtual string LicenseString => string.Empty;
         public virtual OutputLibrary OutputLibrary { get; } = new();
-        public InputLibrary InputLibrary => _inputLibrary.Value;
+        public virtual InputLibrary InputLibrary => _inputLibrary.Value;
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
-        public virtual IReadOnlyList<MetadataReference> AdditionalMetadataReferences => Array.Empty<MetadataReference>();
+        public virtual IReadOnlyList<MetadataReference> AdditionalMetadataReferences => [];
 
-        /// <summary>
-        /// Returns the serialization type providers for the given model type provider.
-        /// </summary>
-        /// <param name="inputType">The input model.</param>
-        public virtual IReadOnlyList<TypeProvider> GetSerializationTypeProviders(InputType inputType)
+        public virtual void Configure()
         {
-            if (inputType is InputEnumType enumType)
-            {
-                var provider = Instance.TypeFactory.CreateEnum(enumType);
-                if (provider is EnumProvider { IsExtensible: false } enumProvider)
-                {
-                    return [new FixedEnumSerializationProvider(enumProvider)];
-                }
-            }
+        }
 
-            return [];
+        public virtual void AddVisitor(LibraryVisitor visitor)
+        {
+            _visitors.Add(visitor);
         }
     }
 }

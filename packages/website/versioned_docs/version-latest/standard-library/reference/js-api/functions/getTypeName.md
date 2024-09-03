@@ -10,7 +10,7 @@ function getTypeName(type, options?): string
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `type` | [`Type`](../type-aliases/Type.md) |
 | `options`? | [`TypeNameOptions`](../interfaces/TypeNameOptions.md) |
 

@@ -6,6 +6,9 @@ toc_max_heading_level: 3
 # Built-in Decorators
 ## TypeSpec
 ### `@deprecated` {#@deprecated}
+:::warning
+**Deprecated**: @deprecated decorator is deprecated. Use the `#deprecated` directive instead.
+:::
 
 Mark this type as deprecated.
 
@@ -97,7 +100,7 @@ model Pet {}
 
 Specify how to encode the target type.
 ```typespec
-@encode(encoding: string | EnumMember, encodedAs?: Scalar)
+@encode(encodingOrEncodeAs: Scalar | valueof string | EnumMember, encodedAs?: Scalar)
 ```
 
 #### Target
@@ -107,7 +110,7 @@ Specify how to encode the target type.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| encoding | `string \| EnumMember` | Known name of an encoding. |
+| encodingOrEncodeAs | `Scalar` \| `valueof string \| EnumMember` | Known name of an encoding or a scalar type to encode as(Only for numeric types to encode as string). |
 | encodedAs | `Scalar` | What target type is this being encoded as. Default to string. |
 
 #### Examples
@@ -125,6 +128,15 @@ scalar myDateTime extends offsetDateTime;
 ```tsp
 @encode("unixTimestamp", int32)
 scalar myDateTime extends unixTimestamp;
+```
+
+##### encode numeric type to string
+
+
+```tsp
+model Pet {
+  @encode(string) id: int64;
+}
 ```
 
 
@@ -192,7 +204,7 @@ model PetStoreError {
 ### `@errorsDoc` {#@errorsDoc}
 
 Attach a documentation string to describe the error return types of an operation.
-If an operation returns a union of success and errors it only describe the errors. See `@errorsDoc` for success documentation.
+If an operation returns a union of success and errors it only describes the errors. See `@returnsDoc` for success documentation.
 ```typespec
 @errorsDoc(doc: valueof string)
 ```
@@ -209,8 +221,36 @@ If an operation returns a union of success and errors it only describe the error
 #### Examples
 
 ```typespec
-@errorsDoc("Returns doc")
+@errorsDoc("Errors doc")
 op get(): Pet | NotFound;
+```
+
+
+### `@example` {#@example}
+
+Provide an example value for a data type.
+```typespec
+@example(example: valueof unknown, options?: valueof ExampleOptions)
+```
+
+#### Target
+
+`Model | Enum | Scalar | Union | ModelProperty | UnionVariant`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| example | `valueof unknown` | Example value. |
+| options | [valueof `ExampleOptions`](./built-in-data-types.md#ExampleOptions) | Optional metadata for the example. |
+
+#### Examples
+
+```tsp
+@example(#{name: "Fluffy", age: 2})
+model Pet {
+ name: string;
+ age: int32;
+}
 ```
 
 
@@ -330,6 +370,9 @@ model Pet {
 
 
 ### `@knownValues` {#@knownValues}
+:::warning
+**Deprecated**: This decorator has been deprecated. Use a named union of string literals with a string variant to achieve the same result without a decorator.
+:::
 
 Provide a set of known values to a string type.
 ```typespec
@@ -570,6 +613,31 @@ scalar distance is float64;
 ```
 
 
+### `@opExample` {#@opExample}
+
+Provide example values for an operation's parameters and corresponding return type.
+```typespec
+@opExample(example: valueof OperationExample, options?: valueof ExampleOptions)
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| example | [valueof `OperationExample`](./built-in-data-types.md#OperationExample) | Example value. |
+| options | [valueof `ExampleOptions`](./built-in-data-types.md#ExampleOptions) | Optional metadata for the example. |
+
+#### Examples
+
+```tsp
+@example(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+op createPet(pet: Pet): Pet;
+```
+
+
 ### `@overload` {#@overload}
 
 Specify this operation is an overload of the given operation.
@@ -648,6 +716,9 @@ scalar LowerAlpha extends string;
 
 
 ### `@projectedName` {#@projectedName}
+:::warning
+**Deprecated**: Use `@encodedName` instead for changing the name over the wire.
+:::
 
 DEPRECATED: Use `@encodedName` instead.
 
@@ -679,7 +750,7 @@ model Certificate {
 ### `@returnsDoc` {#@returnsDoc}
 
 Attach a documentation string to describe the successful return types of an operation.
-If an operation returns a union of success and errors it only describe the success. See `@errorsDoc` for error documentation.
+If an operation returns a union of success and errors it only describes the success. See `@errorsDoc` for error documentation.
 ```typespec
 @returnsDoc(doc: valueof string)
 ```

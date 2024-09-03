@@ -1,0 +1,20 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.versioning.renamedfrom.NewInterfaceAsyncClient": "null",
+    "com.versioning.renamedfrom.NewInterfaceAsyncClient.newOpInNewInterface": "Versioning.RenamedFrom.NewInterface.newOpInNewInterface",
+    "com.versioning.renamedfrom.NewInterfaceAsyncClient.newOpInNewInterfaceWithResponse": "Versioning.RenamedFrom.NewInterface.newOpInNewInterface",
+    "com.versioning.renamedfrom.NewInterfaceClient": "null",
+    "com.versioning.renamedfrom.NewInterfaceClient.newOpInNewInterface": "Versioning.RenamedFrom.NewInterface.newOpInNewInterface",
+    "com.versioning.renamedfrom.NewInterfaceClient.newOpInNewInterfaceWithResponse": "Versioning.RenamedFrom.NewInterface.newOpInNewInterface",
+    "com.versioning.renamedfrom.RenamedFromAsyncClient": "Versioning.RenamedFrom",
+    "com.versioning.renamedfrom.RenamedFromAsyncClient.newOp": "Versioning.RenamedFrom.newOp",
+    "com.versioning.renamedfrom.RenamedFromAsyncClient.newOpWithResponse": "Versioning.RenamedFrom.newOp",
+    "com.versioning.renamedfrom.RenamedFromClient": "Versioning.RenamedFrom",
+    "com.versioning.renamedfrom.RenamedFromClient.newOp": "Versioning.RenamedFrom.newOp",
+    "com.versioning.renamedfrom.RenamedFromClient.newOpWithResponse": "Versioning.RenamedFrom.newOp",
+    "com.versioning.renamedfrom.RenamedFromClientBuilder": "Versioning.RenamedFrom",
+    "com.versioning.renamedfrom.models.NewEnum": "Versioning.RenamedFrom.NewEnum",
+    "com.versioning.renamedfrom.models.NewModel": "Versioning.RenamedFrom.NewModel"
+  }
+}

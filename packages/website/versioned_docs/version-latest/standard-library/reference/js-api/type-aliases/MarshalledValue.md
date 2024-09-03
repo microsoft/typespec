@@ -7,8 +7,8 @@ title: "[T] MarshalledValue"
 type MarshalledValue<Value>: Value extends StringValue ? string : Value extends NumericValue ? number | Numeric : Value extends BooleanValue ? boolean : Value extends ObjectValue ? Record<string, unknown> : Value extends ArrayValue ? unknown[] : Value extends EnumValue ? EnumMember : Value extends NullValue ? null : Value extends ScalarValue ? Value : Value;
 ```
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `Value` |

@@ -1,3 +1,4 @@
+import { printIdentifier } from "@typespec/compiler";
 import {
   OpenAPI3Parameter,
   OpenAPI3PathItem,
@@ -5,19 +6,26 @@ import {
   Refable,
 } from "../../../../types.js";
 import {
+  TypeSpecModel,
   TypeSpecOperation,
   TypeSpecOperationParameter,
   TypeSpecRequestBody,
 } from "../interfaces.js";
 import { getExtensions, getParameterDecorators } from "../utils/decorators.js";
+import { getScopeAndName } from "../utils/get-scope-and-name.js";
 import { supportedHttpMethods } from "../utils/supported-http-methods.js";
+import { collectOperationResponses } from "./transform-operation-responses.js";
 
 /**
  * Transforms each operation defined under #/paths/{route}/{httpMethod} into a TypeSpec operation.
+ * @params models - The array of models to populate with any new models generated from the operation.
  * @param paths
  * @returns
  */
-export function transformPaths(paths: Record<string, OpenAPI3PathItem>): TypeSpecOperation[] {
+export function transformPaths(
+  models: TypeSpecModel[],
+  paths: Record<string, OpenAPI3PathItem>
+): TypeSpecOperation[] {
   const operations: TypeSpecOperation[] = [];
 
   for (const route of Object.keys(paths)) {
@@ -29,8 +37,12 @@ export function transformPaths(paths: Record<string, OpenAPI3PathItem>): TypeSpe
       const parameters = operation.parameters?.map(transformOperationParameter) ?? [];
       const tags = operation.tags?.map((t) => t) ?? [];
 
+      const operationResponses = operation.responses ?? {};
+      const responseModels = collectOperationResponses(operation.operationId!, operationResponses);
+      models.push(...responseModels);
+
       operations.push({
-        name: operation.operationId!,
+        ...getScopeAndName(operation.operationId!),
         decorators: [
           ...getExtensions(operation),
           { name: "route", args: [route] },
@@ -40,7 +52,7 @@ export function transformPaths(paths: Record<string, OpenAPI3PathItem>): TypeSpe
         doc: operation.description,
         operationId: operation.operationId,
         requestBodies: transformRequestBodies(operation.requestBody),
-        responses: operation.responses ?? {},
+        responseTypes: responseModels.map((m) => m.name),
         tags: tags,
       });
     }
@@ -57,7 +69,7 @@ function transformOperationParameter(
   }
 
   return {
-    name: parameter.name,
+    name: printIdentifier(parameter.name),
     doc: parameter.description,
     decorators: getParameterDecorators(parameter),
     isOptional: !parameter.required,

@@ -12,10 +12,10 @@ Represent a function parameter that represent the parameter signature(i.e the ty
 ## Properties
 
 | Property | Modifier | Type | Description | Inherited from |
-| :------ | :------ | :------ | :------ | :------ |
+| ------ | ------ | ------ | ------ | ------ |
 | `entityKind` | `readonly` | `"Type"` | - | [`FunctionParameterBase`](FunctionParameterBase.md).`entityKind` |
 | `instantiationParameters?` | `public` | [`Type`](../type-aliases/Type.md)[] | - | [`FunctionParameterBase`](FunctionParameterBase.md).`instantiationParameters` |
-| `isFinished` | `public` | `boolean` | <p>Reflect if a type has been finished(Decorators have been called). There is multiple reasons a type might not be finished:</p><ul><li>a template declaration will not</li><li>a template instance that argument that are still template parameters</li><li>a template instance that is only partially instantiated(like a templated operation inside a templated interface)</li></ul> | [`FunctionParameterBase`](FunctionParameterBase.md).`isFinished` |
+| `isFinished` | `public` | `boolean` | Reflect if a type has been finished(Decorators have been called). There is multiple reasons a type might not be finished: - a template declaration will not - a template instance that argument that are still template parameters - a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`FunctionParameterBase`](FunctionParameterBase.md).`isFinished` |
 | `kind` | `public` | `"FunctionParameter"` | - | [`FunctionParameterBase`](FunctionParameterBase.md).`kind` |
 | `mixed` | `public` | `false` | - | - |
 | `name` | `public` | `string` | - | [`FunctionParameterBase`](FunctionParameterBase.md).`name` |
@@ -39,6 +39,10 @@ get projections(): ProjectionStatementNode[]
 
 [`ProjectionStatementNode`](ProjectionStatementNode.md)[]
 
+#### Inherited from
+
+[`FunctionParameterBase`](FunctionParameterBase.md).[`projections`](FunctionParameterBase.md#projections)
+
 ## Methods
 
 ### projectionsByName()
@@ -50,7 +54,7 @@ projectionsByName(name): ProjectionStatementNode[]
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `name` | `string` |
 
 #### Returns

@@ -18,7 +18,7 @@ new ResolveModuleError(code, message): ResolveModuleError
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `code` | `ResolveModuleErrorCode` |
 | `message` | `string` |
 
@@ -33,13 +33,13 @@ new ResolveModuleError(code, message): ResolveModuleError
 ## Properties
 
 | Property | Modifier | Type | Description | Inherited from |
-| :------ | :------ | :------ | :------ | :------ |
+| ------ | ------ | ------ | ------ | ------ |
 | `cause?` | `public` | `unknown` | - | `Error.cause` |
 | `code` | `public` | `ResolveModuleErrorCode` | - | - |
 | `message` | `public` | `string` | - | `Error.message` |
 | `name` | `public` | `string` | - | `Error.name` |
 | `stack?` | `public` | `string` | - | `Error.stack` |
-| `prepareStackTrace?` | `static` | (`err`: `Error`, `stackTraces`: `CallSite`[]) => `any` | <p>Optional override for formatting stack traces</p><p>**See**</p><p>https://v8.dev/docs/stack-trace-api#customizing-stack-traces</p> | `Error.prepareStackTrace` |
+| `prepareStackTrace?` | `static` | (`err`: `Error`, `stackTraces`: `CallSite`[]) => `any` | Optional override for formatting stack traces **See** https://v8.dev/docs/stack-trace-api#customizing-stack-traces | `Error.prepareStackTrace` |
 | `stackTraceLimit` | `static` | `number` | - | `Error.stackTraceLimit` |
 
 ## Methods
@@ -55,7 +55,7 @@ Create .stack property on a target object
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `targetObject` | `object` |
 | `constructorOpt`? | `Function` |
 

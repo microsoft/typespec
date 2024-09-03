@@ -9,46 +9,35 @@ namespace Microsoft.Generator.CSharp.Statements
 {
     public sealed class TryCatchFinallyStatement : MethodBodyStatement
     {
-        public MethodBodyStatement Try { get; }
-        public IReadOnlyList<CatchExpression> Catches { get; }
-        public MethodBodyStatement? Finally { get; }
+        public TryStatement Try { get; }
+        public IReadOnlyList<CatchStatement> Catches { get; }
+        public FinallyStatement? Finally { get; }
 
-        public TryCatchFinallyStatement(MethodBodyStatement tryStatement, IReadOnlyList<CatchExpression> catches, MethodBodyStatement? finallyStatement)
+        public TryCatchFinallyStatement(TryStatement @try, IReadOnlyList<CatchStatement> catches, FinallyStatement? @finally)
         {
-            Try = tryStatement;
+            Try = @try;
             Catches = catches;
-            Finally = finallyStatement;
+            Finally = @finally;
         }
 
-        public TryCatchFinallyStatement(MethodBodyStatement Try) : this(Try, Array.Empty<CatchExpression>(), null)
+        public TryCatchFinallyStatement(TryStatement @try) : this(@try, Array.Empty<CatchStatement>(), null)
         {
         }
 
-        public TryCatchFinallyStatement(MethodBodyStatement Try, CatchExpression Catch, MethodBodyStatement? Finally = null) : this(Try, [Catch], Finally)
+        public TryCatchFinallyStatement(TryStatement @try, CatchStatement @catch, FinallyStatement? @finally = null) : this(@try, new[] { @catch }, @finally)
         {
         }
 
         internal override void Write(CodeWriter writer)
         {
-            writer.WriteRawLine("try");
-            using (writer.Scope())
-            {
-                Try.Write(writer);
-            }
+            Try.Write(writer);
 
             foreach (var catchStatement in Catches)
             {
                 catchStatement.Write(writer);
             }
 
-            if (Finally != null)
-            {
-                writer.WriteRawLine("finally");
-                using (writer.Scope())
-                {
-                    Finally.Write(writer);
-                }
-            }
+            Finally?.Write(writer);
         }
     }
 }

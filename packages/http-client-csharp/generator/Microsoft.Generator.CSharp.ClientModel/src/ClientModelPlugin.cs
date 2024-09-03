@@ -6,10 +6,6 @@ using System.ClientModel;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using Microsoft.CodeAnalysis;
-using Microsoft.Generator.CSharp.ClientModel.Providers;
-using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.Primitives;
-using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -23,26 +19,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private ScmOutputLibrary? _scmOutputLibrary;
         public override OutputLibrary OutputLibrary => _scmOutputLibrary ??= new();
 
-        public override TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
-
         public override ScmTypeFactory TypeFactory { get; }
 
         public override IReadOnlyList<MetadataReference> AdditionalMetadataReferences => [MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location)];
-
-        /// <summary>
-        /// Returns the serialization type providers for the given input type.
-        /// </summary>
-        /// <param name="inputType">The input type.</param>
-        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(InputType inputType)
-        {
-            switch (inputType)
-            {
-                case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
-                    return [new MrwSerializationTypeDefinition(inputModel)];
-                default:
-                    return base.GetSerializationTypeProviders(inputType);
-            }
-        }
 
         [ImportingConstructor]
         public ClientModelPlugin(GeneratorContext context)
@@ -50,6 +29,11 @@ namespace Microsoft.Generator.CSharp.ClientModel
         {
             TypeFactory = new ScmTypeFactory();
             _instance = this;
+        }
+
+        public override void Configure()
+        {
+            AddVisitor(new DefaultScmLibraryVisitor());
         }
     }
 }

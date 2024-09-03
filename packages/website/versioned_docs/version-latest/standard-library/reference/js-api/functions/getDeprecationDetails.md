@@ -12,7 +12,7 @@ Returns complete deprecation details for the given type or node
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) | Program |
 | `typeOrNode` | [`Type`](../type-aliases/Type.md) \| [`Node`](../type-aliases/Node.md) | A Type or Node to check for deprecation |
 

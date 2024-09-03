@@ -22,9 +22,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return TypeSignatureModifiers.Internal;
         }
 
-        private readonly FieldProvider _uriBuilderField = new(FieldModifiers.Private, typeof(UriBuilder), "_uriBuilder");
-        private readonly FieldProvider _pathBuilderField = new(FieldModifiers.Private, typeof(StringBuilder), "_pathBuilder");
-        private readonly FieldProvider _queryBuilderField = new(FieldModifiers.Private, typeof(StringBuilder), "_queryBuilder");
+        private readonly FieldProvider _uriBuilderField;
+        private readonly FieldProvider _pathBuilderField;
+        private readonly FieldProvider _queryBuilderField;
+
+        public ClientUriBuilderDefinition()
+        {
+            _uriBuilderField = new(FieldModifiers.Private, typeof(UriBuilder), "_uriBuilder", this);
+            _pathBuilderField = new(FieldModifiers.Private, typeof(StringBuilder), "_pathBuilder", this);
+            _queryBuilderField = new(FieldModifiers.Private, typeof(StringBuilder), "_queryBuilder", this);
+        }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
@@ -41,7 +48,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 name: "UriBuilder",
                 type: typeof(UriBuilder),
                 body: new ExpressionPropertyBody(new BinaryOperatorExpression(" ??= ", _uriBuilderField, New.Instance(typeof(UriBuilder)))),
-                description: null);
+                description: null,
+                enclosingType: this);
 
         internal ValueExpression UriBuilderPath => new MemberExpression(UriBuilderProperty, "Path");
         internal ValueExpression UriBuilderQuery => new MemberExpression(UriBuilderProperty, "Query");
@@ -52,7 +60,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 name: "PathBuilder",
                 type: typeof(StringBuilder),
                 body: new ExpressionPropertyBody(new BinaryOperatorExpression(" ??= ", _pathBuilderField, New.Instance(typeof(StringBuilder), UriBuilderPath))),
-                description: null);
+                description: null,
+                enclosingType: this);
 
         private PropertyProvider? _queryBuilderProperty;
         private PropertyProvider QueryBuilderProperty => _queryBuilderProperty ??= new(
@@ -60,7 +69,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 name: "QueryBuilder",
                 type: typeof(StringBuilder),
                 body: new ExpressionPropertyBody(new BinaryOperatorExpression(" ??= ", _queryBuilderField, New.Instance(typeof(StringBuilder), UriBuilderQuery))),
-                description: null);
+                description: null,
+                enclosingType: this);
 
         protected override PropertyProvider[] BuildProperties()
         {

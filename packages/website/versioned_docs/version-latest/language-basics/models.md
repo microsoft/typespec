@@ -18,7 +18,7 @@ Models can be categorized into two main types:
 
 A Record model is a structure that consists of named fields, referred to as properties.
 
-- The name can be an `identifier` or `string literal`.
+- The name can be an [`identifier`](./identifiers.md) or `string literal`.
 - The type can be any type reference.
 - Properties are arranged in a specific order. Refer to [property ordering](#property-ordering) for more details.
 

@@ -14,7 +14,7 @@ function $externRef(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `ctx` | `DecoratorContext` |
 | `target` | `Model` |
 | `path` | `StringLiteral` |

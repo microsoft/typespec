@@ -6,7 +6,7 @@ title: "[E] SemanticTokenKind"
 ## Enumeration Members
 
 | Enumeration Member | Value |
-| :------ | :------ |
+| ------ | ------ |
 | `Class` | `2` |
 | `Comment` | `16` |
 | `DocCommentTag` | `21` |

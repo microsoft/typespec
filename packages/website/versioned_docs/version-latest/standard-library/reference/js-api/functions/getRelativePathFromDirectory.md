@@ -17,7 +17,7 @@ Gets a relative path that can be used to traverse between `from` and `to`.
 ### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `from` | `string` |
 | `to` | `string` |
 | `ignoreCase` | `boolean` |
@@ -40,7 +40,7 @@ Gets a relative path that can be used to traverse between `from` and `to`.
 ### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `fromDirectory` | `string` |
 | `to` | `string` |
 | `getCanonicalFileName` | `GetCanonicalFileName` |

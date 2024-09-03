@@ -21,7 +21,7 @@ the target type to show up in operations of the `Resource*<T>` interfaces define
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Model` |
 | `parent` | `Model` |

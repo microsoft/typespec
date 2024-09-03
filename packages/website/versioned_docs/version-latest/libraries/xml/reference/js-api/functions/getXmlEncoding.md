@@ -13,7 +13,7 @@ This will return the default encoding for each types.(e.g. TypeSpec.Xml.Encoding
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | `Program` |  |
 | `type` | `ModelProperty` \| `Scalar` |  |
 

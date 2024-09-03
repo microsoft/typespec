@@ -14,38 +14,6 @@ namespace UnbrandedTypeSpec.Models
     /// <summary></summary>
     public partial class RoundTripModel : IJsonModel<RoundTripModel>
     {
-        /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
-
-        internal RoundTripModel(string requiredString, int requiredInt, IList<StringFixedEnum> requiredCollection, IDictionary<string, StringExtensibleEnum> requiredDictionary, Thing requiredModel, IntExtensibleEnum? intExtensibleEnum, IList<IntExtensibleEnum> intExtensibleEnumCollection, FloatExtensibleEnum? floatExtensibleEnum, FloatExtensibleEnumWithIntValue? floatExtensibleEnumWithIntValue, IList<FloatExtensibleEnum> floatExtensibleEnumCollection, FloatFixedEnum? floatFixedEnum, FloatFixedEnumWithIntValue? floatFixedEnumWithIntValue, IList<FloatFixedEnum> floatFixedEnumCollection, IntFixedEnum? intFixedEnum, IList<IntFixedEnum> intFixedEnumCollection, StringFixedEnum? stringFixedEnum, BinaryData requiredUnknown, BinaryData optionalUnknown, IDictionary<string, BinaryData> requiredRecordUnknown, IDictionary<string, BinaryData> optionalRecordUnknown, IReadOnlyDictionary<string, BinaryData> readOnlyRequiredRecordUnknown, IReadOnlyDictionary<string, BinaryData> readOnlyOptionalRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, BinaryData requiredBytes, IDictionary<string, BinaryData> serializedAdditionalRawData)
-        {
-            RequiredString = requiredString;
-            RequiredInt = requiredInt;
-            RequiredCollection = requiredCollection;
-            RequiredDictionary = requiredDictionary;
-            RequiredModel = requiredModel;
-            IntExtensibleEnum = intExtensibleEnum;
-            IntExtensibleEnumCollection = intExtensibleEnumCollection;
-            FloatExtensibleEnum = floatExtensibleEnum;
-            FloatExtensibleEnumWithIntValue = floatExtensibleEnumWithIntValue;
-            FloatExtensibleEnumCollection = floatExtensibleEnumCollection;
-            FloatFixedEnum = floatFixedEnum;
-            FloatFixedEnumWithIntValue = floatFixedEnumWithIntValue;
-            FloatFixedEnumCollection = floatFixedEnumCollection;
-            IntFixedEnum = intFixedEnum;
-            IntFixedEnumCollection = intFixedEnumCollection;
-            StringFixedEnum = stringFixedEnum;
-            RequiredUnknown = requiredUnknown;
-            OptionalUnknown = optionalUnknown;
-            RequiredRecordUnknown = requiredRecordUnknown;
-            OptionalRecordUnknown = optionalRecordUnknown;
-            ReadOnlyRequiredRecordUnknown = readOnlyRequiredRecordUnknown;
-            ReadOnlyOptionalRecordUnknown = readOnlyOptionalRecordUnknown;
-            ModelWithRequiredNullable = modelWithRequiredNullable;
-            RequiredBytes = requiredBytes;
-            _serializedAdditionalRawData = serializedAdditionalRawData;
-        }
-
         internal RoundTripModel()
         {
         }
@@ -69,7 +37,7 @@ namespace UnbrandedTypeSpec.Models
             writer.WritePropertyName("requiredString"u8);
             writer.WriteStringValue(RequiredString);
             writer.WritePropertyName("requiredInt"u8);
-            writer.WriteNumberValue(RequiredInt);
+            writer.WriteStringValue(RequiredInt.ToString());
             writer.WritePropertyName("requiredCollection"u8);
             writer.WriteStartArray();
             foreach (var item in RequiredCollection)
@@ -338,8 +306,7 @@ namespace UnbrandedTypeSpec.Models
             IReadOnlyDictionary<string, BinaryData> readOnlyOptionalRecordUnknown = default;
             ModelWithRequiredNullableProperties modelWithRequiredNullable = default;
             BinaryData requiredBytes = default;
-            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
-            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
+            IDictionary<string, BinaryData> serializedAdditionalRawData = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("requiredString"u8))
@@ -349,7 +316,7 @@ namespace UnbrandedTypeSpec.Models
                 }
                 if (prop.NameEquals("requiredInt"u8))
                 {
-                    requiredInt = prop.Value.GetInt32();
+                    requiredInt = int.Parse(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("requiredCollection"u8))
@@ -606,10 +573,9 @@ namespace UnbrandedTypeSpec.Models
                 }
                 if (options.Format != "W")
                 {
-                    rawDataDictionary.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                    serializedAdditionalRawData.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            serializedAdditionalRawData = rawDataDictionary;
             return new RoundTripModel(
                 requiredString,
                 requiredInt,

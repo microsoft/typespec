@@ -12,7 +12,7 @@ Resolve the content types from a model property by looking at the value.
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `property` | `ModelProperty` | Model property |
 
 ## Returns

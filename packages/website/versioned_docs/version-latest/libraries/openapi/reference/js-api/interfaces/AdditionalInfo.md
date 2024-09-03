@@ -8,7 +8,7 @@ OpenAPI additional information
 ## Properties
 
 | Property | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `contact?` | [`Contact`](Contact.md) | The contact information for the exposed API. |
 | `description?` | `string` | A description of the API. Overrides the `@doc` provided on the service namespace. |
 | `license?` | [`License`](License.md) | The license information for the exposed API. |

@@ -28,8 +28,6 @@ paths:
                   $ref: '#/components/schemas/Resp'
   /bar/{id}:
     post:
-      tags:
-        - tag3
       operationId: Bar_create
       description: one operation tag
       parameters:
@@ -42,11 +40,10 @@ paths:
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
+      tags:
+        - tag3
   /foo/{id}:
     get:
-      tags:
-        - foo
-        - tag1
       operationId: Foo_read
       description: includes namespace tag
       parameters:
@@ -59,11 +56,10 @@ paths:
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
-    post:
       tags:
         - foo
         - tag1
-        - tag2
+    post:
       operationId: Foo_create
       description: includes namespace tag and two operations tags
       parameters:
@@ -76,13 +72,12 @@ paths:
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
+      tags:
+        - foo
+        - tag1
+        - tag2
   /nested/{id}:
     post:
-      tags:
-        - outer
-        - inner
-        - moreInner
-        - innerOp
       operationId: NestedMoreInner_createOther
       parameters:
         - name: id
@@ -94,6 +89,11 @@ paths:
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
+      tags:
+        - outer
+        - inner
+        - moreInner
+        - innerOp
 components:
   schemas:
     Resp:

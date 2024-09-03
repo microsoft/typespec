@@ -10,7 +10,7 @@ function formatDiagnostic(diagnostic): string
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `diagnostic` | [`Diagnostic`](../interfaces/Diagnostic.md) |
 
 ## Returns

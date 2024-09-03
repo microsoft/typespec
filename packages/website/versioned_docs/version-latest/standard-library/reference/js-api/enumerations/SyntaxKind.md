@@ -8,14 +8,14 @@ AST types
 ## Enumeration Members
 
 | Enumeration Member | Value | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `AliasStatement` | `24` | - |
 | `ArrayExpression` | `31` | - |
 | `ArrayLiteral` | `97` | - |
 | `AugmentDecoratorStatement` | `4` | - |
 | `BlockComment` | `51` | - |
 | `BooleanLiteral` | `34` | - |
-| `CadlScript` | `0` | <p>**Deprecated**</p><p>Use TypeSpecScript</p> |
+| `CadlScript` | `0` | **Deprecated** Use TypeSpecScript |
 | `CallExpression` | `99` | - |
 | `ConstStatement` | `98` | - |
 | `DecoratorDeclarationStatement` | `25` | - |

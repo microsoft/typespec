@@ -24,7 +24,7 @@ best name for the remaining properties is `SomeName`.
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) | - |
 | `model` | [`Model`](../interfaces/Model.md) | The input model |
 | `filter`? | (`property`) => `boolean` | An optional filter to apply to the input model's properties. |

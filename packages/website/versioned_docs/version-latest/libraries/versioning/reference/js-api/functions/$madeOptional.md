@@ -13,7 +13,7 @@ function $madeOptional(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `ModelProperty` |
 | `version` | `EnumMember` |

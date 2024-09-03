@@ -10,7 +10,7 @@ function getRenamedFromVersions(p, t): Version[] | undefined
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `p` | `Program` |
 | `t` | `Type` |
 

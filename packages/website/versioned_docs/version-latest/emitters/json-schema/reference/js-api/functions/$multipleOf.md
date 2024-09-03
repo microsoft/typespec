@@ -13,7 +13,7 @@ function $multipleOf(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `ModelProperty` \| `Scalar` |
 | `value` | `Numeric` |

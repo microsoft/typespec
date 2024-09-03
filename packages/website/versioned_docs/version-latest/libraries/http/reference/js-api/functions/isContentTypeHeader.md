@@ -10,7 +10,7 @@ function isContentTypeHeader(program, property): boolean
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | `Program` | Program |
 | `property` | `ModelProperty` | Model property. |
 

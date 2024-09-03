@@ -6,7 +6,7 @@ title: "[I] HeaderFieldOptions"
 ## Properties
 
 | Property | Type | Description |
-| :------ | :------ | :------ |
-| `format?` |  \| `"form"` \| `"csv"` \| `"multi"` \| `"ssv"` \| `"tsv"` \| `"pipes"` \| `"simple"` | <p>The string format of the array. "csv" and "simple" are used interchangeably, as are</p><p>"multi" and "form".</p> |
+| ------ | ------ | ------ |
+| `format?` | \| `"form"` \| `"multi"` \| `"csv"` \| `"ssv"` \| `"tsv"` \| `"simple"` \| `"pipes"` | The string format of the array. "csv" and "simple" are used interchangeably, as are "multi" and "form". |
 | `name` | `string` | - |
 | `type` | `"header"` | - |

@@ -1,5 +1,53 @@
 # Change Log - @typespec/openapi3
 
+## 0.59.1
+
+### Bug Fixes
+
+- [#4168](https://github.com/microsoft/typespec/pull/4168) Fix: query params are `explode: true` by default in OpenAPI 3.0
+
+
+## 0.59.0
+
+### Bug Fixes
+
+- [#4046](https://github.com/microsoft/typespec/pull/4046) Fix issue where operation example would produce an empty object when `@body`/`@bodyRoot` was used
+- [#4046](https://github.com/microsoft/typespec/pull/4046) Fix operation response body examples showing up for each response.
+- [#3912](https://github.com/microsoft/typespec/pull/3912) Fixes bug where union documentation was being applied to each union member in emitted output.
+- [#3908](https://github.com/microsoft/typespec/pull/3908) Fixes bug where circular references in unions caused an empty object to be emitted instead of a ref.
+
+### Bump dependencies
+
+- [#3948](https://github.com/microsoft/typespec/pull/3948) Update dependencies
+
+### Features
+
+- [#3894](https://github.com/microsoft/typespec/pull/3894) Add support for `@useRef` on responses
+- [#4020](https://github.com/microsoft/typespec/pull/4020) Add support for encoding numeric types as string
+- [#3890](https://github.com/microsoft/typespec/pull/3890) `@extension` used on the service namespace will set extension at the root of the document
+- [#3932](https://github.com/microsoft/typespec/pull/3932) Add support for URI templates in routes
+
+
+## 0.58.0
+
+### Bug Fixes
+
+- [#3516](https://github.com/microsoft/typespec/pull/3516) Fix issue that could result in invalid document generation when running `tsp compile` from another directory
+- [#3794](https://github.com/microsoft/typespec/pull/3794) Updates tsp-openapi3 to always emit main.tsp when formatting encounters an error.
+- [#3839](https://github.com/microsoft/typespec/pull/3839) Updates tsp-openapi3 doc line wrapping to only automatically create newlines when they are present in the original documentation.
+
+### Bump dependencies
+
+- [#3718](https://github.com/microsoft/typespec/pull/3718) Dependency updates July 2024
+
+### Features
+
+- [#3572](https://github.com/microsoft/typespec/pull/3572) Add support for new `@example` and `@opExample` decorator
+- [#3663](https://github.com/microsoft/typespec/pull/3663) Adds support for converting OpenAPI3 specs to TypeSpec via the new tsp-openapi3 CLI included in the `@typespec/openapi3` package.
+- [#3732](https://github.com/microsoft/typespec/pull/3732) Apply openapi3 extension on Security schemes
+- [#3844](https://github.com/microsoft/typespec/pull/3844) Updates tsp-openapi3 to escape identifiers that would otherwise be invalid, and automatically resolve namespaces for schemas with dots in their names.
+
+
 ## 0.57.0
 
 ### Bug Fixes

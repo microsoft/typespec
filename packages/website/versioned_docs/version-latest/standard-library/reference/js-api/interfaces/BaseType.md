@@ -34,10 +34,10 @@ title: "[I] BaseType"
 ## Properties
 
 | Property | Modifier | Type | Description |
-| :------ | :------ | :------ | :------ |
+| ------ | ------ | ------ | ------ |
 | `entityKind` | `readonly` | `"Type"` | - |
 | `instantiationParameters?` | `public` | [`Type`](../type-aliases/Type.md)[] | - |
-| `isFinished` | `public` | `boolean` | <p>Reflect if a type has been finished(Decorators have been called). There is multiple reasons a type might not be finished:</p><ul><li>a template declaration will not</li><li>a template instance that argument that are still template parameters</li><li>a template instance that is only partially instantiated(like a templated operation inside a templated interface)</li></ul> |
+| `isFinished` | `public` | `boolean` | Reflect if a type has been finished(Decorators have been called). There is multiple reasons a type might not be finished: - a template declaration will not - a template instance that argument that are still template parameters - a template instance that is only partially instantiated(like a templated operation inside a templated interface) |
 | `kind` | `public` | `string` | - |
 | `node?` | `public` | [`Node`](../type-aliases/Node.md) | - |
 | `projectionBase?` | `public` | [`Type`](../type-aliases/Type.md) | - |
@@ -67,7 +67,7 @@ projectionsByName(name): ProjectionStatementNode[]
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `name` | `string` |
 
 #### Returns

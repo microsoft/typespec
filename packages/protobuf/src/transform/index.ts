@@ -442,7 +442,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
     reportDiagnostic(program, {
       code: "unsupported-intrinsic",
-      format: { type: t.name },
+      format: { name: t.name },
       target: t,
     });
 

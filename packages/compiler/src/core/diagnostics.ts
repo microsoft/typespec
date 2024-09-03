@@ -35,6 +35,7 @@ export function logDiagnostics(diagnostics: readonly Diagnostic[], logger: LogSi
       level: diagnostic.severity,
       message: diagnostic.message,
       code: diagnostic.code,
+      url: diagnostic.url,
       sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
     });
   }
@@ -46,6 +47,7 @@ export function formatDiagnostic(diagnostic: Diagnostic) {
       code: diagnostic.code,
       level: diagnostic.severity,
       message: diagnostic.message,
+      url: diagnostic.url,
       sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
     },
     { pretty: false }

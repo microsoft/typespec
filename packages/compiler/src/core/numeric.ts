@@ -135,11 +135,14 @@ function parse(original: string): InternalData {
   return { n, e: exp, s: sign, d: decimal };
 }
 
-function stringify(value: InternalData) {
+function stringify(value: InternalData): string {
+  if (value.n === 0n) return "0";
+
   const n = value.n.toString();
   const sign = value.s === -1 ? "-" : "";
-  const decimal = value.e < n.length ? "." + n.slice(value.e) : "";
-  return sign + n.slice(0, value.e) + decimal;
+  const int = value.e === 0 ? "0" : n.slice(0, value.e);
+  const decimal = value.e < n.length ? "." + n.slice(value.e).padStart(value.d, "0") : "";
+  return sign + int + decimal;
 }
 const equals = (a: InternalData, b: InternalData) => a.n === b.n && a.e === b.e;
 

@@ -13,7 +13,7 @@ function skipWhiteSpace(
 ## Parameters
 
 | Parameter | Type | Default value |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `input` | `string` | `undefined` |
 | `position` | `number` | `undefined` |
 | `endPosition` | `number` | `input.length` |

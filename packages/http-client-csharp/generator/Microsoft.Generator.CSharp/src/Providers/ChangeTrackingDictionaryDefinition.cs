@@ -41,9 +41,9 @@ namespace Microsoft.Generator.CSharp.Providers
             _IReadOnlyDictionary = new CSharpType(typeof(IReadOnlyDictionary<,>), _tKey, _tValue);
             _IEnumerator = new CSharpType(typeof(IEnumerator<>), new CSharpType(typeof(KeyValuePair<,>), _tKey, _tValue));
             _keyValuePair = new CSharpType(typeof(KeyValuePair<,>), _tKey, _tValue);
-            _innerDictionaryField = new FieldProvider(FieldModifiers.Private, new CSharpType(typeof(IDictionary<,>), _tKey, _tValue), "_innerDictionary");
+            _innerDictionaryField = new FieldProvider(FieldModifiers.Private, new CSharpType(typeof(IDictionary<,>), _tKey, _tValue), "_innerDictionary", this);
             _innerDictionary = _innerDictionaryField.AsDictionary(_tKey, _tValue);
-            _ensureDictionarySignature = new MethodSignature("EnsureDictionary", null, MethodSignatureModifiers.Public, _IDictionary, null, Array.Empty<ParameterProvider>());
+            _ensureDictionarySignature = new MethodSignature("EnsureDictionary", null, MethodSignatureModifiers.Public, _IDictionary, null, []);
             EnsureDictionary = new(This.Invoke(_ensureDictionarySignature));
         }
 
@@ -141,6 +141,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return new PropertyProvider(null, MethodSignatureModifiers.None, new CSharpType(typeof(IEnumerable<>), _tValue), "Values", new ExpressionPropertyBody(
                 new MemberExpression(This, "Values")),
+                this,
                 _IReadOnlyDictionary);
         }
 
@@ -148,13 +149,13 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return new PropertyProvider(null, MethodSignatureModifiers.None, new CSharpType(typeof(IEnumerable<>), _tKey), "Keys", new ExpressionPropertyBody(
                 new MemberExpression(This, "Keys")),
+                this,
                 _IReadOnlyDictionary);
         }
 
         private PropertyProvider BuildIndexer()
         {
-            var indexParam = new ParameterProvider("key", $"The key.", _tKey);
-            return new IndexPropertyProvider(null, MethodSignatureModifiers.Public, _tValue, indexParam, new MethodPropertyBody(
+            return new IndexPropertyProvider(null, MethodSignatureModifiers.Public, _tValue, _indexParam, new MethodPropertyBody(
                 new MethodBodyStatement[]
                 {
                     new IfStatement(IsUndefined)
@@ -166,7 +167,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 new MethodBodyStatement[]
                 {
                     EnsureDictionary[_indexParam].Assign(Value).Terminate()
-                }));
+                }),
+                this);
         }
 
         private PropertyProvider BuildValues()
@@ -175,7 +177,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 new ExpressionPropertyBody(new TernaryConditionalExpression(
                     IsUndefined,
                     Static(typeof(Array)).Invoke("Empty", [], [_tValue], false),
-                    new MemberExpression(EnsureDictionary, "Values"))));
+                    new MemberExpression(EnsureDictionary, "Values"))),
+                this);
         }
 
         private PropertyProvider BuildKeys()
@@ -184,7 +187,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 new ExpressionPropertyBody(new TernaryConditionalExpression(
                     IsUndefined,
                     Static(typeof(Array)).Invoke("Empty", [], [_tKey], false),
-                    new MemberExpression(EnsureDictionary, "Keys"))));
+                    new MemberExpression(EnsureDictionary, "Keys"))),
+                this);
         }
 
         private PropertyProvider BuildIsReadOnly()
@@ -193,7 +197,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 new ExpressionPropertyBody(new TernaryConditionalExpression(
                     IsUndefined,
                     False,
-                    new MemberExpression(EnsureDictionary, "IsReadOnly"))));
+                    new MemberExpression(EnsureDictionary, "IsReadOnly"))),
+                this);
         }
 
         private PropertyProvider BuildCount()
@@ -202,12 +207,13 @@ namespace Microsoft.Generator.CSharp.Providers
                 new ExpressionPropertyBody(new TernaryConditionalExpression(
                     IsUndefined,
                     Literal(0),
-                    new MemberExpression(EnsureDictionary, "Count"))));
+                    new MemberExpression(EnsureDictionary, "Count"))),
+                this);
         }
 
         private PropertyProvider BuildIsUndefined()
         {
-            return new PropertyProvider(null, MethodSignatureModifiers.Public, typeof(bool), "IsUndefined", new ExpressionPropertyBody(_innerDictionary.Equal(Null)));
+            return new PropertyProvider(null, MethodSignatureModifiers.Public, typeof(bool), "IsUndefined", new ExpressionPropertyBody(_innerDictionary.Equal(Null)), this);
         }
 
         private MethodSignature GetSignature(

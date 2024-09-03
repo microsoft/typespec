@@ -6,7 +6,7 @@ title: "[I] ResolvedOpenAPI3EmitterOptions"
 ## Properties
 
 | Property | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `fileType` | `FileType` |
 | `includeXTypeSpecName` | `"never"` \| `"inline-only"` |
 | `newLine` | `NewLine` |

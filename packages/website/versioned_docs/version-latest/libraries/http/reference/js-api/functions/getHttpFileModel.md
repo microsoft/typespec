@@ -10,7 +10,7 @@ function getHttpFileModel(program, type): HttpFileModel | undefined
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `type` | `Type` |
 

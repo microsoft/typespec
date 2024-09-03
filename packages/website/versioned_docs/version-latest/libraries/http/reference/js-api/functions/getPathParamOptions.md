@@ -10,7 +10,7 @@ function getPathParamOptions(program, entity): PathParameterOptions
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `entity` | `Type` |
 

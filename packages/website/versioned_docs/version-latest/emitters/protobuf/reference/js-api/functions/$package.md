@@ -15,7 +15,7 @@ Declare a Protobuf package.
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `context` | `DecoratorContext` | - |
 | `target` | `Namespace` | target decorator namespace |
 | `details`? | `Type` | - |

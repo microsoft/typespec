@@ -17,7 +17,7 @@ designate a read-only property.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `property` | `ModelProperty` |
 

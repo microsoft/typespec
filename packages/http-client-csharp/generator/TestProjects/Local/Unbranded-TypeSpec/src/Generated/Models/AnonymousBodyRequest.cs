@@ -13,23 +13,34 @@ namespace UnbrandedTypeSpec.Models
     /// <summary> The AnonymousBodyRequest. </summary>
     public partial class AnonymousBodyRequest
     {
-        /// <summary> Initializes a new instance of <see cref="AnonymousBodyRequest"/>. </summary>
-        /// <param name="name"> name of the Thing. </param>
-        /// <param name="requiredUnion"> required Union. </param>
-        /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
-        /// <param name="requiredNullableList"> required nullable collection. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/> or <paramref name="requiredBadDescription"/> is null. </exception>
-        public AnonymousBodyRequest(string name, BinaryData requiredUnion, string requiredBadDescription, IEnumerable<int> requiredNullableList)
-        {
-            Argument.AssertNotNull(name, nameof(name));
-            Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
-            Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
+        /// <summary> Keeps track of any properties unknown to the library. </summary>
+        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
+        internal AnonymousBodyRequest(string name, BinaryData requiredUnion, string requiredBadDescription, IEnumerable<int> requiredNullableList)
+        {
             Name = name;
             RequiredUnion = requiredUnion;
             RequiredBadDescription = requiredBadDescription;
             OptionalNullableList = new ChangeTrackingList<int>();
             RequiredNullableList = requiredNullableList?.ToList();
+        }
+
+        internal AnonymousBodyRequest(string name, BinaryData requiredUnion, AnonymousBodyRequestRequiredLiteralString requiredLiteralString, AnonymousBodyRequestRequiredLiteralInt requiredLiteralInt, AnonymousBodyRequestRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, AnonymousBodyRequestOptionalLiteralString? optionalLiteralString, AnonymousBodyRequestOptionalLiteralInt? optionalLiteralInt, AnonymousBodyRequestOptionalLiteralFloat? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        {
+            Name = name;
+            RequiredUnion = requiredUnion;
+            RequiredLiteralString = requiredLiteralString;
+            RequiredLiteralInt = requiredLiteralInt;
+            RequiredLiteralFloat = requiredLiteralFloat;
+            RequiredLiteralBool = requiredLiteralBool;
+            OptionalLiteralString = optionalLiteralString;
+            OptionalLiteralInt = optionalLiteralInt;
+            OptionalLiteralFloat = optionalLiteralFloat;
+            OptionalLiteralBool = optionalLiteralBool;
+            RequiredBadDescription = requiredBadDescription;
+            OptionalNullableList = optionalNullableList;
+            RequiredNullableList = requiredNullableList;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
         /// <summary> name of the Thing. </summary>

@@ -17,7 +17,7 @@ Configure the server url for the service.
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `context` | `DecoratorContext` | Decorator context |
 | `target` | `Namespace` | Decorator target (must be a namespace) |
 | `url` | `string` | - |

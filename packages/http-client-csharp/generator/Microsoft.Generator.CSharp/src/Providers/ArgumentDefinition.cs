@@ -159,7 +159,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private MethodProvider BuildAssertNotDefault()
         {
             var value = new ParameterProvider("value", $"The value.", _t);
-            var valueParamWithRef = new ParameterProvider("value", $"The value.", _t, null, true);
+            var valueParamWithRef = value.WithRef(); ;
             var whereExpressions = new WhereExpression[] { Where.Struct(_t).And(new CSharpType(typeof(IEquatable<>), _t)) };
             var signature = GetSignature("AssertNotDefault", [valueParamWithRef, _nameParam], [_t], whereExpressions);
             return new MethodProvider(signature, new MethodBodyStatement[]

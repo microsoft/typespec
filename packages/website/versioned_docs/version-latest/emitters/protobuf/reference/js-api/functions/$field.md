@@ -15,7 +15,7 @@ Decorate a model property with a field index. Field indices are required for all
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `context` | `DecoratorContext` | - |
 | `target` | `ModelProperty` |  |
 | `index` | `number` | - |

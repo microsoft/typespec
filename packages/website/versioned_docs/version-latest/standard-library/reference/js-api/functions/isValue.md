@@ -10,7 +10,7 @@ function isValue(entity): entity is Value
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `entity` | [`Entity`](../type-aliases/Entity.md) |
 
 ## Returns

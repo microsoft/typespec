@@ -71,6 +71,24 @@ namespace Microsoft.Generator.CSharp.Input
             return true;
         }
 
+        public static bool TryReadInt32(this ref Utf8JsonReader reader, string propertyName, ref int value)
+        {
+            if (reader.TokenType != JsonTokenType.PropertyName)
+            {
+                throw new JsonException();
+            }
+
+            if (reader.GetString() != propertyName)
+            {
+                return false;
+            }
+
+            reader.Read();
+            value = reader.GetInt32();
+            reader.Read();
+            return true;
+        }
+
         public static bool TryReadString(this ref Utf8JsonReader reader, string propertyName, ref string? value)
         {
             if (reader.TokenType != JsonTokenType.PropertyName)
@@ -212,6 +230,29 @@ namespace Microsoft.Generator.CSharp.Input
             }
 
             return result;
+        }
+
+        public static bool TryReadStringBinaryDataDictionary(this ref Utf8JsonReader reader, string propertyName, ref IReadOnlyDictionary<string, BinaryData>? value)
+        {
+            if (reader.TokenType != JsonTokenType.PropertyName)
+            {
+                throw new JsonException();
+            }
+
+            if (reader.GetString() != propertyName)
+            {
+                return false;
+            }
+
+            reader.Read();
+            using var document = JsonDocument.ParseValue(ref reader);
+            var result = new Dictionary<string, BinaryData>();
+            foreach (JsonProperty property in document.RootElement.EnumerateObject())
+            {
+                result.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));
+            }
+            value = result;
+            return true;
         }
 
         public static void SkipProperty(this ref Utf8JsonReader reader)

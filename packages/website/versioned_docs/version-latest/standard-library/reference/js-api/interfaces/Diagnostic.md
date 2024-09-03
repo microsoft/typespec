@@ -6,7 +6,7 @@ title: "[I] Diagnostic"
 ## Properties
 
 | Property | Modifier | Type |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `code` | `public` | `string` |
 | `codefixes?` | `readonly` | readonly [`CodeFix`](CodeFix.md)[] |
 | `message` | `public` | `string` |

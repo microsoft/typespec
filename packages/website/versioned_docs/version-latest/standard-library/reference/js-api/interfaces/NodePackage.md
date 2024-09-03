@@ -8,7 +8,7 @@ Type for package.json https://docs.npmjs.com/cli/v8/configuring-npm/package-json
 ## Properties
 
 | Property | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `bugs?` | `object` |
 | `bugs.email?` | `string` |
 | `bugs.url?` | `string` |

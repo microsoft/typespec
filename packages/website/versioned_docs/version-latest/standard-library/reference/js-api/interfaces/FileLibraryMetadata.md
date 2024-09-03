@@ -10,7 +10,7 @@ title: "[I] FileLibraryMetadata"
 ## Properties
 
 | Property | Type | Description | Inherited from |
-| :------ | :------ | :------ | :------ |
+| ------ | ------ | ------ | ------ |
 | `bugs?` | `object` | - | `LibraryMetadataBase.bugs` |
 | `bugs.url?` | `string` | Url where to file bugs for this library. | - |
 | `homepage?` | `string` | Library homepage. | `LibraryMetadataBase.homepage` |

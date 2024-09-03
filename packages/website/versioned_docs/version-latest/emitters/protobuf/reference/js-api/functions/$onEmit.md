@@ -12,7 +12,7 @@ Emitter main function.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `ctx` | `EmitContext`<`ProtobufEmitterOptions`\> |
 
 ## Returns

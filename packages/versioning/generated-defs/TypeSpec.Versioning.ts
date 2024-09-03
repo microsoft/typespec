@@ -225,3 +225,15 @@ export type ReturnTypeChangedFromDecorator = (
   version: EnumMember,
   oldType: Type
 ) => void;
+
+export type TypeSpecVersioningDecorators = {
+  versioned: VersionedDecorator;
+  useDependency: UseDependencyDecorator;
+  added: AddedDecorator;
+  removed: RemovedDecorator;
+  renamedFrom: RenamedFromDecorator;
+  madeOptional: MadeOptionalDecorator;
+  madeRequired: MadeRequiredDecorator;
+  typeChangedFrom: TypeChangedFromDecorator;
+  returnTypeChangedFrom: ReturnTypeChangedFromDecorator;
+};

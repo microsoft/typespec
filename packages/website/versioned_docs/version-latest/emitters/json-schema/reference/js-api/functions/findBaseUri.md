@@ -10,7 +10,7 @@ function findBaseUri(program, target): string | undefined
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `target` | `Namespace` \| [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md) |
 

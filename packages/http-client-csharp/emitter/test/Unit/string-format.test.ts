@@ -1,14 +1,11 @@
 import { TestHost } from "@typespec/compiler/testing";
-import { getAllHttpServices } from "@typespec/http";
-import assert, { deepStrictEqual } from "assert";
+import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { loadOperation } from "../../src/lib/operation.js";
-import { InputEnumType, InputModelType, InputPrimitiveType } from "../../src/type/input-type.js";
+import { createModel } from "../../src/lib/client-model-builder.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
   createNetSdkContext,
-  navigateModels,
   typeSpecCompile,
 } from "./utils/test-util.js";
 
@@ -27,26 +24,10 @@ describe("Test string format", () => {
       runner
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
-    const [services] = getAllHttpServices(program);
-    const modelMap = new Map<string, InputModelType>();
-    const enumMap = new Map<string, InputEnumType>();
-    const operation = loadOperation(
-      sdkContext,
-      services[0].operations[0],
-      "",
-      [],
-      services[0].namespace,
-      modelMap,
-      enumMap
-    );
-    deepStrictEqual(
-      {
-        Kind: "url",
-        Encode: undefined,
-      } as InputPrimitiveType,
-      operation.Parameters[0].Type
-    );
+    const sdkContext = await createNetSdkContext(context);
+    const root = createModel(sdkContext);
+    const type = root.Clients[0].Operations[0].Parameters[1].Type;
+    strictEqual(type.Kind, "url");
   });
 
   it("scalar url as model property", async () => {
@@ -57,23 +38,18 @@ describe("Test string format", () => {
                 @doc("The source url.")
                 source: url;
             }
+
+            op test(@body foo: Foo): void;
       `,
       runner
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
-    const [services] = getAllHttpServices(program);
-    const modelMap = new Map<string, InputModelType>();
-    const enumMap = new Map<string, InputEnumType>();
-    navigateModels(sdkContext, services[0].namespace, modelMap, enumMap);
-    const foo = modelMap.get("Foo");
-    assert(foo !== undefined);
-    deepStrictEqual(
-      {
-        Kind: "url",
-        Encode: undefined,
-      } as InputPrimitiveType,
-      foo.Properties[0].Type
-    );
+    const sdkContext = await createNetSdkContext(context);
+    const codeModel = createModel(sdkContext);
+    const models = codeModel.Models;
+    const foo = models.find((m) => m.Name === "Foo");
+    ok(foo);
+    const type = foo?.Properties[0].Type;
+    strictEqual(type.Kind, "url");
   });
 });

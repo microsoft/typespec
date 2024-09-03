@@ -16,7 +16,7 @@ Read a utf-8 encoded file.
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 
 #### Returns
@@ -36,7 +36,7 @@ Resolve the real path for the current host.
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 
 #### Returns
@@ -56,14 +56,14 @@ Get information about the given path
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 
 #### Returns
 
 `Promise`<`object`\>
 
-| Member | Type |
-| :------ | :------ |
+| Name | Type |
+| ------ | ------ |
 | `isDirectory` | `boolean` |
 | `isFile` | `boolean` |

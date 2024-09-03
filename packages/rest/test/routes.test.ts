@@ -2,7 +2,7 @@ import { ModelProperty, Operation } from "@typespec/compiler";
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { isSharedRoute } from "@typespec/http";
 import { deepStrictEqual, strictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   compileOperations,
   createRestTestRunner,
@@ -519,5 +519,31 @@ describe("rest: routes", () => {
     deepStrictEqual(routes, [
       { verb: "get", path: "/params/{custom-name}", params: ["custom-name"] },
     ]);
+  });
+});
+
+describe("uri template", () => {
+  async function getOp(code: string) {
+    const ops = await getOperations(code);
+    return ops[0];
+  }
+
+  describe("build uriTemplate from parameter", () => {
+    it.each([
+      ["@path one: string", "/foo/{one}"],
+      ["@path(#{allowReserved: true}) one: string", "/foo/{+one}"],
+      ["@path(#{explode: true}) one: string", "/foo/{one*}"],
+      [`@path(#{style: "matrix"}) one: string`, "/foo/{;one}"],
+      [`@path(#{style: "label"}) one: string`, "/foo/{.one}"],
+      [`@path(#{style: "fragment"}) one: string`, "/foo/{#one}"],
+      [`@path(#{style: "path"}) one: string`, "/foo/{/one}"],
+      ["@path(#{allowReserved: true, explode: true}) one: string", "/foo/{+one*}"],
+      ["@query one: string", "/foo{?one}"],
+      // cspell:ignore Atwo
+      [`@query("one:two") one: string`, "/foo{?one%3Atwo}"],
+    ])("%s -> %s", async (param, expectedUri) => {
+      const op = await getOp(`@route("/foo") interface Test {@autoRoute op foo(${param}): void;}`);
+      expect(op.uriTemplate).toEqual(expectedUri);
+    });
   });
 });

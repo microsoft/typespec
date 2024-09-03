@@ -8,7 +8,7 @@ title: "[I] Numeric"
 ## Properties
 
 | Property | Modifier | Type |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `isInteger` | `readonly` | `boolean` |
 
 ## Methods
@@ -48,7 +48,7 @@ equals(value): boolean
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `value` | [`Numeric`](Numeric.md) |
 
 #### Returns
@@ -66,7 +66,7 @@ gt(value): boolean
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `value` | [`Numeric`](Numeric.md) |
 
 #### Returns
@@ -84,7 +84,7 @@ gte(value): boolean
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `value` | [`Numeric`](Numeric.md) |
 
 #### Returns
@@ -102,7 +102,7 @@ lt(value): boolean
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `value` | [`Numeric`](Numeric.md) |
 
 #### Returns
@@ -120,7 +120,7 @@ lte(value): boolean
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `value` | [`Numeric`](Numeric.md) |
 
 #### Returns

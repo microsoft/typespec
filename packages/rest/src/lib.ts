@@ -1,6 +1,6 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
-const libDefinition = {
+export const $lib = createTypeSpecLibrary({
   name: "@typespec/rest",
   diagnostics: {
     "not-key-type": {
@@ -46,9 +46,6 @@ const libDefinition = {
       },
     },
   },
-} as const;
+});
 
-const restLib = createTypeSpecLibrary(libDefinition);
-const { reportDiagnostic, createDiagnostic, createStateSymbol } = restLib;
-
-export { createDiagnostic, createStateSymbol, reportDiagnostic, restLib };
+export const { reportDiagnostic, createDiagnostic, createStateSymbol } = $lib;

@@ -12,7 +12,7 @@ Determines whether a path starts with a URL scheme (e.g. starts with `http://`, 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 
 ## Returns

@@ -7,7 +7,7 @@ title: Operations
 
 Operations are essentially service endpoints, characterized by an operation name, parameters, and a return type.
 
-You can declare operations using the `op` keyword:
+You can declare operations using the `op` keyword. Its name must be an [`identifier`](./identifiers.md).
 
 ```typespec
 op ping(): void;

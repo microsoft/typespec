@@ -13,7 +13,7 @@ function $resourceTypeForKeyParam(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `entity` | `Type` |
 | `resourceType` | `Type` |

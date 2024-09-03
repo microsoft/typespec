@@ -4,7 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Providers;
 using NUnit.Framework;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
@@ -19,7 +22,7 @@ namespace Microsoft.Generator.CSharp.Tests
             string? unknownStringProperty = "unknownPropertyValue";
             bool? unknownBoolProp = false;
 
-            var configuration = Configuration.Load(MockHelpers.MocksFolder);
+            var configuration = Configuration.Load(MockHelpers.TestHelpersFolder);
 
             var parsedNs = configuration.RootNamespace;
 
@@ -41,7 +44,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void TestInitialize_NoFileFound()
         {
-            var configFilePath = Path.Combine(MockHelpers.MocksFolder, "unknown_file.out");
+            var configFilePath = Path.Combine(MockHelpers.TestHelpersFolder, "unknown_file.out");
             Assert.Throws<InvalidOperationException>(() => Configuration.Load(configFilePath));
         }
 
@@ -50,7 +53,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TestParseConfig_OutputFolder(string mockJson, bool throwsError)
         {
 
-            var expected = Path.GetFullPath(MockHelpers.MocksFolder);
+            var expected = Path.GetFullPath(MockHelpers.TestHelpersFolder);
 
             if (throwsError)
             {
@@ -58,7 +61,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 return;
             }
 
-            var configuration = Configuration.Load(MockHelpers.MocksFolder, mockJson);
+            var configuration = Configuration.Load(MockHelpers.TestHelpersFolder, mockJson);
 
             Assert.AreEqual(expected, configuration.OutputDirectory);
         }
@@ -67,15 +70,13 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCaseSource("ParseConfigLibraryNameTestCases")]
         public void TestParseConfig_LibraryName(string mockJson, bool throwsError)
         {
-
             if (throwsError)
             {
-                Assert.Throws<InvalidOperationException>(() => Configuration.Load(string.Empty, mockJson));
+                Assert.Throws<InvalidOperationException>(() => MockHelpers.LoadMockPlugin(configuration: mockJson));
                 return;
             }
 
-            var configuration = Configuration.Load(string.Empty, mockJson);
-            var library = configuration.LibraryName;
+            var library = CodeModelPlugin.Instance.Configuration.LibraryName;
             var expected = "libraryName";
 
             Assert.AreEqual(expected, library);
@@ -87,12 +88,11 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             if (throwsError)
             {
-                Assert.Throws<InvalidOperationException>(() => Configuration.Load(string.Empty, mockJson));
+                Assert.Throws<InvalidOperationException>(() => MockHelpers.LoadMockPlugin(configuration: mockJson));
                 return;
             }
 
-            var configuration = Configuration.Load(string.Empty, mockJson);
-            var ns = configuration.RootNamespace;
+            var ns = CodeModelPlugin.Instance.Configuration.RootNamespace;
             var expected = "namespace";
 
             Assert.AreEqual(expected, ns);
@@ -102,8 +102,8 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCaseSource("ParseConfigUseModelNamespaceTestCases")]
         public void TestParseConfig_UseModelNamespace(string mockJson, bool expected)
         {
-            var configuration = Configuration.Load(string.Empty, mockJson);
-            var useModelNs = configuration.UseModelNamespace;
+            MockHelpers.LoadMockPlugin(configuration: mockJson);
+            var useModelNs = CodeModelPlugin.Instance.Configuration.UseModelNamespace;
 
             Assert.AreEqual(expected, useModelNs);
         }
@@ -120,9 +120,9 @@ namespace Microsoft.Generator.CSharp.Tests
                 ""unknown-bool-property"": true
                 }";
 
-            var configuration = Configuration.Load(string.Empty, mockJson);
+            MockHelpers.LoadMockPlugin(configuration: mockJson);
 
-            var additionalConfigOptions = configuration.AdditionalConfigOptions;
+            var additionalConfigOptions = CodeModelPlugin.Instance.Configuration.AdditionalConfigOptions;
             Assert.IsNotNull(additionalConfigOptions);
             Assert.IsTrue(additionalConfigOptions!.ContainsKey("unknown-string-property"));
             Assert.IsTrue(additionalConfigOptions.ContainsKey("unknown-bool-property"));
@@ -132,6 +132,91 @@ namespace Microsoft.Generator.CSharp.Tests
 
             bool unknownBoolValue = additionalConfigOptions["unknown-bool-property"].ToObjectFromJson<bool>();
             Assert.AreEqual(true, unknownBoolValue);
+        }
+
+        [Test]
+        public void DisableDocsForProperty()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""library-name"": ""libraryName"",
+                ""namespace"": ""namespace"",
+                ""disable-xml-docs"": true
+                }";
+
+            MockHelpers.LoadMockPlugin(configuration: mockJson);
+
+            Assert.IsTrue(CodeModelPlugin.Instance.Configuration.DisableXmlDocs);
+
+            PropertyProvider property = new($"IntProperty description", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), new TestTypeProvider());
+            using var writer = new CodeWriter();
+            writer.WriteProperty(property, true);
+            Assert.AreEqual("public int IntProperty { get; set; }\n", writer.ToString(false));
+        }
+
+        [Test]
+        public void DisableDocsForMethod()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""library-name"": ""libraryName"",
+                ""namespace"": ""namespace"",
+                ""disable-xml-docs"": true
+                }";
+
+            MockHelpers.LoadMockPlugin(configuration: mockJson);
+
+            Assert.IsTrue(CodeModelPlugin.Instance.Configuration.DisableXmlDocs);
+            MethodProvider method = new(
+                new MethodSignature(
+                    "Method",
+                    $"Method Description",
+                    MethodSignatureModifiers.Public,
+                    null,
+                    null,
+                    []),
+                ThrowExpression(Null),
+                new TestTypeProvider());
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual("public void Method() => throw null;\n", writer.ToString(false));
+        }
+
+        [Test]
+        public void DisableDocsForType()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""library-name"": ""libraryName"",
+                ""namespace"": ""Test"",
+                ""disable-xml-docs"": true
+                }";
+
+            MockHelpers.LoadMockPlugin(configuration: mockJson);
+
+            Assert.IsTrue(CodeModelPlugin.Instance.Configuration.DisableXmlDocs);
+            TypeProvider type = new TestTypeProvider();
+            TypeProviderWriter writer = new(type);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.Write().Content);
+        }
+
+        [Test]
+        public void DisableDocsForField()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""library-name"": ""libraryName"",
+                ""namespace"": ""namespace"",
+                ""disable-xml-docs"": true
+                }";
+
+            MockHelpers.LoadMockPlugin(configuration: mockJson);
+
+            Assert.IsTrue(CodeModelPlugin.Instance.Configuration.DisableXmlDocs);
+            FieldProvider field = new(FieldModifiers.Public, typeof(int), "_field", new TestTypeProvider(), $"Field Description");
+            using var writer = new CodeWriter();
+            writer.WriteField(field);
+            Assert.AreEqual("public int _field;\n", writer.ToString(false));
         }
 
         public static IEnumerable<TestCaseData> ParseConfigOutputFolderTestCases

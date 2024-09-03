@@ -1,12 +1,13 @@
 import { resolve } from "path";
 import { stringify } from "yaml";
-import { CheckOptions, syncFile } from "../common.js";
+import { CheckOptions, syncFile } from "../utils/common.js";
+import { expandFolder } from "../utils/find-area-changed.js";
 import {
   PolicyServiceConfig,
   and,
   eventResponderTask,
-  filesMatchPattern,
   hasLabel,
+  includesModifiedFiles,
   isAction,
   labelAdded,
   labelRemoved,
@@ -109,19 +110,18 @@ function createPrTriageConfig(config: RepoConfig): PolicyServiceConfig {
         eventResponderTasks: [
           eventResponderTask({
             if: [payloadType("Pull_Request")],
-            then: Object.entries(config.areaPaths).flatMap(([label, files]) => {
-              return files.map((file) => {
-                return {
-                  if: [filesMatchPattern(`${file}.*`)],
-                  then: [
-                    {
-                      addLabel: {
-                        label,
-                      },
+            then: Object.entries(config.areaPaths).map(([label, files]) => {
+              const globs = files.map(expandFolder);
+              return {
+                if: [includesModifiedFiles(globs)],
+                then: [
+                  {
+                    addLabel: {
+                      label,
                     },
-                  ],
-                };
-              });
+                  },
+                ],
+              };
             }),
           }),
         ],

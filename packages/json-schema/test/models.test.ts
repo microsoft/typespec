@@ -93,7 +93,7 @@ describe("emitting models", () => {
 
   it("handles extensions", async () => {
     const { "Foo.json": Foo } = await emitSchema(`
-      @extension("x-hi", "bye")
+      @extension("x-hi", typeof "bye")
       model Foo {
         @extension("x-hi", Json<"hello">)
         b: string;

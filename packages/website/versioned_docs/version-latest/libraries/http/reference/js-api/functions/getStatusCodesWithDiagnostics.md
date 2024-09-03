@@ -10,7 +10,7 @@ function getStatusCodesWithDiagnostics(program, type): [HttpStatusCodes, readonl
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `type` | `ModelProperty` |
 

@@ -1,5 +1,5 @@
 import { TestHost } from "@typespec/compiler/testing";
-import { deepStrictEqual } from "assert";
+import { strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
@@ -26,15 +26,14 @@ describe("Test GetInputType for scalar", () => {
     );
     runner.compileAndDiagnose;
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
-    deepStrictEqual(root.Clients[0].Operations[0].Parameters[0].Type.Kind, "azureLocation");
-    deepStrictEqual(
-      {
-        Kind: "azureLocation",
-        Encode: "string",
-      },
-      root.Clients[0].Operations[0].Parameters[0].Type
-    );
+    const type = root.Clients[0].Operations[0].Parameters[1].Type;
+    strictEqual(type.Kind, "string");
+    strictEqual(type.Name, "azureLocation");
+    strictEqual(type.CrossLanguageDefinitionId, "Azure.Core.azureLocation");
+    strictEqual(type.BaseType?.Kind, "string");
+    strictEqual(type.BaseType.Name, "string");
+    strictEqual(type.BaseType.CrossLanguageDefinitionId, "TypeSpec.string");
   });
 });

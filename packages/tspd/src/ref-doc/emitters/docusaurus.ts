@@ -1,4 +1,5 @@
 import {
+  DeprecationNotice,
   NamedTypeRefDoc,
   RefDocEntity,
   TypeSpecLibraryRefDoc,
@@ -301,5 +302,9 @@ export class DocusaurusRenderer extends MarkdownRenderer {
     } else {
       return url;
     }
+  }
+
+  deprecationNotice(notice: DeprecationNotice): MarkdownDoc {
+    return [":::warning", `**Deprecated**: ${notice.message}`, ":::"];
   }
 }

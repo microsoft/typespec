@@ -13,7 +13,7 @@ function $baseUri(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Namespace` |
 | `baseUri` | `string` |

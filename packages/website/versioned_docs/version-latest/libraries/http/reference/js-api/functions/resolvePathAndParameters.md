@@ -14,7 +14,7 @@ options): DiagnosticResult<object>
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `operation` | `Operation` |
 | `overloadBase` | `undefined` \| [`HttpOperation`](../interfaces/HttpOperation.md) |
@@ -24,8 +24,8 @@ options): DiagnosticResult<object>
 
 `DiagnosticResult`<`object`\>
 
-| Member | Type |
-| :------ | :------ |
+| Name | Type |
+| ------ | ------ |
 | `parameters` | [`HttpOperationParameters`](../interfaces/HttpOperationParameters.md) |
 | `path` | `string` |
-| `pathSegments` | `string`[] |
+| `uriTemplate` | `string` |

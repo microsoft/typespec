@@ -33,7 +33,21 @@ namespace Microsoft.Generator.CSharp.Input
             id = id ?? throw new JsonException();
 
             // create an empty model to resolve circular references
-            var model = new InputModelType(name!, null!, null, null, null, InputModelTypeUsage.None, null!, null, null!, null, null, null!, null, false);
+            var model = new InputModelType(
+                name: name!,
+                crossLanguageDefinitionId: null!,
+                access: null,
+                deprecation: null,
+                description: null,
+                usage: InputModelTypeUsage.None,
+                properties: [],
+                baseModel: null,
+                derivedModels: [],
+                discriminatorValue: null,
+                discriminatorProperty: null,
+                discriminatedSubtypes: null!,
+                additionalProperties: null,
+                modelAsStruct: false);
             resolver.AddReference(id, model);
 
             string? crossLanguageDefinitionId = null;
@@ -48,6 +62,7 @@ namespace Microsoft.Generator.CSharp.Input
             IReadOnlyList<InputModelProperty>? properties = null;
             IReadOnlyDictionary<string, InputModelType>? discriminatedSubtypes = null;
             bool modelAsStruct = false;
+            IReadOnlyList<InputDecoratorInfo>? decorators = null;
 
             // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)
@@ -64,7 +79,8 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadWithConverter(nameof(InputModelType.BaseModel), options, ref baseModel)
                     || reader.TryReadWithConverter(nameof(InputModelType.Properties), options, ref properties)
                     || reader.TryReadWithConverter(nameof(InputModelType.DiscriminatedSubtypes), options, ref discriminatedSubtypes)
-                    || reader.TryReadBoolean(nameof(InputModelType.ModelAsStruct), ref modelAsStruct);
+                    || reader.TryReadBoolean(nameof(InputModelType.ModelAsStruct), ref modelAsStruct)
+                    || reader.TryReadWithConverter(nameof(InputModelType.Decorators), options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -85,14 +101,24 @@ namespace Microsoft.Generator.CSharp.Input
             model.DiscriminatorProperty = discriminatorProperty;
             model.AdditionalProperties = additionalProperties;
             model.BaseModel = baseModel;
-            model.Properties = properties ?? Array.Empty<InputModelProperty>();
-            model.DiscriminatedSubtypes = discriminatedSubtypes ?? new Dictionary<string, InputModelType>();
+            if (properties != null)
+            {
+                model.Properties = properties;
+            }
+            if (discriminatedSubtypes != null)
+            {
+                model.DiscriminatedSubtypes = discriminatedSubtypes;
+            }
             model.ModelAsStruct = modelAsStruct;
+            if (decorators != null)
+            {
+                model.Decorators = decorators;
+            }
 
             // if this model has a base, it means this model is a derived model of the base model, add it into the list.
             if (baseModel != null)
             {
-                ((List<InputModelType>)baseModel.DerivedModels).Add(model);
+                baseModel.AddDerivedModel(model);
             }
 
             return model;

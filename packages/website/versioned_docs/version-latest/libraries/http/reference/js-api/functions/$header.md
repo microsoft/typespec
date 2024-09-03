@@ -13,7 +13,7 @@ function $header(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `ModelProperty` |
 | `headerNameOrOptions`? | `Type` |

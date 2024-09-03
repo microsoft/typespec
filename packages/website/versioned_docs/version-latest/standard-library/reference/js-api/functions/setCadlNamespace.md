@@ -9,10 +9,10 @@ function setCadlNamespace(namespace, ...functions): void
 
 ## Parameters
 
-| Parameter | Type |
-| :------ | :------ |
-| `namespace` | `string` |
-| ...`functions` | (...`args`) => `any`[] |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `namespace` | `string` | Namespace string (e.g. "Foo.Bar") |
+| ...`functions` | (...`args`) => `any`[] | Functions |
 
 ## Returns
 

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 
@@ -58,8 +57,7 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public ScopedApi<bool> InvokeEquals(ValueExpression other) => Invoke(nameof(Equals), other).As<bool>();
 
-        public ValueExpression Property(string propertyName, bool nullConditional = false)
-            => new MemberExpression(nullConditional ? new NullConditionalExpression(this) : this, propertyName);
+        public ValueExpression Property(string propertyName) => new MemberExpression(this, propertyName);
 
         public InvokeMethodExpression Invoke(string methodName)
             => new InvokeMethodExpression(this, methodName, []);
@@ -117,6 +115,12 @@ namespace Microsoft.Generator.CSharp.Expressions
         public UnaryOperatorExpression Increment() => new UnaryOperatorExpression("++", this, true);
 
         public ValueExpression AndExpr(ValueExpression other) => new BinaryOperatorExpression("and", this, other);
+
+        public ValueExpression NullConditional() => new NullConditionalExpression(this);
+
+        public AssignmentExpression Assign(ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(this, value, nullCoalesce);
+
+        public string ToDisplayString() => GetDebuggerDisplay();
 
         private string GetDebuggerDisplay()
         {

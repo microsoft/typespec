@@ -6,7 +6,7 @@ title: "[I] ProjectedNameView"
 ## Properties
 
 | Property | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | [`ProjectedProgram`](ProjectedProgram.md) |
 
 ## Methods
@@ -23,7 +23,7 @@ If there is a projected name it returns that one otherwise return the original n
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `target` | [`Type`](../type-aliases/Type.md) & `object` |
 
 #### Returns

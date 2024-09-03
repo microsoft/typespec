@@ -131,6 +131,24 @@ describe("versioning: validate incompatible references", () => {
       );
     });
 
+    it("emit diagnostic when versioned op has a newer versioned spread parameter", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model MyOptions {
+          prop: string;
+        }
+        
+        @added(Versions.v1)
+        op foo(...MyOptions,): void;
+        `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.foo' was added in version 'v1' but referencing type 'TestService.MyOptions' added in version 'v2'.",
+      });
+    });
+
     // TODO See: https://github.com/microsoft/typespec/issues/2695
     it.skip("emit diagnostic when unversioned op based on a template has a versioned model as a parameter", async () => {
       const diagnostics = await runner.diagnose(`
@@ -412,6 +430,34 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
+    it("succeed when spreading a model that might have add properties added in previous versions", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Base {
+          @added(Versions.v1) name: string;
+        }
+
+        @added(Versions.v2)
+        model Child {
+          ...Base;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("succeed when spreading a model that might have add properties removed after the model", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Base {
+          @removed(Versions.v3) name: string;
+        }
+
+        @removed(Versions.v2)
+        model Child {
+          ...Base;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     it("emit diagnostic when model property was added before model itself", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v3)
@@ -494,6 +540,31 @@ describe("versioning: validate incompatible references", () => {
     });
   });
 
+  describe("operations", () => {
+    it("ok if operation is added before model used in params", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model Foo {}
+
+        @added(Versions.v2)
+        op test(param: Foo): void;
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("emit diagnostic when unversioned parameter type is a versioned model", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model Foo {}
+
+        op test(param: Foo): void;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+      });
+    });
+  });
+
   describe("complex type references", () => {
     it("emit diagnostic when using versioned model as template argument in non versioned property", async () => {
       const diagnostics = await runner.diagnose(`
@@ -535,6 +606,17 @@ describe("versioning: validate incompatible references", () => {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' is referencing versioned type 'TestService.Versioned' but is not versioned itself.",
+      });
+    });
+
+    it("emit diagnostic when using versioned union variant of array in non versioned source", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model Versioned {}
+        op test(): Versioned[] | string;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
       });
     });
 

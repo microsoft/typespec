@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Providers
@@ -17,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         public void BuildPropertyDescription(InputModelProperty inputModelProperty, CSharpType type)
         {
             var propertySummaryStatement = PropertyDescriptionBuilder.BuildPropertyDescription(inputModelProperty, type, SerializationFormat.Default, PropertyDescriptionBuilder.CreateDefaultPropertyDescription(inputModelProperty.Name, false));
-            CodeWriter codeWriter = new CodeWriter();
+            using CodeWriter codeWriter = new CodeWriter();
             propertySummaryStatement.Write(codeWriter);
             string propertyDescription = codeWriter.ToString(false);
             var propertyDescriptionString = string.Join(Environment.NewLine, propertyDescription);
@@ -65,29 +66,17 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             get
             {
                 // list property
-                yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
-                    new CSharpType(typeof(IList<string>)));
+                yield return new TestCaseData(InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String)), new CSharpType(typeof(IList<string>)));
                 // list of binary data property
-                yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", "TypeSpec.Array", new InputPrimitiveType(InputPrimitiveTypeKind.Any)), false, true, false),
-                    new CSharpType(typeof(IReadOnlyList<BinaryData>)));
+                yield return new TestCaseData(InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.Any), isReadOnly: true), new CSharpType(typeof(IReadOnlyList<BinaryData>)));
                 // dictionary property with binary data value
-                yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.Any)), false, false, false),
-                    new CSharpType(typeof(IDictionary<string, BinaryData>)));
+                yield return new TestCaseData(InputFactory.Property("prop1", InputFactory.Dictionary(InputPrimitiveType.Any)), new CSharpType(typeof(IDictionary<string, BinaryData>)));
                 // nullable dictionary property
-                yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
-                    new CSharpType(typeof(IDictionary<string, string>), true));
+                yield return new TestCaseData(InputFactory.Property("prop1", InputFactory.Dictionary(InputPrimitiveType.String)), new CSharpType(typeof(IDictionary<string, string>)));
                 // primitive type property
-                yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputPrimitiveType(InputPrimitiveTypeKind.String), false, false, false),
-                    new CSharpType(typeof(string)));
+                yield return new TestCaseData(InputFactory.Property("prop1", InputPrimitiveType.String), new CSharpType(typeof(string)));
                 // binary data property
-                yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputPrimitiveType(InputPrimitiveTypeKind.Any), false, true, false),
-                    new CSharpType(typeof(BinaryData)));
+                yield return new TestCaseData(InputFactory.Property("prop1", InputPrimitiveType.Any, isReadOnly: true), new CSharpType(typeof(BinaryData)));
             }
         }
     }

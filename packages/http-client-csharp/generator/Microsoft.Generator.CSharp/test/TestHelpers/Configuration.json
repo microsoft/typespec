@@ -1,0 +1,8 @@
+{
+  "output-folder": "./outputFolder",
+  "project-folder": "./projectFolder",
+  "namespace": "Sample",
+  "unknown-bool-property": false,
+  "library-name": "Sample.Namespace",
+  "unknown-string-property": "unknownPropertyValue"
+}

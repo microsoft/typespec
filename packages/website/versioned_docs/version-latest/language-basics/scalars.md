@@ -6,7 +6,7 @@ title: Scalars
 
 Scalars are simple types that don't have any fields. Examples of these include `string`, `int32`, `boolean`, and so on.
 
-You can declare a scalar by using the `scalar` keyword.
+You can declare a scalar by using the `scalar` keyword. Its name must be an [`identifier`](./identifiers.md).
 
 ```typespec
 scalar ternary;

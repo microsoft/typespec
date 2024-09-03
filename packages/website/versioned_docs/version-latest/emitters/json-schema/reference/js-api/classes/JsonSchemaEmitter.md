@@ -7,371 +7,13 @@ title: "[C] JsonSchemaEmitter"
 
 - `TypeEmitter`<`Record`<`string`, `any`\>, [`JSONSchemaEmitterOptions`](../interfaces/JSONSchemaEmitterOptions.md)\>
 
-## Constructors
-
-### new JsonSchemaEmitter()
-
-```ts
-new JsonSchemaEmitter(emitter): JsonSchemaEmitter
-```
-
-Constructs a TypeEmitter. Do not use this constructor directly, instead
-call `createAssetEmitter` on the emitter context object.
-
-#### Parameters
-
-| Parameter | Type | Description |
-| :------ | :------ | :------ |
-| `emitter` | `AssetEmitter`<`Record`<`string`, `any`\>, [`JSONSchemaEmitterOptions`](../interfaces/JSONSchemaEmitterOptions.md)\> | The asset emitter |
-
-#### Returns
-
-[`JsonSchemaEmitter`](JsonSchemaEmitter.md)
-
-#### Inherited from
-
-`TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions>.constructor`
-
 ## Properties
 
-| Property | Modifier | Type | Default value | Inherited from |
-| :------ | :------ | :------ | :------ | :------ |
-| `#idDuplicateTracker` | `private` | `DuplicateTracker`<`string`, `DiagnosticTarget`\> | `...` | - |
-| `#refToDecl` | `private` | `Map`<`string`, `Declaration`<`Record`<`string`, `unknown`\>\>\> | `...` | - |
-| `#typeForSourceFile` | `private` | `Map`<`SourceFile`<`any`\>, [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md)\> | `...` | - |
-| `emitter` | `protected` | `AssetEmitter`<`Record`<`string`, `any`\>, [`JSONSchemaEmitterOptions`](../interfaces/JSONSchemaEmitterOptions.md)\> | `undefined` | `TypeEmitter.emitter` |
+| Property | Modifier | Type | Inherited from |
+| ------ | ------ | ------ | ------ |
+| `emitter` | `protected` | `AssetEmitter`<`Record`<`string`, `any`\>, [`JSONSchemaEmitterOptions`](../interfaces/JSONSchemaEmitterOptions.md)\> | `TypeEmitter.emitter` |
 
 ## Methods
-
-### #applyConstraints()
-
-```ts
-private #applyConstraints(type, schema): void
-```
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `type` |  \| `Enum` \| `Model` \| `ModelProperty` \| `Scalar` \| `Union` \| `UnionVariant` |
-| `schema` | `ObjectBuilder`<`unknown`\> |
-
-#### Returns
-
-`void`
-
-***
-
-### #createDeclaration()
-
-```ts
-private #createDeclaration(
-   type, 
-   name, 
-schema): Declaration<Record<string, any>>
-```
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `type` | [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md) |
-| `name` | `string` |
-| `schema` | `ObjectBuilder`<`unknown`\> |
-
-#### Returns
-
-`Declaration`<`Record`<`string`, `any`\>\>
-
-***
-
-### #fileExtension()
-
-```ts
-private #fileExtension(): "json" | "yaml"
-```
-
-#### Returns
-
-`"json"` \| `"yaml"`
-
-***
-
-### #finalizeSourceFileContent()
-
-```ts
-private #finalizeSourceFileContent(sourceFile): Record<string, any>
-```
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `sourceFile` | `SourceFile`<`object`\> |
-
-#### Returns
-
-`Record`<`string`, `any`\>
-
-***
-
-### #getCurrentSourceFile()
-
-```ts
-private #getCurrentSourceFile(): SourceFile<object>
-```
-
-#### Returns
-
-`SourceFile`<`object`\>
-
-***
-
-### #getDeclId()
-
-```ts
-private #getDeclId(type, name): string
-```
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `type` | [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md) |
-| `name` | `string` |
-
-#### Returns
-
-`string`
-
-***
-
-### #getDefaultValue()
-
-```ts
-private #getDefaultValue(type, defaultType): any
-```
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `type` | `Type` |
-| `defaultType` | `Type` |
-
-#### Returns
-
-`any`
-
-***
-
-### #getRootSchemaProps()
-
-```ts
-private #getRootSchemaProps(type, name): object
-```
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `type` | [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md) |
-| `name` | `string` |
-
-#### Returns
-
-`object`
-
-| Member | Type | Value |
-| :------ | :------ | :------ |
-| `$id` | `string` | ... |
-| `$schema` | `string` | "https://json-schema.org/draft/2020-12/schema" |
-
-***
-
-### #getSchemaForScalar()
-
-```ts
-private #getSchemaForScalar(scalar): object
-```
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `scalar` | `Scalar` |
-
-#### Returns
-
-`object`
-
-***
-
-### #getSchemaForStdScalars()
-
-```ts
-private #getSchemaForStdScalars(baseBuiltIn): object | object | object | object
-```
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `baseBuiltIn` | `Scalar` |
-
-#### Returns
-
-`object` \| `object` \| `object` \| `object`
-
-***
-
-### #initializeSchema()
-
-```ts
-private #initializeSchema(
-   type, 
-   name, 
-props): ObjectBuilder<unknown>
-```
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `type` | [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md) |
-| `name` | `string` |
-| `props` | `Record`<`string`, `unknown`\> |
-
-#### Returns
-
-`ObjectBuilder`<`unknown`\>
-
-***
-
-### #isStdType()
-
-```ts
-private #isStdType(type): boolean
-```
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `type` | `Type` |
-
-#### Returns
-
-`boolean`
-
-***
-
-### #newFileScope()
-
-```ts
-private #newFileScope(type): object
-```
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `type` | [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md) |
-
-#### Returns
-
-`object`
-
-| Member | Type | Value |
-| :------ | :------ | :------ |
-| `scope` | `Scope`<`Record`<`string`, `any`\>\> | sourceFile.globalScope |
-
-***
-
-### #reportDuplicateIds()
-
-```ts
-private #reportDuplicateIds(): void
-```
-
-#### Returns
-
-`void`
-
-***
-
-### #requiredModelProperties()
-
-```ts
-private #requiredModelProperties(model): undefined | string[]
-```
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `model` | `Model` |
-
-#### Returns
-
-`undefined` \| `string`[]
-
-***
-
-### #serializeSourceFileContent()
-
-```ts
-private #serializeSourceFileContent(content): string
-```
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `content` | `Record`<`string`, `any`\> |
-
-#### Returns
-
-`string`
-
-***
-
-### #shouldEmitRootSchema()
-
-```ts
-private #shouldEmitRootSchema(type): boolean
-```
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `type` | [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md) |
-
-#### Returns
-
-`boolean`
-
-***
-
-### #trackId()
-
-```ts
-private #trackId(id, target): string
-```
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `id` | `string` |
-| `target` | `DiagnosticTarget` |
-
-#### Returns
-
-`string`
-
-***
 
 ### arrayDeclaration()
 
@@ -385,7 +27,7 @@ elementType): EmitterOutput<object>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `array` | `Model` |
 | `name` | `string` |
 | `elementType` | `Type` |
@@ -409,7 +51,7 @@ arrayDeclarationContext(array): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `array` | `Model` |
 
 #### Returns
@@ -434,7 +76,7 @@ arrayDeclarationReferenceContext(
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `array` | `Model` |
 | `name` | `string` |
 | `elementType` | `Type` |
@@ -458,7 +100,7 @@ arrayLiteral(array, elementType): EmitterOutput<object>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `array` | `Model` |
 | `elementType` | `Type` |
 
@@ -481,7 +123,7 @@ arrayLiteralContext(array, elementType): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `array` | `Model` |
 | `elementType` | `Type` |
 
@@ -504,7 +146,7 @@ arrayLiteralReferenceContext(array, elementType): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `array` | `Model` |
 | `elementType` | `Type` |
 
@@ -527,7 +169,7 @@ booleanLiteral(boolean): EmitterOutput<object>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `boolean` | `BooleanLiteral` |
 
 #### Returns
@@ -549,7 +191,7 @@ booleanLiteralContext(boolean): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `boolean` | `BooleanLiteral` |
 
 #### Returns
@@ -577,7 +219,7 @@ By default if the target is a declaration it will call to [reference](JsonSchema
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `target` | `EmitEntity`<`Record`<`string`, `any`\>\> | Reference target. |
 | `scope` | `undefined` \| `Scope`<`Record`<`string`, `any`\>\> | Current scope. |
 | `cycle` | `ReferenceCycle` | - |
@@ -603,7 +245,7 @@ declarationName(declarationType): undefined | string
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `declarationType` | `TypeSpecDeclaration` |
 
 #### Returns
@@ -625,7 +267,7 @@ enumDeclaration(en, name): EmitterOutput<object>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `en` | `Enum` |
 | `name` | `string` |
 
@@ -648,7 +290,7 @@ enumDeclarationContext(en): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `en` | `Enum` |
 
 #### Returns
@@ -670,7 +312,7 @@ enumDeclarationReferenceContext(en, name): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `en` | `Enum` |
 | `name` | `string` |
 
@@ -693,7 +335,7 @@ enumMember(member): EmitterOutput<Record<string, any>>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `member` | `EnumMember` |
 
 #### Returns
@@ -715,7 +357,7 @@ enumMemberContext(member): object
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `member` | `EnumMember` |
 
 #### Returns
@@ -734,10 +376,13 @@ enumMemberContext(member): object
 enumMemberReference(member): EmitterOutput<Record<string, any>>
 ```
 
+Emit an enum member reference (e.g. as created by the `SomeEnum.member` syntax
+in TypeSpec). By default, this will emit nothing.
+
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `member` | `EnumMember` |
 
 #### Returns
@@ -759,7 +404,7 @@ enumMembers(en): EmitterOutput<Record<string, any>>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `en` | `Enum` |
 
 #### Returns
@@ -781,7 +426,7 @@ enumMembersContext(en): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `en` | `Enum` |
 
 #### Returns
@@ -803,7 +448,7 @@ interfaceDeclaration(iface, name): EmitterOutput<Record<string, any>>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `iface` | `Interface` |
 | `name` | `string` |
 
@@ -826,7 +471,7 @@ interfaceDeclarationContext(iface, name): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `iface` | `Interface` |
 | `name` | `string` |
 
@@ -849,7 +494,7 @@ interfaceDeclarationOperations(iface): EmitterOutput<Record<string, any>>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `iface` | `Interface` |
 
 #### Returns
@@ -871,7 +516,7 @@ interfaceDeclarationOperationsContext(iface): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `iface` | `Interface` |
 
 #### Returns
@@ -893,7 +538,7 @@ interfaceDeclarationOperationsReferenceContext(iface): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `iface` | `Interface` |
 
 #### Returns
@@ -915,7 +560,7 @@ interfaceDeclarationReferenceContext(iface, name): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `iface` | `Interface` |
 | `name` | `string` |
 
@@ -938,7 +583,7 @@ interfaceOperationDeclaration(operation, name): EmitterOutput<Record<string, any
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `operation` | `Operation` |
 | `name` | `string` |
 
@@ -961,7 +606,7 @@ interfaceOperationDeclarationContext(operation, name): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `operation` | `Operation` |
 | `name` | `string` |
 
@@ -984,7 +629,7 @@ interfaceOperationDeclarationReferenceContext(operation, name): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `operation` | `Operation` |
 | `name` | `string` |
 
@@ -1007,7 +652,7 @@ intrinsic(intrinsic, name): EmitterOutput<object>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `intrinsic` | `IntrinsicType` |
 | `name` | `string` |
 
@@ -1030,7 +675,7 @@ intrinsicContext(intrinsic, name): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `intrinsic` | `IntrinsicType` |
 | `name` | `string` |
 
@@ -1050,12 +695,15 @@ intrinsicContext(intrinsic, name): Context
 modelDeclaration(model, name): EmitterOutput<object>
 ```
 
+Emit a model declaration (e.g. as created by `model Foo { }` syntax in
+TypeSpec).
+
 #### Parameters
 
-| Parameter | Type |
-| :------ | :------ |
-| `model` | `Model` |
-| `name` | `string` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `model` | `Model` |  |
+| `name` | `string` | - |
 
 #### Returns
 
@@ -1073,12 +721,14 @@ modelDeclaration(model, name): EmitterOutput<object>
 modelDeclarationContext(model, name): Context
 ```
 
+Set lexical context for a model declaration.
+
 #### Parameters
 
-| Parameter | Type |
-| :------ | :------ |
-| `model` | `Model` |
-| `name` | `string` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `model` | `Model` |  |
+| `name` | `string` | the model's declaration name as retrieved from the `declarationName` method. |
 
 #### Returns
 
@@ -1101,7 +751,7 @@ Set reference context for a model declaration.
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `model` | `Model` |  |
 | `name` | `string` | - |
 
@@ -1121,12 +771,17 @@ Set reference context for a model declaration.
 modelInstantiation(model, name): EmitterOutput<Record<string, any>>
 ```
 
+Emit a model instantiation (e.g. as created by `Box<string>` syntax in
+TypeSpec). In some cases, `name` is undefined because a good name could
+not be found for the instantiation. This often occurs with for instantiations
+involving type expressions like `Box<string | int32>`.
+
 #### Parameters
 
-| Parameter | Type |
-| :------ | :------ |
-| `model` | `Model` |
-| `name` | `undefined` \| `string` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `model` | `Model` |  |
+| `name` | `undefined` \| `string` | The name of the instantiation as retrieved from the `declarationName` method. |
 
 #### Returns
 
@@ -1144,12 +799,14 @@ modelInstantiation(model, name): EmitterOutput<Record<string, any>>
 modelInstantiationContext(model, name): Context
 ```
 
+Set lexical context for a model instantiation.
+
 #### Parameters
 
-| Parameter | Type |
-| :------ | :------ |
-| `model` | `Model` |
-| `name` | `undefined` \| `string` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `model` | `Model` |  |
+| `name` | `undefined` \| `string` | - |
 
 #### Returns
 
@@ -1172,7 +829,7 @@ Set reference context for a model declaration.
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `model` | `Model` |  |
 | `name` | `undefined` \| `string` | - |
 
@@ -1192,11 +849,13 @@ Set reference context for a model declaration.
 modelLiteral(model): EmitterOutput<object>
 ```
 
+Emit a model literal (e.g. as created by `{}` syntax in TypeSpec).
+
 #### Parameters
 
-| Parameter | Type |
-| :------ | :------ |
-| `model` | `Model` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `model` | `Model` |  |
 
 #### Returns
 
@@ -1219,7 +878,7 @@ Set lexical context for a model literal.
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `model` | `Model` |  |
 
 #### Returns
@@ -1243,7 +902,7 @@ Set reference context for a model literal.
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `model` | `Model` |  |
 
 #### Returns
@@ -1262,11 +921,14 @@ Set reference context for a model literal.
 modelProperties(model): EmitterOutput<object>
 ```
 
+Emit a model's properties. Unless overridden, this method will emit each of
+the model's properties and return a no emit result.
+
 #### Parameters
 
-| Parameter | Type |
-| :------ | :------ |
-| `model` | `Model` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `model` | `Model` |  |
 
 #### Returns
 
@@ -1287,7 +949,7 @@ modelPropertiesContext(model): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `model` | `Model` |
 
 #### Returns
@@ -1309,7 +971,7 @@ modelPropertiesReferenceContext(model): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `model` | `Model` |
 
 #### Returns
@@ -1328,11 +990,13 @@ modelPropertiesReferenceContext(model): Context
 modelPropertyLiteral(property): EmitterOutput<object>
 ```
 
+Emit a property of a model.
+
 #### Parameters
 
-| Parameter | Type |
-| :------ | :------ |
-| `property` | `ModelProperty` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `property` | `ModelProperty` |  |
 
 #### Returns
 
@@ -1355,7 +1019,7 @@ Set lexical context for a property of a model.
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `property` | `ModelProperty` |  |
 
 #### Returns
@@ -1379,7 +1043,7 @@ Set reference context for a property of a model.
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `property` | `ModelProperty` |  |
 
 #### Returns
@@ -1398,11 +1062,16 @@ Set reference context for a property of a model.
 modelPropertyReference(property): EmitterOutput<object>
 ```
 
+Emit a model property reference (e.g. as created by the `SomeModel.prop`
+syntax in TypeSpec). By default, this will emit the type of the referenced
+property and return that result. In other words, the emit will look as if
+`SomeModel.prop` were replaced with the type of `prop`.
+
 #### Parameters
 
-| Parameter | Type |
-| :------ | :------ |
-| `property` | `ModelProperty` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `property` | `ModelProperty` |  |
 
 #### Returns
 
@@ -1425,7 +1094,7 @@ Emit a namespace
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `namespace` | `Namespace` |  |
 
 #### Returns
@@ -1451,7 +1120,7 @@ Set lexical context for a namespace
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `namespace` | `Namespace` |  |
 
 #### Returns
@@ -1475,7 +1144,7 @@ Set reference context for a namespace.
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `namespace` | `Namespace` |  |
 
 #### Returns
@@ -1497,7 +1166,7 @@ numericLiteral(number): EmitterOutput<object>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `number` | `NumericLiteral` |
 
 #### Returns
@@ -1519,7 +1188,7 @@ numericLiteralContext(number): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `number` | `NumericLiteral` |
 
 #### Returns
@@ -1541,7 +1210,7 @@ operationDeclaration(operation, name): EmitterOutput<Record<string, any>>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `operation` | `Operation` |
 | `name` | `string` |
 
@@ -1564,7 +1233,7 @@ operationDeclarationContext(operation, name): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `operation` | `Operation` |
 | `name` | `string` |
 
@@ -1587,7 +1256,7 @@ operationDeclarationReferenceContext(operation, name): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `operation` | `Operation` |
 | `name` | `string` |
 
@@ -1610,7 +1279,7 @@ operationParameters(operation, parameters): EmitterOutput<Record<string, any>>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `operation` | `Operation` |
 | `parameters` | `Model` |
 
@@ -1633,7 +1302,7 @@ operationParametersContext(operation, parameters): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `operation` | `Operation` |
 | `parameters` | `Model` |
 
@@ -1656,7 +1325,7 @@ operationParametersReferenceContext(operation, parameters): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `operation` | `Operation` |
 | `parameters` | `Model` |
 
@@ -1679,7 +1348,7 @@ operationReturnType(operation, returnType): EmitterOutput<Record<string, any>>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `operation` | `Operation` |
 | `returnType` | `Type` |
 
@@ -1702,7 +1371,7 @@ operationReturnTypeContext(operation, returnType): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `operation` | `Operation` |
 | `returnType` | `Type` |
 
@@ -1725,7 +1394,7 @@ operationReturnTypeReferenceContext(operation, returnType): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `operation` | `Operation` |
 | `returnType` | `Type` |
 
@@ -1752,7 +1421,7 @@ single file, use this method to establish your main source file and set the
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | `Program` |  |
 
 #### Returns
@@ -1780,7 +1449,7 @@ commonScope): object | EmitEntity<Record<string, unknown>>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `targetDeclaration` | `Declaration`<`Record`<`string`, `unknown`\>\> |
 | `pathUp` | `Scope`<`Record`<`string`, `unknown`\>\>[] |
 | `pathDown` | `Scope`<`Record`<`string`, `unknown`\>\>[] |
@@ -1805,7 +1474,7 @@ scalarDeclaration(scalar, name): EmitterOutput<object>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `scalar` | `Scalar` |
 | `name` | `string` |
 
@@ -1828,7 +1497,7 @@ scalarDeclarationContext(scalar): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `scalar` | `Scalar` |
 
 #### Returns
@@ -1850,7 +1519,7 @@ scalarDeclarationReferenceContext(scalar, name): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `scalar` | `Scalar` |
 | `name` | `string` |
 
@@ -1873,7 +1542,7 @@ scalarInstantiation(scalar, name): EmitterOutput<Record<string, any>>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `scalar` | `Scalar` |
 | `name` | `undefined` \| `string` |
 
@@ -1896,7 +1565,7 @@ scalarInstantiationContext(scalar, name): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `scalar` | `Scalar` |
 | `name` | `undefined` \| `string` |
 
@@ -1919,7 +1588,7 @@ sourceFile(sourceFile): EmittedSourceFile
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `sourceFile` | `SourceFile`<`object`\> |
 
 #### Returns
@@ -1941,7 +1610,7 @@ stringLiteral(string): EmitterOutput<object>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `string` | `StringLiteral` |
 
 #### Returns
@@ -1963,7 +1632,7 @@ stringLiteralContext(string): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `string` | `StringLiteral` |
 
 #### Returns
@@ -1985,7 +1654,7 @@ stringTemplate(string): EmitterOutput<object>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `string` | `StringTemplate` |
 
 #### Returns
@@ -2007,7 +1676,7 @@ stringTemplateContext(string): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `string` | `StringTemplate` |
 
 #### Returns
@@ -2029,7 +1698,7 @@ tupleLiteral(tuple): EmitterOutput<Record<string, any>>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `tuple` | `Tuple` |
 
 #### Returns
@@ -2051,7 +1720,7 @@ tupleLiteralContext(tuple): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `tuple` | `Tuple` |
 
 #### Returns
@@ -2073,7 +1742,7 @@ tupleLiteralReferenceContext(tuple): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `tuple` | `Tuple` |
 
 #### Returns
@@ -2095,7 +1764,7 @@ tupleLiteralValues(tuple): EmitterOutput<Record<string, any>>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `tuple` | `Tuple` |
 
 #### Returns
@@ -2117,7 +1786,7 @@ tupleLiteralValuesContext(tuple): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `tuple` | `Tuple` |
 
 #### Returns
@@ -2139,7 +1808,7 @@ tupleLiteralValuesReferenceContext(tuple): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `tuple` | `Tuple` |
 
 #### Returns
@@ -2161,7 +1830,7 @@ unionDeclaration(union, name): EmitterOutput<object>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `union` | `Union` |
 | `name` | `string` |
 
@@ -2184,7 +1853,7 @@ unionDeclarationContext(union): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `union` | `Union` |
 
 #### Returns
@@ -2206,7 +1875,7 @@ unionDeclarationReferenceContext(union): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `union` | `Union` |
 
 #### Returns
@@ -2228,7 +1897,7 @@ unionInstantiation(union, name): EmitterOutput<Record<string, any>>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `union` | `Union` |
 | `name` | `string` |
 
@@ -2251,7 +1920,7 @@ unionInstantiationContext(union, name): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `union` | `Union` |
 | `name` | `string` |
 
@@ -2274,7 +1943,7 @@ unionInstantiationReferenceContext(union, name): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `union` | `Union` |
 | `name` | `string` |
 
@@ -2297,7 +1966,7 @@ unionLiteral(union): EmitterOutput<object>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `union` | `Union` |
 
 #### Returns
@@ -2319,7 +1988,7 @@ unionLiteralContext(union): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `union` | `Union` |
 
 #### Returns
@@ -2341,7 +2010,7 @@ unionLiteralReferenceContext(union): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `union` | `Union` |
 
 #### Returns
@@ -2363,7 +2032,7 @@ unionVariant(variant): EmitterOutput<object>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `variant` | `UnionVariant` |
 
 #### Returns
@@ -2385,7 +2054,7 @@ unionVariantContext(union): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `union` | `Union` |
 
 #### Returns
@@ -2407,7 +2076,7 @@ unionVariantReferenceContext(union): Context
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `union` | `Union` |
 
 #### Returns
@@ -2429,7 +2098,7 @@ unionVariants(union): EmitterOutput<object>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `union` | `Union` |
 
 #### Returns
@@ -2483,7 +2152,7 @@ writeOutput(sourceFiles): Promise<void>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `sourceFiles` | `SourceFile`<`Record`<`string`, `any`\>\>[] |
 
 #### Returns

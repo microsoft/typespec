@@ -13,7 +13,7 @@ function $resourceLocation(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Scalar` |
 | `resourceType` | `Model` |

@@ -17,10 +17,10 @@ decorator.
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `context` | `DecoratorContext` | - |
-| `entity` | `Type` | <p>Target model, namespace, or model property. If applied to a</p><p>              model or namespace, applies recursively to child models,</p><p>              namespaces, and model properties unless overridden by</p><p>              applying this decorator to a child.</p> |
-| `value` | `boolean` | <p>`true` to include inapplicable metadata in payload, false to</p><p>              exclude it.</p> |
+| `entity` | `Type` | Target model, namespace, or model property. If applied to a model or namespace, applies recursively to child models, namespaces, and model properties unless overridden by applying this decorator to a child. |
+| `value` | `boolean` | `true` to include inapplicable metadata in payload, false to exclude it. |
 
 ## Returns
 

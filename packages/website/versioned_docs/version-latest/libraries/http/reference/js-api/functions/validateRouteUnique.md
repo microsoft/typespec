@@ -13,7 +13,7 @@ function validateRouteUnique(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `diagnostics` | `DiagnosticCollector` |
 | `operations` | [`HttpOperation`](../interfaces/HttpOperation.md)[] |

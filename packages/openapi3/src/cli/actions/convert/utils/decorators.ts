@@ -91,9 +91,6 @@ export function getDecoratorsForSchema(schema: Refable<OpenAPI3Schema>): TypeSpe
     case "array":
       decorators.push(...getArraySchemaDecorators(schema));
       break;
-    case "object":
-      decorators.push(...getObjectSchemaDecorators(schema));
-      break;
     case "integer":
     case "number":
       decorators.push(...getNumberSchemaDecorators(schema));
@@ -103,6 +100,10 @@ export function getDecoratorsForSchema(schema: Refable<OpenAPI3Schema>): TypeSpe
       break;
     default:
       break;
+  }
+
+  if (schema.discriminator) {
+    decorators.push({ name: "discriminator", args: [schema.discriminator.propertyName] });
   }
 
   if (schema.oneOf) {
@@ -125,16 +126,6 @@ function getArraySchemaDecorators(schema: OpenAPI3Schema) {
 
   if (typeof schema.maxItems === "number") {
     decorators.push({ name: "maxItems", args: [schema.maxItems] });
-  }
-
-  return decorators;
-}
-
-function getObjectSchemaDecorators(schema: OpenAPI3Schema) {
-  const decorators: TypeSpecDecorator[] = [];
-
-  if (schema.discriminator) {
-    decorators.push({ name: "discriminator", args: [schema.discriminator.propertyName] });
   }
 
   return decorators;

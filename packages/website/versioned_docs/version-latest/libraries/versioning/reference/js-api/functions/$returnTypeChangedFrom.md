@@ -14,7 +14,7 @@ function $returnTypeChangedFrom(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Operation` |
 | `version` | `EnumMember` |

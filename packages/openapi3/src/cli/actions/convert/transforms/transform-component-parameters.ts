@@ -1,6 +1,9 @@
-import { OpenAPI3Components, OpenAPI3Parameter } from "../../../../types.js";
-import { TypeSpecModel, TypeSpecModelProperty } from "../interfaces.js";
+import { printIdentifier } from "@typespec/compiler";
+import { OpenAPI3Parameter } from "../../../../types.js";
+import { TypeSpecDataTypes, TypeSpecModelProperty } from "../interfaces.js";
+import { Context } from "../utils/context.js";
 import { getParameterDecorators } from "../utils/decorators.js";
+import { getScopeAndName } from "../utils/get-scope-and-name.js";
 
 /**
  * Transforms #/components/parameters into TypeSpec models.
@@ -11,43 +14,39 @@ import { getParameterDecorators } from "../utils/decorators.js";
  * @returns
  */
 export function transformComponentParameters(
-  models: TypeSpecModel[],
-  parameters?: OpenAPI3Components["parameters"]
+  context: Context,
+  dataTypes: TypeSpecDataTypes[]
 ): void {
+  const parameters = context.openApi3Doc.components?.parameters;
   if (!parameters) return;
 
   for (const name of Object.keys(parameters)) {
-    // Determine what the name of the parameter's model is since name may point at
-    // a nested property.
-    const modelName = name.indexOf(".") < 0 ? name : name.split(".").shift()!;
-
-    // Check if model already exists; if not, create it
-    let model = models.find((m) => m.name === modelName);
-    if (!model) {
-      model = {
-        name: modelName,
-        decorators: [],
-        properties: [],
-      };
-      models.push(model);
-    }
-
     const parameter = parameters[name];
-    const modelParameter = getModelPropertyFromParameter(parameter);
-
-    // Check if the model already has a property of the matching name
-    const propIndex = model.properties.findIndex((p) => p.name === modelParameter.name);
-    if (propIndex >= 0) {
-      model.properties[propIndex] = modelParameter;
-    } else {
-      model.properties.push(modelParameter);
-    }
+    transformComponentParameter(dataTypes, name, parameter);
   }
+}
+
+function transformComponentParameter(
+  dataTypes: TypeSpecDataTypes[],
+  key: string,
+  parameter: OpenAPI3Parameter
+): void {
+  const { name, scope } = getScopeAndName(key);
+  // Parameters should live in the root Parameters namespace
+  scope.unshift("Parameters");
+
+  dataTypes.push({
+    kind: "model",
+    scope,
+    name,
+    decorators: [],
+    properties: [getModelPropertyFromParameter(parameter)],
+  });
 }
 
 function getModelPropertyFromParameter(parameter: OpenAPI3Parameter): TypeSpecModelProperty {
   return {
-    name: parameter.name,
+    name: printIdentifier(parameter.name),
     isOptional: !parameter.required,
     doc: parameter.description ?? parameter.schema.description,
     decorators: getParameterDecorators(parameter),

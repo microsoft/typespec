@@ -1,5 +1,27 @@
 # Change Log - @typespec/html-program-viewer
 
+## 0.59.0
+
+### Bump dependencies
+
+- [#3948](https://github.com/microsoft/typespec/pull/3948) Update dependencies
+
+
+## 0.58.0
+
+### Bug Fixes
+
+- [#3585](https://github.com/microsoft/typespec/pull/3585) Fix crash in program viewer when trying to display new value type
+
+### Bump dependencies
+
+- [#3718](https://github.com/microsoft/typespec/pull/3718) Dependency updates July 2024
+
+### Features
+
+- [#3713](https://github.com/microsoft/typespec/pull/3713) Complete new dynamic UI to navigate the TypeSpec type graph
+
+
 ## 0.57.0
 
 ### Bump dependencies

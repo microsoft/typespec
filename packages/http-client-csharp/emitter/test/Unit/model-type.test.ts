@@ -2,7 +2,6 @@ import { TestHost } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
-import { InputModelProperty } from "../../src/type/input-model-property.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
@@ -49,7 +48,7 @@ op test(@body input: Pet): Pet;
     );
     runner.compileAndDiagnose;
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const models = root.Models;
     const petModel = models.find((m) => m.Name === "Pet");
@@ -61,22 +60,13 @@ op test(@body input: Pet): Pet;
     const discriminatorProperty = petModel?.Properties.find(
       (p) => p === petModel?.DiscriminatorProperty
     );
-    deepStrictEqual(
-      {
-        Name: "kind",
-        SerializedName: "kind",
-        Type: {
-          Kind: "string",
-          Encode: undefined,
-        },
-        IsRequired: true,
-        IsReadOnly: false,
-        IsDiscriminator: true,
-        Description: "Discriminator property for Pet.",
-        FlattenedNames: undefined,
-      } as InputModelProperty,
-      discriminatorProperty
-    );
+    strictEqual(discriminatorProperty?.Name, "kind");
+    strictEqual(discriminatorProperty.SerializedName, "kind");
+    strictEqual(discriminatorProperty.Type.Kind, "string");
+    strictEqual(discriminatorProperty.IsRequired, true);
+    strictEqual(discriminatorProperty.IsReadOnly, false);
+    strictEqual(discriminatorProperty.IsDiscriminator, true);
+    strictEqual(discriminatorProperty.FlattenedNames, undefined);
     // assert we will NOT have a DiscriminatorProperty on the derived models
     assert(
       catModel?.DiscriminatorProperty === undefined,
@@ -141,7 +131,7 @@ op test(@body input: Pet): Pet;
       runner
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const codeModel = createModel(sdkContext);
     const models = codeModel.Models;
     const pet = models.find((m) => m.Name === "Pet");
@@ -150,44 +140,16 @@ op test(@body input: Pet): Pet;
     strictEqual("kind", pet?.DiscriminatorProperty?.Name);
     // assert we have a property corresponding to the discriminator property above on the base model
     const discriminatorProperty = pet?.Properties.find((p) => p === pet?.DiscriminatorProperty);
-    deepStrictEqual(
-      {
-        Name: "kind",
-        SerializedName: "kind",
-        Description: "The kind of the pet",
-        Type: {
-          Kind: "enum",
-          Name: "PetKind",
-          CrossLanguageDefinitionId: "Azure.Csharp.Testing.PetKind",
-          Description: "The pet kind",
-          Accessibility: undefined,
-          Deprecated: undefined,
-          ValueType: {
-            Kind: "string",
-            Encode: undefined,
-          },
-          Values: [
-            {
-              Name: "Cat",
-              Value: "Cat",
-              Description: undefined,
-            },
-            {
-              Name: "Dog",
-              Value: "Dog",
-              Description: undefined,
-            },
-          ],
-          IsExtensible: false,
-          Usage: "RoundTrip",
-        },
-        IsRequired: true,
-        IsReadOnly: false,
-        IsDiscriminator: true,
-        FlattenedNames: undefined,
-      } as InputModelProperty,
-      discriminatorProperty
-    );
+    strictEqual(discriminatorProperty?.Name, "kind");
+    strictEqual(discriminatorProperty.SerializedName, "kind");
+    strictEqual(discriminatorProperty.Description, "The kind of the pet");
+    strictEqual(discriminatorProperty.Type.Kind, "enum");
+    strictEqual(discriminatorProperty.Type.Name, "PetKind");
+    strictEqual(discriminatorProperty.Type.ValueType.Kind, "string");
+    strictEqual(discriminatorProperty.IsRequired, true);
+    strictEqual(discriminatorProperty.IsReadOnly, false);
+    strictEqual(discriminatorProperty.IsDiscriminator, true);
+    strictEqual(discriminatorProperty.FlattenedNames, undefined);
 
     // verify derived model Cat
     const cat = models.find((m) => m.Name === "Cat");
@@ -262,7 +224,7 @@ op test(@body input: Pet): Pet;
       runner
     );
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const codeModel = createModel(sdkContext);
     const models = codeModel.Models;
     const pet = models.find((m) => m.Name === "Pet");
@@ -271,44 +233,16 @@ op test(@body input: Pet): Pet;
     strictEqual("kind", pet?.DiscriminatorProperty?.Name);
     // assert we have a property corresponding to the discriminator property above on the base model
     const discriminatorProperty = pet?.Properties.find((p) => p === pet?.DiscriminatorProperty);
-    deepStrictEqual(
-      {
-        Name: "kind",
-        SerializedName: "kind",
-        Description: "The kind of the pet",
-        Type: {
-          Kind: "enum",
-          Name: "PetKind",
-          CrossLanguageDefinitionId: "Azure.Csharp.Testing.PetKind",
-          Accessibility: undefined,
-          Deprecated: undefined,
-          Description: "The pet kind",
-          ValueType: {
-            Kind: "string",
-            Encode: undefined,
-          },
-          Values: [
-            {
-              Name: "Cat",
-              Value: "cat",
-              Description: undefined,
-            },
-            {
-              Name: "Dog",
-              Value: "dog",
-              Description: undefined,
-            },
-          ],
-          IsExtensible: false,
-          Usage: "RoundTrip",
-        },
-        IsRequired: true,
-        IsReadOnly: false,
-        IsDiscriminator: true,
-        FlattenedNames: undefined,
-      } as InputModelProperty,
-      discriminatorProperty
-    );
+    strictEqual(discriminatorProperty?.Name, "kind");
+    strictEqual(discriminatorProperty.SerializedName, "kind");
+    strictEqual(discriminatorProperty.Description, "The kind of the pet");
+    strictEqual(discriminatorProperty.Type.Kind, "enum");
+    strictEqual(discriminatorProperty.Type.Name, "PetKind");
+    strictEqual(discriminatorProperty.Type.ValueType.Kind, "string");
+    strictEqual(discriminatorProperty.IsRequired, true);
+    strictEqual(discriminatorProperty.IsReadOnly, false);
+    strictEqual(discriminatorProperty.IsDiscriminator, true);
+    strictEqual(discriminatorProperty.FlattenedNames, undefined);
 
     // verify derived model Cat
     const cat = models.find((m) => m.Name === "Cat");
@@ -411,7 +345,7 @@ op op5(@body body: ExtendsFooArray): ExtendsFooArray;
     );
     runner.compileAndDiagnose;
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const models = root.Models;
     const extendsUnknownModel = models.find((m) => m.Name === "ExtendsUnknown");
@@ -420,11 +354,11 @@ op op5(@body body: ExtendsFooArray): ExtendsFooArray;
     const extendsFooModel = models.find((m) => m.Name === "ExtendsFoo");
     const extendsFooArrayModel = models.find((m) => m.Name === "ExtendsFooArray");
     const fooModel = models.find((m) => m.Name === "Foo");
-    assert(extendsUnknownModel !== undefined);
-    assert(extendsStringModel !== undefined);
-    assert(extendsInt32Model !== undefined);
-    assert(extendsFooModel !== undefined);
-    assert(extendsFooArrayModel !== undefined);
+    ok(extendsUnknownModel);
+    ok(extendsStringModel);
+    ok(extendsInt32Model);
+    ok(extendsFooModel);
+    ok(extendsFooArrayModel);
     // assert the inherited dictionary type is expected
     strictEqual(extendsUnknownModel.AdditionalProperties?.Kind, "any");
 
@@ -504,7 +438,7 @@ op op5(@body body: IsFooArray): IsFooArray;
     );
     runner.compileAndDiagnose;
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const models = root.Models;
     const isUnknownModel = models.find((m) => m.Name === "IsUnknown");
@@ -556,10 +490,46 @@ op op1(): void;
     );
     runner.compileAndDiagnose;
     const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
+    const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const models = root.Models;
     const isEmptyModel = models.find((m) => m.Name === "Empty");
     ok(isEmptyModel);
+  });
+});
+
+describe("typespec-client-generator-core: general decorators list", () => {
+  let runner: TestHost;
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("@name", async function () {
+    const program = await typeSpecCompile(
+      `
+      @name("XmlBook")
+      model Book {
+        content: string;
+      }
+
+      op test(): Book;
+      `,
+      runner,
+      { IsTCGCNeeded: true, IsXmlNeeded: true }
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createNetSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.Models;
+    strictEqual(models.length, 1);
+    deepStrictEqual(models[0].Decorators, [
+      {
+        name: "TypeSpec.Xml.@name",
+        arguments: {
+          name: "XmlBook",
+        },
+      },
+    ]);
   });
 });

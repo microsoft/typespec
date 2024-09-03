@@ -27,7 +27,7 @@ joinPaths("file:///path", "file:///to", "file.ext") === "file:///to/file.ext"
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 | ...`paths` | (`undefined` \| `string`)[] |
 

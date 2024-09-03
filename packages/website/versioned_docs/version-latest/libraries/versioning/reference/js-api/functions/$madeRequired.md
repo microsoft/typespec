@@ -13,7 +13,7 @@ function $madeRequired(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `ModelProperty` |
 | `version` | `EnumMember` |

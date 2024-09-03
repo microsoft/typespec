@@ -13,7 +13,7 @@ function $contentEncoding(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `ModelProperty` \| `Scalar` |
 | `value` | `string` |

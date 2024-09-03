@@ -13,7 +13,7 @@ function $validatesRawJson(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Model` |
 | `value` | `Type` |

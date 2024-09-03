@@ -71,14 +71,13 @@ namespace Microsoft.Generator.CSharp.Primitives
         /// </summary>
         internal static FormattableString CreateDefaultPropertyDescription(string name, bool isReadOnly)
         {
-            string splitDeclarationName = string.Join(" ", StringExtensions.SplitByCamelCase(name)).ToLower();
             if (isReadOnly)
             {
-                return $"Gets the {splitDeclarationName}.";
+                return $"Gets the {name}.";
             }
             else
             {
-                return $"Gets or sets the {splitDeclarationName}.";
+                return $"Gets or sets the {name}.";
             }
         }
 

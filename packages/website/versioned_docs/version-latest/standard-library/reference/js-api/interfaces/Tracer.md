@@ -14,7 +14,7 @@ sub(subarea): Tracer
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `subarea` | `string` |  |
 
 #### Returns
@@ -37,7 +37,7 @@ Trace
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `area` | `string` |  |
 | `message` | `string` |  |
 | `target`? | [`DiagnosticTarget`](../type-aliases/DiagnosticTarget.md) | - |

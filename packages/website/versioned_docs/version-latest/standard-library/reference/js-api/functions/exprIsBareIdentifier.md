@@ -10,7 +10,7 @@ function exprIsBareIdentifier(expr): expr is TypeReferenceNode & Object
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `expr` | [`Expression`](../type-aliases/Expression.md) |
 
 ## Returns

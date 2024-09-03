@@ -15,7 +15,7 @@ options): DiagnosticResult<RouteProducerResult>
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `operation` | `Operation` |
 | `parentSegments` | `string`[] |

@@ -10,7 +10,7 @@ function checkFormatCadl(code, prettierConfig?): Promise<boolean>
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `code` | `string` |
 | `prettierConfig`? | `Options` |
 
