@@ -70,12 +70,9 @@ namespace Microsoft.Generator.CSharp.Providers
             foreach (var model in _models)
             {
                 var modelProvider = CodeModelPlugin.Instance.TypeFactory.CreateModel(model);
-                if (modelProvider is null || modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal))
+                if (modelProvider is null || modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal)
+                    || modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
                     continue;
-
-                var typeToInstantiate = modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
-                    ? modelProvider.DerivedModels.First(m => m.IsUnknownDiscriminatorModel)
-                    : modelProvider;
 
                 var modelCtor = modelProvider.FullConstructor;
                 var signature = new MethodSignature(
@@ -98,7 +95,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 [
                     .. GetCollectionInitialization(signature),
                     MethodBodyStatement.EmptyLine,
-                    Return(New.Instance(typeToInstantiate.Type, [.. GetCtorArgs(signature, modelCtor.Signature)]))
+                    Return(New.Instance(modelProvider.Type, [.. GetCtorArgs(signature, modelCtor.Signature)]))
                 ]);
 
                 methods.Add(new MethodProvider(signature, statements, this, docs));
