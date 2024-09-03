@@ -101,9 +101,8 @@ export async function createSourceLoader(
       default:
         diagnostics.add(
           createDiagnostic({
-            code: "invalid-import",
+            code: kind === "import" ? "invalid-import" : "invalid-main",
             target: NoTarget,
-            messageId: kind === "import" ? "default" : "entrypoint",
           })
         );
     }
