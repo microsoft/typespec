@@ -32,16 +32,20 @@ foreach ($directory in $directories) {
     if (-not (Compare-Paths $subPath $filter)) {
         continue
     }
-
+    
+    $testPath = "$cadlRanchRoot.Tests"
     $testFilter = "TestProjects.CadlRanch.Tests"
     foreach ($folder in $folders) {
         $segment = "$(Get-Namespace $folder)"
-        # if the segment is a reserved keyword, prefix it with an underscore to match the generator behavior for reserved keywords in namespaces
-        # see Configuration.cs
-        if ($segment -eq "Type" -or $segment -eq "Array" -or $segment -eq "Enum") {
-            $segment = "_$($segment)"
+        $testPath = Join-Path $testPath $segment
+        # the test directory names match the test namespace names, but the source directory names will not have the leading underscore
+        # so check to see if the filter should contain a leading underscore by comparing with the test directory
+        if (-not (Test-Path $testPath)) {
+          $testFilter += "._$segment"
         }
-        $testFilter += ".$segment"
+        else{
+          $testFilter += ".$segment"
+        }
     }
 
     Write-Host "Regenerating $subPath" -ForegroundColor Cyan
