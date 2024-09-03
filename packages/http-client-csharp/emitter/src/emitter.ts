@@ -78,7 +78,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
 
       await program.host.writeFile(
         resolvePath(outputFolder, tspOutputFileName),
-        prettierOutput(stringifyRefs(root, convertUsageNumbersToStrings, 1, PreserveType.Objects))
+        prettierOutput(stringifyRefs(root, transformJSONProperties, 1, PreserveType.Objects))
       );
 
       //emit configuration.json
@@ -215,7 +215,8 @@ async function execAsync(
   });
 }
 
-function convertUsageNumbersToStrings(this: any, key: string, value: any): any {
+function transformJSONProperties(this: any, key: string, value: any): any {
+  // convertUsageNumbersToStrings
   if (this["Kind"] === "model" || this["Kind"] === "enum") {
     if (key === "Usage" && typeof value === "number") {
       if (value === 0) {
@@ -231,6 +232,11 @@ function convertUsageNumbersToStrings(this: any, key: string, value: any): any {
       }
       return result.join(",");
     }
+  }
+
+  // omit the `rawExample` property from the examples
+  if (key === "rawExample") {
+    return undefined;
   }
 
   return value;
