@@ -10,7 +10,7 @@ import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
-import com.type.union.models.StringExtensibleNamedUnion;
+import com.type.union.models.StringAndArrayCases;
 import java.io.IOException;
 
 /**
@@ -22,7 +22,7 @@ public final class SendRequest2 implements JsonSerializable<SendRequest2> {
      * The prop property.
      */
     @Generated
-    private final StringExtensibleNamedUnion prop;
+    private final StringAndArrayCases prop;
 
     /**
      * Creates an instance of SendRequest2 class.
@@ -30,7 +30,7 @@ public final class SendRequest2 implements JsonSerializable<SendRequest2> {
      * @param prop the prop value to set.
      */
     @Generated
-    public SendRequest2(StringExtensibleNamedUnion prop) {
+    public SendRequest2(StringAndArrayCases prop) {
         this.prop = prop;
     }
 
@@ -40,7 +40,7 @@ public final class SendRequest2 implements JsonSerializable<SendRequest2> {
      * @return the prop value.
      */
     @Generated
-    public StringExtensibleNamedUnion getProp() {
+    public StringAndArrayCases getProp() {
         return this.prop;
     }
 
@@ -51,7 +51,7 @@ public final class SendRequest2 implements JsonSerializable<SendRequest2> {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeStringField("prop", this.prop == null ? null : this.prop.toString());
+        jsonWriter.writeJsonField("prop", this.prop);
         return jsonWriter.writeEndObject();
     }
 
@@ -67,13 +67,13 @@ public final class SendRequest2 implements JsonSerializable<SendRequest2> {
     @Generated
     public static SendRequest2 fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            StringExtensibleNamedUnion prop = null;
+            StringAndArrayCases prop = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 if ("prop".equals(fieldName)) {
-                    prop = StringExtensibleNamedUnion.fromString(reader.getString());
+                    prop = StringAndArrayCases.fromJson(reader);
                 } else {
                     reader.skipChildren();
                 }

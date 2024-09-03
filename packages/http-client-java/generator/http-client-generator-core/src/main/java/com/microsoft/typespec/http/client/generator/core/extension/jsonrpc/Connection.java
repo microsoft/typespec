@@ -52,7 +52,7 @@ public class Connection {
         this.requestId = new AtomicInteger(0);
     }
 
-    private boolean isAlive = true;
+    private volatile boolean isAlive = true;
 
     /**
      * Stops the connection.

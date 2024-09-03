@@ -66,8 +66,8 @@ public final class PolymorphicDiscriminatorHandler {
     }
 
     declareFieldInternal(model.getPolymorphicDiscriminator(), model,
-      ClientModelUtil.modelDefinesProperty(model, model.getPolymorphicDiscriminator()), classBlock,
-      addGeneratedAnnotation, addFieldAnnotations, settings);
+      model.isPolymorphicDiscriminatorDefinedByModel(), classBlock, addGeneratedAnnotation, addFieldAnnotations,
+      settings);
   }
 
   private static void declareFieldInternal(ClientModelProperty discriminator, ClientModel model,
@@ -86,14 +86,14 @@ public final class PolymorphicDiscriminatorHandler {
     // There can be cases with polymorphic discriminators where they have both a default value and are
     // required, in which case the default value will be set in the constructor.
     boolean discriminatorFieldIsInitialized = (!discriminatorUsedInConstructor || discriminator.isConstant())
-      && (discriminatorValue != null && !allPolymorphicModelsInSamePackage);
+      && (discriminatorValue != null && (!allPolymorphicModelsInSamePackage || !settings.isShareJsonSerializableCode()));
     String fieldSignature =  discriminatorFieldIsInitialized
       ? propertyType + " " + propertyName + " = " + discriminatorValue
       : propertyType + " " + propertyName;
 
     boolean generateCommentAndAnnotations = discriminatorUsedInConstructor
-      || (allPolymorphicModelsInSamePackage && discriminatorDefinedByModel)
-      || !allPolymorphicModelsInSamePackage;
+      || (allPolymorphicModelsInSamePackage && discriminatorDefinedByModel && settings.isShareJsonSerializableCode())
+      || (!allPolymorphicModelsInSamePackage || !settings.isShareJsonSerializableCode());
 
     if (generateCommentAndAnnotations) {
       classBlock.blockComment(comment -> comment.line(discriminator.getDescription()));
@@ -106,9 +106,9 @@ public final class PolymorphicDiscriminatorHandler {
     } else {
       // If the model defines the discriminator and all models in the polymorphic hierarchy are in the same
       // package, make it package-private to allow derived models to access it.
-      if (allPolymorphicModelsInSamePackage && discriminatorDefinedByModel) {
+      if (allPolymorphicModelsInSamePackage && discriminatorDefinedByModel && settings.isShareJsonSerializableCode()) {
         classBlock.memberVariable(JavaVisibility.PackagePrivate, fieldSignature);
-      } else if (!allPolymorphicModelsInSamePackage) {
+      } else if (!allPolymorphicModelsInSamePackage || !settings.isShareJsonSerializableCode()) {
         classBlock.privateMemberVariable(fieldSignature);
       }
     }
@@ -121,7 +121,7 @@ public final class PolymorphicDiscriminatorHandler {
 
     // Polymorphic models are contained in different packages, so the discriminator value was set in the field
     // declaration.
-    if (!model.isAllPolymorphicModelsInSamePackage()) {
+    if (!model.isAllPolymorphicModelsInSamePackage() || !settings.isShareJsonSerializableCode()) {
       return;
     }
 
@@ -150,10 +150,10 @@ public final class PolymorphicDiscriminatorHandler {
    *
    * @return Whether a getter method should be generated for the discriminator property.
    */
-  public static boolean generateGetter(ClientModel model, ClientModelProperty discriminator) {
+  public static boolean generateGetter(ClientModel model, ClientModelProperty discriminator, JavaSettings settings) {
     // If all the polymorphic models aren't in the same package the getter for the discriminator value will be
     // generated for each model as each model defines properties for all discriminators.
-    if (!model.isAllPolymorphicModelsInSamePackage()) {
+    if (!model.isAllPolymorphicModelsInSamePackage() || !settings.isShareJsonSerializableCode()) {
       return true;
     }
 

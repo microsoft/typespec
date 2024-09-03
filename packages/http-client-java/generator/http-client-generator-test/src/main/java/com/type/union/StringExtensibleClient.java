@@ -16,7 +16,7 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.type.union.implementation.StringExtensiblesImpl;
-import com.type.union.implementation.models.SendRequest1;
+import com.type.union.implementation.models.SendRequest8;
 import com.type.union.models.GetResponse8;
 import com.type.union.models.GetResponseProp3;
 
@@ -119,7 +119,7 @@ public final class StringExtensibleClient {
     public void send(GetResponseProp3 prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest1 sendRequest8Obj = new SendRequest1(prop);
+        SendRequest8 sendRequest8Obj = new SendRequest8(prop);
         BinaryData sendRequest8 = BinaryData.fromObject(sendRequest8Obj);
         sendWithResponse(sendRequest8, requestOptions).getValue();
     }
