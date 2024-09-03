@@ -9,7 +9,7 @@ namespace _Type.Model.Inheritance.EnumDiscriminator.Models
 {
     public abstract partial class Snake
     {
-        protected Snake(SnakeKind kind, int length) => throw null;
+        private protected Snake(SnakeKind kind, int length) => throw null;
 
         internal Snake(SnakeKind kind, int length, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
 
