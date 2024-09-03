@@ -37,14 +37,16 @@ foreach ($directory in $directories) {
     $testFilter = "TestProjects.CadlRanch.Tests"
     foreach ($folder in $folders) {
         $segment = "$(Get-Namespace $folder)"
-        $testPath = Join-Path $testPath $segment
+        
         # the test directory names match the test namespace names, but the source directory names will not have the leading underscore
         # so check to see if the filter should contain a leading underscore by comparing with the test directory
-        if (-not (Test-Path $testPath)) {
+        if (-not (Test-Path (Join-Path $testPath $segment))) {
           $testFilter += "._$segment"
+          $testPath = Join-Path $testPath "_$segment"
         }
         else{
           $testFilter += ".$segment"
+          $testPath = Join-Path $testPath $segment
         }
     }
 
