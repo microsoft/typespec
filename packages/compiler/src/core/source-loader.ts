@@ -36,6 +36,7 @@ export interface SourceResolution {
   readonly jsSourceFiles: Map<string, JsSourceFileNode>;
 
   readonly locationContexts: WeakMap<SourceFile, LocationContext>;
+  readonly loadedLibraries: Map<string, TypeSpecLibraryReference>;
 
   readonly diagnostics: readonly Diagnostic[];
 }
@@ -115,6 +116,7 @@ export async function createSourceLoader(
       sourceFiles,
       jsSourceFiles,
       locationContexts: sourceFileLocationContexts,
+      loadedLibraries: loadedLibraries,
       diagnostics: diagnostics.diagnostics,
     },
   };

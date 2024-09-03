@@ -25,7 +25,7 @@ import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
-import { SourceLoader, createSourceLoader, loadJsFile } from "./source-loader.js";
+import { SourceLoader, SourceResolution, createSourceLoader, loadJsFile } from "./source-loader.js";
 import { StateMap, StateSet, createStateAccessors } from "./state-accessors.js";
 import {
   CompilerHost,
@@ -140,8 +140,7 @@ export async function compile(
   const duplicateSymbols = new Set<Sym>();
   const emitters: EmitterRef[] = [];
   const requireImports = new Map<string, string>();
-  const loadedLibraries = new Map<string, TypeSpecLibraryReference>();
-  let sourceFileLocationContexts: WeakMap<SourceFile, LocationContext>;
+  let sourceResolution: SourceResolution;
   let error = false;
   let continueToNextStage = true;
 
@@ -263,7 +262,7 @@ export async function compile(
       }
     }
 
-    const libraries = new Map([...loadedLibraries.entries()]);
+    const libraries = new Map([...sourceResolution.loadedLibraries.entries()]);
     const incompatibleLibraries = new Map<string, TypeSpecLibraryReference[]>();
     for (const root of loadedRoots) {
       const packageJsonPath = joinPaths(root, "package.json");
@@ -324,11 +323,10 @@ export async function compile(
       });
     }
 
-    const sourceResolution = sourceLoader.resolution;
+    sourceResolution = sourceLoader.resolution;
 
     program.sourceFiles = sourceResolution.sourceFiles;
     program.jsSourceFiles = sourceResolution.jsSourceFiles;
-    sourceFileLocationContexts = sourceResolution.locationContexts;
 
     // Bind
     for (const file of sourceResolution.sourceFiles.values()) {
@@ -380,7 +378,7 @@ export async function compile(
   }
 
   function getSourceFileLocationContext(sourcefile: SourceFile): LocationContext {
-    const locationContext = sourceFileLocationContexts.get(sourcefile);
+    const locationContext = sourceResolution.locationContexts.get(sourcefile);
     compilerAssert(locationContext, "SourceFile should have a declaration locationContext.");
     return locationContext;
   }
@@ -607,7 +605,7 @@ export async function compile(
 
   function validateRequiredImports() {
     for (const [requiredImport, emitterName] of requireImports) {
-      if (!loadedLibraries.has(requiredImport)) {
+      if (!sourceResolution.loadedLibraries.has(requiredImport)) {
         program.reportDiagnostic(
           createDiagnostic({
             code: "missing-import",
