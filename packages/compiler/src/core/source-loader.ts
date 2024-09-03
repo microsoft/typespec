@@ -1,6 +1,5 @@
-import { trace } from "console";
 import { deepEquals, doIO, resolveTspMain } from "../utils/misc.js";
-import { compilerAssert } from "./diagnostics.js";
+import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { resolveTypeSpecEntrypointForDir } from "./entrypoint-resolution.js";
 import { createDiagnostic } from "./messages.js";
 import {
@@ -21,6 +20,7 @@ import {
   ParseOptions,
   SourceFile,
   SyntaxKind,
+  Tracer,
   type CompilerHost,
   type Diagnostic,
   type JsSourceFileNode,
@@ -35,6 +35,8 @@ export interface SourceResolution {
   /** Javascript source files(Entrypoint only) */
   readonly jsSourceFiles: Map<string, JsSourceFileNode>;
 
+  readonly locationContexts: WeakMap<SourceFile, LocationContext>;
+
   readonly diagnostics: readonly Diagnostic[];
 }
 
@@ -44,51 +46,64 @@ interface TypeSpecLibraryReference {
 }
 
 export interface LoadSourceOptions {
-  readonly additionalImports?: string[];
   readonly parseOptions?: ParseOptions;
+  readonly tracer?: Tracer;
   getCachedScript?: (file: SourceFile) => TypeSpecScriptNode | undefined;
 }
 
-export async function loadSources(
+export interface SourceLoader {
+  importFile(path: string, locationContext: LocationContext): Promise<void>;
+  importPath(
+    path: string,
+    target: DiagnosticTarget | typeof NoTarget,
+    relativeTo: string,
+    locationContext: LocationContext
+  ): Promise<void>;
+  readonly resolution: SourceResolution;
+}
+
+/**
+ * Create a TypeSpec source loader. This will be able to resolve and load TypeSpec and JS files.
+ * @param host Compiler host
+ * @param options Loading options
+ */
+export async function createSourceLoader(
   host: CompilerHost,
-  entrypoint: string,
   options?: LoadSourceOptions
-): Promise<SourceResolution> {
-  const diagnostics: Diagnostic[] = [];
-
-  await loadMain(entrypoint);
-
-  for (const additionalImport of options?.additionalImports ?? []) {
-    await loadImport(additionalImport, NoTarget, getDirectoryPath(entrypoint), {
-      type: "project",
-    });
-  }
-
+): Promise<SourceLoader> {
+  const diagnostics = createDiagnosticCollector();
+  const tracer = options?.tracer;
   const seenSourceFiles = new Set<string>();
   const sourceFileLocationContexts = new WeakMap<SourceFile, LocationContext>();
   const sourceFiles = new Map<string, TypeSpecScriptNode>();
   const jsSourceFiles = new Map<string, JsSourceFileNode>();
   const loadedLibraries = new Map<string, TypeSpecLibraryReference>();
 
-  return {
-    sourceFiles,
-    jsSourceFiles,
-    diagnostics,
-  };
+  async function importFile(path: string, locationContext: LocationContext) {
+    const sourceFileKind = host.getSourceFileKind(path);
 
-  async function loadMain(mainPath: string) {
-    const sourceFileKind = host.getSourceFileKind(mainPath);
-
-    const locationContext: LocationContext = { type: "project" };
     switch (sourceFileKind) {
       case "js":
-        return await importJsFile(mainPath, locationContext, NoTarget);
+        await importJsFile(path, locationContext, NoTarget);
+        break;
       case "typespec":
-        return await loadTypeSpecFile(mainPath, locationContext, NoTarget);
+        await loadTypeSpecFile(path, locationContext, NoTarget);
+        break;
       default:
-        diagnostics.push(createDiagnostic({ code: "invalid-main", target: NoTarget }));
+        diagnostics.add(createDiagnostic({ code: "invalid-import", target: NoTarget }));
     }
   }
+
+  return {
+    importFile,
+    importPath,
+    resolution: {
+      sourceFiles,
+      jsSourceFiles,
+      locationContexts: sourceFileLocationContexts,
+      diagnostics: diagnostics.diagnostics,
+    },
+  };
 
   async function loadTypeSpecFile(
     path: string,
@@ -100,7 +115,7 @@ export async function loadSources(
     }
     seenSourceFiles.add(path);
 
-    const file = await doIO(host.readFile, path, (x) => diagnostics.push(x), {
+    const file = await doIO(host.readFile, path, (x) => diagnostics.add(x), {
       diagnosticTarget,
     });
 
@@ -119,7 +134,7 @@ export async function loadSources(
 
     const script = parseOrReuse(file);
     for (const diagnostic of script.parseDiagnostics) {
-      diagnostics.push(diagnostic);
+      diagnostics.add(diagnostic);
     }
 
     sourceFiles.set(file.path, script);
@@ -162,11 +177,11 @@ export async function loadSources(
   ) {
     // collect imports
     for (const { path, target } of imports) {
-      await loadImport(path, target, relativeTo, locationContext);
+      await importPath(path, target, relativeTo, locationContext);
     }
   }
 
-  async function loadImport(
+  async function importPath(
     path: string,
     target: DiagnosticTarget | typeof NoTarget,
     relativeTo: string,
@@ -181,7 +196,10 @@ export async function loadSources(
         path: library.path,
         manifest: library.manifest,
       });
-      trace("import-resolution.library", `Loading library "${path}" from "${library.mainFile}"`);
+      tracer?.trace(
+        "import-resolution.library",
+        `Loading library "${path}" from "${library.mainFile}"`
+      );
 
       const metadata = computeModuleMetadata(library);
       locationContext = {
@@ -193,19 +211,11 @@ export async function loadSources(
 
     const isDirectory = (await host.stat(importFilePath)).isDirectory();
     if (isDirectory) {
-      return await loadDirectory(importFilePath, locationContext, target);
+      await loadDirectory(importFilePath, locationContext, target);
+      return;
     }
 
-    const sourceFileKind = host.getSourceFileKind(importFilePath);
-
-    switch (sourceFileKind) {
-      case "js":
-        return await importJsFile(importFilePath, locationContext, target);
-      case "typespec":
-        return await loadTypeSpecFile(importFilePath, locationContext, target);
-      default:
-        diagnostics.push(createDiagnostic({ code: "invalid-import", target }));
-    }
+    return importFile(importFilePath, locationContext);
   }
 
   /**
@@ -229,12 +239,12 @@ export async function loadSources(
       });
     } catch (e: any) {
       if (e.code === "MODULE_NOT_FOUND") {
-        diagnostics.push(
+        diagnostics.add(
           createDiagnostic({ code: "import-not-found", format: { path: specifier }, target })
         );
         return undefined;
       } else if (e.code === "INVALID_MAIN") {
-        diagnostics.push(
+        diagnostics.add(
           createDiagnostic({
             code: "library-invalid",
             format: { path: specifier },
@@ -254,7 +264,7 @@ export async function loadSources(
     locationContext: LocationContext,
     diagnosticTarget: DiagnosticTarget | typeof NoTarget
   ): Promise<string> {
-    const mainFile = await resolveTypeSpecEntrypointForDir(host, dir, (x) => diagnostics.push(x));
+    const mainFile = await resolveTypeSpecEntrypointForDir(host, dir, (x) => diagnostics.add(x));
     await loadTypeSpecFile(mainFile, locationContext, diagnosticTarget);
     return mainFile;
   }
@@ -267,51 +277,17 @@ export async function loadSources(
     locationContext: LocationContext,
     diagnosticTarget: DiagnosticTarget | typeof NoTarget
   ) {
-    const file = await loadJsFile(path, locationContext, diagnosticTarget);
-    if (file !== undefined) {
-      jsSourceFiles.set(path, file);
-    }
-  }
-
-  async function loadJsFile(
-    path: string,
-    locationContext: LocationContext,
-    diagnosticTarget: DiagnosticTarget | typeof NoTarget
-  ): Promise<JsSourceFileNode | undefined> {
     const sourceFile = jsSourceFiles.get(path);
     if (sourceFile !== undefined) {
       return sourceFile;
     }
 
-    const file = createSourceFile("", path);
-    sourceFileLocationContexts.set(file, locationContext);
-    const exports = await doIO(host.getJsImport, path, (x) => diagnostics.push(x), {
-      diagnosticTarget,
-      jsDiagnosticTarget: { file, pos: 0, end: 0 },
-    });
-
-    if (!exports) {
-      return undefined;
+    const file = diagnostics.pipe(await loadJsFile(host, path, diagnosticTarget));
+    if (file !== undefined) {
+      sourceFileLocationContexts.set(file.file, locationContext);
+      jsSourceFiles.set(path, file);
     }
-
-    return {
-      kind: SyntaxKind.JsSourceFile,
-      id: {
-        kind: SyntaxKind.Identifier,
-        sv: "",
-        pos: 0,
-        end: 0,
-        symbol: undefined!,
-        flags: NodeFlags.Synthetic,
-      },
-      esmExports: exports,
-      file,
-      namespaceSymbols: [],
-      symbol: undefined!,
-      pos: 0,
-      end: 0,
-      flags: NodeFlags.None,
-    };
+    return file;
   }
 
   function getResolveModuleHost(): ResolveModuleHost {
@@ -343,4 +319,41 @@ function computeModuleMetadata(module: ResolvedModule): ModuleLibraryMetadata {
   }
 
   return metadata;
+}
+
+export async function loadJsFile(
+  host: CompilerHost,
+  path: string,
+  diagnosticTarget: DiagnosticTarget | typeof NoTarget
+): Promise<[JsSourceFileNode | undefined, readonly Diagnostic[]]> {
+  const file = createSourceFile("", path);
+  const diagnostics: Diagnostic[] = [];
+  const exports = await doIO(host.getJsImport, path, (x) => diagnostics.push(x), {
+    diagnosticTarget,
+    jsDiagnosticTarget: { file, pos: 0, end: 0 },
+  });
+
+  if (!exports) {
+    return [undefined, diagnostics];
+  }
+
+  const node: JsSourceFileNode = {
+    kind: SyntaxKind.JsSourceFile,
+    id: {
+      kind: SyntaxKind.Identifier,
+      sv: "",
+      pos: 0,
+      end: 0,
+      symbol: undefined!,
+      flags: NodeFlags.Synthetic,
+    },
+    esmExports: exports,
+    file,
+    namespaceSymbols: [],
+    symbol: undefined!,
+    pos: 0,
+    end: 0,
+    flags: NodeFlags.None,
+  };
+  return [node, diagnostics];
 }

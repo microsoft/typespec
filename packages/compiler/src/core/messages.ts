@@ -633,12 +633,6 @@ const diagnostics = {
       default: "Import paths must reference either a directory, a .tsp file, or .js file",
     },
   },
-  "invalid-main": {
-    severity: "error",
-    messages: {
-      default: "Main file must either be a .tsp file or a .js file.",
-    },
-  },
   "import-not-found": {
     severity: "error",
     messages: {

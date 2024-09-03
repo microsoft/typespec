@@ -2,23 +2,12 @@ import { EmitterOptions } from "../config/types.js";
 import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { MANIFEST } from "../manifest.js";
-import {
-  deepEquals,
-  doIO,
-  findProjectRoot,
-  isDefined,
-  mapEquals,
-  mutate,
-  resolveTspMain,
-} from "../utils/misc.js";
+import { deepEquals, findProjectRoot, isDefined, mapEquals, mutate } from "../utils/misc.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
 import { compilerAssert } from "./diagnostics.js";
-import {
-  resolveTypeSpecEntrypoint,
-  resolveTypeSpecEntrypointForDir,
-} from "./entrypoint-resolution.js";
+import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
 import { getLibraryUrlsLoaded } from "./library.js";
 import { createLinter, resolveLinterDefinition } from "./linter.js";
@@ -36,12 +25,11 @@ import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
-import { loadSources } from "./source-loader.js";
+import { SourceLoader, createSourceLoader, loadJsFile } from "./source-loader.js";
 import { StateMap, StateSet, createStateAccessors } from "./state-accessors.js";
 import {
   CompilerHost,
   Diagnostic,
-  DiagnosticTarget,
   Directive,
   DirectiveExpressionNode,
   EmitContext,
@@ -149,12 +137,11 @@ export async function compile(
   const stateMaps = new Map<symbol, StateMap>();
   const stateSets = new Map<symbol, StateSet>();
   const diagnostics: Diagnostic[] = [];
-  const seenSourceFiles = new Set<string>();
   const duplicateSymbols = new Set<Sym>();
   const emitters: EmitterRef[] = [];
   const requireImports = new Map<string, string>();
   const loadedLibraries = new Map<string, TypeSpecLibraryReference>();
-  const sourceFileLocationContexts = new WeakMap<SourceFile, LocationContext>();
+  let sourceFileLocationContexts: WeakMap<SourceFile, LocationContext>;
   let error = false;
   let continueToNextStage = true;
 
@@ -200,23 +187,12 @@ export async function compile(
   }
   const binder = createBinder(program);
 
-  await loadIntrinsicTypes();
-  if (!options?.nostdlib) {
-    await loadStandardLibrary();
-  }
-
   if (resolvedMain === undefined) {
     return program;
   }
   await checkForCompilerVersionMismatch(resolvedMain);
-  const sourceResolution = await loadSources(host, resolvedMain, {
-    parseOptions: options.parseOptions,
-    additionalImports: options.additionalImports,
-    getCachedScript: (file) => oldProgram?.sourceFiles.get(file.path) ?? host.parseCache?.get(file),
-  });
-  program.sourceFiles = sourceResolution.sourceFiles;
-  program.jsSourceFiles = sourceResolution.jsSourceFiles;
-  program.reportDiagnostics(sourceResolution.diagnostics);
+
+  await loadSources(resolvedMain);
 
   const basedir = getDirectoryPath(resolvedMain);
 
@@ -323,49 +299,59 @@ export async function compile(
     }
   }
 
-  async function loadIntrinsicTypes() {
+  async function loadSources(entrypoint: string) {
+    const sourceLoader = await createSourceLoader(host, {
+      parseOptions: options.parseOptions,
+      getCachedScript: (file) =>
+        oldProgram?.sourceFiles.get(file.path) ?? host.parseCache?.get(file),
+    });
+
+    // intrinsic.tsp
+    await loadIntrinsicTypes(sourceLoader);
+
+    // standard library
+    if (!options?.nostdlib) {
+      await loadStandardLibrary(sourceLoader);
+    }
+
+    // main entrypoint
+    await sourceLoader.importFile(entrypoint, { type: "project" });
+
+    // additional imports
+    for (const additionalImport of options?.additionalImports ?? []) {
+      await sourceLoader.importPath(additionalImport, NoTarget, getDirectoryPath(entrypoint), {
+        type: "project",
+      });
+    }
+
+    const sourceResolution = sourceLoader.resolution;
+
+    program.sourceFiles = sourceResolution.sourceFiles;
+    program.jsSourceFiles = sourceResolution.jsSourceFiles;
+    sourceFileLocationContexts = sourceResolution.locationContexts;
+
+    // Bind
+    for (const file of sourceResolution.sourceFiles.values()) {
+      binder.bindSourceFile(file);
+    }
+    for (const jsFile of sourceResolution.jsSourceFiles.values()) {
+      binder.bindJsSourceFile(jsFile);
+    }
+    program.reportDiagnostics(sourceResolution.diagnostics);
+  }
+
+  async function loadIntrinsicTypes(loader: SourceLoader) {
     const locationContext: LocationContext = { type: "compiler" };
-    await loadTypeSpecFile(
+    return loader.importFile(
       resolvePath(host.getExecutionRoot(), "lib/intrinsics.tsp"),
-      locationContext,
-      NoTarget
+      locationContext
     );
   }
 
-  async function loadStandardLibrary() {
+  async function loadStandardLibrary(loader: SourceLoader) {
     const locationContext: LocationContext = { type: "compiler" };
     for (const dir of host.getLibDirs()) {
-      await loadDirectory(dir, locationContext, NoTarget);
-    }
-  }
-
-  async function loadDirectory(
-    dir: string,
-    locationContext: LocationContext,
-    diagnosticTarget: DiagnosticTarget | typeof NoTarget
-  ): Promise<string> {
-    const mainFile = await resolveTypeSpecEntrypointForDir(host, dir, reportDiagnostic);
-    await loadTypeSpecFile(mainFile, locationContext, diagnosticTarget);
-    return mainFile;
-  }
-
-  async function loadTypeSpecFile(
-    path: string,
-    locationContext: LocationContext,
-    diagnosticTarget: DiagnosticTarget | typeof NoTarget
-  ) {
-    if (seenSourceFiles.has(path)) {
-      return;
-    }
-    seenSourceFiles.add(path);
-
-    const file = await doIO(host.readFile, path, program.reportDiagnostic, {
-      diagnosticTarget,
-    });
-
-    if (file) {
-      sourceFileLocationContexts.set(file, locationContext);
-      await loadTypeSpecScript(file);
+      await loader.importFile(resolvePath(dir, "main.tsp"), locationContext);
     }
   }
 
@@ -433,9 +419,9 @@ export async function compile(
     }
 
     const entrypoint = module.type === "file" ? module.path : module.mainFile;
-    const file = await loadJsFile(entrypoint, locationContext, NoTarget);
+    const [file, jsDiagnostics] = await loadJsFile(host, entrypoint, NoTarget);
 
-    return [{ module, entrypoint: file }, []];
+    return [{ module, entrypoint: file }, jsDiagnostics];
   }
 
   async function loadLibrary(
@@ -629,47 +615,6 @@ export async function compile(
             target: NoTarget,
           })
         );
-      }
-    }
-  }
-
-  /**
-   * resolves a module specifier like "myLib" to an absolute path where we can find the main of
-   * that module, e.g. "/typespec/node_modules/myLib/main.tsp".
-   */
-  async function resolveTypeSpecLibrary(
-    specifier: string,
-    baseDir: string,
-    target: DiagnosticTarget | typeof NoTarget
-  ): Promise<ModuleResolutionResult | undefined> {
-    try {
-      return await resolveModule(getResolveModuleHost(), specifier, {
-        baseDir,
-        directoryIndexFiles: ["main.tsp", "index.mjs", "index.js"],
-        resolveMain(pkg) {
-          // this lets us follow node resolve semantics more-or-less exactly
-          // but using tspMain instead of main.
-          return resolveTspMain(pkg) ?? pkg.main;
-        },
-      });
-    } catch (e: any) {
-      if (e.code === "MODULE_NOT_FOUND") {
-        program.reportDiagnostic(
-          createDiagnostic({ code: "import-not-found", format: { path: specifier }, target })
-        );
-        return undefined;
-      } else if (e.code === "INVALID_MAIN") {
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "library-invalid",
-            format: { path: specifier },
-            messageId: "tspMain",
-            target,
-          })
-        );
-        return undefined;
-      } else {
-        throw e;
       }
     }
   }
