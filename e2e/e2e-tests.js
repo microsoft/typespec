@@ -57,6 +57,7 @@ async function packPackages() {
     "@typespec/http": resolvePackage("typespec-http-"),
     "@typespec/rest": resolvePackage("typespec-rest-"),
     "@typespec/versioning": resolvePackage("typespec-versioning-"),
+    "@typespec/xml": resolvePackage("typespec-xml-"),
   };
 }
 
@@ -104,6 +105,8 @@ async function testBasicCurrentTgz(packages) {
       "@typespec/rest": packages["@typespec/rest"],
       "@typespec/openapi": packages["@typespec/openapi"],
       "@typespec/openapi3": packages["@typespec/openapi3"],
+      "@typespec/versioning": packages["@typespec/versioning"],
+      "@typespec/xml": packages["@typespec/xml"],
     },
     private: true,
   };
