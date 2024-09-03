@@ -20,9 +20,9 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public FormattableString Description { get; }
         public XmlDocSummaryStatement XmlDocSummary { get; }
-        public MethodSignatureModifiers Modifiers { get; }
+        public MethodSignatureModifiers Modifiers { get; set; }
         public CSharpType Type { get; }
-        public string Name { get; }
+        public string Name { get; set; }
         public PropertyBody Body { get; private set; }
         public CSharpType? ExplicitInterface { get; }
         public XmlDocProvider XmlDocs { get; private set; }

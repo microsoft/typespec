@@ -121,12 +121,13 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             bool isRequired = false,
             bool isReadOnly = false,
             bool isDiscriminator = false,
-            string? wireName = null)
+            string? wireName = null,
+            string? description = null)
         {
             return new InputModelProperty(
                 name,
                 wireName ?? name.ToVariableName(),
-                $"Description for {name}",
+                description ?? $"Description for {name}",
                 type,
                 isRequired,
                 isReadOnly,

@@ -403,5 +403,108 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 yield return new TestCaseData(InputFactory.Model("foo"), true);
             }
         }
+
+        [Test]
+        public void DuplicatePropertyHasVirtualAndOverrideKeyword()
+        {
+            MockHelpers.LoadMockPlugin();
+            var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)]);
+            var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+
+            Assert.IsNotNull(derivedModel);
+            Assert.IsNotNull(baseModel);
+
+            var derivedProp = derivedModel!.Properties[0];
+            var baseProp = baseModel!.Properties[0];
+
+            Assert.AreEqual(baseProp.Name, derivedProp.Name);
+            Assert.AreEqual(baseProp.Type, derivedProp.Type);
+            Assert.IsNotNull(baseProp.WireInfo);
+            Assert.IsNotNull(derivedProp.WireInfo);
+            Assert.AreEqual(baseProp.WireInfo!.IsRequired, derivedProp.WireInfo!.IsRequired);
+            Assert.IsTrue(baseProp.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
+            Assert.IsTrue(derivedProp.Modifiers.HasFlag(MethodSignatureModifiers.Override));
+            Assert.IsFalse(baseProp.Modifiers.HasFlag(MethodSignatureModifiers.Override));
+            Assert.IsFalse(derivedProp.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
+        }
+
+        [Test]
+        public void OptionalityChangePropertyHasNewName()
+        {
+            MockHelpers.LoadMockPlugin();
+            var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)]);
+            var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String, isRequired: true)], derivedModels: [derivedInputModel]);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+
+            Assert.IsNotNull(derivedModel);
+            Assert.IsNotNull(baseModel);
+
+            var derivedProp = derivedModel!.Properties[0];
+            var baseProp = baseModel!.Properties[0];
+            Assert.IsTrue(baseProp.WireInfo!.IsRequired);
+            Assert.IsFalse(derivedProp.WireInfo!.IsRequired);
+            AssertNewName(derivedProp, baseProp);
+        }
+
+        [Test]
+        public void OptionalityChangeNarrowPropertyHasNewKeyword()
+        {
+            MockHelpers.LoadMockPlugin();
+            var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String, isRequired: true)]);
+            var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+
+            Assert.IsNotNull(derivedModel);
+            Assert.IsNotNull(baseModel);
+
+            var derivedProp = derivedModel!.Properties[0];
+            var baseProp = baseModel!.Properties[0];
+            Assert.AreEqual(baseProp.Name, derivedProp.Name);
+            Assert.IsTrue(baseProp.Type.Equals(derivedProp.Type, ignoreNullable: true));
+            Assert.IsNotNull(baseProp.WireInfo);
+            Assert.IsNotNull(derivedProp.WireInfo);
+            Assert.IsFalse(baseProp.WireInfo!.IsRequired);
+            Assert.IsTrue(derivedProp.WireInfo!.IsRequired);
+            Assert.IsTrue(derivedProp.Modifiers.HasFlag(MethodSignatureModifiers.New));
+            Assert.IsFalse(baseProp.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
+            Assert.IsFalse(baseProp.Modifiers.HasFlag(MethodSignatureModifiers.New));
+            Assert.IsFalse(derivedProp.Modifiers.HasFlag(MethodSignatureModifiers.Override));
+        }
+
+        [Test]
+        public void TypeChangePropertyHasNewName()
+        {
+            MockHelpers.LoadMockPlugin();
+            var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.Int32)]);
+            var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+
+            Assert.IsNotNull(derivedModel);
+            Assert.IsNotNull(baseModel);
+
+            var derivedProp = derivedModel!.Properties[0];
+            var baseProp = baseModel!.Properties[0];
+            Assert.AreEqual(baseProp.WireInfo!.IsRequired, derivedProp.WireInfo!.IsRequired);
+            AssertNewName(derivedProp, baseProp);
+        }
+
+        private static void AssertNewName(PropertyProvider derivedProp, PropertyProvider baseProp)
+        {
+            Assert.AreNotEqual(baseProp.Name, derivedProp.Name);
+            Assert.AreNotEqual(baseProp.Type, derivedProp.Type);
+            Assert.AreEqual("Prop12", derivedProp.Name);
+            Assert.AreEqual("Prop1", baseProp.Name);
+            Assert.IsNotNull(baseProp.WireInfo);
+            Assert.IsNotNull(derivedProp.WireInfo);
+            Assert.IsFalse(derivedProp.Modifiers.HasFlag(MethodSignatureModifiers.New));
+            Assert.IsFalse(baseProp.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
+            Assert.IsFalse(baseProp.Modifiers.HasFlag(MethodSignatureModifiers.New));
+            Assert.IsFalse(derivedProp.Modifiers.HasFlag(MethodSignatureModifiers.Override));
+        }
     }
 }
