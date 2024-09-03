@@ -118,7 +118,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     expressions.Add(param.NullConditional().ToList());
                 }
-                else if (modelCtorFullSignature.Parameters[i].Property?.IsDiscriminator == true)
+                else if (IsExtensibleEnumDiscriminator(param))
                 {
                     expressions.Add(((ValueExpression)param).CastTo(modelCtorFullSignature.Parameters[i].Type));
                 }
@@ -170,7 +170,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 parameter.Name,
                 parameter.Description,
                 // in order to avoid exposing discriminator enums as public, we will use the underlying types in the model factory methods
-                parameter.Property?.IsDiscriminator == true && parameter.Type.IsEnum ? parameter.Type.UnderlyingEnumType : parameter.Type.InputType,
+                IsExtensibleEnumDiscriminator(parameter) ? parameter.Type.UnderlyingEnumType : parameter.Type.InputType,
                 Default,
                 parameter.IsRef,
                 parameter.IsOut,
@@ -182,5 +182,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 Validation = ParameterValidationType.None,
             };
         }
+
+        private static bool IsExtensibleEnumDiscriminator(ParameterProvider parameter) =>
+            parameter.Property?.IsDiscriminator == true && parameter.Type.IsEnum;
     }
 }
