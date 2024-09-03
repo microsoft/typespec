@@ -1,0 +1,17 @@
+if (id == null) {
+    return null;
+}
+Iterator<String> itr = Arrays.stream(id.split("/")).iterator();
+while (itr.hasNext()) {
+    String part = itr.next();
+    if (part != null && !part.trim().isEmpty()) {
+        if (part.equalsIgnoreCase(name)) {
+            if (itr.hasNext()) {
+                return itr.next();
+            } else {
+                return null;
+            }
+        }
+    }
+}
+return null;

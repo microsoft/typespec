@@ -50,6 +50,12 @@ public final class SendLongRequest implements JsonSerializable<SendLongRequest> 
     private Long dataLong;
 
     /*
+     * The requiredUser property.
+     */
+    @Generated
+    private final User requiredUser;
+
+    /*
      * The data_float property.
      */
     @Generated
@@ -90,13 +96,15 @@ public final class SendLongRequest implements JsonSerializable<SendLongRequest> 
      * 
      * @param input the input value to set.
      * @param dataInt the dataInt value to set.
+     * @param requiredUser the requiredUser value to set.
      * @param title the title value to set.
      * @param status the status value to set.
      */
     @Generated
-    public SendLongRequest(String input, int dataInt, String title, SendLongRequestStatus status) {
+    public SendLongRequest(String input, int dataInt, User requiredUser, String title, SendLongRequestStatus status) {
         this.input = input;
         this.dataInt = dataInt;
+        this.requiredUser = requiredUser;
         this.title = title;
         this.status = status;
     }
@@ -185,6 +193,16 @@ public final class SendLongRequest implements JsonSerializable<SendLongRequest> 
     public SendLongRequest setDataLong(Long dataLong) {
         this.dataLong = dataLong;
         return this;
+    }
+
+    /**
+     * Get the requiredUser property: The requiredUser property.
+     * 
+     * @return the requiredUser value.
+     */
+    @Generated
+    public User getRequiredUser() {
+        return this.requiredUser;
     }
 
     /**
@@ -292,6 +310,7 @@ public final class SendLongRequest implements JsonSerializable<SendLongRequest> 
         jsonWriter.writeStartObject();
         jsonWriter.writeStringField("input", this.input);
         jsonWriter.writeIntField("dataInt", this.dataInt);
+        jsonWriter.writeJsonField("requiredUser", this.requiredUser);
         jsonWriter.writeStringField("title", this.title);
         jsonWriter.writeStringField("status", this.status == null ? null : this.status.toString());
         jsonWriter.writeStringField("constant", this.constant);
@@ -318,6 +337,7 @@ public final class SendLongRequest implements JsonSerializable<SendLongRequest> 
         return jsonReader.readObject(reader -> {
             String input = null;
             int dataInt = 0;
+            User requiredUser = null;
             String title = null;
             SendLongRequestStatus status = null;
             User user = null;
@@ -334,6 +354,8 @@ public final class SendLongRequest implements JsonSerializable<SendLongRequest> 
                     input = reader.getString();
                 } else if ("dataInt".equals(fieldName)) {
                     dataInt = reader.getInt();
+                } else if ("requiredUser".equals(fieldName)) {
+                    requiredUser = User.fromJson(reader);
                 } else if ("title".equals(fieldName)) {
                     title = reader.getString();
                 } else if ("status".equals(fieldName)) {
@@ -354,7 +376,8 @@ public final class SendLongRequest implements JsonSerializable<SendLongRequest> 
                     reader.skipChildren();
                 }
             }
-            SendLongRequest deserializedSendLongRequest = new SendLongRequest(input, dataInt, title, status);
+            SendLongRequest deserializedSendLongRequest
+                = new SendLongRequest(input, dataInt, requiredUser, title, status);
             deserializedSendLongRequest.user = user;
             deserializedSendLongRequest.dataIntOptional = dataIntOptional;
             deserializedSendLongRequest.dataLong = dataLong;

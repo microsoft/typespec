@@ -2,9 +2,6 @@
 #
 # The purpose of this script is to compact the steps required to regenerate TypeSpec into a single script.
 #
-# If 'com.azure.autorest.customization' tests fails, re-install 'customization-base'.
-#
-# Before running this script the 'tsp' profile must be built, 'mvn install -P local,tsp'.
 param (
   [int] $Parallelization = [Environment]::ProcessorCount
 )
