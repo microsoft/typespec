@@ -401,6 +401,4 @@ In this example:
 
 ## Conclusion
 
-In this section, we focused on implementing versioning in your REST API. By using the `@versioned` and `@added` decorators, we can manage changes to our API over time without breaking existing clients.
-
 In the next section, we'll dive into creating custom response models for your REST API.

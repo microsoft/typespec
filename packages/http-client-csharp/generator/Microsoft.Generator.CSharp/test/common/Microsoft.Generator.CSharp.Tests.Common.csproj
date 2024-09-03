@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.Generator.CSharp.csproj" />
+    <PackageReference Include="System.ClientModel" />
   </ItemGroup>
 
 </Project>

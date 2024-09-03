@@ -20,4 +20,18 @@
       <module>http-client-generator-mgmt</module>
       <module>http-client-generator-core</module>
     </modules>
+
+    <profiles>
+      <profile>
+        <id>test</id>
+        <activation>
+          <property>
+            <name>test</name>
+          </property>
+        </activation>
+        <modules>
+          <module>http-client-generator-test</module>
+        </modules>
+      </profile>
+    </profiles>
 </project>

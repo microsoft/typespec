@@ -71,14 +71,10 @@ $failingSpecs = @(
     Join-Path 'http' 'special-headers' 'repeatability'
     Join-Path 'http' 'type' 'model' 'flatten'
     Join-Path 'http' 'type' 'model' 'visibility'
-    Join-Path 'http' 'type' 'model' 'inheritance' 'enum-discriminator'
     Join-Path 'http' 'type' 'model' 'inheritance' 'nested-discriminator'
     Join-Path 'http' 'type' 'model' 'inheritance' 'not-discriminated'
     Join-Path 'http' 'type' 'model' 'inheritance' 'recursive'
-    Join-Path 'http' 'type' 'model' 'inheritance' 'single-discriminator'
     Join-Path 'http' 'type' 'property' 'additional-properties'
-    Join-Path 'http' 'type' 'property' 'optionality'
-    Join-Path 'http' 'type' 'property' 'value-types'
 )
 
 $cadlRanchLaunchProjects = @{}

@@ -1,0 +1,13 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.cadl.errormodel.ErrorModelAsyncClient": "null",
+    "com.cadl.errormodel.ErrorModelAsyncClient.read": "Cadl.ErrorModel.ErrorOp.read",
+    "com.cadl.errormodel.ErrorModelAsyncClient.readWithResponse": "Cadl.ErrorModel.ErrorOp.read",
+    "com.cadl.errormodel.ErrorModelClient": "null",
+    "com.cadl.errormodel.ErrorModelClient.read": "Cadl.ErrorModel.ErrorOp.read",
+    "com.cadl.errormodel.ErrorModelClient.readWithResponse": "Cadl.ErrorModel.ErrorOp.read",
+    "com.cadl.errormodel.ErrorModelClientBuilder": "Cadl.ErrorModel",
+    "com.cadl.errormodel.models.Diagnostic": "Cadl.ErrorModel.Diagnostic"
+  }
+}

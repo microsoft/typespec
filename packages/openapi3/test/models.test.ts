@@ -977,6 +977,22 @@ describe("openapi3: models", () => {
     });
   });
 
+  it("@oneOf decorator can only be used on a union.", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
+      model Foo {
+        @oneOf
+        bar: string;
+      }
+      `
+    );
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/oneof-union",
+      message: /type/,
+    });
+  });
+
   describe("wraps property $ref in allOf when extra attributes", () => {
     it("with doc", async () => {
       const res = await openApiFor(

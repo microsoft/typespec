@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.fluent;
 
+import com.microsoft.typespec.http.client.generator.JavaSettingsAccessor;
 import com.microsoft.typespec.http.client.generator.TypeSpecPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
@@ -54,6 +55,7 @@ public class TypeSpecFluentPlugin extends FluentGen {
         SETTINGS_MAP.put("uuid-as-string", true);
         SETTINGS_MAP.put("stream-style-serialization", emitterOptions.getStreamStyleSerialization());
 
+        JavaSettingsAccessor.setHost(this);
         LOGGER.info("Output folder: {}", emitterOptions.getOutputDir());
         LOGGER.info("Namespace: {}", JavaSettings.getInstance().getPackage());
     }
