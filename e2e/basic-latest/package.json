@@ -6,7 +6,8 @@
     "@typespec/http": "latest",
     "@typespec/versioning": "latest",
     "@typespec/openapi": "latest",
-    "@typespec/openapi3": "latest"
+    "@typespec/openapi3": "latest",
+    "@typespec/xml": "latest"
   },
   "private": true
 }
