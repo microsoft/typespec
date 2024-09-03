@@ -25,8 +25,8 @@ describe("Parent property", () => {
       model Foo extends Widget{
         id: string;
       }
-      @route("/widgets")
-      interface Widgets {
+      @operationGroup
+      interface Group {
         @get list(): Widget[];
         @get read(@path id: string): Foo;
       }
