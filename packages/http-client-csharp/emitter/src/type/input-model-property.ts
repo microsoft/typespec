@@ -5,13 +5,14 @@ import { DecoratorInfo } from "@azure-tools/typespec-client-generator-core";
 import { InputType } from "./input-type.js";
 
 export interface InputModelProperty {
-  Name: string;
-  SerializedName: string;
-  Description: string;
-  Type: InputType;
-  IsRequired: boolean;
-  IsReadOnly: boolean;
-  IsDiscriminator?: boolean;
-  FlattenedNames?: string[];
-  Decorators?: DecoratorInfo[];
+  name: string;
+  serializedName: string;
+  description?: string;
+  type: InputType;
+  optional: boolean;
+  readOnly: boolean;
+  discriminator: boolean;
+  decorators?: DecoratorInfo[];
+  crossLanguageDefinitionId: string;
+  FlattenedNames?: string[]; // TODO -- remove this when we are ready to move the flatten handling from emitter to the generator
 }

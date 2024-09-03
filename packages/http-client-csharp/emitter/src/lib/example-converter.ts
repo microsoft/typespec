@@ -63,7 +63,6 @@ export function fromSdkHttpExamples(
       name: example.name,
       description: example.description,
       filePath: example.filePath,
-      rawExample: example.rawExample,
       parameters: example.parameters.map((p) => fromSdkParameterExample(p)),
       responses: fromSdkOperationResponses(example.responses),
     };

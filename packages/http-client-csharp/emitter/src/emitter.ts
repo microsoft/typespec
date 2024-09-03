@@ -234,11 +234,6 @@ function transformJSONProperties(this: any, key: string, value: any): any {
     }
   }
 
-  // omit the `rawExample` property from the examples
-  if (key === "rawExample") {
-    return undefined;
-  }
-
   return value;
 }
 
