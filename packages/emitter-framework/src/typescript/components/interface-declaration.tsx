@@ -3,6 +3,7 @@ import * as ts from "@alloy-js/typescript";
 import { Interface, Model, ModelProperty, Operation, Type } from "@typespec/compiler";
 import { isInterface, isModel } from "../../core/utils/typeguards.js";
 import { InterfaceMember } from "./interface-member.js";
+import { $ } from "@typespec/compiler/typekit";
 
 
 export interface TypedInterfaceDeclarationProps extends Omit<ts.InterfaceDeclarationProps, "name"> {
@@ -22,7 +23,17 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
   const namePolicy = ts.useTSNamePolicy();
   const { type, ...coreProps } = props;
 
-  const name = coreProps.name ?? namePolicy.getName(type.name, "class");
+  let name = coreProps.name;
+
+  if(!name) {
+    if($.model.is(type)) {
+      // This will give us a name for anonymous models
+      name = namePolicy.getName($.model.getPlausibleName(type), "interface");
+    } else {
+      name = namePolicy.getName(type.name, "interface");
+    }
+  }
+  
   const refkey = coreProps.refkey ?? getRefkey(type);
 
   let extendsType = coreProps.extends;

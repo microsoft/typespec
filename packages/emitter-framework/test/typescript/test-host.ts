@@ -18,6 +18,13 @@ export async function createTypespecCliTestHost(
   });
 }
 
+export async function createEmitterFrameworkTestRunner(options: { autoUsings?: string[] } = {}) {
+  const host = await createTypespecCliTestHost();
+  return createTestWrapper(host, {
+    autoUsings: options.autoUsings,
+  });
+}
+
 export async function getProgram(
   code: string,
   options: { libraries: "Http"[] } = { libraries: [] }
