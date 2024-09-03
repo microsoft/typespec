@@ -16,7 +16,7 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.type.union.implementation.FloatsOnliesImpl;
-import com.type.union.implementation.models.SendRequest4;
+import com.type.union.implementation.models.SendRequest5;
 import com.type.union.models.GetResponse5;
 import com.type.union.models.GetResponseProp1;
 
@@ -119,7 +119,7 @@ public final class FloatsOnlyClient {
     public void send(GetResponseProp1 prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest4 sendRequest5Obj = new SendRequest4(prop);
+        SendRequest5 sendRequest5Obj = new SendRequest5(prop);
         BinaryData sendRequest5 = BinaryData.fromObject(sendRequest5Obj);
         sendWithResponse(sendRequest5, requestOptions).getValue();
     }

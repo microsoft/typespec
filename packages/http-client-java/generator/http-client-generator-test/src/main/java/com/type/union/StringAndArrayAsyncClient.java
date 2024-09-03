@@ -17,7 +17,7 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import com.type.union.implementation.StringAndArraysImpl;
-import com.type.union.implementation.models.SendRequest7;
+import com.type.union.implementation.models.SendRequest2;
 import com.type.union.models.GetResponse2;
 import com.type.union.models.StringAndArrayCases;
 import reactor.core.publisher.Mono;
@@ -129,7 +129,7 @@ public final class StringAndArrayAsyncClient {
     public Mono<Void> send(StringAndArrayCases prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest7 sendRequest2Obj = new SendRequest7(prop);
+        SendRequest2 sendRequest2Obj = new SendRequest2(prop);
         BinaryData sendRequest2 = BinaryData.fromObject(sendRequest2Obj);
         return sendWithResponse(sendRequest2, requestOptions).flatMap(FluxUtil::toMono);
     }

@@ -24,7 +24,7 @@ public class ExtendsUnknownAdditionalPropertiesDiscriminated
      * The discriminator
      */
     @Generated
-    String kind;
+    private String kind = "ExtendsUnknownAdditionalPropertiesDiscriminated";
 
     /*
      * The name property
@@ -46,7 +46,6 @@ public class ExtendsUnknownAdditionalPropertiesDiscriminated
     @Generated
     public ExtendsUnknownAdditionalPropertiesDiscriminated(String name) {
         this.name = name;
-        this.kind = "ExtendsUnknownAdditionalPropertiesDiscriminated";
     }
 
     /**
@@ -99,11 +98,6 @@ public class ExtendsUnknownAdditionalPropertiesDiscriminated
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        toJsonShared(jsonWriter);
-        return jsonWriter.writeEndObject();
-    }
-
-    void toJsonShared(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStringField("name", this.name);
         jsonWriter.writeStringField("kind", this.kind);
         if (additionalProperties != null) {
@@ -111,6 +105,7 @@ public class ExtendsUnknownAdditionalPropertiesDiscriminated
                 jsonWriter.writeUntypedField(additionalProperty.getKey(), additionalProperty.getValue());
             }
         }
+        return jsonWriter.writeEndObject();
     }
 
     /**

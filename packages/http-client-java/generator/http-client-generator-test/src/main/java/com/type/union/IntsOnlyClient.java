@@ -16,7 +16,7 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.type.union.implementation.IntsOnliesImpl;
-import com.type.union.implementation.models.SendRequest3;
+import com.type.union.implementation.models.SendRequest6;
 import com.type.union.models.GetResponse6;
 import com.type.union.models.GetResponseProp2;
 
@@ -119,7 +119,7 @@ public final class IntsOnlyClient {
     public void send(GetResponseProp2 prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest3 sendRequest6Obj = new SendRequest3(prop);
+        SendRequest6 sendRequest6Obj = new SendRequest6(prop);
         BinaryData sendRequest6 = BinaryData.fromObject(sendRequest6Obj);
         sendWithResponse(sendRequest6, requestOptions).getValue();
     }
