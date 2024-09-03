@@ -1376,7 +1376,7 @@ export class CodeModelBuilder {
     }
 
     if (op.convenienceApi) {
-      // Explicit body parameter @body or @bodyRoot would result to the existance of rawHttpOperation.parameters.body.property
+      // Explicit body parameter @body or @bodyRoot would result to the existence of rawHttpOperation.parameters.body.property
       // Implicit body parameter would result to rawHttpOperation.parameters.body.property be undefined
       // see https://typespec.io/docs/libraries/http/cheat-sheet#data-types
       const bodyParameterFlatten =
@@ -2266,14 +2266,14 @@ export class CodeModelBuilder {
       case "Model":
         if (isArrayModelType(this.program, type)) {
           ++option.depth;
-          if (option.depth == 1) {
+          if (option.depth === 1) {
             return this.getUnionVariantName(type.indexer.value, option) + "List";
           } else {
             return "ListOf" + this.getUnionVariantName(type.indexer.value, option);
           }
         } else if (isRecordModelType(this.program, type)) {
           ++option.depth;
-          if (option.depth == 1) {
+          if (option.depth === 1) {
             return this.getUnionVariantName(type.indexer.value, option) + "Map";
           } else {
             return "MapOf" + this.getUnionVariantName(type.indexer.value, option);
@@ -2613,7 +2613,7 @@ export class CodeModelBuilder {
           schema.properties?.forEach((p) => {
             if (p.readOnly && schemaUsage.usage?.includes(SchemaContext.Input)) {
               const schemaUsageWithoutInput = {
-                usage: schemaUsage.usage.filter((it) => it != SchemaContext.Input),
+                usage: schemaUsage.usage.filter((it) => it !== SchemaContext.Input),
                 serializationFormats: schemaUsage.serializationFormats,
               };
               innerApplySchemaUsage(p.schema, schemaUsageWithoutInput);

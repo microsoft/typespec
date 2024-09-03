@@ -121,7 +121,7 @@ public class JavaSettings {
                 getBooleanValue(host, "regenerate-pom", false),
                 header,
                 getStringValue(host, "service-name"),
-                getStringValue(host, "namespace", "com.mycompany.app").toLowerCase(),
+                getStringValue(host, "namespace", "com.azure.app").toLowerCase(),
                 getBooleanValue(host, "client-side-validations", false),
                 getStringValue(host, "client-type-prefix"),
                 getBooleanValue(host, "generate-client-interfaces", false),
