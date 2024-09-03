@@ -1,5 +1,7 @@
 import {
   SdkContext,
+  SdkModelPropertyTypeBase,
+  SdkPathParameter,
   getLibraryName,
   getSdkModel,
 } from "@azure-tools/typespec-client-generator-core";
@@ -71,4 +73,10 @@ export function createContentTypeOrAcceptParameter(
           } as InputConstant)
         : undefined,
   };
+}
+
+export function isSdkPathParameter(
+  parameter: SdkModelPropertyTypeBase
+): parameter is SdkPathParameter {
+  return (parameter as SdkPathParameter).kind === "path";
 }
