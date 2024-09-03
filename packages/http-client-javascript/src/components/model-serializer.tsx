@@ -1,8 +1,7 @@
-import { Child, mapJoin, refkey } from "@alloy-js/core";
+import { mapJoin, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Model, ModelProperty, Type, getEncode } from "@typespec/compiler";
+import { Model, Type, getEncode } from "@typespec/compiler";
 import {$} from "@typespec/compiler/typekit"
-import { ArraySerializerRefkey } from "./static-serializers.jsx";
 import { buildArraySerializer, buildRecordSerializer, BuildSerializerOptions, Serializer, SerializerExpression } from "./serializers-utils.jsx";
 
 export interface ModelSerializerProps {
@@ -75,6 +74,7 @@ export function buildSerializer(type: Type, itemPath: string, options: BuildSeri
             return {serializer: `${itemPath}.toISOString()`}
         }
       }
+      break;
     }
      
     default:
