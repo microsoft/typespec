@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public MethodSignatureModifiers Modifiers { get; set; }
         public CSharpType Type { get; }
         public string Name { get; set; }
-        public PropertyBody Body { get; private set; }
+        public PropertyBody Body { get; set; }
         public CSharpType? ExplicitInterface { get; }
         public XmlDocProvider XmlDocs { get; private set; }
         public PropertyWireInformation? WireInfo { get; }
