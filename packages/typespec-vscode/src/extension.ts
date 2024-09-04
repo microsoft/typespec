@@ -66,7 +66,7 @@ export function createTaskProvider(context: ExtensionContext, cli: Executable) {
       if (task.definition.type === "typespec" && task.name && task.definition.path) {
         const t = createTask(cli, task.name, task.definition.path, task.definition.args);
         // returned task's definition must be the same object as the given task's definition
-        // otherwise vscode woould report error that the task is not resolved
+        // otherwise vscode would report error that the task is not resolved
         t.definition = task.definition;
         return t;
       }
