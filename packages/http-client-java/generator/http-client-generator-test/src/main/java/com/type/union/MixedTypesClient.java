@@ -16,7 +16,7 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.type.union.implementation.MixedTypesImpl;
-import com.type.union.implementation.models.SendRequest9;
+import com.type.union.implementation.models.SendRequest;
 import com.type.union.models.GetResponse;
 import com.type.union.models.MixedTypesCases;
 
@@ -135,7 +135,7 @@ public final class MixedTypesClient {
     public void send(MixedTypesCases prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest9 sendRequestObj = new SendRequest9(prop);
+        SendRequest sendRequestObj = new SendRequest(prop);
         BinaryData sendRequest = BinaryData.fromObject(sendRequestObj);
         sendWithResponse(sendRequest, requestOptions).getValue();
     }

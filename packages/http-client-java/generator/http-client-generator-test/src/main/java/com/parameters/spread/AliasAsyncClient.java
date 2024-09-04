@@ -17,7 +17,7 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import com.parameters.spread.implementation.AliasImpl;
-import com.parameters.spread.implementation.models.SpreadAsRequestBodyRequest1;
+import com.parameters.spread.implementation.models.SpreadAsRequestBodyRequest;
 import com.parameters.spread.implementation.models.SpreadAsRequestParameterRequest;
 import com.parameters.spread.implementation.models.SpreadParameterWithInnerAliasRequest;
 import com.parameters.spread.implementation.models.SpreadParameterWithInnerModelRequest;
@@ -205,7 +205,7 @@ public final class AliasAsyncClient {
     public Mono<Void> spreadAsRequestBody(String name) {
         // Generated convenience method for spreadAsRequestBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SpreadAsRequestBodyRequest1 spreadAsRequestBodyRequestObj = new SpreadAsRequestBodyRequest1(name);
+        SpreadAsRequestBodyRequest spreadAsRequestBodyRequestObj = new SpreadAsRequestBodyRequest(name);
         BinaryData spreadAsRequestBodyRequest = BinaryData.fromObject(spreadAsRequestBodyRequestObj);
         return spreadAsRequestBodyWithResponse(spreadAsRequestBodyRequest, requestOptions).flatMap(FluxUtil::toMono);
     }

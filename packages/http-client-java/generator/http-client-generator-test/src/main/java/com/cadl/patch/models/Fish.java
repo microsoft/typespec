@@ -24,7 +24,7 @@ public class Fish implements JsonSerializable<Fish> {
      * Discriminator property for Fish.
      */
     @Generated
-    String kind;
+    private String kind = "Fish";
 
     /*
      * The id property.
@@ -104,7 +104,6 @@ public class Fish implements JsonSerializable<Fish> {
      */
     @Generated
     public Fish() {
-        this.kind = "Fish";
     }
 
     /**
@@ -263,33 +262,22 @@ public class Fish implements JsonSerializable<Fish> {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
-                if (!Fish.fromJsonShared(reader, fieldName, deserializedFish)) {
+                if ("id".equals(fieldName)) {
+                    deserializedFish.id = reader.getString();
+                } else if ("name".equals(fieldName)) {
+                    deserializedFish.name = reader.getString();
+                } else if ("kind".equals(fieldName)) {
+                    deserializedFish.kind = reader.getString();
+                } else if ("age".equals(fieldName)) {
+                    deserializedFish.age = reader.getInt();
+                } else if ("color".equals(fieldName)) {
+                    deserializedFish.color = reader.getString();
+                } else {
                     reader.skipChildren();
                 }
             }
 
             return deserializedFish;
         });
-    }
-
-    @Generated
-    static boolean fromJsonShared(JsonReader reader, String fieldName, Fish deserializedFish) throws IOException {
-        if ("id".equals(fieldName)) {
-            deserializedFish.id = reader.getString();
-            return true;
-        } else if ("name".equals(fieldName)) {
-            deserializedFish.name = reader.getString();
-            return true;
-        } else if ("kind".equals(fieldName)) {
-            deserializedFish.kind = reader.getString();
-            return true;
-        } else if ("age".equals(fieldName)) {
-            deserializedFish.age = reader.getInt();
-            return true;
-        } else if ("color".equals(fieldName)) {
-            deserializedFish.color = reader.getString();
-            return true;
-        }
-        return false;
     }
 }

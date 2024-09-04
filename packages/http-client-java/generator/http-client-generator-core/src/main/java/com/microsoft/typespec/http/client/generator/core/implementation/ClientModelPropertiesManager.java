@@ -39,6 +39,7 @@ import static com.microsoft.typespec.http.client.generator.core.util.ClientModel
  */
 public final class ClientModelPropertiesManager {
   private final ClientModel model;
+  private final JavaSettings settings;
 
   private final String deserializedModelName;
   private final boolean hasRequiredProperties;
@@ -88,6 +89,7 @@ public final class ClientModelPropertiesManager {
     Set<String> possibleXmlNameVariableNames = new LinkedHashSet<>(Arrays.asList(
       "elementName", "xmlElementName", "deserializationElementName"));
     this.model = model;
+    this.settings = settings;
 
     this.deserializedModelName = "deserialized" + model.getName();
     this.expectedDiscriminator = model.getSerializedName();
@@ -291,6 +293,15 @@ public final class ClientModelPropertiesManager {
    */
   public ClientModel getModel() {
     return model;
+  }
+
+  /**
+   * The {@link JavaSettings} being used to determine code generation.
+   *
+   * @return The {@link JavaSettings} being used to determine code generation.
+   */
+  public JavaSettings getSettings() {
+    return settings;
   }
 
   /**
