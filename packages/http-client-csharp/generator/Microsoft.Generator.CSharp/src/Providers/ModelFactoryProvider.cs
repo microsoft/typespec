@@ -113,18 +113,19 @@ namespace Microsoft.Generator.CSharp.Providers
             var expressions = new List<ValueExpression>(signature.Parameters.Count);
             for (int i = 0; i < signature.Parameters.Count; i++)
             {
-                var param = signature.Parameters[i];
-                if (param.Type.IsList)
+                var factoryParam = signature.Parameters[i];
+                var ctorParam = modelCtorFullSignature.Parameters[i];
+                if (factoryParam.Type.IsList)
                 {
-                    expressions.Add(param.NullConditional().ToList());
+                    expressions.Add(factoryParam.NullConditional().ToList());
                 }
-                else if (IsExtensibleEnumDiscriminator(param))
+                else if (IsEnumDiscriminator(ctorParam))
                 {
-                    expressions.Add(((ValueExpression)param).CastTo(modelCtorFullSignature.Parameters[i].Type));
+                    expressions.Add(ctorParam.Type.ToEnum(factoryParam));
                 }
                 else
                 {
-                    expressions.Add(param);
+                    expressions.Add(factoryParam);
                 }
             }
 
@@ -170,7 +171,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 parameter.Name,
                 parameter.Description,
                 // in order to avoid exposing discriminator enums as public, we will use the underlying types in the model factory methods
-                IsExtensibleEnumDiscriminator(parameter) ? parameter.Type.UnderlyingEnumType : parameter.Type.InputType,
+                IsEnumDiscriminator(parameter) ? parameter.Type.UnderlyingEnumType : parameter.Type.InputType,
                 Default,
                 parameter.IsRef,
                 parameter.IsOut,
@@ -183,7 +184,7 @@ namespace Microsoft.Generator.CSharp.Providers
             };
         }
 
-        private static bool IsExtensibleEnumDiscriminator(ParameterProvider parameter) =>
+        private static bool IsEnumDiscriminator(ParameterProvider parameter) =>
             parameter.Property?.IsDiscriminator == true && parameter.Type.IsEnum;
     }
 }
