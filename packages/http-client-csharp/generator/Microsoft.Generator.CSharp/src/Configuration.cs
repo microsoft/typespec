@@ -27,6 +27,7 @@ namespace Microsoft.Generator.CSharp
             KeepAll = 2
         }
 
+        private const string GeneratedFolderName = "Generated";
         private const string ConfigurationFileName = "Configuration.json";
 
         // for mocking
@@ -155,6 +156,15 @@ namespace Microsoft.Generator.CSharp
 
         private string? _projectDirectory;
         internal string ProjectDirectory => _projectDirectory ??= Path.Combine(OutputDirectory, "src");
+
+        private string? _testProjectDirectory;
+        internal string TestProjectDirectory => _testProjectDirectory ??= Path.Combine(OutputDirectory, "tests");
+
+        private string? _projectGeneratedDirectory;
+        internal string ProjectGeneratedDirectory => _projectGeneratedDirectory ??= Path.Combine(ProjectDirectory, GeneratedFolderName);
+
+        private string? _testGeneratedDirectory;
+        internal string TestGeneratedDirectory => _testGeneratedDirectory ??= Path.Combine(TestProjectDirectory, GeneratedFolderName);
 
         internal string LibraryName { get; }
 

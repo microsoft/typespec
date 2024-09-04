@@ -49,10 +49,9 @@ namespace Microsoft.Generator.CSharp.Tests
         }
 
         // Validates that the output folder is parsed correctly from the configuration
-        [TestCaseSource("ParseConfigOutputFolderTestCases")]
+        [TestCaseSource(nameof(ParseConfigOutputFolderTestCases))]
         public void TestParseConfig_OutputFolder(string mockJson, bool throwsError)
         {
-
             var expected = Path.GetFullPath(MockHelpers.TestHelpersFolder);
 
             if (throwsError)
@@ -64,6 +63,8 @@ namespace Microsoft.Generator.CSharp.Tests
             var configuration = Configuration.Load(MockHelpers.TestHelpersFolder, mockJson);
 
             Assert.AreEqual(expected, configuration.OutputDirectory);
+            Assert.AreEqual(Path.Combine(expected, "src", "Generated"), configuration.ProjectGeneratedDirectory);
+            Assert.AreEqual(Path.Combine(expected, "tests", "Generated"), configuration.TestGeneratedDirectory);
         }
 
         // Validates that the LibraryName field is parsed correctly from the configuration

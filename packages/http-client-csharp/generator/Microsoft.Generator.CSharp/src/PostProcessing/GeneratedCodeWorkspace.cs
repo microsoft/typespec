@@ -49,6 +49,14 @@ namespace Microsoft.Generator.CSharp
             _cachedProject = Task.Run(CreateGeneratedCodeProject);
         }
 
+        internal async Task<CSharpCompilation> GetCompilationAsync()
+        {
+            var compilation = await _project.GetCompilationAsync();
+            Debug.Assert(compilation is CSharpCompilation);
+
+            return (CSharpCompilation)compilation;
+        }
+
         public void AddPlainFiles(string name, string content)
         {
             PlainFiles.Add(name, content);
@@ -153,17 +161,18 @@ namespace Microsoft.Generator.CSharp
             return new GeneratedCodeWorkspace(generatedCodeProject);
         }
 
-        public static GeneratedCodeWorkspace CreateExistingCodeProject(string outputDirectory)
+        internal static GeneratedCodeWorkspace CreateExistingCodeProject(string projectDirectory, string generatedDirectory)
         {
             var workspace = new AdhocWorkspace();
             var newOptionSet = workspace.Options.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, _newLine);
             workspace.TryApplyChanges(workspace.CurrentSolution.WithOptions(newOptionSet));
             Project project = workspace.AddProject("ExistingCode", LanguageNames.CSharp);
 
-            if (Path.IsPathRooted(outputDirectory))
+            if (Path.IsPathRooted(projectDirectory))
             {
-                outputDirectory = Path.GetFullPath(outputDirectory);
-                project = AddDirectory(project, outputDirectory, null);
+                projectDirectory = Path.GetFullPath(projectDirectory);
+
+                project = AddDirectory(project, projectDirectory, skipPredicate: sourceFile => sourceFile.StartsWith(generatedDirectory));
             }
 
             project = project
@@ -174,7 +183,7 @@ namespace Microsoft.Generator.CSharp
             return new GeneratedCodeWorkspace(project);
         }
 
-        public static async Task<Compilation?> CreatePreviousContractFromDll(string xmlDocumentationpath, string dllPath)
+        internal static async Task<Compilation?> CreatePreviousContractFromDll(string xmlDocumentationpath, string dllPath)
         {
             var workspace = new AdhocWorkspace();
             Project project = workspace.AddProject("PreviousContract", LanguageNames.CSharp);
