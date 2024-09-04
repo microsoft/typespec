@@ -49,7 +49,7 @@ describe("Test string format", () => {
     const models = codeModel.Models;
     const foo = models.find((m) => m.Name === "Foo");
     ok(foo);
-    const type = foo?.Properties[0].Type;
+    const type = foo?.Properties[0].type;
     strictEqual(type.Kind, "url");
   });
 });
