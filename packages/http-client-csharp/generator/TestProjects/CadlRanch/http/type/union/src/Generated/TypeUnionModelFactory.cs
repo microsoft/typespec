@@ -13,6 +13,8 @@ namespace _Type.Union.Models
 
         public static MixedTypesCases MixedTypesCases(BinaryData model = default, BinaryData literal = default, BinaryData @int = default, BinaryData boolean = default, IEnumerable<BinaryData> array = default) => throw null;
 
+        public static Cat Cat(string name = default) => throw null;
+
         public static GetResponse1 GetResponse1(MixedLiteralsCases prop = default) => throw null;
 
         public static MixedLiteralsCases MixedLiteralsCases(BinaryData stringLiteral = default, BinaryData intLiteral = default, BinaryData floatLiteral = default, BinaryData booleanLiteral = default) => throw null;
@@ -26,6 +28,8 @@ namespace _Type.Union.Models
         public static EnumsOnlyCases EnumsOnlyCases(EnumsOnlyCasesLr lr = default, EnumsOnlyCasesUd ud = default) => throw null;
 
         public static GetResponse4 GetResponse4(BinaryData prop = default) => throw null;
+
+        public static Dog Dog(string bark = default) => throw null;
 
         public static GetResponse5 GetResponse5(GetResponseProp1 prop = default) => throw null;
 
