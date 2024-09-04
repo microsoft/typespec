@@ -51,7 +51,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void BaseConstructorShouldBeProtected()
+        public void BaseConstructorShouldBePrivateProtected()
         {
             MockHelpers.LoadMockPlugin();
             var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(_baseModel);
@@ -62,7 +62,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             var initCtor = ctor1.Signature.Parameters.Count < ctor2.Signature.Parameters.Count ? ctor1 : ctor2;
             var serializationCtor = ctor1.Signature.Parameters.Count < ctor2.Signature.Parameters.Count ? ctor2 : ctor1;
             Assert.IsNotNull(initCtor);
-            Assert.IsTrue(initCtor!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected));
+            Assert.IsTrue(initCtor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected));
+            Assert.IsTrue(initCtor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private));
             Assert.IsNotNull(serializationCtor);
             Assert.IsTrue(serializationCtor!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
         }
