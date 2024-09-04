@@ -17,57 +17,57 @@ try {
         Remove-Item -Recurse -Force "./node_modules"
     }
 
-    Write-Host "Current PATH: $env:PATH"
-    # install Java 21
+    # Write-Host "Current PATH: $env:PATH"
+    # # install Java LTS
     
-    # Query Adoptium for the list of installs for the JDK feature version.
-    $adoptiumApiUrl = "https://api.adoptium.net"
-    $jdkFeatureVersion = "21"
-    $os = "linux"
+    # # Query Adoptium for the list of installs for the JDK feature version.
+    # $adoptiumApiUrl = "https://api.adoptium.net"
+    # $jdkFeatureVersion = "21"
+    # $os = "linux"
 
-    if ($IsWindows) {
-        $os = "windows"
-    } elseif ($IsMacOS) {
-        $os = "mac"
-    } 
+    # if ($IsWindows) {
+    #     $os = "windows"
+    # } elseif ($IsMacOS) {
+    #     $os = "mac"
+    # } 
 
-    $getInstalls = "$adoptiumApiUrl/v3/assets/latest/$jdkFeatureVersion/hotspot?architecture=x64&image_type=jdk&os=$os&vendor=eclipse"
-    $jdkUnzipName = "jdk-$jdkFeatureVersion"
+    # $getInstalls = "$adoptiumApiUrl/v3/assets/latest/$jdkFeatureVersion/hotspot?architecture=x64&image_type=jdk&os=$os&vendor=eclipse"
+    # $jdkUnzipName = "jdk-$jdkFeatureVersion"
 
-    Write-Host "Downloading latest JDK to" (Get-Location)
+    # Write-Host "Downloading latest JDK to" (Get-Location)
 
-    if (!(Test-Path -Path $jdkUnzipName -PathType container)) {
-        # Query Adoptium for the list of installs for the JDK feature version.
-        Write-Host "Invoking web request to '$getInstalls' to find JDK $jdkFeatureVersion installs available on $os."
-        $installsAvailable = Invoke-WebRequest -URI $getInstalls | ConvertFrom-Json
-        $jdkLink = $installsAvailable.binary.package.link
-        $jdkZipName = $jdkLink.split("/")[-1]
+    # if (!(Test-Path -Path $jdkUnzipName -PathType container)) {
+    #     # Query Adoptium for the list of installs for the JDK feature version.
+    #     Write-Host "Invoking web request to '$getInstalls' to find JDK $jdkFeatureVersion installs available on $os."
+    #     $installsAvailable = Invoke-WebRequest -URI $getInstalls | ConvertFrom-Json
+    #     $jdkLink = $installsAvailable.binary.package.link
+    #     $jdkZipName = $jdkLink.split("/")[-1]
 
-        Write-Host "Downloading install from '$jdkLink' to '$jdkZipName'."
-        Invoke-WebRequest -URI $jdkLink -OutFile $jdkZipName
+    #     Write-Host "Downloading install from '$jdkLink' to '$jdkZipName'."
+    #     Invoke-WebRequest -URI $jdkLink -OutFile $jdkZipName
 
-        if ($IsWindows) {
-            Expand-Archive -Path $jdkZipName -Destination "jdk-temp"
-            Move-Item -Path (Join-Path -Path "jdk-temp" -ChildPath (Get-ChildItem "jdk-temp")[0].Name) -Destination $jdkUnzipName
-        } else {
-            New-Item -Path "jdk-temp" -ItemType "directory"
-            tar -xvf $jdkZipName -C "jdk-temp"
-            Move-Item -Path (Join-Path -Path "jdk-temp" -ChildPath (Get-ChildItem "jdk-temp")[0].Name) -Destination $jdkUnzipName
-        }
-    }
+    #     if ($IsWindows) {
+    #         Expand-Archive -Path $jdkZipName -Destination "jdk-temp"
+    #         Move-Item -Path (Join-Path -Path "jdk-temp" -ChildPath (Get-ChildItem "jdk-temp")[0].Name) -Destination $jdkUnzipName
+    #     } else {
+    #         New-Item -Path "jdk-temp" -ItemType "directory"
+    #         tar -xvf $jdkZipName -C "jdk-temp"
+    #         Move-Item -Path (Join-Path -Path "jdk-temp" -ChildPath (Get-ChildItem "jdk-temp")[0].Name) -Destination $jdkUnzipName
+    #     }
+    # }
 
-    $javaHome = (Convert-Path $jdkUnzipName)
-    Write-Host "Latest JDK: $javaHome"
+    # $javaHome = (Convert-Path $jdkUnzipName)
+    # Write-Host "Latest JDK: $javaHome"
 
-    Write-Host "Current JAVA_HOME: $Env:JAVA_HOME"
-    $env:JAVA_HOME = $javaHome
-    Write-Host "Updated JAVA_HOME: $Env:JAVA_HOME"
+    # Write-Host "Current JAVA_HOME: $Env:JAVA_HOME"
+    # $env:JAVA_HOME = $javaHome
+    # Write-Host "Updated JAVA_HOME: $Env:JAVA_HOME"
 
-    $env:PATH = "$javaHome\bin;$env:PATH"
+    # $env:PATH = "$javaHome\bin;$env:PATH"
   
-    Write-Host "Updated PATH: $env:PATH"
-    Invoke-LoggedCommand "java -version"
-    Invoke-LoggedCommand "mvn -version"
+    # Write-Host "Updated PATH: $env:PATH"
+    # Invoke-LoggedCommand "java -version"
+    # Invoke-LoggedCommand "mvn -version"
 
     # install and list npm packages
     if ($BuildArtifactsPath) {
