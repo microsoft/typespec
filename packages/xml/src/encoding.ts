@@ -6,8 +6,7 @@ import type { XmlEncodeData, XmlEncoding } from "./types.js";
  * This will return the default encoding for each types.(e.g. TypeSpec.Xml.Encoding.xmlDateTime for a utcDatetime)
  * @param program
  * @param type
- * @returns Xml encoding
- * @public
+ * @returns
  */
 export function getXmlEncoding(
   program: Program,
