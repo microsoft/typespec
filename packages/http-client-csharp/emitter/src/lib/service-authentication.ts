@@ -31,7 +31,7 @@ export function processServiceAuthentication(
     return processAuthType(authClientParameter.type);
   }
   const inputAuth: InputAuth = {};
-  for (const authType of authClientParameter.type.values) {
+  for (const authType of authClientParameter.type.variantTypes) {
     // TODO: TCGC might change to []SdkCredentialType
     const auth = processAuthType(authType as SdkCredentialType);
     if (auth?.ApiKey) {

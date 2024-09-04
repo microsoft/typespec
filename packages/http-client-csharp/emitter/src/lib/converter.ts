@@ -278,7 +278,7 @@ function fromSdkDurationType(durationType: SdkDurationType): InputDurationType {
 // TODO: tuple is not officially supported
 function fromTupleType(tupleType: SdkTupleType): InputType {
   return {
-    Kind: "any",
+    Kind: "unknown",
     Name: "tuple",
     CrossLanguageDefinitionId: "",
     Decorators: tupleType.decorators,
@@ -302,7 +302,7 @@ function fromUnionType(
   typeMap: SdkTypeMap
 ): InputUnionType {
   const variantTypes: InputType[] = [];
-  for (const value of union.values) {
+  for (const value of union.variantTypes) {
     const variantType = fromSdkType(value, context, typeMap);
     variantTypes.push(variantType);
   }

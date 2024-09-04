@@ -28,9 +28,6 @@ import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-conv
 import { processServiceAuthentication } from "./service-authentication.js";
 
 export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeModel {
-  // initialize tcgc model
-  if (!sdkContext.operationModelsMap) getAllModels(sdkContext);
-
   const sdkPackage = sdkContext.sdkPackage;
 
   const sdkTypeMap: SdkTypeMap = {
@@ -134,7 +131,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   function fromSdkEndpointParameter(p: SdkEndpointParameter): InputParameter[] {
     // TODO: handle SdkUnionType
     if (p.type.kind === "union") {
-      return fromSdkEndpointType(p.type.values[0] as SdkEndpointType);
+      return fromSdkEndpointType(p.type.variantTypes[0] as SdkEndpointType);
     } else {
       return fromSdkEndpointType(p.type);
     }
@@ -196,8 +193,8 @@ function getMethodUri(p: SdkEndpointParameter | undefined): string {
 
   if (p.type.kind === "endpoint" && p.type.templateArguments.length > 0) return p.type.serverUrl;
 
-  if (p.type.kind === "union" && p.type.values.length > 0)
-    return (p.type.values[0] as SdkEndpointType).serverUrl;
+  if (p.type.kind === "union" && p.type.variantTypes.length > 0)
+    return (p.type.variantTypes[0]).serverUrl;
 
   return `{${p.name}}`;
 }

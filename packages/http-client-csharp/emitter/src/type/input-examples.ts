@@ -77,7 +77,7 @@ export interface InputNullExampleValue extends InputExampleTypeValueBase {
   value: null;
 }
 export interface InputAnyExampleValue extends InputExampleTypeValueBase {
-  kind: "any";
+  kind: "unknown";
   type: InputPrimitiveType;
   value: unknown;
 }

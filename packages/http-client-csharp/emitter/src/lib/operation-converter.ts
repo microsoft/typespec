@@ -319,7 +319,7 @@ function getMediaTypes(type: SdkType): string[] {
     return [type.value as string];
   } else if (type.kind === "union") {
     const mediaTypes: string[] = [];
-    for (const unionItem of type.values) {
+    for (const unionItem of type.variantTypes) {
       if (unionItem.kind === "constant" && unionItem.valueType.kind === "string") {
         mediaTypes.push(unionItem.value as string);
       } else {
