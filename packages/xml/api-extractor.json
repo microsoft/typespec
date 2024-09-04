@@ -8,7 +8,8 @@
     "enabled": true
   },
   "docModel": {
-    "enabled": true
+    "enabled": true,
+    "apiJsonFilePath": "<projectFolder>/temp/<unscopedPackageName>.api.json"
   },
   "dtsRollup": {
     "enabled": false
