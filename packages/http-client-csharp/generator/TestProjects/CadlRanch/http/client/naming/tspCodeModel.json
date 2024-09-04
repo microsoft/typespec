@@ -69,19 +69,21 @@
    "Properties": [
     {
      "$id": "10",
-     "Name": "clientName",
-     "SerializedName": "defaultName",
-     "Description": "Pass in true",
-     "Type": {
+     "name": "clientName",
+     "serializedName": "defaultName",
+     "description": "Pass in true",
+     "type": {
       "$id": "11",
       "Kind": "boolean",
       "Name": "boolean",
       "CrossLanguageDefinitionId": "TypeSpec.boolean",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Client.Naming.Property.ClientNameModel.defaultName"
     }
    ]
   },
@@ -95,19 +97,21 @@
    "Properties": [
     {
      "$id": "13",
-     "Name": "CSName",
-     "SerializedName": "defaultName",
-     "Description": "Pass in true",
-     "Type": {
+     "name": "CSName",
+     "serializedName": "defaultName",
+     "description": "Pass in true",
+     "type": {
       "$id": "14",
       "Kind": "boolean",
       "Name": "boolean",
       "CrossLanguageDefinitionId": "TypeSpec.boolean",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Client.Naming.Property.LanguageClientNameModel.defaultName"
     }
    ]
   },
@@ -121,19 +125,21 @@
    "Properties": [
     {
      "$id": "16",
-     "Name": "clientName",
-     "SerializedName": "wireName",
-     "Description": "Pass in true",
-     "Type": {
+     "name": "clientName",
+     "serializedName": "wireName",
+     "description": "Pass in true",
+     "type": {
       "$id": "17",
       "Kind": "boolean",
       "Name": "boolean",
       "CrossLanguageDefinitionId": "TypeSpec.boolean",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Client.Naming.Property.ClientNameAndJsonEncodedNameModel.defaultName"
     }
    ]
   },
@@ -147,19 +153,21 @@
    "Properties": [
     {
      "$id": "19",
-     "Name": "defaultName",
-     "SerializedName": "defaultName",
-     "Description": "Pass in true",
-     "Type": {
+     "name": "defaultName",
+     "serializedName": "defaultName",
+     "description": "Pass in true",
+     "type": {
       "$id": "20",
       "Kind": "boolean",
       "Name": "boolean",
       "CrossLanguageDefinitionId": "TypeSpec.boolean",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Client.Naming.Model.ModelWithClientClientName.defaultName"
     }
    ]
   },
@@ -173,19 +181,21 @@
    "Properties": [
     {
      "$id": "22",
-     "Name": "defaultName",
-     "SerializedName": "defaultName",
-     "Description": "Pass in true",
-     "Type": {
+     "name": "defaultName",
+     "serializedName": "defaultName",
+     "description": "Pass in true",
+     "type": {
       "$id": "23",
       "Kind": "boolean",
       "Name": "boolean",
       "CrossLanguageDefinitionId": "TypeSpec.boolean",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Client.Naming.Model.ModelWithLanguageClientName.defaultName"
     }
    ]
   }

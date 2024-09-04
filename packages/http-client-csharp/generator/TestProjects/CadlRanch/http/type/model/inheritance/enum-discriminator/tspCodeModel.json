@@ -67,16 +67,17 @@
    "Decorators": [],
    "DiscriminatorProperty": {
     "$id": "9",
-    "Name": "kind",
-    "SerializedName": "kind",
-    "Description": "discriminator property",
-    "Type": {
+    "name": "kind",
+    "serializedName": "kind",
+    "description": "discriminator property",
+    "type": {
      "$ref": "2"
     },
-    "IsRequired": true,
-    "IsReadOnly": false,
-    "IsDiscriminator": true,
-    "Decorators": []
+    "optional": false,
+    "readOnly": false,
+    "discriminator": true,
+    "decorators": [],
+    "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Dog.kind"
    },
    "Properties": [
     {
@@ -84,19 +85,21 @@
     },
     {
      "$id": "10",
-     "Name": "weight",
-     "SerializedName": "weight",
-     "Description": "Weight of the dog",
-     "Type": {
+     "name": "weight",
+     "serializedName": "weight",
+     "description": "Weight of the dog",
+     "type": {
       "$id": "11",
       "Kind": "int32",
       "Name": "int32",
       "CrossLanguageDefinitionId": "TypeSpec.int32",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Dog.weight"
     }
    ],
    "DiscriminatedSubtypes": {
@@ -116,10 +119,10 @@
      "Properties": [
       {
        "$id": "14",
-       "Name": "kind",
-       "SerializedName": "kind",
-       "Description": "discriminator property",
-       "Type": {
+       "name": "kind",
+       "serializedName": "kind",
+       "description": "discriminator property",
+       "type": {
         "$id": "15",
         "Kind": "constant",
         "ValueType": {
@@ -132,10 +135,11 @@
         "Value": "golden",
         "Decorators": []
        },
-       "IsRequired": true,
-       "IsReadOnly": false,
-       "IsDiscriminator": true,
-       "Decorators": []
+       "optional": false,
+       "readOnly": false,
+       "discriminator": true,
+       "decorators": [],
+       "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Golden.kind"
       }
      ]
     }
@@ -154,16 +158,17 @@
    "Decorators": [],
    "DiscriminatorProperty": {
     "$id": "18",
-    "Name": "kind",
-    "SerializedName": "kind",
-    "Description": "discriminator property",
-    "Type": {
+    "name": "kind",
+    "serializedName": "kind",
+    "description": "discriminator property",
+    "type": {
      "$ref": "5"
     },
-    "IsRequired": true,
-    "IsReadOnly": false,
-    "IsDiscriminator": true,
-    "Decorators": []
+    "optional": false,
+    "readOnly": false,
+    "discriminator": true,
+    "decorators": [],
+    "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Snake.kind"
    },
    "Properties": [
     {
@@ -171,19 +176,21 @@
     },
     {
      "$id": "19",
-     "Name": "length",
-     "SerializedName": "length",
-     "Description": "Length of the snake",
-     "Type": {
+     "name": "length",
+     "serializedName": "length",
+     "description": "Length of the snake",
+     "type": {
       "$id": "20",
       "Kind": "int32",
       "Name": "int32",
       "CrossLanguageDefinitionId": "TypeSpec.int32",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Snake.length"
     }
    ],
    "DiscriminatedSubtypes": {
@@ -203,10 +210,10 @@
      "Properties": [
       {
        "$id": "23",
-       "Name": "kind",
-       "SerializedName": "kind",
-       "Description": "discriminator property",
-       "Type": {
+       "name": "kind",
+       "serializedName": "kind",
+       "description": "discriminator property",
+       "type": {
         "$id": "24",
         "Kind": "constant",
         "ValueType": {
@@ -219,10 +226,11 @@
         "Value": "cobra",
         "Decorators": []
        },
-       "IsRequired": true,
-       "IsReadOnly": false,
-       "IsDiscriminator": true,
-       "Decorators": []
+       "optional": false,
+       "readOnly": false,
+       "discriminator": true,
+       "decorators": [],
+       "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Cobra.kind"
       }
      ]
     }

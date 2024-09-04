@@ -15,19 +15,20 @@
    "Properties": [
     {
      "$id": "3",
-     "Name": "requiredProp",
-     "SerializedName": "requiredProp",
-     "Description": "",
-     "Type": {
+     "name": "requiredProp",
+     "serializedName": "requiredProp",
+     "type": {
       "$id": "4",
       "Kind": "string",
       "Name": "string",
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Model.Usage.InputRecord.requiredProp"
     }
    ]
   },
@@ -42,19 +43,20 @@
    "Properties": [
     {
      "$id": "6",
-     "Name": "requiredProp",
-     "SerializedName": "requiredProp",
-     "Description": "",
-     "Type": {
+     "name": "requiredProp",
+     "serializedName": "requiredProp",
+     "type": {
       "$id": "7",
       "Kind": "string",
       "Name": "string",
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Model.Usage.OutputRecord.requiredProp"
     }
    ]
   },
@@ -69,19 +71,20 @@
    "Properties": [
     {
      "$id": "9",
-     "Name": "requiredProp",
-     "SerializedName": "requiredProp",
-     "Description": "",
-     "Type": {
+     "name": "requiredProp",
+     "serializedName": "requiredProp",
+     "type": {
       "$id": "10",
       "Kind": "string",
       "Name": "string",
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Model.Usage.InputOutputRecord.requiredProp"
     }
    ]
   }

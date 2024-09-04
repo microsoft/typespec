@@ -84,7 +84,7 @@ namespace Microsoft.Generator.CSharp.Providers
             EnclosingType = enclosingType;
             IsDiscriminator = inputProperty.IsDiscriminator;
 
-            InitializeParameter(Name, FormattableStringHelpers.FromString(inputProperty.Description), Type);
+            InitializeParameter(Name, FormattableStringHelpers.FromString(inputProperty.Description) ?? FormattableStringHelpers.Empty, Type);
         }
 
         public PropertyProvider(

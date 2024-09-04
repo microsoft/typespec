@@ -55,7 +55,6 @@ namespace Microsoft.Generator.CSharp.Input
             }
 
             name = name ?? throw new JsonException($"{nameof(InputModelProperty)} must have a name.");
-            description = description ?? throw new JsonException($"{nameof(InputModelProperty)} must have a description.");
             // TO-DO: Implement as part of autorest output classes migration https://github.com/Azure/autorest.csharp/issues/4198
             // description = BuilderHelpers.EscapeXmlDocDescription(description);
             propertyType = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");

@@ -14,19 +14,20 @@
    "Properties": [
     {
      "$id": "3",
-     "Name": "error",
-     "SerializedName": "error",
-     "Description": "",
-     "Type": {
+     "name": "error",
+     "serializedName": "error",
+     "type": {
       "$id": "4",
       "Kind": "string",
       "Name": "string",
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Authentication.OAuth2.InvalidAuth.error"
     }
    ]
   }
