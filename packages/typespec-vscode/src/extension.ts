@@ -298,7 +298,7 @@ export async function deactivate() {
  * Simpler aLternative until https://github.com/microsoft/vscode/issues/46471 is supported.
  */
 class VSCodeVariableResolver {
-  static readonly VARIABLE_REGEXP = /\$\{(.*?)\}/g;
+  static readonly VARIABLE_REGEXP = /\$\{([^{}]+?)\}/g;
 
   public constructor(private variables: Record<string, string>) {}
 
