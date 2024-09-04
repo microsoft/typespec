@@ -61,7 +61,7 @@ namespace Microsoft.Generator.CSharp
             return type;
         }
 
-        private CSharpType? CreateCSharpTypeCore(InputType inputType)
+        private protected virtual CSharpType? CreateCSharpTypeCore(InputType inputType)
         {
             CSharpType? type;
             switch (inputType)

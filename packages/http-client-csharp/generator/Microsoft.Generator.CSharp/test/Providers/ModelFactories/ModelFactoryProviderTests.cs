@@ -75,6 +75,29 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
         }
 
         [Test]
+        public void DiscriminatorEnumParamShape()
+        {
+            var modelFactory = ModelFactoryProvider.FromInputLibrary();
+            var models = ModelList.Select(CodeModelPlugin.Instance.TypeFactory.CreateModel);
+            foreach (var model in models)
+            {
+                if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                    continue; //skip internal models
+
+                Assert.IsNotNull(model, "Null ModelProvider found");
+                var method = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == model!.Name);
+                Assert.IsNotNull(method);
+                foreach (var property in model!.Properties.Where(p => p.Type.IsEnum))
+                {
+                    var parameter = method!.Signature.Parameters.FirstOrDefault(p => p.Name == property.Name.ToVariableName());
+                    Assert.IsNotNull(parameter);
+                    Assert.IsTrue(parameter!.Type.IsFrameworkType);
+                    Assert.AreEqual(typeof(int), parameter!.Type.FrameworkType);
+                }
+            }
+        }
+
+        [Test]
         public void ModelFactoryName()
         {
             var modelFactory = ModelFactoryProvider.FromInputLibrary();
@@ -87,7 +110,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
             [
                 InputFactory.Property("StringProp", InputPrimitiveType.String),
                 InputFactory.Property("ListProp", InputFactory.Array(InputPrimitiveType.String)),
-                InputFactory.Property("DictProp", InputFactory.Dictionary(InputPrimitiveType.String, InputPrimitiveType.String))
+                InputFactory.Property("DictProp", InputFactory.Dictionary(InputPrimitiveType.String, InputPrimitiveType.String)),
+                InputFactory.Property("EnumProp", InputFactory.Enum("inputEnum", InputPrimitiveType.Int32, isExtensible: true, values: [InputFactory.EnumMember.Int32("foo", 1)]), isDiscriminator: true)
             ];
             return
             [

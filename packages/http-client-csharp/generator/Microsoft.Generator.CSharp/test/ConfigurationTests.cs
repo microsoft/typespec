@@ -155,10 +155,10 @@ namespace Microsoft.Generator.CSharp.Tests
         }
 
         [Test]
-        [TestCase("removeOrInternalize", Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize)]
-        [TestCase("keepAll", Configuration.UnreferencedTypesHandlingOption.KeepAll)]
-        [TestCase("internalize", Configuration.UnreferencedTypesHandlingOption.Internalize)]
-        public void UnreferencedTypeHandling(string input, Configuration.UnreferencedTypesHandlingOption expectedOption)
+        [TestCase("removeOrInternalize")]
+        [TestCase("keepAll")]
+        [TestCase("internalize")]
+        public void UnreferencedTypeHandling(string input)
         {
             var mockJson = @"{
                 ""output-folder"": ""outputFolder"",
@@ -168,8 +168,15 @@ namespace Microsoft.Generator.CSharp.Tests
                 }";
 
             MockHelpers.LoadMockPlugin(configuration: mockJson);
+            var expected = input switch
+            {
+                "removeOrInternalize" => Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize,
+                "keepAll" => Configuration.UnreferencedTypesHandlingOption.KeepAll,
+                "internalize" => Configuration.UnreferencedTypesHandlingOption.Internalize,
+                _ => throw new ArgumentException("Invalid input", nameof(input))
+            };
 
-            StringAssert.AreEqualIgnoringCase(expectedOption.ToString(), input);
+            StringAssert.AreEqualIgnoringCase(expected.ToString(), input);
         }
 
         [Test]

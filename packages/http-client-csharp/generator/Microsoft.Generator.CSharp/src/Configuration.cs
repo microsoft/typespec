@@ -20,7 +20,7 @@ namespace Microsoft.Generator.CSharp
             "Enum",
         ];
 
-        public enum UnreferencedTypesHandlingOption
+        internal enum UnreferencedTypesHandlingOption
         {
             RemoveOrInternalize = 0,
             Internalize = 1,
@@ -151,7 +151,7 @@ namespace Microsoft.Generator.CSharp
 
         internal string OutputDirectory { get; }
 
-        public static UnreferencedTypesHandlingOption UnreferencedTypesHandling { get; private set; } = UnreferencedTypesHandlingOption.RemoveOrInternalize;
+        internal static UnreferencedTypesHandlingOption UnreferencedTypesHandling { get; private set; } = UnreferencedTypesHandlingOption.RemoveOrInternalize;
 
         private string? _projectDirectory;
         internal string ProjectDirectory => _projectDirectory ??= Path.Combine(OutputDirectory, "src");
