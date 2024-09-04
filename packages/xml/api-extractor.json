@@ -8,7 +8,7 @@
     "enabled": true
   },
   "docModel": {
-    "enabled": false
+    "enabled": true
   },
   "dtsRollup": {
     "enabled": false
@@ -23,6 +23,10 @@
     "extractorMessageReporting": {
       "default": {
         "logLevel": "warning"
+      },
+      "ae-forgotten-export": {
+        "logLevel": "none",
+        "addToApiReportFile": false
       }
     },
 
