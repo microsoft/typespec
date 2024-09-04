@@ -17,13 +17,13 @@
     "messages": {
       "compilerMessageReporting": {
         "default": {
-          "logLevel": "warning"
+          "logLevel": "error"
         }
       },
   
       "extractorMessageReporting": {
         "default": {
-          "logLevel": "warning"
+          "logLevel": "error"
         },
         "ae-forgotten-export": {
           "logLevel": "none",
@@ -33,7 +33,7 @@
   
       "tsdocMessageReporting": {
         "default": {
-          "logLevel": "warning"
+          "logLevel": "error"
         },
         "tsdoc-param-tag-missing-hyphen": {
           "logLevel": "none",
