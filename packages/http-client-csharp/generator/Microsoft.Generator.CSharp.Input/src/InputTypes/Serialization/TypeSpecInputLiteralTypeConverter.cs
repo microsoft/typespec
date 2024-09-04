@@ -40,9 +40,9 @@ namespace Microsoft.Generator.CSharp.Input
                     continue;
                 }
 
-                if (reader.GetString() == nameof(InputLiteralType.Value))
+                if (reader.GetString() == "value")
                 {
-                    value = ReadLiteralValue(ref reader, nameof(InputLiteralType.Value), options, type);
+                    value = ReadLiteralValue(ref reader, "value", options, type);
                 }
                 else
                 {

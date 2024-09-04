@@ -5,17 +5,17 @@
  "Enums": [
   {
    "$id": "2",
-   "Kind": "enum",
-   "Name": "ClientType",
-   "CrossLanguageDefinitionId": "Client.Structure.Service.ClientType",
-   "ValueType": {
+   "kind": "enum",
+   "name": "ClientType",
+   "crossLanguageDefinitionId": "Client.Structure.Service.ClientType",
+   "valueType": {
     "$id": "3",
-    "Kind": "string",
-    "Name": "string",
-    "CrossLanguageDefinitionId": "TypeSpec.string",
-    "Decorators": []
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
    },
-   "Values": [
+   "values": [
     {
      "$id": "4",
      "Name": "Default",
@@ -41,9 +41,10 @@
      "Decorators": []
     }
    ],
-   "IsExtensible": false,
-   "Usage": "Input",
-   "Decorators": []
+   "isFixed": true,
+   "isFlags": false,
+   "usage": "Input",
+   "decorators": []
   }
  ],
  "Models": [],
@@ -65,9 +66,9 @@
        "Description": "Need to be set as 'http://localhost:3000' in client.",
        "Type": {
         "$id": "11",
-        "Kind": "url",
-        "Name": "url",
-        "CrossLanguageDefinitionId": "TypeSpec.url"
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "Location": "Uri",
        "IsApiVersion": false,
@@ -218,9 +219,9 @@
        "Description": "Need to be set as 'http://localhost:3000' in client.",
        "Type": {
         "$id": "22",
-        "Kind": "url",
-        "Name": "url",
-        "CrossLanguageDefinitionId": "TypeSpec.url"
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "Location": "Uri",
        "IsApiVersion": false,

@@ -6,30 +6,30 @@
  "Models": [
   {
    "$id": "2",
-   "Kind": "model",
-   "Name": "Bird",
-   "CrossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Bird",
-   "Usage": "Input,Output,Json",
-   "Description": "This is base model for polymorphic single level inheritance with a discriminator.",
-   "Decorators": [],
-   "DiscriminatorProperty": {
+   "kind": "model",
+   "name": "Bird",
+   "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Bird",
+   "usage": "Input,Output,Json",
+   "description": "This is base model for polymorphic single level inheritance with a discriminator.",
+   "decorators": [],
+   "discriminatorProperty": {
     "$id": "3",
     "Name": "kind",
     "SerializedName": "kind",
     "Description": "Discriminator",
     "Type": {
      "$id": "4",
-     "Kind": "string",
-     "Name": "string",
-     "CrossLanguageDefinitionId": "TypeSpec.string",
-     "Decorators": []
+     "kind": "string",
+     "name": "string",
+     "crossLanguageDefinitionId": "TypeSpec.string",
+     "decorators": []
     },
     "IsRequired": true,
     "IsReadOnly": false,
     "IsDiscriminator": true,
     "Decorators": []
    },
-   "Properties": [
+   "properties": [
     {
      "$ref": "3"
     },
@@ -40,31 +40,31 @@
      "Description": "",
      "Type": {
       "$id": "6",
-      "Kind": "int32",
-      "Name": "int32",
-      "CrossLanguageDefinitionId": "TypeSpec.int32",
-      "Decorators": []
+      "kind": "int32",
+      "name": "int32",
+      "crossLanguageDefinitionId": "TypeSpec.int32",
+      "decorators": []
      },
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": []
     }
    ],
-   "DiscriminatedSubtypes": {
+   "discriminatedSubtypes": {
     "$id": "7",
     "seagull": {
      "$id": "8",
-     "Kind": "model",
-     "Name": "SeaGull",
-     "CrossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.SeaGull",
-     "Usage": "Input,Output,Json",
-     "Description": "The second level model in polymorphic single level inheritance.",
-     "DiscriminatorValue": "seagull",
-     "Decorators": [],
-     "BaseModel": {
+     "kind": "model",
+     "name": "SeaGull",
+     "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.SeaGull",
+     "usage": "Input,Output,Json",
+     "description": "The second level model in polymorphic single level inheritance.",
+     "discriminatorValue": "seagull",
+     "decorators": [],
+     "baseModel": {
       "$ref": "2"
      },
-     "Properties": [
+     "properties": [
       {
        "$id": "9",
        "Name": "kind",
@@ -72,16 +72,16 @@
        "Description": "Discriminator",
        "Type": {
         "$id": "10",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "11",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "seagull",
-        "Decorators": []
+        "value": "seagull",
+        "decorators": []
        },
        "IsRequired": true,
        "IsReadOnly": false,
@@ -92,17 +92,17 @@
     },
     "sparrow": {
      "$id": "12",
-     "Kind": "model",
-     "Name": "Sparrow",
-     "CrossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Sparrow",
-     "Usage": "Input,Output,Json",
-     "Description": "The second level model in polymorphic single level inheritance.",
-     "DiscriminatorValue": "sparrow",
-     "Decorators": [],
-     "BaseModel": {
+     "kind": "model",
+     "name": "Sparrow",
+     "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Sparrow",
+     "usage": "Input,Output,Json",
+     "description": "The second level model in polymorphic single level inheritance.",
+     "discriminatorValue": "sparrow",
+     "decorators": [],
+     "baseModel": {
       "$ref": "2"
      },
-     "Properties": [
+     "properties": [
       {
        "$id": "13",
        "Name": "kind",
@@ -110,16 +110,16 @@
        "Description": "Discriminator",
        "Type": {
         "$id": "14",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "15",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "sparrow",
-        "Decorators": []
+        "value": "sparrow",
+        "decorators": []
        },
        "IsRequired": true,
        "IsReadOnly": false,
@@ -130,17 +130,17 @@
     },
     "goose": {
      "$id": "16",
-     "Kind": "model",
-     "Name": "Goose",
-     "CrossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Goose",
-     "Usage": "Input,Output,Json",
-     "Description": "The second level model in polymorphic single level inheritance.",
-     "DiscriminatorValue": "goose",
-     "Decorators": [],
-     "BaseModel": {
+     "kind": "model",
+     "name": "Goose",
+     "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Goose",
+     "usage": "Input,Output,Json",
+     "description": "The second level model in polymorphic single level inheritance.",
+     "discriminatorValue": "goose",
+     "decorators": [],
+     "baseModel": {
       "$ref": "2"
      },
-     "Properties": [
+     "properties": [
       {
        "$id": "17",
        "Name": "kind",
@@ -148,16 +148,16 @@
        "Description": "Discriminator",
        "Type": {
         "$id": "18",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "19",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "goose",
-        "Decorators": []
+        "value": "goose",
+        "decorators": []
        },
        "IsRequired": true,
        "IsReadOnly": false,
@@ -168,17 +168,17 @@
     },
     "eagle": {
      "$id": "20",
-     "Kind": "model",
-     "Name": "Eagle",
-     "CrossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Eagle",
-     "Usage": "Input,Output,Json",
-     "Description": "The second level model in polymorphic single levels inheritance which contains references to other polymorphic instances.",
-     "DiscriminatorValue": "eagle",
-     "Decorators": [],
-     "BaseModel": {
+     "kind": "model",
+     "name": "Eagle",
+     "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Eagle",
+     "usage": "Input,Output,Json",
+     "description": "The second level model in polymorphic single levels inheritance which contains references to other polymorphic instances.",
+     "discriminatorValue": "eagle",
+     "decorators": [],
+     "baseModel": {
       "$ref": "2"
      },
-     "Properties": [
+     "properties": [
       {
        "$id": "21",
        "Name": "kind",
@@ -186,16 +186,16 @@
        "Description": "Discriminator",
        "Type": {
         "$id": "22",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "23",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "eagle",
-        "Decorators": []
+        "value": "eagle",
+        "decorators": []
        },
        "IsRequired": true,
        "IsReadOnly": false,
@@ -209,13 +209,13 @@
        "Description": "",
        "Type": {
         "$id": "25",
-        "Kind": "array",
-        "Name": "ArrayBird",
-        "ValueType": {
+        "kind": "array",
+        "name": "ArrayBird",
+        "valueType": {
          "$ref": "2"
         },
-        "CrossLanguageDefinitionId": "TypeSpec.Array",
-        "Decorators": []
+        "crossLanguageDefinitionId": "TypeSpec.Array",
+        "decorators": []
        },
        "IsRequired": false,
        "IsReadOnly": false,
@@ -228,18 +228,18 @@
        "Description": "",
        "Type": {
         "$id": "27",
-        "Kind": "dict",
-        "KeyType": {
+        "kind": "dict",
+        "keyType": {
          "$id": "28",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "ValueType": {
+        "valueType": {
          "$ref": "2"
         },
-        "Decorators": []
+        "decorators": []
        },
        "IsRequired": false,
        "IsReadOnly": false,
@@ -275,30 +275,30 @@
   },
   {
    "$id": "30",
-   "Kind": "model",
-   "Name": "Dinosaur",
-   "CrossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Dinosaur",
-   "Usage": "Output,Json",
-   "Description": "Define a base class in the legacy way. Discriminator property is not explicitly defined in the model.",
-   "Decorators": [],
-   "DiscriminatorProperty": {
+   "kind": "model",
+   "name": "Dinosaur",
+   "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Dinosaur",
+   "usage": "Output,Json",
+   "description": "Define a base class in the legacy way. Discriminator property is not explicitly defined in the model.",
+   "decorators": [],
+   "discriminatorProperty": {
     "$id": "31",
     "Name": "kind",
     "SerializedName": "kind",
     "Description": "Discriminator property for Dinosaur.",
     "Type": {
      "$id": "32",
-     "Kind": "string",
-     "Name": "string",
-     "CrossLanguageDefinitionId": "TypeSpec.string",
-     "Decorators": []
+     "kind": "string",
+     "name": "string",
+     "crossLanguageDefinitionId": "TypeSpec.string",
+     "decorators": []
     },
     "IsRequired": true,
     "IsReadOnly": false,
     "IsDiscriminator": true,
     "Decorators": []
    },
-   "Properties": [
+   "properties": [
     {
      "$ref": "31"
     },
@@ -309,31 +309,31 @@
      "Description": "",
      "Type": {
       "$id": "34",
-      "Kind": "int32",
-      "Name": "int32",
-      "CrossLanguageDefinitionId": "TypeSpec.int32",
-      "Decorators": []
+      "kind": "int32",
+      "name": "int32",
+      "crossLanguageDefinitionId": "TypeSpec.int32",
+      "decorators": []
      },
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": []
     }
    ],
-   "DiscriminatedSubtypes": {
+   "discriminatedSubtypes": {
     "$id": "35",
     "t-rex": {
      "$id": "36",
-     "Kind": "model",
-     "Name": "TRex",
-     "CrossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.TRex",
-     "Usage": "Output,Json",
-     "Description": "The second level legacy model in polymorphic single level inheritance.",
-     "DiscriminatorValue": "t-rex",
-     "Decorators": [],
-     "BaseModel": {
+     "kind": "model",
+     "name": "TRex",
+     "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.TRex",
+     "usage": "Output,Json",
+     "description": "The second level legacy model in polymorphic single level inheritance.",
+     "discriminatorValue": "t-rex",
+     "decorators": [],
+     "baseModel": {
       "$ref": "30"
      },
-     "Properties": [
+     "properties": [
       {
        "$id": "37",
        "Name": "kind",
@@ -341,16 +341,16 @@
        "Description": "Discriminator",
        "Type": {
         "$id": "38",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "39",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "t-rex",
-        "Decorators": []
+        "value": "t-rex",
+        "decorators": []
        },
        "IsRequired": true,
        "IsReadOnly": false,
@@ -383,9 +383,9 @@
        "NameInRequest": "endpoint",
        "Type": {
         "$id": "43",
-        "Kind": "url",
-        "Name": "url",
-        "CrossLanguageDefinitionId": "TypeSpec.url"
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "Location": "Uri",
        "IsApiVersion": false,
@@ -400,9 +400,9 @@
         "$id": "44",
         "Type": {
          "$id": "45",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string"
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "Value": "http://localhost:3000"
        }
@@ -413,16 +413,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "47",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "48",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -478,16 +478,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "52",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "53",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -556,16 +556,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "58",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "59",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -621,16 +621,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "63",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "64",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -699,16 +699,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "69",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "70",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -763,16 +763,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "74",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "75",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -827,16 +827,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "79",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "80",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,

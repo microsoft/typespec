@@ -5,17 +5,17 @@
  "Enums": [
   {
    "$id": "2",
-   "Kind": "enum",
-   "Name": "DogKind",
-   "CrossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.DogKind",
-   "ValueType": {
+   "kind": "enum",
+   "name": "DogKind",
+   "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.DogKind",
+   "valueType": {
     "$id": "3",
-    "Kind": "string",
-    "Name": "string",
-    "CrossLanguageDefinitionId": "TypeSpec.string",
-    "Decorators": []
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
    },
-   "Values": [
+   "values": [
     {
      "$id": "4",
      "Name": "Golden",
@@ -24,24 +24,25 @@
      "Decorators": []
     }
    ],
-   "Description": "extensible enum type for discriminator",
-   "IsExtensible": true,
-   "Usage": "Input,Output,Json",
-   "Decorators": []
+   "description": "extensible enum type for discriminator",
+   "isFixed": false,
+   "isFlags": false,
+   "usage": "Input,Output,Json",
+   "decorators": []
   },
   {
    "$id": "5",
-   "Kind": "enum",
-   "Name": "SnakeKind",
-   "CrossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.SnakeKind",
-   "ValueType": {
+   "kind": "enum",
+   "name": "SnakeKind",
+   "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.SnakeKind",
+   "valueType": {
     "$id": "6",
-    "Kind": "string",
-    "Name": "string",
-    "CrossLanguageDefinitionId": "TypeSpec.string",
-    "Decorators": []
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
    },
-   "Values": [
+   "values": [
     {
      "$id": "7",
      "Name": "Cobra",
@@ -50,22 +51,23 @@
      "Decorators": []
     }
    ],
-   "Description": "fixed enum type for discriminator",
-   "IsExtensible": false,
-   "Usage": "Input,Output,Json",
-   "Decorators": []
+   "description": "fixed enum type for discriminator",
+   "isFixed": true,
+   "isFlags": false,
+   "usage": "Input,Output,Json",
+   "decorators": []
   }
  ],
  "Models": [
   {
    "$id": "8",
-   "Kind": "model",
-   "Name": "Dog",
-   "CrossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Dog",
-   "Usage": "Input,Output,Json",
-   "Description": "Test extensible enum type for discriminator",
-   "Decorators": [],
-   "DiscriminatorProperty": {
+   "kind": "model",
+   "name": "Dog",
+   "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Dog",
+   "usage": "Input,Output,Json",
+   "description": "Test extensible enum type for discriminator",
+   "decorators": [],
+   "discriminatorProperty": {
     "$id": "9",
     "Name": "kind",
     "SerializedName": "kind",
@@ -78,7 +80,7 @@
     "IsDiscriminator": true,
     "Decorators": []
    },
-   "Properties": [
+   "properties": [
     {
      "$ref": "9"
     },
@@ -89,31 +91,31 @@
      "Description": "Weight of the dog",
      "Type": {
       "$id": "11",
-      "Kind": "int32",
-      "Name": "int32",
-      "CrossLanguageDefinitionId": "TypeSpec.int32",
-      "Decorators": []
+      "kind": "int32",
+      "name": "int32",
+      "crossLanguageDefinitionId": "TypeSpec.int32",
+      "decorators": []
      },
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": []
     }
    ],
-   "DiscriminatedSubtypes": {
+   "discriminatedSubtypes": {
     "$id": "12",
     "golden": {
      "$id": "13",
-     "Kind": "model",
-     "Name": "Golden",
-     "CrossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Golden",
-     "Usage": "Input,Output,Json",
-     "Description": "Golden dog model",
-     "DiscriminatorValue": "golden",
-     "Decorators": [],
-     "BaseModel": {
+     "kind": "model",
+     "name": "Golden",
+     "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Golden",
+     "usage": "Input,Output,Json",
+     "description": "Golden dog model",
+     "discriminatorValue": "golden",
+     "decorators": [],
+     "baseModel": {
       "$ref": "8"
      },
-     "Properties": [
+     "properties": [
       {
        "$id": "14",
        "Name": "kind",
@@ -121,16 +123,16 @@
        "Description": "discriminator property",
        "Type": {
         "$id": "15",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "16",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "golden",
-        "Decorators": []
+        "value": "golden",
+        "decorators": []
        },
        "IsRequired": true,
        "IsReadOnly": false,
@@ -146,13 +148,13 @@
   },
   {
    "$id": "17",
-   "Kind": "model",
-   "Name": "Snake",
-   "CrossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Snake",
-   "Usage": "Input,Output,Json",
-   "Description": "Test fixed enum type for discriminator",
-   "Decorators": [],
-   "DiscriminatorProperty": {
+   "kind": "model",
+   "name": "Snake",
+   "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Snake",
+   "usage": "Input,Output,Json",
+   "description": "Test fixed enum type for discriminator",
+   "decorators": [],
+   "discriminatorProperty": {
     "$id": "18",
     "Name": "kind",
     "SerializedName": "kind",
@@ -165,7 +167,7 @@
     "IsDiscriminator": true,
     "Decorators": []
    },
-   "Properties": [
+   "properties": [
     {
      "$ref": "18"
     },
@@ -176,31 +178,31 @@
      "Description": "Length of the snake",
      "Type": {
       "$id": "20",
-      "Kind": "int32",
-      "Name": "int32",
-      "CrossLanguageDefinitionId": "TypeSpec.int32",
-      "Decorators": []
+      "kind": "int32",
+      "name": "int32",
+      "crossLanguageDefinitionId": "TypeSpec.int32",
+      "decorators": []
      },
      "IsRequired": true,
      "IsReadOnly": false,
      "Decorators": []
     }
    ],
-   "DiscriminatedSubtypes": {
+   "discriminatedSubtypes": {
     "$id": "21",
     "cobra": {
      "$id": "22",
-     "Kind": "model",
-     "Name": "Cobra",
-     "CrossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Cobra",
-     "Usage": "Input,Output,Json",
-     "Description": "Cobra model",
-     "DiscriminatorValue": "cobra",
-     "Decorators": [],
-     "BaseModel": {
+     "kind": "model",
+     "name": "Cobra",
+     "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Cobra",
+     "usage": "Input,Output,Json",
+     "description": "Cobra model",
+     "discriminatorValue": "cobra",
+     "decorators": [],
+     "baseModel": {
       "$ref": "17"
      },
-     "Properties": [
+     "properties": [
       {
        "$id": "23",
        "Name": "kind",
@@ -208,16 +210,16 @@
        "Description": "discriminator property",
        "Type": {
         "$id": "24",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "25",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "cobra",
-        "Decorators": []
+        "value": "cobra",
+        "decorators": []
        },
        "IsRequired": true,
        "IsReadOnly": false,
@@ -251,9 +253,9 @@
        "NameInRequest": "endpoint",
        "Type": {
         "$id": "29",
-        "Kind": "url",
-        "Name": "url",
-        "CrossLanguageDefinitionId": "TypeSpec.url"
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "Location": "Uri",
        "IsApiVersion": false,
@@ -268,9 +270,9 @@
         "$id": "30",
         "Type": {
          "$id": "31",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string"
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "Value": "http://localhost:3000"
        }
@@ -281,16 +283,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "33",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "34",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -347,16 +349,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "38",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "39",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -427,16 +429,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "44",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "45",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -492,16 +494,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "49",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "50",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -557,16 +559,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "54",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "55",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -623,16 +625,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "59",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "60",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -703,16 +705,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "65",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "66",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -768,16 +770,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "70",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "71",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,

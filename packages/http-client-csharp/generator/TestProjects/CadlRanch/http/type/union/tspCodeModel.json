@@ -5,17 +5,17 @@
  "Enums": [
   {
    "$id": "2",
-   "Kind": "enum",
-   "Name": "EnumsOnlyCasesLr",
-   "CrossLanguageDefinitionId": "EnumsOnlyCases.lr.anonymous",
-   "ValueType": {
+   "kind": "enum",
+   "name": "EnumsOnlyCasesLr",
+   "crossLanguageDefinitionId": "EnumsOnlyCases.lr.anonymous",
+   "valueType": {
     "$id": "3",
-    "Kind": "string",
-    "Name": "string",
-    "CrossLanguageDefinitionId": "TypeSpec.string",
-    "Decorators": []
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
    },
-   "Values": [
+   "values": [
     {
      "$id": "4",
      "Name": "left",
@@ -41,23 +41,24 @@
      "Decorators": []
     }
    ],
-   "IsExtensible": false,
-   "Usage": "Input,Output,Json",
-   "Decorators": []
+   "isFixed": true,
+   "isFlags": false,
+   "usage": "Input,Output,Json",
+   "decorators": []
   },
   {
    "$id": "8",
-   "Kind": "enum",
-   "Name": "EnumsOnlyCasesUd",
-   "CrossLanguageDefinitionId": "EnumsOnlyCases.ud.anonymous",
-   "ValueType": {
+   "kind": "enum",
+   "name": "EnumsOnlyCasesUd",
+   "crossLanguageDefinitionId": "EnumsOnlyCases.ud.anonymous",
+   "valueType": {
     "$id": "9",
-    "Kind": "string",
-    "Name": "string",
-    "CrossLanguageDefinitionId": "TypeSpec.string",
-    "Decorators": []
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
    },
-   "Values": [
+   "values": [
     {
      "$id": "10",
      "Name": "up",
@@ -71,23 +72,24 @@
      "Decorators": []
     }
    ],
-   "IsExtensible": false,
-   "Usage": "Input,Output,Json",
-   "Decorators": []
+   "isFixed": true,
+   "isFlags": false,
+   "usage": "Input,Output,Json",
+   "decorators": []
   },
   {
    "$id": "12",
-   "Kind": "enum",
-   "Name": "GetResponseProp1",
-   "CrossLanguageDefinitionId": "get.Response.prop.anonymous",
-   "ValueType": {
+   "kind": "enum",
+   "name": "GetResponseProp1",
+   "crossLanguageDefinitionId": "get.Response.prop.anonymous",
+   "valueType": {
     "$id": "13",
-    "Kind": "float32",
-    "Name": "float32",
-    "CrossLanguageDefinitionId": "TypeSpec.float32",
-    "Decorators": []
+    "kind": "float32",
+    "name": "float32",
+    "crossLanguageDefinitionId": "TypeSpec.float32",
+    "decorators": []
    },
-   "Values": [
+   "values": [
     {
      "$id": "14",
      "Name": "1.1",
@@ -107,23 +109,24 @@
      "Decorators": []
     }
    ],
-   "IsExtensible": false,
-   "Usage": "Input,Output,Json",
-   "Decorators": []
+   "isFixed": true,
+   "isFlags": false,
+   "usage": "Input,Output,Json",
+   "decorators": []
   },
   {
    "$id": "17",
-   "Kind": "enum",
-   "Name": "GetResponseProp2",
-   "CrossLanguageDefinitionId": "get.Response.prop.anonymous",
-   "ValueType": {
+   "kind": "enum",
+   "name": "GetResponseProp2",
+   "crossLanguageDefinitionId": "get.Response.prop.anonymous",
+   "valueType": {
     "$id": "18",
-    "Kind": "int32",
-    "Name": "int32",
-    "CrossLanguageDefinitionId": "TypeSpec.int32",
-    "Decorators": []
+    "kind": "int32",
+    "name": "int32",
+    "crossLanguageDefinitionId": "TypeSpec.int32",
+    "decorators": []
    },
-   "Values": [
+   "values": [
     {
      "$id": "19",
      "Name": "1",
@@ -143,23 +146,24 @@
      "Decorators": []
     }
    ],
-   "IsExtensible": false,
-   "Usage": "Input,Output,Json",
-   "Decorators": []
+   "isFixed": true,
+   "isFlags": false,
+   "usage": "Input,Output,Json",
+   "decorators": []
   },
   {
    "$id": "22",
-   "Kind": "enum",
-   "Name": "StringExtensibleNamedUnion",
-   "CrossLanguageDefinitionId": "Type.Union.StringExtensibleNamedUnion",
-   "ValueType": {
+   "kind": "enum",
+   "name": "StringExtensibleNamedUnion",
+   "crossLanguageDefinitionId": "Type.Union.StringExtensibleNamedUnion",
+   "valueType": {
     "$id": "23",
-    "Kind": "string",
-    "Name": "string",
-    "CrossLanguageDefinitionId": "TypeSpec.string",
-    "Decorators": []
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
    },
-   "Values": [
+   "values": [
     {
      "$id": "24",
      "Name": "OptionB",
@@ -173,23 +177,24 @@
      "Decorators": []
     }
    ],
-   "IsExtensible": true,
-   "Usage": "Input,Output,Json",
-   "Decorators": []
+   "isFixed": false,
+   "isFlags": false,
+   "usage": "Input,Output,Json",
+   "decorators": []
   },
   {
    "$id": "26",
-   "Kind": "enum",
-   "Name": "GetResponseProp3",
-   "CrossLanguageDefinitionId": "get.Response.prop.anonymous",
-   "ValueType": {
+   "kind": "enum",
+   "name": "GetResponseProp3",
+   "crossLanguageDefinitionId": "get.Response.prop.anonymous",
+   "valueType": {
     "$id": "27",
-    "Kind": "string",
-    "Name": "string",
-    "CrossLanguageDefinitionId": "TypeSpec.string",
-    "Decorators": []
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
    },
-   "Values": [
+   "values": [
     {
      "$id": "28",
      "Name": "b",
@@ -203,23 +208,24 @@
      "Decorators": []
     }
    ],
-   "IsExtensible": true,
-   "Usage": "Input,Output,Json",
-   "Decorators": []
+   "isFixed": false,
+   "isFlags": false,
+   "usage": "Input,Output,Json",
+   "decorators": []
   },
   {
    "$id": "30",
-   "Kind": "enum",
-   "Name": "GetResponseProp4",
-   "CrossLanguageDefinitionId": "get.Response.prop.anonymous",
-   "ValueType": {
+   "kind": "enum",
+   "name": "GetResponseProp4",
+   "crossLanguageDefinitionId": "get.Response.prop.anonymous",
+   "valueType": {
     "$id": "31",
-    "Kind": "string",
-    "Name": "string",
-    "CrossLanguageDefinitionId": "TypeSpec.string",
-    "Decorators": []
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
    },
-   "Values": [
+   "values": [
     {
      "$id": "32",
      "Name": "a",
@@ -239,20 +245,21 @@
      "Decorators": []
     }
    ],
-   "IsExtensible": false,
-   "Usage": "Input,Output,Json",
-   "Decorators": []
+   "isFixed": true,
+   "isFlags": false,
+   "usage": "Input,Output,Json",
+   "decorators": []
   }
  ],
  "Models": [
   {
    "$id": "35",
-   "Kind": "model",
-   "Name": "GetResponse",
-   "CrossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
-   "Usage": "Output,Json",
-   "Decorators": [],
-   "Properties": [
+   "kind": "model",
+   "name": "GetResponse",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
+   "usage": "Output,Json",
+   "decorators": [],
+   "properties": [
     {
      "$id": "36",
      "Name": "prop",
@@ -260,12 +267,12 @@
      "Description": "",
      "Type": {
       "$id": "37",
-      "Kind": "model",
-      "Name": "MixedTypesCases",
-      "CrossLanguageDefinitionId": "Type.Union.MixedTypesCases",
-      "Usage": "Input,Output,Json",
-      "Decorators": [],
-      "Properties": [
+      "kind": "model",
+      "name": "MixedTypesCases",
+      "crossLanguageDefinitionId": "Type.Union.MixedTypesCases",
+      "usage": "Input,Output,Json",
+      "decorators": [],
+      "properties": [
        {
         "$id": "38",
         "Name": "model",
@@ -273,17 +280,17 @@
         "Description": "This should be receive/send the Cat variant",
         "Type": {
          "$id": "39",
-         "Kind": "union",
-         "Name": "MixedTypesCasesModel",
-         "VariantTypes": [
+         "kind": "union",
+         "name": "MixedTypesCasesModel",
+         "variantTypes": [
           {
            "$id": "40",
-           "Kind": "model",
-           "Name": "Cat",
-           "CrossLanguageDefinitionId": "Type.Union.Cat",
-           "Usage": "Input,Output,Json",
-           "Decorators": [],
-           "Properties": [
+           "kind": "model",
+           "name": "Cat",
+           "crossLanguageDefinitionId": "Type.Union.Cat",
+           "usage": "Input,Output,Json",
+           "decorators": [],
+           "properties": [
             {
              "$id": "41",
              "Name": "name",
@@ -291,10 +298,10 @@
              "Description": "",
              "Type": {
               "$id": "42",
-              "Kind": "string",
-              "Name": "string",
-              "CrossLanguageDefinitionId": "TypeSpec.string",
-              "Decorators": []
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string",
+              "decorators": []
              },
              "IsRequired": true,
              "IsReadOnly": false,
@@ -304,33 +311,33 @@
           },
           {
            "$id": "43",
-           "Kind": "constant",
-           "ValueType": {
+           "kind": "constant",
+           "valueType": {
             "$id": "44",
-            "Kind": "string",
-            "Name": "string",
-            "CrossLanguageDefinitionId": "TypeSpec.string",
-            "Decorators": []
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
            },
-           "Value": "a",
-           "Decorators": []
+           "value": "a",
+           "decorators": []
           },
           {
            "$id": "45",
-           "Kind": "int32",
-           "Name": "int32",
-           "CrossLanguageDefinitionId": "TypeSpec.int32",
-           "Decorators": []
+           "kind": "int32",
+           "name": "int32",
+           "crossLanguageDefinitionId": "TypeSpec.int32",
+           "decorators": []
           },
           {
            "$id": "46",
-           "Kind": "boolean",
-           "Name": "boolean",
-           "CrossLanguageDefinitionId": "TypeSpec.boolean",
-           "Decorators": []
+           "kind": "boolean",
+           "name": "boolean",
+           "crossLanguageDefinitionId": "TypeSpec.boolean",
+           "decorators": []
           }
          ],
-         "Decorators": []
+         "decorators": []
         },
         "IsRequired": true,
         "IsReadOnly": false,
@@ -343,41 +350,41 @@
         "Description": "This should be receive/send the \"a\" variant",
         "Type": {
          "$id": "48",
-         "Kind": "union",
-         "Name": "MixedTypesCasesModel",
-         "VariantTypes": [
+         "kind": "union",
+         "name": "MixedTypesCasesModel",
+         "variantTypes": [
           {
            "$ref": "40"
           },
           {
            "$id": "49",
-           "Kind": "constant",
-           "ValueType": {
+           "kind": "constant",
+           "valueType": {
             "$id": "50",
-            "Kind": "string",
-            "Name": "string",
-            "CrossLanguageDefinitionId": "TypeSpec.string",
-            "Decorators": []
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
            },
-           "Value": "a",
-           "Decorators": []
+           "value": "a",
+           "decorators": []
           },
           {
            "$id": "51",
-           "Kind": "int32",
-           "Name": "int32",
-           "CrossLanguageDefinitionId": "TypeSpec.int32",
-           "Decorators": []
+           "kind": "int32",
+           "name": "int32",
+           "crossLanguageDefinitionId": "TypeSpec.int32",
+           "decorators": []
           },
           {
            "$id": "52",
-           "Kind": "boolean",
-           "Name": "boolean",
-           "CrossLanguageDefinitionId": "TypeSpec.boolean",
-           "Decorators": []
+           "kind": "boolean",
+           "name": "boolean",
+           "crossLanguageDefinitionId": "TypeSpec.boolean",
+           "decorators": []
           }
          ],
-         "Decorators": []
+         "decorators": []
         },
         "IsRequired": true,
         "IsReadOnly": false,
@@ -390,41 +397,41 @@
         "Description": "This should be receive/send the int variant",
         "Type": {
          "$id": "54",
-         "Kind": "union",
-         "Name": "MixedTypesCasesModel",
-         "VariantTypes": [
+         "kind": "union",
+         "name": "MixedTypesCasesModel",
+         "variantTypes": [
           {
            "$ref": "40"
           },
           {
            "$id": "55",
-           "Kind": "constant",
-           "ValueType": {
+           "kind": "constant",
+           "valueType": {
             "$id": "56",
-            "Kind": "string",
-            "Name": "string",
-            "CrossLanguageDefinitionId": "TypeSpec.string",
-            "Decorators": []
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
            },
-           "Value": "a",
-           "Decorators": []
+           "value": "a",
+           "decorators": []
           },
           {
            "$id": "57",
-           "Kind": "int32",
-           "Name": "int32",
-           "CrossLanguageDefinitionId": "TypeSpec.int32",
-           "Decorators": []
+           "kind": "int32",
+           "name": "int32",
+           "crossLanguageDefinitionId": "TypeSpec.int32",
+           "decorators": []
           },
           {
            "$id": "58",
-           "Kind": "boolean",
-           "Name": "boolean",
-           "CrossLanguageDefinitionId": "TypeSpec.boolean",
-           "Decorators": []
+           "kind": "boolean",
+           "name": "boolean",
+           "crossLanguageDefinitionId": "TypeSpec.boolean",
+           "decorators": []
           }
          ],
-         "Decorators": []
+         "decorators": []
         },
         "IsRequired": true,
         "IsReadOnly": false,
@@ -437,41 +444,41 @@
         "Description": "This should be receive/send the boolean variant",
         "Type": {
          "$id": "60",
-         "Kind": "union",
-         "Name": "MixedTypesCasesModel",
-         "VariantTypes": [
+         "kind": "union",
+         "name": "MixedTypesCasesModel",
+         "variantTypes": [
           {
            "$ref": "40"
           },
           {
            "$id": "61",
-           "Kind": "constant",
-           "ValueType": {
+           "kind": "constant",
+           "valueType": {
             "$id": "62",
-            "Kind": "string",
-            "Name": "string",
-            "CrossLanguageDefinitionId": "TypeSpec.string",
-            "Decorators": []
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
            },
-           "Value": "a",
-           "Decorators": []
+           "value": "a",
+           "decorators": []
           },
           {
            "$id": "63",
-           "Kind": "int32",
-           "Name": "int32",
-           "CrossLanguageDefinitionId": "TypeSpec.int32",
-           "Decorators": []
+           "kind": "int32",
+           "name": "int32",
+           "crossLanguageDefinitionId": "TypeSpec.int32",
+           "decorators": []
           },
           {
            "$id": "64",
-           "Kind": "boolean",
-           "Name": "boolean",
-           "CrossLanguageDefinitionId": "TypeSpec.boolean",
-           "Decorators": []
+           "kind": "boolean",
+           "name": "boolean",
+           "crossLanguageDefinitionId": "TypeSpec.boolean",
+           "decorators": []
           }
          ],
-         "Decorators": []
+         "decorators": []
         },
         "IsRequired": true,
         "IsReadOnly": false,
@@ -484,48 +491,48 @@
         "Description": "This should be receive/send 4 element with Cat, \"a\", int, and boolean",
         "Type": {
          "$id": "66",
-         "Kind": "array",
-         "Name": "Array",
-         "ValueType": {
+         "kind": "array",
+         "name": "Array",
+         "valueType": {
           "$id": "67",
-          "Kind": "union",
-          "Name": "MixedTypesCasesModel",
-          "VariantTypes": [
+          "kind": "union",
+          "name": "MixedTypesCasesModel",
+          "variantTypes": [
            {
             "$ref": "40"
            },
            {
             "$id": "68",
-            "Kind": "constant",
-            "ValueType": {
+            "kind": "constant",
+            "valueType": {
              "$id": "69",
-             "Kind": "string",
-             "Name": "string",
-             "CrossLanguageDefinitionId": "TypeSpec.string",
-             "Decorators": []
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string",
+             "decorators": []
             },
-            "Value": "a",
-            "Decorators": []
+            "value": "a",
+            "decorators": []
            },
            {
             "$id": "70",
-            "Kind": "int32",
-            "Name": "int32",
-            "CrossLanguageDefinitionId": "TypeSpec.int32",
-            "Decorators": []
+            "kind": "int32",
+            "name": "int32",
+            "crossLanguageDefinitionId": "TypeSpec.int32",
+            "decorators": []
            },
            {
             "$id": "71",
-            "Kind": "boolean",
-            "Name": "boolean",
-            "CrossLanguageDefinitionId": "TypeSpec.boolean",
-            "Decorators": []
+            "kind": "boolean",
+            "name": "boolean",
+            "crossLanguageDefinitionId": "TypeSpec.boolean",
+            "decorators": []
            }
           ],
-          "Decorators": []
+          "decorators": []
          },
-         "CrossLanguageDefinitionId": "TypeSpec.Array",
-         "Decorators": []
+         "crossLanguageDefinitionId": "TypeSpec.Array",
+         "decorators": []
         },
         "IsRequired": true,
         "IsReadOnly": false,
@@ -547,12 +554,12 @@
   },
   {
    "$id": "72",
-   "Kind": "model",
-   "Name": "SendRequest",
-   "CrossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
-   "Usage": "Spread,Json",
-   "Decorators": [],
-   "Properties": [
+   "kind": "model",
+   "name": "SendRequest",
+   "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
+   "usage": "Spread,Json",
+   "decorators": [],
+   "properties": [
     {
      "$id": "73",
      "Name": "prop",
@@ -569,12 +576,12 @@
   },
   {
    "$id": "74",
-   "Kind": "model",
-   "Name": "GetResponse1",
-   "CrossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
-   "Usage": "Output,Json",
-   "Decorators": [],
-   "Properties": [
+   "kind": "model",
+   "name": "GetResponse1",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
+   "usage": "Output,Json",
+   "decorators": [],
+   "properties": [
     {
      "$id": "75",
      "Name": "prop",
@@ -582,12 +589,12 @@
      "Description": "",
      "Type": {
       "$id": "76",
-      "Kind": "model",
-      "Name": "MixedLiteralsCases",
-      "CrossLanguageDefinitionId": "Type.Union.MixedLiteralsCases",
-      "Usage": "Input,Output,Json",
-      "Decorators": [],
-      "Properties": [
+      "kind": "model",
+      "name": "MixedLiteralsCases",
+      "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases",
+      "usage": "Input,Output,Json",
+      "decorators": [],
+      "properties": [
        {
         "$id": "77",
         "Name": "stringLiteral",
@@ -595,63 +602,63 @@
         "Description": "This should be receive/send the \"a\" variant",
         "Type": {
          "$id": "78",
-         "Kind": "union",
-         "Name": "MixedLiteralsCasesStringLiteral1",
-         "VariantTypes": [
+         "kind": "union",
+         "name": "MixedLiteralsCasesStringLiteral1",
+         "variantTypes": [
           {
            "$id": "79",
-           "Kind": "constant",
-           "ValueType": {
+           "kind": "constant",
+           "valueType": {
             "$id": "80",
-            "Kind": "string",
-            "Name": "string",
-            "CrossLanguageDefinitionId": "TypeSpec.string",
-            "Decorators": []
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
            },
-           "Value": "a",
-           "Decorators": []
+           "value": "a",
+           "decorators": []
           },
           {
            "$id": "81",
-           "Kind": "constant",
-           "ValueType": {
+           "kind": "constant",
+           "valueType": {
             "$id": "82",
-            "Kind": "int32",
-            "Name": "int32",
-            "CrossLanguageDefinitionId": "TypeSpec.int32",
-            "Decorators": []
+            "kind": "int32",
+            "name": "int32",
+            "crossLanguageDefinitionId": "TypeSpec.int32",
+            "decorators": []
            },
-           "Value": 2,
-           "Decorators": []
+           "value": 2,
+           "decorators": []
           },
           {
            "$id": "83",
-           "Kind": "constant",
-           "ValueType": {
+           "kind": "constant",
+           "valueType": {
             "$id": "84",
-            "Kind": "float32",
-            "Name": "float32",
-            "CrossLanguageDefinitionId": "TypeSpec.float32",
-            "Decorators": []
+            "kind": "float32",
+            "name": "float32",
+            "crossLanguageDefinitionId": "TypeSpec.float32",
+            "decorators": []
            },
-           "Value": 3.3,
-           "Decorators": []
+           "value": 3.3,
+           "decorators": []
           },
           {
            "$id": "85",
-           "Kind": "constant",
-           "ValueType": {
+           "kind": "constant",
+           "valueType": {
             "$id": "86",
-            "Kind": "boolean",
-            "Name": "boolean",
-            "CrossLanguageDefinitionId": "TypeSpec.boolean",
-            "Decorators": []
+            "kind": "boolean",
+            "name": "boolean",
+            "crossLanguageDefinitionId": "TypeSpec.boolean",
+            "decorators": []
            },
-           "Value": true,
-           "Decorators": []
+           "value": true,
+           "decorators": []
           }
          ],
-         "Decorators": []
+         "decorators": []
         },
         "IsRequired": true,
         "IsReadOnly": false,
@@ -664,63 +671,63 @@
         "Description": "This should be receive/send the 2 variant",
         "Type": {
          "$id": "88",
-         "Kind": "union",
-         "Name": "MixedLiteralsCasesStringLiteral1",
-         "VariantTypes": [
+         "kind": "union",
+         "name": "MixedLiteralsCasesStringLiteral1",
+         "variantTypes": [
           {
            "$id": "89",
-           "Kind": "constant",
-           "ValueType": {
+           "kind": "constant",
+           "valueType": {
             "$id": "90",
-            "Kind": "string",
-            "Name": "string",
-            "CrossLanguageDefinitionId": "TypeSpec.string",
-            "Decorators": []
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
            },
-           "Value": "a",
-           "Decorators": []
+           "value": "a",
+           "decorators": []
           },
           {
            "$id": "91",
-           "Kind": "constant",
-           "ValueType": {
+           "kind": "constant",
+           "valueType": {
             "$id": "92",
-            "Kind": "int32",
-            "Name": "int32",
-            "CrossLanguageDefinitionId": "TypeSpec.int32",
-            "Decorators": []
+            "kind": "int32",
+            "name": "int32",
+            "crossLanguageDefinitionId": "TypeSpec.int32",
+            "decorators": []
            },
-           "Value": 2,
-           "Decorators": []
+           "value": 2,
+           "decorators": []
           },
           {
            "$id": "93",
-           "Kind": "constant",
-           "ValueType": {
+           "kind": "constant",
+           "valueType": {
             "$id": "94",
-            "Kind": "float32",
-            "Name": "float32",
-            "CrossLanguageDefinitionId": "TypeSpec.float32",
-            "Decorators": []
+            "kind": "float32",
+            "name": "float32",
+            "crossLanguageDefinitionId": "TypeSpec.float32",
+            "decorators": []
            },
-           "Value": 3.3,
-           "Decorators": []
+           "value": 3.3,
+           "decorators": []
           },
           {
            "$id": "95",
-           "Kind": "constant",
-           "ValueType": {
+           "kind": "constant",
+           "valueType": {
             "$id": "96",
-            "Kind": "boolean",
-            "Name": "boolean",
-            "CrossLanguageDefinitionId": "TypeSpec.boolean",
-            "Decorators": []
+            "kind": "boolean",
+            "name": "boolean",
+            "crossLanguageDefinitionId": "TypeSpec.boolean",
+            "decorators": []
            },
-           "Value": true,
-           "Decorators": []
+           "value": true,
+           "decorators": []
           }
          ],
-         "Decorators": []
+         "decorators": []
         },
         "IsRequired": true,
         "IsReadOnly": false,
@@ -733,63 +740,63 @@
         "Description": "This should be receive/send the 3.3 variant",
         "Type": {
          "$id": "98",
-         "Kind": "union",
-         "Name": "MixedLiteralsCasesStringLiteral1",
-         "VariantTypes": [
+         "kind": "union",
+         "name": "MixedLiteralsCasesStringLiteral1",
+         "variantTypes": [
           {
            "$id": "99",
-           "Kind": "constant",
-           "ValueType": {
+           "kind": "constant",
+           "valueType": {
             "$id": "100",
-            "Kind": "string",
-            "Name": "string",
-            "CrossLanguageDefinitionId": "TypeSpec.string",
-            "Decorators": []
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
            },
-           "Value": "a",
-           "Decorators": []
+           "value": "a",
+           "decorators": []
           },
           {
            "$id": "101",
-           "Kind": "constant",
-           "ValueType": {
+           "kind": "constant",
+           "valueType": {
             "$id": "102",
-            "Kind": "int32",
-            "Name": "int32",
-            "CrossLanguageDefinitionId": "TypeSpec.int32",
-            "Decorators": []
+            "kind": "int32",
+            "name": "int32",
+            "crossLanguageDefinitionId": "TypeSpec.int32",
+            "decorators": []
            },
-           "Value": 2,
-           "Decorators": []
+           "value": 2,
+           "decorators": []
           },
           {
            "$id": "103",
-           "Kind": "constant",
-           "ValueType": {
+           "kind": "constant",
+           "valueType": {
             "$id": "104",
-            "Kind": "float32",
-            "Name": "float32",
-            "CrossLanguageDefinitionId": "TypeSpec.float32",
-            "Decorators": []
+            "kind": "float32",
+            "name": "float32",
+            "crossLanguageDefinitionId": "TypeSpec.float32",
+            "decorators": []
            },
-           "Value": 3.3,
-           "Decorators": []
+           "value": 3.3,
+           "decorators": []
           },
           {
            "$id": "105",
-           "Kind": "constant",
-           "ValueType": {
+           "kind": "constant",
+           "valueType": {
             "$id": "106",
-            "Kind": "boolean",
-            "Name": "boolean",
-            "CrossLanguageDefinitionId": "TypeSpec.boolean",
-            "Decorators": []
+            "kind": "boolean",
+            "name": "boolean",
+            "crossLanguageDefinitionId": "TypeSpec.boolean",
+            "decorators": []
            },
-           "Value": true,
-           "Decorators": []
+           "value": true,
+           "decorators": []
           }
          ],
-         "Decorators": []
+         "decorators": []
         },
         "IsRequired": true,
         "IsReadOnly": false,
@@ -802,63 +809,63 @@
         "Description": "This should be receive/send the true variant",
         "Type": {
          "$id": "108",
-         "Kind": "union",
-         "Name": "MixedLiteralsCasesStringLiteral1",
-         "VariantTypes": [
+         "kind": "union",
+         "name": "MixedLiteralsCasesStringLiteral1",
+         "variantTypes": [
           {
            "$id": "109",
-           "Kind": "constant",
-           "ValueType": {
+           "kind": "constant",
+           "valueType": {
             "$id": "110",
-            "Kind": "string",
-            "Name": "string",
-            "CrossLanguageDefinitionId": "TypeSpec.string",
-            "Decorators": []
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
            },
-           "Value": "a",
-           "Decorators": []
+           "value": "a",
+           "decorators": []
           },
           {
            "$id": "111",
-           "Kind": "constant",
-           "ValueType": {
+           "kind": "constant",
+           "valueType": {
             "$id": "112",
-            "Kind": "int32",
-            "Name": "int32",
-            "CrossLanguageDefinitionId": "TypeSpec.int32",
-            "Decorators": []
+            "kind": "int32",
+            "name": "int32",
+            "crossLanguageDefinitionId": "TypeSpec.int32",
+            "decorators": []
            },
-           "Value": 2,
-           "Decorators": []
+           "value": 2,
+           "decorators": []
           },
           {
            "$id": "113",
-           "Kind": "constant",
-           "ValueType": {
+           "kind": "constant",
+           "valueType": {
             "$id": "114",
-            "Kind": "float32",
-            "Name": "float32",
-            "CrossLanguageDefinitionId": "TypeSpec.float32",
-            "Decorators": []
+            "kind": "float32",
+            "name": "float32",
+            "crossLanguageDefinitionId": "TypeSpec.float32",
+            "decorators": []
            },
-           "Value": 3.3,
-           "Decorators": []
+           "value": 3.3,
+           "decorators": []
           },
           {
            "$id": "115",
-           "Kind": "constant",
-           "ValueType": {
+           "kind": "constant",
+           "valueType": {
             "$id": "116",
-            "Kind": "boolean",
-            "Name": "boolean",
-            "CrossLanguageDefinitionId": "TypeSpec.boolean",
-            "Decorators": []
+            "kind": "boolean",
+            "name": "boolean",
+            "crossLanguageDefinitionId": "TypeSpec.boolean",
+            "decorators": []
            },
-           "Value": true,
-           "Decorators": []
+           "value": true,
+           "decorators": []
           }
          ],
-         "Decorators": []
+         "decorators": []
         },
         "IsRequired": true,
         "IsReadOnly": false,
@@ -877,12 +884,12 @@
   },
   {
    "$id": "117",
-   "Kind": "model",
-   "Name": "SendRequest1",
-   "CrossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
-   "Usage": "Spread,Json",
-   "Decorators": [],
-   "Properties": [
+   "kind": "model",
+   "name": "SendRequest1",
+   "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
+   "usage": "Spread,Json",
+   "decorators": [],
+   "properties": [
     {
      "$id": "118",
      "Name": "prop",
@@ -899,12 +906,12 @@
   },
   {
    "$id": "119",
-   "Kind": "model",
-   "Name": "GetResponse2",
-   "CrossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
-   "Usage": "Output,Json",
-   "Decorators": [],
-   "Properties": [
+   "kind": "model",
+   "name": "GetResponse2",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
+   "usage": "Output,Json",
+   "decorators": [],
+   "properties": [
     {
      "$id": "120",
      "Name": "prop",
@@ -912,12 +919,12 @@
      "Description": "",
      "Type": {
       "$id": "121",
-      "Kind": "model",
-      "Name": "StringAndArrayCases",
-      "CrossLanguageDefinitionId": "Type.Union.StringAndArrayCases",
-      "Usage": "Input,Output,Json",
-      "Decorators": [],
-      "Properties": [
+      "kind": "model",
+      "name": "StringAndArrayCases",
+      "crossLanguageDefinitionId": "Type.Union.StringAndArrayCases",
+      "usage": "Input,Output,Json",
+      "decorators": [],
+      "properties": [
        {
         "$id": "122",
         "Name": "string",
@@ -925,32 +932,32 @@
         "Description": "This should be receive/send the string variant",
         "Type": {
          "$id": "123",
-         "Kind": "union",
-         "Name": "StringAndArrayCasesString",
-         "VariantTypes": [
+         "kind": "union",
+         "name": "StringAndArrayCasesString",
+         "variantTypes": [
           {
            "$id": "124",
-           "Kind": "string",
-           "Name": "string",
-           "CrossLanguageDefinitionId": "TypeSpec.string",
-           "Decorators": []
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
           },
           {
            "$id": "125",
-           "Kind": "array",
-           "Name": "Array",
-           "ValueType": {
+           "kind": "array",
+           "name": "Array",
+           "valueType": {
             "$id": "126",
-            "Kind": "string",
-            "Name": "string",
-            "CrossLanguageDefinitionId": "TypeSpec.string",
-            "Decorators": []
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
            },
-           "CrossLanguageDefinitionId": "TypeSpec.Array",
-           "Decorators": []
+           "crossLanguageDefinitionId": "TypeSpec.Array",
+           "decorators": []
           }
          ],
-         "Decorators": []
+         "decorators": []
         },
         "IsRequired": true,
         "IsReadOnly": false,
@@ -963,32 +970,32 @@
         "Description": "This should be receive/send the array variant",
         "Type": {
          "$id": "128",
-         "Kind": "union",
-         "Name": "StringAndArrayCasesArray",
-         "VariantTypes": [
+         "kind": "union",
+         "name": "StringAndArrayCasesArray",
+         "variantTypes": [
           {
            "$id": "129",
-           "Kind": "string",
-           "Name": "string",
-           "CrossLanguageDefinitionId": "TypeSpec.string",
-           "Decorators": []
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
           },
           {
            "$id": "130",
-           "Kind": "array",
-           "Name": "Array",
-           "ValueType": {
+           "kind": "array",
+           "name": "Array",
+           "valueType": {
             "$id": "131",
-            "Kind": "string",
-            "Name": "string",
-            "CrossLanguageDefinitionId": "TypeSpec.string",
-            "Decorators": []
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
            },
-           "CrossLanguageDefinitionId": "TypeSpec.Array",
-           "Decorators": []
+           "crossLanguageDefinitionId": "TypeSpec.Array",
+           "decorators": []
           }
          ],
-         "Decorators": []
+         "decorators": []
         },
         "IsRequired": true,
         "IsReadOnly": false,
@@ -1007,12 +1014,12 @@
   },
   {
    "$id": "132",
-   "Kind": "model",
-   "Name": "SendRequest2",
-   "CrossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
-   "Usage": "Spread,Json",
-   "Decorators": [],
-   "Properties": [
+   "kind": "model",
+   "name": "SendRequest2",
+   "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
+   "usage": "Spread,Json",
+   "decorators": [],
+   "properties": [
     {
      "$id": "133",
      "Name": "prop",
@@ -1029,12 +1036,12 @@
   },
   {
    "$id": "134",
-   "Kind": "model",
-   "Name": "GetResponse3",
-   "CrossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
-   "Usage": "Output,Json",
-   "Decorators": [],
-   "Properties": [
+   "kind": "model",
+   "name": "GetResponse3",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
+   "usage": "Output,Json",
+   "decorators": [],
+   "properties": [
     {
      "$id": "135",
      "Name": "prop",
@@ -1042,12 +1049,12 @@
      "Description": "",
      "Type": {
       "$id": "136",
-      "Kind": "model",
-      "Name": "EnumsOnlyCases",
-      "CrossLanguageDefinitionId": "Type.Union.EnumsOnlyCases",
-      "Usage": "Input,Output,Json",
-      "Decorators": [],
-      "Properties": [
+      "kind": "model",
+      "name": "EnumsOnlyCases",
+      "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases",
+      "usage": "Input,Output,Json",
+      "decorators": [],
+      "properties": [
        {
         "$id": "137",
         "Name": "lr",
@@ -1085,12 +1092,12 @@
   },
   {
    "$id": "139",
-   "Kind": "model",
-   "Name": "SendRequest3",
-   "CrossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
-   "Usage": "Spread,Json",
-   "Decorators": [],
-   "Properties": [
+   "kind": "model",
+   "name": "SendRequest3",
+   "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
+   "usage": "Spread,Json",
+   "decorators": [],
+   "properties": [
     {
      "$id": "140",
      "Name": "prop",
@@ -1107,12 +1114,12 @@
   },
   {
    "$id": "141",
-   "Kind": "model",
-   "Name": "GetResponse4",
-   "CrossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
-   "Usage": "Output,Json",
-   "Decorators": [],
-   "Properties": [
+   "kind": "model",
+   "name": "GetResponse4",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
+   "usage": "Output,Json",
+   "decorators": [],
+   "properties": [
     {
      "$id": "142",
      "Name": "prop",
@@ -1120,20 +1127,20 @@
      "Description": "",
      "Type": {
       "$id": "143",
-      "Kind": "union",
-      "Name": "GetResponseProp",
-      "VariantTypes": [
+      "kind": "union",
+      "name": "GetResponseProp",
+      "variantTypes": [
        {
         "$ref": "40"
        },
        {
         "$id": "144",
-        "Kind": "model",
-        "Name": "Dog",
-        "CrossLanguageDefinitionId": "Type.Union.Dog",
-        "Usage": "Input,Output,Json",
-        "Decorators": [],
-        "Properties": [
+        "kind": "model",
+        "name": "Dog",
+        "crossLanguageDefinitionId": "Type.Union.Dog",
+        "usage": "Input,Output,Json",
+        "decorators": [],
+        "properties": [
          {
           "$id": "145",
           "Name": "bark",
@@ -1141,10 +1148,10 @@
           "Description": "",
           "Type": {
            "$id": "146",
-           "Kind": "string",
-           "Name": "string",
-           "CrossLanguageDefinitionId": "TypeSpec.string",
-           "Decorators": []
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
           },
           "IsRequired": true,
           "IsReadOnly": false,
@@ -1153,7 +1160,7 @@
         ]
        }
       ],
-      "Decorators": []
+      "decorators": []
      },
      "IsRequired": true,
      "IsReadOnly": false,
@@ -1166,12 +1173,12 @@
   },
   {
    "$id": "147",
-   "Kind": "model",
-   "Name": "SendRequest4",
-   "CrossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
-   "Usage": "Spread,Json",
-   "Decorators": [],
-   "Properties": [
+   "kind": "model",
+   "name": "SendRequest4",
+   "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
+   "usage": "Spread,Json",
+   "decorators": [],
+   "properties": [
     {
      "$id": "148",
      "Name": "prop",
@@ -1179,9 +1186,9 @@
      "Description": "",
      "Type": {
       "$id": "149",
-      "Kind": "union",
-      "Name": "GetResponseProp",
-      "VariantTypes": [
+      "kind": "union",
+      "name": "GetResponseProp",
+      "variantTypes": [
        {
         "$ref": "40"
        },
@@ -1189,7 +1196,7 @@
         "$ref": "144"
        }
       ],
-      "Decorators": []
+      "decorators": []
      },
      "IsRequired": true,
      "IsReadOnly": false,
@@ -1199,12 +1206,12 @@
   },
   {
    "$id": "150",
-   "Kind": "model",
-   "Name": "GetResponse5",
-   "CrossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
-   "Usage": "Output,Json",
-   "Decorators": [],
-   "Properties": [
+   "kind": "model",
+   "name": "GetResponse5",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
+   "usage": "Output,Json",
+   "decorators": [],
+   "properties": [
     {
      "$id": "151",
      "Name": "prop",
@@ -1221,12 +1228,12 @@
   },
   {
    "$id": "152",
-   "Kind": "model",
-   "Name": "SendRequest5",
-   "CrossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
-   "Usage": "Spread,Json",
-   "Decorators": [],
-   "Properties": [
+   "kind": "model",
+   "name": "SendRequest5",
+   "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
+   "usage": "Spread,Json",
+   "decorators": [],
+   "properties": [
     {
      "$id": "153",
      "Name": "prop",
@@ -1243,12 +1250,12 @@
   },
   {
    "$id": "154",
-   "Kind": "model",
-   "Name": "GetResponse6",
-   "CrossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
-   "Usage": "Output,Json",
-   "Decorators": [],
-   "Properties": [
+   "kind": "model",
+   "name": "GetResponse6",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
+   "usage": "Output,Json",
+   "decorators": [],
+   "properties": [
     {
      "$id": "155",
      "Name": "prop",
@@ -1265,12 +1272,12 @@
   },
   {
    "$id": "156",
-   "Kind": "model",
-   "Name": "SendRequest6",
-   "CrossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
-   "Usage": "Spread,Json",
-   "Decorators": [],
-   "Properties": [
+   "kind": "model",
+   "name": "SendRequest6",
+   "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
+   "usage": "Spread,Json",
+   "decorators": [],
+   "properties": [
     {
      "$id": "157",
      "Name": "prop",
@@ -1287,12 +1294,12 @@
   },
   {
    "$id": "158",
-   "Kind": "model",
-   "Name": "GetResponse7",
-   "CrossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
-   "Usage": "Output,Json",
-   "Decorators": [],
-   "Properties": [
+   "kind": "model",
+   "name": "GetResponse7",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
+   "usage": "Output,Json",
+   "decorators": [],
+   "properties": [
     {
      "$id": "159",
      "Name": "prop",
@@ -1309,12 +1316,12 @@
   },
   {
    "$id": "160",
-   "Kind": "model",
-   "Name": "SendRequest7",
-   "CrossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
-   "Usage": "Spread,Json",
-   "Decorators": [],
-   "Properties": [
+   "kind": "model",
+   "name": "SendRequest7",
+   "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
+   "usage": "Spread,Json",
+   "decorators": [],
+   "properties": [
     {
      "$id": "161",
      "Name": "prop",
@@ -1331,12 +1338,12 @@
   },
   {
    "$id": "162",
-   "Kind": "model",
-   "Name": "GetResponse8",
-   "CrossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
-   "Usage": "Output,Json",
-   "Decorators": [],
-   "Properties": [
+   "kind": "model",
+   "name": "GetResponse8",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
+   "usage": "Output,Json",
+   "decorators": [],
+   "properties": [
     {
      "$id": "163",
      "Name": "prop",
@@ -1353,12 +1360,12 @@
   },
   {
    "$id": "164",
-   "Kind": "model",
-   "Name": "SendRequest8",
-   "CrossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
-   "Usage": "Spread,Json",
-   "Decorators": [],
-   "Properties": [
+   "kind": "model",
+   "name": "SendRequest8",
+   "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
+   "usage": "Spread,Json",
+   "decorators": [],
+   "properties": [
     {
      "$id": "165",
      "Name": "prop",
@@ -1375,12 +1382,12 @@
   },
   {
    "$id": "166",
-   "Kind": "model",
-   "Name": "GetResponse9",
-   "CrossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
-   "Usage": "Output,Json",
-   "Decorators": [],
-   "Properties": [
+   "kind": "model",
+   "name": "GetResponse9",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
+   "usage": "Output,Json",
+   "decorators": [],
+   "properties": [
     {
      "$id": "167",
      "Name": "prop",
@@ -1397,12 +1404,12 @@
   },
   {
    "$id": "168",
-   "Kind": "model",
-   "Name": "SendRequest9",
-   "CrossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
-   "Usage": "Spread,Json",
-   "Decorators": [],
-   "Properties": [
+   "kind": "model",
+   "name": "SendRequest9",
+   "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
+   "usage": "Spread,Json",
+   "decorators": [],
+   "properties": [
     {
      "$id": "169",
      "Name": "prop",
@@ -1434,9 +1441,9 @@
      "NameInRequest": "endpoint",
      "Type": {
       "$id": "173",
-      "Kind": "url",
-      "Name": "url",
-      "CrossLanguageDefinitionId": "TypeSpec.url"
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "Location": "Uri",
      "IsApiVersion": false,
@@ -1451,9 +1458,9 @@
       "$id": "174",
       "Type": {
        "$id": "175",
-       "Kind": "string",
-       "Name": "string",
-       "CrossLanguageDefinitionId": "TypeSpec.string"
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
       },
       "Value": "http://localhost:3000"
      }
@@ -1478,9 +1485,9 @@
        "NameInRequest": "endpoint",
        "Type": {
         "$id": "179",
-        "Kind": "url",
-        "Name": "url",
-        "CrossLanguageDefinitionId": "TypeSpec.url"
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "Location": "Uri",
        "IsApiVersion": false,
@@ -1495,9 +1502,9 @@
         "$id": "180",
         "Type": {
          "$id": "181",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string"
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "Value": "http://localhost:3000"
        }
@@ -1508,16 +1515,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "183",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "184",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -1573,16 +1580,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "188",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "189",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -1665,9 +1672,9 @@
        "NameInRequest": "endpoint",
        "Type": {
         "$id": "196",
-        "Kind": "url",
-        "Name": "url",
-        "CrossLanguageDefinitionId": "TypeSpec.url"
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "Location": "Uri",
        "IsApiVersion": false,
@@ -1682,9 +1689,9 @@
         "$id": "197",
         "Type": {
          "$id": "198",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string"
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "Value": "http://localhost:3000"
        }
@@ -1695,16 +1702,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "200",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "201",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -1760,16 +1767,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "205",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "206",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -1852,9 +1859,9 @@
        "NameInRequest": "endpoint",
        "Type": {
         "$id": "213",
-        "Kind": "url",
-        "Name": "url",
-        "CrossLanguageDefinitionId": "TypeSpec.url"
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "Location": "Uri",
        "IsApiVersion": false,
@@ -1869,9 +1876,9 @@
         "$id": "214",
         "Type": {
          "$id": "215",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string"
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "Value": "http://localhost:3000"
        }
@@ -1882,16 +1889,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "217",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "218",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -1947,16 +1954,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "222",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "223",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2039,9 +2046,9 @@
        "NameInRequest": "endpoint",
        "Type": {
         "$id": "230",
-        "Kind": "url",
-        "Name": "url",
-        "CrossLanguageDefinitionId": "TypeSpec.url"
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "Location": "Uri",
        "IsApiVersion": false,
@@ -2056,9 +2063,9 @@
         "$id": "231",
         "Type": {
          "$id": "232",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string"
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "Value": "http://localhost:3000"
        }
@@ -2069,16 +2076,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "234",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "235",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2134,16 +2141,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "239",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "240",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2226,9 +2233,9 @@
        "NameInRequest": "endpoint",
        "Type": {
         "$id": "247",
-        "Kind": "url",
-        "Name": "url",
-        "CrossLanguageDefinitionId": "TypeSpec.url"
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "Location": "Uri",
        "IsApiVersion": false,
@@ -2243,9 +2250,9 @@
         "$id": "248",
         "Type": {
          "$id": "249",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string"
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "Value": "http://localhost:3000"
        }
@@ -2256,16 +2263,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "251",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "252",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2321,16 +2328,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "256",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "257",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2413,9 +2420,9 @@
        "NameInRequest": "endpoint",
        "Type": {
         "$id": "264",
-        "Kind": "url",
-        "Name": "url",
-        "CrossLanguageDefinitionId": "TypeSpec.url"
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "Location": "Uri",
        "IsApiVersion": false,
@@ -2430,9 +2437,9 @@
         "$id": "265",
         "Type": {
          "$id": "266",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string"
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "Value": "http://localhost:3000"
        }
@@ -2443,16 +2450,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "268",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "269",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2508,16 +2515,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "273",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "274",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2600,9 +2607,9 @@
        "NameInRequest": "endpoint",
        "Type": {
         "$id": "281",
-        "Kind": "url",
-        "Name": "url",
-        "CrossLanguageDefinitionId": "TypeSpec.url"
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "Location": "Uri",
        "IsApiVersion": false,
@@ -2617,9 +2624,9 @@
         "$id": "282",
         "Type": {
          "$id": "283",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string"
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "Value": "http://localhost:3000"
        }
@@ -2630,16 +2637,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "285",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "286",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2695,16 +2702,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "290",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "291",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2787,9 +2794,9 @@
        "NameInRequest": "endpoint",
        "Type": {
         "$id": "298",
-        "Kind": "url",
-        "Name": "url",
-        "CrossLanguageDefinitionId": "TypeSpec.url"
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "Location": "Uri",
        "IsApiVersion": false,
@@ -2804,9 +2811,9 @@
         "$id": "299",
         "Type": {
          "$id": "300",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string"
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "Value": "http://localhost:3000"
        }
@@ -2817,16 +2824,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "302",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "303",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2882,16 +2889,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "307",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "308",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -2974,9 +2981,9 @@
        "NameInRequest": "endpoint",
        "Type": {
         "$id": "315",
-        "Kind": "url",
-        "Name": "url",
-        "CrossLanguageDefinitionId": "TypeSpec.url"
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "Location": "Uri",
        "IsApiVersion": false,
@@ -2991,9 +2998,9 @@
         "$id": "316",
         "Type": {
          "$id": "317",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string"
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "Value": "http://localhost:3000"
        }
@@ -3004,16 +3011,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "319",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "320",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -3069,16 +3076,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "324",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "325",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -3161,9 +3168,9 @@
        "NameInRequest": "endpoint",
        "Type": {
         "$id": "332",
-        "Kind": "url",
-        "Name": "url",
-        "CrossLanguageDefinitionId": "TypeSpec.url"
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "Location": "Uri",
        "IsApiVersion": false,
@@ -3178,9 +3185,9 @@
         "$id": "333",
         "Type": {
          "$id": "334",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string"
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "Value": "http://localhost:3000"
        }
@@ -3191,16 +3198,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "336",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "337",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -3256,16 +3263,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "341",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "342",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
