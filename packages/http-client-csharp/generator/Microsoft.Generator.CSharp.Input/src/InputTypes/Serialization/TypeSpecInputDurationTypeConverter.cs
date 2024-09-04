@@ -27,7 +27,7 @@ namespace Microsoft.Generator.CSharp.Input
             var isFirstProperty = id == null;
             string? crossLanguageDefinitionId = null;
             string? encode = null;
-            InputType? type = null;
+            InputPrimitiveType? wireType = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputDurationType? baseType = null;
 
@@ -37,7 +37,7 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadString("name", ref name)
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
                     || reader.TryReadString("encode", ref encode)
-                    || reader.TryReadWithConverter("wireType", options, ref type)
+                    || reader.TryReadWithConverter("wireType", options, ref wireType)
                     || reader.TryReadWithConverter("baseType", options, ref baseType)
                     || reader.TryReadWithConverter("decorators", options, ref decorators);
 
@@ -47,14 +47,10 @@ namespace Microsoft.Generator.CSharp.Input
                 }
             }
 
-            if (type is not InputPrimitiveType wireType)
-            {
-                throw new JsonException("The wireType of a Duration type must be a primitive type");
-            }
-
             name = name ?? throw new JsonException("Duration type must have name");
             crossLanguageDefinitionId = crossLanguageDefinitionId ?? throw new JsonException("Duration type must have crossLanguageDefinitionId");
             encode = encode ?? throw new JsonException("Duration type must have encoding");
+            wireType = wireType ?? throw new JsonException("Duration type must have wireType");
 
             var dateTimeType = Enum.TryParse<DurationKnownEncoding>(encode, ignoreCase: true, out var encodeKind)
                 ? new InputDurationType(encodeKind, name, crossLanguageDefinitionId, wireType, baseType) { Decorators = decorators ?? [] }
