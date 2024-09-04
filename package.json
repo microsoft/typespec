@@ -39,6 +39,7 @@
     "@chronus/chronus": "^0.11.0",
     "@chronus/github": "^0.4.1",
     "@eslint/js": "^8.57.0",
+    "@microsoft/api-extractor": "^7.47.7",
     "@octokit/core": "^6.1.2",
     "@octokit/plugin-paginate-graphql": "^5.2.2",
     "@octokit/plugin-rest-endpoint-methods": "^13.2.4",
