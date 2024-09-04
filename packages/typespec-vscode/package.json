@@ -63,6 +63,12 @@
             "description": "Path to `tsp-server` command that runs the TypeSpec language server.\n\nIf not specified, then `tsp-server` found on PATH is used.\n\nExample (User): /usr/local/bin/tsp-server\nExample (Workspace): ${workspaceFolder}/node_modules/@typespec/compiler",
             "scope": "machine-overridable"
           },
+          "typespec.tsp.path": {
+            "type": "string",
+            "default": "",
+            "description": "Path to `tsp` command.\n\nIf not specified, then `tsp` found on PATH is used.\n\nExample (User): /usr/local/bin/tsp\nExample (Workspace): ${workspaceFolder}/node_modules/@typespec/compiler",
+            "scope": "machine-overridable"
+          },
           "typespec.trace.server": {
             "scope": "window",
             "type": "string",
@@ -119,6 +125,25 @@
           "docCommentTag": [
             "keyword.other.tsp"
           ]
+        }
+      }
+    ],
+    "taskDefinitions": [
+      {
+        "type": "typespec",
+        "when": "shellExecutionSupported",
+        "required": [
+          "path"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "The path to trigger tsp compile"
+          },
+          "args": {
+            "type": "string",
+            "description": "The arguments to tsp compile"
+          }
         }
       }
     ]
