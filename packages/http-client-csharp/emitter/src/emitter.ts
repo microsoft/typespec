@@ -139,7 +139,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         const existingProjectOption = options["existing-project-folder"]
           ? `--existing-project-folder ${options["existing-project-folder"]}`
           : "";
-        const debugFlag = (options.debug ?? false) ? " --debug" : "";
+        const debugFlag = (options.debug ?? false) ? "--debug" : "";
 
         const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
         const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
