@@ -84,14 +84,14 @@ export function createTask(cli: Executable, name: string, targetPath: string, ar
       `Can't resolve workspace folder from given file ${targetPath}. Try to use the first workspace folder ${workspaceFolder}.`
     );
   }
-  targetPath = normalizeSlash(targetPath);
-
-  let cmd = `${cli.command} ${cli.args?.join(" ") ?? ""} compile "${targetPath}" ${args === undefined ? "" : args}`;
-  logger.debug(`tsp compile task created '${targetPath}' with command: '${cmd}'`);
   const variableResolver = new VSCodeVariableResolver({
     workspaceFolder,
     workspaceRoot: workspaceFolder, // workspaceRoot is deprecated but we still support it for backwards compatibility.
   });
+  targetPath = normalizeSlash(variableResolver.resolve(targetPath));
+
+  let cmd = `${cli.command} ${cli.args?.join(" ") ?? ""} compile "${targetPath}" ${args === undefined ? "" : args}`;
+  logger.debug(`tsp compile task created '${targetPath}' with command: '${cmd}'`);
   cmd = variableResolver.resolve(cmd);
   logger.debug(`tsp compile task command resolved to: ${cmd} with cwd "${workspaceFolder}"`);
   return new vscode.Task(
