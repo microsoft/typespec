@@ -210,9 +210,9 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private static bool DomainEqual(InputModelProperty baseProperty, InputModelProperty derivedProperty)
         {
-            var baseNullable = baseProperty.Type is InputNullableType;
             if (baseProperty.IsRequired != derivedProperty.IsRequired)
                 return false;
+            var baseNullable = baseProperty.Type is InputNullableType;
             return baseNullable ? derivedProperty.Type is InputNullableType : derivedProperty.Type is not InputNullableType;
         }
 
