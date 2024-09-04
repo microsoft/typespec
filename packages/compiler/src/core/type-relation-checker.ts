@@ -87,7 +87,7 @@ export interface TypeRelation {
   areScalarsRelated(source: Scalar, target: Scalar): boolean;
 }
 
-export function createTypeRelation(program: Program, checker: Checker): TypeRelation {
+export function createTypeRelationChecker(program: Program, checker: Checker): TypeRelation {
   return {
     isTypeAssignableTo,
     isValueOfType,
