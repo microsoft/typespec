@@ -345,7 +345,7 @@ namespace Microsoft.Generator.CSharp.Providers
                         else
                         {
                             /* kind ?? "unknown" */
-                            return NullCoalescing(discriminatorExpression, Literal(_inputModel.DiscriminatorValue));
+                            return discriminatorExpression.NullCoalesce(Literal(_inputModel.DiscriminatorValue));
                         }
                     }
                     else
