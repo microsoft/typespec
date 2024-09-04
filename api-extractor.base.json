@@ -1,0 +1,45 @@
+/**
+ * Config file for API Extractor.  For more info, please visit: https://api-extractor.com
+ */
+ {
+    "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
+    "mainEntryPointFilePath": "<projectFolder>/dist/src/index.d.ts",
+    "apiReport": {
+      "enabled": false
+    },
+    "docModel": {
+      "enabled": true,
+      "apiJsonFilePath": "<projectFolder>/temp/<unscopedPackageName>.api.json"
+    },
+    "dtsRollup": {
+      "enabled": false
+    },
+    "messages": {
+      "compilerMessageReporting": {
+        "default": {
+          "logLevel": "warning"
+        }
+      },
+  
+      "extractorMessageReporting": {
+        "default": {
+          "logLevel": "warning"
+        },
+        "ae-forgotten-export": {
+          "logLevel": "none",
+          "addToApiReportFile": false
+        }
+      },
+  
+      "tsdocMessageReporting": {
+        "default": {
+          "logLevel": "warning"
+        },
+        "tsdoc-param-tag-missing-hyphen": {
+          "logLevel": "none",
+          "addToApiReportFile": false
+        }
+      }
+    }
+  }
+  

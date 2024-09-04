@@ -4,7 +4,7 @@ import type { DecoratorContext, Enum, ModelProperty, Type } from "@typespec/comp
  * Provide the name of the XML element or attribute. This means the same thing as
  *  `@encodedName("application/xml", value)`
  *
- * @param name - The name of the XML element or attribute
+ * @param name The name of the XML element or attribute
  * @example
  * ```tsp
  * @name("XmlBook")
@@ -128,8 +128,8 @@ export type UnwrappedDecorator = (context: DecoratorContext, target: ModelProper
  * 1. `@ns("http://www.example.com/namespace", "ns1")` - specify both namespace and prefix
  * 2. `@Xml.ns(Namespaces.ns1)` - pass a member of an enum decorated with `@nsDeclaration`
  *
- * @param ns - The namespace URI or a member of an enum decorated with `@nsDeclaration`.
- * @param prefix - The namespace prefix. Required if the namespace parameter was passed as a string.
+ * @param ns The namespace URI or a member of an enum decorated with `@nsDeclaration`.
+ * @param prefix The namespace prefix. Required if the namespace parameter was passed as a string.
  * @example With strings
  *
  * ```tsp
