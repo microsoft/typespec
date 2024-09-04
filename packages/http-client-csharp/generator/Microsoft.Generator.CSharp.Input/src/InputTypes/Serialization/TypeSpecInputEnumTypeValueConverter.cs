@@ -51,22 +51,13 @@ namespace Microsoft.Generator.CSharp.Input
 
             valueType = valueType ?? throw new JsonException("EnumValue must have valueType");
 
-            InputEnumTypeValue enumValue;
-
-            switch (valueType.Kind)
+            InputEnumTypeValue enumValue = valueType.Kind switch
             {
-                case InputPrimitiveTypeKind.String:
-                    enumValue = new InputEnumTypeStringValue(name, rawValue.Value.GetString() ?? throw new JsonException(), valueType, description) { Decorators = decorators ?? [] };
-                    break;
-                case InputPrimitiveTypeKind.Int32:
-                    enumValue = new InputEnumTypeIntegerValue(name, rawValue.Value.GetInt32(), valueType, description) { Decorators = decorators ?? [] };
-                    break;
-                case InputPrimitiveTypeKind.Float32:
-                    enumValue = new InputEnumTypeFloatValue(name, rawValue.Value.GetSingle(), valueType, description) { Decorators = decorators ?? [] };
-                    break;
-                default:
-                    throw new JsonException();
-            }
+                InputPrimitiveTypeKind.String => new InputEnumTypeStringValue(name, rawValue.Value.GetString() ?? throw new JsonException(), valueType, description) { Decorators = decorators ?? [] },
+                InputPrimitiveTypeKind.Int32 => new InputEnumTypeIntegerValue(name, rawValue.Value.GetInt32(), valueType, description) { Decorators = decorators ?? [] },
+                InputPrimitiveTypeKind.Float32 => new InputEnumTypeFloatValue(name, rawValue.Value.GetSingle(), valueType, description) { Decorators = decorators ?? [] },
+                _ => throw new JsonException()
+            };
             if (id != null)
             {
                 resolver.AddReference(id, enumValue);
