@@ -147,7 +147,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
           projectRoot + "/dist/generator/Microsoft.Generator.CSharp.dll"
         );
 
-        const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]} ${newProjectOption} ${existingProjectOption}${debugFlag}`;
+        const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]}${constructCommandArg(newProjectOption)}${constructCommandArg(existingProjectOption)}${constructCommandArg(debugFlag)}`;
         Logger.getInstance().info(command);
 
         const result = await execAsync(
@@ -178,6 +178,10 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       }
     }
   }
+}
+
+function constructCommandArg(arg: string): String {
+  return arg !== "" ? ` ${arg}` : "";
 }
 
 async function execAsync(
