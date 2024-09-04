@@ -11,7 +11,7 @@ model Foo {
 
 ## TypeScript
 
-Should generate a type for type with name `Foo` in the `src/models/models.ts` file along with a serializer named `fooSerializer` and a deserializer named `fooDeserializer` in `src/models/serializers.ts`.
+Should generate a type for type with name `Foo` in the `src/models/models.ts` file along with a serializer named `fooToTransport` and a deserializer named `fooToApplication` in `src/models/serializers.ts`.
 The generated model should have property names using camelCasing. Serializer should return these properties with the same name defined in the spec while the deserializer
 should return these properties with the same name as the generated model (camelCase)
 
@@ -22,8 +22,8 @@ export interface Foo {
 }
 ```
 
-```ts src/models/serializers.ts function fooSerializer
-export function fooSerializer(item: Foo) {
+```ts src/models/serializers.ts function fooToTransport
+export function fooToTransport(item: Foo) {
   return {
     element_name: item.elementName,
     age: item.age,
@@ -31,8 +31,8 @@ export function fooSerializer(item: Foo) {
 }
 ```
 
-```ts src/models/serializers.ts function fooDeserializer
-export function fooDeserializer(item: any) {
+```ts src/models/serializers.ts function fooToApplication
+export function fooToApplication(item: any) {
   return {
     elementName: item.element_name,
     age: item.age,

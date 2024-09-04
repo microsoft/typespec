@@ -29,11 +29,9 @@ export function UnionExpression({ type, children }: UnionExpressionProps) {
     );
   }
 
-  return (
-    <>
-      {variants}
-      {variants.length > 1 && children ? " | " : ""}
-      {children}
-    </>
-  );
+  if(children || (Array.isArray(children) && children.length)) {
+   return  <>{variants} {` | ${children}`}</>
+  }
+
+  return variants;
 }

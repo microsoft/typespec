@@ -10,7 +10,7 @@ model Foo {
 
 ## TypeScript
 
-Should generate a model `Foo` and also a `fooSerializer` and `fooDeserializer` functions that call the `recordSerializer` internally.
+Should generate a model `Foo` and also a `fooToTransport` and `fooToApplication` functions that call the `recordSerializer` internally.
 
 ```ts src/models/models.ts interface Foo
 export interface Foo {
@@ -18,16 +18,16 @@ export interface Foo {
 }
 ```
 
-```ts src/models/serializers.ts function fooSerializer
-export function fooSerializer(item: Foo) {
+```ts src/models/serializers.ts function fooToTransport
+export function fooToTransport(item: Foo) {
   return {
     my_values: recordSerializer(item.myValues),
   };
 }
 ```
 
-```ts src/models/serializers.ts function fooDeserializer
-export function fooDeserializer(item: any) {
+```ts src/models/serializers.ts function fooToApplication
+export function fooToApplication(item: any) {
   return {
     myValues: recordSerializer(item.my_values),
   };
@@ -50,7 +50,7 @@ model Foo {
 
 ## TypeScript
 
-Should generate models `Foo` and `Bar` and also a `fooSerializer`, `fooDeserializer`, `barSerializer` and `barDeserializer` functions that call the `recordSerializer` passing `barSerializer` or `barDeserialize` as the serialization callback.
+Should generate models `Foo` and `Bar` and also a `fooToTransport`, `fooToApplication`, `barToTransport` and `barToApplication` functions that call the `recordSerializer` passing `barToTransport` or `barDeserialize` as the serialization callback.
 
 ```ts src/models/models.ts interface Foo
 export interface Foo {
@@ -64,18 +64,18 @@ export interface Bar {
 }
 ```
 
-```ts src/models/serializers.ts function fooSerializer
-export function fooSerializer(item: Foo) {
+```ts src/models/serializers.ts function fooToTransport
+export function fooToTransport(item: Foo) {
   return {
-    my_values: recordSerializer(item.myValues, barSerializer),
+    my_values: recordSerializer(item.myValues, barToTransport),
   };
 }
 ```
 
-```ts src/models/serializers.ts function fooDeserializer
-export function fooDeserializer(item: any) {
+```ts src/models/serializers.ts function fooToApplication
+export function fooToApplication(item: any) {
   return {
-    myValues: recordSerializer(item.my_values, barDeserializer),
+    myValues: recordSerializer(item.my_values, barToApplication),
   };
 }
 ```

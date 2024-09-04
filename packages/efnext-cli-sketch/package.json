@@ -70,7 +70,7 @@
     "@vitest/ui": "^1.6.0",
     "ajv": "~8.13.0",
     "ajv-formats": "~3.0.1",
-    "babel-preset-alloy": "https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@c7857f6",
+    "babel-preset-alloy": "https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@0da0451",
     "c8": "^9.1.0",
     "concurrently": "^8.2.2",
     "rimraf": "~5.0.9",
@@ -78,8 +78,8 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
-    "@alloy-js/core": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@c7857f6",
-    "@alloy-js/typescript": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@c7857f6",
+    "@alloy-js/core": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@0da0451",
+    "@alloy-js/typescript": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@0da0451",
     "@typespec/emitter-framework": "workspace:~",
     "change-case": "~5.4.4",
     "cli-table3": "^0.6.5",

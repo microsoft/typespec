@@ -11,7 +11,7 @@ model Foo {
 
 ## TypeScript
 
-Should generate a type for type with name `Foo` in the `src/models/models.ts` file along with a serializer named `fooSerializer` and a deserializer named `fooDeserializer` in `src/models/serializers.ts`
+Should generate a type for type with name `Foo` in the `src/models/models.ts` file along with a serializer named `fooToTransport` and a deserializer named `fooToApplication` in `src/models/serializers.ts`
 
 ```ts src/models/models.ts interface Foo
 export interface Foo {
@@ -20,8 +20,8 @@ export interface Foo {
 }
 ```
 
-```ts src/models/serializers.ts function fooSerializer
-export function fooSerializer(item: Foo) {
+```ts src/models/serializers.ts function fooToTransport
+export function fooToTransport(item: Foo) {
   return {
     name: item.name,
     age: item.age,
@@ -29,8 +29,8 @@ export function fooSerializer(item: Foo) {
 }
 ```
 
-```ts src/models/serializers.ts function fooDeserializer
-export function fooDeserializer(item: any) {
+```ts src/models/serializers.ts function fooToApplication
+export function fooToApplication(item: any) {
   return {
     name: item.name,
     age: item.age,
@@ -58,18 +58,18 @@ model Foo {
 
 When a property of model `Foo` has a type of another model `Bar`, `Foo` serializer/deserializer should call the serializer/deserializer generated for `Bar`
 
-```ts src/models/serializers.ts function fooSerializer
-export function fooSerializer(item: Foo) {
+```ts src/models/serializers.ts function fooToTransport
+export function fooToTransport(item: Foo) {
   return {
     name: item.name,
     age: item.age,
-    bar: barSerializer(item.bar),
+    bar: barToTransport(item.bar),
   };
 }
 ```
 
-```ts src/models/serializers.ts function barSerializer
-export function barSerializer(item: Bar) {
+```ts src/models/serializers.ts function barToTransport
+export function barToTransport(item: Bar) {
   return {
     address: item.address,
   };
