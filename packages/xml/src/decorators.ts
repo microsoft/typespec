@@ -19,32 +19,46 @@ import type { XmlNamespace } from "./types.js";
 /** @internal */
 export const namespace = "TypeSpec.Xml";
 
+/**
+ * @public
+ */
 export const $name: NameDecorator = (context, target, name) => {
   context.call($encodedName, target, "application/xml", name);
 };
 
+/**
+ * @public
+ */
 export const $attribute: AttributeDecorator = (context, target) => {
   context.program.stateSet(XmlStateKeys.attribute).add(target);
 };
 
 /**
  * Check if the given property should be serialized as an attribute instead of a node.
+ * @public
  */
 export function isAttribute(program: Program, target: ModelProperty): boolean {
   return program.stateSet(XmlStateKeys.attribute).has(target);
 }
 
+/**
+ * @public
+ */
 export const $unwrapped: UnwrappedDecorator = (context, target) => {
   context.program.stateSet(XmlStateKeys.unwrapped).add(target);
 };
 
 /**
  * Check if the given property should be unwrapped in the XML containing node.
+ * @public
  */
 export function isUnwrapped(program: Program, target: ModelProperty): boolean {
   return program.stateSet(XmlStateKeys.unwrapped).has(target);
 }
 
+/**
+ * @public
+ */
 export const $nsDeclarations: NsDeclarationsDecorator = (context, target) => {
   context.program.stateSet(XmlStateKeys.nsDeclaration).add(target);
 };
@@ -53,6 +67,9 @@ function isNsDeclarationsEnum(program: Program, target: Enum): boolean {
   return program.stateSet(XmlStateKeys.nsDeclaration).has(target);
 }
 
+/**
+ * @public
+ */
 export const $ns: NsDecorator = (context, target, namespace: Type, prefix?: string) => {
   const data = getData(context, namespace, prefix);
   if (data) {
@@ -64,6 +81,7 @@ export const $ns: NsDecorator = (context, target, namespace: Type, prefix?: stri
 
 /**
  * Get the namespace and prefix for the given type.
+ * @public
  */
 export function getNs(program: Program, target: Type): XmlNamespace | undefined {
   return program.stateMap(XmlStateKeys.nsDeclaration).get(target);
