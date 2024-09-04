@@ -64,7 +64,8 @@
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/openapi": "workspace:~",
-    "@typespec/versioning": "workspace:~"
+    "@typespec/versioning": "workspace:~",
+    "@typespec/xml": "workspace:~"
   },
   "devDependencies": {
     "@types/node": "~18.11.19",
