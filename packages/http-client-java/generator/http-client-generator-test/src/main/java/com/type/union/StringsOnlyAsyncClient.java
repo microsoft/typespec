@@ -17,7 +17,7 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import com.type.union.implementation.StringsOnliesImpl;
-import com.type.union.implementation.models.SendRequest;
+import com.type.union.implementation.models.SendRequest9;
 import com.type.union.models.GetResponse9;
 import com.type.union.models.GetResponseProp4;
 import reactor.core.publisher.Mono;
@@ -123,7 +123,7 @@ public final class StringsOnlyAsyncClient {
     public Mono<Void> send(GetResponseProp4 prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest sendRequest9Obj = new SendRequest(prop);
+        SendRequest9 sendRequest9Obj = new SendRequest9(prop);
         BinaryData sendRequest9 = BinaryData.fromObject(sendRequest9Obj);
         return sendWithResponse(sendRequest9, requestOptions).flatMap(FluxUtil::toMono);
     }

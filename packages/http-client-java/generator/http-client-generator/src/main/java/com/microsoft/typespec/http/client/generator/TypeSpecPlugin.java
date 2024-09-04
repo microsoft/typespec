@@ -212,6 +212,8 @@ public class TypeSpecPlugin extends Javagen {
                     // NO-OP
                 }
             }, null);
+            // it's a mock connection, we don't need it to do anything
+            stop();
         }
     }
 

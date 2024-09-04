@@ -54,6 +54,7 @@ namespace Microsoft.Generator.CSharp.Providers
             if (inputModel.BaseModel is not null)
             {
                 _baseTypeProvider = new(() => CodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel.BaseModel));
+                DiscriminatorValueExpression = EnsureDiscriminatorValueExpression();
             }
 
             _isStruct = inputModel.ModelAsStruct;
@@ -62,6 +63,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;
 
         public string? DiscriminatorValue => _inputModel.DiscriminatorValue;
+        public ValueExpression? DiscriminatorValueExpression { get; init; }
 
         private IReadOnlyList<ModelProvider>? _derivedModels;
         public IReadOnlyList<ModelProvider> DerivedModels => _derivedModels ??= BuildDerivedModels();
@@ -245,11 +247,61 @@ namespace Microsoft.Generator.CSharp.Providers
             return (constructorParameters, constructorInitializer);
         }
 
+        private ValueExpression? EnsureDiscriminatorValueExpression()
+        {
+            if (_inputModel.BaseModel is not null && _inputModel.DiscriminatorValue is not null)
+            {
+                var discriminator = BaseModelProvider?.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
+                if (discriminator != null)
+                {
+                    var type = discriminator.Type;
+                    if (IsUnknownDiscriminatorModel)
+                    {
+                        var discriminatorExpression = discriminator.AsParameter.AsExpression;
+                        if (!type.IsFrameworkType && type.IsEnum)
+                        {
+                            if (type.IsStruct)
+                            {
+                                /* kind != default ? kind : "unknown" */
+                                return new TernaryConditionalExpression(discriminatorExpression.NotEqual(Default), discriminatorExpression, Literal(_inputModel.DiscriminatorValue));
+                            }
+                            else
+                            {
+                                return discriminatorExpression;
+                            }
+                        }
+                        else
+                        {
+                            /* kind ?? "unknown" */
+                            return NullCoalescing(discriminatorExpression, Literal(_inputModel.DiscriminatorValue));
+                        }
+                    }
+                    else
+                    {
+                        if (!type.IsFrameworkType && type.IsEnum)
+                        {
+                            /* TODO: when customize the discriminator type to a enum, then we may not be able to get the correct TypeProvider in this way.
+                             * We will handle this when issue https://github.com/microsoft/typespec/issues/4313 is resolved.
+                             * */
+                            var discriminatorProvider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(enumType: (InputEnumType)_inputModel.BaseModel.DiscriminatorProperty!.Type);
+                            var enumMember = discriminatorProvider!.EnumValues.FirstOrDefault(e => e.Value.ToString() == _inputModel.DiscriminatorValue) ?? throw new InvalidOperationException($"invalid discriminator value {_inputModel.DiscriminatorValue}");
+                            /* {KindType}.{enumMember} */
+                            return TypeReferenceExpression.FromType(type).Property(enumMember.Name);
+                        }
+                        else
+                        {
+                            return Literal(_inputModel.DiscriminatorValue);
+                        }
+                    }
+                }
+            }
+            return null;
+        }
         private ValueExpression GetExpression(ParameterProvider parameter)
         {
-            if (parameter.Property is not null && parameter.Property.IsDiscriminator)
+            if (parameter.Property is not null && parameter.Property.IsDiscriminator && _inputModel.DiscriminatorValue != null)
             {
-                return IsUnknownDiscriminatorModel ? NullCoalescing(parameter.AsExpression, Literal(_inputModel.DiscriminatorValue)) : Literal(_inputModel.DiscriminatorValue);
+                return DiscriminatorValueExpression ?? throw new InvalidOperationException($"invalid discriminator {_inputModel.DiscriminatorValue}");
             }
 
             return parameter.AsExpression;

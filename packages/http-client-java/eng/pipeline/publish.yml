@@ -29,3 +29,4 @@ extends:
           StagePrefix: "Java"
           LanguageShortName: "java"
           HasNugetPackages: true
+          CadlRanchName: "@typespec/http-client-java"
