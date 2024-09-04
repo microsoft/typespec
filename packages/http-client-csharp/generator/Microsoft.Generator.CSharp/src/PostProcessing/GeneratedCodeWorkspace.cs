@@ -47,13 +47,12 @@ namespace Microsoft.Generator.CSharp
             _cachedProject = Task.Run(CreateGeneratedCodeProject);
         }
 
-        internal CSharpCompilation GetCompilation()
+        internal async Task<CSharpCompilation> GetCompilationAsync()
         {
-            _project.TryGetCompilation(out var compilation);
-            var csharpCompilation = compilation as CSharpCompilation;
-            Debug.Assert(csharpCompilation != null);
+            var compilation = await _project.GetCompilationAsync();
+            Debug.Assert(compilation is CSharpCompilation);
 
-            return csharpCompilation;
+            return (CSharpCompilation)compilation;
         }
 
         public void AddPlainFiles(string name, string content)

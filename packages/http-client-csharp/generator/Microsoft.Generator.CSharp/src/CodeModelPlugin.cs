@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -42,7 +43,6 @@ namespace Microsoft.Generator.CSharp
         public CodeModelPlugin(GeneratorContext context)
         {
             Configuration = context.Configuration;
-            _sourceInputModel = new(InitializeSourceInputModel);
             _inputLibrary = new(() => new InputLibrary(Instance.Configuration.OutputDirectory));
             TypeFactory = new TypeFactory();
         }
@@ -55,13 +55,11 @@ namespace Microsoft.Generator.CSharp
         }
 
         internal bool IsNewProject { get; set; }
-
-        private Lazy<SourceInputModel> _sourceInputModel;
         private Lazy<InputLibrary> _inputLibrary;
 
         // Extensibility points to be implemented by a plugin
         public virtual TypeFactory TypeFactory { get; }
-        public virtual SourceInputModel SourceInputModel => _sourceInputModel.Value;
+        public virtual SourceInputModel SourceInputModel => _sourceInputModel ?? throw new InvalidOperationException($"SourceInputModel has not been initialized yet");
         public virtual string LicenseString => string.Empty;
         public virtual OutputLibrary OutputLibrary { get; } = new();
         public virtual InputLibrary InputLibrary => _inputLibrary.Value;
@@ -77,10 +75,11 @@ namespace Microsoft.Generator.CSharp
             _visitors.Add(visitor);
         }
 
-        private SourceInputModel InitializeSourceInputModel()
+        private SourceInputModel? _sourceInputModel;
+        internal async Task InitializeSourceInputModelAsync()
         {
             GeneratedCodeWorkspace existingCode = GeneratedCodeWorkspace.CreateExistingCodeProject(Instance.Configuration.ProjectDirectory, Instance.Configuration.ProjectGeneratedDirectory);
-            return new SourceInputModel(existingCode.GetCompilation());
+            _sourceInputModel =  new SourceInputModel(await existingCode.GetCompilationAsync());
         }
     }
 }
