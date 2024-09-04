@@ -12,6 +12,17 @@ namespace Microsoft.Generator.CSharp.Providers
 {
     public abstract class TypeProvider
     {
+        private Lazy<TypeProvider?> _customCodeView;
+        protected TypeProvider()
+        {
+            _customCodeView = new(GetCustomCodeView);
+        }
+
+        private protected virtual TypeProvider? GetCustomCodeView()
+            => CodeModelPlugin.Instance.SourceInputModel.FindForType(GetNamespace(), BuildName());
+
+        public TypeProvider? CustomCodeView => _customCodeView.Value;
+
         protected string? _deprecated;
 
         /// <summary>
@@ -22,7 +33,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private string? _relativeFilePath;
 
-        public string Name => _name ??= BuildName();
+        public string Name => _name ??= CustomCodeView?.Name ?? BuildName();
 
         private string? _name;
 
@@ -45,7 +56,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private CSharpType? _type;
         public CSharpType Type => _type ??= new(
             this,
-            GetNamespace(),
+            CustomCodeView?.GetNamespace() ?? GetNamespace(),
             GetTypeArguments(),
             GetBaseType());
 
