@@ -123,7 +123,7 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="inputType">The <see cref="InputType"/> to convert.</param>
         /// <returns>An instance of <see cref="CSharpType"/>.</returns>
-        private protected virtual CSharpType CreatePrimitiveCSharpTypeCore(InputType inputType) => inputType switch
+        private CSharpType CreatePrimitiveCSharpTypeCore(InputType inputType) => inputType switch
         {
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
