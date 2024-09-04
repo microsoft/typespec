@@ -213,7 +213,7 @@ async function resolveTypeSpecExecutable(
   }
   if (!targetPath) {
     const executable = process.platform === "win32" ? `${cmdName}.cmd` : cmdName;
-    logger.debug(`Can't resolve ${cmdName}} path, try to use default value ${executable}.`);
+    logger.debug(`Can't resolve ${cmdName} path, try to use default value ${executable}.`);
     return { command: executable, args, options };
   }
   const variableResolver = new VSCodeVariableResolver({
