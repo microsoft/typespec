@@ -32,23 +32,23 @@ namespace Microsoft.Generator.CSharp.Input
             string? description = null;
             InputModelTypeUsage usage = InputModelTypeUsage.None;
             string? usageString = null;
-            bool isExtendable = false;
+            bool isFixed = false;
             InputType? valueType = null;
             IReadOnlyList<InputEnumTypeValue>? values = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadString(nameof(InputEnumType.Name), ref name)
-                    || reader.TryReadString(nameof(InputEnumType.CrossLanguageDefinitionId), ref crossLanguageDefinitionId)
-                    || reader.TryReadString(nameof(InputEnumType.Accessibility), ref accessibility)
-                    || reader.TryReadString(nameof(InputEnumType.Deprecated), ref deprecated)
-                    || reader.TryReadString(nameof(InputEnumType.Description), ref description)
-                    || reader.TryReadString(nameof(InputEnumType.Usage), ref usageString)
-                    || reader.TryReadBoolean(nameof(InputEnumType.IsExtensible), ref isExtendable)
-                    || reader.TryReadWithConverter(nameof(InputEnumType.ValueType), options, ref valueType)
-                    || reader.TryReadWithConverter(nameof(InputEnumType.Values), options, ref values)
-                    || reader.TryReadWithConverter(nameof(InputEnumType.Decorators), options, ref decorators);
+                    || reader.TryReadString("name", ref name)
+                    || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
+                    || reader.TryReadString("access", ref accessibility)
+                    || reader.TryReadString("deprecation", ref deprecated)
+                    || reader.TryReadString("description", ref description)
+                    || reader.TryReadString("usage", ref usageString)
+                    || reader.TryReadBoolean("isFixed", ref isFixed)
+                    || reader.TryReadWithConverter("valueType", options, ref valueType)
+                    || reader.TryReadWithConverter("values", options, ref values)
+                    || reader.TryReadWithConverter("decorators", options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -78,7 +78,7 @@ namespace Microsoft.Generator.CSharp.Input
                 throw new JsonException("The ValueType of an EnumType must be a primitive type.");
             }
 
-            var enumType = new InputEnumType(name, crossLanguageDefinitionId ?? string.Empty, accessibility, deprecated, description!, usage, inputValueType, NormalizeValues(values, inputValueType), isExtendable)
+            var enumType = new InputEnumType(name, crossLanguageDefinitionId ?? string.Empty, accessibility, deprecated, description!, usage, inputValueType, NormalizeValues(values, inputValueType), !isFixed)
             {
                 Decorators = decorators ?? []
             };

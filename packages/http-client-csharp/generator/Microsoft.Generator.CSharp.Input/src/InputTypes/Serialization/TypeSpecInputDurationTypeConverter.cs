@@ -34,12 +34,12 @@ namespace Microsoft.Generator.CSharp.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadString(nameof(InputDurationType.Name), ref name)
-                    || reader.TryReadString(nameof(InputDurationType.CrossLanguageDefinitionId), ref crossLanguageDefinitionId)
-                    || reader.TryReadString(nameof(InputDurationType.Encode), ref encode)
-                    || reader.TryReadWithConverter(nameof(InputDurationType.WireType), options, ref type)
-                    || reader.TryReadWithConverter(nameof(InputDurationType.BaseType), options, ref baseType)
-                    || reader.TryReadWithConverter(nameof(InputDurationType.Decorators), options, ref decorators);
+                    || reader.TryReadString("name", ref name)
+                    || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
+                    || reader.TryReadString("encode", ref encode)
+                    || reader.TryReadWithConverter("wireType", options, ref type)
+                    || reader.TryReadWithConverter("baseType", options, ref baseType)
+                    || reader.TryReadWithConverter("decorators", options, ref decorators);
 
                 if (!isKnownProperty)
                 {

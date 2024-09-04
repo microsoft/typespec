@@ -32,8 +32,8 @@ namespace Microsoft.Generator.CSharp.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadWithConverter(nameof(InputLiteralType.ValueType), options, ref type)
-                    || reader.TryReadWithConverter(nameof(InputLiteralType.Decorators), options, ref decorators);
+                    || reader.TryReadWithConverter("valueType", options, ref type)
+                    || reader.TryReadWithConverter("decorators", options, ref decorators);
 
                 if (isKnownProperty)
                 {
