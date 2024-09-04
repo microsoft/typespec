@@ -17,7 +17,7 @@ public class FlattenOpSendLong {
             = new FlattenClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT")).buildClient();
         // BEGIN:com.cadl.flatten.generated.sendlong.flattenopsendlong
         flattenClient.sendLong(
-            new SendLongOptions("myRequiredId", "myRequiredInput", 11, "title", SendLongRequestStatus.NOT_STARTED)
+            new SendLongOptions("myRequiredId", "myRequiredInput", 11, null, "title", SendLongRequestStatus.NOT_STARTED)
                 .setFilter("name=myName")
                 .setUser(new User("myOptionalUser"))
                 .setDataIntOptional(12)

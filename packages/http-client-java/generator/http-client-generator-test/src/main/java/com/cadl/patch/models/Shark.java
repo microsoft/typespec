@@ -20,10 +20,16 @@ import java.util.Set;
 @Fluent
 public class Shark extends Fish {
     /*
+     * Discriminator property for Fish.
+     */
+    @Generated
+    private String kind = "shark";
+
+    /*
      * The sharktype property.
      */
     @Generated
-    String sharktype;
+    private String sharktype = "shark";
 
     /*
      * The weight property.
@@ -51,8 +57,17 @@ public class Shark extends Fish {
      */
     @Generated
     public Shark() {
-        this.kind = "shark";
-        this.sharktype = "shark";
+    }
+
+    /**
+     * Get the kind property: Discriminator property for Fish.
+     * 
+     * @return the kind value.
+     */
+    @Generated
+    @Override
+    public String getKind() {
+        return this.kind;
     }
 
     /**
@@ -197,26 +212,24 @@ public class Shark extends Fish {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
-                if (!Shark.fromJsonShared(reader, fieldName, deserializedShark)) {
+                if ("id".equals(fieldName)) {
+                    JsonMergePatchHelper.getFishAccessor().setId(deserializedShark, reader.getString());
+                } else if ("name".equals(fieldName)) {
+                    JsonMergePatchHelper.getFishAccessor().setName(deserializedShark, reader.getString());
+                } else if ("age".equals(fieldName)) {
+                    JsonMergePatchHelper.getFishAccessor().setAge(deserializedShark, reader.getInt());
+                } else if ("color".equals(fieldName)) {
+                    JsonMergePatchHelper.getFishAccessor().setColor(deserializedShark, reader.getString());
+                } else if ("sharktype".equals(fieldName)) {
+                    deserializedShark.sharktype = reader.getString();
+                } else if ("weight".equals(fieldName)) {
+                    deserializedShark.weight = reader.getNullable(JsonReader::getInt);
+                } else {
                     reader.skipChildren();
                 }
             }
 
             return deserializedShark;
         });
-    }
-
-    @Generated
-    static boolean fromJsonShared(JsonReader reader, String fieldName, Shark deserializedShark) throws IOException {
-        if (Fish.fromJsonShared(reader, fieldName, deserializedShark)) {
-            return true;
-        } else if ("sharktype".equals(fieldName)) {
-            deserializedShark.sharktype = reader.getString();
-            return true;
-        } else if ("weight".equals(fieldName)) {
-            deserializedShark.weight = reader.getNullable(JsonReader::getInt);
-            return true;
-        }
-        return false;
     }
 }

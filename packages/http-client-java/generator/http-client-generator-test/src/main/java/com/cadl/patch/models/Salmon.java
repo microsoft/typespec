@@ -23,6 +23,12 @@ import java.util.Set;
 @Fluent
 public final class Salmon extends Fish {
     /*
+     * Discriminator property for Fish.
+     */
+    @Generated
+    private String kind = "salmon";
+
+    /*
      * The friends property.
      */
     @Generated
@@ -51,7 +57,17 @@ public final class Salmon extends Fish {
      */
     @Generated
     public Salmon() {
-        this.kind = "salmon";
+    }
+
+    /**
+     * Get the kind property: Discriminator property for Fish.
+     * 
+     * @return the kind value.
+     */
+    @Generated
+    @Override
+    public String getKind() {
+        return this.kind;
     }
 
     /**
@@ -230,8 +246,16 @@ public final class Salmon extends Fish {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
-                if (Fish.fromJsonShared(reader, fieldName, deserializedSalmon)) {
-                    continue;
+                if ("id".equals(fieldName)) {
+                    JsonMergePatchHelper.getFishAccessor().setId(deserializedSalmon, reader.getString());
+                } else if ("name".equals(fieldName)) {
+                    JsonMergePatchHelper.getFishAccessor().setName(deserializedSalmon, reader.getString());
+                } else if ("age".equals(fieldName)) {
+                    JsonMergePatchHelper.getFishAccessor().setAge(deserializedSalmon, reader.getInt());
+                } else if ("color".equals(fieldName)) {
+                    JsonMergePatchHelper.getFishAccessor().setColor(deserializedSalmon, reader.getString());
+                } else if ("kind".equals(fieldName)) {
+                    deserializedSalmon.kind = reader.getString();
                 } else if ("friends".equals(fieldName)) {
                     List<Fish> friends = reader.readArray(reader1 -> Fish.fromJson(reader1));
                     deserializedSalmon.friends = friends;

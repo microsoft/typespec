@@ -78,7 +78,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
 
       await program.host.writeFile(
         resolvePath(outputFolder, tspOutputFileName),
-        prettierOutput(stringifyRefs(root, convertUsageNumbersToStrings, 1, PreserveType.Objects))
+        prettierOutput(stringifyRefs(root, transformJSONProperties, 1, PreserveType.Objects))
       );
 
       //emit configuration.json
@@ -139,7 +139,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         const existingProjectOption = options["existing-project-folder"]
           ? `--existing-project-folder ${options["existing-project-folder"]}`
           : "";
-        const debugFlag = (options.debug ?? false) ? " --debug" : "";
+        const debugFlag = (options.debug ?? false) ? "--debug" : "";
 
         const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
         const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
@@ -147,7 +147,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
           projectRoot + "/dist/generator/Microsoft.Generator.CSharp.dll"
         );
 
-        const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]} ${newProjectOption} ${existingProjectOption}${debugFlag}`;
+        const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]}${constructCommandArg(newProjectOption)}${constructCommandArg(existingProjectOption)}${constructCommandArg(debugFlag)}`;
         Logger.getInstance().info(command);
 
         const result = await execAsync(
@@ -178,6 +178,10 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       }
     }
   }
+}
+
+function constructCommandArg(arg: string): string {
+  return arg !== "" ? ` ${arg}` : "";
 }
 
 async function execAsync(
@@ -215,7 +219,8 @@ async function execAsync(
   });
 }
 
-function convertUsageNumbersToStrings(this: any, key: string, value: any): any {
+function transformJSONProperties(this: any, key: string, value: any): any {
+  // convertUsageNumbersToStrings
   if (this["Kind"] === "model" || this["Kind"] === "enum") {
     if (key === "Usage" && typeof value === "number") {
       if (value === 0) {
@@ -231,6 +236,11 @@ function convertUsageNumbersToStrings(this: any, key: string, value: any): any {
       }
       return result.join(",");
     }
+  }
+
+  // omit the `rawExample` property from the examples
+  if (key === "rawExample") {
+    return undefined;
   }
 
   return value;

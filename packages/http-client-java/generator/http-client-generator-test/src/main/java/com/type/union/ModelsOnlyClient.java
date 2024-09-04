@@ -16,7 +16,7 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.type.union.implementation.ModelsOnliesImpl;
-import com.type.union.implementation.models.SendRequest5;
+import com.type.union.implementation.models.SendRequest4;
 import com.type.union.models.GetResponse4;
 
 /**
@@ -118,7 +118,7 @@ public final class ModelsOnlyClient {
     public void send(BinaryData prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest5 sendRequest4Obj = new SendRequest5(prop);
+        SendRequest4 sendRequest4Obj = new SendRequest4(prop);
         BinaryData sendRequest4 = BinaryData.fromObject(sendRequest4Obj);
         sendWithResponse(sendRequest4, requestOptions).getValue();
     }

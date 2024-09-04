@@ -8,6 +8,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GraalVmConfig;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
 
 import java.util.Collection;
@@ -56,7 +57,7 @@ public class GraalVmConfigMapper implements IMapper<GraalVmConfigMapper.ServiceA
                 .map(e -> e.getPackage() + "." + e.getName())
                 .collect(Collectors.toList());
         reflects.addAll(data.models.stream()
-                .filter(m -> !streamStyle || (m.getImplementationDetails() != null && m.getImplementationDetails().isException()))
+                .filter(m -> !streamStyle || m.hasUsage(ImplementationDetails.Usage.EXCEPTION))
                 .map(m -> m.getPackage() + "." + m.getName())
                 .collect(Collectors.toList()));
         reflects.addAll(data.enums.stream()

@@ -109,6 +109,33 @@ public interface TopLevelTrackedResources {
     PagedIterable<TopLevelTrackedResource> list(Context context);
 
     /**
+     * A synchronous resource action that returns no content.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param topLevelTrackedResourceName arm resource name for path.
+     * @param body The content of the action request.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    Response<Void> actionSyncWithResponse(String resourceGroupName, String topLevelTrackedResourceName,
+        NotificationDetails body, Context context);
+
+    /**
+     * A synchronous resource action that returns no content.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param topLevelTrackedResourceName arm resource name for path.
+     * @param body The content of the action request.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    void actionSync(String resourceGroupName, String topLevelTrackedResourceName, NotificationDetails body);
+
+    /**
      * Get a TopLevelTrackedResource.
      * 
      * @param id the resource ID.

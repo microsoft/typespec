@@ -419,6 +419,20 @@ public class ClientModel {
   }
 
   /**
+   * Checks whether the model has the given {@link ImplementationDetails.Usage}.
+   * <p>
+   * If {@link #getImplementationDetails()} or {@link ImplementationDetails#getUsages()} is null this will always
+   * return false.
+   *
+   * @return Whether the model has the given {@link ImplementationDetails.Usage}.
+   */
+  public boolean hasUsage(ImplementationDetails.Usage usage) {
+    return implementationDetails != null
+      && implementationDetails.getUsages() != null
+      && implementationDetails.getUsages().contains(usage);
+  }
+
+  /**
    * List the properties that have access (getter or setter) methods.
    * <p>
    * It does not include properties from superclass (even though they can be accessed via inheritance). It does not
