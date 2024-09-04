@@ -180,7 +180,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
   }
 }
 
-function constructCommandArg(arg: string): String {
+function constructCommandArg(arg: string): string {
   return arg !== "" ? ` ${arg}` : "";
 }
 
