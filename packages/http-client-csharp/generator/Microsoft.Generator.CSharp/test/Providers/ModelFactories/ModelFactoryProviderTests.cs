@@ -111,13 +111,22 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
                 InputFactory.Property("StringProp", InputPrimitiveType.String),
                 InputFactory.Property("ListProp", InputFactory.Array(InputPrimitiveType.String)),
                 InputFactory.Property("DictProp", InputFactory.Dictionary(InputPrimitiveType.String, InputPrimitiveType.String)),
-                InputFactory.Property("EnumProp", InputFactory.Enum("inputEnum", InputPrimitiveType.Int32, isExtensible: true, values: [InputFactory.EnumMember.Int32("foo", 1)]), isDiscriminator: true)
             ];
+            InputModelProperty[] inheritanceProperties = properties.Concat(new[]
+            {
+                InputFactory.Property("EnumProp",
+                    InputFactory.Enum("inputEnum", InputPrimitiveType.Int32, isExtensible: true,
+                        values: [InputFactory.EnumMember.String("foo", "bar")]), isDiscriminator: true)
+            }).ToArray();
+
+            var derivedModel = InputFactory.Model("DerivedModel", properties: inheritanceProperties, discriminatedKind: "unknown");
             return
             [
                 InputFactory.Model("InternalModel", "internal", properties: properties),
                 InputFactory.Model("PublicModel1", properties: properties),
-                InputFactory.Model("PublicModel2", properties: properties)
+                InputFactory.Model("PublicModel2", properties: properties),
+                derivedModel,
+                InputFactory.Model("BaseModel", properties: properties, derivedModels: [derivedModel]),
             ];
         }
     }
