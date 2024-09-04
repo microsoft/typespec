@@ -1,5 +1,6 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
+/** TypeSpec Xml Library Definition */
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/xml",
   diagnostics: {

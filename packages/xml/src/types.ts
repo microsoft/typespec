@@ -1,7 +1,12 @@
 import type { EncodeData, Scalar } from "@typespec/compiler";
 
+/**
+ * Represents an XML namespace.
+ */
 export interface XmlNamespace {
+  /** Namespace name */
   readonly namespace: string;
+  /** Namespace prefix */
   readonly prefix: string;
 }
 
@@ -20,7 +25,12 @@ export type XmlEncoding =
   /** Corespond to a field of schema 	xs:base64Binary */
   | "TypeSpec.Xml.Encoding.xmlBase64Binary";
 
+/**
+ * Xml Encoding information.
+ */
 export interface XmlEncodeData extends EncodeData {
+  /** Encoding */
   encoding?: XmlEncoding | EncodeData["encoding"];
+  /** Encoding target type.(e.g. string) */
   type: Scalar;
 }

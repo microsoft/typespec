@@ -1,45 +1,51 @@
 /**
  * Config file for API Extractor.  For more info, please visit: https://api-extractor.com
  */
- {
-    "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
-    "mainEntryPointFilePath": "<projectFolder>/dist/src/index.d.ts",
-    "apiReport": {
-      "enabled": false
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
+  "mainEntryPointFilePath": "<projectFolder>/dist/src/index.d.ts",
+  "apiReport": {
+    "enabled": true
+  },
+  "docModel": {
+    "enabled": true,
+    "apiJsonFilePath": "<projectFolder>/temp/<unscopedPackageName>.api.json"
+  },
+  "dtsRollup": {
+    "enabled": false
+  },
+  "messages": {
+    "compilerMessageReporting": {
+      "default": {
+        "logLevel": "error"
+      }
     },
-    "docModel": {
-      "enabled": true,
-      "apiJsonFilePath": "<projectFolder>/temp/<unscopedPackageName>.api.json"
-    },
-    "dtsRollup": {
-      "enabled": false
-    },
-    "messages": {
-      "compilerMessageReporting": {
-        "default": {
-          "logLevel": "error"
-        }
+
+    "extractorMessageReporting": {
+      "default": {
+        "logLevel": "error"
       },
-  
-      "extractorMessageReporting": {
-        "default": {
-          "logLevel": "error"
-        },
-        "ae-forgotten-export": {
-          "logLevel": "none",
-          "addToApiReportFile": false
-        }
+      "ae-undocumented": {
+        "logLevel": "error"
       },
-  
-      "tsdocMessageReporting": {
-        "default": {
-          "logLevel": "error"
-        },
-        "tsdoc-param-tag-missing-hyphen": {
-          "logLevel": "none",
-          "addToApiReportFile": false
-        }
+      "ae-forgotten-export": {
+        "logLevel": "none", // False positive with decorators functions.
+        "addToApiReportFile": false
+      },
+      "ae-missing-release-tag": {
+        "logLevel": "none", // This is just extra verbosity. Should rely on api view to see if we exported something by mistake
+        "addToApiReportFile": false
+      }
+    },
+
+    "tsdocMessageReporting": {
+      "default": {
+        "logLevel": "error"
+      },
+      "tsdoc-param-tag-missing-hyphen": {
+        "logLevel": "none",
+        "addToApiReportFile": false
       }
     }
   }
-  
+}
