@@ -36,7 +36,7 @@ import {
 } from "./parser.js";
 import type { Program, ProjectedProgram } from "./program.js";
 import { createProjectionMembers } from "./projection-members.js";
-import { createTypeRelation } from "./type-relation.js";
+import { createTypeRelationChecker } from "./type-relation-checker.js";
 import {
   getFullyQualifiedSymbolName,
   getParentTemplateNode,
@@ -459,7 +459,7 @@ export function createChecker(program: Program): Checker {
     getValueExactType,
     isTypeAssignableTo: undefined!,
   };
-  const relation = createTypeRelation(program, checker);
+  const relation = createTypeRelationChecker(program, checker);
   checker.isTypeAssignableTo = relation.isTypeAssignableTo;
 
   const projectionMembers = createProjectionMembers(checker);
