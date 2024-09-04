@@ -18,15 +18,37 @@
    "values": [
     {
      "$id": "4",
-     "Name": "1.25",
-     "Value": 1.25,
-     "Decorators": []
+     "kind": "enumvalue",
+     "name": "1.25",
+     "value": 1.25,
+     "valueType": {
+      "$id": "5",
+      "kind": "float32",
+      "name": "float32",
+      "crossLanguageDefinitionId": "TypeSpec.float32",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "2"
+     },
+     "decorators": []
     },
     {
-     "$id": "5",
-     "Name": "2.375",
-     "Value": 2.375,
-     "Decorators": []
+     "$id": "6",
+     "kind": "enumvalue",
+     "name": "2.375",
+     "value": 2.375,
+     "valueType": {
+      "$id": "7",
+      "kind": "float32",
+      "name": "float32",
+      "crossLanguageDefinitionId": "TypeSpec.float32",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "2"
+     },
+     "decorators": []
     }
    ],
    "isFixed": true,
@@ -35,12 +57,12 @@
    "decorators": []
   },
   {
-   "$id": "6",
+   "$id": "8",
    "kind": "enum",
    "name": "UnionIntLiteralPropertyProperty",
    "crossLanguageDefinitionId": "UnionIntLiteralProperty.property.anonymous",
    "valueType": {
-    "$id": "7",
+    "$id": "9",
     "kind": "int32",
     "name": "int32",
     "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -48,47 +70,38 @@
    },
    "values": [
     {
-     "$id": "8",
-     "Name": "1",
-     "Value": 1,
-     "Decorators": []
+     "$id": "10",
+     "kind": "enumvalue",
+     "name": "1",
+     "value": 1,
+     "valueType": {
+      "$id": "11",
+      "kind": "int32",
+      "name": "int32",
+      "crossLanguageDefinitionId": "TypeSpec.int32",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "8"
+     },
+     "decorators": []
     },
-    {
-     "$id": "9",
-     "Name": "2",
-     "Value": 2,
-     "Decorators": []
-    }
-   ],
-   "isFixed": true,
-   "isFlags": false,
-   "usage": "Input,Output,Json",
-   "decorators": []
-  },
-  {
-   "$id": "10",
-   "kind": "enum",
-   "name": "UnionStringLiteralPropertyProperty",
-   "crossLanguageDefinitionId": "UnionStringLiteralProperty.property.anonymous",
-   "valueType": {
-    "$id": "11",
-    "kind": "string",
-    "name": "string",
-    "crossLanguageDefinitionId": "TypeSpec.string",
-    "decorators": []
-   },
-   "values": [
     {
      "$id": "12",
-     "Name": "hello",
-     "Value": "hello",
-     "Decorators": []
-    },
-    {
-     "$id": "13",
-     "Name": "world",
-     "Value": "world",
-     "Decorators": []
+     "kind": "enumvalue",
+     "name": "2",
+     "value": 2,
+     "valueType": {
+      "$id": "13",
+      "kind": "int32",
+      "name": "int32",
+      "crossLanguageDefinitionId": "TypeSpec.int32",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "8"
+     },
+     "decorators": []
     }
    ],
    "isFixed": true,
@@ -99,9 +112,62 @@
   {
    "$id": "14",
    "kind": "enum",
-   "name": "FloatLiteralProperty_property",
+   "name": "UnionStringLiteralPropertyProperty",
+   "crossLanguageDefinitionId": "UnionStringLiteralProperty.property.anonymous",
    "valueType": {
     "$id": "15",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "values": [
+    {
+     "$id": "16",
+     "kind": "enumvalue",
+     "name": "hello",
+     "value": "hello",
+     "valueType": {
+      "$id": "17",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "14"
+     },
+     "decorators": []
+    },
+    {
+     "$id": "18",
+     "kind": "enumvalue",
+     "name": "world",
+     "value": "world",
+     "valueType": {
+      "$id": "19",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "14"
+     },
+     "decorators": []
+    }
+   ],
+   "isFixed": true,
+   "isFlags": false,
+   "usage": "Input,Output,Json",
+   "decorators": []
+  },
+  {
+   "$id": "20",
+   "kind": "enum",
+   "name": "FloatLiteralProperty_property",
+   "valueType": {
+    "$id": "21",
     "kind": "float32",
     "name": "float32",
     "crossLanguageDefinitionId": "TypeSpec.float32",
@@ -109,10 +175,17 @@
    },
    "values": [
     {
-     "$id": "16",
-     "Name": "1.25",
-     "Value": 1.25,
-     "Description": "1.25"
+     "$id": "22",
+     "kind": "enumvalue",
+     "name": "1.25",
+     "value": 1.25,
+     "description": "1.25",
+     "valueType": {
+      "$ref": "21"
+     },
+     "enumType": {
+      "$ref": "20"
+     }
     }
    ],
    "crossLanguageDefinitionId": "",
@@ -123,11 +196,11 @@
    "decorators": []
   },
   {
-   "$id": "17",
+   "$id": "23",
    "kind": "enum",
    "name": "IntLiteralProperty_property",
    "valueType": {
-    "$id": "18",
+    "$id": "24",
     "kind": "int32",
     "name": "int32",
     "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -135,10 +208,17 @@
    },
    "values": [
     {
-     "$id": "19",
-     "Name": "1",
-     "Value": 1,
-     "Description": "1"
+     "$id": "25",
+     "kind": "enumvalue",
+     "name": "1",
+     "value": 1,
+     "description": "1",
+     "valueType": {
+      "$ref": "24"
+     },
+     "enumType": {
+      "$ref": "23"
+     }
     }
    ],
    "crossLanguageDefinitionId": "",
@@ -149,11 +229,11 @@
    "decorators": []
   },
   {
-   "$id": "20",
+   "$id": "26",
    "kind": "enum",
    "name": "StringLiteralProperty_property",
    "valueType": {
-    "$id": "21",
+    "$id": "27",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -161,10 +241,17 @@
    },
    "values": [
     {
-     "$id": "22",
-     "Name": "hello",
-     "Value": "hello",
-     "Description": "hello"
+     "$id": "28",
+     "kind": "enumvalue",
+     "name": "hello",
+     "value": "hello",
+     "description": "hello",
+     "valueType": {
+      "$ref": "27"
+     },
+     "enumType": {
+      "$ref": "26"
+     }
     }
    ],
    "crossLanguageDefinitionId": "",
@@ -177,7 +264,7 @@
  ],
  "Models": [
   {
-   "$id": "23",
+   "$id": "29",
    "kind": "model",
    "name": "RequiredAndOptionalProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptionalProperty",
@@ -186,12 +273,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "24",
+     "$id": "30",
      "Name": "optionalProperty",
      "SerializedName": "optionalProperty",
      "Description": "optional string property",
      "Type": {
-      "$id": "25",
+      "$id": "31",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -202,12 +289,12 @@
      "Decorators": []
     },
     {
-     "$id": "26",
+     "$id": "32",
      "Name": "requiredProperty",
      "SerializedName": "requiredProperty",
      "Description": "required int property",
      "Type": {
-      "$id": "27",
+      "$id": "33",
       "kind": "int32",
       "name": "int32",
       "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -220,7 +307,7 @@
    ]
   },
   {
-   "$id": "28",
+   "$id": "34",
    "kind": "model",
    "name": "UnionFloatLiteralProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteralProperty",
@@ -229,7 +316,7 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "29",
+     "$id": "35",
      "Name": "property",
      "SerializedName": "property",
      "Description": "Property",
@@ -243,7 +330,7 @@
    ]
   },
   {
-   "$id": "30",
+   "$id": "36",
    "kind": "model",
    "name": "UnionIntLiteralProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteralProperty",
@@ -252,12 +339,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "31",
+     "$id": "37",
      "Name": "property",
      "SerializedName": "property",
      "Description": "Property",
      "Type": {
-      "$ref": "6"
+      "$ref": "8"
      },
      "IsRequired": false,
      "IsReadOnly": false,
@@ -266,7 +353,7 @@
    ]
   },
   {
-   "$id": "32",
+   "$id": "38",
    "kind": "model",
    "name": "UnionStringLiteralProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteralProperty",
@@ -275,12 +362,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "33",
+     "$id": "39",
      "Name": "property",
      "SerializedName": "property",
      "Description": "Property",
      "Type": {
-      "$ref": "10"
+      "$ref": "14"
      },
      "IsRequired": false,
      "IsReadOnly": false,
@@ -289,7 +376,7 @@
    ]
   },
   {
-   "$id": "34",
+   "$id": "40",
    "kind": "model",
    "name": "BooleanLiteralProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.BooleanLiteralProperty",
@@ -298,15 +385,15 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "35",
+     "$id": "41",
      "Name": "property",
      "SerializedName": "property",
      "Description": "Property",
      "Type": {
-      "$id": "36",
+      "$id": "42",
       "kind": "constant",
       "valueType": {
-       "$id": "37",
+       "$id": "43",
        "kind": "boolean",
        "name": "boolean",
        "crossLanguageDefinitionId": "TypeSpec.boolean",
@@ -322,70 +409,12 @@
    ]
   },
   {
-   "$id": "38",
+   "$id": "44",
    "kind": "model",
    "name": "FloatLiteralProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.FloatLiteralProperty",
    "usage": "Input,Output,Json",
    "description": "Model with float literal property",
-   "decorators": [],
-   "properties": [
-    {
-     "$id": "39",
-     "Name": "property",
-     "SerializedName": "property",
-     "Description": "Property",
-     "Type": {
-      "$id": "40",
-      "kind": "constant",
-      "valueType": {
-       "$ref": "14"
-      },
-      "value": 1.25,
-      "decorators": []
-     },
-     "IsRequired": false,
-     "IsReadOnly": false,
-     "Decorators": []
-    }
-   ]
-  },
-  {
-   "$id": "41",
-   "kind": "model",
-   "name": "IntLiteralProperty",
-   "crossLanguageDefinitionId": "Type.Property.Optional.IntLiteralProperty",
-   "usage": "Input,Output,Json",
-   "description": "Model with int literal property",
-   "decorators": [],
-   "properties": [
-    {
-     "$id": "42",
-     "Name": "property",
-     "SerializedName": "property",
-     "Description": "Property",
-     "Type": {
-      "$id": "43",
-      "kind": "constant",
-      "valueType": {
-       "$ref": "17"
-      },
-      "value": 1,
-      "decorators": []
-     },
-     "IsRequired": false,
-     "IsReadOnly": false,
-     "Decorators": []
-    }
-   ]
-  },
-  {
-   "$id": "44",
-   "kind": "model",
-   "name": "StringLiteralProperty",
-   "crossLanguageDefinitionId": "Type.Property.Optional.StringLiteralProperty",
-   "usage": "Input,Output,Json",
-   "description": "Model with string literal property",
    "decorators": [],
    "properties": [
     {
@@ -399,7 +428,7 @@
       "valueType": {
        "$ref": "20"
       },
-      "value": "hello",
+      "value": 1.25,
       "decorators": []
      },
      "IsRequired": false,
@@ -411,10 +440,10 @@
   {
    "$id": "47",
    "kind": "model",
-   "name": "CollectionsModelProperty",
-   "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsModelProperty",
+   "name": "IntLiteralProperty",
+   "crossLanguageDefinitionId": "Type.Property.Optional.IntLiteralProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with collection models properties",
+   "description": "Model with int literal property",
    "decorators": [],
    "properties": [
     {
@@ -424,10 +453,68 @@
      "Description": "Property",
      "Type": {
       "$id": "49",
+      "kind": "constant",
+      "valueType": {
+       "$ref": "23"
+      },
+      "value": 1,
+      "decorators": []
+     },
+     "IsRequired": false,
+     "IsReadOnly": false,
+     "Decorators": []
+    }
+   ]
+  },
+  {
+   "$id": "50",
+   "kind": "model",
+   "name": "StringLiteralProperty",
+   "crossLanguageDefinitionId": "Type.Property.Optional.StringLiteralProperty",
+   "usage": "Input,Output,Json",
+   "description": "Model with string literal property",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "51",
+     "Name": "property",
+     "SerializedName": "property",
+     "Description": "Property",
+     "Type": {
+      "$id": "52",
+      "kind": "constant",
+      "valueType": {
+       "$ref": "26"
+      },
+      "value": "hello",
+      "decorators": []
+     },
+     "IsRequired": false,
+     "IsReadOnly": false,
+     "Decorators": []
+    }
+   ]
+  },
+  {
+   "$id": "53",
+   "kind": "model",
+   "name": "CollectionsModelProperty",
+   "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsModelProperty",
+   "usage": "Input,Output,Json",
+   "description": "Model with collection models properties",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "54",
+     "Name": "property",
+     "SerializedName": "property",
+     "Description": "Property",
+     "Type": {
+      "$id": "55",
       "kind": "array",
       "name": "ArrayStringProperty",
       "valueType": {
-       "$id": "50",
+       "$id": "56",
        "kind": "model",
        "name": "StringProperty",
        "crossLanguageDefinitionId": "Type.Property.Optional.StringProperty",
@@ -436,12 +523,12 @@
        "decorators": [],
        "properties": [
         {
-         "$id": "51",
+         "$id": "57",
          "Name": "property",
          "SerializedName": "property",
          "Description": "Property",
          "Type": {
-          "$id": "52",
+          "$id": "58",
           "kind": "string",
           "name": "string",
           "crossLanguageDefinitionId": "TypeSpec.string",
@@ -463,10 +550,10 @@
    ]
   },
   {
-   "$ref": "50"
+   "$ref": "56"
   },
   {
-   "$id": "53",
+   "$id": "59",
    "kind": "model",
    "name": "CollectionsByteProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsByteProperty",
@@ -475,16 +562,16 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "54",
+     "$id": "60",
      "Name": "property",
      "SerializedName": "property",
      "Description": "Property",
      "Type": {
-      "$id": "55",
+      "$id": "61",
       "kind": "array",
       "name": "Array",
       "valueType": {
-       "$id": "56",
+       "$id": "62",
        "kind": "bytes",
        "name": "bytes",
        "encode": "base64",
@@ -501,7 +588,7 @@
    ]
   },
   {
-   "$id": "57",
+   "$id": "63",
    "kind": "model",
    "name": "PlainTimeProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.PlainTimeProperty",
@@ -510,12 +597,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "58",
+     "$id": "64",
      "Name": "property",
      "SerializedName": "property",
      "Description": "Property",
      "Type": {
-      "$id": "59",
+      "$id": "65",
       "kind": "plainTime",
       "name": "plainTime",
       "crossLanguageDefinitionId": "TypeSpec.plainTime",
@@ -528,7 +615,7 @@
    ]
   },
   {
-   "$id": "60",
+   "$id": "66",
    "kind": "model",
    "name": "PlainDateProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.PlainDateProperty",
@@ -537,12 +624,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "61",
+     "$id": "67",
      "Name": "property",
      "SerializedName": "property",
      "Description": "Property",
      "Type": {
-      "$id": "62",
+      "$id": "68",
       "kind": "plainDate",
       "name": "plainDate",
       "crossLanguageDefinitionId": "TypeSpec.plainDate",
@@ -555,7 +642,7 @@
    ]
   },
   {
-   "$id": "63",
+   "$id": "69",
    "kind": "model",
    "name": "DurationProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.DurationProperty",
@@ -564,17 +651,17 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "64",
+     "$id": "70",
      "Name": "property",
      "SerializedName": "property",
      "Description": "Property",
      "Type": {
-      "$id": "65",
+      "$id": "71",
       "kind": "duration",
       "name": "duration",
       "encode": "ISO8601",
       "wireType": {
-       "$id": "66",
+       "$id": "72",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string",
@@ -590,7 +677,7 @@
    ]
   },
   {
-   "$id": "67",
+   "$id": "73",
    "kind": "model",
    "name": "DatetimeProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.DatetimeProperty",
@@ -599,17 +686,17 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "68",
+     "$id": "74",
      "Name": "property",
      "SerializedName": "property",
      "Description": "Property",
      "Type": {
-      "$id": "69",
+      "$id": "75",
       "kind": "utcDateTime",
       "name": "utcDateTime",
       "encode": "rfc3339",
       "wireType": {
-       "$id": "70",
+       "$id": "76",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string",
@@ -625,7 +712,7 @@
    ]
   },
   {
-   "$id": "71",
+   "$id": "77",
    "kind": "model",
    "name": "BytesProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.BytesProperty",
@@ -634,12 +721,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "72",
+     "$id": "78",
      "Name": "property",
      "SerializedName": "property",
      "Description": "Property",
      "Type": {
-      "$id": "73",
+      "$id": "79",
       "kind": "bytes",
       "name": "bytes",
       "encode": "base64",
@@ -655,20 +742,20 @@
  ],
  "Clients": [
   {
-   "$id": "74",
+   "$id": "80",
    "Name": "OptionalClient",
    "Description": "Illustrates models with optional properties.",
    "Operations": [],
    "Protocol": {
-    "$id": "75"
+    "$id": "81"
    },
    "Parameters": [
     {
-     "$id": "76",
+     "$id": "82",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Type": {
-      "$id": "77",
+      "$id": "83",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -683,9 +770,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "78",
+      "$id": "84",
       "Type": {
-       "$id": "79",
+       "$id": "85",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -697,22 +784,22 @@
    "Decorators": []
   },
   {
-   "$id": "80",
+   "$id": "86",
    "Name": "String",
    "Operations": [
     {
-     "$id": "81",
+     "$id": "87",
      "Name": "getAll",
      "ResourceName": "String",
      "Description": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "82",
+       "$id": "88",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Type": {
-        "$id": "83",
+        "$id": "89",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -727,9 +814,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "84",
+        "$id": "90",
         "Type": {
-         "$id": "85",
+         "$id": "91",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -738,14 +825,14 @@
        }
       },
       {
-       "$id": "86",
+       "$id": "92",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "87",
+        "$id": "93",
         "kind": "constant",
         "valueType": {
-         "$id": "88",
+         "$id": "94",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -767,12 +854,12 @@
      ],
      "Responses": [
       {
-       "$id": "89",
+       "$id": "95",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "50"
+        "$ref": "56"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -793,24 +880,24 @@
      "Decorators": []
     },
     {
-     "$id": "90",
+     "$id": "96",
      "Name": "getDefault",
      "ResourceName": "String",
      "Description": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "82"
+       "$ref": "88"
       },
       {
-       "$id": "91",
+       "$id": "97",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "92",
+        "$id": "98",
         "kind": "constant",
         "valueType": {
-         "$id": "93",
+         "$id": "99",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -832,12 +919,12 @@
      ],
      "Responses": [
       {
-       "$id": "94",
+       "$id": "100",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "50"
+        "$ref": "56"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -858,94 +945,14 @@
      "Decorators": []
     },
     {
-     "$id": "95",
+     "$id": "101",
      "Name": "putAll",
      "ResourceName": "String",
      "Description": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "82"
-      },
-      {
-       "$id": "96",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "97",
-        "kind": "constant",
-        "valueType": {
-         "$id": "98",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "99",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "50"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "100",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
-     "Uri": "{endpoint}",
-     "Path": "/type/property/optional/string/all",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Property.Optional.String.putAll",
-     "Decorators": []
-    },
-    {
-     "$id": "101",
-     "Name": "putDefault",
-     "ResourceName": "String",
-     "Description": "Put a body with default properties.",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "82"
+       "$ref": "88"
       },
       {
        "$id": "102",
@@ -980,7 +987,7 @@
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "50"
+        "$ref": "56"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -1007,6 +1014,86 @@
      "HttpMethod": "PUT",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
+     "Path": "/type/property/optional/string/all",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Property.Optional.String.putAll",
+     "Decorators": []
+    },
+    {
+     "$id": "107",
+     "Name": "putDefault",
+     "ResourceName": "String",
+     "Description": "Put a body with default properties.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "88"
+      },
+      {
+       "$id": "108",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "109",
+        "kind": "constant",
+        "valueType": {
+         "$id": "110",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      },
+      {
+       "$id": "111",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$ref": "56"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "112",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
      "Path": "/type/property/optional/string/default",
      "RequestMediaTypes": [
       "application/json"
@@ -1019,33 +1106,33 @@
     }
    ],
    "Protocol": {
-    "$id": "107"
+    "$id": "113"
    },
    "Parent": "OptionalClient",
    "Parameters": [
     {
-     "$ref": "82"
+     "$ref": "88"
     }
    ],
    "Decorators": []
   },
   {
-   "$id": "108",
+   "$id": "114",
    "Name": "Bytes",
    "Operations": [
     {
-     "$id": "109",
+     "$id": "115",
      "Name": "getAll",
      "ResourceName": "Bytes",
      "Description": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "110",
+       "$id": "116",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Type": {
-        "$id": "111",
+        "$id": "117",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1060,9 +1147,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "112",
+        "$id": "118",
         "Type": {
-         "$id": "113",
+         "$id": "119",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -1071,14 +1158,14 @@
        }
       },
       {
-       "$id": "114",
+       "$id": "120",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "115",
+        "$id": "121",
         "kind": "constant",
         "valueType": {
-         "$id": "116",
+         "$id": "122",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1100,12 +1187,12 @@
      ],
      "Responses": [
       {
-       "$id": "117",
+       "$id": "123",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "71"
+        "$ref": "77"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -1126,24 +1213,24 @@
      "Decorators": []
     },
     {
-     "$id": "118",
+     "$id": "124",
      "Name": "getDefault",
      "ResourceName": "Bytes",
      "Description": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "110"
+       "$ref": "116"
       },
       {
-       "$id": "119",
+       "$id": "125",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "120",
+        "$id": "126",
         "kind": "constant",
         "valueType": {
-         "$id": "121",
+         "$id": "127",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1165,12 +1252,12 @@
      ],
      "Responses": [
       {
-       "$id": "122",
+       "$id": "128",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "71"
+        "$ref": "77"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -1191,94 +1278,14 @@
      "Decorators": []
     },
     {
-     "$id": "123",
+     "$id": "129",
      "Name": "putAll",
      "ResourceName": "Bytes",
      "Description": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "110"
-      },
-      {
-       "$id": "124",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "125",
-        "kind": "constant",
-        "valueType": {
-         "$id": "126",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "127",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "71"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "128",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
-     "Uri": "{endpoint}",
-     "Path": "/type/property/optional/bytes/all",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Property.Optional.Bytes.putAll",
-     "Decorators": []
-    },
-    {
-     "$id": "129",
-     "Name": "putDefault",
-     "ResourceName": "Bytes",
-     "Description": "Put a body with default properties.",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "110"
+       "$ref": "116"
       },
       {
        "$id": "130",
@@ -1313,7 +1320,7 @@
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "71"
+        "$ref": "77"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -1340,6 +1347,86 @@
      "HttpMethod": "PUT",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
+     "Path": "/type/property/optional/bytes/all",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Property.Optional.Bytes.putAll",
+     "Decorators": []
+    },
+    {
+     "$id": "135",
+     "Name": "putDefault",
+     "ResourceName": "Bytes",
+     "Description": "Put a body with default properties.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "116"
+      },
+      {
+       "$id": "136",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "137",
+        "kind": "constant",
+        "valueType": {
+         "$id": "138",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      },
+      {
+       "$id": "139",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$ref": "77"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "140",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
      "Path": "/type/property/optional/bytes/default",
      "RequestMediaTypes": [
       "application/json"
@@ -1352,33 +1439,33 @@
     }
    ],
    "Protocol": {
-    "$id": "135"
+    "$id": "141"
    },
    "Parent": "OptionalClient",
    "Parameters": [
     {
-     "$ref": "110"
+     "$ref": "116"
     }
    ],
    "Decorators": []
   },
   {
-   "$id": "136",
+   "$id": "142",
    "Name": "Datetime",
    "Operations": [
     {
-     "$id": "137",
+     "$id": "143",
      "Name": "getAll",
      "ResourceName": "Datetime",
      "Description": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "138",
+       "$id": "144",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Type": {
-        "$id": "139",
+        "$id": "145",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1393,9 +1480,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "140",
+        "$id": "146",
         "Type": {
-         "$id": "141",
+         "$id": "147",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -1404,14 +1491,14 @@
        }
       },
       {
-       "$id": "142",
+       "$id": "148",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "143",
+        "$id": "149",
         "kind": "constant",
         "valueType": {
-         "$id": "144",
+         "$id": "150",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1433,12 +1520,12 @@
      ],
      "Responses": [
       {
-       "$id": "145",
+       "$id": "151",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "67"
+        "$ref": "73"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -1459,24 +1546,24 @@
      "Decorators": []
     },
     {
-     "$id": "146",
+     "$id": "152",
      "Name": "getDefault",
      "ResourceName": "Datetime",
      "Description": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "138"
+       "$ref": "144"
       },
       {
-       "$id": "147",
+       "$id": "153",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "148",
+        "$id": "154",
         "kind": "constant",
         "valueType": {
-         "$id": "149",
+         "$id": "155",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1498,12 +1585,12 @@
      ],
      "Responses": [
       {
-       "$id": "150",
+       "$id": "156",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "67"
+        "$ref": "73"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -1524,94 +1611,14 @@
      "Decorators": []
     },
     {
-     "$id": "151",
+     "$id": "157",
      "Name": "putAll",
      "ResourceName": "Datetime",
      "Description": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "138"
-      },
-      {
-       "$id": "152",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "153",
-        "kind": "constant",
-        "valueType": {
-         "$id": "154",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "155",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "67"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "156",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
-     "Uri": "{endpoint}",
-     "Path": "/type/property/optional/datetime/all",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Property.Optional.Datetime.putAll",
-     "Decorators": []
-    },
-    {
-     "$id": "157",
-     "Name": "putDefault",
-     "ResourceName": "Datetime",
-     "Description": "Put a body with default properties.",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "138"
+       "$ref": "144"
       },
       {
        "$id": "158",
@@ -1646,7 +1653,7 @@
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "67"
+        "$ref": "73"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -1673,6 +1680,86 @@
      "HttpMethod": "PUT",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
+     "Path": "/type/property/optional/datetime/all",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Property.Optional.Datetime.putAll",
+     "Decorators": []
+    },
+    {
+     "$id": "163",
+     "Name": "putDefault",
+     "ResourceName": "Datetime",
+     "Description": "Put a body with default properties.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "144"
+      },
+      {
+       "$id": "164",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "165",
+        "kind": "constant",
+        "valueType": {
+         "$id": "166",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      },
+      {
+       "$id": "167",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$ref": "73"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "168",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
      "Path": "/type/property/optional/datetime/default",
      "RequestMediaTypes": [
       "application/json"
@@ -1685,33 +1772,33 @@
     }
    ],
    "Protocol": {
-    "$id": "163"
+    "$id": "169"
    },
    "Parent": "OptionalClient",
    "Parameters": [
     {
-     "$ref": "138"
+     "$ref": "144"
     }
    ],
    "Decorators": []
   },
   {
-   "$id": "164",
+   "$id": "170",
    "Name": "Duration",
    "Operations": [
     {
-     "$id": "165",
+     "$id": "171",
      "Name": "getAll",
      "ResourceName": "Duration",
      "Description": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "166",
+       "$id": "172",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Type": {
-        "$id": "167",
+        "$id": "173",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1726,9 +1813,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "168",
+        "$id": "174",
         "Type": {
-         "$id": "169",
+         "$id": "175",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -1737,14 +1824,14 @@
        }
       },
       {
-       "$id": "170",
+       "$id": "176",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "171",
+        "$id": "177",
         "kind": "constant",
         "valueType": {
-         "$id": "172",
+         "$id": "178",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1766,12 +1853,12 @@
      ],
      "Responses": [
       {
-       "$id": "173",
+       "$id": "179",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "63"
+        "$ref": "69"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -1792,24 +1879,24 @@
      "Decorators": []
     },
     {
-     "$id": "174",
+     "$id": "180",
      "Name": "getDefault",
      "ResourceName": "Duration",
      "Description": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "166"
+       "$ref": "172"
       },
       {
-       "$id": "175",
+       "$id": "181",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "176",
+        "$id": "182",
         "kind": "constant",
         "valueType": {
-         "$id": "177",
+         "$id": "183",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1831,12 +1918,12 @@
      ],
      "Responses": [
       {
-       "$id": "178",
+       "$id": "184",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "63"
+        "$ref": "69"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -1857,94 +1944,14 @@
      "Decorators": []
     },
     {
-     "$id": "179",
+     "$id": "185",
      "Name": "putAll",
      "ResourceName": "Duration",
      "Description": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "166"
-      },
-      {
-       "$id": "180",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "181",
-        "kind": "constant",
-        "valueType": {
-         "$id": "182",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "183",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "63"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "184",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
-     "Uri": "{endpoint}",
-     "Path": "/type/property/optional/duration/all",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Property.Optional.Duration.putAll",
-     "Decorators": []
-    },
-    {
-     "$id": "185",
-     "Name": "putDefault",
-     "ResourceName": "Duration",
-     "Description": "Put a body with default properties.",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "166"
+       "$ref": "172"
       },
       {
        "$id": "186",
@@ -1979,7 +1986,7 @@
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "63"
+        "$ref": "69"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -2006,6 +2013,86 @@
      "HttpMethod": "PUT",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
+     "Path": "/type/property/optional/duration/all",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Property.Optional.Duration.putAll",
+     "Decorators": []
+    },
+    {
+     "$id": "191",
+     "Name": "putDefault",
+     "ResourceName": "Duration",
+     "Description": "Put a body with default properties.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "172"
+      },
+      {
+       "$id": "192",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "193",
+        "kind": "constant",
+        "valueType": {
+         "$id": "194",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      },
+      {
+       "$id": "195",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$ref": "69"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "196",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
      "Path": "/type/property/optional/duration/default",
      "RequestMediaTypes": [
       "application/json"
@@ -2018,33 +2105,33 @@
     }
    ],
    "Protocol": {
-    "$id": "191"
+    "$id": "197"
    },
    "Parent": "OptionalClient",
    "Parameters": [
     {
-     "$ref": "166"
+     "$ref": "172"
     }
    ],
    "Decorators": []
   },
   {
-   "$id": "192",
+   "$id": "198",
    "Name": "PlainDate",
    "Operations": [
     {
-     "$id": "193",
+     "$id": "199",
      "Name": "getAll",
      "ResourceName": "PlainDate",
      "Description": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "194",
+       "$id": "200",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Type": {
-        "$id": "195",
+        "$id": "201",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2059,9 +2146,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "196",
+        "$id": "202",
         "Type": {
-         "$id": "197",
+         "$id": "203",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2070,14 +2157,14 @@
        }
       },
       {
-       "$id": "198",
+       "$id": "204",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "199",
+        "$id": "205",
         "kind": "constant",
         "valueType": {
-         "$id": "200",
+         "$id": "206",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2099,12 +2186,12 @@
      ],
      "Responses": [
       {
-       "$id": "201",
+       "$id": "207",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "60"
+        "$ref": "66"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -2125,24 +2212,24 @@
      "Decorators": []
     },
     {
-     "$id": "202",
+     "$id": "208",
      "Name": "getDefault",
      "ResourceName": "PlainDate",
      "Description": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "194"
+       "$ref": "200"
       },
       {
-       "$id": "203",
+       "$id": "209",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "204",
+        "$id": "210",
         "kind": "constant",
         "valueType": {
-         "$id": "205",
+         "$id": "211",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2164,12 +2251,12 @@
      ],
      "Responses": [
       {
-       "$id": "206",
+       "$id": "212",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "60"
+        "$ref": "66"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -2190,94 +2277,14 @@
      "Decorators": []
     },
     {
-     "$id": "207",
+     "$id": "213",
      "Name": "putAll",
      "ResourceName": "PlainDate",
      "Description": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "194"
-      },
-      {
-       "$id": "208",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "209",
-        "kind": "constant",
-        "valueType": {
-         "$id": "210",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "211",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "60"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "212",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
-     "Uri": "{endpoint}",
-     "Path": "/type/property/optional/plainDate/all",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Property.Optional.PlainDate.putAll",
-     "Decorators": []
-    },
-    {
-     "$id": "213",
-     "Name": "putDefault",
-     "ResourceName": "PlainDate",
-     "Description": "Put a body with default properties.",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "194"
+       "$ref": "200"
       },
       {
        "$id": "214",
@@ -2312,7 +2319,7 @@
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "60"
+        "$ref": "66"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -2339,6 +2346,86 @@
      "HttpMethod": "PUT",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
+     "Path": "/type/property/optional/plainDate/all",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Property.Optional.PlainDate.putAll",
+     "Decorators": []
+    },
+    {
+     "$id": "219",
+     "Name": "putDefault",
+     "ResourceName": "PlainDate",
+     "Description": "Put a body with default properties.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "200"
+      },
+      {
+       "$id": "220",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "221",
+        "kind": "constant",
+        "valueType": {
+         "$id": "222",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      },
+      {
+       "$id": "223",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$ref": "66"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "224",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
      "Path": "/type/property/optional/plainDate/default",
      "RequestMediaTypes": [
       "application/json"
@@ -2351,33 +2438,33 @@
     }
    ],
    "Protocol": {
-    "$id": "219"
+    "$id": "225"
    },
    "Parent": "OptionalClient",
    "Parameters": [
     {
-     "$ref": "194"
+     "$ref": "200"
     }
    ],
    "Decorators": []
   },
   {
-   "$id": "220",
+   "$id": "226",
    "Name": "PlainTime",
    "Operations": [
     {
-     "$id": "221",
+     "$id": "227",
      "Name": "getAll",
      "ResourceName": "PlainTime",
      "Description": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "222",
+       "$id": "228",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Type": {
-        "$id": "223",
+        "$id": "229",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2392,9 +2479,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "224",
+        "$id": "230",
         "Type": {
-         "$id": "225",
+         "$id": "231",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2403,14 +2490,14 @@
        }
       },
       {
-       "$id": "226",
+       "$id": "232",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "227",
+        "$id": "233",
         "kind": "constant",
         "valueType": {
-         "$id": "228",
+         "$id": "234",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2432,12 +2519,12 @@
      ],
      "Responses": [
       {
-       "$id": "229",
+       "$id": "235",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "57"
+        "$ref": "63"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -2458,24 +2545,24 @@
      "Decorators": []
     },
     {
-     "$id": "230",
+     "$id": "236",
      "Name": "getDefault",
      "ResourceName": "PlainTime",
      "Description": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "222"
+       "$ref": "228"
       },
       {
-       "$id": "231",
+       "$id": "237",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "232",
+        "$id": "238",
         "kind": "constant",
         "valueType": {
-         "$id": "233",
+         "$id": "239",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2497,12 +2584,12 @@
      ],
      "Responses": [
       {
-       "$id": "234",
+       "$id": "240",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "57"
+        "$ref": "63"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -2523,94 +2610,14 @@
      "Decorators": []
     },
     {
-     "$id": "235",
+     "$id": "241",
      "Name": "putAll",
      "ResourceName": "PlainTime",
      "Description": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "222"
-      },
-      {
-       "$id": "236",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "237",
-        "kind": "constant",
-        "valueType": {
-         "$id": "238",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "239",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "57"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "240",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
-     "Uri": "{endpoint}",
-     "Path": "/type/property/optional/plainTime/all",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Property.Optional.PlainTime.putAll",
-     "Decorators": []
-    },
-    {
-     "$id": "241",
-     "Name": "putDefault",
-     "ResourceName": "PlainTime",
-     "Description": "Put a body with default properties.",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "222"
+       "$ref": "228"
       },
       {
        "$id": "242",
@@ -2645,7 +2652,7 @@
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "57"
+        "$ref": "63"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -2672,6 +2679,86 @@
      "HttpMethod": "PUT",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
+     "Path": "/type/property/optional/plainTime/all",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Property.Optional.PlainTime.putAll",
+     "Decorators": []
+    },
+    {
+     "$id": "247",
+     "Name": "putDefault",
+     "ResourceName": "PlainTime",
+     "Description": "Put a body with default properties.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "228"
+      },
+      {
+       "$id": "248",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "249",
+        "kind": "constant",
+        "valueType": {
+         "$id": "250",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      },
+      {
+       "$id": "251",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$ref": "63"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "252",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
      "Path": "/type/property/optional/plainTime/default",
      "RequestMediaTypes": [
       "application/json"
@@ -2684,33 +2771,33 @@
     }
    ],
    "Protocol": {
-    "$id": "247"
+    "$id": "253"
    },
    "Parent": "OptionalClient",
    "Parameters": [
     {
-     "$ref": "222"
+     "$ref": "228"
     }
    ],
    "Decorators": []
   },
   {
-   "$id": "248",
+   "$id": "254",
    "Name": "CollectionsByte",
    "Operations": [
     {
-     "$id": "249",
+     "$id": "255",
      "Name": "getAll",
      "ResourceName": "CollectionsByte",
      "Description": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "250",
+       "$id": "256",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Type": {
-        "$id": "251",
+        "$id": "257",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2725,9 +2812,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "252",
+        "$id": "258",
         "Type": {
-         "$id": "253",
+         "$id": "259",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2736,14 +2823,14 @@
        }
       },
       {
-       "$id": "254",
+       "$id": "260",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "255",
+        "$id": "261",
         "kind": "constant",
         "valueType": {
-         "$id": "256",
+         "$id": "262",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2765,12 +2852,12 @@
      ],
      "Responses": [
       {
-       "$id": "257",
+       "$id": "263",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "53"
+        "$ref": "59"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -2791,24 +2878,24 @@
      "Decorators": []
     },
     {
-     "$id": "258",
+     "$id": "264",
      "Name": "getDefault",
      "ResourceName": "CollectionsByte",
      "Description": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "250"
+       "$ref": "256"
       },
       {
-       "$id": "259",
+       "$id": "265",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "260",
+        "$id": "266",
         "kind": "constant",
         "valueType": {
-         "$id": "261",
+         "$id": "267",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2830,12 +2917,12 @@
      ],
      "Responses": [
       {
-       "$id": "262",
+       "$id": "268",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "53"
+        "$ref": "59"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -2856,94 +2943,14 @@
      "Decorators": []
     },
     {
-     "$id": "263",
+     "$id": "269",
      "Name": "putAll",
      "ResourceName": "CollectionsByte",
      "Description": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "250"
-      },
-      {
-       "$id": "264",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "265",
-        "kind": "constant",
-        "valueType": {
-         "$id": "266",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "267",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "53"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "268",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
-     "Uri": "{endpoint}",
-     "Path": "/type/property/optional/collections/bytes/all",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Property.Optional.CollectionsByte.putAll",
-     "Decorators": []
-    },
-    {
-     "$id": "269",
-     "Name": "putDefault",
-     "ResourceName": "CollectionsByte",
-     "Description": "Put a body with default properties.",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "250"
+       "$ref": "256"
       },
       {
        "$id": "270",
@@ -2978,7 +2985,7 @@
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "53"
+        "$ref": "59"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -3005,6 +3012,86 @@
      "HttpMethod": "PUT",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
+     "Path": "/type/property/optional/collections/bytes/all",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Property.Optional.CollectionsByte.putAll",
+     "Decorators": []
+    },
+    {
+     "$id": "275",
+     "Name": "putDefault",
+     "ResourceName": "CollectionsByte",
+     "Description": "Put a body with default properties.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "256"
+      },
+      {
+       "$id": "276",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "277",
+        "kind": "constant",
+        "valueType": {
+         "$id": "278",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      },
+      {
+       "$id": "279",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$ref": "59"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "280",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
      "Path": "/type/property/optional/collections/bytes/default",
      "RequestMediaTypes": [
       "application/json"
@@ -3017,33 +3104,33 @@
     }
    ],
    "Protocol": {
-    "$id": "275"
+    "$id": "281"
    },
    "Parent": "OptionalClient",
    "Parameters": [
     {
-     "$ref": "250"
+     "$ref": "256"
     }
    ],
    "Decorators": []
   },
   {
-   "$id": "276",
+   "$id": "282",
    "Name": "CollectionsModel",
    "Operations": [
     {
-     "$id": "277",
+     "$id": "283",
      "Name": "getAll",
      "ResourceName": "CollectionsModel",
      "Description": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "278",
+       "$id": "284",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Type": {
-        "$id": "279",
+        "$id": "285",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -3058,9 +3145,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "280",
+        "$id": "286",
         "Type": {
-         "$id": "281",
+         "$id": "287",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -3069,14 +3156,14 @@
        }
       },
       {
-       "$id": "282",
+       "$id": "288",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "283",
+        "$id": "289",
         "kind": "constant",
         "valueType": {
-         "$id": "284",
+         "$id": "290",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3098,12 +3185,12 @@
      ],
      "Responses": [
       {
-       "$id": "285",
+       "$id": "291",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "47"
+        "$ref": "53"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -3124,24 +3211,24 @@
      "Decorators": []
     },
     {
-     "$id": "286",
+     "$id": "292",
      "Name": "getDefault",
      "ResourceName": "CollectionsModel",
      "Description": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "278"
+       "$ref": "284"
       },
       {
-       "$id": "287",
+       "$id": "293",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "288",
+        "$id": "294",
         "kind": "constant",
         "valueType": {
-         "$id": "289",
+         "$id": "295",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3163,12 +3250,12 @@
      ],
      "Responses": [
       {
-       "$id": "290",
+       "$id": "296",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "47"
+        "$ref": "53"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -3189,94 +3276,14 @@
      "Decorators": []
     },
     {
-     "$id": "291",
+     "$id": "297",
      "Name": "putAll",
      "ResourceName": "CollectionsModel",
      "Description": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "278"
-      },
-      {
-       "$id": "292",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "293",
-        "kind": "constant",
-        "valueType": {
-         "$id": "294",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "295",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "47"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "296",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
-     "Uri": "{endpoint}",
-     "Path": "/type/property/optional/collections/model/all",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Property.Optional.CollectionsModel.putAll",
-     "Decorators": []
-    },
-    {
-     "$id": "297",
-     "Name": "putDefault",
-     "ResourceName": "CollectionsModel",
-     "Description": "Put a body with default properties.",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "278"
+       "$ref": "284"
       },
       {
        "$id": "298",
@@ -3311,7 +3318,7 @@
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "47"
+        "$ref": "53"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -3338,6 +3345,86 @@
      "HttpMethod": "PUT",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
+     "Path": "/type/property/optional/collections/model/all",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Property.Optional.CollectionsModel.putAll",
+     "Decorators": []
+    },
+    {
+     "$id": "303",
+     "Name": "putDefault",
+     "ResourceName": "CollectionsModel",
+     "Description": "Put a body with default properties.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "284"
+      },
+      {
+       "$id": "304",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "305",
+        "kind": "constant",
+        "valueType": {
+         "$id": "306",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      },
+      {
+       "$id": "307",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$ref": "53"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "308",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
      "Path": "/type/property/optional/collections/model/default",
      "RequestMediaTypes": [
       "application/json"
@@ -3350,33 +3437,33 @@
     }
    ],
    "Protocol": {
-    "$id": "303"
+    "$id": "309"
    },
    "Parent": "OptionalClient",
    "Parameters": [
     {
-     "$ref": "278"
+     "$ref": "284"
     }
    ],
    "Decorators": []
   },
   {
-   "$id": "304",
+   "$id": "310",
    "Name": "StringLiteral",
    "Operations": [
     {
-     "$id": "305",
+     "$id": "311",
      "Name": "getAll",
      "ResourceName": "StringLiteral",
      "Description": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "306",
+       "$id": "312",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Type": {
-        "$id": "307",
+        "$id": "313",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -3391,9 +3478,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "308",
+        "$id": "314",
         "Type": {
-         "$id": "309",
+         "$id": "315",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -3402,14 +3489,14 @@
        }
       },
       {
-       "$id": "310",
+       "$id": "316",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "311",
+        "$id": "317",
         "kind": "constant",
         "valueType": {
-         "$id": "312",
+         "$id": "318",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3431,12 +3518,12 @@
      ],
      "Responses": [
       {
-       "$id": "313",
+       "$id": "319",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "44"
+        "$ref": "50"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -3457,24 +3544,24 @@
      "Decorators": []
     },
     {
-     "$id": "314",
+     "$id": "320",
      "Name": "getDefault",
      "ResourceName": "StringLiteral",
      "Description": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "306"
+       "$ref": "312"
       },
       {
-       "$id": "315",
+       "$id": "321",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "316",
+        "$id": "322",
         "kind": "constant",
         "valueType": {
-         "$id": "317",
+         "$id": "323",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3496,12 +3583,12 @@
      ],
      "Responses": [
       {
-       "$id": "318",
+       "$id": "324",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "44"
+        "$ref": "50"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -3522,94 +3609,14 @@
      "Decorators": []
     },
     {
-     "$id": "319",
+     "$id": "325",
      "Name": "putAll",
      "ResourceName": "StringLiteral",
      "Description": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "306"
-      },
-      {
-       "$id": "320",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "321",
-        "kind": "constant",
-        "valueType": {
-         "$id": "322",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "323",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "44"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "324",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
-     "Uri": "{endpoint}",
-     "Path": "/type/property/optional/string/literal/all",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Property.Optional.StringLiteral.putAll",
-     "Decorators": []
-    },
-    {
-     "$id": "325",
-     "Name": "putDefault",
-     "ResourceName": "StringLiteral",
-     "Description": "Put a body with default properties.",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "306"
+       "$ref": "312"
       },
       {
        "$id": "326",
@@ -3644,7 +3651,7 @@
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "44"
+        "$ref": "50"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -3671,6 +3678,86 @@
      "HttpMethod": "PUT",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
+     "Path": "/type/property/optional/string/literal/all",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Property.Optional.StringLiteral.putAll",
+     "Decorators": []
+    },
+    {
+     "$id": "331",
+     "Name": "putDefault",
+     "ResourceName": "StringLiteral",
+     "Description": "Put a body with default properties.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "312"
+      },
+      {
+       "$id": "332",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "333",
+        "kind": "constant",
+        "valueType": {
+         "$id": "334",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      },
+      {
+       "$id": "335",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$ref": "50"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "336",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
      "Path": "/type/property/optional/string/literal/default",
      "RequestMediaTypes": [
       "application/json"
@@ -3683,33 +3770,33 @@
     }
    ],
    "Protocol": {
-    "$id": "331"
+    "$id": "337"
    },
    "Parent": "OptionalClient",
    "Parameters": [
     {
-     "$ref": "306"
+     "$ref": "312"
     }
    ],
    "Decorators": []
   },
   {
-   "$id": "332",
+   "$id": "338",
    "Name": "IntLiteral",
    "Operations": [
     {
-     "$id": "333",
+     "$id": "339",
      "Name": "getAll",
      "ResourceName": "IntLiteral",
      "Description": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "334",
+       "$id": "340",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Type": {
-        "$id": "335",
+        "$id": "341",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -3724,9 +3811,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "336",
+        "$id": "342",
         "Type": {
-         "$id": "337",
+         "$id": "343",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -3735,14 +3822,14 @@
        }
       },
       {
-       "$id": "338",
+       "$id": "344",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "339",
+        "$id": "345",
         "kind": "constant",
         "valueType": {
-         "$id": "340",
+         "$id": "346",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3764,12 +3851,12 @@
      ],
      "Responses": [
       {
-       "$id": "341",
+       "$id": "347",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "41"
+        "$ref": "47"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -3790,24 +3877,24 @@
      "Decorators": []
     },
     {
-     "$id": "342",
+     "$id": "348",
      "Name": "getDefault",
      "ResourceName": "IntLiteral",
      "Description": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "334"
+       "$ref": "340"
       },
       {
-       "$id": "343",
+       "$id": "349",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "344",
+        "$id": "350",
         "kind": "constant",
         "valueType": {
-         "$id": "345",
+         "$id": "351",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3829,12 +3916,12 @@
      ],
      "Responses": [
       {
-       "$id": "346",
+       "$id": "352",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "41"
+        "$ref": "47"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -3855,94 +3942,14 @@
      "Decorators": []
     },
     {
-     "$id": "347",
+     "$id": "353",
      "Name": "putAll",
      "ResourceName": "IntLiteral",
      "Description": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "334"
-      },
-      {
-       "$id": "348",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "349",
-        "kind": "constant",
-        "valueType": {
-         "$id": "350",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "351",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "41"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "352",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
-     "Uri": "{endpoint}",
-     "Path": "/type/property/optional/int/literal/all",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Property.Optional.IntLiteral.putAll",
-     "Decorators": []
-    },
-    {
-     "$id": "353",
-     "Name": "putDefault",
-     "ResourceName": "IntLiteral",
-     "Description": "Put a body with default properties.",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "334"
+       "$ref": "340"
       },
       {
        "$id": "354",
@@ -3977,7 +3984,7 @@
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "41"
+        "$ref": "47"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -4004,6 +4011,86 @@
      "HttpMethod": "PUT",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
+     "Path": "/type/property/optional/int/literal/all",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Property.Optional.IntLiteral.putAll",
+     "Decorators": []
+    },
+    {
+     "$id": "359",
+     "Name": "putDefault",
+     "ResourceName": "IntLiteral",
+     "Description": "Put a body with default properties.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "340"
+      },
+      {
+       "$id": "360",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "361",
+        "kind": "constant",
+        "valueType": {
+         "$id": "362",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      },
+      {
+       "$id": "363",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$ref": "47"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "364",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
      "Path": "/type/property/optional/int/literal/default",
      "RequestMediaTypes": [
       "application/json"
@@ -4016,33 +4103,33 @@
     }
    ],
    "Protocol": {
-    "$id": "359"
+    "$id": "365"
    },
    "Parent": "OptionalClient",
    "Parameters": [
     {
-     "$ref": "334"
+     "$ref": "340"
     }
    ],
    "Decorators": []
   },
   {
-   "$id": "360",
+   "$id": "366",
    "Name": "FloatLiteral",
    "Operations": [
     {
-     "$id": "361",
+     "$id": "367",
      "Name": "getAll",
      "ResourceName": "FloatLiteral",
      "Description": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "362",
+       "$id": "368",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Type": {
-        "$id": "363",
+        "$id": "369",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -4057,9 +4144,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "364",
+        "$id": "370",
         "Type": {
-         "$id": "365",
+         "$id": "371",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -4068,14 +4155,14 @@
        }
       },
       {
-       "$id": "366",
+       "$id": "372",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "367",
+        "$id": "373",
         "kind": "constant",
         "valueType": {
-         "$id": "368",
+         "$id": "374",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4097,12 +4184,12 @@
      ],
      "Responses": [
       {
-       "$id": "369",
+       "$id": "375",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "38"
+        "$ref": "44"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -4123,24 +4210,24 @@
      "Decorators": []
     },
     {
-     "$id": "370",
+     "$id": "376",
      "Name": "getDefault",
      "ResourceName": "FloatLiteral",
      "Description": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "362"
+       "$ref": "368"
       },
       {
-       "$id": "371",
+       "$id": "377",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "372",
+        "$id": "378",
         "kind": "constant",
         "valueType": {
-         "$id": "373",
+         "$id": "379",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4162,12 +4249,12 @@
      ],
      "Responses": [
       {
-       "$id": "374",
+       "$id": "380",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "38"
+        "$ref": "44"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -4188,94 +4275,14 @@
      "Decorators": []
     },
     {
-     "$id": "375",
+     "$id": "381",
      "Name": "putAll",
      "ResourceName": "FloatLiteral",
      "Description": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "362"
-      },
-      {
-       "$id": "376",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "377",
-        "kind": "constant",
-        "valueType": {
-         "$id": "378",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "379",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "38"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "380",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
-     "Uri": "{endpoint}",
-     "Path": "/type/property/optional/float/literal/all",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Property.Optional.FloatLiteral.putAll",
-     "Decorators": []
-    },
-    {
-     "$id": "381",
-     "Name": "putDefault",
-     "ResourceName": "FloatLiteral",
-     "Description": "Put a body with default properties.",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "362"
+       "$ref": "368"
       },
       {
        "$id": "382",
@@ -4310,7 +4317,7 @@
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "38"
+        "$ref": "44"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -4337,6 +4344,86 @@
      "HttpMethod": "PUT",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
+     "Path": "/type/property/optional/float/literal/all",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Property.Optional.FloatLiteral.putAll",
+     "Decorators": []
+    },
+    {
+     "$id": "387",
+     "Name": "putDefault",
+     "ResourceName": "FloatLiteral",
+     "Description": "Put a body with default properties.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "368"
+      },
+      {
+       "$id": "388",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "389",
+        "kind": "constant",
+        "valueType": {
+         "$id": "390",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      },
+      {
+       "$id": "391",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$ref": "44"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "392",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
      "Path": "/type/property/optional/float/literal/default",
      "RequestMediaTypes": [
       "application/json"
@@ -4349,33 +4436,33 @@
     }
    ],
    "Protocol": {
-    "$id": "387"
+    "$id": "393"
    },
    "Parent": "OptionalClient",
    "Parameters": [
     {
-     "$ref": "362"
+     "$ref": "368"
     }
    ],
    "Decorators": []
   },
   {
-   "$id": "388",
+   "$id": "394",
    "Name": "BooleanLiteral",
    "Operations": [
     {
-     "$id": "389",
+     "$id": "395",
      "Name": "getAll",
      "ResourceName": "BooleanLiteral",
      "Description": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "390",
+       "$id": "396",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Type": {
-        "$id": "391",
+        "$id": "397",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -4390,9 +4477,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "392",
+        "$id": "398",
         "Type": {
-         "$id": "393",
+         "$id": "399",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -4401,14 +4488,14 @@
        }
       },
       {
-       "$id": "394",
+       "$id": "400",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "395",
+        "$id": "401",
         "kind": "constant",
         "valueType": {
-         "$id": "396",
+         "$id": "402",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4430,12 +4517,12 @@
      ],
      "Responses": [
       {
-       "$id": "397",
+       "$id": "403",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "34"
+        "$ref": "40"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -4456,24 +4543,24 @@
      "Decorators": []
     },
     {
-     "$id": "398",
+     "$id": "404",
      "Name": "getDefault",
      "ResourceName": "BooleanLiteral",
      "Description": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "390"
+       "$ref": "396"
       },
       {
-       "$id": "399",
+       "$id": "405",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "400",
+        "$id": "406",
         "kind": "constant",
         "valueType": {
-         "$id": "401",
+         "$id": "407",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4495,12 +4582,12 @@
      ],
      "Responses": [
       {
-       "$id": "402",
+       "$id": "408",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "34"
+        "$ref": "40"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -4521,94 +4608,14 @@
      "Decorators": []
     },
     {
-     "$id": "403",
+     "$id": "409",
      "Name": "putAll",
      "ResourceName": "BooleanLiteral",
      "Description": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "390"
-      },
-      {
-       "$id": "404",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "405",
-        "kind": "constant",
-        "valueType": {
-         "$id": "406",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "407",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "34"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "408",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
-     "Uri": "{endpoint}",
-     "Path": "/type/property/optional/boolean/literal/all",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Property.Optional.BooleanLiteral.putAll",
-     "Decorators": []
-    },
-    {
-     "$id": "409",
-     "Name": "putDefault",
-     "ResourceName": "BooleanLiteral",
-     "Description": "Put a body with default properties.",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "390"
+       "$ref": "396"
       },
       {
        "$id": "410",
@@ -4643,7 +4650,7 @@
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "34"
+        "$ref": "40"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -4670,6 +4677,86 @@
      "HttpMethod": "PUT",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
+     "Path": "/type/property/optional/boolean/literal/all",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Property.Optional.BooleanLiteral.putAll",
+     "Decorators": []
+    },
+    {
+     "$id": "415",
+     "Name": "putDefault",
+     "ResourceName": "BooleanLiteral",
+     "Description": "Put a body with default properties.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "396"
+      },
+      {
+       "$id": "416",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "417",
+        "kind": "constant",
+        "valueType": {
+         "$id": "418",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      },
+      {
+       "$id": "419",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$ref": "40"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "420",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
      "Path": "/type/property/optional/boolean/literal/default",
      "RequestMediaTypes": [
       "application/json"
@@ -4682,33 +4769,33 @@
     }
    ],
    "Protocol": {
-    "$id": "415"
+    "$id": "421"
    },
    "Parent": "OptionalClient",
    "Parameters": [
     {
-     "$ref": "390"
+     "$ref": "396"
     }
    ],
    "Decorators": []
   },
   {
-   "$id": "416",
+   "$id": "422",
    "Name": "UnionStringLiteral",
    "Operations": [
     {
-     "$id": "417",
+     "$id": "423",
      "Name": "getAll",
      "ResourceName": "UnionStringLiteral",
      "Description": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "418",
+       "$id": "424",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Type": {
-        "$id": "419",
+        "$id": "425",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -4723,9 +4810,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "420",
+        "$id": "426",
         "Type": {
-         "$id": "421",
+         "$id": "427",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -4734,14 +4821,14 @@
        }
       },
       {
-       "$id": "422",
+       "$id": "428",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "423",
+        "$id": "429",
         "kind": "constant",
         "valueType": {
-         "$id": "424",
+         "$id": "430",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4763,12 +4850,12 @@
      ],
      "Responses": [
       {
-       "$id": "425",
+       "$id": "431",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "32"
+        "$ref": "38"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -4789,24 +4876,24 @@
      "Decorators": []
     },
     {
-     "$id": "426",
+     "$id": "432",
      "Name": "getDefault",
      "ResourceName": "UnionStringLiteral",
      "Description": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "418"
+       "$ref": "424"
       },
       {
-       "$id": "427",
+       "$id": "433",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "428",
+        "$id": "434",
         "kind": "constant",
         "valueType": {
-         "$id": "429",
+         "$id": "435",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4828,12 +4915,12 @@
      ],
      "Responses": [
       {
-       "$id": "430",
+       "$id": "436",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "32"
+        "$ref": "38"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -4854,94 +4941,14 @@
      "Decorators": []
     },
     {
-     "$id": "431",
+     "$id": "437",
      "Name": "putAll",
      "ResourceName": "UnionStringLiteral",
      "Description": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "418"
-      },
-      {
-       "$id": "432",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "433",
-        "kind": "constant",
-        "valueType": {
-         "$id": "434",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "435",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "32"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "436",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
-     "Uri": "{endpoint}",
-     "Path": "/type/property/optional/union/string/literal/all",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteral.putAll",
-     "Decorators": []
-    },
-    {
-     "$id": "437",
-     "Name": "putDefault",
-     "ResourceName": "UnionStringLiteral",
-     "Description": "Put a body with default properties.",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "418"
+       "$ref": "424"
       },
       {
        "$id": "438",
@@ -4976,7 +4983,7 @@
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "32"
+        "$ref": "38"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -5003,6 +5010,86 @@
      "HttpMethod": "PUT",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
+     "Path": "/type/property/optional/union/string/literal/all",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteral.putAll",
+     "Decorators": []
+    },
+    {
+     "$id": "443",
+     "Name": "putDefault",
+     "ResourceName": "UnionStringLiteral",
+     "Description": "Put a body with default properties.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "424"
+      },
+      {
+       "$id": "444",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "445",
+        "kind": "constant",
+        "valueType": {
+         "$id": "446",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      },
+      {
+       "$id": "447",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$ref": "38"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "448",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
      "Path": "/type/property/optional/union/string/literal/default",
      "RequestMediaTypes": [
       "application/json"
@@ -5015,33 +5102,33 @@
     }
    ],
    "Protocol": {
-    "$id": "443"
+    "$id": "449"
    },
    "Parent": "OptionalClient",
    "Parameters": [
     {
-     "$ref": "418"
+     "$ref": "424"
     }
    ],
    "Decorators": []
   },
   {
-   "$id": "444",
+   "$id": "450",
    "Name": "UnionIntLiteral",
    "Operations": [
     {
-     "$id": "445",
+     "$id": "451",
      "Name": "getAll",
      "ResourceName": "UnionIntLiteral",
      "Description": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "446",
+       "$id": "452",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Type": {
-        "$id": "447",
+        "$id": "453",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -5056,9 +5143,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "448",
+        "$id": "454",
         "Type": {
-         "$id": "449",
+         "$id": "455",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -5067,14 +5154,14 @@
        }
       },
       {
-       "$id": "450",
+       "$id": "456",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "451",
+        "$id": "457",
         "kind": "constant",
         "valueType": {
-         "$id": "452",
+         "$id": "458",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -5096,12 +5183,12 @@
      ],
      "Responses": [
       {
-       "$id": "453",
+       "$id": "459",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "30"
+        "$ref": "36"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -5122,24 +5209,24 @@
      "Decorators": []
     },
     {
-     "$id": "454",
+     "$id": "460",
      "Name": "getDefault",
      "ResourceName": "UnionIntLiteral",
      "Description": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "446"
+       "$ref": "452"
       },
       {
-       "$id": "455",
+       "$id": "461",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "456",
+        "$id": "462",
         "kind": "constant",
         "valueType": {
-         "$id": "457",
+         "$id": "463",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -5161,12 +5248,12 @@
      ],
      "Responses": [
       {
-       "$id": "458",
+       "$id": "464",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "30"
+        "$ref": "36"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -5187,94 +5274,14 @@
      "Decorators": []
     },
     {
-     "$id": "459",
+     "$id": "465",
      "Name": "putAll",
      "ResourceName": "UnionIntLiteral",
      "Description": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "446"
-      },
-      {
-       "$id": "460",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "461",
-        "kind": "constant",
-        "valueType": {
-         "$id": "462",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "463",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "30"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "464",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
-     "Uri": "{endpoint}",
-     "Path": "/type/property/optional/union/int/literal/all",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteral.putAll",
-     "Decorators": []
-    },
-    {
-     "$id": "465",
-     "Name": "putDefault",
-     "ResourceName": "UnionIntLiteral",
-     "Description": "Put a body with default properties.",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "446"
+       "$ref": "452"
       },
       {
        "$id": "466",
@@ -5309,7 +5316,7 @@
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "30"
+        "$ref": "36"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -5336,6 +5343,86 @@
      "HttpMethod": "PUT",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
+     "Path": "/type/property/optional/union/int/literal/all",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteral.putAll",
+     "Decorators": []
+    },
+    {
+     "$id": "471",
+     "Name": "putDefault",
+     "ResourceName": "UnionIntLiteral",
+     "Description": "Put a body with default properties.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "452"
+      },
+      {
+       "$id": "472",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "473",
+        "kind": "constant",
+        "valueType": {
+         "$id": "474",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      },
+      {
+       "$id": "475",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$ref": "36"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "476",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
      "Path": "/type/property/optional/union/int/literal/default",
      "RequestMediaTypes": [
       "application/json"
@@ -5348,33 +5435,33 @@
     }
    ],
    "Protocol": {
-    "$id": "471"
+    "$id": "477"
    },
    "Parent": "OptionalClient",
    "Parameters": [
     {
-     "$ref": "446"
+     "$ref": "452"
     }
    ],
    "Decorators": []
   },
   {
-   "$id": "472",
+   "$id": "478",
    "Name": "UnionFloatLiteral",
    "Operations": [
     {
-     "$id": "473",
+     "$id": "479",
      "Name": "getAll",
      "ResourceName": "UnionFloatLiteral",
      "Description": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "474",
+       "$id": "480",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Type": {
-        "$id": "475",
+        "$id": "481",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -5389,9 +5476,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "476",
+        "$id": "482",
         "Type": {
-         "$id": "477",
+         "$id": "483",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -5400,14 +5487,14 @@
        }
       },
       {
-       "$id": "478",
+       "$id": "484",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "479",
+        "$id": "485",
         "kind": "constant",
         "valueType": {
-         "$id": "480",
+         "$id": "486",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -5429,12 +5516,12 @@
      ],
      "Responses": [
       {
-       "$id": "481",
+       "$id": "487",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "28"
+        "$ref": "34"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -5455,24 +5542,24 @@
      "Decorators": []
     },
     {
-     "$id": "482",
+     "$id": "488",
      "Name": "getDefault",
      "ResourceName": "UnionFloatLiteral",
      "Description": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "474"
+       "$ref": "480"
       },
       {
-       "$id": "483",
+       "$id": "489",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "484",
+        "$id": "490",
         "kind": "constant",
         "valueType": {
-         "$id": "485",
+         "$id": "491",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -5494,12 +5581,12 @@
      ],
      "Responses": [
       {
-       "$id": "486",
+       "$id": "492",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "28"
+        "$ref": "34"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -5520,94 +5607,14 @@
      "Decorators": []
     },
     {
-     "$id": "487",
+     "$id": "493",
      "Name": "putAll",
      "ResourceName": "UnionFloatLiteral",
      "Description": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "474"
-      },
-      {
-       "$id": "488",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "489",
-        "kind": "constant",
-        "valueType": {
-         "$id": "490",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "491",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "28"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "492",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
-     "Uri": "{endpoint}",
-     "Path": "/type/property/optional/union/float/literal/all",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteral.putAll",
-     "Decorators": []
-    },
-    {
-     "$id": "493",
-     "Name": "putDefault",
-     "ResourceName": "UnionFloatLiteral",
-     "Description": "Put a body with default properties.",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "474"
+       "$ref": "480"
       },
       {
        "$id": "494",
@@ -5642,7 +5649,7 @@
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "28"
+        "$ref": "34"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -5669,6 +5676,86 @@
      "HttpMethod": "PUT",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
+     "Path": "/type/property/optional/union/float/literal/all",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteral.putAll",
+     "Decorators": []
+    },
+    {
+     "$id": "499",
+     "Name": "putDefault",
+     "ResourceName": "UnionFloatLiteral",
+     "Description": "Put a body with default properties.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "480"
+      },
+      {
+       "$id": "500",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "501",
+        "kind": "constant",
+        "valueType": {
+         "$id": "502",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      },
+      {
+       "$id": "503",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$ref": "34"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "504",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
      "Path": "/type/property/optional/union/float/literal/default",
      "RequestMediaTypes": [
       "application/json"
@@ -5681,34 +5768,34 @@
     }
    ],
    "Protocol": {
-    "$id": "499"
+    "$id": "505"
    },
    "Parent": "OptionalClient",
    "Parameters": [
     {
-     "$ref": "474"
+     "$ref": "480"
     }
    ],
    "Decorators": []
   },
   {
-   "$id": "500",
+   "$id": "506",
    "Name": "RequiredAndOptional",
    "Description": "Test optional and required properties",
    "Operations": [
     {
-     "$id": "501",
+     "$id": "507",
      "Name": "getAll",
      "ResourceName": "RequiredAndOptional",
      "Description": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "502",
+       "$id": "508",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Type": {
-        "$id": "503",
+        "$id": "509",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -5723,9 +5810,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "504",
+        "$id": "510",
         "Type": {
-         "$id": "505",
+         "$id": "511",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -5734,14 +5821,14 @@
        }
       },
       {
-       "$id": "506",
+       "$id": "512",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "507",
+        "$id": "513",
         "kind": "constant",
         "valueType": {
-         "$id": "508",
+         "$id": "514",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -5763,12 +5850,12 @@
      ],
      "Responses": [
       {
-       "$id": "509",
+       "$id": "515",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "23"
+        "$ref": "29"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -5789,24 +5876,24 @@
      "Decorators": []
     },
     {
-     "$id": "510",
+     "$id": "516",
      "Name": "getRequiredOnly",
      "ResourceName": "RequiredAndOptional",
      "Description": "Get models that will return only the required properties",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "502"
+       "$ref": "508"
       },
       {
-       "$id": "511",
+       "$id": "517",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "512",
+        "$id": "518",
         "kind": "constant",
         "valueType": {
-         "$id": "513",
+         "$id": "519",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -5828,12 +5915,12 @@
      ],
      "Responses": [
       {
-       "$id": "514",
+       "$id": "520",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "23"
+        "$ref": "29"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -5854,94 +5941,14 @@
      "Decorators": []
     },
     {
-     "$id": "515",
+     "$id": "521",
      "Name": "putAll",
      "ResourceName": "RequiredAndOptional",
      "Description": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "502"
-      },
-      {
-       "$id": "516",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "517",
-        "kind": "constant",
-        "valueType": {
-         "$id": "518",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "519",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "23"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "520",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
-     "Uri": "{endpoint}",
-     "Path": "/type/property/optional/requiredAndOptional/all",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptional.putAll",
-     "Decorators": []
-    },
-    {
-     "$id": "521",
-     "Name": "putRequiredOnly",
-     "ResourceName": "RequiredAndOptional",
-     "Description": "Put a body with only required properties.",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$ref": "502"
+       "$ref": "508"
       },
       {
        "$id": "522",
@@ -5976,7 +5983,7 @@
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "23"
+        "$ref": "29"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -6003,6 +6010,86 @@
      "HttpMethod": "PUT",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
+     "Path": "/type/property/optional/requiredAndOptional/all",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptional.putAll",
+     "Decorators": []
+    },
+    {
+     "$id": "527",
+     "Name": "putRequiredOnly",
+     "ResourceName": "RequiredAndOptional",
+     "Description": "Put a body with only required properties.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "508"
+      },
+      {
+       "$id": "528",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "529",
+        "kind": "constant",
+        "valueType": {
+         "$id": "530",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      },
+      {
+       "$id": "531",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$ref": "29"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "532",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
      "Path": "/type/property/optional/requiredAndOptional/requiredOnly",
      "RequestMediaTypes": [
       "application/json"
@@ -6015,12 +6102,12 @@
     }
    ],
    "Protocol": {
-    "$id": "527"
+    "$id": "533"
    },
    "Parent": "OptionalClient",
    "Parameters": [
     {
-     "$ref": "502"
+     "$ref": "508"
     }
    ],
    "Decorators": []

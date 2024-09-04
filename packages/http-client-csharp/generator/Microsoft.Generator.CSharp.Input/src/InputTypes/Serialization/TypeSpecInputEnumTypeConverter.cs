@@ -78,7 +78,7 @@ namespace Microsoft.Generator.CSharp.Input
                 throw new JsonException("The ValueType of an EnumType must be a primitive type.");
             }
 
-            var enumType = new InputEnumType(name, crossLanguageDefinitionId ?? string.Empty, accessibility, deprecated, description!, usage, inputValueType, NormalizeValues(values, inputValueType), !isFixed)
+            var enumType = new InputEnumType(name, crossLanguageDefinitionId ?? string.Empty, accessibility, deprecated, description!, usage, inputValueType, values, !isFixed)
             {
                 Decorators = decorators ?? []
             };
@@ -87,55 +87,6 @@ namespace Microsoft.Generator.CSharp.Input
                 resolver.AddReference(id, enumType);
             }
             return enumType;
-        }
-
-        private static IReadOnlyList<InputEnumTypeValue> NormalizeValues(IReadOnlyList<InputEnumTypeValue> allowedValues, InputPrimitiveType valueType)
-        {
-            var concreteValues = new List<InputEnumTypeValue>(allowedValues.Count);
-
-            switch (valueType.Kind)
-            {
-                case InputPrimitiveTypeKind.String:
-                    foreach (var value in allowedValues)
-                    {
-                        if (value.Value is not string s)
-                        {
-                            throw new JsonException($"Enum value types are not consistent");
-                        }
-                        concreteValues.Add(new InputEnumTypeStringValue(value.Name, s, value.Description));
-                    }
-                    break;
-                case InputPrimitiveTypeKind.Int32:
-                    foreach (var value in allowedValues)
-                    {
-                        if (value.Value is not int i)
-                        {
-                            throw new JsonException($"Enum value types are not consistent");
-                        }
-                        concreteValues.Add(new InputEnumTypeIntegerValue(value.Name, i, value.Description));
-                    }
-                    break;
-                case InputPrimitiveTypeKind.Float32:
-                    foreach (var value in allowedValues)
-                    {
-                        switch (value.Value)
-                        {
-                            case int i:
-                                concreteValues.Add(new InputEnumTypeFloatValue(value.Name, (float)i, value.Description));
-                                break;
-                            case float f:
-                                concreteValues.Add(new InputEnumTypeFloatValue(value.Name, f, value.Description));
-                                break;
-                            default:
-                                throw new JsonException($"Enum value types are not consistent");
-                        }
-                    }
-                    break;
-                default:
-                    throw new JsonException($"Unsupported enum value type: {valueType.Kind}");
-            }
-
-            return concreteValues;
         }
     }
 }

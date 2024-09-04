@@ -18,52 +18,129 @@
    "values": [
     {
      "$id": "4",
-     "Name": "Monday",
-     "Value": "Monday",
-     "Description": "Monday.",
-     "Decorators": []
-    },
-    {
-     "$id": "5",
-     "Name": "Tuesday",
-     "Value": "Tuesday",
-     "Description": "Tuesday.",
-     "Decorators": []
+     "kind": "enumvalue",
+     "name": "Monday",
+     "value": "Monday",
+     "valueType": {
+      "$id": "5",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "2"
+     },
+     "description": "Monday.",
+     "decorators": []
     },
     {
      "$id": "6",
-     "Name": "Wednesday",
-     "Value": "Wednesday",
-     "Description": "Wednesday.",
-     "Decorators": []
-    },
-    {
-     "$id": "7",
-     "Name": "Thursday",
-     "Value": "Thursday",
-     "Description": "Thursday.",
-     "Decorators": []
+     "kind": "enumvalue",
+     "name": "Tuesday",
+     "value": "Tuesday",
+     "valueType": {
+      "$id": "7",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "2"
+     },
+     "description": "Tuesday.",
+     "decorators": []
     },
     {
      "$id": "8",
-     "Name": "Friday",
-     "Value": "Friday",
-     "Description": "Friday.",
-     "Decorators": []
-    },
-    {
-     "$id": "9",
-     "Name": "Saturday",
-     "Value": "Saturday",
-     "Description": "Saturday.",
-     "Decorators": []
+     "kind": "enumvalue",
+     "name": "Wednesday",
+     "value": "Wednesday",
+     "valueType": {
+      "$id": "9",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "2"
+     },
+     "description": "Wednesday.",
+     "decorators": []
     },
     {
      "$id": "10",
-     "Name": "Sunday",
-     "Value": "Sunday",
-     "Description": "Sunday.",
-     "Decorators": []
+     "kind": "enumvalue",
+     "name": "Thursday",
+     "value": "Thursday",
+     "valueType": {
+      "$id": "11",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "2"
+     },
+     "description": "Thursday.",
+     "decorators": []
+    },
+    {
+     "$id": "12",
+     "kind": "enumvalue",
+     "name": "Friday",
+     "value": "Friday",
+     "valueType": {
+      "$id": "13",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "2"
+     },
+     "description": "Friday.",
+     "decorators": []
+    },
+    {
+     "$id": "14",
+     "kind": "enumvalue",
+     "name": "Saturday",
+     "value": "Saturday",
+     "valueType": {
+      "$id": "15",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "2"
+     },
+     "description": "Saturday.",
+     "decorators": []
+    },
+    {
+     "$id": "16",
+     "kind": "enumvalue",
+     "name": "Sunday",
+     "value": "Sunday",
+     "valueType": {
+      "$id": "17",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "2"
+     },
+     "description": "Sunday.",
+     "decorators": []
     }
    ],
    "description": "Days of the week",
@@ -76,19 +153,19 @@
  "Models": [],
  "Clients": [
   {
-   "$id": "11",
+   "$id": "18",
    "Name": "FixedClient",
    "Operations": [],
    "Protocol": {
-    "$id": "12"
+    "$id": "19"
    },
    "Parameters": [
     {
-     "$id": "13",
+     "$id": "20",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Type": {
-      "$id": "14",
+      "$id": "21",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -103,9 +180,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "15",
+      "$id": "22",
       "Type": {
-       "$id": "16",
+       "$id": "23",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -117,22 +194,22 @@
    "Decorators": []
   },
   {
-   "$id": "17",
+   "$id": "24",
    "Name": "String",
    "Operations": [
     {
-     "$id": "18",
+     "$id": "25",
      "Name": "getKnownValue",
      "ResourceName": "String",
      "Description": "getKnownValue",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "19",
+       "$id": "26",
        "Name": "endpoint",
        "NameInRequest": "endpoint",
        "Type": {
-        "$id": "20",
+        "$id": "27",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -147,9 +224,9 @@
        "Explode": false,
        "Kind": "Client",
        "DefaultValue": {
-        "$id": "21",
+        "$id": "28",
         "Type": {
-         "$id": "22",
+         "$id": "29",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -158,14 +235,14 @@
        }
       },
       {
-       "$id": "23",
+       "$id": "30",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "24",
+        "$id": "31",
         "kind": "constant",
         "valueType": {
-         "$id": "25",
+         "$id": "32",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -187,7 +264,7 @@
      ],
      "Responses": [
       {
-       "$id": "26",
+       "$id": "33",
        "StatusCodes": [
         200
        ],
@@ -213,25 +290,25 @@
      "Decorators": []
     },
     {
-     "$id": "27",
+     "$id": "34",
      "Name": "putKnownValue",
      "ResourceName": "String",
      "Description": "putKnownValue",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "19"
+       "$ref": "26"
       },
       {
-       "$id": "28",
+       "$id": "35",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "29",
+        "$id": "36",
         "kind": "constant",
         "valueType": {
-         "$id": "30",
+         "$id": "37",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -251,7 +328,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "31",
+       "$id": "38",
        "Name": "body",
        "NameInRequest": "body",
        "Description": "_",
@@ -271,7 +348,7 @@
      ],
      "Responses": [
       {
-       "$id": "32",
+       "$id": "39",
        "StatusCodes": [
         204
        ],
@@ -294,25 +371,25 @@
      "Decorators": []
     },
     {
-     "$id": "33",
+     "$id": "40",
      "Name": "putUnknownValue",
      "ResourceName": "String",
      "Description": "putUnknownValue",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "19"
+       "$ref": "26"
       },
       {
-       "$id": "34",
+       "$id": "41",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "35",
+        "$id": "42",
         "kind": "constant",
         "valueType": {
-         "$id": "36",
+         "$id": "43",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -332,7 +409,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "37",
+       "$id": "44",
        "Name": "body",
        "NameInRequest": "body",
        "Description": "_",
@@ -352,7 +429,7 @@
      ],
      "Responses": [
       {
-       "$id": "38",
+       "$id": "45",
        "StatusCodes": [
         204
        ],
@@ -376,12 +453,12 @@
     }
    ],
    "Protocol": {
-    "$id": "39"
+    "$id": "46"
    },
    "Parent": "FixedClient",
    "Parameters": [
     {
-     "$ref": "19"
+     "$ref": "26"
     }
    ],
    "Decorators": []
