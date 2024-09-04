@@ -8,7 +8,6 @@ import {
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler";
-import { InputEnumTypeValue } from "./input-enum-type-value.js";
 import { InputModelProperty } from "./input-model-property.js";
 
 interface InputTypeBase {
@@ -113,6 +112,14 @@ export interface InputEnumType extends InputTypeBase {
   isFlags: boolean;
   usage: UsageFlags;
   access?: AccessFlags;
+}
+
+export interface InputEnumTypeValue extends InputTypeBase {
+  kind: "enumvalue";
+  name: string;
+  value: string | number;
+  enumType: InputEnumType;
+  valueType: InputPrimitiveType;
 }
 
 export interface InputNullableType extends InputTypeBase {

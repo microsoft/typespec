@@ -21,7 +21,6 @@ import {
   isReadOnly,
 } from "@azure-tools/typespec-client-generator-core";
 import { Model } from "@typespec/compiler";
-import { InputEnumTypeValue } from "../type/input-enum-type-value.js";
 import { InputModelProperty } from "../type/input-model-property.js";
 import {
   InputArrayType,
@@ -29,6 +28,7 @@ import {
   InputDictionaryType,
   InputDurationType,
   InputEnumType,
+  InputEnumTypeValue,
   InputLiteralType,
   InputModelType,
   InputPrimitiveType,
@@ -229,12 +229,13 @@ export function fromSdkEnumType(
   const enumName = enumType.name;
   let inputEnumType = typeMap.enums.get(enumName);
   if (!inputEnumType) {
+    const values: InputEnumTypeValue[] = [];
     inputEnumType = {
       kind: "enum",
       name: enumName,
       crossLanguageDefinitionId: enumType.crossLanguageDefinitionId,
       valueType: fromSdkBuiltInType(enumType.valueType),
-      values: enumType.values.map((v) => fromSdkEnumValueType(v)),
+      values: values,
       access: getAccessOverride(
         context,
         enumType.__raw as any
@@ -247,6 +248,9 @@ export function fromSdkEnumType(
       decorators: enumType.decorators,
     };
     if (addToCollection) typeMap.enums.set(enumName, inputEnumType);
+    for (const v of enumType.values) {
+      values.push(fromSdkEnumValueType(v, context, typeMap));
+    }
   }
 
   return inputEnumType;
@@ -341,18 +345,12 @@ function fromSdkConstantType(
     // we use the model name followed by the property name as the enum name to ensure it is unique
     const enumName = `${literalTypeContext.ModelName}_${literalTypeContext.PropertyName}`;
     const enumValueName = constantType.value === null ? "Null" : constantType.value.toString();
-    const allowValues: InputEnumTypeValue[] = [
-      {
-        Name: enumValueName,
-        Value: constantType.value,
-        Description: enumValueName,
-      },
-    ];
+    const values: InputEnumTypeValue[] = [];
     const enumType: InputEnumType = {
       kind: "enum",
       name: enumName,
       valueType: fromSdkBuiltInType(constantType.valueType),
-      values: allowValues,
+      values: values,
       crossLanguageDefinitionId: "",
       access: undefined,
       description: `The ${enumName}`, // TODO -- what should we put here?
@@ -363,6 +361,15 @@ function fromSdkConstantType(
     };
 
     typeMap.enums.set(enumName, enumType);
+
+    values.push({
+      kind: "enumvalue",
+      name: enumValueName,
+      value: constantType.value as string | number,
+      description: enumValueName,
+      valueType: enumType.valueType,
+      enumType: enumType,
+    });
     return enumType;
   }
 }
@@ -384,12 +391,19 @@ function fromSdkEnumValueTypeToConstantType(
   };
 }
 
-function fromSdkEnumValueType(enumValueType: SdkEnumValueType): InputEnumTypeValue {
+function fromSdkEnumValueType(
+  enumValueType: SdkEnumValueType,
+  context: SdkContext,
+  typeMap: SdkTypeMap
+): InputEnumTypeValue {
   return {
-    Name: enumValueType.name,
-    Value: enumValueType.value,
-    Description: enumValueType.description,
-    Decorators: enumValueType.decorators,
+    kind: "enumvalue",
+    name: enumValueType.name,
+    value: enumValueType.value,
+    valueType: fromSdkBuiltInType(enumValueType.valueType),
+    enumType: fromSdkEnumType(enumValueType.enumType, context, typeMap),
+    description: enumValueType.description,
+    decorators: enumValueType.decorators,
   };
 }
 
