@@ -72,6 +72,48 @@ public final class MultiPartClientImpl {
     }
 
     /**
+     * The FormDataHttpPartsImpl object to access its operations.
+     */
+    private final FormDataHttpPartsImpl formDataHttpParts;
+
+    /**
+     * Gets the FormDataHttpPartsImpl object to access its operations.
+     * 
+     * @return the FormDataHttpPartsImpl object.
+     */
+    public FormDataHttpPartsImpl getFormDataHttpParts() {
+        return this.formDataHttpParts;
+    }
+
+    /**
+     * The FormDataHttpPartsContentTypesImpl object to access its operations.
+     */
+    private final FormDataHttpPartsContentTypesImpl formDataHttpPartsContentTypes;
+
+    /**
+     * Gets the FormDataHttpPartsContentTypesImpl object to access its operations.
+     * 
+     * @return the FormDataHttpPartsContentTypesImpl object.
+     */
+    public FormDataHttpPartsContentTypesImpl getFormDataHttpPartsContentTypes() {
+        return this.formDataHttpPartsContentTypes;
+    }
+
+    /**
+     * The FormDataHttpPartsNonStringsImpl object to access its operations.
+     */
+    private final FormDataHttpPartsNonStringsImpl formDataHttpPartsNonStrings;
+
+    /**
+     * Gets the FormDataHttpPartsNonStringsImpl object to access its operations.
+     * 
+     * @return the FormDataHttpPartsNonStringsImpl object.
+     */
+    public FormDataHttpPartsNonStringsImpl getFormDataHttpPartsNonStrings() {
+        return this.formDataHttpPartsNonStrings;
+    }
+
+    /**
      * Initializes an instance of MultiPartClient client.
      * 
      * @param endpoint Service host.
@@ -103,5 +145,8 @@ public final class MultiPartClientImpl {
         this.serializerAdapter = serializerAdapter;
         this.endpoint = endpoint;
         this.formDatas = new FormDatasImpl(this);
+        this.formDataHttpParts = new FormDataHttpPartsImpl(this);
+        this.formDataHttpPartsContentTypes = new FormDataHttpPartsContentTypesImpl(this);
+        this.formDataHttpPartsNonStrings = new FormDataHttpPartsNonStringsImpl(this);
     }
 }

@@ -283,6 +283,26 @@ public final class BasicClientImpl {
             @QueryParam("api-version") String apiVersion, @PathParam("id") int id, @QueryParam("format") String format,
             @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
 
+        @Post("/azure/core/basic/users:exportallusers")
+        @ExpectedResponses({ 200 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Mono<Response<BinaryData>> exportAllUsers(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, @QueryParam("format") String format,
+            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
+
+        @Post("/azure/core/basic/users:exportallusers")
+        @ExpectedResponses({ 200 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Response<BinaryData> exportAllUsersSync(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, @QueryParam("format") String format,
+            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
+
         @Get("{nextLink}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
@@ -967,6 +987,86 @@ public final class BasicClientImpl {
     public Response<BinaryData> exportWithResponse(int id, String format, RequestOptions requestOptions) {
         final String accept = "application/json";
         return service.exportSync(this.getEndpoint(), this.getServiceVersion().getVersion(), id, format, accept,
+            requestOptions, Context.NONE);
+    }
+
+    /**
+     * Exports all users.
+     * 
+     * Exports all users.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>{@code
+     * {
+     *     users (Required): [
+     *          (Required){
+     *             id: int (Required)
+     *             name: String (Optional, Required on create)
+     *             orders (Optional): [
+     *                  (Optional){
+     *                     id: int (Required)
+     *                     userId: int (Optional, Required on create)
+     *                     detail: String (Optional, Required on create)
+     *                 }
+     *             ]
+     *             etag: String (Required)
+     *         }
+     *     ]
+     * }
+     * }</pre>
+     * 
+     * @param format The format of the data.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> exportAllUsersWithResponseAsync(String format, RequestOptions requestOptions) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(context -> service.exportAllUsers(this.getEndpoint(),
+            this.getServiceVersion().getVersion(), format, accept, requestOptions, context));
+    }
+
+    /**
+     * Exports all users.
+     * 
+     * Exports all users.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>{@code
+     * {
+     *     users (Required): [
+     *          (Required){
+     *             id: int (Required)
+     *             name: String (Optional, Required on create)
+     *             orders (Optional): [
+     *                  (Optional){
+     *                     id: int (Required)
+     *                     userId: int (Optional, Required on create)
+     *                     detail: String (Optional, Required on create)
+     *                 }
+     *             ]
+     *             etag: String (Required)
+     *         }
+     *     ]
+     * }
+     * }</pre>
+     * 
+     * @param format The format of the data.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> exportAllUsersWithResponse(String format, RequestOptions requestOptions) {
+        final String accept = "application/json";
+        return service.exportAllUsersSync(this.getEndpoint(), this.getServiceVersion().getVersion(), format, accept,
             requestOptions, Context.NONE);
     }
 

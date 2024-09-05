@@ -7,6 +7,7 @@ package com._specs_.azure.core.basic;
 import com._specs_.azure.core.basic.implementation.BasicClientImpl;
 import com._specs_.azure.core.basic.implementation.JsonMergePatchHelper;
 import com._specs_.azure.core.basic.models.User;
+import com._specs_.azure.core.basic.models.UserList;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceClient;
@@ -289,6 +290,45 @@ public final class BasicClient {
     }
 
     /**
+     * Exports all users.
+     * 
+     * Exports all users.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>{@code
+     * {
+     *     users (Required): [
+     *          (Required){
+     *             id: int (Required)
+     *             name: String (Optional, Required on create)
+     *             orders (Optional): [
+     *                  (Optional){
+     *                     id: int (Required)
+     *                     userId: int (Optional, Required on create)
+     *                     detail: String (Optional, Required on create)
+     *                 }
+     *             ]
+     *             etag: String (Required)
+     *         }
+     *     ]
+     * }
+     * }</pre>
+     * 
+     * @param format The format of the data.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> exportAllUsersWithResponse(String format, RequestOptions requestOptions) {
+        return this.serviceClient.exportAllUsersWithResponse(format, requestOptions);
+    }
+
+    /**
      * Adds a user or updates a user's fields.
      * 
      * Creates or updates a User.
@@ -484,5 +524,27 @@ public final class BasicClient {
         // Generated convenience method for exportWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return exportWithResponse(id, format, requestOptions).getValue().toObject(User.class);
+    }
+
+    /**
+     * Exports all users.
+     * 
+     * Exports all users.
+     * 
+     * @param format The format of the data.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public UserList exportAllUsers(String format) {
+        // Generated convenience method for exportAllUsersWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return exportAllUsersWithResponse(format, requestOptions).getValue().toObject(UserList.class);
     }
 }
