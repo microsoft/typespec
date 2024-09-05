@@ -659,7 +659,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     // Resolve XML name
     const xmlName = resolveEncodedName(program, prop, "application/xml");
-    if (xmlName !== prop.name) {
+    const jsonName = resolveEncodedName(program, prop, "application/json");
+    if (xmlName !== jsonName) {
       xmlObject.name = xmlName;
     }
 
@@ -676,35 +677,21 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
 
     // Handle array wrapping if necessary
-    if (
-      prop.type?.kind === "Model" &&
-      isArrayModelType(program, prop.type) &&
-      (xmlObject.name || isXmlModel)
-    ) {
+    if (prop.type?.kind === "Model" && isArrayModelType(program, prop.type) && isXmlModel) {
       xmlObject.wrapped = true;
     }
 
     // Set XML unwrapped if present
     if (isUnwrapped(program, prop)) {
-      xmlObject.wrapped = false;
+      delete xmlObject.wrapped;
+
+      // if wrapped is false, xml.name of the wrapping element is ignored.
+      delete xmlObject.name;
     }
 
-    // if wrapped is false, xml.name of the wrapping element is ignored.
-    if (xmlObject.wrapped === false) {
-      xmlObject.name = undefined;
-    }
-
-    // only apply properties with the value is true.
-    const schema = new ObjectBuilder<OpenAPI3XmlSchema>();
-    for (const [key, value] of Object.entries(xmlObject)) {
-      if (value) {
-        schema[key] = value;
-      }
-    }
-
-    // Attach schema to emitObject if not empty
-    if (Object.keys(schema).length !== 0) {
-      emitObject.xml = schema;
+    // Attach xml schema to emitObject if not empty
+    if (Object.keys(xmlObject).length !== 0) {
+      emitObject.xml = xmlObject;
     }
   }
 
