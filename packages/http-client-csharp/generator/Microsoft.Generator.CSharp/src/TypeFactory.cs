@@ -37,6 +37,9 @@ namespace Microsoft.Generator.CSharp
         private IReadOnlyList<LibraryVisitor> Visitors => CodeModelPlugin.Instance.Visitors;
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache => _serializationsCache ??= [];
 
+        private HashSet<string>? _unionTypes;
+        internal HashSet<string> UnionTypes => _unionTypes ??= [];
+
         protected internal TypeFactory()
         {
         }
@@ -75,6 +78,7 @@ namespace Microsoft.Generator.CSharp
                         if (unionInput != null)
                         {
                             unionInputs.Add(unionInput);
+                            UnionTypes.Add(unionInput.Name);
                         }
                     }
                     type = CSharpType.FromUnion(unionInputs);
@@ -119,7 +123,7 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="inputType">The <see cref="InputType"/> to convert.</param>
         /// <returns>An instance of <see cref="CSharpType"/>.</returns>
-        private protected virtual CSharpType CreatePrimitiveCSharpTypeCore(InputType inputType) => inputType switch
+        private CSharpType CreatePrimitiveCSharpTypeCore(InputType inputType) => inputType switch
         {
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
