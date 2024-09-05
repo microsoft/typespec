@@ -835,7 +835,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       (p: Program, t: Type) => (getDeprecated(p, t) !== undefined ? true : undefined),
       "deprecated"
     );
-    if (!this.#isStdType(type)) {
+    if (
+      (!this.#isStdType(type) && type.kind === "Scalar") ||
+      type.kind === "ModelProperty" ||
+      type.kind === "Model"
+    ) {
       this.#attachXmlObject(program, type as ModelProperty, schema);
     }
     this.#attachExtensions(program, type, schema);
