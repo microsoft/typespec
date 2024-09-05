@@ -62,6 +62,8 @@ namespace Microsoft.Generator.CSharp
                 DeleteDirectory(generatedTestOutputPath, _filesToKeep);
             }
 
+            await workspace.PostProcessAsync();
+
             // Write the generated files to the output directory
             await foreach (var file in workspace.GetGeneratedFilesAsync())
             {

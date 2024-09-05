@@ -127,52 +127,6 @@ namespace UnbrandedTypeSpec.Models
             return new ModelWithRequiredNullableProperties(requiredNullablePrimitive, requiredExtensibleEnum, requiredFixedEnum, null);
         }
 
-        /// <summary> The AnonymousBodyRequest. </summary>
-        /// <param name="name"> name of the Thing. </param>
-        /// <param name="requiredUnion"> required Union. </param>
-        /// <param name="requiredLiteralString"> required literal string. </param>
-        /// <param name="requiredLiteralInt"> required literal int. </param>
-        /// <param name="requiredLiteralFloat"> required literal float. </param>
-        /// <param name="requiredLiteralBool"> required literal bool. </param>
-        /// <param name="optionalLiteralString"> optional literal string. </param>
-        /// <param name="optionalLiteralInt"> optional literal int. </param>
-        /// <param name="optionalLiteralFloat"> optional literal float. </param>
-        /// <param name="optionalLiteralBool"> optional literal bool. </param>
-        /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
-        /// <param name="optionalNullableList"> optional nullable collection. </param>
-        /// <param name="requiredNullableList"> required nullable collection. </param>
-        /// <returns> A new <see cref="Models.AnonymousBodyRequest"/> instance for mocking. </returns>
-        public static AnonymousBodyRequest AnonymousBodyRequest(string name = default, BinaryData requiredUnion = default, AnonymousBodyRequestRequiredLiteralString requiredLiteralString = default, AnonymousBodyRequestRequiredLiteralInt requiredLiteralInt = default, AnonymousBodyRequestRequiredLiteralFloat requiredLiteralFloat = default, bool requiredLiteralBool = default, AnonymousBodyRequestOptionalLiteralString? optionalLiteralString = default, AnonymousBodyRequestOptionalLiteralInt? optionalLiteralInt = default, AnonymousBodyRequestOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default)
-        {
-            optionalNullableList ??= new ChangeTrackingList<int>();
-            requiredNullableList ??= new ChangeTrackingList<int>();
-
-            return new AnonymousBodyRequest(
-                name,
-                requiredUnion,
-                requiredLiteralString,
-                requiredLiteralInt,
-                requiredLiteralFloat,
-                requiredLiteralBool,
-                optionalLiteralString,
-                optionalLiteralInt,
-                optionalLiteralFloat,
-                optionalLiteralBool,
-                requiredBadDescription,
-                optionalNullableList?.ToList(),
-                requiredNullableList?.ToList(),
-                null);
-        }
-
-        /// <summary> The FriendlyModelRequest. </summary>
-        /// <param name="name"> name of the NotFriend. </param>
-        /// <returns> A new <see cref="Models.FriendlyModelRequest"/> instance for mocking. </returns>
-        public static FriendlyModelRequest FriendlyModelRequest(string name = default)
-        {
-
-            return new FriendlyModelRequest(name, null);
-        }
-
         /// <summary> this is not a friendly model but with a friendly name. </summary>
         /// <param name="name"> name of the NotFriend. </param>
         /// <returns> A new <see cref="Models.Friend"/> instance for mocking. </returns>
@@ -180,15 +134,6 @@ namespace UnbrandedTypeSpec.Models
         {
 
             return new Friend(name, null);
-        }
-
-        /// <summary> The ProjectedNameModelRequest. </summary>
-        /// <param name="name"> name of the ModelWithProjectedName. </param>
-        /// <returns> A new <see cref="Models.ProjectedNameModelRequest"/> instance for mocking. </returns>
-        public static ProjectedNameModelRequest ProjectedNameModelRequest(string name = default)
-        {
-
-            return new ProjectedNameModelRequest(name, null);
         }
 
         /// <summary> this is a model with a projected name. </summary>

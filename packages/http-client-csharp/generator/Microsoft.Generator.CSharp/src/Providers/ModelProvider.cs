@@ -231,7 +231,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             // Build the initialization constructor
             var accessibility = DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
-                ? MethodSignatureModifiers.Protected
+                ? MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected
                 : _inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
                     ? MethodSignatureModifiers.Public
                     : MethodSignatureModifiers.Internal;

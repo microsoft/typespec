@@ -143,7 +143,6 @@ import {
   operationIsMultipart,
   operationIsMultipleContentTypes,
 } from "./operation-utils.js";
-import { PreNamer } from "./prenamer/prenamer.js";
 import {
   ProcessingCache,
   getAccess,
@@ -264,10 +263,6 @@ export class CodeModelBuilder {
     this.processModels();
 
     this.processSchemaUsage();
-
-    if (this.options.namer) {
-      this.codeModel = new PreNamer(this.codeModel).init().process();
-    }
 
     this.deduplicateSchemaName();
 
