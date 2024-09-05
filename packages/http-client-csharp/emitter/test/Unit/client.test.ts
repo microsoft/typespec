@@ -19,19 +19,34 @@ describe("Parent property", () => {
   it("Base model has parent property", async () => {
     const program = await typeSpecCompile(
       `
-      model Widget{
+      model Parent{
         name: string;
       }
-      model Foo extends Widget{
+      model Child extends Parent{
         id: string;
       }
-      @operationGroup
-      interface Group {
-        @get list(): Widget[];
-        @get read(@path id: string): Foo;
+
+      @route("/ParentC")
+      interface ParentC {
+        @get list(): Parent[];
+        @get read(@path id: string): Parent;
       }
+      interface ChildC {
+          @get list(): Child[];
+        }
+        
+      @client({
+        name: "ParentC",
+        service: ParentC.Client,
+      })
+
+      @groupOperation
+      interface Group {
+        ParentC.list;
+      }  
       `,
-      runner
+      runner,
+      { IsTCGCNeeded: true }
     );
     runner.compileAndDiagnose;
     const context = createEmitterContext(program);
