@@ -21,7 +21,7 @@ import {
   TypeSpecOpenAPIDecorators,
 } from "../generated-defs/TypeSpec.OpenAPI.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
-import { AdditionalInfo, ExtensionKey } from "./types.js";
+import { AdditionalInfo, ExtensionKey, ExternalDocs } from "./types.js";
 
 const operationIdsKey = createStateSymbol("operationIds");
 /**
@@ -39,7 +39,7 @@ export const $operationId: OperationIdDecorator = (
 };
 
 /**
- * @returns operationId set via the @operationId decorator or `undefined`
+ * Returns operationId set via the `@operationId` decorator or `undefined`
  */
 export function getOperationId(program: Program, entity: Operation): string | undefined {
   return program.stateMap(operationIdsKey).get(entity);
@@ -47,6 +47,7 @@ export function getOperationId(program: Program, entity: Operation): string | un
 
 const openApiExtensionKey = createStateSymbol("openApiExtension");
 
+/** {@inheritdoc ExtensionDecorator} */
 export const $extension: ExtensionDecorator = (
   context: DecoratorContext,
   entity: Type,
@@ -68,6 +69,12 @@ export const $extension: ExtensionDecorator = (
   setExtension(context.program, entity, extensionName as ExtensionKey, data);
 };
 
+/**
+ * Set the OpenAPI info node on for the given service namespace.
+ * @param program Program
+ * @param entity Service namespace
+ * @param data OpenAPI Info object
+ */
 export function setInfo(
   program: Program,
   entity: Namespace,
@@ -76,6 +83,13 @@ export function setInfo(
   program.stateMap(infoKey).set(entity, data);
 }
 
+/**
+ *  Set OpenAPI extension on the given type. Equivalent of using `@extension` decorator
+ * @param program Program
+ * @param entity Type to annotate
+ * @param extensionName Extension key
+ * @param data Extension value
+ */
 export function setExtension(
   program: Program,
   entity: Type,
@@ -88,6 +102,11 @@ export function setExtension(
   openApiExtensions.set(entity, typeExtensions);
 }
 
+/**
+ * Get extensions set for the given type.
+ * @param program Program
+ * @param entity Type
+ */
 export function getExtensions(program: Program, entity: Type): ReadonlyMap<ExtensionKey, any> {
   return program.stateMap(openApiExtensionKey).get(entity) ?? new Map<ExtensionKey, any>();
 }
@@ -102,6 +121,7 @@ function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
  *
  */
 const defaultResponseKey = createStateSymbol("defaultResponse");
+/** {@inheritdoc DefaultResponseDecorator} */
 export const $defaultResponse: DefaultResponseDecorator = (
   context: DecoratorContext,
   entity: Model
@@ -121,10 +141,6 @@ export function isDefaultResponse(program: Program, entity: Type): boolean {
   return program.stateSet(defaultResponseKey).has(entity);
 }
 
-export interface ExternalDocs {
-  url: string;
-  description?: string;
-}
 const externalDocsKey = createStateSymbol("externalDocs");
 
 /**
@@ -145,11 +161,18 @@ export const $externalDocs: ExternalDocsDecorator = (
   context.program.stateMap(externalDocsKey).set(target, doc);
 };
 
+/**
+ * Return external doc info set via the `@externalDocs` decorator.
+ * @param program Program
+ * @param entity Type
+ */
 export function getExternalDocs(program: Program, entity: Type): ExternalDocs | undefined {
   return program.stateMap(externalDocsKey).get(entity);
 }
 
 const infoKey = createStateSymbol("info");
+
+/** {@inheritdoc InfoDecorator} */
 export const $info: InfoDecorator = (
   context: DecoratorContext,
   entity: Namespace,
@@ -166,6 +189,11 @@ export const $info: InfoDecorator = (
   setInfo(context.program, entity, data);
 };
 
+/**
+ * Get the info entry for the given service namespace.
+ * @param program Program
+ * @param entity Service namespace
+ */
 export function getInfo(program: Program, entity: Namespace): AdditionalInfo | undefined {
   return program.stateMap(infoKey).get(entity);
 }
