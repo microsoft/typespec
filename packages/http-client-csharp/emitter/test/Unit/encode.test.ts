@@ -110,7 +110,7 @@ describe("Test encode duration", () => {
     const models = codeModel.Models;
     const durationModel = models.find((m) => m.name === "ISO8601DurationProperty");
     ok(durationModel);
-    const type = durationModel.properties[0].Type;
+    const type = durationModel.properties[0].type;
     strictEqual(type.kind, "duration");
     strictEqual(type.name, "duration");
     strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");
@@ -139,7 +139,7 @@ describe("Test encode duration", () => {
     const models = codeModel.Models;
     const durationModel = models.find((m) => m.name === "Int32SecondsDurationProperty");
     ok(durationModel);
-    const type = durationModel.properties[0].Type;
+    const type = durationModel.properties[0].type;
     strictEqual(type.kind, "duration");
     strictEqual(type.name, "duration");
     strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");
@@ -168,7 +168,7 @@ describe("Test encode duration", () => {
     const models = codeModel.Models;
     const durationModel = models.find((m) => m.name === "FloatSecondsDurationProperty");
     ok(durationModel);
-    const type = durationModel.properties[0].Type;
+    const type = durationModel.properties[0].type;
     strictEqual(type.kind, "duration");
     strictEqual(type.name, "duration");
     strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");

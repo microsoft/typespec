@@ -123,7 +123,7 @@ describe("Test emitting decorator list", () => {
     const root = createModel(sdkContext);
     const models = root.Models;
     strictEqual(models.length, 1);
-    deepStrictEqual(models[0].properties[0].Decorators, [
+    deepStrictEqual(models[0].properties[0].decorators, [
       {
         name: "Azure.ClientGenerator.Core.@clientName",
         arguments: {
