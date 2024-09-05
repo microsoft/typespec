@@ -231,12 +231,12 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="property">The input property.</param>
         /// <returns>The property provider.</returns>
-        public PropertyProvider? CreatePropertyProvider(InputModelProperty property, TypeProvider enclosingType)
+        public PropertyProvider? CreateProperty(InputModelProperty property, TypeProvider enclosingType)
         {
             if (PropertyCache.TryGetValue(property, out var propertyProvider))
                 return propertyProvider;
 
-            propertyProvider = CreatePropertyProviderCore(property, enclosingType);
+            propertyProvider = CreatePropertyCore(property, enclosingType);
             PropertyCache.Add(property, propertyProvider);
             return propertyProvider;
         }
@@ -247,7 +247,7 @@ namespace Microsoft.Generator.CSharp
         /// <param name="property">The input model property.</param>
         /// <param name="enclosingType">The enclosing type.</param>
         /// <returns>An instance of <see cref="PropertyProvider"/>.</returns>
-        private PropertyProvider? CreatePropertyProviderCore(InputModelProperty property, TypeProvider enclosingType)
+        private PropertyProvider? CreatePropertyCore(InputModelProperty property, TypeProvider enclosingType)
         {
             {
                 PropertyProvider.TryCreate(property, enclosingType, out var propertyProvider);
