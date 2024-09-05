@@ -129,6 +129,21 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     return [related === Related.true, convertErrorsToDiagnostics(errors, diagnosticTarget)];
   }
 
+  function isTargetChildOf(target: Entity | Node, base: Entity | Node) {
+    const errorNode: Node =
+      "kind" in target && typeof target.kind === "number" ? target : (target as any).node;
+    const baseNode: Node =
+      "kind" in base && typeof base.kind === "number" ? base : (base as any).node;
+    let currentNode: Node | undefined = errorNode;
+    while (currentNode) {
+      if (currentNode === baseNode) {
+        return true;
+      }
+      currentNode = currentNode.parent;
+    }
+    return false;
+  }
+
   function convertErrorsToDiagnostics(
     errors: readonly TypeRelationError[],
     diagnosticBase: Entity | Node
@@ -136,10 +151,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     return errors.map((x) => convertErrorToDiagnostic(x, diagnosticBase));
   }
 
-  function convertErrorToDiagnostic(
-    error: TypeRelationError,
-    diagnosticBase: Entity | Node
-  ): Diagnostic {
+  function combineErrorMessage(error: TypeRelationError): string {
     let message = error.message;
     let current = error.child;
     let indent = "  ";
@@ -149,28 +161,33 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
         .map((line) => `\n${indent}${line}`)
         .join("");
       indent += "  ";
-      current = error.child;
+      current = current.child;
     }
+    return message;
+  }
 
-    const errorNode: Node =
-      "kind" in error.target && typeof error.target.kind === "number"
-        ? error.target
-        : (error.target as any).node;
-    const baseNode: Node =
-      "kind" in diagnosticBase && typeof diagnosticBase.kind === "number"
-        ? diagnosticBase
-        : (diagnosticBase as any).node;
+  function convertErrorToDiagnostic(
+    error: TypeRelationError,
+    diagnosticBase: Entity | Node
+  ): Diagnostic {
+    let current = error;
     let target = diagnosticBase;
-    let currentNode: Node | undefined = errorNode;
-    while (currentNode) {
-      if (current === baseNode) {
-        target = errorNode;
+    let base = error;
+    while (true) {
+      if (isTargetChildOf(current.target, diagnosticBase)) {
+        base = current;
+        target = current.target;
       }
-      currentNode = currentNode.parent;
+      if (current.child === undefined) {
+        break;
+      }
+      current = current.child;
     }
+    const message = combineErrorMessage(base);
+
     return {
       severity: "error",
-      code: error.code,
+      code: base.code,
       message: message,
       target,
     };
@@ -343,7 +360,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
         return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
       }
     } else if (target.kind === "Model" && source.kind === "Model") {
-      return isModelRelatedTo(source, target, diagnosticTarget, relationCache);
+      return areModelsRelated(source, target, diagnosticTarget, relationCache);
     } else if (
       target.kind === "Model" &&
       isArrayModelType(program, target) &&
@@ -624,21 +641,21 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     return true;
   }
 
-  function isModelRelatedTo(
+  function areModelsRelated(
     source: Model,
     target: Model,
     diagnosticTarget: Entity | Node,
     relationCache: MultiKeyMap<[Entity, Entity], Related>
-  ): [Related, TypeRelationError[]] {
+  ): [Related, readonly TypeRelationError[]] {
     relationCache.set([source, target], Related.maybe);
-    const diagnostics: TypeRelationError[] = [];
+    const errors: TypeRelationError[] = [];
     const remainingProperties = new Map(source.properties);
 
     for (const prop of walkPropertiesInherited(target)) {
       const sourceProperty = getProperty(source, prop.name);
       if (sourceProperty === undefined) {
         if (!prop.optional) {
-          diagnostics.push(
+          errors.push(
             createTypeRelationError({
               code: "missing-property",
               format: {
@@ -654,7 +671,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
         remainingProperties.delete(prop.name);
 
         if (sourceProperty.optional && !prop.optional) {
-          diagnostics.push(
+          errors.push(
             createTypeRelationError({
               code: "property-required",
               format: {
@@ -672,7 +689,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
           relationCache
         );
         if (!related) {
-          diagnostics.push(...propDiagnostics);
+          errors.push(...propDiagnostics);
         }
       }
     }
@@ -684,7 +701,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
         diagnosticTarget,
         relationCache
       );
-      diagnostics.push(...indexerDiagnostics);
+      errors.push(...indexerDiagnostics);
 
       // For anonymous models we don't need an indexer
       if (source.name !== "" && target.indexer.key.name !== "integer") {
@@ -695,13 +712,13 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
           relationCache
         );
         if (!related) {
-          diagnostics.push(...indexDiagnostics);
+          errors.push(...indexDiagnostics);
         }
       }
     } else if (shouldCheckExcessProperties(source)) {
       for (const [propName, prop] of remainingProperties) {
         if (shouldCheckExcessProperty(prop)) {
-          diagnostics.push(
+          errors.push(
             createTypeRelationError({
               code: "unexpected-property",
               format: {
@@ -715,7 +732,10 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       }
     }
 
-    return [diagnostics.length === 0 ? Related.true : Related.false, diagnostics];
+    return [
+      errors.length === 0 ? Related.true : Related.false,
+      wrapUnassignableErrors(source, target, errors),
+    ];
   }
 
   /** If we should check for excess properties on the given model. */
@@ -956,6 +976,16 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       diagnosticTarget,
       details,
     });
+  }
+
+  function wrapUnassignableErrors(
+    source: Entity,
+    target: Entity,
+    errors: readonly TypeRelationError[]
+  ): readonly TypeRelationError[] {
+    const error = createUnassignableDiagnostic(source, target, source);
+    error.child = errors[0];
+    return [error];
   }
 
   function isTypeSpecNamespace(
