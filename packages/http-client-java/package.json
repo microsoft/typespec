@@ -25,7 +25,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "clean": "rimraf ./dist ./temp ./generator/target/emitter.jar",
+    "clean": "rimraf ./dist ./temp ./emitter/temp ./generator/target/emitter.jar",
     "build": "npm run build:generator && npm run build:emitter",
     "build:emitter": "tsc -p ./emitter/tsconfig.build.json",
     "build:generator": "mvn clean install -f ./generator/pom.xml",
