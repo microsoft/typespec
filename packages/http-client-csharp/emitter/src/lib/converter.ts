@@ -22,7 +22,6 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { Model } from "@typespec/compiler";
 import { InputEnumTypeValue } from "../type/input-enum-type-value.js";
-import { InputModelProperty } from "../type/input-model-property.js";
 import {
   InputArrayType,
   InputDateTimeType,
@@ -30,6 +29,7 @@ import {
   InputDurationType,
   InputEnumType,
   InputLiteralType,
+  InputModelProperty,
   InputModelType,
   InputPrimitiveType,
   InputType,
@@ -182,24 +182,25 @@ export function fromSdkModelType(
       literalTypeContext.PropertyName = serializedName;
 
       const modelProperty: InputModelProperty = {
-        name: property.name,
-        serializedName: serializedName,
-        description: property.description,
-        type: fromSdkType(
+        Kind: property.kind,
+        Name: property.name,
+        SerializedName: serializedName,
+        Description: property.description,
+        Type: fromSdkType(
           property.type,
           context,
           typeMap,
           property.discriminator ? undefined : literalTypeContext // this is a workaround because the type of discriminator property in derived models is always literal and we wrap literal into enums, which leads to a lot of extra enum types, adding this check to avoid them
         ),
-        optional: property.optional,
-        readOnly: isReadOnly(property), // TODO -- we might pass the visibility through and then check if there is only read to know if this is readonly
-        discriminator: property.discriminator,
+        Optional: property.optional,
+        ReadOnly: isReadOnly(property), // TODO -- we might pass the visibility through and then check if there is only read to know if this is readonly
+        Discriminator: property.discriminator,
         FlattenedNames:
           flattenedNamePrefixes.length > 0
             ? flattenedNamePrefixes.concat(property.name)
             : undefined,
-        decorators: property.decorators,
-        crossLanguageDefinitionId: property.crossLanguageDefinitionId,
+        Decorators: property.decorators,
+        CrossLanguageDefinitionId: property.crossLanguageDefinitionId,
       };
 
       return [modelProperty];

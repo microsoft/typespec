@@ -55,17 +55,17 @@ op test(@body input: Pet): Pet;
     const catModel = models.find((m) => m.Name === "Cat");
     const dogModel = models.find((m) => m.Name === "Dog");
     // assert the discriminator property name
-    deepStrictEqual("kind", petModel?.DiscriminatorProperty?.name);
+    deepStrictEqual("kind", petModel?.DiscriminatorProperty?.Name);
     // assert we have a property corresponding to the discriminator property above on the base model
     const discriminatorProperty = petModel?.Properties.find(
       (p) => p === petModel?.DiscriminatorProperty
     );
-    strictEqual(discriminatorProperty?.name, "kind");
-    strictEqual(discriminatorProperty.serializedName, "kind");
-    strictEqual(discriminatorProperty.type.Kind, "string");
-    strictEqual(discriminatorProperty.optional, false);
-    strictEqual(discriminatorProperty.readOnly, false);
-    strictEqual(discriminatorProperty.discriminator, true);
+    strictEqual(discriminatorProperty?.Name, "kind");
+    strictEqual(discriminatorProperty.SerializedName, "kind");
+    strictEqual(discriminatorProperty.Type.Kind, "string");
+    strictEqual(discriminatorProperty.Optional, false);
+    strictEqual(discriminatorProperty.ReadOnly, false);
+    strictEqual(discriminatorProperty.Discriminator, true);
     strictEqual(discriminatorProperty.FlattenedNames, undefined);
     // assert we will NOT have a DiscriminatorProperty on the derived models
     assert(
@@ -137,18 +137,18 @@ op test(@body input: Pet): Pet;
     const pet = models.find((m) => m.Name === "Pet");
     assert(pet !== undefined);
     // assert the discriminator property name
-    strictEqual("kind", pet?.DiscriminatorProperty?.name);
+    strictEqual("kind", pet?.DiscriminatorProperty?.Name);
     // assert we have a property corresponding to the discriminator property above on the base model
     const discriminatorProperty = pet?.Properties.find((p) => p === pet?.DiscriminatorProperty);
-    strictEqual(discriminatorProperty?.name, "kind");
-    strictEqual(discriminatorProperty.serializedName, "kind");
-    strictEqual(discriminatorProperty.description, "The kind of the pet");
-    strictEqual(discriminatorProperty.type.Kind, "enum");
-    strictEqual(discriminatorProperty.type.Name, "PetKind");
-    strictEqual(discriminatorProperty.type.ValueType.Kind, "string");
-    strictEqual(discriminatorProperty.optional, false);
-    strictEqual(discriminatorProperty.readOnly, false);
-    strictEqual(discriminatorProperty.discriminator, true);
+    strictEqual(discriminatorProperty?.Name, "kind");
+    strictEqual(discriminatorProperty.SerializedName, "kind");
+    strictEqual(discriminatorProperty.Description, "The kind of the pet");
+    strictEqual(discriminatorProperty.Type.Kind, "enum");
+    strictEqual(discriminatorProperty.Type.Name, "PetKind");
+    strictEqual(discriminatorProperty.Type.ValueType.Kind, "string");
+    strictEqual(discriminatorProperty.Optional, false);
+    strictEqual(discriminatorProperty.ReadOnly, false);
+    strictEqual(discriminatorProperty.Discriminator, true);
     strictEqual(discriminatorProperty.FlattenedNames, undefined);
 
     // verify derived model Cat
@@ -230,18 +230,18 @@ op test(@body input: Pet): Pet;
     const pet = models.find((m) => m.Name === "Pet");
     assert(pet !== undefined);
     // assert the discriminator property name
-    strictEqual("kind", pet?.DiscriminatorProperty?.name);
+    strictEqual("kind", pet?.DiscriminatorProperty?.Name);
     // assert we have a property corresponding to the discriminator property above on the base model
     const discriminatorProperty = pet?.Properties.find((p) => p === pet?.DiscriminatorProperty);
-    strictEqual(discriminatorProperty?.name, "kind");
-    strictEqual(discriminatorProperty.serializedName, "kind");
-    strictEqual(discriminatorProperty.description, "The kind of the pet");
-    strictEqual(discriminatorProperty.type.Kind, "enum");
-    strictEqual(discriminatorProperty.type.Name, "PetKind");
-    strictEqual(discriminatorProperty.type.ValueType.Kind, "string");
-    strictEqual(discriminatorProperty.optional, false);
-    strictEqual(discriminatorProperty.readOnly, false);
-    strictEqual(discriminatorProperty.discriminator, true);
+    strictEqual(discriminatorProperty?.Name, "kind");
+    strictEqual(discriminatorProperty.SerializedName, "kind");
+    strictEqual(discriminatorProperty.Description, "The kind of the pet");
+    strictEqual(discriminatorProperty.Type.Kind, "enum");
+    strictEqual(discriminatorProperty.Type.Name, "PetKind");
+    strictEqual(discriminatorProperty.Type.ValueType.Kind, "string");
+    strictEqual(discriminatorProperty.Optional, false);
+    strictEqual(discriminatorProperty.ReadOnly, false);
+    strictEqual(discriminatorProperty.Discriminator, true);
     strictEqual(discriminatorProperty.FlattenedNames, undefined);
 
     // verify derived model Cat
