@@ -12,7 +12,7 @@ export async function createViewerTestRunner() {
   return createTestWrapper(host, {
     autoImports: [],
     compilerOptions: {
-      emitters: { "@typespec/html-program-viewer": {} },
+      // emitters: { "@typespec/html-program-viewer": {} },
     },
   });
 }
