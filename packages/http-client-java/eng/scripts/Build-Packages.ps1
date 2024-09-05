@@ -52,15 +52,11 @@ Push-Location "$packageRoot/generator"
 try {
     Write-Host "Working in $PWD"
    
-    Write-Host "Current PATH: $env:PATH"
-    Write-Host "Current JAVA_HOME: $Env:JAVA_HOME"
     $env:JAVA_HOME = $env:JAVA_HOME_21_X64
-    Write-Host "Updated JAVA_HOME: $Env:JAVA_HOME"
+    Write-Host "JAVA_HOME: $Env:JAVA_HOME"
 
     $env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
   
-    Write-Host "Updated PATH: $env:PATH"
-
     Invoke-LoggedCommand "java -version"
     Invoke-LoggedCommand "mvn -version"
 

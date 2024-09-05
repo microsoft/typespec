@@ -1,0 +1,33 @@
+if (response.getStatus() != LongRunningOperationStatus.SUCCESSFULLY_COMPLETED) {
+    String errorMessage;
+    ManagementError managementError = null;
+    HttpResponse errorResponse = null;
+    PollResult.Error lroError = response.getValue().getError();
+    if (lroError != null) {
+        errorResponse = new HttpResponseImpl(lroError.getResponseStatusCode(), lroError.getResponseHeaders(), lroError.getResponseBody());
+
+        errorMessage = response.getValue().getError().getMessage();
+        String errorBody = response.getValue().getError().getResponseBody();
+        if (errorBody != null) {
+            // try to deserialize error body to ManagementError
+            try {
+                managementError = this.getSerializerAdapter().deserialize(errorBody, ManagementError.class, SerializerEncoding.JSON);
+                if (managementError.getCode() == null || managementError.getMessage() == null) {
+                    managementError = null;
+                }
+            } catch (IOException | RuntimeException ioe) {
+                LOGGER.logThrowableAsWarning(ioe);
+            }
+        }
+    } else {
+        // fallback to default error message
+        errorMessage = "Long running operation failed.";
+    }
+    if (managementError == null) {
+        // fallback to default ManagementError
+        managementError = new ManagementError(response.getStatus().toString(), errorMessage);
+    }
+    return Mono.error(new ManagementException(errorMessage, errorResponse, managementError));
+} else {
+    return response.getFinalResult();
+}

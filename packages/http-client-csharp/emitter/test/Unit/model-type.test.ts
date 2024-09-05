@@ -63,9 +63,9 @@ op test(@body input: Pet): Pet;
     strictEqual(discriminatorProperty?.Name, "kind");
     strictEqual(discriminatorProperty.SerializedName, "kind");
     strictEqual(discriminatorProperty.Type.Kind, "string");
-    strictEqual(discriminatorProperty.IsRequired, true);
-    strictEqual(discriminatorProperty.IsReadOnly, false);
-    strictEqual(discriminatorProperty.IsDiscriminator, true);
+    strictEqual(discriminatorProperty.Optional, false);
+    strictEqual(discriminatorProperty.ReadOnly, false);
+    strictEqual(discriminatorProperty.Discriminator, true);
     strictEqual(discriminatorProperty.FlattenedNames, undefined);
     // assert we will NOT have a DiscriminatorProperty on the derived models
     assert(
@@ -146,9 +146,9 @@ op test(@body input: Pet): Pet;
     strictEqual(discriminatorProperty.Type.Kind, "enum");
     strictEqual(discriminatorProperty.Type.Name, "PetKind");
     strictEqual(discriminatorProperty.Type.ValueType.Kind, "string");
-    strictEqual(discriminatorProperty.IsRequired, true);
-    strictEqual(discriminatorProperty.IsReadOnly, false);
-    strictEqual(discriminatorProperty.IsDiscriminator, true);
+    strictEqual(discriminatorProperty.Optional, false);
+    strictEqual(discriminatorProperty.ReadOnly, false);
+    strictEqual(discriminatorProperty.Discriminator, true);
     strictEqual(discriminatorProperty.FlattenedNames, undefined);
 
     // verify derived model Cat
@@ -239,9 +239,9 @@ op test(@body input: Pet): Pet;
     strictEqual(discriminatorProperty.Type.Kind, "enum");
     strictEqual(discriminatorProperty.Type.Name, "PetKind");
     strictEqual(discriminatorProperty.Type.ValueType.Kind, "string");
-    strictEqual(discriminatorProperty.IsRequired, true);
-    strictEqual(discriminatorProperty.IsReadOnly, false);
-    strictEqual(discriminatorProperty.IsDiscriminator, true);
+    strictEqual(discriminatorProperty.Optional, false);
+    strictEqual(discriminatorProperty.ReadOnly, false);
+    strictEqual(discriminatorProperty.Discriminator, true);
     strictEqual(discriminatorProperty.FlattenedNames, undefined);
 
     // verify derived model Cat

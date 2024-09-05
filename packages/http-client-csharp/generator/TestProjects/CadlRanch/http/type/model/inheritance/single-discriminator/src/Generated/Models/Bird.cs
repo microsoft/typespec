@@ -9,7 +9,7 @@ namespace _Type.Model.Inheritance.SingleDiscriminator.Models
 {
     public abstract partial class Bird
     {
-        protected Bird(string kind, int wingspan) => throw null;
+        private protected Bird(string kind, int wingspan) => throw null;
 
         internal Bird(string kind, int wingspan, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
 

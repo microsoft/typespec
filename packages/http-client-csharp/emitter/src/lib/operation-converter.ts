@@ -42,6 +42,7 @@ import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { Logger } from "./logger.js";
 import { getInputType } from "./model.js";
+import { isSdkPathParameter } from "./utils.js";
 
 export function fromSdkServiceMethod(
   method: SdkServiceMethod<SdkHttpOperation>,
@@ -206,6 +207,7 @@ function fromSdkHttpOperationParameter(
     Kind: getParameterKind(p, parameterType, rootApiVersions.length > 0),
     DefaultValue: getParameterDefaultValue(p.clientDefaultValue, parameterType),
     Decorators: p.decorators,
+    SkipUrlEncoding: isSdkPathParameter(p) ? p.allowReserved : false,
   } as InputParameter;
 }
 

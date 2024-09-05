@@ -63,7 +63,6 @@ export function fromSdkHttpExamples(
       name: example.name,
       description: example.description,
       filePath: example.filePath,
-      rawExample: example.rawExample,
       parameters: example.parameters.map((p) => fromSdkParameterExample(p)),
       responses: fromSdkOperationResponses(example.responses),
     };
@@ -78,10 +77,10 @@ export function fromSdkHttpExamples(
 
   function fromSdkOperationResponses(
     responses: Map<number, SdkHttpResponseExample>
-  ): Map<number, OperationResponseExample> {
-    const result = new Map<number, OperationResponseExample>();
-    for (const [status, response] of responses) {
-      result.set(status, fromSdkOperationResponse(response));
+  ): OperationResponseExample[] {
+    const result: OperationResponseExample[] = [];
+    for (const [_, response] of responses) {
+      result.push(fromSdkOperationResponse(response));
     }
     return result;
   }

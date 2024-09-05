@@ -18,6 +18,12 @@ import java.io.IOException;
 @Immutable
 public final class BytesData extends Data {
     /*
+     * The @data.kind property.
+     */
+    @Generated
+    private String type = "bytes";
+
+    /*
      * Data as {@code byte[]}
      */
     @Generated
@@ -31,7 +37,17 @@ public final class BytesData extends Data {
     @Generated
     private BytesData(byte[] dataAsBytes) {
         this.dataAsBytes = dataAsBytes;
-        this.type = "bytes";
+    }
+
+    /**
+     * Get the type property: The &#064;data.kind property.
+     * 
+     * @return the type value.
+     */
+    @Generated
+    @Override
+    public String getType() {
+        return this.type;
     }
 
     /**
@@ -51,8 +67,8 @@ public final class BytesData extends Data {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        toJsonShared(jsonWriter);
         jsonWriter.writeBinaryField("data_bytes", this.dataAsBytes);
+        jsonWriter.writeStringField("@data.kind", this.type);
         return jsonWriter.writeEndObject();
     }
 

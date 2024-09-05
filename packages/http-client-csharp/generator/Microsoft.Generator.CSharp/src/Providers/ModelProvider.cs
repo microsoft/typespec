@@ -54,6 +54,7 @@ namespace Microsoft.Generator.CSharp.Providers
             if (inputModel.BaseModel is not null)
             {
                 _baseTypeProvider = new(() => CodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel.BaseModel));
+                DiscriminatorValueExpression = EnsureDiscriminatorValueExpression();
             }
 
             _isStruct = inputModel.ModelAsStruct;
@@ -62,6 +63,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;
 
         public string? DiscriminatorValue => _inputModel.DiscriminatorValue;
+        public ValueExpression? DiscriminatorValueExpression { get; init; }
 
         private IReadOnlyList<ModelProvider>? _derivedModels;
         public IReadOnlyList<ModelProvider> DerivedModels => _derivedModels ??= BuildDerivedModels();
@@ -112,13 +114,55 @@ namespace Microsoft.Generator.CSharp.Providers
         /// <returns>The list of <see cref="FieldProvider"/> for the model.</returns>
         protected override FieldProvider[] BuildFields()
         {
-            return RawDataField != null ? [RawDataField] : [];
+            List<FieldProvider> fields = [];
+            if (RawDataField != null)
+            {
+                fields.Add(RawDataField);
+            }
+            foreach (var property in _inputModel.Properties)
+            {
+                if (property.IsDiscriminator)
+                    continue;
+
+                var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
+                if (derivedProperty is not null)
+                {
+                    if (!derivedProperty.Type.Equals(property.Type) || !DomainEqual(property, derivedProperty))
+                    {
+                        fields.Add(new FieldProvider(
+                            FieldModifiers.Private | FieldModifiers.Protected,
+                            CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(property.Type)!,
+                            $"_{property.Name.ToVariableName()}",
+                            this));
+                    }
+                }
+            }
+            return [.. fields];
+        }
+
+        private Dictionary<InputModelType, Dictionary<string, InputModelProperty>>? _inputDerivedProperties;
+        private Dictionary<InputModelType, Dictionary<string, InputModelProperty>> InputDerivedProperties => _inputDerivedProperties ??= BuildDerivedProperties();
+
+        private Dictionary<InputModelType, Dictionary<string, InputModelProperty>> BuildDerivedProperties()
+        {
+            Dictionary<InputModelType, Dictionary<string, InputModelProperty>> derivedProperties = [];
+            foreach (var derivedModel in _inputModel.DerivedModels)
+            {
+                var derivedModelProperties = derivedModel.Properties;
+                if (derivedModelProperties.Count > 0)
+                {
+                    derivedProperties[derivedModel] = derivedModelProperties.ToDictionary(p => p.Name);
+                }
+            }
+            return derivedProperties;
         }
 
         protected override PropertyProvider[] BuildProperties()
         {
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
+
+            Dictionary<string, InputModelProperty> baseProperties = _inputModel.BaseModel?.Properties.ToDictionary(p => p.Name) ?? [];
 
             for (int i = 0; i < propertiesCount; i++)
             {
@@ -130,6 +174,34 @@ namespace Microsoft.Generator.CSharp.Providers
                 var outputProperty = CodeModelPlugin.Instance.TypeFactory.CreatePropertyProvider(property, this);
                 if (outputProperty != null)
                 {
+                    if (!property.IsDiscriminator)
+                    {
+                        var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
+                        if (derivedProperty is not null)
+                        {
+                            if (derivedProperty.Type.Equals(property.Type) && DomainEqual(property, derivedProperty))
+                            {
+                                outputProperty.Modifiers |= MethodSignatureModifiers.Virtual;
+                            }
+                        }
+                        var baseProperty = baseProperties.GetValueOrDefault(property.Name);
+                        if (baseProperty is not null)
+                        {
+                            if (baseProperty.Type.Equals(property.Type) && DomainEqual(baseProperty, property))
+                            {
+                                outputProperty.Modifiers |= MethodSignatureModifiers.Override;
+                            }
+                            else
+                            {
+                                outputProperty.Modifiers |= MethodSignatureModifiers.New;
+                                var fieldName = $"_{baseProperty.Name.ToVariableName()}";
+                                outputProperty.Body = new ExpressionPropertyBody(
+                                    This.Property(fieldName).NullCoalesce(Default),
+                                    outputProperty.Body.HasSetter ? This.Property(fieldName).Assign(Value) : null);
+                            }
+                        }
+                    }
+
                     properties.Add(outputProperty);
                 }
             }
@@ -142,6 +214,14 @@ namespace Microsoft.Generator.CSharp.Providers
             return [.. properties];
         }
 
+        private static bool DomainEqual(InputModelProperty baseProperty, InputModelProperty derivedProperty)
+        {
+            if (baseProperty.IsRequired != derivedProperty.IsRequired)
+                return false;
+            var baseNullable = baseProperty.Type is InputNullableType;
+            return baseNullable ? derivedProperty.Type is InputNullableType : derivedProperty.Type is not InputNullableType;
+        }
+
         protected override ConstructorProvider[] BuildConstructors()
         {
             if (_inputModel.IsUnknownDiscriminatorModel)
@@ -151,7 +231,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             // Build the initialization constructor
             var accessibility = DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
-                ? MethodSignatureModifiers.Protected
+                ? MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected
                 : _inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
                     ? MethodSignatureModifiers.Public
                     : MethodSignatureModifiers.Internal;
@@ -245,11 +325,61 @@ namespace Microsoft.Generator.CSharp.Providers
             return (constructorParameters, constructorInitializer);
         }
 
+        private ValueExpression? EnsureDiscriminatorValueExpression()
+        {
+            if (_inputModel.BaseModel is not null && _inputModel.DiscriminatorValue is not null)
+            {
+                var discriminator = BaseModelProvider?.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
+                if (discriminator != null)
+                {
+                    var type = discriminator.Type;
+                    if (IsUnknownDiscriminatorModel)
+                    {
+                        var discriminatorExpression = discriminator.AsParameter.AsExpression;
+                        if (!type.IsFrameworkType && type.IsEnum)
+                        {
+                            if (type.IsStruct)
+                            {
+                                /* kind != default ? kind : "unknown" */
+                                return new TernaryConditionalExpression(discriminatorExpression.NotEqual(Default), discriminatorExpression, Literal(_inputModel.DiscriminatorValue));
+                            }
+                            else
+                            {
+                                return discriminatorExpression;
+                            }
+                        }
+                        else
+                        {
+                            /* kind ?? "unknown" */
+                            return discriminatorExpression.NullCoalesce(Literal(_inputModel.DiscriminatorValue));
+                        }
+                    }
+                    else
+                    {
+                        if (!type.IsFrameworkType && type.IsEnum)
+                        {
+                            /* TODO: when customize the discriminator type to a enum, then we may not be able to get the correct TypeProvider in this way.
+                             * We will handle this when issue https://github.com/microsoft/typespec/issues/4313 is resolved.
+                             * */
+                            var discriminatorProvider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(enumType: (InputEnumType)_inputModel.BaseModel.DiscriminatorProperty!.Type);
+                            var enumMember = discriminatorProvider!.EnumValues.FirstOrDefault(e => e.Value.ToString() == _inputModel.DiscriminatorValue) ?? throw new InvalidOperationException($"invalid discriminator value {_inputModel.DiscriminatorValue}");
+                            /* {KindType}.{enumMember} */
+                            return TypeReferenceExpression.FromType(type).Property(enumMember.Name);
+                        }
+                        else
+                        {
+                            return Literal(_inputModel.DiscriminatorValue);
+                        }
+                    }
+                }
+            }
+            return null;
+        }
         private ValueExpression GetExpression(ParameterProvider parameter)
         {
-            if (parameter.Property is not null && parameter.Property.IsDiscriminator)
+            if (parameter.Property is not null && parameter.Property.IsDiscriminator && _inputModel.DiscriminatorValue != null)
             {
-                return IsUnknownDiscriminatorModel ? NullCoalescing(parameter.AsExpression, Literal(_inputModel.DiscriminatorValue)) : Literal(_inputModel.DiscriminatorValue);
+                return DiscriminatorValueExpression ?? throw new InvalidOperationException($"invalid discriminator {_inputModel.DiscriminatorValue}");
             }
 
             return parameter.AsExpression;
