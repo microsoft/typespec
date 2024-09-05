@@ -14,9 +14,9 @@
    "Properties": [
     {
      "$id": "3",
+     "Kind": "property",
      "Name": "value",
      "SerializedName": "value",
-     "Description": "",
      "Type": {
       "$id": "4",
       "Kind": "duration",
@@ -32,9 +32,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.duration",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Duration.Property.DefaultDurationProperty.value"
     }
    ]
   },
@@ -48,9 +50,9 @@
    "Properties": [
     {
      "$id": "7",
+     "Kind": "property",
      "Name": "value",
      "SerializedName": "value",
-     "Description": "",
      "Type": {
       "$id": "8",
       "Kind": "duration",
@@ -66,9 +68,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.duration",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Duration.Property.ISO8601DurationProperty.value"
     }
    ]
   },
@@ -82,9 +86,9 @@
    "Properties": [
     {
      "$id": "11",
+     "Kind": "property",
      "Name": "value",
      "SerializedName": "value",
-     "Description": "",
      "Type": {
       "$id": "12",
       "Kind": "duration",
@@ -100,9 +104,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.duration",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Duration.Property.Int32SecondsDurationProperty.value"
     }
    ]
   },
@@ -116,9 +122,9 @@
    "Properties": [
     {
      "$id": "15",
+     "Kind": "property",
      "Name": "value",
      "SerializedName": "value",
-     "Description": "",
      "Type": {
       "$id": "16",
       "Kind": "duration",
@@ -134,9 +140,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.duration",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Duration.Property.FloatSecondsDurationProperty.value"
     }
    ]
   },
@@ -150,9 +158,9 @@
    "Properties": [
     {
      "$id": "19",
+     "Kind": "property",
      "Name": "value",
      "SerializedName": "value",
-     "Description": "",
      "Type": {
       "$id": "20",
       "Kind": "duration",
@@ -168,9 +176,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.duration",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Duration.Property.Float64SecondsDurationProperty.value"
     }
    ]
   },
@@ -184,9 +194,9 @@
    "Properties": [
     {
      "$id": "23",
+     "Kind": "property",
      "Name": "value",
      "SerializedName": "value",
-     "Description": "",
      "Type": {
       "$id": "24",
       "Kind": "array",
@@ -224,9 +234,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.Array",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Duration.Property.FloatSecondsDurationArrayProperty.value"
     }
    ]
   }

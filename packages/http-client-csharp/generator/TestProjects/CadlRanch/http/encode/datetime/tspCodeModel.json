@@ -14,9 +14,9 @@
    "Properties": [
     {
      "$id": "3",
+     "Kind": "property",
      "Name": "value",
      "SerializedName": "value",
-     "Description": "",
      "Type": {
       "$id": "4",
       "Kind": "utcDateTime",
@@ -32,9 +32,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.utcDateTime",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Datetime.DefaultDatetimeProperty.value"
     }
    ]
   },
@@ -48,9 +50,9 @@
    "Properties": [
     {
      "$id": "7",
+     "Kind": "property",
      "Name": "value",
      "SerializedName": "value",
-     "Description": "",
      "Type": {
       "$id": "8",
       "Kind": "utcDateTime",
@@ -66,9 +68,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.utcDateTime",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Datetime.Rfc3339DatetimeProperty.value"
     }
    ]
   },
@@ -82,9 +86,9 @@
    "Properties": [
     {
      "$id": "11",
+     "Kind": "property",
      "Name": "value",
      "SerializedName": "value",
-     "Description": "",
      "Type": {
       "$id": "12",
       "Kind": "utcDateTime",
@@ -100,9 +104,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.utcDateTime",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Datetime.Rfc7231DatetimeProperty.value"
     }
    ]
   },
@@ -116,9 +122,9 @@
    "Properties": [
     {
      "$id": "15",
+     "Kind": "property",
      "Name": "value",
      "SerializedName": "value",
-     "Description": "",
      "Type": {
       "$id": "16",
       "Kind": "utcDateTime",
@@ -134,9 +140,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.utcDateTime",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Datetime.UnixTimestampDatetimeProperty.value"
     }
    ]
   },
@@ -150,9 +158,9 @@
    "Properties": [
     {
      "$id": "19",
+     "Kind": "property",
      "Name": "value",
      "SerializedName": "value",
-     "Description": "",
      "Type": {
       "$id": "20",
       "Kind": "array",
@@ -190,9 +198,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.Array",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Datetime.UnixTimestampArrayDatetimeProperty.value"
     }
    ]
   }

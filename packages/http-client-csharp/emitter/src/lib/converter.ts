@@ -22,7 +22,6 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { Model } from "@typespec/compiler";
 import { InputEnumTypeValue } from "../type/input-enum-type-value.js";
-import { InputModelProperty } from "../type/input-model-property.js";
 import {
   InputArrayType,
   InputDateTimeType,
@@ -30,6 +29,7 @@ import {
   InputDurationType,
   InputEnumType,
   InputLiteralType,
+  InputModelProperty,
   InputModelType,
   InputPrimitiveType,
   InputType,
@@ -181,26 +181,26 @@ export function fromSdkModelType(
       const serializedName = property.serializedName;
       literalTypeContext.PropertyName = serializedName;
 
-      const isRequired = !property.optional;
-      const isDiscriminator = property.discriminator;
       const modelProperty: InputModelProperty = {
+        Kind: property.kind,
         Name: property.name,
         SerializedName: serializedName,
-        Description: property.description ?? (isDiscriminator ? "Discriminator" : ""),
+        Description: property.description,
         Type: fromSdkType(
           property.type,
           context,
           typeMap,
-          isDiscriminator ? undefined : literalTypeContext // this is a workaround because the type of discriminator property in derived models is always literal and we wrap literal into enums, which leads to a lot of extra enum types, adding this check to avoid them
+          property.discriminator ? undefined : literalTypeContext // this is a workaround because the type of discriminator property in derived models is always literal and we wrap literal into enums, which leads to a lot of extra enum types, adding this check to avoid them
         ),
-        IsRequired: isRequired,
-        IsReadOnly: isReadOnly(property),
-        IsDiscriminator: isDiscriminator === true ? true : undefined,
+        Optional: property.optional,
+        ReadOnly: isReadOnly(property), // TODO -- we might pass the visibility through and then check if there is only read to know if this is readonly
+        Discriminator: property.discriminator,
         FlattenedNames:
           flattenedNamePrefixes.length > 0
             ? flattenedNamePrefixes.concat(property.name)
             : undefined,
         Decorators: property.decorators,
+        CrossLanguageDefinitionId: property.crossLanguageDefinitionId,
       };
 
       return [modelProperty];
