@@ -723,9 +723,9 @@ namespace Microsoft.Generator.CSharp
             }
 
             AppendRawIf("public ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Public))
-                .AppendRawIf("internal ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Internal))
-                .AppendRawIf("protected ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
                 .AppendRawIf("private ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Private))
+                .AppendRawIf("protected ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
+                .AppendRawIf("internal ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Internal))
                 .AppendRawIf("static ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Static));
 
             if (methodBase is MethodSignature method)

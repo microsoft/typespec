@@ -14,19 +14,21 @@
    "properties": [
     {
      "$id": "3",
-     "Name": "name",
-     "SerializedName": "name",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "name",
+     "serializedName": "name",
+     "type": {
       "$id": "4",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
       "decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Parameters.Basic.ImplicitBody.simple.Request.anonymous.name"
     }
    ]
   },
@@ -41,19 +43,21 @@
    "properties": [
     {
      "$id": "6",
-     "Name": "name",
-     "SerializedName": "name",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "name",
+     "serializedName": "name",
+     "type": {
       "$id": "7",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
       "decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Parameters.Basic.ExplicitBody.User.name"
     }
    ]
   }

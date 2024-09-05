@@ -471,10 +471,10 @@
    "properties": [
     {
      "$id": "55",
-     "Name": "prop",
-     "SerializedName": "prop",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
       "$id": "56",
       "kind": "model",
       "name": "MixedTypesCases",
@@ -484,10 +484,11 @@
       "properties": [
        {
         "$id": "57",
-        "Name": "model",
-        "SerializedName": "model",
-        "Description": "This should be receive/send the Cat variant",
-        "Type": {
+        "kind": "property",
+        "name": "model",
+        "serializedName": "model",
+        "description": "This should be receive/send the Cat variant",
+        "type": {
          "$id": "58",
          "kind": "union",
          "name": "MixedTypesCasesModel",
@@ -502,19 +503,21 @@
            "properties": [
             {
              "$id": "60",
-             "Name": "name",
-             "SerializedName": "name",
-             "Description": "",
-             "Type": {
+             "kind": "property",
+             "name": "name",
+             "serializedName": "name",
+             "type": {
               "$id": "61",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string",
               "decorators": []
              },
-             "IsRequired": true,
-             "IsReadOnly": false,
-             "Decorators": []
+             "optional": false,
+             "readOnly": false,
+             "discriminator": false,
+             "decorators": [],
+             "crossLanguageDefinitionId": "Type.Union.Cat.name"
             }
            ]
           },
@@ -548,16 +551,19 @@
          ],
          "decorators": []
         },
-        "IsRequired": true,
-        "IsReadOnly": false,
-        "Decorators": []
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.model"
        },
        {
         "$id": "66",
-        "Name": "literal",
-        "SerializedName": "literal",
-        "Description": "This should be receive/send the \"a\" variant",
-        "Type": {
+        "kind": "property",
+        "name": "literal",
+        "serializedName": "literal",
+        "description": "This should be receive/send the \"a\" variant",
+        "type": {
          "$id": "67",
          "kind": "union",
          "name": "MixedTypesCasesModel",
@@ -595,16 +601,19 @@
          ],
          "decorators": []
         },
-        "IsRequired": true,
-        "IsReadOnly": false,
-        "Decorators": []
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.literal"
        },
        {
         "$id": "72",
-        "Name": "int",
-        "SerializedName": "int",
-        "Description": "This should be receive/send the int variant",
-        "Type": {
+        "kind": "property",
+        "name": "int",
+        "serializedName": "int",
+        "description": "This should be receive/send the int variant",
+        "type": {
          "$id": "73",
          "kind": "union",
          "name": "MixedTypesCasesModel",
@@ -642,16 +651,19 @@
          ],
          "decorators": []
         },
-        "IsRequired": true,
-        "IsReadOnly": false,
-        "Decorators": []
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.int"
        },
        {
         "$id": "78",
-        "Name": "boolean",
-        "SerializedName": "boolean",
-        "Description": "This should be receive/send the boolean variant",
-        "Type": {
+        "kind": "property",
+        "name": "boolean",
+        "serializedName": "boolean",
+        "description": "This should be receive/send the boolean variant",
+        "type": {
          "$id": "79",
          "kind": "union",
          "name": "MixedTypesCasesModel",
@@ -689,16 +701,19 @@
          ],
          "decorators": []
         },
-        "IsRequired": true,
-        "IsReadOnly": false,
-        "Decorators": []
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.boolean"
        },
        {
         "$id": "84",
-        "Name": "array",
-        "SerializedName": "array",
-        "Description": "This should be receive/send 4 element with Cat, \"a\", int, and boolean",
-        "Type": {
+        "kind": "property",
+        "name": "array",
+        "serializedName": "array",
+        "description": "This should be receive/send 4 element with Cat, \"a\", int, and boolean",
+        "type": {
          "$id": "85",
          "kind": "array",
          "name": "Array",
@@ -743,15 +758,19 @@
          "crossLanguageDefinitionId": "TypeSpec.Array",
          "decorators": []
         },
-        "IsRequired": true,
-        "IsReadOnly": false,
-        "Decorators": []
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.array"
        }
       ]
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
     }
    ]
   },
@@ -771,15 +790,17 @@
    "properties": [
     {
      "$id": "92",
-     "Name": "prop",
-     "SerializedName": "prop",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
       "$ref": "56"
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
     }
    ]
   },
@@ -793,10 +814,10 @@
    "properties": [
     {
      "$id": "94",
-     "Name": "prop",
-     "SerializedName": "prop",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
       "$id": "95",
       "kind": "model",
       "name": "MixedLiteralsCases",
@@ -806,10 +827,11 @@
       "properties": [
        {
         "$id": "96",
-        "Name": "stringLiteral",
-        "SerializedName": "stringLiteral",
-        "Description": "This should be receive/send the \"a\" variant",
-        "Type": {
+        "kind": "property",
+        "name": "stringLiteral",
+        "serializedName": "stringLiteral",
+        "description": "This should be receive/send the \"a\" variant",
+        "type": {
          "$id": "97",
          "kind": "union",
          "name": "MixedLiteralsCasesStringLiteral1",
@@ -869,16 +891,19 @@
          ],
          "decorators": []
         },
-        "IsRequired": true,
-        "IsReadOnly": false,
-        "Decorators": []
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.stringLiteral"
        },
        {
         "$id": "106",
-        "Name": "intLiteral",
-        "SerializedName": "intLiteral",
-        "Description": "This should be receive/send the 2 variant",
-        "Type": {
+        "kind": "property",
+        "name": "intLiteral",
+        "serializedName": "intLiteral",
+        "description": "This should be receive/send the 2 variant",
+        "type": {
          "$id": "107",
          "kind": "union",
          "name": "MixedLiteralsCasesStringLiteral1",
@@ -938,16 +963,19 @@
          ],
          "decorators": []
         },
-        "IsRequired": true,
-        "IsReadOnly": false,
-        "Decorators": []
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.intLiteral"
        },
        {
         "$id": "116",
-        "Name": "floatLiteral",
-        "SerializedName": "floatLiteral",
-        "Description": "This should be receive/send the 3.3 variant",
-        "Type": {
+        "kind": "property",
+        "name": "floatLiteral",
+        "serializedName": "floatLiteral",
+        "description": "This should be receive/send the 3.3 variant",
+        "type": {
          "$id": "117",
          "kind": "union",
          "name": "MixedLiteralsCasesStringLiteral1",
@@ -1007,16 +1035,19 @@
          ],
          "decorators": []
         },
-        "IsRequired": true,
-        "IsReadOnly": false,
-        "Decorators": []
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.floatLiteral"
        },
        {
         "$id": "126",
-        "Name": "booleanLiteral",
-        "SerializedName": "booleanLiteral",
-        "Description": "This should be receive/send the true variant",
-        "Type": {
+        "kind": "property",
+        "name": "booleanLiteral",
+        "serializedName": "booleanLiteral",
+        "description": "This should be receive/send the true variant",
+        "type": {
          "$id": "127",
          "kind": "union",
          "name": "MixedLiteralsCasesStringLiteral1",
@@ -1076,15 +1107,19 @@
          ],
          "decorators": []
         },
-        "IsRequired": true,
-        "IsReadOnly": false,
-        "Decorators": []
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.booleanLiteral"
        }
       ]
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
     }
    ]
   },
@@ -1101,15 +1136,17 @@
    "properties": [
     {
      "$id": "137",
-     "Name": "prop",
-     "SerializedName": "prop",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
       "$ref": "95"
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
     }
    ]
   },
@@ -1123,10 +1160,10 @@
    "properties": [
     {
      "$id": "139",
-     "Name": "prop",
-     "SerializedName": "prop",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
       "$id": "140",
       "kind": "model",
       "name": "StringAndArrayCases",
@@ -1136,10 +1173,11 @@
       "properties": [
        {
         "$id": "141",
-        "Name": "string",
-        "SerializedName": "string",
-        "Description": "This should be receive/send the string variant",
-        "Type": {
+        "kind": "property",
+        "name": "string",
+        "serializedName": "string",
+        "description": "This should be receive/send the string variant",
+        "type": {
          "$id": "142",
          "kind": "union",
          "name": "StringAndArrayCasesString",
@@ -1168,16 +1206,19 @@
          ],
          "decorators": []
         },
-        "IsRequired": true,
-        "IsReadOnly": false,
-        "Decorators": []
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Union.StringAndArrayCases.string"
        },
        {
         "$id": "146",
-        "Name": "array",
-        "SerializedName": "array",
-        "Description": "This should be receive/send the array variant",
-        "Type": {
+        "kind": "property",
+        "name": "array",
+        "serializedName": "array",
+        "description": "This should be receive/send the array variant",
+        "type": {
          "$id": "147",
          "kind": "union",
          "name": "StringAndArrayCasesArray",
@@ -1206,15 +1247,19 @@
          ],
          "decorators": []
         },
-        "IsRequired": true,
-        "IsReadOnly": false,
-        "Decorators": []
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Union.StringAndArrayCases.array"
        }
       ]
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
     }
    ]
   },
@@ -1231,15 +1276,17 @@
    "properties": [
     {
      "$id": "152",
-     "Name": "prop",
-     "SerializedName": "prop",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
       "$ref": "140"
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
     }
    ]
   },
@@ -1253,10 +1300,10 @@
    "properties": [
     {
      "$id": "154",
-     "Name": "prop",
-     "SerializedName": "prop",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
       "$id": "155",
       "kind": "model",
       "name": "EnumsOnlyCases",
@@ -1266,33 +1313,41 @@
       "properties": [
        {
         "$id": "156",
-        "Name": "lr",
-        "SerializedName": "lr",
-        "Description": "This should be receive/send the left variant",
-        "Type": {
+        "kind": "property",
+        "name": "lr",
+        "serializedName": "lr",
+        "description": "This should be receive/send the left variant",
+        "type": {
          "$ref": "2"
         },
-        "IsRequired": true,
-        "IsReadOnly": false,
-        "Decorators": []
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases.lr"
        },
        {
         "$id": "157",
-        "Name": "ud",
-        "SerializedName": "ud",
-        "Description": "This should be receive/send the up variant",
-        "Type": {
+        "kind": "property",
+        "name": "ud",
+        "serializedName": "ud",
+        "description": "This should be receive/send the up variant",
+        "type": {
          "$ref": "12"
         },
-        "IsRequired": true,
-        "IsReadOnly": false,
-        "Decorators": []
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases.ud"
        }
       ]
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
     }
    ]
   },
@@ -1309,15 +1364,17 @@
    "properties": [
     {
      "$id": "159",
-     "Name": "prop",
-     "SerializedName": "prop",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
       "$ref": "155"
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
     }
    ]
   },
@@ -1331,10 +1388,10 @@
    "properties": [
     {
      "$id": "161",
-     "Name": "prop",
-     "SerializedName": "prop",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
       "$id": "162",
       "kind": "union",
       "name": "GetResponseProp",
@@ -1352,28 +1409,32 @@
         "properties": [
          {
           "$id": "164",
-          "Name": "bark",
-          "SerializedName": "bark",
-          "Description": "",
-          "Type": {
+          "kind": "property",
+          "name": "bark",
+          "serializedName": "bark",
+          "type": {
            "$id": "165",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
            "decorators": []
           },
-          "IsRequired": true,
-          "IsReadOnly": false,
-          "Decorators": []
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "Type.Union.Dog.bark"
          }
         ]
        }
       ],
       "decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
     }
    ]
   },
@@ -1390,10 +1451,10 @@
    "properties": [
     {
      "$id": "167",
-     "Name": "prop",
-     "SerializedName": "prop",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
       "$id": "168",
       "kind": "union",
       "name": "GetResponseProp",
@@ -1407,9 +1468,11 @@
       ],
       "decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
     }
    ]
   },
@@ -1423,15 +1486,17 @@
    "properties": [
     {
      "$id": "170",
-     "Name": "prop",
-     "SerializedName": "prop",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
       "$ref": "18"
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
     }
    ]
   },
@@ -1445,15 +1510,17 @@
    "properties": [
     {
      "$id": "172",
-     "Name": "prop",
-     "SerializedName": "prop",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
       "$ref": "18"
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
     }
    ]
   },
@@ -1467,15 +1534,17 @@
    "properties": [
     {
      "$id": "174",
-     "Name": "prop",
-     "SerializedName": "prop",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
       "$ref": "26"
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
     }
    ]
   },
@@ -1489,15 +1558,17 @@
    "properties": [
     {
      "$id": "176",
-     "Name": "prop",
-     "SerializedName": "prop",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
       "$ref": "26"
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
     }
    ]
   },
@@ -1511,15 +1582,17 @@
    "properties": [
     {
      "$id": "178",
-     "Name": "prop",
-     "SerializedName": "prop",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
       "$ref": "34"
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
     }
    ]
   },
@@ -1533,15 +1606,17 @@
    "properties": [
     {
      "$id": "180",
-     "Name": "prop",
-     "SerializedName": "prop",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
       "$ref": "34"
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
     }
    ]
   },
@@ -1555,15 +1630,17 @@
    "properties": [
     {
      "$id": "182",
-     "Name": "prop",
-     "SerializedName": "prop",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
       "$ref": "40"
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
     }
    ]
   },
@@ -1577,15 +1654,17 @@
    "properties": [
     {
      "$id": "184",
-     "Name": "prop",
-     "SerializedName": "prop",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
       "$ref": "40"
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
     }
    ]
   },
@@ -1599,15 +1678,17 @@
    "properties": [
     {
      "$id": "186",
-     "Name": "prop",
-     "SerializedName": "prop",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
       "$ref": "46"
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
     }
    ]
   },
@@ -1621,15 +1702,17 @@
    "properties": [
     {
      "$id": "188",
-     "Name": "prop",
-     "SerializedName": "prop",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
       "$ref": "46"
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
     }
    ]
   }

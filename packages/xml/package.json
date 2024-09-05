@@ -28,7 +28,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "npm run gen-extern-signature && tsc -p . && npm run lint-typespec-library",
+    "build": "npm run gen-extern-signature && tsc -p . && npm run lint-typespec-library && pnpm api-extractor",
     "watch": "tsc -p . --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
@@ -38,7 +38,8 @@
     "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts",
-    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/xml/reference"
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/xml/reference",
+    "api-extractor": "api-extractor run --local --verbose"
   },
   "files": [
     "lib/*.tsp",

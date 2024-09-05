@@ -15,26 +15,29 @@
    "properties": [
     {
      "$id": "3",
-     "Name": "property",
-     "SerializedName": "property",
-     "Description": "Required string property",
-     "Type": {
+     "kind": "property",
+     "name": "property",
+     "serializedName": "property",
+     "description": "Required string property",
+     "type": {
       "$id": "4",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
       "decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Array.InnerModel.property"
     },
     {
      "$id": "5",
-     "Name": "children",
-     "SerializedName": "children",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "children",
+     "serializedName": "children",
+     "type": {
       "$id": "6",
       "kind": "array",
       "name": "ArrayInnerModel",
@@ -44,9 +47,11 @@
       "crossLanguageDefinitionId": "TypeSpec.Array",
       "decorators": []
      },
-     "IsRequired": false,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": true,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Array.InnerModel.children"
     }
    ]
   }

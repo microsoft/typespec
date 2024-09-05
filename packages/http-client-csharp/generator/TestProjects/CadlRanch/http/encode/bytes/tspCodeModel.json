@@ -14,10 +14,10 @@
    "properties": [
     {
      "$id": "3",
-     "Name": "value",
-     "SerializedName": "value",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "value",
+     "serializedName": "value",
+     "type": {
       "$id": "4",
       "kind": "bytes",
       "name": "bytes",
@@ -25,9 +25,11 @@
       "crossLanguageDefinitionId": "TypeSpec.bytes",
       "decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Encode.Bytes.DefaultBytesProperty.value"
     }
    ]
   },
@@ -41,10 +43,10 @@
    "properties": [
     {
      "$id": "6",
-     "Name": "value",
-     "SerializedName": "value",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "value",
+     "serializedName": "value",
+     "type": {
       "$id": "7",
       "kind": "bytes",
       "name": "bytes",
@@ -52,9 +54,11 @@
       "crossLanguageDefinitionId": "TypeSpec.bytes",
       "decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Encode.Bytes.Base64BytesProperty.value"
     }
    ]
   },
@@ -68,10 +72,10 @@
    "properties": [
     {
      "$id": "9",
-     "Name": "value",
-     "SerializedName": "value",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "value",
+     "serializedName": "value",
+     "type": {
       "$id": "10",
       "kind": "bytes",
       "name": "bytes",
@@ -79,9 +83,11 @@
       "crossLanguageDefinitionId": "TypeSpec.bytes",
       "decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Encode.Bytes.Base64urlBytesProperty.value"
     }
    ]
   },
@@ -95,10 +101,10 @@
    "properties": [
     {
      "$id": "12",
-     "Name": "value",
-     "SerializedName": "value",
-     "Description": "",
-     "Type": {
+     "kind": "property",
+     "name": "value",
+     "serializedName": "value",
+     "type": {
       "$id": "13",
       "kind": "array",
       "name": "Array",
@@ -121,9 +127,11 @@
       "crossLanguageDefinitionId": "TypeSpec.Array",
       "decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Encode.Bytes.Base64urlArrayBytesProperty.value"
     }
    ]
   }

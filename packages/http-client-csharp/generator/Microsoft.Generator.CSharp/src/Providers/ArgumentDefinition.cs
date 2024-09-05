@@ -85,7 +85,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 new IfStatement(value.NotEqual(Null))
                 {
-                    ThrowArgumentException(NullCoalescing(message, Literal("Value must be null.")))
+                    ThrowArgumentException(message.NullCoalesce(Literal("Value must be null.")))
                 }
             },
             this);
