@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.CodeAnalysis.Editing;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -96,10 +95,35 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
         {
-            var declarationModifiers = TypeSignatureModifiers.Partial |
-                 (_inputModel.ModelAsStruct ? TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct : TypeSignatureModifiers.Class);
+            var customCodeModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
+            var isStruct = false;
+            // the information of if this model should be a struct comes from two sources:
+            // 1. the customied code
+            // 2. the spec
+            if (customCodeModifiers.HasFlag(TypeSignatureModifiers.Struct))
+            {
+                isStruct = true;
+            }
+            if (_inputModel.ModelAsStruct)
+            {
+                isStruct = true;
+            }
+            var declarationModifiers = TypeSignatureModifiers.Partial;
 
-            if (_inputModel.Access == "internal")
+            if (isStruct)
+            {
+                declarationModifiers |= TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct;
+            }
+            else
+            {
+                declarationModifiers |= TypeSignatureModifiers.Class;
+            }
+
+            if (customCodeModifiers != TypeSignatureModifiers.None)
+            {
+                declarationModifiers |= GetAccessibilityModifiers(customCodeModifiers);
+            }
+            else if (_inputModel.Access == "internal")
             {
                 declarationModifiers |= TypeSignatureModifiers.Internal;
             }
@@ -111,6 +135,11 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             return declarationModifiers;
+
+            static TypeSignatureModifiers GetAccessibilityModifiers(TypeSignatureModifiers modifiers)
+            {
+                return modifiers & (TypeSignatureModifiers.Public | TypeSignatureModifiers.Internal | TypeSignatureModifiers.Protected | TypeSignatureModifiers.Private);
+            }
         }
 
         /// <summary>
