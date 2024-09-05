@@ -249,18 +249,16 @@ namespace Microsoft.Generator.CSharp
         /// <returns>An instance of <see cref="PropertyProvider"/>.</returns>
         private PropertyProvider? CreatePropertyProviderCore(InputModelProperty property, TypeProvider enclosingType)
         {
+            PropertyProvider.TryCreate(property, enclosingType, out var propertyProvider);
+            if (Visitors.Count == 0)
             {
-                PropertyProvider.TryCreate(property, enclosingType, out var propertyProvider);
-                if (Visitors.Count == 0)
-                {
-                    return propertyProvider;
-                }
-                foreach (var visitor in Visitors)
-                {
-                    propertyProvider = visitor.Visit(property, propertyProvider);
-                }
                 return propertyProvider;
             }
+            foreach (var visitor in Visitors)
+            {
+                propertyProvider = visitor.Visit(property, propertyProvider);
+            }
+            return propertyProvider;
         }
 
         /// <summary>

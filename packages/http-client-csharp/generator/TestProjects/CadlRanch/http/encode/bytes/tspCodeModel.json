@@ -14,9 +14,9 @@
    "Properties": [
     {
      "$id": "3",
+     "Kind": "property",
      "Name": "value",
      "SerializedName": "value",
-     "Description": "",
      "Type": {
       "$id": "4",
       "Kind": "bytes",
@@ -25,9 +25,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.bytes",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Bytes.DefaultBytesProperty.value"
     }
    ]
   },
@@ -41,9 +43,9 @@
    "Properties": [
     {
      "$id": "6",
+     "Kind": "property",
      "Name": "value",
      "SerializedName": "value",
-     "Description": "",
      "Type": {
       "$id": "7",
       "Kind": "bytes",
@@ -52,9 +54,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.bytes",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Bytes.Base64BytesProperty.value"
     }
    ]
   },
@@ -68,9 +72,9 @@
    "Properties": [
     {
      "$id": "9",
+     "Kind": "property",
      "Name": "value",
      "SerializedName": "value",
-     "Description": "",
      "Type": {
       "$id": "10",
       "Kind": "bytes",
@@ -79,9 +83,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.bytes",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Bytes.Base64urlBytesProperty.value"
     }
    ]
   },
@@ -95,9 +101,9 @@
    "Properties": [
     {
      "$id": "12",
+     "Kind": "property",
      "Name": "value",
      "SerializedName": "value",
-     "Description": "",
      "Type": {
       "$id": "13",
       "Kind": "array",
@@ -121,9 +127,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.Array",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Bytes.Base64urlArrayBytesProperty.value"
     }
    ]
   }

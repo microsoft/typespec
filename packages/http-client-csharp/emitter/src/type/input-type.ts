@@ -9,7 +9,6 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler";
 import { InputEnumTypeValue } from "./input-enum-type-value.js";
-import { InputModelProperty } from "./input-model-property.js";
 
 interface InputTypeBase {
   Kind: string;
@@ -97,6 +96,18 @@ export interface InputModelType extends InputTypeBase {
   DiscriminatedSubtypes?: Record<string, InputModelType>;
   DiscriminatorProperty?: InputModelProperty;
   BaseModel?: InputModelType;
+}
+
+export interface InputModelProperty extends InputTypeBase {
+  Kind: "property";
+  Name: string;
+  SerializedName: string;
+  Type: InputType;
+  Optional: boolean;
+  ReadOnly: boolean;
+  Discriminator: boolean;
+  CrossLanguageDefinitionId: string;
+  FlattenedNames?: string[]; // TODO -- remove this when we are ready to move the flatten handling from emitter to the generator
 }
 
 export function isInputModelType(type: InputType): type is InputModelType {

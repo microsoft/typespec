@@ -15,9 +15,9 @@
    "Properties": [
     {
      "$id": "3",
+     "Kind": "property",
      "Name": "requiredProp",
      "SerializedName": "requiredProp",
-     "Description": "",
      "Type": {
       "$id": "4",
       "Kind": "string",
@@ -25,9 +25,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Model.Usage.InputRecord.requiredProp"
     }
    ]
   },
@@ -42,9 +44,9 @@
    "Properties": [
     {
      "$id": "6",
+     "Kind": "property",
      "Name": "requiredProp",
      "SerializedName": "requiredProp",
-     "Description": "",
      "Type": {
       "$id": "7",
       "Kind": "string",
@@ -52,9 +54,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Model.Usage.OutputRecord.requiredProp"
     }
    ]
   },
@@ -69,9 +73,9 @@
    "Properties": [
     {
      "$id": "9",
+     "Kind": "property",
      "Name": "requiredProp",
      "SerializedName": "requiredProp",
-     "Description": "",
      "Type": {
       "$id": "10",
       "Kind": "string",
@@ -79,9 +83,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Model.Usage.InputOutputRecord.requiredProp"
     }
    ]
   }

@@ -69,6 +69,7 @@
    "Properties": [
     {
      "$id": "10",
+     "Kind": "property",
      "Name": "clientName",
      "SerializedName": "defaultName",
      "Description": "Pass in true",
@@ -79,9 +80,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.boolean",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Client.Naming.Property.ClientNameModel.defaultName"
     }
    ]
   },
@@ -95,6 +98,7 @@
    "Properties": [
     {
      "$id": "13",
+     "Kind": "property",
      "Name": "CSName",
      "SerializedName": "defaultName",
      "Description": "Pass in true",
@@ -105,9 +109,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.boolean",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Client.Naming.Property.LanguageClientNameModel.defaultName"
     }
    ]
   },
@@ -121,6 +127,7 @@
    "Properties": [
     {
      "$id": "16",
+     "Kind": "property",
      "Name": "clientName",
      "SerializedName": "wireName",
      "Description": "Pass in true",
@@ -131,9 +138,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.boolean",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Client.Naming.Property.ClientNameAndJsonEncodedNameModel.defaultName"
     }
    ]
   },
@@ -147,6 +156,7 @@
    "Properties": [
     {
      "$id": "19",
+     "Kind": "property",
      "Name": "defaultName",
      "SerializedName": "defaultName",
      "Description": "Pass in true",
@@ -157,9 +167,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.boolean",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Client.Naming.Model.ModelWithClientClientName.defaultName"
     }
    ]
   },
@@ -173,6 +185,7 @@
    "Properties": [
     {
      "$id": "22",
+     "Kind": "property",
      "Name": "defaultName",
      "SerializedName": "defaultName",
      "Description": "Pass in true",
@@ -183,9 +196,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.boolean",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Client.Naming.Model.ModelWithLanguageClientName.defaultName"
     }
    ]
   }
