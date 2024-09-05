@@ -15,28 +15,30 @@
    "Properties": [
     {
      "$id": "3",
-     "name": "requiredProperty",
-     "serializedName": "requiredProperty",
-     "description": "Required property",
-     "type": {
+     "Kind": "property",
+     "Name": "requiredProperty",
+     "SerializedName": "requiredProperty",
+     "Description": "Required property",
+     "Type": {
       "$id": "4",
       "Kind": "string",
       "Name": "string",
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsStringProperty.requiredProperty"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Nullable.CollectionsStringProperty.requiredProperty"
     },
     {
      "$id": "5",
-     "name": "nullableProperty",
-     "serializedName": "nullableProperty",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "nullableProperty",
+     "SerializedName": "nullableProperty",
+     "Description": "Property",
+     "Type": {
       "$id": "6",
       "Kind": "nullable",
       "Type": {
@@ -54,11 +56,11 @@
        "Decorators": []
       }
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsStringProperty.nullableProperty"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Nullable.CollectionsStringProperty.nullableProperty"
     }
    ]
   },
@@ -73,28 +75,30 @@
    "Properties": [
     {
      "$id": "10",
-     "name": "requiredProperty",
-     "serializedName": "requiredProperty",
-     "description": "Required property",
-     "type": {
+     "Kind": "property",
+     "Name": "requiredProperty",
+     "SerializedName": "requiredProperty",
+     "Description": "Required property",
+     "Type": {
       "$id": "11",
       "Kind": "string",
       "Name": "string",
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModelProperty.requiredProperty"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModelProperty.requiredProperty"
     },
     {
      "$id": "12",
-     "name": "nullableProperty",
-     "serializedName": "nullableProperty",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "nullableProperty",
+     "SerializedName": "nullableProperty",
+     "Description": "Property",
+     "Type": {
       "$id": "13",
       "Kind": "nullable",
       "Type": {
@@ -112,21 +116,22 @@
         "Properties": [
          {
           "$id": "16",
-          "name": "property",
-          "serializedName": "property",
-          "description": "Inner model property",
-          "type": {
+          "Kind": "property",
+          "Name": "property",
+          "SerializedName": "property",
+          "Description": "Inner model property",
+          "Type": {
            "$id": "17",
            "Kind": "string",
            "Name": "string",
            "CrossLanguageDefinitionId": "TypeSpec.string",
            "Decorators": []
           },
-          "optional": false,
-          "readOnly": false,
-          "discriminator": false,
-          "decorators": [],
-          "crossLanguageDefinitionId": "Type.Property.Nullable.InnerModel.property"
+          "Optional": false,
+          "ReadOnly": false,
+          "Discriminator": false,
+          "Decorators": [],
+          "CrossLanguageDefinitionId": "Type.Property.Nullable.InnerModel.property"
          }
         ]
        },
@@ -134,11 +139,11 @@
        "Decorators": []
       }
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModelProperty.nullableProperty"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModelProperty.nullableProperty"
     }
    ]
   },
@@ -156,28 +161,30 @@
    "Properties": [
     {
      "$id": "19",
-     "name": "requiredProperty",
-     "serializedName": "requiredProperty",
-     "description": "Required property",
-     "type": {
+     "Kind": "property",
+     "Name": "requiredProperty",
+     "SerializedName": "requiredProperty",
+     "Description": "Required property",
+     "Type": {
       "$id": "20",
       "Kind": "string",
       "Name": "string",
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByteProperty.requiredProperty"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByteProperty.requiredProperty"
     },
     {
      "$id": "21",
-     "name": "nullableProperty",
-     "serializedName": "nullableProperty",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "nullableProperty",
+     "SerializedName": "nullableProperty",
+     "Description": "Property",
+     "Type": {
       "$id": "22",
       "Kind": "nullable",
       "Type": {
@@ -196,11 +203,11 @@
        "Decorators": []
       }
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByteProperty.nullableProperty"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByteProperty.nullableProperty"
     }
    ]
   },
@@ -215,28 +222,30 @@
    "Properties": [
     {
      "$id": "26",
-     "name": "requiredProperty",
-     "serializedName": "requiredProperty",
-     "description": "Required property",
-     "type": {
+     "Kind": "property",
+     "Name": "requiredProperty",
+     "SerializedName": "requiredProperty",
+     "Description": "Required property",
+     "Type": {
       "$id": "27",
       "Kind": "string",
       "Name": "string",
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Nullable.DurationProperty.requiredProperty"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Nullable.DurationProperty.requiredProperty"
     },
     {
      "$id": "28",
-     "name": "nullableProperty",
-     "serializedName": "nullableProperty",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "nullableProperty",
+     "SerializedName": "nullableProperty",
+     "Description": "Property",
+     "Type": {
       "$id": "29",
       "Kind": "nullable",
       "Type": {
@@ -255,11 +264,11 @@
        "Decorators": []
       }
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Nullable.DurationProperty.nullableProperty"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Nullable.DurationProperty.nullableProperty"
     }
    ]
   },
@@ -274,28 +283,30 @@
    "Properties": [
     {
      "$id": "33",
-     "name": "requiredProperty",
-     "serializedName": "requiredProperty",
-     "description": "Required property",
-     "type": {
+     "Kind": "property",
+     "Name": "requiredProperty",
+     "SerializedName": "requiredProperty",
+     "Description": "Required property",
+     "Type": {
       "$id": "34",
       "Kind": "string",
       "Name": "string",
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Nullable.DatetimeProperty.requiredProperty"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Nullable.DatetimeProperty.requiredProperty"
     },
     {
      "$id": "35",
-     "name": "nullableProperty",
-     "serializedName": "nullableProperty",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "nullableProperty",
+     "SerializedName": "nullableProperty",
+     "Description": "Property",
+     "Type": {
       "$id": "36",
       "Kind": "nullable",
       "Type": {
@@ -314,11 +325,11 @@
        "Decorators": []
       }
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Nullable.DatetimeProperty.nullableProperty"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Nullable.DatetimeProperty.nullableProperty"
     }
    ]
   },
@@ -333,28 +344,30 @@
    "Properties": [
     {
      "$id": "40",
-     "name": "requiredProperty",
-     "serializedName": "requiredProperty",
-     "description": "Required property",
-     "type": {
+     "Kind": "property",
+     "Name": "requiredProperty",
+     "SerializedName": "requiredProperty",
+     "Description": "Required property",
+     "Type": {
       "$id": "41",
       "Kind": "string",
       "Name": "string",
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Nullable.BytesProperty.requiredProperty"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Nullable.BytesProperty.requiredProperty"
     },
     {
      "$id": "42",
-     "name": "nullableProperty",
-     "serializedName": "nullableProperty",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "nullableProperty",
+     "SerializedName": "nullableProperty",
+     "Description": "Property",
+     "Type": {
       "$id": "43",
       "Kind": "nullable",
       "Type": {
@@ -366,11 +379,11 @@
        "Decorators": []
       }
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Nullable.BytesProperty.nullableProperty"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Nullable.BytesProperty.nullableProperty"
     }
    ]
   },
@@ -385,28 +398,30 @@
    "Properties": [
     {
      "$id": "46",
-     "name": "requiredProperty",
-     "serializedName": "requiredProperty",
-     "description": "Required property",
-     "type": {
+     "Kind": "property",
+     "Name": "requiredProperty",
+     "SerializedName": "requiredProperty",
+     "Description": "Required property",
+     "Type": {
       "$id": "47",
       "Kind": "string",
       "Name": "string",
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Nullable.StringProperty.requiredProperty"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Nullable.StringProperty.requiredProperty"
     },
     {
      "$id": "48",
-     "name": "nullableProperty",
-     "serializedName": "nullableProperty",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "nullableProperty",
+     "SerializedName": "nullableProperty",
+     "Description": "Property",
+     "Type": {
       "$id": "49",
       "Kind": "nullable",
       "Type": {
@@ -417,11 +432,11 @@
        "Decorators": []
       }
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Nullable.StringProperty.nullableProperty"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Nullable.StringProperty.nullableProperty"
     }
    ]
   }

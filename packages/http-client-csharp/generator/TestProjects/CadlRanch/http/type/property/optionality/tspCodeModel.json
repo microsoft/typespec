@@ -181,39 +181,41 @@
    "Properties": [
     {
      "$id": "24",
-     "name": "optionalProperty",
-     "serializedName": "optionalProperty",
-     "description": "optional string property",
-     "type": {
+     "Kind": "property",
+     "Name": "optionalProperty",
+     "SerializedName": "optionalProperty",
+     "Description": "optional string property",
+     "Type": {
       "$id": "25",
       "Kind": "string",
       "Name": "string",
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptionalProperty.optionalProperty"
+     "Optional": true,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptionalProperty.optionalProperty"
     },
     {
      "$id": "26",
-     "name": "requiredProperty",
-     "serializedName": "requiredProperty",
-     "description": "required int property",
-     "type": {
+     "Kind": "property",
+     "Name": "requiredProperty",
+     "SerializedName": "requiredProperty",
+     "Description": "required int property",
+     "Type": {
       "$id": "27",
       "Kind": "int32",
       "Name": "int32",
       "CrossLanguageDefinitionId": "TypeSpec.int32",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptionalProperty.requiredProperty"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptionalProperty.requiredProperty"
     }
    ]
   },
@@ -228,17 +230,18 @@
    "Properties": [
     {
      "$id": "29",
-     "name": "property",
-     "serializedName": "property",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "property",
+     "SerializedName": "property",
+     "Description": "Property",
+     "Type": {
       "$ref": "2"
      },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteralProperty.property"
+     "Optional": true,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteralProperty.property"
     }
    ]
   },
@@ -253,17 +256,18 @@
    "Properties": [
     {
      "$id": "31",
-     "name": "property",
-     "serializedName": "property",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "property",
+     "SerializedName": "property",
+     "Description": "Property",
+     "Type": {
       "$ref": "6"
      },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteralProperty.property"
+     "Optional": true,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteralProperty.property"
     }
    ]
   },
@@ -278,17 +282,18 @@
    "Properties": [
     {
      "$id": "33",
-     "name": "property",
-     "serializedName": "property",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "property",
+     "SerializedName": "property",
+     "Description": "Property",
+     "Type": {
       "$ref": "10"
      },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteralProperty.property"
+     "Optional": true,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteralProperty.property"
     }
    ]
   },
@@ -303,10 +308,11 @@
    "Properties": [
     {
      "$id": "35",
-     "name": "property",
-     "serializedName": "property",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "property",
+     "SerializedName": "property",
+     "Description": "Property",
+     "Type": {
       "$id": "36",
       "Kind": "constant",
       "ValueType": {
@@ -319,11 +325,11 @@
       "Value": true,
       "Decorators": []
      },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.BooleanLiteralProperty.property"
+     "Optional": true,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Optional.BooleanLiteralProperty.property"
     }
    ]
   },
@@ -338,10 +344,11 @@
    "Properties": [
     {
      "$id": "39",
-     "name": "property",
-     "serializedName": "property",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "property",
+     "SerializedName": "property",
+     "Description": "Property",
+     "Type": {
       "$id": "40",
       "Kind": "constant",
       "ValueType": {
@@ -350,11 +357,11 @@
       "Value": 1.25,
       "Decorators": []
      },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.FloatLiteralProperty.property"
+     "Optional": true,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Optional.FloatLiteralProperty.property"
     }
    ]
   },
@@ -369,10 +376,11 @@
    "Properties": [
     {
      "$id": "42",
-     "name": "property",
-     "serializedName": "property",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "property",
+     "SerializedName": "property",
+     "Description": "Property",
+     "Type": {
       "$id": "43",
       "Kind": "constant",
       "ValueType": {
@@ -381,11 +389,11 @@
       "Value": 1,
       "Decorators": []
      },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.IntLiteralProperty.property"
+     "Optional": true,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Optional.IntLiteralProperty.property"
     }
    ]
   },
@@ -400,10 +408,11 @@
    "Properties": [
     {
      "$id": "45",
-     "name": "property",
-     "serializedName": "property",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "property",
+     "SerializedName": "property",
+     "Description": "Property",
+     "Type": {
       "$id": "46",
       "Kind": "constant",
       "ValueType": {
@@ -412,11 +421,11 @@
       "Value": "hello",
       "Decorators": []
      },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.StringLiteralProperty.property"
+     "Optional": true,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Optional.StringLiteralProperty.property"
     }
    ]
   },
@@ -431,10 +440,11 @@
    "Properties": [
     {
      "$id": "48",
-     "name": "property",
-     "serializedName": "property",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "property",
+     "SerializedName": "property",
+     "Description": "Property",
+     "Type": {
       "$id": "49",
       "Kind": "array",
       "Name": "ArrayStringProperty",
@@ -449,32 +459,33 @@
        "Properties": [
         {
          "$id": "51",
-         "name": "property",
-         "serializedName": "property",
-         "description": "Property",
-         "type": {
+         "Kind": "property",
+         "Name": "property",
+         "SerializedName": "property",
+         "Description": "Property",
+         "Type": {
           "$id": "52",
           "Kind": "string",
           "Name": "string",
           "CrossLanguageDefinitionId": "TypeSpec.string",
           "Decorators": []
          },
-         "optional": true,
-         "readOnly": false,
-         "discriminator": false,
-         "decorators": [],
-         "crossLanguageDefinitionId": "Type.Property.Optional.StringProperty.property"
+         "Optional": true,
+         "ReadOnly": false,
+         "Discriminator": false,
+         "Decorators": [],
+         "CrossLanguageDefinitionId": "Type.Property.Optional.StringProperty.property"
         }
        ]
       },
       "CrossLanguageDefinitionId": "TypeSpec.Array",
       "Decorators": []
      },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsModelProperty.property"
+     "Optional": true,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Optional.CollectionsModelProperty.property"
     }
    ]
   },
@@ -492,10 +503,11 @@
    "Properties": [
     {
      "$id": "54",
-     "name": "property",
-     "serializedName": "property",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "property",
+     "SerializedName": "property",
+     "Description": "Property",
+     "Type": {
       "$id": "55",
       "Kind": "array",
       "Name": "Array",
@@ -510,11 +522,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.Array",
       "Decorators": []
      },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsByteProperty.property"
+     "Optional": true,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Optional.CollectionsByteProperty.property"
     }
    ]
   },
@@ -529,21 +541,22 @@
    "Properties": [
     {
      "$id": "58",
-     "name": "property",
-     "serializedName": "property",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "property",
+     "SerializedName": "property",
+     "Description": "Property",
+     "Type": {
       "$id": "59",
       "Kind": "plainTime",
       "Name": "plainTime",
       "CrossLanguageDefinitionId": "TypeSpec.plainTime",
       "Decorators": []
      },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.PlainTimeProperty.property"
+     "Optional": true,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Optional.PlainTimeProperty.property"
     }
    ]
   },
@@ -558,21 +571,22 @@
    "Properties": [
     {
      "$id": "61",
-     "name": "property",
-     "serializedName": "property",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "property",
+     "SerializedName": "property",
+     "Description": "Property",
+     "Type": {
       "$id": "62",
       "Kind": "plainDate",
       "Name": "plainDate",
       "CrossLanguageDefinitionId": "TypeSpec.plainDate",
       "Decorators": []
      },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.PlainDateProperty.property"
+     "Optional": true,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Optional.PlainDateProperty.property"
     }
    ]
   },
@@ -587,10 +601,11 @@
    "Properties": [
     {
      "$id": "64",
-     "name": "property",
-     "serializedName": "property",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "property",
+     "SerializedName": "property",
+     "Description": "Property",
+     "Type": {
       "$id": "65",
       "Kind": "duration",
       "Name": "duration",
@@ -605,11 +620,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.duration",
       "Decorators": []
      },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.DurationProperty.property"
+     "Optional": true,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Optional.DurationProperty.property"
     }
    ]
   },
@@ -624,10 +639,11 @@
    "Properties": [
     {
      "$id": "68",
-     "name": "property",
-     "serializedName": "property",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "property",
+     "SerializedName": "property",
+     "Description": "Property",
+     "Type": {
       "$id": "69",
       "Kind": "utcDateTime",
       "Name": "utcDateTime",
@@ -642,11 +658,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.utcDateTime",
       "Decorators": []
      },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.DatetimeProperty.property"
+     "Optional": true,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Optional.DatetimeProperty.property"
     }
    ]
   },
@@ -661,10 +677,11 @@
    "Properties": [
     {
      "$id": "72",
-     "name": "property",
-     "serializedName": "property",
-     "description": "Property",
-     "type": {
+     "Kind": "property",
+     "Name": "property",
+     "SerializedName": "property",
+     "Description": "Property",
+     "Type": {
       "$id": "73",
       "Kind": "bytes",
       "Name": "bytes",
@@ -672,11 +689,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.bytes",
       "Decorators": []
      },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.BytesProperty.property"
+     "Optional": true,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Property.Optional.BytesProperty.property"
     }
    ]
   }

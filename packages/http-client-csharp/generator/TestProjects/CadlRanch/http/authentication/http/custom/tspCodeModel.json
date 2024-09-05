@@ -14,20 +14,21 @@
    "Properties": [
     {
      "$id": "3",
-     "name": "error",
-     "serializedName": "error",
-     "type": {
+     "Kind": "property",
+     "Name": "error",
+     "SerializedName": "error",
+     "Type": {
       "$id": "4",
       "Kind": "string",
       "Name": "string",
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Authentication.Http.Custom.InvalidAuth.error"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Authentication.Http.Custom.InvalidAuth.error"
     }
    ]
   }

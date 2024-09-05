@@ -15,20 +15,21 @@
    "Properties": [
     {
      "$id": "3",
-     "name": "requiredProp",
-     "serializedName": "requiredProp",
-     "type": {
+     "Kind": "property",
+     "Name": "requiredProp",
+     "SerializedName": "requiredProp",
+     "Type": {
       "$id": "4",
       "Kind": "string",
       "Name": "string",
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Model.Usage.InputRecord.requiredProp"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Model.Usage.InputRecord.requiredProp"
     }
    ]
   },
@@ -43,20 +44,21 @@
    "Properties": [
     {
      "$id": "6",
-     "name": "requiredProp",
-     "serializedName": "requiredProp",
-     "type": {
+     "Kind": "property",
+     "Name": "requiredProp",
+     "SerializedName": "requiredProp",
+     "Type": {
       "$id": "7",
       "Kind": "string",
       "Name": "string",
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Model.Usage.OutputRecord.requiredProp"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Model.Usage.OutputRecord.requiredProp"
     }
    ]
   },
@@ -71,20 +73,21 @@
    "Properties": [
     {
      "$id": "9",
-     "name": "requiredProp",
-     "serializedName": "requiredProp",
-     "type": {
+     "Kind": "property",
+     "Name": "requiredProp",
+     "SerializedName": "requiredProp",
+     "Type": {
       "$id": "10",
       "Kind": "string",
       "Name": "string",
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Model.Usage.InputOutputRecord.requiredProp"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Model.Usage.InputOutputRecord.requiredProp"
     }
    ]
   }

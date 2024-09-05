@@ -14,9 +14,10 @@
    "Properties": [
     {
      "$id": "3",
-     "name": "value",
-     "serializedName": "value",
-     "type": {
+     "Kind": "property",
+     "Name": "value",
+     "SerializedName": "value",
+     "Type": {
       "$id": "4",
       "Kind": "utcDateTime",
       "Name": "utcDateTime",
@@ -31,11 +32,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.utcDateTime",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Encode.Datetime.DefaultDatetimeProperty.value"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Datetime.DefaultDatetimeProperty.value"
     }
    ]
   },
@@ -49,9 +50,10 @@
    "Properties": [
     {
      "$id": "7",
-     "name": "value",
-     "serializedName": "value",
-     "type": {
+     "Kind": "property",
+     "Name": "value",
+     "SerializedName": "value",
+     "Type": {
       "$id": "8",
       "Kind": "utcDateTime",
       "Name": "utcDateTime",
@@ -66,11 +68,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.utcDateTime",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Encode.Datetime.Rfc3339DatetimeProperty.value"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Datetime.Rfc3339DatetimeProperty.value"
     }
    ]
   },
@@ -84,9 +86,10 @@
    "Properties": [
     {
      "$id": "11",
-     "name": "value",
-     "serializedName": "value",
-     "type": {
+     "Kind": "property",
+     "Name": "value",
+     "SerializedName": "value",
+     "Type": {
       "$id": "12",
       "Kind": "utcDateTime",
       "Name": "utcDateTime",
@@ -101,11 +104,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.utcDateTime",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Encode.Datetime.Rfc7231DatetimeProperty.value"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Datetime.Rfc7231DatetimeProperty.value"
     }
    ]
   },
@@ -119,9 +122,10 @@
    "Properties": [
     {
      "$id": "15",
-     "name": "value",
-     "serializedName": "value",
-     "type": {
+     "Kind": "property",
+     "Name": "value",
+     "SerializedName": "value",
+     "Type": {
       "$id": "16",
       "Kind": "utcDateTime",
       "Name": "utcDateTime",
@@ -136,11 +140,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.utcDateTime",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Encode.Datetime.UnixTimestampDatetimeProperty.value"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Datetime.UnixTimestampDatetimeProperty.value"
     }
    ]
   },
@@ -154,9 +158,10 @@
    "Properties": [
     {
      "$id": "19",
-     "name": "value",
-     "serializedName": "value",
-     "type": {
+     "Kind": "property",
+     "Name": "value",
+     "SerializedName": "value",
+     "Type": {
       "$id": "20",
       "Kind": "array",
       "Name": "Array",
@@ -193,11 +198,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.Array",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Encode.Datetime.UnixTimestampArrayDatetimeProperty.value"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Datetime.UnixTimestampArrayDatetimeProperty.value"
     }
    ]
   }

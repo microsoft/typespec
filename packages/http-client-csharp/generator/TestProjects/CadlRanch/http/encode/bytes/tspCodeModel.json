@@ -14,9 +14,10 @@
    "Properties": [
     {
      "$id": "3",
-     "name": "value",
-     "serializedName": "value",
-     "type": {
+     "Kind": "property",
+     "Name": "value",
+     "SerializedName": "value",
+     "Type": {
       "$id": "4",
       "Kind": "bytes",
       "Name": "bytes",
@@ -24,11 +25,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.bytes",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Encode.Bytes.DefaultBytesProperty.value"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Bytes.DefaultBytesProperty.value"
     }
    ]
   },
@@ -42,9 +43,10 @@
    "Properties": [
     {
      "$id": "6",
-     "name": "value",
-     "serializedName": "value",
-     "type": {
+     "Kind": "property",
+     "Name": "value",
+     "SerializedName": "value",
+     "Type": {
       "$id": "7",
       "Kind": "bytes",
       "Name": "bytes",
@@ -52,11 +54,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.bytes",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Encode.Bytes.Base64BytesProperty.value"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Bytes.Base64BytesProperty.value"
     }
    ]
   },
@@ -70,9 +72,10 @@
    "Properties": [
     {
      "$id": "9",
-     "name": "value",
-     "serializedName": "value",
-     "type": {
+     "Kind": "property",
+     "Name": "value",
+     "SerializedName": "value",
+     "Type": {
       "$id": "10",
       "Kind": "bytes",
       "Name": "bytes",
@@ -80,11 +83,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.bytes",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Encode.Bytes.Base64urlBytesProperty.value"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Bytes.Base64urlBytesProperty.value"
     }
    ]
   },
@@ -98,9 +101,10 @@
    "Properties": [
     {
      "$id": "12",
-     "name": "value",
-     "serializedName": "value",
-     "type": {
+     "Kind": "property",
+     "Name": "value",
+     "SerializedName": "value",
+     "Type": {
       "$id": "13",
       "Kind": "array",
       "Name": "Array",
@@ -123,11 +127,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.Array",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Encode.Bytes.Base64urlArrayBytesProperty.value"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Encode.Bytes.Base64urlArrayBytesProperty.value"
     }
    ]
   }

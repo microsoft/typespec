@@ -15,9 +15,10 @@
    "Properties": [
     {
      "$id": "3",
-     "name": "modelData",
-     "serializedName": "modelData",
-     "type": {
+     "Kind": "property",
+     "Name": "modelData",
+     "SerializedName": "modelData",
+     "Type": {
       "$id": "4",
       "Kind": "model",
       "Name": "SimpleModel",
@@ -28,51 +29,54 @@
       "Properties": [
        {
         "$id": "5",
-        "name": "name",
-        "serializedName": "name",
-        "type": {
+        "Kind": "property",
+        "Name": "name",
+        "SerializedName": "name",
+        "Type": {
          "$id": "6",
          "Kind": "string",
          "Name": "string",
          "CrossLanguageDefinitionId": "TypeSpec.string",
          "Decorators": []
         },
-        "optional": false,
-        "readOnly": false,
-        "discriminator": false,
-        "decorators": [],
-        "crossLanguageDefinitionId": "Payload.Xml.SimpleModel.name"
+        "Optional": false,
+        "ReadOnly": false,
+        "Discriminator": false,
+        "Decorators": [],
+        "CrossLanguageDefinitionId": "Payload.Xml.SimpleModel.name"
        },
        {
         "$id": "7",
-        "name": "age",
-        "serializedName": "age",
-        "type": {
+        "Kind": "property",
+        "Name": "age",
+        "SerializedName": "age",
+        "Type": {
          "$id": "8",
          "Kind": "int32",
          "Name": "int32",
          "CrossLanguageDefinitionId": "TypeSpec.int32",
          "Decorators": []
         },
-        "optional": false,
-        "readOnly": false,
-        "discriminator": false,
-        "decorators": [],
-        "crossLanguageDefinitionId": "Payload.Xml.SimpleModel.age"
+        "Optional": false,
+        "ReadOnly": false,
+        "Discriminator": false,
+        "Decorators": [],
+        "CrossLanguageDefinitionId": "Payload.Xml.SimpleModel.age"
        }
       ]
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Payload.Xml.ModelWithEncodedNames.modelData"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithEncodedNames.modelData"
     },
     {
      "$id": "9",
-     "name": "colors",
-     "serializedName": "colors",
-     "type": {
+     "Kind": "property",
+     "Name": "colors",
+     "SerializedName": "colors",
+     "Type": {
       "$id": "10",
       "Kind": "array",
       "Name": "Array",
@@ -86,11 +90,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.Array",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Payload.Xml.ModelWithEncodedNames.colors"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithEncodedNames.colors"
     }
    ]
   },
@@ -108,9 +112,10 @@
    "Properties": [
     {
      "$id": "13",
-     "name": "metadata",
-     "serializedName": "metadata",
-     "type": {
+     "Kind": "property",
+     "Name": "metadata",
+     "SerializedName": "metadata",
+     "Type": {
       "$id": "14",
       "Kind": "dict",
       "KeyType": {
@@ -129,11 +134,11 @@
       },
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Payload.Xml.ModelWithDictionary.metadata"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithDictionary.metadata"
     }
    ]
   },
@@ -148,19 +153,20 @@
    "Properties": [
     {
      "$id": "18",
-     "name": "language",
-     "serializedName": "language",
-     "type": {
+     "Kind": "property",
+     "Name": "language",
+     "SerializedName": "language",
+     "Type": {
       "$id": "19",
       "Kind": "string",
       "Name": "string",
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [
       {
        "$id": "20",
        "name": "TypeSpec.Xml.@attribute",
@@ -169,23 +175,24 @@
        }
       }
      ],
-     "crossLanguageDefinitionId": "Payload.Xml.ModelWithText.language"
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithText.language"
     },
     {
      "$id": "22",
-     "name": "content",
-     "serializedName": "content",
-     "type": {
+     "Kind": "property",
+     "Name": "content",
+     "SerializedName": "content",
+     "Type": {
       "$id": "23",
       "Kind": "string",
       "Name": "string",
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [
       {
        "$id": "24",
        "name": "TypeSpec.Xml.@unwrapped",
@@ -194,7 +201,7 @@
        }
       }
      ],
-     "crossLanguageDefinitionId": "Payload.Xml.ModelWithText.content"
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithText.content"
     }
    ]
   },
@@ -209,9 +216,10 @@
    "Properties": [
     {
      "$id": "27",
-     "name": "items",
-     "serializedName": "items",
-     "type": {
+     "Kind": "property",
+     "Name": "items",
+     "SerializedName": "items",
+     "Type": {
       "$id": "28",
       "Kind": "array",
       "Name": "ArraySimpleModel",
@@ -221,11 +229,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.Array",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Payload.Xml.ModelWithEmptyArray.items"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithEmptyArray.items"
     }
    ]
   },
@@ -249,15 +257,16 @@
    "Properties": [
     {
      "$id": "32",
-     "name": "inputData",
-     "serializedName": "inputData",
-     "type": {
+     "Kind": "property",
+     "Name": "inputData",
+     "SerializedName": "inputData",
+     "Type": {
       "$ref": "4"
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [
       {
        "$id": "33",
        "name": "TypeSpec.Xml.@name",
@@ -267,19 +276,20 @@
        }
       }
      ],
-     "crossLanguageDefinitionId": "Payload.Xml.ModelWithRenamedFields.inputData"
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithRenamedFields.inputData"
     },
     {
      "$id": "35",
-     "name": "outputData",
-     "serializedName": "outputData",
-     "type": {
+     "Kind": "property",
+     "Name": "outputData",
+     "SerializedName": "outputData",
+     "Type": {
       "$ref": "4"
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [
       {
        "$id": "36",
        "name": "TypeSpec.Xml.@name",
@@ -289,7 +299,7 @@
        }
       }
      ],
-     "crossLanguageDefinitionId": "Payload.Xml.ModelWithRenamedFields.outputData"
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithRenamedFields.outputData"
     }
    ]
   },
@@ -304,9 +314,10 @@
    "Properties": [
     {
      "$id": "39",
-     "name": "colors",
-     "serializedName": "colors",
-     "type": {
+     "Kind": "property",
+     "Name": "colors",
+     "SerializedName": "colors",
+     "Type": {
       "$id": "40",
       "Kind": "array",
       "Name": "Array",
@@ -320,10 +331,10 @@
       "CrossLanguageDefinitionId": "TypeSpec.Array",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [
       {
        "$id": "42",
        "name": "TypeSpec.Xml.@unwrapped",
@@ -340,13 +351,14 @@
        }
       }
      ],
-     "crossLanguageDefinitionId": "Payload.Xml.ModelWithRenamedArrays.colors"
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithRenamedArrays.colors"
     },
     {
      "$id": "46",
-     "name": "counts",
-     "serializedName": "counts",
-     "type": {
+     "Kind": "property",
+     "Name": "counts",
+     "SerializedName": "counts",
+     "Type": {
       "$id": "47",
       "Kind": "array",
       "Name": "Array",
@@ -360,10 +372,10 @@
       "CrossLanguageDefinitionId": "TypeSpec.Array",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [
       {
        "$id": "49",
        "name": "TypeSpec.Xml.@name",
@@ -373,7 +385,7 @@
        }
       }
      ],
-     "crossLanguageDefinitionId": "Payload.Xml.ModelWithRenamedArrays.counts"
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithRenamedArrays.counts"
     }
    ]
   },
@@ -388,9 +400,10 @@
    "Properties": [
     {
      "$id": "52",
-     "name": "colors",
-     "serializedName": "colors",
-     "type": {
+     "Kind": "property",
+     "Name": "colors",
+     "SerializedName": "colors",
+     "Type": {
       "$id": "53",
       "Kind": "array",
       "Name": "Array",
@@ -404,10 +417,10 @@
       "CrossLanguageDefinitionId": "TypeSpec.Array",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [
       {
        "$id": "55",
        "name": "TypeSpec.Xml.@unwrapped",
@@ -416,13 +429,14 @@
        }
       }
      ],
-     "crossLanguageDefinitionId": "Payload.Xml.ModelWithUnwrappedArray.colors"
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithUnwrappedArray.colors"
     },
     {
      "$id": "57",
-     "name": "counts",
-     "serializedName": "counts",
-     "type": {
+     "Kind": "property",
+     "Name": "counts",
+     "SerializedName": "counts",
+     "Type": {
       "$id": "58",
       "Kind": "array",
       "Name": "Array",
@@ -436,11 +450,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.Array",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Payload.Xml.ModelWithUnwrappedArray.counts"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithUnwrappedArray.counts"
     }
    ]
   },
@@ -455,19 +469,20 @@
    "Properties": [
     {
      "$id": "61",
-     "name": "id1",
-     "serializedName": "id1",
-     "type": {
+     "Kind": "property",
+     "Name": "id1",
+     "SerializedName": "id1",
+     "Type": {
       "$id": "62",
       "Kind": "int32",
       "Name": "int32",
       "CrossLanguageDefinitionId": "TypeSpec.int32",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [
       {
        "$id": "63",
        "name": "TypeSpec.Xml.@attribute",
@@ -476,23 +491,24 @@
        }
       }
      ],
-     "crossLanguageDefinitionId": "Payload.Xml.ModelWithAttributes.id1"
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithAttributes.id1"
     },
     {
      "$id": "65",
-     "name": "id2",
-     "serializedName": "id2",
-     "type": {
+     "Kind": "property",
+     "Name": "id2",
+     "SerializedName": "id2",
+     "Type": {
       "$id": "66",
       "Kind": "string",
       "Name": "string",
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [
       {
        "$id": "67",
        "name": "TypeSpec.Xml.@attribute",
@@ -501,24 +517,25 @@
        }
       }
      ],
-     "crossLanguageDefinitionId": "Payload.Xml.ModelWithAttributes.id2"
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithAttributes.id2"
     },
     {
      "$id": "69",
-     "name": "enabled",
-     "serializedName": "enabled",
-     "type": {
+     "Kind": "property",
+     "Name": "enabled",
+     "SerializedName": "enabled",
+     "Type": {
       "$id": "70",
       "Kind": "boolean",
       "Name": "boolean",
       "CrossLanguageDefinitionId": "TypeSpec.boolean",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Payload.Xml.ModelWithAttributes.enabled"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithAttributes.enabled"
     }
    ]
   },
@@ -533,37 +550,39 @@
    "Properties": [
     {
      "$id": "72",
-     "name": "item",
-     "serializedName": "item",
-     "type": {
+     "Kind": "property",
+     "Name": "item",
+     "SerializedName": "item",
+     "Type": {
       "$id": "73",
       "Kind": "string",
       "Name": "string",
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Payload.Xml.ModelWithOptionalField.item"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithOptionalField.item"
     },
     {
      "$id": "74",
-     "name": "value",
-     "serializedName": "value",
-     "type": {
+     "Kind": "property",
+     "Name": "value",
+     "SerializedName": "value",
+     "Type": {
       "$id": "75",
       "Kind": "int32",
       "Name": "int32",
       "CrossLanguageDefinitionId": "TypeSpec.int32",
       "Decorators": []
      },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Payload.Xml.ModelWithOptionalField.value"
+     "Optional": true,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithOptionalField.value"
     }
    ]
   },
@@ -578,9 +597,10 @@
    "Properties": [
     {
      "$id": "77",
-     "name": "items",
-     "serializedName": "items",
-     "type": {
+     "Kind": "property",
+     "Name": "items",
+     "SerializedName": "items",
+     "Type": {
       "$id": "78",
       "Kind": "array",
       "Name": "ArraySimpleModel",
@@ -590,11 +610,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.Array",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Payload.Xml.ModelWithArrayOfModel.items"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithArrayOfModel.items"
     }
    ]
   },
@@ -609,9 +629,10 @@
    "Properties": [
     {
      "$id": "80",
-     "name": "colors",
-     "serializedName": "colors",
-     "type": {
+     "Kind": "property",
+     "Name": "colors",
+     "SerializedName": "colors",
+     "Type": {
       "$id": "81",
       "Kind": "array",
       "Name": "Array",
@@ -625,17 +646,18 @@
       "CrossLanguageDefinitionId": "TypeSpec.Array",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Payload.Xml.ModelWithSimpleArrays.colors"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithSimpleArrays.colors"
     },
     {
      "$id": "83",
-     "name": "counts",
-     "serializedName": "counts",
-     "type": {
+     "Kind": "property",
+     "Name": "counts",
+     "SerializedName": "counts",
+     "Type": {
       "$id": "84",
       "Kind": "array",
       "Name": "Array",
@@ -649,11 +671,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.Array",
       "Decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Payload.Xml.ModelWithSimpleArrays.counts"
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Payload.Xml.ModelWithSimpleArrays.counts"
     }
    ]
   }
