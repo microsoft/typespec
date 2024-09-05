@@ -14,9 +14,9 @@
    "Properties": [
     {
      "$id": "3",
+     "Kind": "property",
      "Name": "error",
      "SerializedName": "error",
-     "Description": "",
      "Type": {
       "$id": "4",
       "Kind": "string",
@@ -24,9 +24,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.string",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Authentication.Http.Custom.InvalidAuth.error"
     }
    ]
   }

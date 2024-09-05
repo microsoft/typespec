@@ -14,9 +14,9 @@
    "Decorators": [],
    "DiscriminatorProperty": {
     "$id": "3",
+    "Kind": "property",
     "Name": "kind",
     "SerializedName": "kind",
-    "Description": "Discriminator",
     "Type": {
      "$id": "4",
      "Kind": "string",
@@ -24,10 +24,11 @@
      "CrossLanguageDefinitionId": "TypeSpec.string",
      "Decorators": []
     },
-    "IsRequired": true,
-    "IsReadOnly": false,
-    "IsDiscriminator": true,
-    "Decorators": []
+    "Optional": false,
+    "ReadOnly": false,
+    "Discriminator": true,
+    "Decorators": [],
+    "CrossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Bird.kind"
    },
    "Properties": [
     {
@@ -35,9 +36,9 @@
     },
     {
      "$id": "5",
+     "Kind": "property",
      "Name": "wingspan",
      "SerializedName": "wingspan",
-     "Description": "",
      "Type": {
       "$id": "6",
       "Kind": "int32",
@@ -45,9 +46,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.int32",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Bird.wingspan"
     }
    ],
    "DiscriminatedSubtypes": {
@@ -67,9 +70,9 @@
      "Properties": [
       {
        "$id": "9",
+       "Kind": "property",
        "Name": "kind",
        "SerializedName": "kind",
-       "Description": "Discriminator",
        "Type": {
         "$id": "10",
         "Kind": "constant",
@@ -83,10 +86,11 @@
         "Value": "seagull",
         "Decorators": []
        },
-       "IsRequired": true,
-       "IsReadOnly": false,
-       "IsDiscriminator": true,
-       "Decorators": []
+       "Optional": false,
+       "ReadOnly": false,
+       "Discriminator": true,
+       "Decorators": [],
+       "CrossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.SeaGull.kind"
       }
      ]
     },
@@ -105,9 +109,9 @@
      "Properties": [
       {
        "$id": "13",
+       "Kind": "property",
        "Name": "kind",
        "SerializedName": "kind",
-       "Description": "Discriminator",
        "Type": {
         "$id": "14",
         "Kind": "constant",
@@ -121,10 +125,11 @@
         "Value": "sparrow",
         "Decorators": []
        },
-       "IsRequired": true,
-       "IsReadOnly": false,
-       "IsDiscriminator": true,
-       "Decorators": []
+       "Optional": false,
+       "ReadOnly": false,
+       "Discriminator": true,
+       "Decorators": [],
+       "CrossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Sparrow.kind"
       }
      ]
     },
@@ -143,9 +148,9 @@
      "Properties": [
       {
        "$id": "17",
+       "Kind": "property",
        "Name": "kind",
        "SerializedName": "kind",
-       "Description": "Discriminator",
        "Type": {
         "$id": "18",
         "Kind": "constant",
@@ -159,10 +164,11 @@
         "Value": "goose",
         "Decorators": []
        },
-       "IsRequired": true,
-       "IsReadOnly": false,
-       "IsDiscriminator": true,
-       "Decorators": []
+       "Optional": false,
+       "ReadOnly": false,
+       "Discriminator": true,
+       "Decorators": [],
+       "CrossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Goose.kind"
       }
      ]
     },
@@ -181,9 +187,9 @@
      "Properties": [
       {
        "$id": "21",
+       "Kind": "property",
        "Name": "kind",
        "SerializedName": "kind",
-       "Description": "Discriminator",
        "Type": {
         "$id": "22",
         "Kind": "constant",
@@ -197,16 +203,17 @@
         "Value": "eagle",
         "Decorators": []
        },
-       "IsRequired": true,
-       "IsReadOnly": false,
-       "IsDiscriminator": true,
-       "Decorators": []
+       "Optional": false,
+       "ReadOnly": false,
+       "Discriminator": true,
+       "Decorators": [],
+       "CrossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Eagle.kind"
       },
       {
        "$id": "24",
+       "Kind": "property",
        "Name": "friends",
        "SerializedName": "friends",
-       "Description": "",
        "Type": {
         "$id": "25",
         "Kind": "array",
@@ -217,15 +224,17 @@
         "CrossLanguageDefinitionId": "TypeSpec.Array",
         "Decorators": []
        },
-       "IsRequired": false,
-       "IsReadOnly": false,
-       "Decorators": []
+       "Optional": true,
+       "ReadOnly": false,
+       "Discriminator": false,
+       "Decorators": [],
+       "CrossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Eagle.friends"
       },
       {
        "$id": "26",
+       "Kind": "property",
        "Name": "hate",
        "SerializedName": "hate",
-       "Description": "",
        "Type": {
         "$id": "27",
         "Kind": "dict",
@@ -241,21 +250,25 @@
         },
         "Decorators": []
        },
-       "IsRequired": false,
-       "IsReadOnly": false,
-       "Decorators": []
+       "Optional": true,
+       "ReadOnly": false,
+       "Discriminator": false,
+       "Decorators": [],
+       "CrossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Eagle.hate"
       },
       {
        "$id": "29",
+       "Kind": "property",
        "Name": "partner",
        "SerializedName": "partner",
-       "Description": "",
        "Type": {
         "$ref": "2"
        },
-       "IsRequired": false,
-       "IsReadOnly": false,
-       "Decorators": []
+       "Optional": true,
+       "ReadOnly": false,
+       "Discriminator": false,
+       "Decorators": [],
+       "CrossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Eagle.partner"
       }
      ]
     }
@@ -283,6 +296,7 @@
    "Decorators": [],
    "DiscriminatorProperty": {
     "$id": "31",
+    "Kind": "property",
     "Name": "kind",
     "SerializedName": "kind",
     "Description": "Discriminator property for Dinosaur.",
@@ -293,10 +307,11 @@
      "CrossLanguageDefinitionId": "TypeSpec.string",
      "Decorators": []
     },
-    "IsRequired": true,
-    "IsReadOnly": false,
-    "IsDiscriminator": true,
-    "Decorators": []
+    "Optional": false,
+    "ReadOnly": false,
+    "Discriminator": true,
+    "Decorators": [],
+    "CrossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Dinosaur.kind"
    },
    "Properties": [
     {
@@ -304,9 +319,9 @@
     },
     {
      "$id": "33",
+     "Kind": "property",
      "Name": "size",
      "SerializedName": "size",
-     "Description": "",
      "Type": {
       "$id": "34",
       "Kind": "int32",
@@ -314,9 +329,11 @@
       "CrossLanguageDefinitionId": "TypeSpec.int32",
       "Decorators": []
      },
-     "IsRequired": true,
-     "IsReadOnly": false,
-     "Decorators": []
+     "Optional": false,
+     "ReadOnly": false,
+     "Discriminator": false,
+     "Decorators": [],
+     "CrossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Dinosaur.size"
     }
    ],
    "DiscriminatedSubtypes": {
@@ -336,9 +353,9 @@
      "Properties": [
       {
        "$id": "37",
+       "Kind": "property",
        "Name": "kind",
        "SerializedName": "kind",
-       "Description": "Discriminator",
        "Type": {
         "$id": "38",
         "Kind": "constant",
@@ -352,10 +369,11 @@
         "Value": "t-rex",
         "Decorators": []
        },
-       "IsRequired": true,
-       "IsReadOnly": false,
-       "IsDiscriminator": true,
-       "Decorators": []
+       "Optional": false,
+       "ReadOnly": false,
+       "Discriminator": true,
+       "Decorators": [],
+       "CrossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.TRex.kind"
       }
      ]
     }
