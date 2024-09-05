@@ -299,7 +299,7 @@ public class Javagen extends NewPlugin {
                     if (CoreUtils.isNullOrEmpty(serviceClients)) {
                         serviceClients = Collections.singletonList(client.getServiceClient());
                     }
-                    TestContext testContext = new TestContext(serviceClients, client.getSyncClients());
+                    TestContext<Void> testContext = new TestContext<>(serviceClients, client.getSyncClients());
 
                     // base test class
                     javaPackage.addProtocolTestBase(testContext);
