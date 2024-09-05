@@ -444,8 +444,7 @@ const diagnostics = {
   unassignable: {
     severity: "error",
     messages: {
-      default: paramMessage`Type '${"value"}' is not assignable to type '${"targetType"}'`,
-      withDetails: paramMessage`Type '${"sourceType"}' is not assignable to type '${"targetType"}'\n  ${"details"}`,
+      default: paramMessage`Type '${"sourceType"}' is not assignable to type '${"targetType"}'`,
     },
   },
   "property-required": {
