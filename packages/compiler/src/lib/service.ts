@@ -115,3 +115,7 @@ export const $service: ServiceDecorator = (
 
   addService(context.program, target, serviceDetails);
 };
+
+// const empty = {};
+// const emptyDeep = { a: {} };
+// const _a: { a: { b: string } } = emptyDeep;

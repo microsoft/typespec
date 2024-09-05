@@ -126,14 +126,20 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       diagnosticTarget,
       new MultiKeyMap<[Entity, Entity], Related>()
     );
-    return [related === Related.true, convertErrorsToDiagnostics(errors)];
+    return [related === Related.true, convertErrorsToDiagnostics(errors, diagnosticTarget)];
   }
 
-  function convertErrorsToDiagnostics(errors: readonly TypeRelationError[]): readonly Diagnostic[] {
-    return errors.map(convertErrorToDiagnostic);
+  function convertErrorsToDiagnostics(
+    errors: readonly TypeRelationError[],
+    diagnosticBase: Entity | Node
+  ): readonly Diagnostic[] {
+    return errors.map((x) => convertErrorToDiagnostic(x, diagnosticBase));
   }
 
-  function convertErrorToDiagnostic(error: TypeRelationError): Diagnostic {
+  function convertErrorToDiagnostic(
+    error: TypeRelationError,
+    diagnosticBase: Entity | Node
+  ): Diagnostic {
     let message = error.message;
     let current = error.child;
     let indent = "  ";
@@ -145,11 +151,28 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       indent += "  ";
       current = error.child;
     }
+
+    const errorNode: Node =
+      "kind" in error.target && typeof error.target.kind === "number"
+        ? error.target
+        : (error.target as any).node;
+    const baseNode: Node =
+      "kind" in diagnosticBase && typeof diagnosticBase.kind === "number"
+        ? diagnosticBase
+        : (diagnosticBase as any).node;
+    let target = diagnosticBase;
+    let currentNode: Node | undefined = errorNode;
+    while (currentNode) {
+      if (current === baseNode) {
+        target = errorNode;
+      }
+      currentNode = currentNode.parent;
+    }
     return {
       severity: "error",
       code: error.code,
       message: message,
-      target: error.target,
+      target,
     };
   }
 
@@ -170,7 +193,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       diagnosticTarget,
       new MultiKeyMap<[Entity, Entity], Related>()
     );
-    return [related === Related.true, convertErrorsToDiagnostics(errors)];
+    return [related === Related.true, convertErrorsToDiagnostics(errors, diagnosticTarget)];
   }
 
   function isTypeAssignableToInternal(
