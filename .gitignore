@@ -198,7 +198,8 @@ obj/
 *.vsix
 *.zip
 
-
+# Api extractor
+packages/*/etc/
 docs/**/js-api/
 
 # csharp emitter

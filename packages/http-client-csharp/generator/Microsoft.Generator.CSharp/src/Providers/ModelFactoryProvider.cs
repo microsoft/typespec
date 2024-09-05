@@ -21,7 +21,9 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private readonly IEnumerable<InputModelType> _models;
 
-        public ModelFactoryProvider(IEnumerable<InputModelType> models)
+        public static ModelFactoryProvider FromInputLibrary() => new ModelFactoryProvider(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Models);
+
+        private ModelFactoryProvider(IEnumerable<InputModelType> models)
         {
             _models = models;
         }
@@ -109,15 +111,21 @@ namespace Microsoft.Generator.CSharp.Providers
             ConstructorSignature modelCtorFullSignature)
         {
             var expressions = new List<ValueExpression>(signature.Parameters.Count);
-            foreach (var param in signature.Parameters)
+            for (int i = 0; i < signature.Parameters.Count; i++)
             {
-                if (param.Type.IsList)
+                var factoryParam = signature.Parameters[i];
+                var ctorParam = modelCtorFullSignature.Parameters[i];
+                if (factoryParam.Type.IsList)
                 {
-                    expressions.Add(param.NullConditional().ToList());
+                    expressions.Add(factoryParam.NullConditional().ToList());
+                }
+                else if (IsEnumDiscriminator(ctorParam))
+                {
+                    expressions.Add(ctorParam.Type.ToEnum(factoryParam));
                 }
                 else
                 {
-                    expressions.Add(param);
+                    expressions.Add(factoryParam);
                 }
             }
 
@@ -162,7 +170,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return new ParameterProvider(
                 parameter.Name,
                 parameter.Description,
-                parameter.Type.InputType,
+                // in order to avoid exposing discriminator enums as public, we will use the underlying types in the model factory methods
+                IsEnumDiscriminator(parameter) ? parameter.Type.UnderlyingEnumType : parameter.Type.InputType,
                 Default,
                 parameter.IsRef,
                 parameter.IsOut,
@@ -174,5 +183,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 Validation = ParameterValidationType.None,
             };
         }
+
+        private static bool IsEnumDiscriminator(ParameterProvider parameter) =>
+            parameter.Property?.IsDiscriminator == true && parameter.Type.IsEnum;
     }
 }

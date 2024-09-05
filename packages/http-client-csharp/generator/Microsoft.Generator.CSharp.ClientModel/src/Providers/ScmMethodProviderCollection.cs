@@ -184,9 +184,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         var interfaceType = param.Property!.WireInfo?.IsReadOnly == true
                             ? new CSharpType(typeof(IReadOnlyList<>), convenienceParam.Type.Arguments)
                             : new CSharpType(typeof(IList<>), convenienceParam.Type.Arguments);
-                        expressions.Add(NullCoalescing(
-                            new AsExpression(convenienceParam.NullConditional().ToList(), interfaceType),
-                            New.Instance(convenienceParam.Type.PropertyInitializationType, [])));
+                        expressions.Add(new AsExpression(convenienceParam.NullConditional().ToList(), interfaceType)
+                            .NullCoalesce(New.Instance(convenienceParam.Type.PropertyInitializationType, [])));
                     }
                     else
                     {

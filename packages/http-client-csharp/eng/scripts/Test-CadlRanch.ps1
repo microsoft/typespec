@@ -32,10 +32,22 @@ foreach ($directory in $directories) {
     if (-not (Compare-Paths $subPath $filter)) {
         continue
     }
-
+    
+    $testPath = "$cadlRanchRoot.Tests"
     $testFilter = "TestProjects.CadlRanch.Tests"
     foreach ($folder in $folders) {
-        $testFilter += ".$(Get-Namespace $folder)"
+        $segment = "$(Get-Namespace $folder)"
+        
+        # the test directory names match the test namespace names, but the source directory names will not have the leading underscore
+        # so check to see if the filter should contain a leading underscore by comparing with the test directory
+        if (-not (Test-Path (Join-Path $testPath $segment))) {
+          $testFilter += "._$segment"
+          $testPath = Join-Path $testPath "_$segment"
+        }
+        else{
+          $testFilter += ".$segment"
+          $testPath = Join-Path $testPath $segment
+        }
     }
 
     Write-Host "Regenerating $subPath" -ForegroundColor Cyan
