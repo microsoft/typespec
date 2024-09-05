@@ -114,13 +114,55 @@ namespace Microsoft.Generator.CSharp.Providers
         /// <returns>The list of <see cref="FieldProvider"/> for the model.</returns>
         protected override FieldProvider[] BuildFields()
         {
-            return RawDataField != null ? [RawDataField] : [];
+            List<FieldProvider> fields = [];
+            if (RawDataField != null)
+            {
+                fields.Add(RawDataField);
+            }
+            foreach (var property in _inputModel.Properties)
+            {
+                if (property.IsDiscriminator)
+                    continue;
+
+                var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
+                if (derivedProperty is not null)
+                {
+                    if (!derivedProperty.Type.Equals(property.Type) || !DomainEqual(property, derivedProperty))
+                    {
+                        fields.Add(new FieldProvider(
+                            FieldModifiers.Private | FieldModifiers.Protected,
+                            CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(property.Type)!,
+                            $"_{property.Name.ToVariableName()}",
+                            this));
+                    }
+                }
+            }
+            return [.. fields];
+        }
+
+        private Dictionary<InputModelType, Dictionary<string, InputModelProperty>>? _inputDerivedProperties;
+        private Dictionary<InputModelType, Dictionary<string, InputModelProperty>> InputDerivedProperties => _inputDerivedProperties ??= BuildDerivedProperties();
+
+        private Dictionary<InputModelType, Dictionary<string, InputModelProperty>> BuildDerivedProperties()
+        {
+            Dictionary<InputModelType, Dictionary<string, InputModelProperty>> derivedProperties = [];
+            foreach (var derivedModel in _inputModel.DerivedModels)
+            {
+                var derivedModelProperties = derivedModel.Properties;
+                if (derivedModelProperties.Count > 0)
+                {
+                    derivedProperties[derivedModel] = derivedModelProperties.ToDictionary(p => p.Name);
+                }
+            }
+            return derivedProperties;
         }
 
         protected override PropertyProvider[] BuildProperties()
         {
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
+
+            Dictionary<string, InputModelProperty> baseProperties = _inputModel.BaseModel?.Properties.ToDictionary(p => p.Name) ?? [];
 
             for (int i = 0; i < propertiesCount; i++)
             {
@@ -132,6 +174,34 @@ namespace Microsoft.Generator.CSharp.Providers
                 var outputProperty = CodeModelPlugin.Instance.TypeFactory.CreatePropertyProvider(property, this);
                 if (outputProperty != null)
                 {
+                    if (!property.IsDiscriminator)
+                    {
+                        var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
+                        if (derivedProperty is not null)
+                        {
+                            if (derivedProperty.Type.Equals(property.Type) && DomainEqual(property, derivedProperty))
+                            {
+                                outputProperty.Modifiers |= MethodSignatureModifiers.Virtual;
+                            }
+                        }
+                        var baseProperty = baseProperties.GetValueOrDefault(property.Name);
+                        if (baseProperty is not null)
+                        {
+                            if (baseProperty.Type.Equals(property.Type) && DomainEqual(baseProperty, property))
+                            {
+                                outputProperty.Modifiers |= MethodSignatureModifiers.Override;
+                            }
+                            else
+                            {
+                                outputProperty.Modifiers |= MethodSignatureModifiers.New;
+                                var fieldName = $"_{baseProperty.Name.ToVariableName()}";
+                                outputProperty.Body = new ExpressionPropertyBody(
+                                    This.Property(fieldName).NullCoalesce(Default),
+                                    outputProperty.Body.HasSetter ? This.Property(fieldName).Assign(Value) : null);
+                            }
+                        }
+                    }
+
                     properties.Add(outputProperty);
                 }
             }
@@ -142,6 +212,14 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             return [.. properties];
+        }
+
+        private static bool DomainEqual(InputModelProperty baseProperty, InputModelProperty derivedProperty)
+        {
+            if (baseProperty.IsRequired != derivedProperty.IsRequired)
+                return false;
+            var baseNullable = baseProperty.Type is InputNullableType;
+            return baseNullable ? derivedProperty.Type is InputNullableType : derivedProperty.Type is not InputNullableType;
         }
 
         protected override ConstructorProvider[] BuildConstructors()
@@ -273,7 +351,7 @@ namespace Microsoft.Generator.CSharp.Providers
                         else
                         {
                             /* kind ?? "unknown" */
-                            return NullCoalescing(discriminatorExpression, Literal(_inputModel.DiscriminatorValue));
+                            return discriminatorExpression.NullCoalesce(Literal(_inputModel.DiscriminatorValue));
                         }
                     }
                     else
