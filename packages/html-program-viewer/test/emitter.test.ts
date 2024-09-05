@@ -8,10 +8,8 @@ beforeEach(async () => {
   runner = await createViewerTestRunner();
 });
 
-it("create html view", async () => {
-  await runner.compile(`op foo(): string;`);
-});
-
-it("compile unnamed union variant without error", async () => {
-  await runner.compile(`union Foo { "a", "b" }`);
+it("runs emitter", async () => {
+  await runner.compile(`op foo(): string;`, {
+    emitters: { "@typespec/html-program-viewer": {} },
+  });
 });

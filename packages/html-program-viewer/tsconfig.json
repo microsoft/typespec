@@ -13,6 +13,5 @@
     "jsx": "react-jsx",
     "lib": ["DOM", "ES2022"],
     "types": ["vite/client", "@testing-library/jest-dom"]
-  },
-  "include": ["src"]
+  }
 }
