@@ -10,14 +10,14 @@ import { RestTestLibrary } from "@typespec/rest/testing";
 import { join, relative } from "path";
 import { HttpClientJavascriptEmitterTestLibrary } from "../src/testing/index.js";
 
-export async function createSampleEmitterTestHost() {
+export async function createHttpClientJsTestHost() {
   return createTestHost({
     libraries: [HttpClientJavascriptEmitterTestLibrary, HttpTestLibrary, RestTestLibrary],
   });
 }
 
 export async function createHttpClientJavascriptEmitterTestRunner() {
-  const host = await createSampleEmitterTestHost();
+  const host = await createHttpClientJsTestHost();
 
   return createTestWrapper(host, {
     autoImports: ["@typespec/http", "@typespec/rest"],

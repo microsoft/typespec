@@ -10,6 +10,7 @@ import { ClientContext } from "./components/client-context.js";
 import { OperationsFile } from "./components/operations-file.js";
 import { HttpFetch, HttpRequestOptions } from "./components/static-fetch-wrapper.jsx";
 import { $ } from "@typespec/compiler/typekit";
+import { uriTemplateLib } from "./components/external-packages/uri-template.js";
 
 const RestNamespace = "TypeSpec.Rest";
 
@@ -22,9 +23,8 @@ export async function $onEmit(context: EmitContext) {
   const apiDir = path.join(sourcesDir, "api");
   const  utilitiesDir = path.join(sourcesDir, "utilities");
   const service = listServices(context.program)[0]!;
-
   return (
-    <ay.Output namePolicy={tsNamePolicy}>
+    <ay.Output namePolicy={tsNamePolicy} externals={[uriTemplateLib]}>
       <ts.PackageDirectory name="test-package" version="1.0.0" path={outputDir}>
         <ay.SourceDirectory path={sourcesDir}>
           <ay.SourceDirectory path={modelsDir}>
