@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         private static readonly InputModelType _catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
         [
             InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
-            InputFactory.Property("willScratchOwner", InputPrimitiveType.Boolean, isRequired: true, isDiscriminator: true)
+            InputFactory.Property("willScratchOwner", InputPrimitiveType.Boolean, isRequired: true)
         ]);
         private static readonly InputModelType _dogModel = InputFactory.Model("dog", discriminatedKind: "dog", properties:
         [
@@ -29,6 +29,26 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             "pet",
             properties: [InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)],
             discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", _catModel }, { "dog", _dogModel } });
+
+        private static readonly InputEnumType _petEnum = InputFactory.Enum("pet", InputPrimitiveType.String, isExtensible: true, values:
+        [
+            InputFactory.EnumMember.String("cat", "cat"),
+            InputFactory.EnumMember.String("dog", "dog")
+        ]);
+        private static readonly InputModelType _catEnumModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
+        [
+            InputFactory.Property("kind", _petEnum, isRequired: true, isDiscriminator: true),
+            InputFactory.Property("willScratchOwner", InputPrimitiveType.Boolean, isRequired: true)
+        ]);
+        private static readonly InputModelType _dogEnumModel = InputFactory.Model("dog", discriminatedKind: "dog", properties:
+        [
+            InputFactory.Property("kind", _petEnum, isRequired: true, isDiscriminator: true),
+            InputFactory.Property("likesBones", InputPrimitiveType.Boolean, isRequired: true)
+        ]);
+        private static readonly InputModelType _baseEnumModel = InputFactory.Model(
+            "pet",
+            properties: [InputFactory.Property("kind", _petEnum, isRequired: true, isDiscriminator: true)],
+            discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", _catEnumModel }, { "dog", _dogEnumModel } });
 
         [Test]
         public void BaseShouldBeAbstract()
@@ -153,6 +173,39 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             var serializationCtor = unknownModel!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
             Assert.IsNotNull(serializationCtor);
             Assert.AreEqual("kind", serializationCtor!.Signature.Parameters[0].Name);
+        }
+
+        [Test]
+        public void BaseDoesNotHaveDiscriminatorField()
+        {
+            MockHelpers.LoadMockPlugin(inputModelTypes: [_baseEnumModel, _catEnumModel, _dogEnumModel]);
+            var outputLibrary = CodeModelPlugin.Instance.OutputLibrary;
+            var baseModel = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "Pet");
+            Assert.IsNotNull(baseModel);
+            Assert.IsFalse(baseModel!.Fields.Any(f => f.Name == "_kind"));
+        }
+
+        [Test]
+        public void BaseKindPropertyIsNotVirtual()
+        {
+            MockHelpers.LoadMockPlugin(inputModelTypes: [_baseEnumModel, _catEnumModel, _dogEnumModel]);
+            var outputLibrary = CodeModelPlugin.Instance.OutputLibrary;
+            var baseModel = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "Pet");
+            Assert.IsNotNull(baseModel);
+            var kindProperty = baseModel!.Properties.FirstOrDefault(p => p.Name == "Kind");
+            Assert.IsNotNull(kindProperty);
+            Assert.IsFalse(kindProperty!.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
+        }
+
+        [Test]
+        public void DerivedHasNoKindProperty()
+        {
+            MockHelpers.LoadMockPlugin(inputModelTypes: [_baseEnumModel, _catEnumModel, _dogEnumModel]);
+            var outputLibrary = CodeModelPlugin.Instance.OutputLibrary;
+            var catModel = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "Cat");
+            Assert.IsNotNull(catModel);
+            var kindProperty = catModel!.Properties.FirstOrDefault(p => p.Name == "Kind");
+            Assert.IsNull(kindProperty);
         }
     }
 }
