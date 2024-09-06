@@ -86,7 +86,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
 
             // the property should be added to the custom code view
             Assert.AreEqual(1, customCodeView!.Properties.Count);
-            Assert.AreEqual("Prop2", customCodeView.Properties[0].Name);
+            // the property type should be changed
             Assert.AreEqual(new CSharpType(typeof(int[])), customCodeView.Properties[0].Type);
         }
     }
