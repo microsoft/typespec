@@ -26,8 +26,10 @@ import com.azure.core.util.logging.ClientLogger;
 import com.azure.resourcemanager.models.resources.fluent.ResourcesClient;
 import com.azure.resourcemanager.models.resources.implementation.NestedProxyResourcesImpl;
 import com.azure.resourcemanager.models.resources.implementation.ResourcesClientBuilder;
+import com.azure.resourcemanager.models.resources.implementation.SingletonTrackedResourcesImpl;
 import com.azure.resourcemanager.models.resources.implementation.TopLevelTrackedResourcesImpl;
 import com.azure.resourcemanager.models.resources.models.NestedProxyResources;
+import com.azure.resourcemanager.models.resources.models.SingletonTrackedResources;
 import com.azure.resourcemanager.models.resources.models.TopLevelTrackedResources;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -44,6 +46,8 @@ public final class ResourcesManager {
     private TopLevelTrackedResources topLevelTrackedResources;
 
     private NestedProxyResources nestedProxyResources;
+
+    private SingletonTrackedResources singletonTrackedResources;
 
     private final ResourcesClient clientObject;
 
@@ -278,6 +282,19 @@ public final class ResourcesManager {
             this.nestedProxyResources = new NestedProxyResourcesImpl(clientObject.getNestedProxyResources(), this);
         }
         return nestedProxyResources;
+    }
+
+    /**
+     * Gets the resource collection API of SingletonTrackedResources.
+     * 
+     * @return Resource collection API of SingletonTrackedResources.
+     */
+    public SingletonTrackedResources singletonTrackedResources() {
+        if (this.singletonTrackedResources == null) {
+            this.singletonTrackedResources
+                = new SingletonTrackedResourcesImpl(clientObject.getSingletonTrackedResources(), this);
+        }
+        return singletonTrackedResources;
     }
 
     /**
