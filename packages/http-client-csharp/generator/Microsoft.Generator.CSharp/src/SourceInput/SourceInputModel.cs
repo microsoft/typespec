@@ -16,8 +16,6 @@ namespace Microsoft.Generator.CSharp.SourceInput
 {
     public class SourceInputModel
     {
-        private readonly CodeGenAttributes _codeGenAttributes;
-
         public Compilation? Customization { get; }
         private Lazy<Compilation?> _previousContract;
         public Compilation? PreviousContract => _previousContract.Value;
@@ -28,8 +26,6 @@ namespace Microsoft.Generator.CSharp.SourceInput
         {
             Customization = customization;
             _previousContract = new(() => LoadBaselineContract().GetAwaiter().GetResult());
-
-            _codeGenAttributes = new CodeGenAttributes();
 
             _nameMap = new(PopulateNameMap);
         }
