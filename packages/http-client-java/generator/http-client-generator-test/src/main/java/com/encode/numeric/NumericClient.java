@@ -18,6 +18,7 @@ import com.azure.core.util.BinaryData;
 import com.encode.numeric.implementation.PropertiesImpl;
 import com.encode.numeric.models.SafeintAsStringProperty;
 import com.encode.numeric.models.Uint32AsStringProperty;
+import com.encode.numeric.models.Uint8AsStringProperty;
 
 /**
  * Initializes a new instance of the synchronous NumericClient type.
@@ -55,7 +56,7 @@ public final class NumericClient {
      * }
      * }</pre>
      * 
-     * @param body The body parameter.
+     * @param value The value parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -65,8 +66,8 @@ public final class NumericClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> safeintAsStringWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.safeintAsStringWithResponse(body, requestOptions);
+    public Response<BinaryData> safeintAsStringWithResponse(BinaryData value, RequestOptions requestOptions) {
+        return this.serviceClient.safeintAsStringWithResponse(value, requestOptions);
     }
 
     /**
@@ -87,7 +88,7 @@ public final class NumericClient {
      * }
      * }</pre>
      * 
-     * @param body The body parameter.
+     * @param value The value parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -97,14 +98,46 @@ public final class NumericClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> uint32AsStringOptionalWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.uint32AsStringOptionalWithResponse(body, requestOptions);
+    public Response<BinaryData> uint32AsStringOptionalWithResponse(BinaryData value, RequestOptions requestOptions) {
+        return this.serviceClient.uint32AsStringOptionalWithResponse(value, requestOptions);
+    }
+
+    /**
+     * The uint8AsString operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>{@code
+     * {
+     *     value: int (Required)
+     * }
+     * }</pre>
+     * 
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>{@code
+     * {
+     *     value: int (Required)
+     * }
+     * }</pre>
+     * 
+     * @param value The value parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> uint8AsStringWithResponse(BinaryData value, RequestOptions requestOptions) {
+        return this.serviceClient.uint8AsStringWithResponse(value, requestOptions);
     }
 
     /**
      * The safeintAsString operation.
      * 
-     * @param body The body parameter.
+     * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -115,17 +148,17 @@ public final class NumericClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public SafeintAsStringProperty safeintAsString(SafeintAsStringProperty body) {
+    public SafeintAsStringProperty safeintAsString(SafeintAsStringProperty value) {
         // Generated convenience method for safeintAsStringWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return safeintAsStringWithResponse(BinaryData.fromObject(body), requestOptions).getValue()
+        return safeintAsStringWithResponse(BinaryData.fromObject(value), requestOptions).getValue()
             .toObject(SafeintAsStringProperty.class);
     }
 
     /**
      * The uint32AsStringOptional operation.
      * 
-     * @param body The body parameter.
+     * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -136,10 +169,31 @@ public final class NumericClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Uint32AsStringProperty uint32AsStringOptional(Uint32AsStringProperty body) {
+    public Uint32AsStringProperty uint32AsStringOptional(Uint32AsStringProperty value) {
         // Generated convenience method for uint32AsStringOptionalWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return uint32AsStringOptionalWithResponse(BinaryData.fromObject(body), requestOptions).getValue()
+        return uint32AsStringOptionalWithResponse(BinaryData.fromObject(value), requestOptions).getValue()
             .toObject(Uint32AsStringProperty.class);
+    }
+
+    /**
+     * The uint8AsString operation.
+     * 
+     * @param value The value parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Uint8AsStringProperty uint8AsString(Uint8AsStringProperty value) {
+        // Generated convenience method for uint8AsStringWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return uint8AsStringWithResponse(BinaryData.fromObject(value), requestOptions).getValue()
+            .toObject(Uint8AsStringProperty.class);
     }
 }
