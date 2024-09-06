@@ -9,8 +9,6 @@ namespace Microsoft.Generator.CSharp.Input
 {
     internal sealed class TypeSpecInputTypeConverter : JsonConverter<InputType>
     {
-        private const string KindPropertyName = "Kind";
-
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
         public TypeSpecInputTypeConverter(TypeSpecReferenceHandler referenceHandler)
@@ -20,13 +18,13 @@ namespace Microsoft.Generator.CSharp.Input
 
         public override InputType? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return reader.ReadReferenceAndResolve<InputType>(_referenceHandler.CurrentResolver) ?? CreateObject(ref reader, options);
+            return reader.ReadReferenceAndResolve<InputType>(_referenceHandler.CurrentResolver) ?? CreateInputType(ref reader, options);
         }
 
         public override void Write(Utf8JsonWriter writer, InputType value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        private InputType CreateObject(ref Utf8JsonReader reader, JsonSerializerOptions options)
+        private InputType CreateInputType(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
             string? id = null;
             string? kind = null;
@@ -36,8 +34,8 @@ namespace Microsoft.Generator.CSharp.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isIdOrNameOrKind = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadString(KindPropertyName, ref kind)
-                    || reader.TryReadString(nameof(InputType.Name), ref name);
+                    || reader.TryReadString("kind", ref kind)
+                    || reader.TryReadString("name", ref name);
 
                 if (isIdOrNameOrKind)
                 {
