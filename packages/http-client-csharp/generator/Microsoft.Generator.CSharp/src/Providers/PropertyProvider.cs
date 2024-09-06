@@ -20,10 +20,10 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public FormattableString Description { get; }
         public XmlDocSummaryStatement XmlDocSummary { get; }
-        public MethodSignatureModifiers Modifiers { get; }
+        public MethodSignatureModifiers Modifiers { get; internal set; }
         public CSharpType Type { get; }
-        public string Name { get; }
-        public PropertyBody Body { get; private set; }
+        public string Name { get; internal set; }
+        public PropertyBody Body { get; internal set; }
         public CSharpType? ExplicitInterface { get; }
         public XmlDocProvider XmlDocs { get; private set; }
         public PropertyWireInformation? WireInfo { get; }
@@ -84,7 +84,7 @@ namespace Microsoft.Generator.CSharp.Providers
             EnclosingType = enclosingType;
             IsDiscriminator = inputProperty.IsDiscriminator;
 
-            InitializeParameter(Name, FormattableStringHelpers.FromString(inputProperty.Description), Type);
+            InitializeParameter(Name, FormattableStringHelpers.FromString(inputProperty.Description) ?? FormattableStringHelpers.Empty, Type);
         }
 
         public PropertyProvider(

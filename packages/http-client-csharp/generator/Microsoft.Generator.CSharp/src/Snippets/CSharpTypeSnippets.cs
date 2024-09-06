@@ -7,9 +7,9 @@ using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Snippets
+namespace Microsoft.Generator.CSharp.Snippets
 {
-    internal static class CSharpTypeSnippets
+    public static class CSharpTypeSnippets
     {
         public static ValueExpression ToEnum(this CSharpType type, ValueExpression valueExpression)
         {

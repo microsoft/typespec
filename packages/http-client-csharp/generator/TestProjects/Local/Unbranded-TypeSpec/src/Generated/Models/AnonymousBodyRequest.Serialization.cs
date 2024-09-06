@@ -12,7 +12,7 @@ using UnbrandedTypeSpec;
 namespace UnbrandedTypeSpec.Models
 {
     /// <summary></summary>
-    public partial class AnonymousBodyRequest : IJsonModel<AnonymousBodyRequest>
+    internal partial class AnonymousBodyRequest : IJsonModel<AnonymousBodyRequest>
     {
         internal AnonymousBodyRequest()
         {
