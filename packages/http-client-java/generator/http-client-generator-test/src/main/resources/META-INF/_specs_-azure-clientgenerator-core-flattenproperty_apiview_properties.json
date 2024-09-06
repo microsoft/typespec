@@ -1,0 +1,20 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com._specs_.azure.clientgenerator.core.flattenproperty.FlattenPropertyAsyncClient": "_Specs_.Azure.ClientGenerator.Core.FlattenProperty",
+    "com._specs_.azure.clientgenerator.core.flattenproperty.FlattenPropertyAsyncClient.putFlattenModel": "_Specs_.Azure.ClientGenerator.Core.FlattenProperty.putFlattenModel",
+    "com._specs_.azure.clientgenerator.core.flattenproperty.FlattenPropertyAsyncClient.putFlattenModelWithResponse": "_Specs_.Azure.ClientGenerator.Core.FlattenProperty.putFlattenModel",
+    "com._specs_.azure.clientgenerator.core.flattenproperty.FlattenPropertyAsyncClient.putNestedFlattenModel": "_Specs_.Azure.ClientGenerator.Core.FlattenProperty.putNestedFlattenModel",
+    "com._specs_.azure.clientgenerator.core.flattenproperty.FlattenPropertyAsyncClient.putNestedFlattenModelWithResponse": "_Specs_.Azure.ClientGenerator.Core.FlattenProperty.putNestedFlattenModel",
+    "com._specs_.azure.clientgenerator.core.flattenproperty.FlattenPropertyClient": "_Specs_.Azure.ClientGenerator.Core.FlattenProperty",
+    "com._specs_.azure.clientgenerator.core.flattenproperty.FlattenPropertyClient.putFlattenModel": "_Specs_.Azure.ClientGenerator.Core.FlattenProperty.putFlattenModel",
+    "com._specs_.azure.clientgenerator.core.flattenproperty.FlattenPropertyClient.putFlattenModelWithResponse": "_Specs_.Azure.ClientGenerator.Core.FlattenProperty.putFlattenModel",
+    "com._specs_.azure.clientgenerator.core.flattenproperty.FlattenPropertyClient.putNestedFlattenModel": "_Specs_.Azure.ClientGenerator.Core.FlattenProperty.putNestedFlattenModel",
+    "com._specs_.azure.clientgenerator.core.flattenproperty.FlattenPropertyClient.putNestedFlattenModelWithResponse": "_Specs_.Azure.ClientGenerator.Core.FlattenProperty.putNestedFlattenModel",
+    "com._specs_.azure.clientgenerator.core.flattenproperty.FlattenPropertyClientBuilder": "_Specs_.Azure.ClientGenerator.Core.FlattenProperty",
+    "com._specs_.azure.clientgenerator.core.flattenproperty.models.ChildFlattenModel": "_Specs_.Azure.ClientGenerator.Core.FlattenProperty.ChildFlattenModel",
+    "com._specs_.azure.clientgenerator.core.flattenproperty.models.ChildModel": "_Specs_.Azure.ClientGenerator.Core.FlattenProperty.ChildModel",
+    "com._specs_.azure.clientgenerator.core.flattenproperty.models.FlattenModel": "_Specs_.Azure.ClientGenerator.Core.FlattenProperty.FlattenModel",
+    "com._specs_.azure.clientgenerator.core.flattenproperty.models.NestedFlattenModel": "_Specs_.Azure.ClientGenerator.Core.FlattenProperty.NestedFlattenModel"
+  }
+}
