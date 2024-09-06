@@ -76,7 +76,7 @@ interface TypeRelationError {
     | "missing-property"
     | "unexpected-property";
   message: string;
-  child?: TypeRelationError;
+  children: readonly TypeRelationError[];
   target: Entity | Node;
   /** If the first error and it has a child show the child error at this target instead */
   skipIfFirst?: boolean;
@@ -151,12 +151,12 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     errors: readonly TypeRelationError[],
     diagnosticBase: Entity | Node
   ): readonly Diagnostic[] {
-    return errors.map((x) => convertErrorToDiagnostic(x, diagnosticBase));
+    return errors.flatMap((x) => convertErrorToDiagnostic(x, diagnosticBase));
   }
 
   function combineErrorMessage(error: TypeRelationError): string {
     let message = error.message;
-    let current = error.child;
+    let current = error.children[0];
     let indent = "  ";
     while (current !== undefined) {
       message += current.message
@@ -164,38 +164,40 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
         .map((line) => `\n${indent}${line}`)
         .join("");
       indent += "  ";
-      current = current.child;
+      current = current.children[0];
     }
     return message;
   }
 
+  function flattenErrors(
+    error: TypeRelationError,
+    diagnosticBase: Entity | Node
+  ): TypeRelationError[] {
+    if (!isTargetChildOf(error.target, diagnosticBase)) {
+      return [{ ...error, target: diagnosticBase }];
+    }
+    if (error.children.length === 0) {
+      return [error];
+    }
+    return error.children.flatMap((x) => flattenErrors(x, error.target));
+  }
   function convertErrorToDiagnostic(
     error: TypeRelationError,
     diagnosticBase: Entity | Node
-  ): Diagnostic {
-    let current = error;
-    let target = diagnosticBase;
-    let base = error;
-    while (true) {
-      if (isTargetChildOf(current.target, diagnosticBase)) {
-        base = current;
-        target = current.target;
-      }
-      if (current.child === undefined) {
-        break;
-      }
-      current = current.child;
-    }
+  ): Diagnostic[] {
+    const flattened = flattenErrors(error, diagnosticBase);
+    return flattened.map((error) => {
+      const messageBase =
+        error.skipIfFirst && error.children.length > 0 ? error.children[0] : error;
+      const message = combineErrorMessage(messageBase);
 
-    const messageBase = base.skipIfFirst && base.child ? base.child : base;
-    const message = combineErrorMessage(messageBase);
-
-    return {
-      severity: "error",
-      code: base.code,
-      message: message,
-      target,
-    };
+      return {
+        severity: "error",
+        code: error.code,
+        message: message,
+        target: error.target,
+      };
+    });
   }
 
   /**
@@ -966,7 +968,7 @@ function wrapUnassignableErrors(
   errors: readonly TypeRelationError[]
 ): readonly TypeRelationError[] {
   const error = createUnassignableDiagnostic(source, target, source);
-  error.child = errors[0];
+  error.children = errors;
   return [error];
 }
 function wrapUnassignablePropertyErrors(
@@ -981,7 +983,7 @@ function wrapUnassignablePropertyErrors(
     },
     skipIfFirst: true,
   });
-  error.child = errors[0];
+  error.children = errors;
   return [error];
 }
 function createTypeRelationError<const C extends TypeRelationError["code"]>({
@@ -1002,6 +1004,7 @@ function createTypeRelationError<const C extends TypeRelationError["code"]>({
     message: details ? `${diag.message}\n  ${details}` : diag.message,
     target: diagnosticTarget,
     skipIfFirst,
+    children: [],
   };
 }
 

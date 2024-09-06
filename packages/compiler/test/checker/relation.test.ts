@@ -842,7 +842,10 @@ describe("compiler: checker: type relations", () => {
         { source: `Record<int32>`, target: "Record<string>" },
         {
           code: "unassignable",
-          message: "Type 'int32' is not assignable to type 'string'",
+          message: [
+            `Type 'Record<int32>' is not assignable to type 'Record<string>'`,
+            "  Type 'int32' is not assignable to type 'string'",
+          ].join("\n"),
         }
       );
     });
@@ -1783,12 +1786,13 @@ describe("relation error target and messages", () => {
     await expectRelationDiagnostics(
       `
       const b = #{a: "abc"};
-      const a: { prop: { b: string } } = #{ ┆prop: b┆ };`,
+      const a: { prop: { a: int32 } } = #{ ┆prop: b┆ };`,
       {
-        code: "property-unassignable",
+        code: "unassignable",
         message: [
-          `Type '{ a: "abc" }' is not assignable to type '{ b: string }'`,
-          `  Property 'b' is missing on type '{ a: "abc" }' but required in '{ b: string }'`,
+          `Type '{ a: "abc" }' is not assignable to type '{ a: int32 }'`,
+          `  Types of property 'a' are incompatible`,
+          `    Type '"abc"' is not assignable to type 'int32'`,
         ].join("\n"),
       }
     );
