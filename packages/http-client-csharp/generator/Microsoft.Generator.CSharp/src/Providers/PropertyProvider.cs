@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -35,6 +37,8 @@ namespace Microsoft.Generator.CSharp.Providers
         public ParameterProvider AsParameter => _parameter.Value;
 
         public TypeProvider EnclosingType { get; }
+
+        public IEnumerable<AttributeData>? Attributes { get; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -95,7 +99,8 @@ namespace Microsoft.Generator.CSharp.Providers
             PropertyBody body,
             TypeProvider enclosingType,
             CSharpType? explicitInterface = null,
-            PropertyWireInformation? wireInfo = null)
+            PropertyWireInformation? wireInfo = null,
+            IEnumerable<AttributeData>? attributes = null)
         {
             Description = description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter);
             XmlDocSummary = new XmlDocSummaryStatement([Description]);
@@ -107,6 +112,7 @@ namespace Microsoft.Generator.CSharp.Providers
             XmlDocs = GetXmlDocs();
             WireInfo = wireInfo;
             EnclosingType = enclosingType;
+            Attributes = attributes;
 
             InitializeParameter(Name, description ?? FormattableStringHelpers.Empty, Type);
         }

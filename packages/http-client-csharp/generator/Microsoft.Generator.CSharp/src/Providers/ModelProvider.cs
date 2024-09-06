@@ -172,38 +172,41 @@ namespace Microsoft.Generator.CSharp.Providers
                     continue;
 
                 var outputProperty = CodeModelPlugin.Instance.TypeFactory.CreatePropertyProvider(property, this);
-                if (outputProperty != null)
+                if (outputProperty is null)
+                    continue;
+
+                if (HasCustomProperty(outputProperty))
+                    continue;
+
+                if (!property.IsDiscriminator)
                 {
-                    if (!property.IsDiscriminator)
+                    var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
+                    if (derivedProperty is not null)
                     {
-                        var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
-                        if (derivedProperty is not null)
+                        if (derivedProperty.Type.Equals(property.Type) && DomainEqual(property, derivedProperty))
                         {
-                            if (derivedProperty.Type.Equals(property.Type) && DomainEqual(property, derivedProperty))
-                            {
-                                outputProperty.Modifiers |= MethodSignatureModifiers.Virtual;
-                            }
-                        }
-                        var baseProperty = baseProperties.GetValueOrDefault(property.Name);
-                        if (baseProperty is not null)
-                        {
-                            if (baseProperty.Type.Equals(property.Type) && DomainEqual(baseProperty, property))
-                            {
-                                outputProperty.Modifiers |= MethodSignatureModifiers.Override;
-                            }
-                            else
-                            {
-                                outputProperty.Modifiers |= MethodSignatureModifiers.New;
-                                var fieldName = $"_{baseProperty.Name.ToVariableName()}";
-                                outputProperty.Body = new ExpressionPropertyBody(
-                                    This.Property(fieldName).NullCoalesce(Default),
-                                    outputProperty.Body.HasSetter ? This.Property(fieldName).Assign(Value) : null);
-                            }
+                            outputProperty.Modifiers |= MethodSignatureModifiers.Virtual;
                         }
                     }
-
-                    properties.Add(outputProperty);
+                    var baseProperty = baseProperties.GetValueOrDefault(property.Name);
+                    if (baseProperty is not null)
+                    {
+                        if (baseProperty.Type.Equals(property.Type) && DomainEqual(baseProperty, property))
+                        {
+                            outputProperty.Modifiers |= MethodSignatureModifiers.Override;
+                        }
+                        else
+                        {
+                            outputProperty.Modifiers |= MethodSignatureModifiers.New;
+                            var fieldName = $"_{baseProperty.Name.ToVariableName()}";
+                            outputProperty.Body = new ExpressionPropertyBody(
+                                This.Property(fieldName).NullCoalesce(Default),
+                                outputProperty.Body.HasSetter ? This.Property(fieldName).Assign(Value) : null);
+                        }
+                    }
                 }
+
+                properties.Add(outputProperty);
             }
 
             if (AdditionalPropertiesProperty != null)
@@ -212,6 +215,14 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             return [.. properties];
+        }
+
+        private bool HasCustomProperty(PropertyProvider property)
+        {
+            if (CustomCodeView == null)
+                return false;
+
+            return CustomCodeView.PropertySet.Contains(property.Name);
         }
 
         private static bool DomainEqual(InputModelProperty baseProperty, InputModelProperty derivedProperty)

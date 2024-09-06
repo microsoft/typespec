@@ -53,6 +53,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return [.. fields];
         }
 
+        // skip properties that have a matching name in custom view
+
         protected override PropertyProvider[] BuildProperties()
         {
             List<PropertyProvider> properties = new List<PropertyProvider>();
@@ -64,7 +66,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     GetCSharpType(propertySymbol.Type),
                     propertySymbol.Name,
                     new AutoPropertyBody(propertySymbol.SetMethod is not null),
-                    this);
+                    this,
+                    attributes: propertySymbol.GetAttributes());
                 properties.Add(propertyProvider);
             }
             return [.. properties];

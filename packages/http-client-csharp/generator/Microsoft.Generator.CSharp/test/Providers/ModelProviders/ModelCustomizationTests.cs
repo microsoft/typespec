@@ -11,7 +11,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
     public class ModelCustomizationTests
     {
         // Validates that the property body's setter is correctly set based on the property type
-        [TestCase]
+        [Test]
         public void TestCustomization_CanChangeModelName()
         {
             MockHelpers.LoadMockPlugin(customization: Helpers.GetCompilationFromFile());
@@ -30,6 +30,34 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
             Assert.AreEqual("NewNamespace.Models", modelTypeProvider.Type.Namespace);
             Assert.AreEqual(customCodeView?.Name, modelTypeProvider.Type.Name);
             Assert.AreEqual(customCodeView?.Type.Namespace, modelTypeProvider.Type.Namespace);
+        }
+
+        [Test]
+        public void TestCustomization_CanChangePropertyName()
+        {
+            MockHelpers.LoadMockPlugin(customization: Helpers.GetCompilationFromFile());
+
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputFactory.Array(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+            var modelTypeProvider = new ModelProvider(inputModel);
+            var customCodeView = modelTypeProvider.CustomCodeView;
+
+            Assert.IsNotNull(customCodeView);
+            Assert.AreEqual("MockInputModel", modelTypeProvider.Type.Name);
+            Assert.AreEqual("Sample.Models", modelTypeProvider.Type.Namespace);
+            Assert.AreEqual(customCodeView?.Name, modelTypeProvider.Type.Name);
+            Assert.AreEqual(customCodeView?.Type.Namespace, modelTypeProvider.Type.Namespace);
+
+            // the property should be filtered from the model provider
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+
+            // the property should be added to the custom code view
+            Assert.AreEqual(1, customCodeView!.Properties.Count);
+            Assert.AreEqual("Prop2", customCodeView.Properties[0].Name);
         }
     }
 }
