@@ -221,6 +221,7 @@ async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executa
     // we use CLI instead of NODE_OPTIONS environment variable in this case
     // because --nolazy is not supported by NODE_OPTIONS.
     const options = nodeOptions?.split(" ").filter((o) => o) ?? [];
+    logger.debug("TypeSpec server resolved in development mode");
     return { command: "node", args: [...options, script, ...args] };
   }
 
@@ -241,11 +242,14 @@ async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executa
 
   // Default to tsp-server on PATH, which would come from `npm install -g
   // @typespec/compiler` in a vanilla setup.
-  if (!serverPath) {
+  if (serverPath) {
+    logger.debug(`Server path loaded from VS Code configuration: ${serverPath}`);
+  } else {
     serverPath = await resolveLocalCompiler(workspaceFolder);
   }
   if (!serverPath) {
     const executable = process.platform === "win32" ? "tsp-server.cmd" : "tsp-server";
+    logger.debug(`Can't resolve server path, try to use default value ${executable}.`);
     return { command: executable, args, options };
   }
   const variableResolver = new VSCodeVariableResolver({
@@ -254,6 +258,7 @@ async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executa
   });
 
   serverPath = variableResolver.resolve(serverPath);
+  logger.debug(`Server path expanded to: ${serverPath}`);
 
   if (!serverPath.endsWith(".js")) {
     // Allow path to tsp-server.cmd to be passed.
