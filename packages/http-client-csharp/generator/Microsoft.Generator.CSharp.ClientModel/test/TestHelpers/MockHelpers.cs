@@ -5,10 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.SourceInput;
 using Moq;
 using Moq.Protected;
 
@@ -95,6 +97,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             {
                 mockPluginInstance.Setup(p => p.InputLibrary).Returns(createInputLibrary);
             }
+
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null)) { CallBase = true };
+            mockPluginInstance.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
 
             codeModelInstance!.SetValue(null, mockPluginInstance.Object);
             clientModelInstance!.SetValue(null, mockPluginInstance.Object);

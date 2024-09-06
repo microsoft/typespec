@@ -120,6 +120,8 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public AssignmentExpression Assign(ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(this, value, nullCoalesce);
 
+        public ValueExpression NullCoalesce(ValueExpression right) => new BinaryOperatorExpression("??", this, right);
+
         public string ToDisplayString() => GetDebuggerDisplay();
 
         private string GetDebuggerDisplay()

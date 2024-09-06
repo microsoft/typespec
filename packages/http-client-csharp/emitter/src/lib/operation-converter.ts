@@ -117,7 +117,7 @@ export function getParameterDefaultValue(
   if (
     clientDefaultValue === undefined ||
     // a constant parameter should overwrite client default value
-    parameterType.Kind === "constant"
+    parameterType.kind === "constant"
   ) {
     return undefined;
   }
@@ -125,9 +125,9 @@ export function getParameterDefaultValue(
   const kind = getValueType(clientDefaultValue);
   return {
     Type: {
-      Kind: kind,
-      Name: kind,
-      CrossLanguageDefinitionId: `TypeSpec.${kind}`,
+      kind: kind,
+      name: kind,
+      crossLanguageDefinitionId: `TypeSpec.${kind}`,
     },
     Value: clientDefaultValue,
   };
@@ -185,7 +185,7 @@ function fromSdkHttpOperationParameter(
   const parameterType = fromSdkType(p.type, sdkContext, typeMap);
   // remove this after: https://github.com/Azure/typespec-azure/issues/1084
   if (p.type.kind === "bytes") {
-    (parameterType as InputPrimitiveType).Encode = (
+    (parameterType as InputPrimitiveType).encode = (
       p.correspondingMethodParams[0].type as SdkBuiltInType
     ).encode;
   }
@@ -202,7 +202,7 @@ function fromSdkHttpOperationParameter(
       p.name.toLocaleLowerCase() === "apiversion" || p.name.toLocaleLowerCase() === "api-version",
     IsContentType: isContentType,
     IsEndpoint: false,
-    Explode: parameterType.Kind === "array" && format === "multi" ? true : false,
+    Explode: parameterType.kind === "array" && format === "multi" ? true : false,
     ArraySerializationDelimiter: format ? collectionFormatToDelimMap[format] : undefined,
     IsRequired: !p.optional,
     Kind: getParameterKind(p, parameterType, rootApiVersions.length > 0),
@@ -373,12 +373,12 @@ function getParameterKind(
   hasGlobalApiVersion: boolean
 ): InputOperationParameterKind {
   if (p.kind === "body") {
-    if (type.Kind === "model" && (type.Usage & UsageFlags.Spread) !== 0) {
+    if (type.kind === "model" && (type.usage & UsageFlags.Spread) !== 0) {
       return InputOperationParameterKind.Spread;
     }
     return InputOperationParameterKind.Method;
   }
-  return type.Kind === "constant"
+  return type.kind === "constant"
     ? InputOperationParameterKind.Constant
     : p.isApiVersionParam
       ? hasGlobalApiVersion

@@ -25,8 +25,6 @@ export interface EmitterOptions {
 
   "skip-special-headers"?: string[];
 
-  namer?: boolean;
-
   "generate-samples"?: boolean;
   "generate-tests"?: boolean;
 
@@ -72,9 +70,6 @@ const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
 
     // header
     "skip-special-headers": { type: "array", items: { type: "string" }, nullable: true },
-
-    // namer
-    namer: { type: "boolean", nullable: true, default: false },
 
     // sample and test
     "generate-samples": { type: "boolean", nullable: true, default: true },

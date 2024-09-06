@@ -95,8 +95,9 @@ configuration:
               - addLabel:
                   label: emitter:client:java
           - if:
-              - filesMatchPattern:
-                  pattern: packages/http-client-python/.*
+              - includesModifiedFiles:
+                  files:
+                    - packages/http-client-python/**/*
             then:
               - addLabel:
                   label: emitter:client:python

@@ -48,9 +48,9 @@ export function createContentTypeOrAcceptParameter(
 ): InputParameter {
   const isContentType: boolean = nameInRequest.toLowerCase() === "content-type";
   const inputType: InputPrimitiveType = {
-    Kind: "string",
-    Name: "string",
-    CrossLanguageDefinitionId: "TypeSpec.string",
+    kind: "string",
+    name: "string",
+    crossLanguageDefinitionId: "TypeSpec.string",
   };
   return {
     Name: name,

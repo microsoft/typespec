@@ -403,9 +403,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         null,
                         []),
                     // return Volatile.Read(ref _cachedClient) ?? Interlocked.CompareExchange(ref _cachedClient, new Client(_pipeline, _keyCredential, _endpoint), null) ?? _cachedClient;
-                    Return(NullCoalescing(
-                        Static(typeof(Volatile)).Invoke(nameof(Volatile.Read), cachedClientFieldVar),
-                        NullCoalescing(interlockedCompareExchange, subClientInstance._clientCachingField))),
+                    Return(
+                        Static(typeof(Volatile)).Invoke(nameof(Volatile.Read), cachedClientFieldVar)
+                        .NullCoalesce(interlockedCompareExchange.NullCoalesce(subClientInstance._clientCachingField))),
                     this);
                 methods.Add(factoryMethod);
             }
