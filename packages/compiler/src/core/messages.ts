@@ -447,6 +447,12 @@ const diagnostics = {
       default: paramMessage`Type '${"sourceType"}' is not assignable to type '${"targetType"}'`,
     },
   },
+  "property-unassignable": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Types of property '${"propName"}' are incompatible`,
+    },
+  },
   "property-required": {
     severity: "error",
     messages: {

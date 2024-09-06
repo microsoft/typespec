@@ -1718,7 +1718,7 @@ describe("compiler: checker: type relations", () => {
   });
 });
 
-describe.only("relation error target and messages", () => {
+describe("relation error target and messages", () => {
   async function expectRelationDiagnostics(code: string, expected: DiagnosticMatch) {
     const { pos, end, source } = extractSquiggles(code, "┆");
     const diagnostics = await runner.diagnose(source);
@@ -1768,8 +1768,24 @@ describe.only("relation error target and messages", () => {
         code: "unassignable",
         message: [
           `Type '{ prop: { a: "abc" } }' is not assignable to type '{ prop: {} }'`,
-          `  Type '{ a: "abc" }' is not assignable to type '{}'`,
-          `    Object value may only specify known properties, and 'a' does not exist in type '{}'.`,
+          `  Types of property 'prop' are incompatible`,
+          `    Type '{ a: "abc" }' is not assignable to type '{}'`,
+          `      Object value may only specify known properties, and 'a' does not exist in type '{}'.`,
+        ].join("\n"),
+      }
+    );
+  });
+
+  it("show up error in the further node without leaving the base", async () => {
+    await expectRelationDiagnostics(
+      `
+      const b = #{a: "abc"};
+      const a: { prop: { b: string } } = #{ ┆prop: b┆ };`,
+      {
+        code: "property-unassignable",
+        message: [
+          `Type '{ a: "abc" }' is not assignable to type '{ b: string }'`,
+          `  Property 'b' is missing on type '{ a: "abc" }' but required in '{ b: string }'`,
         ].join("\n"),
       }
     );

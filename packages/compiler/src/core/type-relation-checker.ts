@@ -52,6 +52,7 @@ enum Related {
 interface TypeRelationError {
   code:
     | "unassignable"
+    | "property-unassignable"
     | "missing-index"
     | "property-required"
     | "missing-property"
@@ -59,6 +60,8 @@ interface TypeRelationError {
   message: string;
   child?: TypeRelationError;
   target: Entity | Node;
+  /** If the first error and it has a child show the child error at this target instead */
+  skipIfFirst?: boolean;
 }
 
 /**
@@ -183,7 +186,9 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       }
       current = current.child;
     }
-    const message = combineErrorMessage(base);
+
+    const messageBase = base.skipIfFirst && base.child ? base.child : base;
+    const message = combineErrorMessage(messageBase);
 
     return {
       severity: "error",
@@ -682,14 +687,14 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
             })
           );
         }
-        const [related, propDiagnostics] = isTypeAssignableToInternal(
+        const [related, propErrors] = isTypeAssignableToInternal(
           sourceProperty.type,
           prop.type,
           diagnosticTarget,
           relationCache
         );
         if (!related) {
-          errors.push(...propDiagnostics);
+          errors.push(...wrapUnassignablePropertyErrors(sourceProperty, prop, propErrors));
         }
       }
     }
@@ -940,6 +945,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     diagnosticTarget: Entity | Node;
     format: DiagnosticReport<CompilerDiagnostics, C, "default">["format"];
     details?: string;
+    skipIfFirst?: boolean;
   }
 
   function createTypeRelationError<const C extends TypeRelationError["code"]>({
@@ -947,6 +953,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     format,
     details,
     diagnosticTarget,
+    skipIfFirst,
   }: TypeRelationeErrorInit<C>): TypeRelationError {
     const diag = createDiagnostic({
       code: code as any,
@@ -958,6 +965,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       code: code,
       message: details ? `${diag.message}\n  ${details}` : diag.message,
       target: diagnosticTarget,
+      skipIfFirst,
     };
   }
 
@@ -984,6 +992,22 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     errors: readonly TypeRelationError[]
   ): readonly TypeRelationError[] {
     const error = createUnassignableDiagnostic(source, target, source);
+    error.child = errors[0];
+    return [error];
+  }
+  function wrapUnassignablePropertyErrors(
+    source: ModelProperty,
+    target: ModelProperty,
+    errors: readonly TypeRelationError[]
+  ): readonly TypeRelationError[] {
+    const error = createTypeRelationError({
+      code: "property-unassignable",
+      diagnosticTarget: source,
+      format: {
+        propName: source.name,
+      },
+      skipIfFirst: true,
+    });
     error.child = errors[0];
     return [error];
   }
