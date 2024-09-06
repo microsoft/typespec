@@ -222,7 +222,7 @@ namespace Microsoft.Generator.CSharp.Providers
             if (CustomCodeView == null)
                 return false;
 
-            return CustomCodeView.PropertySet.Contains(property.Name);
+            return CustomCodeView.PropertyNames.Contains(property.Name);
         }
 
         private static bool DomainEqual(InputModelProperty baseProperty, InputModelProperty derivedProperty)

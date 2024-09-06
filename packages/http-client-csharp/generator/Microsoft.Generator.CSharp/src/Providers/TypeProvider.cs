@@ -14,7 +14,7 @@ namespace Microsoft.Generator.CSharp.Providers
     public abstract class TypeProvider
     {
         private Lazy<TypeProvider?> _customCodeView;
-        private HashSet<string>? _propertySet;
+        private HashSet<string>? _propertyNames;
 
         protected TypeProvider()
         {
@@ -125,7 +125,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private IReadOnlyList<PropertyProvider>? _properties;
         public IReadOnlyList<PropertyProvider> Properties => _properties ??= BuildProperties();
 
-        internal HashSet<string> PropertySet => _propertySet ??= BuildPropertySet();
+        internal HashSet<string> PropertyNames => _propertyNames ??= BuildPropertyNames();
 
         private IReadOnlyList<MethodProvider>? _methods;
         public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethods();
@@ -151,21 +151,21 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected virtual PropertyProvider[] BuildProperties() => [];
 
-        private HashSet<string> BuildPropertySet()
+        private HashSet<string> BuildPropertyNames()
         {
-            var propertySet = new HashSet<string>();
+            var propertyNames = new HashSet<string>();
             foreach (var property in Properties)
             {
-                propertySet.Add(property.Name);
+                propertyNames.Add(property.Name);
                 foreach (var attribute in property.Attributes ?? [])
                 {
                     if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var name))
                     {
-                        propertySet.Add(name);
+                        propertyNames.Add(name);
                     }
                 }
             }
-            return propertySet;
+            return propertyNames;
         }
 
         protected virtual FieldProvider[] BuildFields() => [];
