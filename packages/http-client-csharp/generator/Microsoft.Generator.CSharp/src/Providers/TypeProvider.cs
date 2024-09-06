@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
@@ -119,8 +120,37 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public IReadOnlyList<CSharpType> Implements => _implements ??= BuildImplements();
 
+        private IReadOnlyList<T> DeduplicateFromCustomCodeView<T>(IReadOnlyList<T> generated, Func<T, bool> predicate) where T : notnull
+        {
+            if (CustomCodeView == null)
+            {
+                return generated;
+            }
+
+            var result = new List<T>(generated.Count);
+            foreach (var item in generated)
+            {
+                if (predicate(item))
+                {
+                    continue;
+                }
+                result.Add(item);
+            }
+            return result;
+        }
+
         private IReadOnlyList<PropertyProvider>? _properties;
-        public IReadOnlyList<PropertyProvider> Properties => _properties ??= BuildProperties();
+        public IReadOnlyList<PropertyProvider> Properties => _properties ??= DeduplicateFromCustomCodeView(BuildProperties(), IsPropertyInCustom);
+
+        private bool IsPropertyInCustom(PropertyProvider property)
+        {
+            if (CustomCodeView == null)
+            {
+                return false;
+            }
+            // TODO -- maybe we could optimize this with a HashSet
+            return CustomCodeView.Properties.Any(p => p.Name == property.Name);
+        }
 
         private IReadOnlyList<MethodProvider>? _methods;
         public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethods();
