@@ -59,4 +59,11 @@ public interface ResourcesClient {
      * @return the NestedProxyResourcesClient object.
      */
     NestedProxyResourcesClient getNestedProxyResources();
+
+    /**
+     * Gets the SingletonTrackedResourcesClient object to access its operations.
+     * 
+     * @return the SingletonTrackedResourcesClient object.
+     */
+    SingletonTrackedResourcesClient getSingletonTrackedResources();
 }

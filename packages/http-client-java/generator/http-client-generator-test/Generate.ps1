@@ -123,16 +123,16 @@ Set-Location ./generator/http-client-generator-test
 
 
 if (Test-Path node_modules) {
-    Remove-Item node_modules -Recurse -Force
+  Remove-Item node_modules -Recurse -Force
 }
 
 if (Test-Path package-lock.json) {
-    Remove-Item package-lock.json
+  Remove-Item package-lock.json
 }
 
 # delete output
 if (Test-Path tsp-output) {
-    Remove-Item tsp-output -Recurse -Force
+  Remove-Item tsp-output -Recurse -Force
 }
 npm install 
 
