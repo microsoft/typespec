@@ -112,7 +112,7 @@ describe("@name", () => {
     });
   });
 
-  it("compare with the json name1", async () => {
+  it("set the json name and no xml name", async () => {
     const res = await oapiForModel(
       "Book",
       `
