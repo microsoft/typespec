@@ -56,6 +56,7 @@ public class TypeSpecServiceClientMapper extends ServiceClientMapper {
         builder.methodGroupClients(methodGroupClients);
 
         if (proxy == null && CoreUtils.isNullOrEmpty(methodGroupClients)) {
+            // No operation in this client, and no operation group as well. Abort the processing.
             return null;
         }
 
