@@ -55,6 +55,10 @@ public class TypeSpecServiceClientMapper extends ServiceClientMapper {
                 .forEach(og -> methodGroupClients.add(Mappers.getMethodGroupMapper().map(og, properties)));
         builder.methodGroupClients(methodGroupClients);
 
+        if (proxy == null && CoreUtils.isNullOrEmpty(methodGroupClients)) {
+            return null;
+        }
+
         if (proxy == null) {
             proxy = methodGroupClients.iterator().next().getProxy();
         }
