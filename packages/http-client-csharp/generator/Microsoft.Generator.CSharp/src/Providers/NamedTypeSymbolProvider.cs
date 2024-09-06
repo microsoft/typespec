@@ -53,8 +53,6 @@ namespace Microsoft.Generator.CSharp.Providers
             return [.. fields];
         }
 
-        // skip properties that have a matching name in custom view
-
         protected override PropertyProvider[] BuildProperties()
         {
             List<PropertyProvider> properties = new List<PropertyProvider>();
