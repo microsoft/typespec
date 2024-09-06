@@ -26,11 +26,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
             var modelTypeProvider = new ModelProvider(inputModel);
             var customCodeView = modelTypeProvider.CustomCodeView;
 
-            Assert.IsNotNull(customCodeView);
-            Assert.AreEqual("CustomizedModel", modelTypeProvider.Type.Name);
-            Assert.AreEqual("NewNamespace.Models", modelTypeProvider.Type.Namespace);
-            Assert.AreEqual(customCodeView?.Name, modelTypeProvider.Type.Name);
-            Assert.AreEqual(customCodeView?.Type.Namespace, modelTypeProvider.Type.Namespace);
+            AssertCommon(customCodeView, modelTypeProvider, "NewNamespace.Models", "CustomizedModel");
         }
 
         [Test]
@@ -47,11 +43,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
             var modelTypeProvider = new ModelProvider(inputModel);
             var customCodeView = modelTypeProvider.CustomCodeView;
 
-            Assert.IsNotNull(customCodeView);
-            Assert.AreEqual("MockInputModel", modelTypeProvider.Type.Name);
-            Assert.AreEqual("Sample.Models", modelTypeProvider.Type.Namespace);
-            Assert.AreEqual(customCodeView?.Name, modelTypeProvider.Type.Name);
-            Assert.AreEqual(customCodeView?.Type.Namespace, modelTypeProvider.Type.Namespace);
+            AssertCommon(customCodeView, modelTypeProvider, "Sample.Models", "MockInputModel");
 
             // the property should be filtered from the model provider
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
@@ -75,11 +67,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
             var modelTypeProvider = new ModelProvider(inputModel);
             var customCodeView = modelTypeProvider.CustomCodeView;
 
-            Assert.IsNotNull(customCodeView);
-            Assert.AreEqual("MockInputModel", modelTypeProvider.Type.Name);
-            Assert.AreEqual("Sample.Models", modelTypeProvider.Type.Namespace);
-            Assert.AreEqual(customCodeView?.Name, modelTypeProvider.Type.Name);
-            Assert.AreEqual(customCodeView?.Type.Namespace, modelTypeProvider.Type.Namespace);
+            AssertCommon(customCodeView, modelTypeProvider, "Sample.Models", "MockInputModel");
 
             // the property should be filtered from the model provider
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
@@ -104,11 +92,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
             var modelTypeProvider = new ModelProvider(inputModel);
             var customCodeView = modelTypeProvider.CustomCodeView;
 
-            Assert.IsNotNull(customCodeView);
-            Assert.AreEqual("MockInputModel", modelTypeProvider.Type.Name);
-            Assert.AreEqual("Sample.Models", modelTypeProvider.Type.Namespace);
-            Assert.AreEqual(customCodeView?.Name, modelTypeProvider.Type.Name);
-            Assert.AreEqual(customCodeView?.Type.Namespace, modelTypeProvider.Type.Namespace);
+            AssertCommon(customCodeView, modelTypeProvider, "Sample.Models", "MockInputModel");
 
             // the property should be filtered from the model provider
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
@@ -117,6 +101,15 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
             Assert.AreEqual(1, customCodeView!.Properties.Count);
             // the property accessibility should be changed
             Assert.IsTrue(customCodeView.Properties[0].Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+        }
+
+        private static void AssertCommon(TypeProvider? customCodeView, ModelProvider modelTypeProvider, string expectedNamespace, string expectedName)
+        {
+            Assert.IsNotNull(customCodeView);
+            Assert.AreEqual(expectedNamespace, modelTypeProvider.Type.Namespace);
+            Assert.AreEqual(expectedName, modelTypeProvider.Type.Name);
+            Assert.AreEqual(customCodeView?.Name, modelTypeProvider.Type.Name);
+            Assert.AreEqual(customCodeView?.Type.Namespace, modelTypeProvider.Type.Namespace);
         }
     }
 }
