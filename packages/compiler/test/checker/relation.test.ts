@@ -1757,6 +1757,29 @@ describe("relation error target and messages", () => {
     });
   });
 
+  it("report multiple extra property at assignment right on the property literal", async () => {
+    const { source: sourceTmp, ...pos1 } = extractSquiggles(
+      `const a: {} = #{┆a: "abc"┆, ┆b: "abc"┆};`,
+      "┆"
+    );
+    const { source, ...pos2 } = extractSquiggles(sourceTmp, "┆");
+    const diagnostics = await runner.diagnose(source);
+    expectDiagnostics(diagnostics, [
+      {
+        code: "unexpected-property",
+        message:
+          "Object value may only specify known properties, and 'a' does not exist in type '{}'.",
+        ...pos1,
+      },
+      {
+        code: "unexpected-property",
+        message:
+          "Object value may only specify known properties, and 'b' does not exist in type '{}'.",
+        ...pos2,
+      },
+    ]);
+  });
+
   it("report extra property at assignment right on the property literal (nested)", async () => {
     await expectRelationDiagnostics(`const a: {prop: {}} = #{ prop: #{┆a: "abc"┆}};`, {
       code: "unexpected-property",
