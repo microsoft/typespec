@@ -43,6 +43,24 @@ import {
   Value,
 } from "./types.js";
 
+export interface TypeRelation {
+  isTypeAssignableTo(
+    source: Entity | IndeterminateEntity,
+    target: Entity,
+    diagnosticTarget: Entity | Node
+  ): [boolean, readonly Diagnostic[]];
+
+  isValueOfType(
+    source: Value,
+    target: Type,
+    diagnosticTarget: Entity | Node
+  ): [boolean, readonly Diagnostic[]];
+
+  isReflectionType(type: Type): type is Model & { name: ReflectionTypeName };
+
+  areScalarsRelated(source: Scalar, target: Scalar): boolean;
+}
+
 enum Related {
   false = 0,
   true = 1,
@@ -85,24 +103,6 @@ const ReflectionNameToKind = {
 const _assertReflectionNameToKind: Record<string, Type["kind"]> = ReflectionNameToKind;
 
 type ReflectionTypeName = keyof typeof ReflectionNameToKind;
-
-export interface TypeRelation {
-  isTypeAssignableTo(
-    source: Entity | IndeterminateEntity,
-    target: Entity,
-    diagnosticTarget: Entity | Node
-  ): [boolean, readonly Diagnostic[]];
-
-  isValueOfType(
-    source: Value,
-    target: Type,
-    diagnosticTarget: Entity | Node
-  ): [boolean, readonly Diagnostic[]];
-
-  isReflectionType(type: Type): type is Model & { name: ReflectionTypeName };
-
-  areScalarsRelated(source: Scalar, target: Scalar): boolean;
-}
 
 export function createTypeRelationChecker(program: Program, checker: Checker): TypeRelation {
   return {
@@ -694,7 +694,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
           relationCache
         );
         if (!related) {
-          errors.push(...wrapUnassignablePropertyErrors(sourceProperty, prop, propErrors));
+          errors.push(...wrapUnassignablePropertyErrors(sourceProperty, propErrors));
         }
       }
     }
@@ -940,78 +940,6 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     }
   }
 
-  interface TypeRelationeErrorInit<C extends TypeRelationError["code"]> {
-    code: C;
-    diagnosticTarget: Entity | Node;
-    format: DiagnosticReport<CompilerDiagnostics, C, "default">["format"];
-    details?: string;
-    skipIfFirst?: boolean;
-  }
-
-  function createTypeRelationError<const C extends TypeRelationError["code"]>({
-    code,
-    format,
-    details,
-    diagnosticTarget,
-    skipIfFirst,
-  }: TypeRelationeErrorInit<C>): TypeRelationError {
-    const diag = createDiagnostic({
-      code: code as any,
-      format: format,
-      target: NoTarget,
-    });
-
-    return {
-      code: code,
-      message: details ? `${diag.message}\n  ${details}` : diag.message,
-      target: diagnosticTarget,
-      skipIfFirst,
-    };
-  }
-
-  function createUnassignableDiagnostic(
-    source: Entity,
-    target: Entity,
-    diagnosticTarget: Entity | Node,
-    details?: string
-  ): TypeRelationError {
-    return createTypeRelationError({
-      code: "unassignable",
-      format: {
-        sourceType: getEntityName(source),
-        targetType: getEntityName(target),
-      },
-      diagnosticTarget,
-      details,
-    });
-  }
-
-  function wrapUnassignableErrors(
-    source: Entity,
-    target: Entity,
-    errors: readonly TypeRelationError[]
-  ): readonly TypeRelationError[] {
-    const error = createUnassignableDiagnostic(source, target, source);
-    error.child = errors[0];
-    return [error];
-  }
-  function wrapUnassignablePropertyErrors(
-    source: ModelProperty,
-    target: ModelProperty,
-    errors: readonly TypeRelationError[]
-  ): readonly TypeRelationError[] {
-    const error = createTypeRelationError({
-      code: "property-unassignable",
-      diagnosticTarget: source,
-      format: {
-        propName: source.name,
-      },
-      skipIfFirst: true,
-    });
-    error.child = errors[0];
-    return [error];
-  }
-
   function isTypeSpecNamespace(
     namespace: Namespace
   ): namespace is Namespace & { name: "TypeSpec"; namespace: Namespace } {
@@ -1022,3 +950,75 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     );
   }
 }
+
+// #region Helpers
+interface TypeRelationeErrorInit<C extends TypeRelationError["code"]> {
+  code: C;
+  diagnosticTarget: Entity | Node;
+  format: DiagnosticReport<CompilerDiagnostics, C, "default">["format"];
+  details?: string;
+  skipIfFirst?: boolean;
+}
+
+function wrapUnassignableErrors(
+  source: Entity,
+  target: Entity,
+  errors: readonly TypeRelationError[]
+): readonly TypeRelationError[] {
+  const error = createUnassignableDiagnostic(source, target, source);
+  error.child = errors[0];
+  return [error];
+}
+function wrapUnassignablePropertyErrors(
+  source: ModelProperty,
+  errors: readonly TypeRelationError[]
+): readonly TypeRelationError[] {
+  const error = createTypeRelationError({
+    code: "property-unassignable",
+    diagnosticTarget: source,
+    format: {
+      propName: source.name,
+    },
+    skipIfFirst: true,
+  });
+  error.child = errors[0];
+  return [error];
+}
+function createTypeRelationError<const C extends TypeRelationError["code"]>({
+  code,
+  format,
+  details,
+  diagnosticTarget,
+  skipIfFirst,
+}: TypeRelationeErrorInit<C>): TypeRelationError {
+  const diag = createDiagnostic({
+    code: code as any,
+    format: format,
+    target: NoTarget,
+  });
+
+  return {
+    code: code,
+    message: details ? `${diag.message}\n  ${details}` : diag.message,
+    target: diagnosticTarget,
+    skipIfFirst,
+  };
+}
+
+function createUnassignableDiagnostic(
+  source: Entity,
+  target: Entity,
+  diagnosticTarget: Entity | Node,
+  details?: string
+): TypeRelationError {
+  return createTypeRelationError({
+    code: "unassignable",
+    format: {
+      sourceType: getEntityName(source),
+      targetType: getEntityName(target),
+    },
+    diagnosticTarget,
+    details,
+  });
+}
+// #endregion
