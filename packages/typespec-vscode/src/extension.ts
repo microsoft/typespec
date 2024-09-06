@@ -1,6 +1,6 @@
 import { ResolveModuleHost } from "@typespec/compiler/module-resolver";
 import { readFile, realpath, stat } from "fs/promises";
-import { join } from "path";
+import { dirname, isAbsolute, join, resolve } from "path";
 import vscode, { ExtensionContext, commands, workspace } from "vscode";
 import {
   Executable,
@@ -21,8 +21,7 @@ const outputChannel = new TypeSpecLogOutputChannel("TypeSpec");
 logger.outputChannel = outputChannel;
 
 export async function activate(context: ExtensionContext) {
-  const cli: Executable = await resolveTypeSpecCli(context);
-  context.subscriptions.push(createTaskProvider(context, cli));
+  context.subscriptions.push(await createTaskProvider());
 
   context.subscriptions.push(
     commands.registerCommand("typespec.showOutputChannel", () => {
@@ -43,7 +42,7 @@ export async function activate(context: ExtensionContext) {
   );
 }
 
-export function createTaskProvider(context: ExtensionContext, cli: Executable) {
+async function createTaskProvider() {
   return vscode.tasks.registerTaskProvider("typespec", {
     provideTasks: async () => {
       const targetPathes = await vscode.workspace
@@ -55,27 +54,31 @@ export function createTaskProvider(context: ExtensionContext, cli: Executable) {
         );
       const tasks: vscode.Task[] = [];
       for (const targetPath of targetPathes) {
-        const cTask = createTask(cli, `compile - ${targetPath}`, targetPath);
+        const cTask = await createTask(`compile - ${targetPath}`, targetPath);
         if (cTask) tasks.push(cTask);
-        const wTask = createTask(cli, `watch - ${targetPath}`, targetPath, "--watch");
+        const wTask = await createTask(`watch - ${targetPath}`, targetPath, "--watch");
         if (wTask) tasks.push(wTask);
       }
       return tasks;
     },
     resolveTask: async (task: vscode.Task): Promise<vscode.Task | undefined> => {
       if (task.definition.type === "typespec" && task.name && task.definition.path) {
-        const t = createTask(cli, task.name, task.definition.path, task.definition.args);
-        // returned task's definition must be the same object as the given task's definition
-        // otherwise vscode would report error that the task is not resolved
-        t.definition = task.definition;
-        return t;
+        const t = await createTask(task.name, task.definition.path, task.definition.args);
+        if (t) {
+          // returned task's definition must be the same object as the given task's definition
+          // otherwise vscode would report error that the task is not resolved
+          t.definition = task.definition;
+          return t;
+        } else {
+          return undefined;
+        }
       }
       return undefined;
     },
   });
 }
 
-export function createTask(cli: Executable, name: string, targetPath: string, args?: string) {
+async function createTask(name: string, targetPath: string, args?: string) {
   logger.debug(`Creating tsp task with path as '${targetPath}'`);
   let workspaceFolder = workspace.getWorkspaceFolder(vscode.Uri.file(targetPath))?.uri.fsPath;
   if (!workspaceFolder) {
@@ -88,7 +91,14 @@ export function createTask(cli: Executable, name: string, targetPath: string, ar
     workspaceFolder,
     workspaceRoot: workspaceFolder, // workspaceRoot is deprecated but we still support it for backwards compatibility.
   });
+  targetPath = variableResolver.resolve(targetPath);
+  targetPath = resolve(workspaceFolder, targetPath);
   targetPath = normalizeSlash(variableResolver.resolve(targetPath));
+  logger.debug(`Task target path resolved as '${targetPath}'`);
+  // TODO: we don't expect this will be triggered so frequently, so we just resolve every time for now.
+  //       Consider adding cache if we do see perf issue here.
+  const cli = await resolveTypeSpecCli(targetPath);
+  if (!cli) return undefined;
 
   let cmd = `${cli.command} ${cli.args?.join(" ") ?? ""} compile "${targetPath}" ${args === undefined ? "" : args}`;
   logger.debug(`tsp compile task created '${targetPath}' with command: '${cmd}'`);
@@ -167,25 +177,50 @@ async function launchLanguageClient(context: ExtensionContext) {
   }
 }
 
-async function resolveTypeSpecExecutable(
-  context: ExtensionContext,
-  mode: "cli" | "server"
-): Promise<Executable> {
-  const devModeScriptName = mode === "cli" ? "cli" : "server";
-  const cmdName = mode === "cli" ? "tsp" : "tsp-server";
-  const nodeOptions =
-    mode === "cli"
-      ? process.env.TYPESPEC_CLI_NODE_OPTIONS
-      : process.env.TYPESPEC_SERVER_MODE_OPTIONS;
-  const args: string[] = mode === "cli" ? [] : ["--stdio"];
+/**
+ *
+ * @param absoluteTargetPath the path is expected to be absolute path and no further expanding or resolving needed.
+ * @returns
+ */
+async function resolveTypeSpecCli(absoluteTargetPath: string): Promise<Executable | undefined> {
+  if (!isAbsolute(absoluteTargetPath)) {
+    logger.error(`Expect absolute path for resolving cli, but got ${absoluteTargetPath}`);
+    return undefined;
+  }
 
-  // In development mode (F5 launch from source), resolve to locally built cli.js or server.js.
+  const options: ExecutableOptions = {
+    env: { ...process.env },
+  };
+
+  const baseDir = (await isFile(absoluteTargetPath))
+    ? dirname(absoluteTargetPath)
+    : absoluteTargetPath;
+
+  const compilerPath = await resolveLocalCompiler(baseDir);
+  if (!compilerPath) {
+    const executable = process.platform === "win32" ? `tsp.cmd` : "tsp";
+    logger.debug(
+      `Can't resolve compiler path for tsp task, try to use default value ${executable}.`
+    );
+    return { command: executable, args: [], options };
+  } else {
+    logger.debug(`Compiler path resolved as: ${compilerPath}`);
+    const jsPath = join(compilerPath, "cmd/tsp.js");
+    options.env["TYPESPEC_SKIP_COMPILER_RESOLVE"] = "1";
+    return { command: "node", args: [jsPath], options };
+  }
+}
+
+async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executable> {
+  const nodeOptions = process.env.TYPESPEC_SERVER_NODE_OPTIONS;
+  const args = ["--stdio"];
+
+  // In development mode (F5 launch from source), resolve to locally built server.js.
   if (process.env.TYPESPEC_DEVELOPMENT_MODE) {
-    const script = context.asAbsolutePath(`../compiler/entrypoints/${devModeScriptName}.js`);
+    const script = context.asAbsolutePath("../compiler/entrypoints/server.js");
     // we use CLI instead of NODE_OPTIONS environment variable in this case
     // because --nolazy is not supported by NODE_OPTIONS.
     const options = nodeOptions?.split(" ").filter((o) => o) ?? [];
-    logger.debug(`TypeSpec command ${mode} resolved in development mode`);
     return { command: "node", args: [...options, script, ...args] };
   }
 
@@ -198,22 +233,19 @@ async function resolveTypeSpecExecutable(
 
   // In production, first try VS Code configuration, which allows a global machine
   // location that is not on PATH, or a workspace-specific installation.
-  let targetPath: string | undefined = workspace.getConfiguration().get(`typespec.${cmdName}.path`);
-  if (targetPath && typeof targetPath !== "string") {
-    throw new Error(`VS Code configuration option 'typespec.${cmdName}.path' must be a string`);
+  let serverPath: string | undefined = workspace.getConfiguration().get("typespec.tsp-server.path");
+  if (serverPath && typeof serverPath !== "string") {
+    throw new Error("VS Code configuration option 'typespec.tsp-server.path' must be a string");
   }
   const workspaceFolder = workspace.workspaceFolders?.[0]?.uri?.fsPath ?? "";
 
-  // Default to tsp/tsp-server on PATH, which would come from `npm install -g
+  // Default to tsp-server on PATH, which would come from `npm install -g
   // @typespec/compiler` in a vanilla setup.
-  if (targetPath) {
-    logger.debug(`Server path loaded from VS Code configuration: ${targetPath}`);
-  } else {
-    targetPath = await resolveLocalCompiler(workspaceFolder);
+  if (!serverPath) {
+    serverPath = await resolveLocalCompiler(workspaceFolder);
   }
-  if (!targetPath) {
-    const executable = process.platform === "win32" ? `${cmdName}.cmd` : cmdName;
-    logger.debug(`Can't resolve ${cmdName} path, try to use default value ${executable}.`);
+  if (!serverPath) {
+    const executable = process.platform === "win32" ? "tsp-server.cmd" : "tsp-server";
     return { command: executable, args, options };
   }
   const variableResolver = new VSCodeVariableResolver({
@@ -221,32 +253,24 @@ async function resolveTypeSpecExecutable(
     workspaceRoot: workspaceFolder, // workspaceRoot is deprecated but we still support it for backwards compatibility.
   });
 
-  targetPath = variableResolver.resolve(targetPath);
-  logger.debug(`Server path expanded to: ${targetPath}`);
+  serverPath = variableResolver.resolve(serverPath);
 
-  if (!targetPath.endsWith(".js")) {
-    // Allow path to tsp.cmd or tsp-server.cmd to be passed.
-    if (await isFile(targetPath)) {
+  if (!serverPath.endsWith(".js")) {
+    // Allow path to tsp-server.cmd to be passed.
+    if (await isFile(serverPath)) {
       const command =
-        process.platform === "win32" && !targetPath.endsWith(".cmd")
-          ? `${targetPath}.cmd`
-          : cmdName;
+        process.platform === "win32" && !serverPath.endsWith(".cmd")
+          ? `${serverPath}.cmd`
+          : "tsp-server";
 
       return { command, args, options };
     } else {
-      targetPath = join(targetPath, `cmd/${cmdName}.js`);
+      serverPath = join(serverPath, "cmd/tsp-server.js");
     }
   }
 
   options.env["TYPESPEC_SKIP_COMPILER_RESOLVE"] = "1";
-  return { command: "node", args: [targetPath, ...args], options };
-}
-
-async function resolveTypeSpecCli(context: ExtensionContext): Promise<Executable> {
-  return resolveTypeSpecExecutable(context, "cli");
-}
-async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executable> {
-  return resolveTypeSpecExecutable(context, "server");
+  return { command: "node", args: [serverPath, ...args], options };
 }
 
 async function resolveLocalCompiler(baseDir: string): Promise<string | undefined> {

@@ -35,14 +35,3 @@ This setting provides the ability to configure where the tsp compiler is located
   "typespec.tsp-server.path": "${workspaceFolder}/my-nested-project/node_modules/@typespec/compiler"
 }
 ```
-
-### `typespec.tsp.path`: Configure the tsp path
-
-There are cases where the TypeSpec project is located in a subfolder. In such cases, the TypeSpec extension is not able to find the tsp cli automatically and needs a little guidance.
-This setting provides the ability to configure where the tsp cli is located.
-
-```json
-{
-  "typespec.tsp.path": "${workspaceFolder}/my-nested-project/node_modules/@typespec/compiler"
-}
-```
