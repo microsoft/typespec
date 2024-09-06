@@ -964,8 +964,11 @@ describe("compiler: checker: type relations", () => {
         });
         ok(!related);
         expectDiagnostics(diagnostics, {
-          code: "missing-property",
-          message: "Property 'b' is missing on type 'A' but required in 'B'",
+          code: "unassignable",
+          message: [
+            `Type 'A' is not assignable to type 'B'`,
+            "  Property 'b' is missing on type 'A' but required in 'B'",
+          ].join("\n"),
         });
       });
     });
