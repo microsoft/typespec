@@ -39,7 +39,11 @@ export function $encodedName(
   existing.set(mimeType, name);
 }
 
-function getEncodedName(program: Program, target: Type, mimeType: string): string | undefined {
+export function getEncodedName(
+  program: Program,
+  target: Type,
+  mimeType: string
+): string | undefined {
   const mimeTypeObj = parseMimeType(mimeType);
   if (mimeTypeObj === undefined) {
     return undefined;

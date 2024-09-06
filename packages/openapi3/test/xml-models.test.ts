@@ -111,6 +111,25 @@ describe("@name", () => {
       },
     });
   });
+
+  it("compare with the json name1", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `
+        @encodedName("application/json", "jsonBook")
+        model Book {        
+          content: string;
+        };`
+    );
+
+    deepStrictEqual(res.schemas.Book, {
+      type: "object",
+      properties: {
+        content: { type: "string" },
+      },
+      required: ["content"],
+    });
+  });
 });
 
 describe("@attribute", () => {
