@@ -39,9 +39,9 @@ namespace Microsoft.Generator.CSharp.Input
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadString(nameof(InputUnionType.Name), ref name)
-                    || reader.TryReadWithConverter(nameof(InputUnionType.VariantTypes), options, ref variantTypes)
-                    || reader.TryReadWithConverter(nameof(InputUnionType.Decorators), options, ref decorators);
+                var isKnownProperty = reader.TryReadString("name", ref name)
+                    || reader.TryReadWithConverter("variantTypes", options, ref variantTypes)
+                    || reader.TryReadWithConverter("decorators", options, ref decorators);
 
                 if (!isKnownProperty)
                 {
