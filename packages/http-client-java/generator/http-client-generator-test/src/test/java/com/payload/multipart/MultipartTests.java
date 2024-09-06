@@ -19,6 +19,7 @@ import com.payload.multipart.models.FileSpecificContentType;
 import com.payload.multipart.models.FileWithHttpPartOptionalContentTypeRequest;
 import com.payload.multipart.models.FileWithHttpPartRequiredContentTypeRequest;
 import com.payload.multipart.models.FileWithHttpPartSpecificContentTypeRequest;
+import com.payload.multipart.models.FloatRequest;
 import com.payload.multipart.models.JsonPartRequest;
 import com.payload.multipart.models.MultiBinaryPartsRequest;
 import com.payload.multipart.models.MultiPartRequest;
@@ -40,12 +41,17 @@ import java.util.regex.Pattern;
 public class MultipartTests {
 
     private final MultipartFilenameValidationPolicy validationPolicy = new MultipartFilenameValidationPolicy();
-    private final MultiPartClient client = new MultiPartClientBuilder()
+
+    private final FormDataClient client = new MultiPartClientBuilder()
             .addPolicy(validationPolicy)
-            .buildClient();
-    private final MultiPartAsyncClient asyncClient = new MultiPartClientBuilder()
+            .buildFormDataClient();
+    private final FormDataAsyncClient asyncClient = new MultiPartClientBuilder()
             .addPolicy(validationPolicy)
-            .buildAsyncClient();
+            .buildFormDataAsyncClient();
+
+    private final FormDataHttpPartsContentTypeClient httpPartContentTypeClient = new MultiPartClientBuilder()
+            .addPolicy(validationPolicy)
+            .buildFormDataHttpPartsContentTypeClient();
 
     private static final Path FILE = FileUtils.getJpgFile();
 
@@ -229,7 +235,7 @@ public class MultipartTests {
 
     @Test
     public void testComplex() {
-        client.complex(new ComplexPartsRequest(
+        client.fileArrayAndBasic(new ComplexPartsRequest(
                 "123",
                 new Address("X"),
                 new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg"),
@@ -248,30 +254,43 @@ public class MultipartTests {
 
     @Test
     public void testFileWithHttpPartSpecificContentType() {
-        client.fileWithHttpPartSpecificContentType(new FileWithHttpPartSpecificContentTypeRequest(
+        httpPartContentTypeClient.imageJpegContentType(new FileWithHttpPartSpecificContentTypeRequest(
                 new FileSpecificContentType(BinaryData.fromFile(FILE), "hello.jpg")));
     }
 
     @Test
     public void testFileWithHttpPartRequiredContentType() {
-        client.fileWithHttpPartRequiredContentType(new FileWithHttpPartRequiredContentTypeRequest(
+        httpPartContentTypeClient.requiredContentType(new FileWithHttpPartRequiredContentTypeRequest(
                 new FileRequiredMetaData(BinaryData.fromFile(FILE), FILENAME, "application/octet-stream")));
     }
 
     @Test
     public void testFileWithHttpPartOptionalContentType() {
-        client.fileWithHttpPartOptionalContentType(new FileWithHttpPartOptionalContentTypeRequest(
+        httpPartContentTypeClient.optionalContentType(new FileWithHttpPartOptionalContentTypeRequest(
                 new FileOptionalContentType(BinaryData.fromFile(FILE), FILENAME).setContentType(FILE_CONTENT_TYPE)));
     }
 
     @Test
     public void testComplexWithHttpPart() {
-        client.complexWithHttpPart(new ComplexHttpPartsModelRequest(
+        FormDataHttpPartsClient client = new MultiPartClientBuilder()
+                .addPolicy(validationPolicy)
+                .buildFormDataHttpPartsClient();
+
+        client.jsonArrayAndFileArray(new ComplexHttpPartsModelRequest(
                 "123",
                 new Address("X"),
                 new FileRequiredMetaData(BinaryData.fromFile(FILE), FILENAME, FILE_CONTENT_TYPE),
                 List.of(new Address("Y"), new Address("Z")),
                 List.of(new FileRequiredMetaData(BinaryData.fromFile(PNG_FILE), FILENAME + "1", FILE_CONTENT_TYPE), new FileRequiredMetaData(BinaryData.fromFile(PNG_FILE), FILENAME + "2", FILE_CONTENT_TYPE))
         ));
+    }
+
+    @Test
+    public void testNonStringHttpPart() {
+        FormDataHttpPartsNonStringClient client = new MultiPartClientBuilder()
+                .addPolicy(validationPolicy)
+                .buildFormDataHttpPartsNonStringClient();
+
+        client.floatMethod(new FloatRequest(0.5));
     }
 }
