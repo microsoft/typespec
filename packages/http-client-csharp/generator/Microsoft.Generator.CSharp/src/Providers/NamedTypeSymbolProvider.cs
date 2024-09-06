@@ -64,8 +64,10 @@ namespace Microsoft.Generator.CSharp.Providers
                     GetCSharpType(propertySymbol.Type),
                     propertySymbol.Name,
                     new AutoPropertyBody(propertySymbol.SetMethod is not null),
-                    this,
-                    attributes: propertySymbol.GetAttributes());
+                    this)
+                {
+                    Attributes = propertySymbol.GetAttributes()
+                };
                 properties.Add(propertyProvider);
             }
             return [.. properties];

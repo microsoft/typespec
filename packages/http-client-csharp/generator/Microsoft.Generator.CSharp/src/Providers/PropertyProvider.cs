@@ -38,7 +38,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public TypeProvider EnclosingType { get; }
 
-        public IEnumerable<AttributeData>? Attributes { get; }
+        internal IEnumerable<AttributeData>? Attributes { get; init; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -99,8 +99,7 @@ namespace Microsoft.Generator.CSharp.Providers
             PropertyBody body,
             TypeProvider enclosingType,
             CSharpType? explicitInterface = null,
-            PropertyWireInformation? wireInfo = null,
-            IEnumerable<AttributeData>? attributes = null)
+            PropertyWireInformation? wireInfo = null)
         {
             Description = description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter);
             XmlDocSummary = new XmlDocSummaryStatement([Description]);
@@ -112,7 +111,6 @@ namespace Microsoft.Generator.CSharp.Providers
             XmlDocs = GetXmlDocs();
             WireInfo = wireInfo;
             EnclosingType = enclosingType;
-            Attributes = attributes;
 
             InitializeParameter(Name, description ?? FormattableStringHelpers.Empty, Type);
         }
