@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -13,9 +14,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
     {
         // Validates that the property body's setter is correctly set based on the property type
         [TestCase]
-        public void TestCustomization_CanChangeModelName()
+        public async Task TestCustomization_CanChangeModelName()
         {
-            MockHelpers.LoadMockPlugin(customization: Helpers.GetCompilationFromFile());
+            MockHelpers.LoadMockPlugin(customization: await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[]
             {
@@ -34,9 +35,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
         }
 
         [TestCase]
-        public void TestCustomization_CanChangeToStruct()
+        public async Task TestCustomization_CanChangeToStruct()
         {
-            MockHelpers.LoadMockPlugin(customization: Helpers.GetCompilationFromFile());
+            MockHelpers.LoadMockPlugin(customization: await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[]
             {
@@ -46,9 +47,43 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
             var modelTypeProvider = new ModelProvider(inputModel);
 
-            Assert.IsTrue(modelTypeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.ReadOnly));
-            Assert.IsTrue(modelTypeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct));
+            Assert.IsTrue(modelTypeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct));
             Assert.IsTrue(modelTypeProvider.Type.IsValueType);
+        }
+
+        [TestCase]
+        public async Task TestCustomization_CanChangeModelNameAndToStructAtSameTime()
+        {
+            MockHelpers.LoadMockPlugin(customization: await Helpers.GetCompilationFromDirectoryAsync());
+
+            var props = new[]
+            {
+                InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            Assert.IsTrue(modelTypeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct));
+            Assert.IsTrue(modelTypeProvider.Type.IsValueType);
+            Assert.AreEqual("CustomizedModel", modelTypeProvider.Type.Name);
+            Assert.AreEqual("NewNamespace.Models", modelTypeProvider.Type.Namespace);
+        }
+
+        [TestCase]
+        public async Task TestCustomization_CanChangeAccessibility()
+        {
+            MockHelpers.LoadMockPlugin(customization: await Helpers.GetCompilationFromDirectoryAsync());
+
+            var props = new[] {
+                InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            Assert.IsTrue(modelTypeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class));
+            Assert.IsFalse(modelTypeProvider.Type.IsPublic);
         }
     }
 }

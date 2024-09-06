@@ -39,17 +39,21 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 declaredModifiers |= TypeSignatureModifiers.Static;
             }
-            if (_namedTypeSymbol.IsSealed)
+            switch (_namedTypeSymbol.TypeKind)
             {
-                declaredModifiers |= TypeSignatureModifiers.Sealed;
-            }
-            if (_namedTypeSymbol.IsValueType)
-            {
-                declaredModifiers |= TypeSignatureModifiers.Struct;
-            }
-            else
-            {
-                declaredModifiers |= TypeSignatureModifiers.Class;
+                case TypeKind.Class:
+                    declaredModifiers |= TypeSignatureModifiers.Class;
+                    if (_namedTypeSymbol.IsSealed)
+                    {
+                        declaredModifiers |= TypeSignatureModifiers.Sealed;
+                    }
+                    break;
+                case TypeKind.Struct:
+                    declaredModifiers |= TypeSignatureModifiers.Struct;
+                    break;
+                case TypeKind.Interface:
+                    declaredModifiers |= TypeSignatureModifiers.Interface;
+                    break;
             }
             return declaredModifiers;
 

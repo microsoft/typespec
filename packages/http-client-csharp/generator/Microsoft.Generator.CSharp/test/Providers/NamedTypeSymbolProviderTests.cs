@@ -40,6 +40,13 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         }
 
         [Test]
+        public void ValidateModifiers()
+        {
+            var modifiers = _namedTypeSymbolProvider.DeclarationModifiers;
+            Assert.IsTrue(modifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class));
+        }
+
+        [Test]
         public void ValidateName()
         {
             Assert.AreEqual(_namedSymbol.Name, _namedTypeSymbolProvider.Name);

@@ -55,7 +55,6 @@ namespace Microsoft.Generator.CSharp.Tests
 
             CodeModelPlugin.Instance = mockPlugin.Object;
 
-
             return mockPlugin;
         }
     }
