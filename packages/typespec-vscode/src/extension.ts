@@ -1,5 +1,4 @@
 import { ResolveModuleHost } from "@typespec/compiler/module-resolver";
-import { existsSync } from "fs";
 import { readFile, realpath, stat } from "fs/promises";
 import { dirname, isAbsolute, join, resolve } from "path";
 import vscode, { ExtensionContext, commands, workspace } from "vscode";
@@ -9,7 +8,6 @@ import {
   LanguageClient,
   LanguageClientOptions,
 } from "vscode-languageclient/node.js";
-import { Cache } from "./cache.js";
 import logger from "./extension-logger.js";
 import { TypeSpecLogOutputChannel } from "./typespec-log-output-channel.js";
 import { normalizeSlash } from "./utils.js";
@@ -56,13 +54,9 @@ function createTaskProvider() {
             .map((uri) => normalizeSlash(uri.fsPath))
         );
       logger.info(`Found ${targetPathes.length} main.tsp files`);
-      const cache = new Cache<string>();
       const tasks: vscode.Task[] = [];
       for (const targetPath of targetPathes) {
-        const cTask = await createTask(`compile - ${targetPath}`, targetPath, undefined, cache);
-        if (cTask) tasks.push(cTask);
-        const wTask = await createTask(`watch - ${targetPath}`, targetPath, "--watch", cache);
-        if (wTask) tasks.push(wTask);
+        tasks.push(...(await createBuiltInTasks(targetPath)));
       }
       logger.info(`Provided ${tasks.length} tsp tasks`);
       return tasks;
@@ -84,12 +78,7 @@ function createTaskProvider() {
   });
 }
 
-async function createTask(
-  name: string,
-  targetPath: string,
-  args?: string,
-  compilerCache?: Cache<string>
-) {
+function getTaskPath(targetPath: string): { absoluteTargetPath: string; workspaceFolder: string } {
   let workspaceFolder = workspace.getWorkspaceFolder(vscode.Uri.file(targetPath))?.uri.fsPath;
   if (!workspaceFolder) {
     workspaceFolder = workspace.workspaceFolders?.[0]?.uri.fsPath ?? "";
@@ -104,20 +93,29 @@ async function createTask(
   targetPath = variableResolver.resolve(targetPath);
   targetPath = resolve(workspaceFolder, targetPath);
   targetPath = normalizeSlash(variableResolver.resolve(targetPath));
-  // TODO: we don't expect this will be triggered so frequently, so we just resolve every time for now.
-  //       Consider adding cache if we do see perf issue here.
-  const cli = await resolveTypeSpecCli(targetPath, compilerCache);
-  if (!cli) return undefined;
+  return { absoluteTargetPath: targetPath, workspaceFolder };
+}
 
-  let cmd = `${cli.command} ${cli.args?.join(" ") ?? ""} compile "${targetPath}" ${args === undefined ? "" : args}`;
+function createTaskInternal(
+  name: string,
+  absoluteTargetPath: string,
+  args: string,
+  cli: Executable,
+  workspaceFolder: string
+) {
+  let cmd = `${cli.command} ${cli.args?.join(" ") ?? ""} compile "${absoluteTargetPath}" ${args}`;
+  const variableResolver = new VSCodeVariableResolver({
+    workspaceFolder,
+    workspaceRoot: workspaceFolder, // workspaceRoot is deprecated but we still support it for backwards compatibility.
+  });
   cmd = variableResolver.resolve(cmd);
   logger.debug(
-    `Command of tsp compile task with targetPath "${targetPath}" is resolved to: ${cmd} with cwd "${workspaceFolder}"`
+    `Command of tsp compile task "${name}" is resolved to: ${cmd} with cwd "${workspaceFolder}"`
   );
   return new vscode.Task(
     {
       type: "typespec",
-      path: targetPath,
+      path: absoluteTargetPath,
       args: args,
     },
     vscode.TaskScope.Workspace,
@@ -127,6 +125,29 @@ async function createTask(
       ? new vscode.ShellExecution(cmd, { cwd: workspaceFolder })
       : new vscode.ShellExecution(cmd)
   );
+}
+
+async function createTask(name: string, targetPath: string, args?: string) {
+  const { absoluteTargetPath, workspaceFolder } = getTaskPath(targetPath);
+  const cli = await resolveTypeSpecCli(absoluteTargetPath);
+  if (!cli) {
+    return undefined;
+  }
+  return await createTaskInternal(name, absoluteTargetPath, args ?? "", cli, workspaceFolder);
+}
+
+async function createBuiltInTasks(targetPath: string): Promise<vscode.Task[]> {
+  const { absoluteTargetPath, workspaceFolder } = getTaskPath(targetPath);
+  const cli = await resolveTypeSpecCli(absoluteTargetPath);
+  if (!cli) {
+    return [];
+  }
+  return [
+    { name: `compile - ${targetPath}`, args: "" },
+    { name: `watch - ${targetPath}`, args: "--watch" },
+  ].map(({ name, args }) => {
+    return createTaskInternal(name, absoluteTargetPath, args, cli, workspaceFolder);
+  });
 }
 
 async function restartTypeSpecServer(): Promise<void> {
@@ -192,10 +213,7 @@ async function launchLanguageClient(context: ExtensionContext) {
  * @param absoluteTargetPath the path is expected to be absolute path and no further expanding or resolving needed.
  * @returns
  */
-async function resolveTypeSpecCli(
-  absoluteTargetPath: string,
-  compilerCache?: Cache<string>
-): Promise<Executable | undefined> {
+async function resolveTypeSpecCli(absoluteTargetPath: string): Promise<Executable | undefined> {
   if (!isAbsolute(absoluteTargetPath)) {
     logger.error(`Expect absolute path for resolving cli, but got ${absoluteTargetPath}`);
     return undefined;
@@ -209,7 +227,7 @@ async function resolveTypeSpecCli(
     ? dirname(absoluteTargetPath)
     : absoluteTargetPath;
 
-  const compilerPath = await resolveLocalCompilerSlim(baseDir, compilerCache);
+  const compilerPath = await resolveLocalCompiler(baseDir);
   if (!compilerPath || compilerPath.length === 0) {
     const executable = process.platform === "win32" ? `tsp.cmd` : "tsp";
     logger.debug(
@@ -289,43 +307,6 @@ async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executa
 
   options.env["TYPESPEC_SKIP_COMPILER_RESOLVE"] = "1";
   return { command: "node", args: [serverPath, ...args], options };
-}
-
-/**
- * Slim version of resolveLocalCompiler by simply checking the existence of "node_modules/@typespec/compiler"
- * this can provide a much better performance which is important when we need to do compiler resolving lots of times (i.e. when providing built-in tsp tasks in task provider for all the main.tsp files in opened workspace which may be a lot)
- * @param baseDir absolute path is expected and no further expanding or resolving needed. Please be aware that no check will be done to the param. It's caller's responsibility to ensure the param is valid.
- * @param cache cache to store the resolved compiler path for each folder ("path" -> ".../node_modules/@typespec/compiler"). If provided, the cache will be used to speed up the resolving process.
- * @returns the path of the .../node_modules/@typespec/compiler folder or "" if not found.
- */
-async function resolveLocalCompilerSlim(
-  absoluteBaseDir: string,
-  cache?: Cache<string>
-): Promise<string> {
-  let curDir = absoluteBaseDir;
-  let lastDir = "";
-  const pathToCache: string[] = [];
-  while (curDir !== lastDir) {
-    const found = cache?.get(curDir);
-    // "" is also a valid cache value, so we need to check undefined explicitly.
-    if (found !== undefined) {
-      cache?.setAll(pathToCache, found);
-      return found;
-    }
-
-    pathToCache.push(curDir);
-    const compilerPath = join(curDir, "node_modules/@typespec/compiler");
-    // Just check existence should be enough. We don't expect a file named "@typespec/compiler" to be under node_modules folder...
-    // Also did some rough perf test and the existsSync() has better perf than access() and stat() in most cases.
-    if (existsSync(compilerPath)) {
-      cache?.setAll(pathToCache, compilerPath);
-      return compilerPath;
-    }
-    lastDir = curDir;
-    curDir = dirname(curDir);
-  }
-  cache?.setAll(pathToCache, "");
-  return "";
 }
 
 async function resolveLocalCompiler(baseDir: string): Promise<string | undefined> {
