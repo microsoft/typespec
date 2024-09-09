@@ -38,7 +38,11 @@ const entrypoint =
     ? rawEntrypoint
     : normalizePath(resolve(rawEntrypoint));
 
-const loader = await createSourceLoader(ImporterHost);
+const loader = await createSourceLoader(ImporterHost, {
+  externals: (path: string) => {
+    return !(path === entrypoint || path.startsWith("."));
+  },
+});
 await loader.importFile(entrypoint);
 
 if (loader.resolution.diagnostics.length > 0) {

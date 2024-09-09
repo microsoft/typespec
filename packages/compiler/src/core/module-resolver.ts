@@ -108,10 +108,12 @@ export async function resolveModule(
 
   const { baseDir } = options;
   const absoluteStart = baseDir === "" ? "." : await realpath(resolvePath(baseDir));
+  console.log("Resolve3", name);
 
   if (!(await isDirectory(host, absoluteStart))) {
     throw new TypeError(`Provided basedir '${baseDir}'is not a directory.`);
   }
+  console.log("Resolve4", name);
 
   // Check if the module name is referencing a path(./foo, /foo, file:/foo)
   if (/^(?:\.\.?(?:\/|$)|\/|([A-Za-z]:)?[/\\])/.test(name)) {
@@ -122,7 +124,11 @@ export async function resolveModule(
     }
   }
 
+  console.log("Resolve5", name);
+
   const module = await findAsNodeModule(name, absoluteStart);
+  console.log("Resolve6", name);
+
   if (module) return module;
 
   throw new ResolveModuleError(

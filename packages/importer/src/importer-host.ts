@@ -1,4 +1,9 @@
-import { createSourceFile, NodeHost, type CompilerHost } from "@typespec/compiler";
+import {
+  createSourceFile,
+  getAnyExtensionFromPath,
+  NodeHost,
+  type CompilerHost,
+} from "@typespec/compiler";
 
 /**
  * Special host that tries to load data from additional locations
@@ -9,11 +14,10 @@ export const ImporterHost: CompilerHost = {
     console.log("State", pathOrUrl);
     if (pathOrUrl.startsWith("http://") || pathOrUrl.startsWith("https://")) {
       const res = await fetch(pathOrUrl);
-      console.log("Res", res);
 
       return {
         isFile: () => res.status === 200,
-        isDirectory: () => false,
+        isDirectory: () => getAnyExtensionFromPath(pathOrUrl) === "",
       };
     }
     return NodeHost.stat(pathOrUrl);
@@ -24,5 +28,11 @@ export const ImporterHost: CompilerHost = {
       return createSourceFile(await res.text(), pathOrUrl);
     }
     return NodeHost.readFile(pathOrUrl);
+  },
+  realpath: async (path) => {
+    if (path.startsWith("http://") || path.startsWith("https://")) {
+      return path;
+    }
+    return NodeHost.realpath(path);
   },
 };
