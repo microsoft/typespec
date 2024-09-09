@@ -25,7 +25,6 @@ import {
   getDiscriminator,
   getDoc,
   getEncode,
-  getEncodedName,
   getExamples,
   getFormat,
   getKnownValues,
@@ -652,17 +651,32 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
   }
 
-  #attachXmlObjectForScalarModel(
-    program: Program,
-    prop: Scalar | Model,
-    emitObject: OpenAPI3Schema
-  ) {
+  #attachXmlObjectForScalar(program: Program, prop: Scalar | Model, emitObject: OpenAPI3Schema) {
     const xmlObject: OpenAPI3XmlSchema = {};
 
     // Resolve XML name
-    const xmlName = getEncodedName(program, prop, "application/xml");
-    const jsonName = getEncodedName(program, prop, "application/json");
-    if (xmlName && xmlName !== jsonName) {
+    const xmlName = resolveEncodedName(program, prop, "application/xml");
+    xmlObject.name = xmlName;
+
+    // Get and set XML namespace if present
+    const currNs = getNs(program, prop);
+    if (currNs) {
+      xmlObject.prefix = currNs.prefix;
+      xmlObject.namespace = currNs.namespace;
+    }
+
+    // Attach xml schema to emitObject if not empty
+    if (Object.keys(xmlObject).length !== 0) {
+      emitObject.xml = xmlObject;
+    }
+  }
+
+  #attachXmlObjectForModel(program: Program, prop: Scalar | Model, emitObject: OpenAPI3Schema) {
+    const xmlObject: OpenAPI3XmlSchema = {};
+
+    // Resolve XML name
+    const xmlName = resolveEncodedName(program, prop, "application/xml");
+    if (xmlName !== prop.name) {
       xmlObject.name = xmlName;
     }
 
@@ -688,18 +702,17 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     let isXmlModel = false;
     if (prop.model) {
-      const xmlNameForModel = getEncodedName(program, prop.model, "application/xml");
-      const jsonNameForModel = resolveEncodedName(program, prop.model, "application/json");
+      const xmlNameForModel = resolveEncodedName(program, prop.model, "application/xml");
 
-      if (xmlNameForModel && xmlNameForModel !== jsonNameForModel) {
+      if (xmlNameForModel && xmlNameForModel !== prop.model.name) {
         isXmlModel = true;
       }
     }
 
     // Resolve XML name
-    const xmlName = getEncodedName(program, prop, "application/xml");
-    const jsonName = getEncodedName(program, prop, "application/json");
-    if (xmlName && xmlName !== jsonName) {
+    const xmlName = resolveEncodedName(program, prop, "application/xml");
+    const jsonName = resolveEncodedName(program, prop, "application/json");
+    if (xmlName && xmlName !== prop.name && xmlName !== jsonName) {
       xmlObject.name = xmlName;
     }
 
@@ -877,8 +890,10 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     switch (type.kind) {
       case "Scalar":
+        this.#attachXmlObjectForScalar(program, type, schema);
+        break;
       case "Model":
-        this.#attachXmlObjectForScalarModel(program, type, schema);
+        this.#attachXmlObjectForModel(program, type, schema);
         break;
       case "ModelProperty":
         this.#attachXmlObjectForModelProperty(program, type, schema);

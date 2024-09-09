@@ -107,7 +107,7 @@ import {
   Value,
 } from "../core/types.js";
 
-export { $encodedName, getEncodedName, resolveEncodedName } from "./encoded-names.js";
+export { $encodedName, resolveEncodedName } from "./encoded-names.js";
 export { serializeValueAsJson } from "./examples.js";
 export * from "./service.js";
 export { ExampleOptions };

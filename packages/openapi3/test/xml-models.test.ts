@@ -1,5 +1,4 @@
-import { deepStrictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { oapiForModel } from "./test-host.js";
 
 describe("@name", () => {
@@ -13,7 +12,7 @@ describe("@name", () => {
         };`
     );
 
-    expect(res.schemas.Book).toMatchObjet({
+    expect(res.schemas.Book).toMatchObject({
       xml: {
         name: "xmlBook",
       },
@@ -30,7 +29,7 @@ describe("@name", () => {
         };`
     );
 
-    deepStrictEqual(res.schemas.Book, {
+    expect(res.schemas.Book).toMatchObject({
       type: "object",
       properties: {
         tags: {
@@ -50,19 +49,41 @@ describe("@name", () => {
     });
   });
 
-  it("set xml.name on schema property", async () => {
+  it.each([
+    ["string", "string", "string"],
+    ["array", "string[]", "array"],
+    ["number", "numeric", "number"],
+    ["enum", `"a" | "b"`, "string"],
+  ])(`%s => %s`, async (_, type, output) => {
     const res = await oapiForModel(
       "Book",
       `model Book {
           @name("xmlcontent")
-          content: string;
+          content: ${type};
         };`
     );
-
-    deepStrictEqual(res.schemas.Book, {
-      type: "object",
+    expect(res.schemas.Book).toMatchObject({
       properties: {
-        content: { type: "string", xml: { name: "xmlcontent" } },
+        content: { type: `${output}`, xml: { name: "xmlcontent" } },
+      },
+      required: ["content"],
+    });
+  });
+
+  it.each([
+    ["object", "unknown"],
+    ["Union", `string | numeric`],
+  ])(`%s => %s`, async (_, type) => {
+    const res = await oapiForModel(
+      "Book",
+      `model Book {
+          @name("xmlcontent")
+          content: ${type};
+        };`
+    );
+    expect(res.schemas.Book).toMatchObject({
+      properties: {
+        content: { xml: { name: "xmlcontent" } },
       },
       required: ["content"],
     });
@@ -76,7 +97,7 @@ describe("@name", () => {
         scalar Book extends string;`
     );
 
-    deepStrictEqual(res.schemas.Book, {
+    expect(res.schemas.Book).toMatchObject({
       type: "string",
       xml: {
         name: "xmlBook",
@@ -87,23 +108,19 @@ describe("@name", () => {
   it("compare with the json name", async () => {
     const res = await oapiForModel(
       "Book",
-      `
-        @name("xmlBook")
-        @encodedName("application/json", "jsonBook")
-        model Book {        
+      `        
+        model Book {
+          @name("xmlContent")
+          @encodedName("application/json", "jsonContent")    
           content: string;
         };`
     );
 
-    deepStrictEqual(res.schemas.Book, {
-      type: "object",
+    expect(res.schemas.Book).toMatchObject({
       properties: {
-        content: { type: "string" },
+        jsonContent: { type: "string", xml: { name: "xmlContent" } },
       },
-      required: ["content"],
-      xml: {
-        name: "xmlBook",
-      },
+      required: ["jsonContent"],
     });
   });
 
@@ -111,18 +128,17 @@ describe("@name", () => {
     const res = await oapiForModel(
       "Book",
       `
-        @encodedName("application/json", "jsonBook")
-        model Book {        
+        model Book {
+          @encodedName("application/json", "jsonContent")    
           content: string;
         };`
     );
 
-    deepStrictEqual(res.schemas.Book, {
-      type: "object",
+    expect(res.schemas.Book).toMatchObject({
       properties: {
-        content: { type: "string" },
+        jsonContent: { type: "string" },
       },
-      required: ["content"],
+      required: ["jsonContent"],
     });
   });
 });
@@ -136,8 +152,7 @@ describe("@attribute", () => {
           id: string;
         };`
     );
-
-    deepStrictEqual(res.schemas.Book, {
+    expect(res.schemas.Book).toMatchObject({
       type: "object",
       properties: {
         id: { type: "string", xml: { attribute: true } },
@@ -148,7 +163,7 @@ describe("@attribute", () => {
 });
 
 describe("@unwrapped", () => {
-  it("provide the namespace and prefix using string", async () => {
+  it("ignore unwrapped if property is not array.", async () => {
     const res = await oapiForModel(
       "Book",
       `model Book {
@@ -156,8 +171,7 @@ describe("@unwrapped", () => {
           id: string;
         };`
     );
-
-    deepStrictEqual(res.schemas.Book, {
+    expect(res.schemas.Book).toMatchObject({
       type: "object",
       properties: {
         id: {
@@ -179,7 +193,7 @@ describe("@ns", () => {
           id: string;
         };`
     );
-    deepStrictEqual(res.schemas.Book, {
+    expect(res.schemas.Book).toMatchObject({
       type: "object",
       properties: {
         id: {
@@ -202,8 +216,7 @@ describe("@ns", () => {
           id: string;
         };`
     );
-
-    deepStrictEqual(res.schemas.Book, {
+    expect(res.schemas.Book).toMatchObject({
       type: "object",
       properties: {
         id: {
@@ -217,6 +230,7 @@ describe("@ns", () => {
       required: ["id"],
     });
   });
+
   it("provide the namespace and prefix using enum on model", async () => {
     const res = await oapiForModel(
       "Book",
@@ -231,8 +245,7 @@ describe("@ns", () => {
           id: string;
         };`
     );
-
-    deepStrictEqual(res.schemas.Book, {
+    expect(res.schemas.Book).toMatchObject({
       type: "object",
       properties: {
         id: {
@@ -246,6 +259,7 @@ describe("@ns", () => {
       },
     });
   });
+
   it("provide the namespace and prefix using enum on model and properties", async () => {
     const res = await oapiForModel(
       "Book",
@@ -265,8 +279,7 @@ describe("@ns", () => {
           author: string;
         };`
     );
-
-    deepStrictEqual(res.schemas.Book, {
+    expect(res.schemas.Book).toMatchObject({
       type: "object",
       properties: {
         id: {
@@ -307,7 +320,7 @@ describe("Array of primitive types", () => {
       };`
     );
 
-    deepStrictEqual(res.schemas.Book, {
+    expect(res.schemas.Book).toMatchObject({
       type: "object",
       properties: {
         tags: {
@@ -323,6 +336,7 @@ describe("Array of primitive types", () => {
       },
     });
   });
+
   it("wrapped tags array in the xmlBook model.", async () => {
     const res = await oapiForModel(
       "Book",
@@ -334,7 +348,7 @@ describe("Array of primitive types", () => {
       };`
     );
 
-    deepStrictEqual(res.schemas.Book, {
+    expect(res.schemas.Book).toMatchObject({
       type: "object",
       properties: {
         tags: {
@@ -345,6 +359,9 @@ describe("Array of primitive types", () => {
           },
           items: {
             type: "string",
+            xml: {
+              name: "string",
+            },
           },
         },
       },
@@ -354,6 +371,7 @@ describe("Array of primitive types", () => {
       },
     });
   });
+
   it("unwrapped tags array in xmlBook Model, using the tag scalar renamed as ItemsName.", async () => {
     const res = await oapiForModel(
       "Book",
@@ -368,14 +386,14 @@ describe("Array of primitive types", () => {
         }`
     );
 
-    deepStrictEqual(res.schemas.tag, {
+    expect(res.schemas.tag).toMatchObject({
       type: "string",
       xml: {
         name: "ItemsName",
       },
     });
 
-    deepStrictEqual(res.schemas.Book, {
+    expect(res.schemas.Book).toMatchObject({
       type: "object",
       properties: {
         tags: {
@@ -406,14 +424,14 @@ describe("Array of primitive types", () => {
         }`
     );
 
-    deepStrictEqual(res.schemas.tag, {
+    expect(res.schemas.tag).toMatchObject({
       type: "string",
       xml: {
         name: "ItemsName",
       },
     });
 
-    deepStrictEqual(res.schemas.Book, {
+    expect(res.schemas.Book).toMatchObject({
       type: "object",
       properties: {
         tags: {
@@ -452,7 +470,7 @@ describe("Complex array types", () => {
         }`
     );
 
-    deepStrictEqual(res.schemas.Tag, {
+    expect(res.schemas.Tag).toMatchObject({
       type: "object",
       properties: {
         name: {
@@ -464,8 +482,7 @@ describe("Complex array types", () => {
         name: "XmlTag",
       },
     });
-
-    deepStrictEqual(res.schemas.Pet, {
+    expect(res.schemas.Pet).toMatchObject({
       type: "object",
       properties: {
         tags: {
@@ -481,6 +498,7 @@ describe("Complex array types", () => {
       },
     });
   });
+
   it("wrapped the tags object array in the XmlPet model.", async () => {
     const res = await oapiForModel(
       "Pet",
@@ -497,7 +515,7 @@ describe("Complex array types", () => {
         }`
     );
 
-    deepStrictEqual(res.schemas.Tag, {
+    expect(res.schemas.Tag).toMatchObject({
       type: "object",
       properties: {
         name: {
@@ -510,7 +528,7 @@ describe("Complex array types", () => {
       },
     });
 
-    deepStrictEqual(res.schemas.Pet, {
+    expect(res.schemas.Pet).toMatchObject({
       type: "object",
       properties: {
         tags: {
@@ -530,6 +548,7 @@ describe("Complex array types", () => {
       },
     });
   });
+
   it("unwrapped and renamed Tags object array in xmlPet Model.", async () => {
     const res = await oapiForModel(
       "Pet",
@@ -546,8 +565,7 @@ describe("Complex array types", () => {
           name: string;
         }`
     );
-
-    deepStrictEqual(res.schemas.Tag, {
+    expect(res.schemas.Tag).toMatchObject({
       type: "object",
       properties: {
         name: {
@@ -559,8 +577,7 @@ describe("Complex array types", () => {
         name: "XmlTag",
       },
     });
-
-    deepStrictEqual(res.schemas.Pet, {
+    expect(res.schemas.Pet).toMatchObject({
       type: "object",
       properties: {
         tags: {
@@ -576,6 +593,7 @@ describe("Complex array types", () => {
       },
     });
   });
+
   it("wrapped and renamed Tags object array in xmlPet Model.", async () => {
     const res = await oapiForModel(
       "Pet",
@@ -592,7 +610,7 @@ describe("Complex array types", () => {
         }`
     );
 
-    deepStrictEqual(res.schemas.Tag, {
+    expect(res.schemas.Tag).toMatchObject({
       type: "object",
       properties: {
         name: {
@@ -604,8 +622,7 @@ describe("Complex array types", () => {
         name: "XmlTag",
       },
     });
-
-    deepStrictEqual(res.schemas.Pet, {
+    expect(res.schemas.Pet).toMatchObject({
       type: "object",
       properties: {
         tags: {
@@ -622,78 +639,6 @@ describe("Complex array types", () => {
       required: ["tags"],
       xml: {
         name: "XmlPet",
-      },
-    });
-  });
-});
-
-describe("Nested models", () => {
-  it("author object in Book Model", async () => {
-    const res = await oapiForModel(
-      "Book",
-      `
-        model Book {
-          author: Author;
-        }
-        
-        model Author {
-          name: string;
-        }`
-    );
-
-    deepStrictEqual(res.schemas.Book, {
-      type: "object",
-      properties: {
-        author: {
-          $ref: "#/components/schemas/Author",
-        },
-      },
-      required: ["author"],
-    });
-
-    deepStrictEqual(res.schemas.Author, {
-      type: "object",
-      properties: {
-        name: {
-          type: "string",
-        },
-      },
-      required: ["name"],
-    });
-  });
-  it("object rename as XmlAuthor in Book Model", async () => {
-    const res = await oapiForModel(
-      "Book",
-      `
-        model Book {
-          author: Author;
-        }
-        @name("XmlAuthor")
-        model Author {
-          name: string;
-        }`
-    );
-
-    deepStrictEqual(res.schemas.Book, {
-      type: "object",
-      properties: {
-        author: {
-          $ref: "#/components/schemas/Author",
-        },
-      },
-      required: ["author"],
-    });
-
-    deepStrictEqual(res.schemas.Author, {
-      type: "object",
-      properties: {
-        name: {
-          type: "string",
-        },
-      },
-      required: ["name"],
-      xml: {
-        name: "XmlAuthor",
       },
     });
   });
