@@ -71,7 +71,6 @@ public class RouteTests {
 
     client.primitive("a");
 
-    // TODO, TCGC bug
 //    client.array(List.of("a", "b"));
   }
 
@@ -81,7 +80,6 @@ public class RouteTests {
 
     client.primitive("a");
 
-    // TODO, TCGC bug
 //    client.array(List.of("a", "b"));
   }
 }
