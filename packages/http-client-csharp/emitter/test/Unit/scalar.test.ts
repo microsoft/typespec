@@ -33,11 +33,11 @@ describe("Test GetInputType for scalar", () => {
     );
     strictEqual(1, inputParamArray.length);
     const type = inputParamArray[0].Type;
-    strictEqual(type.Kind, "string");
-    strictEqual(type.Name, "azureLocation");
-    strictEqual(type.CrossLanguageDefinitionId, "Azure.Core.azureLocation");
-    strictEqual(type.BaseType?.Kind, "string");
-    strictEqual(type.BaseType.Name, "string");
-    strictEqual(type.BaseType.CrossLanguageDefinitionId, "TypeSpec.string");
+    strictEqual(type.kind, "string");
+    strictEqual(type.name, "azureLocation");
+    strictEqual(type.crossLanguageDefinitionId, "Azure.Core.azureLocation");
+    strictEqual(type.baseType?.kind, "string");
+    strictEqual(type.baseType.name, "string");
+    strictEqual(type.baseType.crossLanguageDefinitionId, "TypeSpec.string");
   });
 });

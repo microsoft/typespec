@@ -5,92 +5,170 @@
  "Enums": [
   {
    "$id": "2",
-   "Kind": "enum",
-   "Name": "DaysOfWeekExtensibleEnum",
-   "CrossLanguageDefinitionId": "Type.Enum.Extensible.DaysOfWeekExtensibleEnum",
-   "ValueType": {
+   "kind": "enum",
+   "name": "DaysOfWeekExtensibleEnum",
+   "crossLanguageDefinitionId": "Type.Enum.Extensible.DaysOfWeekExtensibleEnum",
+   "valueType": {
     "$id": "3",
-    "Kind": "string",
-    "Name": "string",
-    "CrossLanguageDefinitionId": "TypeSpec.string",
-    "Decorators": []
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
    },
-   "Values": [
+   "values": [
     {
      "$id": "4",
-     "Name": "Monday",
-     "Value": "Monday",
-     "Description": "Monday.",
-     "Decorators": []
-    },
-    {
-     "$id": "5",
-     "Name": "Tuesday",
-     "Value": "Tuesday",
-     "Description": "Tuesday.",
-     "Decorators": []
+     "kind": "enumvalue",
+     "name": "Monday",
+     "value": "Monday",
+     "valueType": {
+      "$id": "5",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "2"
+     },
+     "description": "Monday.",
+     "decorators": []
     },
     {
      "$id": "6",
-     "Name": "Wednesday",
-     "Value": "Wednesday",
-     "Description": "Wednesday.",
-     "Decorators": []
-    },
-    {
-     "$id": "7",
-     "Name": "Thursday",
-     "Value": "Thursday",
-     "Description": "Thursday.",
-     "Decorators": []
+     "kind": "enumvalue",
+     "name": "Tuesday",
+     "value": "Tuesday",
+     "valueType": {
+      "$id": "7",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "2"
+     },
+     "description": "Tuesday.",
+     "decorators": []
     },
     {
      "$id": "8",
-     "Name": "Friday",
-     "Value": "Friday",
-     "Description": "Friday.",
-     "Decorators": []
-    },
-    {
-     "$id": "9",
-     "Name": "Saturday",
-     "Value": "Saturday",
-     "Description": "Saturday.",
-     "Decorators": []
+     "kind": "enumvalue",
+     "name": "Wednesday",
+     "value": "Wednesday",
+     "valueType": {
+      "$id": "9",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "2"
+     },
+     "description": "Wednesday.",
+     "decorators": []
     },
     {
      "$id": "10",
-     "Name": "Sunday",
-     "Value": "Sunday",
-     "Description": "Sunday.",
-     "Decorators": []
+     "kind": "enumvalue",
+     "name": "Thursday",
+     "value": "Thursday",
+     "valueType": {
+      "$id": "11",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "2"
+     },
+     "description": "Thursday.",
+     "decorators": []
+    },
+    {
+     "$id": "12",
+     "kind": "enumvalue",
+     "name": "Friday",
+     "value": "Friday",
+     "valueType": {
+      "$id": "13",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "2"
+     },
+     "description": "Friday.",
+     "decorators": []
+    },
+    {
+     "$id": "14",
+     "kind": "enumvalue",
+     "name": "Saturday",
+     "value": "Saturday",
+     "valueType": {
+      "$id": "15",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "2"
+     },
+     "description": "Saturday.",
+     "decorators": []
+    },
+    {
+     "$id": "16",
+     "kind": "enumvalue",
+     "name": "Sunday",
+     "value": "Sunday",
+     "valueType": {
+      "$id": "17",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "2"
+     },
+     "description": "Sunday.",
+     "decorators": []
     }
    ],
-   "Description": "Days of the week",
-   "IsExtensible": true,
-   "Usage": "Input,Output,Json",
-   "Decorators": []
+   "description": "Days of the week",
+   "isFixed": false,
+   "isFlags": false,
+   "usage": "Input,Output,Json",
+   "decorators": []
   }
  ],
  "Models": [],
  "Clients": [
   {
-   "$id": "11",
+   "$id": "18",
    "Name": "ExtensibleClient",
    "Operations": [],
    "Protocol": {
-    "$id": "12"
+    "$id": "19"
    },
    "Parameters": [
     {
-     "$id": "13",
+     "$id": "20",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Type": {
-      "$id": "14",
-      "Kind": "url",
-      "Name": "url",
-      "CrossLanguageDefinitionId": "TypeSpec.url"
+      "$id": "21",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "Location": "Uri",
      "IsApiVersion": false,
@@ -102,12 +180,12 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "15",
+      "$id": "22",
       "Type": {
-       "$id": "16",
-       "Kind": "string",
-       "Name": "string",
-       "CrossLanguageDefinitionId": "TypeSpec.string"
+       "$id": "23",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
       },
       "Value": "http://localhost:3000"
      }
@@ -116,31 +194,31 @@
    "Decorators": []
   },
   {
-   "$id": "17",
+   "$id": "24",
    "Name": "String",
    "Operations": [
     {
-     "$id": "18",
+     "$id": "25",
      "Name": "getKnownValue",
      "ResourceName": "String",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "19",
+       "$id": "26",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "20",
-        "Kind": "constant",
-        "ValueType": {
-         "$id": "21",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+        "$id": "27",
+        "kind": "constant",
+        "valueType": {
+         "$id": "28",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -155,7 +233,7 @@
      ],
      "Responses": [
       {
-       "$id": "22",
+       "$id": "29",
        "StatusCodes": [
         200
        ],
@@ -181,27 +259,27 @@
      "Decorators": []
     },
     {
-     "$id": "23",
+     "$id": "30",
      "Name": "getUnknownValue",
      "ResourceName": "String",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "24",
+       "$id": "31",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "25",
-        "Kind": "constant",
-        "ValueType": {
-         "$id": "26",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+        "$id": "32",
+        "kind": "constant",
+        "valueType": {
+         "$id": "33",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -216,7 +294,7 @@
      ],
      "Responses": [
       {
-       "$id": "27",
+       "$id": "34",
        "StatusCodes": [
         200
        ],
@@ -242,28 +320,28 @@
      "Decorators": []
     },
     {
-     "$id": "28",
+     "$id": "35",
      "Name": "putKnownValue",
      "ResourceName": "String",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "29",
+       "$id": "36",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "30",
-        "Kind": "constant",
-        "ValueType": {
-         "$id": "31",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+        "$id": "37",
+        "kind": "constant",
+        "valueType": {
+         "$id": "38",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -276,7 +354,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "32",
+       "$id": "39",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -295,7 +373,7 @@
      ],
      "Responses": [
       {
-       "$id": "33",
+       "$id": "40",
        "StatusCodes": [
         204
        ],
@@ -318,28 +396,28 @@
      "Decorators": []
     },
     {
-     "$id": "34",
+     "$id": "41",
      "Name": "putUnknownValue",
      "ResourceName": "String",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "35",
+       "$id": "42",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "36",
-        "Kind": "constant",
-        "ValueType": {
-         "$id": "37",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+        "$id": "43",
+        "kind": "constant",
+        "valueType": {
+         "$id": "44",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -352,7 +430,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "38",
+       "$id": "45",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -371,7 +449,7 @@
      ],
      "Responses": [
       {
-       "$id": "39",
+       "$id": "46",
        "StatusCodes": [
         204
        ],
@@ -395,19 +473,19 @@
     }
    ],
    "Protocol": {
-    "$id": "40"
+    "$id": "47"
    },
    "Parent": "ExtensibleClient",
    "Parameters": [
     {
-     "$id": "41",
+     "$id": "48",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Type": {
-      "$id": "42",
-      "Kind": "url",
-      "Name": "url",
-      "CrossLanguageDefinitionId": "TypeSpec.url"
+      "$id": "49",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "Location": "Uri",
      "IsApiVersion": false,
@@ -419,12 +497,12 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "43",
+      "$id": "50",
       "Type": {
-       "$id": "44",
-       "Kind": "string",
-       "Name": "string",
-       "CrossLanguageDefinitionId": "TypeSpec.string"
+       "$id": "51",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
       },
       "Value": "http://localhost:3000"
      }

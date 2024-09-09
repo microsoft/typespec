@@ -40,7 +40,16 @@ import java.util.Objects;
 /**
  * A builder for creating a new instance of the MultiPartClient type.
  */
-@ServiceClientBuilder(serviceClients = { MultiPartClient.class, MultiPartAsyncClient.class })
+@ServiceClientBuilder(
+    serviceClients = {
+        FormDataClient.class,
+        FormDataHttpPartsClient.class,
+        FormDataHttpPartsContentTypeClient.class,
+        FormDataHttpPartsNonStringClient.class,
+        FormDataAsyncClient.class,
+        FormDataHttpPartsAsyncClient.class,
+        FormDataHttpPartsContentTypeAsyncClient.class,
+        FormDataHttpPartsNonStringAsyncClient.class })
 public final class MultiPartClientBuilder implements HttpTrait<MultiPartClientBuilder>,
     ConfigurationTrait<MultiPartClientBuilder>, EndpointTrait<MultiPartClientBuilder> {
     @Generated
@@ -264,23 +273,83 @@ public final class MultiPartClientBuilder implements HttpTrait<MultiPartClientBu
     }
 
     /**
-     * Builds an instance of MultiPartAsyncClient class.
+     * Builds an instance of FormDataAsyncClient class.
      * 
-     * @return an instance of MultiPartAsyncClient.
+     * @return an instance of FormDataAsyncClient.
      */
     @Generated
-    public MultiPartAsyncClient buildAsyncClient() {
-        return new MultiPartAsyncClient(buildInnerClient().getFormDatas());
+    public FormDataAsyncClient buildFormDataAsyncClient() {
+        return new FormDataAsyncClient(buildInnerClient().getFormDatas());
     }
 
     /**
-     * Builds an instance of MultiPartClient class.
+     * Builds an instance of FormDataHttpPartsAsyncClient class.
      * 
-     * @return an instance of MultiPartClient.
+     * @return an instance of FormDataHttpPartsAsyncClient.
      */
     @Generated
-    public MultiPartClient buildClient() {
-        return new MultiPartClient(buildInnerClient().getFormDatas());
+    public FormDataHttpPartsAsyncClient buildFormDataHttpPartsAsyncClient() {
+        return new FormDataHttpPartsAsyncClient(buildInnerClient().getFormDataHttpParts());
+    }
+
+    /**
+     * Builds an instance of FormDataHttpPartsContentTypeAsyncClient class.
+     * 
+     * @return an instance of FormDataHttpPartsContentTypeAsyncClient.
+     */
+    @Generated
+    public FormDataHttpPartsContentTypeAsyncClient buildFormDataHttpPartsContentTypeAsyncClient() {
+        return new FormDataHttpPartsContentTypeAsyncClient(buildInnerClient().getFormDataHttpPartsContentTypes());
+    }
+
+    /**
+     * Builds an instance of FormDataHttpPartsNonStringAsyncClient class.
+     * 
+     * @return an instance of FormDataHttpPartsNonStringAsyncClient.
+     */
+    @Generated
+    public FormDataHttpPartsNonStringAsyncClient buildFormDataHttpPartsNonStringAsyncClient() {
+        return new FormDataHttpPartsNonStringAsyncClient(buildInnerClient().getFormDataHttpPartsNonStrings());
+    }
+
+    /**
+     * Builds an instance of FormDataClient class.
+     * 
+     * @return an instance of FormDataClient.
+     */
+    @Generated
+    public FormDataClient buildFormDataClient() {
+        return new FormDataClient(buildInnerClient().getFormDatas());
+    }
+
+    /**
+     * Builds an instance of FormDataHttpPartsClient class.
+     * 
+     * @return an instance of FormDataHttpPartsClient.
+     */
+    @Generated
+    public FormDataHttpPartsClient buildFormDataHttpPartsClient() {
+        return new FormDataHttpPartsClient(buildInnerClient().getFormDataHttpParts());
+    }
+
+    /**
+     * Builds an instance of FormDataHttpPartsContentTypeClient class.
+     * 
+     * @return an instance of FormDataHttpPartsContentTypeClient.
+     */
+    @Generated
+    public FormDataHttpPartsContentTypeClient buildFormDataHttpPartsContentTypeClient() {
+        return new FormDataHttpPartsContentTypeClient(buildInnerClient().getFormDataHttpPartsContentTypes());
+    }
+
+    /**
+     * Builds an instance of FormDataHttpPartsNonStringClient class.
+     * 
+     * @return an instance of FormDataHttpPartsNonStringClient.
+     */
+    @Generated
+    public FormDataHttpPartsNonStringClient buildFormDataHttpPartsNonStringClient() {
+        return new FormDataHttpPartsNonStringClient(buildInnerClient().getFormDataHttpPartsNonStrings());
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(MultiPartClientBuilder.class);

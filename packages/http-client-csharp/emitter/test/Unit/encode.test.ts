@@ -35,14 +35,14 @@ describe("Test encode duration", () => {
     );
     strictEqual(1, inputParamArray.length);
     const type = inputParamArray[0].Type;
-    strictEqual(type.Kind, "duration");
-    strictEqual(type.Name, "duration");
-    strictEqual(type.CrossLanguageDefinitionId, "TypeSpec.duration");
-    strictEqual(type.Encode, "ISO8601");
-    strictEqual(type.WireType.Kind, "string");
-    strictEqual(type.WireType.Name, "string");
-    strictEqual(type.WireType.CrossLanguageDefinitionId, "TypeSpec.string");
-    strictEqual(type.BaseType, undefined);
+    strictEqual(type.kind, "duration");
+    strictEqual(type.name, "duration");
+    strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");
+    strictEqual(type.encode, "ISO8601");
+    strictEqual(type.wireType.kind, "string");
+    strictEqual(type.wireType.name, "string");
+    strictEqual(type.wireType.crossLanguageDefinitionId, "TypeSpec.string");
+    strictEqual(type.baseType, undefined);
   });
 
   it("encode seconds-int32 for duration query parameter ", async () => {
@@ -64,14 +64,14 @@ describe("Test encode duration", () => {
     );
     strictEqual(1, inputParamArray.length);
     const type = inputParamArray[0].Type;
-    strictEqual(type.Kind, "duration");
-    strictEqual(type.Name, "duration");
-    strictEqual(type.CrossLanguageDefinitionId, "TypeSpec.duration");
-    strictEqual(type.Encode, "seconds");
-    strictEqual(type.WireType.Kind, "int32");
-    strictEqual(type.WireType.Name, "int32");
-    strictEqual(type.WireType.CrossLanguageDefinitionId, "TypeSpec.int32");
-    strictEqual(type.BaseType, undefined);
+    strictEqual(type.kind, "duration");
+    strictEqual(type.name, "duration");
+    strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");
+    strictEqual(type.encode, "seconds");
+    strictEqual(type.wireType.kind, "int32");
+    strictEqual(type.wireType.name, "int32");
+    strictEqual(type.wireType.crossLanguageDefinitionId, "TypeSpec.int32");
+    strictEqual(type.baseType, undefined);
   });
 
   it("encode seconds-float for duration query parameter ", async () => {
@@ -93,14 +93,14 @@ describe("Test encode duration", () => {
     );
     strictEqual(1, inputParamArray.length);
     const type = inputParamArray[0].Type;
-    strictEqual(type.Kind, "duration");
-    strictEqual(type.Name, "duration");
-    strictEqual(type.CrossLanguageDefinitionId, "TypeSpec.duration");
-    strictEqual(type.Encode, "seconds");
-    strictEqual(type.WireType.Kind, "float32");
-    strictEqual(type.WireType.Name, "float32");
-    strictEqual(type.WireType.CrossLanguageDefinitionId, "TypeSpec.float32");
-    strictEqual(type.BaseType, undefined);
+    strictEqual(type.kind, "duration");
+    strictEqual(type.name, "duration");
+    strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");
+    strictEqual(type.encode, "seconds");
+    strictEqual(type.wireType.kind, "float32");
+    strictEqual(type.wireType.name, "float32");
+    strictEqual(type.wireType.crossLanguageDefinitionId, "TypeSpec.float32");
+    strictEqual(type.baseType, undefined);
   });
 
   it("encode iso8601 on duration model property", async () => {
@@ -120,16 +120,16 @@ describe("Test encode duration", () => {
     const sdkContext = await createNetSdkContext(context);
     const codeModel = createModel(sdkContext);
     const models = codeModel.Models;
-    const durationModel = models.find((m) => m.Name === "ISO8601DurationProperty");
+    const durationModel = models.find((m) => m.name === "ISO8601DurationProperty");
     ok(durationModel);
-    const type = durationModel.Properties[0].Type;
-    strictEqual(type.Kind, "duration");
-    strictEqual(type.Name, "duration");
-    strictEqual(type.CrossLanguageDefinitionId, "TypeSpec.duration");
-    strictEqual(type.Encode, "ISO8601");
-    strictEqual(type.WireType.Kind, "string");
-    strictEqual(type.WireType.CrossLanguageDefinitionId, "TypeSpec.string");
-    strictEqual(type.BaseType, undefined);
+    const type = durationModel.properties[0].type;
+    strictEqual(type.kind, "duration");
+    strictEqual(type.name, "duration");
+    strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");
+    strictEqual(type.encode, "ISO8601");
+    strictEqual(type.wireType.kind, "string");
+    strictEqual(type.wireType.crossLanguageDefinitionId, "TypeSpec.string");
+    strictEqual(type.baseType, undefined);
   });
 
   it("encode seconds int32 on duration model property", async () => {
@@ -149,16 +149,16 @@ describe("Test encode duration", () => {
     const sdkContext = await createNetSdkContext(context);
     const codeModel = createModel(sdkContext);
     const models = codeModel.Models;
-    const durationModel = models.find((m) => m.Name === "Int32SecondsDurationProperty");
+    const durationModel = models.find((m) => m.name === "Int32SecondsDurationProperty");
     ok(durationModel);
-    const type = durationModel.Properties[0].Type;
-    strictEqual(type.Kind, "duration");
-    strictEqual(type.Name, "duration");
-    strictEqual(type.CrossLanguageDefinitionId, "TypeSpec.duration");
-    strictEqual(type.Encode, "seconds");
-    strictEqual(type.WireType.Kind, "int32");
-    strictEqual(type.WireType.CrossLanguageDefinitionId, "TypeSpec.int32");
-    strictEqual(type.BaseType, undefined);
+    const type = durationModel.properties[0].type;
+    strictEqual(type.kind, "duration");
+    strictEqual(type.name, "duration");
+    strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");
+    strictEqual(type.encode, "seconds");
+    strictEqual(type.wireType.kind, "int32");
+    strictEqual(type.wireType.crossLanguageDefinitionId, "TypeSpec.int32");
+    strictEqual(type.baseType, undefined);
   });
 
   it("encode seconds float32 on duration model property", async () => {
@@ -178,15 +178,15 @@ describe("Test encode duration", () => {
     const sdkContext = await createNetSdkContext(context);
     const codeModel = createModel(sdkContext);
     const models = codeModel.Models;
-    const durationModel = models.find((m) => m.Name === "FloatSecondsDurationProperty");
+    const durationModel = models.find((m) => m.name === "FloatSecondsDurationProperty");
     ok(durationModel);
-    const type = durationModel.Properties[0].Type;
-    strictEqual(type.Kind, "duration");
-    strictEqual(type.Name, "duration");
-    strictEqual(type.CrossLanguageDefinitionId, "TypeSpec.duration");
-    strictEqual(type.Encode, "seconds");
-    strictEqual(type.WireType.Kind, "float32");
-    strictEqual(type.WireType.CrossLanguageDefinitionId, "TypeSpec.float32");
-    strictEqual(type.BaseType, undefined);
+    const type = durationModel.properties[0].type;
+    strictEqual(type.kind, "duration");
+    strictEqual(type.name, "duration");
+    strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");
+    strictEqual(type.encode, "seconds");
+    strictEqual(type.wireType.kind, "float32");
+    strictEqual(type.wireType.crossLanguageDefinitionId, "TypeSpec.float32");
+    strictEqual(type.baseType, undefined);
   });
 });
