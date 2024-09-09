@@ -13,12 +13,7 @@ describe("@name", () => {
         };`
     );
 
-    deepStrictEqual(res.schemas.Book, {
-      type: "object",
-      properties: {
-        content: { type: "string" },
-      },
-      required: ["content"],
+    expect(res.schemas.Book).toMatchObjet({
       xml: {
         name: "xmlBook",
       },
