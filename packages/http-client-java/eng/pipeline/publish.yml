@@ -11,8 +11,7 @@ pr: none
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
   
-  variables:
-  - template: /packages/http-client-java/eng/pipeline/variables/globals.yml
+  
 
   parameters:
     stages:
@@ -33,6 +32,8 @@ extends:
           LanguageShortName: "java"
           HasNugetPackages: true
           CadlRanchName: "@typespec/http-client-java"
+          Variables:
+            - template: /packages/http-client-java/eng/pipeline/variables/globals.yml
           AdditionalInitializeSteps: 
             - task: Cache@2
                 inputs:

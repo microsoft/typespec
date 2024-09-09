@@ -10,7 +10,7 @@ stages:
   - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
 
     parameters:
-      variables:
+      Variables:
         - template: /packages/http-client-java/eng/pipeline/variables/globals.yml
       StagePrefix: Java
       BuildPrereleaseVersion: true
