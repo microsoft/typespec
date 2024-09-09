@@ -1006,6 +1006,7 @@ export function printTuple(
         path.map((arg) => [softline, print(arg)], "values")
       )
     ),
+    ifBreak(",", ""),
     softline,
     "]",
   ]);
@@ -1093,6 +1094,7 @@ export function printArrayLiteral(
         path.map((arg) => [softline, print(arg)], "values")
       )
     ),
+    ifBreak(",", ""),
     softline,
     "]",
   ]);

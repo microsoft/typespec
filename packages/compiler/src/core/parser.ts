@@ -303,6 +303,7 @@ namespace ListKind {
   export const Tuple = {
     ...ExpresionsBase,
     allowEmpty: true,
+    trailingDelimiterIsValid: true,
     open: Token.OpenBracket,
     close: Token.CloseBracket,
   } as const;
@@ -310,6 +311,7 @@ namespace ListKind {
   export const ArrayLiteral = {
     ...ExpresionsBase,
     allowEmpty: true,
+    trailingDelimiterIsValid: true,
     open: Token.HashBracket,
     close: Token.CloseBracket,
   } as const;
