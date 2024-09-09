@@ -6,6 +6,9 @@ parameters:
     type: object
     default: []
 
+variables:
+  - template: /packages/http-client-java/eng/pipeline/variables/globals.yml
+
 stages:
   - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
     parameters:

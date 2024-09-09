@@ -10,6 +10,9 @@ pr: none
 
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
+  
+  variables:
+  - template: /packages/http-client-java/eng/pipeline/variables/globals.yml
 
   parameters:
     stages:
