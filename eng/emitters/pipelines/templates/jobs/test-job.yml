@@ -60,12 +60,6 @@ jobs:
       strategy:
         matrix: ${{ parameters.TestMatrix }}
     steps:
-      - ${{ if eq( parameters.LanguageShortName, 'java') }}:
-        - task: Cache@2
-          inputs:
-            key: 'maven | "$(CacheSalt)" | "$(Agent.OS)" | "${{ parameters.LanguageShortName }}"'
-            path: $(MAVEN_CACHE_FOLDER)
-          displayName: Cache Maven local repo
       - template: /eng/emitters/pipelines/templates/steps/test-step.yml
         parameters:
           AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
