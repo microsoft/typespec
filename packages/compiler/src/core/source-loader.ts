@@ -86,7 +86,7 @@ export async function createSourceLoader(
 
   async function importFile(
     path: string,
-    locationContext: LocationContext,
+    locationContext: LocationContext = { type: "project" },
     kind: "import" | "entrypoint" = "import"
   ) {
     const sourceFileKind = host.getSourceFileKind(path);
