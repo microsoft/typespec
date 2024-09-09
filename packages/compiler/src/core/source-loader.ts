@@ -181,7 +181,11 @@ export async function createSourceLoader(
 
   function getSourceFileLocationContext(sourcefile: SourceFile): LocationContext {
     const locationContext = sourceFileLocationContexts.get(sourcefile);
-    compilerAssert(locationContext, "SourceFile should have a declaration locationContext.");
+    compilerAssert(
+      locationContext,
+      `SourceFile ${sourcefile.path} should have a declaration locationContext.`,
+      { file: sourcefile, pos: 0, end: 0 }
+    );
     return locationContext;
   }
 

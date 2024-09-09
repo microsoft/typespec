@@ -94,6 +94,26 @@
       }
     },
     {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug importer",
+      "program": "${workspaceFolder}/packages/importer/dist/cli.js",
+      "args": [
+        "https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/batch/Azure.Batch/main.tsp"
+      ],
+      "smartStep": true,
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**/*.js"],
+      "outFiles": [
+        "${workspaceFolder}/packages/*/dist/**/*.js",
+        "${workspaceFolder}/packages/*/dist-dev/**/*.js"
+      ],
+      "cwd": "${workspaceFolder}/packages/importer",
+      "presentation": {
+        "order": 2
+      }
+    },
+    {
       "name": "Regenerate .tmlanguage",
       "type": "node",
       "program": "${workspaceFolder}/packages/typespec-vscode/scripts/generate-tmlanguage.js",
