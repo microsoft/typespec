@@ -253,9 +253,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual(new CSharpType(typeof(string)), secondaryCtorParameters[0].Type);
             Assert.AreEqual("prop2", secondaryCtorParameters[1].Name);
             Assert.AreEqual(new CSharpType(typeof(string), true), secondaryCtorParameters[1].Type);
-            Assert.AreEqual("additionalProperties", secondaryCtorParameters[2].Name);
+            Assert.AreEqual("additionalStringProperties", secondaryCtorParameters[2].Name);
             Assert.AreEqual(new CSharpType(typeof(IDictionary<string, string>)), secondaryCtorParameters[2].Type);
-            Assert.AreEqual("serializedAdditionalRawData", secondaryCtorParameters[3].Name);
+            Assert.AreEqual("additionalBinaryDataProperties", secondaryCtorParameters[3].Name);
             Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), secondaryCtorParameters[3].Type);
             // validate derived secondary constructor
             Assert.AreEqual(6, derivedSecondaryCtorParams.Count); // all base props + 2 properties + 1 additionalRawData + additional props
@@ -267,9 +267,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual(new CSharpType(typeof(string)), derivedSecondaryCtorParams[2].Type);
             Assert.AreEqual("prop2", derivedSecondaryCtorParams[3].Name);
             Assert.AreEqual(new CSharpType(typeof(string), true), derivedSecondaryCtorParams[3].Type);
-            Assert.AreEqual("additionalProperties", derivedSecondaryCtorParams[4].Name);
+            Assert.AreEqual("additionalStringProperties", derivedSecondaryCtorParams[4].Name);
             Assert.AreEqual(new CSharpType(typeof(IDictionary<string, string>)), derivedSecondaryCtorParams[4].Type);
-            Assert.AreEqual("serializedAdditionalRawData", derivedSecondaryCtorParams[5].Name);
+            Assert.AreEqual("additionalBinaryDataProperties", derivedSecondaryCtorParams[5].Name);
             Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), derivedSecondaryCtorParams[5].Type);
         }
 
@@ -291,18 +291,18 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 Assert.AreEqual(2, constructorSignature?.Parameters.Count);
                 var additionalPropertiesParam = constructorSignature?.Parameters[0];
                 Assert.IsNotNull(additionalPropertiesParam);
-                Assert.AreEqual("additionalProperties", additionalPropertiesParam?.Name);
+                Assert.AreEqual("additionalInt64Properties", additionalPropertiesParam?.Name);
                 Assert.AreEqual(new CSharpType(typeof(IDictionary<string, long>)), additionalPropertiesParam?.Type);
                 var rawDataParam = constructorSignature?.Parameters[1];
                 Assert.IsNotNull(rawDataParam);
-                Assert.AreEqual("serializedAdditionalRawData", rawDataParam?.Name);
+                Assert.AreEqual("additionalBinaryDataProperties", rawDataParam?.Name);
             }
             else
             {
                 Assert.AreEqual(1, constructorSignature?.Parameters.Count);
                 var param = constructorSignature?.Parameters[0];
                 Assert.IsNotNull(param);
-                Assert.AreEqual("serializedAdditionalRawData", param?.Name);
+                Assert.AreEqual("additionalBinaryDataProperties", param?.Name);
             }
         }
 
@@ -349,43 +349,58 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
 
         [TestCase(true)]
         [TestCase(false)]
-        public void TestBuildFields(bool containsUnknownAdditionalProp)
+        public void TestBuildFields(bool containsMixedAdditionalProperties)
         {
-            InputType? additionalProperties = containsUnknownAdditionalProp ? InputPrimitiveType.Any : null;
+            InputType? additionalProperties = containsMixedAdditionalProperties
+                ? InputFactory.Union([InputPrimitiveType.Float64, InputPrimitiveType.Int64, InputPrimitiveType.String])
+                : null;
             var inputModel = InputFactory.Model("TestModel", properties: [], additionalProperties: additionalProperties);
             var modelTypeProvider = new ModelProvider(inputModel);
             var fields = modelTypeProvider.Fields;
 
-            // Assert
             Assert.IsNotNull(fields);
-            if (containsUnknownAdditionalProp)
+
+            if (containsMixedAdditionalProperties)
             {
-                Assert.AreEqual(0, fields.Count);
+                Assert.AreEqual(4, fields.Count);
+                Assert.AreEqual("_additionalBinaryDataProperties", fields[0].Name);
+                Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), fields[0].Type);
+                Assert.AreEqual("_additionalDoubleProperties", fields[1].Name);
+                Assert.AreEqual(new CSharpType(typeof(IDictionary<string, double>)), fields[1].Type);
+                Assert.AreEqual("_additionalInt64Properties", fields[2].Name);
+                Assert.AreEqual(new CSharpType(typeof(IDictionary<string, long>)), fields[2].Type);
+                Assert.AreEqual("_additionalStringProperties", fields[3].Name);
+                Assert.AreEqual(new CSharpType(typeof(IDictionary<string, string>)), fields[3].Type);
             }
             else
             {
                 Assert.AreEqual(1, fields.Count);
-                Assert.AreEqual("_serializedAdditionalRawData", fields[0].Name);
-                var type = fields[0].Type;
-                Assert.IsTrue(type.IsCollection);
+                Assert.AreEqual("_additionalBinaryDataProperties", fields[0].Name);
+                Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), fields[0].Type);
             }
         }
 
         [TestCaseSource(nameof(BuildAdditionalPropertiesTestCases))]
-        public void TestBuildAdditionalProperties(InputType additionalProperties, bool isUnverifiableType)
+        public void TestBuildAdditionalProperties(
+            InputType additionalProperties,
+            bool isUnverifiableType,
+            int expectedPropertyCount)
         {
             var inputModel = InputFactory.Model("TestModel", properties: [], additionalProperties: additionalProperties);
             var modelTypeProvider = new ModelProvider(inputModel);
 
-            var additionalPropertiesProp = modelTypeProvider.Properties.FirstOrDefault(f => f.Name == "AdditionalProperties");
-            Assert.IsNotNull(additionalPropertiesProp);
+            var additionalPropertiesProps = modelTypeProvider.Properties.Where(f => f.Name.StartsWith("Additional")).ToList();
+            Assert.AreEqual(expectedPropertyCount, additionalPropertiesProps.Count);
 
-            var additionalPropertiesType = additionalPropertiesProp!.Type;
-            Assert.IsTrue(additionalPropertiesType.IsDictionary);
-
-            if (isUnverifiableType)
+            foreach (var additionalPropertiesProp in additionalPropertiesProps)
             {
-                Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), additionalPropertiesType);
+                var additionalPropertiesType = additionalPropertiesProp!.Type;
+                Assert.IsTrue(additionalPropertiesType.IsDictionary);
+
+                if (isUnverifiableType)
+                {
+                    Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), additionalPropertiesType);
+                }
             }
         }
 
@@ -394,13 +409,15 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             get
             {
                 // verifiable type
-                yield return new TestCaseData(InputPrimitiveType.String, false);
-                yield return new TestCaseData(InputFactory.Array(InputPrimitiveType.String), false);
-                yield return new TestCaseData(InputFactory.Dictionary(InputPrimitiveType.String), false);
+                yield return new TestCaseData(InputPrimitiveType.String, false, 1);
+                yield return new TestCaseData(InputFactory.Array(InputPrimitiveType.String), false, 1);
+                yield return new TestCaseData(InputFactory.Dictionary(InputPrimitiveType.String), false, 1);
+                yield return new TestCaseData(InputFactory.Union([InputPrimitiveType.String, InputPrimitiveType.Int32]), false, 2);
+                yield return new TestCaseData(InputFactory.Union([InputPrimitiveType.String, InputPrimitiveType.Int32, InputFactory.Model("foo")]), false, 3);
 
                 // non-verifiable type
-                yield return new TestCaseData(InputPrimitiveType.Any, true);
-                yield return new TestCaseData(InputFactory.Model("foo"), true);
+                yield return new TestCaseData(InputPrimitiveType.Any, true, 1);
+                yield return new TestCaseData(InputFactory.Model("foo"), true, 1);
             }
         }
 

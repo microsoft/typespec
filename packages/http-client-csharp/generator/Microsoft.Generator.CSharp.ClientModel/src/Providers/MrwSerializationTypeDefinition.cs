@@ -26,7 +26,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     /// </summary>
     internal class MrwSerializationTypeDefinition : TypeProvider
     {
-        private const string PrivateAdditionalPropertiesPropertyName = "_serializedAdditionalRawData";
+        private const string AdditionalBinaryDataPropertiesFieldName = "_additionalBinaryDataProperties";
         private const string JsonModelWriteCoreMethodName = "JsonModelWriteCore";
         private const string JsonModelCreateCoreMethodName = "JsonModelCreateCore";
         private const string PersistableModelWriteCoreMethodName = "PersistableModelWriteCore";
@@ -67,7 +67,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _jsonModelObjectInterface = _isStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
             _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), interfaceType.Type);
             _persistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
-            _rawDataField = _model.Fields.FirstOrDefault(f => f.Name == PrivateAdditionalPropertiesPropertyName);
+            _rawDataField = _model.Fields.FirstOrDefault(f => f.Name == AdditionalBinaryDataPropertiesFieldName);
             _shouldOverrideMethods = _model.Type.BaseType != null && _model.Type.BaseType is { IsFrameworkType: false };
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
@@ -567,10 +567,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Debug.Assert(parameter.Field != null);
                     var field = parameter.Field;
                     var fieldRef = field.AsVariableExpression;
-                    if (field.Name == PrivateAdditionalPropertiesPropertyName)
+                    if (field.Name == AdditionalBinaryDataPropertiesFieldName)
                     {
                         // the raw data is kind of different because we assign it with an instance, not like others properties/fields
-                        // IDictionary<string, BinaryData> serializedAdditionalRawData = new Dictionary<string, BinaryData>();
+                        // IDictionary<string, BinaryData> additionalBinaryDataProperties = new Dictionary<string, BinaryData>();
                         propertyDeclarationStatements.Add(Declare(fieldRef, new DictionaryExpression(field.Type, New.Instance(field.Type.PropertyInitializationType))));
                     }
                     else

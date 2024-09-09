@@ -11,7 +11,7 @@ namespace _Type.Model.Inheritance.EnumDiscriminator.Models
     {
         private protected Snake(SnakeKind kind, int length) => throw null;
 
-        internal Snake(SnakeKind kind, int length, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
+        internal Snake(SnakeKind kind, int length, IDictionary<string, BinaryData> additionalBinaryDataProperties) => throw null;
 
         internal SnakeKind Kind
         {

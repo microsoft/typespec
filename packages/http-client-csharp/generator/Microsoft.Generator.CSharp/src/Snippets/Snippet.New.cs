@@ -52,6 +52,8 @@ namespace Microsoft.Generator.CSharp.Snippets
             public static IndexableExpression Array(CSharpType? elementType, bool isInline, bool isStackAlloc, params ValueExpression[] items) => new(new NewArrayExpression(elementType, new ArrayInitializerExpression(items, isInline), IsStackAlloc: isStackAlloc));
             public static IndexableExpression Array(CSharpType? elementType, ValueExpression size) => new(new NewArrayExpression(elementType, Size: size));
 
+            public static DictionaryExpression ReadOnlyDictionary(CSharpType keyType, CSharpType valueType, params ValueExpression[] items)
+                => new(new NewInstanceExpression(new CSharpType(typeof(System.Collections.ObjectModel.ReadOnlyDictionary<,>), keyType, valueType), items));
             public static DictionaryExpression Dictionary(CSharpType keyType, CSharpType valueType)
                 => new(new NewInstanceExpression(new CSharpType(typeof(Dictionary<,>), keyType, valueType), []));
             public static DictionaryExpression Dictionary(CSharpType keyType, CSharpType valueType, IReadOnlyDictionary<ValueExpression, ValueExpression> values)
