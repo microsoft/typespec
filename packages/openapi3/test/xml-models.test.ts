@@ -3,7 +3,7 @@ import { describe, it } from "vitest";
 import { oapiForModel } from "./test-host.js";
 
 describe("@name", () => {
-  it("set the element value via @name", async () => {
+  it("set xml.name for schema", async () => {
     const res = await oapiForModel(
       "Book",
       `
