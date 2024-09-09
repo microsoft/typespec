@@ -18,7 +18,11 @@ export const defaultTypeSpecVitestConfig = defineConfig({
     outputFile: {
       junit: "./test-results.xml",
     },
-    watchExclude: [],
     exclude: ["node_modules", "dist/test"],
+  },
+  server: {
+    watch: {
+      ignored: [],
+    },
   },
 });

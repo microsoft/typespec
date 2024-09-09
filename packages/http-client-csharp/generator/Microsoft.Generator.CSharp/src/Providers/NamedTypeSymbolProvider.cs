@@ -6,13 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    public class NamedTypeSymbolProvider : TypeProvider
+    internal sealed class NamedTypeSymbolProvider : TypeProvider
     {
         private INamedTypeSymbol _namedTypeSymbol;
 
@@ -20,6 +19,8 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             _namedTypeSymbol = namedTypeSymbol;
         }
+
+        private protected sealed override TypeProvider? GetCustomCodeView() => null;
 
         protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writting in generation");
 
@@ -63,7 +64,10 @@ namespace Microsoft.Generator.CSharp.Providers
                     GetCSharpType(propertySymbol.Type),
                     propertySymbol.Name,
                     new AutoPropertyBody(propertySymbol.SetMethod is not null),
-                    this);
+                    this)
+                {
+                    Attributes = propertySymbol.GetAttributes()
+                };
                 properties.Add(propertyProvider);
             }
             return [.. properties];

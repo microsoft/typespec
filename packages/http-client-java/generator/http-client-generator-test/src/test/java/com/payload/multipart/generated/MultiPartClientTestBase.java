@@ -14,24 +14,68 @@ import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
 import com.azure.core.test.TestProxyTestBase;
 import com.azure.core.util.Configuration;
-import com.payload.multipart.MultiPartClient;
+import com.payload.multipart.FormDataClient;
+import com.payload.multipart.FormDataHttpPartsClient;
+import com.payload.multipart.FormDataHttpPartsContentTypeClient;
+import com.payload.multipart.FormDataHttpPartsNonStringClient;
 import com.payload.multipart.MultiPartClientBuilder;
 
 class MultiPartClientTestBase extends TestProxyTestBase {
-    protected MultiPartClient multiPartClient;
+    protected FormDataClient formDataClient;
+
+    protected FormDataHttpPartsClient formDataHttpPartsClient;
+
+    protected FormDataHttpPartsContentTypeClient formDataHttpPartsContentTypeClient;
+
+    protected FormDataHttpPartsNonStringClient formDataHttpPartsNonStringClient;
 
     @Override
     protected void beforeTest() {
-        MultiPartClientBuilder multiPartClientbuilder = new MultiPartClientBuilder()
+        MultiPartClientBuilder formDataClientbuilder = new MultiPartClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
             .httpClient(HttpClient.createDefault())
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.PLAYBACK) {
-            multiPartClientbuilder.httpClient(interceptorManager.getPlaybackClient());
+            formDataClientbuilder.httpClient(interceptorManager.getPlaybackClient());
         } else if (getTestMode() == TestMode.RECORD) {
-            multiPartClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+            formDataClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
-        multiPartClient = multiPartClientbuilder.buildClient();
+        formDataClient = formDataClientbuilder.buildFormDataClient();
+
+        MultiPartClientBuilder formDataHttpPartsClientbuilder = new MultiPartClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .httpClient(HttpClient.createDefault())
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.PLAYBACK) {
+            formDataHttpPartsClientbuilder.httpClient(interceptorManager.getPlaybackClient());
+        } else if (getTestMode() == TestMode.RECORD) {
+            formDataHttpPartsClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        formDataHttpPartsClient = formDataHttpPartsClientbuilder.buildFormDataHttpPartsClient();
+
+        MultiPartClientBuilder formDataHttpPartsContentTypeClientbuilder = new MultiPartClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .httpClient(HttpClient.createDefault())
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.PLAYBACK) {
+            formDataHttpPartsContentTypeClientbuilder.httpClient(interceptorManager.getPlaybackClient());
+        } else if (getTestMode() == TestMode.RECORD) {
+            formDataHttpPartsContentTypeClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        formDataHttpPartsContentTypeClient
+            = formDataHttpPartsContentTypeClientbuilder.buildFormDataHttpPartsContentTypeClient();
+
+        MultiPartClientBuilder formDataHttpPartsNonStringClientbuilder = new MultiPartClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .httpClient(HttpClient.createDefault())
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.PLAYBACK) {
+            formDataHttpPartsNonStringClientbuilder.httpClient(interceptorManager.getPlaybackClient());
+        } else if (getTestMode() == TestMode.RECORD) {
+            formDataHttpPartsNonStringClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        formDataHttpPartsNonStringClient
+            = formDataHttpPartsNonStringClientbuilder.buildFormDataHttpPartsNonStringClient();
 
     }
 }

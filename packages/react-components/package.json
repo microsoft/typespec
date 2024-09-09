@@ -21,6 +21,7 @@
   "main": "dist/index.js",
   "exports": {
     ".": {
+      "development": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },

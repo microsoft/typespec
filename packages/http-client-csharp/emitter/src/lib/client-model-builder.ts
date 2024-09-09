@@ -10,7 +10,6 @@ import {
   SdkServiceMethod,
   SdkType,
   UsageFlags,
-  getAllModels,
 } from "@azure-tools/typespec-client-generator-core";
 import { getDoc } from "@typespec/compiler";
 import { NetEmitterOptions, resolveOptions } from "../options.js";
@@ -28,9 +27,6 @@ import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-conv
 import { processServiceAuthentication } from "./service-authentication.js";
 
 export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeModel {
-  // initialize tcgc model
-  if (!sdkContext.operationModelsMap) getAllModels(sdkContext);
-
   const sdkPackage = sdkContext.sdkPackage;
 
   const sdkTypeMap: SdkTypeMap = {
@@ -164,9 +160,9 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       const isEndpoint = parameter.name === endpointVariableName;
       const parameterType: InputType = isEndpoint
         ? {
-            Kind: "url",
-            Name: "url",
-            CrossLanguageDefinitionId: "TypeSpec.url",
+            kind: "url",
+            name: "url",
+            crossLanguageDefinitionId: "TypeSpec.url",
           }
         : fromSdkType(parameter.type, sdkContext, sdkTypeMap); // TODO: consolidate with converter.fromSdkEndpointType
       parameters.push({

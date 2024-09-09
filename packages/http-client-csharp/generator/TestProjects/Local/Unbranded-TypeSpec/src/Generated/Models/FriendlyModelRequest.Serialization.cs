@@ -12,7 +12,7 @@ using UnbrandedTypeSpec;
 namespace UnbrandedTypeSpec.Models
 {
     /// <summary></summary>
-    public partial class FriendlyModelRequest : IJsonModel<FriendlyModelRequest>
+    internal partial class FriendlyModelRequest : IJsonModel<FriendlyModelRequest>
     {
         internal FriendlyModelRequest()
         {

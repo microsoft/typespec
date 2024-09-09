@@ -143,7 +143,6 @@ import {
   operationIsMultipart,
   operationIsMultipleContentTypes,
 } from "./operation-utils.js";
-import { PreNamer } from "./prenamer/prenamer.js";
 import {
   ProcessingCache,
   getAccess,
@@ -264,10 +263,6 @@ export class CodeModelBuilder {
     this.processModels();
 
     this.processSchemaUsage();
-
-    if (this.options.namer) {
-      this.codeModel = new PreNamer(this.codeModel).init().process();
-    }
 
     this.deduplicateSchemaName();
 
@@ -2168,6 +2163,15 @@ export class CodeModelBuilder {
       // TODO: handle MultipartOptions.isMulti
       if (prop.multipartOptions.isFilePart) {
         schema = this.processMultipartFormDataFilePropertySchemaFromSdkType(prop);
+      } else if (
+        prop.type.kind === "model" &&
+        prop.type.properties.some((it) => it.kind === "body")
+      ) {
+        // TODO: this is HttpPart of non-File. TCGC should help handle this.
+        schema = this.processSchemaFromSdkType(
+          prop.type.properties.find((it) => it.kind === "body")!.type,
+          ""
+        );
       } else {
         schema = this.processSchemaFromSdkType(nonNullType, "");
       }
