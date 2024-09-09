@@ -1128,6 +1128,11 @@ export class CodeModelBuilder {
               explode = true;
               break;
           }
+
+          if (param.explode && !param.collectionFormat) {
+            style = SerializationStyle.Form;
+            explode = true;
+          }
         } else if (param.kind === "header") {
           const format = param.collectionFormat;
           switch (format) {
