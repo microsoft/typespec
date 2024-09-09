@@ -55,7 +55,7 @@ describe("@name", () => {
     });
   });
 
-  it("set the attribute value via @name", async () => {
+  it("set xml.name on schema property", async () => {
     const res = await oapiForModel(
       "Book",
       `model Book {
