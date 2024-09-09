@@ -14,7 +14,6 @@ namespace Microsoft.Generator.CSharp.Providers
     public abstract class TypeProvider
     {
         private Lazy<TypeProvider?> _customCodeView;
-        private HashSet<string>? _propertyNames;
 
         protected TypeProvider()
         {
@@ -124,8 +123,6 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private IReadOnlyList<PropertyProvider>? _properties;
         public IReadOnlyList<PropertyProvider> Properties => _properties ??= BuildProperties();
-
-        internal HashSet<string> PropertyNames => _propertyNames ??= BuildPropertyNames();
 
         private IReadOnlyList<MethodProvider>? _methods;
         public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethods();
