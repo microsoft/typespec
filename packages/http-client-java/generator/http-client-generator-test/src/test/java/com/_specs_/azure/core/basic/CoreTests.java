@@ -4,6 +4,7 @@
 package com._specs_.azure.core.basic;
 
 import com._specs_.azure.core.basic.models.User;
+import com._specs_.azure.core.basic.models.UserList;
 import com.azure.core.http.HttpClient;
 import com.azure.core.http.rest.PagedFlux;
 import com.azure.core.http.rest.PagedIterable;
@@ -116,6 +117,11 @@ public class CoreTests {
                 })
                 .expectComplete()
                 .verify();
+
+        UserList userList = syncClient.exportAllUsers("json");
+        Assertions.assertEquals(2, userList.getUsers().size());
+        Assertions.assertEquals("Madge", userList.getUsers().get(0).getName());
+      Assertions.assertEquals("John", userList.getUsers().get(1).getName());
     }
 
     @Test
