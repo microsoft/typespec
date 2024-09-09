@@ -10,7 +10,7 @@ function $oneOf(context, target): void
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `ModelProperty` \| `Union` |
 

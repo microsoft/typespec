@@ -14,7 +14,7 @@ error(message): void
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `message` | `string` |
 
 #### Returns
@@ -32,7 +32,7 @@ log(log): void
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `log` | [`LogInfo`](LogInfo.md) |
 
 #### Returns
@@ -50,7 +50,7 @@ trace(message): void
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `message` | `string` |
 
 #### Returns
@@ -68,7 +68,7 @@ warn(message): void
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `message` | `string` |
 
 #### Returns

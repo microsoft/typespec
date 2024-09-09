@@ -109,7 +109,8 @@ function computeTree(program: Program): TypeGraphListNode {
 }
 
 function computeTypeNode(parentPath: string, type: NamedType, name?: string): TypeGraphTypeNode {
-  const path = parentPath + "." + type.name.toString();
+  const pathSeg = name ?? type.name.toString();
+  const path = parentPath + "." + pathSeg;
   return computeTypeNodeProps(path, type, name);
 }
 
@@ -136,12 +137,14 @@ function computeTypeNodeProps(path: string, type: NamedType, name?: string): Typ
 }
 
 function computeItemList(path: string, name: string, items: Map<string, NamedType>): TypeGraphNode {
+  let index = 0;
   return {
     kind: "list",
     id: path,
     name,
     children: Array.from(items.entries()).map(([key, value]) => {
-      return computeTypeNode(path, value, key);
+      const name = typeof key === "symbol" ? `sym(${index++})` : key;
+      return computeTypeNode(path, value, name);
     }),
   };
 }

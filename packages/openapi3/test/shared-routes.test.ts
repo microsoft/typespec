@@ -70,6 +70,7 @@ describe("openapi3: shared routes", () => {
       {
         in: "query",
         name: "resourceGroup",
+        explode: false,
         required: false,
         schema: {
           type: "string",
@@ -78,6 +79,7 @@ describe("openapi3: shared routes", () => {
       {
         in: "query",
         name: "foo",
+        explode: false,
         required: true,
         schema: {
           type: "string",
@@ -86,6 +88,7 @@ describe("openapi3: shared routes", () => {
       {
         in: "query",
         name: "subscription",
+        explode: false,
         required: false,
         schema: {
           type: "string",
@@ -130,6 +133,7 @@ describe("openapi3: shared routes", () => {
       {
         in: "query",
         name: "filter",
+        explode: false,
         required: true,
         schema: {
           type: "string",
@@ -176,6 +180,7 @@ describe("openapi3: shared routes", () => {
         name: "filter",
         in: "query",
         required: false,
+        explode: false,
         schema: {
           type: "string",
           enum: ["resourceGroup"],
@@ -264,6 +269,7 @@ describe("openapi3: shared routes", () => {
     );
     deepStrictEqual(results.paths["/1"].post.operationId, "processInt_processString");
     deepStrictEqual(results.paths["/1"].post.requestBody, {
+      required: true,
       content: {
         "application/json": {
           schema: {
@@ -282,6 +288,7 @@ describe("openapi3: shared routes", () => {
     });
     deepStrictEqual(results.paths["/2"].post.operationId, "updateInt_updateString");
     deepStrictEqual(results.paths["/2"].post.requestBody, {
+      required: true,
       content: {
         "application/json": {
           schema: {
@@ -382,7 +389,9 @@ describe("openapi3: shared routes", () => {
     );
     deepStrictEqual(results.paths["/"].post.operationId, "updateA_updateB");
     const requestBody = results.paths["/"].post.requestBody;
+
     deepStrictEqual(requestBody, {
+      required: true,
       content: {
         "application/json": {
           schema: {
@@ -434,6 +443,7 @@ describe("openapi3: shared routes", () => {
     deepStrictEqual(results.paths["/process"].post.operationId, "processInt_processString");
     const requestBody = results.paths["/process"].post.requestBody;
     deepStrictEqual(requestBody, {
+      required: true,
       content: {
         "application/json": {
           schema: {

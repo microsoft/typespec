@@ -1,10 +1,24 @@
 import { Contact, License } from "@typespec/openapi";
-import { OpenAPI3Encoding, OpenAPI3Responses, OpenAPI3Schema, Refable } from "../../../types.js";
+import { OpenAPI3Encoding, OpenAPI3Schema, Refable } from "../../../types.js";
 
 export interface TypeSpecProgram {
   serviceInfo: TypeSpecServiceInfo;
-  models: TypeSpecModel[];
+  namespaces: Record<string, TypeSpecNamespace>;
+  types: TypeSpecDataTypes[];
   augmentations: TypeSpecAugmentation[];
+  operations: TypeSpecOperation[];
+}
+
+export interface TypeSpecDeclaration {
+  name: string;
+  doc?: string;
+  decorators: TypeSpecDecorator[];
+  scope: string[];
+}
+
+export interface TypeSpecNamespace {
+  namespaces: Record<string, TypeSpecNamespace>;
+  types: TypeSpecDataTypes[];
   operations: TypeSpecOperation[];
 }
 
@@ -27,10 +41,16 @@ export interface TypeSpecAugmentation extends TypeSpecDecorator {
   target: string;
 }
 
-export interface TypeSpecModel {
-  name: string;
-  doc?: string;
-  decorators: TypeSpecDecorator[];
+export type TypeSpecDataTypes =
+  | TypeSpecAlias
+  | TypeSpecEnum
+  | TypeSpecModel
+  | TypeSpecScalar
+  | TypeSpecUnion;
+
+export interface TypeSpecModel extends TypeSpecDeclaration {
+  kind: "model";
+
   properties: TypeSpecModelProperty[];
   additionalProperties?: Refable<OpenAPI3Schema>;
   /**
@@ -45,6 +65,28 @@ export interface TypeSpecModel {
    * Defaults to 'object'
    */
   type?: OpenAPI3Schema["type"];
+
+  spread?: string[];
+}
+
+export interface TypeSpecAlias extends Pick<TypeSpecDeclaration, "name" | "doc" | "scope"> {
+  kind: "alias";
+  ref: string;
+}
+
+export interface TypeSpecEnum extends TypeSpecDeclaration {
+  kind: "enum";
+  schema: OpenAPI3Schema;
+}
+
+export interface TypeSpecUnion extends TypeSpecDeclaration {
+  kind: "union";
+  schema: OpenAPI3Schema;
+}
+
+export interface TypeSpecScalar extends TypeSpecDeclaration {
+  kind: "scalar";
+  schema: OpenAPI3Schema;
 }
 
 export interface TypeSpecModelProperty {
@@ -60,14 +102,11 @@ export interface TypeSpecModelProperty {
   schema: Refable<OpenAPI3Schema>;
 }
 
-export interface TypeSpecOperation {
-  name: string;
-  doc?: string;
-  decorators: TypeSpecDecorator[];
+export interface TypeSpecOperation extends TypeSpecDeclaration {
   operationId?: string;
   parameters: Refable<TypeSpecOperationParameter>[];
   requestBodies: TypeSpecRequestBody[];
-  responses: OpenAPI3Responses;
+  responseTypes: string[];
   tags: string[];
 }
 

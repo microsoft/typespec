@@ -10,7 +10,7 @@ function getMultipleOf(program, target): number | undefined
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `target` | `Type` |
 

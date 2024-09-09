@@ -12,7 +12,7 @@ Check the given is correctly formatted.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `code` | `string` |
 | `prettierConfig`? | `Options` |
 

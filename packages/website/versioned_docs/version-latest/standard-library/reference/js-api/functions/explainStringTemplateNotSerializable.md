@@ -12,7 +12,7 @@ get a list of diagnostic explaining why this string template cannot be converted
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `stringTemplate` | [`StringTemplate`](../interfaces/StringTemplate.md) |
 
 ## Returns

@@ -10,7 +10,7 @@ type RouteProducer: (program, operation, parentSegments, overloadBase, options) 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `operation` | `Operation` |
 | `parentSegments` | `string`[] |

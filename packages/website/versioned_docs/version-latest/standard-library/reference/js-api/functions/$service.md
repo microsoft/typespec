@@ -13,7 +13,7 @@ function $service(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Namespace`](../interfaces/Namespace.md) |
 | `options`? | [`Type`](../type-aliases/Type.md) |

@@ -13,5 +13,7 @@ namespace Microsoft.Generator.CSharp.Snippets
             : base(typeof(T), original)
         {
         }
+
+        public new ScopedApi<T> NullConditional() => Original.NullConditional().As<T>();
     }
 }

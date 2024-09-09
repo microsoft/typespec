@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
+import { createSdkContext, UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import {
   EmitContext,
-  Program,
   getDirectoryPath,
   joinPaths,
   logDiagnostics,
+  Program,
   resolvePath,
 } from "@typespec/compiler";
 
-import { SpawnOptions, spawn } from "child_process";
+import { spawn, SpawnOptions } from "child_process";
 import fs, { statSync } from "fs";
 import { PreserveType, stringifyRefs } from "json-serialize-refs";
 import { dirname } from "path";
@@ -21,6 +21,7 @@ import { createModel } from "./lib/client-model-builder.js";
 import { LoggerLevel } from "./lib/log-level.js";
 import { Logger } from "./lib/logger.js";
 import { NetEmitterOptions, resolveOptions, resolveOutputFolder } from "./options.js";
+import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { Configuration } from "./type/configuration.js";
 
 /**
@@ -53,7 +54,11 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // Write out the dotnet model to the output path
-    const sdkContext = createSdkContext(context, "@typespec/http-client-csharp");
+    const sdkContext = await createSdkContext(
+      context,
+      "@typespec/http-client-csharp",
+      defaultSDKContextOptions
+    );
     const root = createModel(sdkContext);
     if (
       context.program.diagnostics.length > 0 &&
@@ -73,7 +78,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
 
       await program.host.writeFile(
         resolvePath(outputFolder, tspOutputFileName),
-        prettierOutput(stringifyRefs(root, null, 1, PreserveType.Objects))
+        prettierOutput(stringifyRefs(root, transformJSONProperties, 1, PreserveType.Objects))
       );
 
       //emit configuration.json
@@ -129,20 +134,20 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
           `${configurations["library-name"]}.csproj`
         );
         Logger.getInstance().info(`Checking if ${csProjFile} exists`);
-        const newProjectOption = "";
-        // TODO uncomment when https://github.com/Azure/autorest.csharp/issues/4463 is resolved
-        //  options["new-project"] || !existsSync(csProjFile) ? "--new-project" : "";
+        const newProjectOption =
+          options["new-project"] || !checkFile(csProjFile) ? "--new-project" : "";
         const existingProjectOption = options["existing-project-folder"]
           ? `--existing-project-folder ${options["existing-project-folder"]}`
           : "";
-        const debugFlag = options.debug ?? false ? " --debug" : "";
+        const debugFlag = (options.debug ?? false) ? "--debug" : "";
 
-        const projectRoot = findProjectRoot(dirname(fileURLToPath(import.meta.url)));
+        const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
+        const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
         const generatorPath = resolvePath(
           projectRoot + "/dist/generator/Microsoft.Generator.CSharp.dll"
         );
 
-        const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]} ${newProjectOption} ${existingProjectOption}${debugFlag}`;
+        const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]}${constructCommandArg(newProjectOption)}${constructCommandArg(existingProjectOption)}${constructCommandArg(debugFlag)}`;
         Logger.getInstance().info(command);
 
         const result = await execAsync(
@@ -173,6 +178,10 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       }
     }
   }
+}
+
+function constructCommandArg(arg: string): string {
+  return arg !== "" ? ` ${arg}` : "";
 }
 
 async function execAsync(
@@ -208,6 +217,28 @@ async function execAsync(
       });
     });
   });
+}
+
+function transformJSONProperties(this: any, key: string, value: any): any {
+  // convertUsageNumbersToStrings
+  if (this["kind"] === "model" || this["kind"] === "enum") {
+    if (key === "usage" && typeof value === "number") {
+      if (value === 0) {
+        return "None";
+      }
+      const result: string[] = [];
+      for (const prop in UsageFlags) {
+        if (!isNaN(Number(prop))) {
+          if ((value & Number(prop)) !== 0) {
+            result.push(UsageFlags[prop]);
+          }
+        }
+      }
+      return result.join(",");
+    }
+  }
+
+  return value;
 }
 
 function deleteFile(filePath: string) {

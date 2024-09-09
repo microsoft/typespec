@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.SourceInput;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -13,7 +15,6 @@ namespace Microsoft.Generator.CSharp
     {
         private const string ConfigurationFileName = "Configuration.json";
         private const string CodeModelFileName = "tspCodeModel.json";
-        private const string GeneratedFolderName = "Generated";
 
         private static readonly string[] _filesToKeep = [ConfigurationFileName, CodeModelFileName];
 
@@ -24,17 +25,18 @@ namespace Microsoft.Generator.CSharp
         {
             GeneratedCodeWorkspace.Initialize();
             var outputPath = CodeModelPlugin.Instance.Configuration.OutputDirectory;
-            var generatedSourceOutputPath = ParseGeneratedSourceOutputPath(outputPath);
-            var generatedTestOutputPath = Path.Combine(outputPath, "..", "..", "tests", GeneratedFolderName);
+            var generatedSourceOutputPath = CodeModelPlugin.Instance.Configuration.ProjectGeneratedDirectory;
+            var generatedTestOutputPath = CodeModelPlugin.Instance.Configuration.TestGeneratedDirectory;
 
             GeneratedCodeWorkspace workspace = await GeneratedCodeWorkspace.Create();
+            await CodeModelPlugin.Instance.InitializeSourceInputModelAsync();
 
             var output = CodeModelPlugin.Instance.OutputLibrary;
             Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));
             List<Task> generateFilesTasks = new();
 
             // visit the entire library before generating files
-            foreach (var visitor in output.GetOutputLibraryVisitors() ?? [])
+            foreach (var visitor in CodeModelPlugin.Instance.Visitors)
             {
                 visitor.Visit(output);
             }
@@ -60,6 +62,8 @@ namespace Microsoft.Generator.CSharp
                 DeleteDirectory(generatedTestOutputPath, _filesToKeep);
             }
 
+            await workspace.PostProcessAsync();
+
             // Write the generated files to the output directory
             await foreach (var file in workspace.GetGeneratedFilesAsync())
             {
@@ -72,23 +76,13 @@ namespace Microsoft.Generator.CSharp
                 Directory.CreateDirectory(Path.GetDirectoryName(filename)!);
                 await File.WriteAllTextAsync(filename, file.Text);
             }
-        }
 
-        /// <summary>
-        /// Parses and updates the output path for the generated code.
-        /// </summary>
-        /// <param name="outputPath">The output path.</param>
-        /// <returns>The parsed output path string.</returns>
-        internal static string ParseGeneratedSourceOutputPath(string outputPath)
-        {
-            if (!outputPath.EndsWith("src", StringComparison.Ordinal) && !outputPath.EndsWith("src/", StringComparison.Ordinal))
+            // Write project scaffolding files
+            if (CodeModelPlugin.Instance.IsNewProject)
             {
-                outputPath = Path.Combine(outputPath, "src");
+                var scaffolding = new NewProjectScaffolding();
+                await scaffolding.Execute();
             }
-
-            outputPath = Path.Combine(outputPath, GeneratedFolderName);
-
-            return outputPath;
         }
 
         /// <summary>

@@ -12,7 +12,7 @@ Check if the given namespace is the global namespace
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) | Program |
 | `namespace` | [`Namespace`](../interfaces/Namespace.md) | Namespace |
 

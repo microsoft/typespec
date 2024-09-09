@@ -19,13 +19,7 @@ import { HttpProperty } from "./http-property.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { Visibility } from "./metadata.js";
 import { resolveHttpPayload } from "./payload.js";
-import {
-  HttpOperationBody,
-  HttpOperationMultipartBody,
-  HttpOperationResponse,
-  HttpStatusCodes,
-  HttpStatusCodesEntry,
-} from "./types.js";
+import { HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./types.js";
 
 /**
  * Get the responses for a given operation.
@@ -121,13 +115,7 @@ function processResponseType(
       statusCode: typeof statusCode === "object" ? "*" : (String(statusCode) as any),
       statusCodes: statusCode,
       type: responseType,
-      description: getResponseDescription(
-        program,
-        operation,
-        responseType,
-        statusCode,
-        resolvedBody
-      ),
+      description: getResponseDescription(program, operation, responseType, statusCode, metadata),
       responses: [],
     };
 
@@ -135,9 +123,10 @@ function processResponseType(
       response.responses.push({
         body: resolvedBody,
         headers,
+        properties: metadata,
       });
     } else {
-      response.responses.push({ headers });
+      response.responses.push({ headers, properties: metadata });
     }
     responses.set(statusCode, response);
   }
@@ -201,12 +190,22 @@ function getResponseHeaders(
   return responseHeaders;
 }
 
+function isResponseEnvelope(metadata: HttpProperty[]): boolean {
+  return metadata.some(
+    (prop) =>
+      prop.kind === "body" ||
+      prop.kind === "bodyRoot" ||
+      prop.kind === "multipartBody" ||
+      prop.kind === "statusCode"
+  );
+}
+
 function getResponseDescription(
   program: Program,
   operation: Operation,
   responseType: Type,
   statusCode: HttpStatusCodes[number],
-  body: HttpOperationBody | HttpOperationMultipartBody | undefined
+  metadata: HttpProperty[]
 ): string | undefined {
   // NOTE: If the response type is an envelope and not the same as the body
   // type, then use its @doc as the response description. However, if the
@@ -215,7 +214,7 @@ function getResponseDescription(
   // as the response description. This allows more freedom to change how
   // TypeSpec is expressed in semantically equivalent ways without causing
   // the output to change unnecessarily.
-  if (body === undefined || body.property) {
+  if (isResponseEnvelope(metadata)) {
     const desc = getDoc(program, responseType);
     if (desc) {
       return desc;

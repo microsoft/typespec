@@ -119,7 +119,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
         {
             using CodeWriter writer = new CodeWriter();
             New.Instance(new CSharpType(typeof(TestClass)), [Literal(20)]).Write(writer);
-            Assert.AreEqual("new global::Microsoft.Generator.CSharp.Tests.Snippets.TestClass(20)", writer.ToString(false));
+            Assert.AreEqual("new global::Microsoft.Generator.CSharp.Tests.Snippets.SnippetTests.TestClass(20)", writer.ToString(false));
         }
 
         [Test]
@@ -139,7 +139,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
         {
             using CodeWriter writer = new CodeWriter();
             New.Instance(typeof(TestClass), [Literal(20)]).Write(writer);
-            Assert.AreEqual("new global::Microsoft.Generator.CSharp.Tests.Snippets.TestClass(20)", writer.ToString(false));
+            Assert.AreEqual("new global::Microsoft.Generator.CSharp.Tests.Snippets.SnippetTests.TestClass(20)", writer.ToString(false));
         }
 
         private class TestClass

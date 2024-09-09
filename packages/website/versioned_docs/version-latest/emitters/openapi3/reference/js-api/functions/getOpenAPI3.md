@@ -13,7 +13,7 @@ returned as a JS object.
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | `Program` | The program to emit to OpenAPI 3 |
 | `options` | `Omit`<`OpenAPI3EmitterOptions`, `IrrelevantOpenAPI3EmitterOptionsForObject`\> | OpenAPI 3 emit options |
 

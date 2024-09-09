@@ -1,4 +1,4 @@
-import "../dist/src/index.js";
+import "../dist/src/tsp-index.js";
 
 namespace TypeSpec.Protobuf;
 
@@ -25,7 +25,7 @@ namespace TypeSpec.Protobuf;
  * model Widget is Extern<"path/to/test.proto", "test.Widget">;
  * ```
  */
-@externRef(Path, Name)
+@Private.externRef(Path, Name)
 model Extern<Path extends string, Name extends string> {
   // This _extern property is needed so that getEffectiveModelType will have something to look up. Without it, if an
   // Extern model is spread into the parameter of an operation, the resulting model is empty and carries no information
@@ -135,7 +135,7 @@ alias integral = int32 | int64 | uint32 | uint64 | boolean;
  * @template Key the key type (any integral type or string)
  * @template Value the value type (any type other than another map)
  */
-@_map
+@Private._map
 model Map<Key extends integral | string, Value> {}
 
 /**
@@ -310,3 +310,8 @@ enum StreamMode {
  * ```
  */
 extern dec stream(target: TypeSpec.Reflection.Operation, mode: StreamMode);
+
+namespace Private {
+  extern dec externRef(target: Reflection.Model, path: string, name: string);
+  extern dec _map(target: Reflection.Model);
+}

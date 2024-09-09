@@ -6,19 +6,14 @@ using Http;
 using OpenAPI;
 
 /**
- * This is a sample Pet Store Server based on the OpenAPI 3.0 specification.  You
- * can find out more about
- * Swagger at [http://swagger.io](http://swagger.io). In the third iteration of
- * the pet store, we've switched to the design first approach!
- * You can now help us improve the API whether it's by making changes to the
- * definition itself or to the code.
- * That way, with time, we can improve the API in general, and expose some of the
- * new features in OAS3.
+ * This is a sample Pet Store Server based on the OpenAPI 3.0 specification.  You can find out more about
+ * Swagger at [http://swagger.io](http://swagger.io). In the third iteration of the pet store, we've switched to the design first approach!
+ * You can now help us improve the API whether it's by making changes to the definition itself or to the code.
+ * That way, with time, we can improve the API in general, and expose some of the new features in OAS3.
  *
  * Some useful links:
  * - [The Pet Store repository](https://github.com/swagger-api/swagger-petstore)
- * - [The source API definition for the Pet
- * Store](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
+ * - [The source API definition for the Pet Store](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
  */
 @service({
   title: "Swagger Petstore - OpenAPI 3.0",
@@ -548,8 +543,7 @@ op findPetsByStatus(
 ): findPetsByStatus200ApplicationXmlResponse | findPetsByStatus200ApplicationJsonResponse | findPetsByStatus400Response;
 
 /**
- * Multiple tags can be provided with comma separated strings. Use tag1, tag2,
- * tag3 for testing.
+ * Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  */
 @tag("pet")
 @route("/pet/findByTags")
@@ -653,8 +647,7 @@ op placeOrder(
 ): placeOrder200ApplicationJsonResponse | placeOrder405Response;
 
 /**
- * For valid response try integer IDs with value < 1000. Anything above 1000 or
- * nonintegers will generate API errors
+ * For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  */
 @tag("store")
 @extension("x-swagger-router-controller", "OrderController")
@@ -668,8 +661,7 @@ op deleteOrder(
 ): deleteOrder400Response | deleteOrder404Response;
 
 /**
- * For valid response try integer IDs with value <= 5 or > 10. Other values will
- * generate exceptions.
+ * For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  */
 @tag("store")
 @extension("x-swagger-router-controller", "OrderController")

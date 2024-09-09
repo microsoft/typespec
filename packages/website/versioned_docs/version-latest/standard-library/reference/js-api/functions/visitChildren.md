@@ -7,16 +7,16 @@ title: "[F] visitChildren"
 function visitChildren<T>(node, cb): T | undefined
 ```
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` |
 
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `node` | [`Node`](../type-aliases/Node.md) |
 | `cb` | [`NodeCallback`](../type-aliases/NodeCallback.md)<`T`\> |
 

@@ -6,12 +6,15 @@ import {
   isTemplateInstance,
   isType,
   navigateProgram,
+  type ModelProperty,
   type Namespace,
   type Program,
   type Type,
   type TypeNameOptions,
 } from "@typespec/compiler";
 import {
+  $added,
+  $removed,
   findVersionedNamespace,
   getMadeOptionalOn,
   getMadeRequiredOn,
@@ -104,6 +107,26 @@ export function $onValidate(program: Program) {
           validateTargetVersionCompatible(program, op.interface, op, { isTargetADependent: true });
         }
         validateReference(program, op, op.returnType);
+
+        // Check that any spread/is/aliased models are valid for this operation
+        for (const sourceModel of op.parameters.sourceModels) {
+          validateReference(program, op, sourceModel.model);
+        }
+
+        for (const prop of op.parameters.properties.values()) {
+          // Validate op -> property have correct versioning
+          validateTargetVersionCompatible(program, op, prop, {
+            isTargetADependent: true,
+          });
+
+          // Validate model property -> type have correct versioning
+          const typeChangedFrom = getTypeChangedFrom(program, prop);
+          if (typeChangedFrom !== undefined) {
+            validateMultiTypeReference(program, prop);
+          } else {
+            validateReference(program, [prop, op], prop.type);
+          }
+        }
       },
       interface: (iface) => {
         for (const source of iface.sourceInterfaces) {
@@ -365,9 +388,11 @@ function validateVersionedNamespaceUsage(
     const dependencies = source && getVersionDependencies(program, source);
     for (const target of targets) {
       const targetVersionedNamespace = findVersionedNamespace(program, target);
+      const sourceVersionedNamespace = source && findVersionedNamespace(program, source);
       if (
         targetVersionedNamespace !== undefined &&
         !(source && (isSubNamespace(target, source) || isSubNamespace(source, target))) &&
+        sourceVersionedNamespace !== targetVersionedNamespace &&
         dependencies?.get(targetVersionedNamespace) === undefined
       ) {
         reportDiagnostic(program, {
@@ -495,13 +520,13 @@ interface IncompatibleVersionValidateOptions {
  * @param source Source type referencing the target type.
  * @param target Type being referenced from the source
  */
-function validateReference(program: Program, source: Type, target: Type) {
+function validateReference(program: Program, source: Type | Type[], target: Type) {
   validateTargetVersionCompatible(program, source, target);
 
   if ("templateMapper" in target) {
     for (const param of target.templateMapper?.args ?? []) {
       if (isType(param)) {
-        validateTargetVersionCompatible(program, source, param);
+        validateReference(program, source, param);
       }
     }
   }
@@ -509,42 +534,61 @@ function validateReference(program: Program, source: Type, target: Type) {
   switch (target.kind) {
     case "Union":
       for (const variant of target.variants.values()) {
-        validateTargetVersionCompatible(program, source, variant.type);
+        validateReference(program, source, variant.type);
       }
       break;
     case "Tuple":
       for (const value of target.values) {
-        validateTargetVersionCompatible(program, source, value);
+        validateReference(program, source, value);
       }
       break;
   }
 }
 
-function getAvailabilityMapWithParentInfo(
-  program: Program,
-  type: Type
-): Map<string, Availability> | undefined {
-  const base = getAvailabilityMap(program, type);
+interface ResolvedAvailability {
+  map?: Map<string, Availability>;
+  type: Type;
+}
 
-  // get any parent availability information
-  let parentMap: Map<string, Availability> | undefined = undefined;
-  switch (type.kind) {
-    case "Operation":
-      const parentInterface = type.interface;
-      if (parentInterface) {
-        parentMap = getAvailabilityMap(program, parentInterface);
+/**
+ * Return the availability map for a type using the stack to include parent annotations.
+ */
+function resolveAvailabilityForStack(program: Program, type: Type | Type[]): ResolvedAvailability {
+  const types = Array.isArray(type) ? type : [type];
+  const first = types[0];
+  const map = getAvailabilityMapFromStack(program, types);
+  return { type: first, map };
+}
+/**
+ * Return the availability map for a type using the stack to include parent annotations.
+ */
+function getAvailabilityMapFromStack(
+  program: Program,
+  typeStack: Type[]
+): Map<string, Availability> | undefined {
+  for (const type of typeStack) {
+    const map = getAvailabilityMap(program, type);
+    if (map) {
+      return map;
+    }
+    switch (type.kind) {
+      case "Operation": {
+        const parentMap = type.interface && getAvailabilityMap(program, type.interface);
+        if (parentMap) {
+          return parentMap;
+        }
+        break;
       }
-      break;
-    case "ModelProperty":
-      const parentModel = type.model;
-      if (parentModel) {
-        parentMap = getAvailabilityMapWithParentInfo(program, parentModel);
+      case "ModelProperty": {
+        const parentMap = type.model && getAvailabilityMap(program, type.model);
+        if (parentMap) {
+          return parentMap;
+        }
+        break;
       }
-      break;
-    default:
-      break;
+    }
   }
-  return base ?? parentMap;
+  return undefined;
 }
 
 /**
@@ -555,30 +599,40 @@ function getAvailabilityMapWithParentInfo(
  */
 function validateTargetVersionCompatible(
   program: Program,
-  source: Type,
-  target: Type,
+  source: Type | Type[],
+  target: Type | Type[],
   validateOptions: IncompatibleVersionValidateOptions = {}
 ) {
-  const sourceAvailability = getAvailabilityMapWithParentInfo(program, source);
-  const [sourceNamespace] = getVersions(program, source);
-
-  let targetAvailability = getAvailabilityMapWithParentInfo(program, target);
-  const [targetNamespace] = getVersions(program, target);
-  if (!targetAvailability || !targetNamespace) return;
+  const sourceAvailability = resolveAvailabilityForStack(program, source);
+  const [sourceNamespace] = getVersions(program, sourceAvailability.type);
+  // If we cannot get source availability check if there is some different versioning across the stack which would mean we verify across namespace and is causing issues.
+  if (sourceAvailability.map === undefined) {
+    const sources = Array.isArray(source) ? source : [source];
+    const baseNs = getVersions(program, sources[0]);
+    for (const type of sources) {
+      const ns = getVersions(program, type);
+      if (ns !== baseNs) {
+        return undefined;
+      }
+    }
+  }
+  const targetAvailability = resolveAvailabilityForStack(program, target);
+  const [targetNamespace] = getVersions(program, targetAvailability.type);
+  if (!targetAvailability.map || !targetNamespace) return;
 
   if (sourceNamespace !== targetNamespace) {
     const dependencies = sourceNamespace && getVersionDependencies(program, sourceNamespace);
     const versionMap = dependencies?.get(targetNamespace);
     if (versionMap === undefined) return;
 
-    targetAvailability = translateAvailability(
+    targetAvailability.map = translateAvailability(
       program,
-      targetAvailability,
+      targetAvailability.map,
       versionMap,
-      source,
-      target
+      sourceAvailability.type,
+      targetAvailability.type
     );
-    if (!targetAvailability) {
+    if (!targetAvailability.map) {
       return;
     }
   }
@@ -586,13 +640,19 @@ function validateTargetVersionCompatible(
   if (validateOptions.isTargetADependent) {
     validateAvailabilityForContains(
       program,
-      sourceAvailability,
-      targetAvailability,
-      source,
-      target
+      sourceAvailability.map,
+      targetAvailability.map,
+      sourceAvailability.type,
+      targetAvailability.type
     );
   } else {
-    validateAvailabilityForRef(program, sourceAvailability, targetAvailability, source, target);
+    validateAvailabilityForRef(
+      program,
+      sourceAvailability.map,
+      targetAvailability.map,
+      sourceAvailability.type,
+      targetAvailability.type
+    );
   }
 }
 
@@ -772,6 +832,30 @@ function validateAvailabilityForRef(
   }
 }
 
+function canIgnoreDependentVersioning(type: Type, versioning: "added" | "removed") {
+  if (type.kind === "ModelProperty") {
+    return canIgnoreVersioningOnProperty(type, versioning);
+  }
+  return false;
+}
+
+function canIgnoreVersioningOnProperty(
+  prop: ModelProperty,
+  versioning: "added" | "removed"
+): boolean {
+  if (prop.sourceProperty === undefined) {
+    return false;
+  }
+
+  const decoratorFn = versioning === "added" ? $added : $removed;
+  // Check if the decorator was defined on this property or a source property. If source property ignore.
+  const selfDecorators = prop.decorators.filter((x) => x.decorator === decoratorFn);
+  const sourceDecorators = prop.sourceProperty.decorators.filter(
+    (x) => x.decorator === decoratorFn
+  );
+  return !selfDecorators.some((x) => !sourceDecorators.some((y) => x.node === y.node));
+}
+
 function validateAvailabilityForContains(
   program: Program,
   sourceAvail: Map<string, Availability> | undefined,
@@ -791,7 +875,8 @@ function validateAvailabilityForContains(
     if (sourceVal === targetVal) continue;
     if (
       [Availability.Added].includes(targetVal) &&
-      [Availability.Removed, Availability.Unavailable].includes(sourceVal)
+      [Availability.Removed, Availability.Unavailable].includes(sourceVal) &&
+      !canIgnoreDependentVersioning(target, "added")
     ) {
       const sourceAddedOn = findAvailabilityOnOrBeforeVersion(key, Availability.Added, sourceAvail);
       reportDiagnostic(program, {
@@ -808,7 +893,8 @@ function validateAvailabilityForContains(
     }
     if (
       [Availability.Removed].includes(sourceVal) &&
-      [Availability.Added, Availability.Available].includes(targetVal)
+      [Availability.Added, Availability.Available].includes(targetVal) &&
+      !canIgnoreDependentVersioning(target, "removed")
     ) {
       const targetRemovedOn = findAvailabilityAfterVersion(key, Availability.Removed, targetAvail);
       reportDiagnostic(program, {

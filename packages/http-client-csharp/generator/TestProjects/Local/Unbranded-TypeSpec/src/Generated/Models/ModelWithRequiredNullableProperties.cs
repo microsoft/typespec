@@ -2,11 +2,17 @@
 
 #nullable disable
 
+using System;
+using System.Collections.Generic;
+
 namespace UnbrandedTypeSpec.Models
 {
     /// <summary> A model with a few required nullable properties. </summary>
     public partial class ModelWithRequiredNullableProperties
     {
+        /// <summary> Keeps track of any properties unknown to the library. </summary>
+        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
+
         /// <summary> Initializes a new instance of <see cref="ModelWithRequiredNullableProperties"/>. </summary>
         /// <param name="requiredNullablePrimitive"> required nullable primitive type. </param>
         /// <param name="requiredExtensibleEnum"> required nullable extensible enum type. </param>
@@ -16,6 +22,14 @@ namespace UnbrandedTypeSpec.Models
             RequiredNullablePrimitive = requiredNullablePrimitive;
             RequiredExtensibleEnum = requiredExtensibleEnum;
             RequiredFixedEnum = requiredFixedEnum;
+        }
+
+        internal ModelWithRequiredNullableProperties(int? requiredNullablePrimitive, StringExtensibleEnum? requiredExtensibleEnum, StringFixedEnum? requiredFixedEnum, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        {
+            RequiredNullablePrimitive = requiredNullablePrimitive;
+            RequiredExtensibleEnum = requiredExtensibleEnum;
+            RequiredFixedEnum = requiredFixedEnum;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
         /// <summary> required nullable primitive type. </summary>

@@ -14,27 +14,6 @@ namespace UnbrandedTypeSpec.Models
     /// <summary></summary>
     public partial class Thing : IJsonModel<Thing>
     {
-        /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
-
-        internal Thing(string name, BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, ThingOptionalLiteralString? optionalLiteralString, ThingOptionalLiteralInt? optionalLiteralInt, ThingOptionalLiteralFloat? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, BinaryData> serializedAdditionalRawData)
-        {
-            Name = name;
-            RequiredUnion = requiredUnion;
-            RequiredLiteralString = requiredLiteralString;
-            RequiredLiteralInt = requiredLiteralInt;
-            RequiredLiteralFloat = requiredLiteralFloat;
-            RequiredLiteralBool = requiredLiteralBool;
-            OptionalLiteralString = optionalLiteralString;
-            OptionalLiteralInt = optionalLiteralInt;
-            OptionalLiteralFloat = optionalLiteralFloat;
-            OptionalLiteralBool = optionalLiteralBool;
-            RequiredBadDescription = requiredBadDescription;
-            OptionalNullableList = optionalNullableList;
-            RequiredNullableList = requiredNullableList;
-            _serializedAdditionalRawData = serializedAdditionalRawData;
-        }
-
         internal Thing()
         {
         }
@@ -178,8 +157,7 @@ namespace UnbrandedTypeSpec.Models
             string requiredBadDescription = default;
             IList<int> optionalNullableList = default;
             IList<int> requiredNullableList = default;
-            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
-            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
+            IDictionary<string, BinaryData> serializedAdditionalRawData = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("name"u8))
@@ -288,10 +266,9 @@ namespace UnbrandedTypeSpec.Models
                 }
                 if (options.Format != "W")
                 {
-                    rawDataDictionary.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                    serializedAdditionalRawData.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            serializedAdditionalRawData = rawDataDictionary;
             return new Thing(
                 name,
                 requiredUnion,

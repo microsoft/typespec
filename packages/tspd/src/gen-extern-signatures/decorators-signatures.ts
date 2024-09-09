@@ -17,73 +17,84 @@ import { DecoratorSignature } from "./types.js";
 
 const line = "\n";
 export function generateSignatureTests(
+  namespaceName: string,
   importName: string,
   decoratorSignatureImport: string,
   decorators: DecoratorSignature[]
 ): string {
   const content: Doc[] = [];
+  const decRecord = getDecoratorRecordForNamespaceName(namespaceName);
   content.push([
     "/** An error here would mean that the decorator is not exported or doesn't have the right name. */",
     line,
-    "import {",
-    decorators.map((x) => x.jsName).join(","),
-    `} from "`,
+    `import { $decorators } from "`,
     importName,
     `";`,
     line,
   ]);
 
-  content.push([
-    "import type {",
-    decorators.map((x) => x.typeName).join(","),
-    `} from "`,
-    decoratorSignatureImport,
-    `";`,
-    line,
-  ]);
-  content.push(line);
-
-  content.push([
-    "type Decorators = {",
-    line,
-    decorators.map((x) => renderDoc([x.jsName, ": ", x.typeName])).join(","),
-
-    "};",
-    line,
-  ]);
+  content.push(`import type { ${decRecord} } from "${decoratorSignatureImport}";`);
 
   content.push(line);
 
   content.push([
     "/** An error here would mean that the exported decorator is not using the same signature. Make sure to have export const $decName: DecNameDecorator = (...) => ... */",
     line,
-    "const _: Decorators = {",
-    line,
-    decorators.map((x) => x.jsName).join(","),
-
-    "};",
-    line,
+    `const _: ${decRecord} = $decorators["${namespaceName}"]`,
   ]);
   return renderDoc(content);
 }
 
-export function generateSignatures(program: Program, decorators: DecoratorSignature[]): string {
+function getDecoratorRecordForNamespaceName(namespaceName: string) {
+  return `${namespaceName.replaceAll(".", "")}Decorators`;
+}
+export function generateSignatures(
+  program: Program,
+  decorators: DecoratorSignature[],
+  namespaceName: string
+): string {
   const compilerImports = new Set<string>();
+  const localTypes = new Set<Model>();
   const decoratorDeclarations: string[] = decorators.map((x) => getTSSignatureForDecorator(x));
 
   const importArray = [...compilerImports].sort();
+
+  const localTypeDeclarations = [];
+  for (const item of localTypes) {
+    localTypeDeclarations.push(declareInterfaceForModel(item));
+  }
   const content: Doc = [
     `import type {${importArray.join(",")}} from "@typespec/compiler";`,
     line,
     line,
+    localTypeDeclarations.join("\n\n"),
+    line,
+    line,
     decoratorDeclarations.join("\n\n"),
+    line,
+    line,
   ];
+
+  content.push([
+    `export type ${getDecoratorRecordForNamespaceName(namespaceName)} = {`,
+    line,
+    decorators.map((x) => renderDoc([x.name.slice(1), ": ", x.typeName])).join(","),
+    "};",
+    line,
+  ]);
+
+  content.push(line);
 
   return renderDoc(content);
 
   function useCompilerType(name: string) {
     compilerImports.add(name);
     return name;
+  }
+
+  function useLocalType(type: Model) {
+    localTypes.add(type);
+    return type.name;
   }
 
   function getTSSignatureForDecorator({ typeName, decorator }: DecoratorSignature): string {
@@ -205,8 +216,44 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
         return getScalarTSType(type);
       case "Union":
         return [...type.variants.values()].map((x) => getValueTSType(x.type)).join(" | ");
+      case "Model":
+        if (isArrayModelType(program, type)) {
+          return `readonly (${getValueTSType(type.indexer.value)})` + "[]";
+        } else if (isReflectionType(type)) {
+          return getValueOfReflectionType(type);
+        } else {
+          if (type.name) {
+            return useLocalType(type);
+          } else {
+            return writeTypeExpressionForModel(type);
+          }
+        }
     }
     return "unknown";
+  }
+
+  function getValueOfReflectionType(type: Model): string {
+    switch (type.name) {
+      case "EnumMember":
+      case "Enum":
+        return useCompilerType("EnumValue");
+      case "Model":
+        return "Record<string, unknown>";
+      default:
+        return "unknown";
+    }
+  }
+
+  function writeTypeExpressionForModel(model: Model): string {
+    const properties = [...model.properties.values()].map((x) => {
+      return `readonly ${x.name}${x.optional ? "?" : ""}: ${getValueTSType(x.type)}`;
+    });
+
+    return `{ ${properties.join(", ")} }`;
+  }
+
+  function declareInterfaceForModel(model: Model): string {
+    return `export interface ${model.name} ${writeTypeExpressionForModel(model)}`;
   }
 
   function getScalarTSType(scalar: Scalar): string {
@@ -259,7 +306,7 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
   }
 }
 
-function isReflectionType(type: Type): type is Model {
+function isReflectionType(type: Type): type is Model & { namespace: { name: "Reflection" } } {
   return (
     type.kind === "Model" &&
     type.namespace?.name === "Reflection" &&
@@ -292,16 +339,17 @@ function getDocComment(type: Type): string {
           : `@${tag.tagName.sv}`;
       for (const content of tag.content) {
         for (const line of content.text.split("\n")) {
+          const cleaned = sanitizeDocComment(line);
           if (first) {
             if (hasContentFirstLine) {
-              tagLines.push(`${tagStart} ${line}`);
+              tagLines.push(`${tagStart} ${cleaned}`);
             } else {
-              tagLines.push(tagStart, line);
+              tagLines.push(tagStart, cleaned);
             }
 
             first = false;
           } else {
-            tagLines.push(line);
+            tagLines.push(cleaned);
           }
         }
       }
@@ -310,6 +358,11 @@ function getDocComment(type: Type): string {
 
   const docLines = [...mainContentLines, ...(tagLines.length > 0 ? [""] : []), ...tagLines];
   return "/**\n" + docLines.map((x) => `* ${x}`).join("\n") + "\n*/\n";
+}
+
+function sanitizeDocComment(doc: string): string {
+  // Issue to escape @internal and other tsdoc tags https://github.com/microsoft/TypeScript/issues/47679
+  return doc.replaceAll("@internal", `@_internal`);
 }
 
 function checkIfTagHasDocOnSameLine(tag: DocTag): boolean {

@@ -1,33 +1,70 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
+import { OpenAPI3PathParameter, OpenAPI3QueryParameter } from "../src/types.js";
 import { diagnoseOpenApiFor, openApiFor } from "./test-host.js";
 
-describe("openapi3: parameters", () => {
+describe("query parameters", () => {
+  async function getQueryParam(code: string): Promise<OpenAPI3QueryParameter> {
+    const res = await openApiFor(code);
+    const param = res.paths[`/`].get.parameters[0];
+    strictEqual(param.in, "query");
+    return param;
+  }
+
   it("create a query param", async () => {
-    const res = await openApiFor(
-      `
-      op test(@query arg1: string): void;
+    const param = await getQueryParam(
+      `op test(@query myParam: string): void;
       `
     );
-    strictEqual(res.paths["/"].get.parameters[0].in, "query");
-    strictEqual(res.paths["/"].get.parameters[0].name, "arg1");
-    deepStrictEqual(res.paths["/"].get.parameters[0].schema, { type: "string" });
+    strictEqual(param.name, "myParam");
+    deepStrictEqual(param.schema, { type: "string" });
   });
 
   it("create a query param with a different name", async () => {
-    const res = await openApiFor(
+    const param = await getQueryParam(
       `
       op test(@query("$select") select: string): void;
       `
     );
-    strictEqual(res.paths["/"].get.parameters[0].in, "query");
-    strictEqual(res.paths["/"].get.parameters[0].name, "$select");
+    strictEqual(param.in, "query");
+    strictEqual(param.name, "$select");
   });
 
-  it("create a query param of array type", async () => {
+  describe("doesn't set explode if explode: true (Openapi3.0 inverse default)", () => {
+    it("with option", async () => {
+      const param = await getQueryParam(`op test(@query(#{explode: true}) myParam: string): void;`);
+      expect(param).not.toHaveProperty("explode");
+    });
+
+    it("with uri template", async () => {
+      const param = await getQueryParam(`@route("{?myParam*}") op test(myParam: string): void;`);
+      expect(param).not.toHaveProperty("explode");
+    });
+  });
+
+  describe("set explode: false if explode is not set", () => {
+    it("with option", async () => {
+      const param = await getQueryParam(
+        `op test(@query(#{explode: false}) myParam: string): void;`
+      );
+      expect(param).toMatchObject({
+        explode: false,
+      });
+    });
+
+    it("with uri template", async () => {
+      const param = await getQueryParam(`@route("{?myParam}") op test(myParam: string): void;`);
+      expect(param).toMatchObject({
+        explode: false,
+      });
+    });
+  });
+
+  it("LEGACY: specify the format", async () => {
     const res = await openApiFor(
       `
+      #suppress "deprecated" "test"
       op test(
         @query({name: "$multi", format: "multi"}) multis: string[],
         @query({name: "$csv", format: "csv"}) csvs: string[],
@@ -42,9 +79,7 @@ describe("openapi3: parameters", () => {
     deepStrictEqual(params[0], {
       in: "query",
       name: "$multi",
-      style: "form",
       required: true,
-      explode: true,
       schema: {
         type: "array",
         items: {
@@ -55,7 +90,6 @@ describe("openapi3: parameters", () => {
     deepStrictEqual(params[1], {
       in: "query",
       name: "$csv",
-      style: "form",
       explode: false,
       schema: {
         type: "array",
@@ -114,6 +148,7 @@ describe("openapi3: parameters", () => {
     deepStrictEqual(res.paths["/"].get.parameters[0], {
       in: "query",
       name: "id",
+      explode: false,
       required: true,
       schema: {
         type: "string",
@@ -402,6 +437,7 @@ describe("openapi3: parameters", () => {
       deepStrictEqual(res.paths["/"].post.requestBody.content["application/octet-stream"].schema, {
         type: "string",
       });
+      strictEqual(res.paths["/"].post.parameters.length, 0);
     });
 
     it("query named contentType doesn't get resolved as the content type parameter.", async () => {
@@ -417,16 +453,149 @@ describe("openapi3: parameters", () => {
       ok(res.paths["/"].post.requestBody.content["application/json"]);
     });
   });
+});
 
-  describe("path parameters", () => {
-    it("figure out the route parameter from the name of the param", async () => {
-      const res = await openApiFor(`op test(@path myParam: string): void;`);
-      expect(res.paths).toHaveProperty("/{myParam}");
+describe("path parameters", () => {
+  async function getPathParam(code: string, name = "myParam"): Promise<OpenAPI3PathParameter> {
+    const res = await openApiFor(code);
+    return res.paths[`/{${name}}`].get.parameters[0];
+  }
+
+  it("figure out the route parameter from the name of the param", async () => {
+    const res = await openApiFor(`op test(@path myParam: string): void;`);
+    expect(res.paths).toHaveProperty("/{myParam}");
+  });
+
+  it("uses explicit name provided from @path", async () => {
+    const res = await openApiFor(`op test(@path("my-custom-path") myParam: string): void;`);
+    expect(res.paths).toHaveProperty("/{my-custom-path}");
+  });
+
+  it("inline adds an arbitrary extension to a parameter", async () => {
+    const oapi = await openApiFor(
+      `
+      op get(
+        @path
+        @extension("x-parameter-extension", "foobaz")
+        petId: string;
+      ): void;
+      `
+    );
+    strictEqual(oapi.paths["/{petId}"].get.parameters[0]["x-parameter-extension"], "foobaz");
+  });
+
+  describe("set explode: true", () => {
+    it("with option", async () => {
+      const param = await getPathParam(`op test(@path(#{explode: true}) myParam: string[]): void;`);
+      expect(param).toMatchObject({
+        explode: true,
+        schema: {
+          type: "array",
+          items: { type: "string" },
+        },
+      });
+    });
+    it("with uri template", async () => {
+      const param = await getPathParam(`@route("{myParam*}") op test(myParam: string[]): void;`);
+      expect(param).toMatchObject({
+        explode: true,
+        schema: {
+          type: "array",
+          items: { type: "string" },
+        },
+      });
+    });
+  });
+
+  describe("set style: simple", () => {
+    it("with option", async () => {
+      const param = await getPathParam(`op test(@path(#{style: "simple"}) myParam: string): void;`);
+      expect(param).not.toHaveProperty("style");
     });
 
-    it("uses explicit name provided from @path", async () => {
-      const res = await openApiFor(`op test(@path("my-custom-path") myParam: string): void;`);
-      expect(res.paths).toHaveProperty("/{my-custom-path}");
+    it("with uri template", async () => {
+      const param = await getPathParam(`@route("{myParam}") op test(myParam: string): void;`);
+      expect(param).not.toHaveProperty("style");
+    });
+  });
+
+  describe("set style: label", () => {
+    it("with option", async () => {
+      const param = await getPathParam(`op test(@path(#{style: "label"}) myParam: string): void;`);
+      expect(param).toMatchObject({
+        style: "label",
+      });
+    });
+
+    it("with uri template", async () => {
+      const param = await getPathParam(`@route("{.myParam}") op test(myParam: string): void;`);
+      expect(param).toMatchObject({
+        style: "label",
+      });
+    });
+  });
+
+  describe("set style: matrix", () => {
+    it("with option", async () => {
+      const param = await getPathParam(`op test(@path(#{style: "matrix"}) myParam: string): void;`);
+      expect(param).toMatchObject({
+        style: "matrix",
+      });
+    });
+
+    it("with uri template", async () => {
+      const param = await getPathParam(`@route("{;myParam}") op test(myParam: string): void;`);
+      expect(param).toMatchObject({
+        style: "matrix",
+      });
+    });
+  });
+
+  describe("emit diagnostic when using style: path", () => {
+    it("with option", async () => {
+      const diagnostics = await diagnoseOpenApiFor(
+        `op test(@path(#{style: "path"}) myParam: string): void;`
+      );
+      expectDiagnostics(diagnostics, { code: "@typespec/openapi3/invalid-style" });
+    });
+
+    it("with uri template", async () => {
+      const diagnostics = await diagnoseOpenApiFor(
+        `@route("{/myParam}") op test(myParam: string): void;`
+      );
+      expectDiagnostics(diagnostics, { code: "@typespec/openapi3/invalid-style" });
+    });
+  });
+
+  describe("emit diagnostic when using style: fragment", () => {
+    it("with option", async () => {
+      const diagnostics = await diagnoseOpenApiFor(
+        `op test(@path(#{style: "fragment"}) myParam: string): void;`
+      );
+      expectDiagnostics(diagnostics, { code: "@typespec/openapi3/invalid-style" });
+    });
+
+    it("with uri template", async () => {
+      const diagnostics = await diagnoseOpenApiFor(
+        `@route("{#myParam}") op test(myParam: string): void;`
+      );
+      expectDiagnostics(diagnostics, { code: "@typespec/openapi3/invalid-style" });
+    });
+  });
+
+  describe("emit diagnostic when using reserved expansion", () => {
+    it("with option", async () => {
+      const diagnostics = await diagnoseOpenApiFor(
+        `op test(@path(#{allowReserved: true}) myParam: string): void;`
+      );
+      expectDiagnostics(diagnostics, { code: "@typespec/openapi3/path-reserved-expansion" });
+    });
+
+    it("with uri template", async () => {
+      const diagnostics = await diagnoseOpenApiFor(
+        `@route("{+myParam}") op test(myParam: string): void;`
+      );
+      expectDiagnostics(diagnostics, { code: "@typespec/openapi3/path-reserved-expansion" });
     });
   });
 });

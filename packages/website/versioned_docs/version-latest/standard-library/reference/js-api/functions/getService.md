@@ -12,7 +12,7 @@ Get the service information for the given namespace.
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) | Program |
 | `namespace` | [`Namespace`](../interfaces/Namespace.md) | Service namespace |
 

@@ -10,7 +10,7 @@ function getRoutePath(program, entity): RoutePath | undefined
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `entity` | `Namespace` \| `Interface` \| `Operation` |
 

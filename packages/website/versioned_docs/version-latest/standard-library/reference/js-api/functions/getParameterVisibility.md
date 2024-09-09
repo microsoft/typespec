@@ -12,7 +12,7 @@ Returns the visibilities of the parameters of the given operation, if provided w
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `entity` | [`Operation`](../interfaces/Operation.md) |
 

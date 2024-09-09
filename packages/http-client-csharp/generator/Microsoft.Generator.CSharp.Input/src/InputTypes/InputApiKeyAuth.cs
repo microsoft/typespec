@@ -3,9 +3,9 @@
 
 namespace Microsoft.Generator.CSharp.Input
 {
-    public class InputApiKeyAuth : InputAuth
+    public class InputApiKeyAuth
     {
-        public InputApiKeyAuth(string name = "", string? prefix = null) : base()
+        public InputApiKeyAuth(string name, string? prefix)
         {
             Name = name;
             Prefix = prefix;

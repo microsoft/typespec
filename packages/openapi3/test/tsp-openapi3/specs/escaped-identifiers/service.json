@@ -1,0 +1,72 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sample API",
+    "version": "1.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/{escaped-property}": {
+      "get": {
+        "operationId": "get-thing",
+        "parameters": [
+          {
+            "name": "weird@param",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Foo-Bar"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/Escaped-Model.escaped-property"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Success"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Escaped-Model"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "Escaped-Model.escaped-property": {
+        "name": "escaped-property",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "schemas": {
+      "Foo-Bar": {
+        "type": "string"
+      },
+      "Escaped-Model": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "escaped-property": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

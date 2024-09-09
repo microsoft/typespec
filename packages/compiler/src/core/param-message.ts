@@ -1,6 +1,6 @@
 import type { CallableMessage } from "./types.js";
 
-export function paramMessage<T extends string[]>(
+export function paramMessage<const T extends string[]>(
   strings: readonly string[],
   ...keys: T
 ): CallableMessage<T> {

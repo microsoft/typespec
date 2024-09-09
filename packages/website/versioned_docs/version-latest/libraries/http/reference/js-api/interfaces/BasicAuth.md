@@ -16,9 +16,10 @@ Authorization: Basic ZGVtbzpwQDU1dzByZA==
 
 ## Properties
 
-| Property | Type | Description | Inherited from |
-| :------ | :------ | :------ | :------ |
-| `description?` | `string` | Optional description. | [`HttpAuthBase`](HttpAuthBase.md).`description` |
-| `id` | `string` | Id of the authentication scheme. | [`HttpAuthBase`](HttpAuthBase.md).`id` |
-| `scheme` | `"basic"` | - | - |
-| `type` | `"http"` | - | - |
+| Property | Modifier | Type | Description | Inherited from |
+| ------ | ------ | ------ | ------ | ------ |
+| `description?` | `public` | `string` | Optional description. | [`HttpAuthBase`](HttpAuthBase.md).`description` |
+| `id` | `public` | `string` | Id of the authentication scheme. | [`HttpAuthBase`](HttpAuthBase.md).`id` |
+| `model` | `readonly` | `Model` | Model that defined the authentication | [`HttpAuthBase`](HttpAuthBase.md).`model` |
+| `scheme` | `public` | `"basic"` | - | - |
+| `type` | `public` | `"http"` | - | - |

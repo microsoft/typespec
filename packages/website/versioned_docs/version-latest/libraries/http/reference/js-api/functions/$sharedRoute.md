@@ -17,7 +17,7 @@ route path as long as those operations are also marked with `@sharedRoute`.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Operation` |
 

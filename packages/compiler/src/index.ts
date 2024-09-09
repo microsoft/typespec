@@ -19,3 +19,6 @@ export {
 
 /** @deprecated Use TypeSpecPrettierPlugin */
 export const CadlPrettierPlugin = TypeSpecPrettierPlugin;
+
+/** @internal for Typespec compiler */
+export { $decorators } from "./lib/tsp-index.js";

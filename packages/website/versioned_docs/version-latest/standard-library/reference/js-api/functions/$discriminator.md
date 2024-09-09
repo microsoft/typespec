@@ -13,7 +13,7 @@ function $discriminator(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Model`](../interfaces/Model.md) \| [`Union`](../interfaces/Union.md) |
 | `propertyName` | `string` |

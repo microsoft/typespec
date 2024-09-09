@@ -27,6 +27,7 @@ namespace Microsoft.Generator.CSharp
         private UnsafeBufferSequence _builder;
         private bool _atBeginningOfLine;
         private bool _writingXmlDocumentation;
+        private bool _writingNewInstance;
 
         internal CodeWriter()
         {
@@ -224,7 +225,7 @@ namespace Microsoft.Generator.CSharp
 
         internal void WriteXmlDocs(XmlDocProvider? docs)
         {
-            if (docs is null)
+            if (CodeModelPlugin.Instance.Configuration.DisableXmlDocs || docs is null)
                 return;
 
             if (docs.Inherit is not null)
@@ -254,9 +255,12 @@ namespace Microsoft.Generator.CSharp
             }
         }
 
-        public void WriteProperty(PropertyProvider property)
+        public void WriteProperty(PropertyProvider property, bool isPublicContext = false)
         {
-            WriteXmlDocs(property.XmlDocs);
+            if (isPublicContext)
+                WriteXmlDocs(property.XmlDocs);
+
+            CodeScope? indexerScope = null;
 
             var modifiers = property.Modifiers;
             AppendRawIf("public ", modifiers.HasFlag(MethodSignatureModifiers.Public))
@@ -275,7 +279,8 @@ namespace Microsoft.Generator.CSharp
             }
             if (property is IndexPropertyProvider indexer)
             {
-                Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {indexer.IndexerParameter.Name}]");
+                indexerScope = AmbientScope();
+                Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {indexer.IndexerParameter.AsExpression.Declaration}]");
             }
             else
             {
@@ -284,9 +289,23 @@ namespace Microsoft.Generator.CSharp
 
             switch (property.Body)
             {
-                case ExpressionPropertyBody(var expression):
-                    expression.Write(AppendRaw(" => "));
-                    AppendRaw(";");
+                case ExpressionPropertyBody(var getter, var setter):
+                    if (setter is null)
+                    {
+                        getter.Write(AppendRaw(" => "));
+                        AppendRaw(";");
+                    }
+                    else
+                    {
+                        WriteLine();
+                        using (var scope = ScopeRaw())
+                        {
+                            getter.Write(AppendRaw("get => "));
+                            WriteRawLine(";");
+                            setter.Write(AppendRaw("set => "));
+                            WriteRawLine(";");
+                        }
+                    }
                     break;
                 case AutoPropertyBody(var hasSetter, var setterModifiers, var initialization):
                     AppendRaw(" { get;");
@@ -320,6 +339,7 @@ namespace Microsoft.Generator.CSharp
                     throw new InvalidOperationException($"Unhandled property body type {property.Body}");
             }
 
+            indexerScope?.Dispose();
             WriteLine();
 
             void WriteMethodPropertyAccessor(string name, MethodBodyStatement body, MethodSignatureModifiers modifiers = MethodSignatureModifiers.None)
@@ -385,7 +405,7 @@ namespace Microsoft.Generator.CSharp
             AppendRawIf("out ", parameter.IsOut);
             AppendRawIf("ref ", parameter.IsRef);
 
-            Append($"{parameter.Type} {parameter.Name:D}");
+            Append($"{parameter.Type} {parameter.AsExpression.Declaration}");
             if (parameter.DefaultValue != null)
             {
                 AppendRaw(" = ");
@@ -404,7 +424,7 @@ namespace Microsoft.Generator.CSharp
                 .AppendRawIf("static ", modifiers.HasFlag(FieldModifiers.Static))
                 .AppendRawIf("readonly ", modifiers.HasFlag(FieldModifiers.ReadOnly));
 
-            if (field.Declaration.HasBeenDeclared)
+            if (field.Declaration.HasBeenDeclared(_scopes))
             {
                 Append($"{field.Type} {field.Declaration:I}");
             }
@@ -558,6 +578,8 @@ namespace Microsoft.Generator.CSharp
                 AppendRaw("global::");
                 AppendRaw(type.Namespace);
                 AppendRaw(".");
+                if (type.DeclaringType is not null)
+                    AppendRaw($"{type.DeclaringType.Name}.");
                 AppendRaw(type.Name);
             }
 
@@ -575,7 +597,7 @@ namespace Microsoft.Generator.CSharp
                 AppendRaw(_writingXmlDocumentation ? "}" : ">");
             }
 
-            if (!isDeclaration && type is { IsNullable: true, IsValueType: true })
+            if (!_writingNewInstance && !isDeclaration && type is { IsNullable: true, IsValueType: true })
             {
                 AppendRaw("?");
             }
@@ -666,8 +688,14 @@ namespace Microsoft.Generator.CSharp
                 throw new InvalidOperationException("Can't declare variables inside documentation.");
             }
 
-            declaration.SetActualName(GetTemporaryVariable(declaration.RequestedName));
-            return WriteDeclaration(declaration.ActualName);
+            var currentScope = _scopes.Peek();
+
+            if (!declaration.HasBeenDeclared(_scopes))
+            {
+                declaration.SetActualName(GetTemporaryVariable(declaration.RequestedName), currentScope);
+            }
+
+            return WriteDeclaration(declaration.GetActualName(currentScope));
         }
 
         public IDisposable WriteMethodDeclaration(MethodSignatureBase methodBase, params string[] disabledWarnings)
@@ -695,9 +723,9 @@ namespace Microsoft.Generator.CSharp
             }
 
             AppendRawIf("public ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Public))
-                .AppendRawIf("internal ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Internal))
-                .AppendRawIf("protected ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
                 .AppendRawIf("private ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Private))
+                .AppendRawIf("protected ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
+                .AppendRawIf("internal ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Internal))
                 .AppendRawIf("static ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Static));
 
             if (methodBase is MethodSignature method)
@@ -788,7 +816,7 @@ namespace Microsoft.Generator.CSharp
 
                 if (!isBase || arguments.Any())
                 {
-                    AppendRaw(isBase ? ": base(" : ": this(");
+                    AppendRaw(isBase ? " : base(" : " : this(");
                     var iterator = arguments.GetEnumerator();
                     if (iterator.MoveNext())
                     {
@@ -874,10 +902,9 @@ namespace Microsoft.Generator.CSharp
 
         internal void Append(CodeWriterDeclaration declaration)
         {
-            if (declaration.HasBeenDeclared)
+            if (declaration.HasBeenDeclared(_scopes))
             {
-                AppendRawIf("ref ", declaration.IsRef);
-                WriteIdentifier(declaration.ActualName);
+                WriteIdentifier(declaration.GetActualName(_scopes.Peek()));
             }
             else
             {
@@ -893,6 +920,7 @@ namespace Microsoft.Generator.CSharp
                 .AppendRawIf("readonly ", modifiers.HasFlag(TypeSignatureModifiers.ReadOnly))
                 .AppendRawIf("static ", modifiers.HasFlag(TypeSignatureModifiers.Static))
                 .AppendRawIf("sealed ", modifiers.HasFlag(TypeSignatureModifiers.Sealed))
+                .AppendRawIf("abstract ", modifiers.HasFlag(TypeSignatureModifiers.Abstract))
                 .AppendRawIf("partial ", modifiers.HasFlag(TypeSignatureModifiers.Partial)); // partial must be the last to write otherwise compiler will complain
 
             AppendRawIf("class ", modifiers.HasFlag(TypeSignatureModifiers.Class))

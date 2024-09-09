@@ -10,7 +10,7 @@ function getDiscriminatedUnion(type, discriminator): [DiscriminatedUnion, readon
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `type` | [`Model`](../interfaces/Model.md) \| [`Union`](../interfaces/Union.md) |
 | `discriminator` | [`Discriminator`](../interfaces/Discriminator.md) |
 

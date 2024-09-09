@@ -4,7 +4,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using AutoRest.CSharp.Common.Input.InputTypes;
 
 namespace Microsoft.Generator.CSharp.Input
 {
@@ -59,10 +58,10 @@ namespace Microsoft.Generator.CSharp.Input
             if (parameter.Kind == InputOperationParameterKind.Constant)
             {
                 InputExampleValue value;
-                if (parameter.DefaultValue != null)
+                if (parameter is { Type: InputLiteralType { Value: { } literalValue } })
                 {
-                    // when it is constant, it could have DefaultValue
-                    value = InputExampleValue.Value(parameter.Type, parameter.DefaultValue.Value);
+                    // when it is literal type, we just use the value
+                    value = InputExampleValue.Value(parameter.Type, literalValue);
                 }
                 else if (parameter.Type is InputUnionType unionType && unionType.VariantTypes[0] is InputLiteralType literalType)
                 {
@@ -144,8 +143,6 @@ namespace Microsoft.Generator.CSharp.Input
             InputPrimitiveTypeKind.PlainDate => InputExampleValue.Value(primitiveType, "2022-05-10"),
             InputPrimitiveTypeKind.Float32 => InputExampleValue.Value(primitiveType, 123.45f),
             InputPrimitiveTypeKind.Float64 => InputExampleValue.Value(primitiveType, 123.45d),
-            InputPrimitiveTypeKind.Float128 => InputExampleValue.Value(primitiveType, 123.45m),
-            InputPrimitiveTypeKind.Guid or InputPrimitiveTypeKind.Uuid => InputExampleValue.Value(primitiveType, "73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"),
             InputPrimitiveTypeKind.Int8 => InputExampleValue.Value(primitiveType, (sbyte)123),
             InputPrimitiveTypeKind.UInt8 => InputExampleValue.Value(primitiveType, (byte)123),
             InputPrimitiveTypeKind.Int32 => InputExampleValue.Value(primitiveType, 1234),
@@ -153,7 +150,7 @@ namespace Microsoft.Generator.CSharp.Input
             InputPrimitiveTypeKind.SafeInt => InputExampleValue.Value(primitiveType, 1234L),
             InputPrimitiveTypeKind.String => string.IsNullOrWhiteSpace(hint) ? InputExampleValue.Value(primitiveType, "<String>") : InputExampleValue.Value(primitiveType, $"<{hint}>"),
             InputPrimitiveTypeKind.PlainTime => InputExampleValue.Value(primitiveType, "01:23:45"),
-            InputPrimitiveTypeKind.Uri or InputPrimitiveTypeKind.Url => InputExampleValue.Value(primitiveType, "http://localhost:3000"),
+            InputPrimitiveTypeKind.Url => InputExampleValue.Value(primitiveType, "http://localhost:3000"),
             _ => InputExampleValue.Object(primitiveType, new Dictionary<string, InputExampleValue>())
         };
 

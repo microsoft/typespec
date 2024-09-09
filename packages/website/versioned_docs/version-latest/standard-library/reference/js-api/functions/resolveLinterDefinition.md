@@ -12,7 +12,7 @@ Resolve the linter definition
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `libName` | `string` |
 | `linter` | [`LinterDefinition`](../interfaces/LinterDefinition.md) |
 

@@ -9,7 +9,6 @@ import {
   type ModelProperty,
   type Program,
 } from "@typespec/compiler";
-import { Queue } from "@typespec/compiler/utils";
 import {
   getHeaderFieldOptions,
   getPathParamOptions,
@@ -36,6 +35,8 @@ export type HttpProperty =
 
 export interface HttpPropertyBase {
   readonly property: ModelProperty;
+  /** Path from the root of the operation parameters/returnType to the property. */
+  readonly path: (string | number)[];
 }
 
 export interface HeaderProperty extends HttpPropertyBase {
@@ -73,19 +74,24 @@ export interface BodyPropertyProperty extends HttpPropertyBase {
 }
 
 export interface GetHttpPropertyOptions {
-  isImplicitPathParam?: (param: ModelProperty) => boolean;
+  implicitParameter?: (
+    param: ModelProperty
+  ) => PathParameterOptions | QueryParameterOptions | undefined;
 }
 /**
  * Find the type of a property in a model
  */
-export function getHttpProperty(
+function getHttpProperty(
   program: Program,
   property: ModelProperty,
+  path: (string | number)[],
   options: GetHttpPropertyOptions = {}
 ): [HttpProperty, readonly Diagnostic[]] {
   const diagnostics: Diagnostic[] = [];
-  function createResult<T extends HttpProperty>(opts: T): [T, readonly Diagnostic[]] {
-    return [{ ...opts, property } as any, diagnostics];
+  function createResult<T extends Omit<HttpProperty, "path" | "property">>(
+    opts: T
+  ): [HttpProperty & T, readonly Diagnostic[]] {
+    return [{ ...opts, property, path } as any, diagnostics];
   }
 
   const annotations = {
@@ -98,18 +104,60 @@ export function getHttpProperty(
     statusCode: isStatusCode(program, property),
   };
   const defined = Object.entries(annotations).filter((x) => !!x[1]);
+  const implicit = options.implicitParameter?.(property);
+
+  if (implicit && defined.length > 0) {
+    if (implicit.type === "path" && annotations.path) {
+      if (
+        annotations.path.explode ||
+        annotations.path.style !== "simple" ||
+        annotations.path.allowReserved
+      ) {
+        diagnostics.push(
+          createDiagnostic({
+            code: "use-uri-template",
+            format: {
+              param: property.name,
+            },
+            target: property,
+          })
+        );
+      }
+    } else if (implicit.type === "query" && annotations.query) {
+      if (annotations.query.explode) {
+        diagnostics.push(
+          createDiagnostic({
+            code: "use-uri-template",
+            format: {
+              param: property.name,
+            },
+            target: property,
+          })
+        );
+      }
+    } else {
+      diagnostics.push(
+        createDiagnostic({
+          code: "incompatible-uri-param",
+          format: {
+            param: property.name,
+            uriKind: implicit.type,
+            annotationKind: defined[0][0],
+          },
+          target: property,
+        })
+      );
+    }
+  }
   if (defined.length === 0) {
-    if (options.isImplicitPathParam && options.isImplicitPathParam(property)) {
+    if (implicit) {
       return createResult({
-        kind: "path",
-        options: {
-          name: property.name,
-          type: "path",
-        },
+        kind: implicit.type,
+        options: implicit as any,
         property,
       });
     }
-    return [{ kind: "bodyProperty", property }, []];
+    return createResult({ kind: "bodyProperty" });
   } else if (defined.length > 1) {
     diagnostics.push(
       createDiagnostic({
@@ -122,24 +170,24 @@ export function getHttpProperty(
 
   if (annotations.header) {
     if (annotations.header.name.toLowerCase() === "content-type") {
-      return createResult({ kind: "contentType", property });
+      return createResult({ kind: "contentType" });
     } else {
-      return createResult({ kind: "header", options: annotations.header, property });
+      return createResult({ kind: "header", options: annotations.header });
     }
   } else if (annotations.query) {
-    return createResult({ kind: "query", options: annotations.query, property });
+    return createResult({ kind: "query", options: annotations.query });
   } else if (annotations.path) {
-    return createResult({ kind: "path", options: annotations.path, property });
+    return createResult({ kind: "path", options: annotations.path });
   } else if (annotations.statusCode) {
-    return createResult({ kind: "statusCode", property });
+    return createResult({ kind: "statusCode" });
   } else if (annotations.body) {
-    return createResult({ kind: "body", property });
+    return createResult({ kind: "body" });
   } else if (annotations.bodyRoot) {
-    return createResult({ kind: "bodyRoot", property });
+    return createResult({ kind: "bodyRoot" });
   } else if (annotations.multipartBody) {
-    return createResult({ kind: "multipartBody", property });
+    return createResult({ kind: "multipartBody" });
   }
-  compilerAssert(false, `Unexpected http property type`, property);
+  compilerAssert(false, `Unexpected http property type`);
 }
 
 /**
@@ -161,51 +209,55 @@ export function resolvePayloadProperties(
   }
 
   const visited = new Set();
-  const queue = new Queue<[Model, ModelProperty | undefined]>([[type, undefined]]);
-
-  while (!queue.isEmpty()) {
-    const [model, rootOpt] = queue.dequeue();
+  function checkModel(model: Model, path: string[]) {
     visited.add(model);
-
+    let foundBody = false;
+    let foundBodyProperty = false;
     for (const property of walkPropertiesInherited(model)) {
-      const root = rootOpt ?? property;
+      const propPath = [...path, property.name];
 
       if (!isVisible(program, property, visibility)) {
         continue;
       }
 
-      let httpProperty = diagnostics.pipe(getHttpProperty(program, property, options));
+      let httpProperty = diagnostics.pipe(getHttpProperty(program, property, propPath, options));
       if (shouldTreatAsBodyProperty(httpProperty, visibility)) {
-        httpProperty = { kind: "bodyProperty", property };
-      }
-      httpProperties.set(property, httpProperty);
-      if (
-        property !== root &&
-        (httpProperty.kind === "body" ||
-          httpProperty.kind === "bodyRoot" ||
-          httpProperty.kind === "multipartBody")
-      ) {
-        const parent = httpProperties.get(root);
-        if (parent?.kind === "bodyProperty") {
-          httpProperties.delete(root);
-        }
-      }
-      if (httpProperty.kind === "body" || httpProperty.kind === "multipartBody") {
-        continue; // We ignore any properties under `@body` or `@multipartBody`
+        httpProperty = { kind: "bodyProperty", property, path: propPath };
       }
 
       if (
-        property.type.kind === "Model" &&
-        !type.indexer &&
-        type.properties.size > 0 &&
+        httpProperty.kind === "body" ||
+        httpProperty.kind === "bodyRoot" ||
+        httpProperty.kind === "multipartBody"
+      ) {
+        foundBody = true;
+      }
+
+      if (
+        !(httpProperty.kind === "body" || httpProperty.kind === "multipartBody") &&
+        isModelWithProperties(property.type) &&
         !visited.has(property.type)
       ) {
-        queue.enqueue([property.type, root]);
+        if (checkModel(property.type, propPath)) {
+          foundBody = true;
+          continue;
+        }
       }
+      if (httpProperty.kind === "bodyProperty") {
+        foundBodyProperty = true;
+      }
+      httpProperties.set(property, httpProperty);
     }
+    return foundBody && !foundBodyProperty;
   }
 
+  checkModel(type, []);
+
   return diagnostics.wrap([...httpProperties.values()]);
+}
+
+function isModelWithProperties(type: Type): type is Model {
+  return type.kind === "Model" && !type.indexer && type.properties.size > 0;
 }
 
 function shouldTreatAsBodyProperty(property: HttpProperty, visibility: Visibility): boolean {

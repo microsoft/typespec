@@ -12,7 +12,7 @@ Get the documentation information for the return errors types of an operation. I
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) | Program |
 | `target` | [`Operation`](../interfaces/Operation.md) | Type |
 

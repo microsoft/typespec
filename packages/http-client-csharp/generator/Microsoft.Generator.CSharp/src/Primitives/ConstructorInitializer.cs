@@ -10,6 +10,6 @@ namespace Microsoft.Generator.CSharp.Primitives
 {
     public sealed record ConstructorInitializer(bool IsBase, IReadOnlyList<ValueExpression> Arguments)
     {
-        public ConstructorInitializer(bool isBase, IEnumerable<ParameterProvider> arguments) : this(isBase, arguments.Select(p => (ValueExpression)p).ToArray()) { }
+        public ConstructorInitializer(bool isBase, IEnumerable<ParameterProvider> arguments) : this(isBase, [.. arguments.Select(p => p.AsExpression)]) { }
     }
 }

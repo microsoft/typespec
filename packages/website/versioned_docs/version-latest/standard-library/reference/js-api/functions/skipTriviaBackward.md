@@ -13,7 +13,7 @@ function skipTriviaBackward(
 ## Parameters
 
 | Parameter | Type | Default value | Description |
-| :------ | :------ | :------ | :------ |
+| ------ | ------ | ------ | ------ |
 | `script` | [`TypeSpecScriptNode`](../interfaces/TypeSpecScriptNode.md) | `undefined` |  |
 | `position` | `number` | `undefined` |  |
 | `endPosition` | `number` | `-1` | exclude |

@@ -7,7 +7,6 @@ namespace Microsoft.Generator.CSharp.Input
     {
         Boolean,
         Bytes,
-        ContentType,
         PlainDate,
         Decimal,
         Decimal128,
@@ -15,9 +14,6 @@ namespace Microsoft.Generator.CSharp.Input
         Float, // in typespec, float is the base type of float32 and float64, see type relation: https://typespec.io/docs/language-basics/type-relations
         Float32,
         Float64,
-        Float128,
-        Guid,
-        Uuid,
         Integer, // in typespec, integer is the base type of int related types, see type relation: https://typespec.io/docs/language-basics/type-relations
         Int8, // aka SByte
         Int16,
@@ -28,13 +24,10 @@ namespace Microsoft.Generator.CSharp.Input
         UInt16,
         UInt32,
         UInt64,
-        IPAddress,
-        Stream,
+        Stream, // TODO -- figure this out, this is not currently a builtin type in typespec
         String,
         PlainTime,
         Url,
-        Uri,
-        Char,
-        Any // aka unknown
+        Any, // aka unknown
     }
 }

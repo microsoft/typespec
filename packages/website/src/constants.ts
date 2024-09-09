@@ -5,7 +5,7 @@ export const Links = {
     tooling: "/tooling",
   },
   gettingStartedOpenAPI: "/docs/getting-started/typespec-for-openapi-dev",
-  gettingStartedWithHttp: "/docs/getting-started/getting-started-http",
+  gettingStartedWithHttp: "/docs/getting-started/getting-started-http-00",
 
   standardLibrary: {
     decorators: "/docs/standard-library/built-in-decorators",

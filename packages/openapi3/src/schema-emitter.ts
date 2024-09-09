@@ -25,6 +25,7 @@ import {
   getDiscriminator,
   getDoc,
   getEncode,
+  getExamples,
   getFormat,
   getKnownValues,
   getMaxItems,
@@ -46,6 +47,7 @@ import {
   isSecret,
   isTemplateDeclaration,
   resolveEncodedName,
+  serializeValueAsJson,
 } from "@typespec/compiler";
 import {
   ArrayBuilder,
@@ -71,8 +73,10 @@ import {
   shouldInline,
 } from "@typespec/openapi";
 import { getOneOf, getRef } from "./decorators.js";
+import { applyEncoding } from "./encoding.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
+import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
 import { OpenAPI3Discriminator, OpenAPI3Schema, OpenAPI3SchemaProperty } from "./types.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 
@@ -471,7 +475,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   unionDeclaration(union: Union, name: string): EmitterOutput<object> {
     const schema = this.#unionSchema(union);
-    return this.#createDeclaration(union, name, schema);
+    const baseName = getOpenAPITypeName(this.emitter.getProgram(), union, this.#typeNameOptions());
+    return this.#createDeclaration(union, baseName, schema);
   }
 
   #unionSchema(union: Union): ObjectBuilder<OpenAPI3Schema> {
@@ -519,25 +524,18 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
     }
 
-    if (schemaMembers.length === 0) {
-      if (nullable) {
-        // This union is equivalent to just `null` but OA3 has no way to specify
-        // null as a value, so we throw an error.
-        reportDiagnostic(program, { code: "union-null", target: union });
-        return new ObjectBuilder({});
-      } else {
-        // completely empty union can maybe only happen with bugs?
-        compilerAssert(false, "Attempting to emit an empty union");
-      }
-    }
-
-    if (schemaMembers.length === 1) {
+    const wrapWithObjectBuilder = (
+      schemaMember: { schema: any; type: Type | null },
+      { mergeUnionWideConstraints }: { mergeUnionWideConstraints: boolean }
+    ): ObjectBuilder<OpenAPI3Schema> => {
       // we can just return the single schema member after applying nullable
-      const schema = schemaMembers[0].schema;
-      const type = schemaMembers[0].type;
-      const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(union, {});
+      const schema = schemaMember.schema;
+      const type = schemaMember.type;
+      const additionalProps: Partial<OpenAPI3Schema> = mergeUnionWideConstraints
+        ? this.#applyConstraints(union, {})
+        : {};
 
-      if (nullable) {
+      if (mergeUnionWideConstraints && nullable) {
         additionalProps.nullable = true;
       }
 
@@ -565,10 +563,28 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
           return merged;
         }
       }
+    };
+
+    if (schemaMembers.length === 0) {
+      if (nullable) {
+        // This union is equivalent to just `null` but OA3 has no way to specify
+        // null as a value, so we throw an error.
+        reportDiagnostic(program, { code: "union-null", target: union });
+        return new ObjectBuilder({});
+      } else {
+        // completely empty union can maybe only happen with bugs?
+        compilerAssert(false, "Attempting to emit an empty union");
+      }
+    }
+
+    if (schemaMembers.length === 1) {
+      return wrapWithObjectBuilder(schemaMembers[0], { mergeUnionWideConstraints: true });
     }
 
     const schema: OpenAPI3Schema = {
-      [ofType]: schemaMembers.map((m) => m.schema),
+      [ofType]: schemaMembers.map((m) =>
+        wrapWithObjectBuilder(m, { mergeUnionWideConstraints: false })
+      ),
     };
 
     if (nullable) {
@@ -705,65 +721,17 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   }
 
   #getSchemaForStdScalars(scalar: Scalar & { name: IntrinsicScalarName }): OpenAPI3Schema {
-    switch (scalar.name) {
-      case "bytes":
-        return { type: "string", format: "byte" };
-      case "numeric":
-        return { type: "number" };
-      case "integer":
-        return { type: "integer" };
-      case "int8":
-        return { type: "integer", format: "int8" };
-      case "int16":
-        return { type: "integer", format: "int16" };
-      case "int32":
-        return { type: "integer", format: "int32" };
-      case "int64":
-        return { type: "integer", format: "int64" };
-      case "safeint":
-        switch (this.#options.safeintStrategy) {
-          case "double-int":
-            return { type: "integer", format: "double-int" };
-          case "int64":
-          default:
-            return { type: "integer", format: "int64" };
-        }
-      case "uint8":
-        return { type: "integer", format: "uint8" };
-      case "uint16":
-        return { type: "integer", format: "uint16" };
-      case "uint32":
-        return { type: "integer", format: "uint32" };
-      case "uint64":
-        return { type: "integer", format: "uint64" };
-      case "float":
-        return { type: "number" };
-      case "float64":
-        return { type: "number", format: "double" };
-      case "float32":
-        return { type: "number", format: "float" };
-      case "decimal":
-        return { type: "number", format: "decimal" };
-      case "decimal128":
-        return { type: "number", format: "decimal128" };
-      case "string":
-        return { type: "string" };
-      case "boolean":
-        return { type: "boolean" };
-      case "plainDate":
-        return { type: "string", format: "date" };
-      case "utcDateTime":
-      case "offsetDateTime":
-        return { type: "string", format: "date-time" };
-      case "plainTime":
-        return { type: "string", format: "time" };
-      case "duration":
-        return { type: "string", format: "duration" };
-      case "url":
-        return { type: "string", format: "uri" };
-      default:
-        const _assertNever: never = scalar.name;
-        return {};
+    return getSchemaForStdScalars(scalar, this.#options);
+  }
+
+  #applySchemaExamples(
+    type: Model | Scalar | Union | Enum | ModelProperty,
+    target: ObjectBuilder<unknown>
+  ) {
+    const program = this.emitter.getProgram();
+    const examples = getExamples(program, type);
+    if (examples.length > 0) {
+      target.set("example", serializeValueAsJson(program, examples[0].value, type));
     }
   }
 
@@ -780,6 +748,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
     };
 
+    this.#applySchemaExamples(type, schema);
     applyConstraint(getMinLength, "minLength");
     applyConstraint(getMaxLength, "maxLength");
     applyConstraint(getMinValue, "minimum");
@@ -879,31 +848,16 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     typespecType: Scalar | ModelProperty,
     target: OpenAPI3Schema | Placeholder<OpenAPI3Schema>
   ): OpenAPI3Schema {
-    const encodeData = getEncode(this.emitter.getProgram(), typespecType);
-    if (encodeData) {
-      const newTarget = new ObjectBuilder(target);
-      const newType = this.#getSchemaForStdScalars(encodeData.type as any);
-
-      newTarget.type = newType.type;
-      // If the target already has a format it takes priority. (e.g. int32)
-      newTarget.format = this.#mergeFormatAndEncoding(
-        newTarget.format,
-        encodeData.encoding,
-        newType.format
-      );
-      return newTarget;
-    }
-    const result = new ObjectBuilder(target);
-    return result;
+    return applyEncoding(this.emitter.getProgram(), typespecType, target as any, this.#options);
   }
   #mergeFormatAndEncoding(
     format: string | undefined,
-    encoding: string,
+    encoding: string | undefined,
     encodeAsFormat: string | undefined
-  ): string {
+  ): string | undefined {
     switch (format) {
       case undefined:
-        return encodeAsFormat ?? encoding;
+        return encodeAsFormat ?? encoding ?? format;
       case "date-time":
         switch (encoding) {
           case "rfc3339":

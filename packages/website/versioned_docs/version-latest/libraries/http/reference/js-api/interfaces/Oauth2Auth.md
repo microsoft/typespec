@@ -12,17 +12,18 @@ For more information about OAuth 2.0, see oauth.net and RFC 6749.
 
 - [`HttpAuthBase`](HttpAuthBase.md)
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `TFlows` *extends* [`OAuth2Flow`](../type-aliases/OAuth2Flow.md)[] |
 
 ## Properties
 
-| Property | Type | Description | Inherited from |
-| :------ | :------ | :------ | :------ |
-| `description?` | `string` | Optional description. | [`HttpAuthBase`](HttpAuthBase.md).`description` |
-| `flows` | `TFlows` | - | - |
-| `id` | `string` | Id of the authentication scheme. | [`HttpAuthBase`](HttpAuthBase.md).`id` |
-| `type` | `"oauth2"` | - | - |
+| Property | Modifier | Type | Description | Inherited from |
+| ------ | ------ | ------ | ------ | ------ |
+| `description?` | `public` | `string` | Optional description. | [`HttpAuthBase`](HttpAuthBase.md).`description` |
+| `flows` | `public` | `TFlows` | - | - |
+| `id` | `public` | `string` | Id of the authentication scheme. | [`HttpAuthBase`](HttpAuthBase.md).`id` |
+| `model` | `readonly` | `Model` | Model that defined the authentication | [`HttpAuthBase`](HttpAuthBase.md).`model` |
+| `type` | `public` | `"oauth2"` | - | - |

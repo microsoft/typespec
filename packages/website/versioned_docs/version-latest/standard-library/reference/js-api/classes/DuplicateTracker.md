@@ -5,10 +5,10 @@ title: "[C] DuplicateTracker"
 ---
 Helper class to track duplicate instance
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `K` |
 | `V` |
 
@@ -23,12 +23,6 @@ new DuplicateTracker<K, V>(): DuplicateTracker<K, V>
 #### Returns
 
 [`DuplicateTracker`](DuplicateTracker.md)<`K`, `V`\>
-
-## Properties
-
-| Property | Modifier | Type | Default value |
-| :------ | :------ | :------ | :------ |
-| `#entries` | `private` | `Map`<`K`, `V`[]\> | `...` |
 
 ## Methods
 
@@ -57,7 +51,7 @@ Track usage of K.
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `k` | `K` | key that is being checked for duplicate. |
 | `v` | `V` | value that map to the key |
 

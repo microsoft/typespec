@@ -9,8 +9,9 @@ using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    public sealed class FieldProvider
+    public class FieldProvider
     {
+        private VariableExpression? _variable;
         private Lazy<ParameterProvider> _parameter;
         public FormattableString? Description { get; }
         public FieldModifiers Modifiers { get; }
@@ -28,10 +29,22 @@ namespace Microsoft.Generator.CSharp.Providers
         /// </summary>
         public ParameterProvider AsParameter => _parameter.Value;
 
+        public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
+
+        public TypeProvider EnclosingType { get; }
+
+        // for mocking
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        protected FieldProvider()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        {
+        }
+
         public FieldProvider(
             FieldModifiers modifiers,
             CSharpType type,
             string name,
+            TypeProvider enclosingType,
             FormattableString? description = null,
             ValueExpression? initializationValue = null)
         {
@@ -41,6 +54,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Description = description;
             InitializationValue = initializationValue;
             XmlDocs = Description is not null ? new XmlDocProvider() { Summary = new XmlDocSummaryStatement([Description]) } : null;
+            EnclosingType = enclosingType;
 
             InitializeParameter(name, description ?? FormattableStringHelpers.Empty, type);
         }

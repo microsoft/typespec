@@ -12,7 +12,7 @@ Resolve the authentication for a given operation.
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | `Program` | Program |
 | `operation` | `Operation` | Operation |
 

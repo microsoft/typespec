@@ -36,3 +36,11 @@ export type ResourceTypeForKeyParamDecorator = (
   entity: ModelProperty,
   resourceType: Model
 ) => void;
+
+export type TypeSpecRestPrivateDecorators = {
+  resourceLocation: ResourceLocationDecorator;
+  validateHasKey: ValidateHasKeyDecorator;
+  validateIsError: ValidateIsErrorDecorator;
+  actionSegment: ActionSegmentDecorator;
+  resourceTypeForKeyParam: ResourceTypeForKeyParamDecorator;
+};

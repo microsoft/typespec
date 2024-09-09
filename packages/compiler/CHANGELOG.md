@@ -1,5 +1,178 @@
 # Change Log - @typespec/compiler
 
+## 0.59.1
+
+### Bug Fixes
+
+- [#4173](https://github.com/microsoft/typespec/pull/4173) Fix: Revert `unix-style` warning that was preventing windows path via the CLI as well
+
+
+## 0.59.0
+
+### Bug Fixes
+
+- [#3881](https://github.com/microsoft/typespec/pull/3881) Fixes a bug where ending a non-terminal line in a multi-line comment with a backslash caused the next star to show up in the parsed doc string.
+- [#4050](https://github.com/microsoft/typespec/pull/4050) Allow using compact namespace form `Foo.Bar` when inside another namespace
+  ```tsp
+  namespace MyOrg.MyProject {
+    namespace MyModule.MySubmodule { // <-- this used to emit an error
+      // ...
+    }
+  }
+  ```
+- [#3898](https://github.com/microsoft/typespec/pull/3898) Fix decimal numeric with leading zeros
+- [#4046](https://github.com/microsoft/typespec/pull/4046) Fix type comparison of literal and scalar when in projection context
+- [#4022](https://github.com/microsoft/typespec/pull/4022) `tsp compile --watch` will not stop when a crash happens during compilation
+- [#3933](https://github.com/microsoft/typespec/pull/3933) Add `const` template parameter to get the precise lib type
+
+### Bump dependencies
+
+- [#3948](https://github.com/microsoft/typespec/pull/3948) Update dependencies
+
+### Features
+
+- [#3906](https://github.com/microsoft/typespec/pull/3906) Support completion for template parameter extending model or object value
+
+  Example
+  ```tsp
+  model User<T extends {name: string, age: int16}> {
+  }
+  alias user = User< {┆
+                      | [age]
+                      | [name]
+  ```
+- [#4020](https://github.com/microsoft/typespec/pull/4020) Add support for encoding numeric types as string
+- [#4023](https://github.com/microsoft/typespec/pull/4023) Warn when using `\` in config file field that expect a path.
+- [#3932](https://github.com/microsoft/typespec/pull/3932) Add `ArrayEncoding` enum to define simple serialization of arrays
+
+### Breaking Changes
+
+- [#4050](https://github.com/microsoft/typespec/pull/4050) Fix issue where naming a namespace with the same name as the blockless namespace would merge with it instead of creating a subnamespace like any other name would.
+
+  ```tsp
+  namespace MyOrg.MyProject;
+
+  namespace MyOrg.MyProject.MyArea {
+    model A {}
+  }
+
+  namespace MyArea2 {
+    model B {}
+  }
+  ```
+
+  Previously model `A` would end-up in namespace `MyOrg.MyProject.MyArea` and model `B` in `MyOrg.MyProject.MyArea2`. With this change model `A` will now be in `MyOrg.MyProject.MyOrg.MyProject.MyArea`. To achieve the previous behavior the above code should be written as:
+
+  ```tsp
+  namespace MyOrg.MyProject;
+
+  namespace MyArea {
+    model A {}
+  }
+
+  namespace MyArea2 {
+    model B {}
+  }
+  ```
+
+
+## 0.58.1
+
+### Bug Fixes
+
+- [#3875](https://github.com/microsoft/typespec/pull/3875) Fix issues with examples not working with `Array`, `Record`, `Union` and `unknown` types
+
+
+## 0.58.0
+
+### Bug Fixes
+
+- [#3623](https://github.com/microsoft/typespec/pull/3623) Fix crash of language server on firefox
+- [#3516](https://github.com/microsoft/typespec/pull/3516) Deprecate getAssetEmitter and recommend calling `createAssetEmitter` directly
+- [#3767](https://github.com/microsoft/typespec/pull/3767) Fix semantic highlighting of using of single namespace
+- [#3824](https://github.com/microsoft/typespec/pull/3824) Do not cast model expression to object value if the constraint is allowing the type
+- [#3577](https://github.com/microsoft/typespec/pull/3577) Fix formatting of object and array literal in decorator to hug parenthesis
+- [#3823](https://github.com/microsoft/typespec/pull/3823) Fix formatting of scalar constructor called with no args
+- [#3743](https://github.com/microsoft/typespec/pull/3743) Fix 'typespec vs install' command on windows
+- [#3605](https://github.com/microsoft/typespec/pull/3605) Fix templates initialized on node 22
+
+### Bump dependencies
+
+- [#3718](https://github.com/microsoft/typespec/pull/3718) Dependency updates July 2024
+
+### Features
+
+- [#3699](https://github.com/microsoft/typespec/pull/3699) Moved compiler dependencies to peer and dev for scaffolded projects.
+- [#3572](https://github.com/microsoft/typespec/pull/3572) Add new `@example` and `@opExample` decorator to provide examples on types and operations.
+
+  ```tsp
+  @example(#{
+    id: "some",
+    date: utcDateTime.fromISO("2020-01-01T00:00:00Z"),
+    timeout: duration.fromISO("PT1M"),
+  })
+  model Foo {
+    id: string;
+    date: utcDateTime;
+  
+    @encode("seconds", int32) timeout: duration;
+  }
+  ```
+  
+  ```tsp
+  @opExample(
+    #{
+      parameters: #{
+        pet: #{
+          id: "some",
+          name: "Fluffy",
+          dob: plainDate.fromISO("2020-01-01"),
+        },
+      },
+      returnType: #{
+        id: "some",
+        name: "Fluffy",
+        dob: plainDate.fromISO("2020-01-01"),
+      },
+    },
+    #{ title: "First", description: "Show creating a pet" }
+  )
+  op createPet(pet: Pet): Pet;
+  ```
+- [#3751](https://github.com/microsoft/typespec/pull/3751) Adds option to `tsp init` to generate .gitignore file
+
+### Breaking Changes
+
+- [#3793](https://github.com/microsoft/typespec/pull/3793) Do not carry over `@friendlyName` with `model is` or `op is`
+
+  ```tsp
+  @friendlyName("Abc{T}", T)
+  model Foo<T> {}
+  
+  model Bar is Foo<string>;
+  
+  // This can be changed to
+  model Abcstring is Foo<string>;
+  ```
+- [#3659](https://github.com/microsoft/typespec/pull/3659) Disallows overriding a required inherited property with an optional property.
+
+In previous versions of TypeSpec, it was possible to override a required property with an optional property. This is no longer allowed. This change may result in errors in your code if you were relying on this bug, but specifications that used this behavior are likely to have been exposed to errors resulting from incoherent type checking behavior.
+
+The following example demonstrates the behavior that is no longer allowed:
+
+```tsp
+model Base {
+  example: string;
+}
+
+model Child extends Base {
+  example?: string;
+}
+```
+
+In this example, the `Child` model overrides the `example` property from the `Base` model with an optional property. This is no longer allowed.
+
+
 ## 0.57.0
 
 

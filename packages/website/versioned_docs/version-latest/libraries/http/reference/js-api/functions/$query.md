@@ -13,10 +13,10 @@ function $query(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `ModelProperty` |
-| `queryNameOrOptions`? | `Type` |
+| `queryNameOrOptions`? | `string` \| `QueryOptions` |
 
 ## Returns
 

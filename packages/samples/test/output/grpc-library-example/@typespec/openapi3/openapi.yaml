@@ -7,8 +7,6 @@ tags:
 paths:
   /v1/shelves:
     post:
-      tags:
-        - LibraryService
       operationId: LibraryService_createShelf
       description: Creates a shelf, and returns the new Shelf.
       parameters: []
@@ -25,16 +23,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
+      tags:
+        - LibraryService
       requestBody:
-        description: The shelf to create.
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Shelf'
+        description: The shelf to create.
     get:
-      tags:
-        - LibraryService
       operationId: LibraryService_listShelves
       description: |-
         Lists shelves. The order is unspecified but deterministic. Newly created
@@ -55,10 +53,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/shelves/shelf_name/books/{name}:
-    get:
       tags:
         - LibraryService
+  /v1/shelves/shelf_name/books/{name}:
+    get:
       operationId: LibraryService_getBook
       description: Gets a book. Returns NOT_FOUND if the book does not exist.
       parameters:
@@ -76,9 +74,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-    delete:
       tags:
         - LibraryService
+    delete:
       operationId: LibraryService_deleteBook
       description: Deletes a book. Returns NOT_FOUND if the book does not exist.
       parameters:
@@ -92,10 +90,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/shelves/{name}:
-    get:
       tags:
         - LibraryService
+  /v1/shelves/{name}:
+    get:
       operationId: LibraryService_getShelf
       description: Gets a shelf. Returns NOT_FOUND if the shelf does not exist.
       parameters:
@@ -113,9 +111,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-    delete:
       tags:
         - LibraryService
+    delete:
       operationId: LibraryService_deleteShelf
       description: Deletes a shelf. Returns NOT_FOUND if the shelf does not exist.
       parameters:
@@ -129,10 +127,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/shelves/{name}/books:
-    post:
       tags:
         - LibraryService
+  /v1/shelves/{name}/books:
+    post:
       operationId: LibraryService_createBook
       description: Creates a book, and returns the new Book.
       parameters:
@@ -150,16 +148,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
+      tags:
+        - LibraryService
       requestBody:
-        description: The book to create.
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Book'
+        description: The book to create.
     get:
-      tags:
-        - LibraryService
       operationId: LibraryService_listBooks
       description: |-
         Lists books in a shelf. The order is unspecified but deterministic. Newly
@@ -182,10 +180,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
-  /v1/shelves/{name}:merge:
-    post:
       tags:
         - LibraryService
+  /v1/shelves/{name}:merge:
+    post:
       operationId: LibraryService_mergeShelves
       description: |-
         Merges two shelves by adding all books from the shelf named
@@ -209,13 +207,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RpcStatus'
+      tags:
+        - LibraryService
       requestBody:
-        description: The name of the shelf we're removing books from and deleting.
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/shelf_name'
+        description: The name of the shelf we're removing books from and deleting.
 components:
   parameters:
     CreateBookRequest.name:
@@ -270,6 +270,7 @@ components:
       schema:
         type: integer
         format: int32
+      explode: false
     ListRequestBase.page_token:
       name: page_token
       in: query
@@ -281,6 +282,7 @@ components:
         returned from the previous call to `ListShelves` method.
       schema:
         type: string
+      explode: false
     MergeShelvesRequest.name:
       name: name
       in: path

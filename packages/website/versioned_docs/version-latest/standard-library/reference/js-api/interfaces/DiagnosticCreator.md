@@ -3,16 +3,16 @@ jsApi: true
 title: "[I] DiagnosticCreator"
 
 ---
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` *extends* `object` |
 
 ## Properties
 
 | Property | Modifier | Type |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `diagnostics` | `readonly` | [`DiagnosticMap`](../type-aliases/DiagnosticMap.md)<`T`\> |
 | `type` | `readonly` | `T` |
 
@@ -24,17 +24,17 @@ title: "[I] DiagnosticCreator"
 createDiagnostic<C, M>(diag): Diagnostic
 ```
 
-#### Type parameters
+#### Type Parameters
 
-| Type parameter | Value |
-| :------ | :------ |
+| Type Parameter | Default type |
+| ------ | ------ |
 | `C` *extends* `string` \| `number` \| `symbol` | - |
 | `M` *extends* `string` \| `number` \| `symbol` | `"default"` |
 
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `diag` | [`DiagnosticReport`](../type-aliases/DiagnosticReport.md)<`T`, `C`, `M`\> |
 
 #### Returns
@@ -49,17 +49,17 @@ createDiagnostic<C, M>(diag): Diagnostic
 reportDiagnostic<C, M>(program, diag): void
 ```
 
-#### Type parameters
+#### Type Parameters
 
-| Type parameter | Value |
-| :------ | :------ |
+| Type Parameter | Default type |
+| ------ | ------ |
 | `C` *extends* `string` \| `number` \| `symbol` | - |
 | `M` *extends* `string` \| `number` \| `symbol` | `"default"` |
 
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | [`Program`](Program.md) |
 | `diag` | [`DiagnosticReport`](../type-aliases/DiagnosticReport.md)<`T`, `C`, `M`\> |
 

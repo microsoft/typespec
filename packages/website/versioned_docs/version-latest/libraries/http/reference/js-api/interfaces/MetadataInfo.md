@@ -22,7 +22,7 @@ same set of properties when non-payload properties are excluded.
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `type` | `Type` |
 | `visibility` | [`Visibility`](../enumerations/Visibility.md) |
 
@@ -50,7 +50,7 @@ itself is also removed.
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `type` | `undefined` \| `Type` |
 | `visibility` | [`Visibility`](../enumerations/Visibility.md) |
 
@@ -76,7 +76,7 @@ response payload for the given visibility.
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `property` | `ModelProperty` |
 | `visibility` | [`Visibility`](../enumerations/Visibility.md) |
 
@@ -102,7 +102,7 @@ filtered out by the given visibility.
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `property` | `ModelProperty` |
 | `visibility` | [`Visibility`](../enumerations/Visibility.md) |
 | `inExplicitBody`? | `boolean` |
@@ -126,7 +126,7 @@ metadata properties.
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `type` | `undefined` \| `Type` |
 | `visibility` | [`Visibility`](../enumerations/Visibility.md) |
 

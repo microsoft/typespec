@@ -9,17 +9,17 @@ Resolved instance of a linter rule that will run.
 
 - [`LinterRuleDefinition`](LinterRuleDefinition.md)<`N`, `DM`\>
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `N` *extends* `string` |
 | `DM` *extends* [`DiagnosticMessages`](DiagnosticMessages.md) |
 
 ## Properties
 
 | Property | Type | Description | Inherited from |
-| :------ | :------ | :------ | :------ |
+| ------ | ------ | ------ | ------ |
 | `description` | `string` | Short description of the rule | [`LinterRuleDefinition`](LinterRuleDefinition.md).`description` |
 | `id` | `string` | Expanded rule id in format `<library-name>:<rule-name>` | - |
 | `messages` | `DM` | Messages that can be reported with the diagnostic. | [`LinterRuleDefinition`](LinterRuleDefinition.md).`messages` |
@@ -40,7 +40,7 @@ Creator
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`LinterRuleContext`](LinterRuleContext.md)<`DM`\> |
 
 #### Returns

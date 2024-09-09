@@ -13,7 +13,7 @@ has been set.
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) | the Program containing the target Type |
 | `target` | [`Type`](../type-aliases/Type.md) | the type to get the pattern data for |
 

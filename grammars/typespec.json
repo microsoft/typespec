@@ -1398,7 +1398,7 @@
           "name": "keyword.operator.assignment.tsp"
         }
       },
-      "end": "=",
+      "end": "(?=>)|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "endCaptures": {
         "0": {
           "name": "keyword.operator.assignment.tsp"

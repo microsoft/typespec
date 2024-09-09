@@ -45,6 +45,36 @@ describe("compiler: type-utils", () => {
       ok(isTemplateInstance(Foo), "Should BE a template instance");
       ok(!isTemplateDeclaration(Foo), "Should NOT be a template declaration");
     });
+
+    it("check model expression inside a template instance is also a template instance", async () => {
+      const { Bar } = (await runner.compile(`
+      model Foo<T> {a: { b: T }};
+
+      @test model Bar {
+        foo: Foo<string> 
+      }
+      `)) as { Bar: Model };
+      const Foo = Bar.properties.get("foo")!.type as Model;
+      const expr = Foo.properties.get("a")!.type;
+
+      ok(isTemplateInstance(expr), "Should BE a template instance");
+      ok(!isTemplateDeclaration(expr), "Should NOT be a template declaration");
+    });
+
+    it("check union expression inside a template instance is also a template instance", async () => {
+      const { Bar } = (await runner.compile(`
+      model Foo<T> {a: int32 | T};
+
+      @test model Bar {
+        foo: Foo<string> 
+      }
+      `)) as { Bar: Model };
+      const Foo = Bar.properties.get("foo")!.type as Model;
+      const expr = Foo.properties.get("a")!.type;
+
+      ok(isTemplateInstance(expr), "Should BE a template instance");
+      ok(!isTemplateDeclaration(expr), "Should NOT be a template declaration");
+    });
   });
 
   describe("definition utils", () => {

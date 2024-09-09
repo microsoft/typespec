@@ -38,6 +38,7 @@ namespace Microsoft.Generator.CSharp.Input
             string? description = null;
             IReadOnlyList<InputOperation>? operations = null;
             IReadOnlyList<InputParameter>? parameters = null;
+            IReadOnlyList<InputDecoratorInfo>? decorators = null;
             string? parent = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
@@ -46,7 +47,8 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadString(nameof(InputClient.Description), ref description)
                     || reader.TryReadWithConverter(nameof(InputClient.Operations), options, ref operations)
                     || reader.TryReadWithConverter(nameof(InputClient.Parameters), options, ref parameters)
-                    || reader.TryReadString(nameof(InputClient.Parent), ref parent);
+                    || reader.TryReadString(nameof(InputClient.Parent), ref parent)
+                    || reader.TryReadWithConverter(nameof(InputClient.Decorators), options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -55,10 +57,11 @@ namespace Microsoft.Generator.CSharp.Input
             }
 
             client.Name = name ?? throw new JsonException("InputClient must have name");
-            client.Description = description ?? throw new JsonException("InputClient must have description");
+            client.Description = description ?? string.Empty;
             client.Operations = operations ?? Array.Empty<InputOperation>();
             client.Parameters = parameters ?? Array.Empty<InputParameter>();
             client.Parent = parent;
+            client.Decorators = decorators ?? [];
 
             return client;
         }

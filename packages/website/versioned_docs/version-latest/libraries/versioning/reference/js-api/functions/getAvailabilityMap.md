@@ -10,7 +10,7 @@ function getAvailabilityMap(program, type): Map<string, Availability> | undefine
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `type` | `Type` |
 

@@ -8,7 +8,7 @@ Helper object to collect diagnostics from function following the diagnostics acc
 ## Properties
 
 | Property | Modifier | Type |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `diagnostics` | `readonly` | readonly [`Diagnostic`](Diagnostic.md)[] |
 
 ## Methods
@@ -24,7 +24,7 @@ Add a diagnostic to the collection
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `diagnostic` | [`Diagnostic`](Diagnostic.md) | Diagnostic to add. |
 
 #### Returns
@@ -41,16 +41,16 @@ pipe<T>(result): T
 
 Unwrap the Diagnostic result, add all the diagnostics and return the data.
 
-#### Type parameters
+#### Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` |
 
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `result` | [`DiagnosticResult`](../type-aliases/DiagnosticResult.md)<`T`\> | Accessor diagnostic result |
 
 #### Returns
@@ -67,16 +67,16 @@ wrap<T>(value): DiagnosticResult<T>
 
 Wrap the given value in a tuple including the diagnostics following the TypeSpec accessor pattern.
 
-#### Type parameters
+#### Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` |
 
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `value` | `T` | Accessor value to return |
 
 #### Returns

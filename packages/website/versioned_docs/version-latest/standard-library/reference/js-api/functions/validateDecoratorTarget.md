@@ -13,16 +13,16 @@ function validateDecoratorTarget<K>(
 
 Validate the decorator target is matching the expected value.
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `K` *extends* [`TypeKind`](../type-aliases/TypeKind.md) |
 
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |  |
 | `target` | [`Type`](../type-aliases/Type.md) |  |
 | `decoratorName` | `string` |  |

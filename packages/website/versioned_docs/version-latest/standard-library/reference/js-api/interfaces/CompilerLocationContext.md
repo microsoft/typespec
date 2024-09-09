@@ -8,5 +8,5 @@ Built-in
 ## Properties
 
 | Property | Modifier | Type |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `type` | `readonly` | `"compiler"` |

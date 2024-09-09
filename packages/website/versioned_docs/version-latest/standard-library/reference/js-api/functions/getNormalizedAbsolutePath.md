@@ -10,7 +10,7 @@ function getNormalizedAbsolutePath(fileName, currentDirectory): string
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `fileName` | `string` |
 | `currentDirectory` | `undefined` \| `string` |
 

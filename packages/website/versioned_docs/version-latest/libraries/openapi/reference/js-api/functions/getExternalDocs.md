@@ -10,7 +10,7 @@ function getExternalDocs(program, entity): ExternalDocs | undefined
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `entity` | `Type` |
 

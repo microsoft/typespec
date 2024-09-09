@@ -6,7 +6,7 @@ title: "[I] CompilerHost"
 ## Properties
 
 | Property | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `logSink` | [`LogSink`](LogSink.md) | - |
 | `parseCache?` | `WeakMap`<[`SourceFile`](SourceFile.md), [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\> | Optional cache to reuse the results of parsing and binding across programs. |
 
@@ -21,7 +21,7 @@ fileURLToPath(url): string
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `url` | `string` |
 
 #### Returns
@@ -51,7 +51,7 @@ getJsImport(path): Promise<Record<string, any>>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 
 #### Returns
@@ -81,7 +81,7 @@ getSourceFileKind(path): undefined | SourceFileKind
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 
 #### Returns
@@ -101,7 +101,7 @@ create directory recursively.
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `path` | `string` | Path to the directory. |
 
 #### Returns
@@ -119,7 +119,7 @@ pathToFileURL(path): string
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 
 #### Returns
@@ -139,7 +139,7 @@ Read directory.
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `path` | `string` | Path to the directory. |
 
 #### Returns
@@ -161,7 +161,7 @@ read a utf-8 or utf-8 with bom encoded file
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 
 #### Returns
@@ -181,7 +181,7 @@ read a file at the given url.
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `url` | `string` |
 
 #### Returns
@@ -199,7 +199,7 @@ realpath(path): Promise<string>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 
 #### Returns
@@ -219,7 +219,7 @@ Deletes a directory or file.
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `path` | `string` | Path to the directory or file. |
 | `options`? | [`RmOptions`](RmOptions.md) | - |
 
@@ -238,15 +238,15 @@ stat(path): Promise<object>
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `path` | `string` |
 
 #### Returns
 
 `Promise`<`object`\>
 
-| Member | Type |
-| :------ | :------ |
+| Name | Type |
+| ------ | ------ |
 | `isDirectory` | `boolean` |
 | `isFile` | `boolean` |
 
@@ -263,7 +263,7 @@ Write the file.
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `path` | `string` | Path to the file. |
 | `content` | `string` | Content of the file. |
 

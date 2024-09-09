@@ -12,7 +12,7 @@ List all the services defined in the TypeSpec program
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) | Program |
 
 ## Returns

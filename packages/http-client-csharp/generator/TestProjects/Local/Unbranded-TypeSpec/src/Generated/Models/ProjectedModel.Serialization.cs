@@ -14,15 +14,6 @@ namespace UnbrandedTypeSpec.Models
     /// <summary></summary>
     public partial class ProjectedModel : IJsonModel<ProjectedModel>
     {
-        /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
-
-        internal ProjectedModel(string name, IDictionary<string, BinaryData> serializedAdditionalRawData)
-        {
-            Name = name;
-            _serializedAdditionalRawData = serializedAdditionalRawData;
-        }
-
         internal ProjectedModel()
         {
         }
@@ -84,8 +75,7 @@ namespace UnbrandedTypeSpec.Models
                 return null;
             }
             string name = default;
-            IDictionary<string, BinaryData> serializedAdditionalRawData = default;
-            Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
+            IDictionary<string, BinaryData> serializedAdditionalRawData = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("name"u8))
@@ -95,10 +85,9 @@ namespace UnbrandedTypeSpec.Models
                 }
                 if (options.Format != "W")
                 {
-                    rawDataDictionary.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                    serializedAdditionalRawData.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            serializedAdditionalRawData = rawDataDictionary;
             return new ProjectedModel(name, serializedAdditionalRawData);
         }
 

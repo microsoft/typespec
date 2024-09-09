@@ -26,19 +26,20 @@ Cookie: X-API-KEY=abcdef12345
 
 - [`HttpAuthBase`](HttpAuthBase.md)
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `TLocation` *extends* `ApiKeyLocation` |
 | `TName` *extends* `string` |
 
 ## Properties
 
-| Property | Type | Description | Inherited from |
-| :------ | :------ | :------ | :------ |
-| `description?` | `string` | Optional description. | [`HttpAuthBase`](HttpAuthBase.md).`description` |
-| `id` | `string` | Id of the authentication scheme. | [`HttpAuthBase`](HttpAuthBase.md).`id` |
-| `in` | `TLocation` | - | - |
-| `name` | `TName` | - | - |
-| `type` | `"apiKey"` | - | - |
+| Property | Modifier | Type | Description | Inherited from |
+| ------ | ------ | ------ | ------ | ------ |
+| `description?` | `public` | `string` | Optional description. | [`HttpAuthBase`](HttpAuthBase.md).`description` |
+| `id` | `public` | `string` | Id of the authentication scheme. | [`HttpAuthBase`](HttpAuthBase.md).`id` |
+| `in` | `public` | `TLocation` | - | - |
+| `model` | `readonly` | `Model` | Model that defined the authentication | [`HttpAuthBase`](HttpAuthBase.md).`model` |
+| `name` | `public` | `TName` | - | - |
+| `type` | `public` | `"apiKey"` | - | - |

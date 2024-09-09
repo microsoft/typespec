@@ -12,16 +12,16 @@ function scopeNavigationToNamespace<T>(
 
 Scope the current navigation to the given namespace.
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` *extends* `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` |
 
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `namespace` | [`Namespace`](../interfaces/Namespace.md) | Namespace the traversal shouldn't leave. |
 | `listeners` | `T` | Type listeners. |
 | `options` | [`NamespaceNavigationOptions`](../interfaces/NamespaceNavigationOptions.md) | Scope options |

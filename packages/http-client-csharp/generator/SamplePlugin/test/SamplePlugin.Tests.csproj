@@ -3,8 +3,4 @@
   <ItemGroup>
     <ProjectReference Include="..\src\SamplePlugin.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="../../TestProjects/Plugin/Unbranded-TypeSpec/src/Generated/Internal/**/*.cs" Link="Generated/Helpers/%(RecursiveDir)/%(Filename)%(Extension)" />
-  </ItemGroup>
 </Project>

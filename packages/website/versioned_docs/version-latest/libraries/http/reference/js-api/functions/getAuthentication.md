@@ -10,7 +10,7 @@ function getAuthentication(program, entity): Authentication | undefined
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `entity` | `Namespace` \| `Interface` \| `Operation` |
 

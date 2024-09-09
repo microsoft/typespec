@@ -24,7 +24,7 @@ Examples (with canonicalVisibility = Visibility.Read):
 ## Parameters
 
 | Parameter | Type | Default value |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `visibility` | [`Visibility`](../enumerations/Visibility.md) | `undefined` |
 | `canonicalVisibility` | `undefined` \| [`Visibility`](../enumerations/Visibility.md) | `Visibility.None` |
 

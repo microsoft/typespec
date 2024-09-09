@@ -24,6 +24,8 @@ In this example, `Breed` can be either a `Beagle`, a `GermanShepherd`, or a `Gol
 
 Named unions allow you to assign a name to the union and provide explicit variant references. Named unions are somewhat similar to [enums](./enums.md), but instead of having `string` or `numeric` values, they use [record models](./models.md).
 
+A named union can be declared with the `union` keyword. Its name must be an [`identifier`](./identifiers.md).
+
 ```typespec
 union Breed {
   beagle: Beagle,

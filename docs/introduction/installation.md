@@ -26,7 +26,7 @@ npm install -g @typespec/compiler
 
 ## Install the VS and VSCode extensions
 
-TypeSpec provides extension for the following editors:
+TypeSpec provides extensions for the following editors:
 
 - [Visual Studio Code](./editor/vscode.md)
 - [Visual Studio](./editor/vs.md)
@@ -39,7 +39,7 @@ Run the following command in a clean directory to create a new TypeSpec project.
 tsp init
 ```
 
-This will prompt you with a few questions. Pick the `Generic REST API` template, your project name, and select the `@typespec/openapi3` library.
+This will prompt you with a few questions. Pick the `Generic REST API` template, your project name, and make sure the `@typespec\http` and `@typespec/openapi3` libraries are selected.
 
 Next, you can install the dependencies.
 
@@ -47,16 +47,30 @@ Next, you can install the dependencies.
 tsp install
 ```
 
-You should now have a basic TypeSpec project setup with a structure looking like this:
-
-```bash
-package.json      # Package manifest defining your TypeSpec project as a Node package.
-tspconfig.yaml # TypeSpec project configuration letting you configure emitters, emitter options, compiler options, etc.
-main.tsp         # TypeSpec entrypoint
-```
-
-## Compile project
+Run a build to generate the OpenAPI specification output file.
 
 ```bash
 tsp compile .
 ```
+
+You should now have a basic TypeSpec project setup with a structure looking like this:
+
+```bash
+main.tsp
+tspconfig.yaml
+package.json
+node_modules/
+tsp-output/
+  @typespec/
+    openapi3/
+      openapi.yaml
+```
+
+- **main.tsp**: The entry point for your TypeSpec build. This file typically contains the main definitions for your models, services, and operations.
+- **tspconfig.yaml**: Configuration file for the TypeSpec compiler, specifying options and settings for the build process.
+- **package.json**: Contains metadata about the project, including dependencies, scripts, and other project-related information.
+- **node_modules/**: Directory where npm installs the project's dependencies.
+- **tsp-output/**: Directory where the TypeSpec compiler outputs generated files.
+- **openapi.yaml**: The generated OpenAPI specification file for your API, detailing the API's endpoints, models, and operations. The output can vary based on the target format specified in the `tspconfig.yaml` file.
+
+You can also run `tsp compile . --watch` to automatically compile changes on save.

@@ -24,3 +24,6 @@ export { buildVersionProjections, type VersionProjections } from "./projection.j
 export * from "./types.js";
 export * from "./validate.js";
 export * from "./versioning.js";
+
+/** @internal */
+export { $decorators } from "./tsp-index.js";

@@ -396,6 +396,63 @@ describe("openapi3: union type", () => {
     });
   });
 
+  it("handles unions defined in a namespace", async () => {
+    const res = await openApiFor(`
+      namespace Foo {
+        model A {
+          foo: string;
+        }
+      }
+
+      namespace Bar {
+        model A {
+          bar: string;
+        }
+      }
+
+      namespace Baz {
+        union A {
+          foo: Foo.A,
+          bar: Bar.A
+        }
+      }
+
+      @get
+      op getFoo(data: Baz.A): {};
+    `);
+
+    deepStrictEqual(res.components.schemas["Foo.A"], {
+      properties: {
+        foo: {
+          type: "string",
+        },
+      },
+      required: ["foo"],
+      type: "object",
+    });
+
+    deepStrictEqual(res.components.schemas["Bar.A"], {
+      properties: {
+        bar: {
+          type: "string",
+        },
+      },
+      required: ["bar"],
+      type: "object",
+    });
+
+    deepStrictEqual(res.components.schemas["Baz.A"], {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/Foo.A",
+        },
+        {
+          $ref: "#/components/schemas/Bar.A",
+        },
+      ],
+    });
+  });
+
   it("throws diagnostics for empty enum definitions", async () => {
     const diagnostics = await diagnoseOpenApiFor(`union Pet {}`);
 
@@ -403,6 +460,15 @@ describe("openapi3: union type", () => {
       code: "@typespec/openapi3/empty-union",
       message:
         "Empty unions are not supported for OpenAPI v3 - enums must have at least one value.",
+    });
+  });
+
+  it("throws diagnostics for null enum definitions", async () => {
+    const diagnostics = await diagnoseOpenApiFor(`union Pet {null}`);
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/union-null",
+      message: "Cannot have a union containing only null types.",
     });
   });
 
@@ -440,5 +506,25 @@ describe("openapi3: union type", () => {
     );
     strictEqual(res.schemas.Foo.title, "FooUnion");
     strictEqual(res.schemas.Bar.title, "BarUnion");
+  });
+
+  it("does not duplicate top-level description on union members", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      @doc("The possible types of things")
+      union Foo {
+        string,
+
+        bar: "bar",
+        buzz: "buzz",
+      }`
+    );
+
+    strictEqual(res.schemas.Foo.description, "The possible types of things");
+    strictEqual(res.schemas.Foo.anyOf.length, 2);
+    for (const variant of res.schemas.Foo.anyOf) {
+      strictEqual(variant.description, undefined);
+    }
   });
 });

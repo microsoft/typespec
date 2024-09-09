@@ -7,8 +7,8 @@ title: "[T] InferredTypeSpecValue"
 type InferredTypeSpecValue<K>: K extends "Any" ? TypeSpecValue : K extends infer T[] ? InferredTypeSpecValue<T> : K extends "String" ? string : K extends "Number" ? number : K extends "Boolean" ? boolean : Type & object;
 ```
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `K` *extends* [`TypeKind`](TypeKind.md) |

@@ -13,7 +13,7 @@ function skipTrivia(
 ## Parameters
 
 | Parameter | Type | Default value | Description |
-| :------ | :------ | :------ | :------ |
+| ------ | ------ | ------ | ------ |
 | `input` | `string` | `undefined` |  |
 | `position` | `number` | `undefined` |  |
 | `endPosition` | `number` | `input.length` | exclude |

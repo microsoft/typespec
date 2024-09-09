@@ -10,7 +10,7 @@ function getVersionForEnumMember(program, member): Version | undefined
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `member` | `EnumMember` |
 

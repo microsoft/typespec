@@ -12,7 +12,7 @@ Resolve the version to use for all namespace for each of the root namespace vers
 ## Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `program` | `Program` |  |
 | `namespace` | `Namespace` | - |
 

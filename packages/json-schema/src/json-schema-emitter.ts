@@ -35,8 +35,8 @@ import {
   getSummary,
   isArrayModelType,
   isNullType,
+  isType,
   joinPaths,
-  typespecTypeToJson,
 } from "@typespec/compiler";
 import {
   ArrayBuilder,
@@ -476,6 +476,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       case "int16":
         return { type: "integer", minimum: -32768, maximum: 32767 };
       case "int32":
+      case "unixTimestamp32":
         return { type: "integer", minimum: -2147483648, maximum: 2147483647 };
       case "int64":
         const int64Strategy = this.emitter.getOptions()["int64-strategy"] ?? "string";
@@ -529,7 +530,12 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       case "bytes":
         return { type: "string", contentEncoding: "base64" };
       default:
-        compilerAssert(false, `Unknown built-in scalar type ${baseBuiltIn.name}`);
+        reportDiagnostic(this.emitter.getProgram(), {
+          code: "unknown-scalar",
+          format: { name: baseBuiltIn.name },
+          target: baseBuiltIn,
+        });
+        return {};
     }
   }
 
@@ -596,22 +602,17 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     }
 
     const extensions = getExtensions(this.emitter.getProgram(), type);
-    for (const extension of extensions) {
-      // todo: fix up when we have an authoritative way to ask "am I an instantiation of that template"
-      if (
-        extension.value.kind === "Model" &&
-        extension.value.name === "Json" &&
-        extension.value.namespace?.name === "JsonSchema"
-      ) {
-        // we check in a decorator
-        schema.set(
-          extension.key,
-          typespecTypeToJson(extension.value.properties.get("value")!.type, null as any)[0]
-        );
+    for (const { key, value } of extensions) {
+      if (this.#isTypeLike(value)) {
+        schema.set(key, this.emitter.emitTypeReference(value));
       } else {
-        schema.set(extension.key, this.emitter.emitTypeReference(extension.value));
+        schema.set(key, value);
       }
     }
+  }
+
+  #isTypeLike(value: any): value is Type {
+    return typeof value === "object" && value !== null && isType(value);
   }
 
   #createDeclaration(type: JsonSchemaDeclaration, name: string, schema: ObjectBuilder<unknown>) {

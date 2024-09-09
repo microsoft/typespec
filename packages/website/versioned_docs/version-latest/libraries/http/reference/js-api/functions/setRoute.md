@@ -13,7 +13,7 @@ function setRoute(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `entity` | `Type` |
 | `details` | [`RoutePath`](../interfaces/RoutePath.md) |

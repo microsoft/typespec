@@ -976,4 +976,53 @@ describe("openapi3: models", () => {
       });
     });
   });
+
+  it("@oneOf decorator can only be used on a union.", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
+      model Foo {
+        @oneOf
+        bar: string;
+      }
+      `
+    );
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/oneof-union",
+      message: /type/,
+    });
+  });
+
+  describe("wraps property $ref in allOf when extra attributes", () => {
+    it("with doc", async () => {
+      const res = await openApiFor(
+        `
+        model Foo {
+          /** Some doc */ prop: Bar;
+        };
+        model Bar {}
+        `
+      );
+
+      deepStrictEqual(res.components.schemas.Foo.properties.prop, {
+        allOf: [{ $ref: "#/components/schemas/Bar" }],
+        description: "Some doc",
+      });
+    });
+
+    it("circular reference", async () => {
+      const res = await openApiFor(
+        `
+        model Foo {
+          /** Some doc */ prop: Foo;
+        };
+        `
+      );
+
+      deepStrictEqual(res.components.schemas.Foo.properties.prop, {
+        allOf: [{ $ref: "#/components/schemas/Foo" }],
+        description: "Some doc",
+      });
+    });
+  });
 });

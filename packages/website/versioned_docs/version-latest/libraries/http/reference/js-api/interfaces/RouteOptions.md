@@ -14,5 +14,5 @@ title: "[I] RouteOptions"
 ## Properties
 
 | Property | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `paramOptions?` | [`OperationParameterOptions`](OperationParameterOptions.md) |

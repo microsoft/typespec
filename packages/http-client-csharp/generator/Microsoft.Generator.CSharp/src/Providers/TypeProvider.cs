@@ -3,36 +3,47 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
     public abstract class TypeProvider
     {
+        private Lazy<TypeProvider?> _customCodeView;
+        private HashSet<string>? _propertyNames;
+
+        protected TypeProvider()
+        {
+            _customCodeView = new(GetCustomCodeView);
+        }
+
+        private protected virtual TypeProvider? GetCustomCodeView()
+            => CodeModelPlugin.Instance.SourceInputModel.FindForType(GetNamespace(), BuildName());
+
+        public TypeProvider? CustomCodeView => _customCodeView.Value;
+
         protected string? _deprecated;
 
         /// <summary>
         /// Gets the relative file path where the generated file will be stored.
         /// This path is relative to the project's root directory.
         /// </summary>
-        public string RelativeFilePath
-        {
-            get => _relativeFilePath ??= BuildRelativeFilePath();
-            private set => _relativeFilePath = value;
-        }
+        internal string RelativeFilePath => _relativeFilePath ??= BuildRelativeFilePath();
+
         private string? _relativeFilePath;
 
-        public string Name
-        {
-            get => _name ??= BuildName();
-            private set => _name = value;
-        }
+        public string Name => _name ??= CustomCodeView?.Name ?? BuildName();
 
         private string? _name;
 
-        protected internal virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
+        public string Namespace => _namespace ??= GetNamespace();
+        private string? _namespace;
+
+        protected virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
 
         private XmlDocProvider? _xmlDocs;
 
@@ -41,8 +52,6 @@ namespace Microsoft.Generator.CSharp.Providers
             get => _xmlDocs ??= BuildXmlDocs();
             private set => _xmlDocs = value;
         }
-
-        internal virtual Type? SerializeAs => null;
 
         public string? Deprecated
         {
@@ -53,13 +62,12 @@ namespace Microsoft.Generator.CSharp.Providers
         private CSharpType? _type;
         public CSharpType Type => _type ??= new(
             this,
-            GetNamespace(),
-            arguments: GetTypeArguments(),
-            isNullable: false,
-            baseType: GetBaseType(),
-            isEnum: GetIsEnum());
+            CustomCodeView?.GetNamespace() ?? GetNamespace(),
+            GetTypeArguments(),
+            GetBaseType());
 
         protected virtual bool GetIsEnum() => false;
+        public bool IsEnum => GetIsEnum();
 
         protected virtual string GetNamespace() => CodeModelPlugin.Instance.Configuration.RootNamespace;
 
@@ -96,7 +104,7 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             // we always add partial when possible
-            if (!modifiers.HasFlag(TypeSignatureModifiers.Enum))
+            if (!modifiers.HasFlag(TypeSignatureModifiers.Enum) && DeclaringTypeProvider is null)
             {
                 modifiers |= TypeSignatureModifiers.Partial;
             }
@@ -117,6 +125,8 @@ namespace Microsoft.Generator.CSharp.Providers
         private IReadOnlyList<PropertyProvider>? _properties;
         public IReadOnlyList<PropertyProvider> Properties => _properties ??= BuildProperties();
 
+        internal HashSet<string> PropertyNames => _propertyNames ??= BuildPropertyNames();
+
         private IReadOnlyList<MethodProvider>? _methods;
         public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethods();
 
@@ -134,21 +144,49 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public virtual IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
 
-        protected virtual CSharpType[] GetTypeArguments() => Array.Empty<CSharpType>();
+        private IReadOnlyList<AttributeStatement>? _attributes;
+        public IReadOnlyList<AttributeStatement> Attributes => _attributes ??= BuildAttributes();
 
-        protected virtual PropertyProvider[] BuildProperties() => Array.Empty<PropertyProvider>();
+        protected virtual CSharpType[] GetTypeArguments() => [];
 
-        protected virtual FieldProvider[] BuildFields() => Array.Empty<FieldProvider>();
+        protected virtual PropertyProvider[] BuildProperties() => [];
 
-        protected virtual CSharpType[] BuildImplements() => Array.Empty<CSharpType>();
+        private HashSet<string> BuildPropertyNames()
+        {
+            var propertyNames = new HashSet<string>();
+            foreach (var property in Properties)
+            {
+                propertyNames.Add(property.Name);
+                foreach (var attribute in property.Attributes ?? [])
+                {
+                    if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var name))
+                    {
+                        propertyNames.Add(name);
+                    }
+                }
+            }
+            return propertyNames;
+        }
 
-        protected virtual MethodProvider[] BuildMethods() => Array.Empty<MethodProvider>();
+        protected virtual FieldProvider[] BuildFields() => [];
 
-        protected virtual ConstructorProvider[] BuildConstructors() => Array.Empty<ConstructorProvider>();
+        protected virtual CSharpType[] BuildImplements() => [];
 
-        protected virtual TypeProvider[] BuildNestedTypes() => Array.Empty<TypeProvider>();
+        protected virtual MethodProvider[] BuildMethods() => [];
 
-        protected virtual TypeProvider[] BuildSerializationProviders() => Array.Empty<TypeProvider>();
+        protected virtual ConstructorProvider[] BuildConstructors() => [];
+
+        protected virtual TypeProvider[] BuildNestedTypes() => [];
+
+        protected virtual TypeProvider[] BuildSerializationProviders() => [];
+
+        protected virtual CSharpType BuildEnumUnderlyingType() => throw new InvalidOperationException("Not an EnumProvider type");
+
+        protected virtual IReadOnlyList<AttributeStatement> BuildAttributes() => [];
+
+        private CSharpType? _enumUnderlyingType;
+
+        public CSharpType EnumUnderlyingType => _enumUnderlyingType ??= BuildEnumUnderlyingType(); // Each member in the EnumProvider has to have this type
 
         protected virtual XmlDocProvider BuildXmlDocs()
         {
@@ -160,30 +198,70 @@ namespace Microsoft.Generator.CSharp.Providers
         protected abstract string BuildRelativeFilePath();
         protected abstract string BuildName();
 
-        public static string GetDefaultModelNamespace(string defaultNamespace)
-        {
-            if (CodeModelPlugin.Instance.Configuration.UseModelNamespace)
-            {
-                return $"{defaultNamespace}.Models";
-            }
-
-            return defaultNamespace;
-        }
-
-        public void Update(List<MethodProvider>? methods = default, List<PropertyProvider>? properties = default, List<FieldProvider>? fields = default)
+        public void Update(
+            IEnumerable<MethodProvider>? methods = null,
+            IEnumerable<ConstructorProvider>? constructors = null,
+            IEnumerable<PropertyProvider>? properties = null,
+            IEnumerable<FieldProvider>? fields = null,
+            IEnumerable<TypeProvider>? serializations = null,
+            IEnumerable<TypeProvider>? nestedTypes = null,
+            XmlDocProvider? xmlDocs = null)
         {
             if (methods != null)
             {
-                _methods = methods;
+                _methods = (methods as IReadOnlyList<MethodProvider>) ?? methods.ToList();
             }
             if (properties != null)
             {
-                _properties = properties;
+                _properties = (properties as IReadOnlyList<PropertyProvider>) ?? properties.ToList();
             }
             if (fields != null)
             {
-                _fields = fields;
+                _fields = (fields as IReadOnlyList<FieldProvider>) ?? fields.ToList();
+            }
+            if (constructors != null)
+            {
+                _constructors = (constructors as IReadOnlyList<ConstructorProvider>) ?? constructors.ToList();
+            }
+            if (serializations != null)
+            {
+                _serializationProviders = (serializations as IReadOnlyList<TypeProvider>) ?? serializations.ToList();
+            }
+            if (nestedTypes != null)
+            {
+                _nestedTypes = (nestedTypes as IReadOnlyList<TypeProvider>) ?? nestedTypes.ToList();
+            }
+            if (xmlDocs != null)
+            {
+                XmlDocs = xmlDocs;
             }
         }
+        public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
+
+        protected virtual IReadOnlyList<EnumTypeMember> BuildEnumValues() => throw new InvalidOperationException("Not an EnumProvider type");
+
+        internal void EnsureBuilt()
+        {
+            _ = Methods;
+            _ = Constructors;
+            _ = Properties;
+            _ = Fields;
+            _ = Implements;
+            if (IsEnum)
+            {
+                _ = EnumValues;
+                _ = EnumUnderlyingType;
+            }
+            foreach (var type in SerializationProviders)
+            {
+                type.EnsureBuilt();
+            }
+            foreach (var type in NestedTypes)
+            {
+                type.EnsureBuilt();
+            }
+        }
+
+        private IReadOnlyList<EnumTypeMember>? _enumValues;
     }
 }

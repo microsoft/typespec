@@ -6,7 +6,7 @@ title: "[I] DecoratorContext"
 ## Properties
 
 | Property | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `decoratorTarget` | [`DiagnosticTarget`](../type-aliases/DiagnosticTarget.md) | Point to the decorator target |
 | `program` | [`Program`](Program.md) | - |
 
@@ -23,10 +23,10 @@ call<T, A, R>(
 
 Helper to call out to another decorator
 
-#### Type parameters
+#### Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` *extends* [`Type`](../type-aliases/Type.md) |
 | `A` *extends* `any`[] |
 | `R` |
@@ -34,7 +34,7 @@ Helper to call out to another decorator
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `decorator` | (`context`, `target`, ...`args`) => `R` | Other decorator function |
 | `target` | `T` | - |
 | ...`args` | `A` | Args to pass to other decorator function |
@@ -56,7 +56,7 @@ Function that can be used to retrieve the target for a parameter at the given in
 #### Parameters
 
 | Parameter | Type | Description |
-| :------ | :------ | :------ |
+| ------ | ------ | ------ |
 | `paramIndex` | `number` | Parameter index in the typespec |
 
 #### Returns

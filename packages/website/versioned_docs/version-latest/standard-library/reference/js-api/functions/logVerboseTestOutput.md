@@ -18,7 +18,7 @@ when verbose output is disabled.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `messageOrCallback` | `string` \| (`log`) => `void` |
 
 ## Returns

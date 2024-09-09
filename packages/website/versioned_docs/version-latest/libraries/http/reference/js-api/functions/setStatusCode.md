@@ -13,7 +13,7 @@ function setStatusCode(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `entity` | `Model` \| `ModelProperty` |
 | `codes` | `string`[] |

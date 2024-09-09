@@ -1,0 +1,6 @@
+{
+  "output-folder": ".",
+  "namespace": "Client.Naming",
+  "library-name": "Client.Naming",
+  "use-model-reader-writer": true
+}

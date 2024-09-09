@@ -14,7 +14,7 @@ function validateDecoratorParamCount(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `min` | `number` |
 | `max` | `undefined` \| `number` |

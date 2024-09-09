@@ -10,7 +10,7 @@ function defineLinter(def): LinterDefinition
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `def` | [`LinterDefinition`](../interfaces/LinterDefinition.md) |
 
 ## Returns

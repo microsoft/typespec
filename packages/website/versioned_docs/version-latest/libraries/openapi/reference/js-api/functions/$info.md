@@ -13,7 +13,7 @@ function $info(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Namespace` |
 | `additionalInfo` | `Type` |

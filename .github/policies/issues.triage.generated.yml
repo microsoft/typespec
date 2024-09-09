@@ -40,17 +40,27 @@ configuration:
                 - hasLabel:
                     label: emitter:client:csharp
                 - hasLabel:
+                    label: emitter:client:java
+                - hasLabel:
+                    label: emitter:client:python
+                - hasLabel:
                     label: emitter:json-schema
                 - hasLabel:
                     label: emitter:protobuf
                 - hasLabel:
                     label: emitter:openapi3
                 - hasLabel:
+                    label: openapi3:converter
+                - hasLabel:
                     label: emitter:service:csharp
                 - hasLabel:
                     label: emitter:service:js
                 - hasLabel:
                     label: eng
+                - hasLabel:
+                    label: ui:playground
+                - hasLabel:
+                    label: ui:type-graph-viewer
         then:
           - addLabel:
               label: needs-area
@@ -84,17 +94,27 @@ configuration:
               - labelAdded:
                   label: emitter:client:csharp
               - labelAdded:
+                  label: emitter:client:java
+              - labelAdded:
+                  label: emitter:client:python
+              - labelAdded:
                   label: emitter:json-schema
               - labelAdded:
                   label: emitter:protobuf
               - labelAdded:
                   label: emitter:openapi3
               - labelAdded:
+                  label: openapi3:converter
+              - labelAdded:
                   label: emitter:service:csharp
               - labelAdded:
                   label: emitter:service:js
               - labelAdded:
                   label: eng
+              - labelAdded:
+                  label: ui:playground
+              - labelAdded:
+                  label: ui:type-graph-viewer
         then:
           - removeLabel:
               label: needs-area
@@ -129,17 +149,27 @@ configuration:
               - labelRemoved:
                   label: emitter:client:csharp
               - labelRemoved:
+                  label: emitter:client:java
+              - labelRemoved:
+                  label: emitter:client:python
+              - labelRemoved:
                   label: emitter:json-schema
               - labelRemoved:
                   label: emitter:protobuf
               - labelRemoved:
                   label: emitter:openapi3
               - labelRemoved:
+                  label: openapi3:converter
+              - labelRemoved:
                   label: emitter:service:csharp
               - labelRemoved:
                   label: emitter:service:js
               - labelRemoved:
                   label: eng
+              - labelRemoved:
+                  label: ui:playground
+              - labelRemoved:
+                  label: ui:type-graph-viewer
           - not:
               or:
                 - hasLabel:
@@ -165,17 +195,27 @@ configuration:
                 - hasLabel:
                     label: emitter:client:csharp
                 - hasLabel:
+                    label: emitter:client:java
+                - hasLabel:
+                    label: emitter:client:python
+                - hasLabel:
                     label: emitter:json-schema
                 - hasLabel:
                     label: emitter:protobuf
                 - hasLabel:
                     label: emitter:openapi3
                 - hasLabel:
+                    label: openapi3:converter
+                - hasLabel:
                     label: emitter:service:csharp
                 - hasLabel:
                     label: emitter:service:js
                 - hasLabel:
                     label: eng
+                - hasLabel:
+                    label: ui:playground
+                - hasLabel:
+                    label: ui:type-graph-viewer
         then:
           - addLabel:
               label: needs-area

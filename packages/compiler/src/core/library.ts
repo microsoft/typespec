@@ -63,9 +63,9 @@ function createStateKeys<T extends string>(
  * const lib = createTypeSpecLibrary(libDef);
  */
 export function createTypeSpecLibrary<
-  T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any>,
-  State extends string = never,
+  const T extends { [code: string]: DiagnosticMessages },
+  const E extends Record<string, any>,
+  const State extends string = never,
 >(lib: Readonly<TypeSpecLibraryDef<T, E, State>>): TypeSpecLibrary<T, E, State> {
   let emitterOptionValidator: JSONSchemaValidator;
 

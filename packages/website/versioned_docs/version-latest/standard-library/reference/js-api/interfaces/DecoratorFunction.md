@@ -13,7 +13,7 @@ interface DecoratorFunction(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | [`DecoratorContext`](DecoratorContext.md) |
 | `target` | `any` |
 | ...`customArgs` | `any`[] |
@@ -25,5 +25,5 @@ interface DecoratorFunction(
 ## Properties
 
 | Property | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `namespace?` | `string` |

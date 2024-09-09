@@ -10,7 +10,7 @@ function parseStandaloneTypeReference(code): [TypeReferenceNode, readonly Diagno
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `code` | `string` \| [`SourceFile`](../interfaces/SourceFile.md) |
 
 ## Returns

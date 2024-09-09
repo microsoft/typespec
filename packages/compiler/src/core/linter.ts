@@ -236,6 +236,7 @@ export function createLinterRuleContext<N extends string, DM extends DiagnosticM
       severity: rule.severity,
       message: messageStr,
       target: diag.target,
+      url: rule.url,
       codefixes: diag.codefixes,
     };
   }

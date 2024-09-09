@@ -13,7 +13,7 @@ metadata if it is marked `@header`, `@query`, `@path`, or `@statusCode`.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `property` | `ModelProperty` |
 

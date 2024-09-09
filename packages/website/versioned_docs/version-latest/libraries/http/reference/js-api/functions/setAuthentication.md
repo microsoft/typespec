@@ -13,7 +13,7 @@ function setAuthentication(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `entity` | `Namespace` \| `Interface` \| `Operation` |
 | `auth` | [`Authentication`](../interfaces/Authentication.md) |

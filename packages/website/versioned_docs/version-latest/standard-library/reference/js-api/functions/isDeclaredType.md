@@ -14,7 +14,7 @@ Check if the type is a declared type. This include:
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `type` | [`Type`](../type-aliases/Type.md) |
 
 ## Returns

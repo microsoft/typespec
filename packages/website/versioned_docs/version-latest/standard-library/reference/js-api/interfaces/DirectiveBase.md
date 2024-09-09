@@ -11,5 +11,5 @@ title: "[I] DirectiveBase"
 ## Properties
 
 | Property | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `node` | [`DirectiveExpressionNode`](DirectiveExpressionNode.md) |

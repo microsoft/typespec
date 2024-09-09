@@ -12,7 +12,7 @@ Get the version map of the namespace.
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `namespace` | `Namespace` |
 

@@ -37,4 +37,5 @@ title: "[P] JS API"
 - [resolveInfo](functions/resolveInfo.md)
 - [resolveOperationId](functions/resolveOperationId.md)
 - [setExtension](functions/setExtension.md)
+- [setInfo](functions/setInfo.md)
 - [shouldInline](functions/shouldInline.md)

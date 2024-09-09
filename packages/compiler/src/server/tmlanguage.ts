@@ -343,7 +343,7 @@ const typeArgument: BeginEndRule = {
     "1": { scope: "entity.name.type.tsp" },
     "2": { scope: "keyword.operator.assignment.tsp" },
   },
-  end: `=`,
+  end: `(?=>)|${universalEnd}`,
   endCaptures: {
     "0": { scope: "keyword.operator.assignment.tsp" },
   },

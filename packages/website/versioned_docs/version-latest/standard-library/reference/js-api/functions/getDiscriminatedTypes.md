@@ -10,7 +10,7 @@ function getDiscriminatedTypes(program): [Model | Union, Discriminator][]
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 
 ## Returns

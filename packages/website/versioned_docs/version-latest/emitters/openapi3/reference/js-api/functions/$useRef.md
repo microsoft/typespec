@@ -13,7 +13,7 @@ function $useRef(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `Model` \| `ModelProperty` |
 | `ref` | `string` |

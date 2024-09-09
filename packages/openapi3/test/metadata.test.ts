@@ -661,6 +661,7 @@ describe("openapi3: metadata", () => {
         "Parameters.q": {
           name: "q",
           in: "query",
+          explode: false,
           required: true,
           schema: { type: "string" },
         },
@@ -717,6 +718,7 @@ describe("openapi3: metadata", () => {
               name: "q",
               in: "query",
               required: true,
+              explode: false,
               schema: { type: "string" },
             },
             {
@@ -952,9 +954,6 @@ describe("openapi3: metadata", () => {
           operationId: "create",
           parameters: [
             {
-              $ref: "#/components/parameters/Pet.id",
-            },
-            {
               name: "h1",
               in: "header",
               required: true,
@@ -969,6 +968,9 @@ describe("openapi3: metadata", () => {
               schema: {
                 type: "string",
               },
+            },
+            {
+              $ref: "#/components/parameters/Pet.id",
             },
           ],
           responses: {

@@ -13,7 +13,7 @@ function $useAuth(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `entity` | `Namespace` \| `Interface` \| `Operation` |
 | `authConfig` | `Type` |

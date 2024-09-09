@@ -16,7 +16,7 @@ remark: if range.pos is -1 means no start point found, so return false
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `position` | `number` |
 | `range` | [`TextRange`](../interfaces/TextRange.md) |
 

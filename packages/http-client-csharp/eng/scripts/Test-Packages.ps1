@@ -19,10 +19,12 @@ try {
         try {
             # test the emitter
             Invoke-LoggedCommand "npm run build" -GroupOutput
-            Invoke-LoggedCommand "npm run test" -GroupOutput
+            Invoke-LoggedCommand "npm run test:emitter" -GroupOutput
 
             # test the generator
             Invoke-LoggedCommand "dotnet test ./generator" -GroupOutput
+
+            Invoke-LoggedCommand "./eng/scripts/Get-CadlRanch-Coverage.ps1" -GroupOutput
         }
         finally {
             Pop-Location

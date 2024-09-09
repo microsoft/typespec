@@ -10,7 +10,8 @@ import {
   Tuple,
   Type,
 } from "@typespec/compiler";
-import { HeaderProperty } from "./http-property.js";
+import { PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
+import { HeaderProperty, HttpProperty } from "./http-property.js";
 
 /**
  * @deprecated use `HttpOperation`. To remove in November 2022 release.
@@ -277,7 +278,7 @@ export interface RouteResolutionOptions extends RouteOptions {
 }
 
 export interface RouteProducerResult {
-  segments: string[];
+  uriTemplate: string;
   parameters: HttpOperationParameters;
 }
 
@@ -299,26 +300,30 @@ export interface HeaderFieldOptions {
   format?: "csv" | "multi" | "ssv" | "tsv" | "pipes" | "simple" | "form";
 }
 
-export interface QueryParameterOptions {
+export interface QueryParameterOptions extends Required<Omit<QueryOptions, "format">> {
   type: "query";
-  name: string;
   /**
-   * The string format of the array. "csv" and "simple" are used interchangeably, as are
-   * "multi" and "form".
+   * @deprecated use explode and `@encode` decorator instead.
    */
-  format?: "multi" | "csv" | "ssv" | "tsv" | "pipes" | "simple" | "form";
+  format?: "csv" | "multi" | "ssv" | "tsv" | "pipes" | "simple" | "form";
 }
 
-export interface PathParameterOptions {
+export interface PathParameterOptions extends Required<PathOptions> {
   type: "path";
-  name: string;
 }
 
-export type HttpOperationParameter = (
-  | HeaderFieldOptions
-  | QueryParameterOptions
-  | PathParameterOptions
-) & {
+export type HttpOperationParameter =
+  | HttpOperationHeaderParameter
+  | HttpOperationQueryParameter
+  | HttpOperationPathParameter;
+
+export type HttpOperationHeaderParameter = HeaderFieldOptions & {
+  param: ModelProperty;
+};
+export type HttpOperationQueryParameter = QueryParameterOptions & {
+  param: ModelProperty;
+};
+export type HttpOperationPathParameter = PathParameterOptions & {
   param: ModelProperty;
 };
 
@@ -332,6 +337,9 @@ export type HttpOperationRequestBody = HttpOperationBody;
 export type HttpOperationResponseBody = HttpOperationBody;
 
 export interface HttpOperationParameters {
+  /** Http properties */
+  readonly properties: HttpProperty[];
+
   parameters: HttpOperationParameter[];
 
   body?: HttpOperationBody | HttpOperationMultipartBody;
@@ -359,12 +367,21 @@ export interface HttpService {
 
 export interface HttpOperation {
   /**
-   * Route path
+   * The fully resolved uri template as defined by http://tools.ietf.org/html/rfc6570.
+   * @example "/foo/{bar}/baz{?qux}"
+   * @example "/foo/{+path}"
+   */
+  readonly uriTemplate: string;
+
+  /**
+   * Route path.
+   * Not recommended use {@link uriTemplate} instead. This will not work for complex cases like not-escaping reserved chars.
    */
   path: string;
 
   /**
    * Path segments
+   * @deprecated use {@link uriTemplate} instead
    */
   pathSegments: string[];
 
@@ -441,6 +458,9 @@ export interface HttpOperationResponse {
 }
 
 export interface HttpOperationResponseContent {
+  /** Http properties for this response */
+  readonly properties: HttpProperty[];
+
   headers?: Record<string, ModelProperty>;
   body?: HttpOperationBody | HttpOperationMultipartBody;
 }

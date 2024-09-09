@@ -6,7 +6,7 @@ title: "[E] IdentifierKind"
 ## Enumeration Members
 
 | Enumeration Member | Value |
-| :------ | :------ |
+| ------ | ------ |
 | `Declaration` | `5` |
 | `Decorator` | `2` |
 | `Function` | `3` |

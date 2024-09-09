@@ -19,5 +19,5 @@ title: "[I] DecoratedType"
 ## Properties
 
 | Property | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `decorators` | [`DecoratorApplication`](DecoratorApplication.md)[] |

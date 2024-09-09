@@ -1,5 +1,25 @@
 # Change Log - @typespec/playground
 
+## 0.4.1
+
+### Bump dependencies
+
+- [#3948](https://github.com/microsoft/typespec/pull/3948) Update dependencies
+
+
+## 0.4.0
+
+### Bump dependencies
+
+- [#3718](https://github.com/microsoft/typespec/pull/3718) Dependency updates July 2024
+
+### Features
+
+- [#3585](https://github.com/microsoft/typespec/pull/3585) Add error recovery for viewer that crash
+- [#3750](https://github.com/microsoft/typespec/pull/3750) Add new property on the playground to add custom buttons on the toolbar
+- [#3713](https://github.com/microsoft/typespec/pull/3713) Extract splitpane into separate package
+
+
 ## 0.3.0
 
 ### Bug Fixes

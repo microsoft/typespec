@@ -1,4 +1,5 @@
 import {
+  createDiagnosticCollector,
   DecoratorContext,
   DiagnosticResult,
   Interface,
@@ -6,47 +7,53 @@ import {
   Operation,
   Program,
   Type,
-  createDiagnosticCollector,
   validateDecoratorTarget,
 } from "@typespec/compiler";
-import { HttpStateKeys, createDiagnostic, reportDiagnostic } from "./lib.js";
+import { createDiagnostic, HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { getOperationParameters } from "./parameters.js";
 import {
   HttpOperation,
+  HttpOperationParameter,
   HttpOperationParameters,
+  HttpOperationPathParameter,
+  PathParameterOptions,
   RouteOptions,
   RoutePath,
   RouteProducer,
   RouteProducerResult,
   RouteResolutionOptions,
 } from "./types.js";
-import { extractParamsFromPath } from "./utils.js";
+import { parseUriTemplate, UriTemplate } from "./uri-template.js";
 
 // The set of allowed segment separator characters
 const AllowedSegmentSeparators = ["/", ":"];
 
-function normalizeFragment(fragment: string) {
+function normalizeFragment(fragment: string, trimLast = false) {
   if (fragment.length > 0 && AllowedSegmentSeparators.indexOf(fragment[0]) < 0) {
     // Insert the default separator
     fragment = `/${fragment}`;
   }
 
-  // Trim any trailing slash
-  return fragment.replace(/\/$/g, "");
+  if (trimLast && fragment[fragment.length - 1] === "/") {
+    return fragment.slice(0, -1);
+  }
+  return fragment;
+}
+
+export function joinPathSegments(rest: string[]) {
+  let current = "";
+  for (const [index, segment] of rest.entries()) {
+    current += normalizeFragment(segment, index < rest.length - 1);
+  }
+  return current;
 }
 
 function buildPath(pathFragments: string[]) {
   // Join all fragments with leading and trailing slashes trimmed
-  const path =
-    pathFragments.length === 0
-      ? "/"
-      : pathFragments
-          .map(normalizeFragment)
-          .filter((x) => x !== "")
-          .join("");
+  const path = pathFragments.length === 0 ? "/" : joinPathSegments(pathFragments);
 
   // The final path must start with a '/'
-  return path.length > 0 && path[0] === "/" ? path : `/${path}`;
+  return path[0] === "/" ? path : `/${path}`;
 }
 
 export function resolvePathAndParameters(
@@ -55,40 +62,59 @@ export function resolvePathAndParameters(
   overloadBase: HttpOperation | undefined,
   options: RouteResolutionOptions
 ): DiagnosticResult<{
+  readonly uriTemplate: string;
   path: string;
-  pathSegments: string[];
   parameters: HttpOperationParameters;
 }> {
   const diagnostics = createDiagnosticCollector();
-  const { segments, parameters } = diagnostics.pipe(
-    getRouteSegments(program, operation, overloadBase, options)
+  const { uriTemplate, parameters } = diagnostics.pipe(
+    getUriTemplateAndParameters(program, operation, overloadBase, options)
   );
+
+  const parsedUriTemplate = parseUriTemplate(uriTemplate);
 
   // Pull out path parameters to verify what's in the path string
   const paramByName = new Set(
-    parameters.parameters.filter(({ type }) => type === "path").map((x) => x.name)
+    parameters.parameters
+      .filter(({ type }) => type === "path" || type === "query")
+      .map((x) => x.name)
   );
 
   // Ensure that all of the parameters defined in the route are accounted for in
   // the operation parameters
-  const routeParams = segments.flatMap(extractParamsFromPath);
-  for (const routeParam of routeParams) {
-    if (!paramByName.has(routeParam)) {
+  for (const routeParam of parsedUriTemplate.parameters) {
+    const decoded = decodeURIComponent(routeParam.name);
+    if (!paramByName.has(routeParam.name) && !paramByName.has(decoded)) {
       diagnostics.add(
         createDiagnostic({
-          code: "missing-path-param",
-          format: { param: routeParam },
+          code: "missing-uri-param",
+          format: { param: routeParam.name },
           target: operation,
         })
       );
     }
   }
 
+  const path = produceLegacyPathFromUriTemplate(parsedUriTemplate);
   return diagnostics.wrap({
-    path: buildPath(segments),
-    pathSegments: segments,
+    uriTemplate,
+    path,
     parameters,
   });
+}
+
+function produceLegacyPathFromUriTemplate(uriTemplate: UriTemplate) {
+  let result = "";
+
+  for (const segment of uriTemplate.segments ?? []) {
+    if (typeof segment === "string") {
+      result += segment;
+    } else if (segment.operator !== "?" && segment.operator !== "&") {
+      result += `{${segment.name}}`;
+    }
+  }
+
+  return result;
 }
 
 function collectSegmentsAndOptions(
@@ -101,32 +127,32 @@ function collectSegmentsAndOptions(
 
   const route = getRoutePath(program, source)?.path;
   const options =
-    source.kind === "Namespace" ? getRouteOptionsForNamespace(program, source) ?? {} : {};
+    source.kind === "Namespace" ? (getRouteOptionsForNamespace(program, source) ?? {}) : {};
 
   return [[...parentSegments, ...(route ? [route] : [])], { ...parentOptions, ...options }];
 }
 
-function getRouteSegments(
+function getUriTemplateAndParameters(
   program: Program,
   operation: Operation,
   overloadBase: HttpOperation | undefined,
   options: RouteResolutionOptions
 ): DiagnosticResult<RouteProducerResult> {
-  const diagnostics = createDiagnosticCollector();
   const [parentSegments, parentOptions] = collectSegmentsAndOptions(
     program,
     operation.interface ?? operation.namespace
   );
 
   const routeProducer = getRouteProducer(program, operation) ?? DefaultRouteProducer;
-  const result = diagnostics.pipe(
-    routeProducer(program, operation, parentSegments, overloadBase, {
-      ...parentOptions,
-      ...options,
-    })
-  );
+  const [result, diagnostics] = routeProducer(program, operation, parentSegments, overloadBase, {
+    ...parentOptions,
+    ...options,
+  });
 
-  return diagnostics.wrap(result);
+  return [
+    { uriTemplate: buildPath([result.uriTemplate]), parameters: result.parameters },
+    diagnostics,
+  ];
 }
 
 /**
@@ -158,35 +184,72 @@ export function DefaultRouteProducer(
 ): DiagnosticResult<RouteProducerResult> {
   const diagnostics = createDiagnosticCollector();
   const routePath = getRoutePath(program, operation)?.path;
-  const segments =
+  const uriTemplate =
     !routePath && overloadBase
-      ? overloadBase.pathSegments
-      : [...parentSegments, ...(routePath ? [routePath] : [])];
-  const routeParams = segments.flatMap(extractParamsFromPath);
+      ? overloadBase.uriTemplate
+      : joinPathSegments([...parentSegments, ...(routePath ? [routePath] : [])]);
+
+  const parsedUriTemplate = parseUriTemplate(uriTemplate);
 
   const parameters: HttpOperationParameters = diagnostics.pipe(
-    getOperationParameters(program, operation, overloadBase, routeParams, options.paramOptions)
+    getOperationParameters(program, operation, uriTemplate, overloadBase, options.paramOptions)
   );
 
   // Pull out path parameters to verify what's in the path string
-  const unreferencedPathParamNames = new Set(
-    parameters.parameters.filter(({ type }) => type === "path").map((x) => x.name)
+  const unreferencedPathParamNames = new Map(
+    parameters.parameters
+      .filter(({ type }) => type === "path" || type === "query")
+      .map((x) => [x.name, x])
   );
 
   // Compile the list of all route params that aren't represented in the route
-  for (const routeParam of routeParams) {
-    unreferencedPathParamNames.delete(routeParam);
+  for (const uriParam of parsedUriTemplate.parameters) {
+    unreferencedPathParamNames.delete(uriParam.name);
   }
 
-  // Add any remaining declared path params
-  for (const paramName of unreferencedPathParamNames) {
-    segments.push(`{${paramName}}`);
-  }
-
+  const resolvedUriTemplate = addOperationTemplateToUriTemplate(uriTemplate, [
+    ...unreferencedPathParamNames.values(),
+  ]);
   return diagnostics.wrap({
-    segments,
+    uriTemplate: resolvedUriTemplate,
     parameters,
   });
+}
+
+const styleToOperator: Record<PathParameterOptions["style"], string> = {
+  matrix: ";",
+  label: ".",
+  simple: "",
+  path: "/",
+  fragment: "#",
+};
+
+export function getUriTemplatePathParam(param: HttpOperationPathParameter) {
+  const operator = param.allowReserved ? "+" : styleToOperator[param.style];
+  return `{${operator}${param.name}${param.explode ? "*" : ""}}`;
+}
+
+export function addQueryParamsToUriTemplate(uriTemplate: string, params: HttpOperationParameter[]) {
+  const queryParams = params.filter((x) => x.type === "query");
+
+  return (
+    uriTemplate +
+    (queryParams.length > 0
+      ? `{?${queryParams.map((x) => escapeUriTemplateParamName(x.name)).join(",")}}`
+      : "")
+  );
+}
+
+function addOperationTemplateToUriTemplate(uriTemplate: string, params: HttpOperationParameter[]) {
+  const pathParams = params.filter((x) => x.type === "path").map(getUriTemplatePathParam);
+  const queryParams = params.filter((x) => x.type === "query");
+
+  const pathPart = joinPathSegments([uriTemplate, ...pathParams]);
+  return addQueryParamsToUriTemplate(pathPart, queryParams);
+}
+
+function escapeUriTemplateParamName(name: string) {
+  return name.replaceAll(":", "%3A");
 }
 
 export function setRouteProducer(

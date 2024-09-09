@@ -10,7 +10,7 @@ type OperationVerbSelector: (program, operation) => HttpVerb | undefined;
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `program` | `Program` |
 | `operation` | `Operation` |
 

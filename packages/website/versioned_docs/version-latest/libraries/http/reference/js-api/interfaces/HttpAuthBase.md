@@ -14,7 +14,8 @@ title: "[I] HttpAuthBase"
 
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `description?` | `string` | Optional description. |
-| `id` | `string` | Id of the authentication scheme. |
+| Property | Modifier | Type | Description |
+| ------ | ------ | ------ | ------ |
+| `description?` | `public` | `string` | Optional description. |
+| `id` | `public` | `string` | Id of the authentication scheme. |
+| `model` | `readonly` | `Model` | Model that defined the authentication |

@@ -117,5 +117,16 @@ describe("compiler: emitter options", () => {
         message: `Path "assets" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
       });
     });
+
+    // This was disabled due to making it impossible to use windows path via the cli https://github.com/microsoft/typespec/pull/4173
+    it.skip("emit diagnostic if passing windows style path", async () => {
+      const diagnostics = await diagnoseEmitterOptions({
+        "asset-dir": "C:\\abc\\def",
+      });
+      expectDiagnostics(diagnostics, {
+        code: "path-unix-style",
+        message: `Path should use unix style separators. Use "/" instead of "\\".`,
+      });
+    });
   });
 });

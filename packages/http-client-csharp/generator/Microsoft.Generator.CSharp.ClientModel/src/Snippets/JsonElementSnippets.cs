@@ -71,7 +71,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         {
             var discriminatorDeclaration = new VariableExpression(typeof(JsonElement), "discriminator");
             discriminator = discriminatorDeclaration.As<JsonElement>();
-            var invocation = jsonElement.Invoke(nameof(JsonElement.TryGetProperty), [Literal(propertyName), new DeclarationExpression(discriminatorDeclaration, true)], null, false);
+            var invocation = jsonElement.Invoke(nameof(JsonElement.TryGetProperty), [LiteralU8(propertyName), new DeclarationExpression(discriminatorDeclaration, true)], null, false);
             return invocation.As<bool>();
         }
 
@@ -79,7 +79,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         {
             var intValueDeclaration = new VariableExpression(typeof(int), "intValue");
             intValue = intValueDeclaration.As<int>();
-            var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetInt32), null, [new DeclarationExpression(intValueDeclaration, true)], null, false);
+            var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetInt32), [new DeclarationExpression(intValueDeclaration, true)]);
             return invocation.As<bool>();
         }
 
@@ -87,7 +87,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         {
             var longValueDeclaration = new VariableExpression(typeof(long), "longValue");
             longValue = longValueDeclaration.As<long>();
-            var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetInt64), null, [new DeclarationExpression(longValueDeclaration, true)], null, false);
+            var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetInt64), [new DeclarationExpression(longValueDeclaration, true)]);
             return invocation.As<bool>();
         }
     }

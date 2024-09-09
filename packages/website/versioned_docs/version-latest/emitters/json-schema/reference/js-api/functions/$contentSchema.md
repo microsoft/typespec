@@ -13,7 +13,7 @@ function $contentSchema(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
 | `target` | `ModelProperty` \| `Scalar` |
 | `value` | `Type` |

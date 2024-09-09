@@ -14,9 +14,9 @@ function $renamedFrom(
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `context` | `DecoratorContext` |
-| `target` |  \| `Enum` \| `EnumMember` \| `Interface` \| `Model` \| `ModelProperty` \| `Operation` \| `Scalar` \| `Union` \| `UnionVariant` |
+| `target` | \| `Enum` \| `EnumMember` \| `Interface` \| `Model` \| `ModelProperty` \| `Operation` \| `Scalar` \| `Union` \| `UnionVariant` |
 | `version` | `EnumMember` |
 | `oldName` | `string` |
 
