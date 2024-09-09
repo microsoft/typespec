@@ -14,7 +14,7 @@ alias MyAuth<Scopes extends string[]> = OAuth2Auth<
       type: OAuth2FlowType.implicit;
       authorizationUrl: "https://api.example.com/oauth2/authorize";
       refreshUrl: "https://api.example.com/oauth2/refresh";
-    }
+    },
   ],
   Scopes = Scopes
 >;

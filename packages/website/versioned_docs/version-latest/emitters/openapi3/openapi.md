@@ -268,6 +268,6 @@ model AADToken
       authorizationUrl: "https://api.example.com/oauth2/authorize";
       tokenUrl: "https://api.example.com/oauth2/token";
       scopes: ["https://management.azure.com/read", "https://management.azure.com/write"];
-    }
+    },
   ]>;
 ```
