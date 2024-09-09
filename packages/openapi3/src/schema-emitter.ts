@@ -376,7 +376,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     const schema = this.#applyEncoding(prop, refSchema.value as any);
 
     // Apply decorators on the property to the type's schema
-    const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(prop, {});
+    const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(prop, {}, schema);
     if (prop.defaultValue) {
       additionalProps.default = getDefaultValue(program, prop.defaultValue);
     }
@@ -651,12 +651,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
   }
 
-  #attachXmlObjectForScalar(program: Program, prop: Scalar | Model, emitObject: OpenAPI3Schema) {
+  #attachXmlObjectForScalar(program: Program, prop: Scalar, emitObject: OpenAPI3Schema) {
     const xmlObject: OpenAPI3XmlSchema = {};
-
-    // Resolve XML name
-    const xmlName = resolveEncodedName(program, prop, "application/xml");
-    xmlObject.name = xmlName;
 
     // Get and set XML namespace if present
     const currNs = getNs(program, prop);
@@ -671,7 +667,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
   }
 
-  #attachXmlObjectForModel(program: Program, prop: Scalar | Model, emitObject: OpenAPI3Schema) {
+  #attachXmlObjectForModel(program: Program, prop: Model, emitObject: OpenAPI3Schema) {
     const xmlObject: OpenAPI3XmlSchema = {};
 
     // Resolve XML name
@@ -696,7 +692,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   #attachXmlObjectForModelProperty(
     program: Program,
     prop: ModelProperty,
-    emitObject: OpenAPI3Schema
+    emitObject: OpenAPI3Schema,
+    ref: OpenAPI3Schema
   ) {
     const xmlObject: OpenAPI3XmlSchema = {};
 
@@ -739,6 +736,19 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
       // if wrapped is false, xml.name of the wrapping element is ignored.
       delete xmlObject.name;
+    }
+
+    if (xmlObject.wrapped && prop.type?.kind === "Model" && isArrayModelType(program, prop.type)) {
+      // Resolve XML name
+      const xmlName = resolveEncodedName(
+        program,
+        prop.type.indexer.value as Scalar,
+        "application/xml"
+      );
+      const items = ref.items as OpenAPI3Schema;
+      if (items) {
+        items.xml = { name: xmlName };
+      }
     }
 
     // Attach xml schema to emitObject if not empty
@@ -839,7 +849,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   #applyConstraints(
     type: Scalar | Model | ModelProperty | Union | Enum,
-    original: OpenAPI3Schema
+    original: OpenAPI3Schema,
+    ref: OpenAPI3Schema = {}
   ): ObjectBuilder<OpenAPI3Schema> {
     const schema = new ObjectBuilder(original);
     const program = this.emitter.getProgram();
@@ -896,7 +907,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         this.#attachXmlObjectForModel(program, type, schema);
         break;
       case "ModelProperty":
-        this.#attachXmlObjectForModelProperty(program, type, schema);
+        this.#attachXmlObjectForModelProperty(program, type, schema, ref);
         break;
     }
 
