@@ -133,7 +133,7 @@ describe("@name", () => {
 });
 
 describe("@attribute", () => {
-  it("mark property as being an attribute", async () => {
+  it("set xml.attribute=true", async () => {
     const res = await oapiForModel(
       "Book",
       `model Book {
