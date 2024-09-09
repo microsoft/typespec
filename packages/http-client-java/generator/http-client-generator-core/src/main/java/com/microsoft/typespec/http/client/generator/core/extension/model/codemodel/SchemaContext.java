@@ -36,11 +36,6 @@ public enum SchemaContext {
     PAGED("paged"),
 
     /**
-     * The schema is used as an anonymous type.
-     */
-    ANONYMOUS("anonymous"),
-
-    /**
      * The schema is used internally.
      */
     INTERNAL("internal"),

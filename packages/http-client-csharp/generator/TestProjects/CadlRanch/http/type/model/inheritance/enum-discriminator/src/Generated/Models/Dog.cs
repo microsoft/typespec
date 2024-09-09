@@ -9,7 +9,7 @@ namespace _Type.Model.Inheritance.EnumDiscriminator.Models
 {
     public abstract partial class Dog
     {
-        protected Dog(DogKind kind, int weight) => throw null;
+        private protected Dog(DogKind kind, int weight) => throw null;
 
         internal Dog(DogKind kind, int weight, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
 

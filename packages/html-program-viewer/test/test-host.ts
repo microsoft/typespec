@@ -11,8 +11,5 @@ export async function createViewerTestRunner() {
   const host = await createViewerTestHost();
   return createTestWrapper(host, {
     autoImports: [],
-    compilerOptions: {
-      emitters: { "@typespec/html-program-viewer": {} },
-    },
   });
 }

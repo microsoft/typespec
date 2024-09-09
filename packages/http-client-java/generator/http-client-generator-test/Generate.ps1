@@ -2,9 +2,6 @@
 #
 # The purpose of this script is to compact the steps required to regenerate TypeSpec into a single script.
 #
-# If 'com.azure.autorest.customization' tests fails, re-install 'customization-base'.
-#
-# Before running this script the 'tsp' profile must be built, 'mvn install -P local,tsp'.
 param (
   [int] $Parallelization = [Environment]::ProcessorCount
 )
@@ -126,16 +123,16 @@ Set-Location ./generator/http-client-generator-test
 
 
 if (Test-Path node_modules) {
-    Remove-Item node_modules -Recurse -Force
+  Remove-Item node_modules -Recurse -Force
 }
 
 if (Test-Path package-lock.json) {
-    Remove-Item package-lock.json
+  Remove-Item package-lock.json
 }
 
 # delete output
 if (Test-Path tsp-output) {
-    Remove-Item tsp-output -Recurse -Force
+  Remove-Item tsp-output -Recurse -Force
 }
 npm install 
 

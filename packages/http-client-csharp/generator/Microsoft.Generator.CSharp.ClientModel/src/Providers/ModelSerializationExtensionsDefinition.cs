@@ -408,7 +408,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             cases.Add(
                 BuildWriteObjectValueSwitchCase(new CSharpType(typeof(IJsonModel<>), _t), "jsonModel", jsonModel => new MethodBodyStatement[]
                 {
-                    jsonModel.Invoke(nameof(IJsonModel<object>.Write), writer, NullCoalescing(options, ModelSerializationExtensionsSnippets.Wire)).Terminate(),
+                    jsonModel.Invoke(nameof(IJsonModel<object>.Write), writer, options.NullCoalesce(ModelSerializationExtensionsSnippets.Wire)).Terminate(),
                     Break
                 }));
             cases.AddRange(new[]

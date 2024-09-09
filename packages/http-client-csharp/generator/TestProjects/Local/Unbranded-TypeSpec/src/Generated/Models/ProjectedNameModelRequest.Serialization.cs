@@ -12,7 +12,7 @@ using UnbrandedTypeSpec;
 namespace UnbrandedTypeSpec.Models
 {
     /// <summary></summary>
-    public partial class ProjectedNameModelRequest : IJsonModel<ProjectedNameModelRequest>
+    internal partial class ProjectedNameModelRequest : IJsonModel<ProjectedNameModelRequest>
     {
         internal ProjectedNameModelRequest()
         {

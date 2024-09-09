@@ -20,6 +20,8 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static ValueExpression NullConditional(this ParameterProvider parameter) => new NullConditionalExpression(parameter);
 
+        public static ValueExpression NullCoalesce(this ParameterProvider parameter, ValueExpression value) => parameter.AsExpression.NullCoalesce(value);
+
         public static DictionaryExpression AsDictionary(this FieldProvider field, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), field);
         public static DictionaryExpression AsDictionary(this ParameterProvider parameter, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), parameter);
 
@@ -55,8 +57,6 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static ValueExpression Nameof(ValueExpression expression) => new InvokeMethodExpression(null, "nameof", new[] { expression });
         public static ValueExpression ThrowExpression(ValueExpression expression) => new KeywordExpression("throw", expression);
-
-        public static ValueExpression NullCoalescing(ValueExpression left, ValueExpression right) => new BinaryOperatorExpression("??", left, right);
 
         // TO-DO: Migrate remaining class as part of output classes migration : https://github.com/Azure/autorest.csharp/issues/4198
         //public static ValueExpression EnumValue(EnumType type, EnumTypeValue value) => new MemberExpression(new TypeReference(type.Type), value.Declaration.Name);

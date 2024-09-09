@@ -1,0 +1,30 @@
+if (id == null || pathTemplate == null) {
+    return null;
+}
+String parameterNameParentheses = "{" + parameterName +  "}";
+List<String> idSegmentsReverted = Arrays.asList(id.split("/"));
+List<String> pathSegments = Arrays.asList(pathTemplate.split("/"));
+Collections.reverse(idSegmentsReverted);
+Iterator<String> idItrReverted = idSegmentsReverted.iterator();
+int pathIndex = pathSegments.size();
+while (idItrReverted.hasNext() && pathIndex > 0) {
+    String idSegment = idItrReverted.next();
+    String pathSegment = pathSegments.get(--pathIndex);
+    if (!CoreUtils.isNullOrEmpty(idSegment) && !CoreUtils.isNullOrEmpty(pathSegment)) {
+        if (pathSegment.equalsIgnoreCase(parameterNameParentheses)) {
+            if (pathIndex == 0 || (pathIndex == 1 && pathSegments.get(0).isEmpty())) {
+                List<String> segments = new ArrayList<>();
+                segments.add(idSegment);
+                idItrReverted.forEachRemaining(segments::add);
+                Collections.reverse(segments);
+                if (!segments.isEmpty() && segments.get(0).isEmpty()) {
+                    segments.remove(0);
+                }
+                return String.join("/", segments);
+            } else {
+                return idSegment;
+            }
+        }
+    }
+}
+return null;

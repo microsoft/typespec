@@ -55,6 +55,12 @@ public final class SendLongOptions {
     private Long dataLong;
 
     /*
+     * The requiredUser property.
+     */
+    @Generated
+    private final User requiredUser;
+
+    /*
      * The data_float property.
      */
     @Generated
@@ -90,14 +96,17 @@ public final class SendLongOptions {
      * @param name the name value to set.
      * @param input the input value to set.
      * @param dataInt the dataInt value to set.
+     * @param requiredUser the requiredUser value to set.
      * @param title the title value to set.
      * @param status the status value to set.
      */
     @Generated
-    public SendLongOptions(String name, String input, int dataInt, String title, SendLongRequestStatus status) {
+    public SendLongOptions(String name, String input, int dataInt, User requiredUser, String title,
+        SendLongRequestStatus status) {
         this.name = name;
         this.input = input;
         this.dataInt = dataInt;
+        this.requiredUser = requiredUser;
         this.title = title;
         this.status = status;
     }
@@ -218,6 +227,16 @@ public final class SendLongOptions {
     public SendLongOptions setDataLong(Long dataLong) {
         this.dataLong = dataLong;
         return this;
+    }
+
+    /**
+     * Get the requiredUser property: The requiredUser property.
+     * 
+     * @return the requiredUser value.
+     */
+    @Generated
+    public User getRequiredUser() {
+        return this.requiredUser;
     }
 
     /**

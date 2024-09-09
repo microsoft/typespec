@@ -45,7 +45,6 @@ public class Main {
   private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
   private static final String DEFAULT_OUTPUT_DIR = "http-client-generator-test/tsp-output/";
 
-
   private static Yaml yaml = null;
 
   // java -jar target/azure-typespec-extension-jar-with-dependencies.jar
@@ -87,6 +86,8 @@ public class Main {
     } else {
       handleDPG(codeModel, emitterOptions, sdkIntegration, outputDir);
     }
+    // ensure the process exits as expected
+    System.exit(0);
   }
 
   private static void handleFluent(CodeModel codeModel, EmitterOptions emitterOptions, boolean sdkIntegration) {
@@ -180,7 +181,6 @@ public class Main {
       typeSpecPlugin.writeFile("src/main/resources/META-INF/" + artifactId + "_apiview_properties.json",
         sb.toString(), null);
     }
-    System.exit(0);
   }
 
   private static EmitterOptions loadEmitterOptions(CodeModel codeModel) {

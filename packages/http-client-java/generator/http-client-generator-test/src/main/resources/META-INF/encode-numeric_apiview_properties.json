@@ -1,0 +1,23 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.encode.numeric.NumericAsyncClient": "null",
+    "com.encode.numeric.NumericAsyncClient.safeintAsString": "Encode.Numeric.Property.safeintAsString",
+    "com.encode.numeric.NumericAsyncClient.safeintAsStringWithResponse": "Encode.Numeric.Property.safeintAsString",
+    "com.encode.numeric.NumericAsyncClient.uint32AsStringOptional": "Encode.Numeric.Property.uint32AsStringOptional",
+    "com.encode.numeric.NumericAsyncClient.uint32AsStringOptionalWithResponse": "Encode.Numeric.Property.uint32AsStringOptional",
+    "com.encode.numeric.NumericAsyncClient.uint8AsString": "Encode.Numeric.Property.uint8AsString",
+    "com.encode.numeric.NumericAsyncClient.uint8AsStringWithResponse": "Encode.Numeric.Property.uint8AsString",
+    "com.encode.numeric.NumericClient": "null",
+    "com.encode.numeric.NumericClient.safeintAsString": "Encode.Numeric.Property.safeintAsString",
+    "com.encode.numeric.NumericClient.safeintAsStringWithResponse": "Encode.Numeric.Property.safeintAsString",
+    "com.encode.numeric.NumericClient.uint32AsStringOptional": "Encode.Numeric.Property.uint32AsStringOptional",
+    "com.encode.numeric.NumericClient.uint32AsStringOptionalWithResponse": "Encode.Numeric.Property.uint32AsStringOptional",
+    "com.encode.numeric.NumericClient.uint8AsString": "Encode.Numeric.Property.uint8AsString",
+    "com.encode.numeric.NumericClient.uint8AsStringWithResponse": "Encode.Numeric.Property.uint8AsString",
+    "com.encode.numeric.NumericClientBuilder": "Encode.Numeric",
+    "com.encode.numeric.models.SafeintAsStringProperty": "Encode.Numeric.Property.SafeintAsStringProperty",
+    "com.encode.numeric.models.Uint32AsStringProperty": "Encode.Numeric.Property.Uint32AsStringProperty",
+    "com.encode.numeric.models.Uint8AsStringProperty": "Encode.Numeric.Property.Uint8AsStringProperty"
+  }
+}

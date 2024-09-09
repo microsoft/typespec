@@ -17,7 +17,7 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import com.parameters.spread.implementation.ModelsImpl;
-import com.parameters.spread.implementation.models.SpreadAsRequestBodyRequest;
+import com.parameters.spread.implementation.models.SpreadAsRequestBodyRequest1;
 import com.parameters.spread.implementation.models.SpreadCompositeRequestMixRequest;
 import com.parameters.spread.models.BodyParameter;
 import reactor.core.publisher.Mono;
@@ -181,7 +181,7 @@ public final class ModelAsyncClient {
     public Mono<Void> spreadAsRequestBody(String name) {
         // Generated convenience method for spreadAsRequestBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SpreadAsRequestBodyRequest spreadAsRequestBodyRequest1Obj = new SpreadAsRequestBodyRequest(name);
+        SpreadAsRequestBodyRequest1 spreadAsRequestBodyRequest1Obj = new SpreadAsRequestBodyRequest1(name);
         BinaryData spreadAsRequestBodyRequest1 = BinaryData.fromObject(spreadAsRequestBodyRequest1Obj);
         return spreadAsRequestBodyWithResponse(spreadAsRequestBodyRequest1, requestOptions).flatMap(FluxUtil::toMono);
     }

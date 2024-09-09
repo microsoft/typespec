@@ -11,16 +11,23 @@ import com.azure.core.http.HttpPipeline;
 import com.azure.core.http.HttpResponse;
 import com.azure.core.http.rest.Response;
 import com.azure.core.management.AzureEnvironment;
+import com.azure.core.management.exception.ManagementError;
+import com.azure.core.management.exception.ManagementException;
 import com.azure.core.management.polling.PollerFactory;
 import com.azure.core.management.polling.PollResult;
 import com.azure.core.util.Context;
 import com.azure.core.util.CoreUtils;
+import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.polling.AsyncPollResponse;
+import com.azure.core.util.polling.LongRunningOperationStatus;
 import com.azure.core.util.polling.PollerFlux;
 import com.azure.core.util.serializer.SerializerAdapter;
+import com.azure.core.util.serializer.SerializerEncoding;
 import com.azure.resourcemanager.models.resources.fluent.NestedProxyResourcesClient;
 import com.azure.resourcemanager.models.resources.fluent.ResourcesClient;
+import com.azure.resourcemanager.models.resources.fluent.SingletonTrackedResourcesClient;
 import com.azure.resourcemanager.models.resources.fluent.TopLevelTrackedResourcesClient;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -147,6 +154,20 @@ public final class ResourcesClientImpl implements ResourcesClient {
     }
 
     /**
+     * The SingletonTrackedResourcesClient object to access its operations.
+     */
+    private final SingletonTrackedResourcesClient singletonTrackedResources;
+
+    /**
+     * Gets the SingletonTrackedResourcesClient object to access its operations.
+     * 
+     * @return the SingletonTrackedResourcesClient object.
+     */
+    public SingletonTrackedResourcesClient getSingletonTrackedResources() {
+        return this.singletonTrackedResources;
+    }
+
+    /**
      * Initializes an instance of ResourcesClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
@@ -166,6 +187,7 @@ public final class ResourcesClientImpl implements ResourcesClient {
         this.apiVersion = "2023-12-01-preview";
         this.topLevelTrackedResources = new TopLevelTrackedResourcesClientImpl(this);
         this.nestedProxyResources = new NestedProxyResourcesClientImpl(this);
+        this.singletonTrackedResources = new SingletonTrackedResourcesClientImpl(this);
     }
 
     /**
@@ -214,6 +236,41 @@ public final class ResourcesClientImpl implements ResourcesClient {
      * @return the final result, or an error.
      */
     public <T, U> Mono<U> getLroFinalResultOrError(AsyncPollResponse<PollResult<T>, U> response) {
+        if (response.getStatus() != LongRunningOperationStatus.SUCCESSFULLY_COMPLETED) {
+            String errorMessage;
+            ManagementError managementError = null;
+            HttpResponse errorResponse = null;
+            PollResult.Error lroError = response.getValue().getError();
+            if (lroError != null) {
+                errorResponse = new HttpResponseImpl(lroError.getResponseStatusCode(), lroError.getResponseHeaders(),
+                    lroError.getResponseBody());
+
+                errorMessage = response.getValue().getError().getMessage();
+                String errorBody = response.getValue().getError().getResponseBody();
+                if (errorBody != null) {
+                    // try to deserialize error body to ManagementError
+                    try {
+                        managementError = this.getSerializerAdapter()
+                            .deserialize(errorBody, ManagementError.class, SerializerEncoding.JSON);
+                        if (managementError.getCode() == null || managementError.getMessage() == null) {
+                            managementError = null;
+                        }
+                    } catch (IOException | RuntimeException ioe) {
+                        LOGGER.logThrowableAsWarning(ioe);
+                    }
+                }
+            } else {
+                // fallback to default error message
+                errorMessage = "Long running operation failed.";
+            }
+            if (managementError == null) {
+                // fallback to default ManagementError
+                managementError = new ManagementError(response.getStatus().toString(), errorMessage);
+            }
+            return Mono.error(new ManagementException(errorMessage, errorResponse, managementError));
+        } else {
+            return response.getFinalResult();
+        }
     }
 
     private static final class HttpResponseImpl extends HttpResponse {
@@ -258,4 +315,6 @@ public final class ResourcesClientImpl implements ResourcesClient {
             return Mono.just(new String(responseBody, charset));
         }
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(ResourcesClientImpl.class);
 }
