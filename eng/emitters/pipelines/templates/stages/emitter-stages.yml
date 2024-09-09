@@ -72,6 +72,11 @@ parameters:
     type: string
     default: ""
 
+  - name: Variables
+    type: object
+    default: []
+
+
 stages:
   # Build stage
   # Responsible for building the autorest generator and typespec emitter packages
@@ -85,7 +90,17 @@ stages:
     condition: and(succeeded(), ${{ parameters.Condition }})
     dependsOn: ${{ parameters.DependsOn }}
     variables:
-      selfRepositoryPath: $(Build.SourcesDirectory)
+      - ${{ each variable in parameters.Variables }}:
+          - ${{ if variable.key }}:
+              # turn objects into name/value lists
+              - name: ${{ variable.key }}
+                value: ${{ variable.value }}
+          - ${{ else }}:
+              # preserve all other variables
+              - ${{ variable }}
+      - name: selfRepositoryPath
+        value: $(Build.SourcesDirectory)
+
     jobs:
       - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
         parameters:
@@ -155,8 +170,19 @@ stages:
           - ${{ parameters.DependsOn }}
           - ${{ parameters.StagePrefix }}_Build
         variables:
-          selfRepositoryPath: $(Build.SourcesDirectory)
-          buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts_${{ parameters.LanguageShortName }}
+          - ${{ each variable in parameters.Variables }}:
+              - ${{ if variable.key }}:
+                  # turn objects into name/value lists
+                  - name: ${{ variable.key }}
+                    value: ${{ variable.value }}
+              - ${{ else }}:
+                  # preserve all other variables
+                  - ${{ variable }}
+          - name: selfRepositoryPath
+            value: $(Build.SourcesDirectory)
+            
+          - name: buildArtifactsPath
+            value: $(Pipeline.Workspace)/build_artifacts_${{ parameters.LanguageShortName }}
         jobs:
           - ${{ if parameters.UnitTestArgs }}:
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
@@ -209,8 +235,19 @@ stages:
           - ${{ parameters.DependsOn }}
           - ${{ parameters.StagePrefix }}_Build
         variables:
-          selfRepositoryPath: $(Build.SourcesDirectory)
-          buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts_${{ parameters.LanguageShortName }}
+          - ${{ each variable in parameters.Variables }}:
+              - ${{ if variable.key }}:
+                  # turn objects into name/value lists
+                  - name: ${{ variable.key }}
+                    value: ${{ variable.value }}
+              - ${{ else }}:
+                  # preserve all other variables
+                  - ${{ variable }}
+          - name: selfRepositoryPath
+            value: $(Build.SourcesDirectory)
+            
+          - name: buildArtifactsPath
+            value: $(Pipeline.Workspace)/build_artifacts_${{ parameters.LanguageShortName }}
         jobs:
           - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
             parameters:
@@ -246,8 +283,20 @@ stages:
               - ${{ if ne(length(parameters.TestMatrix), 0) }}:
                   - ${{ parameters.StagePrefix }}_Regen_Test
         variables:
-          toolsRepositoryPath: $(Build.SourcesDirectory)
-          buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts_${{ parameters.LanguageShortName }}
+          - ${{ each variable in parameters.Variables }}:
+              - ${{ if variable.key }}:
+                  # turn objects into name/value lists
+                  - name: ${{ variable.key }}
+                    value: ${{ variable.value }}
+              - ${{ else }}:
+                  # preserve all other variables
+                  - ${{ variable }}
+          - name: toolsRepositoryPath
+            value: $(Build.SourcesDirectory)
+            
+          - name: buildArtifactsPath
+            value: $(Pipeline.Workspace)/build_artifacts_${{ parameters.LanguageShortName }}          
+        
         pool:
           name: $(LINUXPOOL)
           image: $(LINUXVMIMAGE)

@@ -6,12 +6,12 @@ parameters:
     type: object
     default: []
 
-variables:
-  - template: /packages/http-client-java/eng/pipeline/variables/globals.yml
-
 stages:
   - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
+
     parameters:
+      variables:
+        - template: /packages/http-client-java/eng/pipeline/variables/globals.yml
       StagePrefix: Java
       BuildPrereleaseVersion: true
       UseTypeSpecNext: false
@@ -29,3 +29,10 @@ stages:
       Condition: ${{ parameters.Condition }}
       DependsOn: ${{ parameters.DependsOn }}
       LanguageShortName: "java"
+      AdditionalInitializeSteps: 
+        - task: Cache@2
+            inputs:
+              key: 'maven | "$(CacheSalt)" | "$(Agent.OS)" | "${{ parameters.LanguageShortName }}"'
+              path: $(MAVEN_CACHE_FOLDER)
+            displayName: Cache Maven local repo
+
