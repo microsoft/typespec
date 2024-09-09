@@ -99,9 +99,6 @@ describe("@name", () => {
 
     expect(res.schemas.Book).toMatchObject({
       type: "string",
-      xml: {
-        name: "xmlBook",
-      },
     });
   });
 
@@ -388,9 +385,6 @@ describe("Array of primitive types", () => {
 
     expect(res.schemas.tag).toMatchObject({
       type: "string",
-      xml: {
-        name: "ItemsName",
-      },
     });
 
     expect(res.schemas.Book).toMatchObject({
@@ -426,9 +420,6 @@ describe("Array of primitive types", () => {
 
     expect(res.schemas.tag).toMatchObject({
       type: "string",
-      xml: {
-        name: "ItemsName",
-      },
     });
 
     expect(res.schemas.Book).toMatchObject({
@@ -442,6 +433,9 @@ describe("Array of primitive types", () => {
           },
           items: {
             $ref: "#/components/schemas/tag",
+            xml: {
+              name: "ItemsName",
+            },
           },
         },
       },
