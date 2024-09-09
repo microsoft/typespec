@@ -231,27 +231,6 @@ namespace Microsoft.Generator.CSharp.Providers
             return [.. properties];
         }
 
-        private bool HasCustomProperty(PropertyProvider property)
-        {
-            if (CustomCodeView == null)
-                return false;
-
-            var customPropertyNames = new HashSet<string>();
-            foreach (var customProperty in CustomCodeView.Properties)
-            {
-                customPropertyNames.Add(customProperty.Name);
-                foreach (var attribute in customProperty.Attributes ?? [])
-                {
-                    if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var name))
-                    {
-                        customPropertyNames.Add(name);
-                    }
-                }
-            }
-
-            return customPropertyNames.Contains(property.Name);
-        }
-
         private static bool DomainEqual(InputModelProperty baseProperty, InputModelProperty derivedProperty)
         {
             if (baseProperty.IsRequired != derivedProperty.IsRequired)
