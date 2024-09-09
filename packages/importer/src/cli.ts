@@ -1,6 +1,5 @@
 import {
-  compile,
-  getLocationContext,
+  createSourceLoader,
   logDiagnostics,
   NodeHost,
   normalizePath,
@@ -31,18 +30,19 @@ const entrypoint =
     ? rawEntrypoint
     : normalizePath(resolve(rawEntrypoint));
 
-const program = await compile(ImporterHost, entrypoint);
+const loader = await createSourceLoader(ImporterHost);
+await loader.importFile(entrypoint);
 
-if (program.hasError()) {
-  logDiagnostics(program.diagnostics, NodeHost.logSink);
+if (loader.resolution.diagnostics.length > 0) {
+  logDiagnostics(loader.resolution.diagnostics, NodeHost.logSink);
   process.exit(1);
 }
 
 const errors = [];
 const libraries = new Set<string>();
 
-for (const [name, file] of program.jsSourceFiles) {
-  const locContext = getLocationContext(program, file);
+for (const [name, file] of loader.resolution.jsSourceFiles) {
+  const locContext = loader.resolution.locationContexts.get(file.file)!;
   switch (locContext.type) {
     case "project":
       errors.push(`Importer doesn't support JS files in project: ${name}`);
@@ -56,8 +56,8 @@ for (const [name, file] of program.jsSourceFiles) {
 }
 
 const sourceFiles: TypeSpecScriptNode[] = [];
-for (const file of program.sourceFiles.values()) {
-  const locContext = getLocationContext(program, file);
+for (const file of loader.resolution.sourceFiles.values()) {
+  const locContext = loader.resolution.locationContexts.get(file.file)!;
   switch (locContext.type) {
     case "project":
       sourceFiles.push(file);

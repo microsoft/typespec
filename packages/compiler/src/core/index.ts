@@ -53,5 +53,6 @@ export { isProjectedProgram } from "./projected-program.js";
 export * from "./scanner.js";
 export * from "./semantic-walker.js";
 export { createSourceFile, getSourceFileKindFromExt } from "./source-file.js";
+export { createSourceLoader } from "./source-loader.js";
 export * from "./type-utils.js";
 export * from "./types.js";
