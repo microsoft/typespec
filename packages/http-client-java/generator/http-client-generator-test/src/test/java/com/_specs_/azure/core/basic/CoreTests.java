@@ -121,7 +121,7 @@ public class CoreTests {
         UserList userList = syncClient.exportAllUsers("json");
         Assertions.assertEquals(2, userList.getUsers().size());
         Assertions.assertEquals("Madge", userList.getUsers().get(0).getName());
-      Assertions.assertEquals("John", userList.getUsers().get(1).getName());
+        Assertions.assertEquals("John", userList.getUsers().get(1).getName());
     }
 
     @Test
