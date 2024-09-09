@@ -23,19 +23,21 @@ namespace Microsoft.Generator.CSharp.Input
         public override void Write(Utf8JsonWriter writer, InputEnumTypeValue value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        public static InputEnumTypeValue CreateEnumTypeValue(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
+        private static InputEnumTypeValue CreateEnumTypeValue(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             var isFirstProperty = id == null;
-            object? value = null;
+            JsonElement? rawValue = null;
+            InputPrimitiveType? valueType = null;
             string? description = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadString(nameof(InputEnumTypeValue.Name), ref name)
-                    || reader.TryReadEnumValue(nameof(InputEnumTypeValue.Value), ref value)
-                    || reader.TryReadString(nameof(InputEnumTypeValue.Description), ref description)
-                    || reader.TryReadWithConverter(nameof(InputEnumTypeValue.Decorators), options, ref decorators);
+                    || reader.TryReadString("name", ref name)
+                    || reader.TryReadWithConverter("value", options, ref rawValue)
+                    || reader.TryReadWithConverter("valueType", options, ref valueType)
+                    || reader.TryReadString("description", ref description)
+                    || reader.TryReadWithConverter("decorators", options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -45,9 +47,17 @@ namespace Microsoft.Generator.CSharp.Input
 
             name = name ?? throw new JsonException("EnumValue must have name");
 
-            value = value ?? throw new JsonException("EnumValue must have value");
+            rawValue = rawValue ?? throw new JsonException("EnumValue must have value");
 
-            var enumValue = new InputEnumTypeValue(name, value, description) { Decorators = decorators ?? [] };
+            valueType = valueType ?? throw new JsonException("EnumValue must have valueType");
+
+            InputEnumTypeValue enumValue = valueType.Kind switch
+            {
+                InputPrimitiveTypeKind.String => new InputEnumTypeStringValue(name, rawValue.Value.GetString() ?? throw new JsonException(), valueType, description) { Decorators = decorators ?? [] },
+                InputPrimitiveTypeKind.Int32 => new InputEnumTypeIntegerValue(name, rawValue.Value.GetInt32(), valueType, description) { Decorators = decorators ?? [] },
+                InputPrimitiveTypeKind.Float32 => new InputEnumTypeFloatValue(name, rawValue.Value.GetSingle(), valueType, description) { Decorators = decorators ?? [] },
+                _ => throw new JsonException()
+            };
             if (id != null)
             {
                 resolver.AddReference(id, enumValue);

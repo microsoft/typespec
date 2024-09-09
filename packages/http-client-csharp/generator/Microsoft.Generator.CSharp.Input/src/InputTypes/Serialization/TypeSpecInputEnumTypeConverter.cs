@@ -32,23 +32,23 @@ namespace Microsoft.Generator.CSharp.Input
             string? description = null;
             InputModelTypeUsage usage = InputModelTypeUsage.None;
             string? usageString = null;
-            bool isExtendable = false;
+            bool isFixed = false;
             InputType? valueType = null;
             IReadOnlyList<InputEnumTypeValue>? values = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadString(nameof(InputEnumType.Name), ref name)
-                    || reader.TryReadString(nameof(InputEnumType.CrossLanguageDefinitionId), ref crossLanguageDefinitionId)
-                    || reader.TryReadString(nameof(InputEnumType.Accessibility), ref accessibility)
-                    || reader.TryReadString(nameof(InputEnumType.Deprecated), ref deprecated)
-                    || reader.TryReadString(nameof(InputEnumType.Description), ref description)
-                    || reader.TryReadString(nameof(InputEnumType.Usage), ref usageString)
-                    || reader.TryReadBoolean(nameof(InputEnumType.IsExtensible), ref isExtendable)
-                    || reader.TryReadWithConverter(nameof(InputEnumType.ValueType), options, ref valueType)
-                    || reader.TryReadWithConverter(nameof(InputEnumType.Values), options, ref values)
-                    || reader.TryReadWithConverter(nameof(InputEnumType.Decorators), options, ref decorators);
+                    || reader.TryReadString("name", ref name)
+                    || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
+                    || reader.TryReadString("access", ref accessibility)
+                    || reader.TryReadString("deprecation", ref deprecated)
+                    || reader.TryReadString("description", ref description)
+                    || reader.TryReadString("usage", ref usageString)
+                    || reader.TryReadBoolean("isFixed", ref isFixed)
+                    || reader.TryReadWithConverter("valueType", options, ref valueType)
+                    || reader.TryReadWithConverter("values", options, ref values)
+                    || reader.TryReadWithConverter("decorators", options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -78,7 +78,7 @@ namespace Microsoft.Generator.CSharp.Input
                 throw new JsonException("The ValueType of an EnumType must be a primitive type.");
             }
 
-            var enumType = new InputEnumType(name, crossLanguageDefinitionId ?? string.Empty, accessibility, deprecated, description!, usage, inputValueType, NormalizeValues(values, inputValueType), isExtendable)
+            var enumType = new InputEnumType(name, crossLanguageDefinitionId ?? string.Empty, accessibility, deprecated, description!, usage, inputValueType, values, !isFixed)
             {
                 Decorators = decorators ?? []
             };
@@ -87,55 +87,6 @@ namespace Microsoft.Generator.CSharp.Input
                 resolver.AddReference(id, enumType);
             }
             return enumType;
-        }
-
-        private static IReadOnlyList<InputEnumTypeValue> NormalizeValues(IReadOnlyList<InputEnumTypeValue> allowedValues, InputPrimitiveType valueType)
-        {
-            var concreteValues = new List<InputEnumTypeValue>(allowedValues.Count);
-
-            switch (valueType.Kind)
-            {
-                case InputPrimitiveTypeKind.String:
-                    foreach (var value in allowedValues)
-                    {
-                        if (value.Value is not string s)
-                        {
-                            throw new JsonException($"Enum value types are not consistent");
-                        }
-                        concreteValues.Add(new InputEnumTypeStringValue(value.Name, s, value.Description));
-                    }
-                    break;
-                case InputPrimitiveTypeKind.Int32:
-                    foreach (var value in allowedValues)
-                    {
-                        if (value.Value is not int i)
-                        {
-                            throw new JsonException($"Enum value types are not consistent");
-                        }
-                        concreteValues.Add(new InputEnumTypeIntegerValue(value.Name, i, value.Description));
-                    }
-                    break;
-                case InputPrimitiveTypeKind.Float32:
-                    foreach (var value in allowedValues)
-                    {
-                        switch (value.Value)
-                        {
-                            case int i:
-                                concreteValues.Add(new InputEnumTypeFloatValue(value.Name, (float)i, value.Description));
-                                break;
-                            case float f:
-                                concreteValues.Add(new InputEnumTypeFloatValue(value.Name, f, value.Description));
-                                break;
-                            default:
-                                throw new JsonException($"Enum value types are not consistent");
-                        }
-                    }
-                    break;
-                default:
-                    throw new JsonException($"Unsupported enum value type: {valueType.Kind}");
-            }
-
-            return concreteValues;
         }
     }
 }

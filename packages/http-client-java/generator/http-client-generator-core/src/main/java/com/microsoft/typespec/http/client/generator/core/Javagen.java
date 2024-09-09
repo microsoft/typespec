@@ -11,6 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlu
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.mapper.PomMapper;
+import com.microsoft.typespec.http.client.generator.core.mapper.android.AndroidMapperFactory;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientBuilder;
@@ -36,6 +37,8 @@ import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Text
 import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlFile;
 import com.microsoft.typespec.http.client.generator.core.postprocessor.Postprocessor;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
+import com.microsoft.typespec.http.client.generator.core.template.Templates;
+import com.microsoft.typespec.http.client.generator.core.template.android.AndroidTemplateFactory;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import com.azure.core.util.CoreUtils;
@@ -73,7 +76,10 @@ public class Javagen extends NewPlugin {
         this.clear();
 
         JavaSettings settings = JavaSettings.getInstance();
+        return settings.isAndroid() ? generateAndroid(settings) : generateJava(settings);
+    }
 
+    private boolean generateJava(JavaSettings settings) {
         try {
             // Step 1: Parse input yaml as CodeModel
             CodeModel codeModel = new Preprocessor(this, connection, pluginName, sessionId)
@@ -102,6 +108,100 @@ public class Javagen extends NewPlugin {
             if (!CoreUtils.isNullOrEmpty(artifactId)) {
                 writeFile("src/main/resources/" + artifactId + ".properties",
                     "name=${project.artifactId}\nversion=${project.version}\n", null);
+            }
+        } catch (Exception ex) {
+            logger.error("Failed to generate code.", ex);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean generateAndroid(JavaSettings settings) {
+        try {
+            // Step 1: Parse input yaml as CodeModel
+            CodeModel codeModel = new Preprocessor(this, connection, pluginName, sessionId)
+                    .processCodeModel();
+
+            // Step 2: Map
+            Mappers.setFactory(new AndroidMapperFactory());
+            Client client = Mappers.getClientMapper().map(codeModel);
+
+            // Step 3: Write to templates
+            Templates.setFactory(new AndroidTemplateFactory());
+            JavaPackage javaPackage = new JavaPackage(this);
+            // Service client
+            javaPackage
+                    .addServiceClient(client.getServiceClient().getPackage(), client.getServiceClient().getClassName(),
+                            client.getServiceClient());
+
+            if (JavaSettings.getInstance().isGenerateClientInterfaces()) {
+                javaPackage
+                        .addServiceClientInterface(client.getServiceClient().getInterfaceName(), client.getServiceClient());
+            }
+
+            // Async/sync service clients
+            for (AsyncSyncClient asyncClient : client.getAsyncClients()) {
+                javaPackage.addAsyncServiceClient(asyncClient.getPackageName(), asyncClient);
+            }
+
+            for (AsyncSyncClient syncClient : client.getSyncClients()) {
+                javaPackage.addSyncServiceClient(syncClient.getPackageName(), syncClient);
+            }
+
+            // Service client builder
+            for (ClientBuilder clientBuilder : client.getClientBuilders()) {
+                javaPackage.addServiceClientBuilder(clientBuilder);
+            }
+
+            // Method group
+            for (MethodGroupClient methodGroupClient : client.getServiceClient().getMethodGroupClients()) {
+                javaPackage.addMethodGroup(methodGroupClient.getPackage(), methodGroupClient.getClassName(),
+                        methodGroupClient);
+                if (JavaSettings.getInstance().isGenerateClientInterfaces()) {
+                    javaPackage.addMethodGroupInterface(methodGroupClient.getInterfaceName(), methodGroupClient);
+                }
+            }
+
+            // Response
+            for (ClientResponse response : client.getResponseModels()) {
+                javaPackage.addClientResponse(response.getPackage(), response.getName(), response);
+            }
+
+            // Client model
+            for (ClientModel model : client.getModels()) {
+                javaPackage.addModel(model.getPackage(), model.getName(), model);
+            }
+
+            // Enum
+            for (EnumType enumType : client.getEnums()) {
+                javaPackage.addEnum(enumType.getPackage(), enumType.getName(), enumType);
+            }
+
+            // Exception
+            for (ClientException exception : client.getExceptions()) {
+                javaPackage.addException(exception.getPackage(), exception.getName(), exception);
+            }
+
+            // XML sequence wrapper
+            for (XmlSequenceWrapper xmlSequenceWrapper : client.getXmlSequenceWrappers()) {
+                javaPackage.addXmlSequenceWrapper(xmlSequenceWrapper.getPackage(),
+                        xmlSequenceWrapper.getWrapperClassName(), xmlSequenceWrapper);
+            }
+
+            // Package-info
+            for (PackageInfo packageInfo : client.getPackageInfos()) {
+                javaPackage.addPackageInfo(packageInfo.getPackage(), "package-info", packageInfo);
+            }
+
+            // TODO: POM, Manager
+            //Step 4: Print to files
+            new Postprocessor(this).postProcess(javaPackage.getJavaFiles().stream()
+                    .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())));
+
+            String artifactId = JavaSettings.getInstance().getArtifactId();
+            if (!(artifactId == null || artifactId.isEmpty())) {
+                writeFile("src/main/resources/" + artifactId + ".properties",
+                        "name=${project.artifactId}\nversion=${project.version}\n", null);
             }
         } catch (Exception ex) {
             logger.error("Failed to generate code.", ex);
@@ -199,7 +299,7 @@ public class Javagen extends NewPlugin {
                     if (CoreUtils.isNullOrEmpty(serviceClients)) {
                         serviceClients = Collections.singletonList(client.getServiceClient());
                     }
-                    TestContext testContext = new TestContext(serviceClients, client.getSyncClients());
+                    TestContext<Void> testContext = new TestContext<>(serviceClients, client.getSyncClients());
 
                     // base test class
                     javaPackage.addProtocolTestBase(testContext);
