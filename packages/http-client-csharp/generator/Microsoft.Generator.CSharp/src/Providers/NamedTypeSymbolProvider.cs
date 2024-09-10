@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
                     var fieldProvider = new FieldProvider(
                     modifiers,
-                    GetCSharpType(fieldSymbol.Type) ?? throw new InvalidOperationException("Field type cannot be null"),
+                    GetCSharpType(fieldSymbol.Type),
                     fieldSymbol.Name,
                     this,
                     GetSymbolXmlDoc(fieldSymbol, "summary"));
@@ -61,7 +61,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 var propertyProvider = new PropertyProvider(
                     GetSymbolXmlDoc(propertySymbol, "summary"),
                     GetAccessModifier(propertySymbol.DeclaredAccessibility),
-                    GetCSharpType(propertySymbol.Type) ?? throw new InvalidOperationException("Property type cannot be null"),
+                    GetCSharpType(propertySymbol.Type),
                     propertySymbol.Name,
                     new AutoPropertyBody(propertySymbol.SetMethod is not null),
                     this)
