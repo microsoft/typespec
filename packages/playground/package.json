@@ -85,6 +85,7 @@
     "@typespec/protobuf": "workspace:~",
     "@typespec/rest": "workspace:~",
     "@typespec/versioning": "workspace:~",
+    "@typespec/xml": "workspace:~",
     "clsx": "^2.1.1",
     "debounce": "~2.1.0",
     "lzutf8": "0.6.3",

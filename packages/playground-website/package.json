@@ -65,6 +65,7 @@
     "@typespec/protobuf": "workspace:~",
     "@typespec/rest": "workspace:~",
     "@typespec/versioning": "workspace:~",
+    "@typespec/xml": "workspace:~",
     "es-module-shims": "~1.10.0",
     "react": "~18.3.1",
     "react-dom": "~18.3.1"
