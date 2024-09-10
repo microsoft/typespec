@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Xml;
 using Microsoft.Generator.CSharp.Primitives;
@@ -19,6 +20,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
             var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
             var ex = Assert.Throws<InvalidOperationException>(() => _ = namedTypeSymbolProvider.Properties);
             Assert.IsInstanceOf<XmlException>(ex!.InnerException);
+            StringAssert.Contains(
+                $"The malformed XML documentation is located in one or more of the following files: .{Path.DirectorySeparatorChar}InvalidDocsModel.cs",
+                ex.Message);
         }
 
         [Test]

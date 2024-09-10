@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -29,7 +30,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
         {
             var writer = new TypeProviderWriter(provider);
             var file = writer.Write();
-            return CSharpSyntaxTree.ParseText(file.Content);
+            return CSharpSyntaxTree.ParseText(file.Content, path: Path.Join(provider.RelativeFilePath, provider.Name + ".cs"));
         }
 
         internal static INamedTypeSymbol? GetSymbol(INamespaceSymbol namespaceSymbol, string name)
