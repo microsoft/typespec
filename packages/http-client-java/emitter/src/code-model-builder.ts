@@ -289,7 +289,7 @@ export class CodeModelBuilder {
           },
           language: {
             default: {
-              serializedName: arg.name,
+              serializedName: arg.serializedName,
             },
           },
           // TODO: deprecate this logic of string/url for x-ms-skip-url-encoding
