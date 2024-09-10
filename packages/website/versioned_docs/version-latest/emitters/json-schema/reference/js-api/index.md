@@ -21,7 +21,6 @@ title: "[P] JS API"
 - [$flags](variables/$flags.md)
 - [$lib](variables/$lib.md)
 - [EmitterOptionsSchema](variables/EmitterOptionsSchema.md)
-- [namespace](variables/namespace.md)
 
 ## Functions
 

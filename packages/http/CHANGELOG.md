@@ -1,5 +1,16 @@
 # Change Log - @typespec/http
 
+## 0.60.0
+
+### Bug Fixes
+
+- [#4322](https://github.com/microsoft/typespec/pull/4322) Use user provided description of model if model has a status code property(detect it as an response envelope)
+
+### Features
+
+- [#4139](https://github.com/microsoft/typespec/pull/4139) Internals: Migrate to new api for declaring decorator implementation
+
+
 ## 0.59.1
 
 ### Bug Fixes
