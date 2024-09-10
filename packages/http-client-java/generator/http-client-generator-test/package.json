@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "clean": "rimraf ./node_modules/@typespec/http-client-java ./package-lock.json",
     "format": "npm run -s prettier -- --write",
     "check-format": "npm run prettier -- --check",
     "prettier": "prettier --config ./.prettierrc.yaml **/*.tsp",
