@@ -16,12 +16,16 @@ import {
   Tooltip,
 } from "@fluentui/react-components";
 import { ArrowUploadFilled } from "@fluentui/react-icons";
-import { formatDiagnostic } from "@typespec/compiler";
 import { combineProjectIntoFile, createRemoteHost } from "@typespec/importer";
-import { Editor, useMonacoModel, usePlaygroundContext } from "@typespec/playground/react";
-import { useState } from "react";
+import {
+  DiagnosticList,
+  Editor,
+  useMonacoModel,
+  usePlaygroundContext,
+} from "@typespec/playground/react";
+import { ReactNode, useState } from "react";
 import { parse } from "yaml";
-import style from "./import-openapi3.module.css";
+import style from "./import.module.css";
 
 export const ImportToolbarButton = () => {
   const [open, setOpen] = useState<"openapi3" | "tsp" | undefined>();
@@ -96,7 +100,7 @@ const ImportOpenAPI3 = ({ onImport }: { onImport: () => void }) => {
 };
 
 const ImportTsp = ({ onImport }: { onImport: () => void }) => {
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ReactNode | null>(null);
   const [value, setValue] = useState("");
   const context = usePlaygroundContext();
 
@@ -104,7 +108,7 @@ const ImportTsp = ({ onImport }: { onImport: () => void }) => {
     const content = value;
     const result = await combineProjectIntoFile(createRemoteHost(), content);
     if (result.diagnostics.length > 0) {
-      setError(result.diagnostics.map(formatDiagnostic).join("\n"));
+      setError(<DiagnosticList diagnostics={result.diagnostics} />);
       return;
     } else if (result.content) {
       context.setContent(result.content);
@@ -118,7 +122,11 @@ const ImportTsp = ({ onImport }: { onImport: () => void }) => {
       <div>
         <Label>Url to import</Label>
       </div>
-      <Input value={value} onChange={(_, data) => setValue(data.value)} />
+      <Input
+        value={value}
+        onChange={(_, data) => setValue(data.value)}
+        className={style["url-input"]}
+      />
       {error && <div className={style["error"]}>{error}</div>}
       <div>
         <Button appearance="primary" className="import-btn" onClick={importSpec}>
