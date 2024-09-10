@@ -861,9 +861,6 @@ importers:
       '@typespec/versioning':
         specifier: workspace:~
         version: link:../versioning
-      '@typespec/xml':
-        specifier: workspace:~
-        version: link:../xml
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
