@@ -21,6 +21,21 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
             Assert.IsInstanceOf<XmlException>(ex!.InnerException);
         }
 
+        [Test]
+        public void ValidDocsDoNotThrow()
+        {
+            var model = new ValidDocsModel();
+            var compilation = CompilationHelper.LoadCompilation(new[] { model });
+            var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "ValidDocsModel");
+
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            Assert.AreEqual(2, namedTypeSymbolProvider.Properties.Count);
+            Assert.AreEqual("X", namedTypeSymbolProvider.Properties[0].Name);
+            Assert.IsTrue(namedTypeSymbolProvider.Properties[0].Type.Equals(typeof(int)));
+            Assert.AreEqual("Y", namedTypeSymbolProvider.Properties[1].Name);
+            Assert.IsTrue(namedTypeSymbolProvider.Properties[1].Type.Equals(typeof(string)));
+        }
+
         private class InvalidDocsModel : TypeProvider
         {
             protected override string BuildRelativeFilePath() => ".";
@@ -31,9 +46,27 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
             {
                 return
                 [
-                    new PropertyProvider($"This is an invalid description because it is missing closing slash<see cref=\"Y\">", MethodSignatureModifiers.Public, new CSharpType(typeof(int)), "X",
+                    new PropertyProvider($"This is an invalid description because it is missing closing slash <see cref=\"Y\">", MethodSignatureModifiers.Public, new CSharpType(typeof(int)), "X",
                         new AutoPropertyBody(true), this),
-                    new PropertyProvider($"", MethodSignatureModifiers.Public, new CSharpType(typeof(BinaryData)), "Y",
+                    new PropertyProvider($"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), "Y",
+                        new AutoPropertyBody(true), this),
+                ];
+            }
+        }
+
+        private class ValidDocsModel : TypeProvider
+        {
+            protected override string BuildRelativeFilePath() => ".";
+
+            protected override string BuildName() => "ValidDocsModel";
+
+            protected override PropertyProvider[] BuildProperties()
+            {
+                return
+                [
+                    new PropertyProvider($"This is a valid description <see cref=\"Y\"/>", MethodSignatureModifiers.Public, new CSharpType(typeof(int)), "X",
+                        new AutoPropertyBody(true), this),
+                    new PropertyProvider($"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), "Y",
                         new AutoPropertyBody(true), this),
                 ];
             }
