@@ -35,7 +35,10 @@ public class TypeSpecClientMapper extends ClientMapper {
         Map<ServiceClient, Client> serviceClientsMap = new LinkedHashMap<>();
         TypeSpecServiceClientMapper mapper = new TypeSpecServiceClientMapper();
         for (Client client : clients) {
-            serviceClientsMap.put(mapper.map(client, codeModel), client);
+            ServiceClient serviceClient = mapper.map(client, codeModel);
+            if (serviceClient != null) {
+                serviceClientsMap.put(serviceClient, client);
+            }
         }
         return serviceClientsMap;
     }

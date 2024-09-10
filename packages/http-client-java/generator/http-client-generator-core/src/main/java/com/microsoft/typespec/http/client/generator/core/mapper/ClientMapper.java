@@ -192,9 +192,11 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
             } else {
                 // service client
                 ServiceClient serviceClient = Mappers.getServiceClientMapper().map(codeModel);
-                builder.serviceClient(serviceClient);
+                if (serviceClient != null) {
+                    builder.serviceClient(serviceClient);
 
-                serviceClientsMap.put(serviceClient, codeModel);
+                    serviceClientsMap.put(serviceClient, codeModel);
+                }
             }
         }
 
