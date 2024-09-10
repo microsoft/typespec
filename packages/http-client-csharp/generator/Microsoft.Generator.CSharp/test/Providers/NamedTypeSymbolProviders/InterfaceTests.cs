@@ -89,7 +89,5 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
                 ];
             }
         }
-
-
     }
 }

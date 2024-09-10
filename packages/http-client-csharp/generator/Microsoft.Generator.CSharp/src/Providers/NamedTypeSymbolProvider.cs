@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
@@ -147,10 +148,16 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     xDocument = XDocument.Parse(xmlDocumentation);
                 }
-                catch (XmlException)
+                catch (XmlException ex)
                 {
-                    // Do not fail the generation if there is malformed XML docs.
-                    return null;
+                    var files = new List<string>();
+                    foreach (var reference in propertySymbol.DeclaringSyntaxReferences)
+                    {
+                        files.Add(reference.SyntaxTree.FilePath);
+                    }
+
+                    throw new InvalidOperationException($"Failed to parse XML documentation for {propertySymbol.Name}. " +
+                        $"The malformed XML documentation is located in one or more of the following files: {string.Join(',', files)}", ex);
                 }
                 var summaryElement = xDocument.Descendants(tag).FirstOrDefault();
                 return FormattableStringHelpers.FromString(summaryElement?.Value.Trim());
