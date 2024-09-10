@@ -5,9 +5,12 @@ import {
   SyntaxKind,
   visitChildren,
   type Diagnostic,
+  type IdentifierNode,
   type ImportStatementNode,
+  type MemberExpressionNode,
   type Statement,
   type TypeSpecScriptNode,
+  type UsingStatementNode,
 } from "@typespec/compiler";
 import { resolve } from "path";
 import { ImporterHost } from "./importer-host.js";
@@ -23,6 +26,7 @@ export interface ImportResult {
  * Combine a TypeSpec project into a single file.
  * Supports importing files from http/https with limitations:
  * - directory import are not supported
+ * - different files that would result in merging ambiguous using statements will have conflict
  * @param rawEntrypoint TypeSpec project entrypoint
  */
 export async function combineProjectIntoFile(rawEntrypoint: string): Promise<ImportResult> {
@@ -80,6 +84,7 @@ export async function combineProjectIntoFile(rawEntrypoint: string): Promise<Imp
   }
 
   const imports: Record<string, ImportStatementNode> = {};
+  const usings: Record<string, UsingStatementNode> = {};
   const statements: Statement[] = [];
 
   for (const file of sourceFiles) {
@@ -98,6 +103,12 @@ export async function combineProjectIntoFile(rawEntrypoint: string): Promise<Imp
             imports[statement.path.value] = statement;
           }
           break;
+        case SyntaxKind.UsingStatement:
+          const name = printIdOrMember(statement.name);
+          if (!(name in usings)) {
+            usings[name] = statement;
+          }
+          break;
         case SyntaxKind.NamespaceStatement:
           let current = statement;
           const ids = [statement.id];
@@ -105,7 +116,6 @@ export async function combineProjectIntoFile(rawEntrypoint: string): Promise<Imp
             current = current.statements;
             ids.push(current.id);
           }
-          console.log("Ids", ids);
           if (current.statements === undefined) {
             currentStatements = [];
             statements.push({ ...current, statements: currentStatements, ...({ ids } as any) });
@@ -121,7 +131,7 @@ export async function combineProjectIntoFile(rawEntrypoint: string): Promise<Imp
 
   const newSourceFile: TypeSpecScriptNode = {
     kind: SyntaxKind.TypeSpecScript,
-    statements: [...Object.values(imports), ...statements],
+    statements: [...Object.values(imports), ...Object.values(usings), ...statements],
     comments: [],
     file: undefined as any,
     pos: 0,
@@ -145,4 +155,12 @@ export async function combineProjectIntoFile(rawEntrypoint: string): Promise<Imp
     content,
     diagnostics,
   };
+}
+
+function printIdOrMember(node: IdentifierNode | MemberExpressionNode): string {
+  if (node.kind === SyntaxKind.Identifier) {
+    return node.sv;
+  } else {
+    return `${printIdOrMember(node.base)}.${node.id.sv}`;
+  }
 }
