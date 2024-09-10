@@ -8,8 +8,8 @@ import {
 export class NotUrlError extends Error {}
 export function createRemoteHost(base?: CompilerHost): CompilerHost {
   return {
-    ...base,
     getSourceFileKind: getSourceFileKindFromExt,
+    ...base,
     stat: async (pathOrUrl: string) => {
       if (pathOrUrl.startsWith("http://") || pathOrUrl.startsWith("https://")) {
         const res = await fetch(pathOrUrl);
