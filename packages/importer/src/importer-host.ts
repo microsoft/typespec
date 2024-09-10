@@ -11,7 +11,6 @@ import {
 export const ImporterHost: CompilerHost = {
   ...NodeHost,
   stat: async (pathOrUrl) => {
-    console.log("State", pathOrUrl);
     if (pathOrUrl.startsWith("http://") || pathOrUrl.startsWith("https://")) {
       const res = await fetch(pathOrUrl);
 
