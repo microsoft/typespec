@@ -121,7 +121,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return new ParameterProvider(
                 parameterSymbol.Name,
                 FormattableStringHelpers.FromString(GetParameterXmlDocumentation(methodSymbol, parameterSymbol)) ?? FormattableStringHelpers.Empty,
-                GetCSharpType(parameterSymbol.Type) ?? throw new InvalidOperationException("Parameter type cannot be null"));
+                GetCSharpType(parameterSymbol.Type));
         }
 
         private void AddAdditionalModifiers(IMethodSymbol methodSymbol, ref MethodSignatureModifiers modifiers)
