@@ -83,6 +83,13 @@ export async function combineProjectIntoFile(rawEntrypoint: string): Promise<Imp
   const statements: Statement[] = [];
 
   for (const file of sourceFiles) {
+    addNodeText(file);
+
+    function addNodeText(node: any) {
+      (node as any).rawText = file.file.text.slice(node.pos, node.end);
+      visitChildren(node, addNodeText);
+    }
+
     let currentStatements = statements;
     for (const statement of file.statements) {
       switch (statement.kind) {
@@ -98,6 +105,7 @@ export async function combineProjectIntoFile(rawEntrypoint: string): Promise<Imp
             current = current.statements;
             ids.push(current.id);
           }
+          console.log("Ids", ids);
           if (current.statements === undefined) {
             currentStatements = [];
             statements.push({ ...current, statements: currentStatements, ...({ ids } as any) });
@@ -108,13 +116,6 @@ export async function combineProjectIntoFile(rawEntrypoint: string): Promise<Imp
         default:
           currentStatements.push(statement);
       }
-    }
-
-    addNodeText(file);
-
-    function addNodeText(node: any) {
-      (node as any).rawText = file.file.text.slice(node.pos, node.end);
-      visitChildren(node, addNodeText);
     }
   }
 
