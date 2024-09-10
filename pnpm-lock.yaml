@@ -103,7 +103,7 @@ importers:
         version: 7.17.0(eslint@8.57.0)(typescript@5.5.4)
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
       yaml:
         specifier: ~2.4.5
         version: 2.4.5
@@ -135,7 +135,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/bundle-uploader:
     dependencies:
@@ -184,7 +184,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/bundler:
     dependencies:
@@ -245,7 +245,7 @@ importers:
         version: 5.3.4(@types/node@18.11.19)(terser@5.30.0)
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/compiler:
     dependencies:
@@ -336,13 +336,13 @@ importers:
         version: link:../tmlanguage-generator
       ts-node:
         specifier: ~10.9.2
-        version: 10.9.2(@swc/core@1.7.0)(@types/node@18.11.19)(typescript@5.5.4)
+        version: 10.9.2(@swc/core@1.7.0(@swc/helpers@0.5.8))(@types/node@18.11.19)(typescript@5.5.4)
       typescript:
         specifier: ~5.5.4
         version: 5.5.4
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
       vscode-oniguruma:
         specifier: ~2.0.1
         version: 2.0.1
@@ -388,7 +388,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/html-program-viewer:
     dependencies:
@@ -467,7 +467,7 @@ importers:
         version: 4.0.0-beta.1(@types/node@18.11.19)(rollup@4.19.0)(typescript@5.5.4)(vite@5.3.4(@types/node@18.11.19)(terser@5.30.0))
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/http:
     devDependencies:
@@ -500,7 +500,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/http-server-csharp:
     dependencies:
@@ -549,7 +549,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/http-server-javascript:
     dependencies:
@@ -620,7 +620,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/json-schema:
     dependencies:
@@ -666,7 +666,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/library-linter:
     devDependencies:
@@ -693,7 +693,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/monarch:
     dependencies:
@@ -724,7 +724,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/openapi:
     devDependencies:
@@ -763,7 +763,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/openapi3:
     dependencies:
@@ -824,7 +824,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/playground:
     dependencies:
@@ -861,6 +861,9 @@ importers:
       '@typespec/versioning':
         specifier: workspace:~
         version: link:../versioning
+      '@typespec/xml':
+        specifier: workspace:~
+        version: link:../xml
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -912,7 +915,7 @@ importers:
         version: 8.2.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@4.19.0)(storybook@8.2.5(@babel/preset-env@7.24.5(@babel/core@7.24.9)))(typescript@5.5.4)(vite@5.3.4(@types/node@18.11.19)(terser@5.30.0))
       '@storybook/test':
         specifier: ^8.2.5
-        version: 8.2.5(storybook@8.2.5(@babel/preset-env@7.24.5(@babel/core@7.24.9)))(vitest@2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0))
+        version: 8.2.5(storybook@8.2.5(@babel/preset-env@7.24.5(@babel/core@7.24.9)))(vitest@2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0))
       '@storybook/types':
         specifier: ^8.2.5
         version: 8.2.5(storybook@8.2.5(@babel/preset-env@7.24.5(@babel/core@7.24.9)))
@@ -1000,6 +1003,9 @@ importers:
       '@typespec/versioning':
         specifier: workspace:~
         version: link:../versioning
+      '@typespec/xml':
+        specifier: workspace:~
+        version: link:../xml
       es-module-shims:
         specifier: ~1.10.0
         version: 1.10.0
@@ -1063,7 +1069,7 @@ importers:
         version: 4.0.0-beta.1(@types/node@18.11.19)(rollup@4.19.0)(typescript@5.5.4)(vite@5.3.4(@types/node@18.11.19)(terser@5.30.0))
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/prettier-plugin-typespec:
     dependencies:
@@ -1094,7 +1100,7 @@ importers:
         version: 4.19.0
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/protobuf:
     devDependencies:
@@ -1130,7 +1136,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/react-components:
     dependencies:
@@ -1197,7 +1203,7 @@ importers:
         version: 4.0.0-beta.1(@types/node@18.11.19)(rollup@4.19.0)(typescript@5.5.4)(vite@5.3.4(@types/node@18.11.19)(terser@5.30.0))
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/rest:
     devDependencies:
@@ -1233,7 +1239,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/samples:
     dependencies:
@@ -1294,7 +1300,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/spec:
     devDependencies:
@@ -1383,7 +1389,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/typespec-vs:
     devDependencies:
@@ -1440,7 +1446,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
       vscode-languageclient:
         specifier: ~9.0.1
         version: 9.0.1
@@ -1476,7 +1482,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   packages/website:
     dependencies:
@@ -1648,7 +1654,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.4
-        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+        version: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
 packages:
 
@@ -16092,12 +16098,12 @@ snapshots:
     optionalDependencies:
       typescript: 5.5.4
 
-  '@storybook/test@8.2.5(storybook@8.2.5(@babel/preset-env@7.24.5(@babel/core@7.24.9)))(vitest@2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0))':
+  '@storybook/test@8.2.5(storybook@8.2.5(@babel/preset-env@7.24.5(@babel/core@7.24.9)))(vitest@2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0))':
     dependencies:
       '@storybook/csf': 0.1.11
       '@storybook/instrumenter': 8.2.5(storybook@8.2.5(@babel/preset-env@7.24.5(@babel/core@7.24.9)))
       '@testing-library/dom': 10.1.0
-      '@testing-library/jest-dom': 6.4.5(vitest@2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0))
+      '@testing-library/jest-dom': 6.4.5(vitest@2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0))
       '@testing-library/user-event': 14.5.2(@testing-library/dom@10.1.0)
       '@vitest/expect': 1.6.0
       '@vitest/spy': 1.6.0
@@ -16294,7 +16300,7 @@ snapshots:
       lz-string: 1.5.0
       pretty-format: 27.5.1
 
-  '@testing-library/jest-dom@6.4.5(vitest@2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0))':
+  '@testing-library/jest-dom@6.4.5(vitest@2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0))':
     dependencies:
       '@adobe/css-tools': 4.4.0
       '@babel/runtime': 7.24.1
@@ -16305,7 +16311,7 @@ snapshots:
       lodash: 4.17.21
       redent: 3.0.0
     optionalDependencies:
-      vitest: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+      vitest: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   '@testing-library/jest-dom@6.4.7(vitest@2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0))':
     dependencies:
@@ -16318,7 +16324,7 @@ snapshots:
       lodash: 4.17.21
       redent: 3.0.0
     optionalDependencies:
-      vitest: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+      vitest: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   '@testing-library/react@16.0.0(@testing-library/dom@10.4.0)(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -16758,7 +16764,7 @@ snapshots:
       std-env: 3.7.0
       test-exclude: 7.0.1
       tinyrainbow: 1.2.0
-      vitest: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+      vitest: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -16807,7 +16813,7 @@ snapshots:
       pathe: 1.1.2
       sirv: 2.0.4
       tinyrainbow: 1.2.0
-      vitest: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+      vitest: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
 
   '@vitest/utils@1.6.0':
     dependencies:
@@ -18992,7 +18998,7 @@ snapshots:
       '@typescript-eslint/utils': 7.17.0(eslint@8.57.0)(typescript@5.5.4)
       eslint: 8.57.0
     optionalDependencies:
-      vitest: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
+      vitest: 2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -23812,7 +23818,7 @@ snapshots:
 
   ts-dedent@2.2.0: {}
 
-  ts-node@10.9.2(@swc/core@1.7.0)(@types/node@18.11.19)(typescript@5.5.4):
+  ts-node@10.9.2(@swc/core@1.7.0(@swc/helpers@0.5.8))(@types/node@18.11.19)(typescript@5.5.4):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
@@ -24275,7 +24281,7 @@ snapshots:
       fsevents: 2.3.3
       terser: 5.30.0
 
-  vitest@2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4(vitest@2.0.4))(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0):
+  vitest@2.0.4(@types/node@18.11.19)(@vitest/ui@2.0.4)(happy-dom@14.12.3)(jsdom@19.0.0)(terser@5.30.0):
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@vitest/expect': 2.0.4
