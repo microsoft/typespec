@@ -8,7 +8,6 @@ parameters:
 
 stages:
   - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
-
     parameters:
       Variables:
         - template: /packages/http-client-java/eng/pipeline/variables/globals.yml
@@ -32,6 +31,6 @@ stages:
       AdditionalInitializeSteps:
         - task: Cache@2
           inputs:
-            key: 'maven | "$(CacheSalt)" | "$(Agent.OS)" | "${{ parameters.LanguageShortName }}"'
+            key: 'maven | "$(CacheSalt)" | "$(Agent.OS)" | "java"'
             path: $(MAVEN_CACHE_FOLDER)
           displayName: Cache Maven local repo
