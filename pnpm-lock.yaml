@@ -1013,6 +1013,9 @@ importers:
       '@typespec/http':
         specifier: workspace:~
         version: link:../http
+      '@typespec/importer':
+        specifier: workspace:~
+        version: link:../importer
       '@typespec/json-schema':
         specifier: workspace:~
         version: link:../json-schema
