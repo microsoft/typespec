@@ -199,13 +199,12 @@ export class CodeModelBuilder {
     }
 
     const service = listServices(this.program)[0];
-    const serviceNamespace = service.type;
-    if (serviceNamespace === undefined) {
-      throw Error("Cannot emit yaml for a namespace that doesn't exist.");
+    if (!service) {
+      throw Error("TypeSpec for HTTP must define a service.");
     }
-    this.serviceNamespace = serviceNamespace;
+    this.serviceNamespace = service.type;
 
-    this.namespace = getNamespaceFullName(serviceNamespace) || "Azure.Client";
+    this.namespace = getNamespaceFullName(this.serviceNamespace) || "Azure.Client";
     // java namespace
     const javaNamespace = this.getJavaNamespace(this.namespace);
 
@@ -219,9 +218,9 @@ export class CodeModelBuilder {
     };
 
     // init code model
-    const title = this.options["service-name"] ?? serviceNamespace.name;
+    const title = this.options["service-name"] ?? this.serviceNamespace.name;
 
-    const description = this.getDoc(serviceNamespace);
+    const description = this.getDoc(this.serviceNamespace);
     this.codeModel = new CodeModel(title, false, {
       info: {
         description: description,
@@ -230,7 +229,7 @@ export class CodeModelBuilder {
         default: {
           name: title,
           description: description,
-          summary: this.getSummary(serviceNamespace),
+          summary: this.getSummary(this.serviceNamespace),
           namespace: this.namespace,
         },
         java: {
