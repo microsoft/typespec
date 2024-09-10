@@ -111,10 +111,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         protected override MethodProvider[] BuildMethods()
         {
             List<MethodProvider> methods = new List<MethodProvider>();
-            int x = 0;
+
             foreach (var operation in _inputClient.Operations)
             {
-                x += 1;
                 var method = BuildCreateRequestMethod(operation);
                 methods.Add(method);
                 MethodCache[operation] = method;
@@ -181,7 +180,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (operation.HttpMethod == HttpMethod.Head.ToString())
                 return _classifier2xxAnd4xxProperty;
 
-            var response = operation.Responses.First(r => !r.IsErrorResponse);
+            var response = operation.Responses.First(r => !r.IsErrorResponse); //should only be one of these
 
             if (response.StatusCodes.Count == 1)
             {
