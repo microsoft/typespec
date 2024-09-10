@@ -3,6 +3,7 @@ import {
   normalizePath,
   printTypeSpecNode,
   SyntaxKind,
+  visitChildren,
   type Diagnostic,
   type ImportStatementNode,
   type Statement,
@@ -107,6 +108,13 @@ export async function combineProjectIntoFile(rawEntrypoint: string): Promise<Imp
         default:
           currentStatements.push(statement);
       }
+    }
+
+    addNodeText(file);
+
+    function addNodeText(node: any) {
+      (node as any).rawText = file.file.text.slice(node.pos, node.end);
+      visitChildren(node, addNodeText);
     }
   }
 

@@ -520,7 +520,7 @@ export function printComment(
     case SyntaxKind.BlockComment:
       return printBlockComment(commentPath as AstPath<BlockComment>, options);
     case SyntaxKind.LineComment:
-      return `${options.originalText.slice(comment.pos, comment.end).trimEnd()}`;
+      return `${getRawText(comment, options).trimEnd()}`;
     default:
       throw new Error(`Not a comment: ${JSON.stringify(comment)}`);
   }
@@ -1660,7 +1660,7 @@ function printNumberLiteral(
   options: TypeSpecPrettierOptions
 ): Doc {
   const node = path.node;
-  return getRawText(node, options);
+  return node.valueAsString;
 }
 
 function printBooleanLiteral(
@@ -1975,7 +1975,10 @@ function printItemList<T extends Node>(
  * @param options Prettier options
  * @returns Raw text in the file for the given node.
  */
-function getRawText(node: TextRange, options: TypeSpecPrettierOptions) {
+function getRawText(node: TextRange, options: TypeSpecPrettierOptions): string {
+  if ("rawText" in node) {
+    return node.rawText as string;
+  }
   return options.originalText.slice(node.pos, node.end);
 }
 
