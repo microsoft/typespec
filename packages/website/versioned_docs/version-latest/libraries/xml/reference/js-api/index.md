@@ -10,7 +10,16 @@ title: "[P] JS API"
 
 ## Type Aliases
 
+- [AttributeDecorator](type-aliases/AttributeDecorator.md)
+- [NameDecorator](type-aliases/NameDecorator.md)
+- [NsDeclarationsDecorator](type-aliases/NsDeclarationsDecorator.md)
+- [NsDecorator](type-aliases/NsDecorator.md)
+- [UnwrappedDecorator](type-aliases/UnwrappedDecorator.md)
 - [XmlEncoding](type-aliases/XmlEncoding.md)
+
+## Variables
+
+- [$lib](variables/$lib.md)
 
 ## Functions
 

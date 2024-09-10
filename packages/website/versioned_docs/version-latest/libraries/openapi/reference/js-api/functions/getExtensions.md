@@ -7,12 +7,14 @@ title: "[F] getExtensions"
 function getExtensions(program, entity): ReadonlyMap<ExtensionKey, any>
 ```
 
+Get extensions set for the given type.
+
 ## Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `program` | `Program` |
-| `entity` | `Type` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `program` | `Program` | Program |
+| `entity` | `Type` | Type |
 
 ## Returns
 
