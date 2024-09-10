@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Primitives;
@@ -43,7 +44,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
                     var fieldProvider = new FieldProvider(
                     modifiers,
-                    GetCSharpType(fieldSymbol.Type),
+                    GetCSharpType(fieldSymbol.Type) ?? throw new InvalidOperationException("Field type cannot be null"),
                     fieldSymbol.Name,
                     this,
                     GetSymbolXmlDoc(fieldSymbol, "summary"));
@@ -61,7 +62,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 var propertyProvider = new PropertyProvider(
                     GetSymbolXmlDoc(propertySymbol, "summary"),
                     GetAccessModifier(propertySymbol.DeclaredAccessibility),
-                    GetCSharpType(propertySymbol.Type),
+                    GetCSharpType(propertySymbol.Type) ?? throw new InvalidOperationException("Property type cannot be null"),
                     propertySymbol.Name,
                     new AutoPropertyBody(propertySymbol.SetMethod is not null),
                     this)
@@ -121,7 +122,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return new ParameterProvider(
                 parameterSymbol.Name,
                 FormattableStringHelpers.FromString(GetParameterXmlDocumentation(methodSymbol, parameterSymbol)) ?? FormattableStringHelpers.Empty,
-                GetCSharpType(parameterSymbol.Type));
+                GetCSharpType(parameterSymbol.Type) ?? throw new InvalidOperationException("Parameter type cannot be null"));
         }
 
         private void AddAdditionalModifiers(IMethodSymbol methodSymbol, ref MethodSignatureModifiers modifiers)
@@ -141,16 +142,18 @@ namespace Microsoft.Generator.CSharp.Providers
             var xmlDocumentation = propertySymbol.GetDocumentationCommentXml();
             if (!string.IsNullOrEmpty(xmlDocumentation))
             {
+                XDocument xDocument;
                 try
                 {
-                    var xDocument = XDocument.Parse(xmlDocumentation);
-                    var summaryElement = xDocument.Descendants(tag).FirstOrDefault();
-                    return FormattableStringHelpers.FromString(summaryElement?.Value.Trim());
+                    xDocument = XDocument.Parse(xmlDocumentation);
                 }
-                catch (Exception)
+                catch (XmlException)
                 {
+                    // Do not fail the generation if there is malformed XML docs.
                     return null;
                 }
+                var summaryElement = xDocument.Descendants(tag).FirstOrDefault();
+                return FormattableStringHelpers.FromString(summaryElement?.Value.Trim());
             }
             return null;
         }
