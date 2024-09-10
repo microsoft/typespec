@@ -187,6 +187,10 @@ export function TypeTransformCall(props: TypeTransformCallProps) {
   }
 
   if ($.model.is(props.type)) {
+    if($.model.isExpresion(props.type)) {
+      const effectiveModel = $.model.getEffectiveModel(props.type);
+      return <ModelTransformExpression type={effectiveModel} itemPath={itemName} target={props.target} />;
+    }
     return <ts.FunctionCallExpression refkey={ getTypeTransformerRefkey(props.type, props.target)} args={[props.itemName]} />
   }
 
