@@ -17,7 +17,7 @@ import {
 } from "@fluentui/react-components";
 import { ArrowUploadFilled } from "@fluentui/react-icons";
 import { formatDiagnostic } from "@typespec/compiler";
-import { combineProjectIntoFile } from "@typespec/importer";
+import { combineProjectIntoFile, createRemoteHost } from "@typespec/importer";
 import { Editor, useMonacoModel, usePlaygroundContext } from "@typespec/playground/react";
 import { useState } from "react";
 import { parse } from "yaml";
@@ -40,7 +40,7 @@ export const ImportToolbarButton = () => {
         </MenuTrigger>
         <MenuPopover>
           <MenuList>
-            <MenuItem onClick={() => setOpen("tsp")}>From OpenAPI 3 spec</MenuItem>
+            <MenuItem onClick={() => setOpen("tsp")}>Remote TypeSpec</MenuItem>
             <MenuItem onClick={() => setOpen("openapi3")}>From OpenAPI 3 spec</MenuItem>
           </MenuList>
         </MenuPopover>
@@ -102,7 +102,7 @@ const ImportTsp = ({ onImport }: { onImport: () => void }) => {
 
   const importSpec = async () => {
     const content = value;
-    const result = await combineProjectIntoFile(content);
+    const result = await combineProjectIntoFile(createRemoteHost(), content);
     if (result.diagnostics.length > 0) {
       setError(result.diagnostics.map(formatDiagnostic).join("\n"));
       return;
@@ -115,14 +115,16 @@ const ImportTsp = ({ onImport }: { onImport: () => void }) => {
     <div>
       <h3>Import Remote Tsp Document</h3>
 
-      <div className={style["import-editor-container"]}>
+      <div>
         <Label>Url to import</Label>
-        <Input value={value} onChange={(_, data) => setValue(data.value)} />
       </div>
+      <Input value={value} onChange={(_, data) => setValue(data.value)} />
       {error && <div className={style["error"]}>{error}</div>}
-      <Button appearance="primary" className="import-btn" onClick={importSpec}>
-        Import
-      </Button>
+      <div>
+        <Button appearance="primary" className="import-btn" onClick={importSpec}>
+          Import
+        </Button>
+      </div>
     </div>
   );
 };

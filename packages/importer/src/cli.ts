@@ -6,9 +6,11 @@ try {
   // package only present in dev.
 }
 
-import { getDirectoryPath, logDiagnostics, NodeHost } from "@typespec/compiler";
+import { getDirectoryPath, logDiagnostics, NodeHost, normalizePath } from "@typespec/compiler";
 import { mkdir, writeFile } from "fs/promises";
+import { resolve } from "path";
 import { parseArgs } from "util";
+import { ImporterHost } from "./importer-host.js";
 import { combineProjectIntoFile } from "./importer.js";
 
 function log(...args: any[]) {
@@ -21,9 +23,9 @@ const args = parseArgs({
   allowPositionals: true,
 });
 
-const rawEntrypoint = args.positionals[0];
+const rawEntrypoint = normalizePath(resolve(args.positionals[0]));
 
-const { content, diagnostics } = await combineProjectIntoFile(rawEntrypoint);
+const { content, diagnostics } = await combineProjectIntoFile(ImporterHost, rawEntrypoint);
 
 if (diagnostics.length > 0) {
   logDiagnostics(diagnostics, NodeHost.logSink);

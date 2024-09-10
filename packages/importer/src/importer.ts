@@ -4,6 +4,7 @@ import {
   printTypeSpecNode,
   SyntaxKind,
   visitChildren,
+  type CompilerHost,
   type Diagnostic,
   type IdentifierNode,
   type ImportStatementNode,
@@ -12,8 +13,6 @@ import {
   type TypeSpecScriptNode,
   type UsingStatementNode,
 } from "@typespec/compiler";
-import { resolve } from "path";
-import { ImporterHost } from "./importer-host.js";
 
 export interface ImportResult {
   /** TypeSpec Content */
@@ -29,13 +28,16 @@ export interface ImportResult {
  * - different files that would result in merging ambiguous using statements will have conflict
  * @param rawEntrypoint TypeSpec project entrypoint
  */
-export async function combineProjectIntoFile(rawEntrypoint: string): Promise<ImportResult> {
+export async function combineProjectIntoFile(
+  host: CompilerHost,
+  rawEntrypoint: string
+): Promise<ImportResult> {
   const entrypoint =
     rawEntrypoint.startsWith("http://") || rawEntrypoint.startsWith("https://")
       ? rawEntrypoint
-      : normalizePath(resolve(rawEntrypoint));
+      : normalizePath(rawEntrypoint);
 
-  const loader = await createSourceLoader(ImporterHost, {
+  const loader = await createSourceLoader(host, {
     externals: (path: string) => {
       return !(path === entrypoint || path.startsWith("."));
     },
