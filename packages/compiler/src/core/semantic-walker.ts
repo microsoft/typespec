@@ -229,6 +229,7 @@ function navigateOperationType(operation: Operation, context: NavigationContext)
   if (operation.sourceOperation) {
     navigateTypeInternal(operation.sourceOperation, context);
   }
+  context.emit("exitOperation", operation);
 }
 
 function navigateModelType(model: Model, context: NavigationContext) {
@@ -257,6 +258,7 @@ function navigateModelTypeProperty(property: ModelProperty, context: NavigationC
   }
   if (context.emit("modelProperty", property) === ListenerFlow.NoRecursion) return;
   navigateTypeInternal(property.type, context);
+  context.emit("exitModelProperty", property);
 }
 
 function navigateScalarType(scalar: Scalar, context: NavigationContext) {
