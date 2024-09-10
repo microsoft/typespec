@@ -288,7 +288,7 @@ export class CodeModelBuilder {
           },
           language: {
             default: {
-              serializedName: arg.name,
+              serializedName: arg.serializedName,
             },
           },
           // TODO: deprecate this logic of string/url for x-ms-skip-url-encoding
@@ -1126,6 +1126,11 @@ export class CodeModelBuilder {
               style = SerializationStyle.Form;
               explode = true;
               break;
+          }
+
+          if (param.explode && !param.collectionFormat) {
+            style = SerializationStyle.Form;
+            explode = true;
           }
         } else if (param.kind === "header") {
           const format = param.collectionFormat;
