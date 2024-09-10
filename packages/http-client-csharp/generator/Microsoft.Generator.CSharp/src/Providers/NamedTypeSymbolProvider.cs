@@ -22,7 +22,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private protected sealed override TypeProvider? GetCustomCodeView() => null;
 
-        protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writting in generation");
+        protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writing in generation");
 
         protected override string BuildName() => _namedTypeSymbol.Name;
 
@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
                     var fieldProvider = new FieldProvider(
                     modifiers,
-                    GetCSharpType(fieldSymbol.Type),
+                    GetCSharpType(fieldSymbol.Type) ?? throw new InvalidOperationException("Field type cannot be null"),
                     fieldSymbol.Name,
                     this,
                     GetSymbolXmlDoc(fieldSymbol, "summary"));
@@ -61,7 +61,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 var propertyProvider = new PropertyProvider(
                     GetSymbolXmlDoc(propertySymbol, "summary"),
                     GetAccessModifier(propertySymbol.DeclaredAccessibility),
-                    GetCSharpType(propertySymbol.Type),
+                    GetCSharpType(propertySymbol.Type) ?? throw new InvalidOperationException("Property type cannot be null"),
                     propertySymbol.Name,
                     new AutoPropertyBody(propertySymbol.SetMethod is not null),
                     this)
@@ -107,7 +107,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     methodSymbol.Name,
                     GetSymbolXmlDoc(methodSymbol, "summary"),
                     modifiers,
-                    GetCSharpType(methodSymbol.ReturnType),
+                    GetNullableCSharpType(methodSymbol.ReturnType),
                     GetSymbolXmlDoc(methodSymbol, "returns"),
                     [.. methodSymbol.Parameters.Select(p => ConvertToParameterProvider(methodSymbol, p))]);
 
@@ -116,12 +116,12 @@ namespace Microsoft.Generator.CSharp.Providers
             return [.. methods];
         }
 
-        private static ParameterProvider ConvertToParameterProvider(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol)
+        private ParameterProvider ConvertToParameterProvider(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol)
         {
             return new ParameterProvider(
                 parameterSymbol.Name,
                 FormattableStringHelpers.FromString(GetParameterXmlDocumentation(methodSymbol, parameterSymbol)) ?? FormattableStringHelpers.Empty,
-                GetCSharpType(parameterSymbol.Type));
+                GetCSharpType(parameterSymbol.Type) ?? throw new InvalidOperationException("Parameter type cannot be null"));
         }
 
         private void AddAdditionalModifiers(IMethodSymbol methodSymbol, ref MethodSignatureModifiers modifiers)
@@ -141,9 +141,16 @@ namespace Microsoft.Generator.CSharp.Providers
             var xmlDocumentation = propertySymbol.GetDocumentationCommentXml();
             if (!string.IsNullOrEmpty(xmlDocumentation))
             {
-                var xDocument = XDocument.Parse(xmlDocumentation);
-                var summaryElement = xDocument.Descendants(tag).FirstOrDefault();
-                return FormattableStringHelpers.FromString(summaryElement?.Value.Trim());
+                try
+                {
+                    var xDocument = XDocument.Parse(xmlDocumentation);
+                    var summaryElement = xDocument.Descendants(tag).FirstOrDefault();
+                    return FormattableStringHelpers.FromString(summaryElement?.Value.Trim());
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
             }
             return null;
         }
@@ -182,47 +189,66 @@ namespace Microsoft.Generator.CSharp.Providers
             _ => FieldModifiers.Public
         };
 
-        private static CSharpType GetCSharpType(ITypeSymbol typeSymbol)
+        private CSharpType? GetNullableCSharpType(ITypeSymbol typeSymbol)
         {
             var fullyQualifiedName = GetFullyQualifiedName(typeSymbol);
-            var pieces = fullyQualifiedName.Split('.');
+            if (fullyQualifiedName == "System.Void")
+            {
+                return null;
+            }
+            return GetCSharpType(typeSymbol);
+        }
 
+        private CSharpType GetCSharpType(ITypeSymbol typeSymbol)
+        {
+            var fullyQualifiedName = GetFullyQualifiedName(typeSymbol);
             var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
 
             //if fully qualified name is in the namespace of the library being emitted find it from the outputlibrary
             if (fullyQualifiedName.StartsWith(CodeModelPlugin.Instance.Configuration.RootNamespace, StringComparison.Ordinal))
             {
-                bool isValueType = typeSymbol.IsValueType;
-                bool isEnum = typeSymbol.TypeKind == TypeKind.Enum;
-                return new CSharpType(
-                    typeSymbol.Name,
-                    string.Join('.', pieces.Take(pieces.Length - 1)),
-                    isValueType,
-                    typeSymbol.NullableAnnotation == NullableAnnotation.Annotated,
-                    typeSymbol.ContainingType is not null ? GetCSharpType(typeSymbol.ContainingType) : null,
-                    namedTypeSymbol is not null ? [.. namedTypeSymbol.TypeArguments.Select(GetCSharpType)] : [],
-                    typeSymbol.DeclaredAccessibility == Accessibility.Public,
-                    isValueType && !isEnum,
-                    baseType: typeSymbol.BaseType is not null ? GetCSharpType(typeSymbol.BaseType) : null,
-                    underlyingEnumType: namedTypeSymbol is not null && namedTypeSymbol.EnumUnderlyingType is not null
-                        ? GetCSharpType(namedTypeSymbol.EnumUnderlyingType).FrameworkType
-                        : null);
+                return ConstructCSharpTypeFromSymbol(typeSymbol, fullyQualifiedName, namedTypeSymbol);
             }
 
             Type? type = System.Type.GetType(fullyQualifiedName);
             if (type is null)
             {
-                throw new InvalidOperationException($"Unable to convert ITypeSymbol: {fullyQualifiedName} to a CSharpType");
+                if (typeSymbol.TypeKind == TypeKind.Error)
+                    throw new InvalidOperationException($"Unable to convert ITypeSymbol: {fullyQualifiedName} to a CSharpType in {Name}");
+
+                return ConstructCSharpTypeFromSymbol(typeSymbol, fullyQualifiedName, namedTypeSymbol);
             }
 
             CSharpType result = new CSharpType(type);
-
             if (namedTypeSymbol is not null && namedTypeSymbol.IsGenericType)
             {
                 return result.MakeGenericType([.. namedTypeSymbol.TypeArguments.Select(GetCSharpType)]);
             }
 
             return result;
+        }
+
+        private CSharpType ConstructCSharpTypeFromSymbol(
+            ITypeSymbol typeSymbol,
+            string fullyQualifiedName,
+            INamedTypeSymbol? namedTypeSymbol)
+        {
+            bool isValueType = typeSymbol.IsValueType;
+            bool isEnum = typeSymbol.TypeKind == TypeKind.Enum;
+            var pieces = fullyQualifiedName.Split('.');
+            return new CSharpType(
+                typeSymbol.Name,
+                string.Join('.', pieces.Take(pieces.Length - 1)),
+                isValueType,
+                typeSymbol.NullableAnnotation == NullableAnnotation.Annotated,
+                typeSymbol.ContainingType is not null ? GetCSharpType(typeSymbol.ContainingType) : null,
+                namedTypeSymbol is not null ? [.. namedTypeSymbol.TypeArguments.Select(GetCSharpType)] : [],
+                typeSymbol.DeclaredAccessibility == Accessibility.Public,
+                isValueType && !isEnum,
+                baseType: typeSymbol.BaseType is not null && typeSymbol.BaseType.TypeKind != TypeKind.Error ? GetCSharpType(typeSymbol.BaseType) : null,
+                underlyingEnumType: namedTypeSymbol is not null && namedTypeSymbol.EnumUnderlyingType is not null
+                    ? GetCSharpType(namedTypeSymbol.EnumUnderlyingType).FrameworkType
+                    : null);
         }
 
         private static string GetFullyQualifiedName(ITypeSymbol typeSymbol)
