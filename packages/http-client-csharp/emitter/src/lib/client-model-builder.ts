@@ -64,29 +64,21 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   function fromSdkClients(
     clients: SdkClientType<SdkHttpOperation>[],
     inputClients: InputClient[],
-    parentClientNames: string[],
-    parent?: InputClient
+    parentClientNames: string[]
   ) {
     for (const client of clients) {
-      const inputClient = emitClient(client, parentClientNames, parent);
+      const inputClient = emitClient(client, parentClientNames);
       inputClients.push(inputClient);
       const subClients = client.methods
         .filter((m) => m.kind === "clientaccessor")
         .map((m) => m.response as SdkClientType<SdkHttpOperation>);
       parentClientNames.push(inputClient.Name);
-      fromSdkClients(subClients, inputClients, parentClientNames, inputClient);
-      // for (const child of subClients) {
-      //   child.Parent = inputClient;
-      // }
-      // for (const child of subClients) {
-      //   child.Parent = client;
-      // }
+      fromSdkClients(subClients, inputClients, parentClientNames);
       parentClientNames.pop();
     }
-
   }
 
-  function emitClient(client: SdkClientType<SdkHttpOperation>, parentNames: string[], parent?: InputClient): InputClient {
+  function emitClient(client: SdkClientType<SdkHttpOperation>, parentNames: string[]): InputClient {
     const endpointParameter = client.initialization.properties.find(
       (p) => p.kind === "endpoint"
     ) as SdkEndpointParameter;
@@ -95,7 +87,6 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     return {
       Name: getClientName(client, parentNames),
       Description: client.description,
-      Parent: parent,
       Operations: client.methods
         .filter((m) => m.kind !== "clientaccessor")
         .map((m) =>
@@ -109,7 +100,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
           )
         ),
       Protocol: {},
-      // Parent: parentNames.length > 0 ? parentNames[parentNames.length - 1] : undefined,
+      Parent: parentNames.length > 0 ? parentNames[parentNames.length - 1] : undefined,
       Parameters: clientParameters,
       Decorators: client.decorators,
     };

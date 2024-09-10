@@ -39,7 +39,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private ParameterProvider? _clientOptionsParameter;
         private ClientOptionsProvider? _clientOptions;
         private RestClientProvider? _restClient;
-        private ClientProvider? _parent;
+        private Lazy<ClientProvider?> _parent;
 
         private ParameterProvider? ClientOptionsParameter => _clientOptionsParameter ??= ClientOptions != null
             ? ScmKnownParameters.ClientOptions(ClientOptions.Type)
@@ -98,14 +98,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             if (_inputClient.Parent != null)
             {
-                _clientCachingField = new FieldProvider(
+                _clientCachingField = new FieldProvider( //This represents the cached children
                     FieldModifiers.Private,
                     Type,
                     $"_cached{Name}",
                     this);
-                _parent = ClientModelPlugin.Instance.TypeFactory.CreateClient(_inputClient.Parent);
             }
-
+            _parent = new Lazy<ClientProvider?>(GetParent);
             _endpointParameterName = new(GetEndpointParameterName);
         }
 
@@ -115,10 +114,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (_uriParameters is null)
             {
                 _ = Constructors;
-                if (_parent is not null)
+                if (_parent.Value is not null)
                 {
                     var combined = new HashSet<ParameterProvider>(_uriParameters ?? []);
-                    combined.UnionWith(_parent.GetUriParameters());
+                    combined.UnionWith(_parent.Value.GetUriParameters());
                     _uriParameters = combined.ToList();
                 }
             }
@@ -449,13 +448,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             foreach (var client in inputClients)
             {
                 // add direct child clients
-                if (client.Parent != null && client.Parent.Name == _inputClient.Name)
+                if (client.Parent != null && client.Parent == _inputClient.Key)
                 {
                     subClients.Add(new(() => ClientModelPlugin.Instance.TypeFactory.CreateClient(client)));
                 }
             }
 
             return subClients;
+        }
+
+        private ClientProvider? GetParent()
+        {
+            var parentClient = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients.Where(iclient => iclient.Name == _inputClient.Parent).FirstOrDefault();
+            if (parentClient is not null)
+                return ClientModelPlugin.Instance.TypeFactory.CreateClient(parentClient!); // do null check
+            return null;
         }
     }
 }

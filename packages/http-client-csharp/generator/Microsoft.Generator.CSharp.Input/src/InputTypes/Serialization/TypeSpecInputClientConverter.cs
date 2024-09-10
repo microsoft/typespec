@@ -39,7 +39,7 @@ namespace Microsoft.Generator.CSharp.Input
             IReadOnlyList<InputOperation>? operations = null;
             IReadOnlyList<InputParameter>? parameters = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
-            InputClient? parent = null;
+            string? parent = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadString(nameof(InputClient.Description), ref description)
                     || reader.TryReadWithConverter(nameof(InputClient.Operations), options, ref operations)
                     || reader.TryReadWithConverter(nameof(InputClient.Parameters), options, ref parameters)
-                    || reader.TryReadWithConverter(nameof(InputClient.Parent), options, ref parent)
+                    || reader.TryReadString(nameof(InputClient.Parent), ref parent)
                     || reader.TryReadWithConverter(nameof(InputClient.Decorators), options, ref decorators);
 
                 if (!isKnownProperty)

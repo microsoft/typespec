@@ -19,42 +19,25 @@ describe("Parent property", () => {
   it("Base model has parent property", async () => {
     const program = await typeSpecCompile(
       `
-      model Parent{
-        name: string;
-      }
-      model Child extends Parent{
-        id: string;
-      }
-
-      @route("/ParentC")
-      interface ParentC {
-        @get list(): Parent[];
-        @get read(@path id: string): Parent;
-      }
-      interface ChildC {
-          @get list(): Child[];
+      @route("/parents")
+      namespace Parent {
+        @get op list(): void;
+        @route("/child")
+        interface Child {
+           @get op read(@path id: string): void;
         }
-        
-      @client({
-        name: "ParentC",
-        service: ParentC.Client,
-      })
-
-      @groupOperation
-      interface Group {
-        ParentC.list;
-      }  
+      }
       `,
       runner,
-      { IsTCGCNeeded: true }
+      {IsNamespaceNeeded: false, IsTCGCNeeded: true }
     );
     runner.compileAndDiagnose;
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const models = root.Models;
-    const petModel = models.find((m) => m.Name === "Widget");
-    const catModel = models.find((m) => m.Name === "Foo");
-    strictEqual(catModel?.BaseModel, petModel);
+    const petModel = models.find((m) => m.name === "Widget");
+    const catModel = models.find((m) => m.name === "Foo");
+    strictEqual(catModel?.baseModel, petModel);
     });
 });
