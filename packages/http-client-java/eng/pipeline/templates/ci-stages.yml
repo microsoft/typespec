@@ -29,10 +29,9 @@ stages:
       Condition: ${{ parameters.Condition }}
       DependsOn: ${{ parameters.DependsOn }}
       LanguageShortName: "java"
-      AdditionalInitializeSteps: 
+      AdditionalInitializeSteps:
         - task: Cache@2
-            inputs:
-              key: 'maven | "$(CacheSalt)" | "$(Agent.OS)" | "${{ parameters.LanguageShortName }}"'
-              path: $(MAVEN_CACHE_FOLDER)
-            displayName: Cache Maven local repo
-
+          inputs:
+            key: 'maven | "$(CacheSalt)" | "$(Agent.OS)" | "${{ parameters.LanguageShortName }}"'
+            path: $(MAVEN_CACHE_FOLDER)
+          displayName: Cache Maven local repo

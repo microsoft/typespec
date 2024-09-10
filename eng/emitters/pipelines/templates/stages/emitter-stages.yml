@@ -76,7 +76,6 @@ parameters:
     type: object
     default: []
 
-
 stages:
   # Build stage
   # Responsible for building the autorest generator and typespec emitter packages
@@ -98,6 +97,7 @@ stages:
           - ${{ else }}:
               # preserve all other variables
               - ${{ variable }}
+
       - name: selfRepositoryPath
         value: $(Build.SourcesDirectory)
 
@@ -178,9 +178,10 @@ stages:
               - ${{ else }}:
                   # preserve all other variables
                   - ${{ variable }}
+
           - name: selfRepositoryPath
             value: $(Build.SourcesDirectory)
-            
+
           - name: buildArtifactsPath
             value: $(Pipeline.Workspace)/build_artifacts_${{ parameters.LanguageShortName }}
         jobs:
@@ -243,9 +244,10 @@ stages:
               - ${{ else }}:
                   # preserve all other variables
                   - ${{ variable }}
+
           - name: selfRepositoryPath
             value: $(Build.SourcesDirectory)
-            
+
           - name: buildArtifactsPath
             value: $(Pipeline.Workspace)/build_artifacts_${{ parameters.LanguageShortName }}
         jobs:
@@ -291,12 +293,13 @@ stages:
               - ${{ else }}:
                   # preserve all other variables
                   - ${{ variable }}
+
           - name: toolsRepositoryPath
             value: $(Build.SourcesDirectory)
-            
+
           - name: buildArtifactsPath
-            value: $(Pipeline.Workspace)/build_artifacts_${{ parameters.LanguageShortName }}          
-        
+            value: $(Pipeline.Workspace)/build_artifacts_${{ parameters.LanguageShortName }}
+
         pool:
           name: $(LINUXPOOL)
           image: $(LINUXVMIMAGE)

@@ -1,6 +1,6 @@
 variables:
-  JavaVersion: '1.11'
-  NodeVersion: '20.x'
+  JavaVersion: "1.11"
+  NodeVersion: "20.x"
 
   # Sets the Maven log level to either the LogLevel passed in the manual pipeline run or the default 'warn'
   MavenLogLevel: $[coalesce(variables['LogLevel'], 'warn')]
@@ -9,7 +9,7 @@ variables:
   MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
   # See https://github.com/actions/virtual-environments/issues/1499 for more info about the wagon options
   # If reports about Maven dependency downloads become more common investigate re-introducing "-Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false", or other iterations of the configurations.
-  WagonOptions: '-Dmaven.wagon.httpconnectionManager.ttlSeconds=60'
-  DefaultOptions: '-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER) --fail-at-end --no-transfer-progress $(WagonOptions)'
-  LoggingOptions: '-Dorg.slf4j.simpleLogger.defaultLogLevel=$(MavenLogLevel) -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn'
-  MemoryOptions: '-Xmx4096m'
+  WagonOptions: "-Dmaven.wagon.httpconnectionManager.ttlSeconds=60"
+  DefaultOptions: "-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER) --fail-at-end --no-transfer-progress $(WagonOptions)"
+  LoggingOptions: "-Dorg.slf4j.simpleLogger.defaultLogLevel=$(MavenLogLevel) -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
+  MemoryOptions: "-Xmx4096m"
