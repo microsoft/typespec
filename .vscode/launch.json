@@ -99,7 +99,8 @@
       "name": "Debug importer",
       "program": "${workspaceFolder}/packages/importer/dist/cli.js",
       "args": [
-        "https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/batch/Azure.Batch/main.tsp"
+        // "https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/batch/Azure.Batch/main.tsp"
+        "main.tsp"
       ],
       "smartStep": true,
       "sourceMaps": true,
@@ -108,7 +109,7 @@
         "${workspaceFolder}/packages/*/dist/**/*.js",
         "${workspaceFolder}/packages/*/dist-dev/**/*.js"
       ],
-      "cwd": "${workspaceFolder}/packages/importer",
+      "cwd": "${workspaceFolder}/packages/samples/scratch",
       "presentation": {
         "order": 2
       }
