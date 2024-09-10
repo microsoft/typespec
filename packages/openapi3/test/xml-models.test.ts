@@ -588,7 +588,7 @@ describe("Complex array types", () => {
     });
   });
 
-  it("wrapped and renamed Tags object array in xmlPet Model.", async () => {
+  it("rename all names in array model.", async () => {
     const res = await oapiForModel(
       "Pet",
       `
