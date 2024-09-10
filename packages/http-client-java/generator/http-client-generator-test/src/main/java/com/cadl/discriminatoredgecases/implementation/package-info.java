@@ -4,8 +4,7 @@
 
 /**
  * <!-- start generated doc -->
- * Package containing the classes for Naming.
- * description of Naming.
+ * Package containing the implementations for DiscriminatorEdgeCases.
  * <!-- end generated doc -->
  */
-package com.cadl.naming;
+package com.cadl.discriminatoredgecases.implementation;

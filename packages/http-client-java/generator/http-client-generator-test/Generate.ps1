@@ -113,13 +113,13 @@ $generateScript = {
   }
 }
 
-Set-Location ../../
+Set-Location (Resolve-Path (Join-Path $PSScriptRoot '..' '..'))
 
 npm install
 npm run build
 npm pack
 
-Set-Location ./generator/http-client-generator-test
+Set-Location $PSScriptRoot
 
 
 if (Test-Path node_modules) {
