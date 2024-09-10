@@ -65,6 +65,7 @@
             <configuration>
               <finalName>${shade.finalName}</finalName>
               <minimizeJar>true</minimizeJar>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
               <entryPoints>
                 <entryPoint>${shade.mainClass}</entryPoint>
               </entryPoints>
