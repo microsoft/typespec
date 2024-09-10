@@ -1,9 +1,9 @@
 import { code, refkey } from "@alloy-js/core"
 import * as ts from "@alloy-js/typescript"
 
-export const HttpRequestOptionsRefkey = refkey();
-export function HttpRequestOptions() {
-  return <ts.InterfaceDeclaration export name="HttpRequestOptions" refkey={HttpRequestOptionsRefkey}>
+export const HttpFetchOptionsOptionsRefkey = refkey();
+export function HttpFetchOptionsDeclaration() {
+  return <ts.InterfaceDeclaration export name="HttpRequestOptions" refkey={HttpFetchOptionsOptionsRefkey}>
     <ts.InterfaceMember name="method" type="string" />
     <ts.InterfaceMember optional name="headers" type="Record<string, string>" />
     <ts.InterfaceMember optional name="body" type="string" />
@@ -11,10 +11,10 @@ export function HttpRequestOptions() {
 }
 
 export const HttpFetchRefkey = refkey();
-export function HttpFetch() {
+export function HttpFetchDeclaration() {
   return (
     <ts.FunctionDeclaration export async name="httpFetch"  refkey={HttpFetchRefkey}>
-      <ts.FunctionDeclaration.Parameters>url: string, options: <ts.Reference refkey={HttpRequestOptionsRefkey} />
+      <ts.FunctionDeclaration.Parameters>url: string, options: <ts.Reference refkey={HttpFetchOptionsOptionsRefkey} />
       </ts.FunctionDeclaration.Parameters>
       {code`
         try {

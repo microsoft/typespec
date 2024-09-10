@@ -8,7 +8,7 @@ import { ModelSerializers } from "./components/serializers.js";
 import path from "path";
 import { ClientContext } from "./components/client-context.js";
 import { OperationsFile } from "./components/operations-file.js";
-import { HttpFetch, HttpRequestOptions } from "./components/static-fetch-wrapper.jsx";
+import { HttpFetchDeclaration, HttpFetchOptionsDeclaration } from "./components/static-fetch-wrapper.jsx";
 import { $ } from "@typespec/compiler/typekit";
 import { uriTemplateLib } from "./components/external-packages/uri-template.js";
 
@@ -39,8 +39,8 @@ export async function $onEmit(context: EmitContext) {
           </ay.SourceDirectory>
           <ay.SourceDirectory path={utilitiesDir}>
             <ts.SourceFile path="http-fetch.ts">
-              <HttpRequestOptions />
-              <HttpFetch />
+              <HttpFetchOptionsDeclaration />
+              <HttpFetchDeclaration />
             </ts.SourceFile>
           </ay.SourceDirectory>
         </ay.SourceDirectory>

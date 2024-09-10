@@ -1,20 +1,19 @@
 import { Model, Operation } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
-import { strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
 import "../../src/typekit/index.js";
 import { createHttpTestRunner } from "./../test-host.js";
 
-describe("http: overloads", () => {
-  let runner: BasicTestRunner;
+let runner: BasicTestRunner;
 
-  beforeEach(async () => {
-    runner = await createHttpTestRunner();
-  });
+beforeEach(async () => {
+  runner = await createHttpTestRunner();
+});
 
-  it("should get httpOperation", async () => {
-    const { getFoo, Foo, Error } = (await runner.compile(`
+describe("httpOperation:getResponses", () => {
+  it("should get responses", async () => {
+    const { getFoo } = (await runner.compile(`
       @test model Foo {
         @visibility("create")
          id: int32;
@@ -33,19 +32,63 @@ describe("http: overloads", () => {
       @test op getFoo(): Foo | Error;
     `)) as { getFoo: Operation; Foo: Model; Error: Model };
 
-    const getHttpOperation = $.httpOperation.get(getFoo);
+    const responses = $.httpOperation.getResponses(getFoo);
+    expect(responses).toHaveLength(2);
+    expect(responses[0].statusCode).toBe(200);
+    expect(responses[0].contentType).toBe("application/json");
+    expect(responses[1].statusCode).toBe("*");
+    expect(responses[1].contentType).toBe("application/json");
+  });
 
-    strictEqual(getHttpOperation.path, "/foo");
-    strictEqual(getHttpOperation.verb, "get");
-    // Should have 2 status codes
-    expect(getHttpOperation.responses).toHaveLength(2);
-    expect(getHttpOperation.responses[0].statusCodes).toBe(200);
-    expect(getHttpOperation.responses[1].statusCodes).toBe("*");
+  it("should get responses with multiple status codes", async () => {
+    const { getFoo } = (await runner.compile(`
+      @test model Foo {
+        @visibility("create")
+         id: int32;
+         age: int32;
+         name: string;
+      }
 
-    const statusCode200Response = getHttpOperation.responses[0];
-    const statusCodeDefaultResponse = getHttpOperation.responses[1];
+      @route("/foo")
+      @get
+      @test op getFoo(): Foo | void;
+    `)) as { getFoo: Operation; Foo: Model; Error: Model };
 
-    expect(statusCode200Response.type).toBe(Foo);
-    expect(statusCodeDefaultResponse.type).toBe(Error);
+    const responses = $.httpOperation.getResponses(getFoo);
+    expect(responses).toHaveLength(2);
+    expect(responses[0].statusCode).toBe(200);
+    expect(responses[0].contentType).toBe("application/json");
+    expect(responses[1].statusCode).toBe(204);
+    expect(responses[1].contentType).toBe(undefined);
+  });
+
+  it("should get responses with multiple status codes and contentTypes", async () => {
+    const { getFoo } = (await runner.compile(`
+      @test model Foo {
+        @visibility("create")
+         id: int32;
+         age: int32;
+         name: string;
+      }
+
+      @error
+      @test model Error {
+        message: string;
+        code: int32
+      }
+
+      @route("/foo")
+      @get
+      @test op getFoo(): Foo | {...Foo, @header contentType: "text/plain"} | Error;
+    `)) as { getFoo: Operation; Foo: Model; Error: Model };
+
+    const responses = $.httpOperation.getResponses(getFoo);
+    expect(responses).toHaveLength(3);
+    expect(responses[0].statusCode).toBe(200);
+    expect(responses[0].contentType).toBe("application/json");
+    expect(responses[1].statusCode).toBe(200);
+    expect(responses[1].contentType).toBe("text/plain");
+    expect(responses[2].statusCode).toBe("*");
+    expect(responses[2].contentType).toBe("application/json");
   });
 });
