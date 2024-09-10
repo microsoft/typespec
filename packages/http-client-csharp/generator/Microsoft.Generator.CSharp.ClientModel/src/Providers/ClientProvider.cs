@@ -98,7 +98,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             if (_inputClient.Parent != null)
             {
-                _clientCachingField = new FieldProvider( //This represents the cached children
+                // Represents the cached children
+                _clientCachingField = new FieldProvider(
                     FieldModifiers.Private,
                     Type,
                     $"_cached{Name}",
