@@ -24,7 +24,6 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override FormattableString Description { get; }
 
-        //private readonly TypeSignatureModifiers _declarationModifiers;
         private readonly CSharpType _privateAdditionalRawDataPropertyType = typeof(IDictionary<string, BinaryData>);
         private readonly Type _additionalPropsUnknownType = typeof(BinaryData);
         private readonly Lazy<TypeProvider?>? _baseTypeProvider;
