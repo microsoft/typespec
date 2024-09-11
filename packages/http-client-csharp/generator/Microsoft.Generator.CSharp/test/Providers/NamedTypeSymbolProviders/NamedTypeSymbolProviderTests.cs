@@ -6,13 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using NUnit.Framework;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp.Tests.Providers
+namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
 {
     public class NamedTypeSymbolProviderTests
     {
@@ -21,18 +20,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
         public NamedTypeSymbolProviderTests()
         {
-            MockHelpers.LoadMockPlugin();
-
-            List<SyntaxTree> files =
-            [
-                GetTree(new NamedSymbol()),
-                GetTree(new PropertyType())
-            ];
-
-            var compilation = CSharpCompilation.Create(
-                assemblyName: "TestAssembly",
-                syntaxTrees: [.. files],
-                references: [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            var compilation = CompilationHelper.LoadCompilation([new NamedSymbol(), new PropertyType()]);
             var iNamedSymbol = GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "NamedSymbol");
 
             _namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
@@ -214,13 +202,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             protected override string BuildRelativeFilePath() => ".";
 
             protected override string BuildName() => "PropertyType";
-        }
-
-        private static SyntaxTree GetTree(TypeProvider provider)
-        {
-            var writer = new TypeProviderWriter(provider);
-            var file = writer.Write();
-            return CSharpSyntaxTree.ParseText(file.Content);
         }
 
         internal static INamedTypeSymbol? GetSymbol(INamespaceSymbol namespaceSymbol, string name)
