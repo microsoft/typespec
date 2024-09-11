@@ -44,7 +44,7 @@ export function HttpResponses(props: HttpResponsesProps) {
 
     if($.httpResponse.statusCode.isSingle(statusCode)) {
       return code`
-      if (statusCode === ${statusCode} ${contentTypeCheck}) {
+      if (response.status === ${statusCode} ${contentTypeCheck}) {
         ${expression}
       }
       `;
@@ -52,7 +52,7 @@ export function HttpResponses(props: HttpResponsesProps) {
 
     if($.httpResponse.statusCode.isRange(statusCode)) {
       return code`
-      if (statusCode >= ${statusCode.start} && statusCode <= ${statusCode.end} ${contentTypeCheck}) {
+      if (response.status >= ${statusCode.start} && response.status <= ${statusCode.end} ${contentTypeCheck}) {
         ${expression}
       }
       `;

@@ -47,7 +47,7 @@ describe("HttpResponse", () => {
     assert(testFile, "test.ts file not rendered");
     const actualContent = testFile.contents;
     const expectedContent =d `
-    if (statusCode === 204 && !response.body) {
+    if (response.status === 204 && !response.body) {
       return;
     }
     
@@ -93,7 +93,7 @@ describe("HttpResponse", () => {
     const expectedContent =d `
     import { widgetToApplication } from "./serializers.js";
 
-    if (statusCode === 200 && response.headers.get("content-type") === "application/json") {
+    if (response.status === 200 && response.headers.get("content-type") === "application/json") {
       return widgetToApplication(response.body);
     }
     
@@ -139,11 +139,11 @@ describe("HttpResponse", () => {
     const expectedContent =d `
     import { widgetToApplication } from "./serializers.js";
     
-    if (statusCode === 200 && response.headers.get("content-type") === "application/json") {
+    if (response.status === 200 && response.headers.get("content-type") === "application/json") {
       return widgetToApplication(response.body);
     }
 
-    if (statusCode === 204 && !response.body) {
+    if (response.status === 204 && !response.body) {
       return;
     }
 
@@ -189,18 +189,18 @@ describe("HttpResponse", () => {
     const expectedContent =d `
     import { widgetToApplication } from "./serializers.js";
     
-    if (statusCode === 200 && response.headers.get("content-type") === "application/json+something") {
+    if (response.status === 200 && response.headers.get("content-type") === "application/json+something") {
       return {
         "name": response.body.name,
         "age": response.body.age
       };
     }
 
-    if (statusCode === 200 && response.headers.get("content-type") === "application/json") {
+    if (response.status === 200 && response.headers.get("content-type") === "application/json") {
       return widgetToApplication(response.body);
     }
 
-    if (statusCode === 204 && !response.body) {
+    if (response.status === 204 && !response.body) {
       return;
     }
 

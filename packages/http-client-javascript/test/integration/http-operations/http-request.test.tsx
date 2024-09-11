@@ -60,6 +60,7 @@ describe("HttpRequest", () => {
     const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/\\/+$/, '')}\`;
 
     const httpRequestOptions = {
+      method: "get",
       headers: {},
       
     };
@@ -121,6 +122,7 @@ describe("HttpRequest", () => {
     const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/\\/+$/, '')}\`;
 
     const httpRequestOptions = {
+      method: "get",
       headers: {
         "Content-Type": "application/json",
         "etag": etag
@@ -175,6 +177,7 @@ describe("HttpRequest", () => {
     const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/\\/+$/, '')}\`;
 
     const httpRequestOptions = {
+      method: "get",
       headers: {
         "Content-Type": "application/json"
       },

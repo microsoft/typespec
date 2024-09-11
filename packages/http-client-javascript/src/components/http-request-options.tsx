@@ -13,8 +13,10 @@ export interface HttpRequestOptionsProps {
 }
 
 export function HttpRequestOptions(props: HttpRequestOptionsProps) {
+  const method = JSON.stringify($.httpOperation.get(props.operation).verb);
   return <ts.VarDeclaration name="httpRequestOptions" refkey={props.refkey}>
     <ts.ObjectExpression>
+      <ts.ObjectProperty name="method" value={method} />,
       <HttpRequestOptions.Headers operation={props.operation} />
       <HttpRequestOptions.Body operation={props.operation} />
     </ts.ObjectExpression>
