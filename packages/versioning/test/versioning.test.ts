@@ -680,6 +680,31 @@ describe("versioning: logic", () => {
       strictEqual((v6 as any as IntrinsicType).name, "never");
     });
 
+    it("does not emit diagnostic when using named versioned union variant in incompatible versioned source", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace TestService {
+          enum Versions {v1, v2}
+
+          @added(Versions.v2)
+          model Versioned {}
+
+          union NamedUnion {
+            string;
+
+            @added(Versions.v2)
+            Versioned: Versioned;
+          }
+          
+          @added(Versions.v1)
+          model Foo {
+            content: NamedUnion;
+          }
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     async function versionedUnion(versions: string[], union: string) {
       const { Test } = (await runner.compile(`
       @versioned(Versions)
