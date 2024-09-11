@@ -36,11 +36,13 @@
     "clean": "rimraf ./dist ./temp ./test/**/generated/ ./venv",
     "build": "tsc -p ./emitter/tsconfig.build.json",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
-    "lint": "eslint . --ext .ts --max-warnings=0",
+    "lint": "tsx ./eng/scripts/ci/lint.ts",
     "lint:fix": "eslint . --fix --ext .ts",
-    "install": "tsx ./eng/scripts/run-python3.ts ./eng/scripts/install.py",
-    "prepare": "tsx ./eng/scripts/run-python3.ts ./eng/scripts/prepare.py",
-    "regenerate": "tsx ./eng/scripts/regenerate.ts"
+    "format": "npx prettier **/*.ts --write && tsx ./eng/scripts/ci/format.ts",
+    "install": "tsx ./eng/scripts/setup/run-python3.ts ./eng/scripts/setup/install.py",
+    "prepare": "tsx ./eng/scripts/setup/run-python3.ts ./eng/scripts/setup/prepare.py",
+    "regenerate": "tsx ./eng/scripts/ci/regenerate.ts",
+    "test": "npx vitest run ./test && tsx ./eng/scripts/ci/run-tests.ts"
   },
   "files": [
     "dist/**",

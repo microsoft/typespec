@@ -17,7 +17,7 @@ import venv
 
 from venvtools import python_run
 
-_ROOT_DIR = Path(__file__).parent.parent.parent
+_ROOT_DIR = Path(__file__).parent.parent
 
 
 def main():

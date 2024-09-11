@@ -7,7 +7,8 @@ import sys
 import venv
 import logging
 from pathlib import Path
-from venvtools import python_run
+from pygen import m2r, preprocess, codegen, black
+from pygen.utils import parse_args
 
 _ROOT_DIR = Path(__file__).parent.parent
 
@@ -34,7 +35,8 @@ if __name__ == "__main__":
         breakpoint()  # pylint: disable=undefined-variable
 
     # run m2r
-    python_run(venv_context, "generator.pygen.m2r", command=sys.argv[1:])
-    python_run(venv_context, "generator.pygen.preprocess.__init__", command=sys.argv[1:])
-    python_run(venv_context, "generator.pygen.codegen.__init__", command=sys.argv[1:])
-    python_run(venv_context, "generator.pygen.black", command=sys.argv[1:])
+    args, unknown_args = parse_args()
+    m2r.M2R(output_folder=args.output_folder, cadl_file=args.cadl_file, **unknown_args).process()
+    preprocess.PreProcessPlugin(output_folder=args.output_folder, cadl_file=args.cadl_file, **unknown_args).process()
+    codegen.CodeGenerator(output_folder=args.output_folder, cadl_file=args.cadl_file, **unknown_args).process()
+    black.BlackScriptPlugin(output_folder=args.output_folder, **unknown_args).process()
