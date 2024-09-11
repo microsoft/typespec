@@ -722,7 +722,15 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     // Set XML attribute if present
     if (isAttribute(program, prop)) {
-      xmlObject.attribute = true;
+      if (prop.type?.kind === "Model") {
+        reportDiagnostic(program, {
+          code: "invalid-property-type",
+          format: { name: prop.name },
+          target: prop,
+        });
+      } else {
+        xmlObject.attribute = true;
+      }
     }
 
     // Handle array wrapping if necessary
@@ -732,10 +740,18 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     // Set XML unwrapped if present
     if (isUnwrapped(program, prop)) {
-      delete xmlObject.wrapped;
+      if (prop.type?.kind === "Model" && isArrayModelType(program, prop.type)) {
+        delete xmlObject.wrapped;
 
-      // if wrapped is false, xml.name of the wrapping element is ignored.
-      delete xmlObject.name;
+        // if wrapped is false, xml.name of the wrapping element is ignored.
+        delete xmlObject.name;
+      } else {
+        reportDiagnostic(program, {
+          code: "invalid-property-type",
+          format: { name: prop.name },
+          target: prop,
+        });
+      }
     }
 
     if (xmlObject.wrapped && prop.type?.kind === "Model" && isArrayModelType(program, prop.type)) {

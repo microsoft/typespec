@@ -1,5 +1,6 @@
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
-import { oapiForModel } from "./test-host.js";
+import { createOpenAPITestRunner, oapiForModel } from "./test-host.js";
 
 describe("@name", () => {
   it("set xml.name for schema", async () => {
@@ -157,25 +158,37 @@ describe("@attribute", () => {
       required: ["id"],
     });
   });
+
+  it("warning if attribute is object", async () => {
+    const runner = await createOpenAPITestRunner();
+    const diagnostics = await runner.diagnose(
+      `model Tag {
+        name: string;
+      }
+      model Pet {
+        @attribute
+        tags: Tag;
+      }`
+    );
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/invalid-property-type",
+      message: `propertie "tags" is not supported in the openapi3 emitter, it will be ignored.`,
+    });
+  });
 });
 
 describe("@unwrapped", () => {
-  it("ignore unwrapped if property is not array.", async () => {
-    const res = await oapiForModel(
-      "Book",
+  it("warning if unwrapped not array", async () => {
+    const runner = await createOpenAPITestRunner();
+    const diagnostics = await runner.diagnose(
       `model Book {
           @unwrapped
           id: string;
-        };`
+       };`
     );
-    expect(res.schemas.Book).toMatchObject({
-      type: "object",
-      properties: {
-        id: {
-          type: "string",
-        },
-      },
-      required: ["id"],
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/invalid-property-type",
+      message: `propertie "id" is not supported in the openapi3 emitter, it will be ignored.`,
     });
   });
 });

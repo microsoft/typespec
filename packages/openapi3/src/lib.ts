@@ -269,6 +269,12 @@ export const libDef = {
         default: paramMessage`Authentication "${"authType"}" is not a known authentication by the openapi3 emitter, it will be ignored.`,
       },
     },
+    "invalid-property-type": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`propertie "${"name"}" is not supported in the openapi3 emitter, it will be ignored.`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,
