@@ -26,10 +26,14 @@ namespace Microsoft.Generator.CSharp.Tests
             var method = stackFrame.GetMethod();
             var callingClass = method!.DeclaringType;
             var nsSplit = callingClass!.Namespace!.Split('.');
-            var ns = nsSplit[^1];
             var paramString = parameters is null ? string.Empty : $"({parameters})";
             var extName = isFile ? ".cs" : string.Empty;
-            return Path.Combine(_assemblyLocation, ns, "TestData", callingClass.Name, $"{method.Name}{paramString}{extName}");
+            var path = _assemblyLocation;
+            for (int i = 4; i < nsSplit.Length; i++)
+            {
+                path = Path.Combine(path, nsSplit[i]);
+            }
+            return Path.Combine(path, "TestData", callingClass.Name, $"{method.Name}{paramString}{extName}");
         }
 
         private static StackFrame GetRealMethodInvocation(StackTrace stackTrace)
@@ -40,7 +44,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 var frame = stackTrace.GetFrame(i);
                 var declaringType = frame!.GetMethod()!.DeclaringType!;
                 // we need to skip those method invocations from this class, or from the async state machine when the caller is an async method
-                if (declaringType != typeof(Helpers) && !IsCompilerGenerated(declaringType))
+                if (declaringType != typeof(Helpers) && declaringType != typeof(MockHelpers) && !IsCompilerGenerated(declaringType))
                 {
                     return frame;
                 }
@@ -51,15 +55,16 @@ namespace Microsoft.Generator.CSharp.Tests
 
             static bool IsCompilerGenerated(Type type)
             {
-                return type.IsDefined(typeof(CompilerGeneratedAttribute), false) || (type.Namespace?.StartsWith("System.Runtime.CompilerServices") ?? false);
+                return type.IsDefined(typeof(CompilerGeneratedAttribute), false) || (type.Namespace?.StartsWith("System.Runtime.CompilerServices") ?? false) ||
+                    type.Name.StartsWith("<<", StringComparison.Ordinal);
             }
         }
 
         public static async Task<Compilation> GetCompilationFromDirectoryAsync(string? parameters = null)
         {
             var directory = GetAssetFileOrDirectoryPath(false, parameters);
-            var workspace = GeneratedCodeWorkspace.CreateExistingCodeProject(directory, Path.Combine(directory, "Generated"));
-
+            var codeGenAttributeFiles = Path.Combine(_assemblyLocation, "..", "..", "..", "..", "..", "Microsoft.Generator.CSharp.Customization", "src");
+            var workspace = GeneratedCodeWorkspace.CreateExistingCodeProject([directory, codeGenAttributeFiles], Path.Combine(directory, "Generated"));
             return await workspace.GetCompilationAsync();
         }
     }

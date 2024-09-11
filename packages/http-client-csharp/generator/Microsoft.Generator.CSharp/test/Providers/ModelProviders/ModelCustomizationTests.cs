@@ -8,15 +8,15 @@ using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is crucial to get correct test data file.
+namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
 {
     public class ModelCustomizationTests
     {
         // Validates that the property body's setter is correctly set based on the property type
-        [TestCase]
+        [Test]
         public async Task CanChangeModelName()
         {
-            MockHelpers.LoadMockPlugin(customization: await Helpers.GetCompilationFromDirectoryAsync());
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[]
             {
@@ -33,7 +33,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
         [Test]
         public async Task CanChangePropertyName()
         {
-            MockHelpers.LoadMockPlugin(customization: await Helpers.GetCompilationFromDirectoryAsync());
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[]
             {
@@ -57,7 +57,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
         [Test]
         public async Task CanChangePropertyType()
         {
-            MockHelpers.LoadMockPlugin(customization: await Helpers.GetCompilationFromDirectoryAsync());
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[]
             {
@@ -82,7 +82,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
         [Test]
         public async Task CanChangePropertyAccessibility()
         {
-            MockHelpers.LoadMockPlugin(customization: await Helpers.GetCompilationFromDirectoryAsync());
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[]
             {
@@ -116,7 +116,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
         [TestCase]
         public async Task CanChangeToStruct()
         {
-            MockHelpers.LoadMockPlugin(customization: await Helpers.GetCompilationFromDirectoryAsync());
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[]
             {
@@ -130,10 +130,10 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
             Assert.IsTrue(modelTypeProvider.Type.IsValueType);
         }
 
-        [TestCase]
+        [Test]
         public async Task CanChangeModelNameAndToStructAtSameTime()
         {
-            MockHelpers.LoadMockPlugin(customization: await Helpers.GetCompilationFromDirectoryAsync());
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[]
             {
@@ -152,7 +152,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
         [TestCase]
         public async Task CanChangeAccessibility()
         {
-            MockHelpers.LoadMockPlugin(customization: await Helpers.GetCompilationFromDirectoryAsync());
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[] {
                 InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
