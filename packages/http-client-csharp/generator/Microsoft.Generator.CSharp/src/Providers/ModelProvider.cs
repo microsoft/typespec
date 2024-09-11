@@ -24,8 +24,6 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override FormattableString Description { get; }
 
-        private readonly bool _isStruct;
-        private readonly TypeSignatureModifiers _declarationModifiers;
         private readonly CSharpType _privateAdditionalRawDataPropertyType = typeof(IDictionary<string, BinaryData>);
         private readonly Type _additionalPropsUnknownType = typeof(BinaryData);
         private readonly Lazy<TypeProvider?>? _baseTypeProvider;
@@ -38,27 +36,12 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             _inputModel = inputModel;
             Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : $"The {Name}.";
-            _declarationModifiers = TypeSignatureModifiers.Partial |
-                (inputModel.ModelAsStruct ? TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct : TypeSignatureModifiers.Class);
-
-            if (inputModel.Access == "internal")
-            {
-                _declarationModifiers |= TypeSignatureModifiers.Internal;
-            }
-
-            bool isAbstract = inputModel.DiscriminatorProperty is not null && inputModel.DiscriminatorValue is null;
-            if (isAbstract)
-            {
-                _declarationModifiers |= TypeSignatureModifiers.Abstract;
-            }
 
             if (inputModel.BaseModel is not null)
             {
                 _baseTypeProvider = new(() => CodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel.BaseModel));
                 DiscriminatorValueExpression = EnsureDiscriminatorValueExpression();
             }
-
-            _isStruct = inputModel.ModelAsStruct;
         }
 
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;
@@ -107,7 +90,54 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildName() => _inputModel.Name.ToCleanName();
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers() => _declarationModifiers;
+        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        {
+            var customCodeModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
+            var isStruct = false;
+            // the information of if this model should be a struct comes from two sources:
+            // 1. the customied code
+            // 2. the spec
+            if (customCodeModifiers.HasFlag(TypeSignatureModifiers.Struct))
+            {
+                isStruct = true;
+            }
+            if (_inputModel.ModelAsStruct)
+            {
+                isStruct = true;
+            }
+            var declarationModifiers = TypeSignatureModifiers.Partial;
+
+            if (isStruct)
+            {
+                declarationModifiers |= TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct;
+            }
+            else
+            {
+                declarationModifiers |= TypeSignatureModifiers.Class;
+            }
+
+            if (customCodeModifiers != TypeSignatureModifiers.None)
+            {
+                declarationModifiers |= GetAccessibilityModifiers(customCodeModifiers);
+            }
+            else if (_inputModel.Access == "internal")
+            {
+                declarationModifiers |= TypeSignatureModifiers.Internal;
+            }
+
+            bool isAbstract = _inputModel.DiscriminatorProperty is not null && _inputModel.DiscriminatorValue is null;
+            if (isAbstract)
+            {
+                declarationModifiers |= TypeSignatureModifiers.Abstract;
+            }
+
+            return declarationModifiers;
+
+            static TypeSignatureModifiers GetAccessibilityModifiers(TypeSignatureModifiers modifiers)
+            {
+                return modifiers & (TypeSignatureModifiers.Public | TypeSignatureModifiers.Internal | TypeSignatureModifiers.Protected | TypeSignatureModifiers.Private);
+            }
+        }
 
         /// <summary>
         /// Builds the fields for the model by adding the raw data field.
@@ -318,7 +348,7 @@ namespace Microsoft.Generator.CSharp.Providers
             // add the base parameters, if any
             foreach (var property in baseProperties)
             {
-                AddInitializationParameterForCtor(baseParameters, property, _isStruct, isPrimaryConstructor);
+                AddInitializationParameterForCtor(baseParameters, property, Type.IsStruct, isPrimaryConstructor);
             }
 
             // construct the initializer using the parameters from base signature
@@ -326,7 +356,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             foreach (var property in Properties)
             {
-                AddInitializationParameterForCtor(constructorParameters, property, _isStruct, isPrimaryConstructor);
+                AddInitializationParameterForCtor(constructorParameters, property, Type.IsStruct, isPrimaryConstructor);
             }
 
             constructorParameters.AddRange(_inputModel.IsUnknownDiscriminatorModel ? baseParameters : baseParameters.Where(p => p.Property is null || !p.Property.IsDiscriminator));
@@ -455,7 +485,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
                 ValueExpression? initializationValue = null;
 
-                if (parameterMap.TryGetValue(property.AsParameter.Name, out var parameter) || _isStruct)
+                if (parameterMap.TryGetValue(property.AsParameter.Name, out var parameter) || Type.IsStruct)
                 {
                     if (parameter != null)
                     {
