@@ -5,6 +5,7 @@ using System;
 using System.ClientModel;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Text.Json;
 using Microsoft.CodeAnalysis;
 
 namespace Microsoft.Generator.CSharp.ClientModel
@@ -21,7 +22,12 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         public override ScmTypeFactory TypeFactory { get; }
 
-        public override IReadOnlyList<MetadataReference> AdditionalMetadataReferences => [MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location)];
+        public override IReadOnlyList<MetadataReference> AdditionalMetadataReferences =>
+        [
+            MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(JsonSerializer).Assembly.Location)
+        ];
 
         [ImportingConstructor]
         public ClientModelPlugin(GeneratorContext context)
