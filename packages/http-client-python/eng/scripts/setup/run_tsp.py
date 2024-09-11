@@ -10,7 +10,7 @@ from pathlib import Path
 from pygen import m2r, preprocess, codegen, black
 from pygen.utils import parse_args
 
-_ROOT_DIR = Path(__file__).parent.parent
+_ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
 _LOGGER = logging.getLogger(__name__)
 

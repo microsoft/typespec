@@ -27,7 +27,7 @@ from pathlib import Path
 
 from venvtools import ExtendedEnvBuilder, python_run
 
-_ROOT_DIR = Path(__file__).parent.parent
+_ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
 
 def main():

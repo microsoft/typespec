@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 
-_ROOT_DIR = Path(__file__).parent.parent
+_ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
 
 class ExtendedEnvBuilder(venv.EnvBuilder):
