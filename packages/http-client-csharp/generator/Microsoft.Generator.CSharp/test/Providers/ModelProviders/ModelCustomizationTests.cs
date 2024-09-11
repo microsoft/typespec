@@ -14,7 +14,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
     {
         // Validates that the property body's setter is correctly set based on the property type
         [TestCase]
-        public async Task TestCustomization_CanChangeModelName()
+        public async Task CanChangeModelName()
         {
             MockHelpers.LoadMockPlugin(customization: await Helpers.GetCompilationFromDirectoryAsync());
 
@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
         }
 
         [TestCase]
-        public async Task TestCustomization_CanChangeToStruct()
+        public async Task CanChangeToStruct()
         {
             MockHelpers.LoadMockPlugin(customization: await Helpers.GetCompilationFromDirectoryAsync());
 
@@ -52,7 +52,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
         }
 
         [TestCase]
-        public async Task TestCustomization_CanChangeModelNameAndToStructAtSameTime()
+        public async Task CanChangeModelNameAndToStructAtSameTime()
         {
             MockHelpers.LoadMockPlugin(customization: await Helpers.GetCompilationFromDirectoryAsync());
 
@@ -71,7 +71,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
         }
 
         [TestCase]
-        public async Task TestCustomization_CanChangeAccessibility()
+        public async Task CanChangeAccessibility()
         {
             MockHelpers.LoadMockPlugin(customization: await Helpers.GetCompilationFromDirectoryAsync());
 
