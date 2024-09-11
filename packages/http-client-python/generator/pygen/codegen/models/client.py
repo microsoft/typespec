@@ -8,7 +8,7 @@ from typing import Any, Dict, TYPE_CHECKING, TypeVar, Generic, Union, List, Opti
 from .base import BaseModel
 from .parameter_list import ClientGlobalParameterList, ConfigGlobalParameterList
 from .imports import FileImport, ImportType, TypingSection, MsrestImportType
-from .utils import add_to_pylint_disable, NAME_LENGTH_LIMIT
+from .utils import add_to_pylint_disable
 from .operation_group import OperationGroup
 from .request_builder import (
     RequestBuilder,
@@ -18,7 +18,7 @@ from .request_builder import (
 from .parameter import Parameter, ParameterMethodLocation
 from .lro_operation import LROOperation
 from .lro_paging_operation import LROPagingOperation
-from ...utils import extract_original_name
+from ...utils import extract_original_name, NAME_LENGTH_LIMIT
 
 ParameterListType = TypeVar(
     "ParameterListType",
@@ -145,13 +145,12 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
         """Whether the base url is parameterized or not"""
         return not any(p for p in self.parameters if p.is_host)
 
-    @property
-    def pylint_disable(self) -> str:
-        retval = add_to_pylint_disable("", "client-accepts-api-version-keyword")
+    def pylint_disable(self, async_mode: bool) -> str:
+        retval = ""
+        if not any(p for p in self.parameters.parameters if p.is_api_version and p.method_location in [ParameterMethodLocation.KEYWORD_ONLY, ParameterMethodLocation.KWARG]):
+            retval = add_to_pylint_disable(retval, "client-accepts-api-version-keyword")
         if len(self.operation_groups) > 6:
             retval = add_to_pylint_disable(retval, "too-many-instance-attributes")
-        if len(self.name) > NAME_LENGTH_LIMIT:
-            retval = add_to_pylint_disable(retval, "name-too-long")
         return retval
 
     @property
@@ -347,10 +346,9 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
 class Config(_ClientConfigBase[ConfigGlobalParameterList]):
     """Model representing our Config type."""
 
-    @property
-    def pylint_disable(self) -> str:
+    def pylint_disable(self, async_mode: bool) -> str:
         retval = add_to_pylint_disable("", "too-many-instance-attributes")
-        if len(self.name) + len("Configuration") > NAME_LENGTH_LIMIT:
+        if len(self.name) > NAME_LENGTH_LIMIT:
             retval = add_to_pylint_disable(retval, "name-too-long")
         return retval
 

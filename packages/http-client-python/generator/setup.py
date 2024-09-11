@@ -15,7 +15,7 @@ from setuptools import setup, find_packages
 
 # Version extraction inspired from 'requests'
 with open(os.path.join("pygen", "_version.py"), "r") as fd:
-    version = re.search(r'^VERSION\s*=\s*[\'"]([^\'"]*)[\'"]', fd.read(), re.MULTILINE).group(1)
+    version = re.search(r'^VERSION\s*=\s*[\'"]([^\'"]*)[\'"]', fd.read(), re.MULTILINE).group(1)  # type: ignore
 
 if not version:
     raise RuntimeError("Cannot find version information")

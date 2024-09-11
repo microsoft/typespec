@@ -19,7 +19,7 @@ from typing import (
 
 from .request_builder_parameter import RequestBuilderParameter
 
-from .utils import OrderedSet, add_to_pylint_disable, NAME_LENGTH_LIMIT
+from .utils import OrderedSet, add_to_pylint_disable
 from .base_builder import BaseBuilder
 from .imports import FileImport, ImportType, TypingSection
 from .response import (
@@ -38,6 +38,7 @@ from .parameter_list import ParameterList
 from .model_type import ModelType
 from .base import BaseType
 from .request_builder import OverloadedRequestBuilder, RequestBuilder
+from ...utils import xml_serializable, json_serializable, NAME_LENGTH_LIMIT
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -136,17 +137,11 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             return self.responses[0].type_annotation(**kwargs)
         return "None"
 
-    @property
-    def pylint_disable(self) -> str:
+    def pylint_disable(self, async_mode: bool) -> str:
         retval: str = ""
-        if self.response_type_annotation(async_mode=False) == "None":
+        if not async_mode and not self.is_overload and self.response_type_annotation(async_mode=False) == "None":
             # doesn't matter if it's async or not
             retval = add_to_pylint_disable(retval, "inconsistent-return-statements")
-        try:
-            if any(is_internal(r.type) for r in self.responses) or is_internal(self.parameters.body_parameter.type):
-                retval = add_to_pylint_disable(retval, "protected-access")
-        except ValueError:
-            pass
         if len(self.name) > NAME_LENGTH_LIMIT:
             retval = add_to_pylint_disable(retval, "name-too-long")
         return retval
@@ -349,11 +344,12 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             file_import.add_submodule_import("exceptions", error, ImportType.SDKCORE)
         if self.code_model.options["azure_arm"]:
             file_import.add_submodule_import("azure.mgmt.core.exceptions", "ARMErrorFormat", ImportType.SDKCORE)
-        file_import.add_submodule_import(
-            "typing",
-            "Type",
-            ImportType.STDLIB,
-        )
+        if self.non_default_errors:
+            file_import.add_submodule_import(
+                "typing",
+                "Type",
+                ImportType.STDLIB,
+            )
         file_import.add_mutable_mapping_import()
         if self.non_default_error_status_codes:
             file_import.add_submodule_import(
@@ -418,8 +414,29 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         file_import.merge(self.get_request_builder_import(self.request_builder, async_mode))
         if self.overloads:
             file_import.add_submodule_import("typing", "overload", ImportType.STDLIB)
-        if self.non_default_errors and self.code_model.options["models_mode"] == "dpg":
-            file_import.add_submodule_import(f"{relative_path}_model_base", "_deserialize", ImportType.LOCAL)
+        if self.code_model.options["models_mode"] == "dpg":
+            if self.parameters.has_body:
+                if self.has_form_data_body:
+                    file_import.add_submodule_import(relative_path, "_model_base", ImportType.LOCAL)
+                elif xml_serializable(self.parameters.body_parameter.default_content_type):
+                    file_import.add_submodule_import(
+                        f"{relative_path}_model_base",
+                        "_get_element",
+                        ImportType.LOCAL,
+                    )
+                elif json_serializable(self.parameters.body_parameter.default_content_type):
+                    file_import.add_submodule_import(
+                        f"{relative_path}_model_base",
+                        "SdkJSONEncoder",
+                        ImportType.LOCAL,
+                    )
+                    file_import.add_import("json", ImportType.STDLIB)
+            if any(xml_serializable(str(r.default_content_type)) for r in self.responses):
+                file_import.add_submodule_import(f"{relative_path}_model_base", "_deserialize_xml", ImportType.LOCAL)
+            elif any(r.type for r in self.responses):
+                file_import.add_submodule_import(f"{relative_path}_model_base", "_deserialize", ImportType.LOCAL)
+            if self.default_error_deserialization or self.non_default_errors:
+                file_import.add_submodule_import(f"{relative_path}_model_base", "_deserialize", ImportType.LOCAL)
         return file_import
 
     def get_response_from_status(self, status_code: Optional[Union[str, int]]) -> ResponseType:
@@ -492,20 +509,6 @@ class Operation(OperationBase[Response]):
             )
         if self.has_response_body and not self.has_optional_return_type and not self.code_model.options["models_mode"]:
             file_import.add_submodule_import("typing", "cast", ImportType.STDLIB)
-        relative_path = "..." if async_mode else ".."
-        if self.code_model.options["models_mode"] == "dpg":
-            if self.parameters.has_body:
-                if self.has_form_data_body:
-                    file_import.add_submodule_import(relative_path, "_model_base", ImportType.LOCAL)
-                else:
-                    file_import.add_submodule_import(
-                        f"{relative_path}_model_base",
-                        "SdkJSONEncoder",
-                        ImportType.LOCAL,
-                    )
-                    file_import.add_import("json", ImportType.STDLIB)
-            if self.default_error_deserialization or any(r.type for r in self.responses):
-                file_import.add_submodule_import(f"{relative_path}_model_base", "_deserialize", ImportType.LOCAL)
 
         return file_import
 

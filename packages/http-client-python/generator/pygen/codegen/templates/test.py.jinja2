@@ -29,9 +29,9 @@ class {{ test.test_class_name }}({{ test.base_test_class_name }}):
     {% endif %}
     @recorded_by_proxy{{ async_suffix }}
     {% if code_model.options["azure_arm"] %}
-    {{ async }}def test_{{ testcase.operation.name }}(self, resource_group):
+    {{ async }}def test_{{ testcase.name }}(self, resource_group):
     {% else %}
-    {{ async }}def test_{{ testcase.operation.name }}(self, {{ prefix_lower }}_endpoint):
+    {{ async }}def test_{{ testcase.name }}(self, {{ prefix_lower }}_endpoint):
         {{ client_var }} = self.{{ test.create_client_name }}(endpoint={{ prefix_lower }}_endpoint)
     {% endif %}
         {{testcase.response }}{{ client_var }}{{ testcase.operation_group_prefix }}.{{ testcase.operation.name }}(

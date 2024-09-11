@@ -1,4 +1,3 @@
-# pylint: disable=too-many-lines
 # -------------------------------------------------------------------------
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License. See License.txt in the project root for
@@ -79,6 +78,12 @@ class TestCase:
         self.params = params
         self.operation = operation
         self.is_async = is_async
+
+    @property
+    def name(self) -> str:
+        if self.operation_groups[-1].is_mixin:
+            return self.operation.name
+        return "_".join([og.property_name for og in self.operation_groups] + [self.operation.name])
 
     @property
     def operation_group_prefix(self) -> str:

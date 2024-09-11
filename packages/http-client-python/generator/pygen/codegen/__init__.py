@@ -295,6 +295,7 @@ class CodeGenerator(Plugin):
             "generate_sample",
             "generate_test",
             "default_api_version",
+            "from_typespec",
             "flavor",
             "company_name",
             "emit_cross_language_definition_file",

@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
+from token import NAME
 from typing import (
     Any,
     Callable,
@@ -16,12 +17,13 @@ from typing import (
 from abc import abstractmethod
 
 from .base_builder import BaseBuilder
-from .utils import add_to_pylint_disable, NAME_LENGTH_LIMIT
+from .utils import add_to_pylint_disable
 from .parameter_list import (
     RequestBuilderParameterList,
     OverloadedRequestBuilderParameterList,
 )
 from .imports import FileImport, ImportType, TypingSection, MsrestImportType
+from ...utils import NAME_LENGTH_LIMIT
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -65,8 +67,7 @@ class RequestBuilderBase(BaseBuilder[ParameterListType, List["RequestBuilder"]])
     def is_lro(self) -> bool:
         return self.yaml_data.get("discriminator") in ("lro", "lropaging")
 
-    @property
-    def pylint_disable(self) -> str:
+    def pylint_disable(self, async_mode: bool) -> str:
         if len(self.name) > NAME_LENGTH_LIMIT:
             return add_to_pylint_disable("", "name-too-long")
         return ""

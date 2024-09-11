@@ -137,7 +137,7 @@ class EnumType(BaseType):
         """
         return self.value_type.serialization_type
 
-    def description(self, *, is_operation_file: bool) -> str:  # pylint: disable=unused-argument
+    def description(self, *, is_operation_file: bool) -> str:
         possible_values = [self.get_declaration(v.value) for v in self.values]
         if not possible_values:
             return ""

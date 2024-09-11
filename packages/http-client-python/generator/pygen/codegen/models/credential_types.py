@@ -106,7 +106,7 @@ CredentialPolicyType = TypeVar(
 )
 
 
-class CredentialType(Generic[CredentialPolicyType], BaseType):  # pylint:disable=abstract-method
+class CredentialType(Generic[CredentialPolicyType], BaseType):
     """Store info about the type of the credential. Can be either an KeyCredential or a TokenCredential"""
 
     def __init__(
@@ -118,7 +118,7 @@ class CredentialType(Generic[CredentialPolicyType], BaseType):  # pylint:disable
         super().__init__(yaml_data, code_model)
         self.policy = policy
 
-    def description(self, *, is_operation_file: bool) -> str:  # pylint: disable=unused-argument
+    def description(self, *, is_operation_file: bool) -> str:
         return ""
 
     def get_json_template_representation(
@@ -146,11 +146,7 @@ class CredentialType(Generic[CredentialPolicyType], BaseType):  # pylint:disable
         )
 
 
-class TokenCredentialType(
-    CredentialType[  # pylint: disable=unsubscriptable-object
-        Union[BearerTokenCredentialPolicyType, ARMChallengeAuthenticationPolicyType]
-    ]
-):
+class TokenCredentialType(CredentialType[Union[BearerTokenCredentialPolicyType, ARMChallengeAuthenticationPolicyType]]):
     """Type of a token credential. Used by BearerAuth and ARMChallenge policies"""
 
     def type_annotation(self, **kwargs: Any) -> str:
@@ -194,23 +190,20 @@ class TokenCredentialType(
         return "hasattr({}, 'get_token')"
 
 
-class KeyCredentialType(
-    # pylint: disable=unsubscriptable-object
-    CredentialType[KeyCredentialPolicyType]
-):
+class KeyCredentialType(CredentialType[KeyCredentialPolicyType]):
     """Type for an KeyCredential"""
 
-    def docstring_type(self, **kwargs: Any) -> str:  # pylint: disable=unused-argument
+    def docstring_type(self, **kwargs: Any) -> str:
         return f"~{self.code_model.core_library}.credentials.{self.policy.credential_name}"
 
-    def type_annotation(self, **kwargs: Any) -> str:  # pylint: disable=unused-argument
+    def type_annotation(self, **kwargs: Any) -> str:
         return self.policy.credential_name
 
     @property
     def instance_check_template(self) -> str:
         return "isinstance({}, " + f"{self.policy.credential_name})"
 
-    def imports(self, **kwargs: Any) -> FileImport:  # pylint: disable=unused-argument
+    def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
         file_import.add_submodule_import(
             "credentials",

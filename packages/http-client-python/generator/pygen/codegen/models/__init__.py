@@ -30,6 +30,7 @@ from .primitive_types import (
     UnixTimeType,
     SdkCoreType,
     DecimalType,
+    MultiPartFileType,
 )
 from .enum_type import EnumType, EnumValue
 from .base import BaseType
@@ -149,6 +150,7 @@ TYPE_TO_OBJECT = {
     "unixtime": UnixTimeType,
     "credential": StringType,
     "sdkcore": SdkCoreType,
+    "multipartfile": MultiPartFileType,
 }
 _LOGGER = logging.getLogger(__name__)
 

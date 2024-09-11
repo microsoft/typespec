@@ -261,8 +261,7 @@ class _ParameterListBase(
         )
 
 
-class _ParameterList(_ParameterListBase[Parameter, BodyParameter]):  # pylint: disable=unsubscriptable-object
-    """Base Parameter class for the two operation ParameterLists"""
+class _ParameterList(_ParameterListBase[Parameter, BodyParameter]):
 
     @staticmethod
     def parameter_creator() -> Callable[[Dict[str, Any], "CodeModel"], Parameter]:
@@ -285,9 +284,7 @@ class ParameterList(_ParameterList):
     """ParameterList is the parameter list for Operation classes"""
 
 
-class _RequestBuilderParameterList(
-    _ParameterListBase[RequestBuilderParameter, RequestBuilderBodyParameter]  # pylint: disable=unsubscriptable-object
-):
+class _RequestBuilderParameterList(_ParameterListBase[RequestBuilderParameter, RequestBuilderBodyParameter]):
     """_RequestBuilderParameterList is base parameter list for RequestBuilder classes"""
 
     @staticmethod

@@ -43,7 +43,7 @@ def _serialize_versioned_package(i: ImportModel, delimiter: str) -> str:
     buffer.append("else:")
     buffer.append(
         f"    from {i.module_name} import {i.submodule_name}{f' as {i.alias}' if i.alias else ''}"
-        "  # type: ignore  # pylint: disable=ungrouped-imports"
+        "  # type: ignore"
     )
     return delimiter.join(buffer)
 
@@ -122,6 +122,6 @@ class FileImportSerializer:
             add_conditional_typing=False,
         )
         if typing_imports_list:
-            typing_imports += "\n\nif TYPE_CHECKING:\n    # pylint: disable=unused-import,ungrouped-imports\n    "
+            typing_imports += "\n\nif TYPE_CHECKING:\n    "
             typing_imports += "\n\n    ".join(_get_import_clauses(typing_imports_list, "\n    "))
         return regular_imports + typing_imports + self.get_typing_definitions()

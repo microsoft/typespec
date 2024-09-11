@@ -27,7 +27,7 @@ class GeneratorRenderer(m2r2.RestRenderer):
         return f":code:`{html}`"
 
 
-class M2R(YamlUpdatePlugin):  # pylint: disable=abstract-method
+class M2R(YamlUpdatePlugin):
     """A plugin to convert any description and summary from MD to RST."""
 
     def update_yaml(self, yaml_data: Dict[str, Any]) -> None:

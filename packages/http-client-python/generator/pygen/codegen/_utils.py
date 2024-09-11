@@ -14,3 +14,4 @@ DEFAULT_HEADER_TEXT = (
 SWAGGER_PACKAGE_MODE = ["mgmtplane", "dataplane"]  # for backward compatibility
 TYPESPEC_PACKAGE_MODE = ["azure-mgmt", "azure-dataplane", "generic"]
 VALID_PACKAGE_MODE = SWAGGER_PACKAGE_MODE + TYPESPEC_PACKAGE_MODE
+NAME_LENGTH_LIMIT = 40

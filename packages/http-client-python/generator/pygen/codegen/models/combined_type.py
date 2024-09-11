@@ -51,7 +51,7 @@ class CombinedType(BaseType):
     def client_default_value(self) -> Any:
         return self.yaml_data.get("clientDefaultValue")
 
-    def description(self, *, is_operation_file: bool) -> str:  # pylint: disable=unused-argument
+    def description(self, *, is_operation_file: bool) -> str:
         if len(self.types) == 2:
             return f"Is either a {self.types[0].type_description} type or a {self.types[1].type_description} type."
         return f"Is one of the following types: {', '.join([t.type_description for t in self.types])}"

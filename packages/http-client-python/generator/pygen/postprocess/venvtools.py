@@ -52,9 +52,7 @@ def create(
     return builder.context
 
 
-def python_run(  # pylint: disable=inconsistent-return-statements
-    venv_context, module, command, directory=_ROOT_DIR
-) -> Optional[str]:
+def python_run(venv_context, module, command, directory=_ROOT_DIR) -> Optional[str]:
     try:
         cmd_line = [
             venv_context.env_exe,

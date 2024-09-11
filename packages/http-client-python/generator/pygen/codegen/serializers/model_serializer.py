@@ -66,10 +66,10 @@ class _ModelSerializer(BaseSerializer, ABC):
     @staticmethod
     def initialize_standard_property(prop: Property):
         if not (prop.optional or prop.client_default_value is not None):
-            return f"{prop.client_name}: {prop.type_annotation()},{prop.pylint_disable}"
+            return f"{prop.client_name}: {prop.type_annotation()},{prop.pylint_disable()}"
         return (
             f"{prop.client_name}: {prop.type_annotation()} = "
-            f"{prop.client_default_value_declaration},{prop.pylint_disable}"
+            f"{prop.client_default_value_declaration},{prop.pylint_disable()}"
         )
 
     @staticmethod
@@ -93,7 +93,7 @@ class _ModelSerializer(BaseSerializer, ABC):
             init_properties_declaration.append(self.initialize_standard_property(param))
 
         return init_properties_declaration
-
+    
     @staticmethod
     def properties_to_pass_to_super(model: ModelType) -> str:
         properties_to_pass_to_super = []
@@ -103,7 +103,26 @@ class _ModelSerializer(BaseSerializer, ABC):
                     properties_to_pass_to_super.append(f"{prop.client_name}={prop.client_name}")
         properties_to_pass_to_super.append("**kwargs")
         return ", ".join(properties_to_pass_to_super)
+    
+    def initialize_properties(self, model: ModelType) -> List[str]:
+        ...
 
+    def need_init(self, model: ModelType) -> bool:
+        return (not model.internal) and bool(self.init_line(model) or model.discriminator)
+    
+    def pylint_disable(self, model: ModelType) -> str:
+        if model.flattened_property or self.initialize_properties(model):
+            return ""
+        if any(p for p in model.properties if p.is_discriminator and model.discriminator_value):
+            return ""
+        if model.parents and any(
+            "=" in prop
+            for parent in model.parents
+            for prop in self.init_line(parent)
+            if self.need_init(parent)
+        ):
+            return ""
+        return "  # pylint: disable=useless-super-delegation"
 
 class MsrestModelSerializer(_ModelSerializer):
     def imports(self) -> FileImport:
@@ -128,7 +147,7 @@ class MsrestModelSerializer(_ModelSerializer):
         )
         if model.parents:
             basename = ", ".join([m.name for m in model.parents])
-        return f"class {model.name}({basename}):{model.pylint_disable}"
+        return f"class {model.name}({basename}):{model.pylint_disable()}"
 
     @staticmethod
     def get_properties_to_initialize(model: ModelType) -> List[Property]:
@@ -194,6 +213,8 @@ class DpgModelSerializer(_ModelSerializer):
         )
 
         for model in self.code_model.model_types:
+            if model.base == "json":
+                continue
             file_import.merge(model.imports(is_operation_file=False))
             for prop in model.properties:
                 file_import.merge(prop.imports())
@@ -211,7 +232,7 @@ class DpgModelSerializer(_ModelSerializer):
             basename = ", ".join([m.name for m in model.parents])
         if model.discriminator_value:
             basename += f", discriminator='{model.discriminator_value}'"
-        return f"class {model.name}({basename}):{model.pylint_disable}"
+        return f"class {model.name}({basename}):{model.pylint_disable()}"
 
     @staticmethod
     def get_properties_to_declare(model: ModelType) -> List[Property]:
@@ -249,12 +270,20 @@ class DpgModelSerializer(_ModelSerializer):
         elif hasattr(prop.type, "encode") and prop.type.encode:  # type: ignore
             args.append(f'format="{prop.type.encode}"')  # type: ignore
 
+        if prop.xml_metadata:
+            args.append(f"xml={prop.xml_metadata}")
+
         field = "rest_discriminator" if prop.is_discriminator else "rest_field"
-        type_ignore = prop.is_discriminator and isinstance(prop.type, (ConstantType, EnumValue)) and prop.type.value
-        return (
-            f"{prop.client_name}: {prop.type_annotation()} ="
-            f' {field}({", ".join(args)}){"  # type: ignore" if type_ignore else ""}'
+        type_ignore = (
+            "  # type: ignore"
+            if prop.is_discriminator and isinstance(prop.type, (ConstantType, EnumValue)) and prop.type.value
+            else ""
         )
+        generated_code = f'{prop.client_name}: {prop.type_annotation()} = {field}({", ".join(args)})'
+        decl = f"{generated_code}{type_ignore}"
+        if len(decl) + 4 > 120:
+            decl += "  # pylint: disable=line-too-long"
+        return decl
 
     def initialize_properties(self, model: ModelType) -> List[str]:
         init_args = []

@@ -22,8 +22,8 @@ class RawString(object):
         return "r'{}'".format(self.string.replace("'", "\\'"))
 
 
-class PrimitiveType(BaseType):  # pylint: disable=abstract-method
-    def description(self, *, is_operation_file: bool) -> str:  # pylint: disable=unused-argument
+class PrimitiveType(BaseType):
+    def description(self, *, is_operation_file: bool) -> str:
         return ""
 
     def type_annotation(self, **kwargs: Any) -> str:
@@ -188,7 +188,7 @@ class AnyObjectType(PrimitiveType):
         return "JSON"
 
 
-class NumberType(PrimitiveType):  # pylint: disable=abstract-method
+class NumberType(PrimitiveType):
     def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.precision: Optional[int] = yaml_data.get("precision")
@@ -233,6 +233,12 @@ class NumberType(PrimitiveType):  # pylint: disable=abstract-method
 
 
 class IntegerType(NumberType):
+
+    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+        super().__init__(yaml_data=yaml_data, code_model=code_model)
+        if yaml_data.get("encode") == "string":
+            self.encode = "str"
+
     @property
     def serialization_type(self) -> str:
         return "int"
@@ -605,6 +611,7 @@ class SdkCoreType(PrimitiveType):
     def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.name = yaml_data.get("name", "")
+        self.submodule = yaml_data.get("submodule", "")
 
     def docstring_type(self, **kwargs: Any) -> str:
         return f"~{self.code_model.core_library}.{self.type_annotation(**kwargs)}"
@@ -614,7 +621,7 @@ class SdkCoreType(PrimitiveType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
-        file_import.add_submodule_import("", self.name, ImportType.SDKCORE)
+        file_import.add_submodule_import(self.submodule, self.name, ImportType.SDKCORE)
         return file_import
 
     @property
@@ -624,3 +631,29 @@ class SdkCoreType(PrimitiveType):
     @property
     def serialization_type(self) -> str:
         return self.name
+
+
+class MultiPartFileType(PrimitiveType):
+    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+        super().__init__(yaml_data=yaml_data, code_model=code_model)
+        self.name = "FileType"
+
+    def type_annotation(self, **kwargs: Any) -> str:
+        return self.name
+
+    def docstring_type(self, **kwargs: Any) -> str:
+        return f"~{self.code_model.namespace}._vendor.{self.name}"
+
+    def imports(self, **kwargs: Any) -> FileImport:
+        file_import = super().imports(**kwargs)
+        relative_path = "..." if kwargs.get("async_mode") else ".."
+        file_import.add_submodule_import(f"{relative_path}_vendor", self.name, ImportType.LOCAL)
+        return file_import
+
+    @property
+    def default_template_representation_declaration(self) -> str:
+        return '"filetype"' if self.code_model.for_test else "filetype"
+
+    @property
+    def instance_check_template(self) -> str:
+        return f"isinstance({{}}, {self.name})"

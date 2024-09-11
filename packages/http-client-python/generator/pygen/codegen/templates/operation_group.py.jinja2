@@ -9,11 +9,11 @@
 {% endif %}
 {% endmacro %}
 {% if operation_group.base_class %}
-class {{ operation_group.class_name }}( {{ operation_group.pylint_disable }}
+class {{ operation_group.class_name }}( {{ operation_group.pylint_disable() }}
     {{ operation_group.base_class }}
 ):
 {% else %}
-class {{ operation_group.class_name }}: {{ operation_group.pylint_disable }}
+class {{ operation_group.class_name }}: {{ operation_group.pylint_disable() }}
 {% endif %}
 {% if not operation_group.is_mixin %}
     """

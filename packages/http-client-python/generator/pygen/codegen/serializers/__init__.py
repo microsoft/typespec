@@ -66,7 +66,7 @@ def _sample_output_path(source_file_path: str) -> Path:
     return Path("")
 
 
-class JinjaSerializer(ReaderAndWriter):  # pylint: disable=abstract-method
+class JinjaSerializer(ReaderAndWriter):
     def __init__(
         self,
         code_model: CodeModel,

@@ -82,9 +82,7 @@ def parse_args(
         return value
 
     unknown_args_ret = {
-        ua.strip("--").split("=", maxsplit=1)[0]: _get_value(  # pylint: disable=bad-str-strip-call
-            ua.strip("--").split("=", maxsplit=1)[1]  # pylint: disable=bad-str-strip-call
-        )
+        ua.strip("--").split("=", maxsplit=1)[0]: _get_value(ua.strip("--").split("=", maxsplit=1)[1])
         for ua in unknown_args
     }
     return args, unknown_args_ret
@@ -107,6 +105,7 @@ KNOWN_TYPES: Dict[str, Dict[str, Any]] = {
 }
 
 JSON_REGEXP = re.compile(r"^(application|text)/(.+\+)?json$")
+XML_REGEXP = re.compile(r"^(application|text)/(.+\+)?xml$")
 
 
 def build_policies(
@@ -151,3 +150,13 @@ def build_policies(
 
 def extract_original_name(name: str) -> str:
     return name[1 : -len("_initial")]
+
+
+def json_serializable(content_type: str) -> bool:
+    return bool(JSON_REGEXP.match(content_type.split(";")[0].strip().lower()))
+
+
+def xml_serializable(content_type: str) -> bool:
+    return bool(XML_REGEXP.match(content_type.split(";")[0].strip().lower()))
+
+NAME_LENGTH_LIMIT = 40

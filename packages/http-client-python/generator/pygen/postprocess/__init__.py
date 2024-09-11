@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Tuple, Any, Dict
+from typing import Tuple, Any
 from pathlib import Path
 import os
 import shutil
@@ -28,7 +28,7 @@ def format_file(file: Path, file_content: str) -> str:
     return file_content
 
 
-class PostProcessPlugin(Plugin):  # pylint: disable=abstract-method
+class PostProcessPlugin(Plugin):
     def __init__(self, **kwargs: Any):
         super().__init__(**kwargs)
         output_folder_uri = self.options["outputFolderUri"]

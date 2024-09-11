@@ -6,7 +6,6 @@
 import logging
 from pathlib import Path
 import os
-from typing import Any, Dict
 import black
 from black.report import NothingChanged
 
@@ -19,7 +18,7 @@ _BLACK_MODE = black.Mode()  # pyright: ignore [reportPrivateImportUsage]
 _BLACK_MODE.line_length = 120
 
 
-class BlackScriptPlugin(Plugin):  # pylint: disable=abstract-method
+class BlackScriptPlugin(Plugin):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         output_folder = self.options.get("output_folder", str(self.output_folder))
@@ -57,10 +56,12 @@ class BlackScriptPlugin(Plugin):  # pylint: disable=abstract-method
             file_content = black.format_file_contents(file_content, fast=True, mode=_BLACK_MODE)
         except NothingChanged:
             pass
-        except:  # pylint: disable=bare-except
+        except:
             _LOGGER.error("Error: failed to format %s", file)
             raise
         else:
+            if len(file_content.splitlines()) > 1000:
+                file_content = "# pylint: disable=too-many-lines\n" + file_content
             self.write_file(file, file_content)
 
 

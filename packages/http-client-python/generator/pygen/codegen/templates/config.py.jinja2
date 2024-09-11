@@ -1,4 +1,4 @@
-class {{ client.name }}Configuration:  {{ client.config.pylint_disable }}
+class {{ client.name }}Configuration:  {{ client.config.pylint_disable(async_mode) }}
     """Configuration for {{ client.name }}.
 
     Note that all parameters used to create this instance are saved as instance

@@ -1,4 +1,3 @@
-# pylint: disable=too-many-lines
 # -------------------------------------------------------------------------
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License. See License.txt in the project root for
@@ -22,7 +21,6 @@ from ..models import (
     FileImport,
 )
 from .utils import get_namespace_config, get_namespace_from_package_name
-from ...utils import to_snake_case
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -42,7 +40,7 @@ class SampleSerializer(BaseSerializer):
         self.operation = operation
         self.sample = sample
         self.file_name = file_name
-        self.sample_params = {to_snake_case(k): v for k, v in sample.get("parameters", {}).items()}
+        self.sample_params = sample.get("parameters", {})
 
     def _imports(self) -> FileImportSerializer:
         imports = FileImport(self.code_model)
@@ -66,8 +64,8 @@ class SampleSerializer(BaseSerializer):
                 "AzureKeyCredential",
                 ImportType.SDKCORE,
             )
-        for param in self.operation.parameters.positional:
-            if not param.client_default_value and not param.optional and param.client_name in self.sample_params:
+        for param in self.operation.parameters.positional + self.operation.parameters.keyword_only:
+            if not param.client_default_value and not param.optional and param.wire_name in self.sample_params:
                 imports.merge(param.type.imports_for_sample())
         return FileImportSerializer(imports, True)
 
@@ -80,15 +78,19 @@ class SampleSerializer(BaseSerializer):
         elif isinstance(credential_type, KeyCredentialType):
             special_param.update({"credential": 'AzureKeyCredential(key=os.getenv("AZURE_KEY"))'})
 
-        params_positional = [
-            p for p in self.code_model.clients[0].parameters.positional if not (p.optional or p.client_default_value)
+        params = [
+            p
+            for p in (
+                self.code_model.clients[0].parameters.positional + self.code_model.clients[0].parameters.keyword_only
+            )
+            if not (p.optional or p.client_default_value)
         ]
         client_params = {
             p.client_name: special_param.get(
                 p.client_name,
-                f'"{self.sample_params.get(p.client_name) or p.client_name.upper()}"',
+                f'"{self.sample_params.get(p.wire_name) or p.client_name.upper()}"',
             )
-            for p in params_positional
+            for p in params
         }
 
         return client_params
@@ -103,15 +105,18 @@ class SampleSerializer(BaseSerializer):
 
     # prepare operation parameters
     def _operation_params(self) -> Dict[str, Any]:
-        params_positional = [p for p in self.operation.parameters.positional if not p.client_default_value]
+        params = [
+            p
+            for p in (self.operation.parameters.positional + self.operation.parameters.keyword_only)
+            if not p.client_default_value
+        ]
         failure_info = "fail to find required param named {}"
         operation_params = {}
-        for param in params_positional:
-            name = param.client_name
-            param_value = self.sample_params.get(name)
+        for param in params:
             if not param.optional:
+                param_value = self.sample_params.get(param.wire_name)
                 if not param_value:
-                    raise Exception(failure_info.format(name))  # pylint: disable=broad-exception-raised
+                    raise Exception(failure_info.format(param.client_name))  # pylint: disable=broad-exception-raised
                 operation_params[param.client_name] = self.handle_param(param, param_value)
         return operation_params
 
@@ -145,7 +150,7 @@ class SampleSerializer(BaseSerializer):
         name = self.sample.get("x-ms-original-file", "")
         if "specification" in name:
             return "specification" + name.split("specification")[-1]
-        return ""
+        return name if self.code_model.options["from_typespec"] else ""
 
     def serialize(self) -> str:
         operation_result, return_var = self._operation_result()

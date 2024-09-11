@@ -10,9 +10,10 @@ from .utils import OrderedSet
 from .base import BaseModel
 from .operation import get_operation
 from .imports import FileImport, ImportType, TypingSection
-from .utils import add_to_pylint_disable, NAME_LENGTH_LIMIT
+from .utils import add_to_pylint_disable
 from .lro_operation import LROOperation
 from .lro_paging_operation import LROPagingOperation
+from ...utils import NAME_LENGTH_LIMIT
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -76,7 +77,6 @@ class OperationGroup(BaseModel):
             file_import.add_submodule_import(relative_path, "models", ImportType.LOCAL, alias="_models")
         return file_import
 
-    @property
     def pylint_disable(self) -> str:
         retval: str = ""
         if self.has_abstract_operations:

@@ -43,13 +43,12 @@ class ClientSerializer:
             pop_params_kwarg=PopKwargType.NO,
         )
 
-    @property
-    def class_definition(self) -> str:
+    def class_definition(self, async_mode: bool) -> str:
         class_name = self.client.name
         base_class = ""
         if self.client.has_mixin:
             base_class = f"{class_name}OperationsMixin"
-        pylint_disable = self.client.pylint_disable
+        pylint_disable = self.client.pylint_disable(async_mode)
         if base_class:
             return f"class {class_name}({base_class}):{pylint_disable}"
         return f"class {class_name}:{pylint_disable}"

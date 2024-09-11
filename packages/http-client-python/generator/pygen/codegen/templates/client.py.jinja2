@@ -1,4 +1,4 @@
-{{ serializer.class_definition }}
+{{ serializer.class_definition(async_mode) }}
     """{{ op_tools.wrap_string(client.description, "\n") | indent }}
 
     {{ op_tools.serialize_with_wrap(serializer.property_descriptions(async_mode), "\n ") | indent }}

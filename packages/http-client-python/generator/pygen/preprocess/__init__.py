@@ -163,7 +163,7 @@ def has_multi_part_content_type(yaml_data: Dict[str, Any]) -> bool:
     return any(ct for ct in yaml_data.get("contentTypes", []) if ct == "multipart/form-data")
 
 
-class PreProcessPlugin(YamlUpdatePlugin):  # pylint: disable=abstract-method
+class PreProcessPlugin(YamlUpdatePlugin):
     """Add Python naming information."""
 
     @property

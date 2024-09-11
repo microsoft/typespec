@@ -124,7 +124,6 @@ class GeneralSerializer(BaseSerializer):
             file_import.add_submodule_import("typing", "Union", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Mapping", ImportType.STDLIB)
-            file_import.add_submodule_import("typing", "Sequence", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Dict", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "List", ImportType.STDLIB)
@@ -183,12 +182,13 @@ class GeneralSerializer(BaseSerializer):
     def serialize_cross_language_definition_file(self) -> str:
         cross_langauge_def_dict = {
             f"{self.code_model.namespace}.models.{model.name}": model.cross_language_definition_id
-            for model in self.code_model.model_types
+            for model in self.code_model.public_model_types
         }
         cross_langauge_def_dict.update(
             {
                 f"{self.code_model.namespace}.models.{enum.name}": enum.cross_language_definition_id
                 for enum in self.code_model.enums
+                if not enum.internal
             }
         )
         cross_langauge_def_dict.update(

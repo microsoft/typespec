@@ -45,10 +45,14 @@
     __flattened_items = ["{{ model.flattened_items|join('\", \"') }}"]
     {% endif %}
 
-    {% set need_init = (not model.internal) and (serializer.init_line(model) or model.discriminator)%}
-    {% if need_init %}
+    {% if model.xml_metadata %}
+    _xml = {{model.xml_metadata}}
+    {% endif %}
+
+
+    {% if serializer.need_init(model) %}
     @overload
-    def __init__(
+    def __init__({{ model.init_pylint_disable }}
         self,
         {% for param_signature in serializer.init_line(model) %}
         {{ param_signature }}
@@ -65,8 +69,8 @@
 
     {% endif %}
     {% set initialize_properties = serializer.initialize_properties(model) %}
-    {% if need_init or initialize_properties %}
-    def __init__(self, *args: Any, **kwargs: Any) -> None:{{ '# pylint: disable=useless-super-delegation' if not initialize_properties else '' }}
+    {% if serializer.need_init(model) or initialize_properties %}
+    def __init__(self, *args: Any, **kwargs: Any) -> None:{{ serializer.pylint_disable(model) }}
         {% for line in serializer.super_call(model) %}
         {{ line }}
         {% endfor %}

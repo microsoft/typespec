@@ -232,7 +232,11 @@ class BodyParameter(_ParameterBase):
     def is_form_data(self) -> bool:
         # hacky, but rn in legacy, there is no formdata model type, it's just a dict
         # with all of the entries splatted out
-        return self.type.is_form_data or bool(self.entries)
+        return (
+            self.type.is_form_data
+            or bool(self.entries)
+            or ("multipart/form-data" in self.content_types and self.code_model.options["from_typespec"])
+        )
 
     @property
     def is_partial_body(self) -> bool:
@@ -383,6 +387,7 @@ class ClientParameter(Parameter):
             return ParameterMethodLocation.KEYWORD_ONLY
         if (
             self.client_default_value is not None
+            and self.code_model.options["from_typespec"]
             and not self.code_model.options["azure_arm"]
         ):
             return ParameterMethodLocation.KEYWORD_ONLY
