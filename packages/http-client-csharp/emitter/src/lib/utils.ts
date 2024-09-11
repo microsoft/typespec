@@ -1,5 +1,7 @@
 import {
   SdkContext,
+  SdkModelPropertyTypeBase,
+  SdkPathParameter,
   getLibraryName,
   getSdkModel,
 } from "@azure-tools/typespec-client-generator-core";
@@ -46,9 +48,9 @@ export function createContentTypeOrAcceptParameter(
 ): InputParameter {
   const isContentType: boolean = nameInRequest.toLowerCase() === "content-type";
   const inputType: InputPrimitiveType = {
-    Kind: "string",
-    Name: "string",
-    CrossLanguageDefinitionId: "TypeSpec.string",
+    kind: "string",
+    name: "string",
+    crossLanguageDefinitionId: "TypeSpec.string",
   };
   return {
     Name: name,
@@ -71,4 +73,10 @@ export function createContentTypeOrAcceptParameter(
           } as InputConstant)
         : undefined,
   };
+}
+
+export function isSdkPathParameter(
+  parameter: SdkModelPropertyTypeBase
+): parameter is SdkPathParameter {
+  return (parameter as SdkPathParameter).kind === "path";
 }

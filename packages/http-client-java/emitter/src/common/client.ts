@@ -52,3 +52,7 @@ export class ServiceVersion extends Metadata {
 export interface CrossLanguageDefinition {
   crossLanguageDefinitionId?: string;
 }
+
+export interface EncodedSchema {
+  encode?: string;
+}

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -26,17 +27,19 @@ namespace Microsoft.Generator.CSharp.Input
             var isFirstProperty = id == null;
             string? crossLanguageDefinitionId = null;
             string? encode = null;
-            InputType? type = null;
+            InputPrimitiveType? wireType = null;
+            IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputDurationType? baseType = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadString(nameof(InputDurationType.Name), ref name)
-                    || reader.TryReadString(nameof(InputDurationType.CrossLanguageDefinitionId), ref crossLanguageDefinitionId)
-                    || reader.TryReadString(nameof(InputDurationType.Encode), ref encode)
-                    || reader.TryReadWithConverter(nameof(InputDurationType.WireType), options, ref type)
-                    || reader.TryReadWithConverter(nameof(InputDurationType.BaseType), options, ref baseType);
+                    || reader.TryReadString("name", ref name)
+                    || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
+                    || reader.TryReadString("encode", ref encode)
+                    || reader.TryReadWithConverter("wireType", options, ref wireType)
+                    || reader.TryReadWithConverter("baseType", options, ref baseType)
+                    || reader.TryReadWithConverter("decorators", options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -44,17 +47,13 @@ namespace Microsoft.Generator.CSharp.Input
                 }
             }
 
-            if (type is not InputPrimitiveType wireType)
-            {
-                throw new JsonException("The wireType of a Duration type must be a primitive type");
-            }
-
             name = name ?? throw new JsonException("Duration type must have name");
             crossLanguageDefinitionId = crossLanguageDefinitionId ?? throw new JsonException("Duration type must have crossLanguageDefinitionId");
             encode = encode ?? throw new JsonException("Duration type must have encoding");
+            wireType = wireType ?? throw new JsonException("Duration type must have wireType");
 
             var dateTimeType = Enum.TryParse<DurationKnownEncoding>(encode, ignoreCase: true, out var encodeKind)
-                ? new InputDurationType(encodeKind, name, crossLanguageDefinitionId, wireType, baseType)
+                ? new InputDurationType(encodeKind, name, crossLanguageDefinitionId, wireType, baseType) { Decorators = decorators ?? [] }
                 : throw new JsonException($"Encoding of Duration type {encode} is unknown.");
 
             if (id != null)

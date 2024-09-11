@@ -19,17 +19,21 @@ namespace AutoRest.CSharp.Common.Input
         }
 
         public override InputDecoratorInfo? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            => reader.ReadReferenceAndResolve<InputDecoratorInfo>(_referenceHandler.CurrentResolver) ?? CreateDecoratorInfo(ref reader, null, options, _referenceHandler.CurrentResolver);
+
+        public override void Write(Utf8JsonWriter writer, InputDecoratorInfo value, JsonSerializerOptions options)
+            => throw new NotSupportedException("Writing not supported");
+
+        private static InputDecoratorInfo? CreateDecoratorInfo(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
         {
-            bool isFirstProperty = true;
-            string? id = null;
+            var isFirstProperty = id == null;
             string? name = null;
             IReadOnlyDictionary<string, BinaryData>? arguments = null;
-            reader.Read();
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadString(nameof(InputDecoratorInfo.Name).ToLower(), ref name)
-                    || reader.TryReadStringBinaryDataDictionary(nameof(InputDecoratorInfo.Arguments).ToLower(), ref arguments);
+                    || reader.TryReadString("name", ref name)
+                    || reader.TryReadStringBinaryDataDictionary("arguments", ref arguments);
 
                 if (!isKnownProperty)
                 {
@@ -37,17 +41,13 @@ namespace AutoRest.CSharp.Common.Input
                 }
             }
             reader.Read();
-
             var decoratorInfo = new InputDecoratorInfo(name ?? throw new JsonException("InputDecoratorInfo must have name"), arguments);
 
             if (id != null)
             {
-                _referenceHandler.CurrentResolver.AddReference(id, decoratorInfo);
+                resolver.AddReference(id, decoratorInfo);
             }
             return decoratorInfo;
         }
-
-        public override void Write(Utf8JsonWriter writer, InputDecoratorInfo value, JsonSerializerOptions options)
-            => throw new NotSupportedException("Writing not supported");
     }
 }

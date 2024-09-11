@@ -1,0 +1,23 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.type.model.inheritance.notdiscriminated.NotDiscriminatedAsyncClient": "Type.Model.Inheritance.NotDiscriminated",
+    "com.type.model.inheritance.notdiscriminated.NotDiscriminatedAsyncClient.getValid": "Type.Model.Inheritance.NotDiscriminated.getValid",
+    "com.type.model.inheritance.notdiscriminated.NotDiscriminatedAsyncClient.getValidWithResponse": "Type.Model.Inheritance.NotDiscriminated.getValid",
+    "com.type.model.inheritance.notdiscriminated.NotDiscriminatedAsyncClient.postValid": "Type.Model.Inheritance.NotDiscriminated.postValid",
+    "com.type.model.inheritance.notdiscriminated.NotDiscriminatedAsyncClient.postValidWithResponse": "Type.Model.Inheritance.NotDiscriminated.postValid",
+    "com.type.model.inheritance.notdiscriminated.NotDiscriminatedAsyncClient.putValid": "Type.Model.Inheritance.NotDiscriminated.putValid",
+    "com.type.model.inheritance.notdiscriminated.NotDiscriminatedAsyncClient.putValidWithResponse": "Type.Model.Inheritance.NotDiscriminated.putValid",
+    "com.type.model.inheritance.notdiscriminated.NotDiscriminatedClient": "Type.Model.Inheritance.NotDiscriminated",
+    "com.type.model.inheritance.notdiscriminated.NotDiscriminatedClient.getValid": "Type.Model.Inheritance.NotDiscriminated.getValid",
+    "com.type.model.inheritance.notdiscriminated.NotDiscriminatedClient.getValidWithResponse": "Type.Model.Inheritance.NotDiscriminated.getValid",
+    "com.type.model.inheritance.notdiscriminated.NotDiscriminatedClient.postValid": "Type.Model.Inheritance.NotDiscriminated.postValid",
+    "com.type.model.inheritance.notdiscriminated.NotDiscriminatedClient.postValidWithResponse": "Type.Model.Inheritance.NotDiscriminated.postValid",
+    "com.type.model.inheritance.notdiscriminated.NotDiscriminatedClient.putValid": "Type.Model.Inheritance.NotDiscriminated.putValid",
+    "com.type.model.inheritance.notdiscriminated.NotDiscriminatedClient.putValidWithResponse": "Type.Model.Inheritance.NotDiscriminated.putValid",
+    "com.type.model.inheritance.notdiscriminated.NotDiscriminatedClientBuilder": "Type.Model.Inheritance.NotDiscriminated",
+    "com.type.model.inheritance.notdiscriminated.models.Cat": "Type.Model.Inheritance.NotDiscriminated.Cat",
+    "com.type.model.inheritance.notdiscriminated.models.Pet": "Type.Model.Inheritance.NotDiscriminated.Pet",
+    "com.type.model.inheritance.notdiscriminated.models.Siamese": "Type.Model.Inheritance.NotDiscriminated.Siamese"
+  }
+}

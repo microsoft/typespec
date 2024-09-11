@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -25,11 +26,13 @@ namespace Microsoft.Generator.CSharp.Input
         {
             var isFirstProperty = id == null && name == null;
             InputType? valueType = null;
+            IReadOnlyList<InputDecoratorInfo>? decorators = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadString(nameof(InputNullableType.Name), ref name)
-                    || reader.TryReadWithConverter(nameof(InputNullableType.Type), options, ref valueType);
+                    || reader.TryReadString("name", ref name)
+                    || reader.TryReadWithConverter("type", options, ref valueType)
+                    || reader.TryReadWithConverter("decorators", options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -39,7 +42,10 @@ namespace Microsoft.Generator.CSharp.Input
 
             valueType = valueType ?? throw new JsonException("InputNullableType must have value type");
 
-            var nullableType = new InputNullableType(valueType);
+            var nullableType = new InputNullableType(valueType)
+            {
+                Decorators = decorators ?? [],
+            };
             if (id != null)
             {
                 resolver.AddReference(id, nullableType);

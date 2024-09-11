@@ -1,6 +1,7 @@
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { openApiFor } from "./test-host.js";
+import { diagnoseOpenApiFor, openApiFor } from "./test-host.js";
 
 describe("openapi3: security", () => {
   it("set a basic auth", async () => {
@@ -244,6 +245,19 @@ describe("openapi3: security", () => {
       },
     });
     deepStrictEqual(res.security, [{ OpenIdConnectAuth: [] }]);
+  });
+
+  it("set a unsupported auth", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
+      @service
+      @useAuth({})
+      namespace MyService {}
+      `
+    );
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/unsupported-auth",
+    });
   });
 
   it("can specify custom auth name with description", async () => {

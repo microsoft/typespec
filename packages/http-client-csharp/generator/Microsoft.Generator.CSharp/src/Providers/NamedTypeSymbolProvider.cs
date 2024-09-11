@@ -3,16 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Xml;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    public class NamedTypeSymbolProvider : TypeProvider
+    internal sealed class NamedTypeSymbolProvider : TypeProvider
     {
         private INamedTypeSymbol _namedTypeSymbol;
 
@@ -21,7 +22,9 @@ namespace Microsoft.Generator.CSharp.Providers
             _namedTypeSymbol = namedTypeSymbol;
         }
 
-        protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writting in generation");
+        private protected sealed override TypeProvider? GetCustomCodeView() => null;
+
+        protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writing in generation");
 
         protected override string BuildName() => _namedTypeSymbol.Name;
 
@@ -44,6 +47,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     modifiers,
                     GetCSharpType(fieldSymbol.Type),
                     fieldSymbol.Name,
+                    this,
                     GetSymbolXmlDoc(fieldSymbol, "summary"));
                     fields.Add(fieldProvider);
                 }
@@ -61,7 +65,11 @@ namespace Microsoft.Generator.CSharp.Providers
                     GetAccessModifier(propertySymbol.DeclaredAccessibility),
                     GetCSharpType(propertySymbol.Type),
                     propertySymbol.Name,
-                    new AutoPropertyBody(propertySymbol.SetMethod is not null));
+                    new AutoPropertyBody(propertySymbol.SetMethod is not null),
+                    this)
+                {
+                    Attributes = propertySymbol.GetAttributes()
+                };
                 properties.Add(propertyProvider);
             }
             return [.. properties];
@@ -101,7 +109,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     methodSymbol.Name,
                     GetSymbolXmlDoc(methodSymbol, "summary"),
                     modifiers,
-                    GetCSharpType(methodSymbol.ReturnType),
+                    GetNullableCSharpType(methodSymbol.ReturnType),
                     GetSymbolXmlDoc(methodSymbol, "returns"),
                     [.. methodSymbol.Parameters.Select(p => ConvertToParameterProvider(methodSymbol, p))]);
 
@@ -110,7 +118,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return [.. methods];
         }
 
-        private static ParameterProvider ConvertToParameterProvider(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol)
+        private ParameterProvider ConvertToParameterProvider(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol)
         {
             return new ParameterProvider(
                 parameterSymbol.Name,
@@ -135,11 +143,33 @@ namespace Microsoft.Generator.CSharp.Providers
             var xmlDocumentation = propertySymbol.GetDocumentationCommentXml();
             if (!string.IsNullOrEmpty(xmlDocumentation))
             {
-                var xDocument = XDocument.Parse(xmlDocumentation);
+                XDocument xDocument = ParseXml(propertySymbol, xmlDocumentation);
                 var summaryElement = xDocument.Descendants(tag).FirstOrDefault();
                 return FormattableStringHelpers.FromString(summaryElement?.Value.Trim());
             }
             return null;
+        }
+
+        private static XDocument ParseXml(ISymbol docsSymbol, string xmlDocumentation)
+        {
+            XDocument xDocument;
+            try
+            {
+                xDocument = XDocument.Parse(xmlDocumentation);
+            }
+            catch (XmlException ex)
+            {
+                var files = new List<string>();
+                foreach (var reference in docsSymbol.DeclaringSyntaxReferences)
+                {
+                    files.Add(reference.SyntaxTree.FilePath);
+                }
+
+                throw new InvalidOperationException($"Failed to parse XML documentation for {docsSymbol.Name}. " +
+                                                    $"The malformed XML documentation is located in one or more of the following files: {string.Join(',', files)}", ex);
+            }
+
+            return xDocument;
         }
 
         private static string? GetParameterXmlDocumentation(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol)
@@ -151,7 +181,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 return null;
             }
 
-            var xmlDoc = XDocument.Parse(xmlDocumentation);
+            var xmlDoc = ParseXml(methodSymbol, xmlDocumentation);
             var paramElement = xmlDoc.Descendants("param")
                                      .FirstOrDefault(e => e.Attribute("name")?.Value == parameterSymbol.Name);
 
@@ -176,47 +206,66 @@ namespace Microsoft.Generator.CSharp.Providers
             _ => FieldModifiers.Public
         };
 
-        private static CSharpType GetCSharpType(ITypeSymbol typeSymbol)
+        private CSharpType? GetNullableCSharpType(ITypeSymbol typeSymbol)
         {
             var fullyQualifiedName = GetFullyQualifiedName(typeSymbol);
-            var pieces = fullyQualifiedName.Split('.');
+            if (fullyQualifiedName == "System.Void")
+            {
+                return null;
+            }
+            return GetCSharpType(typeSymbol);
+        }
 
+        private CSharpType GetCSharpType(ITypeSymbol typeSymbol)
+        {
+            var fullyQualifiedName = GetFullyQualifiedName(typeSymbol);
             var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
 
             //if fully qualified name is in the namespace of the library being emitted find it from the outputlibrary
             if (fullyQualifiedName.StartsWith(CodeModelPlugin.Instance.Configuration.RootNamespace, StringComparison.Ordinal))
             {
-                bool isValueType = typeSymbol.IsValueType;
-                bool isEnum = typeSymbol.TypeKind == TypeKind.Enum;
-                return new CSharpType(
-                    typeSymbol.Name,
-                    string.Join('.', pieces.Take(pieces.Length - 1)),
-                    isValueType,
-                    typeSymbol.NullableAnnotation == NullableAnnotation.Annotated,
-                    typeSymbol.ContainingType is not null ? GetCSharpType(typeSymbol.ContainingType) : null,
-                    namedTypeSymbol is not null ? [.. namedTypeSymbol.TypeArguments.Select(GetCSharpType)] : [],
-                    typeSymbol.DeclaredAccessibility == Accessibility.Public,
-                    isValueType && !isEnum,
-                    baseType: typeSymbol.BaseType is not null ? GetCSharpType(typeSymbol.BaseType) : null,
-                    underlyingEnumType: namedTypeSymbol is not null && namedTypeSymbol.EnumUnderlyingType is not null
-                        ? GetCSharpType(namedTypeSymbol.EnumUnderlyingType).FrameworkType
-                        : null);
+                return ConstructCSharpTypeFromSymbol(typeSymbol, fullyQualifiedName, namedTypeSymbol);
             }
 
             Type? type = System.Type.GetType(fullyQualifiedName);
             if (type is null)
             {
-                throw new InvalidOperationException($"Unable to convert ITypeSymbol: {fullyQualifiedName} to a CSharpType");
+                if (typeSymbol.TypeKind == TypeKind.Error)
+                    throw new InvalidOperationException($"Unable to convert ITypeSymbol: {fullyQualifiedName} to a CSharpType in {Name}");
+
+                return ConstructCSharpTypeFromSymbol(typeSymbol, fullyQualifiedName, namedTypeSymbol);
             }
 
             CSharpType result = new CSharpType(type);
-
             if (namedTypeSymbol is not null && namedTypeSymbol.IsGenericType)
             {
                 return result.MakeGenericType([.. namedTypeSymbol.TypeArguments.Select(GetCSharpType)]);
             }
 
             return result;
+        }
+
+        private CSharpType ConstructCSharpTypeFromSymbol(
+            ITypeSymbol typeSymbol,
+            string fullyQualifiedName,
+            INamedTypeSymbol? namedTypeSymbol)
+        {
+            bool isValueType = typeSymbol.IsValueType;
+            bool isEnum = typeSymbol.TypeKind == TypeKind.Enum;
+            var pieces = fullyQualifiedName.Split('.');
+            return new CSharpType(
+                typeSymbol.Name,
+                string.Join('.', pieces.Take(pieces.Length - 1)),
+                isValueType,
+                typeSymbol.NullableAnnotation == NullableAnnotation.Annotated,
+                typeSymbol.ContainingType is not null ? GetCSharpType(typeSymbol.ContainingType) : null,
+                namedTypeSymbol is not null ? [.. namedTypeSymbol.TypeArguments.Select(GetCSharpType)] : [],
+                typeSymbol.DeclaredAccessibility == Accessibility.Public,
+                isValueType && !isEnum,
+                baseType: typeSymbol.BaseType is not null && typeSymbol.BaseType.TypeKind != TypeKind.Error ? GetCSharpType(typeSymbol.BaseType) : null,
+                underlyingEnumType: namedTypeSymbol is not null && namedTypeSymbol.EnumUnderlyingType is not null
+                    ? GetCSharpType(namedTypeSymbol.EnumUnderlyingType).FrameworkType
+                    : null);
         }
 
         private static string GetFullyQualifiedName(ITypeSymbol typeSymbol)

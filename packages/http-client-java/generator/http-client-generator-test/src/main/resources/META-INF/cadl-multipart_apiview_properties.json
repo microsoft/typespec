@@ -1,0 +1,24 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.cadl.multipart.MultipartAsyncClient": "Cadl.Multipart",
+    "com.cadl.multipart.MultipartAsyncClient.upload": "Cadl.Multipart.upload",
+    "com.cadl.multipart.MultipartAsyncClient.uploadHttpPart": "Cadl.Multipart.uploadHttpPart",
+    "com.cadl.multipart.MultipartAsyncClient.uploadHttpPartWithResponse": "Cadl.Multipart.uploadHttpPart",
+    "com.cadl.multipart.MultipartAsyncClient.uploadWithResponse": "Cadl.Multipart.upload",
+    "com.cadl.multipart.MultipartClient": "Cadl.Multipart",
+    "com.cadl.multipart.MultipartClient.upload": "Cadl.Multipart.upload",
+    "com.cadl.multipart.MultipartClient.uploadHttpPart": "Cadl.Multipart.uploadHttpPart",
+    "com.cadl.multipart.MultipartClient.uploadHttpPartWithResponse": "Cadl.Multipart.uploadHttpPart",
+    "com.cadl.multipart.MultipartClient.uploadWithResponse": "Cadl.Multipart.upload",
+    "com.cadl.multipart.MultipartClientBuilder": "Cadl.Multipart",
+    "com.cadl.multipart.models.FileDataFileDetails": "null",
+    "com.cadl.multipart.models.FileDetails": "TypeSpec.Http.File",
+    "com.cadl.multipart.models.FormData": "Cadl.Multipart.FormData",
+    "com.cadl.multipart.models.ImageFileDetails": "null",
+    "com.cadl.multipart.models.ImageType": "Cadl.Multipart.ImageType",
+    "com.cadl.multipart.models.InheritFileData": "Cadl.Multipart.Inherit2File",
+    "com.cadl.multipart.models.Size": "Cadl.Multipart.Size",
+    "com.cadl.multipart.models.UploadHttpPartRequest": "Cadl.Multipart.uploadHttpPart.Request.anonymous"
+  }
+}

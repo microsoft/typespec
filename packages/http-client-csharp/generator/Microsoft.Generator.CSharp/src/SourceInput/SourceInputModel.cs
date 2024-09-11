@@ -9,38 +9,34 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
-using Microsoft.Generator.CSharp.Customization;
-using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using NuGet.Configuration;
 
 namespace Microsoft.Generator.CSharp.SourceInput
 {
-    internal sealed class SourceInputModel
+    public class SourceInputModel
     {
-        private static SourceInputModel? _instance;
-        public static SourceInputModel Instance => _instance ?? throw new InvalidOperationException("SourceInputModel has not been initialized");
+        public Compilation? Customization { get; }
+        private Lazy<Compilation?> _previousContract;
+        public Compilation? PreviousContract => _previousContract.Value;
 
-        public static void Initialize(Compilation customization, CompilationCustomCode? existingCompilation = null)
-        {
-            _instance = new SourceInputModel(customization, existingCompilation);
-        }
+        private readonly Lazy<IReadOnlyDictionary<string, INamedTypeSymbol>> _nameMap;
 
-        private readonly CompilationCustomCode? _existingCompilation;
-        private readonly CodeGenAttributes _codeGenAttributes;
-        private readonly Dictionary<string, INamedTypeSymbol> _nameMap = new Dictionary<string, INamedTypeSymbol>(StringComparer.OrdinalIgnoreCase);
-
-        public Compilation Customization { get; }
-        public Compilation? PreviousContract { get; }
-
-        private SourceInputModel(Compilation customization, CompilationCustomCode? existingCompilation = null)
+        public SourceInputModel(Compilation? customization)
         {
             Customization = customization;
-            PreviousContract = LoadBaselineContract().GetAwaiter().GetResult();
-            _existingCompilation = existingCompilation;
+            _previousContract = new(() => LoadBaselineContract().GetAwaiter().GetResult());
 
-            _codeGenAttributes = new CodeGenAttributes();
+            _nameMap = new(PopulateNameMap);
+        }
 
+        private IReadOnlyDictionary<string, INamedTypeSymbol> PopulateNameMap()
+        {
+            var nameMap = new Dictionary<string, INamedTypeSymbol>();
+            if (Customization == null)
+            {
+                return nameMap;
+            }
             IAssemblySymbol assembly = Customization.Assembly;
 
             foreach (IModuleSymbol module in assembly.Modules)
@@ -49,75 +45,28 @@ namespace Microsoft.Generator.CSharp.SourceInput
                 {
                     if (type is INamedTypeSymbol namedTypeSymbol && TryGetName(type, out var schemaName))
                     {
-                        _nameMap.Add(schemaName, namedTypeSymbol);
+                        nameMap.Add(schemaName, namedTypeSymbol);
                     }
                 }
             }
+
+            return nameMap;
         }
 
-        public IReadOnlyList<string>? GetServiceVersionOverrides()
+        public TypeProvider? FindForType(string ns, string name)
         {
-            var osvAttributeType = Customization.GetTypeByMetadataName(typeof(CodeGenOverrideServiceVersionsAttribute).FullName!)!;
-            var osvAttribute = Customization.Assembly.GetAttributes()
-                .FirstOrDefault(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, osvAttributeType));
-
-            return osvAttribute?.ConstructorArguments[0].Values.Select(v => v.Value).OfType<string>().ToList();
-        }
-
-        internal ModelTypeMapping? CreateForModel(INamedTypeSymbol? symbol)
-        {
-            if (symbol == null)
+            if (Customization == null)
+            {
                 return null;
-
-            return new ModelTypeMapping(_codeGenAttributes, symbol);
-        }
-
-        internal IMethodSymbol? FindMethod(string namespaceName, string typeName, string methodName, IEnumerable<CSharpType> parameters)
-        {
-            return _existingCompilation?.FindMethod(namespaceName, typeName, methodName, parameters);
-        }
-
-        public INamedTypeSymbol? FindForType(string name)
-        {
-            var ns = CodeModelPlugin.Instance.Configuration.ModelNamespace;
+            }
             var fullyQualifiedMetadataName = $"{ns}.{name}";
-            if (!_nameMap.TryGetValue(name, out var type) &&
-                !_nameMap.TryGetValue(fullyQualifiedMetadataName, out type))
+            if (!_nameMap.Value.TryGetValue(name, out var type) &&
+                !_nameMap.Value.TryGetValue(fullyQualifiedMetadataName, out type))
             {
                 type = Customization.Assembly.GetTypeByMetadataName(fullyQualifiedMetadataName);
             }
 
-            return type;
-        }
-
-        internal bool TryGetClientSourceInput(INamedTypeSymbol type, [NotNullWhen(true)] out ClientSourceInput? clientSourceInput)
-        {
-            foreach (var attribute in type.GetAttributes())
-            {
-                var attributeType = attribute.AttributeClass;
-                while (attributeType != null)
-                {
-                    if (attributeType.Name == CodeGenAttributes.CodeGenClientAttributeName)
-                    {
-                        INamedTypeSymbol? parentClientType = null;
-                        foreach ((var argumentName, TypedConstant constant) in attribute.NamedArguments)
-                        {
-                            if (argumentName == nameof(CodeGenClientAttribute.ParentClient))
-                            {
-                                parentClientType = (INamedTypeSymbol?)constant.Value;
-                            }
-                        }
-
-                        clientSourceInput = new ClientSourceInput(parentClientType);
-                        return true;
-                    }
-
-                    attributeType = attributeType.BaseType;
-                }
-            }
-
-            clientSourceInput = null;
-            return false;
+            return type != null ? new NamedTypeSymbolProvider(type) : null;
         }
 
         private bool TryGetName(ISymbol symbol, [NotNullWhen(true)] out string? name)

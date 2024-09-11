@@ -11,14 +11,16 @@ function checkDuplicateTypeName(
    existing): void
 ```
 
+Check the given name is not already specific in the existing map. Report a diagnostic if it is.
+
 ## Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `program` | `Program` |
-| `type` | `Type` |
-| `name` | `string` |
-| `existing` | `undefined` \| `Record`<`string`, `unknown`\> |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `program` | `Program` | Program |
+| `type` | `Type` | Type with the name to check |
+| `name` | `string` | Name to check |
+| `existing` | `undefined` \| `Record`<`string`, `unknown`\> | Existing map of name |
 
 ## Returns
 

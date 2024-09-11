@@ -23,9 +23,9 @@
        "NameInRequest": "endpoint",
        "Type": {
         "$id": "5",
-        "Kind": "url",
-        "Name": "url",
-        "CrossLanguageDefinitionId": "TypeSpec.url"
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "Location": "Uri",
        "IsApiVersion": false,
@@ -40,9 +40,9 @@
         "$id": "6",
         "Type": {
          "$id": "7",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string"
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
         },
         "Value": "http://localhost:3000"
        }
@@ -66,7 +66,8 @@
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Authentication.Union.validKey"
+     "CrossLanguageDefinitionId": "Authentication.Union.validKey",
+     "Decorators": []
     },
     {
      "$id": "9",
@@ -97,7 +98,8 @@
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Authentication.Union.validToken"
+     "CrossLanguageDefinitionId": "Authentication.Union.validToken",
+     "Decorators": []
     }
    ],
    "Protocol": {
@@ -107,7 +109,8 @@
     {
      "$ref": "4"
     }
-   ]
+   ],
+   "Decorators": []
   }
  ],
  "Auth": {

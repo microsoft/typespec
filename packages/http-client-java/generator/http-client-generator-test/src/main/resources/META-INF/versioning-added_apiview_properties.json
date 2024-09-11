@@ -1,0 +1,26 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.versioning.added.AddedAsyncClient": "Versioning.Added",
+    "com.versioning.added.AddedAsyncClient.v1": "Versioning.Added.v1",
+    "com.versioning.added.AddedAsyncClient.v1WithResponse": "Versioning.Added.v1",
+    "com.versioning.added.AddedAsyncClient.v2": "Versioning.Added.v2",
+    "com.versioning.added.AddedAsyncClient.v2WithResponse": "Versioning.Added.v2",
+    "com.versioning.added.AddedClient": "Versioning.Added",
+    "com.versioning.added.AddedClient.v1": "Versioning.Added.v1",
+    "com.versioning.added.AddedClient.v1WithResponse": "Versioning.Added.v1",
+    "com.versioning.added.AddedClient.v2": "Versioning.Added.v2",
+    "com.versioning.added.AddedClient.v2WithResponse": "Versioning.Added.v2",
+    "com.versioning.added.AddedClientBuilder": "Versioning.Added",
+    "com.versioning.added.InterfaceV2AsyncClient": "null",
+    "com.versioning.added.InterfaceV2AsyncClient.v2InInterface": "Versioning.Added.InterfaceV2.v2InInterface",
+    "com.versioning.added.InterfaceV2AsyncClient.v2InInterfaceWithResponse": "Versioning.Added.InterfaceV2.v2InInterface",
+    "com.versioning.added.InterfaceV2Client": "null",
+    "com.versioning.added.InterfaceV2Client.v2InInterface": "Versioning.Added.InterfaceV2.v2InInterface",
+    "com.versioning.added.InterfaceV2Client.v2InInterfaceWithResponse": "Versioning.Added.InterfaceV2.v2InInterface",
+    "com.versioning.added.models.EnumV1": "Versioning.Added.EnumV1",
+    "com.versioning.added.models.EnumV2": "Versioning.Added.EnumV2",
+    "com.versioning.added.models.ModelV1": "Versioning.Added.ModelV1",
+    "com.versioning.added.models.ModelV2": "Versioning.Added.ModelV2"
+  }
+}

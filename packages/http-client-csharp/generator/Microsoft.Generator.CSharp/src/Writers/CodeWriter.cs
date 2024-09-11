@@ -723,9 +723,9 @@ namespace Microsoft.Generator.CSharp
             }
 
             AppendRawIf("public ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Public))
-                .AppendRawIf("internal ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Internal))
-                .AppendRawIf("protected ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
                 .AppendRawIf("private ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Private))
+                .AppendRawIf("protected ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
+                .AppendRawIf("internal ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Internal))
                 .AppendRawIf("static ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Static));
 
             if (methodBase is MethodSignature method)
@@ -920,6 +920,7 @@ namespace Microsoft.Generator.CSharp
                 .AppendRawIf("readonly ", modifiers.HasFlag(TypeSignatureModifiers.ReadOnly))
                 .AppendRawIf("static ", modifiers.HasFlag(TypeSignatureModifiers.Static))
                 .AppendRawIf("sealed ", modifiers.HasFlag(TypeSignatureModifiers.Sealed))
+                .AppendRawIf("abstract ", modifiers.HasFlag(TypeSignatureModifiers.Abstract))
                 .AppendRawIf("partial ", modifiers.HasFlag(TypeSignatureModifiers.Partial)); // partial must be the last to write otherwise compiler will complain
 
             AppendRawIf("class ", modifiers.HasFlag(TypeSignatureModifiers.Class))

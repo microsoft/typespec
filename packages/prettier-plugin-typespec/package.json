@@ -1,6 +1,6 @@
 {
   "name": "@typespec/prettier-plugin-typespec",
-  "version": "0.59.0",
+  "version": "0.60.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {

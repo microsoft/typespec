@@ -17,7 +17,7 @@ scalar `Foo-Bar` extends string;
 
 model `Escaped-Model` {
   id: string;
-  @path `escaped-property`: string;
+  `escaped-property`?: string;
 }
 
 /**
@@ -28,6 +28,14 @@ model `get-thingDefaultResponse` {}
 
 @route("/{escaped-property}") @get op `get-thing`(
   @query `weird@param`?: `Foo-Bar`,
-  `escaped-property`: `Escaped-Model`.`escaped-property`,
+  ...Parameters.`Escaped-Model`.`escaped-property`,
   @bodyRoot body: `Escaped-Model`,
 ): `get-thingDefaultResponse`;
+
+namespace Parameters {
+  namespace `Escaped-Model` {
+    model `escaped-property` {
+      @path `escaped-property`: string;
+    }
+  }
+}

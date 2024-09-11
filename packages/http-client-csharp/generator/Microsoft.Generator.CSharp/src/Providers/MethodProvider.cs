@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
-using static Microsoft.Generator.CSharp.Snippets.ArgumentSnippets;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
@@ -18,6 +16,8 @@ namespace Microsoft.Generator.CSharp.Providers
         public MethodBodyStatement? BodyStatements { get; private set;}
         public ValueExpression? BodyExpression { get; private set;}
         public XmlDocProvider? XmlDocs { get; private set;}
+
+        public TypeProvider EnclosingType { get; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -42,6 +42,7 @@ namespace Microsoft.Generator.CSharp.Providers
             XmlDocs = xmlDocProvider ?? (MethodProviderHelpers.IsMethodPublic(enclosingType.DeclarationModifiers, signature.Modifiers)
                 ? MethodProviderHelpers.BuildXmlDocs(signature.Parameters, signature.Description, signature.ReturnDescription, paramHash)
                 : null);
+            EnclosingType = enclosingType;
         }
 
         /// <summary>
@@ -58,6 +59,7 @@ namespace Microsoft.Generator.CSharp.Providers
             XmlDocs = xmlDocProvider ?? (MethodProviderHelpers.IsMethodPublic(enclosingType.DeclarationModifiers, signature.Modifiers)
                 ? MethodProviderHelpers.BuildXmlDocs(signature.Parameters, signature.Description, signature.ReturnDescription, null)
                 : null);
+            EnclosingType = enclosingType;
         }
 
         public void Update(

@@ -49,10 +49,9 @@ namespace Microsoft.Generator.CSharp.Tests
         }
 
         // Validates that the output folder is parsed correctly from the configuration
-        [TestCaseSource("ParseConfigOutputFolderTestCases")]
+        [TestCaseSource(nameof(ParseConfigOutputFolderTestCases))]
         public void TestParseConfig_OutputFolder(string mockJson, bool throwsError)
         {
-
             var expected = Path.GetFullPath(MockHelpers.TestHelpersFolder);
 
             if (throwsError)
@@ -64,6 +63,8 @@ namespace Microsoft.Generator.CSharp.Tests
             var configuration = Configuration.Load(MockHelpers.TestHelpersFolder, mockJson);
 
             Assert.AreEqual(expected, configuration.OutputDirectory);
+            Assert.AreEqual(Path.Combine(expected, "src", "Generated"), configuration.ProjectGeneratedDirectory);
+            Assert.AreEqual(Path.Combine(expected, "tests", "Generated"), configuration.TestGeneratedDirectory);
         }
 
         // Validates that the LibraryName field is parsed correctly from the configuration
@@ -148,10 +149,35 @@ namespace Microsoft.Generator.CSharp.Tests
 
             Assert.IsTrue(CodeModelPlugin.Instance.Configuration.DisableXmlDocs);
 
-            PropertyProvider property = new($"IntProperty description", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true));
+            PropertyProvider property = new($"IntProperty description", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), new TestTypeProvider());
             using var writer = new CodeWriter();
             writer.WriteProperty(property, true);
             Assert.AreEqual("public int IntProperty { get; set; }\n", writer.ToString(false));
+        }
+
+        [Test]
+        [TestCase("removeOrInternalize")]
+        [TestCase("keepAll")]
+        [TestCase("internalize")]
+        public void UnreferencedTypeHandling(string input)
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""library-name"": ""libraryName"",
+                ""namespace"": ""namespace"",
+                ""unreferenced-types-handling"": ""keepAll""
+                }";
+
+            MockHelpers.LoadMockPlugin(configuration: mockJson);
+            var expected = input switch
+            {
+                "removeOrInternalize" => Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize,
+                "keepAll" => Configuration.UnreferencedTypesHandlingOption.KeepAll,
+                "internalize" => Configuration.UnreferencedTypesHandlingOption.Internalize,
+                _ => throw new ArgumentException("Invalid input", nameof(input))
+            };
+
+            StringAssert.AreEqualIgnoringCase(expected.ToString(), input);
         }
 
         [Test]
@@ -213,7 +239,7 @@ namespace Microsoft.Generator.CSharp.Tests
             MockHelpers.LoadMockPlugin(configuration: mockJson);
 
             Assert.IsTrue(CodeModelPlugin.Instance.Configuration.DisableXmlDocs);
-            FieldProvider field = new(FieldModifiers.Public, typeof(int), "_field", $"Field Description");
+            FieldProvider field = new(FieldModifiers.Public, typeof(int), "_field", new TestTypeProvider(), $"Field Description");
             using var writer = new CodeWriter();
             writer.WriteField(field);
             Assert.AreEqual("public int _field;\n", writer.ToString(false));

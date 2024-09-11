@@ -1,3 +1,7 @@
+/**
+ * Pattern for extension keys.
+ * In OpenAPI only unknown properties starting with `x-` are allowed.
+ */
 export type ExtensionKey = `x-${string}`;
 
 /**
@@ -26,6 +30,9 @@ export interface AdditionalInfo {
   license?: License;
 }
 
+/**
+ * Contact information
+ */
 export interface Contact {
   /** The identifying name of the contact person/organization. */
   name?: string;
@@ -37,10 +44,23 @@ export interface Contact {
   email?: string;
 }
 
+/**
+ * License information
+ */
 export interface License {
   /** The license name used for the API. */
   name: string;
 
   /** A URL to the license used for the API. MUST be in the format of a URL. */
   url?: string;
+}
+
+/**
+ * External Docs info
+ */
+export interface ExternalDocs {
+  /** Documentation url */
+  url: string;
+  /** Optional description */
+  description?: string;
 }

@@ -1,0 +1,22 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com._specs_.azure.core.lro.standard.StandardAsyncClient": "_Specs_.Azure.Core.Lro.Standard",
+    "com._specs_.azure.core.lro.standard.StandardAsyncClient.beginCreateOrReplace": "_Specs_.Azure.Core.Lro.Standard.createOrReplace",
+    "com._specs_.azure.core.lro.standard.StandardAsyncClient.beginCreateOrReplaceWithModel": "_Specs_.Azure.Core.Lro.Standard.createOrReplace",
+    "com._specs_.azure.core.lro.standard.StandardAsyncClient.beginDelete": "_Specs_.Azure.Core.Lro.Standard.delete",
+    "com._specs_.azure.core.lro.standard.StandardAsyncClient.beginDeleteWithModel": "_Specs_.Azure.Core.Lro.Standard.delete",
+    "com._specs_.azure.core.lro.standard.StandardAsyncClient.beginExport": "_Specs_.Azure.Core.Lro.Standard.export",
+    "com._specs_.azure.core.lro.standard.StandardAsyncClient.beginExportWithModel": "_Specs_.Azure.Core.Lro.Standard.export",
+    "com._specs_.azure.core.lro.standard.StandardClient": "_Specs_.Azure.Core.Lro.Standard",
+    "com._specs_.azure.core.lro.standard.StandardClient.beginCreateOrReplace": "_Specs_.Azure.Core.Lro.Standard.createOrReplace",
+    "com._specs_.azure.core.lro.standard.StandardClient.beginCreateOrReplaceWithModel": "_Specs_.Azure.Core.Lro.Standard.createOrReplace",
+    "com._specs_.azure.core.lro.standard.StandardClient.beginDelete": "_Specs_.Azure.Core.Lro.Standard.delete",
+    "com._specs_.azure.core.lro.standard.StandardClient.beginDeleteWithModel": "_Specs_.Azure.Core.Lro.Standard.delete",
+    "com._specs_.azure.core.lro.standard.StandardClient.beginExport": "_Specs_.Azure.Core.Lro.Standard.export",
+    "com._specs_.azure.core.lro.standard.StandardClient.beginExportWithModel": "_Specs_.Azure.Core.Lro.Standard.export",
+    "com._specs_.azure.core.lro.standard.StandardClientBuilder": "_Specs_.Azure.Core.Lro.Standard",
+    "com._specs_.azure.core.lro.standard.models.ExportedUser": "_Specs_.Azure.Core.Lro.Standard.ExportedUser",
+    "com._specs_.azure.core.lro.standard.models.User": "_Specs_.Azure.Core.Lro.Standard.User"
+  }
+}

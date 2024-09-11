@@ -1,0 +1,27 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.parameters.bodyoptionality.BodyOptionalityAsyncClient": "Parameters.BodyOptionality",
+    "com.parameters.bodyoptionality.BodyOptionalityAsyncClient.requiredExplicit": "Parameters.BodyOptionality.requiredExplicit",
+    "com.parameters.bodyoptionality.BodyOptionalityAsyncClient.requiredExplicitWithResponse": "Parameters.BodyOptionality.requiredExplicit",
+    "com.parameters.bodyoptionality.BodyOptionalityAsyncClient.requiredImplicit": "Parameters.BodyOptionality.requiredImplicit",
+    "com.parameters.bodyoptionality.BodyOptionalityAsyncClient.requiredImplicitWithResponse": "Parameters.BodyOptionality.requiredImplicit",
+    "com.parameters.bodyoptionality.BodyOptionalityClient": "Parameters.BodyOptionality",
+    "com.parameters.bodyoptionality.BodyOptionalityClient.requiredExplicit": "Parameters.BodyOptionality.requiredExplicit",
+    "com.parameters.bodyoptionality.BodyOptionalityClient.requiredExplicitWithResponse": "Parameters.BodyOptionality.requiredExplicit",
+    "com.parameters.bodyoptionality.BodyOptionalityClient.requiredImplicit": "Parameters.BodyOptionality.requiredImplicit",
+    "com.parameters.bodyoptionality.BodyOptionalityClient.requiredImplicitWithResponse": "Parameters.BodyOptionality.requiredImplicit",
+    "com.parameters.bodyoptionality.BodyOptionalityClientBuilder": "Parameters.BodyOptionality",
+    "com.parameters.bodyoptionality.OptionalExplicitAsyncClient": "null",
+    "com.parameters.bodyoptionality.OptionalExplicitAsyncClient.omit": "Parameters.BodyOptionality.OptionalExplicit.omit",
+    "com.parameters.bodyoptionality.OptionalExplicitAsyncClient.omitWithResponse": "Parameters.BodyOptionality.OptionalExplicit.omit",
+    "com.parameters.bodyoptionality.OptionalExplicitAsyncClient.set": "Parameters.BodyOptionality.OptionalExplicit.set",
+    "com.parameters.bodyoptionality.OptionalExplicitAsyncClient.setWithResponse": "Parameters.BodyOptionality.OptionalExplicit.set",
+    "com.parameters.bodyoptionality.OptionalExplicitClient": "null",
+    "com.parameters.bodyoptionality.OptionalExplicitClient.omit": "Parameters.BodyOptionality.OptionalExplicit.omit",
+    "com.parameters.bodyoptionality.OptionalExplicitClient.omitWithResponse": "Parameters.BodyOptionality.OptionalExplicit.omit",
+    "com.parameters.bodyoptionality.OptionalExplicitClient.set": "Parameters.BodyOptionality.OptionalExplicit.set",
+    "com.parameters.bodyoptionality.OptionalExplicitClient.setWithResponse": "Parameters.BodyOptionality.OptionalExplicit.set",
+    "com.parameters.bodyoptionality.models.BodyModel": "Parameters.BodyOptionality.BodyModel"
+  }
+}

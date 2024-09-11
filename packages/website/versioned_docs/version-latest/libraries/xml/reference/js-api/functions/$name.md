@@ -10,6 +10,9 @@ function $name(
    name): void
 ```
 
+Provide the name of the XML element or attribute. This means the same thing as
+ `@encodedName("application/xml", value)`
+
 ## Parameters
 
 | Parameter | Type |

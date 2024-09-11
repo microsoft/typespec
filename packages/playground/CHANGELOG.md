@@ -1,5 +1,13 @@
 # Change Log - @typespec/playground
 
+## 0.4.2
+
+### Bug Fixes
+
+- [#4276](https://github.com/microsoft/typespec/pull/4276) Accessibility, increase footer contrast
+- [#4081](https://github.com/microsoft/typespec/pull/4081) Fix: Reloading the playground will not register the typespec language server
+
+
 ## 0.4.1
 
 ### Bump dependencies

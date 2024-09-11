@@ -13,6 +13,21 @@ namespace Microsoft.Generator.CSharp
     /// </summary>
     public class Configuration
     {
+        private static readonly string[] _badNamespaces =
+        [
+            "Type",
+            "Array",
+            "Enum",
+        ];
+
+        internal enum UnreferencedTypesHandlingOption
+        {
+            RemoveOrInternalize = 0,
+            Internalize = 1,
+            KeepAll = 2
+        }
+
+        private const string GeneratedFolderName = "Generated";
         private const string ConfigurationFileName = "Configuration.json";
 
         // for mocking
@@ -35,7 +50,8 @@ namespace Microsoft.Generator.CSharp
             string libraryName,
             bool useModelNamespace,
             string libraryNamespace,
-            bool disableXmlDocs)
+            bool disableXmlDocs,
+            UnreferencedTypesHandlingOption unreferencedTypesHandling)
         {
             OutputDirectory = outputPath;
             AdditionalConfigOptions = additionalConfigOptions;
@@ -45,9 +61,66 @@ namespace Microsoft.Generator.CSharp
             GenerateTestProject = generateTestProject;
             LibraryName = libraryName;
             UseModelNamespace = useModelNamespace;
-            RootNamespace = libraryNamespace;
-            ModelNamespace = useModelNamespace ? $"{libraryNamespace}.Models" : libraryNamespace;
+            RootNamespace = GetCleanNameSpace(libraryNamespace);
+            ModelNamespace = useModelNamespace ? $"{RootNamespace}.Models" : RootNamespace;
             DisableXmlDocs = disableXmlDocs;
+            UnreferencedTypesHandling = unreferencedTypesHandling;
+        }
+
+        private string GetCleanNameSpace(string libraryNamespace)
+        {
+            Span<char> dest = stackalloc char[libraryNamespace.Length + GetSegmentCount(libraryNamespace)];
+            var source = libraryNamespace.AsSpan();
+            var destIndex = 0;
+            var nextDot = source.IndexOf('.');
+            while (nextDot != -1)
+            {
+                var segment = source.Slice(0, nextDot);
+                if (IsSpecialSegment(segment))
+                {
+                    dest[destIndex] = '_';
+                    destIndex++;
+                }
+                segment.CopyTo(dest.Slice(destIndex));
+                destIndex += segment.Length;
+                dest[destIndex] = '.';
+                destIndex++;
+                source = source.Slice(nextDot + 1);
+                nextDot = source.IndexOf('.');
+            }
+            if (IsSpecialSegment(source))
+            {
+                dest[destIndex] = '_';
+                destIndex++;
+            }
+            source.CopyTo(dest.Slice(destIndex));
+            destIndex += source.Length;
+            return dest.Slice(0, destIndex).ToString();
+        }
+
+        private bool IsSpecialSegment(ReadOnlySpan<char> readOnlySpan)
+        {
+            for (int i = 0; i < _badNamespaces.Length; i++)
+            {
+                if (readOnlySpan.Equals(_badNamespaces[i], StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static int GetSegmentCount(string libraryNamespace)
+        {
+            int count = 0;
+            for (int i = 0; i < libraryNamespace.Length; i++)
+            {
+                if (libraryNamespace[i] == '.')
+                {
+                    count++;
+                }
+            }
+            return ++count;
         }
 
         /// <summary>
@@ -63,6 +136,7 @@ namespace Microsoft.Generator.CSharp
             public const string Namespace = "namespace";
             public const string UseModelNamespace = "use-model-namespace";
             public const string DisableXmlDocs = "disable-xml-docs";
+            public const string UnreferencedTypesHandling = "unreferenced-types-handling";
         }
 
         /// <summary>
@@ -78,8 +152,19 @@ namespace Microsoft.Generator.CSharp
 
         internal string OutputDirectory { get; }
 
+        internal static UnreferencedTypesHandlingOption UnreferencedTypesHandling { get; private set; } = UnreferencedTypesHandlingOption.RemoveOrInternalize;
+
         private string? _projectDirectory;
         internal string ProjectDirectory => _projectDirectory ??= Path.Combine(OutputDirectory, "src");
+
+        private string? _testProjectDirectory;
+        internal string TestProjectDirectory => _testProjectDirectory ??= Path.Combine(OutputDirectory, "tests");
+
+        private string? _projectGeneratedDirectory;
+        internal string ProjectGeneratedDirectory => _projectGeneratedDirectory ??= Path.Combine(ProjectDirectory, GeneratedFolderName);
+
+        private string? _testGeneratedDirectory;
+        internal string TestGeneratedDirectory => _testGeneratedDirectory ??= Path.Combine(TestProjectDirectory, GeneratedFolderName);
 
         internal string LibraryName { get; }
 
@@ -138,7 +223,8 @@ namespace Microsoft.Generator.CSharp
                 ReadRequiredStringOption(root, Options.LibraryName),
                 ReadOption(root, Options.UseModelNamespace),
                 ReadRequiredStringOption(root, Options.Namespace),
-                ReadOption(root, Options.DisableXmlDocs));
+                ReadOption(root, Options.DisableXmlDocs),
+                ReadEnumOption<UnreferencedTypesHandlingOption>(root, Options.UnreferencedTypesHandling));
         }
 
         /// <summary>
@@ -167,6 +253,7 @@ namespace Microsoft.Generator.CSharp
             Options.UseModelNamespace,
             Options.Namespace,
             Options.DisableXmlDocs,
+            Options.UnreferencedTypesHandling,
         };
 
         private static bool ReadOption(JsonElement root, string option)
@@ -202,6 +289,22 @@ namespace Microsoft.Generator.CSharp
         {
             return _defaultBoolOptionValues.TryGetValue(option, out bool defaultValue) && defaultValue;
         }
+
+        private static T ReadEnumOption<T>(JsonElement root, string option) where T : struct, Enum
+        {
+            if (root.TryGetProperty(option, out JsonElement value) && Enum.TryParse<T>(value.ToString(), true, out var enumValue))
+            {
+                return enumValue;
+            }
+
+            return (T)GetDefaultEnumOptionValue(option)!;
+        }
+
+        public static Enum? GetDefaultEnumOptionValue(string option) => option switch
+        {
+            Options.UnreferencedTypesHandling => UnreferencedTypesHandlingOption.RemoveOrInternalize,
+            _ => null
+        };
 
         /// <summary>
         /// Parses the additional configuration options from the given JSON element root and stores them in a dictionary.

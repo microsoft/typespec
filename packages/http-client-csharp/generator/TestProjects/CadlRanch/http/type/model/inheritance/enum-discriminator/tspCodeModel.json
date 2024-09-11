@@ -1,0 +1,870 @@
+{
+ "$id": "1",
+ "Name": "Type.Model.Inheritance.EnumDiscriminator",
+ "ApiVersions": [],
+ "Enums": [
+  {
+   "$id": "2",
+   "kind": "enum",
+   "name": "DogKind",
+   "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.DogKind",
+   "valueType": {
+    "$id": "3",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "values": [
+    {
+     "$id": "4",
+     "kind": "enumvalue",
+     "name": "Golden",
+     "value": "golden",
+     "valueType": {
+      "$id": "5",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "2"
+     },
+     "description": "Species golden",
+     "decorators": []
+    }
+   ],
+   "description": "extensible enum type for discriminator",
+   "isFixed": false,
+   "isFlags": false,
+   "usage": "Input,Output,Json",
+   "decorators": []
+  },
+  {
+   "$id": "6",
+   "kind": "enum",
+   "name": "SnakeKind",
+   "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.SnakeKind",
+   "valueType": {
+    "$id": "7",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "values": [
+    {
+     "$id": "8",
+     "kind": "enumvalue",
+     "name": "Cobra",
+     "value": "cobra",
+     "valueType": {
+      "$id": "9",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "6"
+     },
+     "description": "Species cobra",
+     "decorators": []
+    }
+   ],
+   "description": "fixed enum type for discriminator",
+   "isFixed": true,
+   "isFlags": false,
+   "usage": "Input,Output,Json",
+   "decorators": []
+  }
+ ],
+ "Models": [
+  {
+   "$id": "10",
+   "kind": "model",
+   "name": "Dog",
+   "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Dog",
+   "usage": "Input,Output,Json",
+   "description": "Test extensible enum type for discriminator",
+   "decorators": [],
+   "discriminatorProperty": {
+    "$id": "11",
+    "kind": "property",
+    "name": "kind",
+    "serializedName": "kind",
+    "description": "discriminator property",
+    "type": {
+     "$ref": "2"
+    },
+    "optional": false,
+    "readOnly": false,
+    "discriminator": true,
+    "decorators": [],
+    "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Dog.kind"
+   },
+   "properties": [
+    {
+     "$ref": "11"
+    },
+    {
+     "$id": "12",
+     "kind": "property",
+     "name": "weight",
+     "serializedName": "weight",
+     "description": "Weight of the dog",
+     "type": {
+      "$id": "13",
+      "kind": "int32",
+      "name": "int32",
+      "crossLanguageDefinitionId": "TypeSpec.int32",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Dog.weight"
+    }
+   ],
+   "discriminatedSubtypes": {
+    "$id": "14",
+    "golden": {
+     "$id": "15",
+     "kind": "model",
+     "name": "Golden",
+     "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Golden",
+     "usage": "Input,Output,Json",
+     "description": "Golden dog model",
+     "discriminatorValue": "golden",
+     "decorators": [],
+     "baseModel": {
+      "$ref": "10"
+     },
+     "properties": [
+      {
+       "$id": "16",
+       "kind": "property",
+       "name": "kind",
+       "serializedName": "kind",
+       "description": "discriminator property",
+       "type": {
+        "$id": "17",
+        "kind": "constant",
+        "valueType": {
+         "$id": "18",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "golden",
+        "decorators": []
+       },
+       "optional": false,
+       "readOnly": false,
+       "discriminator": true,
+       "decorators": [],
+       "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Golden.kind"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "$ref": "15"
+  },
+  {
+   "$id": "19",
+   "kind": "model",
+   "name": "Snake",
+   "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Snake",
+   "usage": "Input,Output,Json",
+   "description": "Test fixed enum type for discriminator",
+   "decorators": [],
+   "discriminatorProperty": {
+    "$id": "20",
+    "kind": "property",
+    "name": "kind",
+    "serializedName": "kind",
+    "description": "discriminator property",
+    "type": {
+     "$ref": "6"
+    },
+    "optional": false,
+    "readOnly": false,
+    "discriminator": true,
+    "decorators": [],
+    "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Snake.kind"
+   },
+   "properties": [
+    {
+     "$ref": "20"
+    },
+    {
+     "$id": "21",
+     "kind": "property",
+     "name": "length",
+     "serializedName": "length",
+     "description": "Length of the snake",
+     "type": {
+      "$id": "22",
+      "kind": "int32",
+      "name": "int32",
+      "crossLanguageDefinitionId": "TypeSpec.int32",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Snake.length"
+    }
+   ],
+   "discriminatedSubtypes": {
+    "$id": "23",
+    "cobra": {
+     "$id": "24",
+     "kind": "model",
+     "name": "Cobra",
+     "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Cobra",
+     "usage": "Input,Output,Json",
+     "description": "Cobra model",
+     "discriminatorValue": "cobra",
+     "decorators": [],
+     "baseModel": {
+      "$ref": "19"
+     },
+     "properties": [
+      {
+       "$id": "25",
+       "kind": "property",
+       "name": "kind",
+       "serializedName": "kind",
+       "description": "discriminator property",
+       "type": {
+        "$id": "26",
+        "kind": "constant",
+        "valueType": {
+         "$id": "27",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "cobra",
+        "decorators": []
+       },
+       "optional": false,
+       "readOnly": false,
+       "discriminator": true,
+       "decorators": [],
+       "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Cobra.kind"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "$ref": "24"
+  }
+ ],
+ "Clients": [
+  {
+   "$id": "28",
+   "Name": "EnumDiscriminatorClient",
+   "Description": "Illustrates inheritance with enum discriminator.",
+   "Operations": [
+    {
+     "$id": "29",
+     "Name": "getExtensibleModel",
+     "ResourceName": "EnumDiscriminator",
+     "Description": "Receive model with extensible enum discriminator type.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "30",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Type": {
+        "$id": "31",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "32",
+        "Type": {
+         "$id": "33",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "34",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "35",
+        "kind": "constant",
+        "valueType": {
+         "$id": "36",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "37",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "10"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/model/inheritance/enum-discriminator/extensible-enum",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.getExtensibleModel",
+     "Decorators": []
+    },
+    {
+     "$id": "38",
+     "Name": "putExtensibleModel",
+     "ResourceName": "EnumDiscriminator",
+     "Description": "Send model with extensible enum discriminator type.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "30"
+      },
+      {
+       "$id": "39",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "40",
+        "kind": "constant",
+        "valueType": {
+         "$id": "41",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      },
+      {
+       "$id": "42",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Description": "Dog to create",
+       "Type": {
+        "$ref": "10"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "43",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
+     "Path": "/type/model/inheritance/enum-discriminator/extensible-enum",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.putExtensibleModel",
+     "Decorators": []
+    },
+    {
+     "$id": "44",
+     "Name": "getExtensibleModelMissingDiscriminator",
+     "ResourceName": "EnumDiscriminator",
+     "Description": "Get a model omitting the discriminator.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "30"
+      },
+      {
+       "$id": "45",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "46",
+        "kind": "constant",
+        "valueType": {
+         "$id": "47",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "48",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "10"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/model/inheritance/enum-discriminator/extensible-enum/missingdiscriminator",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.getExtensibleModelMissingDiscriminator",
+     "Decorators": []
+    },
+    {
+     "$id": "49",
+     "Name": "getExtensibleModelWrongDiscriminator",
+     "ResourceName": "EnumDiscriminator",
+     "Description": "Get a model containing discriminator value never defined.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "30"
+      },
+      {
+       "$id": "50",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "51",
+        "kind": "constant",
+        "valueType": {
+         "$id": "52",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "53",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "10"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/model/inheritance/enum-discriminator/extensible-enum/wrongdiscriminator",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.getExtensibleModelWrongDiscriminator",
+     "Decorators": []
+    },
+    {
+     "$id": "54",
+     "Name": "getFixedModel",
+     "ResourceName": "EnumDiscriminator",
+     "Description": "Receive model with fixed enum discriminator type.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "30"
+      },
+      {
+       "$id": "55",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "56",
+        "kind": "constant",
+        "valueType": {
+         "$id": "57",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "58",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "19"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/model/inheritance/enum-discriminator/fixed-enum",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.getFixedModel",
+     "Decorators": []
+    },
+    {
+     "$id": "59",
+     "Name": "putFixedModel",
+     "ResourceName": "EnumDiscriminator",
+     "Description": "Send model with fixed enum discriminator type.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "30"
+      },
+      {
+       "$id": "60",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Description": "Body parameter's content type. Known values are application/json",
+       "Type": {
+        "$id": "61",
+        "kind": "constant",
+        "valueType": {
+         "$id": "62",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      },
+      {
+       "$id": "63",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Description": "Snake to create",
+       "Type": {
+        "$ref": "19"
+       },
+       "Location": "Body",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "64",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{endpoint}",
+     "Path": "/type/model/inheritance/enum-discriminator/fixed-enum",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.putFixedModel",
+     "Decorators": []
+    },
+    {
+     "$id": "65",
+     "Name": "getFixedModelMissingDiscriminator",
+     "ResourceName": "EnumDiscriminator",
+     "Description": "Get a model omitting the discriminator.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "30"
+      },
+      {
+       "$id": "66",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "67",
+        "kind": "constant",
+        "valueType": {
+         "$id": "68",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "69",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "19"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/model/inheritance/enum-discriminator/fixed-enum/missingdiscriminator",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.getFixedModelMissingDiscriminator",
+     "Decorators": []
+    },
+    {
+     "$id": "70",
+     "Name": "getFixedModelWrongDiscriminator",
+     "ResourceName": "EnumDiscriminator",
+     "Description": "Get a model containing discriminator value never defined.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$ref": "30"
+      },
+      {
+       "$id": "71",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "72",
+        "kind": "constant",
+        "valueType": {
+         "$id": "73",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": true,
+       "Kind": "Constant",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "74",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "19"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
+     "Path": "/type/model/inheritance/enum-discriminator/fixed-enum/wrongdiscriminator",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.getFixedModelWrongDiscriminator",
+     "Decorators": []
+    }
+   ],
+   "Protocol": {
+    "$id": "75"
+   },
+   "Parameters": [
+    {
+     "$ref": "30"
+    }
+   ],
+   "Decorators": []
+  }
+ ]
+}

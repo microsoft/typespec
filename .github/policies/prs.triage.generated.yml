@@ -97,6 +97,13 @@ configuration:
           - if:
               - includesModifiedFiles:
                   files:
+                    - packages/http-client-python/**/*
+            then:
+              - addLabel:
+                  label: emitter:client:python
+          - if:
+              - includesModifiedFiles:
+                  files:
                     - packages/json-schema/**/*
             then:
               - addLabel:
