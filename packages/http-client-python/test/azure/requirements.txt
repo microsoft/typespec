@@ -7,12 +7,16 @@ azure-mgmt-core==1.3.2
 # only for azure
 -e ./generated/azure-client-generator-core-access
 -e ./generated/azure-client-generator-core-usage
+-e ./generated/azure-client-generator-core-flatten-property
 -e ./generated/azure-core-basic
 -e ./generated/azure-core-scalar
 -e ./generated/azurecore-lro-rpc
 -e ./generated/azure-core-lro-standard
+-e ./generated/azure-core-model
 -e ./generated/azure-core-traits
+-e ./generated/azure-core-page
 -e ./generated/azure-special-headers-client-request-id/
+-e ./generated/azure-example-basic
 -e ./generated/azure-resource-manager-models-common-types-managed-identity
 -e ./generated/azure-resource-manager-models-resources
 
@@ -23,6 +27,7 @@ azure-mgmt-core==1.3.2
 -e ./generated/authentication-union
 -e ./generated/client-naming
 -e ./generated/encode-duration
+-e ./generated/encode-numeric
 -e ./generated/parameters-basic
 -e ./generated/parameters-collection-format
 -e ./generated/parameters-spread
@@ -40,7 +45,6 @@ azure-mgmt-core==1.3.2
 -e ./generated/typetest-enum-extensible
 -e ./generated/typetest-enum-fixed
 -e ./generated/typetest-model-enumdiscriminator
--e ./generated/typetest-model-flatten
 -e ./generated/typetest-model-nesteddiscriminator
 -e ./generated/typetest-model-notdiscriminated
 -e ./generated/typetest-model-singlediscriminator
@@ -70,6 +74,7 @@ azure-mgmt-core==1.3.2
 -e ./generated/payload-pageable
 -e ./generated/payload-multipart
 -e ./generated/payload-media-type
+-e ./generated/payload-xml
 -e ./generated/versioning-added
 -e ./generated/versioning-madeoptional
 -e ./generated/versioning-removed

@@ -11,7 +11,7 @@ import { fileURLToPath } from "url";
 const exec = promisify(execCallback);
 
 // Get the directory of the current file
-const PLUGIN_DIR = resolve(fileURLToPath(import.meta.url), "../../../");
+const PLUGIN_DIR = resolve(fileURLToPath(import.meta.url), "../../../../");
 const CADL_RANCH_DIR = resolve(PLUGIN_DIR, "node_modules/@azure-tools/cadl-ranch-specs/http");
 interface TspCommand {
     outputDir: string;
@@ -235,7 +235,7 @@ function addOptions(spec: string, generatedFolder: string, flags: RegenerateFlag
         }
         options["examples-dir"] = toPosix(join(dirname(spec), "examples"));
         const configs = Object.entries(options).flatMap(([k, v]) => {
-            return `--option @azure-tools/typespec-python.${k}=${v}`;
+            return `--option @typespec/http-client-python.${k}=${v}`;
         });
         emitterConfigs.push({
             optionsStr: configs.join(" "),

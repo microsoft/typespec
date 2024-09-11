@@ -67,9 +67,43 @@ async def test_model_value(client: ArrayClient):
 
 
 @pytest.mark.asyncio
+async def test_nullable_boolean_value(client: ArrayClient):
+    assert await client.nullable_boolean_value.get() == [True, None, False]
+    await client.nullable_boolean_value.put([True, None, False])
+
+
+@pytest.mark.asyncio
 async def test_nullable_float_value(client: ArrayClient):
     assert await client.nullable_float_value.get() == [1.25, None, 3.0]
     await client.nullable_float_value.put([1.25, None, 3.0])
+
+
+@pytest.mark.asyncio
+async def test_nullable_int32_value(client: ArrayClient):
+    assert await client.nullable_int32_value.get() == [1, None, 3]
+    await client.nullable_int32_value.put([1, None, 3])
+
+
+@pytest.mark.asyncio
+async def test_nullable_model_value(client: ArrayClient):
+    assert await client.nullable_model_value.get() == [
+        models.InnerModel(property="hello"),
+        None,
+        models.InnerModel(property="world"),
+    ]
+    await client.nullable_model_value.put(
+        [
+            models.InnerModel(property="hello"),
+            None,
+            models.InnerModel(property="world"),
+        ]
+    )
+
+
+@pytest.mark.asyncio
+async def test_nullable_string_value(client: ArrayClient):
+    assert await client.nullable_string_value.get() == ["hello", None, "world"]
+    await client.nullable_string_value.put(["hello", None, "world"])
 
 
 @pytest.mark.asyncio

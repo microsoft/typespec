@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import datetime
 from specialheaders.conditionalrequest.aio import ConditionalRequestClient
 
 
@@ -21,3 +22,17 @@ async def test_post_if_match(core_library, client: ConditionalRequestClient):
 @pytest.mark.asyncio
 async def test_post_if_none_match(core_library, client: ConditionalRequestClient):
     await client.post_if_none_match(etag="invalid", match_condition=core_library.MatchConditions.IfModified)
+
+
+@pytest.mark.asyncio
+async def test_head_if_modified_since(client: ConditionalRequestClient):
+    await client.head_if_modified_since(
+        if_modified_since=datetime.datetime(2022, 8, 26, 14, 38, 0, tzinfo=datetime.timezone.utc)
+    )
+
+
+@pytest.mark.asyncio
+async def test_post_if_unmodified_since(client: ConditionalRequestClient):
+    await client.post_if_unmodified_since(
+        if_unmodified_since=datetime.datetime(2022, 8, 26, 14, 38, 0, tzinfo=datetime.timezone.utc)
+    )

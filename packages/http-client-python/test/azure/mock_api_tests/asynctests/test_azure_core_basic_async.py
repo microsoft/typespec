@@ -4,7 +4,6 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from typing import AsyncIterable
 from specs.azure.core.basic import models, aio
 
 VALID_USER = models.User(id=1, name="Madge", etag="11bdc430-65e8-45ad-81d9-8ffa60d55b59")
@@ -60,27 +59,6 @@ async def test_list(client: aio.BasicClient):
     assert result[1].orders[0].detail == "a TV"
 
 
-async def _list_with_page_tests(pager: AsyncIterable[models.User]):
-    result = [p async for p in pager]
-    assert len(result) == 1
-    assert result[0].id == 1
-    assert result[0].name == "Madge"
-    assert result[0].etag == "11bdc430-65e8-45ad-81d9-8ffa60d55b59"
-    assert result[0].orders is None
-
-
-@pytest.mark.asyncio
-async def test_list_with_page(client: aio.BasicClient):
-    await _list_with_page_tests(client.list_with_page())
-
-
-@pytest.mark.asyncio
-async def test_list_with_custom_page_model(client: aio.BasicClient):
-    await _list_with_page_tests(client.list_with_custom_page_model())
-    with pytest.raises(AttributeError):
-        models.CustomPageModel
-
-
 @pytest.mark.asyncio
 async def test_delete(client: aio.BasicClient):
     await client.delete(id=1)
@@ -90,24 +68,3 @@ async def test_delete(client: aio.BasicClient):
 async def test_export(client: aio.BasicClient):
     result = await client.export(id=1, format="json")
     assert result == VALID_USER
-
-
-@pytest.mark.asyncio
-async def test_list_with_parameters(client: aio.BasicClient):
-    result = [
-        item
-        async for item in client.list_with_parameters(models.ListItemInputBody(input_name="Madge"), another="Second")
-    ]
-    assert len(result) == 1
-    assert result[0] == VALID_USER
-
-
-@pytest.mark.asyncio
-async def test_two_models_as_page_item(client: aio.BasicClient):
-    result = [item async for item in client.two_models_as_page_item.list_first_item()]
-    assert len(result) == 1
-    assert result[0].id == 1
-
-    result = [item async for item in client.two_models_as_page_item.list_second_item()]
-    assert len(result) == 1
-    assert result[0].name == "Madge"

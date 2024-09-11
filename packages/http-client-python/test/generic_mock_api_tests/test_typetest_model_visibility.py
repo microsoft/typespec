@@ -32,3 +32,9 @@ def test_post_model(client):
 
 def test_delete_model(client):
     client.delete_model(models.VisibilityModel(delete_prop=True))
+
+
+def test_put_read_only_model(client):
+    client.put_read_only_model(
+        models.ReadOnlyModel(optional_nullable_int_list=[1, 2], optional_string_record={"foo", "bar"})
+    )

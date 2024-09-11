@@ -4,8 +4,8 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from typetest.model.flatten.aio import FlattenClient
-from typetest.model.flatten.models import (
+from specs.azure.clientgenerator.core.flattenproperty.aio import FlattenPropertyClient
+from specs.azure.clientgenerator.core.flattenproperty.models import (
     FlattenModel,
     ChildModel,
     NestedFlattenModel,
@@ -15,7 +15,7 @@ from typetest.model.flatten.models import (
 
 @pytest.fixture
 async def client():
-    async with FlattenClient() as client:
+    async with FlattenPropertyClient() as client:
         yield client
 
 
@@ -23,7 +23,7 @@ async def client():
 
 
 @pytest.mark.asyncio
-async def test_put_flatten_model(client: FlattenClient):
+async def test_put_flatten_model(client: FlattenPropertyClient):
     resp = FlattenModel(name="test", properties=ChildModel(age=1, description="test"))
     assert (
         await client.put_flatten_model(FlattenModel(name="foo", properties=ChildModel(age=10, description="bar")))
@@ -33,7 +33,7 @@ async def test_put_flatten_model(client: FlattenClient):
 
 
 @pytest.mark.asyncio
-async def test_put_nested_flatten_model(client: FlattenClient):
+async def test_put_nested_flatten_model(client: FlattenPropertyClient):
     # python doesn't support nested flatten model
     assert await client.put_nested_flatten_model(
         NestedFlattenModel(

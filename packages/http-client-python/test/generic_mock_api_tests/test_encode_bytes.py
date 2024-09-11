@@ -30,10 +30,10 @@ def test_query(client: BytesClient):
     client.query.base64(
         value=bytes("test", "utf-8"),
     )
-    client.query.base64url(
+    client.query.base64_url(
         value=bytes("test", "utf-8"),
     )
-    client.query.base64url_array(
+    client.query.base64_url_array(
         value=[
             bytes("test", "utf-8"),
             bytes("test", "utf-8"),
@@ -56,14 +56,14 @@ def test_property(client: BytesClient):
     )
     assert result.value == bytes("test", "utf-8")
 
-    result = client.property.base64url(
+    result = client.property.base64_url(
         Base64urlBytesProperty(
             value=bytes("test", "utf-8"),
         )
     )
     assert result.value == bytes("test", "utf-8")
 
-    result = client.property.base64url_array(
+    result = client.property.base64_url_array(
         Base64urlArrayBytesProperty(
             value=[
                 bytes("test", "utf-8"),
@@ -84,10 +84,10 @@ def test_header(client: BytesClient):
     client.header.base64(
         value=bytes("test", "utf-8"),
     )
-    client.header.base64url(
+    client.header.base64_url(
         value=bytes("test", "utf-8"),
     )
-    client.header.base64url_array(
+    client.header.base64_url_array(
         value=[
             bytes("test", "utf-8"),
             bytes("test", "utf-8"),
@@ -114,7 +114,7 @@ def test_request_body(client: BytesClient, png_data: bytes):
     client.request_body.base64(
         value=bytes("test", "utf-8"),
     )
-    client.request_body.base64url(
+    client.request_body.base64_url(
         value=bytes("test", "utf-8"),
     )
 
@@ -123,6 +123,6 @@ def test_response_body(client: BytesClient, png_data: bytes):
     expected = b"test"
     assert expected == client.response_body.default()
     assert expected == client.response_body.base64()
-    assert expected == client.response_body.base64url()
+    assert expected == client.response_body.base64_url()
     assert b"".join(client.response_body.octet_stream()) == png_data
     assert b"".join(client.response_body.custom_content_type()) == png_data

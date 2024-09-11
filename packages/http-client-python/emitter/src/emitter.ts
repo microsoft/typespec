@@ -85,7 +85,7 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
     }
     const commandArgs = [
         venvPath,
-        `${root}/scripts/run_tsp.py`,
+        `${root}/eng/scripts/setup/run_tsp.py`,
         `--output-folder=${outputDir}`,
         `--cadl-file=${yamlPath}`,
     ];

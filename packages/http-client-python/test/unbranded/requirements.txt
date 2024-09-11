@@ -11,6 +11,7 @@ corehttp==1.0.0b3
 -e ./generated/authentication-union
 -e ./generated/client-naming
 -e ./generated/encode-duration
+-e ./generated/encode-numeric
 -e ./generated/parameters-basic
 -e ./generated/parameters-collection-format
 -e ./generated/parameters-spread
@@ -28,7 +29,6 @@ corehttp==1.0.0b3
 -e ./generated/typetest-enum-extensible
 -e ./generated/typetest-enum-fixed
 -e ./generated/typetest-model-enumdiscriminator
--e ./generated/typetest-model-flatten
 -e ./generated/typetest-model-nesteddiscriminator
 -e ./generated/typetest-model-notdiscriminated
 -e ./generated/typetest-model-singlediscriminator
@@ -58,6 +58,7 @@ corehttp==1.0.0b3
 -e ./generated/payload-pageable
 -e ./generated/payload-multipart
 -e ./generated/payload-media-type
+-e ./generated/payload-xml
 -e ./generated/versioning-added
 -e ./generated/versioning-madeoptional
 -e ./generated/versioning-removed

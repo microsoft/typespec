@@ -66,6 +66,17 @@ async def test_collections_model(client: NullableClient):
 
 
 @pytest.mark.asyncio
+async def test_collections_string(client: NullableClient):
+    non_null_model = models.CollectionsStringProperty(required_property="foo", nullable_property=["hello", "world"])
+    non_model = models.CollectionsStringProperty(required_property="foo", nullable_property=NULL)
+    assert '{"requiredProperty": "foo", "nullableProperty": null}' == json.dumps(non_model, cls=SdkJSONEncoder)
+    assert await client.collections_string.get_non_null() == non_null_model
+    assert (await client.collections_string.get_null())["nullableProperty"] is None
+    await client.collections_string.patch_non_null(body=non_null_model)
+    await client.collections_string.patch_null(body=non_model)
+
+
+@pytest.mark.asyncio
 async def test_datetime(client: NullableClient):
     non_null_model = models.DatetimeProperty(required_property="foo", nullable_property="2022-08-26T18:38:00Z")
     non_model = models.DatetimeProperty(required_property="foo", nullable_property=NULL)

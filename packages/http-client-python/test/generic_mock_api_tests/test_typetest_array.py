@@ -58,9 +58,39 @@ def test_model_value(client: ArrayClient):
     )
 
 
+def test_nullable_boolean_value(client: ArrayClient):
+    assert client.nullable_boolean_value.get() == [True, None, False]
+    client.nullable_boolean_value.put([True, None, False])
+
+
 def test_nullable_float_value(client: ArrayClient):
     assert client.nullable_float_value.get() == [1.25, None, 3.0]
     client.nullable_float_value.put([1.25, None, 3.0])
+
+
+def test_nullable_int32_value(client: ArrayClient):
+    assert client.nullable_int32_value.get() == [1, None, 3]
+    client.nullable_int32_value.put([1, None, 3])
+
+
+def test_nullable_model_value(client: ArrayClient):
+    assert client.nullable_model_value.get() == [
+        models.InnerModel(property="hello"),
+        None,
+        models.InnerModel(property="world"),
+    ]
+    client.nullable_model_value.put(
+        [
+            models.InnerModel(property="hello"),
+            None,
+            models.InnerModel(property="world"),
+        ]
+    )
+
+
+def test_nullable_string_value(client: ArrayClient):
+    assert client.nullable_string_value.get() == ["hello", None, "world"]
+    client.nullable_string_value.put(["hello", None, "world"])
 
 
 def test_string_value(client: ArrayClient):

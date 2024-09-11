@@ -4,8 +4,8 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from typetest.model.flatten import FlattenClient
-from typetest.model.flatten.models import (
+from specs.azure.clientgenerator.core.flattenproperty import FlattenPropertyClient
+from specs.azure.clientgenerator.core.flattenproperty.models import (
     FlattenModel,
     ChildModel,
     NestedFlattenModel,
@@ -15,20 +15,20 @@ from typetest.model.flatten.models import (
 
 @pytest.fixture
 def client():
-    with FlattenClient() as client:
+    with FlattenPropertyClient() as client:
         yield client
 
 
 # ========== test for cadl-ranch ==========
 
 
-def test_put_flatten_model(client: FlattenClient):
+def test_put_flatten_model(client: FlattenPropertyClient):
     resp = FlattenModel(name="test", properties=ChildModel(age=1, description="test"))
     assert client.put_flatten_model(FlattenModel(name="foo", properties=ChildModel(age=10, description="bar"))) == resp
     assert client.put_flatten_model(FlattenModel(name="foo", age=10, description="bar")) == resp
 
 
-def test_put_nested_flatten_model(client: FlattenClient):
+def test_put_nested_flatten_model(client: FlattenPropertyClient):
     # python doesn't support nested flatten model
     assert client.put_nested_flatten_model(
         NestedFlattenModel(

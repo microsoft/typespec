@@ -36,6 +36,7 @@ async def test_create_resource(client: JsonMergePatchClient):
     assert response == create_resource
 
 
+@pytest.mark.asyncio
 async def test_update_resource_model_input(client: JsonMergePatchClient):
     update_resource = ResourcePatch(
         description=NULL,
@@ -50,6 +51,7 @@ async def test_update_resource_model_input(client: JsonMergePatchClient):
     assert response == Resource(name="Madge", map={"key": InnerModel(name="InnerMadge")})
 
 
+@pytest.mark.asyncio
 async def test_update_resource_raw_input(client: JsonMergePatchClient):
     response = await client.update_resource(
         {
@@ -65,6 +67,7 @@ async def test_update_resource_raw_input(client: JsonMergePatchClient):
     assert response == Resource(name="Madge", map={"key": InnerModel(name="InnerMadge")})
 
 
+@pytest.mark.asyncio
 async def test_update_optional_resource_model_input(client: JsonMergePatchClient):
     update_resource = ResourcePatch(
         description=NULL,
@@ -79,6 +82,7 @@ async def test_update_optional_resource_model_input(client: JsonMergePatchClient
     assert response == Resource(name="Madge", map={"key": InnerModel(name="InnerMadge")})
 
 
+@pytest.mark.asyncio
 async def test_update_optional_resource_raw_input(client: JsonMergePatchClient):
     response = await client.update_optional_resource(
         {
