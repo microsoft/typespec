@@ -8,6 +8,7 @@ model Widget {
   weight: int32[];
   color: ("red" | "blue")[];
 }
+op foo(): Widget;
 ```
 
 ## TypeScript
@@ -30,6 +31,7 @@ export interface Widget {
 model Widget {
   id: Record<int32>[];
 }
+op foo(): Widget;
 ```
 
 ## TypeScript

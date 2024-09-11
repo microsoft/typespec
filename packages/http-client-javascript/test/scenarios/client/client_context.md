@@ -7,6 +7,7 @@
   title: "Widget Service",
 })
 namespace DemoService;
+op foo(): void;
 ```
 
 ## TypeScript

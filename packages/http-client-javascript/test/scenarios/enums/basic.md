@@ -8,6 +8,8 @@ enum Foo {
   two,
   three,
 }
+
+op foo(): Foo;
 ```
 
 ## TypeScript
@@ -32,6 +34,7 @@ enum Foo {
   two: "TWO",
   three: "THREE",
 }
+op foo(): Foo;
 ```
 
 ## TypeScript

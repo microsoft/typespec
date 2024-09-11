@@ -1,133 +1,98 @@
-import "@typespec/http";
-import "@azure-tools/cadl-ranch-expect";
-import "@azure-tools/typespec-client-generator-core";
+import "@typespec/rest";
+import "@typespec/openapi";
+
+@service({
+  title: "Pet Store Service",
+})
+namespace PetStore;
 
 using TypeSpec.Http;
-using Azure.ClientGenerator.Core;
+using TypeSpec.Rest;
+using TypeSpec.Rest.Resource;
 
-@doc("Illustrates various types of arrays.")
-@scenarioService("/type/array")
-namespace Type.Array;
-
-@doc("Template to have Array operations")
-interface ArrayOperations<TArr, TDoc extends string> {
-  @scenario
-  @scenarioDoc(
-    """
-      Expected Array response body:
-      ```json
-      {doc}
-      ```
-      """,
-    {
-      doc: TDoc,
-    }
-  )
-  @get
-  get(): TArr;
-
-  @scenario
-  @scenarioDoc(
-    """
-      Expected Array input body:
-      ```json
-      {doc}
-      ```
-      """,
-    {
-      doc: TDoc,
-    }
-  )
-  @put
-  put(@body body: TArr): void;
+@error
+model PetStoreError {
+  code: int32;
+  message: string;
 }
 
-@doc("Array of int32 values")
-@route("/int32")
-@operationGroup
-interface Int32Value extends ArrayOperations<int32[], "[1, 2]"> {}
+@resource("pets")
+model Pet {
+  @key("petId")
+  id: int32;
 
-@doc("Array of int64 values")
-@route("/int64")
-@operationGroup
-interface Int64Value
-  extends ArrayOperations<int64[], "[0x7FFFFFFFFFFFFFFF, -0x7FFFFFFFFFFFFFFF]"> {}
+  name: string;
+  tag?: string;
 
-@doc("Array of boolean values")
-@route("/boolean")
-@operationGroup
-interface BooleanValue extends ArrayOperations<boolean[], "[true, false]"> {}
+  @minValue(0)
+  @maxValue(20)
+  age: int32;
 
-@doc("Array of string values")
-@route("/string")
-@operationGroup
-interface StringValue extends ArrayOperations<string[], "['hello', '']"> {}
-
-@doc("Array of float values")
-@route("/float32")
-@operationGroup
-interface Float32Value extends ArrayOperations<float32[], "[43.125]"> {}
-
-@doc("Array of datetime values")
-@route("/datetime")
-@operationGroup
-interface DatetimeValue extends ArrayOperations<utcDateTime[], "['2022-08-26T18:38:00Z']"> {}
-
-@doc("Array of duration values")
-@route("/duration")
-@operationGroup
-interface DurationValue extends ArrayOperations<duration[], "['P123DT22H14M12.011S']"> {}
-
-@doc("Array of unknown values")
-@route("/unknown")
-@operationGroup
-interface UnknownValue extends ArrayOperations<unknown[], "[1, 'hello', 'k3': null]"> {}
-
-@doc("Array inner model")
-model InnerModel {
-  @doc("Required string property")
-  property: string;
-
-  children?: InnerModel[];
+  ownerId: int64;
 }
 
-@doc("Array of model values")
-@route("/model")
-@operationGroup
-interface ModelValue
-  extends ArrayOperations<InnerModel[], "[{'property': 'hello'}, {'property': 'world'}]"> {}
+@resource("toys")
+@parentResource(Pet)
+model Toy {
+  @key("toyId")
+  id: int64;
 
-alias NullableFloat = float32 | null;
-@doc("Array of nullable float values")
-@route("/nullable-float")
-@operationGroup
-interface NullableFloatValue extends ArrayOperations<NullableFloat[], "[1.25, null, 3.0]"> {}
+  petId: int64;
+  name: string;
+}
 
-alias NullableInt32 = int32 | null;
-@doc("Array of nullable int32 values")
-@route("/nullable-int32")
-@operationGroup
-interface NullableInt32Value extends ArrayOperations<NullableInt32[], "[1, null, 3]"> {}
+@resource("owners")
+model Owner {
+  @key("ownerId")
+  id: int64;
 
-alias NullableBoolean = boolean | null;
-@doc("Array of nullable boolean values")
-@route("/nullable-boolean")
-@operationGroup
-interface NullableBooleanValue extends ArrayOperations<NullableBoolean[], "[true, null, false]"> {}
+  name: string;
+  age: int32;
+}
 
-alias NullableString = string | null;
-@doc("Array of nullable string values")
-@route("/nullable-string")
-@operationGroup
-interface NullableStringValue
-  extends ArrayOperations<NullableString[], "['hello', null, 'world']"> {}
+@resource("checkups")
+model Checkup {
+  @key("checkupId")
+  id: int32;
 
-alias NullableModel = InnerModel | null;
-@doc("Array of nullable model values")
-@route("/nullable-model")
-@operationGroup
-interface NullableModelValue
-  extends ArrayOperations<
-      NullableModel[],
-      "[{'property': 'hello'}, null, {'property': 'world'}]"
-    > {}
+  vetName: string;
+  notes: string;
+}
+
+@segment("insurance")
+model Insurance {
+  provider: string;
+  premium: int32;
+  deductible: int32;
+}
+
+interface Pets extends ResourceOperations<Pet, PetStoreError> {}
+
+interface PetCheckups
+  extends ExtensionResourceCreateOrUpdate<Checkup, Pet, PetStoreError>,
+    ExtensionResourceList<Checkup, Pet, PetStoreError> {}
+
+interface PetInsurance extends SingletonResourceOperations<Insurance, Pet, PetStoreError> {}
+
+interface Toys extends ResourceRead<Toy, PetStoreError> {
+  @autoRoute
+  @listsResource(Toy)
+  list(
+    ...ParentKeysOf<Toy>,
+    @query nameFilter: string,
+  ): CollectionWithNextLink<Toy> | PetStoreError;
+}
+
+interface ToyInsurance extends SingletonResourceOperations<Insurance, Toy, PetStoreError> {}
+
+interface Checkups
+  extends ResourceCreateOrUpdate<Checkup, PetStoreError>,
+    ResourceList<Checkup, PetStoreError> {}
+
+interface Owners extends ResourceOperations<Owner, PetStoreError> {}
+
+interface OwnerCheckups
+  extends ExtensionResourceCreateOrUpdate<Checkup, Owner, PetStoreError>,
+    ExtensionResourceList<Checkup, Owner, PetStoreError> {}
+
+interface OwnerInsurance extends SingletonResourceOperations<Insurance, Owner, PetStoreError> {}

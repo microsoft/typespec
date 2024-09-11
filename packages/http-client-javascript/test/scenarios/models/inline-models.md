@@ -12,6 +12,7 @@ model Widget {
     age?: int32;
   };
 }
+op foo(): Widget;
 ```
 
 ## Typescript

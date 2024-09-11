@@ -6,6 +6,7 @@
 model Widget {
   prop: Record<int32>;
 }
+op foo(): Widget;
 ```
 
 ## TypeScript
@@ -26,6 +27,7 @@ export interface Widget {
 model Widget {
   prop: Record<int32[]>;
 }
+op foo(): Widget;
 ```
 
 ## TypeScript

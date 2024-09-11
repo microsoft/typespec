@@ -8,6 +8,8 @@ Defaults to rfc7231 encoding
 model Foo {
   created_on: utcDateTime;
 }
+
+op foo(): Foo;
 ```
 
 ## TypeScript
@@ -46,6 +48,7 @@ model Foo {
   @encode("rfc7231")
   created_on: utcDateTime;
 }
+op foo(): Foo;
 ```
 
 ## TypeScript

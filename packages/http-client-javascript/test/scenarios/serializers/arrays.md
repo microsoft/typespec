@@ -6,6 +6,7 @@
 model Foo {
   my_values: int32[];
 }
+op foo(): Foo;
 ```
 
 ## TypeScript
@@ -46,6 +47,7 @@ model Bar {
 model Foo {
   my_values: Bar[];
 }
+op foo(): Foo;
 ```
 
 ## TypeScript

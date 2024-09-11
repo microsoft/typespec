@@ -7,6 +7,7 @@ model Foo {
   element_name: string;
   age: int32;
 }
+op foo(): Foo;
 ```
 
 ## TypeScript

@@ -25,6 +25,7 @@ union DaysOfWeekEnum {
   @doc("Sunday.")
   Sunday: "Sunday",
 }
+op foo(): DaysOfWeekEnum;
 ```
 
 ## TypeScript
@@ -71,6 +72,7 @@ union DaysOfWeekExtensibleEnum {
   @doc("Sunday.")
   Sunday: "Sunday",
 }
+op foo(): DaysOfWeekExtensibleEnum;
 ```
 
 ## TypeScript

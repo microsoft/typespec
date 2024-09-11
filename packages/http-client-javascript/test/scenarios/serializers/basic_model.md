@@ -7,6 +7,7 @@ model Foo {
   name: string;
   age: int32;
 }
+op foo(): Foo;
 ```
 
 ## TypeScript
@@ -52,6 +53,7 @@ model Foo {
   age: int32;
   bar: Bar;
 }
+op foo(): Foo | Bar;
 ```
 
 ## TypeScript

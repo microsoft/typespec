@@ -6,6 +6,8 @@
 model Foo {
   my_values: Record<int32>;
 }
+
+op foo(): Foo;
 ```
 
 ## TypeScript
@@ -46,6 +48,8 @@ model Bar {
 model Foo {
   my_values: Record<Bar>;
 }
+
+op foo(): Foo | Bar;
 ```
 
 ## TypeScript

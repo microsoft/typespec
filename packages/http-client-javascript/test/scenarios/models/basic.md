@@ -8,6 +8,7 @@ model Widget {
   weight: int32;
   color: "red" | "blue";
 }
+op foo(): Widget;
 ```
 
 ## TypeScript
@@ -31,6 +32,7 @@ namespace Test {
     weight: int32;
     color: "red" | "blue";
   }
+  op foo(): TestWidget;
 }
 ```
 
@@ -55,6 +57,7 @@ namespace Test {
       color: "red" | "blue";
     }
   }
+  op foo(): Foo.TestFooWidget;
 }
 ```
 
@@ -75,7 +78,7 @@ namespace Test {
   namespace Foo {
     model Widget {
       id: string;
-      kind: "1";
+      kind: "2";
       weight: int32;
       color: "red" | "blue";
     }
@@ -83,10 +86,12 @@ namespace Test {
 
   model Widget {
     id: string;
-    kind: "2";
+    kind: "1";
     weight: int32;
     color: "red" | "blue";
   }
+
+  op foo(): Widget | Foo.Widget;
 }
 ```
 

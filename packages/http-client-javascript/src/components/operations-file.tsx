@@ -8,16 +8,20 @@ import { HttpResponse } from "./http-response.jsx";
 
 export interface OperationsFileProps {
   operations: Operation[];
-  service: Service;
+  service?: Service;
 }
 
 export function OperationsFile(props: OperationsFileProps) {
+  if(!props.service) {
+    return null;
+  }
+
   return (
     <ts.SourceFile path="operations.ts">
       {mapJoin(props.operations, (operation) => {
         const responseRefkey = refkey();
         return (
-          <FunctionDeclaration export async type={operation} parameters={{"client": <ts.Reference refkey={getClientContextRefkey(props.service)}/>}}>
+          <FunctionDeclaration export async type={operation} parameters={{"client": <ts.Reference refkey={getClientContextRefkey(props.service!)}/>}}>
             <HttpRequest operation={operation} responseRefkey={responseRefkey} />
             <HttpResponse operation={operation} responseRefkey={responseRefkey} />
           </FunctionDeclaration>
