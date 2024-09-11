@@ -22,7 +22,6 @@
     "com.parameters.bodyoptionality.OptionalExplicitClient.omitWithResponse": "Parameters.BodyOptionality.OptionalExplicit.omit",
     "com.parameters.bodyoptionality.OptionalExplicitClient.set": "Parameters.BodyOptionality.OptionalExplicit.set",
     "com.parameters.bodyoptionality.OptionalExplicitClient.setWithResponse": "Parameters.BodyOptionality.OptionalExplicit.set",
-    "com.parameters.bodyoptionality.implementation.models.RequiredImplicitRequest": "Parameters.BodyOptionality.requiredImplicit.Request.anonymous",
     "com.parameters.bodyoptionality.models.BodyModel": "Parameters.BodyOptionality.BodyModel"
   }
 }

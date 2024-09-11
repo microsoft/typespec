@@ -4,8 +4,8 @@
 
 /**
  * <!-- start generated doc -->
- * Package containing the data models for BodyOptionality.
- * Test describing optionality of the request body.
+ * Package containing the classes for Naming.
+ * description of Naming.
  * <!-- end generated doc -->
  */
-package com.parameters.bodyoptionality.implementation.models;
+package com.cadl.naming;
