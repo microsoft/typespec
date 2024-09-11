@@ -61,6 +61,12 @@ export interface UnionKit {
      * @param type Union to get the name for.
      */
     getPlausibleName(type: Union): string;
+
+    /**
+     * Checks if an uinton is an expression (anonymous) or declared.
+     * @param type Uniton to check if it is an expression
+     */
+    isExpression(type: Union): boolean;
   };
 }
 
@@ -148,6 +154,9 @@ export const UnionKit = defineKit<UnionKit>({
     getPlausibleName(type) {
       // Todo: Need to implement this by getting context on the Union. TypeSpec is planning to provide a parents property on Type to help walk upwards and help with this
       return type.name ?? "UnionExpression";
+    },
+    isExpression(type) {
+      return type.name === undefined || type.name === "";
     },
   },
 });
