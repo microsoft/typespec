@@ -31,9 +31,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
         }
 
         [Test]
-        public void TestCustomization_CanChangePropertyName()
+        public async Task CanChangePropertyName()
         {
-            MockHelpers.LoadMockPlugin(customization: Helpers.GetCompilationFromFile());
+            MockHelpers.LoadMockPlugin(customization: await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[]
             {
@@ -55,9 +55,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
         }
 
         [Test]
-        public void TestCustomization_CanChangePropertyType()
+        public async Task CanChangePropertyType()
         {
-            MockHelpers.LoadMockPlugin(customization: Helpers.GetCompilationFromFile());
+            MockHelpers.LoadMockPlugin(customization: await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[]
             {
@@ -80,9 +80,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
         }
 
         [Test]
-        public void TestCustomization_CanChangePropertyAccessibility()
+        public async Task CanChangePropertyAccessibility()
         {
-            MockHelpers.LoadMockPlugin(customization: Helpers.GetCompilationFromFile());
+            MockHelpers.LoadMockPlugin(customization: await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[]
             {
