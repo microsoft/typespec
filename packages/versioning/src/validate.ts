@@ -533,9 +533,8 @@ function validateReference(program: Program, source: Type | Type[], target: Type
 
   switch (target.kind) {
     case "Union":
-      for (const variant of target.variants.values()) {
-        // Not a named union, so check reference directly
-        if (typeof variant.name !== "string") {
+      if (typeof target.name !== "string") {
+        for (const variant of target.variants.values()) {
           validateReference(program, source, variant.type);
         }
       }

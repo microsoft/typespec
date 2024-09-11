@@ -693,7 +693,7 @@ describe("versioning: logic", () => {
             string;
 
             @added(Versions.v2)
-            Versioned: Versioned;
+            Versioned;
           }
           
           @added(Versions.v1)
