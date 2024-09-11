@@ -4,7 +4,6 @@
 import {
   SdkBodyParameter,
   SdkBuiltInKinds,
-  SdkBuiltInType,
   SdkContext,
   SdkHeaderParameter,
   SdkHttpOperation,
@@ -30,7 +29,7 @@ import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputOperation } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
-import { InputPrimitiveType, InputType } from "../type/input-type.js";
+import { InputType } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
 import { OperationPaging } from "../type/operation-paging.js";
 import { OperationResponse } from "../type/operation-response.js";
@@ -183,12 +182,6 @@ function fromSdkHttpOperationParameter(
   const isContentType =
     p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type";
   const parameterType = fromSdkType(p.type, sdkContext, typeMap);
-  // remove this after: https://github.com/Azure/typespec-azure/issues/1084
-  if (p.type.kind === "bytes") {
-    (parameterType as InputPrimitiveType).encode = (
-      p.correspondingMethodParams[0].type as SdkBuiltInType
-    ).encode;
-  }
   const format = p.kind === "header" || p.kind === "query" ? p.collectionFormat : undefined;
   const serializedName = p.kind !== "body" ? p.serializedName : p.name;
 
