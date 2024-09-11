@@ -65,9 +65,8 @@ public final class ModelsImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> spreadAsRequestBody(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") BinaryData spreadAsRequestBodyRequest1, RequestOptions requestOptions,
-            Context context);
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData bodyParameter,
+            RequestOptions requestOptions, Context context);
 
         @Put("/parameters/spread/model/request-body")
         @ExpectedResponses({ 204 })
@@ -76,9 +75,8 @@ public final class ModelsImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> spreadAsRequestBodySync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") BinaryData spreadAsRequestBodyRequest1, RequestOptions requestOptions,
-            Context context);
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData bodyParameter,
+            RequestOptions requestOptions, Context context);
 
         @Put("/parameters/spread/model/composite-request-only-with-body")
         @ExpectedResponses({ 204 })
@@ -177,7 +175,7 @@ public final class ModelsImpl {
      * }
      * }</pre>
      * 
-     * @param spreadAsRequestBodyRequest1 The spreadAsRequestBodyRequest1 parameter.
+     * @param bodyParameter The bodyParameter parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -186,11 +184,11 @@ public final class ModelsImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> spreadAsRequestBodyWithResponseAsync(BinaryData spreadAsRequestBodyRequest1,
+    public Mono<Response<Void>> spreadAsRequestBodyWithResponseAsync(BinaryData bodyParameter,
         RequestOptions requestOptions) {
         final String contentType = "application/json";
         return FluxUtil.withContext(context -> service.spreadAsRequestBody(this.client.getEndpoint(), contentType,
-            spreadAsRequestBodyRequest1, requestOptions, context));
+            bodyParameter, requestOptions, context));
     }
 
     /**
@@ -203,7 +201,7 @@ public final class ModelsImpl {
      * }
      * }</pre>
      * 
-     * @param spreadAsRequestBodyRequest1 The spreadAsRequestBodyRequest1 parameter.
+     * @param bodyParameter The bodyParameter parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -212,11 +210,10 @@ public final class ModelsImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> spreadAsRequestBodyWithResponse(BinaryData spreadAsRequestBodyRequest1,
-        RequestOptions requestOptions) {
+    public Response<Void> spreadAsRequestBodyWithResponse(BinaryData bodyParameter, RequestOptions requestOptions) {
         final String contentType = "application/json";
-        return service.spreadAsRequestBodySync(this.client.getEndpoint(), contentType, spreadAsRequestBodyRequest1,
-            requestOptions, Context.NONE);
+        return service.spreadAsRequestBodySync(this.client.getEndpoint(), contentType, bodyParameter, requestOptions,
+            Context.NONE);
     }
 
     /**
