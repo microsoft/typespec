@@ -171,8 +171,6 @@ function fromSdkOperationParameters(
   return parameters;
 }
 
-// TODO: roll back to SdkMethodParameter when we figure out how to represent the parameter location
-// https://github.com/Azure/typespec-azure/issues/981
 function fromSdkHttpOperationParameter(
   p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter,
   rootApiVersions: string[],
