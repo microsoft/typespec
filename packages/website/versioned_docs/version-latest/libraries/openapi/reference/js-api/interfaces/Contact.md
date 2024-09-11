@@ -3,6 +3,8 @@ jsApi: true
 title: "[I] Contact"
 
 ---
+Contact information
+
 ## Properties
 
 | Property | Type | Description |

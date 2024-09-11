@@ -7,12 +7,14 @@ title: "[F] getExternalDocs"
 function getExternalDocs(program, entity): ExternalDocs | undefined
 ```
 
+Return external doc info set via the `@externalDocs` decorator.
+
 ## Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `program` | `Program` |
-| `entity` | `Type` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `program` | `Program` | Program |
+| `entity` | `Type` | Type |
 
 ## Returns
 

@@ -1,5 +1,16 @@
 # Change Log - @typespec/json-schema
 
+## 0.60.0
+
+### Bug Fixes
+
+- [#4150](https://github.com/microsoft/typespec/pull/4150) Stop json schema from crashing on unknown scalar and handle `unixTimestamp32`
+
+### Features
+
+- [#4139](https://github.com/microsoft/typespec/pull/4139) Internals: Migrate to new api for declaring decorator implementation
+
+
 ## 0.59.0
 
 ### Bump dependencies
