@@ -1,5 +1,12 @@
 # Change Log - @typespec/versioning
 
+## 0.60.1
+
+### Bug Fixes
+
+- [#4408](https://github.com/microsoft/typespec/pull/4408) Fixes versioning when using versioned named union variants
+
+
 ## 0.60.0
 
 ### Bug Fixes
