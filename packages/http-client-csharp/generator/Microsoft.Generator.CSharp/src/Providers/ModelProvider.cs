@@ -45,9 +45,6 @@ namespace Microsoft.Generator.CSharp.Providers
             }
         }
 
-        private bool? _isStruct;
-        internal bool IsStruct => _isStruct ??= DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
-
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;
 
         public string? DiscriminatorValue => _inputModel.DiscriminatorValue;
@@ -352,7 +349,7 @@ namespace Microsoft.Generator.CSharp.Providers
             // add the base parameters, if any
             foreach (var property in baseProperties)
             {
-                AddInitializationParameterForCtor(baseParameters, property, IsStruct, isPrimaryConstructor);
+                AddInitializationParameterForCtor(baseParameters, property, Type.IsStruct, isPrimaryConstructor);
             }
 
             // construct the initializer using the parameters from base signature
@@ -360,7 +357,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             foreach (var property in Properties)
             {
-                AddInitializationParameterForCtor(constructorParameters, property, IsStruct, isPrimaryConstructor);
+                AddInitializationParameterForCtor(constructorParameters, property, Type.IsStruct, isPrimaryConstructor);
             }
 
             constructorParameters.AddRange(_inputModel.IsUnknownDiscriminatorModel ? baseParameters : baseParameters.Where(p => p.Property is null || !p.Property.IsDiscriminator));
@@ -489,7 +486,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
                 ValueExpression? initializationValue = null;
 
-                if (parameterMap.TryGetValue(property.AsParameter.Name, out var parameter) || IsStruct)
+                if (parameterMap.TryGetValue(property.AsParameter.Name, out var parameter) || Type.IsStruct)
                 {
                     if (parameter != null)
                     {
