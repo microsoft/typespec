@@ -19,9 +19,9 @@ public class PageTests {
     public void testListNoModel() {
         // verification here is that there is no Page or CustomPage class generated in models
 
-        client.listWithPage();
+        client.listWithPage().stream().count();
 
-        client.listWithCustomPageModel();
+        client.listWithCustomPageModel().stream().count();
     }
 
     @Test
@@ -34,9 +34,7 @@ public class PageTests {
     }
 
     @Test
-    public void testPage() {
-        client.listWithPage().forEach(u -> {});
-
+    public void testPageRequestBody() {
         client.listWithParameters(new ListItemInputBody("Madge"), ListItemInputExtensibleEnum.SECOND).stream().count();
     }
 }

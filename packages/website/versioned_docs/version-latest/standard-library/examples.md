@@ -78,14 +78,14 @@ Operation example will not validate additional properties as the applicable para
 ### Simple operation parameters
 
 ```tsp
-@example(#{ parameters: #{ name: "Max", age: 3 } })
+@opExample(#{ parameters: #{ name: "Max", age: 3 } })
 op write(name: string, age: int32): void;
 ```
 
 ### Simple operation return types
 
 ```tsp
-@example(#{ returnType: #{ name: "Max", age: 3 } })
+@opExample(#{ returnType: #{ name: "Max", age: 3 } })
 op read(): {
   name: string;
   age: int32;
@@ -95,7 +95,7 @@ op read(): {
 ### Specify title and/or description
 
 ```tsp
-@example(
+@opExample(
   #{ parameters: #{ name: "Max", age: 3 } },
   #{ title: "Simple write example", description: "Write a pet" }
 )
