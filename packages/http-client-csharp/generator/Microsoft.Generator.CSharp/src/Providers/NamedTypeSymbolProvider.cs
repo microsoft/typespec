@@ -143,26 +143,33 @@ namespace Microsoft.Generator.CSharp.Providers
             var xmlDocumentation = propertySymbol.GetDocumentationCommentXml();
             if (!string.IsNullOrEmpty(xmlDocumentation))
             {
-                XDocument xDocument;
-                try
-                {
-                    xDocument = XDocument.Parse(xmlDocumentation);
-                }
-                catch (XmlException ex)
-                {
-                    var files = new List<string>();
-                    foreach (var reference in propertySymbol.DeclaringSyntaxReferences)
-                    {
-                        files.Add(reference.SyntaxTree.FilePath);
-                    }
-
-                    throw new InvalidOperationException($"Failed to parse XML documentation for {propertySymbol.Name}. " +
-                        $"The malformed XML documentation is located in one or more of the following files: {string.Join(',', files)}", ex);
-                }
+                XDocument xDocument = ParseXml(propertySymbol, xmlDocumentation);
                 var summaryElement = xDocument.Descendants(tag).FirstOrDefault();
                 return FormattableStringHelpers.FromString(summaryElement?.Value.Trim());
             }
             return null;
+        }
+
+        private static XDocument ParseXml(ISymbol docsSymbol, string xmlDocumentation)
+        {
+            XDocument xDocument;
+            try
+            {
+                xDocument = XDocument.Parse(xmlDocumentation);
+            }
+            catch (XmlException ex)
+            {
+                var files = new List<string>();
+                foreach (var reference in docsSymbol.DeclaringSyntaxReferences)
+                {
+                    files.Add(reference.SyntaxTree.FilePath);
+                }
+
+                throw new InvalidOperationException($"Failed to parse XML documentation for {docsSymbol.Name}. " +
+                                                    $"The malformed XML documentation is located in one or more of the following files: {string.Join(',', files)}", ex);
+            }
+
+            return xDocument;
         }
 
         private static string? GetParameterXmlDocumentation(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol)
@@ -174,7 +181,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 return null;
             }
 
-            var xmlDoc = XDocument.Parse(xmlDocumentation);
+            var xmlDoc = ParseXml(methodSymbol, xmlDocumentation);
             var paramElement = xmlDoc.Descendants("param")
                                      .FirstOrDefault(e => e.Attribute("name")?.Value == parameterSymbol.Name);
 
