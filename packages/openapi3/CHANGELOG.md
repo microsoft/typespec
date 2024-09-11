@@ -1,5 +1,20 @@
 # Change Log - @typespec/openapi3
 
+## 0.60.0
+
+### Bug Fixes
+
+- [#4133](https://github.com/microsoft/typespec/pull/4133) Fix Bug for OpenAPI 3 Emitter crash on `@useAuth({})`
+- [#4123](https://github.com/microsoft/typespec/pull/4123) Fix OpenAPI3 union names when declared within a namespace
+- [#4216](https://github.com/microsoft/typespec/pull/4216) Fixes issue in tsp-openapi3 that resulted in component schemas and parameters with the same name being merged into a single TypeSpec data type.
+- [#4232](https://github.com/microsoft/typespec/pull/4232) Improves tsp-openapi3 model generation from schemas utilizing allOf. Models will now extend an allOf member if it is a schema reference and the only member with a discriminator. Other members will be spread into the model if defined as a schema reference, or have their properties treated as top-level properties if they are an inline-schema.
+- [#4149](https://github.com/microsoft/typespec/pull/4149) Updates tsp-openapi3 conversion of OpenAPI3 component schemas to improve handling of enums, unions, scalars, and aliases.
+
+### Features
+
+- [#4139](https://github.com/microsoft/typespec/pull/4139) Internals: Migrate to new api for declaring decorator implementation
+
+
 ## 0.59.1
 
 ### Bug Fixes

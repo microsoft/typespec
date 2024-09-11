@@ -161,22 +161,23 @@ namespace Microsoft.Generator.CSharp
             return new GeneratedCodeWorkspace(generatedCodeProject);
         }
 
-        internal static GeneratedCodeWorkspace CreateExistingCodeProject(string projectDirectory, string generatedDirectory)
+        internal static GeneratedCodeWorkspace CreateExistingCodeProject(IEnumerable<string> projectDirectories, string generatedDirectory)
         {
             var workspace = new AdhocWorkspace();
             var newOptionSet = workspace.Options.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, _newLine);
             workspace.TryApplyChanges(workspace.CurrentSolution.WithOptions(newOptionSet));
             Project project = workspace.AddProject("ExistingCode", LanguageNames.CSharp);
 
-            if (Path.IsPathRooted(projectDirectory))
+            foreach (var projectDirectory in projectDirectories)
             {
-                projectDirectory = Path.GetFullPath(projectDirectory);
-
-                project = AddDirectory(project, projectDirectory, skipPredicate: sourceFile => sourceFile.StartsWith(generatedDirectory));
+                if (Path.IsPathRooted(projectDirectory))
+                {
+                    project = AddDirectory(project, Path.GetFullPath(projectDirectory), skipPredicate: sourceFile => sourceFile.StartsWith(generatedDirectory));
+                }
             }
 
             project = project
-                .AddMetadataReferences(_assemblyMetadataReferences.Value)
+                .AddMetadataReferences(_assemblyMetadataReferences.Value.Concat(CodeModelPlugin.Instance.AdditionalMetadataReferences))
                 .WithCompilationOptions(new CSharpCompilationOptions(
                     OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: _metadataReferenceResolver.Value, nullableContextOptions: NullableContextOptions.Disable));
 

@@ -84,8 +84,9 @@ public final class QueryParametersQueryContinuationExplodesImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<Void>> array(@HostParam("endpoint") String endpoint, @QueryParam("param") String param,
-            RequestOptions requestOptions, Context context);
+        Mono<Response<Void>> array(@HostParam("endpoint") String endpoint,
+            @QueryParam(value = "param", multipleQueryParams = true) List<String> param, RequestOptions requestOptions,
+            Context context);
 
         @Get("/routes/query/query-continuation/explode/array?fixed=true")
         @ExpectedResponses({ 204 })
@@ -93,8 +94,9 @@ public final class QueryParametersQueryContinuationExplodesImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<Void> arraySync(@HostParam("endpoint") String endpoint, @QueryParam("param") String param,
-            RequestOptions requestOptions, Context context);
+        Response<Void> arraySync(@HostParam("endpoint") String endpoint,
+            @QueryParam(value = "param", multipleQueryParams = true) List<String> param, RequestOptions requestOptions,
+            Context context);
 
         @Get("/routes/query/query-continuation/explode/record?fixed=true")
         @ExpectedResponses({ 204 })
@@ -161,9 +163,8 @@ public final class QueryParametersQueryContinuationExplodesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> arrayWithResponseAsync(List<String> param, RequestOptions requestOptions) {
-        String paramConverted = param.stream()
-            .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.joining(","));
+        List<String> paramConverted
+            = param.stream().map(item -> Objects.toString(item, "")).collect(Collectors.toList());
         return FluxUtil
             .withContext(context -> service.array(this.client.getEndpoint(), paramConverted, requestOptions, context));
     }
@@ -181,9 +182,8 @@ public final class QueryParametersQueryContinuationExplodesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> arrayWithResponse(List<String> param, RequestOptions requestOptions) {
-        String paramConverted = param.stream()
-            .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.joining(","));
+        List<String> paramConverted
+            = param.stream().map(item -> Objects.toString(item, "")).collect(Collectors.toList());
         return service.arraySync(this.client.getEndpoint(), paramConverted, requestOptions, Context.NONE);
     }
 
