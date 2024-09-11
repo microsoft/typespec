@@ -1,5 +1,12 @@
 # Change Log - @typespec/openapi
 
+## 0.60.0
+
+### Features
+
+- [#4139](https://github.com/microsoft/typespec/pull/4139) Internals: Migrate to new api for declaring decorator implementation
+
+
 ## 0.59.0
 
 ### Bump dependencies

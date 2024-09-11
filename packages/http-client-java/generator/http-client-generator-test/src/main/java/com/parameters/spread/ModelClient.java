@@ -16,7 +16,6 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.parameters.spread.implementation.ModelsImpl;
-import com.parameters.spread.implementation.models.SpreadAsRequestBodyRequest1;
 import com.parameters.spread.implementation.models.SpreadCompositeRequestMixRequest;
 import com.parameters.spread.models.BodyParameter;
 
@@ -48,7 +47,7 @@ public final class ModelClient {
      * }
      * }</pre>
      * 
-     * @param spreadAsRequestBodyRequest1 The spreadAsRequestBodyRequest1 parameter.
+     * @param bodyParameter The bodyParameter parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -58,9 +57,8 @@ public final class ModelClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> spreadAsRequestBodyWithResponse(BinaryData spreadAsRequestBodyRequest1,
-        RequestOptions requestOptions) {
-        return this.serviceClient.spreadAsRequestBodyWithResponse(spreadAsRequestBodyRequest1, requestOptions);
+    public Response<Void> spreadAsRequestBodyWithResponse(BinaryData bodyParameter, RequestOptions requestOptions) {
+        return this.serviceClient.spreadAsRequestBodyWithResponse(bodyParameter, requestOptions);
     }
 
     /**
@@ -178,9 +176,9 @@ public final class ModelClient {
     public void spreadAsRequestBody(String name) {
         // Generated convenience method for spreadAsRequestBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SpreadAsRequestBodyRequest1 spreadAsRequestBodyRequest1Obj = new SpreadAsRequestBodyRequest1(name);
-        BinaryData spreadAsRequestBodyRequest1 = BinaryData.fromObject(spreadAsRequestBodyRequest1Obj);
-        spreadAsRequestBodyWithResponse(spreadAsRequestBodyRequest1, requestOptions).getValue();
+        BodyParameter bodyParameterObj = new BodyParameter(name);
+        BinaryData bodyParameter = BinaryData.fromObject(bodyParameterObj);
+        spreadAsRequestBodyWithResponse(bodyParameter, requestOptions).getValue();
     }
 
     /**
