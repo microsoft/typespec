@@ -32,9 +32,4 @@ extends:
           CadlRanchName: "@typespec/http-client-java"
           Variables:
             - template: /packages/http-client-java/eng/pipeline/variables/globals.yml
-          AdditionalInitializeSteps:
-            - task: Cache@2
-              inputs:
-                key: 'maven | "$(CacheSalt)" | "$(Agent.OS)" | "${{ parameters.LanguageShortName }}"'
-                path: $(MAVEN_CACHE_FOLDER)
-              displayName: Cache Maven local repo
+          
