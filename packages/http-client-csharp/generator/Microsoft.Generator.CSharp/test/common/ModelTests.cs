@@ -198,7 +198,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             {
                 modelType = modelType.BaseType!;
             }
-            var propertyInfo = modelType.GetField("_serializedAdditionalRawData", BindingFlags.Instance | BindingFlags.NonPublic);
+            var propertyInfo = modelType.GetField("_additionalBinaryDataProperties", BindingFlags.Instance | BindingFlags.NonPublic);
             return propertyInfo?.GetValue(model) as IDictionary<string, BinaryData> ?? throw new InvalidOperationException($"unable to get raw data from {model.GetType().Name}");
         }
 
