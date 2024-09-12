@@ -18,11 +18,11 @@ logging.getLogger().setLevel(logging.INFO)
 
 
 def get_config_file_location():
-    mypy_ini_path = os.path.join(os.getcwd(), "../../scripts/eng/mypy.ini")
+    mypy_ini_path = os.path.join(os.getcwd(), "../../eng/scripts/ci/mypy.ini")
     if os.path.exists(mypy_ini_path):
         return mypy_ini_path
     else:
-        return os.path.join(os.getcwd(), "../../../scripts/eng/mypy.ini")
+        return os.path.join(os.getcwd(), "../../../eng/scripts/ci/mypy.ini")
 
 
 def _single_dir_mypy(mod):
