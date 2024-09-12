@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { OpenAPI3Schema } from "../src/types.js";
 import { oapiForModel, openApiFor } from "./test-host.js";
 
@@ -113,6 +113,19 @@ describe("openapi3: primitives", () => {
         minLength: 10,
         maxLength: 10,
       });
+    });
+
+    it("scalar used as a default value", async () => {
+      const res = await oapiForModel(
+        "Pet",
+        `
+      scalar shortName { init name(value: string);}
+
+      model Pet { name: shortName = shortName.name("Shorty"); }
+      `
+      );
+
+      expect(res.schemas.Pet.properties.name.default).toEqual(["Shorty"]);
     });
 
     it("merge the data from parent", async () => {

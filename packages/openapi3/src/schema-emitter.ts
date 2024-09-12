@@ -958,6 +958,8 @@ export function getDefaultValue(program: Program, defaultType: Value): any {
       return null;
     case "EnumValue":
       return defaultType.value.value ?? defaultType.value.name;
+    case "ScalarValue":
+      return defaultType.value.args.map((x) => getDefaultValue(program, x));
     default:
       reportDiagnostic(program, {
         code: "invalid-default",
