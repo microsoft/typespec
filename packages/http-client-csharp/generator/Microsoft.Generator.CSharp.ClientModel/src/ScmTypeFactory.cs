@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
@@ -19,6 +20,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public virtual CSharpType MatchConditionsType => typeof(PipelineMessageClassifier);
 
         public virtual CSharpType KeyCredentialType => typeof(ApiKeyCredential);
+
+        public virtual CSharpType TokenCredentialType => throw new NotImplementedException("Token credential is not supported in Scm libraries yet");
 
         /// <summary>
         /// Returns the serialization type providers for the given input type.
