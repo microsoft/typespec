@@ -1,8 +1,7 @@
 /* eslint-disable no-console */
 import { exec as execCallback } from "child_process";
 import { promisify } from "util";
-import yargs from "yargs";
-import { hideBin } from "yargs/helpers";
+import { parseArgs } from "util";
 import { dirname, join, relative, resolve } from "path";
 import { promises, rmSync } from "fs";
 import { fileURLToPath } from "url";
@@ -136,13 +135,13 @@ async function executeCommand(tspCommand: TspCommand): Promise<void> {
 }
 
 interface RegenerateFlagsInput {
-    flavor?: "azure" | "unbranded";
+    flavor?: string;
     debug?: boolean;
     name?: string;
 }
 
 interface RegenerateFlags {
-    flavor: "azure" | "unbranded";
+    flavor: string;
     debug: boolean;
     name?: string;
 }
@@ -270,23 +269,14 @@ async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
 }
 
 // PARSE INPUT ARGUMENTS
-const argv = yargs(hideBin(process.argv))
-    .option("flavor", {
-        type: "string",
-        choices: ["azure", "unbranded"],
-        description: "Specify the flavor",
-    })
-    .option("debug", {
-        alias: "d",
-        type: "boolean",
-        description: "Debug mode",
-    })
-    .option("name", {
-        alias: "n",
-        type: "string",
-        description: "Specify filename if you only want to generate a subset",
-    }).argv;
 
-regenerate(argv as RegenerateFlags)
+const argv = parseArgs({args: process.argv.slice(2), options: {
+  flavor: { type: 'string' },
+  name: { type: 'string' },
+  debug: { type: 'boolean' },
+},});
+
+
+regenerate(argv.values)
     .then(() => console.log("Regeneration successful"))
     .catch((error) => console.error(`Regeneration failed: ${error.message}`));
