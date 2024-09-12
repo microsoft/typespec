@@ -448,12 +448,13 @@ namespace Microsoft.Generator.CSharp.Providers
 
             if (!isPrimaryConstructor)
             {
-                foreach (var field in AdditionalPropertyFields)
+                foreach (var property in AdditionalPropertyProperties)
                 {
-                    constructorParameters.Add(field.AsParameter);
+                    constructorParameters.Add(property.AsParameter);
                 }
 
-                if (RawDataField != null)
+                // only add the raw data field if it has not already been added as a parameter for BinaryData additional properties
+                if (RawDataField != null && !SupportsBinaryDataAdditionalProperties)
                     constructorParameters.Add(RawDataField.AsParameter);
             }
 
@@ -599,30 +600,28 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             // handle additional properties
-            bool containsAdditionalPropertyFields = false;
-
-            foreach (var field in AdditionalPropertyFields)
+            foreach (var property in AdditionalPropertyProperties)
             {
-                var assignment = isPrimaryConstructor
-                    ? field.Assign(New.Instance(field.Type.PropertyInitializationType))
-                    : field.Assign(field.AsParameter);
+                // find the corresponding backing field for the property
+                var backingField = AdditionalPropertyFields.FirstOrDefault(f => f.Type.ElementType.Equals(property.Type.ElementType))
+                       ?? (RawDataField != null && property.Type.ElementType.Equals(RawDataField.Type.ElementType) ? RawDataField : null);
 
-                methodBodyStatements.Add(assignment.Terminate());
-                containsAdditionalPropertyFields = true;
+                if (backingField != null)
+                {
+                    var assignment = isPrimaryConstructor
+                       ? backingField.Assign(New.Instance(backingField.Type.PropertyInitializationType))
+                       : backingField.Assign(property.AsParameter);
+
+                    methodBodyStatements.Add(assignment.Terminate());
+                }
             }
 
             if (RawDataField != null)
             {
-                var rawDataAssignment = isPrimaryConstructor
-                    ? RawDataField.Assign(New.Instance(RawDataField.Type.PropertyInitializationType))
-                    : RawDataField.Assign(RawDataField.AsParameter);
-
-                if ((isPrimaryConstructor && !containsAdditionalPropertyFields && AdditionalPropertyProperties.Count > 0)
-                    || !isPrimaryConstructor)
+                // initialize the raw data field in the serialization constructor if the model does not explicitly support AP of binary data.
+                if (!isPrimaryConstructor && !SupportsBinaryDataAdditionalProperties)
                 {
-                    // set the raw data field if it is the only additional property field and the model supports additional properties,
-                    // or if it is the serialization constructor
-                    methodBodyStatements.Add(rawDataAssignment.Terminate());
+                    methodBodyStatements.Add(RawDataField.Assign(RawDataField.AsParameter).Terminate());
                 }
             }
 

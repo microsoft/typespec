@@ -27,6 +27,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     internal class MrwSerializationTypeDefinition : TypeProvider
     {
         private const string AdditionalBinaryDataPropertiesFieldName = "_additionalBinaryDataProperties";
+        private const string AdditionBinaryDataPropertiesPropertyName = "AdditionalBinaryDataProperties";
         private const string JsonModelWriteCoreMethodName = "JsonModelWriteCore";
         private const string JsonModelCreateCoreMethodName = "JsonModelCreateCore";
         private const string PersistableModelWriteCoreMethodName = "PersistableModelWriteCore";
@@ -51,6 +52,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly ModelProvider _model;
         private readonly InputModelType _inputModel;
         private readonly FieldProvider? _rawDataField;
+        private readonly PropertyProvider? _additionalBinaryDataProperty;
         private readonly bool _isStruct;
         private ConstructorProvider? _serializationConstructor;
         // Flag to determine if the model should override the serialization methods
@@ -68,6 +70,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), interfaceType.Type);
             _persistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
             _rawDataField = _model.Fields.FirstOrDefault(f => f.Name == AdditionalBinaryDataPropertiesFieldName);
+            _additionalBinaryDataProperty = _model.Properties.FirstOrDefault(
+                p => p.Name == AdditionBinaryDataPropertiesPropertyName
+                || p.Name == "AdditionalProperties" && p.Type.IsDictionary && p.Type.ElementType.Equals(typeof(BinaryData)));
             _shouldOverrideMethods = _model.Type.BaseType != null && _model.Type.BaseType is { IsFrameworkType: false };
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
@@ -729,7 +734,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             // deserialize the raw data properties
-            if (_rawDataField != null)
+            if (_additionalBinaryDataProperty != null)
+            {
+                var elementType = _additionalBinaryDataProperty.Type.Arguments[1].FrameworkType;
+                var rawDataDeserializationValue = GetValueTypeDeserializationExpression(elementType, jsonProperty.Value(), SerializationFormat.Default);
+                propertyDeserializationStatements.Add(new IfStatement(_isNotEqualToWireConditionSnippet)
+                {
+                    _additionalBinaryDataProperty.AsVariableExpression.AsDictionary(_additionalBinaryDataProperty.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
+                });
+            }
+            else if (_rawDataField != null)
             {
                 var elementType = _rawDataField.Type.Arguments[1].FrameworkType;
                 var rawDataDeserializationValue = GetValueTypeDeserializationExpression(elementType, jsonProperty.Value(), SerializationFormat.Default);

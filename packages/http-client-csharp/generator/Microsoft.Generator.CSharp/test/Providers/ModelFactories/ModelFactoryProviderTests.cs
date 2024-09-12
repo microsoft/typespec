@@ -112,7 +112,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
                 Assert.IsNotNull(method);
                 foreach (var _ in model!.Properties.Where(p => p.Type.IsDictionary && p.Name.StartsWith("Additional")))
                 {
-                    var parameter = method!.Signature.Parameters.FirstOrDefault(p => p.Name == "additionalBinaryDataProperties");
+                    var parameter = method!.Signature.Parameters.FirstOrDefault(p => p.Name == "additionalProperties");
                     Assert.IsNotNull(parameter);
                     Assert.IsTrue(parameter!.Type.IsFrameworkType);
                     Assert.AreEqual(typeof(IDictionary<,>), parameter!.Type.FrameworkType);
