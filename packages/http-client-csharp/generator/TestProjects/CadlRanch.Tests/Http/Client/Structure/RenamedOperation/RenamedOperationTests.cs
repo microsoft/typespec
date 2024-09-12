@@ -7,7 +7,7 @@ using Client.Structure.Service;
 using Client.Structure.Service.Models;
 using NUnit.Framework;
 
-namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.MultiClient
+namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.RenamedOperation
 {
     public class RenamedOperationTests : CadlRanchTestBase
     {
