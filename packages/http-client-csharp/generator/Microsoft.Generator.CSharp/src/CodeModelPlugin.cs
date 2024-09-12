@@ -83,6 +83,8 @@ namespace Microsoft.Generator.CSharp
         }
 
         internal HashSet<string> TypesToKeep { get; } = new();
+        //TODO consider using TypeProvider so we can have a fully qualified name to filter on
+        //https://github.com/microsoft/typespec/issues/4418
         public void AddTypeToKeep(string typeName)
         {
             TypesToKeep.Add(typeName);
