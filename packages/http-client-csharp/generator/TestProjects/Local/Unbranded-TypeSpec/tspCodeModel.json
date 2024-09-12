@@ -2409,7 +2409,7 @@
        "IsEndpoint": false,
        "Explode": false,
        "IsRequired": true,
-       "Kind": "Spread",
+       "Kind": "Method",
        "Decorators": [],
        "SkipUrlEncoding": false
       }
@@ -2827,7 +2827,7 @@
        "IsEndpoint": false,
        "Explode": false,
        "IsRequired": true,
-       "Kind": "Spread",
+       "Kind": "Method",
        "Decorators": [],
        "SkipUrlEncoding": false
       }
@@ -3480,7 +3480,7 @@
        "IsEndpoint": false,
        "Explode": false,
        "IsRequired": true,
-       "Kind": "Spread",
+       "Kind": "Method",
        "Decorators": [],
        "SkipUrlEncoding": false
       }

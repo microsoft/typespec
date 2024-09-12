@@ -16,7 +16,6 @@ import {
   SdkType,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
-  UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { getDeprecated, getDoc, getSummary, isErrorModel } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
@@ -364,7 +363,8 @@ function getParameterKind(
   hasGlobalApiVersion: boolean
 ): InputOperationParameterKind {
   if (p.kind === "body") {
-    if (type.kind === "model" && (type.usage & UsageFlags.Spread) !== 0) {
+    /** TODO: remove this and use the spread metadata of parameter when https://github.com/Azure/typespec-azure/issues/1513 is resolved */
+    if (type.kind === "model" && p.type !== p.correspondingMethodParams[0]?.type) {
       return InputOperationParameterKind.Spread;
     }
     return InputOperationParameterKind.Method;
