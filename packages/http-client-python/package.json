@@ -38,7 +38,7 @@
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "lint": "tsx ./eng/scripts/ci/lint.ts",
     "lint:fix": "eslint . --fix --ext .ts",
-    "format": "npx prettier **/*.ts --write && tsx ./eng/scripts/ci/format.ts",
+    "format": "pnpm -w format:dir packages/http-client-python && tsx ./eng/scripts/ci/format.ts",
     "install": "tsx ./eng/scripts/setup/run-python3.ts ./eng/scripts/setup/install.py",
     "prepare": "tsx ./eng/scripts/setup/run-python3.ts ./eng/scripts/setup/prepare.py",
     "regenerate": "tsx ./eng/scripts/ci/regenerate.ts",
