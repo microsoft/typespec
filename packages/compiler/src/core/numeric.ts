@@ -110,8 +110,6 @@ function parse(original: string): InternalData {
       exp += Number(stringValue.slice(i + 1));
       stringValue = stringValue.slice(start, i);
       decimal = Math.max(stringValue.length - exp, 0);
-
-      console.log("Exp string value", { stringValue });
     } else if (exp === undefined) {
       // Integer.
       exp = stringValue.length - start;
