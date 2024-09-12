@@ -123,6 +123,7 @@ function parse(original: string): InternalData {
       end--;
     }
 
+    // Only if there is 0 before the decimal point, keeps checking how many 0 there is after it and update the exponent accordingly.
     if (start === adjustedPointIndex + 1) {
       let cur = adjustedPointIndex;
       while (stringValue[cur] === "0" && cur < end) {
