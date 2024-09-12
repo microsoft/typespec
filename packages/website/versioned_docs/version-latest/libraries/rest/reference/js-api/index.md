@@ -17,7 +17,7 @@ title: "[P] JS API"
 
 ## Variables
 
-- [namespace](variables/namespace.md)
+- [$lib](variables/$lib.md)
 
 ## Functions
 
@@ -32,7 +32,6 @@ title: "[P] JS API"
 - [$createsResource](functions/$createsResource.md)
 - [$deletesResource](functions/$deletesResource.md)
 - [$listsResource](functions/$listsResource.md)
-- [$onValidate](functions/$onValidate.md)
 - [$parentResource](functions/$parentResource.md)
 - [$readsResource](functions/$readsResource.md)
 - [$resource](functions/$resource.md)

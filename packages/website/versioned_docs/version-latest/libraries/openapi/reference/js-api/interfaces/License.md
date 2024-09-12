@@ -3,6 +3,8 @@ jsApi: true
 title: "[I] License"
 
 ---
+License information
+
 ## Properties
 
 | Property | Type | Description |

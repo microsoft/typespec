@@ -234,6 +234,24 @@ public final class ClientModelPropertiesManager {
       }
     }
 
+    // Temporary fix to a larger problem where the discriminator property is defined by a parent model, but not as
+    // a discriminator. This results in the discriminator property being serialized and deserialized twice as it
+    // shows up once as a regular property and once as a discriminator property. This will remove the regular
+    // property from the super properties and indicate that the discriminator came from a parent model.
+    if (discriminatorProperty != null) {
+      String serializedDiscriminatorName = discriminatorProperty.getProperty().getSerializedName();
+      ClientModelProperty removed;
+      if ((removed = superRequiredProperties.remove(serializedDiscriminatorName)) != null) {
+        discriminatorProperty = new ClientModelPropertyWithMetadata(model, removed.newBuilder()
+          .defaultValue(discriminatorProperty.getProperty().getDefaultValue()).build(),
+          true);
+      } else if ((removed = superSetterProperties.remove(serializedDiscriminatorName)) != null) {
+        discriminatorProperty = new ClientModelPropertyWithMetadata(model, removed.newBuilder()
+          .defaultValue(discriminatorProperty.getProperty().getDefaultValue()).build(),
+          true);
+      }
+    }
+
     this.hasRequiredProperties = hasRequiredProperties;
     this.requiredPropertiesCount = requiredProperties.size() + superRequiredProperties.size();
     this.setterPropertiesCount = setterProperties.size() + superSetterProperties.size();
