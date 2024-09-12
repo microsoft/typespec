@@ -63,7 +63,7 @@
     "yargs": "~17.7.2"
   },
   "devDependencies": {
-    "@types/node": "~18.11.19",
+    "@types/node": "~22.5.4",
     "@types/yargs": "~17.0.33",
     "@typespec/compiler": "workspace:~",
     "@typespec/prettier-plugin-typespec": "workspace:~",

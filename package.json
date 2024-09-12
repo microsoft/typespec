@@ -45,7 +45,7 @@
     "@octokit/plugin-rest-endpoint-methods": "^13.2.4",
     "@pnpm/find-workspace-packages": "^6.0.9",
     "@types/micromatch": "^4.0.9",
-    "@types/node": "~18.11.19",
+    "@types/node": "~22.5.4",
     "@typescript-eslint/parser": "^7.17.0",
     "@typescript-eslint/utils": "^7.17.0",
     "@vitest/coverage-v8": "^2.1.0",

@@ -47,7 +47,7 @@
     "@docusaurus/tsconfig": "^3.5.2",
     "@docusaurus/types": "^3.5.2",
     "@swc/core": "^1.7.26",
-    "@types/node": "~18.11.19",
+    "@types/node": "~22.5.4",
     "@types/react": "~18.3.5",
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",

@@ -40,7 +40,7 @@
     "eslint": "^8.57.0"
   },
   "devDependencies": {
-    "@types/node": "~18.11.19",
+    "@types/node": "~22.5.4",
     "@typescript-eslint/parser": "^7.17.0",
     "@typescript-eslint/rule-tester": "^7.17.0",
     "@typescript-eslint/types": "^7.17.0",

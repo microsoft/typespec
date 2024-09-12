@@ -139,7 +139,7 @@
     "@rollup/plugin-commonjs": "~26.0.1",
     "@rollup/plugin-node-resolve": "~15.2.3",
     "@rollup/plugin-typescript": "~11.1.6",
-    "@types/node": "~18.11.19",
+    "@types/node": "~22.5.4",
     "@types/vscode": "~1.93.0",
     "@typespec/compiler": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
