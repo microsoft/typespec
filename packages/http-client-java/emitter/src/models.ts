@@ -31,7 +31,12 @@ export class ClientContext {
   }
 
   addGlobalParameter(parameter: Parameter) {
-    if (!this.globalParameters.includes(parameter)) {
+    if (
+      !this.globalParameters.includes(parameter) &&
+      !this.globalParameters.some(
+        (it) => it.language.default.name === parameter.language.default.name
+      )
+    ) {
       this.globalParameters.push(parameter);
     }
   }
