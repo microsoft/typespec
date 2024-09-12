@@ -44,5 +44,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Primitives
         {
             DefaultValue = Static(typeof(DateTimeOffset)).Property(nameof(DateTimeOffset.Now))
         };
+
+        public static readonly ParameterProvider ContentType = new("contentType", $"The contentType to use which has the multipart/form-data boundary.", typeof(string));
     }
 }

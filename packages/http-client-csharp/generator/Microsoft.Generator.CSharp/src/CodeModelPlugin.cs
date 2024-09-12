@@ -81,5 +81,11 @@ namespace Microsoft.Generator.CSharp
             GeneratedCodeWorkspace existingCode = GeneratedCodeWorkspace.CreateExistingCodeProject(Instance.Configuration.ProjectDirectory, Instance.Configuration.ProjectGeneratedDirectory);
             _sourceInputModel =  new SourceInputModel(await existingCode.GetCompilationAsync());
         }
+
+        internal HashSet<string> TypesToKeep { get; } = new();
+        public void AddTypeToKeep(string path)
+        {
+            TypesToKeep.Add(path);
+        }
     }
 }
