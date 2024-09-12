@@ -151,12 +151,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     if (TryGetSpecialHeaderParam(inputParam, out var parameterProvider))
                     {
                         /* update the WireInfo */
-                        var specialHeaderParameterProvider = new ParameterProvider(parameterProvider.Name,
-                                                                        parameterProvider.Description,
-                                                                        parameterProvider.Type,
-                                                                        parameterProvider.DefaultValue,
-                                                                        parameterProvider.IsRef,
-                                                                        parameterProvider.IsOut)
+                        var specialHeaderParameterProvider = new ParameterProvider(
+                            parameterProvider.Name,
+                            parameterProvider.Description,
+                            parameterProvider.Type,
+                            parameterProvider.DefaultValue,
+                            parameterProvider.IsRef,
+                            parameterProvider.IsOut)
                         {
                             Value = parameterProvider.Value,
                             WireInfo = new WireInformation(ClientModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParam.Type), inputParam.NameInRequest)
