@@ -383,6 +383,7 @@ export type OpenAPI3XmlSchema = Extensions & {
   attribute?: boolean;
   wrapped?: boolean;
 };
+
 export type OpenAPI3Schema = Extensions & {
   /**
    * This attribute is a string that provides a short description of the instance property.

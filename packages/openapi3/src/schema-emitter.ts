@@ -1,4 +1,5 @@
 import {
+  ArrayModelType,
   BooleanLiteral,
   DiscriminatedUnion,
   Enum,
@@ -371,12 +372,12 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       return {};
     }
 
-    const isRef = refSchema.value instanceof Placeholder || "$ref" in refSchema.value;
-
-    const schema = this.#applyEncoding(prop, refSchema.value as any);
-
     // Apply decorators on the property to the type's schema
-    const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(prop, {}, schema);
+    const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(
+      prop,
+      {},
+      refSchema.value
+    );
     if (prop.defaultValue) {
       additionalProps.default = getDefaultValue(program, prop.defaultValue);
     }
@@ -387,6 +388,10 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     // Attach any additional OpenAPI extensions
     this.#attachExtensions(program, prop, additionalProps);
+
+    const isRef = refSchema.value instanceof Placeholder || "$ref" in refSchema.value;
+
+    const schema = this.#applyEncoding(prop, refSchema.value as any);
 
     if (schema && isRef && !(prop.type.kind === "Model" && isArrayModelType(program, prop.type))) {
       if (Object.keys(additionalProps).length === 0) {
@@ -651,23 +656,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
   }
 
-  #attachXmlObjectForScalar(program: Program, prop: Scalar, emitObject: OpenAPI3Schema) {
-    const xmlObject: OpenAPI3XmlSchema = {};
-
-    // Get and set XML namespace if present
-    const currNs = getNs(program, prop);
-    if (currNs) {
-      xmlObject.prefix = currNs.prefix;
-      xmlObject.namespace = currNs.namespace;
-    }
-
-    // Attach xml schema to emitObject if not empty
-    if (Object.keys(xmlObject).length !== 0) {
-      emitObject.xml = xmlObject;
-    }
-  }
-
-  #attachXmlObjectForModel(program: Program, prop: Model, emitObject: OpenAPI3Schema) {
+  #attachXmlObjectForScalarOrModel(
+    program: Program,
+    prop: Scalar | Model,
+    emitObject: OpenAPI3Schema
+  ) {
     const xmlObject: OpenAPI3XmlSchema = {};
 
     // Resolve XML name
@@ -693,18 +686,9 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     program: Program,
     prop: ModelProperty,
     emitObject: OpenAPI3Schema,
-    ref: OpenAPI3Schema
+    ref?: Record<string, any>
   ) {
     const xmlObject: OpenAPI3XmlSchema = {};
-
-    let isXmlModel = false;
-    if (prop.model) {
-      const xmlNameForModel = resolveEncodedName(program, prop.model, "application/xml");
-
-      if (xmlNameForModel && xmlNameForModel !== prop.model.name) {
-        isXmlModel = true;
-      }
-    }
 
     // Resolve XML name
     const xmlName = resolveEncodedName(program, prop, "application/xml");
@@ -734,37 +718,43 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
 
     // Handle array wrapping if necessary
-    if (isXmlModel && prop.type?.kind === "Model" && isArrayModelType(program, prop.type)) {
+    const isArrayProperty = prop.type?.kind === "Model" && isArrayModelType(program, prop.type);
+    const hasUnwrappedDecorator = isUnwrapped(program, prop);
+    if (!isArrayProperty && hasUnwrappedDecorator) {
+      reportDiagnostic(program, {
+        code: "invalid-property-type",
+        format: { name: prop.name },
+        target: prop,
+      });
+    }
+
+    let isXmlModel = false;
+    if (prop.model) {
+      const xmlNameForModel = resolveEncodedName(program, prop.model, "application/xml");
+
+      if (xmlNameForModel && xmlNameForModel !== prop.model.name) {
+        isXmlModel = true;
+      }
+    }
+
+    if (isXmlModel && isArrayProperty && !hasUnwrappedDecorator) {
       xmlObject.wrapped = true;
-    }
 
-    // Set XML unwrapped if present
-    if (isUnwrapped(program, prop)) {
-      if (prop.type?.kind === "Model" && isArrayModelType(program, prop.type)) {
-        delete xmlObject.wrapped;
-
-        // if wrapped is false, xml.name of the wrapping element is ignored.
-        delete xmlObject.name;
-      } else {
-        reportDiagnostic(program, {
-          code: "invalid-property-type",
-          format: { name: prop.name },
-          target: prop,
-        });
+      // update items
+      const propValue = (prop.type as ArrayModelType).indexer.value;
+      const xmlName = resolveEncodedName(program, propValue as Scalar | Model, "application/xml");
+      if (ref && ref.items) {
+        if (propValue.kind === "Scalar") {
+          ref.items.type = propValue.baseScalar?.name || propValue.name;
+          delete ref.items.$ref;
+        }
+        ref.items.xml = { name: xmlName };
       }
     }
 
-    if (xmlObject.wrapped && prop.type?.kind === "Model" && isArrayModelType(program, prop.type)) {
-      // Resolve XML name
-      const xmlName = resolveEncodedName(
-        program,
-        prop.type.indexer.value as Scalar | Model,
-        "application/xml"
-      );
-      const items = ref.items as OpenAPI3Schema;
-      if (items) {
-        items.xml = { name: xmlName };
-      }
+    if (isXmlModel && isArrayProperty && hasUnwrappedDecorator) {
+      // if wrapped is false, xml.name of the wrapping element is ignored.
+      delete xmlObject.name;
     }
 
     // Attach xml schema to emitObject if not empty
@@ -866,7 +856,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   #applyConstraints(
     type: Scalar | Model | ModelProperty | Union | Enum,
     original: OpenAPI3Schema,
-    ref: OpenAPI3Schema = {}
+    ref?: Record<string, any>
   ): ObjectBuilder<OpenAPI3Schema> {
     const schema = new ObjectBuilder(original);
     const program = this.emitter.getProgram();
@@ -917,10 +907,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     switch (type.kind) {
       case "Scalar":
-        this.#attachXmlObjectForScalar(program, type, schema);
-        break;
       case "Model":
-        this.#attachXmlObjectForModel(program, type, schema);
+        this.#attachXmlObjectForScalarOrModel(program, type, schema);
         break;
       case "ModelProperty":
         this.#attachXmlObjectForModelProperty(program, type, schema, ref);

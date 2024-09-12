@@ -142,20 +142,24 @@ describe("@name", () => {
 });
 
 describe("@attribute", () => {
-  it("set xml.attribute=true", async () => {
+  it.each([
+    ["numeric", "numeric"],
+    ["string", "string"],
+    ["unknown", "unknown"],
+    ["Union", `string | numeric`],
+    ["enum", `"a" | "b"`],
+  ])(`%s => %s`, async (_, type) => {
     const res = await oapiForModel(
       "Book",
       `model Book {
           @attribute
-          id: string;
+          id: ${type};
         };`
     );
     expect(res.schemas.Book).toMatchObject({
-      type: "object",
       properties: {
-        id: { type: "string", xml: { attribute: true } },
+        id: { xml: { attribute: true } },
       },
-      required: ["id"],
     });
   });
 
@@ -398,6 +402,9 @@ describe("Array of primitive types", () => {
 
     expect(res.schemas.tag).toMatchObject({
       type: "string",
+      xml: {
+        name: "ItemsName",
+      },
     });
 
     expect(res.schemas.Book).toMatchObject({
@@ -433,6 +440,9 @@ describe("Array of primitive types", () => {
 
     expect(res.schemas.tag).toMatchObject({
       type: "string",
+      xml: {
+        name: "ItemsName",
+      },
     });
 
     expect(res.schemas.Book).toMatchObject({
@@ -445,7 +455,7 @@ describe("Array of primitive types", () => {
             wrapped: true,
           },
           items: {
-            $ref: "#/components/schemas/tag",
+            type: "string",
             xml: {
               name: "ItemsName",
             },
