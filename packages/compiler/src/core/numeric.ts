@@ -73,7 +73,7 @@ function parse(original: string): InternalData {
   let sign: 1 | -1 = 1;
   let n: bigint;
   let exp: number | undefined;
-  let decimal: number;
+  let decimal: number | undefined = undefined;
   if (stringValue[0] === "-") {
     start = 1;
     sign = -1;
@@ -109,6 +109,7 @@ function parse(original: string): InternalData {
       }
       exp += Number(stringValue.slice(i + 1));
       stringValue = stringValue.slice(start, i);
+      decimal = Math.max(stringValue.length - exp, 0);
     } else if (exp === undefined) {
       // Integer.
       exp = stringValue.length - start;
@@ -122,11 +123,24 @@ function parse(original: string): InternalData {
       end--;
     }
 
+    // Only if there is 0 before the decimal point, keeps checking how many 0 there is after it and update the exponent accordingly.
+    if (start === adjustedPointIndex + 1) {
+      let cur = adjustedPointIndex;
+      while (stringValue[cur] === "0" && cur < end) {
+        cur++;
+        exp--;
+      }
+    }
+
     try {
       stringValue = stringValue.slice(0, end);
       stringValue = stringValue + "0".repeat(Math.max(exp - stringValue.length, 0)); // add remaining zeros for cases like 3e30
       n = BigInt(stringValue);
-      decimal = n === 0n ? 0 : Math.max(stringValue.length - exp, 0);
+      if (n === 0n) {
+        decimal = 0;
+      } else if (decimal === undefined) {
+        decimal = Math.max(stringValue.length - Math.max(exp, 0), 0);
+      }
     } catch {
       throw new InvalidNumericError(`Invalid numeric value: ${original}`);
     }
@@ -140,7 +154,7 @@ function stringify(value: InternalData): string {
 
   const n = value.n.toString();
   const sign = value.s === -1 ? "-" : "";
-  const int = value.e === 0 ? "0" : n.slice(0, value.e);
+  const int = value.e <= 0 ? "0" : n.slice(0, value.e);
   const decimal = value.e < n.length ? "." + n.slice(value.e).padStart(value.d, "0") : "";
   return sign + int + decimal;
 }
