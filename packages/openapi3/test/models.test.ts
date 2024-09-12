@@ -259,6 +259,23 @@ describe("openapi3: models", () => {
     });
   });
 
+  describe("numeric defaults", () => {
+    it.each([
+      ["0.01", 0.01],
+      ["1e-2", 0.01],
+    ])("%s => %s", async (value, expected) => {
+      const res = await openApiFor(
+        `
+      model Foo {
+        opt?: float = ${value};
+      };
+      `
+      );
+
+      expect(res.components.schemas.Foo.properties.opt.default).toEqual(expected);
+    });
+  });
+
   it("emits models extended from models when parent is emitted", async () => {
     const res = await openApiFor(
       `
