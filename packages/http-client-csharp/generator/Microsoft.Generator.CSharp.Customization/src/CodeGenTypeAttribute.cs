@@ -7,7 +7,7 @@ using System;
 
 namespace Microsoft.Generator.CSharp.Customization
 {
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public class CodeGenTypeAttribute : Attribute
     {
         public string? OriginalName { get; }
