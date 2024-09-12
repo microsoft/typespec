@@ -19,12 +19,10 @@ namespace _Type.Model.Inheritance.SingleDiscriminator.Models
             set => throw null;
         }
 
-
         public int Wingspan
         {
             get => throw null;
             set => throw null;
         }
-
     }
 }

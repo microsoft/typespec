@@ -267,6 +267,7 @@ namespace Microsoft.Generator.CSharp
                 .AppendRawIf("protected ", modifiers.HasFlag(MethodSignatureModifiers.Protected))
                 .AppendRawIf("internal ", modifiers.HasFlag(MethodSignatureModifiers.Internal))
                 .AppendRawIf("private ", modifiers.HasFlag(MethodSignatureModifiers.Private))
+                .AppendRawIf("new ", modifiers.HasFlag(MethodSignatureModifiers.New))
                 .AppendRawIf("override ", modifiers.HasFlag(MethodSignatureModifiers.Override))
                 .AppendRawIf("static ", modifiers.HasFlag(MethodSignatureModifiers.Static))
                 .AppendRawIf("virtual ", modifiers.HasFlag(MethodSignatureModifiers.Virtual));
@@ -298,7 +299,7 @@ namespace Microsoft.Generator.CSharp
                     else
                     {
                         WriteLine();
-                        using (var scope = ScopeRaw())
+                        using (var scope = ScopeRaw(newLine: false))
                         {
                             getter.Write(AppendRaw("get => "));
                             WriteRawLine(";");
@@ -420,6 +421,7 @@ namespace Microsoft.Generator.CSharp
             var modifiers = field.Modifiers;
 
             AppendRaw(modifiers.HasFlag(FieldModifiers.Public) ? "public " : (modifiers.HasFlag(FieldModifiers.Internal) ? "internal " : "private "))
+                .AppendRawIf("protected ", modifiers.HasFlag(FieldModifiers.Protected))
                 .AppendRawIf("const ", modifiers.HasFlag(FieldModifiers.Const))
                 .AppendRawIf("static ", modifiers.HasFlag(FieldModifiers.Static))
                 .AppendRawIf("readonly ", modifiers.HasFlag(FieldModifiers.ReadOnly));

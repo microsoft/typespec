@@ -11,7 +11,7 @@ namespace UnbrandedTypeSpec.Models
     internal partial class ProjectedNameModelRequest
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+        private protected IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
         internal ProjectedNameModelRequest(string name)
         {

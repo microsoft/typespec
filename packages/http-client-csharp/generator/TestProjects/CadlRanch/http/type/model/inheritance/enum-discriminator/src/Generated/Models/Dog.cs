@@ -19,12 +19,10 @@ namespace _Type.Model.Inheritance.EnumDiscriminator.Models
             set => throw null;
         }
 
-
         public int Weight
         {
             get => throw null;
             set => throw null;
         }
-
     }
 }

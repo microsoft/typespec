@@ -16,7 +16,6 @@ namespace _Type._Array.Models
             set => throw null;
         }
 
-
         public IList<InnerModel> Children => throw null;
     }
 }

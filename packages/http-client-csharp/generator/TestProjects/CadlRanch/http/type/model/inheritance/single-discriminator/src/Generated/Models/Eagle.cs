@@ -22,6 +22,5 @@ namespace _Type.Model.Inheritance.SingleDiscriminator.Models
             get => throw null;
             set => throw null;
         }
-
     }
 }
