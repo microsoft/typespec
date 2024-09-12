@@ -25,7 +25,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             Func<InputType, TypeProvider, IReadOnlyList<TypeProvider>>? createSerializationsCore = null,
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<CSharpType>? matchConditionsType = null,
-            Func<CSharpType>? tokenCredentialType = null,
+            Func<CSharpType>? keyCredentialType = null,
             Func<InputParameter, ParameterProvider>? createParameterCore = null,
             Func<InputApiKeyAuth>? apiKeyAuth = null,
             Func<IReadOnlyList<string>>? apiVersions = null,
@@ -53,12 +53,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
             if (matchConditionsType is not null)
             {
-                mockTypeFactory.Setup(p => p.MatchConditionsType()).Returns(matchConditionsType);
+                mockTypeFactory.Setup(p => p.MatchConditionsType).Returns(matchConditionsType);
             }
 
-            if (tokenCredentialType is not null)
+            if (keyCredentialType is not null)
             {
-                mockTypeFactory.Setup(p => p.TokenCredentialType()).Returns(tokenCredentialType);
+                mockTypeFactory.Setup(p => p.KeyCredentialType).Returns(keyCredentialType);
             }
 
             if (createParameterCore is not null)
