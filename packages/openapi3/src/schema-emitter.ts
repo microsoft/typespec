@@ -758,7 +758,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       // Resolve XML name
       const xmlName = resolveEncodedName(
         program,
-        prop.type.indexer.value as Scalar,
+        prop.type.indexer.value as Scalar | Model,
         "application/xml"
       );
       const items = ref.items as OpenAPI3Schema;
