@@ -30,6 +30,46 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string GetNamespace() => GetFullyQualifiedNameFromDisplayString(_namedTypeSymbol.ContainingNamespace);
 
+        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        {
+            var declaredModifiers = GetAccessModifiers(_namedTypeSymbol.DeclaredAccessibility);
+            if (_namedTypeSymbol.IsReadOnly)
+            {
+                declaredModifiers |= TypeSignatureModifiers.ReadOnly;
+            }
+            if (_namedTypeSymbol.IsStatic)
+            {
+                declaredModifiers |= TypeSignatureModifiers.Static;
+            }
+            switch (_namedTypeSymbol.TypeKind)
+            {
+                case TypeKind.Class:
+                    declaredModifiers |= TypeSignatureModifiers.Class;
+                    if (_namedTypeSymbol.IsSealed)
+                    {
+                        declaredModifiers |= TypeSignatureModifiers.Sealed;
+                    }
+                    break;
+                case TypeKind.Struct:
+                    declaredModifiers |= TypeSignatureModifiers.Struct;
+                    break;
+                case TypeKind.Interface:
+                    declaredModifiers |= TypeSignatureModifiers.Interface;
+                    break;
+            }
+            return declaredModifiers;
+
+            static TypeSignatureModifiers GetAccessModifiers(Accessibility accessibility) => accessibility switch
+            {
+                Accessibility.Private => TypeSignatureModifiers.Private,
+                Accessibility.Protected => TypeSignatureModifiers.Protected,
+                Accessibility.Internal => TypeSignatureModifiers.Internal,
+                Accessibility.Public => TypeSignatureModifiers.Public,
+                Accessibility.ProtectedOrInternal => TypeSignatureModifiers.Protected | TypeSignatureModifiers.Internal,
+                _ => TypeSignatureModifiers.None
+            };
+        }
+
         protected override FieldProvider[] BuildFields()
         {
             List<FieldProvider> fields = new List<FieldProvider>();
