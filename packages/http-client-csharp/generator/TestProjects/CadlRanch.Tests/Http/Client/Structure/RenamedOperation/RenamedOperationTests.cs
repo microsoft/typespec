@@ -27,21 +27,21 @@ namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.MultiClient
         [CadlRanchTest]
         public Task RenamedOne() => Test(async (host) =>
         {
-            var response = await new ClientAClient(host, ClientType.RenamedOperationClient, null).RenamedOneAsync();
+            var response = await new RenamedOperationClient(host, ClientType.RenamedOperationClient, null).RenamedOneAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
         [CadlRanchTest]
         public Task RenamedThree() => Test(async (host) =>
         {
-            var response = await new ClientAClient(host, ClientType.RenamedOperationClient, null).RenamedThreeAsync();
+            var response = await new RenamedOperationClient(host, ClientType.RenamedOperationClient, null).RenamedThreeAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
         [CadlRanchTest]
         public Task RenamedFive() => Test(async (host) =>
         {
-            var response = await new ClientAClient(host, ClientType.RenamedOperationClient, null).RenamedFiveAsync();
+            var response = await new RenamedOperationClient(host, ClientType.RenamedOperationClient, null).RenamedFiveAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
