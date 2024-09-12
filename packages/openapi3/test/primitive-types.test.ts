@@ -125,18 +125,14 @@ describe("openapi3: primitives", () => {
       `
       );
 
-      expect(res.schemas.Pet.properties.name.default).toEqual(["Shorty"]);
+      expect(res.schemas.Pet.properties.name.default).toEqual("Shorty");
     });
 
     it("object value used as a default value", async () => {
       const res = await oapiForModel(
         "Test",
         `
-model Test {
-  Pet: {
-    name: string;
-  } = #{ name: "Dog"};
-}
+      model Test { Pet: {name: string;} = #{ name: "Dog"}; }
       `
       );
 
