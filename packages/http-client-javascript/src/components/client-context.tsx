@@ -42,7 +42,7 @@ export function ClientContext(props: ClientContextProps): Children {
   return (
     <ts.SourceFile path="clientContext.ts">
       <ts.InterfaceDeclaration export name={contextInterface} refkey={clientContextInterfaceRefkey}>
-        <ts.InterfaceMember optional name="endpoint" type="string" />
+        {server?.url ? null : <ts.InterfaceMember name="endpoint" type="string" />}
       </ts.InterfaceDeclaration>
       <ts.InterfaceDeclaration export name={clientOptionsName} refkey={getClientOptionsRefkey(props.service)}>
         {mapJoin(clientOptions, (key, value) => (
