@@ -90,5 +90,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetInt64), [new DeclarationExpression(longValueDeclaration, true)]);
             return invocation.As<bool>();
         }
+
+        internal static ScopedApi<bool> TryGetValue<T>(this ScopedApi<JsonElement> jsonElement, string methodName, out ScopedApi<T> value)
+        {
+            var valueName = typeof(T).Name.ToVariableName();
+            var valueDeclaration = new VariableExpression(typeof(T), valueName);
+            value = valueDeclaration.As<T>();
+            var invocation = new InvokeMethodExpression(jsonElement, methodName, [new DeclarationExpression(valueDeclaration, true)]);
+            return invocation.As<bool>();
+        }
     }
 }
