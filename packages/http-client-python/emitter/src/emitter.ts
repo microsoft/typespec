@@ -60,7 +60,7 @@ async function createPythonSdkContext<TServiceOperation extends SdkServiceOperat
     context: EmitContext<PythonEmitterOptions>,
 ): Promise<PythonSdkContext<TServiceOperation>> {
     return {
-        ...(await createSdkContext<PythonEmitterOptions, TServiceOperation>(context, "@azure-tools/typespec-python", {
+        ...(await createSdkContext<PythonEmitterOptions, TServiceOperation>(context, "@typespec/http-client-python", {
             additionalDecorators: ["TypeSpec\\.@encodedName"],
         })),
         __endpointPathParameters: [],

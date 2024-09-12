@@ -8,7 +8,7 @@ Follow [TypeSpec Getting Started](https://typespec.io/docs) to initialize your T
 
 Make sure `npx tsp compile .` runs correctly.
 
-### Add typespec-python to your project
+### Add  `@typespec/http-client-python` to your project
 
 Include `@typespec/http-client-python` in `package.json`:
 
@@ -22,7 +22,7 @@ Run `npm install` to install the dependency.
 
 ### Generate a Python client library
 
-You can either specify typespec-python on the commandline or through tspconfig.yaml.
+You can either specify `@typespec/http-client-python` on the commandline or through tspconfig.yaml.
 
 #### Generate with `--emit` command
 
