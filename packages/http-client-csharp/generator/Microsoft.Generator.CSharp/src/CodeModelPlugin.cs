@@ -83,9 +83,9 @@ namespace Microsoft.Generator.CSharp
         }
 
         internal HashSet<string> TypesToKeep { get; } = new();
-        public void AddTypeToKeep(string path)
+        public void AddTypeToKeep(string typeName)
         {
-            TypesToKeep.Add(path);
+            TypesToKeep.Add(typeName);
         }
     }
 }
