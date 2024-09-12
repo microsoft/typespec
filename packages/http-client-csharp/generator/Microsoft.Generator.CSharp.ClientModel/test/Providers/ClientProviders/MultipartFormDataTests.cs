@@ -12,10 +12,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
     public class MultipartFormDataTests
     {
         [Test]
-        public void MpfdOperationDoesNotHaveConvenienceMethods()
+        public void MultipartOperationDoesNotHaveConvenienceMethods()
         {
-            var operation = InputFactory.Operation("MpfdOperation", requestMediaTypes: ["multipart/form-data"], parameters: [InputFactory.ContentTypeParameter("multipart/form-data")]);
-            var inputClient = InputFactory.Client("MpfdClient", operations: [operation]);
+            var operation = InputFactory.Operation("MultipartOperation", requestMediaTypes: ["multipart/form-data"], parameters: [InputFactory.ContentTypeParameter("multipart/form-data")]);
+            var inputClient = InputFactory.Client("MultipartClient", operations: [operation]);
             MockHelpers.LoadMockPlugin(apiKeyAuth: () => new InputApiKeyAuth("mock", null), clients: () => [inputClient]);
             var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
             Assert.AreEqual(2, client.Methods.Count);
@@ -23,10 +23,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         }
 
         [Test]
-        public void MpfdOperationShouldHaveContentTypeParam()
+        public void MultipartOperationShouldHaveContentTypeParam()
         {
-            var operation = InputFactory.Operation("MpfdOperation", requestMediaTypes: ["multipart/form-data"], parameters: [InputFactory.ContentTypeParameter("multipart/form-data")]);
-            var inputClient = InputFactory.Client("MpfdClient", operations: [operation]);
+            var operation = InputFactory.Operation("MultipartOperation", requestMediaTypes: ["multipart/form-data"], parameters: [InputFactory.ContentTypeParameter("multipart/form-data")]);
+            var inputClient = InputFactory.Client("MultipartClient", operations: [operation]);
             MockHelpers.LoadMockPlugin(apiKeyAuth: () => new InputApiKeyAuth("mock", null), clients: () => [inputClient]);
             var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
             Assert.AreEqual(2, client.Methods.Count);

@@ -60,9 +60,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
         {
             if (ClientModelPlugin.Instance.InputLibrary.HasMultipartFormDataOperation)
             {
-                var mpfd = new MultiPartFormDataBinaryContentDefinition();
-                ClientModelPlugin.Instance.AddTypeToKeep(mpfd.Name);
-                yield return mpfd;
+                var multipart = new MultiPartFormDataBinaryContentDefinition();
+                ClientModelPlugin.Instance.AddTypeToKeep(multipart.Name);
+                yield return multipart;
             }
         }
     }

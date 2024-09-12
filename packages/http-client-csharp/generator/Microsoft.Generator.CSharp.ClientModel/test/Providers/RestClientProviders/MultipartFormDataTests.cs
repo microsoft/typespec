@@ -12,16 +12,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProvi
     internal class MultipartFormDataTests
     {
         [Test]
-        public void MpfdShouldUseContentTypeParamInCreateRequestMethod()
+        public void MultipartShouldUseContentTypeParamInCreateRequestMethod()
         {
-            var operation = InputFactory.Operation("MpfdOperation", requestMediaTypes: ["multipart/form-data"], parameters: [InputFactory.ContentTypeParameter("multipart/form-data")]);
-            var inputClient = InputFactory.Client("MpfdClient", operations: [operation]);
+            var operation = InputFactory.Operation("MultipartOperation", requestMediaTypes: ["multipart/form-data"], parameters: [InputFactory.ContentTypeParameter("multipart/form-data")]);
+            var inputClient = InputFactory.Client("MultipartClient", operations: [operation]);
             MockHelpers.LoadMockPlugin(apiKeyAuth: () => new InputApiKeyAuth("mock", null), clients: () => [inputClient]);
             var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
             var restClient = client.RestClient;
             Assert.IsNotNull(restClient);
-            var createMethod = restClient.Methods.FirstOrDefault(m => m.Signature.Name == "CreateMpfdOperationRequest");
+            var createMethod = restClient.Methods.FirstOrDefault(m => m.Signature.Name == "CreateMultipartOperationRequest");
             Assert.IsNotNull(createMethod);
             var statements = createMethod!.BodyStatements as MethodBodyStatements;
             Assert.IsNotNull(statements);
