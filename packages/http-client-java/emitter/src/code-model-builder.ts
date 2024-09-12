@@ -367,12 +367,15 @@ export class CodeModelBuilder {
 
   private processModels() {
     const processedSdkModels: Set<SdkModelType | SdkEnumType> = new Set();
+    const accessCache: Map<Namespace, string | undefined> = new Map();
+    const usageCache: Map<Namespace, SchemaContext[] | undefined> = new Map();
+
     const sdkModels: (SdkModelType | SdkEnumType)[] = getAllModels(this.sdkContext);
 
     // process sdk models
     for (const model of sdkModels) {
       if (!processedSdkModels.has(model)) {
-        const access = getAccess(model.__raw);
+        const access = getAccess(model.__raw, accessCache);
         if (access === "public") {
           const schema = this.processSchemaFromSdkType(model, "");
 
@@ -387,7 +390,7 @@ export class CodeModelBuilder {
           });
         }
 
-        const usage = getUsage(model.__raw);
+        const usage = getUsage(model.__raw, usageCache);
         if (usage) {
           const schema = this.processSchemaFromSdkType(model, "");
 
