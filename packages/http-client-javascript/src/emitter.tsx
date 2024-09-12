@@ -21,26 +21,22 @@ export async function $onEmit(context: EmitContext) {
   }
   const tsNamePolicy = ts.createTSNamePolicy();
   const outputDir = context.emitterOutputDir;
-  const sourcesDir = path.join(outputDir, "src");
-  const modelsDir = path.join(sourcesDir, "models");
-  const apiDir = path.join(sourcesDir, "api");
-  const utilitiesDir = path.join(sourcesDir, "utilities");
   const service = listServices(context.program)[0];
   return (
     <ay.Output namePolicy={tsNamePolicy} externals={[uriTemplateLib]}>
       <ts.PackageDirectory name="test-package" version="1.0.0" path={outputDir}>
-        <ay.SourceDirectory path={sourcesDir}>
-          <ay.SourceDirectory path={modelsDir}>
+        <ay.SourceDirectory path="src">
+          <ay.SourceDirectory path="models">
             <ts.BarrelFile />
             <ModelsFile types={types.dataTypes} />
             <ModelSerializers types={types.dataTypes} />
           </ay.SourceDirectory>
-          <ay.SourceDirectory path={apiDir}>
+          <ay.SourceDirectory path="api">
             <ClientContext service={service} />
             <OperationsFile operations={types.operations} service={service} />
             <ts.BarrelFile />
           </ay.SourceDirectory>
-          <ay.SourceDirectory path={utilitiesDir}>
+          <ay.SourceDirectory path="utilities">
             <ts.SourceFile path="http-fetch.ts">
               <HttpFetchOptionsDeclaration />
               <HttpFetchDeclaration />
