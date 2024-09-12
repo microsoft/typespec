@@ -533,8 +533,10 @@ function validateReference(program: Program, source: Type | Type[], target: Type
 
   switch (target.kind) {
     case "Union":
-      for (const variant of target.variants.values()) {
-        validateReference(program, source, variant.type);
+      if (typeof target.name !== "string") {
+        for (const variant of target.variants.values()) {
+          validateReference(program, source, variant.type);
+        }
       }
       break;
     case "Tuple":

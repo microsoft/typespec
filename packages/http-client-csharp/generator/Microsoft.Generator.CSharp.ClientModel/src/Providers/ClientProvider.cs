@@ -62,7 +62,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var apiKey = _inputAuth?.ApiKey;
             _apiKeyAuthField = apiKey != null ? new FieldProvider(
                 FieldModifiers.Private | FieldModifiers.ReadOnly,
-                typeof(ApiKeyCredential),
+                ClientModelPlugin.Instance.TypeFactory.KeyCredentialType,
                 ApiKeyCredentialFieldName,
                 this,
                 description: $"A credential used to authenticate to the service.") : null;
