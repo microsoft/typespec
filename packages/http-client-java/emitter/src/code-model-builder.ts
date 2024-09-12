@@ -367,16 +367,6 @@ export class CodeModelBuilder {
 
   private processModels() {
     const processedSdkModels: Set<SdkModelType | SdkEnumType> = new Set();
-
-    // lambda to mark model as public
-    const modelAsPublic = (model: SdkModelType | SdkEnumType) => {
-      const schema = this.processSchemaFromSdkType(model, "");
-
-      this.trackSchemaUsage(schema, {
-        usage: [SchemaContext.Public],
-      });
-    };
-
     const sdkModels: (SdkModelType | SdkEnumType)[] = getAllModels(this.sdkContext);
 
     // process sdk models
@@ -384,7 +374,11 @@ export class CodeModelBuilder {
       if (!processedSdkModels.has(model)) {
         const access = getAccess(model.__raw);
         if (access === "public") {
-          modelAsPublic(model);
+          const schema = this.processSchemaFromSdkType(model, "");
+
+          this.trackSchemaUsage(schema, {
+            usage: [SchemaContext.Public],
+          });
         } else if (access === "internal") {
           const schema = this.processSchemaFromSdkType(model, model.name);
 
