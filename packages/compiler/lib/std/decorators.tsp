@@ -278,13 +278,6 @@ extern dec maxValueExclusive(target: numeric | ModelProperty, value: valueof num
 extern dec secret(target: string | ModelProperty);
 
 /**
- * Mark this operation as a `list` operation for resource types.
- * @deprecated Use the `listsResource` decorator in `@typespec/rest` instead.
- * @param listedType Optional type of the items in the list.
- */
-extern dec list(target: Operation, listedType?: Model);
-
-/**
  * Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.
  * @param tag Tag value
  */
@@ -688,6 +681,68 @@ extern dec withoutOmittedProperties(target: Model, omit: string | Union);
  * @param pick List of properties to include
  */
 extern dec withPickedProperties(target: Model, pick: string | Union);
+
+//---------------------------------------------------------------------------
+// Paging
+//---------------------------------------------------------------------------
+
+/**
+ * Mark this operation as a `list` operation that returns a paginated list of items.
+ */
+extern dec list(target: Operation);
+
+/**
+ * Pagingation property defining the number of items to skip.
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   items: T[];
+ * }
+ * @list op listPets(@offset skip: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+extern dec offset(target: ModelProperty);
+
+/**
+ * Pagingation property defining the page index.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   items: T[];
+ * }
+ * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+extern dec pageIndex(target: ModelProperty);
+
+/**
+ * Specify the pagination parameter that controls the maximum number of items to include in a page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   items: T[];
+ * }
+ * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+extern dec pageSize(target: ModelProperty);
+
+/**
+ * Pagingation property defining the token to get to the next page.
+ * It MUST be specified both on the request parameter and the response.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   items: T[];
+ *   @continuationToken continuationToken: string;
+ * }
+ * @list op listPets(@continuationToken continuationToken: string): Page<Pet>;
+ * ```
+ */
+extern dec continuationToken(target: ModelProperty);
 
 //---------------------------------------------------------------------------
 // Debugging
