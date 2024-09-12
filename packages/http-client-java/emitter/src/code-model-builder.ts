@@ -1148,10 +1148,19 @@ export class CodeModelBuilder {
         }
       }
 
+      // TODO: use param.onClient after TCGC fix
+      const parameterOnClient =
+        !isApiVersion(this.sdkContext, param) &&
+        param.correspondingMethodParams &&
+        param.correspondingMethodParams.length > 0 &&
+        param.correspondingMethodParams[0].onClient;
+
       const nullable = param.type.kind === "nullable";
       const parameter = new Parameter(param.name, param.details ?? "", schema, {
         summary: param.description,
-        implementation: ImplementationLocation.Method,
+        implementation: parameterOnClient
+          ? ImplementationLocation.Client
+          : ImplementationLocation.Method,
         required: !param.optional,
         nullable: nullable,
         protocol: {
@@ -1168,6 +1177,10 @@ export class CodeModelBuilder {
         extensions: extensions,
       });
       op.addParameter(parameter);
+
+      if (parameterOnClient) {
+        clientContext.addGlobalParameter(parameter);
+      }
 
       this.trackSchemaUsage(schema, { usage: [SchemaContext.Input] });
 
