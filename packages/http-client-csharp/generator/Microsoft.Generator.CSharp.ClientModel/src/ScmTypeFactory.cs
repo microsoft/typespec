@@ -16,9 +16,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private Dictionary<InputClient, ClientProvider>? _clientCache;
         private Dictionary<InputClient, ClientProvider> ClientCache => _clientCache ??= [];
 
-        public virtual CSharpType MatchConditionsType() => typeof(PipelineMessageClassifier);
+        public virtual CSharpType MatchConditionsType => typeof(PipelineMessageClassifier);
 
-        public virtual CSharpType TokenCredentialType() => typeof(ApiKeyCredential);
+        public virtual CSharpType KeyCredentialType => typeof(ApiKeyCredential);
 
         /// <summary>
         /// Returns the serialization type providers for the given input type.
