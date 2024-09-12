@@ -209,8 +209,10 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
                 continue;
             }
 
-            String serviceClientPropertyDescription =
+            String description =
                     p.getDescription() != null ? p.getDescription() : p.getLanguage().getJava().getDescription();
+            String summary = p.getSummary();
+            description = SchemaUtil.mergeSummaryWithDescription(summary, description);
 
             String serviceClientPropertyName = CodeNamer.getPropertyName(p.getLanguage().getJava().getName());
 
@@ -233,7 +235,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
             if (serviceClientPropertyClientType != ClassType.TOKEN_CREDENTIAL) {
                 ServiceClientProperty serviceClientProperty =
                         new ServiceClientProperty.Builder()
-                                .description(serviceClientPropertyDescription)
+                                .description(description)
                                 .type(serviceClientPropertyClientType)
                                 .name(serviceClientPropertyName)
                                 .readOnly(serviceClientPropertyIsReadOnly)
