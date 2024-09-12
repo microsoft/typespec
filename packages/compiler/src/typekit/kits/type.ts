@@ -1,6 +1,7 @@
-import type { Type } from "../../core/types.js";
+import type { Enum, Model, Scalar, Type, Union } from "../../core/types.js";
 import { getDoc, getSummary, resolveEncodedName } from "../../lib/decorators.js";
 import { defineKit } from "../define-kit.js";
+import { getPlausibleName } from "./utils/get-plausible-name.js";
 
 export interface TypeKit {
   /**
@@ -22,6 +23,13 @@ export interface TypeKit {
    * @param type The type to get the documentation for.
    */
   getDoc(type: Type): string | undefined;
+  /**
+   * Get the plausible name of a type. If the type has a name, it will use it otherwise it will try generate a name based on the context.
+   * If the type can't get a name, it will return an empty string.
+   * If the type is a TemplateInstance, it will prefix the name with the template arguments.
+   * @param type The scalar to get the name of.
+   */
+  getPlausibleName(type: Model | Union | Enum | Scalar): string;
 }
 
 interface BaseTypeKit {
@@ -45,6 +53,9 @@ defineKit<BaseTypeKit>({
     },
     getDoc(type) {
       return getDoc(this.program, type);
+    },
+    getPlausibleName(type) {
+      return getPlausibleName(type);
     },
   },
 });

@@ -57,12 +57,6 @@ export interface ModelKit {
     isExpresion(type: Model): boolean;
 
     /**
-     * Returns the name of the model of a generated one if it is a model Expression
-     * @param model The model to get the plausible name for.
-     */
-    getPlausibleName(model: Model): string;
-
-    /**
      * If the input is anonymous (or the provided filter removes properties)
      * and there exists a named model with the same set of properties
      * (ignoring filtered properties), then return that named model.
@@ -111,10 +105,6 @@ export const ModelKit = defineKit<ModelKit>({
 
     isExpresion(type) {
       return type.name === "";
-    },
-    getPlausibleName(model) {
-      // Todo: Need to implement this by getting context on the Model. TypeSpec is planning to provide a parents property on Type to help walk upwards and help with this
-      return model.name || "ModelExpression";
     },
     getEffectiveModel(model, filter?: (property: ModelProperty) => boolean) {
       return getEffectiveModelType(this.program, model, filter);
