@@ -5649,7 +5649,7 @@ export function createChecker(program: Program): Checker {
   function checkArgumentAssignable(
     argumentType: Type | Value | IndeterminateEntity,
     parameterType: Entity,
-    diagnosticTarget: DiagnosticTarget
+    diagnosticTarget: Entity | Node
   ): boolean {
     const [valid] = relation.isTypeAssignableTo(argumentType, parameterType, diagnosticTarget);
     if (!valid) {
@@ -7420,7 +7420,7 @@ export function createChecker(program: Program): Checker {
   function checkTypeOfValueMatchConstraint(
     source: Entity,
     constraint: CheckValueConstraint,
-    diagnosticTarget: DiagnosticTarget
+    diagnosticTarget: Entity | Node
   ): boolean {
     const [related, diagnostics] = relation.isTypeAssignableTo(
       source,
@@ -7455,7 +7455,7 @@ export function createChecker(program: Program): Checker {
   function checkTypeAssignable(
     source: Entity | IndeterminateEntity,
     target: Entity,
-    diagnosticTarget: DiagnosticTarget
+    diagnosticTarget: Entity | Node
   ): boolean {
     const [related, diagnostics] = relation.isTypeAssignableTo(source, target, diagnosticTarget);
     if (!related) {
@@ -7464,11 +7464,7 @@ export function createChecker(program: Program): Checker {
     return related;
   }
 
-  function checkValueOfType(
-    source: Value,
-    target: Type,
-    diagnosticTarget: DiagnosticTarget
-  ): boolean {
+  function checkValueOfType(source: Value, target: Type, diagnosticTarget: Entity | Node): boolean {
     const [related, diagnostics] = relation.isValueOfType(source, target, diagnosticTarget);
     if (!related) {
       reportCheckerDiagnostics(diagnostics);

@@ -113,26 +113,26 @@ $generateScript = {
   }
 }
 
-Set-Location ../../
+Set-Location (Resolve-Path (Join-Path $PSScriptRoot '..' '..'))
 
 npm install
 npm run build
 npm pack
 
-Set-Location ./generator/http-client-generator-test
+Set-Location $PSScriptRoot
 
 
 if (Test-Path node_modules) {
-    Remove-Item node_modules -Recurse -Force
+  Remove-Item node_modules -Recurse -Force
 }
 
 if (Test-Path package-lock.json) {
-    Remove-Item package-lock.json
+  Remove-Item package-lock.json
 }
 
 # delete output
 if (Test-Path tsp-output) {
-    Remove-Item tsp-output -Recurse -Force
+  Remove-Item tsp-output -Recurse -Force
 }
 npm install 
 

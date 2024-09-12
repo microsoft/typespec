@@ -107,46 +107,6 @@ namespace Microsoft.Generator.CSharp.Input
             return true;
         }
 
-        public static bool TryReadEnumValue(this ref Utf8JsonReader reader, string propertyName, ref object? value)
-        {
-            if (reader.TokenType != JsonTokenType.PropertyName)
-            {
-                throw new JsonException();
-            }
-
-            if (reader.GetString() != propertyName)
-            {
-                return false;
-            }
-
-            reader.Read();
-            switch (reader.TokenType)
-            {
-                case JsonTokenType.String:
-                    value = reader.GetString() ?? throw new JsonException("Enum value cannot be empty");
-                    break;
-                case JsonTokenType.Number:
-                    if (reader.TryGetInt32(out int intValue))
-                    {
-                        value = intValue;
-                    }
-                    else if (reader.TryGetSingle(out float floatValue))
-                    {
-                        value = floatValue;
-                    }
-                    else
-                    {
-                        throw new JsonException($"Unsupported enum value type: {reader.TokenType}");
-                    }
-                    break;
-                default:
-                    throw new JsonException($"Unsupported enum value type: {reader.TokenType}");
-            }
-
-            reader.Read();
-            return true;
-        }
-
         public static bool TryReadWithConverter<T>(this ref Utf8JsonReader reader, string propertyName, JsonSerializerOptions options, ref T? value)
         {
             if (reader.TokenType != JsonTokenType.PropertyName)

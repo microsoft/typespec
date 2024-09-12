@@ -78,7 +78,7 @@ namespace Microsoft.Generator.CSharp
         private SourceInputModel? _sourceInputModel;
         internal async Task InitializeSourceInputModelAsync()
         {
-            GeneratedCodeWorkspace existingCode = GeneratedCodeWorkspace.CreateExistingCodeProject(Instance.Configuration.ProjectDirectory, Instance.Configuration.ProjectGeneratedDirectory);
+            GeneratedCodeWorkspace existingCode = GeneratedCodeWorkspace.CreateExistingCodeProject([Instance.Configuration.ProjectDirectory], Instance.Configuration.ProjectGeneratedDirectory);
             _sourceInputModel =  new SourceInputModel(await existingCode.GetCompilationAsync());
         }
 

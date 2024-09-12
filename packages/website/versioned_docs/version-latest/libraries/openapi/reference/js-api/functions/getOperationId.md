@@ -7,6 +7,8 @@ title: "[F] getOperationId"
 function getOperationId(program, entity): string | undefined
 ```
 
+Returns operationId set via the `@operationId` decorator or `undefined`
+
 ## Parameters
 
 | Parameter | Type |
@@ -17,9 +19,3 @@ function getOperationId(program, entity): string | undefined
 ## Returns
 
 `string` \| `undefined`
-
-operationId set via the
-
-## Operation Id
-
-decorator or `undefined`

@@ -7,7 +7,7 @@ try {
     Write-Host "Running cadl ranch tests"
     Write-Host "Starting the test server"
     npm run testserver-start
-    mvn clean test
+    mvn clean test --no-transfer-progress -T 1C
     Write-Host "Stopping the test server"
     npm run testserver-stop
     

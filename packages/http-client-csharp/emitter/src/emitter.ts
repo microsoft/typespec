@@ -221,8 +221,8 @@ async function execAsync(
 
 function transformJSONProperties(this: any, key: string, value: any): any {
   // convertUsageNumbersToStrings
-  if (this["Kind"] === "model" || this["Kind"] === "enum") {
-    if (key === "Usage" && typeof value === "number") {
+  if (this["kind"] === "model" || this["kind"] === "enum") {
+    if (key === "usage" && typeof value === "number") {
       if (value === 0) {
         return "None";
       }
@@ -236,11 +236,6 @@ function transformJSONProperties(this: any, key: string, value: any): any {
       }
       return result.join(",");
     }
-  }
-
-  // omit the `rawExample` property from the examples
-  if (key === "rawExample") {
-    return undefined;
   }
 
   return value;

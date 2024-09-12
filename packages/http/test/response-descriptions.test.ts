@@ -66,4 +66,18 @@ describe("http: response descriptions", () => {
     strictEqual(op.responses[2].description, "Not found model");
     strictEqual(op.responses[3].description, "Generic error");
   });
+
+  it("@doc on response model set response doc if model is an evelope with @statusCode", async () => {
+    const op = await getHttpOp(
+      `
+      /** Explicit doc */
+      model Result {
+        @statusCode _: 201;
+        implicit: 200;
+      }
+      op read(): Result;
+      `
+    );
+    strictEqual(op.responses[0].description, "Explicit doc");
+  });
 });

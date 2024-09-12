@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -38,6 +40,8 @@ namespace Microsoft.Generator.CSharp.Providers
         public ParameterProvider AsParameter => _parameter.Value;
 
         public TypeProvider EnclosingType { get; }
+
+        internal IEnumerable<AttributeData>? Attributes { get; init; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -87,7 +91,7 @@ namespace Microsoft.Generator.CSharp.Providers
             EnclosingType = enclosingType;
             IsDiscriminator = inputProperty.IsDiscriminator;
 
-            InitializeParameter(Name, FormattableStringHelpers.FromString(inputProperty.Description), Type);
+            InitializeParameter(Name, FormattableStringHelpers.FromString(inputProperty.Description) ?? FormattableStringHelpers.Empty, Type);
         }
 
         public PropertyProvider(
