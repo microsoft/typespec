@@ -217,7 +217,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
                 var outputProperty = CodeModelPlugin.Instance.TypeFactory.CreateProperty(property, this);
                 if (outputProperty is null)
-                    continue
+                    continue;
 
                 if (customPropertyNames.Contains(property.Name))
                     continue;

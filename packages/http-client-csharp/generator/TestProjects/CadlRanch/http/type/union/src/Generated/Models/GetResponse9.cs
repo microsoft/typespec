@@ -11,6 +11,5 @@ namespace _Type.Union.Models
             get => throw null;
             set => throw null;
         }
-
     }
 }
