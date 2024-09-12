@@ -17,7 +17,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.RenamedOperation
             /*cheeck methods in RenamedOperationClient. */
             var methodsRenamedOperation = typeof(RenamedOperationClient).GetMethods();
             Assert.IsNotNull(methodsRenamedOperation);
-            Assert.AreEqual(6, methodsRenamedOperation.Where(method => method.Name.EndsWith("Async")).Count());
+            Assert.AreEqual(3, methodsRenamedOperation.Where(method => method.Name.EndsWith("Async")).Count());
             Assert.IsNotNull(typeof(RenamedOperationClient).GetMethods().Where(m => m.Name == "RenamedOneAsync").FirstOrDefault());
             Assert.IsNotNull(typeof(RenamedOperationClient).GetMethods().Where(m => m.Name == "RenamedThreeAsync").FirstOrDefault());
             Assert.IsNotNull(typeof(RenamedOperationClient).GetMethods().Where(m => m.Name == "RenamedFiveAsync").FirstOrDefault());
