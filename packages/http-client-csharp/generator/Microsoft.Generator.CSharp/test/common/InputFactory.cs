@@ -186,6 +186,11 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             return new InputDictionaryType("dictionary", keyType ?? InputPrimitiveType.String, valueType);
         }
 
+        public static InputType Union(IList<InputType> types)
+        {
+            return new InputUnionType("union", [.. types]);
+        }
+
         public static InputOperation Operation(
             string name,
             string access = "public",
