@@ -367,6 +367,10 @@ export class CodeModelBuilder {
 
   private processModels() {
     const processedSdkModels: Set<SdkModelType | SdkEnumType> = new Set();
+
+    // cache resolved value of access/usage for the namespace
+    // the value can be set as undefined
+    // it resolves the value from that namespace and its parent namespaces
     const accessCache: Map<Namespace, string | undefined> = new Map();
     const usageCache: Map<Namespace, SchemaContext[] | undefined> = new Map();
 
