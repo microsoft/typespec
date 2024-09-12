@@ -959,11 +959,13 @@ export function getDefaultValue(program: Program, defaultType: Value): any {
     case "EnumValue":
       return defaultType.value.value ?? defaultType.value.name;
     case "ScalarValue":
-      return defaultType.value.args.map((x) => getDefaultValue(program, x));
+      return serializeValueAsJson(program, defaultType, defaultType.type);
+    case "ObjectValue":
+      return serializeValueAsJson(program, defaultType, defaultType.type);
     default:
       reportDiagnostic(program, {
         code: "invalid-default",
-        format: { type: defaultType.valueKind },
+        format: { type: defaultType },
         target: defaultType,
       });
   }

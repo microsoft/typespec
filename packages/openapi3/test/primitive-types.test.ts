@@ -128,6 +128,21 @@ describe("openapi3: primitives", () => {
       expect(res.schemas.Pet.properties.name.default).toEqual(["Shorty"]);
     });
 
+    it("object value used as a default value", async () => {
+      const res = await oapiForModel(
+        "Test",
+        `
+model Test {
+  Pet: {
+    name: string;
+  } = #{ name: "Dog"};
+}
+      `
+      );
+
+      expect(res.schemas.Test.properties.Pet.default.name).toEqual("Dog");
+    });
+
     it("merge the data from parent", async () => {
       const res = await oapiForModel(
         "Pet",
