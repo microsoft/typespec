@@ -11,6 +11,5 @@ namespace _Type.Property.Nullable.Models
             get => throw null;
             set => throw null;
         }
-
     }
 }

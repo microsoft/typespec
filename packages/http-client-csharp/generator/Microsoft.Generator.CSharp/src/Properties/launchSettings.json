@@ -60,6 +60,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
+    "http-payload-multipart": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/payload/multipart -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
     "http-payload-xml": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/payload/xml -p StubLibraryPlugin",
       "commandName": "Executable",

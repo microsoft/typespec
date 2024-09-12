@@ -11,7 +11,7 @@ namespace _Type.Model.Inheritance.EnumDiscriminator.Models
     {
         private protected Dog(DogKind kind, int weight) => throw null;
 
-        internal Dog(DogKind kind, int weight, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
+        internal Dog(DogKind kind, int weight, IDictionary<string, BinaryData> additionalBinaryDataProperties) => throw null;
 
         internal DogKind Kind
         {
@@ -19,12 +19,10 @@ namespace _Type.Model.Inheritance.EnumDiscriminator.Models
             set => throw null;
         }
 
-
         public int Weight
         {
             get => throw null;
             set => throw null;
         }
-
     }
 }

@@ -12,19 +12,16 @@ namespace Payload.Xml.Models
             set => throw null;
         }
 
-
         public string Id2
         {
             get => throw null;
             set => throw null;
         }
 
-
         public bool Enabled
         {
             get => throw null;
             set => throw null;
         }
-
     }
 }
