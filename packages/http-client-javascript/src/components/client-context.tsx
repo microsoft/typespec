@@ -41,10 +41,10 @@ export function ClientContext(props: ClientContextProps): Children {
   const clientContextInterfaceRefkey = getClientContextRefkey(props.service)
   return (
     <ts.SourceFile path="clientContext.ts">
-      <ts.InterfaceDeclaration name={contextInterface} refkey={clientContextInterfaceRefkey}>
+      <ts.InterfaceDeclaration export name={contextInterface} refkey={clientContextInterfaceRefkey}>
         <ts.InterfaceMember optional name="endpoint" type="string" />
       </ts.InterfaceDeclaration>
-      <ts.InterfaceDeclaration name={clientOptionsName} refkey={getClientOptionsRefkey(props.service)}>
+      <ts.InterfaceDeclaration export name={clientOptionsName} refkey={getClientOptionsRefkey(props.service)}>
         {mapJoin(clientOptions, (key, value) => (
           <ts.InterfaceMember optional name={key} type={value} />
         ), { joiner: ";\n" })}

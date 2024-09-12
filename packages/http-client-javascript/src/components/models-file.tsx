@@ -9,19 +9,14 @@ export interface ModelsFileProps {
 }
 
 export function ModelsFile(props: ModelsFileProps) {
-  const declarations: Set<Type> = new Set();
-
   return (
     <ts.SourceFile path={props.path ?? "models.ts"}>
       {mapJoin(
         props.types,
         (type) => {
-          if(!declarations.has(type)) {
-            declarations.add(type);
             return <ef.TypeDeclaration export type={type} />
-          }
         },
-        { joiner: ";\n" }
+        { joiner: "\n\n" }
       )}
     </ts.SourceFile>
   );

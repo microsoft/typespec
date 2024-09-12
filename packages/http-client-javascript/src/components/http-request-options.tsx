@@ -66,11 +66,11 @@ HttpRequestOptions.Body = function HttpRequestOptionsBody(props: HttpRequestOpti
 
   const namePolicy = ts.useTSNamePolicy();
 
-  let bodyName = body.property?.name ?? "";
+  let bodyName = props.itemName ?? body.property?.name ?? "";
   let modelType: Type;
   if(body.type.kind === "Model") {
     modelType = getEffectiveModelType($.program, body.type as Model);
-    bodyName = modelType.name;
+    bodyName ??= $.type.getPlausibleName(modelType)
   } else {
     modelType = body.property!.type;
   }

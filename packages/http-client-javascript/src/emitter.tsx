@@ -1,8 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { EmitContext, Enum, listServices, Model, Namespace, navigateProgram, navigateType, Operation, Scalar, Type, Union } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/typekit";
-import path from "path";
+import { EmitContext, Enum, listServices, Model, navigateProgram, navigateType, Operation, Scalar, Type, Union } from "@typespec/compiler";
 import { ClientContext } from "./components/client-context.js";
 import { uriTemplateLib } from "./components/external-packages/uri-template.js";
 import { ModelsFile } from "./components/models-file.js";
@@ -15,25 +13,21 @@ import {
 
 export async function $onEmit(context: EmitContext) {
   const visited = operationWalker(context);
-  const types = {
-    dataTypes: Array.from(visited.dataTypes.values()).flat(),
-    operations: Array.from(visited.operations.values()).flat(),
-  }
   const tsNamePolicy = ts.createTSNamePolicy();
   const outputDir = context.emitterOutputDir;
   const service = listServices(context.program)[0];
   return (
-    <ay.Output namePolicy={tsNamePolicy} externals={[uriTemplateLib]}>
-      <ts.PackageDirectory name="test-package" version="1.0.0" path={outputDir}>
+    <ay.Output namePolicy={tsNamePolicy} externals={[uriTemplateLib]} basePath={outputDir}>
+      <ts.PackageDirectory name="test-package" version="1.0.0" path=".">
         <ay.SourceDirectory path="src">
           <ay.SourceDirectory path="models">
             <ts.BarrelFile />
-            <ModelsFile types={types.dataTypes} />
-            <ModelSerializers types={types.dataTypes} />
+            <ModelsFile types={visited.dataTypes} />
+            <ModelSerializers types={visited.dataTypes} />
           </ay.SourceDirectory>
           <ay.SourceDirectory path="api">
             <ClientContext service={service} />
-            <OperationsFile operations={types.operations} service={service} />
+            <OperationsFile operations={visited.operations} service={service} />
             <ts.BarrelFile />
           </ay.SourceDirectory>
           <ay.SourceDirectory path="utilities">
@@ -49,16 +43,11 @@ export async function $onEmit(context: EmitContext) {
 }
 
 function operationWalker(context: EmitContext) {
-  const types = new Map<Namespace | undefined, Set<DataType>>();
-  const operations = new Map<Namespace | undefined, Set<Operation>>();
+  const types = new Set<DataType>();
+  const operations = new Set<Operation>();
   navigateProgram(context.program, {
     operation(o) {
-      if(!operations.has(o.namespace)) {
-        operations.set(o.namespace, new Set());
-      }
-      const ops = operations.get(o.namespace)!;
-      ops.add(o);
-      
+      operations.add(o);
       navigateType(o, {
         model(m) {
           trackType(types, m);
@@ -66,7 +55,7 @@ function operationWalker(context: EmitContext) {
           trackType(types, p.type);
         },
          scalar(s) {
-          if($.scalar.getStdBase(s) === s) {
+          if(s.namespace?.name !== "TypeSpec") {
             return;
           }
 
@@ -85,18 +74,10 @@ function operationWalker(context: EmitContext) {
     }
   }, {includeTemplateDeclaration: false});
 
-  const dataTypes: Map<Namespace | undefined, DataType[]> = new Map();
-  const ops: Map<Namespace | undefined, Operation[]> = new Map();
+  const dataTypes = Array.from(types);
+  const operationsArray = Array.from(operations);
 
-  for(const [ns, ts] of types) {
-    dataTypes.set(ns, Array.from(ts));
-  }
-  
-  for(const [ns, os] of operations) {
-    ops.set(ns, Array.from(os));
-  }
-
-  return {dataTypes, operations: ops};
+  return {dataTypes, operations: operationsArray};
  
 }
 
@@ -107,6 +88,10 @@ function isDataType(type: Type): type is DataType {
 }
 
 function isDeclaredType(type: Type): boolean {
+  if("namespace" in type && type.namespace?.name === "TypeSpec") {
+    return false;
+  }
+  
   if(!isDataType(type)) {
     return false;
   }
@@ -118,7 +103,7 @@ function isDeclaredType(type: Type): boolean {
   return true;
 }
 
-function trackType(types: Map<Namespace | undefined, Set<DataType>>, type: Type) {
+function trackType(types: Set<DataType>, type: Type) {
 
   if(!isDataType(type)) {
     return;
@@ -128,10 +113,5 @@ function trackType(types: Map<Namespace | undefined, Set<DataType>>, type: Type)
     return;
   }
 
-  if(!types.has(type.namespace)) {
-    types.set(type.namespace, new Set());
-  }
-
-  const ts = types.get(type.namespace)!;
-  ts.add(type);
+  types.add(type);
 }

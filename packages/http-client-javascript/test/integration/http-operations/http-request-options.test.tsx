@@ -1,4 +1,4 @@
-import { Output, render } from "@alloy-js/core";
+import { code, Output, render } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
 import * as ts from "@alloy-js/typescript";
 import { Model, Operation } from "@typespec/compiler";
@@ -263,7 +263,10 @@ describe("HttpRequestBody", () => {
         <ModelsFile types={[Widget]} />
         <ModelSerializers types={[Widget]} />
         <ts.SourceFile path="test.ts">
-          <HttpRequestOptions.Body operation={read} />
+          {code`
+          const widget = {};
+          `}
+          <HttpRequestOptions.Body operation={read} itemName="widget" />
         </ts.SourceFile>
       </Output>
     );
@@ -273,7 +276,8 @@ describe("HttpRequestBody", () => {
     const actualContent = testFile.contents;
     const expectedContent = d`
     import { widgetToTransport } from "./serializers.js";
-
+    
+    const widget = {};
     body: JSON.stringify(widgetToTransport(widget)),
     `;
     expect(actualContent).toEqual(expectedContent);
