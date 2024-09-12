@@ -16,7 +16,6 @@ namespace _Type.Dictionary.Models
             set => throw null;
         }
 
-
         public IDictionary<string, InnerModel> Children => throw null;
     }
 }

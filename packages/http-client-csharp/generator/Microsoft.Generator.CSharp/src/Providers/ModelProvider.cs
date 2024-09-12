@@ -215,7 +215,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 if (property.IsDiscriminator && Type.BaseType is not null)
                     continue;
 
-                var outputProperty = CodeModelPlugin.Instance.TypeFactory.CreatePropertyProvider(property, this);
+                var outputProperty = CodeModelPlugin.Instance.TypeFactory.CreateProperty(property, this);
                 if (outputProperty is null)
                     continue;
 
@@ -246,10 +246,11 @@ namespace Microsoft.Generator.CSharp.Providers
                             outputProperty.Body = new ExpressionPropertyBody(
                                 This.Property(fieldName).NullCoalesce(Default),
                                 outputProperty.Body.HasSetter ? This.Property(fieldName).Assign(Value) : null);
+                            outputProperty.BackingField = BaseModelProvider?.Fields.FirstOrDefault(f => f.Name == fieldName);
                         }
+                        outputProperty.BaseProperty = CodeModelPlugin.Instance.TypeFactory.CreateProperty(baseProperty, BaseModelProvider!);
                     }
                 }
-
                 properties.Add(outputProperty);
             }
 
@@ -345,6 +346,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 baseParameters.AddRange(BaseModelProvider.FullConstructor.Signature.Parameters);
             }
 
+            HashSet<PropertyProvider> overriddenProperties = Properties.Where(p => p.BaseProperty is not null).Select(p => p.BaseProperty!).ToHashSet();
+
             // add the base parameters, if any
             foreach (var property in baseProperties)
             {
@@ -352,14 +355,16 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             // construct the initializer using the parameters from base signature
-            var constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(GetExpression)]);
+            var constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpression(p, overriddenProperties))]);
 
             foreach (var property in Properties)
             {
                 AddInitializationParameterForCtor(constructorParameters, property, Type.IsStruct, isPrimaryConstructor);
             }
 
-            constructorParameters.AddRange(_inputModel.IsUnknownDiscriminatorModel ? baseParameters : baseParameters.Where(p => p.Property is null || !p.Property.IsDiscriminator));
+            constructorParameters.AddRange(_inputModel.IsUnknownDiscriminatorModel
+                ? baseParameters
+                : baseParameters.Where(p => p.Property is null || (!p.Property.IsDiscriminator && !overriddenProperties.Contains(p.Property))));
 
             if (!isPrimaryConstructor)
             {
@@ -422,14 +427,16 @@ namespace Microsoft.Generator.CSharp.Providers
             }
             return null;
         }
-        private ValueExpression GetExpression(ParameterProvider parameter)
+        private ValueExpression GetExpression(ParameterProvider parameter, HashSet<PropertyProvider> overriddenProperties)
         {
             if (parameter.Property is not null && parameter.Property.IsDiscriminator && _inputModel.DiscriminatorValue != null)
             {
                 return DiscriminatorValueExpression ?? throw new InvalidOperationException($"invalid discriminator {_inputModel.DiscriminatorValue}");
             }
 
-            return parameter.AsExpression;
+            var paramToUse = parameter.Property is not null && overriddenProperties.Contains(parameter.Property) ? Properties.First(p => p.Name == parameter.Property.Name).AsParameter : parameter;
+
+            return paramToUse.Property is not null ? GetConversion(paramToUse.Property) : paramToUse;
         }
 
         private static void AddInitializationParameterForCtor(
@@ -472,14 +479,19 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 // skip those non-spec properties
                 if (property.WireInfo == null)
-                {
                     continue;
-                }
+
+                // skip if this is an overload / new of a base property
+                // also skip if the base was required or the derived property is not required
+                if (property.BaseProperty is not null && (!isPrimaryConstructor || property.WireInfo?.IsRequired == false || property.BaseProperty.WireInfo?.IsRequired == true))
+                    continue;
+
+                ValueExpression assignee = property.BackingField is null ? property : property.BackingField;
 
                 if (!isPrimaryConstructor)
                 {
                     // always add the property for the serialization constructor
-                    methodBodyStatements.Add(property.Assign(property.AsParameter).Terminate());
+                    methodBodyStatements.Add(assignee.Assign(GetConversion(property)).Terminate());
                     continue;
                 }
 
@@ -506,7 +518,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
                 if (initializationValue != null)
                 {
-                    methodBodyStatements.Add(property.Assign(initializationValue).Terminate());
+                    methodBodyStatements.Add(assignee.Assign(initializationValue).Terminate());
                 }
             }
 
@@ -525,6 +537,19 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             return methodBodyStatements;
+        }
+
+        private ValueExpression GetConversion(PropertyProvider property)
+        {
+            CSharpType to = property.BackingField is null ? property.Type : property.BackingField.Type;
+            CSharpType from = property.Type;
+
+            if (from.IsEnum && to.Equals(from.UnderlyingEnumType))
+            {
+                return from.ToSerial(property.AsParameter);
+            }
+
+            return property.AsParameter;
         }
 
         /// <summary>

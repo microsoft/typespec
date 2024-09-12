@@ -12,12 +12,10 @@ namespace Payload.Xml.Models
             set => throw null;
         }
 
-
         public SimpleModel OutputData
         {
             get => throw null;
             set => throw null;
         }
-
     }
 }

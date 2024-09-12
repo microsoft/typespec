@@ -12,7 +12,7 @@ namespace Sample.Models
     public readonly partial struct TestModel
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _serializedAdditionalRawData;
+        private protected global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _serializedAdditionalRawData;
 
         /// <summary> Initializes a new instance of <see cref="global::Sample.Models.TestModel"/>. </summary>
         /// <param name="requiredString"> Description for requiredString. </param>

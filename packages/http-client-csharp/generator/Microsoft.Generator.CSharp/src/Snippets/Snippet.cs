@@ -72,6 +72,10 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static ValueExpression Literal(object? value) => new LiteralExpression(value);
 
+        public static ScopedApi<char> Literal(char value) => new LiteralExpression(value).As<char>();
+
+        public static ScopedApi<int> Literal(int value) => new LiteralExpression(value).As<int>();
+
         public static ScopedApi<string> Literal(string? value) => (value is null ? Null : new LiteralExpression(value)).As<string>();
         public static ScopedApi<string> LiteralU8(string value) => new UnaryOperatorExpression("u8", new LiteralExpression(value), true).As<string>();
 
@@ -107,6 +111,9 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static ValueExpression Property(this ParameterProvider parameter, string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(parameter) : parameter, propertyName);
+
+        public static InvokeMethodExpression Invoke(this FieldProvider field, string methodName, IEnumerable<ValueExpression> parameters)
+            => field.Invoke(methodName, parameters, false, false);
 
         public static InvokeMethodExpression Invoke(this FieldProvider field,
             string methodName,

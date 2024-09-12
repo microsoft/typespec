@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Statements;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
@@ -539,6 +540,181 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.IsTrue(expressionBody!.Getter.ToDisplayString().Contains("_prop1 ?? default"));
             Assert.IsFalse(expressionBody.HasSetter);
             Assert.IsNull(expressionBody.Setter);
+        }
+
+        [Test]
+        public void InitCtorShouldAssignBaseFieldDerivedRequired()
+        {
+            MockHelpers.LoadMockPlugin();
+            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType, isRequired: true)]);
+            var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+
+            Assert.IsNotNull(derivedModel);
+            Assert.IsNotNull(baseModel);
+
+            var derivedCtor = derivedModel!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(derivedCtor);
+            var baseField = baseModel!.Fields.FirstOrDefault(f => f.Name == "_prop1");
+            Assert.IsNotNull(baseField);
+            Assert.AreEqual(new CSharpType(typeof(string)), baseField!.Type);
+            Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Protected, baseField.Modifiers);
+            var statements = derivedCtor!.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(statements);
+            Assert.IsTrue(statements!.Statements.Any(s => s.ToDisplayString().Contains("_prop1 =")));
+            var initializer = derivedCtor.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsTrue(initializer!.IsBase);
+            foreach (var arg in initializer.Arguments)
+            {
+                Assert.IsFalse(arg.ToDisplayString().Contains("prop1"));
+            }
+        }
+
+        [Test]
+        public void SerializationCtorShouldNotAssignBaseFieldDerivedRequired()
+        {
+            MockHelpers.LoadMockPlugin();
+            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType, isRequired: true)]);
+            var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+
+            Assert.IsNotNull(derivedModel);
+            Assert.IsNotNull(baseModel);
+
+            var serializationCtor = derivedModel!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.IsNotNull(serializationCtor);
+            var baseField = baseModel!.Fields.FirstOrDefault(f => f.Name == "_prop1");
+            Assert.IsNotNull(baseField);
+            Assert.AreEqual(new CSharpType(typeof(string)), baseField!.Type);
+            Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Protected, baseField.Modifiers);
+            var statements = serializationCtor!.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(statements);
+            Assert.IsFalse(statements!.Statements.Any(s => s.ToDisplayString().Contains("_prop1 =")));
+            var initializer = serializationCtor.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsTrue(initializer!.IsBase);
+            Assert.AreEqual("prop1.ToSerialString()", initializer.Arguments[0].ToDisplayString());
+        }
+
+        [Test]
+        public void InitCtorShouldNotAssignBaseFieldBothRequired()
+        {
+            MockHelpers.LoadMockPlugin();
+            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType, isRequired: true)]);
+            var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String, isRequired: true)], derivedModels: [derivedInputModel]);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+
+            Assert.IsNotNull(derivedModel);
+            Assert.IsNotNull(baseModel);
+
+            var derivedCtor = derivedModel!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(derivedCtor);
+            var baseField = baseModel!.Fields.FirstOrDefault(f => f.Name == "_prop1");
+            Assert.IsNotNull(baseField);
+            Assert.AreEqual(new CSharpType(typeof(string)), baseField!.Type);
+            Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Protected, baseField.Modifiers);
+            var statements = derivedCtor!.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(statements);
+            Assert.IsFalse(statements!.Statements.Any(s => s.ToDisplayString().Contains("_prop1 =")));
+        }
+
+
+        [Test]
+        public void SerializationCtorShouldNotAssignBaseField()
+        {
+            MockHelpers.LoadMockPlugin();
+            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType)]);
+            var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+
+            Assert.IsNotNull(derivedModel);
+            Assert.IsNotNull(baseModel);
+
+            var derivedCtor = derivedModel!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.IsNotNull(derivedCtor);
+            var baseField = baseModel!.Fields.FirstOrDefault(f => f.Name == "_prop1");
+            Assert.IsNotNull(baseField);
+            Assert.AreEqual(new CSharpType(typeof(string)), baseField!.Type);
+            Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Protected, baseField.Modifiers);
+            var statements = derivedCtor!.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(statements);
+            Assert.IsFalse(statements!.Statements.Any(s => s.ToDisplayString().Contains("_prop1 =")));
+        }
+
+        [Test]
+        public void SerializationCtorShouldNotDuplicateBaseProperties()
+        {
+            MockHelpers.LoadMockPlugin();
+            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType)]);
+            var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+
+            Assert.IsNotNull(derivedModel);
+            Assert.IsNotNull(baseModel);
+
+            var serializationCtor = derivedModel!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.IsNotNull(serializationCtor);
+            Assert.AreEqual(2, serializationCtor!.Signature.Parameters.Count);
+        }
+
+        [Test]
+        public void SerializationCtorInitializerHasToStringForEnumParam()
+        {
+            MockHelpers.LoadMockPlugin();
+            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, isExtensible: true, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType)]);
+            var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+
+            Assert.IsNotNull(derivedModel);
+            Assert.IsNotNull(baseModel);
+
+            var serializationCtor = derivedModel!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.IsNotNull(serializationCtor);
+            var initializer = serializationCtor!.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsTrue(initializer!.IsBase);
+            Assert.AreEqual("prop1.ToString()", initializer.Arguments[0].ToDisplayString());
+        }
+
+        [Test]
+        public void InitCtorInitializerShouldHaveCorrectParamName()
+        {
+            MockHelpers.LoadMockPlugin();
+            var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.Int32, isRequired: true)]);
+            var baseInputModel = InputFactory.Model(
+                "baseModel",
+                properties:
+                [
+                    InputFactory.Property("baseOnlyProp", InputPrimitiveType.Any, isRequired: true),
+                    InputFactory.Property("prop1", InputPrimitiveType.Int64)
+                ],
+                derivedModels: [derivedInputModel]);
+            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+
+            Assert.IsNotNull(derivedModel);
+            Assert.IsNotNull(baseModel);
+
+            var derivedCtor = derivedModel!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(derivedCtor);
+            Assert.AreEqual(2, derivedCtor!.Signature.Parameters.Count);
+            var initializer = derivedCtor.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsTrue(initializer!.IsBase);
+            Assert.AreEqual("baseOnlyProp", initializer.Arguments[0].ToDisplayString());
         }
     }
 }
