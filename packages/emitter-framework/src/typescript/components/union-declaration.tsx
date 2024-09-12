@@ -1,7 +1,8 @@
-import { refkey as getRefkey, mapJoin } from "@alloy-js/core";
+import { refkey as getRefkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Enum, Union } from "@typespec/compiler";
 import { UnionExpression } from "./union-expression.js";
+import { $ } from "@typespec/compiler/typekit";
 
 export interface TypedUnionDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
   type: Union | Enum;
@@ -19,7 +20,7 @@ export function UnionDeclaration(props: UnionDeclarationProps) {
   const refkey = coreProps.refkey ?? getRefkey(type);
   const name = coreProps.name
     ? coreProps.name
-    : ts.useTSNamePolicy().getName(type.name ?? "", "type");
+    : ts.useTSNamePolicy().getName($.type.getPlausibleName(props.type) ?? "", "type");
 
  
 

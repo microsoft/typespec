@@ -1,6 +1,6 @@
 import { refkey as getRefkey, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Interface, Model, ModelProperty, Operation, Type } from "@typespec/compiler";
+import { Interface, Model, ModelProperty, Operation, Type, isTemplateInstance } from "@typespec/compiler";
 import { isInterface, isModel } from "../../core/utils/typeguards.js";
 import { InterfaceMember } from "./interface-member.js";
 import { $ } from "@typespec/compiler/typekit";
@@ -27,11 +27,12 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
 
   if(!name) {
     if($.model.is(type)) {
-      // This will give us a name for anonymous models
-      name = namePolicy.getName($.model.getPlausibleName(type), "interface");
+      name = $.type.getPlausibleName(type)
     } else {
-      name = namePolicy.getName(type.name, "interface");
+      name =type.name
     }
+
+    name = namePolicy.getName(name, "interface");
   }
   
   const refkey = coreProps.refkey ?? getRefkey(type);

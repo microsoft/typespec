@@ -28,9 +28,10 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
       } />
   }, { joiner: ",\n" });
 
+  const name = props.name ?? ts.useTSNamePolicy().getName($.type.getPlausibleName(props.type), "enum");
 
   return <ts.EnumDeclaration
-    name={props.name ?? type.name}
+    name={name}
     refkey={refkey(props.type)}
     default={props.default}
     export={props.export}

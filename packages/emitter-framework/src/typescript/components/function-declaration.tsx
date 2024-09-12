@@ -28,9 +28,16 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
   const { type, ...coreProps } = props;
   const refkey = coreProps.refkey ?? getRefkey(type);
 
-  const functionName = props.name
+  let functionName = props.name
     ? props.name
     : ts.useTSNamePolicy().getName(type.name, "function");
+
+
+    // TODO: This should probably be a broader check in alloy to guard\
+    // any identifier.
+    if(reservedFunctionKeywords.has(functionName)) {
+      functionName = `${functionName}_`;
+    }
 
   const returnType = props.returnType ?? getReturnType(type);
 
@@ -147,3 +154,10 @@ function getReturnType(
     return <TypeExpression type={variant.type} />;
   }, { joiner: " | " });
 }
+
+const reservedFunctionKeywords = new Set([
+  "break", "case", "catch", "class", "const", "continue", "debugger", "default", "delete", "do", "else",
+  "enum", "export", "extends", "finally", "for", "function", "if", "import", "in", "instanceof", "new", 
+  "return", "super", "switch", "this", "throw", "try", "typeof", "var", "void", "while", "with", "yield", 
+  "let", "static", "implements", "interface", "package", "private", "protected", "public", "await"
+]);

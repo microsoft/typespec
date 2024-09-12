@@ -28,7 +28,7 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
   }
 
   const modelName = namePolicy.getName(
-    props.name ?? $.model.getPlausibleName(props.type),
+    props.name ?? $.type.getPlausibleName(props.type),
     "function"
   );
   const functionSuffix = props.target === "application" ? "ToApplication" : "ToTransport";

@@ -1,7 +1,8 @@
-import { refkey as getRefkey, mapJoin, refkey } from "@alloy-js/core";
+import { refkey as getRefkey} from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Scalar } from "@typespec/compiler";
-import { TypeAliasExpression } from "./type-alias-expression.jsx";
+import { TypeExpression } from "./type-expression.jsx";
+import { $ } from "@typespec/compiler/typekit";
 
 export interface TypedAliasDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
   type: Scalar;
@@ -15,9 +16,9 @@ export function TypeAliasDeclaration(props: TypeAliasDeclarationProps) {
     return <ts.TypeDeclaration {...props}>{props.children}</ts.TypeDeclaration>;
   }
 
-  const name = props.name ?? ts.useTSNamePolicy().getName(props.type.name, "type");
+  const name = props.name ?? ts.useTSNamePolicy().getName($.type.getPlausibleName(props.type), "type");
   return <ts.TypeDeclaration {...props} name={name}  refkey={props.refkey ?? getRefkey(props.type)}>
-    <TypeAliasExpression {...props} />
+    <TypeExpression type={props.type} />
     {props.children}
   </ts.TypeDeclaration>
 

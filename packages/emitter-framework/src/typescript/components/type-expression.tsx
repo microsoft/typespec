@@ -6,6 +6,7 @@ import { UnionExpression } from "./union-expression.js";
 import {ArrayExpression} from "./array-expression.js";
 import { RecordExpression } from "./record-expression.js";
 import { InterfaceExpression } from "./interface-declaration.js";
+import { $ } from "@typespec/compiler/typekit";
 
 export interface TypeExpressionProps {
   type: Type;
@@ -32,13 +33,11 @@ export function TypeExpression({ type }: TypeExpressionProps) {
     case "Tuple":
       return (
         <>
-          [
-          {type.values.map((element) => (
+          [{type.values.map((element) => (
             <>
               <TypeExpression type={element} />,
             </>
-          ))}
-          ]
+          ))}]
         </>
       );
     case "EnumMember":
@@ -91,14 +90,33 @@ const intrinsicNameToTSType = new Map<string, string>([
 ]);
 
 function getScalarIntrinsicExpression(type: Scalar | IntrinsicType): string | null {
-  if (type.kind === "Scalar" && type.baseScalar && type.namespace?.name !== "TypeSpec") {
-    // This is a delcared scalar
-    return null;
-    // return <Reference refkey={type} />;
+  let intrinsicName: string;
+  if($.scalar.is(type)){
+    if($.scalar.isUtcDateTime(type) || $.scalar.extendsUtcDateTime(type)) {
+      const encoding =  $.scalar.getEncoding(type);
+      let emittedType = "Date";
+      switch(encoding?.encoding) {
+        case "unixTimestamp":
+          emittedType = "number";
+          break;
+        case "rfc7231":
+        case "rfc3339":
+        default:
+          emittedType = `Date`;
+          break;
+      }
+  
+      return emittedType;
+    }
+
+    intrinsicName = $.scalar.getStdBase(type)?.name ?? "";
+  }else {
+    intrinsicName = type.name;
   }
-  const tsType = intrinsicNameToTSType.get(type.name);
+
+  const tsType = intrinsicNameToTSType.get(intrinsicName);
   if (!tsType) {
-    throw new Error(`Unknown scalar type ${type.name}`);
+    throw new Error(`Unknown scalar type ${intrinsicName}`);
   }
   return tsType;
 }
