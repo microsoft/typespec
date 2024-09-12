@@ -5,9 +5,10 @@ title: "[I] ProcessedLog"
 ---
 ## Properties
 
-| Property | Type |
-| ------ | ------ |
-| `code?` | `string` |
-| `level` | [`LogLevel`](../type-aliases/LogLevel.md) |
-| `message` | `string` |
-| `sourceLocation?` | [`SourceLocation`](SourceLocation.md) |
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `code?` | `string` | - |
+| `level` | [`LogLevel`](../type-aliases/LogLevel.md) | - |
+| `message` | `string` | - |
+| `sourceLocation?` | [`SourceLocation`](SourceLocation.md) | - |
+| `url?` | `string` | Documentation for the error code. |

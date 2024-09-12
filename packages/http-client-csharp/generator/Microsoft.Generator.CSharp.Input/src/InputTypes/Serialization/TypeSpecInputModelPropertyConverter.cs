@@ -38,15 +38,15 @@ namespace Microsoft.Generator.CSharp.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadString("Name", ref name)
-                    || reader.TryReadString("SerializedName", ref serializedName)
-                    || reader.TryReadString("Description", ref description)
-                    || reader.TryReadWithConverter("Type", options, ref propertyType)
-                    || reader.TryReadBoolean("ReadOnly", ref isReadOnly)
-                    || reader.TryReadBoolean("Optional", ref isOptional)
-                    || reader.TryReadBoolean("Discriminator", ref isDiscriminator)
-                    || reader.TryReadWithConverter("Decorators", options, ref decorators)
-                    || reader.TryReadWithConverter("FlattenNames", options, ref flattenedNames);
+                    || reader.TryReadString("name", ref name)
+                    || reader.TryReadString("serializedName", ref serializedName)
+                    || reader.TryReadString("description", ref description)
+                    || reader.TryReadWithConverter("type", options, ref propertyType)
+                    || reader.TryReadBoolean("readOnly", ref isReadOnly)
+                    || reader.TryReadBoolean("optional", ref isOptional)
+                    || reader.TryReadBoolean("discriminator", ref isDiscriminator)
+                    || reader.TryReadWithConverter("decorators", options, ref decorators)
+                    || reader.TryReadWithConverter("flattenNames", options, ref flattenedNames);
 
                 if (!isKnownProperty)
                 {

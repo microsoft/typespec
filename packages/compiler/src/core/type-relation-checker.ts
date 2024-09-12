@@ -12,7 +12,7 @@ import {
   getMinValueAsNumeric,
   getMinValueExclusiveAsNumeric,
 } from "./intrinsic-type-state.js";
-import { createDiagnostic } from "./messages.js";
+import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
 import { numericRanges } from "./numeric-ranges.js";
 import { Numeric } from "./numeric.js";
 import { Program } from "./program.js";
@@ -21,7 +21,7 @@ import {
   ArrayModelType,
   ArrayValue,
   Diagnostic,
-  DiagnosticTarget,
+  DiagnosticReport,
   Entity,
   Enum,
   IndeterminateEntity,
@@ -30,6 +30,8 @@ import {
   ModelIndexer,
   ModelProperty,
   Namespace,
+  Node,
+  NoTarget,
   NumericLiteral,
   Scalar,
   StringLiteral,
@@ -41,10 +43,43 @@ import {
   Value,
 } from "./types.js";
 
+export interface TypeRelation {
+  isTypeAssignableTo(
+    source: Entity | IndeterminateEntity,
+    target: Entity,
+    diagnosticTarget: Entity | Node
+  ): [boolean, readonly Diagnostic[]];
+
+  isValueOfType(
+    source: Value,
+    target: Type,
+    diagnosticTarget: Entity | Node
+  ): [boolean, readonly Diagnostic[]];
+
+  isReflectionType(type: Type): type is Model & { name: ReflectionTypeName };
+
+  areScalarsRelated(source: Scalar, target: Scalar): boolean;
+}
+
 enum Related {
   false = 0,
   true = 1,
   maybe = 2,
+}
+
+interface TypeRelationError {
+  code:
+    | "unassignable"
+    | "property-unassignable"
+    | "missing-index"
+    | "property-required"
+    | "missing-property"
+    | "unexpected-property";
+  message: string;
+  children: readonly TypeRelationError[];
+  target: Entity | Node;
+  /** If the first error and it has a child show the child error at this target instead */
+  skipIfFirst?: boolean;
 }
 
 /**
@@ -69,24 +104,6 @@ const _assertReflectionNameToKind: Record<string, Type["kind"]> = ReflectionName
 
 type ReflectionTypeName = keyof typeof ReflectionNameToKind;
 
-export interface TypeRelation {
-  isTypeAssignableTo(
-    source: Entity | IndeterminateEntity,
-    target: Entity,
-    diagnosticTarget: DiagnosticTarget
-  ): [boolean, readonly Diagnostic[]];
-
-  isValueOfType(
-    source: Value,
-    target: Type,
-    diagnosticTarget: DiagnosticTarget
-  ): [boolean, readonly Diagnostic[]];
-
-  isReflectionType(type: Type): type is Model & { name: ReflectionTypeName };
-
-  areScalarsRelated(source: Scalar, target: Scalar): boolean;
-}
-
 export function createTypeRelationChecker(program: Program, checker: Checker): TypeRelation {
   return {
     isTypeAssignableTo,
@@ -104,15 +121,83 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
   function isTypeAssignableTo(
     source: Entity | IndeterminateEntity,
     target: Entity,
-    diagnosticTarget: DiagnosticTarget
+    diagnosticTarget: Entity | Node
   ): [boolean, readonly Diagnostic[]] {
-    const [related, diagnostics] = isTypeAssignableToInternal(
+    const [related, errors] = isTypeAssignableToInternal(
       source,
       target,
       diagnosticTarget,
       new MultiKeyMap<[Entity, Entity], Related>()
     );
-    return [related === Related.true, diagnostics];
+    return [related === Related.true, convertErrorsToDiagnostics(errors, diagnosticTarget)];
+  }
+
+  function isTargetChildOf(target: Entity | Node, base: Entity | Node) {
+    const errorNode: Node =
+      "kind" in target && typeof target.kind === "number" ? target : (target as any).node;
+    const baseNode: Node =
+      "kind" in base && typeof base.kind === "number" ? base : (base as any).node;
+    let currentNode: Node | undefined = errorNode;
+    while (currentNode) {
+      if (currentNode === baseNode) {
+        return true;
+      }
+      currentNode = currentNode.parent;
+    }
+    return false;
+  }
+
+  function convertErrorsToDiagnostics(
+    errors: readonly TypeRelationError[],
+    diagnosticBase: Entity | Node
+  ): readonly Diagnostic[] {
+    return errors.flatMap((x) => convertErrorToDiagnostic(x, diagnosticBase));
+  }
+
+  function combineErrorMessage(error: TypeRelationError): string {
+    let message = error.message;
+    let current = error.children[0];
+    let indent = "  ";
+    while (current !== undefined) {
+      message += current.message
+        .split("\n")
+        .map((line) => `\n${indent}${line}`)
+        .join("");
+      indent += "  ";
+      current = current.children[0];
+    }
+    return message;
+  }
+
+  function flattenErrors(
+    error: TypeRelationError,
+    diagnosticBase: Entity | Node
+  ): TypeRelationError[] {
+    if (!isTargetChildOf(error.target, diagnosticBase)) {
+      return [{ ...error, target: diagnosticBase }];
+    }
+    if (error.children.length === 0) {
+      return [error];
+    }
+    return error.children.flatMap((x) => flattenErrors(x, error.target));
+  }
+  function convertErrorToDiagnostic(
+    error: TypeRelationError,
+    diagnosticBase: Entity | Node
+  ): Diagnostic[] {
+    const flattened = flattenErrors(error, diagnosticBase);
+    return flattened.map((error) => {
+      const messageBase =
+        error.skipIfFirst && error.children.length > 0 ? error.children[0] : error;
+      const message = combineErrorMessage(messageBase);
+
+      return {
+        severity: "error",
+        code: error.code,
+        message: message,
+        target: error.target,
+      };
+    });
   }
 
   /**
@@ -124,23 +209,23 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
   function isValueOfType(
     source: Value,
     target: Type,
-    diagnosticTarget: DiagnosticTarget
+    diagnosticTarget: Entity | Node
   ): [boolean, readonly Diagnostic[]] {
-    const [related, diagnostics] = isValueOfTypeInternal(
+    const [related, errors] = isValueOfTypeInternal(
       source,
       target,
       diagnosticTarget,
       new MultiKeyMap<[Entity, Entity], Related>()
     );
-    return [related === Related.true, diagnostics];
+    return [related === Related.true, convertErrorsToDiagnostics(errors, diagnosticTarget)];
   }
 
   function isTypeAssignableToInternal(
     source: Entity | IndeterminateEntity,
     target: Entity,
-    diagnosticTarget: DiagnosticTarget,
+    diagnosticTarget: Entity | Node,
     relationCache: MultiKeyMap<[Entity | IndeterminateEntity, Entity], Related>
-  ): [Related, readonly Diagnostic[]] {
+  ): [Related, readonly TypeRelationError[]] {
     const cached = relationCache.get([source, target]);
     if (cached !== undefined) {
       return [cached, []];
@@ -158,9 +243,9 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
   function isTypeAssignableToWorker(
     source: Entity | IndeterminateEntity,
     target: Entity,
-    diagnosticTarget: DiagnosticTarget,
+    diagnosticTarget: Entity | Node,
     relationCache: MultiKeyMap<[Entity, Entity], Related>
-  ): [Related, readonly Diagnostic[]] {
+  ): [Related, readonly TypeRelationError[]] {
     // BACKCOMPAT: Allow certain type to be accepted as values
     if (
       "kind" in source &&
@@ -255,13 +340,13 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       return [
         Related.false,
         [
-          createDiagnostic({
+          createTypeRelationError({
             code: "missing-index",
             format: {
               indexType: getTypeName(source.indexer.key),
               sourceType: getTypeName(target),
             },
-            target: diagnosticTarget,
+            diagnosticTarget,
           }),
         ],
       ];
@@ -282,7 +367,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
         return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
       }
     } else if (target.kind === "Model" && source.kind === "Model") {
-      return isModelRelatedTo(source, target, diagnosticTarget, relationCache);
+      return areModelsRelated(source, target, diagnosticTarget, relationCache);
     } else if (
       target.kind === "Model" &&
       isArrayModelType(program, target) &&
@@ -303,9 +388,9 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
   function isIndeterminateEntityAssignableTo(
     indeterminate: IndeterminateEntity,
     target: Type | MixedParameterConstraint,
-    diagnosticTarget: DiagnosticTarget,
+    diagnosticTarget: Entity | Node,
     relationCache: MultiKeyMap<[Entity, Entity], Related>
-  ): [Related, readonly Diagnostic[]] {
+  ): [Related, readonly TypeRelationError[]] {
     const [typeRelated, typeDiagnostics] = isTypeAssignableToInternal(
       indeterminate.type,
       target,
@@ -335,9 +420,9 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
   function isAssignableToValueType(
     source: Entity,
     target: Type,
-    diagnosticTarget: DiagnosticTarget,
+    diagnosticTarget: Entity | Node,
     relationCache: MultiKeyMap<[Entity, Entity], Related>
-  ): [Related, readonly Diagnostic[]] {
+  ): [Related, readonly TypeRelationError[]] {
     if (!isValue(source)) {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
@@ -348,9 +433,9 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
   function isAssignableToMixedParameterConstraint(
     source: Entity,
     target: MixedParameterConstraint,
-    diagnosticTarget: DiagnosticTarget,
+    diagnosticTarget: Entity | Node,
     relationCache: MultiKeyMap<[Entity, Entity], Related>
-  ): [Related, readonly Diagnostic[]] {
+  ): [Related, readonly TypeRelationError[]] {
     if ("entityKind" in source && source.entityKind === "MixedParameterConstraint") {
       if (source.type && target.type) {
         const [variantAssignable, diagnostics] = isTypeAssignableToInternal(
@@ -408,9 +493,9 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
   function isValueOfTypeInternal(
     source: Value,
     target: Type,
-    diagnosticTarget: DiagnosticTarget,
+    diagnosticTarget: Entity | Node,
     relationCache: MultiKeyMap<[Entity, Entity], Related>
-  ): [Related, readonly Diagnostic[]] {
+  ): [Related, readonly TypeRelationError[]] {
     return isTypeAssignableToInternal(source.type, target, diagnosticTarget, relationCache);
   }
 
@@ -563,29 +648,29 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     return true;
   }
 
-  function isModelRelatedTo(
+  function areModelsRelated(
     source: Model,
     target: Model,
-    diagnosticTarget: DiagnosticTarget,
+    diagnosticTarget: Entity | Node,
     relationCache: MultiKeyMap<[Entity, Entity], Related>
-  ): [Related, Diagnostic[]] {
+  ): [Related, readonly TypeRelationError[]] {
     relationCache.set([source, target], Related.maybe);
-    const diagnostics: Diagnostic[] = [];
+    const errors: TypeRelationError[] = [];
     const remainingProperties = new Map(source.properties);
 
     for (const prop of walkPropertiesInherited(target)) {
       const sourceProperty = getProperty(source, prop.name);
       if (sourceProperty === undefined) {
         if (!prop.optional) {
-          diagnostics.push(
-            createDiagnostic({
+          errors.push(
+            createTypeRelationError({
               code: "missing-property",
               format: {
                 propertyName: prop.name,
                 sourceType: getTypeName(source),
                 targetType: getTypeName(target),
               },
-              target: source,
+              diagnosticTarget: source,
             })
           );
         }
@@ -593,25 +678,25 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
         remainingProperties.delete(prop.name);
 
         if (sourceProperty.optional && !prop.optional) {
-          diagnostics.push(
-            createDiagnostic({
+          errors.push(
+            createTypeRelationError({
               code: "property-required",
               format: {
                 propName: prop.name,
                 targetType: getTypeName(target),
               },
-              target: diagnosticTarget,
+              diagnosticTarget,
             })
           );
         }
-        const [related, propDiagnostics] = isTypeAssignableToInternal(
+        const [related, propErrors] = isTypeAssignableToInternal(
           sourceProperty.type,
           prop.type,
           diagnosticTarget,
           relationCache
         );
         if (!related) {
-          diagnostics.push(...propDiagnostics);
+          errors.push(...wrapUnassignablePropertyErrors(sourceProperty, propErrors));
         }
       }
     }
@@ -623,7 +708,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
         diagnosticTarget,
         relationCache
       );
-      diagnostics.push(...indexerDiagnostics);
+      errors.push(...indexerDiagnostics);
 
       // For anonymous models we don't need an indexer
       if (source.name !== "" && target.indexer.key.name !== "integer") {
@@ -634,27 +719,30 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
           relationCache
         );
         if (!related) {
-          diagnostics.push(...indexDiagnostics);
+          errors.push(...indexDiagnostics);
         }
       }
     } else if (shouldCheckExcessProperties(source)) {
       for (const [propName, prop] of remainingProperties) {
         if (shouldCheckExcessProperty(prop)) {
-          diagnostics.push(
-            createDiagnostic({
+          errors.push(
+            createTypeRelationError({
               code: "unexpected-property",
               format: {
                 propertyName: propName,
                 type: getEntityName(target),
               },
-              target: prop,
+              diagnosticTarget: prop,
             })
           );
         }
       }
     }
 
-    return [diagnostics.length === 0 ? Related.true : Related.false, diagnostics];
+    return [
+      errors.length === 0 ? Related.true : Related.false,
+      wrapUnassignableErrors(source, target, errors),
+    ];
   }
 
   /** If we should check for excess properties on the given model. */
@@ -678,9 +766,9 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
   function arePropertiesAssignableToIndexer(
     properties: Map<string, ModelProperty>,
     indexerConstaint: Type,
-    diagnosticTarget: DiagnosticTarget,
+    diagnosticTarget: Entity | Node,
     relationCache: MultiKeyMap<[Type, Type], Related>
-  ): [Related, readonly Diagnostic[]] {
+  ): [Related, readonly TypeRelationError[]] {
     for (const prop of properties.values()) {
       const [related, diagnostics] = isTypeAssignableToInternal(
         prop.type,
@@ -700,20 +788,20 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
   function hasIndexAndIsAssignableTo(
     source: Model,
     target: Model & { indexer: ModelIndexer },
-    diagnosticTarget: DiagnosticTarget,
+    diagnosticTarget: Entity | Node,
     relationCache: MultiKeyMap<[Entity, Entity], Related>
-  ): [Related, readonly Diagnostic[]] {
+  ): [Related, readonly TypeRelationError[]] {
     if (source.indexer === undefined || source.indexer.key !== target.indexer.key) {
       return [
         Related.false,
         [
-          createDiagnostic({
+          createTypeRelationError({
             code: "missing-index",
             format: {
               indexType: getTypeName(target.indexer.key),
               sourceType: getTypeName(source),
             },
-            target: diagnosticTarget,
+            diagnosticTarget,
           }),
         ],
       ];
@@ -729,25 +817,21 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
   function isTupleAssignableToArray(
     source: Tuple,
     target: ArrayModelType,
-    diagnosticTarget: DiagnosticTarget,
+    diagnosticTarget: Entity | Node,
     relationCache: MultiKeyMap<[Entity, Entity], Related>
-  ): [Related, readonly Diagnostic[]] {
+  ): [Related, readonly TypeRelationError[]] {
     const minItems = getMinItems(program, target);
     const maxItems = getMaxItems(program, target);
     if (minItems !== undefined && source.values.length < minItems) {
       return [
         Related.false,
         [
-          createDiagnostic({
-            code: "unassignable",
-            messageId: "withDetails",
-            format: {
-              sourceType: getEntityName(source),
-              targetType: getTypeName(target),
-              details: `Source has ${source.values.length} element(s) but target requires ${minItems}.`,
-            },
-            target: diagnosticTarget,
-          }),
+          createUnassignableDiagnostic(
+            source,
+            target,
+            diagnosticTarget,
+            `Source has ${source.values.length} element(s) but target requires ${minItems}.`
+          ),
         ],
       ];
     }
@@ -755,16 +839,12 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       return [
         Related.false,
         [
-          createDiagnostic({
-            code: "unassignable",
-            messageId: "withDetails",
-            format: {
-              sourceType: getEntityName(source),
-              targetType: getTypeName(target),
-              details: `Source has ${source.values.length} element(s) but target only allows ${maxItems}.`,
-            },
-            target: diagnosticTarget,
-          }),
+          createUnassignableDiagnostic(
+            source,
+            target,
+            diagnosticTarget,
+            `Source has ${source.values.length} element(s) but target only allows ${maxItems}.`
+          ),
         ],
       ];
     }
@@ -785,23 +865,19 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
   function isTupleAssignableToTuple(
     source: Tuple | ArrayValue,
     target: Tuple,
-    diagnosticTarget: DiagnosticTarget,
+    diagnosticTarget: Entity | Node,
     relationCache: MultiKeyMap<[Entity, Entity], Related>
-  ): [Related, readonly Diagnostic[]] {
+  ): [Related, readonly TypeRelationError[]] {
     if (source.values.length !== target.values.length) {
       return [
         Related.false,
         [
-          createDiagnostic({
-            code: "unassignable",
-            messageId: "withDetails",
-            format: {
-              sourceType: getEntityName(source),
-              targetType: getTypeName(target),
-              details: `Source has ${source.values.length} element(s) but target requires ${target.values.length}.`,
-            },
-            target: diagnosticTarget,
-          }),
+          createUnassignableDiagnostic(
+            source,
+            target,
+            diagnosticTarget,
+            `Source has ${source.values.length} element(s) but target requires ${target.values.length}.`
+          ),
         ],
       ];
     }
@@ -823,9 +899,9 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
   function isAssignableToUnion(
     source: Type,
     target: Union,
-    diagnosticTarget: DiagnosticTarget,
+    diagnosticTarget: Entity | Node,
     relationCache: MultiKeyMap<[Entity, Entity], Related>
-  ): [Related, Diagnostic[]] {
+  ): [Related, TypeRelationError[]] {
     if (source.kind === "UnionVariant" && source.union === target) {
       return [Related.true, []];
     }
@@ -846,8 +922,8 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
   function isAssignableToEnum(
     source: Type,
     target: Enum,
-    diagnosticTarget: DiagnosticTarget
-  ): [Related, Diagnostic[]] {
+    diagnosticTarget: Entity | Node
+  ): [Related, TypeRelationError[]] {
     switch (source.kind) {
       case "Enum":
         if (source === target) {
@@ -866,17 +942,6 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     }
   }
 
-  function createUnassignableDiagnostic(
-    source: Entity,
-    target: Entity,
-    diagnosticTarget: DiagnosticTarget
-  ) {
-    return createDiagnostic({
-      code: "unassignable",
-      format: { targetType: getEntityName(target), value: getEntityName(source) },
-      target: diagnosticTarget,
-    });
-  }
   function isTypeSpecNamespace(
     namespace: Namespace
   ): namespace is Namespace & { name: "TypeSpec"; namespace: Namespace } {
@@ -887,3 +952,76 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     );
   }
 }
+
+// #region Helpers
+interface TypeRelationeErrorInit<C extends TypeRelationError["code"]> {
+  code: C;
+  diagnosticTarget: Entity | Node;
+  format: DiagnosticReport<CompilerDiagnostics, C, "default">["format"];
+  details?: string;
+  skipIfFirst?: boolean;
+}
+
+function wrapUnassignableErrors(
+  source: Entity,
+  target: Entity,
+  errors: readonly TypeRelationError[]
+): readonly TypeRelationError[] {
+  const error = createUnassignableDiagnostic(source, target, source);
+  error.children = errors;
+  return [error];
+}
+function wrapUnassignablePropertyErrors(
+  source: ModelProperty,
+  errors: readonly TypeRelationError[]
+): readonly TypeRelationError[] {
+  const error = createTypeRelationError({
+    code: "property-unassignable",
+    diagnosticTarget: source,
+    format: {
+      propName: source.name,
+    },
+    skipIfFirst: true,
+  });
+  error.children = errors;
+  return [error];
+}
+function createTypeRelationError<const C extends TypeRelationError["code"]>({
+  code,
+  format,
+  details,
+  diagnosticTarget,
+  skipIfFirst,
+}: TypeRelationeErrorInit<C>): TypeRelationError {
+  const diag = createDiagnostic({
+    code: code as any,
+    format: format,
+    target: NoTarget,
+  });
+
+  return {
+    code: code,
+    message: details ? `${diag.message}\n  ${details}` : diag.message,
+    target: diagnosticTarget,
+    skipIfFirst,
+    children: [],
+  };
+}
+
+function createUnassignableDiagnostic(
+  source: Entity,
+  target: Entity,
+  diagnosticTarget: Entity | Node,
+  details?: string
+): TypeRelationError {
+  return createTypeRelationError({
+    code: "unassignable",
+    format: {
+      sourceType: getEntityName(source),
+      targetType: getEntityName(target),
+    },
+    diagnosticTarget,
+    details,
+  });
+}
+// #endregion

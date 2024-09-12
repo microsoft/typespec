@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
@@ -13,6 +14,7 @@ namespace Microsoft.Generator.CSharp.Providers
     public abstract class TypeProvider
     {
         private Lazy<TypeProvider?> _customCodeView;
+
         protected TypeProvider()
         {
             _customCodeView = new(GetCustomCodeView);
@@ -145,6 +147,23 @@ namespace Microsoft.Generator.CSharp.Providers
         protected virtual CSharpType[] GetTypeArguments() => [];
 
         protected virtual PropertyProvider[] BuildProperties() => [];
+
+        private HashSet<string> BuildPropertyNames()
+        {
+            var propertyNames = new HashSet<string>();
+            foreach (var property in Properties)
+            {
+                propertyNames.Add(property.Name);
+                foreach (var attribute in property.Attributes ?? [])
+                {
+                    if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var name))
+                    {
+                        propertyNames.Add(name);
+                    }
+                }
+            }
+            return propertyNames;
+        }
 
         protected virtual FieldProvider[] BuildFields() => [];
 

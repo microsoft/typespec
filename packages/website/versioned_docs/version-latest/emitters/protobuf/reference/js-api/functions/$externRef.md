@@ -5,7 +5,7 @@ title: "[F] $externRef"
 ---
 ```ts
 function $externRef(
-   ctx, 
+   context, 
    target, 
    path, 
    name): void
@@ -15,10 +15,10 @@ function $externRef(
 
 | Parameter | Type |
 | ------ | ------ |
-| `ctx` | `DecoratorContext` |
+| `context` | `DecoratorContext` |
 | `target` | `Model` |
-| `path` | `StringLiteral` |
-| `name` | `StringLiteral` |
+| `path` | `Type` |
+| `name` | `Type` |
 
 ## Returns
 

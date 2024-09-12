@@ -89,7 +89,7 @@ export const $service: ServiceDecorator = (
     } else {
       reportDiagnostic(context.program, {
         code: "unassignable",
-        format: { value: getTypeName(title), targetType: "String" },
+        format: { sourceType: getTypeName(title), targetType: "String" },
         target: context.getArgumentTarget(0)!,
       });
     }
@@ -107,7 +107,7 @@ export const $service: ServiceDecorator = (
     } else {
       reportDiagnostic(context.program, {
         code: "unassignable",
-        format: { value: getTypeName(version), targetType: "String" },
+        format: { sourceType: getTypeName(version), targetType: "String" },
         target: context.getArgumentTarget(0)!,
       });
     }

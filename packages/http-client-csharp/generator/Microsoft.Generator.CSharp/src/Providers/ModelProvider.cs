@@ -9,6 +9,7 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -164,6 +165,19 @@ namespace Microsoft.Generator.CSharp.Providers
 
             Dictionary<string, InputModelProperty> baseProperties = _inputModel.BaseModel?.Properties.ToDictionary(p => p.Name) ?? [];
 
+            var customPropertyNames = new HashSet<string>();
+            foreach (var customProperty in CustomCodeView?.Properties ?? [])
+            {
+                customPropertyNames.Add(customProperty.Name);
+                foreach (var attribute in customProperty.Attributes ?? [])
+                {
+                    if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var name))
+                    {
+                        customPropertyNames.Add(name);
+                    }
+                }
+            }
+
             for (int i = 0; i < propertiesCount; i++)
             {
                 var property = _inputModel.Properties[i];
@@ -172,38 +186,41 @@ namespace Microsoft.Generator.CSharp.Providers
                     continue;
 
                 var outputProperty = CodeModelPlugin.Instance.TypeFactory.CreatePropertyProvider(property, this);
-                if (outputProperty != null)
+                if (outputProperty is null)
+                    continue;
+
+                if (customPropertyNames.Contains(property.Name))
+                    continue;
+
+                if (!property.IsDiscriminator)
                 {
-                    if (!property.IsDiscriminator)
+                    var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
+                    if (derivedProperty is not null)
                     {
-                        var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
-                        if (derivedProperty is not null)
+                        if (derivedProperty.Type.Equals(property.Type) && DomainEqual(property, derivedProperty))
                         {
-                            if (derivedProperty.Type.Equals(property.Type) && DomainEqual(property, derivedProperty))
-                            {
-                                outputProperty.Modifiers |= MethodSignatureModifiers.Virtual;
-                            }
-                        }
-                        var baseProperty = baseProperties.GetValueOrDefault(property.Name);
-                        if (baseProperty is not null)
-                        {
-                            if (baseProperty.Type.Equals(property.Type) && DomainEqual(baseProperty, property))
-                            {
-                                outputProperty.Modifiers |= MethodSignatureModifiers.Override;
-                            }
-                            else
-                            {
-                                outputProperty.Modifiers |= MethodSignatureModifiers.New;
-                                var fieldName = $"_{baseProperty.Name.ToVariableName()}";
-                                outputProperty.Body = new ExpressionPropertyBody(
-                                    This.Property(fieldName).NullCoalesce(Default),
-                                    outputProperty.Body.HasSetter ? This.Property(fieldName).Assign(Value) : null);
-                            }
+                            outputProperty.Modifiers |= MethodSignatureModifiers.Virtual;
                         }
                     }
-
-                    properties.Add(outputProperty);
+                    var baseProperty = baseProperties.GetValueOrDefault(property.Name);
+                    if (baseProperty is not null)
+                    {
+                        if (baseProperty.Type.Equals(property.Type) && DomainEqual(baseProperty, property))
+                        {
+                            outputProperty.Modifiers |= MethodSignatureModifiers.Override;
+                        }
+                        else
+                        {
+                            outputProperty.Modifiers |= MethodSignatureModifiers.New;
+                            var fieldName = $"_{baseProperty.Name.ToVariableName()}";
+                            outputProperty.Body = new ExpressionPropertyBody(
+                                This.Property(fieldName).NullCoalesce(Default),
+                                outputProperty.Body.HasSetter ? This.Property(fieldName).Assign(Value) : null);
+                        }
+                    }
                 }
+
+                properties.Add(outputProperty);
             }
 
             if (AdditionalPropertiesProperty != null)

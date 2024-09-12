@@ -77,9 +77,9 @@
      "NameInRequest": "endpoint",
      "Type": {
       "$id": "9",
-      "Kind": "url",
-      "Name": "url",
-      "CrossLanguageDefinitionId": "TypeSpec.url"
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "Location": "Uri",
      "IsApiVersion": false,
@@ -94,9 +94,9 @@
       "$id": "10",
       "Type": {
        "$id": "11",
-       "Kind": "string",
-       "Name": "string",
-       "CrossLanguageDefinitionId": "TypeSpec.string"
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
       },
       "Value": "http://localhost:3000"
      }

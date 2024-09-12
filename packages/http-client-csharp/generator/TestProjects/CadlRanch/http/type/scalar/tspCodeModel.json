@@ -19,9 +19,9 @@
      "NameInRequest": "endpoint",
      "Type": {
       "$id": "5",
-      "Kind": "url",
-      "Name": "url",
-      "CrossLanguageDefinitionId": "TypeSpec.url"
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "Location": "Uri",
      "IsApiVersion": false,
@@ -36,9 +36,9 @@
       "$id": "6",
       "Type": {
        "$id": "7",
-       "Kind": "string",
-       "Name": "string",
-       "CrossLanguageDefinitionId": "TypeSpec.string"
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
       },
       "Value": "http://localhost:3000"
      }
@@ -63,16 +63,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "11",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "12",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -93,10 +93,10 @@
        ],
        "BodyType": {
         "$id": "14",
-        "Kind": "string",
-        "Name": "string",
-        "CrossLanguageDefinitionId": "TypeSpec.string",
-        "Decorators": []
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -130,16 +130,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "17",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "18",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -158,10 +158,10 @@
        "Description": "_",
        "Type": {
         "$id": "20",
-        "Kind": "string",
-        "Name": "string",
-        "CrossLanguageDefinitionId": "TypeSpec.string",
-        "Decorators": []
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -210,9 +210,9 @@
      "NameInRequest": "endpoint",
      "Type": {
       "$id": "24",
-      "Kind": "url",
-      "Name": "url",
-      "CrossLanguageDefinitionId": "TypeSpec.url"
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "Location": "Uri",
      "IsApiVersion": false,
@@ -227,9 +227,9 @@
       "$id": "25",
       "Type": {
        "$id": "26",
-       "Kind": "string",
-       "Name": "string",
-       "CrossLanguageDefinitionId": "TypeSpec.string"
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
       },
       "Value": "http://localhost:3000"
      }
@@ -254,16 +254,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "30",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "31",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -284,10 +284,10 @@
        ],
        "BodyType": {
         "$id": "33",
-        "Kind": "boolean",
-        "Name": "boolean",
-        "CrossLanguageDefinitionId": "TypeSpec.boolean",
-        "Decorators": []
+        "kind": "boolean",
+        "name": "boolean",
+        "crossLanguageDefinitionId": "TypeSpec.boolean",
+        "decorators": []
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -321,16 +321,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "36",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "37",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -349,10 +349,10 @@
        "Description": "_",
        "Type": {
         "$id": "39",
-        "Kind": "boolean",
-        "Name": "boolean",
-        "CrossLanguageDefinitionId": "TypeSpec.boolean",
-        "Decorators": []
+        "kind": "boolean",
+        "name": "boolean",
+        "crossLanguageDefinitionId": "TypeSpec.boolean",
+        "decorators": []
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -401,9 +401,9 @@
      "NameInRequest": "endpoint",
      "Type": {
       "$id": "43",
-      "Kind": "url",
-      "Name": "url",
-      "CrossLanguageDefinitionId": "TypeSpec.url"
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "Location": "Uri",
      "IsApiVersion": false,
@@ -418,9 +418,9 @@
       "$id": "44",
       "Type": {
        "$id": "45",
-       "Kind": "string",
-       "Name": "string",
-       "CrossLanguageDefinitionId": "TypeSpec.string"
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
       },
       "Value": "http://localhost:3000"
      }
@@ -445,16 +445,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "49",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "50",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -475,10 +475,10 @@
        ],
        "BodyType": {
         "$id": "52",
-        "Kind": "any",
-        "Name": "unknown",
-        "CrossLanguageDefinitionId": "",
-        "Decorators": []
+        "kind": "any",
+        "name": "unknown",
+        "crossLanguageDefinitionId": "",
+        "decorators": []
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -512,16 +512,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "55",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "56",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -540,10 +540,10 @@
        "Description": "_",
        "Type": {
         "$id": "58",
-        "Kind": "any",
-        "Name": "unknown",
-        "CrossLanguageDefinitionId": "",
-        "Decorators": []
+        "kind": "any",
+        "name": "unknown",
+        "crossLanguageDefinitionId": "",
+        "decorators": []
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -592,9 +592,9 @@
      "NameInRequest": "endpoint",
      "Type": {
       "$id": "62",
-      "Kind": "url",
-      "Name": "url",
-      "CrossLanguageDefinitionId": "TypeSpec.url"
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "Location": "Uri",
      "IsApiVersion": false,
@@ -609,9 +609,9 @@
       "$id": "63",
       "Type": {
        "$id": "64",
-       "Kind": "string",
-       "Name": "string",
-       "CrossLanguageDefinitionId": "TypeSpec.string"
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
       },
       "Value": "http://localhost:3000"
      }
@@ -636,16 +636,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "68",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "69",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -666,10 +666,10 @@
        ],
        "BodyType": {
         "$id": "71",
-        "Kind": "decimal",
-        "Name": "decimal",
-        "CrossLanguageDefinitionId": "TypeSpec.decimal",
-        "Decorators": []
+        "kind": "decimal",
+        "name": "decimal",
+        "crossLanguageDefinitionId": "TypeSpec.decimal",
+        "decorators": []
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -702,16 +702,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "74",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "75",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -729,10 +729,10 @@
        "NameInRequest": "body",
        "Type": {
         "$id": "77",
-        "Kind": "decimal",
-        "Name": "decimal",
-        "CrossLanguageDefinitionId": "TypeSpec.decimal",
-        "Decorators": []
+        "kind": "decimal",
+        "name": "decimal",
+        "crossLanguageDefinitionId": "TypeSpec.decimal",
+        "decorators": []
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -781,10 +781,10 @@
        "NameInRequest": "value",
        "Type": {
         "$id": "81",
-        "Kind": "decimal",
-        "Name": "decimal",
-        "CrossLanguageDefinitionId": "TypeSpec.decimal",
-        "Decorators": []
+        "kind": "decimal",
+        "name": "decimal",
+        "crossLanguageDefinitionId": "TypeSpec.decimal",
+        "decorators": []
        },
        "Location": "Query",
        "IsApiVersion": false,
@@ -830,9 +830,9 @@
      "NameInRequest": "endpoint",
      "Type": {
       "$id": "85",
-      "Kind": "url",
-      "Name": "url",
-      "CrossLanguageDefinitionId": "TypeSpec.url"
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "Location": "Uri",
      "IsApiVersion": false,
@@ -847,9 +847,9 @@
       "$id": "86",
       "Type": {
        "$id": "87",
-       "Kind": "string",
-       "Name": "string",
-       "CrossLanguageDefinitionId": "TypeSpec.string"
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
       },
       "Value": "http://localhost:3000"
      }
@@ -874,16 +874,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "91",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "92",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -904,10 +904,10 @@
        ],
        "BodyType": {
         "$id": "94",
-        "Kind": "decimal128",
-        "Name": "decimal128",
-        "CrossLanguageDefinitionId": "TypeSpec.decimal128",
-        "Decorators": []
+        "kind": "decimal128",
+        "name": "decimal128",
+        "crossLanguageDefinitionId": "TypeSpec.decimal128",
+        "decorators": []
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -940,16 +940,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "97",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "98",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -967,10 +967,10 @@
        "NameInRequest": "body",
        "Type": {
         "$id": "100",
-        "Kind": "decimal128",
-        "Name": "decimal128",
-        "CrossLanguageDefinitionId": "TypeSpec.decimal128",
-        "Decorators": []
+        "kind": "decimal128",
+        "name": "decimal128",
+        "crossLanguageDefinitionId": "TypeSpec.decimal128",
+        "decorators": []
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -1019,10 +1019,10 @@
        "NameInRequest": "value",
        "Type": {
         "$id": "104",
-        "Kind": "decimal128",
-        "Name": "decimal128",
-        "CrossLanguageDefinitionId": "TypeSpec.decimal128",
-        "Decorators": []
+        "kind": "decimal128",
+        "name": "decimal128",
+        "crossLanguageDefinitionId": "TypeSpec.decimal128",
+        "decorators": []
        },
        "Location": "Query",
        "IsApiVersion": false,
@@ -1068,9 +1068,9 @@
      "NameInRequest": "endpoint",
      "Type": {
       "$id": "108",
-      "Kind": "url",
-      "Name": "url",
-      "CrossLanguageDefinitionId": "TypeSpec.url"
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "Location": "Uri",
      "IsApiVersion": false,
@@ -1085,9 +1085,9 @@
       "$id": "109",
       "Type": {
        "$id": "110",
-       "Kind": "string",
-       "Name": "string",
-       "CrossLanguageDefinitionId": "TypeSpec.string"
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
       },
       "Value": "http://localhost:3000"
      }
@@ -1112,16 +1112,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "114",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "115",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -1142,17 +1142,17 @@
        ],
        "BodyType": {
         "$id": "117",
-        "Kind": "array",
-        "Name": "Array",
-        "ValueType": {
+        "kind": "array",
+        "name": "Array",
+        "valueType": {
          "$id": "118",
-         "Kind": "decimal",
-         "Name": "decimal",
-         "CrossLanguageDefinitionId": "TypeSpec.decimal",
-         "Decorators": []
+         "kind": "decimal",
+         "name": "decimal",
+         "crossLanguageDefinitionId": "TypeSpec.decimal",
+         "decorators": []
         },
-        "CrossLanguageDefinitionId": "TypeSpec.Array",
-        "Decorators": []
+        "crossLanguageDefinitionId": "TypeSpec.Array",
+        "decorators": []
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -1185,16 +1185,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "121",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "122",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -1212,10 +1212,10 @@
        "NameInRequest": "body",
        "Type": {
         "$id": "124",
-        "Kind": "decimal",
-        "Name": "decimal",
-        "CrossLanguageDefinitionId": "TypeSpec.decimal",
-        "Decorators": []
+        "kind": "decimal",
+        "name": "decimal",
+        "crossLanguageDefinitionId": "TypeSpec.decimal",
+        "decorators": []
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -1264,9 +1264,9 @@
      "NameInRequest": "endpoint",
      "Type": {
       "$id": "128",
-      "Kind": "url",
-      "Name": "url",
-      "CrossLanguageDefinitionId": "TypeSpec.url"
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "Location": "Uri",
      "IsApiVersion": false,
@@ -1281,9 +1281,9 @@
       "$id": "129",
       "Type": {
        "$id": "130",
-       "Kind": "string",
-       "Name": "string",
-       "CrossLanguageDefinitionId": "TypeSpec.string"
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
       },
       "Value": "http://localhost:3000"
      }
@@ -1308,16 +1308,16 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "134",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "135",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -1338,17 +1338,17 @@
        ],
        "BodyType": {
         "$id": "137",
-        "Kind": "array",
-        "Name": "Array",
-        "ValueType": {
+        "kind": "array",
+        "name": "Array",
+        "valueType": {
          "$id": "138",
-         "Kind": "decimal",
-         "Name": "decimal",
-         "CrossLanguageDefinitionId": "TypeSpec.decimal",
-         "Decorators": []
+         "kind": "decimal",
+         "name": "decimal",
+         "crossLanguageDefinitionId": "TypeSpec.decimal",
+         "decorators": []
         },
-        "CrossLanguageDefinitionId": "TypeSpec.Array",
-        "Decorators": []
+        "crossLanguageDefinitionId": "TypeSpec.Array",
+        "decorators": []
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -1381,16 +1381,16 @@
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "141",
-        "Kind": "constant",
-        "ValueType": {
+        "kind": "constant",
+        "valueType": {
          "$id": "142",
-         "Kind": "string",
-         "Name": "string",
-         "CrossLanguageDefinitionId": "TypeSpec.string",
-         "Decorators": []
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
         },
-        "Value": "application/json",
-        "Decorators": []
+        "value": "application/json",
+        "decorators": []
        },
        "Location": "Header",
        "IsApiVersion": false,
@@ -1408,10 +1408,10 @@
        "NameInRequest": "body",
        "Type": {
         "$id": "144",
-        "Kind": "decimal",
-        "Name": "decimal",
-        "CrossLanguageDefinitionId": "TypeSpec.decimal",
-        "Decorators": []
+        "kind": "decimal",
+        "name": "decimal",
+        "crossLanguageDefinitionId": "TypeSpec.decimal",
+        "decorators": []
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -1460,9 +1460,9 @@
      "NameInRequest": "endpoint",
      "Type": {
       "$id": "148",
-      "Kind": "url",
-      "Name": "url",
-      "CrossLanguageDefinitionId": "TypeSpec.url"
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "Location": "Uri",
      "IsApiVersion": false,
@@ -1477,9 +1477,9 @@
       "$id": "149",
       "Type": {
        "$id": "150",
-       "Kind": "string",
-       "Name": "string",
-       "CrossLanguageDefinitionId": "TypeSpec.string"
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
       },
       "Value": "http://localhost:3000"
      }

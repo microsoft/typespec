@@ -1,6 +1,6 @@
 {
   "name": "@typespec/openapi",
-  "version": "0.59.0",
+  "version": "0.60.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library providing OpenAPI concepts",
   "homepage": "https://typespec.io",
@@ -34,7 +34,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "npm run gen-extern-signature && tsc -p . && npm run lint-typespec-library",
+    "build": "pnpm gen-extern-signature && tsc -p . && pnpm lint-typespec-library && pnpm api-extractor",
     "watch": "tsc -p . --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
@@ -44,7 +44,8 @@
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
-    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/openapi/reference"
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/openapi/reference",
+    "api-extractor": "api-extractor run --local --verbose"
   },
   "files": [
     "lib/*.tsp",
