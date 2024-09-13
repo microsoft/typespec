@@ -241,7 +241,5 @@ namespace Microsoft.Generator.CSharp.Providers
             return CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType, this).ToArray();
         }
         protected override bool GetIsEnum() => true;
-
-        protected override CSharpType BuildEnumUnderlyingType() => CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(_inputType.ValueType) ?? throw new InvalidOperationException($"Failed to create CSharpType for {_inputType.ValueType}");
     }
 }
