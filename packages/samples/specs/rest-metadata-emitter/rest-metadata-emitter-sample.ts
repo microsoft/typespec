@@ -52,7 +52,6 @@ export async function $onEmit(context: EmitContext): Promise<void> {
           projectedProgram,
           serviceNamespace,
           details?.title,
-          // eslint-disable-next-line @typescript-eslint/no-deprecated
           versionProjection.version ?? details?.version
         );
       }
@@ -137,7 +136,6 @@ export async function $onEmit(context: EmitContext): Promise<void> {
     function emitResponses(responses: HttpOperationResponse[]) {
       for (const response of responses) {
         for (const content of response.responses) {
-          // eslint-disable-next-line @typescript-eslint/no-deprecated
           writeLine(`response: ${response.statusCode}${getContentTypeRemark(content.body)}`);
           indent();
 
