@@ -9,7 +9,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    internal class ArgumentSnippets
+    public class ArgumentSnippets
     {
         private const string AssertNotNullMethodName = "AssertNotNull";
         private const string AssertNotNullOrEmptyMethodName = "AssertNotNullOrEmpty";

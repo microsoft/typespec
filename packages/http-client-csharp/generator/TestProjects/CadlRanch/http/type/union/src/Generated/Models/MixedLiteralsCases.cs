@@ -16,13 +16,11 @@ namespace _Type.Union.Models
             set => throw null;
         }
 
-
         public BinaryData IntLiteral
         {
             get => throw null;
             set => throw null;
         }
-
 
         public BinaryData FloatLiteral
         {
@@ -30,12 +28,10 @@ namespace _Type.Union.Models
             set => throw null;
         }
 
-
         public BinaryData BooleanLiteral
         {
             get => throw null;
             set => throw null;
         }
-
     }
 }

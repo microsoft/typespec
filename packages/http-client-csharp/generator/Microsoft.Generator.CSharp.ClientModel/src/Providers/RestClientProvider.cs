@@ -296,8 +296,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
             string? endpoint = ClientProvider.EndpointParameterName;
             int uriOffset = endpoint is null || !operation.Uri.StartsWith(endpoint, StringComparison.Ordinal) ? 0 : endpoint.Length;
-            AddUriSegments(operation.Uri, uriOffset, uri, statements, inputParamHash, paramMap);
-            AddUriSegments(operation.Path, 0, uri, statements, inputParamHash, paramMap);
+            AddUriSegments(operation.Uri, uriOffset, uri, statements, inputParamHash, paramMap, operation);
+            AddUriSegments(operation.Path, 0, uri, statements, inputParamHash, paramMap, operation);
             return statements;
         }
 
@@ -307,7 +307,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ScopedApi<ClientUriBuilderDefinition> uri,
             List<MethodBodyStatement> statements,
             Dictionary<string, InputParameter> inputParamHash,
-            Dictionary<string, ParameterProvider> paramMap)
+            Dictionary<string, ParameterProvider> paramMap,
+            InputOperation operation)
         {
             var pathSpan = segments.AsSpan().Slice(offset);
             while (pathSpan.Length > 0)
@@ -486,6 +487,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         sortedParams.Add(optional++, parameter);
                         break;
                 }
+            }
+
+            if (operation.IsMultipartFormData)
+            {
+                sortedParams.Add(bodyRequired++, ScmKnownParameters.ContentType);
             }
 
             return [.. sortedParams.Values];

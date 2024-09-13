@@ -13,6 +13,5 @@ namespace Client.Naming.Models
             get => throw null;
             set => throw null;
         }
-
     }
 }

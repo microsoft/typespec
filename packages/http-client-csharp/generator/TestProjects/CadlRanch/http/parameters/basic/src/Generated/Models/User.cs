@@ -13,6 +13,5 @@ namespace Parameters.Basic.Models
             get => throw null;
             set => throw null;
         }
-
     }
 }

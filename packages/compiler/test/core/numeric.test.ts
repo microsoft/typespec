@@ -65,6 +65,14 @@ describe("parsing", () => {
       expectNumericData("123.00456", 12300456n, 3);
     });
 
+    it("0.1", () => {
+      expectNumericData("0.1", 1n, 0);
+    });
+
+    it("0.01", () => {
+      expectNumericData("0.01", 1n, -1);
+    });
+
     it("large integer (> Number.MAX_SAFE_INTEGER)", () => {
       expectNumericData("123456789123456789", 123456789123456789n, 18);
     });
@@ -201,6 +209,7 @@ describe("asNumber", () => {
     ["0.0", 0],
     ["0.1", 0.1],
     ["0.01", 0.01],
+    ["1e-2", 0.01],
     ["123", 123],
     ["123.456", 123.456],
     ["123.00", 123],

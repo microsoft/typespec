@@ -107,5 +107,8 @@ namespace Microsoft.Generator.CSharp.Input
                 [ExampleMockValueBuilder.MockExampleAllParameterKey] = ExampleMockValueBuilder.BuildOperationExample(this, true)
             };
         }
+
+        private bool? _isMultipartFormData;
+        public bool IsMultipartFormData => _isMultipartFormData ??= RequestMediaTypes is not null && RequestMediaTypes.Count == 1 && RequestMediaTypes[0] == "multipart/form-data";
     }
 }
