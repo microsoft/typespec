@@ -4,4 +4,4 @@ packages:
   - typespec-vscode
 ---
 
-Use shell execution for spawn execution for .cmd file(i.e. tsp-server) in windows
+Use "shell" when spawning execution of .cmd file(i.e. tsp-server.cmd) in windows
