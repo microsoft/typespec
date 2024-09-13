@@ -92,7 +92,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
         {
-            var customCodeModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
+            var customCodeModifiers = GetCustomCodeModifiers();
             var isStruct = false;
             // the information of if this model should be a struct comes from two sources:
             // 1. the customied code
@@ -118,7 +118,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             if (customCodeModifiers != TypeSignatureModifiers.None)
             {
-                declarationModifiers |= GetAccessibilityModifiers(customCodeModifiers);
+                declarationModifiers |= customCodeModifiers;
             }
             else if (_inputModel.Access == "internal")
             {
@@ -132,11 +132,6 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             return declarationModifiers;
-
-            static TypeSignatureModifiers GetAccessibilityModifiers(TypeSignatureModifiers modifiers)
-            {
-                return modifiers & (TypeSignatureModifiers.Public | TypeSignatureModifiers.Internal | TypeSignatureModifiers.Protected | TypeSignatureModifiers.Private);
-            }
         }
 
         /// <summary>

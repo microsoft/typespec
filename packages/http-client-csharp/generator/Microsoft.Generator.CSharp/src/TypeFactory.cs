@@ -197,6 +197,7 @@ namespace Microsoft.Generator.CSharp
                 return enumProvider;
 
             enumProvider = CreateEnumCore(enumType, declaringType);
+
             EnumCache.Add(enumCacheKey, enumProvider);
             return enumProvider;
         }

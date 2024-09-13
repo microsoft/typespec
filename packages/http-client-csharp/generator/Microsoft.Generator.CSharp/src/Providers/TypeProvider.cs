@@ -79,6 +79,24 @@ namespace Microsoft.Generator.CSharp.Providers
         }
 
         protected virtual TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.None;
+
+        internal TypeSignatureModifiers GetCustomCodeModifiers()
+        {
+            var modifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
+
+            if (modifiers != TypeSignatureModifiers.None)
+            {
+                modifiers |= GetAccessibilityModifiers(modifiers);
+            }
+
+            return modifiers;
+
+            static TypeSignatureModifiers GetAccessibilityModifiers(TypeSignatureModifiers modifiers)
+            {
+                return modifiers & (TypeSignatureModifiers.Public | TypeSignatureModifiers.Internal | TypeSignatureModifiers.Protected | TypeSignatureModifiers.Private);
+            }
+        }
+
         private TypeSignatureModifiers GetDeclarationModifiersInternal()
         {
             var modifiers = GetDeclarationModifiers();
