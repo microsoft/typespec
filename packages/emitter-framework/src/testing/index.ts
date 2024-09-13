@@ -6,3 +6,5 @@ export const EmitterFrameworkTestLibrary: TypeSpecTestLibrary = createTestLibrar
   name: "@typespec/emitter-framework",
   packageRoot: resolvePath(fileURLToPath(import.meta.url), "../../../"),
 });
+
+export * from "./scenario-test/index.js";
