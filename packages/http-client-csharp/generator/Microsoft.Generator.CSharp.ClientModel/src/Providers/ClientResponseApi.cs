@@ -22,40 +22,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public abstract ClientResponseApi FromValue<T>(ValueExpression valueExpression, HttpResponseApi value);
     }
 
-//#pragma warning disable SA1402 // File may only contain a single type
-//    public abstract record ClientResponseApi<T> : ClientResponseApi
-//#pragma warning restore SA1402 // File may only contain a single type
-//    {
-//        protected ClientResponseApi(T value, Type type, ValueExpression original) : base(type, original)
-//        {
-//            Value = value;
-//        }
-
-//        /// <summary>
-//        /// Gets the value received from the service.
-//        /// </summary>
-//        public virtual T Value { get; }
-
-//        public override ClientResponseApi FromValue<ValueType>(ValueExpression valueExpression, HttpResponseApi response)
-//            => ClientResponseApiSnippets.FromValue<ValueType>(valueExpression, response);
-
-//        /// <summary>
-//        /// Returns the value of this <see cref="ClientResponseApi{T}"/> object.
-//        /// </summary>
-//        /// <param name="result">The <see cref="ClientResponseApi{T}"/> instance.</param>
-//        public static implicit operator T(ClientResponseApi<T> result)
-//        {
-//            if (result == null)
-//            {
-//#pragma warning disable CA1065 // Don't throw from cast operators
-//                throw new ArgumentNullException(nameof(result), $"The implicit cast from {ClientModelPlugin.Instance.TypeFactory.ClientResponseType}<{typeof(T)}> to {typeof(T)} failed because the {ClientModelPlugin.Instance.TypeFactory.ClientResponseType}<{typeof(T)}> was null.");
-//#pragma warning restore CA1065
-//            }
-
-//            return result.Value!;
-//        }
-//    }
-
 #pragma warning disable SA1402 // File may only contain a single type
     public abstract record HttpResponseApi : ScopedApi
 #pragma warning restore SA1402 // File may only contain a single type
@@ -101,21 +67,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private ScopedApi<PipelineResponse> GetRawResponseExpression()
             => Original.Invoke(nameof(ClientResponseApi.GetRawResponse)).As<PipelineResponse>();
     }
-
-#pragma warning disable SA1402 // File may only contain a single type
-//    internal record ClientResultProvider<T> : ClientResponseApi<T>
-//#pragma warning restore SA1402 // File may only contain a single type
-//    {
-//        public ClientResultProvider(T value, ValueExpression clientResult) : base(value, typeof(ClientResult), clientResult)
-//        {
-//        }
-
-//        public override HttpResponseApi GetRawResponse()
-//            => new PipelineResponseProvider(GetRawResponseExpression());
-
-//        private ScopedApi<PipelineResponse> GetRawResponseExpression()
-//            => Original.Invoke(nameof(ClientResponseApi.GetRawResponse)).As<PipelineResponse>();
-//    }
 
 #pragma warning disable SA1402 // File may only contain a single type
     internal static class HttpResponseApiSnippets {

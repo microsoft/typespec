@@ -30,8 +30,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         internal ClientResponseApi CreateClientResponse(ValueExpression original) => new ClientResultProvider(original.As<ClientResult>());
 
-        //internal ClientResponseApi CreateIClientResponse(ValueExpression original) => new ClientResultProvider(original.As<ClientResult>());
-
         internal HttpResponseApi CreateHttpResponse(ValueExpression original) => new PipelineResponseProvider(original.As<PipelineResponse>());
 
         /// <summary>
