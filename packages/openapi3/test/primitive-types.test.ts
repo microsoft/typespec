@@ -128,6 +128,19 @@ describe("openapi3: primitives", () => {
       expect(res.schemas.Pet.properties.name.default).toEqual("Shorty");
     });
 
+    it("known scalar used as a default value", async () => {
+      const res = await oapiForModel(
+        "Test",
+        `
+      model Test { minDate: utcDateTime = utcDateTime.fromISO("2024-01-2T3:04:05Z"); }
+        `
+      );
+
+      expect(res.schemas.Test.properties.minDate.default).toEqual("2024-01-2T3:04:05Z");
+      expect(res.schemas.Test.properties.minDate.format).toEqual("date-time");
+      expect(res.schemas.Test.properties.minDate.type).toEqual("string");
+    });
+
     it("object value used as a default value", async () => {
       const res = await oapiForModel(
         "Test",
