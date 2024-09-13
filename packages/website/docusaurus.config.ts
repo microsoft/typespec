@@ -89,6 +89,7 @@ const config: Config = {
       type: "module",
       async: true,
     },
+    "https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js",
   ],
   headTags: [
     {
