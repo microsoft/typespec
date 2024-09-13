@@ -5285,7 +5285,7 @@ export function createChecker(program: Program): Checker {
         const defaultValue = checkDefaultValue(prop.default, type.type);
         if (defaultValue !== null) {
           type.defaultValue = defaultValue;
-          // eslint-disable-next-line deprecation/deprecation
+          // eslint-disable-next-line @typescript-eslint/no-deprecated
           type.default = checkLegacyDefault(prop.default);
         }
       }

@@ -282,6 +282,7 @@ function* emitRawServerOperation(
 
   yield `  const result = await operations.${operationNameCase.camelCase}(ctx, `;
   yield* indent(indent(paramLines));
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   yield `  );`, yield "";
 
   yield* indent(emitResultProcessing(ctx, op.returnType, module));

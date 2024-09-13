@@ -9,7 +9,7 @@ import {
 import { fail, ok, strictEqual } from "assert";
 import { readdirSync } from "fs";
 import { mkdir, readFile, readdir, rm, writeFile } from "fs/promises";
-import { File, Suite, afterAll, beforeAll, it } from "vitest";
+import { RunnerTestFile, RunnerTestSuite, afterAll, beforeAll, it } from "vitest";
 import { convertAction } from "../../../src/cli/actions/convert/convert-file.js";
 
 const shouldUpdateSnapshots = process.env.RECORD === "true";
@@ -40,7 +40,7 @@ export function defineSpecSnaphotTests(config: SpecSnapshotTestOptions) {
     existingSnapshots = await readFilesInDirRecursively(config.outputDir);
   });
 
-  afterAll(async function (context: Readonly<Suite | File>) {
+  afterAll(async function (context: Readonly<RunnerTestSuite | RunnerTestFile>) {
     if (context.tasks.some((x) => x.mode === "skip")) {
       return; // Not running the full test suite, so don't bother checking snapshots.
     }

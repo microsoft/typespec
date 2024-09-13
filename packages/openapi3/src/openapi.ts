@@ -1243,7 +1243,7 @@ function createOAPIEmitter(
         result.push(params.get(httpOpParam.param));
         continue;
       }
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       if (httpOpParam.type === "header" && isContentTypeHeader(program, httpOpParam.param)) {
         continue;
       }
@@ -1462,6 +1462,7 @@ function createOAPIEmitter(
       attributes.explode = false;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     switch (parameter.format) {
       case "ssv":
         return { style: "spaceDelimited", explode: false };
@@ -1480,6 +1481,7 @@ function createOAPIEmitter(
             code: "invalid-format",
             format: {
               paramType: "query",
+              // eslint-disable-next-line @typescript-eslint/no-deprecated
               value: parameter.format,
             },
             target: parameter.param,

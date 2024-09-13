@@ -130,9 +130,7 @@ describe("compiler: type cloning", () => {
     strictEqual(test.kind, "ModelProperty" as const);
     strictEqual(test.type.kind, "Model" as const);
     const clone = testHost.program.checker.cloneType(test.type);
-    // eslint-disable-next-line deprecation/deprecation
     strictEqual(clone.templateArguments?.length, 2);
-    // eslint-disable-next-line deprecation/deprecation
     deepStrictEqual(test.type.templateArguments, clone.templateArguments);
     deepStrictEqual(test.type.templateMapper, clone.templateMapper);
   });

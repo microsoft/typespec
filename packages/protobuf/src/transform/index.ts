@@ -680,7 +680,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
         reportDiagnostic(program, {
           code: "namespace-collision",
           format: {
-            name: `"${file.package}"` ?? "<empty>",
+            name: file.package ? `"${file.package}"` : "<empty>",
           },
           target: file.source,
         });

@@ -54,7 +54,6 @@ export const callDecoratorRule = createRule<never[], keyof typeof messages>({
   meta: {
     docs: {
       description: "Calling a TypeSpec decorator from JS/TS code should be done with context.call",
-      recommended: "recommended",
     },
     hasSuggestions: true,
     messages,
