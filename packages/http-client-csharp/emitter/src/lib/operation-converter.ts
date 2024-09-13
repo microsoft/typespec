@@ -369,13 +369,22 @@ function getParameterKind(
     }
     return InputOperationParameterKind.Method;
   }
+
+  /** remove this, use p.onClient directly when https://github.com/Azure/typespec-azure/issues/1532 is resolved */
+  const paramOnClient =
+    p.correspondingMethodParams &&
+    p.correspondingMethodParams.length > 0 &&
+    p.correspondingMethodParams[0].onClient;
+
   return type.kind === "constant"
     ? InputOperationParameterKind.Constant
     : p.isApiVersionParam
       ? hasGlobalApiVersion
         ? InputOperationParameterKind.Client
         : InputOperationParameterKind.Method
-      : InputOperationParameterKind.Method;
+      : paramOnClient // use p.onClient when https://github.com/Azure/typespec-azure/issues/1532 is resolved
+        ? InputOperationParameterKind.Client
+        : InputOperationParameterKind.Method;
 }
 
 function getOperationGroupName(
