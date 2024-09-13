@@ -77,7 +77,12 @@ import { applyEncoding } from "./encoding.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
-import { OpenAPI3Discriminator, OpenAPI3Schema, OpenAPI3SchemaProperty } from "./types.js";
+import {
+  JsonType,
+  OpenAPI3Discriminator,
+  OpenAPI3Schema,
+  OpenAPI3SchemaProperty,
+} from "./types.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 
 /**
@@ -441,7 +446,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       return {};
     }
 
-    const enumTypes = new Set<string>();
+    const enumTypes = new Set<JsonType>();
     const enumValues = new Set<string | number>();
     for (const member of en.members.values()) {
       enumTypes.add(typeof member.value === "number" ? "number" : "string");
@@ -452,7 +457,10 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       reportDiagnostic(program, { code: "enum-unique-type", target: en });
     }
 
-    const schema: OpenAPI3Schema = { type: enumTypes.values().next().value, enum: [...enumValues] };
+    const schema: OpenAPI3Schema = {
+      type: enumTypes.values().next().value!,
+      enum: [...enumValues],
+    };
 
     return this.#applyConstraints(en, schema);
   }

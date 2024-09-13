@@ -344,7 +344,7 @@ function extractOperationRefDoc(
       reportDiagnostic(program, {
         code: "documentation-missing",
         messageId: "interfaceOperation",
-        format: { name: `${operation.interface.name}.${operation.name}` ?? "" },
+        format: { name: `${operation.interface.name}.${operation.name}` },
         target: NoTarget,
       });
     } else {
