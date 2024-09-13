@@ -80,22 +80,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected virtual TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.None;
 
-        internal TypeSignatureModifiers GetCustomCodeModifiers()
-        {
-            var modifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
-
-            if (modifiers != TypeSignatureModifiers.None)
-            {
-                modifiers |= GetAccessibilityModifiers(modifiers);
-            }
-
-            return modifiers;
-
-            static TypeSignatureModifiers GetAccessibilityModifiers(TypeSignatureModifiers modifiers)
-            {
-                return modifiers & (TypeSignatureModifiers.Public | TypeSignatureModifiers.Internal | TypeSignatureModifiers.Protected | TypeSignatureModifiers.Private);
-            }
-        }
+        internal TypeSignatureModifiers GetCustomCodeModifiers() => CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
 
         private TypeSignatureModifiers GetDeclarationModifiersInternal()
         {
@@ -117,7 +102,7 @@ namespace Microsoft.Generator.CSharp.Providers
             // mask & (mask - 1) gives us 0 if mask is a power of 2, it means we have exactly one flag of above when the mask is a power of 2
             if ((mask & (mask - 1)) != 0)
             {
-                throw new InvalidOperationException($"Invalid modifier {modifiers} on TypeProvider {Type.Namespace}.{Name}");
+                throw new InvalidOperationException($"Invalid modifier {modifiers} on TypeProvider {Name}");
             }
 
             // we always add partial when possible

@@ -120,7 +120,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             if (customCodeModifiers != TypeSignatureModifiers.None)
             {
-                declarationModifiers |= customCodeModifiers;
+                declarationModifiers |= GetAccessibilityModifiers(customCodeModifiers);
             }
             else if (_inputModel.Access == "internal")
             {
@@ -134,6 +134,11 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             return declarationModifiers;
+
+            static TypeSignatureModifiers GetAccessibilityModifiers(TypeSignatureModifiers modifiers)
+            {
+                return modifiers & (TypeSignatureModifiers.Public | TypeSignatureModifiers.Internal | TypeSignatureModifiers.Protected | TypeSignatureModifiers.Private);
+            }
         }
 
         /// <summary>
