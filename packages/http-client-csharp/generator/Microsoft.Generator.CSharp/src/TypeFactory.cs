@@ -24,11 +24,8 @@ namespace Microsoft.Generator.CSharp
         private Dictionary<EnumCacheKey, TypeProvider?>? _enumCache;
         private Dictionary<EnumCacheKey, TypeProvider?> EnumCache => _enumCache ??= [];
 
-        private Dictionary<InputType, CSharpType>? _typeCache;
-        private Dictionary<InputType, CSharpType> TypeCache => _typeCache ??= [];
-
-        private HashSet<InputType>? _nullTypes;
-        private HashSet<InputType> NullTypes => _nullTypes ??= [];
+        private Dictionary<InputType, CSharpType?>? _typeCache;
+        private Dictionary<InputType, CSharpType?> TypeCache => _typeCache ??= [];
 
         private Dictionary<InputModelProperty, PropertyProvider?>? _propertyCache;
         private Dictionary<InputModelProperty, PropertyProvider?> PropertyCache => _propertyCache ??= [];
@@ -46,22 +43,17 @@ namespace Microsoft.Generator.CSharp
 
         public CSharpType? CreateCSharpType(InputType inputType)
         {
-            if (NullTypes.Contains(inputType))
+            if (TypeCache.TryGetValue(inputType, out var type))
             {
-                return null;
+                return type;
             }
 
-            CSharpType? type = CreateCSharpTypeCore(inputType);
-
-            if (type == null)
-            {
-                NullTypes.Add(inputType);
-            }
-
+            type = CreateCSharpTypeCore(inputType);
+            TypeCache.Add(inputType, type);
             return type;
         }
 
-        private protected virtual CSharpType? CreateCSharpTypeCore(InputType inputType)
+        protected virtual CSharpType? CreateCSharpTypeCore(InputType inputType)
         {
             CSharpType? type;
             switch (inputType)
@@ -101,20 +93,10 @@ namespace Microsoft.Generator.CSharp
                     type = CreateCSharpType(nullableType.Type)?.WithNullable(true);
                     break;
                 default:
-                    type = CreatePrimitiveCSharpType(inputType);
+                    type = CreatePrimitiveCSharpTypeCore(inputType);
                     break;
             }
 
-            return type;
-        }
-
-        internal CSharpType CreatePrimitiveCSharpType(InputType inputType)
-        {
-            if (TypeCache.TryGetValue(inputType, out var type))
-                return type;
-
-            type = CreatePrimitiveCSharpTypeCore(inputType);
-            TypeCache.Add(inputType, type);
             return type;
         }
 
