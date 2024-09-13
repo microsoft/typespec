@@ -31,6 +31,9 @@ namespace Microsoft.Generator.CSharp.Providers
         public PropertyWireInformation? WireInfo { get; }
         public bool IsDiscriminator { get; }
 
+        public FieldProvider? BackingField { get; set; }
+        public PropertyProvider? BaseProperty { get; set; }
+
         /// <summary>
         /// Converts this property to a parameter.
         /// </summary>

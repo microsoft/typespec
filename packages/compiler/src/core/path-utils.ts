@@ -601,7 +601,7 @@ export function getRelativePathFromDirectory(
   fromDirectory: string,
   to: string,
   getCanonicalFileName: GetCanonicalFileName
-): string; // eslint-disable-line @typescript-eslint/unified-signatures
+): string;
 export function getRelativePathFromDirectory(
   fromDirectory: string,
   to: string,

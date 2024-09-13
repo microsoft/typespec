@@ -151,10 +151,10 @@ export const $query: QueryDecorator = (
   if (
     entity.type.kind === "Model" &&
     isArrayModelType(context.program, entity.type) &&
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     options.format === undefined
   ) {
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     options.format = userOptions.explode ? "multi" : "csv";
   }
   context.program.stateMap(HttpStateKeys.query).set(entity, options);
@@ -249,7 +249,7 @@ export const $statusCode: StatusCodeDecorator = (
 ) => {
   context.program.stateSet(HttpStateKeys.statusCode).add(entity);
 
-  // eslint-disable-next-line deprecation/deprecation
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   setLegacyStatusCodeState(context, entity);
 };
 

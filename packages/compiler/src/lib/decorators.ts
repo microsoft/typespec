@@ -944,7 +944,7 @@ export const $withoutDefaultValues: WithoutDefaultValuesDecorator = (
 ) => {
   // remove all read-only properties from the target type
   target.properties.forEach((p) => {
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     delete p.default;
     delete p.defaultValue;
   });
@@ -957,7 +957,6 @@ const listPropertiesKey = createStateSymbol("listProperties");
 /**
  * @deprecated Use the `listsResource` decorator in `@typespec/rest` instead.
  */
-// eslint-disable-next-line deprecation/deprecation
 export const $list: ListDecorator = (
   context: DecoratorContext,
   target: Operation,
@@ -1229,7 +1228,6 @@ export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
  *     model Foo {}
  * ```
  */
-// eslint-disable-next-line deprecation/deprecation
 export const $deprecated: DeprecatedDecorator = (
   context: DecoratorContext,
   target: Type,

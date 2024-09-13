@@ -9,6 +9,6 @@ namespace _Type.Model.Inheritance.EnumDiscriminator.Models
 {
     internal partial class UnknownSnake : Snake
     {
-        internal UnknownSnake(SnakeKind kind, int length, IDictionary<string, BinaryData> serializedAdditionalRawData) : base(kind, length, serializedAdditionalRawData) => throw null;
+        internal UnknownSnake(SnakeKind kind, int length, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind, length, additionalBinaryDataProperties) => throw null;
     }
 }

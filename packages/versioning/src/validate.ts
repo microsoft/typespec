@@ -137,13 +137,13 @@ export function $onValidate(program: Program) {
         const [_, versionMap] = getVersions(program, namespace);
         validateVersionEnumValuesUnique(program, namespace);
         const serviceProps = getService(program, namespace);
-        // eslint-disable-next-line deprecation/deprecation
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
         if (serviceProps?.version !== undefined && versionMap !== undefined) {
           reportDiagnostic(program, {
             code: "no-service-fixed-version",
             format: {
               name: getNamespaceFullName(namespace),
-              // eslint-disable-next-line deprecation/deprecation
+              // eslint-disable-next-line @typescript-eslint/no-deprecated
               version: serviceProps.version,
             },
             target: namespace,
@@ -533,8 +533,10 @@ function validateReference(program: Program, source: Type | Type[], target: Type
 
   switch (target.kind) {
     case "Union":
-      for (const variant of target.variants.values()) {
-        validateReference(program, source, variant.type);
+      if (typeof target.name !== "string") {
+        for (const variant of target.variants.values()) {
+          validateReference(program, source, variant.type);
+        }
       }
       break;
     case "Tuple":

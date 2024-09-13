@@ -12,7 +12,6 @@ describe("compiler: stringTemplateToString (deprecated)", () => {
     };
 
     strictEqual(value.type.kind, "StringTemplate");
-    // eslint-disable-next-line deprecation/deprecation
     return stringTemplateToString(value.type);
   }
 

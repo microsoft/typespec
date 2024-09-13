@@ -96,6 +96,5 @@ namespace Microsoft.Generator.CSharp.Providers
             => EnumValues.Select(v => v.Field).ToArray();
 
         protected override bool GetIsEnum() => true;
-        protected override CSharpType BuildEnumUnderlyingType() => CodeModelPlugin.Instance.TypeFactory.CreatePrimitiveCSharpType(_inputType.ValueType);
     }
 }

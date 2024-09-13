@@ -15,6 +15,5 @@ namespace Encode.Datetime.Models
             get => throw null;
             set => throw null;
         }
-
     }
 }

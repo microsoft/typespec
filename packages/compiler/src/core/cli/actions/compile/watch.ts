@@ -25,7 +25,7 @@ export function createWatcher(
   function watchFile(file: string): FSWatcher {
     const watcher = watch(
       file,
-      dupFilter((event: WatchEventType, _name: string) => {
+      dupFilter((event: WatchEventType, _name: string | null) => {
         onFileChanged(event, file);
       })
     );
@@ -67,8 +67,11 @@ export function createWatchHost(host: CliCompilerHost): WatchHost {
 }
 function createDupsFilter() {
   let memo: Record<string, [WatchEventType, string]> = {};
-  return function (fn: (e: WatchEventType, name: string) => void) {
-    return function (event: WatchEventType, name: string) {
+  return function (fn: (e: WatchEventType, name: string | null) => void) {
+    return function (event: WatchEventType, name: string | null) {
+      if (name === null) {
+        return;
+      }
       memo[name] = [event, name];
       setTimeout(function () {
         Object.values(memo).forEach((args) => {

@@ -680,6 +680,31 @@ describe("versioning: logic", () => {
       strictEqual((v6 as any as IntrinsicType).name, "never");
     });
 
+    it("does not emit diagnostic when using named versioned union variant in incompatible versioned source", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace TestService {
+          enum Versions {v1, v2}
+
+          @added(Versions.v2)
+          model Versioned {}
+
+          union NamedUnion {
+            string;
+
+            @added(Versions.v2)
+            Versioned;
+          }
+          
+          @added(Versions.v1)
+          model Foo {
+            content: NamedUnion;
+          }
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     async function versionedUnion(versions: string[], union: string) {
       const { Test } = (await runner.compile(`
       @versioned(Versions)
@@ -1012,13 +1037,7 @@ describe("versioning: logic", () => {
         `
       )) as { MyService: Namespace };
 
-      const [v1, v2] = runProjections(runner.program, MyService);
-      const w1 = v1.projectedTypes.get(MyService) as Namespace;
-      const w2 = v2.projectedTypes.get(MyService) as Namespace;
-      w1.models.get("Widget")?.properties.size === 1;
-      w1.operations.get("create")?.parameters.properties.size === 1;
-      w2.models.get("Widget")?.properties.size === 2;
-      w2.operations.get("create")?.parameters.properties.size === 2;
+      runProjections(runner.program, MyService);
     });
 
     it("can share a model reference between operations with different versions", async () => {
