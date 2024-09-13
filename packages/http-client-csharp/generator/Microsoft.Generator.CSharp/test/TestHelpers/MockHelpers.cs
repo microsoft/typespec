@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -17,12 +18,28 @@ namespace Microsoft.Generator.CSharp.Tests
     {
         public const string TestHelpersFolder = "TestHelpers";
 
-        public static Mock<CodeModelPlugin> LoadMockPlugin(
+        public async static Task<Mock<CodeModelPlugin>> LoadMockPluginAsync(
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<OutputLibrary>? createOutputLibrary = null,
             string? configuration = null,
             InputModelType[]? inputModelTypes = null,
-            Compilation? customization = null)
+            Func<Task<Compilation>>? compilation = null)
+        {
+            var mockPlugin = LoadMockPlugin(createCSharpTypeCore, createOutputLibrary, configuration, inputModelTypes);
+
+            var compilationResult = compilation == null ? null : await compilation();
+
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilationResult)) { CallBase = true };
+            mockPlugin.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
+
+            return mockPlugin;
+        }
+
+        public static Mock<CodeModelPlugin> LoadMockPlugin(
+            Func<InputType, CSharpType>? createCSharpTypeCore = null,
+            Func<OutputLibrary>? createOutputLibrary = null,
+            string? configuration = null,
+            InputModelType[]? inputModelTypes = null)
         {
             var configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
             // initialize the singleton instance of the plugin
@@ -49,12 +66,10 @@ namespace Microsoft.Generator.CSharp.Tests
 
             mockPlugin.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
 
-            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(customization)) { CallBase = true };
-
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null)) { CallBase = true };
             mockPlugin.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
 
             CodeModelPlugin.Instance = mockPlugin.Object;
-
 
             return mockPlugin;
         }

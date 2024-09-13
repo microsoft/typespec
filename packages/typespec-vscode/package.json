@@ -1,6 +1,6 @@
 {
   "name": "typespec-vscode",
-  "version": "0.59.0",
+  "version": "0.60.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",
@@ -119,6 +119,25 @@
           "docCommentTag": [
             "keyword.other.tsp"
           ]
+        }
+      }
+    ],
+    "taskDefinitions": [
+      {
+        "type": "typespec",
+        "when": "shellExecutionSupported",
+        "required": [
+          "path"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "The path to trigger tsp compile"
+          },
+          "args": {
+            "type": "string",
+            "description": "The arguments to tsp compile"
+          }
         }
       }
     ]

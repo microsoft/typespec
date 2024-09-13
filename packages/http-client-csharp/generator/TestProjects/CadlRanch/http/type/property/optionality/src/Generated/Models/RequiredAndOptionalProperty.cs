@@ -14,12 +14,10 @@ namespace _Type.Property.Optional.Models
             set => throw null;
         }
 
-
         public int RequiredProperty
         {
             get => throw null;
             set => throw null;
         }
-
     }
 }

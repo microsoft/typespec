@@ -17,13 +17,11 @@ namespace _Type.Union.Models
             set => throw null;
         }
 
-
         public BinaryData Literal
         {
             get => throw null;
             set => throw null;
         }
-
 
         public BinaryData Int
         {
@@ -31,13 +29,11 @@ namespace _Type.Union.Models
             set => throw null;
         }
 
-
         public BinaryData Boolean
         {
             get => throw null;
             set => throw null;
         }
-
 
         public IList<BinaryData> Array => throw null;
     }

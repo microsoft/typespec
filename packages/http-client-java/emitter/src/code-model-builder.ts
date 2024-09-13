@@ -199,13 +199,12 @@ export class CodeModelBuilder {
     }
 
     const service = listServices(this.program)[0];
-    const serviceNamespace = service.type;
-    if (serviceNamespace === undefined) {
-      throw Error("Cannot emit yaml for a namespace that doesn't exist.");
+    if (!service) {
+      throw Error("TypeSpec for HTTP must define a service.");
     }
-    this.serviceNamespace = serviceNamespace;
+    this.serviceNamespace = service.type;
 
-    this.namespace = getNamespaceFullName(serviceNamespace) || "Azure.Client";
+    this.namespace = getNamespaceFullName(this.serviceNamespace) || "Azure.Client";
     // java namespace
     const javaNamespace = this.getJavaNamespace(this.namespace);
 
@@ -219,9 +218,9 @@ export class CodeModelBuilder {
     };
 
     // init code model
-    const title = this.options["service-name"] ?? serviceNamespace.name;
+    const title = this.options["service-name"] ?? this.serviceNamespace.name;
 
-    const description = this.getDoc(serviceNamespace);
+    const description = this.getDoc(this.serviceNamespace);
     this.codeModel = new CodeModel(title, false, {
       info: {
         description: description,
@@ -230,7 +229,7 @@ export class CodeModelBuilder {
         default: {
           name: title,
           description: description,
-          summary: this.getSummary(serviceNamespace),
+          summary: this.getSummary(this.serviceNamespace),
           namespace: this.namespace,
         },
         java: {
@@ -289,7 +288,7 @@ export class CodeModelBuilder {
           },
           language: {
             default: {
-              serializedName: arg.name,
+              serializedName: arg.serializedName,
             },
           },
           // TODO: deprecate this logic of string/url for x-ms-skip-url-encoding
@@ -369,23 +368,24 @@ export class CodeModelBuilder {
   private processModels() {
     const processedSdkModels: Set<SdkModelType | SdkEnumType> = new Set();
 
-    // lambda to mark model as public
-    const modelAsPublic = (model: SdkModelType | SdkEnumType) => {
-      const schema = this.processSchemaFromSdkType(model, "");
-
-      this.trackSchemaUsage(schema, {
-        usage: [SchemaContext.Public],
-      });
-    };
+    // cache resolved value of access/usage for the namespace
+    // the value can be set as undefined
+    // it resolves the value from that namespace and its parent namespaces
+    const accessCache: Map<Namespace, string | undefined> = new Map();
+    const usageCache: Map<Namespace, SchemaContext[] | undefined> = new Map();
 
     const sdkModels: (SdkModelType | SdkEnumType)[] = getAllModels(this.sdkContext);
 
     // process sdk models
     for (const model of sdkModels) {
       if (!processedSdkModels.has(model)) {
-        const access = getAccess(model.__raw);
+        const access = getAccess(model.__raw, accessCache);
         if (access === "public") {
-          modelAsPublic(model);
+          const schema = this.processSchemaFromSdkType(model, "");
+
+          this.trackSchemaUsage(schema, {
+            usage: [SchemaContext.Public],
+          });
         } else if (access === "internal") {
           const schema = this.processSchemaFromSdkType(model, model.name);
 
@@ -394,7 +394,7 @@ export class CodeModelBuilder {
           });
         }
 
-        const usage = getUsage(model.__raw);
+        const usage = getUsage(model.__raw, usageCache);
         if (usage) {
           const schema = this.processSchemaFromSdkType(model, "");
 
@@ -1128,6 +1128,11 @@ export class CodeModelBuilder {
               explode = true;
               break;
           }
+
+          if (param.explode && !param.collectionFormat) {
+            style = SerializationStyle.Form;
+            explode = true;
+          }
         } else if (param.kind === "header") {
           const format = param.collectionFormat;
           switch (format) {
@@ -1144,10 +1149,19 @@ export class CodeModelBuilder {
         }
       }
 
+      // TODO: use param.onClient after TCGC fix
+      const parameterOnClient =
+        !isApiVersion(this.sdkContext, param) &&
+        param.correspondingMethodParams &&
+        param.correspondingMethodParams.length > 0 &&
+        param.correspondingMethodParams[0].onClient;
+
       const nullable = param.type.kind === "nullable";
       const parameter = new Parameter(param.name, param.details ?? "", schema, {
         summary: param.description,
-        implementation: ImplementationLocation.Method,
+        implementation: parameterOnClient
+          ? ImplementationLocation.Client
+          : ImplementationLocation.Method,
         required: !param.optional,
         nullable: nullable,
         protocol: {
@@ -1164,6 +1178,10 @@ export class CodeModelBuilder {
         extensions: extensions,
       });
       op.addParameter(parameter);
+
+      if (parameterOnClient) {
+        clientContext.addGlobalParameter(parameter);
+      }
 
       this.trackSchemaUsage(schema, { usage: [SchemaContext.Input] });
 

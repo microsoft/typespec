@@ -78,8 +78,16 @@ namespace Microsoft.Generator.CSharp
         private SourceInputModel? _sourceInputModel;
         internal async Task InitializeSourceInputModelAsync()
         {
-            GeneratedCodeWorkspace existingCode = GeneratedCodeWorkspace.CreateExistingCodeProject(Instance.Configuration.ProjectDirectory, Instance.Configuration.ProjectGeneratedDirectory);
+            GeneratedCodeWorkspace existingCode = GeneratedCodeWorkspace.CreateExistingCodeProject([Instance.Configuration.ProjectDirectory], Instance.Configuration.ProjectGeneratedDirectory);
             _sourceInputModel =  new SourceInputModel(await existingCode.GetCompilationAsync());
+        }
+
+        internal HashSet<string> TypesToKeep { get; } = new();
+        //TODO consider using TypeProvider so we can have a fully qualified name to filter on
+        //https://github.com/microsoft/typespec/issues/4418
+        public void AddTypeToKeep(string typeName)
+        {
+            TypesToKeep.Add(typeName);
         }
     }
 }

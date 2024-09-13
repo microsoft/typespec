@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var syncProtocol = BuildProtocolMethod(_createRequestMethod, false);
             var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true);
 
-            if (Operation.GenerateConvenienceMethod)
+            if (Operation.GenerateConvenienceMethod && !Operation.IsMultipartFormData)
             {
                 return
                 [

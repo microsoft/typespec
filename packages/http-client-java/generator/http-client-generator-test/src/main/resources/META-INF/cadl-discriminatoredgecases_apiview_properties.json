@@ -1,0 +1,21 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.cadl.discriminatoredgecases.DiscriminatorEdgeCasesAsyncClient": "Cadl.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp",
+    "com.cadl.discriminatoredgecases.DiscriminatorEdgeCasesAsyncClient.getChildNewDiscrim": "Cadl.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp.getChildNewDiscrim",
+    "com.cadl.discriminatoredgecases.DiscriminatorEdgeCasesAsyncClient.getChildNewDiscrimWithResponse": "Cadl.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp.getChildNewDiscrim",
+    "com.cadl.discriminatoredgecases.DiscriminatorEdgeCasesAsyncClient.getChildRequiredDiscrim": "Cadl.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp.getChildRequiredDiscrim",
+    "com.cadl.discriminatoredgecases.DiscriminatorEdgeCasesAsyncClient.getChildRequiredDiscrimWithResponse": "Cadl.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp.getChildRequiredDiscrim",
+    "com.cadl.discriminatoredgecases.DiscriminatorEdgeCasesClient": "Cadl.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp",
+    "com.cadl.discriminatoredgecases.DiscriminatorEdgeCasesClient.getChildNewDiscrim": "Cadl.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp.getChildNewDiscrim",
+    "com.cadl.discriminatoredgecases.DiscriminatorEdgeCasesClient.getChildNewDiscrimWithResponse": "Cadl.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp.getChildNewDiscrim",
+    "com.cadl.discriminatoredgecases.DiscriminatorEdgeCasesClient.getChildRequiredDiscrim": "Cadl.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp.getChildRequiredDiscrim",
+    "com.cadl.discriminatoredgecases.DiscriminatorEdgeCasesClient.getChildRequiredDiscrimWithResponse": "Cadl.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp.getChildRequiredDiscrim",
+    "com.cadl.discriminatoredgecases.DiscriminatorEdgeCasesClientBuilder": "Cadl.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp",
+    "com.cadl.discriminatoredgecases.models.ChildWithAnotherDiscriminator": "Cadl.DiscriminatorEdgeCases.ChildWithAnotherDiscriminator",
+    "com.cadl.discriminatoredgecases.models.ChildWithRequiredPropertyAsDiscriminator": "Cadl.DiscriminatorEdgeCases.ChildWithRequiredPropertyAsDiscriminator",
+    "com.cadl.discriminatoredgecases.models.GrandChildWithAnotherDiscriminator": "Cadl.DiscriminatorEdgeCases.GrandChildWithAnotherDiscriminator",
+    "com.cadl.discriminatoredgecases.models.GrandChildWithRequiredProperty": "Cadl.DiscriminatorEdgeCases.GrandChildWithRequiredProperty",
+    "com.cadl.discriminatoredgecases.models.ParentWithRequiredProperty": "Cadl.DiscriminatorEdgeCases.ParentWithRequiredProperty"
+  }
+}
