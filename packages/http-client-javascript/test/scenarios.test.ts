@@ -11,6 +11,7 @@ const snipperExtractor = createSnipperExtractor(tsExtractorConfig);
 
 executeScenarios(
   HttpClientJavascriptEmitterTestLibrary,
+  tsExtractorConfig,
   "./test/scenarios",
   join("tsp-output", "http-client-javascript"),
   snipperExtractor

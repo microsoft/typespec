@@ -1,9 +1,8 @@
 import { TypeSpecTestLibrary } from "@typespec/compiler/testing";
 import { readdirSync, readFileSync, statSync, writeFileSync } from "fs";
 import path from "path";
-import { format } from "prettier";
 import { afterEach, describe, expect, it } from "vitest";
-import { SnippetExtractor } from "./snippet-extractor.js";
+import { LanguageConfiguration, SnippetExtractor } from "./snippet-extractor.js";
 import { emitWithDiagnostics } from "./test-host.js";
 
 const SCENARIOS_UPDATE = process.env["SCENARIOS_UPDATE"] === "true";
@@ -33,12 +32,14 @@ async function assertGetEmittedFile(
  */
 function getCodeBlockTypes(
   testLibrary: TypeSpecTestLibrary,
+  languageConfiguration: LanguageConfiguration,
   emitterOutputDir: string,
   snippetExtractor: SnippetExtractor
 ): Record<string, EmitterFunction> {
+  const languageTags = languageConfiguration.codeBlockTypes.join("|");
   return {
     // Snapshot of a particular interface named {name} in the models file
-    "(ts|typescript) {file} interface {name}": async (code, { file, name }) => {
+    [`(${languageTags}) {file} interface {name}`]: async (code, { file, name }) => {
       const sourceFile = await assertGetEmittedFile(testLibrary, emitterOutputDir, file, code);
       const snippet = snippetExtractor.getInterface(sourceFile.content, name);
 
@@ -49,7 +50,7 @@ function getCodeBlockTypes(
       return snippet;
     },
 
-    "(ts|typescript) {file} type {name}": async (code, { file, name }) => {
+    [`(${languageTags}) {file} type {name}`]: async (code, { file, name }) => {
       const sourceFile = await assertGetEmittedFile(testLibrary, emitterOutputDir, file, code);
       const snippet = snippetExtractor.getTypeAlias(sourceFile.content, name);
 
@@ -61,7 +62,7 @@ function getCodeBlockTypes(
     },
 
     // Snapshot of a particular function named {name} in the models file
-    "(ts|typescript) {file} function {name}": async (code, { file, name }) => {
+    [`(${languageTags}) {file} function {name}`]: async (code, { file, name }) => {
       const sourceFile = await assertGetEmittedFile(testLibrary, emitterOutputDir, file, code);
       const snippet = snippetExtractor.getFunction(sourceFile.content, name);
 
@@ -73,7 +74,7 @@ function getCodeBlockTypes(
     },
 
     // Snapshot of the entire file
-    "(ts|typescript) {file}": async (code, { file }) => {
+    [`(${languageTags}) {file}`]: async (code, { file }) => {
       const sourceFile = await assertGetEmittedFile(testLibrary, emitterOutputDir, file, code);
       return sourceFile.content;
     },
@@ -82,6 +83,7 @@ function getCodeBlockTypes(
 
 export function executeScenarios(
   testLibrary: TypeSpecTestLibrary,
+  languageConfiguration: LanguageConfiguration,
   scenariosLocation: string,
   emitterOutputDir: string,
   snippetExtractor: SnippetExtractor
@@ -92,9 +94,23 @@ export function executeScenarios(
 
     // If there are no `only:` scenarios, run all scenarios normally.
     if (hasOnlyScenarios) {
-      describeScenarios(scenariosLocation, testLibrary, emitterOutputDir, snippetExtractor, false);
+      describeScenarios(
+        scenariosLocation,
+        testLibrary,
+        languageConfiguration,
+        emitterOutputDir,
+        snippetExtractor,
+        false
+      );
     } else {
-      describeScenarios(scenariosLocation, testLibrary, emitterOutputDir, snippetExtractor, true);
+      describeScenarios(
+        scenariosLocation,
+        testLibrary,
+        languageConfiguration,
+        emitterOutputDir,
+        snippetExtractor,
+        true
+      );
     }
   });
 }
@@ -102,6 +118,7 @@ export function executeScenarios(
 function describeScenarios(
   location: string,
   testLibrary: TypeSpecTestLibrary,
+  languageConfiguration: LanguageConfiguration,
   emitterOutputDir: string,
   snippetExtractor: SnippetExtractor,
   runAll = false
@@ -112,10 +129,24 @@ function describeScenarios(
     const stat = statSync(fullPath);
     if (stat.isDirectory()) {
       describe(child, function () {
-        describeScenarios(fullPath, testLibrary, emitterOutputDir, snippetExtractor, runAll);
+        describeScenarios(
+          fullPath,
+          testLibrary,
+          languageConfiguration,
+          emitterOutputDir,
+          snippetExtractor,
+          runAll
+        );
       });
     } else {
-      describeScenario(fullPath, testLibrary, emitterOutputDir, snippetExtractor, runAll);
+      describeScenario(
+        fullPath,
+        testLibrary,
+        languageConfiguration,
+        emitterOutputDir,
+        snippetExtractor,
+        runAll
+      );
     }
   }
 }
@@ -123,11 +154,12 @@ function describeScenarios(
 function describeScenario(
   scenarioFile: string,
   testLibrary: TypeSpecTestLibrary,
+  languageConfiguration: LanguageConfiguration,
   emitterOutputDir: string,
   snippetExtractor: SnippetExtractor,
   runAll: boolean
 ) {
-  let content = readFileSync(scenarioFile, { encoding: "utf-8" });
+  const content = readFileSync(scenarioFile, { encoding: "utf-8" });
 
   const sections = splitByH1(content);
 
@@ -157,6 +189,7 @@ function describeScenario(
           let tested = false;
           const outputCodeBlockTypes = getCodeBlockTypes(
             testLibrary,
+            languageConfiguration,
             emitterOutputDir,
             snippetExtractor
           );
@@ -178,11 +211,11 @@ function describeScenario(
                   content = updateCodeBlock(
                     content,
                     codeBlock.heading,
-                    (await format(result)).trim()
+                    (await languageConfiguration.format(result)).trim()
                   );
                 } else {
-                  const expected = await format(codeBlock.content, { parser: "typescript" });
-                  const actual = await format(result, { parser: "typescript" });
+                  const expected = await languageConfiguration.format(codeBlock.content);
+                  const actual = await languageConfiguration.format(result);
                   expect(actual).toBe(expected);
                 }
               });
@@ -271,7 +304,7 @@ function scanScenarios(location: string) {
 }
 
 function scanScenario(scenarioFile: string) {
-  let content = readFileSync(scenarioFile, { encoding: "utf-8" });
+  const content = readFileSync(scenarioFile, { encoding: "utf-8" });
 
   const sections = splitByH1(content);
 

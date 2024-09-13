@@ -41,10 +41,10 @@ op foo(): Foo;
 
 Should generate a type for a type with name `Foo`
 
-````ts src/models/models.ts
+```ts src/models/models.ts
 export enum Foo {
   one = "ONE",
   two = "TWO",
   three = "THREE",
-}```
-````
+}
+```

@@ -1,3 +1,4 @@
+import { format } from "prettier";
 import Parser from "tree-sitter";
 import CSharpLanguage from "tree-sitter-c-sharp";
 import JavaLanguage from "tree-sitter-java";
@@ -57,7 +58,7 @@ export function createTypeScriptExtractorConfig(): LanguageConfiguration {
   return {
     codeBlockTypes: ["ts", "typescript"],
     language: TypeScriptLanguage.typescript,
-    format: async (content: string) => content,
+    format: async (content: string) => format(content, { parser: "typescript" }),
     nodeKindMapping: {
       classNodeType: "class_declaration",
       functionNodeType: "function_declaration",
