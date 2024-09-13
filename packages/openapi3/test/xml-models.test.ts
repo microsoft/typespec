@@ -386,86 +386,98 @@ describe("Array of primitive types", () => {
     });
   });
 
-  it("unwrapped tags array in xmlBook Model, using the tag scalar renamed as ItemsName.", async () => {
-    const res = await oapiForModel(
-      "Book",
-      `
-        @name("ItemsName")
-        scalar tag extends string;
+  describe("scalar, @xml.unwrapped=true, and rename xml name.", () => {
+    it.each([
+      ["string", "string"],
+      ["numeric", "number"],
+      ["integer", "integer"],
+      ["float", "number"],
+      ["boolean", "boolean"],
+    ])(`%s => %s`, async (target, type) => {
+      const res = await oapiForModel(
+        "Book",
+        `@name("ItemsName")
+        scalar tag extends ${target};
 
         @name("xmlBook")
         model Book {
           @unwrapped
           tags: tag[]
-        }`
-    );
+        };`
+      );
+      expect(res.schemas.tag).toMatchObject({
+        type: `${type}`,
+        xml: {
+          name: "ItemsName",
+        },
+      });
 
-    expect(res.schemas.tag).toMatchObject({
-      type: "string",
-      xml: {
-        name: "ItemsName",
-      },
-    });
-
-    expect(res.schemas.Book).toMatchObject({
-      type: "object",
-      properties: {
-        tags: {
-          type: "array",
-          items: {
-            $ref: "#/components/schemas/tag",
+      expect(res.schemas.Book).toMatchObject({
+        type: "object",
+        properties: {
+          tags: {
+            type: "array",
+            items: {
+              $ref: "#/components/schemas/tag",
+            },
           },
         },
-      },
-      required: ["tags"],
-      xml: {
-        name: "xmlBook",
-      },
+        required: ["tags"],
+        xml: {
+          name: "xmlBook",
+        },
+      });
     });
   });
 
-  it("wrapped tags array in xmlBook Model, using the tag scalar renamed as ItemsName.", async () => {
-    const res = await oapiForModel(
-      "Book",
-      `
-        @name("ItemsName")
-        scalar tag extends string;
+  describe("scalar, @xml.unwrapped=false, and rename xml name.", () => {
+    it.each([
+      ["string", "string"],
+      ["numeric", "number"],
+      ["integer", "integer"],
+      ["float", "number"],
+      ["boolean", "boolean"],
+    ])(`%s => %s`, async (target, type) => {
+      const res = await oapiForModel(
+        "Book",
+        `@name("ItemsName")
+        scalar tag extends ${target};
 
         @name("xmlBook")
         model Book {
           @name("ItemsTags")
           tags: tag[]
-        }`
-    );
+        };`
+      );
+      expect(res.schemas.tag).toMatchObject({
+        type: `${type}`,
+        xml: {
+          name: "ItemsName",
+        },
+      });
 
-    expect(res.schemas.tag).toMatchObject({
-      type: "string",
-      xml: {
-        name: "ItemsName",
-      },
-    });
-
-    expect(res.schemas.Book).toMatchObject({
-      type: "object",
-      properties: {
-        tags: {
-          type: "array",
-          xml: {
-            name: "ItemsTags",
-            wrapped: true,
-          },
-          items: {
-            type: "string",
+      expect(res.schemas.Book).toMatchObject({
+        type: "object",
+        properties: {
+          tags: {
+            type: "array",
             xml: {
-              name: "ItemsName",
+              name: "ItemsTags",
+              wrapped: true,
+            },
+            items: {
+              type: `${type}`,
+              xml: {
+                name: "ItemsName",
+              },
             },
           },
         },
-      },
-      required: ["tags"],
-      xml: {
-        name: "xmlBook",
-      },
+        required: ["tags"],
+        xml: {
+          name: "xmlBook",
+        },
+      });
     });
   });
 });
