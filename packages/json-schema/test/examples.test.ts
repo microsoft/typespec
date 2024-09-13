@@ -8,7 +8,7 @@ it("apply example on model", async () => {
       model Test { name: string }
       `
   );
-  expect(schemas["Test.json"].example).toEqual([{ name: "John" }]);
+  expect(schemas["Test.json"].examples).toEqual([{ name: "John" }]);
 });
 
 it("apply multiple example on model", async () => {
@@ -19,7 +19,7 @@ it("apply multiple example on model", async () => {
       model Test { name: string }
       `
   );
-  expect(schemas["Test.json"].example).toEqual([{ name: "John" }, { name: "Jane" }]);
+  expect(schemas["Test.json"].examples).toEqual([{ name: "John" }, { name: "Jane" }]);
 });
 
 it("apply example on property", async () => {
@@ -28,7 +28,7 @@ it("apply example on property", async () => {
       model Test { @example("John") name: string }
       `
   );
-  expect(schemas["Test.json"].properties.name.example).toEqual(["John"]);
+  expect(schemas["Test.json"].properties.name.examples).toEqual(["John"]);
 });
 
 it("serialize the examples with their json encoding", async () => {
@@ -38,5 +38,5 @@ it("serialize the examples with their json encoding", async () => {
       model Test { dob: plainDate }
       `
   );
-  expect(schemas["Test.json"].example).toEqual([{ dob: "2021-01-01" }]);
+  expect(schemas["Test.json"].examples).toEqual([{ dob: "2021-01-01" }]);
 });

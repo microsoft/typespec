@@ -739,7 +739,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     const program = this.emitter.getProgram();
     const examples = getExamples(program, type);
     if (examples.length > 0) {
-      target.set("example", serializeValueAsJson(program, examples[0].value, type));
+      target.set("examples", serializeValueAsJson(program, examples[0].value, type));
     }
   }
 
