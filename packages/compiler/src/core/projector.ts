@@ -302,6 +302,10 @@ export function createProjector(
       projectedModel.sourceModel = projectType(model.sourceModel) as Model;
     }
 
+    projectedModel.sourceModels = model.sourceModels.map((source) => {
+      return { ...source, model: projectType(source.model) as Model };
+    });
+
     if (model.indexer) {
       const projectedValue = projectType(model.indexer.value);
       projectedModel.indexer = {
