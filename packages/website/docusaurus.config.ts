@@ -79,6 +79,7 @@ const config: Config = {
     format: "detect",
   },
   scripts: [
+    "https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js",
     {
       src: `${baseUrl}es-module-shims.js`,
       type: "module",
@@ -89,7 +90,6 @@ const config: Config = {
       type: "module",
       async: true,
     },
-    "https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js",
   ],
   headTags: [
     {
