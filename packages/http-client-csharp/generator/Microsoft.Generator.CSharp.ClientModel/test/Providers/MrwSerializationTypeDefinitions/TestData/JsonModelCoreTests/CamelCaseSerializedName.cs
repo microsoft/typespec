@@ -22,9 +22,9 @@ namespace sample.namespace.Models
             }
             writer.WritePropertyName("camelCase"u8);
             writer.WriteStringValue(CamelCase);
-            if (((options.Format != "W") && (_serializedAdditionalRawData != null)))
+            if (((options.Format != "W") && (_additionalBinaryDataProperties != null)))
             {
-                foreach (var item in _serializedAdditionalRawData)
+                foreach (var item in _additionalBinaryDataProperties)
                 {
                     writer.WritePropertyName(item.Key);
 #if NET6_0_OR_GREATER

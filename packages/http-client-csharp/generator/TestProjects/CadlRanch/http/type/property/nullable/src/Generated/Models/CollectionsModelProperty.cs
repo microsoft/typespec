@@ -14,12 +14,10 @@ namespace _Type.Property.Nullable.Models
             set => throw null;
         }
 
-
         public IList<InnerModel> NullableProperty
         {
             get => throw null;
             set => throw null;
         }
-
     }
 }

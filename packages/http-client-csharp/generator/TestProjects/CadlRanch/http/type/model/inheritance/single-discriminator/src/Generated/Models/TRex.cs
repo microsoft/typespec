@@ -11,6 +11,6 @@ namespace _Type.Model.Inheritance.SingleDiscriminator.Models
     {
         internal TRex(int size) : base("t-rex", size) => throw null;
 
-        internal TRex(int size, IDictionary<string, BinaryData> serializedAdditionalRawData) : base("t-rex", size, serializedAdditionalRawData) => throw null;
+        internal TRex(int size, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base("t-rex", size, additionalBinaryDataProperties) => throw null;
     }
 }
