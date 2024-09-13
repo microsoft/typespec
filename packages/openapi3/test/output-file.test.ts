@@ -112,23 +112,24 @@ describe("openapi3: output file", () => {
           @service namespace Service2 {}
         `
           );
-
-          expectHasOutput(`custom.Service1.${fileType}`);
-          expectHasOutput(`custom.Service2.${fileType}`);
+          expectHasOutput(`openapi.Service1.${fileType}`);
+          expectHasOutput(`openapi.Service2.${fileType}`);
         });
 
         it("create distinct files for distinct versions", async () => {
           await compileOpenAPI(
-            {},
+            { "file-type": fileType },
             `
-          @versioned(Versions) namespace Service1 {
+            using Versioning;
+
+          @versioned(Versions) @service namespace Service1 {
             enum Versions {v1, v2}
           }
         `
           );
 
-          expectHasOutput(`custom.v1.${fileType}`);
-          expectHasOutput(`custom.v2.${fileType}`);
+          expectHasOutput(`openapi.v1.${fileType}`);
+          expectHasOutput(`openapi.v2.${fileType}`);
         });
       });
     });
