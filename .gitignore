@@ -198,9 +198,13 @@ obj/
 *.vsix
 *.zip
 
+# Astro
+.astro/
+
 # Api extractor
 packages/*/etc/
 docs/**/js-api/
+packages/website-astro/src/content/docs/current/**/js-api/
 
 # csharp emitter
 !packages/http-client-csharp/package-lock.json
