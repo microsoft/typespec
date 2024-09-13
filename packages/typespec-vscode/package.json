@@ -25,7 +25,7 @@
   "type": "module",
   "main": "./dist/src/extension.cjs",
   "engines": {
-    "vscode": "^1.91.0"
+    "vscode": "^1.93.0"
   },
   "activationEvents": [
     "onLanguage:typespec",
