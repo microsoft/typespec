@@ -104,35 +104,31 @@ describe("openapi3: output file", () => {
   describe("multiple outputs", () => {
     (["json", "yaml"] as const).forEach((fileType) => {
       describe(`when file-type is ${fileType}`, () => {
-        it("create distinct files for distinct services", () => {
-          async () => {
-            await compileOpenAPI(
-              { "file-type": fileType },
-              `
+        it("create distinct files for distinct services", async () => {
+          await compileOpenAPI(
+            { "file-type": fileType },
+            `
           @service namespace Service1 {}
           @service namespace Service2 {}
         `
-            );
+          );
 
-            expectHasOutput(`custom.Service1.${fileType}`);
-            expectHasOutput(`custom.Service2.${fileType}`);
-          };
+          expectHasOutput(`custom.Service1.${fileType}`);
+          expectHasOutput(`custom.Service2.${fileType}`);
         });
 
-        it("create distinct files for distinct versions", () => {
-          async () => {
-            await compileOpenAPI(
-              {},
-              `
+        it("create distinct files for distinct versions", async () => {
+          await compileOpenAPI(
+            {},
+            `
           @versioned(Versions) namespace Service1 {
             enum Versions {v1, v2}
           }
         `
-            );
+          );
 
-            expectHasOutput(`custom.v1.${fileType}`);
-            expectHasOutput(`custom.v2.${fileType}`);
-          };
+          expectHasOutput(`custom.v1.${fileType}`);
+          expectHasOutput(`custom.v2.${fileType}`);
         });
       });
     });

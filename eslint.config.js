@@ -22,13 +22,23 @@ const allFilesConfig = tsEslint.config({
     "@typescript-eslint/no-inferrable-types": "off",
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/no-empty-interface": "off",
+    "@typescript-eslint/no-empty-object-type": "off",
     "@typescript-eslint/no-unused-vars": [
       "warn",
-      { varsIgnorePattern: "^_", argsIgnorePattern: ".*", ignoreRestSiblings: true },
+      {
+        varsIgnorePattern: "^_",
+        argsIgnorePattern: ".*",
+        ignoreRestSiblings: true,
+        caughtErrorsIgnorePattern: ".*",
+      },
     ],
 
     // This rule is bugged https://github.com/typescript-eslint/typescript-eslint/issues/6538
     "@typescript-eslint/no-misused-promises": "off",
+    "@typescript-eslint/no-unused-expressions": [
+      "warn",
+      { allowShortCircuit: true, allowTernary: true },
+    ],
 
     /**
      * Unicorn

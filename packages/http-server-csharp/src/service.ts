@@ -30,7 +30,6 @@ import {
   EmitEntity,
   EmittedSourceFile,
   EmitterOutput,
-  Placeholder,
   Scope,
   SourceFile,
   StringBuilder,
@@ -909,8 +908,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<string> {
-      const foo: Placeholder<string> = new Placeholder<string>();
-      foo.setValue;
       const scalarType = getCSharpTypeForScalar(this.emitter.getProgram(), scalar);
       return scalarType.getTypeReference(this.emitter.getContext().scope);
     }

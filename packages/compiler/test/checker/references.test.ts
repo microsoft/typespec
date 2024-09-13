@@ -477,9 +477,7 @@ describe("compiler: references", () => {
       let linkedValue: Operation | undefined;
       beforeEach(() => {
         testHost.addJsFile("./test-link.js", {
-          $testLink: (_: any, t: any, value: Operation) => {
-            linkedValue;
-          },
+          $testLink: (_: any, t: any, value: Operation) => {},
         });
       });
       it("defined before", async () => {
