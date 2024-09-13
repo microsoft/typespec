@@ -745,10 +745,16 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       const xmlName = resolveEncodedName(program, propValue as Scalar | Model, "application/xml");
       if (ref && ref.items) {
         if (propValue.kind === "Scalar") {
-          ref.items.type = propValue.baseScalar?.name || propValue.name;
-          delete ref.items.$ref;
+          ref.items = new ObjectBuilder({
+            type: propValue.baseScalar?.name || propValue.name,
+            xml: { name: xmlName },
+          });
+        } else {
+          ref.items = new ObjectBuilder({
+            allOf: [ref.items],
+            xml: { name: xmlName },
+          });
         }
-        ref.items.xml = { name: xmlName };
       }
     }
 

@@ -555,7 +555,14 @@ describe("Complex array types", () => {
             wrapped: true,
           },
           items: {
-            $ref: "#/components/schemas/Tag",
+            allOf: [
+              {
+                $ref: "#/components/schemas/Tag",
+              },
+            ],
+            xml: {
+              name: "XmlTag",
+            },
           },
         },
       },
@@ -649,7 +656,10 @@ describe("Complex array types", () => {
             wrapped: true,
           },
           items: {
-            $ref: "#/components/schemas/Tag",
+            allOf: [{ $ref: "#/components/schemas/Tag" }],
+            xml: {
+              name: "XmlTag",
+            },
           },
         },
       },
