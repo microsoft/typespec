@@ -4,7 +4,6 @@
 import {
   SdkBodyParameter,
   SdkBuiltInKinds,
-  SdkBuiltInType,
   SdkContext,
   SdkHeaderParameter,
   SdkHttpOperation,
@@ -17,7 +16,6 @@ import {
   SdkType,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
-  UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { getDeprecated, getDoc, getSummary, isErrorModel } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
@@ -30,7 +28,7 @@ import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputOperation } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
-import { InputPrimitiveType, InputType } from "../type/input-type.js";
+import { InputType } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
 import { OperationPaging } from "../type/operation-paging.js";
 import { OperationResponse } from "../type/operation-response.js";
@@ -172,8 +170,6 @@ function fromSdkOperationParameters(
   return parameters;
 }
 
-// TODO: roll back to SdkMethodParameter when we figure out how to represent the parameter location
-// https://github.com/Azure/typespec-azure/issues/981
 function fromSdkHttpOperationParameter(
   p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter,
   rootApiVersions: string[],
@@ -183,12 +179,6 @@ function fromSdkHttpOperationParameter(
   const isContentType =
     p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type";
   const parameterType = fromSdkType(p.type, sdkContext, typeMap);
-  // remove this after: https://github.com/Azure/typespec-azure/issues/1084
-  if (p.type.kind === "bytes") {
-    (parameterType as InputPrimitiveType).encode = (
-      p.correspondingMethodParams[0].type as SdkBuiltInType
-    ).encode;
-  }
   const format = p.kind === "header" || p.kind === "query" ? p.collectionFormat : undefined;
   const serializedName = p.kind !== "body" ? p.serializedName : p.name;
 
@@ -373,18 +363,28 @@ function getParameterKind(
   hasGlobalApiVersion: boolean
 ): InputOperationParameterKind {
   if (p.kind === "body") {
-    if (type.kind === "model" && (type.usage & UsageFlags.Spread) !== 0) {
+    /** TODO: remove this and use the spread metadata of parameter when https://github.com/Azure/typespec-azure/issues/1513 is resolved */
+    if (type.kind === "model" && p.type !== p.correspondingMethodParams[0]?.type) {
       return InputOperationParameterKind.Spread;
     }
     return InputOperationParameterKind.Method;
   }
+
+  /** remove this, use p.onClient directly when https://github.com/Azure/typespec-azure/issues/1532 is resolved */
+  const paramOnClient =
+    p.correspondingMethodParams &&
+    p.correspondingMethodParams.length > 0 &&
+    p.correspondingMethodParams[0].onClient;
+
   return type.kind === "constant"
     ? InputOperationParameterKind.Constant
     : p.isApiVersionParam
       ? hasGlobalApiVersion
         ? InputOperationParameterKind.Client
         : InputOperationParameterKind.Method
-      : InputOperationParameterKind.Method;
+      : paramOnClient // use p.onClient when https://github.com/Azure/typespec-azure/issues/1532 is resolved
+        ? InputOperationParameterKind.Client
+        : InputOperationParameterKind.Method;
 }
 
 function getOperationGroupName(

@@ -121,6 +121,25 @@
           ]
         }
       }
+    ],
+    "taskDefinitions": [
+      {
+        "type": "typespec",
+        "when": "shellExecutionSupported",
+        "required": [
+          "path"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "The path to trigger tsp compile"
+          },
+          "args": {
+            "type": "string",
+            "description": "The arguments to tsp compile"
+          }
+        }
+      }
     ]
   },
   "scripts": {
