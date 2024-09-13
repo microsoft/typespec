@@ -1,6 +1,5 @@
 // @ts-check
 import eslint from "@eslint/js";
-import deprecation from "eslint-plugin-deprecation";
 import reactHooks from "eslint-plugin-react-hooks";
 import unicorn from "eslint-plugin-unicorn";
 import vitest from "eslint-plugin-vitest";
@@ -76,10 +75,8 @@ const allFilesConfig = tsEslint.config({
 export function getTypeScriptProjectRules(root) {
   return tsEslint.config({
     files: ["**/*.ts", "**/*.tsx"],
-    ignores: ["packages/http-client-csharp/**/*"], // Ignore isolated modules
-    plugins: {
-      deprecation,
-    },
+    ignores: ["**/packages/http-client-csharp/**/*", "**/packages/http-client-java/**/*"], // Ignore isolated modules
+    plugins: {},
     languageOptions: {
       parserOptions: {
         project: "./tsconfig.json",
@@ -89,7 +86,7 @@ export function getTypeScriptProjectRules(root) {
     rules: {
       // Only put rules here that need typescript project information
       "@typescript-eslint/no-floating-promises": "error",
-      "deprecation/deprecation": ["warn"],
+      "@typescript-eslint/no-deprecated": "warn",
     },
   });
 }

@@ -84,7 +84,6 @@ export async function watchTypeSpecBundle(
     },
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   watcher.on("event", async (event) => {
     switch (event.code) {
       case "BUNDLE_START":

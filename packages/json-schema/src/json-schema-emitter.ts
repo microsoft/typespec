@@ -77,7 +77,6 @@ import { JSONSchemaEmitterOptions, reportDiagnostic } from "./lib.js";
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
   #idDuplicateTracker = new DuplicateTracker<string, DiagnosticTarget>();
   #typeForSourceFile = new Map<SourceFile<any>, JsonSchemaDeclaration>();
-  #refToDecl = new Map<string, Declaration<Record<string, unknown>>>();
 
   modelDeclaration(model: Model, name: string): EmitterOutput<object> {
     const schema = this.#initializeSchema(model, name, {
@@ -169,9 +168,9 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     const result = new ObjectBuilder(propertyType.value);
 
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     if (property.default) {
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       result.default = this.#getDefaultValue(property.type, property.default);
     }
 

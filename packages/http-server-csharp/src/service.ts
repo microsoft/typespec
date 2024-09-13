@@ -305,9 +305,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const [typeName, typeDefault] = this.#findPropertyType(property);
       const doc = getDoc(this.emitter.getProgram(), property);
       const attributes = getModelAttributes(this.emitter.getProgram(), property);
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       const defaultValue = property.default
-        ? // eslint-disable-next-line deprecation/deprecation
+        ? // eslint-disable-next-line @typescript-eslint/no-deprecated
           code`${this.emitter.emitType(property.default)}`
         : typeDefault;
       return this.emitter.result
@@ -771,9 +771,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         NameCasingType.Parameter
       );
       const [emittedType, emittedDefault] = this.#findPropertyType(parameter);
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       const defaultValue = parameter.default
-        ? // eslint-disable-next-line deprecation/deprecation
+        ? // eslint-disable-next-line @typescript-eslint/no-deprecated
           code`${this.emitter.emitType(parameter.default)}`
         : emittedDefault;
       return this.emitter.result.rawCode(
@@ -883,6 +883,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return context;
     }
 
+    // eslint-disable-next-line no-unused-private-class-members
     #getNamespaceFullName(namespace: Namespace | undefined): string {
       return namespace
         ? ensureCSharpIdentifier(
@@ -994,6 +995,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return current;
     }
 
+    // TODO: remove?
+    // eslint-disable-next-line no-unused-private-class-members
     #getTemplateParameters(model: Model): EmitterOutput<string> {
       if (!model.templateMapper) return "";
       let i = 0;

@@ -5,10 +5,11 @@ import { getFixturesRootDir } from "./utils";
 const rootDir = getFixturesRootDir();
 
 const ruleTester = new RuleTester({
-  parser: "@typescript-eslint/parser",
-  parserOptions: {
-    project: "./tsconfig.json",
-    tsconfigRootDir: rootDir,
+  languageOptions: {
+    parserOptions: {
+      project: "./tsconfig.json",
+      tsconfigRootDir: rootDir,
+    },
   },
 });
 

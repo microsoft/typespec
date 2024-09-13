@@ -363,9 +363,9 @@ describe("compiler: projector: Identity", () => {
     ok(projected.templateMapper !== original.templateMapper);
     ok(projected.templateMapper.args !== original.templateMapper.args);
     ok(projected.templateMapper.map !== original.templateMapper.map);
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     ok(projected.templateArguments !== original.templateArguments);
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     ok(projected.templateArguments === projected.templateMapper.args);
     strictEqual(projected.templateMapper.args.length, original.templateMapper.args.length);
     strictEqual(projected.templateMapper.map.size, original.templateMapper.map.size);

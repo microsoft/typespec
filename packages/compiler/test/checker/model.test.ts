@@ -212,7 +212,7 @@ describe("compiler: models", () => {
           `
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
-        // eslint-disable-next-line deprecation/deprecation
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
         expect({ ...foo.default }).toMatchObject(expectedValue);
       });
 
@@ -224,7 +224,7 @@ describe("compiler: models", () => {
         `
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
-        // eslint-disable-next-line deprecation/deprecation
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
         deepStrictEqual(foo.default, undefined);
       });
 
@@ -236,7 +236,7 @@ describe("compiler: models", () => {
         `
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
-        // eslint-disable-next-line deprecation/deprecation
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
         deepStrictEqual(foo.default, undefined);
       });
     });

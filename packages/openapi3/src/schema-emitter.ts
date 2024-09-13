@@ -858,36 +858,6 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   ): OpenAPI3Schema {
     return applyEncoding(this.emitter.getProgram(), typespecType, target as any, this.#options);
   }
-  #mergeFormatAndEncoding(
-    format: string | undefined,
-    encoding: string | undefined,
-    encodeAsFormat: string | undefined
-  ): string | undefined {
-    switch (format) {
-      case undefined:
-        return encodeAsFormat ?? encoding ?? format;
-      case "date-time":
-        switch (encoding) {
-          case "rfc3339":
-            return "date-time";
-          case "unixTimestamp":
-            return "unixtime";
-          case "rfc7231":
-            return "http-date";
-          default:
-            return encoding;
-        }
-      case "duration":
-        switch (encoding) {
-          case "ISO8601":
-            return "duration";
-          default:
-            return encodeAsFormat ?? encoding;
-        }
-      default:
-        return encodeAsFormat ?? encoding;
-    }
-  }
 
   intrinsic(intrinsic: IntrinsicType, name: string): EmitterOutput<object> {
     switch (name) {

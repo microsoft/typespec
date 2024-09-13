@@ -31,7 +31,7 @@
     "@docusaurus/theme-classic": "~3.5.2",
     "@docusaurus/theme-common": "~3.5.2",
     "@docusaurus/theme-mermaid": "^3.5.2",
-    "@fluentui/react-components": "~9.54.14",
+    "@fluentui/react-components": "~9.54.15",
     "@fluentui/react-icons": "^2.0.258",
     "@mdx-js/react": "^3.0.1",
     "@typespec/playground": "workspace:~",
