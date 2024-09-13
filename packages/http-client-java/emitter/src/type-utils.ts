@@ -1,4 +1,3 @@
-import { SchemaContext } from "@autorest/codemodel";
 import { getUnionAsEnum } from "@azure-tools/typespec-azure-core";
 import {
   SdkDurationType,
@@ -12,6 +11,7 @@ import {
   EnumMember,
   IntrinsicScalarName,
   Model,
+  Namespace,
   Program,
   Scalar,
   StringLiteral,
@@ -27,6 +27,7 @@ import {
   isTypeSpecValueTypeOf,
 } from "@typespec/compiler";
 import { DurationSchema } from "./common/schemas/time.js";
+import { SchemaContext } from "./common/schemas/usage.js";
 import { getNamespace } from "./utils.js";
 
 /** Acts as a cache for processing inputs.
@@ -227,15 +228,19 @@ export function modelIs(model: Model, name: string, namespace: string): boolean 
   return false;
 }
 
-export function getAccess(type: Type | undefined): string | undefined {
+export function getAccess(
+  type: Type | undefined,
+  accessCache: Map<Namespace, string | undefined>
+): string | undefined {
   if (
     type &&
     (type.kind === "Model" ||
       type.kind === "Operation" ||
       type.kind === "Enum" ||
-      type.kind === "Union")
+      type.kind === "Union" ||
+      type.kind === "Namespace")
   ) {
-    return getDecoratorScopedValue(type, "$access", (it) => {
+    let access = getDecoratorScopedValue(type, "$access", (it) => {
       const value = it.args[0].value;
       if ("kind" in value && value.kind === "EnumMember") {
         return value.name;
@@ -243,6 +248,16 @@ export function getAccess(type: Type | undefined): string | undefined {
         return undefined;
       }
     });
+    if (!access && type.namespace) {
+      // check (parent) namespace
+      if (accessCache.has(type.namespace)) {
+        access = accessCache.get(type.namespace);
+      } else {
+        access = getAccess(type.namespace, accessCache);
+        accessCache.set(type.namespace, access);
+      }
+    }
+    return access;
   } else {
     return undefined;
   }
@@ -252,15 +267,19 @@ export function isAllValueInteger(values: number[]): boolean {
   return values.every((it) => Number.isInteger(it));
 }
 
-export function getUsage(type: Type | undefined): SchemaContext[] | undefined {
+export function getUsage(
+  type: Type | undefined,
+  usageCache: Map<Namespace, SchemaContext[] | undefined>
+): SchemaContext[] | undefined {
   if (
     type &&
     (type.kind === "Model" ||
       type.kind === "Operation" ||
       type.kind === "Enum" ||
-      type.kind === "Union")
+      type.kind === "Union" ||
+      type.kind === "Namespace")
   ) {
-    return getDecoratorScopedValue(type, "$usage", (it) => {
+    let usage = getDecoratorScopedValue(type, "$usage", (it) => {
       const value = it.args[0].value;
       const values: EnumMember[] = [];
       const ret: SchemaContext[] = [];
@@ -288,6 +307,16 @@ export function getUsage(type: Type | undefined): SchemaContext[] | undefined {
       }
       return ret;
     });
+    if (!usage && type.namespace) {
+      // check (parent) namespace
+      if (usageCache.has(type.namespace)) {
+        usage = usageCache.get(type.namespace);
+      } else {
+        usage = getUsage(type.namespace, usageCache);
+        usageCache.set(type.namespace, usage);
+      }
+    }
+    return usage;
   } else {
     return undefined;
   }
