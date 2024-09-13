@@ -14,7 +14,6 @@ namespace Payload.Xml.Models
             set => throw null;
         }
 
-
         public IList<string> Colors => throw null;
     }
 }

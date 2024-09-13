@@ -60,7 +60,6 @@ $failingSpecs = @(
     Join-Path 'http' 'parameters' 'spread'
     Join-Path 'http' 'payload' 'content-negotiation'
     Join-Path 'http' 'payload' 'json-merge-patch'
-    Join-Path 'http' 'payload' 'multipart'
     Join-Path 'http' 'payload' 'pageable'
     Join-Path 'http' 'resiliency' 'srv-driven'
     Join-Path 'http' 'routes'

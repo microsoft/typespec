@@ -15,6 +15,5 @@ namespace Encode.Bytes.Models
             get => throw null;
             set => throw null;
         }
-
     }
 }

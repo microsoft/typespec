@@ -1,5 +1,12 @@
 # Change Log - @typespec/compiler
 
+## 0.60.1
+
+### Bug Fixes
+
+- [#4420](https://github.com/microsoft/typespec/pull/4420) Fix: Numeric values defined with e-notation incorrectly resolved
+
+
 ## 0.60.0
 
 ### Bug Fixes
