@@ -101,7 +101,7 @@ export class NumericValue extends CSharpValue {
     this.value = value;
   }
   public emitValue(scope?: Scope<string> | undefined): string {
-    return `${this.value}`;
+    return `${this.value ?? 0}`;
   }
 }
 
