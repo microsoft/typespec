@@ -125,7 +125,7 @@ export const $defaultResponse: DefaultResponseDecorator = (
   context: DecoratorContext,
   entity: Model
 ) => {
-  // eslint-disable-next-line deprecation/deprecation
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   setStatusCode(context.program, entity, ["*"]);
   context.program.stateSet(defaultResponseKey).add(entity);
 };
@@ -204,7 +204,7 @@ export function resolveInfo(program: Program, entity: Namespace): AdditionalInfo
   return omitUndefined({
     ...info,
     title: info?.title ?? service?.title,
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     version: info?.version ?? service?.version,
     summary: info?.summary ?? getSummary(program, entity),
     description: info?.description ?? getDoc(program, entity),
