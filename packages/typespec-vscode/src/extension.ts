@@ -10,7 +10,7 @@ import {
 } from "vscode-languageclient/node.js";
 import logger from "./extension-logger.js";
 import { TypeSpecLogOutputChannel } from "./typespec-log-output-channel.js";
-import { normalizeSlash } from "./utils.js";
+import { normalizeSlash, useShellInExec } from "./utils.js";
 
 let client: LanguageClient | undefined;
 /**
@@ -233,7 +233,7 @@ async function resolveTypeSpecCli(absoluteTargetPath: string): Promise<Executabl
     logger.debug(
       `Can't resolve compiler path for tsp task, try to use default value ${executable}.`
     );
-    return { command: executable, args: [], options };
+    return useShellInExec({ command: executable, args: [], options });
   } else {
     logger.debug(`Compiler path resolved as: ${compilerPath}`);
     const jsPath = join(compilerPath, "cmd/tsp.js");
@@ -281,7 +281,7 @@ async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executa
   if (!serverPath) {
     const executable = process.platform === "win32" ? "tsp-server.cmd" : "tsp-server";
     logger.debug(`Can't resolve server path, try to use default value ${executable}.`);
-    return { command: executable, args, options };
+    return useShellInExec({ command: executable, args, options });
   }
   const variableResolver = new VSCodeVariableResolver({
     workspaceFolder,
@@ -297,9 +297,9 @@ async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executa
       const command =
         process.platform === "win32" && !serverPath.endsWith(".cmd")
           ? `${serverPath}.cmd`
-          : "tsp-server";
+          : serverPath;
 
-      return { command, args, options };
+      return useShellInExec({ command, args, options });
     } else {
       serverPath = join(serverPath, "cmd/tsp-server.js");
     }
