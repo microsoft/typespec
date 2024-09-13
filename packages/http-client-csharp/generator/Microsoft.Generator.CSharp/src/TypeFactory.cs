@@ -282,6 +282,7 @@ namespace Microsoft.Generator.CSharp
                 {
                     BytesKnownEncoding.Base64 => SerializationFormat.Bytes_Base64,
                     BytesKnownEncoding.Base64Url => SerializationFormat.Bytes_Base64Url,
+                    null => SerializationFormat.Default,
                     _ => throw new IndexOutOfRangeException($"unknown encode {primitiveType.Encode}")
                 },
                 InputPrimitiveTypeKind.Integer or InputPrimitiveTypeKind.Int8 or InputPrimitiveTypeKind.Int16 or InputPrimitiveTypeKind.Int32

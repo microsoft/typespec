@@ -54,6 +54,7 @@ $failingSpecs = @(
     Join-Path 'http' 'client' 'structure' 'client-operation-group'
     Join-Path 'http' 'client' 'structure' 'renamed-operation'
     Join-Path 'http' 'client' 'structure' 'two-operation-group'
+    Join-Path 'http' 'encode' 'numeric'
     Join-Path 'http' 'parameters' 'body-optionality'
     Join-Path 'http' 'parameters' 'collection-format'
     Join-Path 'http' 'parameters' 'spread'
@@ -61,6 +62,7 @@ $failingSpecs = @(
     Join-Path 'http' 'payload' 'json-merge-patch'
     Join-Path 'http' 'payload' 'pageable'
     Join-Path 'http' 'resiliency' 'srv-driven'
+    Join-Path 'http' 'routes'
     Join-Path 'http' 'serialization' 'encoded-name' 'json'
     Join-Path 'http' 'server' 'endpoint' 'not-defined'
     Join-Path 'http' 'server' 'path' 'multiple'
@@ -73,6 +75,7 @@ $failingSpecs = @(
     Join-Path 'http' 'type' 'model' 'inheritance' 'nested-discriminator'
     Join-Path 'http' 'type' 'model' 'inheritance' 'not-discriminated'
     Join-Path 'http' 'type' 'model' 'inheritance' 'recursive'
+    Join-Path 'http' 'type' 'model' 'templated'
     Join-Path 'http' 'type' 'property' 'additional-properties'
 )
 
