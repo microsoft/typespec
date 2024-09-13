@@ -144,6 +144,32 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 paramMap[param.Name] = param;
             }
+            foreach (var inputParam in operation.Parameters)
+            {
+                if (!paramMap.ContainsKey(inputParam.Name))
+                {
+                    if (TryGetSpecialHeaderParam(inputParam, out var parameterProvider))
+                    {
+                        /* update the WireInfo */
+                        var specialHeaderParameterProvider = new ParameterProvider(
+                            parameterProvider.Name,
+                            parameterProvider.Description,
+                            parameterProvider.Type,
+                            parameterProvider.DefaultValue,
+                            parameterProvider.IsRef,
+                            parameterProvider.IsOut)
+                        {
+                            Value = parameterProvider.Value,
+                            WireInfo = new WireInformation(ClientModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParam.Type), inputParam.NameInRequest)
+                        };
+                        paramMap[inputParam.Name] = specialHeaderParameterProvider;
+                    }
+                    else
+                    {
+                        paramMap[inputParam.Name] = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam);
+                    }
+                }
+            }
 
             var classifier = GetClassifier(operation);
 
@@ -206,9 +232,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 CSharpType? type;
                 string? format;
                 ValueExpression valueExpression;
-                GetParamInfo(paramMap, operation, inputParameter, out type, out format, out valueExpression);
+                var paramProvider = paramMap[inputParameter.Name] ?? throw new InvalidOperationException($"parameter {inputParameter.Name} missing");
+                GetParamInfo(paramProvider, out type, out format, out valueExpression);
                 var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
-                ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : convertToStringExpression;
+                ValueExpression toStringExpression = type?.Equals(typeof(string)) == true || type?.Equals(typeof(Guid)) == true ? valueExpression : convertToStringExpression;
                 MethodBodyStatement statement;
                 if (type?.IsCollection == true)
                 {
@@ -235,7 +262,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
                 string? format;
                 ValueExpression valueExpression;
-                GetParamInfo(paramMap, operation, inputParameter, out var type, out format, out valueExpression);
+                var paramProvider = paramMap[inputParameter.Name] ?? throw new InvalidOperationException($"parameter {inputParameter.Name} missing");
+                GetParamInfo(paramProvider, out var type, out format, out valueExpression);
                 var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
                 ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : convertToStringExpression;
                 MethodBodyStatement statement;
@@ -296,50 +324,34 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 pathSpan = pathSpan.Slice(paramIndex + 1);
                 var paramEndIndex = pathSpan.IndexOf('}');
                 var paramName = pathSpan.Slice(0, paramEndIndex).ToString();
-                var inputParam = inputParamHash[paramName];
-
-                if (inputParam.Location == RequestLocation.Path || inputParam.Location == RequestLocation.Uri)
+                var paramProvider = paramMap[paramName] ?? throw new InvalidOperationException($"parameter {paramName} missing");
+                if (paramProvider.Location == ParameterLocation.Path || paramProvider.Location == ParameterLocation.Uri)
                 {
                     CSharpType? type;
                     string? format;
                     ValueExpression valueExpression;
-                    GetParamInfo(paramMap, operation, inputParam, out type, out format, out valueExpression);
+                    GetParamInfo(paramProvider, out type, out format, out valueExpression);
                     ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
                     valueExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
                     statements.Add(uri.AppendPath(valueExpression, true).Terminate());
                 }
-
                 pathSpan = pathSpan.Slice(paramEndIndex + 1);
             }
         }
 
-        private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out string? format, out ValueExpression valueExpression)
+        private static void GetParamInfo(ParameterProvider parameterProvider, out CSharpType? type, out string? format, out ValueExpression valueExpression)
         {
-            type = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
-            if (inputParam.Kind == InputOperationParameterKind.Constant && !(operation.IsMultipartFormData && inputParam.IsContentType))
+            type = parameterProvider.Type;
+            if (parameterProvider.Type.IsEnum)
             {
-                valueExpression = Literal((inputParam.Type as InputLiteralType)?.Value);
-                format = ClientModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
-            }
-            else if (TryGetSpecialHeaderParam(inputParam, out var parameterProvider))
-            {
-                valueExpression = parameterProvider.DefaultValue!;
-                format = ClientModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
+                var csharpType = parameterProvider.Field is null ? parameterProvider.Type : parameterProvider.Field.Type;
+                valueExpression = csharpType.ToSerial(parameterProvider);
+                format = null;
             }
             else
             {
-                var paramProvider = paramMap[inputParam.Name];
-                if (paramProvider.Type.IsEnum)
-                {
-                    var csharpType = paramProvider.Field is null ? paramProvider.Type : paramProvider.Field.Type;
-                    valueExpression = csharpType.ToSerial(paramProvider);
-                    format = null;
-                }
-                else
-                {
-                    valueExpression = paramProvider.Field is null ? paramProvider : paramProvider.Field;
-                    format = paramProvider.WireInfo.SerializationFormat.ToFormatSpecifier();
-                }
+                valueExpression = parameterProvider.Field is null ? (parameterProvider.Value ?? parameterProvider) : parameterProvider.Field;
+                format = parameterProvider.WireInfo.SerializationFormat.ToFormatSpecifier();
             }
         }
 

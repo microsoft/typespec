@@ -117,44 +117,14 @@
      "Parameters": [
       {
        "$id": "16",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Type": {
-        "$id": "17",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "18",
-        "Type": {
-         "$id": "19",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "20",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "21",
+        "$id": "17",
         "kind": "constant",
         "valueType": {
-         "$id": "22",
+         "$id": "18",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -174,7 +144,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "23",
+       "$id": "19",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -193,7 +163,7 @@
      ],
      "Responses": [
       {
-       "$id": "24",
+       "$id": "20",
        "StatusCodes": [
         204
        ],
@@ -217,12 +187,39 @@
     }
    ],
    "Protocol": {
-    "$id": "25"
+    "$id": "21"
    },
    "Parent": "BasicClient",
    "Parameters": [
     {
-     "$ref": "16"
+     "$id": "22",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Type": {
+      "$id": "23",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "24",
+      "Type": {
+       "$id": "25",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []
@@ -239,44 +236,14 @@
      "Parameters": [
       {
        "$id": "28",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Type": {
-        "$id": "29",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "30",
-        "Type": {
-         "$id": "31",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "32",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "33",
+        "$id": "29",
         "kind": "constant",
         "valueType": {
-         "$id": "34",
+         "$id": "30",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -296,7 +263,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "35",
+       "$id": "31",
        "Name": "simpleRequest",
        "NameInRequest": "simpleRequest",
        "Type": {
@@ -315,7 +282,7 @@
      ],
      "Responses": [
       {
-       "$id": "36",
+       "$id": "32",
        "StatusCodes": [
         204
        ],
@@ -339,12 +306,39 @@
     }
    ],
    "Protocol": {
-    "$id": "37"
+    "$id": "33"
    },
    "Parent": "BasicClient",
    "Parameters": [
     {
-     "$ref": "28"
+     "$id": "34",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Type": {
+      "$id": "35",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "36",
+      "Type": {
+       "$id": "37",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []

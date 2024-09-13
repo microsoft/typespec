@@ -47,7 +47,6 @@ import { isSdkPathParameter } from "./utils.js";
 export function fromSdkServiceMethod(
   method: SdkServiceMethod<SdkHttpOperation>,
   uri: string,
-  clientParameters: InputParameter[],
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
   typeMap: SdkTypeMap
@@ -83,7 +82,7 @@ export function fromSdkServiceMethod(
     Summary: getSummary(sdkContext.program, method.__raw!),
     Description: getDoc(sdkContext.program, method.__raw!),
     Accessibility: method.access,
-    Parameters: [...clientParameters, ...parameterMap.values()],
+    Parameters: [...parameterMap.values()],
     Responses: [...responseMap.values()],
     HttpMethod: parseHttpRequestMethod(method.operation.verb),
     RequestBodyMediaType: getBodyMediaType(method.operation.bodyParam?.type),

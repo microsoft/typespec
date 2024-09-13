@@ -117,43 +117,13 @@
      "Parameters": [
       {
        "$id": "16",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Type": {
-        "$id": "17",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "18",
-        "Type": {
-         "$id": "19",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "20",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "21",
+        "$id": "17",
         "kind": "constant",
         "valueType": {
-         "$id": "22",
+         "$id": "18",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -175,22 +145,22 @@
      ],
      "Responses": [
       {
-       "$id": "23",
+       "$id": "19",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$id": "24",
+        "$id": "20",
         "kind": "dict",
         "keyType": {
-         "$id": "25",
+         "$id": "21",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
         "valueType": {
-         "$id": "26",
+         "$id": "22",
          "kind": "int32",
          "name": "int32",
          "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -217,24 +187,21 @@
      "Decorators": []
     },
     {
-     "$id": "27",
+     "$id": "23",
      "Name": "put",
      "ResourceName": "Int32Value",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "16"
-      },
-      {
-       "$id": "28",
+       "$id": "24",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "29",
+        "$id": "25",
         "kind": "constant",
         "valueType": {
-         "$id": "30",
+         "$id": "26",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -254,21 +221,21 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "31",
+       "$id": "27",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$id": "32",
+        "$id": "28",
         "kind": "dict",
         "keyType": {
-         "$id": "33",
+         "$id": "29",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
         "valueType": {
-         "$id": "34",
+         "$id": "30",
          "kind": "int32",
          "name": "int32",
          "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -289,7 +256,7 @@
      ],
      "Responses": [
       {
-       "$id": "35",
+       "$id": "31",
        "StatusCodes": [
         204
        ],
@@ -313,12 +280,39 @@
     }
    ],
    "Protocol": {
-    "$id": "36"
+    "$id": "32"
    },
    "Parent": "DictionaryClient",
    "Parameters": [
     {
-     "$ref": "16"
+     "$id": "33",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Type": {
+      "$id": "34",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "35",
+      "Type": {
+       "$id": "36",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []
@@ -336,43 +330,13 @@
      "Parameters": [
       {
        "$id": "39",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Type": {
-        "$id": "40",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "41",
-        "Type": {
-         "$id": "42",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "43",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "44",
+        "$id": "40",
         "kind": "constant",
         "valueType": {
-         "$id": "45",
+         "$id": "41",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -394,22 +358,22 @@
      ],
      "Responses": [
       {
-       "$id": "46",
+       "$id": "42",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$id": "47",
+        "$id": "43",
         "kind": "dict",
         "keyType": {
-         "$id": "48",
+         "$id": "44",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
         "valueType": {
-         "$id": "49",
+         "$id": "45",
          "kind": "int64",
          "name": "int64",
          "crossLanguageDefinitionId": "TypeSpec.int64",
@@ -436,24 +400,21 @@
      "Decorators": []
     },
     {
-     "$id": "50",
+     "$id": "46",
      "Name": "put",
      "ResourceName": "Int64Value",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "39"
-      },
-      {
-       "$id": "51",
+       "$id": "47",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "52",
+        "$id": "48",
         "kind": "constant",
         "valueType": {
-         "$id": "53",
+         "$id": "49",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -473,21 +434,21 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "54",
+       "$id": "50",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$id": "55",
+        "$id": "51",
         "kind": "dict",
         "keyType": {
-         "$id": "56",
+         "$id": "52",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
         "valueType": {
-         "$id": "57",
+         "$id": "53",
          "kind": "int64",
          "name": "int64",
          "crossLanguageDefinitionId": "TypeSpec.int64",
@@ -508,7 +469,7 @@
      ],
      "Responses": [
       {
-       "$id": "58",
+       "$id": "54",
        "StatusCodes": [
         204
        ],
@@ -532,12 +493,39 @@
     }
    ],
    "Protocol": {
-    "$id": "59"
+    "$id": "55"
    },
    "Parent": "DictionaryClient",
    "Parameters": [
     {
-     "$ref": "39"
+     "$id": "56",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Type": {
+      "$id": "57",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "58",
+      "Type": {
+       "$id": "59",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []
@@ -555,43 +543,13 @@
      "Parameters": [
       {
        "$id": "62",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Type": {
-        "$id": "63",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "64",
-        "Type": {
-         "$id": "65",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "66",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "67",
+        "$id": "63",
         "kind": "constant",
         "valueType": {
-         "$id": "68",
+         "$id": "64",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -613,22 +571,22 @@
      ],
      "Responses": [
       {
-       "$id": "69",
+       "$id": "65",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$id": "70",
+        "$id": "66",
         "kind": "dict",
         "keyType": {
-         "$id": "71",
+         "$id": "67",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
         "valueType": {
-         "$id": "72",
+         "$id": "68",
          "kind": "boolean",
          "name": "boolean",
          "crossLanguageDefinitionId": "TypeSpec.boolean",
@@ -655,24 +613,21 @@
      "Decorators": []
     },
     {
-     "$id": "73",
+     "$id": "69",
      "Name": "put",
      "ResourceName": "BooleanValue",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "62"
-      },
-      {
-       "$id": "74",
+       "$id": "70",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "75",
+        "$id": "71",
         "kind": "constant",
         "valueType": {
-         "$id": "76",
+         "$id": "72",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -692,21 +647,21 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "77",
+       "$id": "73",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$id": "78",
+        "$id": "74",
         "kind": "dict",
         "keyType": {
-         "$id": "79",
+         "$id": "75",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
         "valueType": {
-         "$id": "80",
+         "$id": "76",
          "kind": "boolean",
          "name": "boolean",
          "crossLanguageDefinitionId": "TypeSpec.boolean",
@@ -727,7 +682,7 @@
      ],
      "Responses": [
       {
-       "$id": "81",
+       "$id": "77",
        "StatusCodes": [
         204
        ],
@@ -751,12 +706,39 @@
     }
    ],
    "Protocol": {
-    "$id": "82"
+    "$id": "78"
    },
    "Parent": "DictionaryClient",
    "Parameters": [
     {
-     "$ref": "62"
+     "$id": "79",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Type": {
+      "$id": "80",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "81",
+      "Type": {
+       "$id": "82",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []
@@ -774,43 +756,13 @@
      "Parameters": [
       {
        "$id": "85",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Type": {
-        "$id": "86",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "87",
-        "Type": {
-         "$id": "88",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "89",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "90",
+        "$id": "86",
         "kind": "constant",
         "valueType": {
-         "$id": "91",
+         "$id": "87",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -832,22 +784,22 @@
      ],
      "Responses": [
       {
-       "$id": "92",
+       "$id": "88",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$id": "93",
+        "$id": "89",
         "kind": "dict",
         "keyType": {
-         "$id": "94",
+         "$id": "90",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
         "valueType": {
-         "$id": "95",
+         "$id": "91",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -874,24 +826,21 @@
      "Decorators": []
     },
     {
-     "$id": "96",
+     "$id": "92",
      "Name": "put",
      "ResourceName": "StringValue",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "85"
-      },
-      {
-       "$id": "97",
+       "$id": "93",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "98",
+        "$id": "94",
         "kind": "constant",
         "valueType": {
-         "$id": "99",
+         "$id": "95",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -911,21 +860,21 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "100",
+       "$id": "96",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$id": "101",
+        "$id": "97",
         "kind": "dict",
         "keyType": {
-         "$id": "102",
+         "$id": "98",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
         "valueType": {
-         "$id": "103",
+         "$id": "99",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -946,7 +895,7 @@
      ],
      "Responses": [
       {
-       "$id": "104",
+       "$id": "100",
        "StatusCodes": [
         204
        ],
@@ -970,12 +919,39 @@
     }
    ],
    "Protocol": {
-    "$id": "105"
+    "$id": "101"
    },
    "Parent": "DictionaryClient",
    "Parameters": [
     {
-     "$ref": "85"
+     "$id": "102",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Type": {
+      "$id": "103",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "104",
+      "Type": {
+       "$id": "105",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []
@@ -993,43 +969,13 @@
      "Parameters": [
       {
        "$id": "108",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Type": {
-        "$id": "109",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "110",
-        "Type": {
-         "$id": "111",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "112",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "113",
+        "$id": "109",
         "kind": "constant",
         "valueType": {
-         "$id": "114",
+         "$id": "110",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1051,22 +997,22 @@
      ],
      "Responses": [
       {
-       "$id": "115",
+       "$id": "111",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$id": "116",
+        "$id": "112",
         "kind": "dict",
         "keyType": {
-         "$id": "117",
+         "$id": "113",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
         "valueType": {
-         "$id": "118",
+         "$id": "114",
          "kind": "float32",
          "name": "float32",
          "crossLanguageDefinitionId": "TypeSpec.float32",
@@ -1093,24 +1039,21 @@
      "Decorators": []
     },
     {
-     "$id": "119",
+     "$id": "115",
      "Name": "put",
      "ResourceName": "Float32Value",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "108"
-      },
-      {
-       "$id": "120",
+       "$id": "116",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "121",
+        "$id": "117",
         "kind": "constant",
         "valueType": {
-         "$id": "122",
+         "$id": "118",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1130,21 +1073,21 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "123",
+       "$id": "119",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$id": "124",
+        "$id": "120",
         "kind": "dict",
         "keyType": {
-         "$id": "125",
+         "$id": "121",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
         "valueType": {
-         "$id": "126",
+         "$id": "122",
          "kind": "float32",
          "name": "float32",
          "crossLanguageDefinitionId": "TypeSpec.float32",
@@ -1165,7 +1108,7 @@
      ],
      "Responses": [
       {
-       "$id": "127",
+       "$id": "123",
        "StatusCodes": [
         204
        ],
@@ -1189,12 +1132,39 @@
     }
    ],
    "Protocol": {
-    "$id": "128"
+    "$id": "124"
    },
    "Parent": "DictionaryClient",
    "Parameters": [
     {
-     "$ref": "108"
+     "$id": "125",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Type": {
+      "$id": "126",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "127",
+      "Type": {
+       "$id": "128",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []
@@ -1212,43 +1182,13 @@
      "Parameters": [
       {
        "$id": "131",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Type": {
-        "$id": "132",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "133",
-        "Type": {
-         "$id": "134",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "135",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "136",
+        "$id": "132",
         "kind": "constant",
         "valueType": {
-         "$id": "137",
+         "$id": "133",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1270,27 +1210,27 @@
      ],
      "Responses": [
       {
-       "$id": "138",
+       "$id": "134",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$id": "139",
+        "$id": "135",
         "kind": "dict",
         "keyType": {
-         "$id": "140",
+         "$id": "136",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
         "valueType": {
-         "$id": "141",
+         "$id": "137",
          "kind": "utcDateTime",
          "name": "utcDateTime",
          "encode": "rfc3339",
          "wireType": {
-          "$id": "142",
+          "$id": "138",
           "kind": "string",
           "name": "string",
           "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1320,24 +1260,21 @@
      "Decorators": []
     },
     {
-     "$id": "143",
+     "$id": "139",
      "Name": "put",
      "ResourceName": "DatetimeValue",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "131"
-      },
-      {
-       "$id": "144",
+       "$id": "140",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "145",
+        "$id": "141",
         "kind": "constant",
         "valueType": {
-         "$id": "146",
+         "$id": "142",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1357,26 +1294,26 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "147",
+       "$id": "143",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$id": "148",
+        "$id": "144",
         "kind": "dict",
         "keyType": {
-         "$id": "149",
+         "$id": "145",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
         "valueType": {
-         "$id": "150",
+         "$id": "146",
          "kind": "utcDateTime",
          "name": "utcDateTime",
          "encode": "rfc3339",
          "wireType": {
-          "$id": "151",
+          "$id": "147",
           "kind": "string",
           "name": "string",
           "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1400,7 +1337,7 @@
      ],
      "Responses": [
       {
-       "$id": "152",
+       "$id": "148",
        "StatusCodes": [
         204
        ],
@@ -1424,12 +1361,39 @@
     }
    ],
    "Protocol": {
-    "$id": "153"
+    "$id": "149"
    },
    "Parent": "DictionaryClient",
    "Parameters": [
     {
-     "$ref": "131"
+     "$id": "150",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Type": {
+      "$id": "151",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "152",
+      "Type": {
+       "$id": "153",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []
@@ -1447,43 +1411,13 @@
      "Parameters": [
       {
        "$id": "156",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Type": {
-        "$id": "157",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "158",
-        "Type": {
-         "$id": "159",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "160",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "161",
+        "$id": "157",
         "kind": "constant",
         "valueType": {
-         "$id": "162",
+         "$id": "158",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1505,27 +1439,27 @@
      ],
      "Responses": [
       {
-       "$id": "163",
+       "$id": "159",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$id": "164",
+        "$id": "160",
         "kind": "dict",
         "keyType": {
-         "$id": "165",
+         "$id": "161",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
         "valueType": {
-         "$id": "166",
+         "$id": "162",
          "kind": "duration",
          "name": "duration",
          "encode": "ISO8601",
          "wireType": {
-          "$id": "167",
+          "$id": "163",
           "kind": "string",
           "name": "string",
           "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1555,24 +1489,21 @@
      "Decorators": []
     },
     {
-     "$id": "168",
+     "$id": "164",
      "Name": "put",
      "ResourceName": "DurationValue",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "156"
-      },
-      {
-       "$id": "169",
+       "$id": "165",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "170",
+        "$id": "166",
         "kind": "constant",
         "valueType": {
-         "$id": "171",
+         "$id": "167",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1592,26 +1523,26 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "172",
+       "$id": "168",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$id": "173",
+        "$id": "169",
         "kind": "dict",
         "keyType": {
-         "$id": "174",
+         "$id": "170",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
         "valueType": {
-         "$id": "175",
+         "$id": "171",
          "kind": "duration",
          "name": "duration",
          "encode": "ISO8601",
          "wireType": {
-          "$id": "176",
+          "$id": "172",
           "kind": "string",
           "name": "string",
           "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1635,7 +1566,7 @@
      ],
      "Responses": [
       {
-       "$id": "177",
+       "$id": "173",
        "StatusCodes": [
         204
        ],
@@ -1659,12 +1590,39 @@
     }
    ],
    "Protocol": {
-    "$id": "178"
+    "$id": "174"
    },
    "Parent": "DictionaryClient",
    "Parameters": [
     {
-     "$ref": "156"
+     "$id": "175",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Type": {
+      "$id": "176",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "177",
+      "Type": {
+       "$id": "178",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []
@@ -1682,43 +1640,13 @@
      "Parameters": [
       {
        "$id": "181",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Type": {
-        "$id": "182",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "183",
-        "Type": {
-         "$id": "184",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "185",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "186",
+        "$id": "182",
         "kind": "constant",
         "valueType": {
-         "$id": "187",
+         "$id": "183",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1740,22 +1668,22 @@
      ],
      "Responses": [
       {
-       "$id": "188",
+       "$id": "184",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$id": "189",
+        "$id": "185",
         "kind": "dict",
         "keyType": {
-         "$id": "190",
+         "$id": "186",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
         "valueType": {
-         "$id": "191",
+         "$id": "187",
          "kind": "any",
          "name": "unknown",
          "crossLanguageDefinitionId": "",
@@ -1782,24 +1710,21 @@
      "Decorators": []
     },
     {
-     "$id": "192",
+     "$id": "188",
      "Name": "put",
      "ResourceName": "UnknownValue",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "181"
-      },
-      {
-       "$id": "193",
+       "$id": "189",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "194",
+        "$id": "190",
         "kind": "constant",
         "valueType": {
-         "$id": "195",
+         "$id": "191",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1819,21 +1744,21 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "196",
+       "$id": "192",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$id": "197",
+        "$id": "193",
         "kind": "dict",
         "keyType": {
-         "$id": "198",
+         "$id": "194",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
         "valueType": {
-         "$id": "199",
+         "$id": "195",
          "kind": "any",
          "name": "unknown",
          "crossLanguageDefinitionId": "",
@@ -1854,7 +1779,7 @@
      ],
      "Responses": [
       {
-       "$id": "200",
+       "$id": "196",
        "StatusCodes": [
         204
        ],
@@ -1878,12 +1803,39 @@
     }
    ],
    "Protocol": {
-    "$id": "201"
+    "$id": "197"
    },
    "Parent": "DictionaryClient",
    "Parameters": [
     {
-     "$ref": "181"
+     "$id": "198",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Type": {
+      "$id": "199",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "200",
+      "Type": {
+       "$id": "201",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []
@@ -1901,43 +1853,13 @@
      "Parameters": [
       {
        "$id": "204",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Type": {
-        "$id": "205",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "206",
-        "Type": {
-         "$id": "207",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "208",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "209",
+        "$id": "205",
         "kind": "constant",
         "valueType": {
-         "$id": "210",
+         "$id": "206",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1959,15 +1881,15 @@
      ],
      "Responses": [
       {
-       "$id": "211",
+       "$id": "207",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$id": "212",
+        "$id": "208",
         "kind": "dict",
         "keyType": {
-         "$id": "213",
+         "$id": "209",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1997,24 +1919,21 @@
      "Decorators": []
     },
     {
-     "$id": "214",
+     "$id": "210",
      "Name": "put",
      "ResourceName": "ModelValue",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "204"
-      },
-      {
-       "$id": "215",
+       "$id": "211",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "216",
+        "$id": "212",
         "kind": "constant",
         "valueType": {
-         "$id": "217",
+         "$id": "213",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2034,14 +1953,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "218",
+       "$id": "214",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$id": "219",
+        "$id": "215",
         "kind": "dict",
         "keyType": {
-         "$id": "220",
+         "$id": "216",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2065,7 +1984,7 @@
      ],
      "Responses": [
       {
-       "$id": "221",
+       "$id": "217",
        "StatusCodes": [
         204
        ],
@@ -2089,12 +2008,39 @@
     }
    ],
    "Protocol": {
-    "$id": "222"
+    "$id": "218"
    },
    "Parent": "DictionaryClient",
    "Parameters": [
     {
-     "$ref": "204"
+     "$id": "219",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Type": {
+      "$id": "220",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "221",
+      "Type": {
+       "$id": "222",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []
@@ -2112,43 +2058,13 @@
      "Parameters": [
       {
        "$id": "225",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Type": {
-        "$id": "226",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "227",
-        "Type": {
-         "$id": "228",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "229",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "230",
+        "$id": "226",
         "kind": "constant",
         "valueType": {
-         "$id": "231",
+         "$id": "227",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2170,15 +2086,15 @@
      ],
      "Responses": [
       {
-       "$id": "232",
+       "$id": "228",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$id": "233",
+        "$id": "229",
         "kind": "dict",
         "keyType": {
-         "$id": "234",
+         "$id": "230",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2208,24 +2124,21 @@
      "Decorators": []
     },
     {
-     "$id": "235",
+     "$id": "231",
      "Name": "put",
      "ResourceName": "RecursiveModelValue",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "225"
-      },
-      {
-       "$id": "236",
+       "$id": "232",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "237",
+        "$id": "233",
         "kind": "constant",
         "valueType": {
-         "$id": "238",
+         "$id": "234",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2245,14 +2158,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "239",
+       "$id": "235",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$id": "240",
+        "$id": "236",
         "kind": "dict",
         "keyType": {
-         "$id": "241",
+         "$id": "237",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2276,7 +2189,7 @@
      ],
      "Responses": [
       {
-       "$id": "242",
+       "$id": "238",
        "StatusCodes": [
         204
        ],
@@ -2300,12 +2213,39 @@
     }
    ],
    "Protocol": {
-    "$id": "243"
+    "$id": "239"
    },
    "Parent": "DictionaryClient",
    "Parameters": [
     {
-     "$ref": "225"
+     "$id": "240",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Type": {
+      "$id": "241",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "242",
+      "Type": {
+       "$id": "243",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []
@@ -2323,43 +2263,13 @@
      "Parameters": [
       {
        "$id": "246",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Type": {
-        "$id": "247",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client",
-       "DefaultValue": {
-        "$id": "248",
-        "Type": {
-         "$id": "249",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "Value": "http://localhost:3000"
-       }
-      },
-      {
-       "$id": "250",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "251",
+        "$id": "247",
         "kind": "constant",
         "valueType": {
-         "$id": "252",
+         "$id": "248",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2381,25 +2291,25 @@
      ],
      "Responses": [
       {
-       "$id": "253",
+       "$id": "249",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$id": "254",
+        "$id": "250",
         "kind": "dict",
         "keyType": {
-         "$id": "255",
+         "$id": "251",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
         "valueType": {
-         "$id": "256",
+         "$id": "252",
          "kind": "nullable",
          "type": {
-          "$id": "257",
+          "$id": "253",
           "kind": "float32",
           "name": "float32",
           "crossLanguageDefinitionId": "TypeSpec.float32",
@@ -2427,24 +2337,21 @@
      "Decorators": []
     },
     {
-     "$id": "258",
+     "$id": "254",
      "Name": "put",
      "ResourceName": "NullableFloatValue",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$ref": "246"
-      },
-      {
-       "$id": "259",
+       "$id": "255",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Description": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "260",
+        "$id": "256",
         "kind": "constant",
         "valueType": {
-         "$id": "261",
+         "$id": "257",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2464,24 +2371,24 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "262",
+       "$id": "258",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$id": "263",
+        "$id": "259",
         "kind": "dict",
         "keyType": {
-         "$id": "264",
+         "$id": "260",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
         "valueType": {
-         "$id": "265",
+         "$id": "261",
          "kind": "nullable",
          "type": {
-          "$id": "266",
+          "$id": "262",
           "kind": "float32",
           "name": "float32",
           "crossLanguageDefinitionId": "TypeSpec.float32",
@@ -2503,7 +2410,7 @@
      ],
      "Responses": [
       {
-       "$id": "267",
+       "$id": "263",
        "StatusCodes": [
         204
        ],
@@ -2527,12 +2434,39 @@
     }
    ],
    "Protocol": {
-    "$id": "268"
+    "$id": "264"
    },
    "Parent": "DictionaryClient",
    "Parameters": [
     {
-     "$ref": "246"
+     "$id": "265",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Type": {
+      "$id": "266",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "267",
+      "Type": {
+       "$id": "268",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
     }
    ],
    "Decorators": []
