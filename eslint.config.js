@@ -3,9 +3,7 @@ import eslint from "@eslint/js";
 import reactHooks from "eslint-plugin-react-hooks";
 import unicorn from "eslint-plugin-unicorn";
 import vitest from "eslint-plugin-vitest";
-import { dirname } from "path";
 import tsEslint from "typescript-eslint";
-import { fileURLToPath } from "url";
 
 /** Config that will apply to all files */
 const allFilesConfig = tsEslint.config({
@@ -147,5 +145,5 @@ export default tsEslint.config(
     ],
   },
   ...TypeSpecCommonEslintConfigs,
-  ...getTypeScriptProjectRules(dirname(fileURLToPath(import.meta.url)))
+  ...getTypeScriptProjectRules(import.meta.dirname)
 );
