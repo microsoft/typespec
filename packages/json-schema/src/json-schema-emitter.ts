@@ -21,6 +21,7 @@ import {
   getDeprecated,
   getDirectoryPath,
   getDoc,
+  getExamples,
   getFormat,
   getMaxItems,
   getMaxLength,
@@ -37,6 +38,7 @@ import {
   isNullType,
   isType,
   joinPaths,
+  serializeValueAsJson,
 } from "@typespec/compiler";
 import {
   ArrayBuilder,
@@ -538,6 +540,20 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     }
   }
 
+  #applySchemaExamples(
+    type: Model | Scalar | Union | Enum | ModelProperty,
+    target: ObjectBuilder<unknown>
+  ) {
+    const program = this.emitter.getProgram();
+    const examples = getExamples(program, type);
+    if (examples.length > 0) {
+      target.set(
+        "example",
+        examples.map((x) => serializeValueAsJson(program, x.value, type))
+      );
+    }
+  }
+
   #applyConstraints(
     type: Scalar | Model | ModelProperty | Union | UnionVariant | Enum,
     schema: ObjectBuilder<unknown>
@@ -557,7 +573,9 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         schema.set(key, ref.value);
       }
     };
-
+    if (type.kind !== "UnionVariant") {
+      this.#applySchemaExamples(type, schema);
+    }
     applyConstraint(getMinLength, "minLength");
     applyConstraint(getMaxLength, "maxLength");
     applyConstraint(getMinValue, "minimum");
