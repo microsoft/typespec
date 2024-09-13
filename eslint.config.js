@@ -7,6 +7,10 @@ import tsEslint from "typescript-eslint";
 
 /** Config that will apply to all files */
 const allFilesConfig = tsEslint.config({
+  linterOptions: {
+    // This is problematic for no-deprecated rule which needs dependencies to be built to generate the d.ts files and know that it is deprecated
+    // reportUnusedDisableDirectives: "off",
+  },
   plugins: {
     unicorn,
   },
@@ -72,12 +76,14 @@ const allFilesConfig = tsEslint.config({
  */
 export function getTypeScriptProjectRules(root) {
   return tsEslint.config({
-    files: ["**/*.ts", "**/*.tsx"],
+    files: ["packages/*/src/**/*.ts", "packages/*/src/**/*.tsx"],
     ignores: ["**/packages/http-client-csharp/**/*", "**/packages/http-client-java/**/*"], // Ignore isolated modules
     plugins: {},
     languageOptions: {
       parserOptions: {
-        project: "./tsconfig.json",
+        projectService: {
+          allowDefaultProject: ["packages/*/vitest.config.ts"],
+        },
         tsconfigRootDir: root,
       },
     },
