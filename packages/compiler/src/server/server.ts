@@ -161,10 +161,8 @@ function profile<T extends (...args: any) => any>(func: T): T {
 
   return (async (...args: any[]) => {
     profileSession!.post("Profiler.enable", () => {
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
       profileSession!.post("Profiler.start", async () => {
         const ret = await func.apply(undefined!, args);
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         profileSession!.post("Profiler.stop", async (err, args) => {
           if (!err && args.profile) {
             await mkdir(profileDir!, { recursive: true });

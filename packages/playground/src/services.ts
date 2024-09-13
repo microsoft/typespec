@@ -165,7 +165,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
   }
 
   function monacoHover(hover: lsp.Hover): monaco.languages.Hover {
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     if (Array.isArray(hover.contents) || lsp.MarkedString.is(hover.contents)) {
       throw new Error("MarkedString (deprecated) not supported.");
     }

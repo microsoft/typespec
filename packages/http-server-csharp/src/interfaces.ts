@@ -101,7 +101,7 @@ export class NumericValue extends CSharpValue {
     this.value = value;
   }
   public emitValue(scope?: Scope<string> | undefined): string {
-    return `${this.value}` ?? "0";
+    return `${this.value ?? 0}`;
   }
 }
 
@@ -112,7 +112,7 @@ export class BooleanValue extends CSharpValue {
     this.value = value;
   }
   public emitValue(scope?: Scope<string> | undefined): string {
-    return `${this.value}` ?? false;
+    return `${this.value}`;
   }
 }
 

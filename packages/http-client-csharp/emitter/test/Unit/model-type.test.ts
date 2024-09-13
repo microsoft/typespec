@@ -46,7 +46,6 @@ op test(@body input: Pet): Pet;
 `,
       runner
     );
-    runner.compileAndDiagnose;
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
@@ -343,7 +342,6 @@ op op5(@body body: ExtendsFooArray): ExtendsFooArray;
 `,
       runner
     );
-    runner.compileAndDiagnose;
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
@@ -436,7 +434,6 @@ op op5(@body body: IsFooArray): IsFooArray;
 `,
       runner
     );
-    runner.compileAndDiagnose;
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
@@ -488,7 +485,6 @@ op op1(): void;
       runner,
       { IsTCGCNeeded: true }
     );
-    runner.compileAndDiagnose;
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
