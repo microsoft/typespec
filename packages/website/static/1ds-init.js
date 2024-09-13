@@ -39,10 +39,11 @@ const propStorage = {};
 });
 
 let siteConsent = null;
-WcpConsent.init("en-US", "cookie-banner", function (err, _siteConsent) {
-  if (err != undefined) {
-    return error;
-  } else {
-    siteConsent = _siteConsent; //siteConsent is used to get the current consent
-  }
-});
+WcpConsent &&
+  WcpConsent.init("en-US", "cookie-banner", (err, _siteConsent) => {
+    if (err != undefined) {
+      return error;
+    } else {
+      siteConsent = _siteConsent; //siteConsent is used to get the current consent
+    }
+  });
