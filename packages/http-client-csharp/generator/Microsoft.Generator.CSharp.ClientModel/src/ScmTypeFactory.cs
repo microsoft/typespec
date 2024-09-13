@@ -5,6 +5,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
+using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -19,6 +20,16 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public virtual CSharpType MatchConditionsType() => typeof(PipelineMessageClassifier);
 
         public virtual CSharpType TokenCredentialType() => typeof(ApiKeyCredential);
+
+        public virtual CSharpType ClientResponseType => new CSharpType(typeof(ClientResult));
+
+        public virtual CSharpType HttpResponseType => new CSharpType(typeof(PipelineResponse));
+
+        internal ClientResponseApi CreateClientResponse(ValueExpression original) => new ClientResultProvider(original.As<ClientResult>());
+
+        //internal ClientResponseApi CreateIClientResponse(ValueExpression original) => new ClientResultProvider(original.As<ClientResult>());
+
+        internal HttpResponseApi CreateHttpResponse(ValueExpression original) => new PipelineResponseProvider(original.As<PipelineResponse>());
 
         /// <summary>
         /// Returns the serialization type providers for the given input type.

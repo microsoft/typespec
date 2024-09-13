@@ -64,7 +64,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             MethodSignature signature = GetProcessHeadAsBoolMessageSignature(false);
             var responseVariable = new VariableExpression(typeof(PipelineResponse), "response");
-            var response = responseVariable.As<PipelineResponse>();
+            var response = responseVariable.As<PipelineResponse>().ToApi<HttpResponseApi>();
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new DeclarationExpression(responseVariable, false).Assign(_pipeline.ProcessMessage(_message, _options, false)).Terminate(),
@@ -76,7 +76,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             MethodSignature signature = GetProcessHeadAsBoolMessageSignature(true);
             var responseVariable = new VariableExpression(typeof(PipelineResponse), "response");
-            var response = responseVariable.As<PipelineResponse>();
+            var response = responseVariable.As<PipelineResponse>().ToApi<HttpResponseApi>();
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new DeclarationExpression(responseVariable, false).Assign(_pipeline.ProcessMessage(_message, _options, true)).Terminate(),
@@ -84,25 +84,27 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }, this);
         }
 
-        private MethodBodyStatement GetProcessHeadAsBoolMessageBody(ScopedApi<PipelineResponse> response)
+        private MethodBodyStatement GetProcessHeadAsBoolMessageBody(HttpResponseApi response)
         {
             return new MethodBodyStatement[]
             {
-                new SwitchStatement(new MemberExpression(response, "Status"), new SwitchCaseStatement[]
-                {
+                new SwitchStatement(new MemberExpression(response, "Status"),
+                [
                     new SwitchCaseStatement(ValueExpression.Empty.GreaterThanOrEqual(Literal(200)).AndExpr(ValueExpression.Empty.LessThan(Literal(300))), new MethodBodyStatement[]
                     {
-                        Return(ClientResultSnippets.FromValue(typeof(bool), True, response))
+                        //Return(ClientResultSnippets.FromValue(typeof(bool), True, response))
+                        Return(ClientModelPlugin.Instance.TypeFactory.CreateClientResponse(Snippet.Null).FromValue<bool>(True, response))
+                        //Return(response.ToApi<ClientResponseApi>().FromValue(true, True, response))
                     }),
                     new SwitchCaseStatement(ValueExpression.Empty.GreaterThanOrEqual(Literal(400)).AndExpr(ValueExpression.Empty.LessThan(Literal(500))), new MethodBodyStatement[]
                     {
-                        Return(ClientResultSnippets.FromValue(typeof(bool), False, response))
+                        Return(response.ToApi<ClientResponseApi>().FromValue<bool>(False, response))
                     }),
                     new SwitchCaseStatement(Array.Empty<ValueExpression>(), new MethodBodyStatement[]
                     {
                         Return(new NewInstanceExpression(ErrorResultSnippets.ErrorResultType.MakeGenericType([typeof(bool)]), [response, new NewInstanceExpression(typeof(ClientResultException), [response])]))
                     })
-                }),
+                ]),
             };
         }
 

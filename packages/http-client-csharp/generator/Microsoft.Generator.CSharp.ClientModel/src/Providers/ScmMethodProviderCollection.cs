@@ -98,13 +98,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 methodBody =
                 [
                     .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var paramDeclarations),
-                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, paramDeclarations), Null], isAsync).As<ClientResult>(), out ScopedApi<ClientResult> result),
-                    .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
+                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, paramDeclarations), Null], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
+                    .. GetStackVariablesForReturnValueConversion(result /*ClientModelPlugin.Instance.TypeFactory.CreateClientResponse(result) */, responseBodyType, isAsync, out var resultDeclarations),
                     Return(Static<ClientResult>().Invoke(
                         nameof(ClientResult.FromValue),
                         [
                             GetResultConversion(result, responseBodyType, resultDeclarations),
-                            result.Invoke("GetRawResponse")
+                            result.GetRawResponse()
                         ])),
                 ];
             }
@@ -201,7 +201,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return expressions;
         }
 
-        private IEnumerable<MethodBodyStatement> GetStackVariablesForReturnValueConversion(ScopedApi<ClientResult> result, CSharpType responseBodyType, bool isAsync, out Dictionary<string, ValueExpression> declarations)
+        private IEnumerable<MethodBodyStatement> GetStackVariablesForReturnValueConversion(ClientResponseApi result, CSharpType responseBodyType, bool isAsync, out Dictionary<string, ValueExpression> declarations)
         {
             if (responseBodyType.IsList)
             {
@@ -279,7 +279,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return scopedApi.Add(element);
         }
 
-        private ValueExpression GetResultConversion(ScopedApi<ClientResult> result, CSharpType responseBodyType, Dictionary<string, ValueExpression> declarations)
+        private ValueExpression GetResultConversion(ClientResponseApi result, CSharpType responseBodyType, Dictionary<string, ValueExpression> declarations)
         {
             if (responseBodyType.Equals(typeof(BinaryData)))
             {
