@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -32,8 +32,8 @@ namespace Microsoft.Generator.CSharp.Input
             bool isReadOnly = false;
             bool isOptional = false;
             bool isDiscriminator = false;
+            bool isFlattened = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
-            IReadOnlyList<string>? flattenedNames = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -46,7 +46,7 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadBoolean("optional", ref isOptional)
                     || reader.TryReadBoolean("discriminator", ref isDiscriminator)
                     || reader.TryReadWithConverter("decorators", options, ref decorators)
-                    || reader.TryReadWithConverter("flattenNames", options, ref flattenedNames);
+                    || reader.TryReadWithConverter("flatten", options, ref isFlattened);
 
                 if (!isKnownProperty)
                 {
@@ -59,7 +59,7 @@ namespace Microsoft.Generator.CSharp.Input
             // description = BuilderHelpers.EscapeXmlDocDescription(description);
             propertyType = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");
 
-            var property = new InputModelProperty(name, serializedName ?? name, description, propertyType, !isOptional, isReadOnly, isDiscriminator, flattenedNames) { Decorators = decorators ?? [] };
+            var property = new InputModelProperty(name, serializedName ?? name, description, propertyType, !isOptional, isReadOnly, isDiscriminator, isFlattened) { Decorators = decorators ?? [] };
             if (id != null)
             {
                 resolver.AddReference(id, property);

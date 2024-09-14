@@ -104,7 +104,7 @@ namespace Microsoft.Generator.CSharp.Input
                             DiscriminatorProperty.IsRequired,
                             DiscriminatorProperty.IsReadOnly,
                             DiscriminatorProperty.IsDiscriminator,
-                            DiscriminatorProperty.FlattenedNames),
+                            DiscriminatorProperty.IsFlattened),
                         new Dictionary<string, InputModelType>(),
                         null,
                         false)

@@ -143,7 +143,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 isRequired,
                 isReadOnly,
                 isDiscriminator,
-                null);
+                false);
         }
 
         public static InputModelType Model(
