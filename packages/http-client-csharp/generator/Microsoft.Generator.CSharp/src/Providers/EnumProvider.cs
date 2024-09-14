@@ -57,15 +57,6 @@ namespace Microsoft.Generator.CSharp.Providers
         protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
         protected override bool GetIsEnum() => true;
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
-        {
-            var modifiers = TypeSignatureModifiers.Enum;
-            if (_inputType.Accessibility == "internal")
-            {
-                modifiers |= TypeSignatureModifiers.Internal;
-            }
-            return modifiers;
-        }
         protected override CSharpType BuildEnumUnderlyingType() => CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(_inputType.ValueType) ?? throw new InvalidOperationException($"Failed to create CSharpType for {_inputType.ValueType}");
     }
 }
