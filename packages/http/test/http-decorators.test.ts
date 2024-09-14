@@ -1181,7 +1181,6 @@ describe("http: decorators", () => {
       @test op testPatch(): void;
       `);
       deepStrictEqual(
-        // eslint-disable-next-line deprecation/deprecation
         getRequestVisibility("patch"),
         resolveRequestVisibility(runner.program, testPatch as Operation, "patch")
       );
@@ -1193,7 +1192,6 @@ describe("http: decorators", () => {
       @patch
       @test op testPatch(): void;
       `);
-      // eslint-disable-next-line deprecation/deprecation
       deepStrictEqual(getRequestVisibility("patch"), Visibility.Update | Visibility.Patch);
       deepStrictEqual(
         resolveRequestVisibility(runner.program, testPatch as Operation, "patch"),

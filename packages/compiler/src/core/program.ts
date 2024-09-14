@@ -197,12 +197,12 @@ export async function compile(
 
   let emit = options.emit;
   let emitterOptions = options.options;
-  /* eslint-disable deprecation/deprecation */
+  /* eslint-disable @typescript-eslint/no-deprecated */
   if (options.emitters) {
     emit ??= Object.keys(options.emitters);
     emitterOptions ??= options.emitters;
   }
-  /* eslint-enable deprecation/deprecation */
+  /* eslint-enable @typescript-eslint/no-deprecated */
 
   await loadEmitters(basedir, emit ?? [], emitterOptions ?? {});
 
@@ -439,7 +439,7 @@ export async function compile(
 
     const libDefinition: TypeSpecLibrary<any> | undefined = entrypoint?.esmExports.$lib;
     const metadata = computeLibraryMetadata(module, libDefinition);
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     const linterDef = entrypoint?.esmExports.$linter ?? libDefinition?.linter;
     return {
       ...resolution,
@@ -899,7 +899,7 @@ export async function compile(
  * Resolve compiler options from input options.
  */
 function resolveOptions(options: CompilerOptions): CompilerOptions {
-  // eslint-disable-next-line deprecation/deprecation
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   const outputDir = options.outputDir ?? options.outputPath;
   return {
     ...options,

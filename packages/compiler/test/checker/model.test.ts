@@ -212,7 +212,6 @@ describe("compiler: models", () => {
           `
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
-        // eslint-disable-next-line deprecation/deprecation
         expect({ ...foo.default }).toMatchObject(expectedValue);
       });
 
@@ -224,7 +223,6 @@ describe("compiler: models", () => {
         `
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
-        // eslint-disable-next-line deprecation/deprecation
         deepStrictEqual(foo.default, undefined);
       });
 
@@ -236,7 +234,6 @@ describe("compiler: models", () => {
         `
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
-        // eslint-disable-next-line deprecation/deprecation
         deepStrictEqual(foo.default, undefined);
       });
     });

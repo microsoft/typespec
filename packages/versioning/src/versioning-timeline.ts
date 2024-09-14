@@ -177,7 +177,7 @@ export class TimelineMoment {
 
   public constructor(versionMap: Map<Namespace, Version>) {
     this.#versionMap = versionMap;
-    this.name = versionMap.values().next().value ?? "";
+    this.name = versionMap.values().next().value?.name ?? "";
   }
 
   getVersion(namespace: Namespace): Version | undefined {

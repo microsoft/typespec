@@ -42,7 +42,7 @@ export function buildVersionProjections(program: Program, rootNs: Namespace): Ve
       const versionKey = indexTimeline(
         program,
         timeline,
-        timeline.get(resolution.versions.values().next().value)
+        timeline.get(resolution.versions.values().next().value!)
       );
       return {
         version: resolution.rootVersion?.value,
