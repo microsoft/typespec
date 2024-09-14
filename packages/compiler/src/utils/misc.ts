@@ -244,7 +244,6 @@ export function resolveRelativeUrlOrPath(base: string, relativeOrAbsolute: strin
  * A specially typed version of `Array.isArray` to work around [this issue](https://github.com/microsoft/TypeScript/issues/17002).
  */
 export function isArray<T>(
-  // eslint-disable-next-line @typescript-eslint/ban-types
   arg: T | {}
 ): arg is T extends readonly any[] ? (unknown extends T ? never : readonly any[]) : any[] {
   return Array.isArray(arg);

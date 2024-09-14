@@ -21,7 +21,6 @@ export type OperationDetails = HttpOperation;
 export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";
 
 /** @deprecated use Authentication */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export type ServiceAuthentication = Authentication;
 
 export interface Authentication {
@@ -433,7 +432,7 @@ export interface RoutePath {
 
 export interface HttpOperationResponse {
   /** @deprecated use {@link statusCodes} */
-  // eslint-disable-next-line deprecation/deprecation
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   statusCode: StatusCode;
 
   /**

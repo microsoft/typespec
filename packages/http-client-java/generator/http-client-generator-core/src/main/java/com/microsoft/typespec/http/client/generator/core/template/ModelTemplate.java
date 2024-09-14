@@ -45,11 +45,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -1052,7 +1050,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         comment.methodThrows("IllegalArgumentException", "thrown if the instance is not valid");
       });
 
-      if (this.parentModelHasValidate(model.getParentModelName())) {
+      if (this.modelHasValidate(model.getParentModelName())) {
         classBlock.annotation("Override");
       }
       classBlock.publicMethod("void validate()", methodBlock -> {
@@ -1090,7 +1088,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
    * @return whether to call validate() on parent model
    */
   protected boolean callParentValidate(String parentModelName) {
-    return parentModelHasValidate(parentModelName);
+    return modelHasValidate(parentModelName);
   }
 
   /**
@@ -1114,13 +1112,13 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
   }
 
   /**
-   * Extension for validation on parent model.
+   * Extension for validation on model.
    *
-   * @param parentModelName the parent model name
-   * @return Whether validate() exists in parent model.
+   * @param modelName the model name
+   * @return Whether validate() exists in this model.
    */
-  protected boolean parentModelHasValidate(String parentModelName) {
-    return parentModelName != null;
+  protected boolean modelHasValidate(String modelName) {
+    return modelName != null;
   }
 
   /**
