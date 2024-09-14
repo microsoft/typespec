@@ -7,7 +7,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.implementation.ClientModelPropertiesManager;
 import com.microsoft.typespec.http.client.generator.core.implementation.ClientModelPropertyWithMetadata;
 import com.microsoft.typespec.http.client.generator.core.implementation.JsonFlattenedPropertiesTree;
-import com.microsoft.typespec.http.client.generator.core.mapper.ModelMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
@@ -350,7 +349,9 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
   @Override
   protected List<ClientModelProperty> getValidationProperties(ClientModel model) {
     // in stream-style-serialization, since there are shadowing involved, we validate all properties locally
-    return Stream.concat(model.getProperties().stream(), ClientModelUtil.getParentProperties(model).stream())
+    return Stream.concat(
+        model.getProperties().stream(),
+        ClientModelUtil.getParentProperties(model, m -> modelHasValidate(m.getName())).stream())
       .collect(Collectors.toList());
   }
 
