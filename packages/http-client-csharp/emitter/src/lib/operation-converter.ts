@@ -40,7 +40,7 @@ import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { Logger } from "./logger.js";
 import { getInputType } from "./model.js";
-import { isSdkPathParameter } from "./utils.js";
+import { capitalize, isSdkPathParameter } from "./utils.js";
 
 export function fromSdkServiceMethod(
   method: SdkServiceMethod<SdkHttpOperation>,
@@ -210,7 +210,17 @@ function loadLongRunningOperation(
   if (method.kind !== "lro") {
     return undefined;
   }
-
+  /* Remove this workaround when https://github.com/Azure/typespec-azure/issues/1538 is resolved */
+  if (
+    method.__raw_lro_metadata.finalEnvelopeResult &&
+    method.__raw_lro_metadata.finalEnvelopeResult !== "void" &&
+    method.__raw_lro_metadata.finalEnvelopeResult.name === ""
+  ) {
+    method.__raw_lro_metadata.finalEnvelopeResult = {
+      ...method.__raw_lro_metadata.finalEnvelopeResult,
+      name: capitalize(`${method.name}Response`),
+    };
+  }
   return {
     FinalStateVia: convertLroFinalStateVia(method.__raw_lro_metadata.finalStateVia),
     FinalResponse: {
