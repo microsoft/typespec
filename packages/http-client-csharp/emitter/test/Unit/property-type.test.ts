@@ -24,7 +24,6 @@ describe("Test GetInputType for array", () => {
       `,
       runner
     );
-    runner.compileAndDiagnose;
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);

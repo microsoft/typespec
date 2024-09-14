@@ -2,14 +2,7 @@ import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import virtual from "@rollup/plugin-virtual";
-import {
-  compile,
-  getNormalizedAbsolutePath,
-  joinPaths,
-  NodeHost,
-  normalizePath,
-  resolvePath,
-} from "@typespec/compiler";
+import { compile, joinPaths, NodeHost, normalizePath, resolvePath } from "@typespec/compiler";
 import { mkdir, readFile, realpath, writeFile } from "fs/promises";
 import { basename, join, resolve } from "path";
 import { OutputChunk, rollup, RollupBuild, RollupOptions, watch } from "rollup";
@@ -91,7 +84,6 @@ export async function watchTypeSpecBundle(
     },
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   watcher.on("event", async (event) => {
     switch (event.code) {
       case "BUNDLE_START":
@@ -257,7 +249,6 @@ function createBundleEntrypoint({
   const relativeTypeSpecFiles: Record<string, string> = {};
   for (const [name, content] of Object.entries(typespecSourceFiles)) {
     relativeTypeSpecFiles[relativeTo(libraryPath, name)] = content;
-    getNormalizedAbsolutePath;
   }
   return [
     `export * from "${absoluteMain}";`,

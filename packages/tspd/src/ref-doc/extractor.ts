@@ -112,7 +112,7 @@ export async function extractLibraryRefDocs(
         options: extractEmitterOptionsRefDoc(lib.emitter.options),
       };
     }
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     const linter = entrypoint.$linter ?? lib?.linter;
     if (lib && linter) {
       refDoc.linter = extractLinterRefDoc(lib.name, resolveLinterDefinition(lib.name, linter));
@@ -344,7 +344,7 @@ function extractOperationRefDoc(
       reportDiagnostic(program, {
         code: "documentation-missing",
         messageId: "interfaceOperation",
-        format: { name: `${operation.interface.name}.${operation.name}` ?? "" },
+        format: { name: `${operation.interface.name}.${operation.name}` },
         target: NoTarget,
       });
     } else {
