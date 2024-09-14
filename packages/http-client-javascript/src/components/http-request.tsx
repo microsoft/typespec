@@ -36,10 +36,7 @@ export interface HttpUrlProps {
 HttpRequest.Url = function HttpUrlDeclaration(props: HttpUrlProps) {
   const httpOperation = $.httpOperation.get(props.operation);
   const urlTemplate = httpOperation.uriTemplate;
-  const urlParameters = httpOperation.parameters.properties.filter(
-    (p) =>
-      $.modelProperty.isHttpQueryParam(p.property) || $.modelProperty.isHttpPathParam(p.property)
-  );
+  const urlParameters = $.httpRequest.getParameters(httpOperation, ["path", "query"]);
   
   return <>
     <ts.VarDeclaration name="path">

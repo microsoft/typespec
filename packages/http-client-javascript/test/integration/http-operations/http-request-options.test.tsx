@@ -82,9 +82,10 @@ describe("HttpRequestHeaders", () => {
     assert(testFile, "test.ts file not rendered");
     const actualContent = testFile.contents;
     const expectedContent = d`
-      headers: {
-        "Content-Type": "application/json"
-      },
+headers: {
+  "Content-Type": "application/json",
+  
+},
     `;
     expect(actualContent).toEqual(expectedContent);
   });
@@ -122,9 +123,10 @@ describe("HttpRequestHeaders", () => {
     assert(testFile, "test.ts file not rendered");
     const actualContent = testFile.contents;
     const expectedContent = d`
-      headers: {
-        "Content-Type": contentType
-      },
+headers: {
+  "Content-Type": contentType,
+  
+},
     `;
     expect(actualContent).toEqual(expectedContent);
   });

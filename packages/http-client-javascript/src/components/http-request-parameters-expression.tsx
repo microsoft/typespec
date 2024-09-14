@@ -1,42 +1,45 @@
 import { Children, mapJoin } from "@alloy-js/core";
-import { HttpProperty } from "@typespec/http";
 import * as ts from "@alloy-js/typescript";
+import { Model, ModelProperty } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 
 export interface HttpRequestParametersExpressionProps {
-  parameters: HttpProperty[];
+  parameters?: Model;
   children?: Children;
 }
 
 export function HttpRequestParametersExpression(props: HttpRequestParametersExpressionProps) {
   const namingPolicy = ts.useTSNamePolicy();
-  const parameters: (HttpProperty | Children)[] = props.parameters;
+  const parameters: (ModelProperty | Children)[] = [];
 
   if(props.children || (Array.isArray(props.children) && props.children.length) ) { 
-    parameters.unshift(props.children);
+    parameters.push(<>
+      {props.children},
+
+    </>);
   }
 
-  const members = mapJoin(props.parameters, (parameter) => {
-    if(!isHttpProperty(parameter)) {
-      return parameter;
-    }
-    const name = "options" in parameter ? parameter.options.name : parameter.property.name;
-    const applicationName = namingPolicy.getName(parameter.property.name, "parameter");
-    const parameterPath = parameter.property.optional
+  if(!props.parameters && parameters.length) { 
+    return <ts.ObjectExpression>
+      {parameters}
+    </ts.ObjectExpression>;
+  } else if(!props.parameters) {
+    return <ts.ObjectExpression />;
+  }
+
+  const members = mapJoin(props.parameters.properties, (parameterName, parameter) => {
+    const options = $.modelProperty.getHttpParamOptions(parameter);
+    const name = options?.name ? options.name : parameter.name;
+    const applicationName = namingPolicy.getName(parameter.name, "parameter");
+    const parameterPath = parameter.optional
       ? `options.${applicationName}`
       : applicationName;
     return <ts.ObjectProperty name={JSON.stringify(name)} value={parameterPath} />;
   }, {joiner: ",\n"});
 
-
-  if(members.length === 0) {
-    return <ts.ObjectExpression />;
-  }
+  parameters.push(...members)
 
   return <ts.ObjectExpression>
-    {members}
+    {parameters}
   </ts.ObjectExpression>;
-}
-
-function isHttpProperty(property: any): property is HttpProperty {
-  return "kind" in property && property.kind;
 }

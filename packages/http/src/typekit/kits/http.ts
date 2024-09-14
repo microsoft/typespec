@@ -12,6 +12,9 @@ import {
 import { HeaderFieldOptions, PathParameterOptions, QueryParameterOptions } from "../../types.js";
 
 export interface HttpModelPropertyKit {
+  getHttpParamOptions(
+    prop: ModelProperty
+  ): HeaderFieldOptions | PathParameterOptions | QueryParameterOptions | undefined;
   getHttpHeaderOptions(prop: ModelProperty): HeaderFieldOptions | undefined;
   getHttpPathOptions(prop: ModelProperty): PathParameterOptions | undefined;
   getHttpQueryOptions(prop: ModelProperty): QueryParameterOptions | undefined;
@@ -31,6 +34,21 @@ declare module "@typespec/compiler/typekit" {
 
 defineKit<HttpKit>({
   modelProperty: {
+    getHttpParamOptions(prop: ModelProperty) {
+      if (isHeader(this.program, prop)) {
+        return getHeaderFieldOptions(this.program, prop);
+      }
+
+      if (isPathParam(this.program, prop)) {
+        return getPathParamOptions(this.program, prop);
+      }
+
+      if (isQueryParam(this.program, prop)) {
+        return getQueryParamOptions(this.program, prop);
+      }
+
+      return undefined;
+    },
     getHttpHeaderOptions(prop: ModelProperty) {
       return getHeaderFieldOptions(this.program, prop);
     },

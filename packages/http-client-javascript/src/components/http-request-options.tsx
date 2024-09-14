@@ -3,7 +3,6 @@ import * as ts from "@alloy-js/typescript";
 import { getEffectiveModelType, Model, Operation, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { HttpRequestParametersExpression } from "./http-request-parameters-expression.jsx";
-import { HeaderProperty } from "../../../http/dist/src/http-property.js";
 import * as ef from "@typespec/emitter-framework/typescript";
 
 export interface HttpRequestOptionsProps {
@@ -30,16 +29,14 @@ export interface HttpRequestOptionsHeadersProps {
 
 HttpRequestOptions.Headers = function HttpRequestOptionsHeaders(props: HttpRequestOptionsHeadersProps) {
   const httpOperation = $.httpOperation.get(props.operation);
-  const headers = httpOperation.parameters.properties.filter(
-    (p) => p.kind === "header"
-  ) as HeaderProperty[];
+  const headers = $.httpRequest.getParameters(httpOperation, "header");
 
-  const contentTypeProperty = httpOperation.parameters.properties.find((header) => header.kind === "contentType") 
-  let contentType = httpOperation.parameters.body ? <ts.ObjectProperty name='"Content-Type"' value='"application/json"' /> : null;
+  const contentTypeProperty = $.httpRequest.getParameters(httpOperation, "contentType")?.properties.get("contentType");
+  let contentType = $.httpRequest.getBodyParameters(httpOperation) ? <ts.ObjectProperty name='"Content-Type"' value='"application/json"' /> : null;
 
   if(contentTypeProperty) {
     let contentTypePath = "contentType";
-    contentTypePath = contentTypeProperty.property.optional ? `options.${contentTypePath}` : contentTypePath;
+    contentTypePath = contentTypeProperty.optional ? `options.${contentTypePath}` : contentTypePath;
     contentType = <ts.ObjectProperty name='"Content-Type"' value={contentTypePath} />;
   }
 

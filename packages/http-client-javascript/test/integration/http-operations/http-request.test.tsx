@@ -87,7 +87,7 @@ describe("HttpRequest", () => {
     @route("/widgets")
     @tag("Widgets")
     interface Widgets {
-      @test @get read(...Widget): void;
+      @test @post read(...Widget): void;
     }
     `;
 
@@ -122,7 +122,7 @@ describe("HttpRequest", () => {
     const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/\\/+$/, '')}\`;
 
     const httpRequestOptions = {
-      method: "get",
+      method: "post",
       headers: {
         "Content-Type": "application/json",
         "etag": etag
@@ -179,7 +179,8 @@ describe("HttpRequest", () => {
     const httpRequestOptions = {
       method: "get",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        
       },
       body: JSON.stringify(count),
     };
