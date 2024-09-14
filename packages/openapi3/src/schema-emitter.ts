@@ -85,7 +85,6 @@ import {
   OpenAPI3Schema,
   OpenAPI3SchemaProperty,
   OpenAPI3XmlSchema,
-
 } from "./types.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 
