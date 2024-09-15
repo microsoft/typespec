@@ -167,11 +167,11 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     }
 
     variants.forEach((v) => {
-      // TODO: work out when this would be the case & ensure diagnostic is appropriate
-      if (v.node?.id === undefined) {
+      // All union variants must have identifiers.
+      if (v.node?.id === undefined || typeof v.name !== 'string') {
         reportDiagnostic(program, {
-          code: "unsupported-input-type",
-          messageId: "unconvertible",
+          code: "unconvertible-union",
+          messageId: "anonymous-variant",
           target: v
         });
         isValid = false;
@@ -197,26 +197,6 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
         isValid = false;
       }
 
-      // All union variants must have names.
-      if (typeof v.name !== "string") {
-        reportDiagnostic(program, {
-          code: "anonymous-model",
-          target: v,
-        });
-        isValid = false;
-      }
-      // All union variants must have field decorators.
-      else if (!v.decorators.some((d) => d.decorator === $field)) {
-        reportDiagnostic(program, {
-          code: "field-index",
-          messageId: "missing",
-          format: {
-            name: v.name,
-          },
-          target: v,
-        });
-        isValid = false;
-      }
     });
 
     return isValid;
@@ -675,7 +655,8 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
       case "Union":
         if (!t.name) {
           reportDiagnostic(program, {
-            code: "anonymous-model",
+            code: "unconvertible-union",
+            messageId: "anonymous",
             target: t,
           });
           return unreachable("anonymous union");

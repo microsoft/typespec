@@ -1,0 +1,3 @@
+/test/main.tsp:15:3 - error @typespec/protobuf/unconvertible-union: union variants without identifiers cannot be used in Protobuf messages
+/test/main.tsp:19:3 - error @typespec/protobuf/unconvertible-union: union variants without identifiers cannot be used in Protobuf messages
+/test/main.tsp:20:3 - error @typespec/protobuf/unconvertible-union: union variants without identifiers cannot be used in Protobuf messages

@@ -128,6 +128,8 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
     "unconvertible-union": {
       severity: "error",
       messages: {
+        "anonymous": "anonymous unions cannot be used in Protobuf messages",
+        "anonymous-variant": "union variants without identifiers cannot be used in Protobuf messages",
         "no-variants": "a union must contain at least one variant to be used in a Protobuf message"
       }
     },
