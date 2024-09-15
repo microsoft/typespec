@@ -14,6 +14,7 @@ import {
   resolvePath,
   StringLiteral,
   Type,
+  UnionVariant,
 } from "@typespec/compiler";
 
 import {
@@ -148,7 +149,7 @@ export const $message: MessageDecorator = (ctx: DecoratorContext, target: Type) 
  */
 export const $field: FieldDecorator = (
   ctx: DecoratorContext,
-  target: ModelProperty,
+  target: ModelProperty | UnionVariant,
   fieldIndex: number
 ) => {
   if (!Number.isInteger(fieldIndex) || fieldIndex <= 0) {

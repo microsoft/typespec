@@ -18,6 +18,7 @@ import {
   TemplatedType,
   Type,
   TypeMapper,
+  Union,
   UnknownType,
   Value,
   VoidType,
@@ -164,7 +165,7 @@ export function isGlobalNamespace(
  * @returns {boolean}
  */
 export function isDeclaredInNamespace(
-  type: Model | Operation | Interface | Namespace | Enum,
+  type: Model | Operation | Interface | Namespace | Enum | Union,
   namespace: Namespace,
   options: { recursive?: boolean } = { recursive: true }
 ) {

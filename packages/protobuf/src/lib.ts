@@ -102,11 +102,12 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
     "unsupported-field-type": {
       severity: "error",
       messages: {
-        unconvertible: paramMessage`cannot convert a ${"type"} to a protobuf type (only intrinsic types and models are supported)`,
+        unconvertible: paramMessage`cannot convert a ${"type"} to a protobuf type (only intrinsic types, models and unions are supported)`,
         "unknown-intrinsic": paramMessage`no known protobuf scalar for intrinsic type ${"name"}`,
         "unknown-scalar": paramMessage`no known protobuf scalar for TypeSpec scalar type ${"name"}`,
         "recursive-map": "a protobuf map's 'value' type may not refer to another map",
-        union: "a message field's type may not be a union",
+        "union-variant-map": "a protobuf oneof cannot directly include a map",
+        "union-variant-array": "a protobuf oneof cannot directly include a repeated field"
       },
     },
     "namespace-collision": {
@@ -123,6 +124,12 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
         "no-zero-first":
           "the first variant of an enum must be set to zero to be used in a Protobuf message",
       },
+    },
+    "unconvertible-union": {
+      severity: "error",
+      messages: {
+        "no-variants": "a union must contain at least one variant to be used in a Protobuf message"
+      }
     },
     "nested-array": {
       severity: "error",

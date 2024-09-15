@@ -1,1 +1,0 @@
-/test/main.tsp:14:13 - error @typespec/protobuf/unsupported-field-type: a message field's type may not be a union

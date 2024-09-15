@@ -25,7 +25,7 @@ The field index of a Protobuf message must:
 
 #### Target
 
-`ModelProperty`
+`ModelProperty | UnionVariant`
 
 #### Parameters
 
