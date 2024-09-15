@@ -10,6 +10,7 @@ import {
   getEffectiveModelType,
   getFriendlyName,
   getTypeName,
+  IdentifierNode,
   Interface,
   IntrinsicType,
   isDeclaredInNamespace,
@@ -28,6 +29,7 @@ import {
   Type,
   Union,
   UnionVariant,
+  UnionVariantNode,
 } from "@typespec/compiler";
 import {
   map,
@@ -59,12 +61,14 @@ import { writeProtoFile } from "../write.js";
 const _protoScalarsMap = new WeakMap<Program, Map<Type, ProtoScalar>>();
 const _protoExternMap = new WeakMap<Program, Map<string, [string, ProtoRef]>>();
 
-type EmittableUnionVariant = UnionVariant & { name: string };
-type EmittableUnion = Omit<Union, "variants"> & {
+type NamedUnionVariantNode = UnionVariantNode & { id: IdentifierNode }
+type NamedUnionVariant = UnionVariant & { name: string, node: NamedUnionVariantNode };
+type NamedUnion = Omit<Union, "variants"> & {
   name: string;
-  variants: RekeyableMap<string, EmittableUnionVariant>;
+  variants: RekeyableMap<string, NamedUnionVariant>;
 };
-type Emittable = Model | Operation | EmittableUnion;
+type EmittableField = ModelProperty | NamedUnionVariant;
+type Emittable = Model | Operation | NamedUnion;
 
 /**
  * Create a worker function that converts the TypeSpec program to Protobuf and writes it to the file system.
@@ -138,11 +142,12 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     }
   }
 
-  function validateUnion(union: Union): union is EmittableUnion {
+  function validateUnion(union: Union): union is NamedUnion {
     // Union must not be anonymous.
     if (!union.name) {
       reportDiagnostic(program, {
-        code: "anonymous-model",
+        code: "unconvertible-union",
+        messageId: "anonymous",
         target: union,
       });
       return false;
@@ -162,6 +167,16 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     }
 
     variants.forEach((v) => {
+      // TODO: work out when this would be the case & ensure diagnostic is appropriate
+      if (v.node?.id === undefined) {
+        reportDiagnostic(program, {
+          code: "unsupported-input-type",
+          messageId: "unconvertible",
+          target: v
+        });
+        isValid = false;
+      }
+
       // Union variants must not be maps.
       if (isMap(program, v.type)) {
         reportDiagnostic(program, {
@@ -221,6 +236,10 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
         code: "model-not-in-package",
         format: { name: union.name },
       });
+    }
+
+    for (const field of union.variants.values()) {
+      validateFieldDecorations(field, union);
     }
 
     if (!visitedTypes.has(union)) {
@@ -884,43 +903,36 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     return prefix + capitalize(model.name);
   }
 
-  /**
-   * @param property - the ModelProperty to convert
-   * @returns a corresponding declaration
-   */
-  function toMessageBodyDeclaration(
-    property: ModelProperty,
-    model: Model
-  ): ProtoMessageBodyDeclaration {
-    const fieldIndex = program.stateMap(state.fieldIndex).get(property) as number | undefined;
-    const fieldIndexNode = property.decorators.find((d) => d.decorator === $field)?.args[0].node;
+  function validateFieldDecorations(field: EmittableField, type: Emittable) {
+    const fieldIndex = program.stateMap(state.fieldIndex).get(field) as number | undefined;
+    const fieldIndexNode = field.decorators.find((d) => d.decorator === $field)?.args[0].node;
 
     if (fieldIndex === undefined) {
       reportDiagnostic(program, {
         code: "field-index",
         messageId: "missing",
         format: {
-          name: property.name,
+          name: field.name,
         },
-        target: property,
+        target: field,
       });
     }
 
     if (fieldIndex && !fieldIndexNode)
       throw new Error("Failed to recover field decorator argument.");
 
-    const reservations = program.stateMap(state.reserve).get(model) as Reservation[] | undefined;
+    const reservations = program.stateMap(state.reserve).get(type) as Reservation[] | undefined;
 
     if (reservations) {
       for (const reservation of reservations) {
-        if (typeof reservation === "string" && reservation === property.name) {
+        if (typeof reservation === "string" && reservation === field.name) {
           reportDiagnostic(program, {
             code: "field-name",
             messageId: "user-reserved",
             format: {
-              name: property.name,
+              name: field.name,
             },
-            target: getPropertyNameSyntaxTarget(property),
+            target: getFieldNameSyntaxTarget(field),
           });
         } else if (
           fieldIndex !== undefined &&
@@ -933,9 +945,9 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
             format: {
               index: fieldIndex.toString(),
             },
-            // Fail over to using the model if the field index node is missing... this should never occur but it's the
+            // Fail over to using the containing type if the field index node is missing... this should never occur but it's the
             // simplest way to satisfy the type system.
-            target: fieldIndexNode ?? model,
+            target: fieldIndexNode ?? type,
           });
         } else if (
           fieldIndex !== undefined &&
@@ -949,11 +961,23 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
             format: {
               index: fieldIndex.toString(),
             },
-            target: fieldIndexNode ?? model,
+            target: fieldIndexNode ?? type,
           });
         }
       }
     }
+  }
+
+  /**
+   * @param property - the ModelProperty to convert
+   * @returns a corresponding declaration
+   */
+  function toMessageBodyDeclaration(
+    property: ModelProperty,
+    model: Model
+  ): ProtoMessageBodyDeclaration {
+    
+    validateFieldDecorations(property, model);
 
     const field: ProtoFieldDeclaration = {
       kind: "field",
@@ -1180,22 +1204,23 @@ function getOperationReturnSyntaxTarget(op: Operation): DiagnosticTarget {
  * See https://github.com/microsoft/typespec/issues/1650. This issue tracks helpers for doing this without requiring
  * emitters to implement this functionality.
  */
-function getPropertyNameSyntaxTarget(property: ModelProperty): DiagnosticTarget {
-  const node = property.node;
+function getFieldNameSyntaxTarget(field: EmittableField): DiagnosticTarget {
+  const node = field.node;
 
   switch (node.kind) {
     case SyntaxKind.ModelProperty:
     case SyntaxKind.ObjectLiteralProperty:
+    case SyntaxKind.UnionVariant:
       return node.id;
     case SyntaxKind.ModelSpreadProperty:
       return node;
     case SyntaxKind.ProjectionModelProperty:
     case SyntaxKind.ProjectionModelSpreadProperty:
-      return property;
+      return field;
     default:
       const __exhaust: never = node;
       throw new Error(
-        `Internal Emitter Error: reached unreachable model property node: ${property.node.kind}`
+        `Internal Emitter Error: reached unreachable model property node: ${field.node.kind}`
       );
   }
 }
