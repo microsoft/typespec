@@ -2,15 +2,25 @@
 
 syntax = "proto3";
 
-message Input {
+message ModelInput {
   reserved 2, 15, 9 to 11;
   reserved "foo", "bar";
 
   string testInputField = 1;
 }
 
+message UnionInput {
+  reserved 4, 16, 10 to 12;
+  reserved "baz", "bosh";
+
+  oneof value {
+    string case1 = 1;
+    int64 case2 = 2;
+  }
+}
+
 message FooResponse {}
 
 service Service {
-  rpc Foo(Input) returns (FooResponse);
+  rpc Foo(ModelInput) returns (FooResponse);
 }
