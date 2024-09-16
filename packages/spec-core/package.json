@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Typespec Core Tool to validate, run mock api, collect coverage.",
   "main": "dist/index.js",
+  "private": true,
   "type": "module",
   "bin": {
     "spec-core": "./cmd/cli.mjs"

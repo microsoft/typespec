@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Spec Library providing decorator and validation for specs",
   "main": "dist/index.js",
+  "private": true,
   "tspMain": "lib/lib.tsp",
   "type": "module",
   "scripts": {
