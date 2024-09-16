@@ -873,7 +873,7 @@ def test_literals():
         def __init__(
             self,
             *,
-            species: Literal["Moongose", "Eagle", "Penguin"],
+            species: Literal["Mongoose", "Eagle", "Penguin"],
             age: Literal[1, 2, 3],
         ): ...
 
@@ -1728,10 +1728,10 @@ class Y(Model):
 
 
 class Z(Model):
-    zval: datetime.datetime = rest_field()
+    z_val: datetime.datetime = rest_field(name="zVal")
 
     @overload
-    def __init__(self, *, zval: datetime.datetime): ...
+    def __init__(self, *, z_val: datetime.datetime): ...
 
     @overload
     def __init__(self, mapping: Mapping[str, Any], /): ...
@@ -1743,9 +1743,9 @@ class Z(Model):
 def test_nested_update():
     serialized_datetime = "9999-12-31T23:59:59.999Z"
     parsed_datetime = isodate.parse_datetime(serialized_datetime)
-    x = X({"y": {"z": {"zval": serialized_datetime}}})
-    assert x.y.z.zval == x["y"].z.zval == x.y["z"].zval == x["y"]["z"].zval == parsed_datetime
-    assert x.y.z["zval"] == x.y["z"]["zval"] == x["y"].z["zval"] == x["y"]["z"]["zval"] == serialized_datetime
+    x = X({"y": {"z": {"zVal": serialized_datetime}}})
+    assert x.y.z.z_val == x["y"].z.z_val == x.y["z"].z_val == x["y"]["z"].z_val == parsed_datetime
+    assert x.y.z["zVal"] == x.y["z"]["zVal"] == x["y"].z["zVal"] == x["y"]["z"]["zVal"] == serialized_datetime
 
 
 def test_deserialization_is():
@@ -1756,11 +1756,11 @@ def test_deserialization_is():
     assert a.b.c.d is a.b.c.d
 
     serialized_datetime = "9999-12-31T23:59:59.999Z"
-    x = X({"y": {"z": {"zval": serialized_datetime}}})
+    x = X({"y": {"z": {"zVal": serialized_datetime}}})
     assert x.y is x.y
     assert x.y.z is x.y.z
 
-    assert x.y.z.zval == isodate.parse_datetime(serialized_datetime)
+    assert x.y.z.z_val == isodate.parse_datetime(serialized_datetime)
 
 
 class InnerModelWithReadonly(Model):
@@ -1883,19 +1883,19 @@ def test_serialization_initialization_and_setting():
     parsed_datetime = isodate.parse_datetime(serialized_datetime)
 
     # pass in parsed
-    z = Z(zval=parsed_datetime)
-    assert z.zval == parsed_datetime
-    assert z["zval"] == serialized_datetime
+    z = Z(z_val=parsed_datetime)
+    assert z.z_val == parsed_datetime
+    assert z["zVal"] == serialized_datetime
 
     # pass in dict
-    z = Z({"zval": serialized_datetime})
-    assert z.zval == parsed_datetime
-    assert z["zval"] == serialized_datetime
+    z = Z({"zVal": serialized_datetime})
+    assert z.z_val == parsed_datetime
+    assert z["zVal"] == serialized_datetime
 
     # assert setting
     serialized_datetime = "2022-12-31T23:59:59.999000Z"
-    z.zval = isodate.parse_datetime(serialized_datetime)
-    assert z["zval"] == serialized_datetime
+    z.z_val = isodate.parse_datetime(serialized_datetime)
+    assert z["zVal"] == serialized_datetime
 
 
 def test_copy_of_input():
@@ -1946,7 +1946,7 @@ def test_inner_model_custom_serializer():
 
     outer = OuterModel({"inner": {"prop": "hello"}})
     assert outer.inner["prop"] == outer["inner"]["prop"] == "hello"
-    assert outer.inner.prop == outer["inner"].prop == "olleh"
+    assert outer.inner.prop == outer["inner"].prop == "olleh" # cspell: ignore olleh
 
 
 def test_default_value():
@@ -3357,7 +3357,7 @@ class CatComplex(PetComplex):
     [
         CatComplex(
             id=2,
-            name="Siameese",
+            name="Siamese",
             hates=[
                 DogComplex(id=1, name="Potato", food="tomato"),
                 DogComplex(id=-1, name="Tomato", food="french fries"),
@@ -3365,7 +3365,7 @@ class CatComplex(PetComplex):
         ),
         CatComplex(
             id=2,
-            name="Siameese",
+            name="Siamese",
             hates=[
                 DogComplex(id=1, name="Potato", food="tomato"),
                 {"id": -1, "name": "Tomato", "food": "french fries"},
@@ -3373,7 +3373,7 @@ class CatComplex(PetComplex):
         ),
         CatComplex(
             id=2,
-            name="Siameese",
+            name="Siamese",
             hates=[
                 {"id": 1, "name": "Potato", "food": "tomato"},
                 {"id": -1, "name": "Tomato", "food": "french fries"},
@@ -3383,7 +3383,7 @@ class CatComplex(PetComplex):
 )
 def test_complex_inheritance(model):
     assert model.id == model["id"] == 2
-    assert model.name == model["name"] == "Siameese"
+    assert model.name == model["name"] == "Siamese"
     assert model.hates
     assert model.hates[1] == model["hates"][1] == {"id": -1, "name": "Tomato", "food": "french fries"}
     model["breed"] = "persian"
@@ -3392,7 +3392,7 @@ def test_complex_inheritance(model):
         model.breed
     assert model == {
         "id": 2,
-        "name": "Siameese",
+        "name": "Siamese",
         "color": "green",
         "breed": "persian",
         "hates": [
@@ -3622,7 +3622,7 @@ def test_as_dict():
 
     model = CatComplex(
         id=2,
-        name="Siameese",
+        name="Siamese",
         hates=[
             DogComplex(id=1, name="Potato", food="tomato"),
             DogComplex(id=-1, name="Tomato", food="french fries"),
@@ -3630,7 +3630,7 @@ def test_as_dict():
     )
     assert model.as_dict(exclude_readonly=True) == {
         "id": 2,
-        "name": "Siameese",
+        "name": "Siamese",
         "color": None,
     }
 

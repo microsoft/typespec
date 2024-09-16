@@ -48,6 +48,7 @@ words:
   - devdiv
   - Diagnoser
   - Dlog
+  - docutils
   - dogfood
   - Dorg
   - Dosgi
@@ -157,6 +158,7 @@ words:
   - pylintrc
   - pyright
   - pyrightconfig
+  - pytest
   - rcfile
   - reactivex
   - recase
@@ -223,6 +225,7 @@ words:
   - weidxu
   - westus
   - WINDOWSVMIMAGE
+  - xiangyan
   - xiaofei
   - xlarge
   - xmsclientrequestid

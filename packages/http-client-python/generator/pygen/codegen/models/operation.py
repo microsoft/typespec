@@ -198,9 +198,9 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         default_exceptions = [e for e in self.exceptions if "default" in e.status_codes and e.type]
         if not default_exceptions:
             return None
-        excep_schema = default_exceptions[0].type
-        if isinstance(excep_schema, ModelType):
-            return excep_schema.type_annotation(skip_quote=True)
+        exception_schema = default_exceptions[0].type
+        if isinstance(exception_schema, ModelType):
+            return exception_schema.type_annotation(skip_quote=True)
         # in this case, it's just an AnyType
         return "'object'"
 

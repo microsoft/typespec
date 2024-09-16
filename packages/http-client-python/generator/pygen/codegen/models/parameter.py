@@ -213,12 +213,12 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
     def in_method_signature(self) -> bool: ...
 
     def method_signature(self, async_mode: bool) -> str:
-        type_annot = self.type_annotation(async_mode=async_mode)
+        type_annotation = self.type_annotation(async_mode=async_mode)
         if self.client_default_value is not None or self.optional:
-            return f"{self.client_name}: {type_annot} = {self.client_default_value_declaration},"
+            return f"{self.client_name}: {type_annotation} = {self.client_default_value_declaration},"
         if self.default_to_unset_sentinel:
-            return f"{self.client_name}: {type_annot} = _Unset,"
-        return f"{self.client_name}: {type_annot},"
+            return f"{self.client_name}: {type_annotation} = _Unset,"
+        return f"{self.client_name}: {type_annotation},"
 
 
 class BodyParameter(_ParameterBase):

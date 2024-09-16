@@ -179,7 +179,7 @@ class ParameterSerializer:
         if pop_headers_kwarg != PopKwargType.NO or pop_params_kwarg != PopKwargType.NO:
             retval.append("")
         for kwarg in parameters:
-            type_annot = kwarg.type_annotation()
+            type_annotation = kwarg.type_annotation()
             if kwarg.client_default_value is not None or kwarg.optional:
                 if check_client_input and kwarg.check_client_input:
                     default_value = f"self._config.{kwarg.client_name}"
@@ -196,10 +196,10 @@ class ParameterSerializer:
                     default_value = f"_{kwarg_dict}.pop('{kwarg.wire_name}', {default_value})"
 
                 retval.append(
-                    f"{kwarg.client_name}: {type_annot} = kwargs.pop('{kwarg.client_name}', " + f"{default_value})"
+                    f"{kwarg.client_name}: {type_annotation} = kwargs.pop('{kwarg.client_name}', " + f"{default_value})"
                 )
             else:
-                retval.append(f"{kwarg.client_name}: {type_annot} = kwargs.pop('{kwarg.client_name}')")
+                retval.append(f"{kwarg.client_name}: {type_annotation} = kwargs.pop('{kwarg.client_name}')")
         return retval
 
     @staticmethod
