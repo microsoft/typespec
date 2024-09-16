@@ -16,8 +16,8 @@ const execute = (
       options.onCreate(cp);
     }
 
-    options.onStdOutData ? cp.stdout.on("data", options.onStdOutData) : cp;
-    options.onStdErrData ? cp.stderr.on("data", options.onStdErrData) : cp;
+    options.onStdOutData && cp.stdout.on("data", options.onStdOutData);
+    options.onStdErrData && cp.stderr.on("data", options.onStdErrData);
 
     let err = "";
     let out = "";

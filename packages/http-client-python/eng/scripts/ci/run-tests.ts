@@ -5,13 +5,6 @@ import { join } from "path";
 import { fileURLToPath } from "url";
 import { parseArgs } from "util";
 
-interface Arguments {
-  validFolders: string[];
-  flavor?: string;
-  command?: string;
-  name?: string;
-}
-
 const validCommands = ["ci", "lint", "mypy", "pyright", "apiview"];
 
 const argv = parseArgs({

@@ -139,6 +139,7 @@ export default tsEslint.config(
       "**/website/build/**/*",
       "**/.docusaurus/**/*",
       "packages/compiler/templates/**/*", // Ignore the templates which might have invalid code and not follow exactly our rules.
+      "**/venv/**/*", // Ignore python virtual env
       // TODO: enable
       "**/.scripts/**/*",
       "eng/tsp-core/scripts/**/*",
