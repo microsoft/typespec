@@ -10,7 +10,6 @@ import {
   Namespace,
   Operation,
   Program,
-  StringLiteral,
 } from "@typespec/compiler";
 import {
   $route,
@@ -22,19 +21,13 @@ import {
 } from "@typespec/http";
 import { $versioned } from "@typespec/versioning";
 
-// Allow transition for breaking change https://github.com/microsoft/typespec/pull/1877
-function unifyString(type: string | StringLiteral) {
-  return typeof type === "string" ? type : type.value;
-}
-
 const ScenarioDocKey = Symbol("ScenarioDoc");
 export function $scenarioDoc(
   context: DecoratorContext,
   target: Namespace | Operation | Interface,
-  docType: string | StringLiteral,
+  doc: string,
   formatArgs?: Model
 ) {
-  const doc = unifyString(docType);
   const formattedDoc = formatArgs ? replaceTemplatedStringFromProperties(doc, formatArgs) : doc;
   context.program.stateMap(ScenarioDocKey).set(target, formattedDoc);
 }
@@ -60,9 +53,8 @@ const ScenarioKey = Symbol("Scenario");
 export function $scenario(
   context: DecoratorContext,
   target: Namespace | Operation | Interface,
-  nameType?: string | StringLiteral
+  name?: string
 ) {
-  const name = nameType && unifyString(nameType);
   context.program.stateMap(ScenarioKey).set(target, name ?? target.name);
 }
 
@@ -218,10 +210,9 @@ const ScenarioServiceKey = Symbol("ScenarioService");
 export function $scenarioService(
   context: DecoratorContext,
   target: Namespace,
-  routeType: string | StringLiteral,
+  route: string,
   options?: Model
 ) {
-  const route = unifyString(routeType);
   const properties = new Map().set("title", {
     type: { kind: "String", value: getNamespaceFullName(target).replace(/\./g, "") },
   });
