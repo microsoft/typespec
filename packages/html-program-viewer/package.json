@@ -23,7 +23,6 @@
       "default": "./dist/emitter/index.js"
     },
     "./react": {
-      "development": "./src/react/index.ts",
       "types": "./dist/react/index.d.ts",
       "default": "./dist/react/index.js"
     },
