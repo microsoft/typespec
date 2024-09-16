@@ -57,7 +57,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
     const sdkContext = await createSdkContext(
       context,
       "@typespec/http-client-csharp",
-      defaultSDKContextOptions
+      defaultSDKContextOptions,
     );
     const root = createModel(sdkContext);
     if (
@@ -78,7 +78,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
 
       await program.host.writeFile(
         resolvePath(outputFolder, tspOutputFileName),
-        prettierOutput(stringifyRefs(root, transformJSONProperties, 1, PreserveType.Objects))
+        prettierOutput(stringifyRefs(root, transformJSONProperties, 1, PreserveType.Objects)),
       );
 
       //emit configuration.json
@@ -100,9 +100,9 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
               ["Uri", "Guid", "ResourceIdentifier", "DateTimeOffset"].filter(
                 (item) =>
                   options["additional-intrinsic-types-to-treat-empty-string-as-null"].indexOf(
-                    item
-                  ) < 0
-              )
+                    item,
+                  ) < 0,
+              ),
             )
           : undefined,
         "methods-to-keep-client-default-value": options["methods-to-keep-client-default-value"],
@@ -124,14 +124,14 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
 
       await program.host.writeFile(
         resolvePath(outputFolder, configurationFileName),
-        prettierOutput(JSON.stringify(configurations, null, 2))
+        prettierOutput(JSON.stringify(configurations, null, 2)),
       );
 
       if (options.skipSDKGeneration !== true) {
         const csProjFile = resolvePath(
           outputFolder,
           "src",
-          `${configurations["library-name"]}.csproj`
+          `${configurations["library-name"]}.csproj`,
         );
         Logger.getInstance().info(`Checking if ${csProjFile} exists`);
         const newProjectOption =
@@ -144,7 +144,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
         const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
         const generatorPath = resolvePath(
-          projectRoot + "/dist/generator/Microsoft.Generator.CSharp.dll"
+          projectRoot + "/dist/generator/Microsoft.Generator.CSharp.dll",
         );
 
         const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]}${constructCommandArg(newProjectOption)}${constructCommandArg(existingProjectOption)}${constructCommandArg(debugFlag)}`;
@@ -163,7 +163,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
             existingProjectOption,
             debugFlag,
           ],
-          { stdio: "inherit" }
+          { stdio: "inherit" },
         );
         if (result.exitCode !== 0) {
           if (result.stderr) Logger.getInstance().error(result.stderr);
@@ -187,7 +187,7 @@ function constructCommandArg(arg: string): string {
 async function execAsync(
   command: string,
   args: string[] = [],
-  options: SpawnOptions = {}
+  options: SpawnOptions = {},
 ): Promise<{ exitCode: number; stdio: string; stdout: string; stderr: string; proc: any }> {
   const child = spawn(command, args, options);
 

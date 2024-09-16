@@ -71,7 +71,7 @@ export const ObjectPreview: FC<any> = ({ data }) => {
             :&nbsp;
             <JsValue value={propertyValue} />
             {ellipsis}
-          </span>
+          </span>,
         );
         if (ellipsis) break;
       }

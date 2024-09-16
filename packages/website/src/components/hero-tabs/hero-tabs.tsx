@@ -16,7 +16,7 @@ export const HeroTabs = ({ tabs }: HeroProps) => {
     (event: SelectTabEvent, data: SelectTabData) => {
       setSelected(data.value as any);
     },
-    [setSelected]
+    [setSelected],
   );
   const content = tabs.find((tab) => tab.value === selected)?.content;
   return (

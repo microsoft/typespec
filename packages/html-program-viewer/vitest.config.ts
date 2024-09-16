@@ -9,5 +9,5 @@ export default mergeConfig(
       environment: "happy-dom",
       setupFiles: "./test/setup.ts", // assuming the test folder is in the root of our project
     },
-  })
+  }),
 );

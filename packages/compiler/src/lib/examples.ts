@@ -20,7 +20,7 @@ export function serializeValueAsJson(
   program: Program,
   value: Value,
   type: Type,
-  encodeAs?: EncodeData
+  encodeAs?: EncodeData,
 ): unknown {
   if (type.kind === "ModelProperty") {
     return serializeValueAsJson(program, value, type.type, encodeAs ?? getEncode(program, type));
@@ -42,8 +42,8 @@ export function serializeValueAsJson(
           v,
           type.kind === "Model" && isArrayModelType(program, type)
             ? type.indexer.value
-            : program.checker.anyType
-        )
+            : program.checker.anyType,
+        ),
       );
     case "ObjectValue":
       return serializeObjectValueAsJson(program, value, type);
@@ -79,8 +79,8 @@ function resolveUnions(program: Program, value: ObjectValue, type: Type): Type |
         program.checker.isTypeAssignableTo(
           value,
           { entityKind: "MixedParameterConstraint", valueType: variant.type },
-          value
-        )
+          value,
+        ),
       )
     ) {
       return variant.type;
@@ -92,7 +92,7 @@ function resolveUnions(program: Program, value: ObjectValue, type: Type): Type |
 function serializeObjectValueAsJson(
   program: Program,
   value: ObjectValue,
-  type: Type
+  type: Type,
 ): Record<string, unknown> {
   type = resolveUnions(program, value, type) ?? type;
   const obj: Record<string, unknown> = {};
@@ -107,7 +107,7 @@ function serializeObjectValueAsJson(
 
 function resolveKnownScalar(
   program: Program,
-  scalar: Scalar
+  scalar: Scalar,
 ):
   | {
       scalar: Scalar & {
@@ -141,7 +141,7 @@ function serializeScalarValueAsJson(
   program: Program,
   value: ScalarValue,
   type: Type,
-  encodeAs: EncodeData | undefined
+  encodeAs: EncodeData | undefined,
 ): unknown {
   const result = resolveKnownScalar(program, value.scalar);
   if (result === undefined) {

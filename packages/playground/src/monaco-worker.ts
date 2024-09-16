@@ -23,7 +23,7 @@ export function registerMonacoDefaultWorkersForVite() {
         case "javascript":
           return getWorkerModule(
             "/monaco-editor/esm/vs/language/typescript/ts.worker?worker",
-            label
+            label,
           );
         default:
           return getWorkerModule("/monaco-editor/esm/vs/editor/editor.worker?worker", label);

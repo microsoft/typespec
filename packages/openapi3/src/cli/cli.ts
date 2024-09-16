@@ -40,7 +40,7 @@ function parseCliArgs(): ConvertCliArgs {
     diagnostics.push("Missing required positional argument: <path>");
   } else if (options.positionals.length !== 1) {
     diagnostics.push(
-      `Incorrect number of positional arguments provided for path: got ${options.positionals.length}, need 1`
+      `Incorrect number of positional arguments provided for path: got ${options.positionals.length}, need 1`,
     );
   }
 
@@ -68,8 +68,8 @@ function displayHelp() {
     padArgumentUsage(
       "path",
       "The path to the OpenAPI3 file in JSON or YAML format.",
-      "[string] [required]"
-    )
+      "[string] [required]",
+    ),
   );
   log(`\nOptions:`);
   log(padArgumentUsage("--help", "Show help.", "[boolean]"));
@@ -77,8 +77,8 @@ function displayHelp() {
     padArgumentUsage(
       "--output-dir",
       "The output directory for generated TypeSpec files. Will be created if it does not exist.",
-      "[string] [required]"
-    )
+      "[string] [required]",
+    ),
   );
 }
 

@@ -10,19 +10,19 @@ function getGeneratedFile(runner: BasicTestRunner, fileName: string): [string, s
   assert.strictEqual(
     result === null || result === undefined,
     false,
-    `No file matching ${fileName} found in output`
+    `No file matching ${fileName} found in output`,
   );
   assert.strictEqual(result.length, 1, `found ${result.length} entries of ${fileName}`);
   const fileData = result[0];
   assert.strictEqual(
     fileData[0] === null || fileData[0] === undefined,
     false,
-    `${fileName} not found`
+    `${fileName} not found`,
   );
   assert.strictEqual(
     fileData[1] === null || fileData[1] === undefined,
     false,
-    `${fileName} has no contents`
+    `${fileName} has no contents`,
   );
   return fileData;
 }
@@ -31,7 +31,7 @@ function assertFileContains(fileName: string, fileContents: string, searchString
   assert.strictEqual(
     fileContents.includes(searchString),
     true,
-    `"${searchString}" not found in ${fileName}, contents of file: ${fileContents}`
+    `"${searchString}" not found in ${fileName}, contents of file: ${fileContents}`,
   );
 }
 
@@ -39,14 +39,14 @@ async function compileAndValidateSingleModel(
   runner: BasicTestRunner,
   code: string,
   fileToCheck: string,
-  expectedContent: string[]
+  expectedContent: string[],
 ): Promise<void> {
   await compileAndValidateMultiple(runner, code, [[fileToCheck, expectedContent]]);
 }
 
 async function compile(
   runner: BasicTestRunner,
-  code: string
+  code: string,
 ): Promise<{ program: Program; types: Record<string, Type> }> {
   const spec = getStandardService(code);
   const [types, _] = await runner.compileAndDiagnose(spec);
@@ -56,7 +56,7 @@ async function compile(
 async function compileAndValidateMultiple(
   runner: BasicTestRunner,
   code: string,
-  fileChecks: [string, string[]][]
+  fileChecks: [string, string[]][],
 ): Promise<void> {
   const spec = getStandardService(code);
   const [_, diagnostics] = await runner.compileAndDiagnose(spec);
@@ -87,7 +87,7 @@ it("can source properties", async () => {
       }
 
       model Bar is OptionalProperties<UpdateableProperties<OmitProperties<Foo, "prop3">>>;
-      `
+      `,
   );
   assert.ok(result);
   assert.ok(result.types);
@@ -115,7 +115,7 @@ it("can source models", async () => {
       }
 
       model Bar is OptionalProperties<OmitProperties<Foo, "prop1">>;
-      `
+      `,
   );
   assert.ok(result);
   assert.ok(result.types);
@@ -216,7 +216,7 @@ it("generates standard scalar properties", async () => {
       "public long? SafeIntProp { get; set; }",
       "public decimal? DecimalProp { get; set; }",
       "public decimal? Decimal128Prop { get; set; }",
-    ]
+    ],
   );
 });
 
@@ -248,7 +248,7 @@ it("generates numeric constraints", async () => {
       "public UInt32? Uint32Prop { get; set; }",
       "[TypeSpec.Helpers.JsonConverters.NumericConstraint<float>( MinValue = 0, MinValueExclusive = true)]",
       "public float? F32Prop { get; set; }",
-    ]
+    ],
   );
 });
 
@@ -271,7 +271,7 @@ it("generates string constraints", async () => {
       "public partial class Foo",
       "[TypeSpec.Helpers.JsonConverters.StringConstraint( MinLength = 3, MaxLength = 72)]",
       "public string StringProp { get; set; }",
-    ]
+    ],
   );
 });
 
@@ -290,7 +290,7 @@ it("handles scalar extensions", async () => {
       }
       `,
     "Foo.cs",
-    ["public partial class Foo", `public string AdminPassword { get; set; }`]
+    ["public partial class Foo", `public string AdminPassword { get; set; }`],
   );
 });
 
@@ -306,7 +306,7 @@ it("handles scalar templates", async () => {
       }
       `,
     "Foo.cs",
-    ["public partial class Foo", `public string Id { get; set; }`]
+    ["public partial class Foo", `public string Id { get; set; }`],
   );
 });
 
@@ -330,7 +330,7 @@ it("handles encoded property names", async () => {
       "public partial class Foo",
       `public string AdminPassword { get; set; }`,
       `[JsonPropertyName( "pass")]`,
-    ]
+    ],
   );
 });
 
@@ -355,7 +355,7 @@ it("generates default model namespaces", async () => {
       `using System.Text.Json.Serialization;`,
       `using System;`,
       `[JsonPropertyName( "pass")]`,
-    ]
+    ],
   );
 });
 
@@ -379,7 +379,7 @@ it("generates literal properties", async () => {
       `public string StringLiteralProp { get; } = "This is a string literal";`,
       "public bool? BoolLiteralProp { get; } = true;",
       "public object? NumericLiteralProp { get; set; }",
-    ]
+    ],
   );
 });
 
@@ -403,7 +403,7 @@ it("generates default values in properties", async () => {
       `public string StringLiteralProp { get; set; } = "This is a string literal";`,
       "public bool? BoolLiteralProp { get; set; } = true;",
       "public int? NumericLiteralProp { get; set; } = 17;",
-    ]
+    ],
   );
 });
 
@@ -469,7 +469,7 @@ it("generates standard scalar array  properties", async () => {
       "public DateTimeOffset[] ArrutcDateTimeProp { get; set; }",
       "public DateTimeOffset[] ArroffsetDateTimeProp { get; set; }",
       "public string[] ArrStringProp { get; set; }",
-    ]
+    ],
   );
 });
 
@@ -495,7 +495,7 @@ it("generates standard scalar array  constraints", async () => {
       "public SByte[] ArrSbyteProp { get; set; }",
       "[TypeSpec.Helpers.JsonConverters.ArrayConstraint( MaxItems = 10)]",
       "public Byte[] ArrByteProp { get; set; }",
-    ]
+    ],
   );
 });
 
@@ -538,7 +538,7 @@ it("handles enum, complex type properties, and circular references", async () =>
           `public Baz NextBazProp { get; set; }`,
         ],
       ],
-    ]
+    ],
   );
 });
 
@@ -558,7 +558,7 @@ it("creates Valid Identifiers", async () => {
     [
       "public partial class Foo",
       `public string GeneratedInvalidName { get; set; } = "This is a string literal";`,
-    ]
+    ],
   );
 });
 
@@ -579,7 +579,7 @@ it("Coalesces union types", async () => {
       "public partial class Foo",
       `public object ObjectUnionProp { get; set; }`,
       `public string StringUnionProp { get; set; }`,
-    ]
+    ],
   );
 });
 
@@ -601,7 +601,7 @@ it("Generates types for named model instantiation", async () => {
        model ToyCollection is CollectionWithNextLink<Toy>;
     `,
     "ToyCollection.cs",
-    ["public partial class ToyCollection"]
+    ["public partial class ToyCollection"],
   );
 });
 
@@ -622,6 +622,6 @@ it("Generates types for generic model instantiation", async () => {
        op foo(): CollectionWithNextLink<Toy>;
     `,
     "ToyCollectionWithNextLink.cs",
-    ["public partial class ToyCollectionWithNextLink"]
+    ["public partial class ToyCollectionWithNextLink"],
   );
 });

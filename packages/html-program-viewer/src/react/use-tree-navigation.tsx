@@ -70,7 +70,7 @@ function useTreeNavigatorInternal(program: Program): TreeNavigator {
         selectPath(path);
       }
     },
-    [selectPath, typeToPath]
+    [selectPath, typeToPath],
   );
   return { tree, selectedPath, selectedNode, selectPath, navToType };
 }

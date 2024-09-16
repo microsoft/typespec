@@ -26,7 +26,7 @@ export interface OperationExamples {
 
 export function resolveOperationExamples(
   program: Program,
-  operation: HttpOperation | SharedHttpOperation
+  operation: HttpOperation | SharedHttpOperation,
 ): OperationExamples {
   const examples = findOperationExamples(program, operation);
   const result: OperationExamples = { requestBody: {}, responses: {} };
@@ -76,11 +76,11 @@ export function resolveOperationExamples(
 
 function findOperationExamples(
   program: Program,
-  operation: HttpOperation | SharedHttpOperation
+  operation: HttpOperation | SharedHttpOperation,
 ): [HttpOperation, OpExample][] {
   if (isSharedHttpOperation(operation)) {
     return operation.operations.flatMap((op) =>
-      getOpExamples(program, op.operation).map((x): [HttpOperation, OpExample] => [op, x])
+      getOpExamples(program, op.operation).map((x): [HttpOperation, OpExample] => [op, x]),
     );
   } else {
     return getOpExamples(program, operation.operation).map((x) => [operation, x]);
@@ -89,7 +89,7 @@ function findOperationExamples(
 
 function isStatusCodeIn(
   exampleStatusCode: number,
-  statusCodes: number | HttpStatusCodeRange | "*"
+  statusCodes: number | HttpStatusCodeRange | "*",
 ) {
   if (statusCodes === "*") {
     return true;
@@ -103,7 +103,7 @@ function isStatusCodeIn(
 function findResponseForExample(
   program: Program,
   exampleValue: Value,
-  responses: HttpOperationResponse[]
+  responses: HttpOperationResponse[],
 ):
   | { contentType: string; statusCodes: string[]; response: HttpOperationResponseContent }
   | undefined {
@@ -128,7 +128,11 @@ function findResponseForExample(
         return {
           contentType,
           statusCodes: ignoreDiagnostics(
-            getOpenAPI3StatusCodes(program, statusCodeResponse.statusCodes, statusCodeResponse.type)
+            getOpenAPI3StatusCodes(
+              program,
+              statusCodeResponse.statusCodes,
+              statusCodeResponse.type,
+            ),
           ),
           response,
         };
@@ -140,8 +144,8 @@ function findResponseForExample(
               getOpenAPI3StatusCodes(
                 program,
                 statusCodeResponse.statusCodes,
-                statusCodeResponse.type
-              )
+                statusCodeResponse.type,
+              ),
             ),
           },
           1,
@@ -166,7 +170,7 @@ function findResponseForExample(
 
 export function getExampleOrExamples(
   program: Program,
-  examples: [Example, Type][]
+  examples: [Example, Type][],
 ): Pick<OpenAPI3MediaType, "example" | "examples"> {
   if (examples.length === 0) {
     return {};

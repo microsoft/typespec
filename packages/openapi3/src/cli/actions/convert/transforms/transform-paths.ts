@@ -24,7 +24,7 @@ import { collectOperationResponses } from "./transform-operation-responses.js";
  */
 export function transformPaths(
   models: TypeSpecModel[],
-  paths: Record<string, OpenAPI3PathItem>
+  paths: Record<string, OpenAPI3PathItem>,
 ): TypeSpecOperation[] {
   const operations: TypeSpecOperation[] = [];
 
@@ -62,7 +62,7 @@ export function transformPaths(
 }
 
 function transformOperationParameter(
-  parameter: Refable<OpenAPI3Parameter>
+  parameter: Refable<OpenAPI3Parameter>,
 ): Refable<TypeSpecOperationParameter> {
   if ("$ref" in parameter) {
     return { $ref: parameter.$ref };

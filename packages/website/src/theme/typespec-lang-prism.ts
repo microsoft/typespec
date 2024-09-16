@@ -43,7 +43,7 @@ const lang = {
           "|" +
           // single-line string
           /"(?:\$(?:\{(?:[^{}]|\{[^{}]*\})*\}|\r\n|[^{])|[^$\r\n"])*"/.source +
-          ")"
+          ")",
       ),
       lookbehind: true,
       greedy: true,

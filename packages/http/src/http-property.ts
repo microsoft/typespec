@@ -75,7 +75,7 @@ export interface BodyPropertyProperty extends HttpPropertyBase {
 
 export interface GetHttpPropertyOptions {
   implicitParameter?: (
-    param: ModelProperty
+    param: ModelProperty,
   ) => PathParameterOptions | QueryParameterOptions | undefined;
 }
 /**
@@ -85,11 +85,11 @@ function getHttpProperty(
   program: Program,
   property: ModelProperty,
   path: (string | number)[],
-  options: GetHttpPropertyOptions = {}
+  options: GetHttpPropertyOptions = {},
 ): [HttpProperty, readonly Diagnostic[]] {
   const diagnostics: Diagnostic[] = [];
   function createResult<T extends Omit<HttpProperty, "path" | "property">>(
-    opts: T
+    opts: T,
   ): [HttpProperty & T, readonly Diagnostic[]] {
     return [{ ...opts, property, path } as any, diagnostics];
   }
@@ -120,7 +120,7 @@ function getHttpProperty(
               param: property.name,
             },
             target: property,
-          })
+          }),
         );
       }
     } else if (implicit.type === "query" && annotations.query) {
@@ -132,7 +132,7 @@ function getHttpProperty(
               param: property.name,
             },
             target: property,
-          })
+          }),
         );
       }
     } else {
@@ -145,7 +145,7 @@ function getHttpProperty(
             annotationKind: defined[0][0],
           },
           target: property,
-        })
+        }),
       );
     }
   }
@@ -164,7 +164,7 @@ function getHttpProperty(
         code: "operation-param-duplicate-type",
         format: { paramName: property.name, types: defined.map((x) => x[0]).join(", ") },
         target: property,
-      })
+      }),
     );
   }
 
@@ -199,7 +199,7 @@ export function resolvePayloadProperties(
   program: Program,
   type: Type,
   visibility: Visibility,
-  options: GetHttpPropertyOptions = {}
+  options: GetHttpPropertyOptions = {},
 ): DiagnosticResult<HttpProperty[]> {
   const diagnostics = createDiagnosticCollector();
   const httpProperties = new Map<ModelProperty, HttpProperty>();

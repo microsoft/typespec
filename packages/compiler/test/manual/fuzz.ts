@@ -46,7 +46,7 @@ main();
 function main() {
   if (process.argv[2] !== "run") {
     throw new Error(
-      "Correct usage is `node fuzz.js run`. Is there a missing/incorrect mocha exclude pattern causing this to load?"
+      "Correct usage is `node fuzz.js run`. Is there a missing/incorrect mocha exclude pattern causing this to load?",
     );
   }
   const iterations = 10000;
@@ -76,7 +76,7 @@ function fuzzTest(iterations: number) {
                   f.contents[i] = String.fromCharCode(Math.random() * 96 + 32);
                 },
               },
-              weights.tokenmangle
+              weights.tokenmangle,
             );
           }, odds.mangleToken);
         }
@@ -105,7 +105,7 @@ function fuzzTest(iterations: number) {
           files.push(generateTypeSpecFile());
         },
         odds.newFileInProgram,
-        { atLeastOnce: true }
+        { atLeastOnce: true },
       );
 
       return files;
@@ -124,7 +124,7 @@ function fuzzTest(iterations: number) {
           file.contents.push(...generateTypeSpecScriptItem());
         },
         odds.newStatementInFile,
-        { atLeastOnce: true }
+        { atLeastOnce: true },
       );
       return file;
     }
@@ -144,7 +144,7 @@ function fuzzTest(iterations: number) {
             stmt = stmt.concat(["op", "Foo", "(", ")", ":", "{}"]);
           },
         },
-        weights.scriptItemKind
+        weights.scriptItemKind,
       );
 
       return stmt;
@@ -165,7 +165,7 @@ function fuzzTest(iterations: number) {
             stmt = stmt.concat(["op", "Foo", "(", ")", ";"]);
           },
         },
-        weights.statementKind
+        weights.statementKind,
       );
 
       return stmt;

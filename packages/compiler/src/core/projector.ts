@@ -52,7 +52,7 @@ import type {
 export function createProjector(
   program: Program,
   projections: ProjectionApplication[],
-  startNode?: Type
+  startNode?: Type,
 ): ProjectedProgram {
   const projectedTypes = new Map<Type, Type>();
   const checker = program.checker;
@@ -103,10 +103,10 @@ export function createProjector(
   function projectType(type: IndeterminateEntity): IndeterminateEntity;
   function projectType(type: Type | Value): Type | Value;
   function projectType(
-    type: Type | Value | IndeterminateEntity
+    type: Type | Value | IndeterminateEntity,
   ): Type | Value | IndeterminateEntity;
   function projectType(
-    type: Type | Value | IndeterminateEntity
+    type: Type | Value | IndeterminateEntity,
   ): Type | Value | IndeterminateEntity {
     if (isValue(type)) {
       return type;
@@ -132,7 +132,7 @@ export function createProjector(
       case "Namespace":
         compilerAssert(
           projectingNamespaces,
-          `Namespace ${type.name} should have already been projected.`
+          `Namespace ${type.name} should have already been projected.`,
         );
         projected = projectNamespace(type, false);
         break;
@@ -631,7 +631,7 @@ export function createProjector(
         const projected = checker.project(
           projectedType,
           targetNode,
-          projectionApplication.arguments
+          projectionApplication.arguments,
         );
         if (projected !== projectedType) {
           // override the projected type cache with the returned type

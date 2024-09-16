@@ -20,7 +20,7 @@ import { TimelineMoment, VersioningTimeline } from "./versioning-timeline.js";
 
 export function getVersionDependencies(
   program: Program,
-  namespace: Namespace
+  namespace: Namespace,
 ): Map<Namespace, Map<Version, Version> | Version> | undefined {
   const useDeps = getUseDependencies(program, namespace);
   if (useDeps) {
@@ -36,7 +36,7 @@ export function getVersionDependencies(
  */
 function resolveDependencyVersions(
   program: Program,
-  initialResolutions: Map<Namespace, Version>
+  initialResolutions: Map<Namespace, Version>,
 ): Map<Namespace, Version> {
   const resolutions = new Map(initialResolutions);
   const namespacesToCheck = [...initialResolutions.entries()];
@@ -52,7 +52,7 @@ function resolveDependencyVersions(
         const rootNsName = getNamespaceFullName(current);
         const dependencyNsName = getNamespaceFullName(dependencyNs);
         throw new Error(
-          `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a mapping of version.`
+          `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a mapping of version.`,
         );
       }
       const dependencyVersion = versionMap.get(currentVersion);
@@ -83,7 +83,7 @@ export function resolveVersions(program: Program, namespace: Namespace): Version
           const rootNsName = getNamespaceFullName(namespace);
           const dependencyNsName = getNamespaceFullName(dependencyNs);
           throw new Error(
-            `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a picked version.`
+            `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a picked version.`,
           );
         }
         map.set(dependencyNs, version);
@@ -162,7 +162,7 @@ export function getVersions(p: Program, t: Type): [Namespace, VersionMap] | [] {
 
 function resolveVersionsForNamespace(
   program: Program,
-  namespace: Namespace
+  namespace: Namespace,
 ): [Namespace, VersionMap] | [] {
   const nsVersion = getVersion(program, namespace);
 
@@ -198,7 +198,7 @@ export enum Availability {
 function getParentAddedVersion(
   program: Program,
   type: Type,
-  versions: Version[]
+  versions: Version[],
 ): Version | undefined {
   let parentMap: Map<string, Availability> | undefined = undefined;
   if (type.kind === "ModelProperty" && type.model !== undefined) {
@@ -218,7 +218,7 @@ function getParentAddedVersion(
 function getParentAddedVersionInTimeline(
   program: Program,
   type: Type,
-  timeline: VersioningTimeline
+  timeline: VersioningTimeline,
 ): Version | undefined {
   let parentMap: Map<TimelineMoment, Availability> | undefined = undefined;
   if (type.kind === "ModelProperty" && type.model !== undefined) {
@@ -246,7 +246,7 @@ function getParentAddedVersionInTimeline(
 function resolveWhenFirstAdded(
   added: Version[],
   removed: Version[],
-  parentAdded: Version
+  parentAdded: Version,
 ): Version[] {
   const implicitlyAvailable = !added.length && !removed.length;
   if (implicitlyAvailable) {
@@ -277,7 +277,7 @@ function resolveWhenFirstAdded(
 
 export function getAvailabilityMap(
   program: Program,
-  type: Type
+  type: Type,
 ): Map<string, Availability> | undefined {
   const avail = new Map<string, Availability>();
 
@@ -327,7 +327,7 @@ export function getAvailabilityMap(
 export function getAvailabilityMapInTimeline(
   program: Program,
   type: Type,
-  timeline: VersioningTimeline
+  timeline: VersioningTimeline,
 ): Map<TimelineMoment, Availability> | undefined {
   const avail = new Map<TimelineMoment, Availability>();
 

@@ -17,7 +17,7 @@ export interface ExpandConfigOptions {
 
 export function expandConfigVariables(
   config: TypeSpecConfig,
-  expandOptions: ExpandConfigOptions
+  expandOptions: ExpandConfigOptions,
 ): [TypeSpecConfig, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const builtInVars = {
@@ -29,11 +29,11 @@ export function expandConfigVariables(
     ...builtInVars,
     ...diagnostics.pipe(resolveArgs(config.parameters, expandOptions.args, builtInVars)),
     env: diagnostics.pipe(
-      resolveArgs(config.environmentVariables, expandOptions.env, builtInVars, true)
+      resolveArgs(config.environmentVariables, expandOptions.env, builtInVars, true),
     ),
   };
   const outputDir = diagnostics.pipe(
-    resolveValue(expandOptions.outputDir ?? config.outputDir, commonVars)
+    resolveValue(expandOptions.outputDir ?? config.outputDir, commonVars),
   );
 
   const result = { ...config, outputDir };
@@ -53,7 +53,7 @@ function resolveArgs(
   declarations: Record<string, ConfigParameter | ConfigEnvironmentVariable> | undefined,
   args: Record<string, string | undefined> | undefined,
   predefinedVariables: Record<string, string | Record<string, string>>,
-  allowUnspecified = false
+  allowUnspecified = false,
 ): [Record<string, string>, readonly Diagnostic[]] {
   const unmatchedArgs = new Set(Object.keys(args ?? {}));
   const result: Record<string, string> = {};
@@ -61,7 +61,7 @@ function resolveArgs(
     for (const [name, definition] of Object.entries(declarations)) {
       unmatchedArgs.delete(name);
       result[name] = ignoreDiagnostics(
-        resolveValue(args?.[name] ?? definition.default, predefinedVariables)
+        resolveValue(args?.[name] ?? definition.default, predefinedVariables),
       );
     }
   }
@@ -83,7 +83,7 @@ const VariableInterpolationRegex = /{([a-zA-Z-_.]+)}/g;
 
 function resolveValue(
   value: string,
-  predefinedVariables: Record<string, string | Record<string, string>>
+  predefinedVariables: Record<string, string | Record<string, string>>,
 ): [string, readonly Diagnostic[]] {
   const [result, diagnostics] = resolveValues({ value }, predefinedVariables);
   return [result.value, diagnostics];
@@ -91,7 +91,7 @@ function resolveValue(
 
 export function resolveValues<T extends Record<string, unknown>>(
   values: T,
-  predefinedVariables: Record<string, string | Record<string, string>> = {}
+  predefinedVariables: Record<string, string | Record<string, string>> = {},
 ): [T, readonly Diagnostic[]] {
   const diagnostics: Diagnostic[] = [];
   const resolvedValues: Record<string, unknown> = {};
@@ -119,7 +119,7 @@ export function resolveValues<T extends Record<string, unknown>>(
           code: "config-circular-variable",
           target: NoTarget,
           format: { name: expression },
-        })
+        }),
       );
       return undefined;
     }

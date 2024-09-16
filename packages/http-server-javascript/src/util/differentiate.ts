@@ -280,7 +280,7 @@ const PROPERTY_ID = (prop: ModelProperty) => parseCase(prop.name).camelCase;
 export function differentiateUnion(
   ctx: JsContext,
   union: Union,
-  renderPropertyName: (prop: ModelProperty) => string = PROPERTY_ID
+  renderPropertyName: (prop: ModelProperty) => string = PROPERTY_ID,
 ): CodeTree {
   const discriminator = getDiscriminator(ctx.program, union)?.propertyName;
   const variants = [...union.variants.values()];
@@ -340,7 +340,7 @@ export function differentiateUnion(
 export function differentiateTypes(
   ctx: JsContext,
   cases: Set<PreciseType>,
-  renderPropertyName: (prop: ModelProperty) => string = PROPERTY_ID
+  renderPropertyName: (prop: ModelProperty) => string = PROPERTY_ID,
 ): CodeTree {
   if (cases.size === 0) {
     return {
@@ -449,7 +449,7 @@ export function differentiateTypes(
           break;
         default:
           throw new UnimplementedError(
-            `scalar differentiation for unknown JS Scalar '${jsScalar}'.`
+            `scalar differentiation for unknown JS Scalar '${jsScalar}'.`,
           );
       }
 
@@ -514,7 +514,7 @@ function getJsValue(ctx: JsContext, literal: JsLiteralType | EnumMember): Litera
     default:
       throw new UnreachableError(
         "getJsValue for " + (literal satisfies never as JsLiteralType).kind,
-        { literal }
+        { literal },
       );
   }
 }
@@ -556,7 +556,7 @@ function overlaps(range: IntegerRange, other: IntegerRange): boolean {
 export function differentiateModelTypes(
   ctx: JsContext,
   models: Set<Model>,
-  renderPropertyName: (prop: ModelProperty) => string = PROPERTY_ID
+  renderPropertyName: (prop: ModelProperty) => string = PROPERTY_ID,
 ): CodeTree {
   // Horrible n^2 operation to get the unique properties of all models in the map, but hopefully n is small, so it should
   // be okay until you have a lot of models to differentiate.
@@ -695,7 +695,7 @@ export function differentiateModelTypes(
       const firstUniqueLiteral = literals.values().next().value as RenderedPropertyName;
 
       const property = [...model.properties.values()].find(
-        (p) => (renderPropertyName(p) as RenderedPropertyName) === firstUniqueLiteral
+        (p) => (renderPropertyName(p) as RenderedPropertyName) === firstUniqueLiteral,
       )!;
 
       branches.push({
@@ -715,11 +715,11 @@ export function differentiateModelTypes(
       const firstUniqueRange = ranges.values().next().value as RenderedPropertyName;
 
       const property = [...model.properties.values()].find(
-        (p) => renderPropertyName(p) === firstUniqueRange
+        (p) => renderPropertyName(p) === firstUniqueRange,
       )!;
 
       const range = [...propertyRanges.get(firstUniqueRange)!.entries()].find(
-        ([range, candidate]) => candidate === model
+        ([range, candidate]) => candidate === model,
       )![0];
 
       branches.push({
@@ -793,7 +793,7 @@ export interface CodeTreeOptions {
 export function* writeCodeTree(
   ctx: JsContext,
   tree: CodeTree,
-  options: CodeTreeOptions
+  options: CodeTreeOptions,
 ): Iterable<string> {
   switch (tree.kind) {
     case "result":
@@ -849,7 +849,7 @@ function writeExpression(ctx: JsContext, expression: Expression, options: CodeTr
       return `(${writeExpression(ctx, expression.left, options)}) ${expression.operator} (${writeExpression(
         ctx,
         expression.right,
-        options
+        options,
       )})`;
     case "unary-op":
       return `${expression.operator}(${writeExpression(ctx, expression.operand, options)})`;
@@ -866,7 +866,7 @@ function writeExpression(ctx: JsContext, expression: Expression, options: CodeTr
           return expression.value ? "true" : "false";
         default:
           throw new UnreachableError(
-            `writeExpression for literal value type '${typeof expression.value}'`
+            `writeExpression for literal value type '${typeof expression.value}'`,
           );
       }
     case "in-range": {
@@ -889,7 +889,7 @@ function writeExpression(ctx: JsContext, expression: Expression, options: CodeTr
         "writeExpression for " + (expression satisfies never as Expression).kind,
         {
           expression,
-        }
+        },
       );
   }
 }

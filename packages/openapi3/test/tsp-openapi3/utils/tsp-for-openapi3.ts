@@ -51,7 +51,7 @@ export async function tspForOpenAPI3({ parameters, schemas }: OpenAPI3Options) {
 
   assert(
     TestService?.kind === "Namespace",
-    `Expected TestService to be a namespace, instead got ${TestService?.kind}`
+    `Expected TestService to be a namespace, instead got ${TestService?.kind}`,
   );
   return TestService;
 }
