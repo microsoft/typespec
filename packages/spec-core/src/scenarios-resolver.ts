@@ -1,6 +1,6 @@
-import { ScenarioMockApi } from "@typespec/spec-api";
 import { Operation } from "@typespec/compiler";
 import { isSharedRoute } from "@typespec/http";
+import { ScenarioMockApi } from "@typespec/spec-api";
 import { Scenario } from "@typespec/spec-lib";
 import { dirname, join, relative, resolve } from "path";
 import pc from "picocolors";

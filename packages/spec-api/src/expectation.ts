@@ -1,12 +1,12 @@
 import deepEqual from "deep-equal";
 import {
-  validateRawBodyEquals,
-  validateBodyEquals,
   validateBodyEmpty,
+  validateBodyEquals,
   validateBodyNotEmpty,
   validateCoercedDateBodyEquals,
   validateHeader,
   validateQueryParam,
+  validateRawBodyEquals,
   validateXmlBodyEquals,
 } from "./request-validations.js";
 import { CollectionFormat, RequestExt } from "./types.js";
@@ -78,7 +78,7 @@ export class RequestExpectation {
   public containsQueryParam(
     paramName: string,
     expectedValue: string | string[],
-    collectionFormat?: CollectionFormat,
+    collectionFormat?: CollectionFormat
   ): void {
     validateQueryParam(this.originalRequest, paramName, expectedValue, collectionFormat);
   }

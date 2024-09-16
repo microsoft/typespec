@@ -1,6 +1,6 @@
-import { logger } from "../logger.js";
-import pc from "picocolors";
 import { getSourceLocation, SourceLocation, Type } from "@typespec/compiler";
+import pc from "picocolors";
+import { logger } from "../logger.js";
 
 export interface Diagnostic {
   message: string;

@@ -1,3 +1,4 @@
+import { TokenCredential } from "@azure/identity";
 import {
   AnonymousCredential,
   BlobServiceClient,
@@ -5,8 +6,12 @@ import {
   ContainerClient,
   StorageSharedKeyCredential,
 } from "@azure/storage-blob";
-import { TokenCredential } from "@azure/identity";
-import { CoverageReport, GeneratorMetadata, ResolvedCoverageReport, ScenarioManifest } from "./types.js";
+import {
+  CoverageReport,
+  GeneratorMetadata,
+  ResolvedCoverageReport,
+  ScenarioManifest,
+} from "./types.js";
 
 export class CadlRanchCoverageClient {
   #container: ContainerClient;
@@ -15,7 +20,7 @@ export class CadlRanchCoverageClient {
 
   constructor(
     storageAccountName: string,
-    credential?: StorageSharedKeyCredential | AnonymousCredential | TokenCredential,
+    credential?: StorageSharedKeyCredential | AnonymousCredential | TokenCredential
   ) {
     this.#container = getCoverageContainer(storageAccountName, credential);
     this.manifest = new CadlRanchManifestOperations(this.#container);
@@ -61,7 +66,7 @@ export class CadlRanchCoverageOperations {
 
   public async upload(generatorMetadata: GeneratorMetadata, report: CoverageReport): Promise<void> {
     const blob = this.#container.getBlockBlobClient(
-      `${generatorMetadata.name}/reports/${generatorMetadata.version}/${generatorMetadata.mode}.json`,
+      `${generatorMetadata.name}/reports/${generatorMetadata.version}/${generatorMetadata.mode}.json`
     );
     const resolvedReport: ResolvedCoverageReport = { ...report, generatorMetadata };
     const content = JSON.stringify(resolvedReport, null, 2);
@@ -81,14 +86,16 @@ export class CadlRanchCoverageOperations {
 
   public async getLatestCoverageFor(
     generatorName: string,
-    generatorMode: string,
+    generatorMode: string
   ): Promise<ResolvedCoverageReport | undefined> {
     const index = await readJsonBlob<{ version: string; types: string[] }>(
-      this.#container.getBlockBlobClient(`${generatorName}/index.json`),
+      this.#container.getBlockBlobClient(`${generatorName}/index.json`)
     );
 
     // Compatible with current format, delete later
-    const blobClientOldVersion = this.#container.getBlockBlobClient(`${generatorName}/reports/${index.version}.json`);
+    const blobClientOldVersion = this.#container.getBlockBlobClient(
+      `${generatorName}/reports/${index.version}.json`
+    );
     if (await blobClientOldVersion.exists()) {
       const blob = await blobClientOldVersion.download();
       const body = await blob.blobBody;
@@ -104,7 +111,7 @@ export class CadlRanchCoverageOperations {
       };
     } else {
       const blobClient = this.#container.getBlockBlobClient(
-        `${generatorName}/reports/${index.version}/${generatorMode}.json`,
+        `${generatorName}/reports/${index.version}/${generatorMode}.json`
       );
       if (await blobClient.exists()) {
         const blob = await blobClient.download();
@@ -139,9 +146,12 @@ export class CadlRanchCoverageOperations {
 
 function getCoverageContainer(
   storageAccountName: string,
-  credential?: StorageSharedKeyCredential | AnonymousCredential | TokenCredential,
+  credential?: StorageSharedKeyCredential | AnonymousCredential | TokenCredential
 ): ContainerClient {
-  const blobSvc = new BlobServiceClient(`https://${storageAccountName}.blob.core.windows.net`, credential);
+  const blobSvc = new BlobServiceClient(
+    `https://${storageAccountName}.blob.core.windows.net`,
+    credential
+  );
   const containerClient = blobSvc.getContainerClient(`coverages`);
   return containerClient;
 }

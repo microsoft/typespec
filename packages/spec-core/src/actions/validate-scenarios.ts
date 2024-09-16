@@ -1,6 +1,6 @@
+import pc from "picocolors";
 import { logger } from "../logger.js";
 import { loadScenarios } from "../scenarios-resolver.js";
-import pc from "picocolors";
 
 export interface ValidateScenarioConfig {
   scenariosPath: string;

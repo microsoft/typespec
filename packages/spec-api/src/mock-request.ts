@@ -28,4 +28,5 @@ export class MockRequest {
   }
 }
 
-const getRequestBaseUrl = (request: RequestExt): string => `${request.protocol}://${request.get("host")}`;
+const getRequestBaseUrl = (request: RequestExt): string =>
+  `${request.protocol}://${request.get("host")}`;

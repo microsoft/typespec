@@ -55,9 +55,7 @@ describe("expectation test suite", () => {
     it("should validate successfully with correct input", () => {
       const requestExt = { query: { letter: "[a, b, c]" } } as unknown as RequestExt;
       const requestExpectation = new RequestExpectation(requestExt);
-      expect(requestExpectation.containsQueryParam("letter", "[a, b, c]")).toBe(
-        undefined
-      );
+      expect(requestExpectation.containsQueryParam("letter", "[a, b, c]")).toBe(undefined);
     });
   });
 });

@@ -1,6 +1,6 @@
 import type { Request } from "express";
-import { MockRequest } from "./mock-request.js";
 import "multer";
+import { MockRequest } from "./mock-request.js";
 
 /**
  * Extension of the express.js request which include a rawBody.
@@ -37,7 +37,7 @@ export type ScenarioMockApi = PassOnSuccessScenario | PassOnCodeScenario | PassB
 export type MockRequestHandler = SimpleMockRequestHandler | KeyedMockRequestHandler;
 export type SimpleMockRequestHandler = (req: MockRequest) => MockResponse | Promise<MockResponse>;
 export type KeyedMockRequestHandler<T extends string = string> = (
-  req: MockRequest,
+  req: MockRequest
 ) => KeyedMockResponse<T> | Promise<KeyedMockResponse<T>>;
 
 export type HttpMethod = "get" | "post" | "put" | "patch" | "delete" | "head" | "options";

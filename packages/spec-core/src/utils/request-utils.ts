@@ -1,3 +1,4 @@
 import { Request } from "express";
 
-export const getRequestBaseUrl = (request: Request): string => `${request.protocol}://${request.get("host")}`;
+export const getRequestBaseUrl = (request: Request): string =>
+  `${request.protocol}://${request.get("host")}`;

@@ -10,7 +10,7 @@ export class ValidationError extends Error {
   constructor(
     message: string,
     public expected: unknown | undefined,
-    public actual: unknown | undefined,
+    public actual: unknown | undefined
   ) {
     super(message);
   }

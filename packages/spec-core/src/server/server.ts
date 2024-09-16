@@ -1,3 +1,4 @@
+import { RequestExt } from "@typespec/spec-api";
 import bodyParser from "body-parser";
 import express, { ErrorRequestHandler, RequestHandler, Response } from "express";
 import { Server, ServerResponse } from "http";
@@ -5,7 +6,6 @@ import morgan from "morgan";
 import multer from "multer";
 import { logger } from "../logger.js";
 import { cleanupBody } from "../utils/index.js";
-import { RequestExt } from "@typespec/spec-api";
 
 export interface MockApiServerConfig {
   port: number;

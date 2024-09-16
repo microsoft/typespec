@@ -72,7 +72,11 @@ function head<T extends MockRequestHandler>(uri: string, func: T): MockApiForHan
  *
  * @note prefer to use the corresponding method method directly instead of `request()`(i.e `get(), post()`)
  */
-function request<T extends MockRequestHandler>(method: HttpMethod, uri: string, handler: T): MockApiForHandler<T> {
+function request<T extends MockRequestHandler>(
+  method: HttpMethod,
+  uri: string,
+  handler: T
+): MockApiForHandler<T> {
   return { method, uri, handler } as any;
 }
 

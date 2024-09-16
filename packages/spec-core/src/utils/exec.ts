@@ -1,9 +1,9 @@
-import { SpawnOptions, ChildProcess, spawn } from "child_process";
+import { ChildProcess, spawn, SpawnOptions } from "child_process";
 
 export async function execAsync(
   command: string,
   args: string[],
-  options: SpawnOptions = {},
+  options: SpawnOptions = {}
 ): Promise<{ exitCode: number; stdout: string; stderr: string; out: string; proc: ChildProcess }> {
   const child = spawn(command, args, options);
 

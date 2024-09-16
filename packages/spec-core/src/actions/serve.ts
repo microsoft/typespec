@@ -44,7 +44,7 @@ export async function startInBackground(config: ServeConfig) {
       {
         detached: true,
         stdio: "ignore",
-      },
+      }
     );
     const exitListener = (exitCode: number) => {
       logger.error(`Server exited within 1s with exit code ${exitCode}`);

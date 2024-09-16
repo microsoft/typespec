@@ -9,7 +9,7 @@ export class SchemaValidator<T> {
 
   public constructor(
     private schema: JSONSchemaType<T>,
-    options: SchemaValidatorOptions = {},
+    options: SchemaValidatorOptions = {}
   ) {
     // https://github.com/ajv-validator/ajv/issues/2047
     this.ajv = new (Ajv as any)({
@@ -42,7 +42,9 @@ const IGNORED_AJV_PARAMS = new Set(["type", "errors"]);
 
 function ajvErrorToDiagnostic(error: ErrorObject, target: string): Diagnostic {
   const messageLines = [`Schema violation: ${error.message} (${error.instancePath || "/"})`];
-  for (const [name, value] of Object.entries(error.params).filter(([name]) => !IGNORED_AJV_PARAMS.has(name))) {
+  for (const [name, value] of Object.entries(error.params).filter(
+    ([name]) => !IGNORED_AJV_PARAMS.has(name)
+  )) {
     const formattedValue = Array.isArray(value) ? [...new Set(value)].join(", ") : value;
     messageLines.push(`  ${name}: ${formattedValue}`);
   }

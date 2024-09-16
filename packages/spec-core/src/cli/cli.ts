@@ -1,14 +1,14 @@
 import { join, resolve } from "path";
-import yargs from "yargs";
-import { validateScenarios } from "../actions/index.js";
-import { logger } from "../logger.js";
 import "source-map-support/register.js";
-import { serve, startInBackground, stop } from "../actions/serve.js";
-import { validateMockApis } from "../actions/validate-mock-apis.js";
+import yargs from "yargs";
 import { checkCoverage } from "../actions/check-coverage.js";
 import { generateScenarioSummary } from "../actions/generate-scenario-summary.js";
-import { uploadScenarioManifest } from "../actions/upload-scenario-manifest.js";
+import { validateScenarios } from "../actions/index.js";
+import { serve, startInBackground, stop } from "../actions/serve.js";
 import { uploadCoverageReport } from "../actions/upload-coverage-report.js";
+import { uploadScenarioManifest } from "../actions/upload-scenario-manifest.js";
+import { validateMockApis } from "../actions/validate-mock-apis.js";
+import { logger } from "../logger.js";
 import { getCommit } from "../utils/misc-utils.js";
 
 export const DEFAULT_PORT = 3000;
@@ -47,7 +47,7 @@ async function main() {
         await validateScenarios({
           scenariosPath: resolve(process.cwd(), args.scenariosPath),
         });
-      },
+      }
     )
     .command(
       "generate-scenarios-summary <scenariosPath>",
@@ -70,7 +70,7 @@ async function main() {
           scenariosPath: resolve(process.cwd(), args.scenariosPath),
           outputFile: resolve(process.cwd(), args.outputFile),
         });
-      },
+      }
     )
     .command("server", "Server management", (cmd) => {
       cmd
@@ -101,7 +101,7 @@ async function main() {
               scenariosPath: resolve(process.cwd(), args.scenariosPath),
               port: args.port,
               coverageFile: args.coverageFile,
-            }),
+            })
         )
         .command(
           "stop",
@@ -114,7 +114,7 @@ async function main() {
               default: DEFAULT_PORT,
             });
           },
-          async (args) => stop({ port: args.port }),
+          async (args) => stop({ port: args.port })
         );
     })
     .command(
@@ -145,7 +145,7 @@ async function main() {
           port: args.port,
           coverageFile: args.coverageFile,
         });
-      },
+      }
     )
     .command(
       "check-coverage <scenariosPath>",
@@ -187,7 +187,7 @@ async function main() {
           coverageFiles: args.coverageFiles.map((x) => resolve(process.cwd(), x)),
           ignoreNotImplemented: args.ignoreNotImplemented,
         });
-      },
+      }
     )
     .command(
       "validate-mock-apis <scenariosPath>",
@@ -203,7 +203,7 @@ async function main() {
         await validateMockApis({
           scenariosPath: resolve(process.cwd(), args.scenariosPath),
         });
-      },
+      }
     )
     .command(
       "upload-manifest <scenariosPath>",
@@ -226,7 +226,7 @@ async function main() {
           scenariosPath: resolve(process.cwd(), args.scenariosPath),
           storageAccountName: args.storageAccountName,
         });
-      },
+      }
     )
     .command(
       "upload-coverage",
@@ -257,7 +257,8 @@ async function main() {
           .demandOption("generatorVersion")
           .option("generatorCommit", {
             type: "string",
-            description: "Git sha of the generator. Resolved automatically if command is run inside of repository.",
+            description:
+              "Git sha of the generator. Resolved automatically if command is run inside of repository.",
           })
           .option("generatorMode", {
             type: "string",
@@ -274,7 +275,7 @@ async function main() {
           generatorCommit: args.generatorCommit ?? getCommit(process.cwd()),
           generatorMode: args.generatorMode,
         });
-      },
+      }
     )
     .demandCommand(1, "You must use one of the supported commands.")
     .parse();

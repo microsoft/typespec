@@ -14,7 +14,9 @@ export interface CheckCoverageConfig {
 }
 
 export async function checkCoverage(config: CheckCoverageConfig) {
-  const inputCoverageFiles = (await Promise.all(config.coverageFiles.map((x) => findFilesFromPattern(x)))).flat();
+  const inputCoverageFiles = (
+    await Promise.all(config.coverageFiles.map((x) => findFilesFromPattern(x)))
+  ).flat();
 
   const results: Record<string, ScenarioStatus> = {};
   const diagnosticsReporter = createDiagnosticReporter();

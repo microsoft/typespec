@@ -15,7 +15,10 @@ export function $onValidate(program: Program) {
   const services = listServices(program);
   navigateProgram(program, {
     operation: (operation) => {
-      if ((operation.interface && isTemplateDeclaration(operation.interface)) || isTemplateDeclaration(operation)) {
+      if (
+        (operation.interface && isTemplateDeclaration(operation.interface)) ||
+        isTemplateDeclaration(operation)
+      ) {
         return;
       }
       //  If the scenario is not defined in one of the scenario service then we can ignore it.
@@ -37,7 +40,7 @@ export function $onValidate(program: Program) {
 
 function checkIsInScenario(
   program: Program,
-  type: Operation | Interface | Namespace,
+  type: Operation | Interface | Namespace
 ): Operation | Interface | Namespace | undefined {
   if (getScenarioName(program, type)) {
     return type;

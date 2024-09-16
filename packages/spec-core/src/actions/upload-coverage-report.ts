@@ -1,8 +1,12 @@
-import { CadlRanchCoverageClient, CoverageReport, GeneratorMetadata } from "@typespec/spec-coverage-sdk";
-import { logger } from "../logger.js";
-import pc from "picocolors";
-import { readFile } from "fs/promises";
 import { AzureCliCredential } from "@azure/identity";
+import {
+  CadlRanchCoverageClient,
+  CoverageReport,
+  GeneratorMetadata,
+} from "@typespec/spec-coverage-sdk";
+import { readFile } from "fs/promises";
+import pc from "picocolors";
+import { logger } from "../logger.js";
 
 export interface UploadCoverageReportConfig {
   coverageFile: string;
@@ -35,7 +39,7 @@ export async function uploadCoverageReport({
 
   logger.info(
     `${pc.green(
-      "✓",
-    )} Scenario coverage file "${coverageFile}" uploaded to ${storageAccountName} storage account for ${generatorName}@${generatorVersion}.`,
+      "✓"
+    )} Scenario coverage file "${coverageFile}" uploaded to ${storageAccountName} storage account for ${generatorName}@${generatorVersion}.`
   );
 }
