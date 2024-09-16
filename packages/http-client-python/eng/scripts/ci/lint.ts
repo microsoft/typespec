@@ -21,10 +21,7 @@ export function mypy() {
 }
 
 export function pyright() {
-  runCommand(
-    `pyright ./generator`,
-    "pyright"
-  );
+  runCommand(`pyright ./generator`, "pyright");
 }
 
 if (argv.values.command === "pylint") {
