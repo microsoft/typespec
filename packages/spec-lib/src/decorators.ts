@@ -1,6 +1,5 @@
 import {
   $service,
-  DecoratorContext,
   Enum,
   getNamespaceFullName,
   getTypeName,
@@ -20,23 +19,53 @@ import {
   HttpVerb,
 } from "@typespec/http";
 import { $versioned } from "@typespec/versioning";
+import {
+  ScenarioDecorator,
+  ScenarioDocDecorator,
+  ScenarioServiceDecorator,
+} from "../generated-defs/TypeSpec.SpecLib.js";
+import { SpecLibStateKeys } from "./lib.js";
 
-const ScenarioDocKey = Symbol("ScenarioDoc");
-export function $scenarioDoc(
-  context: DecoratorContext,
-  target: Namespace | Operation | Interface,
-  doc: string,
-  formatArgs?: Model
-) {
-  const formattedDoc = formatArgs ? replaceTemplatedStringFromProperties(doc, formatArgs) : doc;
-  context.program.stateMap(ScenarioDocKey).set(target, formattedDoc);
-}
+export const $scenario: ScenarioDecorator = (context, target, name?) => {
+  context.program.stateMap(SpecLibStateKeys.Scenario).set(target, name ?? target.name);
+};
+
+export const $scenarioDoc: ScenarioDocDecorator = (context, target, doc, formatArgs?) => {
+  const formattedDoc = formatArgs
+    ? replaceTemplatedStringFromProperties(doc as unknown as string, formatArgs as Model)
+    : doc;
+  context.program.stateMap(SpecLibStateKeys.ScenarioDoc).set(target, formattedDoc);
+};
+
+export const $scenarioService: ScenarioServiceDecorator = (context, target, route, options?) => {
+  const properties = new Map().set("title", {
+    type: { kind: "String", value: getNamespaceFullName(target).replace(/\./g, "") },
+  });
+
+  context.program.stateSet(SpecLibStateKeys.ScenarioService).add(target);
+
+  const versions = options ? (options as Model).properties.get("versioned")?.type : null;
+  if (versions) {
+    context.call($versioned, target, versions as Enum);
+  }
+  context.call($service, target, {
+    kind: "Model",
+    properties,
+    decorators: [],
+    projections: [],
+    name: "Service",
+    derivedModels: [],
+    projectionsByName: [],
+  } as any);
+  context.call($server, target, "http://localhost:3000", "TestServer endpoint");
+  context.call($route, target, route as unknown as string);
+};
 
 export function getScenarioDoc(
   program: Program,
   target: Operation | Interface | Namespace
 ): string | undefined {
-  return program.stateMap(ScenarioDocKey).get(target);
+  return program.stateMap(SpecLibStateKeys.ScenarioDoc).get(target);
 }
 
 function replaceTemplatedStringFromProperties(formatString: string, formatArgs: Model) {
@@ -47,15 +76,6 @@ function replaceTemplatedStringFromProperties(formatString: string, formatArgs: 
     }
     return "value" in type ? String(type.value) : getTypeName(type);
   });
-}
-
-const ScenarioKey = Symbol("Scenario");
-export function $scenario(
-  context: DecoratorContext,
-  target: Namespace | Operation | Interface,
-  name?: string
-) {
-  context.program.stateMap(ScenarioKey).set(target, name ?? target.name);
 }
 
 export interface Scenario {
@@ -192,46 +212,16 @@ function resolveScenarioName(target: Operation | Interface | Namespace, name: st
 }
 
 export function isScenario(program: Program, target: Operation | Interface | Namespace): boolean {
-  return program.stateMap(ScenarioKey).has(target);
+  return program.stateMap(SpecLibStateKeys.Scenario).has(target);
 }
 
 export function getScenarioName(
   program: Program,
   target: Operation | Interface | Namespace
 ): string | undefined {
-  const name = program.stateMap(ScenarioKey).get(target);
+  const name = program.stateMap(SpecLibStateKeys.Scenario).get(target);
   if (name === undefined) {
     return undefined;
   }
   return resolveScenarioName(target, name);
-}
-
-const ScenarioServiceKey = Symbol("ScenarioService");
-export function $scenarioService(
-  context: DecoratorContext,
-  target: Namespace,
-  route: string,
-  options?: Model
-) {
-  const properties = new Map().set("title", {
-    type: { kind: "String", value: getNamespaceFullName(target).replace(/\./g, "") },
-  });
-
-  context.program.stateSet(ScenarioServiceKey).add(target);
-
-  const versions = options?.properties.get("versioned")?.type;
-  if (versions) {
-    context.call($versioned, target, versions as Enum);
-  }
-  context.call($service, target, {
-    kind: "Model",
-    properties,
-    decorators: [],
-    projections: [],
-    name: "Service",
-    derivedModels: [],
-    projectionsByName: [],
-  } as any);
-  context.call($server, target, "http://localhost:3000", "TestServer endpoint");
-  context.call($route, target, route);
 }

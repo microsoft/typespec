@@ -4,7 +4,7 @@ import type {
   ScenarioDecorator,
   ScenarioDocDecorator,
   ScenarioServiceDecorator,
-} from "./__global__.js";
+} from "./TypeSpec.SpecLib.js";
 
 type Decorators = {
   $scenarioService: ScenarioServiceDecorator;

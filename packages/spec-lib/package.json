@@ -1,36 +1,37 @@
 {
   "name": "@typespec/spec-lib",
   "version": "0.1.0",
+  "author": "Microsoft",
   "description": "Spec Library providing decorator and validation for specs",
-  "main": "dist/index.js",
-  "private": true,
-  "tspMain": "lib/lib.tsp",
-  "type": "module",
-  "scripts": {
-    "watch": "tsc -p ./tsconfig.build.json --watch",
-    "build": "tsc -p ./tsconfig.build.json",
-    "clean": "rimraf dist/ temp/",
-    "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "engines": {
-    "node": ">=16.0.0"
-  },
+  "homepage": "https://github.com/microsoft/typespec#readme",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/microsoft/typespec.git"
   },
-  "author": "Microsoft",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/microsoft/typespec/issues"
   },
-  "homepage": "https://github.com/microsoft/typespec#readme",
+  "type": "module",
+  "main": "dist/index.js",
+  "tspMain": "lib/lib.tsp",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "watch": "tsc -p . --watch",
+    "build": "npm run gen-extern-signature && tsc -p .",
+    "clean": "rimraf dist/ temp/",
+    "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "devDependencies": {
     "@types/node": "^18.16.0",
     "@typespec/eslint-config-typespec": "~0.55.0",
     "@typespec/tspd": "workspace:~",
-    "eslint": "^8.50.0",
     "rimraf": "^5.0.5",
     "typescript": "~5.2.2"
   },

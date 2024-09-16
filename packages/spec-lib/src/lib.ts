@@ -23,6 +23,11 @@ export const $lib = createTypeSpecLibrary({
       },
     },
   },
+  state: {
+    Scenario: { description: "Mark a scenario to be executed" },
+    ScenarioDoc: { description: "Mark a scenario documentation" },
+    ScenarioService: { description: "Mark a scenario service to be executed" },
+  },
 });
 
-export const reportDiagnostic = $lib.reportDiagnostic;
+export const { reportDiagnostic, createStateSymbol, stateKeys: SpecLibStateKeys } = $lib;

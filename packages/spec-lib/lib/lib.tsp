@@ -2,6 +2,8 @@ import "../dist/index.js";
 
 using TypeSpec.Reflection;
 
+namespace TypeSpec.SpecLib;
+
 alias ScenarioServiceOptions = {
   /**
    * Version enum that would be used on the $versioned decorator
