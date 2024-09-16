@@ -67,7 +67,7 @@ describe("CodeFix: change-identifier", () => {
       (node) => {
         strictEqual(node.kind, SyntaxKind.Identifier);
         return createChangeIdentifierCodeFix(node, "int32");
-      }
+      },
     ).toChangeTo(`
       model Foo {
         a: int32;

@@ -8,7 +8,7 @@ export interface Test<I extends unknown[], R> {
   diagnose(...args: I): Promise<readonly Diagnostic[]>;
 }
 export function defineTest<T extends unknown[], R>(
-  fn: (...args: T) => Promise<[R | undefined, readonly Diagnostic[]]>
+  fn: (...args: T) => Promise<[R | undefined, readonly Diagnostic[]]>,
 ): Test<T, R> {
   return {
     compileAndDiagnose: fn,

@@ -139,7 +139,9 @@ namespace Microsoft.Generator.CSharp.Primitives
             : this(
                   implementation.Name,
                   providerNamespace,
-                  implementation is EnumProvider || implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct),
+                  implementation is EnumProvider ||
+                  implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) ||
+                  implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Enum),
                   false,
                   implementation.DeclaringTypeProvider?.Type,
                   arguments,

@@ -43,7 +43,7 @@ describe("compiler: yaml: diagnostics", () => {
         ┆K┆two: ┆V┆def
         three: ghi
       `,
-      ["two"]
+      ["two"],
     );
   });
 
@@ -57,7 +57,7 @@ describe("compiler: yaml: diagnostics", () => {
           ┆K┆two: ┆V┆def
           three: ghi
     `,
-      ["nested", "more", "two"]
+      ["nested", "more", "two"],
     );
   });
 
@@ -70,7 +70,7 @@ describe("compiler: yaml: diagnostics", () => {
           ┆K┆two: ┆V┆def
           three: ghi
       `,
-      ["items", "1", "two"]
+      ["items", "1", "two"],
     );
   });
 
@@ -82,6 +82,6 @@ describe("compiler: yaml: diagnostics", () => {
         - ┆one: abc
           three: ghi
       `,
-      ["items", "1"]
+      ["items", "1"],
     ));
 });

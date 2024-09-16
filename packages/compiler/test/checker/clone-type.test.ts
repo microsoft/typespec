@@ -34,7 +34,7 @@ describe("compiler: type cloning", () => {
         `
         import "./test.js";
         ${code}
-        `
+        `,
       );
 
       const { test } = (await testHost.compile("./test.tsp")) as {
@@ -123,7 +123,7 @@ describe("compiler: type cloning", () => {
       model Test {
         @test test: Template<string, int32>;
       }
-      `
+      `,
     );
 
     const { test } = await testHost.compile("./test.tsp");

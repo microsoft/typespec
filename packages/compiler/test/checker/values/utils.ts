@@ -8,7 +8,7 @@ import {
 } from "../../../src/testing/index.js";
 
 export async function diagnoseUsage(
-  code: string
+  code: string,
 ): Promise<{ diagnostics: readonly Diagnostic[]; pos: number; end?: number }> {
   const runner = await createTestRunner();
   let end;
@@ -25,7 +25,7 @@ export async function diagnoseUsage(
 
 export async function compileAndDiagnoseValue(
   code: string,
-  other?: string
+  other?: string,
 ): Promise<[Value | undefined, readonly Diagnostic[]]> {
   const host = await createTestHost();
   let called: Value | undefined;
@@ -43,7 +43,7 @@ export async function compileAndDiagnoseValue(
       model Test {}
 
       ${other ?? ""}
-      `
+      `,
   );
   const diagnostics = await host.diagnose("main.tsp");
   return [called, diagnostics];
@@ -68,7 +68,7 @@ export async function compileAndDiagnoseValueOrType(
   {
     other,
     disableDeprecatedSuppression,
-  }: { other?: string; disableDeprecatedSuppression?: boolean }
+  }: { other?: string; disableDeprecatedSuppression?: boolean },
 ): Promise<[Type | Value | undefined, readonly Diagnostic[]]> {
   const host = await createTestHost();
   host.addJsFile("collect.js", {
@@ -85,7 +85,7 @@ export async function compileAndDiagnoseValueOrType(
       @collect(${code})
       @test model Test {}
       ${other ?? ""}
-      `
+      `,
   );
   const [{ Test }, diagnostics] = (await host.compileAndDiagnose("main.tsp")) as [
     { Test: Model },
@@ -100,7 +100,7 @@ export async function compileAndDiagnoseValueOrType(
 export async function compileValueOrType(
   constraint: string,
   code: string,
-  other?: string
+  other?: string,
 ): Promise<Value | Type> {
   const [called, diagnostics] = await compileAndDiagnoseValueOrType(constraint, code, { other });
   expectDiagnosticEmpty(diagnostics);
@@ -112,7 +112,7 @@ export async function compileValueOrType(
 export async function diagnoseValueOrType(
   constraint: string,
   code: string,
-  other?: string
+  other?: string,
 ): Promise<readonly Diagnostic[]> {
   const [_, diagnostics] = await compileAndDiagnoseValueOrType(constraint, code, { other });
   return diagnostics;

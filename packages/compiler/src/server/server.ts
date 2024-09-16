@@ -73,7 +73,7 @@ function main() {
           break;
         default:
           connection.console.error(
-            `Log Message with invalid LogLevel (${log.level}). Raw Message: ${fullMessage}`
+            `Log Message with invalid LogLevel (${log.level}). Raw Message: ${fullMessage}`,
           );
           break;
       }

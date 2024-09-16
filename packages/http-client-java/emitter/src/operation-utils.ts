@@ -74,7 +74,7 @@ export function operationIsMultipleContentTypes(op: SdkHttpOperation): boolean {
       (parameter) =>
         parameter.kind === "header" &&
         parameter.serializedName.toLowerCase() === CONTENT_TYPE_KEY &&
-        parameter.type.kind === "enum"
+        parameter.type.kind === "enum",
     )
   ) {
     return true;
@@ -85,7 +85,7 @@ export function operationIsMultipleContentTypes(op: SdkHttpOperation): boolean {
 export function operationRefersUnion(
   program: Program,
   op: HttpOperation,
-  cache: Map<Type, Union | null | undefined>
+  cache: Map<Type, Union | null | undefined>,
 ): Union | null {
   // request parameters
   for (const parameter of op.parameters.parameters) {
@@ -149,7 +149,7 @@ export function getServiceVersion(client: CodeModelClient | CodeModel): ServiceV
 
 export function isLroNewPollingStrategy(
   httpOperation: HttpOperation,
-  lroMetadata: LroMetadata
+  lroMetadata: LroMetadata,
 ): boolean {
   const operation = httpOperation.operation;
   let useNewStrategy = false;
@@ -196,7 +196,7 @@ export function cloneOperationParameter(parameter: Parameter): Parameter {
       required: parameter.required,
       nullable: parameter.nullable,
       extensions: parameter.extensions,
-    }
+    },
   );
 }
 

@@ -12,7 +12,7 @@ console.log("Current versions:", current);
 
 async function getMajorMinorVersion() {
   const version = JSON.parse(
-    (await readFile(resolve(__dirname, "../../compiler/package.json"))).toString()
+    (await readFile(resolve(__dirname, "../../compiler/package.json"))).toString(),
   ).version;
   const [major, minor] = version.split(".");
   return `${major}.${minor}.x`;

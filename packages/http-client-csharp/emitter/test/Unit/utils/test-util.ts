@@ -48,7 +48,7 @@ export interface TypeSpecCompileOptions {
 export async function typeSpecCompile(
   content: string,
   host: TestHost,
-  options?: TypeSpecCompileOptions
+  options?: TypeSpecCompileOptions,
 ) {
   const needNamespaces = options?.IsNamespaceNeeded ?? true;
   const needAzureCore = options?.IsAzureCoreNeeded ?? false;
@@ -117,7 +117,7 @@ export function navigateModels(
   context: SdkContext<NetEmitterOptions>,
   namespace: Namespace,
   models: Map<string, InputModelType>,
-  enums: Map<string, InputEnumType>
+  enums: Map<string, InputEnumType>,
 ) {
   const computeModel = (x: Type) => getInputType(context, x, models, enums) as any;
   const skipSubNamespaces = isGlobalNamespace(context.program, namespace);
@@ -129,14 +129,14 @@ export function navigateModels(
       enum: computeModel,
       union: (x) => x.name !== undefined && computeModel(x),
     },
-    { skipSubNamespaces }
+    { skipSubNamespaces },
   );
 }
 
 /* We always need to pass in the emitter name now that it is required so making a helper to do this. */
 export async function createNetSdkContext(
   program: EmitContext<NetEmitterOptions>,
-  sdkContextOptions: CreateSdkContextOptions = {}
+  sdkContextOptions: CreateSdkContextOptions = {},
 ): Promise<SdkContext<NetEmitterOptions>> {
   Logger.initialize(program.program, LoggerLevel.INFO);
   return await createSdkContext(program, "@typespec/http-client-csharp", sdkContextOptions);

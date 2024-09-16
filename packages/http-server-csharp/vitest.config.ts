@@ -8,5 +8,5 @@ export default mergeConfig(
       testTimeout: 10000,
       watchExclude: ["dist/**"],
     },
-  })
+  }),
 );

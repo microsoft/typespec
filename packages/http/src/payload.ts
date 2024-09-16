@@ -37,7 +37,7 @@ export function resolveHttpPayload(
   type: Type,
   visibility: Visibility,
   usedIn: "request" | "response" | "multipart",
-  options: ExtractBodyAndMetadataOptions = {}
+  options: ExtractBodyAndMetadataOptions = {},
 ): [HttpPayload, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
 
@@ -55,7 +55,7 @@ export function resolveHttpPayload(
         createDiagnostic({
           code: "multipart-model",
           target: body.property ?? type,
-        })
+        }),
       );
       return diagnostics.wrap({ body: undefined, metadata });
     }
@@ -69,7 +69,7 @@ function resolveBody(
   requestOrResponseType: Type,
   metadata: HttpProperty[],
   visibility: Visibility,
-  usedIn: "request" | "response" | "multipart"
+  usedIn: "request" | "response" | "multipart",
 ): [HttpOperationBody | HttpOperationMultipartBody | undefined, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const resolvedContentTypes = diagnostics.pipe(resolveContentTypes(program, metadata, usedIn));
@@ -100,7 +100,7 @@ function resolveBody(
 
   // look for explicit body
   const resolvedBody: HttpOperationBody | HttpOperationMultipartBody | undefined = diagnostics.pipe(
-    resolveExplicitBodyProperty(program, metadata, resolvedContentTypes, visibility, usedIn)
+    resolveExplicitBodyProperty(program, metadata, resolvedContentTypes, visibility, usedIn),
   );
 
   if (resolvedBody === undefined) {
@@ -132,7 +132,7 @@ function resolveBody(
   }
 
   const unannotatedProperties = filterModelProperties(program, requestOrResponseType, (p) =>
-    metadata.some((x) => x.property === p && x.kind === "bodyProperty")
+    metadata.some((x) => x.property === p && x.kind === "bodyProperty"),
   );
 
   if (unannotatedProperties.properties.size > 0) {
@@ -150,7 +150,7 @@ function resolveBody(
           code: "duplicate-body",
           messageId: "bodyAndUnannotated",
           target: requestOrResponseType,
-        })
+        }),
       );
     }
   }
@@ -159,7 +159,7 @@ function resolveBody(
       createDiagnostic({
         code: "content-type-ignored",
         target: resolvedContentTypes.contentTypeProperty,
-      })
+      }),
     );
   }
   return diagnostics.wrap(resolvedBody);
@@ -172,7 +172,7 @@ interface ResolvedContentType {
 function resolveContentTypes(
   program: Program,
   metadata: HttpProperty[],
-  usedIn: "request" | "response" | "multipart"
+  usedIn: "request" | "response" | "multipart",
 ): [ResolvedContentType, readonly Diagnostic[]] {
   for (const prop of metadata) {
     if (prop.kind === "contentType") {
@@ -194,7 +194,7 @@ function resolveExplicitBodyProperty(
   metadata: HttpProperty[],
   resolvedContentTypes: ResolvedContentType,
   visibility: Visibility,
-  usedIn: "request" | "response" | "multipart"
+  usedIn: "request" | "response" | "multipart",
 ): [HttpOperationBody | HttpOperationMultipartBody | undefined, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   let resolvedBody: HttpOperationBody | HttpOperationMultipartBody | undefined;
@@ -227,7 +227,7 @@ function resolveExplicitBodyProperty(
         break;
       case "multipartBody":
         resolvedBody = diagnostics.pipe(
-          resolveMultiPartBody(program, item.property, resolvedContentTypes, visibility)
+          resolveMultiPartBody(program, item.property, resolvedContentTypes, visibility),
         );
         break;
     }
@@ -238,7 +238,7 @@ function resolveExplicitBodyProperty(
         createDiagnostic({
           code: "duplicate-body",
           target: prop,
-        })
+        }),
       );
     }
   }
@@ -250,7 +250,7 @@ function resolveExplicitBodyProperty(
 function validateBodyProperty(
   program: Program,
   property: ModelProperty,
-  usedIn: "request" | "response" | "multipart"
+  usedIn: "request" | "response" | "multipart",
 ): [boolean, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   navigateType(
@@ -273,12 +273,12 @@ function validateBodyProperty(
               code: "metadata-ignored",
               format: { kind },
               target: prop,
-            })
+            }),
           );
         }
       },
     },
-    {}
+    {},
   );
   return diagnostics.wrap(diagnostics.diagnostics.length === 0);
 }
@@ -287,7 +287,7 @@ function resolveMultiPartBody(
   program: Program,
   property: ModelProperty,
   resolvedContentTypes: ResolvedContentType,
-  visibility: Visibility
+  visibility: Visibility,
 ): [HttpOperationMultipartBody | undefined, readonly Diagnostic[]] {
   const type = property.type;
   if (type.kind === "Model") {
@@ -304,7 +304,7 @@ function resolveMultiPartBodyFromModel(
   property: ModelProperty,
   type: Model,
   resolvedContentTypes: ResolvedContentType,
-  visibility: Visibility
+  visibility: Visibility,
 ): [HttpOperationMultipartBody | undefined, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const parts: HttpOperationPart[] = [];
@@ -335,7 +335,7 @@ function resolveMultiPartBodyFromTuple(
   property: ModelProperty,
   type: Tuple,
   resolvedContentTypes: ResolvedContentType,
-  visibility: Visibility
+  visibility: Visibility,
 ): [HttpOperationMultipartBody | undefined, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const parts: HttpOperationPart[] = [];
@@ -347,7 +347,7 @@ function resolveMultiPartBodyFromTuple(
           code: "multipart-invalid-content-type",
           format: { contentType, supportedContentTypes: multipartContentTypesValues.join(", ") },
           target: type,
-        })
+        }),
       );
     }
   }
@@ -361,7 +361,7 @@ function resolveMultiPartBodyFromTuple(
         createDiagnostic({
           code: "formdata-no-part-name",
           target: type.node.values[index],
-        })
+        }),
       );
     }
     if (part) {
@@ -381,7 +381,7 @@ function resolveMultiPartBodyFromTuple(
 function resolvePartOrParts(
   program: Program,
   type: Type,
-  visibility: Visibility
+  visibility: Visibility,
 ): [HttpOperationPart | undefined, readonly Diagnostic[]] {
   if (type.kind === "Model" && isArrayModelType(program, type)) {
     const [part, diagnostics] = resolvePart(program, type.indexer.value, visibility);
@@ -397,7 +397,7 @@ function resolvePartOrParts(
 function resolvePart(
   program: Program,
   type: Type,
-  visibility: Visibility
+  visibility: Visibility,
 ): [HttpOperationPart | undefined, readonly Diagnostic[]] {
   const part = getHttpPart(program, type);
   if (part) {
@@ -409,7 +409,7 @@ function resolvePart(
       program,
       part.type,
       visibility,
-      "multipart"
+      "multipart",
     );
     if (body === undefined) {
       return [undefined, diagnostics];
@@ -436,7 +436,7 @@ function resolvePart(
 
 function getFilePart(
   name: string | undefined,
-  file: HttpFileModel
+  file: HttpFileModel,
 ): [HttpOperationPart | undefined, readonly Diagnostic[]] {
   const [contentTypes, diagnostics] = getContentTypes(file.contentType);
   return [
@@ -472,8 +472,8 @@ function resolveDefaultContentTypeForPart(program: Program, type: Type): string[
           program.checker.isTypeAssignableTo(
             type.projectionBase ?? type,
             program.checker.getStdType("bytes"),
-            type
-          )
+            type,
+          ),
         )
       ) {
         return ["application/octet-stream"];

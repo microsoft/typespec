@@ -51,7 +51,7 @@ export function* emitUnion(
   ctx: JsContext,
   union: Union | PartialUnionSynthetic,
   module: Module,
-  altName?: string
+  altName?: string,
 ): Iterable<string> {
   const name = union.name ? parseCase(union.name).pascalCase : altName;
   const isPartialSynthetic = union.kind === "partialUnion";
@@ -69,7 +69,7 @@ export function* emitUnion(
   const variantTypes = [...variants].map(([_, v]) =>
     emitTypeReference(ctx, v.type, v, module, {
       altName: name + parseCase(String(v.name)).pascalCase,
-    })
+    }),
   );
 
   yield `export type ${name} = ${variantTypes.join(" | ")};`;
