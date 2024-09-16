@@ -31,9 +31,7 @@ describe("paths that should trigger Java CI", () => {
 describe("paths that should trigger python CI", () => {
   it.each([
     ["packages/http-client-python/emitter/src/emitter.ts"],
-    [
-      "packages/http-client-python/package.json"
-    ],
+    ["packages/http-client-python/package.json"],
   ])("%s", (...paths) => {
     const areas = findAreasChanged(paths);
     expect(areas).toEqual(["Java"]);

@@ -1,48 +1,51 @@
 /* eslint-disable no-console */
 import { parseArgs } from "util";
-import { runCommand, executeCommand } from "./utils.js";
+import { executeCommand, runCommand } from "./utils.js";
 
 // PARSE INPUT ARGUMENTS
 
-const argv = parseArgs({args: process.argv.slice(2), options: {
-  folderName: { type: 'string' },
-  command: { type: 'string' },
-  skipWarning: { type: 'boolean' },
-  skipEslint: { type: 'boolean' },
-},});
+const argv = parseArgs({
+  args: process.argv.slice(2),
+  options: {
+    folderName: { type: "string" },
+    command: { type: "string" },
+    skipWarning: { type: "boolean" },
+    skipEslint: { type: "boolean" },
+  },
+});
 
 export function pylint() {
-    runCommand(`pylint ${argv.values.folderName}/ --rcfile ./scripts/eng/pylintrc`, "pylint");
+  runCommand(`pylint ${argv.values.folderName}/ --rcfile ./scripts/eng/pylintrc`, "pylint");
 }
 
 export function mypy() {
-    runCommand(`mypy ${argv.values.folderName}/ --config-file ./scripts/eng/mypy.ini`, "mypy");
+  runCommand(`mypy ${argv.values.folderName}/ --config-file ./scripts/eng/mypy.ini`, "mypy");
 }
 
 export function pyright() {
-    runCommand(`pyright ${argv.values.folderName}/ -p ./scripts/eng/pyrightconfig.json`, "pyright");
+  runCommand(`pyright ${argv.values.folderName}/ -p ./scripts/eng/pyrightconfig.json`, "pyright");
 }
 
 export function eslint() {
-    const checkWarning = "";
-    executeCommand(`npx eslint . --ext .ts ${checkWarning} `, "eslint");
+  const checkWarning = "";
+  executeCommand(`npx eslint . --ext .ts ${checkWarning} `, "eslint");
 }
 
 if (argv.values.command === "pylint") {
-    pylint();
+  pylint();
 } else if (argv.values.command === "mypy") {
-    mypy();
+  mypy();
 } else if (argv.values.command === "pyright") {
-    pyright();
+  pyright();
 } else if (argv.values.command === "eslint") {
-    if (!argv.values.skipEslint) {
-        eslint();
-    }
+  if (!argv.values.skipEslint) {
+    eslint();
+  }
 } else {
-    pylint();
-    mypy();
-    pyright();
-    if (!argv.values.skipEslint) {
-        eslint();
-    }
+  pylint();
+  mypy();
+  pyright();
+  if (!argv.values.skipEslint) {
+    eslint();
+  }
 }

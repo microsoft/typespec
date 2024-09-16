@@ -1,5 +1,4 @@
-unsupportedScenarios:
-  Azure_ClientGenerator_Core_Access_InternalOperation
+unsupportedScenarios: Azure_ClientGenerator_Core_Access_InternalOperation
   Azure_ClientGenerator_Core_Access_PublicOperation
   Azure_ClientGenerator_Core_Access_RelativeModelInOperation
   Azure_ClientGenerator_Core_Access_SharedModelInOperation
@@ -26,4 +25,3 @@ unsupportedScenarios:
   Azure_Core_Traits_repeatableAction
   Azure_Core_Traits_smokeTest
   Azure_SpecialHeaders_XmsClientRequestId
-  
