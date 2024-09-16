@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { parseArgs } from "util";
 import { runCommand } from "./utils.js";
 
