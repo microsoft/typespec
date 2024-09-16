@@ -21,7 +21,10 @@ export function mypy() {
 }
 
 export function pyright() {
-  runCommand(`pyright ${argv.values.folderName}/ -p ./eng/scripts/ci/pyrightconfig.json`, "pyright");
+  runCommand(
+    `pyright ${argv.values.folderName}/ -p ./eng/scripts/ci/pyrightconfig.json`,
+    "pyright"
+  );
 }
 
 if (argv.values.command === "pylint") {
