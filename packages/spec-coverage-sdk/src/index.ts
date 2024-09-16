@@ -1,8 +1,4 @@
-export {
-  CadlRanchCoverageClient,
-  CadlRanchCoverageOperations,
-  CadlRanchManifestOperations,
-} from "./client.js";
+export { SpecCoverageClient, SpecCoverageOperations, SpecManifestOperations } from "./client.js";
 export { GeneratorMode } from "./constants.js";
 export {
   CoverageReport,

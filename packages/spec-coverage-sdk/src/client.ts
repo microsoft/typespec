@@ -13,18 +13,18 @@ import {
   ScenarioManifest,
 } from "./types.js";
 
-export class CadlRanchCoverageClient {
+export class SpecCoverageClient {
   #container: ContainerClient;
-  manifest: CadlRanchManifestOperations;
-  coverage: CadlRanchCoverageOperations;
+  manifest: SpecManifestOperations;
+  coverage: SpecCoverageOperations;
 
   constructor(
     storageAccountName: string,
-    credential?: StorageSharedKeyCredential | AnonymousCredential | TokenCredential
+    credential?: StorageSharedKeyCredential | AnonymousCredential | TokenCredential,
   ) {
     this.#container = getCoverageContainer(storageAccountName, credential);
-    this.manifest = new CadlRanchManifestOperations(this.#container);
-    this.coverage = new CadlRanchCoverageOperations(this.#container);
+    this.manifest = new SpecManifestOperations(this.#container);
+    this.coverage = new SpecCoverageOperations(this.#container);
   }
 
   public async createIfNotExists() {
@@ -34,7 +34,7 @@ export class CadlRanchCoverageClient {
   }
 }
 
-export class CadlRanchManifestOperations {
+export class SpecManifestOperations {
   #blob: BlockBlobClient;
   #container: ContainerClient;
 
@@ -57,7 +57,7 @@ export class CadlRanchManifestOperations {
   }
 }
 
-export class CadlRanchCoverageOperations {
+export class SpecCoverageOperations {
   #container: ContainerClient;
 
   constructor(container: ContainerClient) {
@@ -66,7 +66,7 @@ export class CadlRanchCoverageOperations {
 
   public async upload(generatorMetadata: GeneratorMetadata, report: CoverageReport): Promise<void> {
     const blob = this.#container.getBlockBlobClient(
-      `${generatorMetadata.name}/reports/${generatorMetadata.version}/${generatorMetadata.mode}.json`
+      `${generatorMetadata.name}/reports/${generatorMetadata.version}/${generatorMetadata.mode}.json`,
     );
     const resolvedReport: ResolvedCoverageReport = { ...report, generatorMetadata };
     const content = JSON.stringify(resolvedReport, null, 2);
@@ -86,15 +86,15 @@ export class CadlRanchCoverageOperations {
 
   public async getLatestCoverageFor(
     generatorName: string,
-    generatorMode: string
+    generatorMode: string,
   ): Promise<ResolvedCoverageReport | undefined> {
     const index = await readJsonBlob<{ version: string; types: string[] }>(
-      this.#container.getBlockBlobClient(`${generatorName}/index.json`)
+      this.#container.getBlockBlobClient(`${generatorName}/index.json`),
     );
 
     // Compatible with current format, delete later
     const blobClientOldVersion = this.#container.getBlockBlobClient(
-      `${generatorName}/reports/${index.version}.json`
+      `${generatorName}/reports/${index.version}.json`,
     );
     if (await blobClientOldVersion.exists()) {
       const blob = await blobClientOldVersion.download();
@@ -111,7 +111,7 @@ export class CadlRanchCoverageOperations {
       };
     } else {
       const blobClient = this.#container.getBlockBlobClient(
-        `${generatorName}/reports/${index.version}/${generatorMode}.json`
+        `${generatorName}/reports/${index.version}/${generatorMode}.json`,
       );
       if (await blobClient.exists()) {
         const blob = await blobClient.download();
@@ -146,11 +146,11 @@ export class CadlRanchCoverageOperations {
 
 function getCoverageContainer(
   storageAccountName: string,
-  credential?: StorageSharedKeyCredential | AnonymousCredential | TokenCredential
+  credential?: StorageSharedKeyCredential | AnonymousCredential | TokenCredential,
 ): ContainerClient {
   const blobSvc = new BlobServiceClient(
     `https://${storageAccountName}.blob.core.windows.net`,
-    credential
+    credential,
   );
   const containerClient = blobSvc.getContainerClient(`coverages`);
   return containerClient;

@@ -15,7 +15,7 @@ export const DEFAULT_PORT = 3000;
 
 async function main() {
   await yargs(process.argv.slice(2))
-    .scriptName("cadl-ranch")
+    .scriptName("spec")
     .strict()
     .help()
     // .strict()
@@ -35,7 +35,7 @@ async function main() {
     })
     .command(
       "validate-scenarios <scenariosPath>",
-      "Compile and validate all the Cadl scenarios.",
+      "Compile and validate all the Spec scenarios.",
       (cmd) => {
         return cmd.positional("scenariosPath", {
           description: "Path to the scenarios",
@@ -47,11 +47,11 @@ async function main() {
         await validateScenarios({
           scenariosPath: resolve(process.cwd(), args.scenariosPath),
         });
-      }
+      },
     )
     .command(
       "generate-scenarios-summary <scenariosPath>",
-      "Compile and validate all the Cadl scenarios.",
+      "Compile and validate all the Spec scenarios.",
       (cmd) => {
         return cmd
           .positional("scenariosPath", {
@@ -62,7 +62,7 @@ async function main() {
           .option("outputFile", {
             type: "string",
             description: "Path to the generated summary file(Markdown).",
-            default: join(process.cwd(), "cadl-ranch-summary.md"),
+            default: join(process.cwd(), "spec-summary.md"),
           });
       },
       async (args) => {
@@ -70,7 +70,7 @@ async function main() {
           scenariosPath: resolve(process.cwd(), args.scenariosPath),
           outputFile: resolve(process.cwd(), args.outputFile),
         });
-      }
+      },
     )
     .command("server", "Server management", (cmd) => {
       cmd
@@ -93,7 +93,7 @@ async function main() {
               .option("coverageFile", {
                 type: "string",
                 description: "Path to the coverage file.",
-                default: join(process.cwd(), "cadl-ranch-coverage.json"),
+                default: join(process.cwd(), "spec-coverage.json"),
               });
           },
           async (args) =>
@@ -101,7 +101,7 @@ async function main() {
               scenariosPath: resolve(process.cwd(), args.scenariosPath),
               port: args.port,
               coverageFile: args.coverageFile,
-            })
+            }),
         )
         .command(
           "stop",
@@ -114,7 +114,7 @@ async function main() {
               default: DEFAULT_PORT,
             });
           },
-          async (args) => stop({ port: args.port })
+          async (args) => stop({ port: args.port }),
         );
     })
     .command(
@@ -136,7 +136,7 @@ async function main() {
           .option("coverageFile", {
             type: "string",
             description: "Path to the coverage file.",
-            default: join(process.cwd(), "cadl-ranch-coverage.json"),
+            default: join(process.cwd(), "spec-coverage.json"),
           });
       },
       async (args) => {
@@ -145,7 +145,7 @@ async function main() {
           port: args.port,
           coverageFile: args.coverageFile,
         });
-      }
+      },
     )
     .command(
       "check-coverage <scenariosPath>",
@@ -165,13 +165,13 @@ async function main() {
             type: "string",
             array: true,
             description: "Path to the created coverage files.",
-            default: [join(process.cwd(), "cadl-ranch-coverage.json")],
+            default: [join(process.cwd(), "spec-coverage.json")],
           })
           .demandOption("coverageFiles")
           .option("mergedCoverageFile", {
             type: "string",
             description: "Output Path to the merged coverage file.",
-            default: join(process.cwd(), "cadl-ranch-coverage.json"),
+            default: join(process.cwd(), "spec-coverage.json"),
           })
           .option("ignoreNotImplemented", {
             type: "boolean",
@@ -187,7 +187,7 @@ async function main() {
           coverageFiles: args.coverageFiles.map((x) => resolve(process.cwd(), x)),
           ignoreNotImplemented: args.ignoreNotImplemented,
         });
-      }
+      },
     )
     .command(
       "validate-mock-apis <scenariosPath>",
@@ -203,7 +203,7 @@ async function main() {
         await validateMockApis({
           scenariosPath: resolve(process.cwd(), args.scenariosPath),
         });
-      }
+      },
     )
     .command(
       "upload-manifest <scenariosPath>",
@@ -226,7 +226,7 @@ async function main() {
           scenariosPath: resolve(process.cwd(), args.scenariosPath),
           storageAccountName: args.storageAccountName,
         });
-      }
+      },
     )
     .command(
       "upload-coverage",
@@ -236,13 +236,13 @@ async function main() {
           .option("coverageFile", {
             type: "string",
             description: "Path to the coverage file to upload.",
-            default: join(process.cwd(), "cadl-ranch-coverage.json"),
+            default: join(process.cwd(), "spec-coverage.json"),
           })
           .demandOption("coverageFile")
           .option("storageAccountName", {
             type: "string",
             description: "Name of the storage account",
-            default: join(process.cwd(), "cadl-ranch-coverage.json"),
+            default: join(process.cwd(), "spec-coverage.json"),
           })
           .demandOption("storageAccountName")
           .option("generatorName", {
@@ -275,7 +275,7 @@ async function main() {
           generatorCommit: args.generatorCommit ?? getCommit(process.cwd()),
           generatorMode: args.generatorMode,
         });
-      }
+      },
     )
     .demandCommand(1, "You must use one of the supported commands.")
     .parse();

@@ -1,7 +1,7 @@
 import pc from "picocolors";
 import { logger } from "../logger.js";
-import { findScenarioCadlFiles, loadScenarioMockApiFiles } from "../scenarios-resolver.js";
-import { importCadlRanchExpect, importTypeSpec } from "../spec-utils/import-cadl.js";
+import { findScenarioSpecFiles, loadScenarioMockApiFiles } from "../scenarios-resolver.js";
+import { importSpecExpect, importTypeSpec } from "../spec-utils/import-spec.js";
 import { createDiagnosticReporter } from "../utils/diagnostic-reporter.js";
 
 export interface ValidateMockApisConfig {
@@ -10,14 +10,14 @@ export interface ValidateMockApisConfig {
 
 export async function validateMockApis({ scenariosPath }: ValidateMockApisConfig) {
   const mockApis = await loadScenarioMockApiFiles(scenariosPath);
-  const scenarioFiles = await findScenarioCadlFiles(scenariosPath);
+  const scenarioFiles = await findScenarioSpecFiles(scenariosPath);
 
-  const cadlCompiler = await importTypeSpec(scenariosPath);
-  const cadlRanchExpect = await importCadlRanchExpect(scenariosPath);
+  const specCompiler = await importTypeSpec(scenariosPath);
+  const specExpect = await importSpecExpect(scenariosPath);
   const diagnostics = createDiagnosticReporter();
-  for (const { name, cadlFilePath } of scenarioFiles) {
-    logger.debug(`Found scenario "${cadlFilePath}"`);
-    const program = await cadlCompiler.compile(cadlCompiler.NodeHost, cadlFilePath, {
+  for (const { name, specFilePath } of scenarioFiles) {
+    logger.debug(`Found scenario "${specFilePath}"`);
+    const program = await specCompiler.compile(specCompiler.NodeHost, specFilePath, {
       noEmit: true,
       warningAsError: true,
     });
@@ -31,11 +31,11 @@ export async function validateMockApis({ scenariosPath }: ValidateMockApisConfig
           "kind" in d.target &&
           d.target.kind === "Namespace" &&
           d.target.name === "DPG"
-        )
+        ),
     );
 
     if (programDiagnostics.length > 0) {
-      cadlCompiler.logDiagnostics(programDiagnostics, { log: logger.error });
+      specCompiler.logDiagnostics(programDiagnostics, { log: logger.error });
       diagnostics.reportDiagnostic({
         message: `Scenario ${name} is invalid.`,
       });
@@ -52,7 +52,7 @@ export async function validateMockApis({ scenariosPath }: ValidateMockApisConfig
       continue;
     }
 
-    const scenarios = cadlRanchExpect.listScenarios(program);
+    const scenarios = specExpect.listScenarios(program);
 
     let foundFailure = false;
     for (const scenario of scenarios) {

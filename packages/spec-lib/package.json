@@ -30,7 +30,6 @@
   },
   "devDependencies": {
     "@types/node": "^18.16.0",
-    "@typespec/eslint-config-typespec": "~0.55.0",
     "@typespec/tspd": "workspace:~",
     "rimraf": "^5.0.5",
     "typescript": "~5.2.2"

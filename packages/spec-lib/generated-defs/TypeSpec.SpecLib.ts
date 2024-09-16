@@ -16,7 +16,7 @@ export type ScenarioServiceDecorator = (
   context: DecoratorContext,
   target: Namespace,
   route: Type,
-  options?: { readonly versioned?: EnumValue }
+  options?: { readonly versioned?: EnumValue },
 ) => void;
 
 /**
@@ -25,7 +25,7 @@ export type ScenarioServiceDecorator = (
 export type ScenarioDecorator = (
   context: DecoratorContext,
   target: Namespace | Interface | Operation,
-  name?: Type
+  name?: Type,
 ) => void;
 
 /**
@@ -38,5 +38,5 @@ export type ScenarioDocDecorator = (
   context: DecoratorContext,
   target: Namespace | Interface | Operation,
   doc: Type,
-  formatArgs?: Record
+  formatArgs?: Record,
 ) => void;

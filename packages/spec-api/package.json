@@ -46,7 +46,6 @@
     "@types/node": "^18.16.0",
     "@types/xml2js": "^0.4.11",
     "@types/yargs": "^17.0.24",
-    "eslint": "^8.50.0",
     "rimraf": "^5.0.5",
     "typescript": "~5.2.2",
     "vitest": "^2.1.0",

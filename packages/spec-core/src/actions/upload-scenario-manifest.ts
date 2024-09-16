@@ -1,5 +1,5 @@
 import { AzureCliCredential } from "@azure/identity";
-import { CadlRanchCoverageClient } from "@typespec/spec-coverage-sdk";
+import { SpecCoverageClient } from "@typespec/spec-coverage-sdk";
 import { writeFile } from "fs/promises";
 import pc from "picocolors";
 import { computeScenarioManifest } from "../coverage/scenario-manifest.js";
@@ -20,11 +20,11 @@ export async function uploadScenarioManifest({
   }
 
   await writeFile("manifest.json", JSON.stringify(manifest, null, 2));
-  const client = new CadlRanchCoverageClient(storageAccountName, new AzureCliCredential());
+  const client = new SpecCoverageClient(storageAccountName, new AzureCliCredential());
   await client.createIfNotExists();
   await client.manifest.upload(manifest);
 
   logger.info(
-    `${pc.green("✓")} Scenario manifest uploaded to ${storageAccountName} storage account.`
+    `${pc.green("✓")} Scenario manifest uploaded to ${storageAccountName} storage account.`,
   );
 }

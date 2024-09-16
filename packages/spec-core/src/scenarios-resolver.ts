@@ -6,7 +6,7 @@ import { dirname, join, relative, resolve } from "path";
 import pc from "picocolors";
 import { pathToFileURL } from "url";
 import { logger } from "./logger.js";
-import { importCadlRanchExpect, importTypeSpec, importTypeSpecHttp } from "./spec-utils/index.js";
+import { importSpecExpect, importTypeSpec, importTypeSpecHttp } from "./spec-utils/index.js";
 import { findFilesFromPattern } from "./utils/file-utils.js";
 import {
   createDiagnosticReporter,
@@ -21,14 +21,12 @@ export interface MockApiFile {
   scenarios: Record<string, ScenarioMockApi>;
 }
 
-interface CadlRanchScenarioFile {
+interface SpecScenarioFile {
   name: string;
-  cadlFilePath: string;
+  specFilePath: string;
 }
 
-export async function findScenarioCadlFiles(
-  scenariosPath: string
-): Promise<CadlRanchScenarioFile[]> {
+export async function findScenarioSpecFiles(scenariosPath: string): Promise<SpecScenarioFile[]> {
   await ensureScenariosPathExists(scenariosPath);
   const normalizedScenarioPath = normalizePath(scenariosPath);
   const pattern = [
@@ -53,25 +51,25 @@ export async function findScenarioCadlFiles(
     name: normalizePath(relative(scenariosPath, name))
       .replace("/main.tsp", "")
       .replace("/client.tsp", ""),
-    cadlFilePath: normalizePath(resolve(scenariosPath, name)),
+    specFilePath: normalizePath(resolve(scenariosPath, name)),
   }));
 }
 
 export async function loadScenarios(
-  scenariosPath: string
+  scenariosPath: string,
 ): Promise<[Scenario[], readonly Diagnostic[]]> {
-  const scenarioFiles = await findScenarioCadlFiles(scenariosPath);
+  const scenarioFiles = await findScenarioSpecFiles(scenariosPath);
   const typespecCompiler = await importTypeSpec(scenariosPath);
-  const cadlRanchExpect = await importCadlRanchExpect(scenariosPath);
+  const specExpect = await importSpecExpect(scenariosPath);
   const typespecHttp = await importTypeSpecHttp(scenariosPath);
 
   const scenarioNames = new Map<string, Scenario[]>();
   const endpoints = new Map<string, Operation[]>();
   const diagnostics = createDiagnosticReporter();
 
-  for (const { name, cadlFilePath } of scenarioFiles) {
-    logger.debug(`Found scenario "${cadlFilePath}"`);
-    const program = await typespecCompiler.compile(typespecCompiler.NodeHost, cadlFilePath, {
+  for (const { name, specFilePath } of scenarioFiles) {
+    logger.debug(`Found scenario "${specFilePath}"`);
+    const program = await typespecCompiler.compile(typespecCompiler.NodeHost, specFilePath, {
       additionalImports: ["@typespec/spec-lib"],
       noEmit: true,
       warningAsError: true,
@@ -86,7 +84,7 @@ export async function loadScenarios(
           "kind" in d.target &&
           d.target.kind === "Namespace" &&
           d.target.name === "DPG"
-        )
+        ),
     );
 
     if (programDiagnostics.length > 0) {
@@ -103,7 +101,7 @@ export async function loadScenarios(
       continue;
     }
 
-    const scenarios = cadlRanchExpect.listScenarios(program);
+    const scenarios = specExpect.listScenarios(program);
     logger.debug(`  ${scenarios.length} scenarios`);
 
     for (const scenario of scenarios) {
@@ -182,7 +180,7 @@ export async function loadScenarioMockApiFiles(scenariosPath: string): Promise<M
 }
 
 export async function loadScenarioMockApis(
-  scenariosPath: string
+  scenariosPath: string,
 ): Promise<Record<string, ScenarioMockApi>> {
   const files = await loadScenarioMockApiFiles(scenariosPath);
   const result: Record<string, ScenarioMockApi> = {};

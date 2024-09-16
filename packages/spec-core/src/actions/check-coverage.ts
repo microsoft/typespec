@@ -1,6 +1,6 @@
 import { CoverageReport, ScenarioStatus } from "@typespec/spec-coverage-sdk";
 import { readFile, writeFile } from "fs/promises";
-import { loadCadlRanchConfig } from "../config/config.js";
+import { loadSpecConfig } from "../config/config.js";
 import { createCoverageReport } from "../coverage/coverage-report.js";
 import { loadScenarioMockApis } from "../scenarios-resolver.js";
 import { createDiagnosticReporter, findFilesFromPattern } from "../utils/index.js";
@@ -27,10 +27,10 @@ export async function checkCoverage(config: CheckCoverageConfig) {
   }
 
   if (config.configFile) {
-    const [cadlRanchConfig, diagnostics] = await loadCadlRanchConfig(config.configFile);
+    const [specConfig, diagnostics] = await loadSpecConfig(config.configFile);
     diagnosticsReporter.reportDiagnostics(diagnostics);
 
-    for (const scenarioName of cadlRanchConfig.unsupportedScenarios) {
+    for (const scenarioName of specConfig.unsupportedScenarios) {
       results[scenarioName] = "not-supported";
     }
   }

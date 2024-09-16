@@ -1,9 +1,5 @@
 import { AzureCliCredential } from "@azure/identity";
-import {
-  CadlRanchCoverageClient,
-  CoverageReport,
-  GeneratorMetadata,
-} from "@typespec/spec-coverage-sdk";
+import { CoverageReport, GeneratorMetadata, SpecCoverageClient } from "@typespec/spec-coverage-sdk";
 import { readFile } from "fs/promises";
 import pc from "picocolors";
 import { logger } from "../logger.js";
@@ -28,7 +24,7 @@ export async function uploadCoverageReport({
   const content = await readFile(coverageFile);
   const coverage: CoverageReport = JSON.parse(content.toString());
 
-  const client = new CadlRanchCoverageClient(storageAccountName, new AzureCliCredential());
+  const client = new SpecCoverageClient(storageAccountName, new AzureCliCredential());
   const generatorMetadata: GeneratorMetadata = {
     name: generatorName,
     version: generatorVersion,
@@ -39,7 +35,7 @@ export async function uploadCoverageReport({
 
   logger.info(
     `${pc.green(
-      "✓"
-    )} Scenario coverage file "${coverageFile}" uploaded to ${storageAccountName} storage account for ${generatorName}@${generatorVersion}.`
+      "✓",
+    )} Scenario coverage file "${coverageFile}" uploaded to ${storageAccountName} storage account for ${generatorName}@${generatorVersion}.`,
   );
 }

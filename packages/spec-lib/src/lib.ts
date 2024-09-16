@@ -1,7 +1,7 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
 export const $lib = createTypeSpecLibrary({
-  name: "@azure-tools/cadl-ranch-expect",
+  name: "@typespec/spec-lib",
   diagnostics: {
     "category-invalid": {
       severity: "error",

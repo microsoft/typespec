@@ -26,7 +26,7 @@ export async function generateScenarioSummary({
 }
 
 export function createScenarioSummary(scenarios: Scenario[]): Promise<string> {
-  const lines = [`# Cadl Ranch Project summary`];
+  const lines = [`# Spec Project summary`];
 
   for (const scenario of scenarios.sort((a, b) => a.name.localeCompare(b.name))) {
     lines.push(`### ${scenario.name}`);

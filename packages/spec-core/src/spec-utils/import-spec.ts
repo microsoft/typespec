@@ -7,7 +7,7 @@ export async function importTypeSpec(
 ): Promise<typeof import("@typespec/compiler")> {
   return importTypeSpecLibrary("@typespec/compiler", baseDir);
 }
-export async function importCadlRanchExpect(
+export async function importSpecExpect(
   baseDir: string
 ): Promise<typeof import("@typespec/spec-lib")> {
   return importTypeSpecLibrary("@typespec/spec-lib", baseDir);

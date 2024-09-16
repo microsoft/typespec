@@ -1,3 +1,3 @@
-export interface CadlRanchConfig {
+export interface SpecConfig {
   unsupportedScenarios: string[];
 }

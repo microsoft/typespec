@@ -1,7 +1,7 @@
 import { JSONSchemaType } from "ajv";
-import { CadlRanchConfig } from "./types.js";
+import { SpecConfig } from "./types.js";
 
-export const CadlRanchConfigJsonSchema: JSONSchemaType<CadlRanchConfig> = {
+export const SpecConfigJsonSchema: JSONSchemaType<SpecConfig> = {
   type: "object",
   additionalProperties: false,
   properties: {

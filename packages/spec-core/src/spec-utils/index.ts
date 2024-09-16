@@ -1,1 +1,1 @@
-export * from "./import-cadl.js";
+export * from "./import-spec.js";
