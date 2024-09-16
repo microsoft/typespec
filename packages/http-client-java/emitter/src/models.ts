@@ -13,7 +13,7 @@ export class ClientContext {
     baseUri: string,
     hostParameters: Parameter[],
     globalParameters: Parameter[],
-    apiVersions?: ApiVersions
+    apiVersions?: ApiVersions,
   ) {
     this.baseUri = baseUri;
     this.hostParameters = hostParameters;
@@ -26,7 +26,7 @@ export class ClientContext {
     if (
       !this.globalParameters.includes(parameter) &&
       !this.globalParameters.some(
-        (it) => it.language.default.name === parameter.language.default.name
+        (it) => it.language.default.name === parameter.language.default.name,
       )
     ) {
       this.globalParameters.push(parameter);

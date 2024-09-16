@@ -23,7 +23,7 @@ export function getSymbolDetails(
   options = {
     includeSignature: true,
     includeParameterTags: true,
-  }
+  },
 ): string {
   const lines = [];
   if (options.includeSignature) {
@@ -44,7 +44,7 @@ export function getSymbolDetails(
         }
         lines.push(
           //prettier-ignore
-          `_@${tag.tagName.sv}_${"paramName" in tag ? ` \`${tag.paramName.sv}\`` : ""} —\n${getDocContent(tag.content)}`
+          `_@${tag.tagName.sv}_${"paramName" in tag ? ` \`${tag.paramName.sv}\`` : ""} —\n${getDocContent(tag.content)}`,
         );
       }
     }
@@ -96,7 +96,7 @@ export function getParameterDocumentation(program: Program, type: Type): Map<str
 
 /** @internal */
 export function getTemplateParameterDocumentation(
-  node: Node & TemplateDeclarationNode
+  node: Node & TemplateDeclarationNode,
 ): Map<string, string> {
   const map = new Map<string, string>();
   for (const d of node?.docs ?? []) {
@@ -114,7 +114,7 @@ function getDocContent(content: readonly DocContent[]) {
   for (const node of content) {
     compilerAssert(
       node.kind === SyntaxKind.DocText,
-      "No other doc content node kinds exist yet. Update this code appropriately when more are added."
+      "No other doc content node kinds exist yet. Update this code appropriately when more are added.",
     );
     docs.push(node.text);
   }

@@ -68,7 +68,7 @@ describe("http: routes", () => {
       namespace Foo {
         @get op index(): void;
       }
-      `
+      `,
         );
 
         deepStrictEqual(routes, []);
@@ -82,7 +82,7 @@ describe("http: routes", () => {
           @service({title: "My Service"})
           namespace MyService;
           @get op index(): void;
-          `
+          `,
         );
 
         expectRouteIncluded(routes, ["/"]);
@@ -99,7 +99,7 @@ describe("http: routes", () => {
             @route("/included")
             @get op included(): void;
           }
-          `
+          `,
         );
         expectRouteIncluded(routes, ["/included"]);
       });
@@ -111,7 +111,7 @@ describe("http: routes", () => {
           namespace MyService;
           interface Foo {
             @get index(): void;
-          }`
+          }`,
         );
 
         expectRouteIncluded(routes, ["/"]);
@@ -126,7 +126,7 @@ describe("http: routes", () => {
           namespace MyArea{
             @get op index(): void;
           }
-          `
+          `,
         );
 
         expectRouteIncluded(routes, ["/"]);
@@ -145,7 +145,7 @@ describe("http: routes", () => {
             @route("/not-included")
             @get op notIncluded(): void;
           }
-          `
+          `,
         );
         expectRouteIncluded(routes, ["/included"]);
       });
@@ -155,21 +155,21 @@ describe("http: routes", () => {
   describe("@route path parameters mapping", () => {
     it("maps route interpolated params to the operation param", async () => {
       const routes = await getRoutesFor(
-        `@route("/foo/{myParam}") op test(@path myParam: string): void;`
+        `@route("/foo/{myParam}") op test(@path myParam: string): void;`,
       );
       deepStrictEqual(routes, [{ verb: "get", path: "/foo/{myParam}", params: ["myParam"] }]);
     });
 
     it("maps route interpolated params to the operation param when operation spread items", async () => {
       const routes = await getRoutesFor(
-        `@route("/foo/{myParam}") op test(@path myParam: string, ...Record<string>): void;`
+        `@route("/foo/{myParam}") op test(@path myParam: string, ...Record<string>): void;`,
       );
       deepStrictEqual(routes, [{ verb: "post", path: "/foo/{myParam}", params: ["myParam"] }]);
     });
 
     it("emit diagnostic if interpolated param is missing in param list", async () => {
       const diagnostics = await diagnoseOperations(
-        `@route("/foo/{myParam}/") op test(@path other: string): void;`
+        `@route("/foo/{myParam}/") op test(@path other: string): void;`,
       );
       expectDiagnostics(diagnostics, {
         code: "@typespec/http/missing-uri-param",
@@ -193,7 +193,7 @@ describe("http: routes", () => {
 
     it("respect the name provided by @path argument when being explicit in the route", async () => {
       const routes = await getRoutesFor(
-        `@route("/foo/{custom-name}") op test(@path("custom-name") myParam: string): void;`
+        `@route("/foo/{custom-name}") op test(@path("custom-name") myParam: string): void;`,
       );
 
       deepStrictEqual(routes, [
@@ -220,7 +220,7 @@ describe("http: routes", () => {
           @post op CreateSubthing(@path thingId: string, @path subthingId: string): string;
         }
       }
-      `
+      `,
     );
 
     deepStrictEqual(routes, [
@@ -253,7 +253,7 @@ describe("http: routes", () => {
           @post CreateSubthing(@path thingId: string, @path subthingId: string): string;
         }
       }
-      `
+      `,
     );
 
     deepStrictEqual(routes, [
@@ -275,7 +275,7 @@ describe("http: routes", () => {
       interface Foo {
         @get @route("") index(): {};
       }
-      `
+      `,
     );
 
     deepStrictEqual(routes, [{ verb: "get", path: "/", params: [] }]);
@@ -285,7 +285,7 @@ describe("http: routes", () => {
     const routes = await getRoutesFor(
       `
       @route("/foo/") op index(): void;
-      `
+      `,
     );
 
     deepStrictEqual(routes, [{ verb: "get", path: "/foo/", params: [] }]);
@@ -298,7 +298,7 @@ describe("http: routes", () => {
       interface Foo {
         @route("/bar/") op index(): void;
       }
-      `
+      `,
     );
 
     deepStrictEqual(routes, [{ verb: "get", path: "/foo/bar/", params: [] }]);
@@ -311,7 +311,7 @@ describe("http: routes", () => {
       interface Foo {
         @get @route("/") index(): {};
       }
-      `
+      `,
     );
 
     deepStrictEqual(routes, [{ verb: "get", path: "/", params: [] }]);
@@ -323,7 +323,7 @@ describe("http: routes", () => {
       @get
       @route(":action")
       op colonRoute(): {};
-      `
+      `,
     );
 
     deepStrictEqual(routes, [{ verb: "get", path: "/:action", params: [] }]);
@@ -451,7 +451,7 @@ describe("http: routes", () => {
         @route("/{thingId}")
         @put op CreateThing(@path thingId: string): string;
       }
-      `
+      `,
     );
 
     deepStrictEqual(routes, [
@@ -548,7 +548,7 @@ describe("uri template", () => {
     ] as const)("%s map to style: %s", async (operator, style) => {
       const param = await getParameter(
         `@route("/bar/{${operator}foo}") op foo(foo: string): void;`,
-        "foo"
+        "foo",
       );
       expectPathParameter(param, { style, allowReserved: false, explode: false });
     });
@@ -572,7 +572,7 @@ describe("uri template", () => {
     it("extract simple query continuation parameter", async () => {
       const param = await getParameter(
         `@route("/bar?fixed=yes{&foo}") op foo(foo: string): void;`,
-        "foo"
+        "foo",
       );
       expectQueryParameter(param, { explode: false });
     });
@@ -599,7 +599,7 @@ describe("uri template", () => {
 
   it("emit diagnostic when annotating a path parameter with @query", async () => {
     const diagnostics = await diagnoseOperations(
-      `@route("/bar/{foo}") op foo(@query foo: string): void;`
+      `@route("/bar/{foo}") op foo(@query foo: string): void;`,
     );
     expectDiagnostics(diagnostics, {
       code: "@typespec/http/incompatible-uri-param",
@@ -609,7 +609,7 @@ describe("uri template", () => {
 
   it("emit diagnostic when annotating a query parameter with @path", async () => {
     const diagnostics = await diagnoseOperations(
-      `@route("/bar/{?foo}") op foo(@path foo: string): void;`
+      `@route("/bar/{?foo}") op foo(@path foo: string): void;`,
     );
     expectDiagnostics(diagnostics, {
       code: "@typespec/http/incompatible-uri-param",
@@ -619,7 +619,7 @@ describe("uri template", () => {
 
   it("emit diagnostic when annotating a query continuation parameter with @path", async () => {
     const diagnostics = await diagnoseOperations(
-      `@route("/bar/?bar=def{&foo}") op foo(@path foo: string): void;`
+      `@route("/bar/?bar=def{&foo}") op foo(@path foo: string): void;`,
     );
     expectDiagnostics(diagnostics, {
       code: "@typespec/http/incompatible-uri-param",
@@ -637,7 +637,7 @@ describe("uri template", () => {
       `#{ style: "path" }`,
     ])("%s", async (options) => {
       const diagnostics = await diagnoseOperations(
-        `@route("/bar/{foo}") op foo(@path(${options}) foo: string): void;`
+        `@route("/bar/{foo}") op foo(@path(${options}) foo: string): void;`,
       );
       expectDiagnostics(diagnostics, {
         code: "@typespec/http/use-uri-template",
@@ -650,7 +650,7 @@ describe("uri template", () => {
   describe("emit diagnostic if using any of the query options when parameter is already defined in the uri template", () => {
     it.each(["#{ explode: true }"])("%s", async (options) => {
       const diagnostics = await diagnoseOperations(
-        `@route("/bar{?foo}") op foo(@query(${options}) foo: string): void;`
+        `@route("/bar{?foo}") op foo(@query(${options}) foo: string): void;`,
       );
       expectDiagnostics(diagnostics, {
         code: "@typespec/http/use-uri-template",

@@ -14,7 +14,7 @@ export function $encodedName(
   context: DecoratorContext,
   target: Type,
   mimeType: string,
-  name: string
+  name: string,
 ) {
   let existing = context.program.stateMap(encodedNameKey).get(target);
   if (existing === undefined) {
@@ -76,7 +76,7 @@ function getEncodedName(program: Program, target: Type, mimeType: string): strin
 export function resolveEncodedName(
   program: Program,
   target: Type & { name: string },
-  mimeType: string
+  mimeType: string,
 ): string {
   return getEncodedName(program, target, mimeType) ?? target.name;
 }

@@ -95,7 +95,7 @@ export function createCompileService({
   }
 
   async function compile(
-    document: TextDocument | TextDocumentIdentifier
+    document: TextDocument | TextDocumentIdentifier,
   ): Promise<CompileResult | undefined> {
     const path = await fileService.getPath(document);
     const mainFile = await getMainFileForDocument(path);
@@ -190,7 +190,7 @@ export function createCompileService({
   }
 
   async function getScript(
-    document: TextDocument | TextDocumentIdentifier
+    document: TextDocument | TextDocumentIdentifier,
   ): Promise<TypeSpecScriptNode> {
     const file = await compilerHost.readFile(await fileService.getPath(document));
     const cached = compilerHost.parseCache?.get(file);
@@ -241,7 +241,7 @@ export function createCompileService({
           pkgPath,
           JSON.parse,
           logMainFileSearchDiagnostic,
-          options
+          options,
         );
         await fileSystemCache.setData(pkgPath, pkg ?? {});
       }
@@ -260,7 +260,7 @@ export function createCompileService({
         () => compilerHost.stat(candidate),
         candidate,
         logMainFileSearchDiagnostic,
-        options
+        options,
       );
 
       if (stat?.isFile()) {

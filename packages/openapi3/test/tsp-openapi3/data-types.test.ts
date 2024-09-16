@@ -52,7 +52,7 @@ describe("converts top-level schemas", () => {
     expect(customArray.indexer?.key.name).toBe("integer");
     assert(
       customArray.indexer?.value.kind === "Scalar",
-      `Expected indexer.value.kind to be "Scalar", got "${customArray?.indexer?.value?.kind}"`
+      `Expected indexer.value.kind to be "Scalar", got "${customArray?.indexer?.value?.kind}"`,
     );
     expect(customArray.indexer?.value.name).toBe("string");
 
@@ -214,13 +214,13 @@ describe("converts top-level schemas", () => {
       const discriminatedUnionVariants = [...(discriminatedUnion?.variants.values() ?? [])];
       expect(discriminatedUnionVariants.length).toBe(2);
       expect(
-        (discriminatedUnionVariants[0].type as Model).properties.get("kind")?.type
+        (discriminatedUnionVariants[0].type as Model).properties.get("kind")?.type,
       ).toMatchObject({
         kind: "String",
         value: "foo",
       });
       expect(
-        (discriminatedUnionVariants[1].type as Model).properties.get("kind")?.type
+        (discriminatedUnionVariants[1].type as Model).properties.get("kind")?.type,
       ).toMatchObject({
         kind: "String",
         value: "bar",
@@ -309,7 +309,7 @@ describe("converts top-level schemas", () => {
       });
       assert(
         Foo.indexer?.value.kind === "Scalar",
-        `Expected indexer.value.kind to be 'Scalar', got ${Foo.indexer?.value.kind}`
+        `Expected indexer.value.kind to be 'Scalar', got ${Foo.indexer?.value.kind}`,
       );
       expect(Foo.indexer?.value.name).toBe("string");
     });

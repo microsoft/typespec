@@ -41,7 +41,7 @@ export async function getPackageVersion(repoRoot: string, pkgName: string) {
   const project = projects.find((x) => x.manifest.name === pkgName);
   if (project === undefined) {
     throw new Error(
-      `Cannot get version for package: "${pkgName}", pnpm couldn't find a package with that name in the workspace`
+      `Cannot get version for package: "${pkgName}", pnpm couldn't find a package with that name in the workspace`,
     );
   }
   const version = parse(project.manifest.version);

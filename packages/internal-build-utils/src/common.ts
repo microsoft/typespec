@@ -3,7 +3,7 @@ import { ChildProcess, spawn, SpawnOptions } from "child_process";
 export class CommandFailedError extends Error {
   constructor(
     msg: string,
-    public proc: ChildProcess
+    public proc: ChildProcess,
   ) {
     super(msg);
   }
@@ -29,7 +29,7 @@ export interface RunOptions extends SpawnOptions {
 export async function runOrExit(
   command: string,
   args: string[],
-  options?: RunOptions
+  options?: RunOptions,
 ): Promise<ExecResult> {
   return exitOnFailedCommand(() => run(command, args, options));
 }
@@ -54,7 +54,7 @@ const isCmdOnWindows = ["pnpm", "npm", "code", "code-insiders", "docusaurus", "t
 export async function run(
   command: string,
   args: string[],
-  options?: RunOptions
+  options?: RunOptions,
 ): Promise<ExecResult> {
   if (!options?.silent) {
     // eslint-disable-next-line no-console
@@ -81,7 +81,7 @@ export async function run(
     if (options.throwOnNonZeroExit && result.exitCode !== undefined && result.exitCode !== 0) {
       throw new CommandFailedError(
         `Command \`${command} ${args.join(" ")}\` failed with exit code ${result.exitCode}`,
-        result.proc
+        result.proc,
       );
     }
     return result;
@@ -105,7 +105,7 @@ export interface ExecResult {
 export async function execAsync(
   command: string,
   args: string[],
-  options: SpawnOptions
+  options: SpawnOptions,
 ): Promise<ExecResult> {
   const child = spawn(command, args, options);
 

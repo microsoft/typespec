@@ -30,7 +30,7 @@ export interface ApplyCodeFixExpect {
 export function createLinterRuleTester(
   runner: BasicTestRunner,
   ruleDef: LinterRuleDefinition<string, DiagnosticMessages>,
-  libraryName: string
+  libraryName: string,
 ): LinterRuleTester {
   return {
     expect,

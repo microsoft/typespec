@@ -49,7 +49,7 @@ async function testScenario(name: string) {
     strictEqual(
       formatted,
       output,
-      `Scenario ${name} does not match expected snapshot. Run with tests '--update-snapshots' option to update.`
+      `Scenario ${name} does not match expected snapshot. Run with tests '--update-snapshots' option to update.`,
     );
   }
 }

@@ -8,7 +8,7 @@ import { run } from "./utils.js";
 export async function installVsix<T = void>(
   host: CliCompilerHost,
   pkg: string,
-  install: (vsixPaths: string[]) => T
+  install: (vsixPaths: string[]) => T,
 ): Promise<T> {
   // download npm package to temporary directory
   const temp = await mkdtemp(joinPaths(os.tmpdir(), "typespec"));
@@ -45,7 +45,7 @@ export async function installVsix<T = void>(
 
   compilerAssert(
     vsixPaths.length > 0,
-    `Installed ${pkg} from npm, but didn't find any .vsix files in it.`
+    `Installed ${pkg} from npm, but didn't find any .vsix files in it.`,
   );
 
   // install extension
