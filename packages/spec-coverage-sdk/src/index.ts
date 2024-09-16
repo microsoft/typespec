@@ -1,3 +1,17 @@
-export * from "./types.js";
-export * from "./client.js";
-export * from "./constants.js";
+export {
+  CadlRanchCoverageClient,
+  CadlRanchCoverageOperations,
+  CadlRanchManifestOperations,
+} from "./client.js";
+export { GeneratorMode } from "./constants.js";
+export {
+  CoverageReport,
+  GeneratorMetadata,
+  LineAndCharacter,
+  ResolvedCoverageReport,
+  ScenarioData,
+  ScenarioLocation,
+  ScenarioManifest,
+  ScenarioStatus,
+  ScenariosMetadata,
+} from "./types.js";

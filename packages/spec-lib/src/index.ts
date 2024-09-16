@@ -1,3 +1,18 @@
-export * from "./decorators.js";
-export * from "./lib.js";
-export * from "./validate.js";
+export {
+  $scenarioDoc,
+  getScenarioDoc,
+  $scenario,
+  Scenario,
+  ScenarioEndpoint,
+  listScenarios,
+  getScenarioEndpoints,
+  listScenarioIn,
+  isScenario,
+  getScenarioName,
+  $scenarioService,
+} from "./decorators.js";
+export {
+  $lib,
+  reportDiagnostic
+} from "./lib.js";
+export { $onValidate } from "./validate.js";
