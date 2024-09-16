@@ -31,7 +31,7 @@ describe("compiler: effective type", () => {
       @test model Test {
         prop: { ...Source };
       }
-      `
+      `,
     );
     const { Source, Test } = await testHost.compile("./");
     strictEqual(Source.kind, "Model" as const);
@@ -58,7 +58,7 @@ describe("compiler: effective type", () => {
       @test model Test {
         test: {...Spread };
       }
-      `
+      `,
     );
     const { Source, Test } = await testHost.compile("./");
     strictEqual(Source.kind, "Model" as const);
@@ -89,7 +89,7 @@ describe("compiler: effective type", () => {
       @test model Test {
         test: { @remove prop3: string; } & Source;
       }
-      `
+      `,
     );
     const { Source, Test } = await testHost.compile("./");
     strictEqual(Source.kind, "Model" as const);
@@ -113,7 +113,7 @@ describe("compiler: effective type", () => {
       @test model Test {
         test: Source & {}
       }
-      `
+      `,
     );
     const { Source, Test } = await testHost.compile("./");
     strictEqual(Source.kind, "Model" as const);
@@ -141,7 +141,7 @@ describe("compiler: effective type", () => {
       @test model Test {
         test: { ...Derived };
       }
-      `
+      `,
     );
     const { Test, Derived } = await testHost.compile("./");
     strictEqual(Test.kind, "Model" as const);
@@ -166,7 +166,7 @@ describe("compiler: effective type", () => {
       @test model Test {
         test: Source & { @remove something: string; };
       }
-      `
+      `,
     );
     const { Source, Test } = await testHost.compile("./");
     strictEqual(Source.kind, "Model" as const);
@@ -191,7 +191,7 @@ describe("compiler: effective type", () => {
       @test model Derived extends Base {
         @remove test: string;
       }
-      `
+      `,
     );
     const { Base, Derived } = await testHost.compile("./");
     strictEqual(Base.kind, "Model" as const);
@@ -221,7 +221,7 @@ describe("compiler: effective type", () => {
       @test model Derived extends Middle {
         @remove test: string;
       }
-      `
+      `,
     );
     const { Base, Derived } = await testHost.compile("./");
     strictEqual(Base.kind, "Model" as const);
@@ -254,7 +254,7 @@ describe("compiler: effective type", () => {
       @test model Derived extends Middle {
         @remove test: string;
       }
-      `
+      `,
     );
     const { Middle, Derived } = await testHost.compile("./");
     strictEqual(Middle.kind, "Model" as const);
@@ -284,7 +284,7 @@ describe("compiler: effective type", () => {
       @test model Test {
         test: Derived & { @remove something: string; };
       }
-      `
+      `,
     );
     const { Derived, Test } = await testHost.compile("./");
     strictEqual(Derived.kind, "Model" as const);
@@ -315,7 +315,7 @@ describe("compiler: effective type", () => {
       @test model Test {
         test: Base<Thing>;
       }
-      `
+      `,
     );
     const { Thing, Test } = await testHost.compile("./");
     strictEqual(Thing.kind, "Model" as const);
@@ -335,7 +335,7 @@ describe("compiler: effective type", () => {
       @test model Test {
         test: {};
       }
-      `
+      `,
     );
     const { Test } = await testHost.compile("./");
     strictEqual(Test.kind, "Model" as const);
@@ -358,7 +358,7 @@ describe("compiler: effective type", () => {
       @test model Test {
         test: { notRemoved: string, ...Source };
       }
-      `
+      `,
     );
     const { Test } = await testHost.compile("./");
     strictEqual(Test.kind, "Model" as const);
@@ -386,7 +386,7 @@ describe("compiler: effective type", () => {
       @test model Test {
         test: SourceOne & SourceTwo;
       }
-      `
+      `,
     );
 
     const { Test } = await testHost.compile("./");
@@ -414,7 +414,7 @@ describe("compiler: effective type", () => {
       @test model Test {
         test: Source;
       }
-      `
+      `,
     );
 
     const { Test } = await testHost.compile("./");
@@ -450,7 +450,7 @@ describe("compiler: effective type", () => {
       @test model Derived extends Base {
         ...Source;
       }
-      `
+      `,
     );
     const { Derived } = await testHost.compile("./");
     strictEqual(Derived.kind, "Model" as const);
@@ -476,7 +476,7 @@ describe("compiler: effective type", () => {
       @test model Test {
         test: Source;
       }
-      `
+      `,
     );
 
     const { Test } = await testHost.compile("./");

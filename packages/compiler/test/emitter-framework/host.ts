@@ -39,7 +39,7 @@ export async function emitTypeSpec(
   Emitter: typeof TypeEmitter<any>,
   code: string,
   callCounts: Partial<Record<keyof TypeEmitter<any>, number>> = {},
-  validateCallCounts = true
+  validateCallCounts = true,
 ) {
   const host = await getHostForTypeSpecFile(code);
   const emitter = createAssetEmitter(host.program, Emitter, {
@@ -74,7 +74,7 @@ function emitterSpies(emitter: typeof TypeEmitter<any, any>) {
 
 function assertSpiesCalled(
   spies: EmitterSpies,
-  callCounts: Partial<Record<keyof TypeEmitter<any>, number>>
+  callCounts: Partial<Record<keyof TypeEmitter<any>, number>>,
 ) {
   for (const [key, spy] of Object.entries(spies)) {
     const expectedCount = (callCounts as any)[key] ?? 1;

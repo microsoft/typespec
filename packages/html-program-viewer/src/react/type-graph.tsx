@@ -15,7 +15,7 @@ export function renderProgram(program: Program) {
   const html = ReactDOMServer.renderToString(
     <FluentProvider theme={webLightTheme}>
       <TypeGraph program={program} />
-    </FluentProvider>
+    </FluentProvider>,
   );
   return html;
 }

@@ -121,7 +121,7 @@ describe("(LEGACY) cast tuple to array value", () => {
     const [entity, diagnostics] = await compileAndDiagnoseValueOrType(
       `(valueof unknown) | unknown`,
       `["foo"]`,
-      { disableDeprecatedSuppression: true }
+      { disableDeprecatedSuppression: true },
     );
     expectDiagnosticEmpty(diagnostics);
     strictEqual(entity?.entityKind, "Type");

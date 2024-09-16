@@ -16,7 +16,7 @@ describe("compiler: operation-utils", () => {
 
   async function listOperationNames(
     container: Namespace | Interface,
-    options?: ListOperationOptions
+    options?: ListOperationOptions,
   ): Promise<string[]> {
     return listOperationsIn(container, options).map((x) => x.name);
   }

@@ -20,7 +20,7 @@ export function generateSignatureTests(
   namespaceName: string,
   importName: string,
   decoratorSignatureImport: string,
-  decorators: DecoratorSignature[]
+  decorators: DecoratorSignature[],
 ): string {
   const content: Doc[] = [];
   const decRecord = getDecoratorRecordForNamespaceName(namespaceName);
@@ -51,7 +51,7 @@ function getDecoratorRecordForNamespaceName(namespaceName: string) {
 export function generateSignatures(
   program: Program,
   decorators: DecoratorSignature[],
-  namespaceName: string
+  namespaceName: string,
 ): string {
   const compilerImports = new Set<string>();
   const localTypes = new Set<Model>();
@@ -110,7 +110,7 @@ export function generateSignatures(
       " = ",
       `(context: ${useCompilerType("DecoratorContext")}, ${getTSParameter(
         decorator.target,
-        true
+        true,
       )}${args}) => void;`,
     ].join("");
   }
@@ -127,7 +127,7 @@ export function generateSignatures(
 
   /** For a rest param of constraint T[] or valueof T[] return the T or valueof T */
   function extractRestParamConstraint(
-    constraint: MixedParameterConstraint
+    constraint: MixedParameterConstraint,
   ): MixedParameterConstraint | undefined {
     let valueType: Type | undefined;
     let type: Type | undefined;

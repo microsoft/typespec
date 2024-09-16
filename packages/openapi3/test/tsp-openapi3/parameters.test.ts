@@ -259,6 +259,6 @@ describe("converts top-level parameters", () => {
         type: { kind: "Scalar", name: "string" },
         decorators: [{ definition: { name: "@query" } }],
       });
-    }
+    },
   );
 });

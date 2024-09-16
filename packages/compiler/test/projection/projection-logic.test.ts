@@ -53,7 +53,7 @@ describe("compiler: projections: logic", () => {
     strictEqual(
       result.namespace?.namespace?.name,
       "Bar",
-      "Projections do not preserve Namespace parent relationships."
+      "Projections do not preserve Namespace parent relationships.",
     );
   });
 
@@ -229,7 +229,7 @@ describe("compiler: projections: logic", () => {
           { program }: DecoratorContext,
           t: Type,
           v: NumericLiteral,
-          oldName: StringLiteral
+          oldName: StringLiteral,
         ) {
           const record = { v, oldName };
           program.stateMap(renamedFromKey).set(t, record);
@@ -331,7 +331,7 @@ describe("compiler: projections: logic", () => {
       const backResult = (await testProjection(
         code,
         [projection("test", [], "from")],
-        result
+        result,
       )) as Model;
 
       const prop_one = backResult.properties.get("prop_one")!;
@@ -431,7 +431,7 @@ describe("compiler: projections: logic", () => {
         const uncased = (await testProjection(
           code,
           [projection("toCamelCase", [], "from")],
-          cased
+          cased,
         )) as Model;
         ok(uncased.properties.has("foo_prop"));
         ok(uncased.properties.has("bar_prop"));
@@ -449,7 +449,7 @@ describe("compiler: projections: logic", () => {
 
         deepStrictEqual(
           Array.from(projected.properties.values()).map((o) => o.name),
-          ["fooProp", "barProp"] // ensure not re-ordered by rename
+          ["fooProp", "barProp"], // ensure not re-ordered by rename
         );
       });
 
@@ -466,14 +466,14 @@ describe("compiler: projections: logic", () => {
 
         deepStrictEqual(
           Array.from(projected.properties.values()).map((o) => o.name),
-          ["FooProp", "BarProp"] // ensure not re-ordered by rename
+          ["FooProp", "BarProp"], // ensure not re-ordered by rename
         );
       });
 
       it("can snake case", async () => {
         const projected = await testRenameProjection(
           "toSnakeCase",
-          `@test model Foo { fooProp: string, barProp: string }`
+          `@test model Foo { fooProp: string, barProp: string }`,
         );
 
         strictEqual(projected.properties.size, 2);
@@ -486,7 +486,7 @@ describe("compiler: projections: logic", () => {
 
         deepStrictEqual(
           Array.from(projected.properties.values()).map((o) => o.name),
-          ["foo_prop", "bar_prop"] // ensure not re-ordered by rename
+          ["foo_prop", "bar_prop"], // ensure not re-ordered by rename
         );
       });
 
@@ -503,7 +503,7 @@ describe("compiler: projections: logic", () => {
 
         deepStrictEqual(
           Array.from(projected.properties.values()).map((o) => o.name),
-          ["foo-prop", "bar-prop"] // ensure not re-ordered by rename
+          ["foo-prop", "bar-prop"], // ensure not re-ordered by rename
         );
       });
     });
@@ -564,7 +564,7 @@ describe("compiler: projections: logic", () => {
 
       deepStrictEqual(
         Array.from(result.variants.values()).map((o) => o.name),
-        ["barProp", "bazProp"] // ensure not re-ordered by rename
+        ["barProp", "bazProp"], // ensure not re-ordered by rename
       );
     });
 
@@ -625,12 +625,12 @@ describe("compiler: projections: logic", () => {
             return { x: self::parameters, y: self::returnType };
           }
         }
-        `
+        `,
       );
       const { Foo } = (await testHost.compile("main.tsp")) as { Foo: Operation };
       const result = testHost.program.checker.project(
         Foo,
-        Foo.projections.find((x) => x.id.sv === "test")!.to!
+        Foo.projections.find((x) => x.id.sv === "test")!.to!,
       ) as Model;
       strictEqual(result.properties.get("x")!.type.kind, "Model");
       strictEqual(result.properties.get("y")!.type.kind, "Intrinsic");
@@ -706,7 +706,7 @@ describe("compiler: projections: logic", () => {
 
       deepStrictEqual(
         Array.from(FooProj.operations.values()).map((o) => o.name),
-        ["op1_renamed", "op2"] // ensure not re-ordered by rename
+        ["op1_renamed", "op2"], // ensure not re-ordered by rename
       );
     });
   });
@@ -762,7 +762,7 @@ describe("compiler: projections: logic", () => {
       strictEqual(newMember.name, "mewone");
       deepStrictEqual(
         Array.from(result.members.values()).map((o) => o.name),
-        ["mewone", "two"] // ensure not re-ordered by rename
+        ["mewone", "two"], // ensure not re-ordered by rename
       );
     });
 
@@ -796,7 +796,7 @@ describe("compiler: projections: logic", () => {
       projection Foo#test {
         to { self::rename("Bar"); }
       }
-    `
+    `,
     );
     const { Foo } = await testHost.compile("main.tsp");
     const program = testHost.program;
@@ -808,17 +808,17 @@ describe("compiler: projections: logic", () => {
     strictEqual(
       getDoc(projectedProgram, Foo),
       "abc",
-      "Can access state from a non projected type using a projected program"
+      "Can access state from a non projected type using a projected program",
     );
     strictEqual(
       getDoc(program, ProjectedFoo),
       "abc",
-      "Can access state from a projected type using the original program"
+      "Can access state from a projected type using the original program",
     );
     strictEqual(
       getDoc(projectedProgram, ProjectedFoo),
       "abc",
-      "Can access state from a projected type using a projected program"
+      "Can access state from a projected type using a projected program",
     );
   });
 
@@ -906,7 +906,7 @@ describe("compiler: projections: logic", () => {
               
             }
           }
-       `
+       `,
         );
         await testHost.compile("main.tsp");
         run = 0; // reset we only intrested after projection
@@ -929,7 +929,7 @@ describe("compiler: projections: logic", () => {
 
           model Instance {prop: Foo<string>};
         `,
-          1
+          1,
         );
       });
 
@@ -942,7 +942,7 @@ describe("compiler: projections: logic", () => {
           }
           model Instance {prop: Foo<string>};
         `,
-          1
+          1,
         );
       });
 
@@ -956,7 +956,7 @@ describe("compiler: projections: logic", () => {
 
           op instance is foo<string>;
         `,
-          1
+          1,
         );
       });
     });
@@ -980,7 +980,7 @@ describe("compiler: projections: logic", () => {
               
             }
           }
-       `
+       `,
       );
       await testHost.compile("main.tsp");
       createProjector(testHost.program, [
@@ -1015,7 +1015,7 @@ describe("compiler: projections: logic", () => {
         projectionName: "test",
       },
     ],
-    startNode?: Type
+    startNode?: Type,
   ): Promise<Type> {
     testHost.addTypeSpecFile("main.tsp", code);
     const { Foo } = await testHost.compile("main.tsp");
@@ -1027,7 +1027,7 @@ describe("compiler: projections: logic", () => {
 function projection(
   projectionName: string,
   args: DecoratorArgumentValue[] | DecoratorArgumentValue = [],
-  direction: "to" | "from" = "to"
+  direction: "to" | "from" = "to",
 ): ProjectionApplication {
   return {
     arguments: Array.isArray(args) ? args : [args],

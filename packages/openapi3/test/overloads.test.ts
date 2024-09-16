@@ -15,7 +15,7 @@ describe("openapi3: overloads", () => {
         op uploadString(data: string, @header contentType: "text/plain" ): void;
         @overload(upload)
         op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
-      `
+      `,
       );
     });
 
@@ -44,7 +44,7 @@ describe("openapi3: overloads", () => {
         @overload(upload)
         @route("/uploadBytes")
         op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
-      `
+      `,
       );
     });
 
@@ -86,7 +86,7 @@ describe("openapi3: overloads", () => {
         op uploadString(data: string, @header contentType: "text/plain" ): void;
         @overload(upload)
         op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
-      `
+      `,
       );
     });
 

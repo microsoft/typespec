@@ -9,7 +9,7 @@ import { dumpAST } from "./ast-test-utils.js";
 describe("compiler: parser utils", () => {
   describe("getNodeAtPosition", () => {
     async function getNodeAtCursor(
-      sourceWithCursor: string
+      sourceWithCursor: string,
     ): Promise<{ root: TypeSpecScriptNode; node: Node | undefined }> {
       const { source, pos } = extractCursor(sourceWithCursor);
       const root = parse(source);

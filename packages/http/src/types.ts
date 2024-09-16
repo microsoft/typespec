@@ -258,7 +258,7 @@ export type OperationContainer = Namespace | Interface;
 
 export type OperationVerbSelector = (
   program: Program,
-  operation: Operation
+  operation: Operation,
 ) => HttpVerb | undefined;
 
 export interface OperationParameterOptions {
@@ -286,7 +286,7 @@ export type RouteProducer = (
   operation: Operation,
   parentSegments: string[],
   overloadBase: HttpOperation | undefined,
-  options: RouteOptions
+  options: RouteOptions,
 ) => DiagnosticResult<RouteProducerResult>;
 
 export interface HeaderFieldOptions {

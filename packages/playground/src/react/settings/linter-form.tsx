@@ -60,7 +60,7 @@ const RuleSetCheckbox = ({ ruleSet, checked, onChange }: RuleSetCheckbox) => {
     (_: any, data: CheckboxOnChangeData) => {
       onChange(ruleSet, !!data.checked);
     },
-    [ruleSet, onChange]
+    [ruleSet, onChange],
   );
   return <Checkbox label={ruleSet} checked={checked} onChange={handleChange} />;
 };

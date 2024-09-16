@@ -18,7 +18,7 @@ describe("compiler: enums", () => {
       @test enum E {
         A, B, C
       }
-      `
+      `,
     );
 
     const { E } = (await testHost.compile("./")) as {
@@ -40,7 +40,7 @@ describe("compiler: enums", () => {
         @test("B") B: "b";
         @test("C") C: "c";
       }
-      `
+      `,
     );
 
     const { E, A, B, C } = (await testHost.compile("./")) as {
@@ -65,7 +65,7 @@ describe("compiler: enums", () => {
       @test model Foo {
         prop: E;
       }
-      `
+      `,
     );
 
     const { Foo } = (await testHost.compile("./")) as {
@@ -81,7 +81,7 @@ describe("compiler: enums", () => {
       "main.tsp",
       `
       enum A { A, A }
-      `
+      `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
@@ -102,7 +102,7 @@ describe("compiler: enums", () => {
         ...Bar,
         Three: "3"
       }
-      `
+      `,
     );
 
     const { Foo, Bar } = (await testHost.compile("main.tsp")) as {
@@ -148,7 +148,7 @@ describe("compiler: enums", () => {
           a, b
         }
       }
-      `
+      `,
     );
 
     await testHost.compile("./");
@@ -166,7 +166,7 @@ describe("compiler: enums", () => {
       @test enum Spread {...Base}
 
       @@doc(Spread.one, "override for spread");
-      `
+      `,
     );
     const { Base, Spread } = (await testHost.compile("main.tsp")) as {
       Base: Enum;

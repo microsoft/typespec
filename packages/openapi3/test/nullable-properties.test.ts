@@ -12,7 +12,7 @@ describe("openapi3: nullable properties", () => {
           properties: Thing | null;
         }
         op doStuff(): Thing;
-        `
+        `,
     );
     deepStrictEqual(res.components.schemas.Thing.properties.properties, {
       type: "object",
@@ -32,7 +32,7 @@ describe("openapi3: nullable properties", () => {
         model X {
           prop: A | null
         }
-        `
+        `,
     );
     deepStrictEqual(res.schemas.X.properties.prop.oneOf, [
       {
@@ -51,7 +51,7 @@ describe("openapi3: nullable properties", () => {
         }
         
         op test(filters: ${ref}): {}[];
-        `
+        `,
       );
       expect(res.components.schemas.Test.properties.children).toEqual(value);
     }

@@ -40,7 +40,7 @@ export class TypeSpecBundledPackageUploader {
           key,
           this.#container.url + "/" + normalizePath(join(manifest.name, manifest.version, value)),
         ];
-      })
+      }),
     );
     const created = await this.#uploadManifest(manifest);
     if (!created) {
@@ -78,7 +78,7 @@ export class TypeSpecBundledPackageUploader {
   async #uploadManifest(manifest: BundleManifest) {
     try {
       const blob = this.#container.getBlockBlobClient(
-        normalizePath(join(manifest.name, manifest.version, "manifest.json"))
+        normalizePath(join(manifest.name, manifest.version, "manifest.json")),
       );
       const content = JSON.stringify(manifest);
       await blob.upload(content, content.length, {
@@ -100,7 +100,7 @@ export class TypeSpecBundledPackageUploader {
 
   async #uploadJsFile(pkgName: string, version: string, file: TypeSpecBundleFile) {
     const blob = this.#container.getBlockBlobClient(
-      normalizePath(join(pkgName, version, file.filename))
+      normalizePath(join(pkgName, version, file.filename)),
     );
     await blob.uploadData(Buffer.from(file.content), {
       blobHTTPHeaders: {
@@ -115,11 +115,11 @@ export class TypeSpecBundledPackageUploader {
 
 function getCoverageContainer(
   storageAccountName: string,
-  credential?: StorageSharedKeyCredential | AnonymousCredential | TokenCredential
+  credential?: StorageSharedKeyCredential | AnonymousCredential | TokenCredential,
 ): ContainerClient {
   const blobSvc = new BlobServiceClient(
     `https://${storageAccountName}.blob.core.windows.net`,
-    credential
+    credential,
   );
   const containerClient = blobSvc.getContainerClient(pkgsContainer);
   return containerClient;

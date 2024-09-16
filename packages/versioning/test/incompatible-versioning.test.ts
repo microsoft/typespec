@@ -127,7 +127,7 @@ describe("versioning: validate incompatible references", () => {
         model Foo {}
 
         op test(param: string, @added(Versions.v2) newParam: Foo): void;
-      `)
+      `),
       );
     });
 
@@ -699,7 +699,7 @@ describe("versioning: validate incompatible references", () => {
         interface Ops<T extends {}> {
           get(): T[];
         }
-        `
+        `,
       );
     });
     it("emit diagnostic when extending interface with versioned type argument from unversioned interface", async () => {
@@ -710,7 +710,7 @@ describe("versioning: validate incompatible references", () => {
           id: string;
         }
         interface WidgetService extends Lib.Ops<Widget> {}
-        `
+        `,
       );
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
@@ -729,7 +729,7 @@ describe("versioning: validate incompatible references", () => {
       
         @added(Versions.v1)
         interface WidgetService extends Lib.Ops<Widget> {}
-      `
+      `,
       );
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
@@ -748,7 +748,7 @@ describe("versioning: validate incompatible references", () => {
       
         @added(Versions.v2)
         interface WidgetService extends Lib.Ops<Widget> {}
-      `
+      `,
       );
       expectDiagnosticEmpty(diagnostics);
     });

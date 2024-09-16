@@ -65,7 +65,7 @@ export function emitTypeReference(
   type: Type,
   position: DiagnosticTarget | typeof NoTarget,
   module: Module,
-  options: EmitTypeReferenceOptions = {}
+  options: EmitTypeReferenceOptions = {},
 ): string {
   switch (type.kind) {
     case "Scalar":
@@ -144,7 +144,7 @@ export function emitTypeReference(
             ? effectiveModel
                 .templateMapper!.args.map((a) => ("name" in a ? String(a.name) : ""))
                 .join("_") + effectiveModel.name
-            : effectiveModel.name
+            : effectiveModel.name,
       );
 
       if (!effectiveModel.namespace) {
@@ -245,7 +245,7 @@ export function emitTypeReference(
           compilerAssert(
             false,
             "ErrorType should not be encountered in emitTypeReference",
-            position === NoTarget ? type : position
+            position === NoTarget ? type : position,
           );
           return "unknown";
         case "unknown":

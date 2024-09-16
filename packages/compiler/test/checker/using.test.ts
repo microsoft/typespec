@@ -21,21 +21,21 @@ describe("compiler: using statements", () => {
       `
       import "./a.tsp";
       import "./b.tsp";
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "a.tsp",
       `
       namespace N;
       model X { x: int32 }
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "b.tsp",
       `
       using N;
       @test model Y { ... X }
-      `
+      `,
     );
 
     const { Y } = (await testHost.compile("./")) as {
@@ -51,14 +51,14 @@ describe("compiler: using statements", () => {
       `
       import "./a.tsp";
       import "./b.tsp";
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "a.tsp",
       `
       namespace N;
       model X { x: int32 }
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "b.tsp",
@@ -66,7 +66,7 @@ describe("compiler: using statements", () => {
       namespace Z;
       using N;
       @test model Y { ... X }
-      `
+      `,
     );
 
     const { Y } = (await testHost.compile("./")) as {
@@ -82,21 +82,21 @@ describe("compiler: using statements", () => {
       `
       import "./a.tsp";
       import "./b.tsp";
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "a.tsp",
       `
       namespace N.M;
       model X { x: int32 }
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "b.tsp",
       `
       using N.M;
       @test model Y { ... X }
-      `
+      `,
     );
 
     const { Y } = (await testHost.compile("./")) as {
@@ -112,21 +112,21 @@ describe("compiler: using statements", () => {
       `
       import "./a.tsp";
       import "./b.tsp";
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "a.tsp",
       `
       namespace TypeSpec.Xyz;
       model X { x: int32 }
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "b.tsp",
       `
       using Xyz;
       @test model Y { ... X }
-      `
+      `,
     );
 
     const { Y } = (await testHost.compile("./")) as {
@@ -142,7 +142,7 @@ describe("compiler: using statements", () => {
       `
       import "./a.tsp";
       import "./b.tsp";
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "a.tsp",
@@ -154,7 +154,7 @@ describe("compiler: using statements", () => {
       namespace M.A {
         model B { }
       }
-      `
+      `,
     );
 
     testHost.addTypeSpecFile(
@@ -162,7 +162,7 @@ describe("compiler: using statements", () => {
       `
       using N.A;
       using M.A;
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("./");
@@ -175,14 +175,14 @@ describe("compiler: using statements", () => {
       `
       import "./a.tsp";
       import "./b.tsp";
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "a.tsp",
       `
       namespace N.M;
       model X { x: int32 }
-      `
+      `,
     );
 
     testHost.addTypeSpecFile(
@@ -190,7 +190,7 @@ describe("compiler: using statements", () => {
       `
       using N.M;
       using N.M;
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("./");
@@ -205,7 +205,7 @@ describe("compiler: using statements", () => {
       `
       import "./a.tsp";
       import "./b.tsp";
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "a.tsp",
@@ -217,7 +217,7 @@ describe("compiler: using statements", () => {
       namespace M {
         model A { }
       }
-      `
+      `,
     );
 
     testHost.addTypeSpecFile(
@@ -225,7 +225,7 @@ describe("compiler: using statements", () => {
       `
       using N;
       using M;
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("./");
@@ -238,7 +238,7 @@ describe("compiler: using statements", () => {
       `
       import "./a.tsp";
       import "./b.tsp";
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "a.tsp",
@@ -250,7 +250,7 @@ describe("compiler: using statements", () => {
       namespace M {
         model A { }
       }
-      `
+      `,
     );
 
     testHost.addTypeSpecFile(
@@ -260,7 +260,7 @@ describe("compiler: using statements", () => {
       using M;
 
       model B extends A {}
-      `
+      `,
     );
     const diagnostics = await testHost.diagnose("./", { nostdlib: true });
     expectDiagnostics(diagnostics, [
@@ -278,7 +278,7 @@ describe("compiler: using statements", () => {
       `
       import "./a.tsp";
       import "./b.tsp";
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "a.tsp",
@@ -288,7 +288,7 @@ describe("compiler: using statements", () => {
       using B;
       
       model Q extends M {}
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "b.tsp",
@@ -296,7 +296,7 @@ describe("compiler: using statements", () => {
       namespace B {
         model M { }
       }
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("./", { nostdlib: true });
@@ -324,7 +324,7 @@ describe("compiler: using statements", () => {
 
       @doc
       namespace Foo {}
-      `
+      `,
     );
 
     testHost.addJsFile("doc.js", {
@@ -356,7 +356,7 @@ describe("compiler: using statements", () => {
 
       @doc
       namespace Foo {}
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("./");
@@ -377,7 +377,7 @@ describe("compiler: using statements", () => {
       import "./a.tsp";
       import "./ambiguous.tsp";
       import "./notambiguous.tsp";
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "a.tsp",
@@ -389,7 +389,7 @@ describe("compiler: using statements", () => {
       namespace M {
         model A { }
       }
-      `
+      `,
     );
 
     testHost.addTypeSpecFile(
@@ -399,7 +399,7 @@ describe("compiler: using statements", () => {
       using M;
 
       model Ambiguous extends A {}
-      `
+      `,
     );
 
     testHost.addTypeSpecFile(
@@ -408,7 +408,7 @@ describe("compiler: using statements", () => {
       using N;
 
       model NotAmbiguous extends A {}
-      `
+      `,
     );
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
@@ -427,14 +427,14 @@ describe("compiler: using statements", () => {
       `
       import "./a.tsp";
       import "./b.tsp";
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "a.tsp",
       `
       namespace N;
       model A { a: string }
-      `
+      `,
     );
 
     testHost.addTypeSpecFile(
@@ -445,7 +445,7 @@ describe("compiler: using statements", () => {
         model A { a: int32 | string }
         @test model B { ... A }
       }
-      `
+      `,
     );
 
     const { B } = (await testHost.compile("./")) as {
@@ -461,14 +461,14 @@ describe("compiler: using statements", () => {
       `
       import "./a.tsp";
       import "./b.tsp";
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "a.tsp",
       `
       namespace N;
       model A { a: string }
-      `
+      `,
     );
 
     testHost.addTypeSpecFile(
@@ -481,7 +481,7 @@ describe("compiler: using statements", () => {
       namespace M {
         model X { a: A };
       }
-      `
+      `,
     );
 
     await rejects(testHost.compile("./"));
@@ -492,7 +492,7 @@ describe("compiler: using statements", () => {
       `
       namespace Foo;
       model test { x: int32 };
-    `
+    `,
     );
 
     await testHost.compile("./");
@@ -508,7 +508,7 @@ describe("compiler: using statements", () => {
       model Thing {
         other: OtherModel;
       }
-    `
+    `,
     );
     testHost.addTypeSpecFile(
       "other.tsp",
@@ -517,7 +517,7 @@ describe("compiler: using statements", () => {
 
       model OtherModel {
       }
-    `
+    `,
     );
     await testHost.compile("./");
   });
@@ -537,7 +537,7 @@ describe("compiler: using statements", () => {
           `
           using Target;
           ${code}
-        `
+        `,
         );
 
         const diagnostics = await testHost.diagnose("./");

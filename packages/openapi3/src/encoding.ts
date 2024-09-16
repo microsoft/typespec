@@ -8,7 +8,7 @@ export function applyEncoding(
   program: Program,
   typespecType: Scalar | ModelProperty,
   target: OpenAPI3Schema,
-  options: ResolvedOpenAPI3EmitterOptions
+  options: ResolvedOpenAPI3EmitterOptions,
 ): OpenAPI3Schema {
   const encodeData = getEncode(program, typespecType);
   if (encodeData) {
@@ -19,7 +19,7 @@ export function applyEncoding(
     newTarget.format = mergeFormatAndEncoding(
       newTarget.format,
       encodeData.encoding,
-      newType.format
+      newType.format,
     );
     return newTarget;
   }
@@ -29,7 +29,7 @@ export function applyEncoding(
 function mergeFormatAndEncoding(
   format: string | undefined,
   encoding: string | undefined,
-  encodeAsFormat: string | undefined
+  encodeAsFormat: string | undefined,
 ): string | undefined {
   switch (format) {
     case undefined:

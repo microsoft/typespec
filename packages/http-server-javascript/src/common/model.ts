@@ -28,7 +28,7 @@ export function* emitModel(
   ctx: JsContext,
   model: Model,
   module: Module,
-  altName?: string
+  altName?: string,
 ): Iterable<string> {
   const isTemplate = isTemplateInstance(model);
   const friendlyName = getFriendlyName(ctx.program, model);
@@ -43,7 +43,7 @@ export function* emitModel(
       : isTemplate
         ? model.templateMapper!.args.map((a) => ("name" in a ? String(a.name) : "")).join("_") +
           model.name
-        : model.name
+        : model.name,
   );
 
   if (model.name === "" && !altName) {
@@ -115,7 +115,7 @@ export function emitWellKnownModel(
   ctx: JsContext,
   type: Model,
   module: Module,
-  preferredAlternativeName?: string
+  preferredAlternativeName?: string,
 ): string {
   const arg = type.indexer!.value;
   switch (type.name) {
@@ -128,7 +128,7 @@ export function emitWellKnownModel(
       return asArrayType(
         emitTypeReference(ctx, arg, type, module, {
           altName: preferredAlternativeName && getArrayElementName(preferredAlternativeName),
-        })
+        }),
       );
     }
     default:

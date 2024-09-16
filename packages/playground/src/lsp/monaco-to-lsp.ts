@@ -8,7 +8,7 @@ function textDocumentForModel(model: monaco.editor.IModel): TextDocument {
     model.uri.toString(),
     "typespec",
     model.getVersionId(),
-    model.getValue()
+    model.getValue(),
   );
 }
 
@@ -28,7 +28,7 @@ function range(range: monaco.IRange): lsp.Range {
     {
       line: range.endLineNumber - 1,
       character: range.endColumn - 1,
-    }
+    },
   );
 }
 
