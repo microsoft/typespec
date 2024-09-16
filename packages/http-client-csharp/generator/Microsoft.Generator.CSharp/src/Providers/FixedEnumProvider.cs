@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -26,10 +25,17 @@ namespace Microsoft.Generator.CSharp.Providers
             _allowedValues = input.Values;
             // fixed enums are implemented by enum in C#
             _modifiers = TypeSignatureModifiers.Enum;
-            if (input.Accessibility == "internal")
+
+            var customCodeModifiers = GetCustomCodeModifiers();
+            if (customCodeModifiers != TypeSignatureModifiers.None)
+            {
+                _modifiers |= customCodeModifiers;
+            }
+            else if (input.Accessibility == "internal")
             {
                 _modifiers |= TypeSignatureModifiers.Internal;
             }
+
             _isApiVersionEnum = input.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum);
             DeclaringTypeProvider = declaringType;
         }
@@ -90,6 +96,5 @@ namespace Microsoft.Generator.CSharp.Providers
             => EnumValues.Select(v => v.Field).ToArray();
 
         protected override bool GetIsEnum() => true;
-        protected override CSharpType BuildEnumUnderlyingType() => CodeModelPlugin.Instance.TypeFactory.CreatePrimitiveCSharpType(_inputType.ValueType);
     }
 }

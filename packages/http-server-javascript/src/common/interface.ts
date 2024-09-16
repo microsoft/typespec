@@ -37,7 +37,7 @@ export function* emitInterface(ctx: JsContext, iface: Interface, module: Module)
 export function* emitOperationGroup(
   ctx: JsContext,
   operations: Iterable<Operation>,
-  module: Module
+  module: Module,
 ): Iterable<string> {
   for (const op of operations) {
     yield* emitOperation(ctx, op, module);
@@ -115,7 +115,7 @@ export function emitOptionsType(
   ctx: JsContext,
   operation: Operation,
   module: Module,
-  optionsTypeName: string
+  optionsTypeName: string,
 ) {
   module.imports.push({
     binder: [optionsTypeName],
@@ -170,7 +170,7 @@ export function splitReturnType(
   ctx: JsContext,
   type: Type,
   module: Module,
-  altBaseName: string
+  altBaseName: string,
 ): [SplitReturnType, SplitReturnType] {
   const successAltName = altBaseName + "Response";
   const errorAltName = altBaseName + "ErrorResponse";
@@ -178,7 +178,7 @@ export function splitReturnType(
   if (type.kind === "Union") {
     const [successVariants, errorVariants] = bifilter(
       type.variants.values(),
-      (v) => !isErrorModel(ctx.program, v.type)
+      (v) => !isErrorModel(ctx.program, v.type),
     );
 
     const successTypeReference =

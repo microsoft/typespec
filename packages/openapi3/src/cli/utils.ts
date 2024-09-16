@@ -2,7 +2,7 @@ import { NodeHost } from "@typespec/compiler";
 import { CliHost, CliHostArgs, Logger } from "./types.js";
 
 export function withCliHost<T extends CliHostArgs>(
-  fn: (host: CliHost, args: T) => void | Promise<void>
+  fn: (host: CliHost, args: T) => void | Promise<void>,
 ): (args: T) => void | Promise<void> {
   return (args: T) => {
     const host = createCliHost();

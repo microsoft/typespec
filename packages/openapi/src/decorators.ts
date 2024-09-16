@@ -32,7 +32,7 @@ const operationIdsKey = createStateSymbol("operationIds");
 export const $operationId: OperationIdDecorator = (
   context: DecoratorContext,
   entity: Operation,
-  opId: string
+  opId: string,
 ) => {
   context.program.stateMap(operationIdsKey).set(entity, opId);
 };
@@ -51,7 +51,7 @@ export const $extension: ExtensionDecorator = (
   context: DecoratorContext,
   entity: Type,
   extensionName: string,
-  value: TypeSpecValue
+  value: TypeSpecValue,
 ) => {
   if (!isOpenAPIExtensionKey(extensionName)) {
     reportDiagnostic(context.program, {
@@ -77,7 +77,7 @@ export const $extension: ExtensionDecorator = (
 export function setInfo(
   program: Program,
   entity: Namespace,
-  data: AdditionalInfo & Record<ExtensionKey, unknown>
+  data: AdditionalInfo & Record<ExtensionKey, unknown>,
 ) {
   program.stateMap(infoKey).set(entity, data);
 }
@@ -93,7 +93,7 @@ export function setExtension(
   program: Program,
   entity: Type,
   extensionName: ExtensionKey,
-  data: unknown
+  data: unknown,
 ) {
   const openApiExtensions = program.stateMap(openApiExtensionKey);
   const typeExtensions = openApiExtensions.get(entity) ?? new Map<string, any>();
@@ -123,9 +123,9 @@ const defaultResponseKey = createStateSymbol("defaultResponse");
 /** {@inheritdoc DefaultResponseDecorator} */
 export const $defaultResponse: DefaultResponseDecorator = (
   context: DecoratorContext,
-  entity: Model
+  entity: Model,
 ) => {
-  // eslint-disable-next-line deprecation/deprecation
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   setStatusCode(context.program, entity, ["*"]);
   context.program.stateSet(defaultResponseKey).add(entity);
 };
@@ -151,7 +151,7 @@ export const $externalDocs: ExternalDocsDecorator = (
   context: DecoratorContext,
   target: Type,
   url: string,
-  description?: string
+  description?: string,
 ) => {
   const doc: ExternalDocs = { url };
   if (description) {
@@ -175,11 +175,11 @@ const infoKey = createStateSymbol("info");
 export const $info: InfoDecorator = (
   context: DecoratorContext,
   entity: Namespace,
-  model: TypeSpecValue
+  model: TypeSpecValue,
 ) => {
   const [data, diagnostics] = typespecTypeToJson<AdditionalInfo & Record<ExtensionKey, unknown>>(
     model,
-    context.getArgumentTarget(0)!
+    context.getArgumentTarget(0)!,
   );
   context.program.reportDiagnostics(diagnostics);
   if (data === undefined) {
@@ -204,7 +204,7 @@ export function resolveInfo(program: Program, entity: Namespace): AdditionalInfo
   return omitUndefined({
     ...info,
     title: info?.title ?? service?.title,
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     version: info?.version ?? service?.version,
     summary: info?.summary ?? getSummary(program, entity),
     description: info?.description ?? getDoc(program, entity),

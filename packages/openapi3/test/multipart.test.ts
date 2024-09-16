@@ -8,7 +8,7 @@ it("create dedicated model for multipart", async () => {
     `
     model Form { name: HttpPart<string>, profileImage: HttpPart<bytes> }
     op upload(@header contentType: "multipart/form-data", @multipartBody body: Form): void;
-    `
+    `,
   );
   const op = res.paths["/"].post;
   deepStrictEqual(op.requestBody.content["multipart/form-data"], {
@@ -22,7 +22,7 @@ it("part of type `bytes` produce `type: string, format: binary`", async () => {
   const res = await openApiFor(
     `
     op upload(@header contentType: "multipart/form-data", @multipartBody body: { profileImage: HttpPart<bytes> }): void;
-    `
+    `,
   );
   const op = res.paths["/"].post;
   deepStrictEqual(op.requestBody.content["multipart/form-data"], {
@@ -43,7 +43,7 @@ it("part of type union `HttpPart<bytes | {content: bytes}>` produce `type: strin
   const res = await openApiFor(
     `
     op upload(@header contentType: "multipart/form-data", @multipartBody _: {profileImage: HttpPart<bytes | {content: bytes}>}): void;
-    `
+    `,
   );
   const op = res.paths["/"].post;
   deepStrictEqual(op.requestBody.content["multipart/form-data"], {
@@ -80,7 +80,7 @@ it("part of type `bytes[]` produce `type: array, items: {type: string, format: b
   const res = await openApiFor(
     `
     op upload(@header contentType: "multipart/form-data",  @multipartBody _: { profileImage: HttpPart<bytes>[]}): void;
-    `
+    `,
   );
   const op = res.paths["/"].post;
   deepStrictEqual(op.requestBody.content["multipart/form-data"], {
@@ -101,7 +101,7 @@ it("part of type `string` produce `type: string`", async () => {
   const res = await openApiFor(
     `
     op upload(@header contentType: "multipart/form-data", @multipartBody _: { name: HttpPart<string> }): void;
-    `
+    `,
   );
   const op = res.paths["/"].post;
   deepStrictEqual(op.requestBody.content["multipart/form-data"], {
@@ -121,7 +121,7 @@ it("part of type `object` produce an object", async () => {
   const res = await openApiFor(
     `
     op upload(@header contentType: "multipart/form-data",  @multipartBody _: { address: HttpPart<{city: string, street: string}>}): void;
-    `
+    `,
   );
   const op = res.paths["/"].post;
   deepStrictEqual(op.requestBody.content["multipart/form-data"], {
@@ -150,7 +150,7 @@ it("bytes inside a json part will be treated as base64 encoded by default(same a
   const res = await openApiFor(
     `
     op upload(@header contentType: "multipart/form-data", @multipartBody _: { address: HttpPart<{city: string, icon: bytes}> }): void;
-    `
+    `,
   );
   const op = res.paths["/"].post;
   deepStrictEqual(
@@ -158,7 +158,7 @@ it("bytes inside a json part will be treated as base64 encoded by default(same a
     {
       type: "string",
       format: "byte",
-    }
+    },
   );
 });
 
@@ -198,7 +198,7 @@ describe("part mapping", () => {
       const res = await openApiFor(
         `
       op upload(@header contentType: "multipart/form-data", @multipartBody _: { part: HttpPart<${type}> }): void;
-      `
+      `,
       );
       const content = res.paths["/"].post.requestBody.content["multipart/form-data"];
       expect(content.schema.properties.part).toEqual(expectedSchema);
@@ -206,7 +206,7 @@ describe("part mapping", () => {
       if (expectedEncoding || content.encoding?.part) {
         expect(content.encoding?.part).toEqual(expectedEncoding);
       }
-    }
+    },
   );
 });
 
@@ -216,7 +216,7 @@ describe("legacy implicit form", () => {
       `
       model Form { @header contentType: "multipart/form-data", name: string, profileImage: bytes }
       op upload(...Form): void;
-      `
+      `,
     );
     const op = res.paths["/"].post;
     deepStrictEqual(op.requestBody.content["multipart/form-data"], {
@@ -230,7 +230,7 @@ describe("legacy implicit form", () => {
     const res = await openApiFor(
       `
       op upload(@header contentType: "multipart/form-data", profileImage: bytes): void;
-      `
+      `,
     );
     const op = res.paths["/"].post;
     deepStrictEqual(op.requestBody.content["multipart/form-data"], {
@@ -251,7 +251,7 @@ describe("legacy implicit form", () => {
     const res = await openApiFor(
       `
       op upload(@header contentType: "multipart/form-data", profileImage: bytes | {content: bytes}): void;
-      `
+      `,
     );
     const op = res.paths["/"].post;
     deepStrictEqual(op.requestBody.content["multipart/form-data"], {
@@ -284,7 +284,7 @@ describe("legacy implicit form", () => {
       `
       union  MyUnion {string, int32}
       op upload(@header contentType: "multipart/form-data", profileImage: MyUnion): void;
-      `
+      `,
     );
     const op = res.paths["/"].post;
     deepStrictEqual(op.requestBody.content["multipart/form-data"], {
@@ -304,7 +304,7 @@ describe("legacy implicit form", () => {
     const res = await openApiFor(
       `
       op upload(@header contentType: "multipart/form-data", profileImage: bytes[]): void;
-      `
+      `,
     );
     const op = res.paths["/"].post;
     deepStrictEqual(op.requestBody.content["multipart/form-data"], {
@@ -325,7 +325,7 @@ describe("legacy implicit form", () => {
     const res = await openApiFor(
       `
       op upload(@header contentType: "multipart/form-data", name: string): void;
-      `
+      `,
     );
     const op = res.paths["/"].post;
     deepStrictEqual(op.requestBody.content["multipart/form-data"], {
@@ -345,7 +345,7 @@ describe("legacy implicit form", () => {
     const res = await openApiFor(
       `
       op upload(@header contentType: "multipart/form-data", address: {city: string, street: string}): void;
-      `
+      `,
     );
     const op = res.paths["/"].post;
     deepStrictEqual(op.requestBody.content["multipart/form-data"], {
@@ -374,7 +374,7 @@ describe("legacy implicit form", () => {
     const res = await openApiFor(
       `
       op upload(@header contentType: "multipart/form-data", address: {city: string, icon: bytes}): void;
-      `
+      `,
     );
     const op = res.paths["/"].post;
     deepStrictEqual(
@@ -382,7 +382,7 @@ describe("legacy implicit form", () => {
       {
         type: "string",
         format: "byte",
-      }
+      },
     );
   });
 
@@ -398,7 +398,7 @@ describe("legacy implicit form", () => {
         @get listFiles(purpose: FilePurpose): string;
         @post uploadFile(@header contentType: "multipart/form-data", purpose: FilePurpose): string;
       }
-      `
+      `,
     );
     deepStrictEqual(res.components.schemas.FilePurpose, { type: "string", enum: ["one", "two"] });
   });

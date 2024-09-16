@@ -167,9 +167,8 @@ public final class BodyOptionalityClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> requiredImplicit(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") BinaryData requiredImplicitRequest, RequestOptions requestOptions,
-            Context context);
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData bodyModel,
+            RequestOptions requestOptions, Context context);
 
         @Post("/parameters/body-optionality/required-implicit")
         @ExpectedResponses({ 204 })
@@ -178,9 +177,8 @@ public final class BodyOptionalityClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> requiredImplicitSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") BinaryData requiredImplicitRequest, RequestOptions requestOptions,
-            Context context);
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData bodyModel,
+            RequestOptions requestOptions, Context context);
     }
 
     /**
@@ -242,7 +240,7 @@ public final class BodyOptionalityClientImpl {
      * }
      * }</pre>
      * 
-     * @param requiredImplicitRequest The requiredImplicitRequest parameter.
+     * @param bodyModel The bodyModel parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -251,11 +249,10 @@ public final class BodyOptionalityClientImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> requiredImplicitWithResponseAsync(BinaryData requiredImplicitRequest,
-        RequestOptions requestOptions) {
+    public Mono<Response<Void>> requiredImplicitWithResponseAsync(BinaryData bodyModel, RequestOptions requestOptions) {
         final String contentType = "application/json";
-        return FluxUtil.withContext(context -> service.requiredImplicit(this.getEndpoint(), contentType,
-            requiredImplicitRequest, requestOptions, context));
+        return FluxUtil.withContext(
+            context -> service.requiredImplicit(this.getEndpoint(), contentType, bodyModel, requestOptions, context));
     }
 
     /**
@@ -268,7 +265,7 @@ public final class BodyOptionalityClientImpl {
      * }
      * }</pre>
      * 
-     * @param requiredImplicitRequest The requiredImplicitRequest parameter.
+     * @param bodyModel The bodyModel parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -277,10 +274,8 @@ public final class BodyOptionalityClientImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> requiredImplicitWithResponse(BinaryData requiredImplicitRequest,
-        RequestOptions requestOptions) {
+    public Response<Void> requiredImplicitWithResponse(BinaryData bodyModel, RequestOptions requestOptions) {
         final String contentType = "application/json";
-        return service.requiredImplicitSync(this.getEndpoint(), contentType, requiredImplicitRequest, requestOptions,
-            Context.NONE);
+        return service.requiredImplicitSync(this.getEndpoint(), contentType, bodyModel, requestOptions, Context.NONE);
     }
 }

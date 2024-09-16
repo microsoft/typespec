@@ -32,7 +32,7 @@ export const namespace = "TypeSpec.Versioning";
 function checkIsVersion(
   program: Program,
   enumMember: EnumMember,
-  diagnosticTarget: DiagnosticTarget
+  diagnosticTarget: DiagnosticTarget,
 ): Version | undefined {
   const version = getVersionForEnumMember(program, enumMember);
 
@@ -58,7 +58,7 @@ export const $added: AddedDecorator = (
     | UnionVariant
     | Scalar
     | Interface,
-  v: EnumMember
+  v: EnumMember,
 ) => {
   const { program } = context;
 
@@ -89,7 +89,7 @@ export function $removed(
     | UnionVariant
     | Scalar
     | Interface,
-  v: EnumMember
+  v: EnumMember,
 ) {
   const { program } = context;
 
@@ -122,7 +122,7 @@ export const $typeChangedFrom: TypeChangedFromDecorator = (
   context: DecoratorContext,
   prop: ModelProperty,
   v: EnumMember,
-  oldType: any
+  oldType: any,
 ) => {
   const { program } = context;
 
@@ -153,7 +153,7 @@ export const $returnTypeChangedFrom: ReturnTypeChangedFromDecorator = (
   context: DecoratorContext,
   op: Operation,
   v: EnumMember,
-  oldReturnType: Type
+  oldReturnType: Type,
 ) => {
   const { program } = context;
 
@@ -188,7 +188,7 @@ export const $renamedFrom: RenamedFromDecorator = (
     | Scalar
     | Interface,
   v: EnumMember,
-  oldName: string
+  oldName: string,
 ) => {
   const { program } = context;
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
@@ -215,7 +215,7 @@ export const $renamedFrom: RenamedFromDecorator = (
 export const $madeOptional: MadeOptionalDecorator = (
   context: DecoratorContext,
   t: ModelProperty,
-  v: EnumMember
+  v: EnumMember,
 ) => {
   const { program } = context;
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
@@ -228,7 +228,7 @@ export const $madeOptional: MadeOptionalDecorator = (
 export const $madeRequired: MadeRequiredDecorator = (
   context: DecoratorContext,
   t: ModelProperty,
-  v: EnumMember
+  v: EnumMember,
 ) => {
   const { program } = context;
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
@@ -307,7 +307,7 @@ export class VersionMap {
 export const $versioned: VersionedDecorator = (
   context: DecoratorContext,
   t: Namespace,
-  versions: Enum
+  versions: Enum,
 ) => {
   context.program.stateMap(VersioningStateKeys.versions).set(t, new VersionMap(t, versions));
 };
@@ -321,7 +321,7 @@ export function getVersion(program: Program, namespace: Namespace): VersionMap |
 
 export function findVersionedNamespace(
   program: Program,
-  namespace: Namespace
+  namespace: Namespace,
 ): Namespace | undefined {
   let current: Namespace | undefined = namespace;
 
@@ -375,7 +375,7 @@ export function $useDependency(
 
 function getNamespaceUseDependencyState(
   program: Program,
-  target: Namespace
+  target: Namespace,
 ): Version[] | undefined {
   return program.stateMap(VersioningStateKeys.useDependencyNamespace).get(target);
 }
@@ -383,7 +383,7 @@ function getNamespaceUseDependencyState(
 export function getUseDependencies(
   program: Program,
   target: Namespace | Enum,
-  searchEnum: boolean = true
+  searchEnum: boolean = true,
 ): Map<Namespace, Map<Version, Version> | Version> | undefined {
   const result = new Map<Namespace, Map<Version, Version> | Version>();
   if (target.kind === "Namespace") {
@@ -447,7 +447,7 @@ export function getUseDependencies(
 
 function resolveVersionDependency(
   program: Program,
-  data: Map<EnumMember, Version[]> | Version[]
+  data: Map<EnumMember, Version[]> | Version[],
 ): Map<Version, Version[]> | Version[] {
   if (!(data instanceof Map)) {
     return data;

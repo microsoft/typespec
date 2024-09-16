@@ -58,7 +58,7 @@ export function isService(program: Program, namespace: Namespace): boolean {
 export function addService(
   program: Program,
   namespace: Namespace,
-  details: ServiceDetails = {}
+  details: ServiceDetails = {},
 ): void {
   const serviceMap = getServiceMap(program);
   const existing = serviceMap.get(namespace) ?? {};
@@ -68,7 +68,7 @@ export function addService(
 export const $service: ServiceDecorator = (
   context: DecoratorContext,
   target: Namespace,
-  options?: Type
+  options?: Type,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $service);
 
@@ -99,10 +99,10 @@ export const $service: ServiceDecorator = (
     reportDeprecated(
       context.program,
       "version: property is deprecated in @service. If wanting to describe a service versioning you can use the `@typespec/versioning` library. If wanting to describe the project version you can use the package.json version.",
-      versionProp
+      versionProp,
     );
     if (version.kind === "String") {
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       serviceDetails.version = version.value;
     } else {
       reportDiagnostic(context.program, {

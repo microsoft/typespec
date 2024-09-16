@@ -29,7 +29,7 @@ export function parseYaml(source: string | SourceFile): [YamlScript, readonly Di
 function convertYamlErrorToDiagnostic(
   severity: DiagnosticSeverity,
   error: YAMLError,
-  file: SourceFile
+  file: SourceFile,
 ): Diagnostic {
   return {
     code: `yaml-${error.code.toLowerCase().replace(/_/g, "-")}`,

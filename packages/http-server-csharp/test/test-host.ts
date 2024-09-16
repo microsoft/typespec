@@ -19,7 +19,7 @@ export async function createCSharpServiceEmitterTestHost() {
 }
 
 export async function createCSharpServiceEmitterTestRunner(
-  emitterOptions: CSharpServiceEmitterOptions = { "skip-format": true }
+  emitterOptions: CSharpServiceEmitterOptions = { "skip-format": true },
 ) {
   const host = await createCSharpServiceEmitterTestHost();
 

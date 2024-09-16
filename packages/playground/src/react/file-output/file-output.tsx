@@ -19,7 +19,7 @@ export const FileOutput: FunctionComponent<FileOutputProps> = ({ filename, conte
       [RawFileViewer.key]: RawFileViewer,
       ...viewers,
     }),
-    [viewers]
+    [viewers],
   );
   const keys = Object.keys(resolvedViewers);
 

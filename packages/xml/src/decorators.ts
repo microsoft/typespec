@@ -77,7 +77,7 @@ export function getNs(program: Program, target: Type): XmlNamespace | undefined 
 function getData(
   context: DecoratorContext,
   namespace: Type,
-  prefix?: string
+  prefix?: string,
 ): XmlNamespace | undefined {
   switch (namespace.kind) {
     case "String":

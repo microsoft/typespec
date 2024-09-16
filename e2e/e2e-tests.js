@@ -81,7 +81,7 @@ async function testBasicLatest(packages) {
     ["compile", ".", "--emit", "@typespec/openapi3"],
     {
       cwd: basicLatestDir,
-    }
+    },
   );
   console.log("Completed tsp compile .");
 
@@ -121,7 +121,7 @@ async function testBasicCurrentTgz(packages) {
     ["compile", ".", "--emit", "@typespec/openapi3"],
     {
       cwd: basicCurrentDir,
-    }
+    },
   );
   console.log("Completed tsp compile .");
 

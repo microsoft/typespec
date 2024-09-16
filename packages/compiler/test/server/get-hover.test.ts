@@ -9,7 +9,7 @@ describe("compiler: server: on hover", () => {
       const hover = await getHoverAtCursor(
         `
           scalar myStr┆ing;
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -24,7 +24,7 @@ describe("compiler: server: on hover", () => {
         `
           scalar myString;
           scalar myStringEx extends myStr┆ing;
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -66,7 +66,7 @@ describe("compiler: server: on hover", () => {
           South,
           West,
         }
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -86,7 +86,7 @@ describe("compiler: server: on hover", () => {
           South,
           West,
         }
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -103,7 +103,7 @@ describe("compiler: server: on hover", () => {
         `
           namespace TestNS;
           alias Mix┆ed<T> = string | int16 | Array<T>;
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -119,7 +119,7 @@ describe("compiler: server: on hover", () => {
           namespace TestNS;
           alias myString = string;
           alias myStringEx = myStr┆ing;
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -143,7 +143,7 @@ describe("compiler: server: on hover", () => {
 
           @si┆ngle
           namespace TestNS;
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -210,7 +210,7 @@ describe("compiler: server: on hover", () => {
           
           })
           namespace TestNS;
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -242,7 +242,7 @@ describe("compiler: server: on hover", () => {
           
           })
           namespace TestNS;
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -264,7 +264,7 @@ describe("compiler: server: on hover", () => {
       const hover = await getHoverAtCursor(
         `
           namespace Test┆NS;
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -284,7 +284,7 @@ describe("compiler: server: on hover", () => {
             }
           }
         }
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -303,7 +303,7 @@ describe("compiler: server: on hover", () => {
               name: string;
               age: int16;
           }
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -322,7 +322,7 @@ describe("compiler: server: on hover", () => {
           }
           model Cat is Ani┆mal{
           }
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -342,7 +342,7 @@ describe("compiler: server: on hover", () => {
               name: string;
               age: int16;
           }
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -363,7 +363,7 @@ describe("compiler: server: on hover", () => {
               age: int16;
               tTag: T;
           }
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -384,7 +384,7 @@ describe("compiler: server: on hover", () => {
               age: int16;
               tTag: T;
           }
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -402,7 +402,7 @@ describe("compiler: server: on hover", () => {
           interface IAct┆ions{
               fly(): void;
           }
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -420,7 +420,7 @@ describe("compiler: server: on hover", () => {
           }
           interface IActionsEx extends IAct┆ions{
           }
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -439,7 +439,7 @@ describe("compiler: server: on hover", () => {
           interface IAct┆ions{
             fly(): void;
         }
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -455,7 +455,7 @@ describe("compiler: server: on hover", () => {
       const hover = await getHoverAtCursor(
         `
           op Ea┆t(food: string): void;
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -470,7 +470,7 @@ describe("compiler: server: on hover", () => {
         `
           op Eat(food: string): void;
           op Swallow is Ea┆t;
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -487,7 +487,7 @@ describe("compiler: server: on hover", () => {
           namespace TestNs;
           
           op Ea┆t(food: string): void;
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -504,7 +504,7 @@ describe("compiler: server: on hover", () => {
           namespace TestNs;
           
           op Ea┆t<T>(food: string): void;
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -521,7 +521,7 @@ describe("compiler: server: on hover", () => {
           namespace TestNs;
           
           op Ea┆t<T, P>(food: string): void;
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -540,7 +540,7 @@ describe("compiler: server: on hover", () => {
           interface IActions {
             op Ea┆t<T, P>(food: string): string;
           }
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -559,7 +559,7 @@ describe("compiler: server: on hover", () => {
           interface IActions<Q> {
             op Ea┆t<T, P>(food: string): string;
           }
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -575,7 +575,7 @@ describe("compiler: server: on hover", () => {
       const hover = await getHoverAtCursor(
         `
           const a┆bc = #{ a: 123 };
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -590,7 +590,7 @@ describe("compiler: server: on hover", () => {
         `
           const abc = #{ a: 123 };
           const def = a┆bc;
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {
@@ -610,7 +610,7 @@ describe("compiler: server: on hover", () => {
             name: string;
           }
           const abc : MyModel = #{ na┆me: "hello" };
-        `
+        `,
       );
       deepStrictEqual(hover, {
         contents: {

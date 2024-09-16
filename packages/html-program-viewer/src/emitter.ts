@@ -35,7 +35,7 @@ export function renderProgram(program: Program) {
     createElement(FluentProvider, {
       theme: webLightTheme,
       children: createElement(InspectType, { entity: program.getGlobalNamespaceType() }),
-    }) // [1
+    }), // [1
   );
   return html;
 }
@@ -60,7 +60,7 @@ export async function $onEmit(context: EmitContext<HtmlProgramViewerOptions>) {
   });
 
   const css = await readFile(
-    resolvePath(getDirectoryPath(fileURLToPath(import.meta.url)), "style.css")
+    resolvePath(getDirectoryPath(fileURLToPath(import.meta.url)), "style.css"),
   );
   await emitFile(context.program, {
     path: resolvePath(outputDir, "style.css"),

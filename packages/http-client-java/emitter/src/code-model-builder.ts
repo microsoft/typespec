@@ -177,7 +177,7 @@ export class CodeModelBuilder {
   private loggingEnabled: boolean = false;
 
   readonly schemaCache = new ProcessingCache((type: SdkType, name: string) =>
-    this.processSchemaFromSdkTypeImpl(type, name)
+    this.processSchemaFromSdkTypeImpl(type, name),
   );
   readonly typeUnionRefCache = new Map<Type, Union | null | undefined>(); // Union means it ref a Union type, null means it does not ref any Union, undefined means type visited but not completed
 
@@ -194,18 +194,17 @@ export class CodeModelBuilder {
 
     if (this.options["skip-special-headers"]) {
       this.options["skip-special-headers"].forEach((it) =>
-        SPECIAL_HEADER_NAMES.add(it.toLowerCase())
+        SPECIAL_HEADER_NAMES.add(it.toLowerCase()),
       );
     }
 
     const service = listServices(this.program)[0];
-    const serviceNamespace = service.type;
-    if (serviceNamespace === undefined) {
-      throw Error("Cannot emit yaml for a namespace that doesn't exist.");
+    if (!service) {
+      throw Error("TypeSpec for HTTP must define a service.");
     }
-    this.serviceNamespace = serviceNamespace;
+    this.serviceNamespace = service.type;
 
-    this.namespace = getNamespaceFullName(serviceNamespace) || "Azure.Client";
+    this.namespace = getNamespaceFullName(this.serviceNamespace) || "Azure.Client";
     // java namespace
     const javaNamespace = this.getJavaNamespace(this.namespace);
 
@@ -219,9 +218,9 @@ export class CodeModelBuilder {
     };
 
     // init code model
-    const title = this.options["service-name"] ?? serviceNamespace.name;
+    const title = this.options["service-name"] ?? this.serviceNamespace.name;
 
-    const description = this.getDoc(serviceNamespace);
+    const description = this.getDoc(this.serviceNamespace);
     this.codeModel = new CodeModel(title, false, {
       info: {
         description: description,
@@ -230,7 +229,7 @@ export class CodeModelBuilder {
         default: {
           name: title,
           description: description,
-          summary: this.getSummary(serviceNamespace),
+          summary: this.getSummary(this.serviceNamespace),
           namespace: this.namespace,
         },
         java: {
@@ -289,7 +288,7 @@ export class CodeModelBuilder {
           },
           language: {
             default: {
-              serializedName: arg.name,
+              serializedName: arg.serializedName,
             },
           },
           // TODO: deprecate this logic of string/url for x-ms-skip-url-encoding
@@ -316,7 +315,7 @@ export class CodeModelBuilder {
                 scopes: [],
               });
               scheme.flows.forEach((it) =>
-                oauth2Scheme.scopes.push(...it.scopes.map((it) => it.value))
+                oauth2Scheme.scopes.push(...it.scopes.map((it) => it.value)),
               );
               securitySchemes.push(oauth2Scheme);
             }
@@ -369,23 +368,24 @@ export class CodeModelBuilder {
   private processModels() {
     const processedSdkModels: Set<SdkModelType | SdkEnumType> = new Set();
 
-    // lambda to mark model as public
-    const modelAsPublic = (model: SdkModelType | SdkEnumType) => {
-      const schema = this.processSchemaFromSdkType(model, "");
-
-      this.trackSchemaUsage(schema, {
-        usage: [SchemaContext.Public],
-      });
-    };
+    // cache resolved value of access/usage for the namespace
+    // the value can be set as undefined
+    // it resolves the value from that namespace and its parent namespaces
+    const accessCache: Map<Namespace, string | undefined> = new Map();
+    const usageCache: Map<Namespace, SchemaContext[] | undefined> = new Map();
 
     const sdkModels: (SdkModelType | SdkEnumType)[] = getAllModels(this.sdkContext);
 
     // process sdk models
     for (const model of sdkModels) {
       if (!processedSdkModels.has(model)) {
-        const access = getAccess(model.__raw);
+        const access = getAccess(model.__raw, accessCache);
         if (access === "public") {
-          modelAsPublic(model);
+          const schema = this.processSchemaFromSdkType(model, "");
+
+          this.trackSchemaUsage(schema, {
+            usage: [SchemaContext.Public],
+          });
         } else if (access === "internal") {
           const schema = this.processSchemaFromSdkType(model, model.name);
 
@@ -394,7 +394,7 @@ export class CodeModelBuilder {
           });
         }
 
-        const usage = getUsage(model.__raw);
+        const usage = getUsage(model.__raw, usageCache);
         if (usage) {
           const schema = this.processSchemaFromSdkType(model, "");
 
@@ -527,7 +527,7 @@ export class CodeModelBuilder {
         for (const version of this.getFilteredApiVersions(
           this.apiVersion,
           versions,
-          this.options["service-version-exclude-preview"]
+          this.options["service-version-exclude-preview"],
         )) {
           const apiVersion = new ApiVersion();
           apiVersion.version = version;
@@ -567,7 +567,7 @@ export class CodeModelBuilder {
         baseUri,
         hostParameters,
         codeModelClient.globalParameters!,
-        codeModelClient.apiVersions
+        codeModelClient.apiVersions,
       );
 
       // preprocess operation groups and operations
@@ -593,7 +593,7 @@ export class CodeModelBuilder {
           for (const serviceMethod of serviceMethods) {
             if (!this.needToSkipProcessingOperation(serviceMethod.__raw, clientContext)) {
               codeModelGroup.addOperation(
-                this.processOperation(serviceMethod, clientContext, subClient.name)
+                this.processOperation(serviceMethod, clientContext, subClient.name),
               );
             }
           }
@@ -639,7 +639,7 @@ export class CodeModelBuilder {
   private listSubClientsUnderClient(
     client: SdkClientType<SdkHttpOperation>,
     includeNestedOperationGroups: boolean,
-    isRootClient: boolean
+    isRootClient: boolean,
   ): SdkClientType<SdkHttpOperation>[] {
     const operationGroups: SdkClientType<SdkHttpOperation>[] = [];
     for (const method of client.methods) {
@@ -655,7 +655,7 @@ export class CodeModelBuilder {
           for (const operationGroup of this.listSubClientsUnderClient(
             subClient,
             includeNestedOperationGroups,
-            false
+            false,
           )) {
             operationGroups.push(operationGroup);
           }
@@ -666,7 +666,7 @@ export class CodeModelBuilder {
   }
 
   private listServiceMethodsUnderClient(
-    client: SdkClientType<SdkHttpOperation>
+    client: SdkClientType<SdkHttpOperation>,
   ): SdkServiceMethod<SdkHttpOperation>[] {
     const methods: SdkServiceMethod<SdkHttpOperation>[] = [];
     for (const method of client.methods) {
@@ -688,7 +688,7 @@ export class CodeModelBuilder {
   private getFilteredApiVersions(
     pinnedApiVersion: string | undefined,
     versions: string[],
-    excludePreview: boolean = false
+    excludePreview: boolean = false,
   ): string[] {
     if (!pinnedApiVersion) {
       return versions;
@@ -700,7 +700,7 @@ export class CodeModelBuilder {
 
   private needToSkipProcessingOperation(
     operation: Operation | undefined,
-    clientContext: ClientContext
+    clientContext: ClientContext,
   ): boolean {
     // don't generate protocol and convenience method for overloaded operations
     // issue link: https://github.com/Azure/autorest.java/issues/1958#issuecomment-1562558219 we will support generate overload methods for non-union type in future (TODO issue: https://github.com/Azure/autorest.java/issues/2160)
@@ -709,7 +709,7 @@ export class CodeModelBuilder {
     }
     if (getOverloadedOperation(this.program, operation)) {
       this.trace(
-        `Operation '${operation.name}' is temporary skipped, as it is an overloaded operation`
+        `Operation '${operation.name}' is temporary skipped, as it is an overloaded operation`,
       );
       return true;
     }
@@ -724,7 +724,7 @@ export class CodeModelBuilder {
   }
 
   private getOperationExample(
-    sdkMethod: SdkServiceMethod<SdkHttpOperation>
+    sdkMethod: SdkServiceMethod<SdkHttpOperation>,
   ): Record<string, any> | undefined {
     const httpOperationExamples = sdkMethod.operation.examples;
     if (httpOperationExamples && httpOperationExamples.length > 0) {
@@ -749,7 +749,7 @@ export class CodeModelBuilder {
   private processOperation(
     sdkMethod: SdkServiceMethod<SdkHttpOperation>,
     clientContext: ClientContext,
-    groupName: string
+    groupName: string,
   ): CodeModelOperation {
     const operationName = sdkMethod.name;
     const httpOperation = sdkMethod.operation;
@@ -818,7 +818,7 @@ export class CodeModelBuilder {
             uri: clientContext.baseUri,
           },
         },
-      })
+      }),
     );
 
     // host
@@ -851,7 +851,7 @@ export class CodeModelBuilder {
         codeModelOperation,
         httpOperation.__raw,
         httpOperation,
-        httpOperation.bodyParam
+        httpOperation.bodyParam,
       );
     }
 
@@ -890,7 +890,7 @@ export class CodeModelBuilder {
   private processRouteForPaged(
     op: CodeModelOperation,
     responses: Map<number | HttpStatusCodeRange, SdkHttpResponse>,
-    sdkMethod: SdkMethod<SdkHttpOperation>
+    sdkMethod: SdkMethod<SdkHttpOperation>,
   ) {
     if (sdkMethod.kind === "paging" || sdkMethod.kind === "lropaging") {
       for (const [_, response] of responses) {
@@ -919,7 +919,7 @@ export class CodeModelBuilder {
 
   private processLroMetadata(
     op: CodeModelOperation,
-    sdkMethod: SdkLroServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>
+    sdkMethod: SdkLroServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   ): LongRunningMetadata {
     const trackConvenienceApi: boolean = Boolean(op.convenienceApi);
 
@@ -1006,7 +1006,7 @@ export class CodeModelBuilder {
         pollingSchema,
         finalSchema,
         pollingStrategy,
-        finalResultPropertySerializedName
+        finalResultPropertySerializedName,
       );
       return op.lroMetadata;
     }
@@ -1017,7 +1017,7 @@ export class CodeModelBuilder {
   private processRouteForLongRunning(
     op: CodeModelOperation,
     responses: Map<number | HttpStatusCodeRange, SdkHttpResponse>,
-    lroMetadata: LongRunningMetadata
+    lroMetadata: LongRunningMetadata,
   ) {
     if (lroMetadata.longRunning) {
       op.extensions = op.extensions ?? {};
@@ -1031,7 +1031,7 @@ export class CodeModelBuilder {
   private processParameter(
     op: CodeModelOperation,
     param: SdkQueryParameter | SdkPathParameter | SdkHeaderParameter,
-    clientContext: ClientContext
+    clientContext: ClientContext,
   ) {
     if (clientContext.apiVersions && isApiVersion(this.sdkContext, param)) {
       // pre-condition for "isApiVersion": the client supports ApiVersions
@@ -1043,7 +1043,7 @@ export class CodeModelBuilder {
           this._armApiVersionParameter = this.createApiVersionParameter(
             "api-version",
             param.kind === "query" ? ParameterLocation.Query : ParameterLocation.Path,
-            apiVersion
+            apiVersion,
           );
           clientContext.addGlobalParameter(this._armApiVersionParameter);
         }
@@ -1128,6 +1128,11 @@ export class CodeModelBuilder {
               explode = true;
               break;
           }
+
+          if (param.explode && !param.collectionFormat) {
+            style = SerializationStyle.Form;
+            explode = true;
+          }
         } else if (param.kind === "header") {
           const format = param.collectionFormat;
           switch (format) {
@@ -1144,10 +1149,19 @@ export class CodeModelBuilder {
         }
       }
 
+      // TODO: use param.onClient after TCGC fix
+      const parameterOnClient =
+        !isApiVersion(this.sdkContext, param) &&
+        param.correspondingMethodParams &&
+        param.correspondingMethodParams.length > 0 &&
+        param.correspondingMethodParams[0].onClient;
+
       const nullable = param.type.kind === "nullable";
       const parameter = new Parameter(param.name, param.details ?? "", schema, {
         summary: param.description,
-        implementation: ImplementationLocation.Method,
+        implementation: parameterOnClient
+          ? ImplementationLocation.Client
+          : ImplementationLocation.Method,
         required: !param.optional,
         nullable: nullable,
         protocol: {
@@ -1164,6 +1178,10 @@ export class CodeModelBuilder {
         extensions: extensions,
       });
       op.addParameter(parameter);
+
+      if (parameterOnClient) {
+        clientContext.addGlobalParameter(parameter);
+      }
 
       this.trackSchemaUsage(schema, { usage: [SchemaContext.Input] });
 
@@ -1257,7 +1275,7 @@ export class CodeModelBuilder {
                 namespace: "com.azure.core.http",
               },
             },
-          })
+          }),
         );
 
         // parameter (optional) of the group schema
@@ -1269,7 +1287,7 @@ export class CodeModelBuilder {
             implementation: ImplementationLocation.Method,
             required: false,
             nullable: true,
-          }
+          },
         );
 
         this.trackSchemaUsage(requestConditionsSchema, { usage: [SchemaContext.Input] });
@@ -1300,8 +1318,8 @@ export class CodeModelBuilder {
                   nullable: true,
                   readOnly: false,
                   serializedName: parameter.language.default.serializedName,
-                }
-              )
+                },
+              ),
             );
           }
         }
@@ -1317,7 +1335,7 @@ export class CodeModelBuilder {
     op: CodeModelOperation,
     rawHttpOperation: HttpOperation,
     sdkHttpOperation: SdkHttpOperation,
-    sdkBody: SdkBodyParameter
+    sdkBody: SdkBodyParameter,
   ) {
     // set contentTypes to mediaTypes
     op.requests![0].protocol.http!.mediaTypes = sdkBody.contentTypes;
@@ -1421,7 +1439,7 @@ export class CodeModelBuilder {
               op,
               request,
               schema,
-              parameter
+              parameter,
             );
           }
           // body param
@@ -1434,7 +1452,7 @@ export class CodeModelBuilder {
                     op,
                     request,
                     schema,
-                    parameter
+                    parameter,
                   );
                 }
               }
@@ -1457,7 +1475,7 @@ export class CodeModelBuilder {
                     namespace: this.getJavaNamespace(namespace),
                   },
                 },
-              })
+              }),
             );
             request.parameters.forEach((it) => {
               optionBagSchema.add(
@@ -1472,8 +1490,8 @@ export class CodeModelBuilder {
                     nullable: it.nullable,
                     readOnly: false,
                     serializedName: it.language.default.serializedName,
-                  }
-                )
+                  },
+                ),
               );
             });
 
@@ -1493,7 +1511,7 @@ export class CodeModelBuilder {
                 implementation: ImplementationLocation.Method,
                 required: true,
                 nullable: false,
-              }
+              },
             );
 
             request.signatureParameters = [optionBagParameter];
@@ -1514,7 +1532,7 @@ export class CodeModelBuilder {
     op: CodeModelOperation,
     request: Request,
     schema: ObjectSchema,
-    originalParameter: Parameter
+    originalParameter: Parameter,
   ) {
     const serializedName = opParameter.serializedName;
     let existParameter: Parameter | undefined;
@@ -1524,7 +1542,7 @@ export class CodeModelBuilder {
       existParameter = op.parameters?.find(
         (it) =>
           it.protocol.http?.in === opParameter.kind &&
-          it.language.default.serializedName === serializedName
+          it.language.default.serializedName === serializedName,
       );
     }
     request.parameters = request.parameters ?? [];
@@ -1540,7 +1558,7 @@ export class CodeModelBuilder {
     } else {
       // property from anonymous model
       const existBodyProperty = schema.properties?.find(
-        (it) => it.serializedName === serializedName
+        (it) => it.serializedName === serializedName,
       );
       if (
         existBodyProperty &&
@@ -1564,8 +1582,8 @@ export class CodeModelBuilder {
               implementation: ImplementationLocation.Method,
               required: existBodyProperty.required,
               nullable: existBodyProperty.nullable,
-            }
-          )
+            },
+          ),
         );
       }
     }
@@ -1581,7 +1599,7 @@ export class CodeModelBuilder {
     statusCode: number | HttpStatusCodeRange | "*",
     sdkResponse: SdkHttpResponse,
     longRunning: boolean,
-    isErrorResponse: boolean
+    isErrorResponse: boolean,
   ) {
     // TODO: what to do if more than 1 response?
     // It happens when the response type is Union, on one status code.
@@ -1601,7 +1619,7 @@ export class CodeModelBuilder {
                 description: header.description ?? header.details,
               },
             },
-          })
+          }),
         );
       }
     }
@@ -1743,7 +1761,7 @@ export class CodeModelBuilder {
           return this.processDurationSchemaFromSdkType(
             type,
             nameHint,
-            getDurationFormatFromSdkType(type)
+            getDurationFormatFromSdkType(type),
           );
 
         case "constant":
@@ -1810,7 +1828,7 @@ export class CodeModelBuilder {
     return this.codeModel.schemas.add(
       new StringSchema(name, type.details ?? "", {
         summary: type.description,
-      })
+      }),
     );
   }
 
@@ -1820,14 +1838,14 @@ export class CodeModelBuilder {
       new ByteArraySchema(name, type.details ?? "", {
         summary: type.description,
         format: base64Encoded ? "base64url" : "byte",
-      })
+      }),
     );
   }
 
   private processIntegerSchemaFromSdkType(
     type: SdkBuiltInType,
     name: string,
-    precision: number
+    precision: number,
   ): NumberSchema {
     const schema = new NumberSchema(name, type.details ?? "", SchemaType.Integer, precision, {
       summary: type.description,
@@ -1842,7 +1860,7 @@ export class CodeModelBuilder {
     return this.codeModel.schemas.add(
       new NumberSchema(name, type.details ?? "", SchemaType.Number, 64, {
         summary: type.description,
-      })
+      }),
     );
   }
 
@@ -1851,7 +1869,7 @@ export class CodeModelBuilder {
     return this.codeModel.schemas.add(
       new NumberSchema(name, type.details ?? "", SchemaType.Number, Infinity, {
         summary: type.description,
-      })
+      }),
     );
   }
 
@@ -1859,7 +1877,7 @@ export class CodeModelBuilder {
     return this.codeModel.schemas.add(
       new BooleanSchema(name, type.details ?? "", {
         summary: type.description,
-      })
+      }),
     );
   }
 
@@ -1876,13 +1894,13 @@ export class CodeModelBuilder {
       new ArraySchema(name, type.details ?? "", elementSchema, {
         summary: type.description,
         nullableItems: nullableItems,
-      })
+      }),
     );
   }
 
   private processDictionarySchemaFromSdkType(
     type: SdkDictionaryType,
-    name: string
+    name: string,
   ): DictionarySchema {
     const dictSchema = new DictionarySchema<any>(name, type.details ?? "", null, {
       summary: type.description,
@@ -1909,7 +1927,7 @@ export class CodeModelBuilder {
 
   private processChoiceSchemaFromSdkType(
     type: SdkEnumType,
-    name: string
+    name: string,
   ): ChoiceSchema | SealedChoiceSchema | ConstantSchema {
     const rawEnumType = type.__raw;
     const namespace = getNamespace(rawEnumType);
@@ -1917,7 +1935,7 @@ export class CodeModelBuilder {
 
     const choices: ChoiceValue[] = [];
     type.values.forEach((it: SdkEnumValueType) =>
-      choices.push(new ChoiceValue(it.name, it.description ?? "", it.value ?? it.name))
+      choices.push(new ChoiceValue(it.name, it.description ?? "", it.value ?? it.name)),
     );
 
     const schemaType = type.isFixed ? SealedChoiceSchema : ChoiceSchema;
@@ -1947,13 +1965,13 @@ export class CodeModelBuilder {
         summary: type.description,
         valueType: valueType,
         value: new ConstantValue(type.value),
-      })
+      }),
     );
   }
 
   private processConstantSchemaFromEnumValueFromSdkType(
     type: SdkEnumValueType,
-    name: string
+    name: string,
   ): ConstantSchema {
     const valueType = this.processSchemaFromSdkType(type.enumType, type.enumType.name);
 
@@ -1962,7 +1980,7 @@ export class CodeModelBuilder {
         summary: type.description,
         valueType: valueType,
         value: new ConstantValue(type.value ?? type.name),
-      })
+      }),
     );
   }
 
@@ -1970,20 +1988,20 @@ export class CodeModelBuilder {
     return this.codeModel.schemas.add(
       new UnixTimeSchema(name, type.details ?? "", {
         summary: type.description,
-      })
+      }),
     );
   }
 
   private processDateTimeSchemaFromSdkType(
     type: SdkDateTimeType,
     name: string,
-    rfc1123: boolean
+    rfc1123: boolean,
   ): DateTimeSchema {
     return this.codeModel.schemas.add(
       new DateTimeSchema(name, type.details ?? "", {
         summary: type.description,
         format: rfc1123 ? "date-time-rfc1123" : "date-time",
-      })
+      }),
     );
   }
 
@@ -1991,7 +2009,7 @@ export class CodeModelBuilder {
     return this.codeModel.schemas.add(
       new DateSchema(name, type.details ?? "", {
         summary: type.description,
-      })
+      }),
     );
   }
 
@@ -1999,20 +2017,20 @@ export class CodeModelBuilder {
     return this.codeModel.schemas.add(
       new TimeSchema(name, type.details ?? "", {
         summary: type.description,
-      })
+      }),
     );
   }
 
   private processDurationSchemaFromSdkType(
     type: SdkDurationType,
     name: string,
-    format: DurationSchema["format"] = "duration-rfc3339"
+    format: DurationSchema["format"] = "duration-rfc3339",
   ): DurationSchema {
     return this.codeModel.schemas.add(
       new DurationSchema(name, type.details ?? "", {
         summary: type.description,
         format: format,
-      })
+      }),
     );
   }
 
@@ -2020,7 +2038,7 @@ export class CodeModelBuilder {
     return this.codeModel.schemas.add(
       new UriSchema(name, type.details ?? "", {
         summary: type.description,
-      })
+      }),
     );
   }
 
@@ -2050,7 +2068,7 @@ export class CodeModelBuilder {
     // discriminator
     if (type.discriminatedSubtypes && type.discriminatorProperty) {
       objectSchema.discriminator = new Discriminator(
-        this.processModelPropertyFromSdkType(type.discriminatorProperty)
+        this.processModelPropertyFromSdkType(type.discriminatorProperty),
       );
       for (const discriminatorValue in type.discriminatedSubtypes) {
         const subType = type.discriminatedSubtypes[discriminatorValue];
@@ -2170,7 +2188,7 @@ export class CodeModelBuilder {
         // TODO: this is HttpPart of non-File. TCGC should help handle this.
         schema = this.processSchemaFromSdkType(
           prop.type.properties.find((it) => it.kind === "body")!.type,
-          ""
+          "",
         );
       } else {
         schema = this.processSchemaFromSdkType(nonNullType, "");
@@ -2197,7 +2215,7 @@ export class CodeModelBuilder {
     const namespace = getNamespace(rawUnionType);
     const baseName = type.name ?? pascalCase(name) + "Model";
     this.logWarning(
-      `Convert TypeSpec Union '${getUnionDescription(rawUnionType, this.typeNameOptions)}' to Class '${baseName}'`
+      `Convert TypeSpec Union '${getUnionDescription(rawUnionType, this.typeNameOptions)}' to Class '${baseName}'`,
     );
     const unionSchema = new OrSchema(baseName + "Base", type.details ?? "", {
       summary: type.description,
@@ -2227,7 +2245,7 @@ export class CodeModelBuilder {
           summary: type.description,
           required: true,
           readOnly: false,
-        })
+        }),
       );
       unionSchema.anyOf.push(objectSchema);
     });
@@ -2238,7 +2256,7 @@ export class CodeModelBuilder {
     return this.codeModel.schemas.add(
       new BinarySchema(type.description ?? "", {
         summary: type.details,
-      })
+      }),
     );
   }
 
@@ -2299,7 +2317,7 @@ export class CodeModelBuilder {
   }
 
   private processMultipartFormDataFilePropertySchemaFromSdkType(
-    property: SdkBodyModelPropertyType
+    property: SdkBodyModelPropertyType,
   ): Schema {
     const processSchemaFunc = (type: SdkType) => this.processSchemaFromSdkType(type, "");
     if (property.type.kind === "bytes" || property.type.kind === "model") {
@@ -2314,7 +2332,7 @@ export class CodeModelBuilder {
         this.codeModel.schemas,
         this.binarySchema,
         this.stringSchema,
-        processSchemaFunc
+        processSchemaFunc,
       );
     } else if (
       property.type.kind === "array" &&
@@ -2334,11 +2352,11 @@ export class CodeModelBuilder {
           this.codeModel.schemas,
           this.binarySchema,
           this.stringSchema,
-          processSchemaFunc
+          processSchemaFunc,
         ),
         {
           summary: property.description,
-        }
+        },
       );
     } else {
       throw new Error(`Invalid type for multipart form data: '${property.type.kind}'.`);
@@ -2464,7 +2482,7 @@ export class CodeModelBuilder {
     return (
       this._integerSchema ||
       (this._integerSchema = this.codeModel.schemas.add(
-        new NumberSchema("integer", "simple integer", SchemaType.Integer, 64)
+        new NumberSchema("integer", "simple integer", SchemaType.Integer, 64),
       ))
     );
   }
@@ -2474,7 +2492,7 @@ export class CodeModelBuilder {
     return (
       this._doubleSchema ||
       (this._doubleSchema = this.codeModel.schemas.add(
-        new NumberSchema("double", "simple float", SchemaType.Number, 64)
+        new NumberSchema("double", "simple float", SchemaType.Number, 64),
       ))
     );
   }
@@ -2484,7 +2502,7 @@ export class CodeModelBuilder {
     return (
       this._booleanSchema ||
       (this._booleanSchema = this.codeModel.schemas.add(
-        new BooleanSchema("boolean", "simple boolean")
+        new BooleanSchema("boolean", "simple boolean"),
       ))
     );
   }
@@ -2510,7 +2528,7 @@ export class CodeModelBuilder {
       this._pollResultSchema ??
       (this._pollResultSchema = createPollOperationDetailsSchema(
         this.codeModel.schemas,
-        this.stringSchema
+        this.stringSchema,
       ))
     );
   }
@@ -2518,7 +2536,7 @@ export class CodeModelBuilder {
   private createApiVersionParameter(
     serializedName: string,
     parameterLocation: ParameterLocation,
-    value = ""
+    value = "",
   ): Parameter {
     return new Parameter(
       serializedName,
@@ -2527,7 +2545,7 @@ export class CodeModelBuilder {
         new ConstantSchema(serializedName, "API Version", {
           valueType: this.stringSchema,
           value: new ConstantValue(value),
-        })
+        }),
       ),
       {
         implementation: ImplementationLocation.Client,
@@ -2541,7 +2559,7 @@ export class CodeModelBuilder {
             serializedName: serializedName,
           },
         },
-      }
+      },
     );
   }
 
@@ -2551,7 +2569,7 @@ export class CodeModelBuilder {
       this._apiVersionParameter ||
       (this._apiVersionParameter = this.createApiVersionParameter(
         "api-version",
-        ParameterLocation.Query
+        ParameterLocation.Query,
       ))
     );
   }
@@ -2563,7 +2581,7 @@ export class CodeModelBuilder {
       // TODO: hardcode as "apiVersion", as it is what we get from compiler
       (this._apiVersionParameterInPath = this.createApiVersionParameter(
         "apiVersion",
-        ParameterLocation.Path
+        ParameterLocation.Path,
       ))
     );
   }
@@ -2590,7 +2608,7 @@ export class CodeModelBuilder {
               serializedName: "subscriptionId",
             },
           },
-        }
+        },
       );
     }
     return this._subscriptionParameter;
@@ -2655,7 +2673,7 @@ export class CodeModelBuilder {
 
     // Exclude context that not to be propagated
     const updatedSchemaUsage = (schema as SchemaUsage).usage?.filter(
-      (it) => it !== SchemaContext.Paged && it !== SchemaContext.PublicSpread
+      (it) => it !== SchemaContext.Paged && it !== SchemaContext.PublicSpread,
     );
     const indexSpread = (schema as SchemaUsage).usage?.indexOf(SchemaContext.PublicSpread);
     if (
@@ -2670,7 +2688,7 @@ export class CodeModelBuilder {
     const schemaUsage = {
       usage: updatedSchemaUsage,
       serializationFormats: (schema as SchemaUsage).serializationFormats?.filter(
-        (it) => it !== KnownMediaType.Multipart
+        (it) => it !== KnownMediaType.Multipart,
       ),
     };
     // Propagate the usage of the initial schema itself
@@ -2692,7 +2710,7 @@ export class CodeModelBuilder {
       if (schemaUsage.serializationFormats) {
         pushDistinct(
           (schema.serializationFormats = schema.serializationFormats || []),
-          ...schemaUsage.serializationFormats
+          ...schemaUsage.serializationFormats,
         );
       }
     } else if (schema instanceof DictionarySchema) {

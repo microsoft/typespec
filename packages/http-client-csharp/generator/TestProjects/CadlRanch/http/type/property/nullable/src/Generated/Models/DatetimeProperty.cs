@@ -14,12 +14,10 @@ namespace _Type.Property.Nullable.Models
             set => throw null;
         }
 
-
         public DateTimeOffset? NullableProperty
         {
             get => throw null;
             set => throw null;
         }
-
     }
 }

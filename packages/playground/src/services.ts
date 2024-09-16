@@ -12,7 +12,7 @@ import { LspToMonaco } from "./lsp/lsp-to-monaco.js";
 import type { BrowserHost } from "./types.js";
 
 function getIndentAction(
-  value: "none" | "indent" | "indentOutdent" | "outdent"
+  value: "none" | "indent" | "indentOutdent" | "outdent",
 ): monaco.languages.IndentAction {
   switch (value) {
     case "none":
@@ -103,7 +103,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
       model.uri.toString(),
       "typespec",
       model.getVersionId(),
-      model.getValue()
+      model.getValue(),
     );
   }
 
@@ -139,7 +139,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
   }
 
   function monacoDocumentHighlight(
-    highlight: lsp.DocumentHighlight
+    highlight: lsp.DocumentHighlight,
   ): monaco.languages.DocumentHighlight {
     return {
       range: LspToMonaco.range(highlight.range),
@@ -165,7 +165,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
   }
 
   function monacoHover(hover: lsp.Hover): monaco.languages.Hover {
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     if (Array.isArray(hover.contents) || lsp.MarkedString.is(hover.contents)) {
       throw new Error("MarkedString (deprecated) not supported.");
     }
@@ -367,7 +367,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
 
 export function getMonacoRange(
   typespecCompiler: typeof import("@typespec/compiler"),
-  target: DiagnosticTarget | typeof NoTarget
+  target: DiagnosticTarget | typeof NoTarget,
 ): monaco.IRange {
   const loc = typespecCompiler.getSourceLocation(target);
   if (loc === undefined || loc.file.path !== "/test/main.tsp") {

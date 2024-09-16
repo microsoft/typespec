@@ -143,7 +143,7 @@ export const $summary: SummaryDecorator = (
   context: DecoratorContext,
   target: Type,
   text: string,
-  sourceObject?: Type
+  sourceObject?: Type,
 ) => {
   if (sourceObject) {
     text = replaceTemplatedStringFromProperties(text, sourceObject);
@@ -168,7 +168,7 @@ export const $doc: DocDecorator = (
   context: DecoratorContext,
   target: Type,
   text: string,
-  sourceObject?: Type
+  sourceObject?: Type,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $doc);
   if (sourceObject) {
@@ -190,7 +190,7 @@ export function getDoc(program: Program, target: Type): string | undefined {
 export const $returnsDoc: ReturnsDocDecorator = (
   context: DecoratorContext,
   target: Operation,
-  text: string
+  text: string,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $doc);
   setDocData(context.program, target, "returns", { value: text, source: "decorator" });
@@ -219,7 +219,7 @@ export function getReturnsDoc(program: Program, target: Operation): string | und
 export const $errorsDoc: ErrorsDocDecorator = (
   context: DecoratorContext,
   target: Operation,
-  text: string
+  text: string,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $doc);
   setDocData(context.program, target, "errors", { value: text, source: "decorator" });
@@ -292,7 +292,7 @@ function isTypeIn(type: Type, condition: (type: Type) => boolean): boolean {
 function validateTargetingANumeric(
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  decoratorName: string
+  decoratorName: string,
 ) {
   const valid = isTypeIn(getPropertyType(target), (x) => isNumericType(context.program, x));
   if (!valid) {
@@ -314,7 +314,7 @@ function validateTargetingANumeric(
 function validateTargetingAString(
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  decoratorName: string
+  decoratorName: string,
 ) {
   const valid = isTypeIn(getPropertyType(target), (x) => isStringType(context.program, x));
   if (!valid) {
@@ -380,7 +380,7 @@ const formatValuesKey = createStateSymbol("formatValues");
 export const $format: FormatDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  format: string
+  format: string,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $format);
 
@@ -392,7 +392,7 @@ export const $format: FormatDecorator = (
     reportDeprecated(
       context.program,
       "Using `@format` on a bytes scalar is deprecated. Use `@encode` instead. https://github.com/microsoft/typespec/issues/1873",
-      target
+      target,
     );
   }
 
@@ -416,7 +416,7 @@ export const $pattern: PatternDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   pattern: string,
-  validationMessage?: string
+  validationMessage?: string,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $pattern);
 
@@ -462,7 +462,7 @@ export function getPatternData(program: Program, target: Type): PatternData | un
 export const $minLength: MinLengthDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  minLength: Numeric
+  minLength: Numeric,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $minLength);
 
@@ -480,7 +480,7 @@ export const $minLength: MinLengthDecorator = (
 export const $maxLength: MaxLengthDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  maxLength: Numeric
+  maxLength: Numeric,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $maxLength);
 
@@ -499,7 +499,7 @@ export const $maxLength: MaxLengthDecorator = (
 export const $minItems: MinItemsDecorator = (
   context: DecoratorContext,
   target: Type,
-  minItems: Numeric
+  minItems: Numeric,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $minItems);
 
@@ -526,7 +526,7 @@ export const $minItems: MinItemsDecorator = (
 export const $maxItems: MaxItemsDecorator = (
   context: DecoratorContext,
   target: Type,
-  maxItems: Numeric
+  maxItems: Numeric,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $maxItems);
 
@@ -552,7 +552,7 @@ export const $maxItems: MaxItemsDecorator = (
 export const $minValue: MinValueDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  minValue: Numeric
+  minValue: Numeric,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $minValue);
   validateDecoratorNotOnType(context, target, $minValueExclusive, $minValue);
@@ -567,7 +567,7 @@ export const $minValue: MinValueDecorator = (
       context,
       minValue,
       getMaxValueAsNumeric(context.program, target) ??
-        getMaxValueExclusiveAsNumeric(context.program, target)
+        getMaxValueExclusiveAsNumeric(context.program, target),
     )
   ) {
     return;
@@ -580,7 +580,7 @@ export const $minValue: MinValueDecorator = (
 export const $maxValue: MaxValueDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  maxValue: Numeric
+  maxValue: Numeric,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $maxValue);
   validateDecoratorNotOnType(context, target, $maxValueExclusive, $maxValue);
@@ -594,7 +594,7 @@ export const $maxValue: MaxValueDecorator = (
       context,
       getMinValueAsNumeric(context.program, target) ??
         getMinValueExclusiveAsNumeric(context.program, target),
-      maxValue
+      maxValue,
     )
   ) {
     return;
@@ -607,7 +607,7 @@ export const $maxValue: MaxValueDecorator = (
 export const $minValueExclusive: MinValueExclusiveDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  minValueExclusive: Numeric
+  minValueExclusive: Numeric,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $minValueExclusive);
   validateDecoratorNotOnType(context, target, $minValue, $minValueExclusive);
@@ -622,7 +622,7 @@ export const $minValueExclusive: MinValueExclusiveDecorator = (
       context,
       minValueExclusive,
       getMaxValueAsNumeric(context.program, target) ??
-        getMaxValueExclusiveAsNumeric(context.program, target)
+        getMaxValueExclusiveAsNumeric(context.program, target),
     )
   ) {
     return;
@@ -635,7 +635,7 @@ export const $minValueExclusive: MinValueExclusiveDecorator = (
 export const $maxValueExclusive: MaxValueExclusiveDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  maxValueExclusive: Numeric
+  maxValueExclusive: Numeric,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $maxValueExclusive);
   validateDecoratorNotOnType(context, target, $maxValue, $maxValueExclusive);
@@ -649,7 +649,7 @@ export const $maxValueExclusive: MaxValueExclusiveDecorator = (
       context,
       getMinValueAsNumeric(context.program, target) ??
         getMinValueExclusiveAsNumeric(context.program, target),
-      maxValueExclusive
+      maxValueExclusive,
     )
   ) {
     return;
@@ -667,7 +667,7 @@ const secretTypesKey = createStateSymbol("secretTypes");
  */
 export const $secret: SecretDecorator = (
   context: DecoratorContext,
-  target: Scalar | ModelProperty
+  target: Scalar | ModelProperty,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $secret);
 
@@ -699,7 +699,7 @@ export const $encode: EncodeDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   encoding: string | EnumValue | Scalar,
-  encodeAs?: Scalar
+  encodeAs?: Scalar,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $encode);
 
@@ -715,7 +715,7 @@ export const $encode: EncodeDecorator = (
 function computeEncoding(
   program: Program,
   encodingOrEncodeAs: string | EnumValue | Scalar,
-  encodeAs: Scalar | undefined
+  encodeAs: Scalar | undefined,
 ): EncodeData | undefined {
   const strType = program.checker.getStdType("string");
   const resolvedEncodeAs = encodeAs ?? strType;
@@ -749,9 +749,9 @@ function validateEncodeData(context: DecoratorContext, target: Type, encodeData:
     const isTargetValid = isTypeIn(target.projectionBase ?? target, (type) =>
       validTargets.some((validTarget) => {
         return ignoreDiagnostics(
-          checker.isTypeAssignableTo(type, checker.getStdType(validTarget), target)
+          checker.isTypeAssignableTo(type, checker.getStdType(validTarget), target),
         );
-      })
+      }),
     );
 
     if (!isTargetValid) {
@@ -771,8 +771,8 @@ function validateEncodeData(context: DecoratorContext, target: Type, encodeData:
         checker.isTypeAssignableTo(
           encodeData.type.projectionBase ?? encodeData.type,
           checker.getStdType(validEncoding),
-          target
-        )
+          target,
+        ),
       );
     });
 
@@ -814,7 +814,7 @@ function validateEncodeData(context: DecoratorContext, target: Type, encodeData:
 
 export function getEncode(
   program: Program,
-  target: Scalar | ModelProperty
+  target: Scalar | ModelProperty,
 ): EncodeData | undefined {
   return program.stateMap(encodeKey).get(target);
 }
@@ -853,7 +853,7 @@ export const $withVisibility: WithVisibilityDecorator = (
 export function isVisible(
   program: Program,
   property: ModelProperty,
-  visibilities: readonly string[]
+  visibilities: readonly string[],
 ) {
   const propertyVisibilities = getVisibility(program, property);
   return !propertyVisibilities || propertyVisibilities.some((v) => visibilities.includes(v));
@@ -871,7 +871,7 @@ function filterModelPropertiesInPlace(model: Model, filter: (prop: ModelProperty
 
 export const $withOptionalProperties: WithOptionalPropertiesDecorator = (
   context: DecoratorContext,
-  target: Model
+  target: Model,
 ) => {
   // Make all properties of the target type optional
   target.properties.forEach((p) => (p.optional = true));
@@ -881,7 +881,7 @@ export const $withOptionalProperties: WithOptionalPropertiesDecorator = (
 
 export const $withUpdateableProperties: WithUpdateablePropertiesDecorator = (
   context: DecoratorContext,
-  target: Type
+  target: Type,
 ) => {
   if (!validateDecoratorTarget(context, target, "@withUpdateableProperties", "Model")) {
     return;
@@ -895,7 +895,7 @@ export const $withUpdateableProperties: WithUpdateablePropertiesDecorator = (
 export const $withoutOmittedProperties: WithoutOmittedPropertiesDecorator = (
   context: DecoratorContext,
   target: Model,
-  omitProperties: Type
+  omitProperties: Type,
 ) => {
   // Get the property or properties to omit
   const omitNames = new Set<string>();
@@ -918,7 +918,7 @@ export const $withoutOmittedProperties: WithoutOmittedPropertiesDecorator = (
 export const $withPickedProperties: WithPickedPropertiesDecorator = (
   context: DecoratorContext,
   target: Model,
-  pickedProperties: Type
+  pickedProperties: Type,
 ) => {
   // Get the property or properties to pick
   const pickedNames = new Set<string>();
@@ -940,11 +940,11 @@ export const $withPickedProperties: WithPickedPropertiesDecorator = (
 
 export const $withoutDefaultValues: WithoutDefaultValuesDecorator = (
   context: DecoratorContext,
-  target: Model
+  target: Model,
 ) => {
   // remove all read-only properties from the target type
   target.properties.forEach((p) => {
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     delete p.default;
     delete p.defaultValue;
   });
@@ -957,11 +957,10 @@ const listPropertiesKey = createStateSymbol("listProperties");
 /**
  * @deprecated Use the `listsResource` decorator in `@typespec/rest` instead.
  */
-// eslint-disable-next-line deprecation/deprecation
 export const $list: ListDecorator = (
   context: DecoratorContext,
   target: Operation,
-  listedType?: Type
+  listedType?: Type,
 ) => {
   if (listedType && listedType.kind === "TemplateParameter") {
     // Silently return because this is probably being used in a templated interface
@@ -1001,7 +1000,7 @@ const tagPropertiesKey = createStateSymbol("tagProperties");
 export const $tag: TagDecorator = (
   context: DecoratorContext,
   target: Operation | Namespace | Interface,
-  tag: string
+  tag: string,
 ) => {
   const tags = context.program.stateMap(tagPropertiesKey).get(target);
   if (tags) {
@@ -1020,7 +1019,7 @@ export function getTags(program: Program, target: Type): string[] {
 // interface it resides within.
 export function getAllTags(
   program: Program,
-  target: Namespace | Interface | Operation
+  target: Namespace | Interface | Operation,
 ): string[] | undefined {
   const tags = new Set<string>();
 
@@ -1050,7 +1049,7 @@ export const $friendlyName: FriendlyNameDecorator = (
   context: DecoratorContext,
   target: Type,
   friendlyName: string,
-  sourceObject: Type | undefined
+  sourceObject: Type | undefined,
 ) => {
   // workaround for current lack of functionality in compiler
   // https://github.com/microsoft/typespec/issues/2717
@@ -1059,8 +1058,8 @@ export const $friendlyName: FriendlyNameDecorator = (
       if (
         ignoreDiagnostics(
           context.program.checker.resolveTypeReference(
-            (context.decoratorTarget as AugmentDecoratorStatementNode).targetType
-          )
+            (context.decoratorTarget as AugmentDecoratorStatementNode).targetType,
+          ),
         )?.node !== target.node
       ) {
         return;
@@ -1100,7 +1099,7 @@ const knownValuesKey = createStateSymbol("knownValues");
 export const $knownValues = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  knownValues: Enum
+  knownValues: Enum,
 ) => {
   const type = getPropertyType(target);
   if (!isStringType(context.program, type) && !isNumericType(context.program, type)) {
@@ -1109,7 +1108,7 @@ export const $knownValues = (
         code: "decorator-wrong-target",
         format: { decorator: "@knownValues", to: "type, it is  not a string or numeric" },
         target,
-      })
+      }),
     );
     return;
   }
@@ -1160,7 +1159,7 @@ const keyKey = createStateSymbol("key");
 export const $key: KeyDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
-  altName?: string
+  altName?: string,
 ) => {
   // Ensure that the key property is not marked as optional
   if (entity.optional) {
@@ -1188,7 +1187,7 @@ export function getKeyName(program: Program, property: ModelProperty): string {
 export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
   context: DecoratorContext,
   entity: Model,
-  visibility: string
+  visibility: string,
 ) => {
   const keyProperties: ModelProperty[] = [];
   entity.properties.forEach((prop: ModelProperty) => {
@@ -1213,7 +1212,7 @@ export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
             ],
           },
         ],
-      })
+      }),
     );
   });
 };
@@ -1229,11 +1228,10 @@ export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
  *     model Foo {}
  * ```
  */
-// eslint-disable-next-line deprecation/deprecation
 export const $deprecated: DeprecatedDecorator = (
   context: DecoratorContext,
   target: Type,
-  message: string
+  message: string,
 ) => {
   markDeprecated(context.program, target, { message });
 };
@@ -1259,20 +1257,20 @@ const overloadsOperationKey = createStateSymbol("overloadsOperation");
 export const $overload: OverloadDecorator = (
   context: DecoratorContext,
   target: Operation,
-  overloadBase: Operation
+  overloadBase: Operation,
 ) => {
   // Ensure that the overloaded method arguments are a subtype of the original operation.
   const [paramValid, paramDiagnostics] = context.program.checker.isTypeAssignableTo(
     target.parameters.projectionBase ?? target.parameters,
     overloadBase.parameters.projectionBase ?? overloadBase.parameters,
-    target
+    target,
   );
   if (!paramValid) context.program.reportDiagnostics(paramDiagnostics);
 
   const [returnTypeValid, returnTypeDiagnostics] = context.program.checker.isTypeAssignableTo(
     target.returnType.projectionBase ?? target.returnType,
     overloadBase.returnType.projectionBase ?? overloadBase.returnType,
-    target
+    target,
   );
   if (!returnTypeValid) context.program.reportDiagnostics(returnTypeDiagnostics);
 
@@ -1300,7 +1298,7 @@ function areOperationsInSameContainer(op1: Operation, op2: Operation): boolean {
 // the interfaces to their unprojected form before comparison.
 function equalsWithoutProjection(
   interface1: Interface | undefined,
-  interface2: Interface | undefined
+  interface2: Interface | undefined,
 ): boolean {
   if (interface1 === undefined || interface2 === undefined) return false;
   return getBaseInterface(interface1) === getBaseInterface(interface2);
@@ -1330,7 +1328,7 @@ export function getOverloads(program: Program, operation: Operation): Operation[
  */
 export function getOverloadedOperation(
   program: Program,
-  operation: Operation
+  operation: Operation,
 ): Operation | undefined {
   return program.stateMap(overloadsOperationKey).get(operation);
 }
@@ -1348,7 +1346,7 @@ export const $projectedName: ProjectedNameDecorator = (
   context: DecoratorContext,
   target: Type,
   projectionName: string,
-  projectedName: string
+  projectedName: string,
 ) => {
   let map: Map<string, string> = context.program.stateMap(projectedNameKey).get(target);
   if (map === undefined) {
@@ -1365,7 +1363,7 @@ export const $projectedName: ProjectedNameDecorator = (
  */
 export function getProjectedNames(
   program: Program,
-  target: Type
+  target: Type,
 ): ReadonlyMap<string, string> | undefined {
   return program.stateMap(projectedNameKey).get(target);
 }
@@ -1379,7 +1377,7 @@ export function getProjectedNames(
 export function getProjectedName(
   program: Program,
   target: Type,
-  projectionName: string
+  projectionName: string,
 ): string | undefined {
   return getProjectedNames(program, target)?.get(projectionName);
 }
@@ -1397,7 +1395,7 @@ export function hasProjectedName(program: Program, target: Type, projectionName:
 function validateRange(
   context: DecoratorContext,
   min: Numeric | undefined,
-  max: Numeric | undefined
+  max: Numeric | undefined,
 ): boolean {
   if (min === undefined || max === undefined) {
     return true;
@@ -1416,7 +1414,7 @@ function validateRange(
 export const $discriminator: DiscriminatorDecorator = (
   context: DecoratorContext,
   entity: Model | Union,
-  propertyName: string
+  propertyName: string,
 ) => {
   const discriminator: Discriminator = { propertyName };
 
@@ -1484,10 +1482,10 @@ export const $example: ExampleDecorator = (
   context: DecoratorContext,
   target: Model | Scalar | Enum | Union | ModelProperty | UnionVariant,
   _example: unknown,
-  options?: ExampleOptions
+  options?: ExampleOptions,
 ) => {
   const decorator = target.decorators.find(
-    (d) => d.decorator === $example && d.node === context.decoratorTarget
+    (d) => d.decorator === $example && d.node === context.decoratorTarget,
   );
   compilerAssert(decorator, `Couldn't find @example decorator`, context.decoratorTarget);
   const rawExample = decorator.args[0].value as Value;
@@ -1498,7 +1496,7 @@ export const $example: ExampleDecorator = (
         context.program,
         rawExample,
         target.kind === "ModelProperty" ? target.type : target,
-        context.getArgumentTarget(0)!
+        context.getArgumentTarget(0)!,
       )
     ) {
       return;
@@ -1515,7 +1513,7 @@ export const $example: ExampleDecorator = (
 
 export function getExamples(
   program: Program,
-  target: Model | Scalar | Enum | Union | ModelProperty
+  target: Model | Scalar | Enum | Union | ModelProperty,
 ): readonly Example[] {
   return program.stateMap(exampleKey).get(target) ?? [];
 }
@@ -1525,10 +1523,10 @@ export const $opExample: OpExampleDecorator = (
   context: DecoratorContext,
   target: Operation,
   _example: unknown,
-  options?: unknown // TODO: change `options?: ExampleOptions` when tspd supports it
+  options?: unknown, // TODO: change `options?: ExampleOptions` when tspd supports it
 ) => {
   const decorator = target.decorators.find(
-    (d) => d.decorator === $opExample && d.node === context.decoratorTarget
+    (d) => d.decorator === $opExample && d.node === context.decoratorTarget,
   );
   compilerAssert(decorator, `Couldn't find @opExample decorator`, context.decoratorTarget);
   const rawExampleConfig = decorator.args[0].value as ObjectValue;
@@ -1543,7 +1541,7 @@ export const $opExample: OpExampleDecorator = (
         context.program,
         parameters,
         target.parameters,
-        context.getArgumentTarget(0)!
+        context.getArgumentTarget(0)!,
       )
     ) {
       return;
@@ -1554,7 +1552,7 @@ export const $opExample: OpExampleDecorator = (
         context.program,
         returnType,
         target.returnType,
-        context.getArgumentTarget(0)!
+        context.getArgumentTarget(0)!,
       )
     ) {
       return;
@@ -1573,13 +1571,13 @@ function checkExampleValid(
   program: Program,
   value: Value,
   target: Type,
-  diagnosticTarget: DiagnosticTarget
+  diagnosticTarget: DiagnosticTarget,
 ): boolean {
   const exactType = program.checker.getValueExactType(value);
   const [assignable, diagnostics] = program.checker.isTypeAssignableTo(
     exactType ?? value.type,
     target,
-    diagnosticTarget
+    diagnosticTarget,
   );
   if (!assignable) {
     program.reportDiagnostics(diagnostics);

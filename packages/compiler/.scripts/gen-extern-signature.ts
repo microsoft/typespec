@@ -20,6 +20,6 @@ for (const [name, content] of Object.entries(files)) {
 
   await NodeHost.writeFile(
     resolvePath(outDir, name),
-    await format(updatedContent, { ...prettierConfig, parser: "typescript" })
+    await format(updatedContent, { ...prettierConfig, parser: "typescript" }),
   );
 }

@@ -10,7 +10,7 @@ describe("openapi3: security", () => {
       @service
       @useAuth(BasicAuth)
       namespace MyService {}
-      `
+      `,
     );
     deepStrictEqual(res.components.securitySchemes, {
       BasicAuth: {
@@ -27,7 +27,7 @@ describe("openapi3: security", () => {
       @service
       @useAuth(BearerAuth)
       namespace MyService {}
-      `
+      `,
     );
     deepStrictEqual(res.components.securitySchemes, {
       BearerAuth: {
@@ -44,7 +44,7 @@ describe("openapi3: security", () => {
       @service
       @useAuth(ApiKeyAuth<ApiKeyLocation.query, "x-my-header">)
       namespace MyService {}
-      `
+      `,
     );
     deepStrictEqual(res.components.securitySchemes, {
       ApiKeyAuth: {
@@ -62,7 +62,7 @@ describe("openapi3: security", () => {
       @service
       @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-my-header">)
       namespace MyService {}
-      `
+      `,
     );
     deepStrictEqual(res.components.securitySchemes, {
       ApiKeyAuth: {
@@ -80,7 +80,7 @@ describe("openapi3: security", () => {
       @service
       @useAuth(ApiKeyAuth<ApiKeyLocation.cookie, "x-my-header">)
       namespace MyService {}
-      `
+      `,
     );
     deepStrictEqual(res.components.securitySchemes, {
       ApiKeyAuth: {
@@ -105,7 +105,7 @@ describe("openapi3: security", () => {
           scopes: ["read", "write"];
         }
       }
-      `
+      `,
     );
     deepStrictEqual(res.components.securitySchemes, {
       OAuth2Auth: {
@@ -138,7 +138,7 @@ describe("openapi3: security", () => {
           scopes: ["read", "write"];
         }
       }
-      `
+      `,
     );
     deepStrictEqual(res.components.securitySchemes, {
       OAuth2Auth: {
@@ -171,7 +171,7 @@ describe("openapi3: security", () => {
           scopes: ["read", "write"];
         }
       }
-      `
+      `,
     );
     deepStrictEqual(res.components.securitySchemes, {
       OAuth2Auth: {
@@ -207,7 +207,7 @@ describe("openapi3: security", () => {
           ];
         }
       }
-      `
+      `,
     );
     deepStrictEqual(res.components.securitySchemes, {
       OAuth2Auth: {
@@ -235,7 +235,7 @@ describe("openapi3: security", () => {
       @service
       @useAuth(OpenIdConnectAuth<"https://api.example.com/openid">)
       namespace MyService {}
-      `
+      `,
     );
     expect(res.components.securitySchemes).toEqual({
       OpenIdConnectAuth: {
@@ -253,7 +253,7 @@ describe("openapi3: security", () => {
       @service
       @useAuth({})
       namespace MyService {}
-      `
+      `,
     );
     expectDiagnostics(diagnostics, {
       code: "@typespec/openapi3/unsupported-auth",
@@ -269,7 +269,7 @@ describe("openapi3: security", () => {
         @doc("My custom basic auth")
         model MyAuth is BasicAuth;
       }
-      `
+      `,
     );
     deepStrictEqual(res.components.securitySchemes, {
       MyAuth: {
@@ -290,7 +290,7 @@ describe("openapi3: security", () => {
         @extension("x-foo", "bar")
         model MyAuth is BasicAuth;
       }
-      `
+      `,
     );
     deepStrictEqual(res.components.securitySchemes, {
       MyAuth: {
@@ -308,7 +308,7 @@ describe("openapi3: security", () => {
       @service
       @useAuth(BearerAuth | [ApiKeyAuth<ApiKeyLocation.header, "x-my-header">, BasicAuth])
       namespace MyService {}
-      `
+      `,
     );
     deepStrictEqual(res.components.securitySchemes, {
       ApiKeyAuth: {
@@ -353,7 +353,7 @@ describe("openapi3: security", () => {
           op download(fileId: string): bytes;
         }
       }
-      `
+      `,
     );
     deepStrictEqual(res.components.securitySchemes, {
       ApiKeyAuth: {
@@ -399,7 +399,7 @@ describe("openapi3: security", () => {
           op download(fileId: string): bytes;
         }
       }
-      `
+      `,
     );
     deepStrictEqual(res.components.securitySchemes, {
       ApiKeyAuth: {
@@ -443,7 +443,7 @@ describe("openapi3: security", () => {
         @route("download")
         op download(fileId: string): bytes;
       }
-      `
+      `,
     );
     deepStrictEqual(res.components.securitySchemes, {
       ApiKeyAuth: {
@@ -492,7 +492,7 @@ describe("openapi3: security", () => {
         @useAuth(MyOauth<["delete"]>)
         @post op delete(): void;
       }
-      `
+      `,
     );
     deepStrictEqual(res.components.securitySchemes, {
       OAuth2Auth: {

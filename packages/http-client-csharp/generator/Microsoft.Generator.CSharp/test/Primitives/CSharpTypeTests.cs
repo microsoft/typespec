@@ -33,6 +33,26 @@ namespace Microsoft.Generator.CSharp.Tests.Primitives
         }
 
         [TestCase(typeof(int))]
+        [TestCase(typeof(string))]
+        [TestCase(typeof(int[]))]
+        [TestCase(typeof(string[]))]
+        [TestCase(typeof(IDictionary<int, string>))]
+        [TestCase(typeof(int?))]
+        public void NonFrameworkTypeEqualsEquivalentFrameworkType(Type type)
+        {
+            var cSharpType = new CSharpType(
+                type.Name,
+                type.Namespace!,
+                type.IsValueType,
+                Nullable.GetUnderlyingType(type) != null,
+                null,
+                type.GetGenericArguments().Select(t => new CSharpType(t)).ToList(),
+                true,
+                type.IsValueType);
+            Assert.IsTrue(cSharpType.Equals(type));
+        }
+
+        [TestCase(typeof(int))]
         [TestCase(typeof(IList<>))]
         [TestCase(typeof(IList<int>))]
         [TestCase(typeof(IDictionary<,>))]
