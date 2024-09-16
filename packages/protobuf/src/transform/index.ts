@@ -10,6 +10,7 @@ import {
   getEffectiveModelType,
   getFriendlyName,
   getTypeName,
+  IdentifierNode,
   Interface,
   IntrinsicType,
   isDeclaredInNamespace,
@@ -20,12 +21,15 @@ import {
   Namespace,
   Operation,
   Program,
+  RekeyableMap,
   resolvePath,
   Scalar,
   StringLiteral,
   SyntaxKind,
   Type,
   Union,
+  UnionVariant,
+  UnionVariantNode,
 } from "@typespec/compiler";
 import {
   map,
@@ -38,6 +42,7 @@ import {
   ProtoMessageBodyDeclaration,
   ProtoMessageDeclaration,
   ProtoMethodDeclaration,
+  ProtoOneOfDeclaration,
   ProtoRef,
   ProtoScalar,
   ProtoTopLevelDeclaration,
@@ -55,6 +60,15 @@ import { writeProtoFile } from "../write.js";
 // Cache for scalar -> ProtoScalar map
 const _protoScalarsMap = new WeakMap<Program, Map<Type, ProtoScalar>>();
 const _protoExternMap = new WeakMap<Program, Map<string, [string, ProtoRef]>>();
+
+type NamedUnionVariantNode = UnionVariantNode & { id: IdentifierNode }
+type NamedUnionVariant = UnionVariant & { name: string, node: NamedUnionVariantNode };
+type NamedUnion = Omit<Union, "variants"> & {
+  name: string;
+  variants: RekeyableMap<string, NamedUnionVariant>;
+};
+type EmittableField = ModelProperty | NamedUnionVariant;
+type Emittable = Model | Operation | NamedUnion;
 
 /**
  * Create a worker function that converts the TypeSpec program to Protobuf and writes it to the file system.
@@ -98,7 +112,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
   const serviceInterfaces = [...(program.stateSet(state.service) as Set<Interface>)];
 
-  const declaredMessages = [...(program.stateSet(state.message) as Set<Model>)];
+  const declaredMessages = [...(program.stateSet(state.message) as Set<Model | Union>)];
 
   const declarationMap = new Map<Namespace, ProtoTopLevelDeclaration[]>(
     [...packages].map((p) => [p, []])
@@ -125,6 +139,120 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     if (!visitedTypes.has(model)) {
       visitedTypes.add(model);
       declarations?.push(toMessage(model));
+    }
+  }
+
+  function validateUnion(union: Union): union is NamedUnion {
+    // Union must not be anonymous.
+    if (!union.name) {
+      reportDiagnostic(program, {
+        code: "unconvertible-union",
+        messageId: "anonymous",
+        target: union,
+      });
+      return false;
+    }
+
+    let isValid = true;
+    const variants = [...union.variants.values()];
+
+    // Union must have at least one variant.
+    if (!variants) {
+      reportDiagnostic(program, {
+        code: "unconvertible-union",
+        messageId: "no-variants",
+        target: union,
+      });
+      isValid = false;
+    }
+
+    variants.forEach((v) => {
+      // All union variants must have identifiers.
+      if (v.node?.id === undefined || typeof v.name !== 'string') {
+        reportDiagnostic(program, {
+          code: "unconvertible-union",
+          messageId: "anonymous-variant",
+          target: v
+        });
+        isValid = false;
+      }
+
+      // Union variants must not be maps.
+      if (isMap(program, v.type)) {
+        reportDiagnostic(program, {
+          code: "unsupported-field-type",
+          messageId: "union-variant-map",
+          target: v,
+        });
+        isValid = false;
+      }
+
+      // Union variants must not be arrays.
+      if (isArray(v.type)) {
+        reportDiagnostic(program, {
+          code: "unsupported-field-type",
+          messageId: "union-variant-array",
+          target: v,
+        });
+        isValid = false;
+      }
+
+    });
+
+    return isValid;
+  }
+
+  function visitUnion(union: Union, source: Type) {
+    const unionPackage = getPackageOfType(program, union);
+    const declarations = unionPackage && declarationMap.get(unionPackage);
+
+    if (!validateUnion(union)) {
+      return unreachable("union");
+    }
+
+    if (!declarations) {
+      reportDiagnostic(program, {
+        target: source,
+        code: "model-not-in-package",
+        format: { name: union.name },
+      });
+    }
+
+    for (const field of union.variants.values()) {
+      validateFieldDecorations(field, union);
+    }
+
+    if (!visitedTypes.has(union)) {
+      visitedTypes.add(union);
+
+      const oneof: ProtoOneOfDeclaration = {
+        kind: "oneof",
+        name: "value",
+        declarations: [...union.variants.values()].map(
+          (v): ProtoFieldDeclaration => ({
+            kind: "field",
+            name: v.name,
+            index: program.stateMap(state.fieldIndex).get(v),
+            type: addImportSourceForProtoIfNeeded(
+              program,
+              addType(v.type, union),
+              union,
+              v.type as NamespaceTraversable /*TODO: seems weird*/
+            ),
+            repeated: false,
+          })
+        ),
+      };
+
+      const message: ProtoMessageDeclaration = {
+        kind: "message",
+        name: getModelName(union),
+        reservations: program.stateMap(state.reserve).get(union),
+        declarations: [oneof],
+        doc: getDoc(program, union),
+      };
+
+      declarations?.push(message);
     }
   }
 
@@ -166,7 +294,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
   const importMap = new Map([...packages].map((ns) => [ns, new Set<string>()]));
 
-  function typeWantsImport(program: Program, t: Model | Operation, path: string) {
+  function typeWantsImport(program: Program, t: Emittable, path: string) {
     const packageNs = getPackageOfType(program, t);
 
     if (packageNs) {
@@ -174,10 +302,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     }
   }
 
-  const mapImportSourceInformation = new WeakMap<
-    ProtoMap,
-    [Model | Operation, NamespaceTraversable]
-  >();
+  const mapImportSourceInformation = new WeakMap<ProtoMap, [Emittable, NamespaceTraversable]>();
 
   const effectiveModelCache = new Map<Model, Model | undefined>();
 
@@ -221,6 +346,14 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
   return files;
 
+  function getFields(type: Model | Union) {
+    if (type.kind === "Model") {
+      return [...type.properties.values()];
+    } else {
+      return [...type.variants.values()];
+    }
+  }
+
   /**
    * Recursively searches a namespace for declarations that should be reified as Protobuf.
    *
@@ -228,32 +361,36 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
    * @returns an array of declarations
    */
   function addDeclarationsOfPackage(namespace: Namespace) {
-    const eagerModels = new Set([
+    const eagerMessages = new Set([
       ...declaredMessages.filter((m) => isDeclaredInNamespace(m, namespace)),
     ]);
 
     if (!emitterOptions["omit-unreachable-types"]) {
-      // Add all models in the namespace that have `@field` on every property.
-      for (const model of namespace.models.values()) {
+      // Add all models & unions in the namespace that have `@field` on every property.
+      for (const type of [...namespace.models.values(), ...namespace.unions.values()]) {
         if (
-          [...model.properties.values()].every((p) => program.stateMap(state.fieldIndex).has(p)) ||
-          program.stateSet(state.message).has(model)
+          getFields(type).every((p) => program.stateMap(state.fieldIndex).has(p)) ||
+          program.stateSet(state.message).has(type)
         ) {
-          eagerModels.add(model);
+          eagerMessages.add(type);
         }
       }
     }
 
-    for (const model of eagerModels) {
+    for (const type of eagerMessages) {
       if (
         // Don't eagerly visit externs
-        !program.stateMap(state.externRef).has(model) &&
+        !program.stateMap(state.externRef).has(type) &&
         // Only eagerly visit models where every field has a field index annotation.
-        ([...model.properties.values()].every((p) => program.stateMap(state.fieldIndex).has(p)) ||
+        (getFields(type).every((f) => program.stateMap(state.fieldIndex).has(f)) ||
           // OR where the model has been explicitly marked as a message.
-          program.stateSet(state.message).has(model))
+          program.stateSet(state.message).has(type))
       ) {
-        visitModel(model, model);
+        if (type.kind === "Model") {
+          visitModel(type, type);
+        } else {
+          visitUnion(type, type);
+        }
       }
     }
 
@@ -358,7 +495,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
    */
   function getCachedExternType(
     program: Program,
-    relativeSource: Operation | Model,
+    relativeSource: Emittable,
     name: string
   ): ProtoRef {
     let cache = _protoExternMap.get(program);
@@ -431,7 +568,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
    * @param relativeSource - the relative source of the type
    * @returns a reference to the type's message
    */
-  function addIntrinsicType(t: IntrinsicType, relativeSource: Operation | Model): ProtoRef {
+  function addIntrinsicType(t: IntrinsicType, relativeSource: Emittable): ProtoRef {
     switch (t.name) {
       case "unknown":
         return getCachedExternType(program, relativeSource, "TypeSpec.Protobuf.WellKnown.Any");
@@ -481,7 +618,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
    * @param t - the type to add to the ProtoFile.
    * @returns a Protobuf type corresponding to the given type
    */
-  function addType(t: Type, relativeSource: Model | Operation): ProtoType {
+  function addType(t: Type, relativeSource: Emittable): ProtoType {
     // Exit early if this type is an extern.
     const extern = program.stateMap(state.externRef).get(t) as [string, string] | undefined;
     if (extern) {
@@ -515,6 +652,19 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
         visitModel(t, relativeSource);
 
         return ref(getModelName(t));
+      case "Union":
+        if (!t.name) {
+          reportDiagnostic(program, {
+            code: "unconvertible-union",
+            messageId: "anonymous",
+            target: t,
+          });
+          return unreachable("anonymous union");
+        }
+
+        visitUnion(t, relativeSource);
+
+        return ref(t.name);
       case "Enum":
         visitEnum(t);
         return ref(t.name);
@@ -535,7 +685,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     }
   }
 
-  function mapToProto(t: Model, relativeSource: Model | Operation): ProtoMap {
+  function mapToProto(t: Model, relativeSource: Emittable): ProtoMap {
     const [keyType, valueType] = t.templateMapper!.args;
 
     compilerAssert(isType(keyType), "Cannot be a value type");
@@ -565,7 +715,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     );
   }
 
-  function arrayToProto(t: Model, relativeSource: Model | Operation): ProtoType {
+  function arrayToProto(t: Model, relativeSource: Emittable): ProtoType {
     const valueType = (t as Model).templateMapper!.args[0];
     compilerAssert(isType(valueType), "Cannot be a value type");
 
@@ -704,7 +854,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     };
   }
 
-  function getModelName(model: Model): string {
+  function getModelName(model: Emittable): string {
     const friendlyName = getFriendlyName(program, model);
 
     if (friendlyName) return capitalize(friendlyName);
@@ -734,54 +884,36 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     return prefix + capitalize(model.name);
   }
 
-  /**
-   * @param property - the ModelProperty to convert
-   * @returns a corresponding declaration
-   */
-  function toMessageBodyDeclaration(
-    property: ModelProperty,
-    model: Model
-  ): ProtoMessageBodyDeclaration {
-    if (property.type.kind === "Union") {
-      // Unions are difficult to represent in protobuf, so for now we don't support them.
-      // See : https://github.com/microsoft/typespec/issues/1854
-      reportDiagnostic(program, {
-        code: "unsupported-field-type",
-        messageId: "union",
-        target: property,
-      });
-      return unreachable("union");
-    }
-
-    const fieldIndex = program.stateMap(state.fieldIndex).get(property) as number | undefined;
-    const fieldIndexNode = property.decorators.find((d) => d.decorator === $field)?.args[0].node;
+  function validateFieldDecorations(field: EmittableField, type: Emittable) {
+    const fieldIndex = program.stateMap(state.fieldIndex).get(field) as number | undefined;
+    const fieldIndexNode = field.decorators.find((d) => d.decorator === $field)?.args[0].node;
 
     if (fieldIndex === undefined) {
       reportDiagnostic(program, {
         code: "field-index",
         messageId: "missing",
         format: {
-          name: property.name,
+          name: field.name,
         },
-        target: property,
+        target: field,
       });
     }
 
     if (fieldIndex && !fieldIndexNode)
       throw new Error("Failed to recover field decorator argument.");
 
-    const reservations = program.stateMap(state.reserve).get(model) as Reservation[] | undefined;
+    const reservations = program.stateMap(state.reserve).get(type) as Reservation[] | undefined;
 
     if (reservations) {
       for (const reservation of reservations) {
-        if (typeof reservation === "string" && reservation === property.name) {
+        if (typeof reservation === "string" && reservation === field.name) {
           reportDiagnostic(program, {
             code: "field-name",
             messageId: "user-reserved",
             format: {
-              name: property.name,
+              name: field.name,
             },
-            target: getPropertyNameSyntaxTarget(property),
+            target: getFieldNameSyntaxTarget(field),
           });
         } else if (
           fieldIndex !== undefined &&
@@ -794,9 +926,9 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
             format: {
               index: fieldIndex.toString(),
             },
-            // Fail over to using the model if the field index node is missing... this should never occur but it's the
+            // Fail over to using the containing type if the field index node is missing... this should never occur but it's the
             // simplest way to satisfy the type system.
-            target: fieldIndexNode ?? model,
+            target: fieldIndexNode ?? type,
           });
         } else if (
           fieldIndex !== undefined &&
@@ -810,11 +942,23 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
             format: {
               index: fieldIndex.toString(),
             },
-            target: fieldIndexNode ?? model,
+            target: fieldIndexNode ?? type,
           });
         }
       }
     }
+  }
+
+  /**
+   * @param property - the ModelProperty to convert
+   * @returns a corresponding declaration
+   */
+  function toMessageBodyDeclaration(
+    property: ModelProperty,
+    model: Model
+  ): ProtoMessageBodyDeclaration {
+    
+    validateFieldDecorations(property, model);
 
     const field: ProtoFieldDeclaration = {
       kind: "field",
@@ -910,7 +1054,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
   function addImportSourceForProtoIfNeeded<T extends ProtoType>(
     program: Program,
     pt: T,
-    dependent: Model | Operation,
+    dependent: Emittable,
     dependency: NamespaceTraversable
   ): T {
     {
@@ -1041,22 +1185,23 @@ function getOperationReturnSyntaxTarget(op: Operation): DiagnosticTarget {
  * See https://github.com/microsoft/typespec/issues/1650. This issue tracks helpers for doing this without requiring
  * emitters to implement this functionality.
  */
-function getPropertyNameSyntaxTarget(property: ModelProperty): DiagnosticTarget {
-  const node = property.node;
+function getFieldNameSyntaxTarget(field: EmittableField): DiagnosticTarget {
+  const node = field.node;
 
   switch (node.kind) {
     case SyntaxKind.ModelProperty:
     case SyntaxKind.ObjectLiteralProperty:
+    case SyntaxKind.UnionVariant:
       return node.id;
     case SyntaxKind.ModelSpreadProperty:
       return node;
     case SyntaxKind.ProjectionModelProperty:
     case SyntaxKind.ProjectionModelSpreadProperty:
-      return property;
+      return field;
     default:
       const __exhaust: never = node;
       throw new Error(
-        `Internal Emitter Error: reached unreachable model property node: ${property.node.kind}`
+        `Internal Emitter Error: reached unreachable model property node: ${field.node.kind}`
       );
   }
 }

@@ -104,13 +104,7 @@ describe("protobuf scenarios", function () {
             expectedDiagnostics = "\n";
           }
 
-          // Fix the start of lines on Windows
-          const processedDiagnostics =
-            process.platform === "win32"
-              ? emitResult.diagnostics.map((d) => d.replace(/^Z:/, ""))
-              : emitResult.diagnostics;
-
-          const diagnostics = removeCoreDiagnostics(processedDiagnostics).join("\n") + "\n";
+          const diagnostics = removeCoreDiagnostics(emitResult.diagnostics).join("\n") + "\n";
 
           assert.strictEqual(diagnostics, expectedDiagnostics, "expected equivalent diagnostics");
 
@@ -128,7 +122,12 @@ describe("protobuf scenarios", function () {
  * @returns diagnostics with core diagnostics that do not reference line numbers
  */
 function removeCoreDiagnostics(diagnostics: string[]): string[] {
-  return diagnostics.map((d) => {
+  // Fix the start of lines on Windows
+  const processedDiagnostics = process.platform === "win32"
+    ? diagnostics.map((d) => d.replace(/^Z:/, ""))
+    : diagnostics;
+
+  return processedDiagnostics.map((d) => {
     if (d.startsWith("/test/.tsp")) {
       return d.replace(/^[^\s]*:[0-9]+:[0-9]+ - /, "<in core> - ");
     } else return d;

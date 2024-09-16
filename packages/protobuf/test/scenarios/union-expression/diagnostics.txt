@@ -1,0 +1,2 @@
+/test/main.tsp:8:25 - error @typespec/protobuf/unconvertible-union: anonymous unions cannot be used in Protobuf messages
+/test/main.tsp:8:25 - error @typespec/protobuf/unconvertible-union: anonymous unions cannot be used in Protobuf messages

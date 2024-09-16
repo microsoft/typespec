@@ -5,6 +5,7 @@ import type {
   Namespace,
   Operation,
   Type,
+  UnionVariant,
 } from "@typespec/compiler";
 
 /**
@@ -50,7 +51,7 @@ export type MessageDecorator = (context: DecoratorContext, target: Type) => void
  */
 export type FieldDecorator = (
   context: DecoratorContext,
-  target: ModelProperty,
+  target: ModelProperty | UnionVariant,
   index: number
 ) => void;
 

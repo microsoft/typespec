@@ -180,7 +180,7 @@ extern dec message(target: {});
  * }
  * ```
  */
-extern dec field(target: TypeSpec.Reflection.ModelProperty, index: valueof uint32);
+extern dec field(target: TypeSpec.Reflection.ModelProperty | TypeSpec.Reflection.UnionVariant, index: valueof uint32);
 
 /**
  * Reserve a field index, range, or name. If a field definition collides with a reservation, the emitter will produce

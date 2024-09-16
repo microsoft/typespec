@@ -1,0 +1,3 @@
+/test/main.tsp:21:3 - error @typespec/protobuf/field-index: field b2 does not have a field index, but one is required (try using the '@field' decorator)
+/test/main.tsp:26:3 - error @typespec/protobuf/field-index: field a3 does not have a field index, but one is required (try using the '@field' decorator)
+/test/main.tsp:27:3 - error @typespec/protobuf/field-index: field b3 does not have a field index, but one is required (try using the '@field' decorator)

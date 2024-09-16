@@ -11,16 +11,22 @@ interface Service {
 }
 
 model Input {
-  @field(1) value: U;
+  @field(1) value: UnionA;
 }
 
 model InputA {
   @field(1) testInputField: string;
 }
 
-union U {
-  a: InputA,
-  b: InputB,
+union UnionA {
+  @field(1) a: InputA,
+  @field(2) b: InputB,
+  @field(3) c: string,
+}
+
+union UnionB {
+  @field(1) int: int32,
+  @field(2) str: string,
 }
 
 model InputB {

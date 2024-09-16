@@ -17,3 +17,11 @@ model Input {
   @field(9) field9: uint32;
   @field(11) bar: sint32;
 }
+
+@reserve(22, 35, #[29, 31], "beep", "bosh")
+union UnionInput {
+  @field(21) beep: string;
+  @field(22) boop: int32;
+  @field(29) blap: uint32;
+  @field(31) bosh: sint32;
+}
