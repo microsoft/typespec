@@ -22,7 +22,9 @@ async def test_get(client: XmsClientRequestIdClient, check_client_request_id_hea
     result, resp = await client.get(
         cls=lambda x, y, z: (y, x),
         raw_request_hook=functools.partial(
-            check_client_request_id_header, header="x-ms-client-request-id", checked=checked
+            check_client_request_id_header,
+            header="x-ms-client-request-id",
+            checked=checked,
         ),
     )
     assert result is None

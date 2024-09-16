@@ -159,4 +159,5 @@ def json_serializable(content_type: str) -> bool:
 def xml_serializable(content_type: str) -> bool:
     return bool(XML_REGEXP.match(content_type.split(";")[0].strip().lower()))
 
+
 NAME_LENGTH_LIMIT = 40

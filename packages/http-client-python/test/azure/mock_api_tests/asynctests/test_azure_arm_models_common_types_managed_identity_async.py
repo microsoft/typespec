@@ -4,7 +4,9 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from azure.resourcemanager.models.commontypes.managedidentity.aio import ManagedIdentityClient
+from azure.resourcemanager.models.commontypes.managedidentity.aio import (
+    ManagedIdentityClient,
+)
 from azure.resourcemanager.models.commontypes.managedidentity import models
 
 SUBSCRIPTION_ID = "00000000-0000-0000-0000-000000000000"
@@ -14,7 +16,10 @@ RESOURCE_GROUP_NAME = "test-rg"
 @pytest.fixture
 async def client(credential, authentication_policy):
     async with ManagedIdentityClient(
-        credential, SUBSCRIPTION_ID, "http://localhost:3000", authentication_policy=authentication_policy
+        credential,
+        SUBSCRIPTION_ID,
+        "http://localhost:3000",
+        authentication_policy=authentication_policy,
     ) as client:
         yield client
 
@@ -22,7 +27,8 @@ async def client(credential, authentication_policy):
 @pytest.mark.asyncio
 async def test_managed_identity_tracked_resources_get(client):
     result = await client.managed_identity_tracked_resources.get(
-        resource_group_name=RESOURCE_GROUP_NAME, managed_identity_tracked_resource_name="identity"
+        resource_group_name=RESOURCE_GROUP_NAME,
+        managed_identity_tracked_resource_name="identity",
     )
     assert result.location == "eastus"
     assert result.identity.type == "SystemAssigned"
@@ -35,7 +41,8 @@ async def test_managed_identity_tracked_resources_create_with_system_assigned(cl
         resource_group_name=RESOURCE_GROUP_NAME,
         managed_identity_tracked_resource_name="identity",
         resource=models.ManagedIdentityTrackedResource(
-            location="eastus", identity=models.ManagedServiceIdentity(type="SystemAssigned")
+            location="eastus",
+            identity=models.ManagedServiceIdentity(type="SystemAssigned"),
         ),
     )
     assert result.location == "eastus"
@@ -44,7 +51,9 @@ async def test_managed_identity_tracked_resources_create_with_system_assigned(cl
 
 
 @pytest.mark.asyncio
-async def test_managed_identity_tracked_resources_update_with_user_assigned_and_system_assigned(client):
+async def test_managed_identity_tracked_resources_update_with_user_assigned_and_system_assigned(
+    client,
+):
     result = await client.managed_identity_tracked_resources.update_with_user_assigned_and_system_assigned(
         resource_group_name=RESOURCE_GROUP_NAME,
         managed_identity_tracked_resource_name="identity",

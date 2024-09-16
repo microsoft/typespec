@@ -78,7 +78,10 @@ async def test_nullable_float_value(client: DictionaryClient):
 async def test_recursive_model_value(client: DictionaryClient):
     value = {
         "k1": models.InnerModel(property="hello", children={}),
-        "k2": models.InnerModel(property="world", children={"k2.1": models.InnerModel(property="inner world")}),
+        "k2": models.InnerModel(
+            property="world",
+            children={"k2.1": models.InnerModel(property="inner world")},
+        ),
     }
     assert await client.recursive_model_value.get() == value
     await client.recursive_model_value.put(value)

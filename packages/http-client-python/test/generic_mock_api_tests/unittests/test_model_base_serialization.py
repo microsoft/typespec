@@ -1946,7 +1946,7 @@ def test_inner_model_custom_serializer():
 
     outer = OuterModel({"inner": {"prop": "hello"}})
     assert outer.inner["prop"] == outer["inner"]["prop"] == "hello"
-    assert outer.inner.prop == outer["inner"].prop == "olleh" # cspell: ignore olleh
+    assert outer.inner.prop == outer["inner"].prop == "olleh"  # cspell: ignore olleh
 
 
 def test_default_value():

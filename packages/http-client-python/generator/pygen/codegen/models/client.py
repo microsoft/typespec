@@ -147,7 +147,12 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
 
     def pylint_disable(self, async_mode: bool) -> str:
         retval = ""
-        if not any(p for p in self.parameters.parameters if p.is_api_version and p.method_location in [ParameterMethodLocation.KEYWORD_ONLY, ParameterMethodLocation.KWARG]):
+        if not any(
+            p
+            for p in self.parameters.parameters
+            if p.is_api_version
+            and p.method_location in [ParameterMethodLocation.KEYWORD_ONLY, ParameterMethodLocation.KWARG]
+        ):
             retval = add_to_pylint_disable(retval, "client-accepts-api-version-keyword")
         if len(self.operation_groups) > 6:
             retval = add_to_pylint_disable(retval, "too-many-instance-attributes")

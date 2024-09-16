@@ -584,7 +584,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         if self._api_version_validation(builder):
             retval.append(self._api_version_validation(builder))
         return retval
-    
+
     def _api_version_validation(self, builder: OperationType) -> str:
         if builder.is_overload:
             return ""
@@ -1085,9 +1085,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         return retval
 
     def error_map(self, builder: OperationType) -> List[str]:
-        retval = [
-            "error_map: MutableMapping = {"
-        ]
+        retval = ["error_map: MutableMapping = {"]
         if builder.non_default_errors:
             if not 401 in builder.non_default_error_status_codes:
                 retval.append("    401: ClientAuthenticationError,")

@@ -17,7 +17,13 @@ from .helpers import (
 from .python_mappings import CADL_RESERVED_WORDS, RESERVED_WORDS, PadType
 
 from .. import YamlUpdatePlugin
-from ..utils import parse_args, get_body_type_for_description, JSON_REGEXP, KNOWN_TYPES, update_enum_value
+from ..utils import (
+    parse_args,
+    get_body_type_for_description,
+    JSON_REGEXP,
+    KNOWN_TYPES,
+    update_enum_value,
+)
 
 
 def update_overload_section(

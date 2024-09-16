@@ -8,6 +8,7 @@ from typing import TypeVar, Dict
 T = TypeVar("T")
 OrderedSet = Dict[T, None]
 
+
 def add_to_description(description: str, entry: str) -> str:
     if description:
         return f"{description} {entry}"

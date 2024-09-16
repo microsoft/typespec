@@ -15,15 +15,18 @@ const argv = parseArgs({
 });
 
 export function pylint() {
-  runCommand(`pylint ${argv.values.folderName}/ --rcfile ./scripts/eng/pylintrc`, "pylint");
+  runCommand(`pylint ${argv.values.folderName}/ --rcfile ./eng/scripts/ci/pylintrc`, "pylint");
 }
 
 export function mypy() {
-  runCommand(`mypy ${argv.values.folderName}/ --config-file ./scripts/eng/mypy.ini`, "mypy");
+  runCommand(`mypy ${argv.values.folderName}/ --config-file ./eng/scripts/ci/mypy.ini`, "mypy");
 }
 
 export function pyright() {
-  runCommand(`pyright ${argv.values.folderName}/ -p ./scripts/eng/pyrightconfig.json`, "pyright");
+  runCommand(
+    `pyright ${argv.values.folderName}/ -p ./eng/scripts/ci/pyrightconfig.json`,
+    "pyright"
+  );
 }
 
 export function eslint() {

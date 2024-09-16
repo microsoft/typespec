@@ -124,7 +124,11 @@ async def test_file_with_http_part_optional_content_type(client: MultiPartClient
     )
     await client.form_data.http_parts.content_type.optional_content_type(
         models.FileWithHttpPartOptionalContentTypeRequest(
-            profile_image=("hello.jpg", open(str(JPG), "rb").read(), "application/octet-stream"),
+            profile_image=(
+                "hello.jpg",
+                open(str(JPG), "rb").read(),
+                "application/octet-stream",
+            ),
         )
     )
 

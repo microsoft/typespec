@@ -42,8 +42,7 @@ def _serialize_versioned_package(i: ImportModel, delimiter: str) -> str:
         )
     buffer.append("else:")
     buffer.append(
-        f"    from {i.module_name} import {i.submodule_name}{f' as {i.alias}' if i.alias else ''}"
-        "  # type: ignore"
+        f"    from {i.module_name} import {i.submodule_name}{f' as {i.alias}' if i.alias else ''}" "  # type: ignore"
     )
     return delimiter.join(buffer)
 

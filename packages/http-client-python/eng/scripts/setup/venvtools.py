@@ -32,7 +32,13 @@ class ExtendedEnvBuilder(venv.EnvBuilder):
 
 
 def create(
-    env_dir, system_site_packages=False, clear=False, symlinks=False, with_pip=False, prompt=None, upgrade_deps=False
+    env_dir,
+    system_site_packages=False,
+    clear=False,
+    symlinks=False,
+    with_pip=False,
+    prompt=None,
+    upgrade_deps=False,
 ):
     """Create a virtual environment in a directory."""
     builder = ExtendedEnvBuilder(

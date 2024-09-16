@@ -14,7 +14,10 @@ RESOURCE_GROUP_NAME = "test-rg"
 @pytest.fixture
 async def client(credential, authentication_policy):
     async with ResourcesClient(
-        credential, SUBSCRIPTION_ID, "http://localhost:3000", authentication_policy=authentication_policy
+        credential,
+        SUBSCRIPTION_ID,
+        "http://localhost:3000",
+        authentication_policy=authentication_policy,
     ) as client:
         yield client
 
@@ -23,7 +26,10 @@ async def client(credential, authentication_policy):
 async def test_client_signature(credential, authentication_policy):
     # make sure signautre order is correct
     client1 = ResourcesClient(
-        credential, SUBSCRIPTION_ID, "http://localhost:3000", authentication_policy=authentication_policy
+        credential,
+        SUBSCRIPTION_ID,
+        "http://localhost:3000",
+        authentication_policy=authentication_policy,
     )
     # make sure signautre name is correct
     client2 = ResourcesClient(
@@ -37,7 +43,8 @@ async def test_client_signature(credential, authentication_policy):
         await client.top_level_tracked_resources.get(RESOURCE_GROUP_NAME, "top")
         # make sure signautre name is correct
         await client.top_level_tracked_resources.get(
-            resource_group_name=RESOURCE_GROUP_NAME, top_level_tracked_resource_name="top"
+            resource_group_name=RESOURCE_GROUP_NAME,
+            top_level_tracked_resource_name="top",
         )
 
 

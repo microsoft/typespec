@@ -2,4 +2,4 @@
 
 import { runCommand } from "./utils.js";
 
-runCommand("black .", "black");
+runCommand("black . --config ./eng/scripts/ci/pyproject.toml", "black");
