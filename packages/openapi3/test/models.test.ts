@@ -266,7 +266,7 @@ describe("openapi3: models", () => {
         scalar shortName { init name(value: string);}
 
         model Pet { name: shortName = shortName.name("Shorty"); }
-      `
+      `,
     );
 
     expect(res.schemas.Pet.properties.name.default).toEqual("Shorty");
@@ -277,7 +277,7 @@ describe("openapi3: models", () => {
       "Test",
       `
         model Test { @encode("rfc7231") minDate: utcDateTime = utcDateTime.fromISO("2024-01-01T11:32:00Z"); }
-      `
+      `,
     );
 
     expect(res.schemas.Test.properties.minDate.default).toEqual("Mon, 01 Jan 2024 11:32:00 GMT");
@@ -288,7 +288,7 @@ describe("openapi3: models", () => {
       "Test",
       `
         model Test { Pet: {name: string;} = #{ name: "Dog"}; }
-      `
+      `,
     );
 
     expect(res.schemas.Test.properties.Pet.default.name).toEqual("Dog");

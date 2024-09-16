@@ -925,7 +925,7 @@ const B = {
 export function getDefaultValue(
   program: Program,
   defaultType: Value,
-  modelProperty?: ModelProperty
+  modelProperty?: ModelProperty,
 ): any {
   switch (defaultType.valueKind) {
     case "StringValue":
@@ -942,12 +942,7 @@ export function getDefaultValue(
       return defaultType.value.value ?? defaultType.value.name;
     case "ScalarValue":
       if (modelProperty) {
-        return serializeValueAsJson(
-          program,
-          defaultType,
-          defaultType.type,
-          getEncode(program, modelProperty)
-        );
+        return serializeValueAsJson(program, defaultType, modelProperty);
       }
       return serializeValueAsJson(program, defaultType, defaultType.type);
     case "ObjectValue":
