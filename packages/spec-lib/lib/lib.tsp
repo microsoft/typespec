@@ -12,7 +12,7 @@ alias ScenarioServiceOptions = {
 /**
  * Setup the boilerplate for a scenario service(server endpoint, etc.)
  */
-extern dec scenarioService(target: Namespace, route: string, options?: ScenarioServiceOptions);
+extern dec scenarioService(target: Namespace, route: string, options?: valueof ScenarioServiceOptions);
 
 /**
  * Mark an operation, interface or namespace as a scenario. All containing operations will be part of the same scenario.
