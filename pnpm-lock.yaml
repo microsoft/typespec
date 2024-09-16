@@ -1329,7 +1329,7 @@ importers:
         specifier: ~1.1.0
         version: 1.1.0
       prettier:
-        specifier: ^3.0.3
+        specifier: ~3.3.3
         version: 3.3.3
       winston:
         specifier: ^3.8.2
@@ -1384,7 +1384,7 @@ importers:
   packages/spec-core:
     dependencies:
       '@azure/identity':
-        specifier: ^4.4.1
+        specifier: ~4.4.1
         version: 4.4.1
       '@types/js-yaml':
         specifier: ^4.0.5
@@ -1484,8 +1484,8 @@ importers:
         specifier: ~17.0.33
         version: 17.0.33
       rimraf:
-        specifier: ^5.0.5
-        version: 5.0.10
+        specifier: ~6.0.1
+        version: 6.0.1
       typescript:
         specifier: ~5.6.2
         version: 5.6.2
@@ -1493,18 +1493,18 @@ importers:
   packages/spec-coverage-sdk:
     dependencies:
       '@azure/identity':
-        specifier: ^4.4.1
+        specifier: ~4.4.1
         version: 4.4.1
       '@azure/storage-blob':
-        specifier: ^12.24.0
+        specifier: ~12.24.0
         version: 12.24.0
       '@types/node':
         specifier: ~22.5.4
         version: 22.5.5
     devDependencies:
       rimraf:
-        specifier: ^5.0.5
-        version: 5.0.10
+        specifier: ~6.0.1
+        version: 6.0.1
       typescript:
         specifier: ~5.6.2
         version: 5.6.2
@@ -1531,8 +1531,8 @@ importers:
         specifier: workspace:~
         version: link:../tspd
       rimraf:
-        specifier: ^5.0.5
-        version: 5.0.10
+        specifier: ~6.0.1
+        version: 6.0.1
       typescript:
         specifier: ~5.6.2
         version: 5.6.2
@@ -10754,10 +10754,6 @@ packages:
   rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
     deprecated: Rimraf versions prior to v4 are no longer supported
-    hasBin: true
-
-  rimraf@5.0.10:
-    resolution: {integrity: sha512-l0OE8wL34P4nJH/H2ffoaniAokM2qSmrtXHmlpvYr5AVVX8msAyW0l8NVJFDxlSK4u3Uh/f41cQheDVdnYijwQ==}
     hasBin: true
 
   rimraf@6.0.1:
@@ -23898,10 +23894,6 @@ snapshots:
   rimraf@3.0.2:
     dependencies:
       glob: 7.2.3
-
-  rimraf@5.0.10:
-    dependencies:
-      glob: 10.4.2
 
   rimraf@6.0.1:
     dependencies:
