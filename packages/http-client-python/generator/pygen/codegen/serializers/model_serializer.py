@@ -104,6 +104,7 @@ class _ModelSerializer(BaseSerializer, ABC):
         properties_to_pass_to_super.append("**kwargs")
         return ", ".join(properties_to_pass_to_super)
 
+    @abstractmethod
     def initialize_properties(self, model: ModelType) -> List[str]: ...
 
     def need_init(self, model: ModelType) -> bool:

@@ -91,7 +91,7 @@ class BaseBuilder(
             return None
         return self._summary
 
-    def pylint_disable(self, async_mode: bool) -> str:
+    def pylint_disable(self, async_mode: bool) -> str: # pylint: disable=unused-argument
         return ""
 
     @abstractmethod
