@@ -6,7 +6,7 @@ let siteConsent = null;
 WcpConsent &&
   WcpConsent.init("en-US", "cookie-banner", (err, _siteConsent) => {
     if (err != undefined) {
-      return error;
+      return err;
     } else {
       siteConsent = _siteConsent; //siteConsent is used to get the current consent
     }
