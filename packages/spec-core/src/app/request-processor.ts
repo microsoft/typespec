@@ -16,7 +16,7 @@ export async function processRequest(
   scenarioUri: string,
   request: RequestExt,
   response: Response,
-  func: MockRequestHandler
+  func: MockRequestHandler,
 ): Promise<void> {
   const mockRequest = new MockRequest(request);
   const mockResponse = await callHandler(mockRequest, response, func);
@@ -45,7 +45,7 @@ const processResponse = (response: Response, mockResponse: MockResponse) => {
 const callHandler = async (
   mockRequest: MockRequest,
   response: Response,
-  func: MockRequestHandler
+  func: MockRequestHandler,
 ): Promise<MockResponse | undefined> => {
   try {
     return func(mockRequest);
@@ -59,7 +59,7 @@ const callHandler = async (
         `Request validation failed: ${e.message}:`,
         ` Expected:\n${inspect(e.expected)}`,
         ` Actual: \n${inspect(e.actual)}`,
-      ].join("\n")
+      ].join("\n"),
     );
     response
       .status(400)

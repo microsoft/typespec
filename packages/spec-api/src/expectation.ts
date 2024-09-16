@@ -78,7 +78,7 @@ export class RequestExpectation {
   public containsQueryParam(
     paramName: string,
     expectedValue: string | string[],
-    collectionFormat?: CollectionFormat
+    collectionFormat?: CollectionFormat,
   ): void {
     validateQueryParam(this.originalRequest, paramName, expectedValue, collectionFormat);
   }

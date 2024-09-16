@@ -75,7 +75,7 @@ function head<T extends MockRequestHandler>(uri: string, func: T): MockApiForHan
 function request<T extends MockRequestHandler>(
   method: HttpMethod,
   uri: string,
-  handler: T
+  handler: T,
 ): MockApiForHandler<T> {
   return { method, uri, handler } as any;
 }

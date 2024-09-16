@@ -3,23 +3,23 @@ import { pathToFileURL } from "url";
 import { ResolveModuleHost, resolveModule } from "./module-resolver.js";
 
 export async function importTypeSpec(
-  baseDir: string
+  baseDir: string,
 ): Promise<typeof import("@typespec/compiler")> {
   return importTypeSpecLibrary("@typespec/compiler", baseDir);
 }
 export async function importSpecExpect(
-  baseDir: string
+  baseDir: string,
 ): Promise<typeof import("@typespec/spec-lib")> {
   return importTypeSpecLibrary("@typespec/spec-lib", baseDir);
 }
 export async function importTypeSpecRest(
-  baseDir: string
+  baseDir: string,
 ): Promise<typeof import("@typespec/rest")> {
   return importTypeSpecLibrary("@typespec/rest", baseDir);
 }
 
 export async function importTypeSpecHttp(
-  baseDir: string
+  baseDir: string,
 ): Promise<typeof import("@typespec/http")> {
   return importTypeSpecLibrary("@typespec/http", baseDir);
 }

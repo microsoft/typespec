@@ -28,7 +28,7 @@ const rawBodySaver = (
   req: RequestExt,
   res: ServerResponse,
   buf: Buffer,
-  encoding: BufferEncoding
+  encoding: BufferEncoding,
 ) => {
   if (buf && buf.length) {
     req.rawBody = cleanupBody(buf.toString(encoding || "utf8"));
@@ -39,7 +39,7 @@ const rawBinaryBodySaver = (
   req: RequestExt,
   res: ServerResponse,
   buf: Buffer,
-  encoding: BufferEncoding
+  encoding: BufferEncoding,
 ) => {
   if (buf && buf.length) {
     req.rawBody = buf;
@@ -58,7 +58,11 @@ export class MockApiServer {
     this.app.use(morgan("dev", { stream: loggerstream }));
     this.app.use(bodyParser.json({ verify: rawBodySaver, strict: false }));
     this.app.use(
-      bodyParser.json({ type: "application/merge-patch+json", verify: rawBodySaver, strict: false })
+      bodyParser.json({
+        type: "application/merge-patch+json",
+        verify: rawBodySaver,
+        strict: false,
+      }),
     );
     this.app.use(bodyParser.urlencoded({ verify: rawBodySaver, extended: true }));
     this.app.use(bodyParser.text({ type: "*/xml", verify: rawBodySaver }));
@@ -69,7 +73,7 @@ export class MockApiServer {
         type: ["application/octet-stream", "image/png"],
         limit: "10mb",
         verify: rawBinaryBodySaver,
-      })
+      }),
     );
     this.app.use(multer().any());
   }

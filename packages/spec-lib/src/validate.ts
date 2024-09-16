@@ -40,7 +40,7 @@ export function $onValidate(program: Program) {
 
 function checkIsInScenario(
   program: Program,
-  type: Operation | Interface | Namespace
+  type: Operation | Interface | Namespace,
 ): Operation | Interface | Namespace | undefined {
   if (getScenarioName(program, type)) {
     return type;

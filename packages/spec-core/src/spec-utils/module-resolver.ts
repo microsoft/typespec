@@ -26,7 +26,7 @@ type ResolveModuleErrorCode = "MODULE_NOT_FOUND";
 export class ResolveModuleError extends Error {
   public constructor(
     public code: ResolveModuleErrorCode,
-    message: string
+    message: string,
   ) {
     super(message);
   }
@@ -42,7 +42,7 @@ export class ResolveModuleError extends Error {
 export async function resolveModule(
   host: ResolveModuleHost,
   name: string,
-  options: ResolveModuleOptions
+  options: ResolveModuleOptions,
 ) {
   const { baseDir } = options;
   const absoluteStart = baseDir === "" ? "." : await host.realpath(resolvePath(baseDir));
@@ -63,7 +63,7 @@ export async function resolveModule(
 
   throw new ResolveModuleError(
     "MODULE_NOT_FOUND",
-    `Cannot find module '${name} ' from '${baseDir}'`
+    `Cannot find module '${name} ' from '${baseDir}'`,
   );
 
   /**
@@ -110,7 +110,7 @@ export async function resolveModule(
         return loadAsFile(mainFullPath) ?? loadAsDirectory(mainFullPath);
       } catch (e) {
         throw new Error(
-          `Cannot find module '${mainFullPath}'. Please verify that the package.json has a valid "main" entry`
+          `Cannot find module '${mainFullPath}'. Please verify that the package.json has a valid "main" entry`,
         );
       }
     }

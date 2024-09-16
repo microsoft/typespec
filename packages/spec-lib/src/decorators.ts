@@ -63,7 +63,7 @@ export const $scenarioService: ScenarioServiceDecorator = (context, target, rout
 
 export function getScenarioDoc(
   program: Program,
-  target: Operation | Interface | Namespace
+  target: Operation | Interface | Namespace,
 ): string | undefined {
   return program.stateMap(SpecLibStateKeys.ScenarioDoc).get(target);
 }
@@ -97,7 +97,7 @@ export function listScenarios(program: Program): Scenario[] {
 
 export function getScenarioEndpoints(
   program: Program,
-  target: Namespace | Interface | Operation
+  target: Namespace | Interface | Operation,
 ): ScenarioEndpoint[] {
   switch (target.kind) {
     case "Namespace":
@@ -166,7 +166,7 @@ function getRouteSegmentFromServer(program: Program): string | undefined {
 
 export function listScenarioIn(
   program: Program,
-  target: Namespace | Interface | Operation
+  target: Namespace | Interface | Operation,
 ): Scenario[] {
   const scenarioName = getScenarioName(program, target);
   if (scenarioName) {
@@ -217,7 +217,7 @@ export function isScenario(program: Program, target: Operation | Interface | Nam
 
 export function getScenarioName(
   program: Program,
-  target: Operation | Interface | Namespace
+  target: Operation | Interface | Namespace,
 ): string | undefined {
   const name = program.stateMap(SpecLibStateKeys.Scenario).get(target);
   if (name === undefined) {

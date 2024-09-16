@@ -25,7 +25,7 @@ export class MockApiApp {
     const scenarios = await loadScenarioMockApis(this.config.scenarioPath);
     this.coverageTracker.setScenarios(
       await getScenarioMetadata(this.config.scenarioPath),
-      scenarios
+      scenarios,
     );
     for (const [name, scenario] of Object.entries(scenarios)) {
       this.registerScenario(name, scenario);
@@ -45,7 +45,7 @@ export class MockApiApp {
           (e) => {
             logger.error("Unexpected request error", e);
             res.status(500).end();
-          }
+          },
         );
       });
     }

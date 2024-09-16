@@ -10,7 +10,7 @@ export const BODY_NOT_EMPTY_ERROR_MESSAGE = "Body should be empty";
 
 export const validateRawBodyEquals = (
   request: RequestExt,
-  expectedRawBody: string | Buffer | undefined
+  expectedRawBody: string | Buffer | undefined,
 ): void => {
   const actualRawBody = request.rawBody;
 
@@ -28,7 +28,7 @@ export const validateRawBodyEquals = (
 
 export const validateBodyEquals = (
   request: RequestExt,
-  expectedBody: unknown | undefined
+  expectedBody: unknown | undefined,
 ): void => {
   if (expectedBody == null) {
     if (!isBodyEmpty(request.rawBody)) {
@@ -69,14 +69,14 @@ export const validateXmlBodyEquals = (request: RequestExt, expectedBody: string)
     throw new ValidationError(
       BODY_NOT_EQUAL_ERROR_MESSAGE,
       prettier.format(expectedBody),
-      prettier.format(request.body)
+      prettier.format(request.body),
     );
   }
 };
 
 export const validateCoercedDateBodyEquals = (
   request: RequestExt,
-  expectedBody: unknown | undefined
+  expectedBody: unknown | undefined,
 ): void => {
   if (expectedBody == null) {
     if (!isBodyEmpty(request.rawBody)) {
@@ -140,7 +140,7 @@ export const validateQueryParam = (
   request: RequestExt,
   paramName: string,
   expected: string | string[],
-  collectionFormat?: CollectionFormat
+  collectionFormat?: CollectionFormat,
 ): void => {
   const actual = request.query[paramName];
   const splitterMap = {
@@ -162,14 +162,14 @@ export const validateQueryParam = (
       throw new ValidationError(
         `Expected query param collection ${paramName}=${expected} in ${collectionFormat}, but got ${actual}`,
         expected,
-        actual
+        actual,
       );
     }
   } else if (actual !== expected) {
     throw new ValidationError(
       `Expected query param ${paramName}=${expected} but got ${actual}`,
       expected,
-      actual
+      actual,
     );
   }
 };
@@ -178,7 +178,7 @@ const coerceDate = (targetObject: Record<string, unknown>): Record<string, unkno
   let stringRep = JSON.stringify(targetObject);
   stringRep = stringRep.replace(
     /(\d\d\d\d-\d\d-\d\d[Tt]\d\d:\d\d:\d\d)(\.\d{3,7})?([Zz]|[+-]00:00)/g,
-    "$1Z"
+    "$1Z",
   );
   return JSON.parse(stringRep);
 };
@@ -188,7 +188,7 @@ const coerceDate = (targetObject: Record<string, unknown>): Record<string, unkno
  */
 export const validateValueFormat = (
   value: string,
-  format: "uuid" | "rfc7231" | "rfc3339"
+  format: "uuid" | "rfc7231" | "rfc3339",
 ): void => {
   switch (format) {
     case "uuid":
@@ -199,7 +199,7 @@ export const validateValueFormat = (
     case "rfc7231":
       if (
         !/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s\d{2}\s(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s\d{4}\s\d{2}:\d{2}:\d{2}\sGMT$/i.test(
-          value
+          value,
         )
       ) {
         throw new ValidationError(`Expected rfc7231 format but got ${value}`, "rfc7231", value);
