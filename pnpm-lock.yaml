@@ -1319,9 +1319,6 @@ importers:
       express-promise-router:
         specifier: ^4.1.1
         version: 4.1.1(@types/express@4.17.21)(express@4.19.2)
-      glob:
-        specifier: ^10.2.2
-        version: 10.4.2
       morgan:
         specifier: ^1.10.0
         version: 1.10.0
@@ -1356,9 +1353,6 @@ importers:
       '@types/express':
         specifier: ^4.17.17
         version: 4.17.21
-      '@types/glob':
-        specifier: ^8.1.0
-        version: 8.1.0
       '@types/mocha':
         specifier: ^10.0.1
         version: 10.0.7
@@ -1437,9 +1431,9 @@ importers:
       express-promise-router:
         specifier: ^4.1.1
         version: 4.1.1(@types/express@4.17.21)(express@4.19.2)
-      glob:
-        specifier: ^10.2.2
-        version: 10.4.2
+      globby:
+        specifier: ~14.0.2
+        version: 14.0.2
       jackspeak:
         specifier: 2.1.1
         version: 2.1.1
@@ -1480,9 +1474,6 @@ importers:
       '@types/express':
         specifier: ^4.17.17
         version: 4.17.21
-      '@types/glob':
-        specifier: ^8.1.0
-        version: 8.1.0
       '@types/morgan':
         specifier: ^1.9.4
         version: 1.9.9
@@ -5291,9 +5282,6 @@ packages:
 
   '@types/glob@7.2.0':
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
-
-  '@types/glob@8.1.0':
-    resolution: {integrity: sha512-IO+MJPVhoqz+28h1qLAcBEH2+xHMK6MTyHJc7MTnnYb6wsoLR29POVGJ7LycmVXIqyy/4/2ShP5sUwTXuOwb/w==}
 
   '@types/gtag.js@0.0.12':
     resolution: {integrity: sha512-YQV9bUsemkzG81Ea295/nF/5GijnD2Af7QhEofh7xu+kvCN6RdodgNwwGWXB5GMI3NoyvQo0odNctoH/qLMIpg==}
@@ -17568,11 +17556,6 @@ snapshots:
     dependencies:
       '@types/minimatch': 5.1.2
       '@types/node': 22.5.5
-
-  '@types/glob@8.1.0':
-    dependencies:
-      '@types/minimatch': 5.1.2
-      '@types/node': 18.19.43
 
   '@types/gtag.js@0.0.12': {}
 
