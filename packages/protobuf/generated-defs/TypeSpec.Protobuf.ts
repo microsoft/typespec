@@ -51,7 +51,7 @@ export type MessageDecorator = (context: DecoratorContext, target: Type) => void
 export type FieldDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-  index: number
+  index: number,
 ) => void;
 
 /**
@@ -107,7 +107,7 @@ export type ServiceDecorator = (context: DecoratorContext, target: Interface) =>
 export type PackageDecorator = (
   context: DecoratorContext,
   target: Namespace,
-  details?: Type
+  details?: Type,
 ) => void;
 
 /**

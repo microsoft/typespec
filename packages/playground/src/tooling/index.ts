@@ -9,7 +9,7 @@ import type { PlaygroundSampleConfig } from "./types.js";
 export async function buildSamples_experimental(
   rootDir: string,
   output: string,
-  samples: Record<string, PlaygroundSampleConfig>
+  samples: Record<string, PlaygroundSampleConfig>,
 ) {
   const resolvedSamples: Record<string, PlaygroundSample> = {};
 

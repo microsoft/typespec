@@ -24,7 +24,7 @@ export function useTreeControls({ onSetExpanded }: TreeControlsOptions): TreeCon
       onSetExpanded?.(expanded);
       setRerender((x) => x + 1);
     },
-    [expanded]
+    [expanded],
   );
 
   const expand = useCallback(
@@ -33,7 +33,7 @@ export function useTreeControls({ onSetExpanded }: TreeControlsOptions): TreeCon
       onSetExpanded?.(expanded);
       setRerender((x) => x + 1);
     },
-    [expanded]
+    [expanded],
   );
   const collapse = useCallback(
     (key: string) => {
@@ -41,11 +41,11 @@ export function useTreeControls({ onSetExpanded }: TreeControlsOptions): TreeCon
       onSetExpanded?.(expanded);
       setRerender((x) => x + 1);
     },
-    [expanded]
+    [expanded],
   );
 
   return useMemo(
     () => ({ expanded: new Set(expanded), toggleExpand, expand, collapse }),
-    [expanded, toggleExpand, expand, collapse, expanded, rerender]
+    [expanded, toggleExpand, expand, collapse, expanded, rerender],
   );
 }

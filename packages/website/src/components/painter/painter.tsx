@@ -27,7 +27,7 @@ function painterFactory(options: PainterOptions): Painter {
   const fn = (...children: ReactNode[]) => {
     const cls = clsx(
       style[`color-${options.color}`],
-      ...modifiers.map((x) => (options[x] ? style[`mod-${x}`] : undefined))
+      ...modifiers.map((x) => (options[x] ? style[`mod-${x}`] : undefined)),
     );
     const content = (
       <span className={cls}>

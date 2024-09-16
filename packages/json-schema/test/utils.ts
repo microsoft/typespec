@@ -29,7 +29,7 @@ export async function emitSchemaWithDiagnostics(
     emitNamespace?: boolean;
     emitTypes?: string[];
     decorators?: Record<string, any>;
-  } = { emitNamespace: true }
+  } = { emitNamespace: true },
 ): Promise<[Record<string, any>, readonly Diagnostic[]]> {
   if (!options["file-type"]) {
     options["file-type"] = "json";
@@ -45,7 +45,7 @@ export async function emitSchemaWithDiagnostics(
     {
       emitterOutputDir: "cadl-output",
       options,
-    } as any
+    } as any,
   );
   if (options.emitAllModels) {
     emitter.emitProgram({ emitTypeSpecNamespace: false });
@@ -80,7 +80,7 @@ export async function emitSchema(
     emitNamespace?: boolean;
     emitTypes?: string[];
     decorators?: Record<string, any>;
-  } = { emitNamespace: true }
+  } = { emitNamespace: true },
 ) {
   const [schemas, diagnostics] = await emitSchemaWithDiagnostics(code, options, testOptions);
   expectDiagnosticEmpty(diagnostics);

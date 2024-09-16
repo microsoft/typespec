@@ -12,7 +12,7 @@ import { InputAuth } from "../type/input-auth.js";
 import { Logger } from "./logger.js";
 
 export function processServiceAuthentication(
-  sdkPackage: SdkPackage<SdkHttpOperation>
+  sdkPackage: SdkPackage<SdkHttpOperation>,
 ): InputAuth | undefined {
   let authClientParameter: SdkCredentialParameter | undefined = undefined;
   for (const client of sdkPackage.clients) {
@@ -57,7 +57,7 @@ function processAuthType(credentialType: SdkCredentialType): InputAuth | undefin
         switch (schemeOrApiKeyPrefix) {
           case "basic":
             Logger.getInstance().warn(
-              `${schemeOrApiKeyPrefix} auth method is currently not supported.`
+              `${schemeOrApiKeyPrefix} auth method is currently not supported.`,
             );
             return undefined;
           case "bearer":

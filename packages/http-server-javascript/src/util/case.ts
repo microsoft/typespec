@@ -127,7 +127,7 @@ function recase(components: readonly string[]): ReCase {
     get camelCase() {
       return components
         .map((component, index) =>
-          index === 0 ? component : component[0].toUpperCase() + component.slice(1)
+          index === 0 ? component : component[0].toUpperCase() + component.slice(1),
         )
         .join("");
     },

@@ -19,7 +19,7 @@ const FileViewerComponent = ({
       const contents = await program.host.readFile("./tsp-output/" + path);
       setContent(contents.text);
     },
-    [program.host]
+    [program.host],
   );
 
   useEffect(() => {
@@ -38,7 +38,7 @@ const FileViewerComponent = ({
       setFilename(newFilename);
       void loadOutputFile(newFilename);
     },
-    [loadOutputFile]
+    [loadOutputFile],
   );
 
   if (outputFiles.length === 0) {

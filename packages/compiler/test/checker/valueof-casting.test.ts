@@ -47,7 +47,7 @@ it("passing an enum member to 'EnumMember | valueof string' pass the type", asyn
   const entity = await compileValueOrType(
     "Reflection.EnumMember | valueof string",
     `A.a`,
-    `enum A { a }`
+    `enum A { a }`,
   );
   ok(isType(entity));
   strictEqual(entity.kind, "EnumMember");

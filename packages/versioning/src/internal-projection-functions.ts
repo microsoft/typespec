@@ -14,7 +14,7 @@ export const namespace = "TypeSpec.Versioning";
 
 function getVersioningState(
   program: Program,
-  versionKey: ObjectType
+  versionKey: ObjectType,
 ): {
   timeline: VersioningTimeline;
   projectingMoment: TimelineMoment;
@@ -45,7 +45,7 @@ export function getNameAtVersion(p: Program, t: Type, versionKey: ObjectType): s
 export function getTypeBeforeVersion(
   p: Program,
   t: Type,
-  versionKey: ObjectType
+  versionKey: ObjectType,
 ): Type | undefined {
   const versioningState = getVersioningState(p, versionKey);
 
@@ -119,7 +119,7 @@ export function hasDifferentTypeAtVersion(p: Program, type: Type, version: Objec
 export function hasDifferentReturnTypeAtVersion(
   p: Program,
   type: Type,
-  version: ObjectType
+  version: ObjectType,
 ): boolean {
   return getReturnTypeBeforeVersion(p, type, version) !== "";
 }

@@ -74,7 +74,7 @@ export class ConvenienceApi extends Metadata {
           },
         },
       },
-      initializer
+      initializer,
     );
   }
 
@@ -108,7 +108,7 @@ export class Request extends Metadata implements Request {
           each.schema.type !== SchemaType.Constant &&
           each.implementation !== ImplementationLocation.Client &&
           !each.groupedBy &&
-          !each.flattened
+          !each.flattened,
       );
     }
   }
@@ -139,7 +139,7 @@ export class Operation extends Aspect implements Operation {
           each.schema.type !== SchemaType.Constant &&
           each.implementation !== ImplementationLocation.Client &&
           !each.groupedBy &&
-          !each.flattened
+          !each.flattened,
       );
     }
   }

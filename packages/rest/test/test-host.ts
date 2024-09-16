@@ -34,7 +34,7 @@ export interface RouteDetails {
 
 export async function getRoutesFor(
   code: string,
-  routeOptions?: RouteResolutionOptions
+  routeOptions?: RouteResolutionOptions,
 ): Promise<RouteDetails[]> {
   const [routes, diagnostics] = await compileOperations(code, routeOptions);
   expectDiagnosticEmpty(diagnostics);
@@ -60,7 +60,7 @@ export interface SimpleOperationDetails {
 
 export async function compileOperations(
   code: string,
-  routeOptions?: RouteResolutionOptions
+  routeOptions?: RouteResolutionOptions,
 ): Promise<[SimpleOperationDetails[], readonly Diagnostic[]]> {
   const [routes, diagnostics] = await getOperationsWithServiceNamespace(code, routeOptions);
 
@@ -84,7 +84,7 @@ export async function compileOperations(
 
 export async function getOperationsWithServiceNamespace(
   code: string,
-  routeOptions?: RouteResolutionOptions
+  routeOptions?: RouteResolutionOptions,
 ): Promise<[HttpOperation[], readonly Diagnostic[]]> {
   const runner = await createRestTestRunner();
   await runner.compileAndDiagnose(
@@ -92,7 +92,7 @@ export async function getOperationsWithServiceNamespace(
     ${code}`,
     {
       noEmit: true,
-    }
+    },
   );
   const [services] = getAllHttpServices(runner.program, routeOptions);
   return [services[0].operations, runner.program.diagnostics];

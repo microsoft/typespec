@@ -28,7 +28,7 @@ describe("scalar constraints", () => {
             @minValue(1)
             @maxValue(2)
             scalar Test extends ${numType};
-          `
+          `,
           );
 
           strictEqual(schemas.schemas.Test.minimum, 1);
@@ -43,7 +43,7 @@ describe("scalar constraints", () => {
           @minValue(1)
           @maxValue(2)
           union Test {int32, string, null};
-        `
+        `,
         );
 
         strictEqual(schemas.schemas.Test.minimum, 1);
@@ -60,7 +60,7 @@ describe("scalar constraints", () => {
             @minValueExclusive(1)
             @maxValueExclusive(2)
             scalar Test extends ${numType};
-          `
+          `,
           );
 
           strictEqual(schemas.schemas.Test.minimum, 1);
@@ -76,7 +76,7 @@ describe("scalar constraints", () => {
             @minValueExclusive(1)
             @maxValueExclusive(2)
             union Test {int32, string, null};
-          `
+          `,
           );
 
           strictEqual(schemas.schemas.Test.minimum, 1);
@@ -108,7 +108,7 @@ describe("scalar constraints", () => {
         `
         ${decorators}
         scalar Test extends string;
-      `
+      `,
       );
 
       assertStringConstraints(schemas.schemas.Test);
@@ -119,7 +119,7 @@ describe("scalar constraints", () => {
         `
         ${decorators}
         union Test {string, int32, null};
-      `
+      `,
       );
 
       assertStringConstraints(schemas.schemas.Test);
