@@ -18,10 +18,11 @@ try {
     }
 
     # install and list npm packages
+  
     if ($BuildArtifactsPath) {
         $lockFilesPath = Resolve-Path "$BuildArtifactsPath/lock-files"
         # if we were passed a build_artifacts path, use the package.json and package-lock.json from there
-        Write-Host "Using package.json and package-lock.json from $lockFilesPath"
+        Write-Host "Using emitter/package.json and emitter/package-lock.json from $lockFilesPath"
         Copy-Item "$lockFilesPath/emitter/package.json" './package.json' -Force
         Copy-Item "$lockFilesPath/emitter/package-lock.json" './package-lock.json' -Force
 
@@ -43,7 +44,7 @@ try {
         $lockFilesPath = "$artifactStagingDirectory/lock-files"
         New-Item -ItemType Directory -Path "$lockFilesPath/emitter" | Out-Null
         
-        Write-Host "Copying package.json and emitter/package-lock.json to $lockFilesPath"
+        Write-Host "Copying emitter/package.json and emitter/package-lock.json to $lockFilesPath"
         Copy-Item './package.json' "$lockFilesPath/emitter/package.json" -Force
         Copy-Item './package-lock.json' "$lockFilesPath/emitter/package-lock.json" -Force
     }
