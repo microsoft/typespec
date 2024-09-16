@@ -53,7 +53,7 @@ export interface ServerHost {
   readonly sendDiagnostics: (params: PublishDiagnosticsParams) => void;
   readonly log: (log: ServerLog) => void;
   readonly applyEdit: (
-    paramOrEdit: ApplyWorkspaceEditParams | WorkspaceEdit
+    paramOrEdit: ApplyWorkspaceEditParams | WorkspaceEdit,
   ) => Promise<ApplyWorkspaceEditResult>;
 }
 

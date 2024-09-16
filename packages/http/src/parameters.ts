@@ -25,7 +25,7 @@ export function getOperationParameters(
   operation: Operation,
   partialUriTemplate: string,
   overloadBase?: HttpOperation,
-  options: OperationParameterOptions = {}
+  options: OperationParameterOptions = {},
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const verb =
     (options?.verbSelector && options.verbSelector(program, operation)) ??
@@ -57,7 +57,7 @@ function getOperationParametersForVerb(
   program: Program,
   operation: Operation,
   verb: HttpVerb,
-  partialUriTemplate: string
+  partialUriTemplate: string,
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const visibility = resolveRequestVisibility(program, operation, verb);
@@ -67,7 +67,7 @@ function getOperationParametersForVerb(
   const { body: resolvedBody, metadata } = diagnostics.pipe(
     resolveHttpPayload(program, operation.parameters, visibility, "request", {
       implicitParameter: (
-        param: ModelProperty
+        param: ModelProperty,
       ): QueryParameterOptions | PathParameterOptions | undefined => {
         const isTopLevel = param.model === operation.parameters;
         const uriParam =
@@ -102,7 +102,7 @@ function getOperationParametersForVerb(
           };
         }
       },
-    })
+    }),
   );
 
   for (const item of metadata) {
@@ -121,7 +121,7 @@ function getOperationParametersForVerb(
               code: "optional-path-param",
               format: { paramName: item.property.name },
               target: item.property,
-            })
+            }),
           );
         }
       // eslint-disable-next-line no-fallthrough

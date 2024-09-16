@@ -132,11 +132,11 @@ describe("compiler: type-utils", () => {
         ok(isDeclaredInNamespace(type, SubAlpha), `${name} was not found under SubAlpha`);
         ok(
           !isDeclaredInNamespace(type, Alpha, { recursive: false }),
-          `${name} should not be found when recursive: false`
+          `${name} should not be found when recursive: false`,
         );
         ok(
           !isDeclaredInNamespace(type, Beta, { recursive: false }),
-          `${name} should not be found in namespace Beta`
+          `${name} should not be found in namespace Beta`,
         );
       }
     });

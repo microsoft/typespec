@@ -48,12 +48,12 @@ export function fromSdkServiceMethod(
   clientParameters: InputParameter[],
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): InputOperation {
   let generateConvenience = shouldGenerateConvenient(sdkContext, method.operation.__raw.operation);
   if (method.operation.verb === "patch" && generateConvenience) {
     Logger.getInstance().warn(
-      `Convenience method is not supported for PATCH method, it will be automatically turned off. Please set the '@convenientAPI' to false for operation ${method.operation.__raw.operation.name}.`
+      `Convenience method is not supported for PATCH method, it will be automatically turned off. Please set the '@convenientAPI' to false for operation ${method.operation.__raw.operation.name}.`,
     );
     generateConvenience = false;
   }
@@ -62,12 +62,12 @@ export function fromSdkServiceMethod(
     method.operation,
     rootApiVersions,
     sdkContext,
-    typeMap
+    typeMap,
   );
   const responseMap = fromSdkHttpOperationResponses(
     method.operation.responses,
     sdkContext,
-    typeMap
+    typeMap,
   );
   return {
     Name: method.name,
@@ -102,7 +102,7 @@ export function fromSdkServiceMethod(
           method.operation.examples,
           parameterMap,
           responseMap,
-          typeMap
+          typeMap,
         )
       : undefined,
   };
@@ -110,7 +110,7 @@ export function fromSdkServiceMethod(
 
 export function getParameterDefaultValue(
   clientDefaultValue: any,
-  parameterType: InputType
+  parameterType: InputType,
 ): InputConstant | undefined {
   if (
     clientDefaultValue === undefined ||
@@ -150,7 +150,7 @@ function fromSdkOperationParameters(
   operation: SdkHttpOperation,
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): Map<SdkHttpParameter, InputParameter> {
   const parameters = new Map<SdkHttpParameter, InputParameter>();
   for (const p of operation.parameters) {
@@ -163,7 +163,7 @@ function fromSdkOperationParameters(
       operation.bodyParam,
       rootApiVersions,
       sdkContext,
-      typeMap
+      typeMap,
     );
     parameters.set(operation.bodyParam, bodyParam);
   }
@@ -174,7 +174,7 @@ function fromSdkHttpOperationParameter(
   p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter,
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): InputParameter {
   const isContentType =
     p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type";
@@ -205,7 +205,7 @@ function fromSdkHttpOperationParameter(
 function loadLongRunningOperation(
   method: SdkServiceMethod<SdkHttpOperation>,
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): import("../type/operation-long-running.js").OperationLongRunning | undefined {
   if (method.kind !== "lro") {
     return undefined;
@@ -224,7 +224,7 @@ function loadLongRunningOperation(
               sdkContext,
               method.__raw_lro_metadata.finalEnvelopeResult,
               typeMap,
-              method.operation.__raw.operation
+              method.operation.__raw.operation,
             )
           : undefined,
       BodyMediaType: BodyMediaType.Json,
@@ -236,7 +236,7 @@ function loadLongRunningOperation(
 function fromSdkHttpOperationResponses(
   operationResponses: Map<HttpStatusCodeRange | number, SdkHttpResponse>,
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): Map<SdkHttpResponse, OperationResponse> {
   const responses = new Map<SdkHttpResponse, OperationResponse>();
   for (const [range, r] of operationResponses) {
@@ -255,7 +255,7 @@ function fromSdkHttpOperationResponses(
 function fromSdkServiceResponseHeaders(
   headers: SdkServiceResponseHeader[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): HttpResponseHeader[] {
   return headers.map(
     (h) =>
@@ -264,7 +264,7 @@ function fromSdkServiceResponseHeaders(
         NameInResponse: h.serializedName,
         Description: h.description,
         Type: fromSdkType(h.type, sdkContext, typeMap),
-      }) as HttpResponseHeader
+      }) as HttpResponseHeader,
   );
 }
 
@@ -295,7 +295,7 @@ function getBodyMediaType(type: SdkType | undefined) {
 
 function getRequestMediaTypes(op: SdkHttpOperation): string[] | undefined {
   const contentTypes = op.parameters.filter(
-    (p) => p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type"
+    (p) => p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type",
   );
   if (contentTypes.length === 0) return undefined;
   return contentTypes.map((p) => getMediaTypes(p.type)).flat();
@@ -327,7 +327,7 @@ function getMediaTypes(type: SdkType): string[] {
 }
 
 function loadOperationPaging(
-  method: SdkServiceMethod<SdkHttpOperation>
+  method: SdkServiceMethod<SdkHttpOperation>,
 ): OperationPaging | undefined {
   if (method.kind !== "paging") {
     return undefined;
@@ -341,7 +341,7 @@ function loadOperationPaging(
 
 // TODO: https://github.com/Azure/typespec-azure/issues/981
 function getParameterLocation(
-  p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter | undefined
+  p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter | undefined,
 ): RequestLocation {
   switch (p?.kind) {
     case "path":
@@ -360,7 +360,7 @@ function getParameterLocation(
 function getParameterKind(
   p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter,
   type: InputType,
-  hasGlobalApiVersion: boolean
+  hasGlobalApiVersion: boolean,
 ): InputOperationParameterKind {
   if (p.kind === "body") {
     /** TODO: remove this and use the spread metadata of parameter when https://github.com/Azure/typespec-azure/issues/1513 is resolved */
@@ -390,7 +390,7 @@ function getParameterKind(
 function getOperationGroupName(
   context: SdkContext,
   operation: SdkHttpOperation,
-  namespace: string
+  namespace: string,
 ): string {
   const explicitOperationId = getOperationId(context, operation.__raw.operation);
   if (explicitOperationId) {

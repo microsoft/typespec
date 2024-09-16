@@ -104,7 +104,7 @@ function getFunctionSignature(type: FunctionType) {
   const ns = getQualifier(type.namespace);
   const parameters = type.parameters.map((x) => getFunctionParameterSignature(x));
   return `fn ${ns}${printIdentifier(type.name)}(${parameters.join(", ")}): ${getPrintableTypeName(
-    type.returnType
+    type.returnType,
   )}`;
 }
 

@@ -14,7 +14,7 @@ describe("CodeFix: suppress", () => {
       (node) => {
         strictEqual(node.kind, SyntaxKind.Identifier);
         return createSuppressCodeFix(node, "foo");
-      }
+      },
     ).toChangeTo(`
       #suppress "foo" ""
       model Foo {
@@ -32,7 +32,7 @@ describe("CodeFix: suppress", () => {
       (node) => {
         strictEqual(node.kind, SyntaxKind.Identifier);
         return createSuppressCodeFix(node, "foo");
-      }
+      },
     ).toChangeTo(`
       model Foo {
         #suppress "foo" ""

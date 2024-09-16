@@ -9,7 +9,7 @@ describe("implicit ids", () => {
       `
         model Foo {}
         `,
-      { bundleId: "types.json" }
+      { bundleId: "types.json" },
     );
 
     assert.strictEqual(schemas["types.json"].$defs.Foo.$id, "Foo.json");
@@ -87,7 +87,7 @@ describe("explicit ids with $id", () => {
         model Foo {}
       }
       `,
-      { bundleId: "types.json" }
+      { bundleId: "types.json" },
     );
 
     assert.strictEqual(schemas["types.json"].$defs.Foo.$id, "http://example.org/bar");

@@ -42,7 +42,7 @@ describe("openapi3: versioning", () => {
         }
       }
     `,
-      ["v1", "v2", "v3"]
+      ["v1", "v2", "v3"],
     );
 
     strictEqual(v1.info.version, "v1");

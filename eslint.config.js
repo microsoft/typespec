@@ -152,5 +152,5 @@ export default tsEslint.config(
     ],
   },
   ...TypeSpecCommonEslintConfigs,
-  ...getTypeScriptProjectRules(import.meta.dirname)
+  ...getTypeScriptProjectRules(import.meta.dirname),
 );

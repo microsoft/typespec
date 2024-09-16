@@ -75,7 +75,7 @@ export function getInputType(
   type: Type,
   typeCache: SdkTypeMap,
   operation?: Operation,
-  literalTypeContext?: LiteralTypeContext
+  literalTypeContext?: LiteralTypeContext,
 ): InputType {
   Logger.getInstance().debug(`getInputType for kind: ${type.kind}`);
 

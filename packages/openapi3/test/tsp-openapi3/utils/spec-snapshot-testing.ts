@@ -57,7 +57,7 @@ export function defineSpecSnaphotTests(config: SpecSnapshotTestOptions) {
       } else {
         const snapshotList = [...missingSnapshots].map((x) => `  ${x}`).join("\n");
         fail(
-          `The following snapshot are still present in the output dir but were not generated:\n${snapshotList}\n Run with RECORD=true to regenerate them.`
+          `The following snapshot are still present in the output dir but were not generated:\n${snapshotList}\n Run with RECORD=true to regenerate them.`,
         );
       }
     }
@@ -111,7 +111,7 @@ function defineSpecSnaphotTest(context: TestContext, config: SpecSnapshotTestOpt
         const snapshotPath = resolvePath(outputDir, filename);
         ok(
           host.outputs.has(snapshotPath),
-          `Snapshot for "${snapshotPath}" was not emitted. Run with RECORD=true to remove it.`
+          `Snapshot for "${snapshotPath}" was not emitted. Run with RECORD=true to remove it.`,
         );
       }
     }

@@ -58,7 +58,7 @@ type ResolveModuleErrorCode = "MODULE_NOT_FOUND" | "INVALID_MAIN";
 export class ResolveModuleError extends Error {
   public constructor(
     public code: ResolveModuleErrorCode,
-    message: string
+    message: string,
   ) {
     super(message);
   }
@@ -102,7 +102,7 @@ export interface ResolvedModule {
 export async function resolveModule(
   host: ResolveModuleHost,
   name: string,
-  options: ResolveModuleOptions
+  options: ResolveModuleOptions,
 ): Promise<ModuleResolutionResult> {
   const realpath = async (x: string) => resolvePath(await host.realpath(x));
 
@@ -127,7 +127,7 @@ export async function resolveModule(
 
   throw new ResolveModuleError(
     "MODULE_NOT_FOUND",
-    `Cannot find module '${name}' from '${baseDir}'`
+    `Cannot find module '${name}' from '${baseDir}'`,
   );
 
   /**
@@ -146,7 +146,7 @@ export async function resolveModule(
 
   function getPackageCandidates(
     name: string,
-    baseDir: string
+    baseDir: string,
   ): Array<{ path: string; type: "node_modules" | "self" }> {
     const dirs = listAllParentDirs(baseDir);
     return dirs.flatMap((x) => [
@@ -157,7 +157,7 @@ export async function resolveModule(
 
   async function findAsNodeModule(
     name: string,
-    baseDir: string
+    baseDir: string,
   ): Promise<ResolvedModule | undefined> {
     const dirs = getPackageCandidates(name, baseDir);
     for (const { type, path } of dirs) {
@@ -184,11 +184,11 @@ export async function resolveModule(
   async function loadAsDirectory(directory: string): Promise<ModuleResolutionResult | undefined>;
   async function loadAsDirectory(
     directory: string,
-    mustBePackage: true
+    mustBePackage: true,
   ): Promise<ResolvedModule | undefined>;
   async function loadAsDirectory(
     directory: string,
-    mustBePackage?: boolean
+    mustBePackage?: boolean,
   ): Promise<ModuleResolutionResult | undefined> {
     const pkgFile = resolvePath(directory, "package.json");
     if (await isFile(host, pkgFile)) {
@@ -210,7 +210,7 @@ export async function resolveModule(
 
   async function loadPackage(
     directory: string,
-    pkg: NodePackage
+    pkg: NodePackage,
   ): Promise<ResolvedModule | undefined> {
     const mainFile = options.resolveMain ? options.resolveMain(pkg) : pkg.main;
     if (typeof mainFile !== "string") {
@@ -223,7 +223,7 @@ export async function resolveModule(
       loaded = (await loadAsFile(mainFullPath)) ?? (await loadAsDirectory(mainFullPath));
     } catch (e) {
       throw new Error(
-        `Cannot find module '${mainFullPath}'. Please verify that the package.json has a valid "main" entry`
+        `Cannot find module '${mainFullPath}'. Please verify that the package.json has a valid "main" entry`,
       );
     }
 
@@ -240,7 +240,7 @@ export async function resolveModule(
     } else {
       throw new ResolveModuleError(
         "INVALID_MAIN",
-        `Package ${pkg.name} main file "${mainFile}" is invalid.`
+        `Package ${pkg.name} main file "${mainFile}" is invalid.`,
       );
     }
   }

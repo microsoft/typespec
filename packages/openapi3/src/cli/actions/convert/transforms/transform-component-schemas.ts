@@ -31,7 +31,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecMode
   function transformComponentSchema(
     types: TypeSpecDataTypes[],
     name: string,
-    schema: OpenAPI3Schema
+    schema: OpenAPI3Schema,
   ): void {
     const kind = getTypeSpecKind(schema);
     switch (kind) {
@@ -51,7 +51,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecMode
   function populateAlias(
     types: TypeSpecDataTypes[],
     rawName: string,
-    schema: Refable<OpenAPI3Schema>
+    schema: Refable<OpenAPI3Schema>,
   ): void {
     if (!("$ref" in schema)) {
       return;
@@ -83,7 +83,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecMode
   function populateModel(
     types: TypeSpecDataTypes[],
     rawName: string,
-    schema: OpenAPI3Schema
+    schema: OpenAPI3Schema,
   ): void {
     const { name, scope } = getScopeAndName(rawName);
     const allOfDetails = getAllOfDetails(schema, scope);

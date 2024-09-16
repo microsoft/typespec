@@ -44,7 +44,7 @@ export function Tree<T extends TreeNode>({
 
   const rows = useMemo(
     () => getTreeRowsForNode(expanded, toggleExpand, tree),
-    [expanded, toggleExpand, tree]
+    [expanded, toggleExpand, tree],
   );
   const parentMap = useMemo(() => computeParent(tree), [tree]);
 
@@ -68,7 +68,7 @@ export function Tree<T extends TreeNode>({
         }
       }
     },
-    [selectionMode, selectedKey, toggleExpand, expand, setSelectedKey]
+    [selectionMode, selectedKey, toggleExpand, expand, setSelectedKey],
   );
 
   const handleKeyDown = useCallback(
@@ -99,7 +99,7 @@ export function Tree<T extends TreeNode>({
         default:
       }
     },
-    [setFocusedIndex, focusedIndex, rows, activateRow, expand, collapse]
+    [setFocusedIndex, focusedIndex, rows, activateRow, expand, collapse],
   );
 
   return (
@@ -137,7 +137,7 @@ function getTreeRowsForNode<T extends TreeNode>(
   expandedItems: Set<string>,
   toggleExpand: (key: string) => void,
   node: TreeNode,
-  depth = 0
+  depth = 0,
 ) {
   const rows: TreeRow<T>[] = [];
   if (!node.children) {

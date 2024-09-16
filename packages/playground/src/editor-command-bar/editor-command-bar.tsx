@@ -54,7 +54,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
       Object.values(host.libraries)
         .filter((x) => x.isEmitter)
         .map((x) => x.name),
-    [host.libraries]
+    [host.libraries],
   );
 
   return (
