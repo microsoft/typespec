@@ -101,10 +101,9 @@ describe("HttpRequest Body Parameters", () => {
     const body = $.httpRequest.getBodyParameters(httpOperation)!;
     expect(body).toBeDefined();
     expect($.model.is(body)).toBe(true);
-    // When the body is a named parameter, the body model should resolve to the named model
-    expect($.model.isExpresion(body as Model)).toBe(false);
-    expect((body as Model).name).toBe("Foo");
-    expect((body as Model).properties.size).toBe(3);
+    // Should have a single property called foo
+    expect(body.properties.size).toBe(1);
+    expect((body.properties.get("foo")?.type as Model).name).toBe("Foo");
   });
 
   it("should get the named body body when combined", async () => {

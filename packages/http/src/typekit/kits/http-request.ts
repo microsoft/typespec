@@ -7,7 +7,23 @@ export type HttpRequestParameterKind = "query" | "header" | "path" | "contentTyp
 
 interface HttpRequestKit {
   httpRequest: {
+    body: {
+      /**
+       * Checks the body is a property explicitly tagged with @body or @bodyRoot
+       * @param httpOperation the http operation to check
+       */
+      isExplicit(httpOperation: HttpOperation): boolean;
+    };
+    /**
+     * Gets a Model representing the body parameters of an http operation.
+     * @param httpOperation the http operation to get the body parameters from
+     */
     getBodyParameters(httpOperation: HttpOperation): Model | undefined;
+    /**
+     * Gets a Model representing the parameters of an http operation.
+     * @param httpOperation The Http operation to get the parameters from.
+     * @param kind A string to filters specific parameter kinds, or an array to combine multiple kinds.
+     */
     getParameters(
       httpOperation: HttpOperation,
       kind: HttpRequestParameterKind[] | HttpRequestParameterKind
@@ -21,6 +37,11 @@ declare module "@typespec/compiler/typekit" {
 
 defineKit<HttpRequestKit>({
   httpRequest: {
+    body: {
+      isExplicit(httpOperation: HttpOperation) {
+        return httpOperation.parameters.properties.find((p) => p.kind === "body") !== undefined;
+      },
+    },
     getBodyParameters(httpOperation: HttpOperation): Model | undefined {
       const body = httpOperation.parameters.body;
 
@@ -28,13 +49,12 @@ defineKit<HttpRequestKit>({
         return undefined;
       }
 
-      if (body.type.kind === "Model") {
-        return body.type;
-      }
-
       const bodyProperty = body.property;
 
       if (!bodyProperty) {
+        if (body.type.kind === "Model") {
+          return body.type;
+        }
         throw new Error("Body property not found");
       }
 

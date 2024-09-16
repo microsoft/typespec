@@ -55,24 +55,14 @@ export interface HttpRequestOptionsBodyProps {
 
 HttpRequestOptions.Body = function HttpRequestOptionsBody(props: HttpRequestOptionsBodyProps) {
   const httpOperation = $.httpOperation.get(props.operation);
-  const body = httpOperation.parameters.body;
+  const body = $.httpRequest.getBodyParameters(httpOperation);
+  const collapse = $.httpRequest.body.isExplicit(httpOperation);
   
   if(!body) {
   return <></>;
   }
 
-  const namePolicy = ts.useTSNamePolicy();
-
-  let bodyName = props.itemName ?? body.property?.name ?? "";
-  let modelType: Type;
-  if(body.type.kind === "Model") {
-    modelType = getEffectiveModelType($.program, body.type as Model);
-    bodyName ??= $.type.getPlausibleName(modelType)
-  } else {
-    modelType = body.property!.type;
-  }
-
-  const bodyTransform = <ef.TypeTransformCall type={modelType} target="transport" itemName={namePolicy.getName(bodyName, "parameter")}/>;
+  const bodyTransform = <ef.TypeTransformCall type={body} target="transport" collapse={collapse}/>;
   return <><ts.ObjectProperty name="body" value={<JSONSerializer>{bodyTransform}</JSONSerializer>} />,</>;
 }
 

@@ -277,10 +277,10 @@ describe("HttpRequestBody", () => {
     assert(testFile, "test.ts file not rendered");
     const actualContent = testFile.contents;
     const expectedContent = d`
-    import { widgetToTransport } from "./serializers.js";
-    
     const widget = {};
-    body: JSON.stringify(widgetToTransport(widget)),
+    body: JSON.stringify({
+      "name": name
+    }),
     `;
     expect(actualContent).toEqual(expectedContent);
   });

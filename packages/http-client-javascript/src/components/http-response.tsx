@@ -37,7 +37,7 @@ export function HttpResponses(props: HttpResponsesProps) {
 
     if(body && body.bodyKind === "single") {
       expression = <>
-      return <TypeTransformCall type={body.type} target="application" itemName="response.body" />;
+      return <TypeTransformCall type={body.type} target="application" itemPath={["response","body"]} />;
       </>
     }
 

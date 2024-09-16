@@ -1,6 +1,6 @@
 import { code, mapJoin, Refkey, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Model, Scalar, Type } from "@typespec/compiler";
+import { Model, ModelProperty, Scalar, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import {
   ArraySerializerRefkey,
@@ -41,7 +41,7 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
       refkey={getTypeTransformerRefkey(props.type, props.target)}
       parameters={{ item: itemType }}
     >
-      return <ModelTransformExpression type={props.type} itemPath="item" target={props.target} />;
+      return <ModelTransformExpression type={props.type} itemPath={["item"]} target={props.target} />;
     </ts.FunctionDeclaration>
   );
 }
@@ -60,7 +60,7 @@ export function getTypeTransformerRefkey(type: Model, target: "application" | "t
 
 export interface ModelTransformExpressionProps {
   type: Model;
-  itemPath: string;
+  itemPath?: string[];
   target: "application" | "transport";
 }
 
@@ -84,10 +84,8 @@ export function ModelTransformExpression(props: ModelTransformExpressionProps) {
             sourcePropertyName = temp;
           }
 
-          const itemPath = props.itemPath
-            ? `${props.itemPath}.${sourcePropertyName}`
-            : sourcePropertyName;
-          return <ts.ObjectProperty name={JSON.stringify(targetPropertyName)} value={<TypeTransformCall target={props.target} type={property.type} itemName={itemPath} />} />;
+          const itemPath = [...(props.itemPath ?? []), sourcePropertyName];
+          return <ts.ObjectProperty name={JSON.stringify(targetPropertyName)} value={<TypeTransformCall target={props.target} type={property.type} itemPath={itemPath} />} />;
         },
         { joiner: ",\n" }
       )}
@@ -148,51 +146,78 @@ function TransformScalarReference(props: TransformScalarReferenceProps) {
 }
 
 export interface TypeTransformCallProps {
+  /**
+   * TypeSpec type to be transformed
+   */
   type: Type;
+  /**
+   * Transformation target
+   */
   target: "application" | "transport";
-  itemName?: string;
+  /**
+   * When type is a model with a single property, collapses the model to the property.
+   */
+  collapse?: boolean,
+  /**
+   * Path of the item to be transformed
+   */
+  itemPath?: string[];
 }
 
 /**
  * This component represents a function call to transform a type
  */
 export function TypeTransformCall(props: TypeTransformCallProps) {
-  const itemName = props.itemName ?? "item";
-  if ($.array.is(props.type)) {
+  const collapsedProperty = getCollapsedProperty(props.type, props.collapse ?? false);
+  const itemPath = collapsedProperty ? [...(props.itemPath ?? []), collapsedProperty.name] : props.itemPath ?? [];
+  const itemName = itemPath.join(".");
+  const transformType = collapsedProperty?.type ?? props.type;
+  if ($.array.is(transformType)) {
     return (
       <ts.FunctionCallExpression
         refkey={ArraySerializerRefkey}
         args={[
           itemName,
-          <TransformReference target={props.target} type={$.array.getElementType(props.type)} />,
+          <TransformReference target={props.target} type={$.array.getElementType(transformType)} />,
         ]}
       />
     );
   }
 
-  if ($.record.is(props.type)) {
+  if ($.record.is(transformType)) {
     return (
       <ts.FunctionCallExpression
         refkey={RecordSerializerRefkey}
         args={[
           itemName,
-          <TransformReference target={props.target} type={$.record.getElementType(props.type)} />,
+          <TransformReference target={props.target} type={$.record.getElementType(transformType)} />,
         ]}
       />
     );
   }
 
-  if($.scalar.isUtcDateTime(props.type)) {
+  if($.scalar.isUtcDateTime(transformType)) {
     return <ts.FunctionCallExpression refkey={props.target === "application" ? DateDeserializerRefkey : DateRfc3339SerializerRefkey} args={[itemName]} />
   }
 
-  if ($.model.is(props.type)) {
-    if($.model.isExpresion(props.type)) {
-      const effectiveModel = $.model.getEffectiveModel(props.type);
-      return <ModelTransformExpression type={effectiveModel} itemPath={itemName} target={props.target} />;
+  if ($.model.is(transformType)) {
+    if($.model.isExpresion(transformType)) {
+      const effectiveModel = $.model.getEffectiveModel(transformType);
+      return <ModelTransformExpression type={effectiveModel} itemPath={itemPath} target={props.target} />;
     }
-    return <ts.FunctionCallExpression refkey={ getTypeTransformerRefkey(props.type, props.target)} args={[props.itemName]} />
+    return <ts.FunctionCallExpression refkey={ getTypeTransformerRefkey(transformType, props.target)} args={[itemName]} />
   }
 
-  return props.itemName;
+  return itemName;
+}
+
+function getCollapsedProperty(model: Type, collapse: boolean): ModelProperty | undefined {
+  if(!$.model.is(model)) {
+    return undefined;
+  }
+
+  if (collapse && model.properties.size === 1) {
+    return Array.from(model.properties.values())[0];
+  }
+  return undefined;
 }

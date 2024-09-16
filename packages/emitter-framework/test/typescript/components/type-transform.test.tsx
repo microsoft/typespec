@@ -9,6 +9,7 @@ import { ArraySerializer, DateDeserializer, RecordSerializer } from "../../../sr
 import {
   getTypeTransformerRefkey,
   ModelTransformExpression,
+  TypeTransformCall,
   TypeTransformDeclaration,
 } from "../../../src/typescript/components/type-transform.js";
 import { TypeDeclaration } from "../../../src/typescript/index.js";
@@ -40,7 +41,7 @@ describe("Typescript Type Transform", () => {
               {code`
                 const wireWidget = {id: "1", birth_year: 1988, color: "blue"};
                 `}
-              const clientWidget = <ModelTransformExpression type={Widget} target="application" itemPath={"wireWidget"} />
+              const clientWidget = <ModelTransformExpression type={Widget} target="application" itemPath={["wireWidget"]} />
             </SourceFile>
           </Output>
         );
@@ -76,7 +77,7 @@ describe("Typescript Type Transform", () => {
               {code`
                 const clientWidget = {id: "1", birthYear: 1988, color: "blue"};
                 `}
-              const wireWidget = <ModelTransformExpression type={Widget} target="transport" itemPath={"clientWidget"} />
+              const wireWidget = <ModelTransformExpression type={Widget} target="transport" itemPath={["clientWidget"]} />
             </SourceFile>
           </Output>
         );
@@ -115,7 +116,7 @@ describe("Typescript Type Transform", () => {
               {code`
                 const wireWidget = {id: "1", birth_date: "1988-04-29T19:30:00Z", color: "blue"};
                 `}
-              const clientWidget = <ModelTransformExpression type={Widget} target="application" itemPath={"wireWidget"} />
+              const clientWidget = <ModelTransformExpression type={Widget} target="application" itemPath={["wireWidget"]} />
             </SourceFile>
           </Output>
         );
@@ -305,6 +306,37 @@ describe("Typescript Type Transform", () => {
       });
     });
     describe("Calling a model transform functions", () => {
+      it("should collapse a model with single property", async () => {
+        const spec = `
+          namespace DemoService;
+          @test model Widget {
+            id: string;
+          }
+          `;
+
+        const { Widget } = (await testRunner.compile(spec)) as { Widget: Model };
+
+        const res = render(
+          <Output namePolicy={namePolicy}>
+            <SourceFile path="test.ts">
+              {code`
+                const clientWidget = {id: "1", my_color: "blue"};
+                const wireWidget = ${<TypeTransformCall itemPath={["clientWidget"]} type={Widget} collapse={true} target="transport" />}
+                `}
+            </SourceFile>
+          </Output>
+        );
+
+        const testFile = res.contents.find((file) => file.path === "test.ts");
+        assert(testFile, "test.ts file not rendered");
+        const actualContent = testFile.contents;
+        const expectedContent = d`
+          const clientWidget = {id: "1", my_color: "blue"};
+          const wireWidget = clientWidget.id
+         `;
+        expect(actualContent).toBe(expectedContent);
+      });
+
       it("should call  transform functions for a model", async () => {
         const spec = `
           namespace DemoService;
