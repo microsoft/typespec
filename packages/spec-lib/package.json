@@ -13,6 +13,7 @@
     "url": "https://github.com/microsoft/typespec/issues"
   },
   "type": "module",
+  "private": true,
   "main": "dist/index.js",
   "tspMain": "lib/lib.tsp",
   "exports": {
