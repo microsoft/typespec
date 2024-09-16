@@ -877,7 +877,6 @@ export class CodeTypeEmitter<TOptions extends object = Record<string, never>> ex
     let i = 0;
     for (const v of tuple.values) {
       i++;
-      ``;
       builder.push(code`${this.emitter.emitTypeReference(v)}${i < tuple.values.length ? "," : ""}`);
     }
     return builder.reduce();

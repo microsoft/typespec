@@ -102,7 +102,7 @@ export const $service: ServiceDecorator = (
       versionProp
     );
     if (version.kind === "String") {
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       serviceDetails.version = version.value;
     } else {
       reportDiagnostic(context.program, {

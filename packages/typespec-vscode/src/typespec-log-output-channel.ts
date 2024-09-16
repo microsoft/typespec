@@ -45,7 +45,7 @@ export class TypeSpecLogOutputChannel implements LogOutputChannel {
   show(preserveFocus?: boolean | undefined): void;
   show(column?: vscode.ViewColumn | undefined, preserveFocus?: boolean | undefined): void;
   show(column?: unknown, preserveFocus?: unknown): void {
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     this.delegate.show(column as any, preserveFocus as any);
   }
   hide(): void {

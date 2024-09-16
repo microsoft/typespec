@@ -10,7 +10,7 @@ import { themes } from "prism-react-renderer";
 import { LightTheme } from "./themes/light";
 
 function getMajorMinorVersion(pkgJsonPath): string {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const version = require(pkgJsonPath).version;
   const [major, minor] = version.split(".");
   return `${major}.${minor}.x`;
@@ -79,6 +79,7 @@ const config: Config = {
     format: "detect",
   },
   scripts: [
+    "https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js",
     {
       src: `${baseUrl}es-module-shims.js`,
       type: "module",

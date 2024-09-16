@@ -178,6 +178,13 @@ export function fromSdkModelType(
   ): InputModelProperty[] {
     // TODO -- we should consolidate the flatten somewhere else
     if (!property.flatten) {
+      /* remove this when https://github.com/Azure/typespec-azure/issues/1483 and https://github.com/Azure/typespec-azure/issues/1488 are resolved. */
+      let targetType = property.type;
+      if (targetType.kind === "model") {
+        const body = targetType.properties.find((x) => x.kind === "body");
+        if (body) targetType = body.type;
+      }
+
       const serializedName = property.serializedName;
       literalTypeContext.PropertyName = serializedName;
 
@@ -187,7 +194,7 @@ export function fromSdkModelType(
         serializedName: serializedName,
         description: property.description,
         type: fromSdkType(
-          property.type,
+          targetType,
           context,
           typeMap,
           property.discriminator ? undefined : literalTypeContext // this is a workaround because the type of discriminator property in derived models is always literal and we wrap literal into enums, which leads to a lot of extra enum types, adding this check to avoid them

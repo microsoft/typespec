@@ -129,7 +129,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual(2, catModel!.Constructors.Count);
             var serializationCtor = catModel.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
             Assert.IsNotNull(serializationCtor);
-            Assert.AreEqual("serializedAdditionalRawData", serializationCtor!.Signature.Parameters.Last().Name);
+            Assert.AreEqual("additionalBinaryDataProperties", serializationCtor!.Signature.Parameters.Last().Name);
         }
 
         [Test]

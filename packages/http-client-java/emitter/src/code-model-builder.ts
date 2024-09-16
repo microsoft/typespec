@@ -368,23 +368,24 @@ export class CodeModelBuilder {
   private processModels() {
     const processedSdkModels: Set<SdkModelType | SdkEnumType> = new Set();
 
-    // lambda to mark model as public
-    const modelAsPublic = (model: SdkModelType | SdkEnumType) => {
-      const schema = this.processSchemaFromSdkType(model, "");
-
-      this.trackSchemaUsage(schema, {
-        usage: [SchemaContext.Public],
-      });
-    };
+    // cache resolved value of access/usage for the namespace
+    // the value can be set as undefined
+    // it resolves the value from that namespace and its parent namespaces
+    const accessCache: Map<Namespace, string | undefined> = new Map();
+    const usageCache: Map<Namespace, SchemaContext[] | undefined> = new Map();
 
     const sdkModels: (SdkModelType | SdkEnumType)[] = getAllModels(this.sdkContext);
 
     // process sdk models
     for (const model of sdkModels) {
       if (!processedSdkModels.has(model)) {
-        const access = getAccess(model.__raw);
+        const access = getAccess(model.__raw, accessCache);
         if (access === "public") {
-          modelAsPublic(model);
+          const schema = this.processSchemaFromSdkType(model, "");
+
+          this.trackSchemaUsage(schema, {
+            usage: [SchemaContext.Public],
+          });
         } else if (access === "internal") {
           const schema = this.processSchemaFromSdkType(model, model.name);
 
@@ -393,7 +394,7 @@ export class CodeModelBuilder {
           });
         }
 
-        const usage = getUsage(model.__raw);
+        const usage = getUsage(model.__raw, usageCache);
         if (usage) {
           const schema = this.processSchemaFromSdkType(model, "");
 
@@ -1148,10 +1149,19 @@ export class CodeModelBuilder {
         }
       }
 
+      // TODO: use param.onClient after TCGC fix
+      const parameterOnClient =
+        !isApiVersion(this.sdkContext, param) &&
+        param.correspondingMethodParams &&
+        param.correspondingMethodParams.length > 0 &&
+        param.correspondingMethodParams[0].onClient;
+
       const nullable = param.type.kind === "nullable";
       const parameter = new Parameter(param.name, param.details ?? "", schema, {
         summary: param.description,
-        implementation: ImplementationLocation.Method,
+        implementation: parameterOnClient
+          ? ImplementationLocation.Client
+          : ImplementationLocation.Method,
         required: !param.optional,
         nullable: nullable,
         protocol: {
@@ -1168,6 +1178,10 @@ export class CodeModelBuilder {
         extensions: extensions,
       });
       op.addParameter(parameter);
+
+      if (parameterOnClient) {
+        clientContext.addGlobalParameter(parameter);
+      }
 
       this.trackSchemaUsage(schema, { usage: [SchemaContext.Input] });
 
