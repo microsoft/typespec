@@ -4,6 +4,7 @@ import { EnumDeclaration } from "./enum-declaration.js";
 import { InterfaceDeclaration } from "./interface-declaration.jsx";
 import { UnionDeclaration } from "./union-declaration.jsx";
 import { TypeAliasDeclaration } from "./type-alias-declaration.jsx";
+import { $ } from "@typespec/compiler/typekit";
 
 export interface TypeDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
   name?: string;
@@ -20,6 +21,10 @@ export function TypeDeclaration(props: TypeDeclarationProps) {
   const {type, ...restProps} = props;
   switch (type.kind) {
     case "Model":
+      const discriminatedUnion = $.type.getDiscriminatedUnion(type);
+      if(discriminatedUnion) {
+        return <UnionDeclaration type={discriminatedUnion} {...restProps} />
+      }
       return <InterfaceDeclaration type={type} {...restProps} />
     case "Union":
       return <UnionDeclaration type={type} {...restProps} />

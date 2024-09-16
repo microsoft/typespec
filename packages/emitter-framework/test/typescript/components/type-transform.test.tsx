@@ -379,4 +379,91 @@ describe("Typescript Type Transform", () => {
       });
     })
   });
+  describe("Discriminated Union Transforms", () => {
+    it("should handle a discriminated union", async () => {
+      const { Pet, Cat, Dog } = (await testRunner.compile(`
+        @discriminator("kind")
+        @test union Pet {
+          cat: Cat;
+          dog: Dog;
+        }
+
+        @test model Cat  {
+          kind: "cat";
+        }
+
+        @test model Dog {
+          kind: "dog";
+        }
+      `)) as { Pet: Model; Cat: Model; Dog: Model };
+
+
+      const res = render(
+        <Output namePolicy={namePolicy}>
+          <SourceFile path="test.ts">
+            <TypeDeclaration export type={Pet} />
+            <TypeDeclaration export type={Dog} />
+            <TypeDeclaration export type={Cat} />
+            <TypeTransformDeclaration type={Dog} target="application" />
+            <TypeTransformDeclaration type={Dog} target="transport" />
+            <TypeTransformDeclaration type={Cat} target="application" />
+            <TypeTransformDeclaration type={Cat} target="transport" />
+            <TypeTransformDeclaration type={Pet} target="application" />
+            <TypeTransformDeclaration type={Pet} target="transport" />
+          </SourceFile>
+        </Output>
+      );
+
+      const testFile = res.contents.find((file) => file.path === "test.ts");
+      assert(testFile, "test.ts file not rendered");
+      const actualContent = testFile.contents;
+      const expectedContent = d`
+      export type Pet = Cat | Dog;
+      export interface Dog {
+        "kind": "dog";
+      }
+      export interface Cat {
+        "kind": "cat";
+      }
+      export function dogToApplication(item: any) {
+        return {
+          "kind": item.kind
+        };
+      }
+      export function dogToTransport(item: Dog) {
+        return {
+          "kind": item.kind
+        };
+      }
+      export function catToApplication(item: any) {
+        return {
+          "kind": item.kind
+        };
+      }
+      export function catToTransport(item: Cat) {
+        return {
+          "kind": item.kind
+        };
+      }
+      export function petToApplication(item: any) {
+        if(item.kind === "cat") {
+          return catToApplication(item)
+        }
+        if(item.kind === "dog") {
+          return dogToApplication(item)
+        }
+      }
+      export function petToTransport(item: Pet) {
+        if(item.kind === "cat") {
+          return catToTransport(item)
+        }
+        if(item.kind === "dog") {
+          return dogToTransport(item)
+        }
+      }
+       `;
+      expect(actualContent).toBe(expectedContent);
+
+    });
+  })
 });

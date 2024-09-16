@@ -1,6 +1,7 @@
+import { Discriminator, getDiscriminatedUnion, getDiscriminator } from "../../core/index.js";
 import type { Enum, Model, Scalar, Type, Union } from "../../core/types.js";
 import { getDoc, getSummary, resolveEncodedName } from "../../lib/decorators.js";
-import { defineKit } from "../define-kit.js";
+import { $, defineKit } from "../define-kit.js";
 import { getPlausibleName } from "./utils/get-plausible-name.js";
 
 export interface TypeKit {
@@ -30,6 +31,16 @@ export interface TypeKit {
    * @param type The scalar to get the name of.
    */
   getPlausibleName(type: Model | Union | Enum | Scalar): string;
+  /**
+   * Resolves a discriminated union for the given model or union.
+   * @param type Model or Union to resolve the discriminated union for.
+   */
+  getDiscriminatedUnion(type: Model | Union): Union | undefined;
+  /**
+   * Resolves the discriminator for a discriminated union. Returns undefined if the type is not a discriminated union.
+   * @param type
+   */
+  getDiscriminator(type: Model | Union): Discriminator | undefined;
 }
 
 interface BaseTypeKit {
@@ -56,6 +67,25 @@ defineKit<BaseTypeKit>({
     },
     getPlausibleName(type) {
       return getPlausibleName(type);
+    },
+    getDiscriminator(type) {
+      return getDiscriminator(this.program, type);
+    },
+    getDiscriminatedUnion(type) {
+      const discriminator = getDiscriminator(this.program, type);
+
+      if (!discriminator) {
+        return undefined;
+      }
+
+      const [union] = getDiscriminatedUnion(type, discriminator);
+      const variants = Array.from(union.variants.entries()).map(([k, v]) =>
+        $.unionVariant.create({ name: k, type: v })
+      );
+      return $.union.create({
+        name: union.propertyName,
+        variants,
+      });
     },
   },
 });

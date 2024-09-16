@@ -1,6 +1,6 @@
-import { code, mapJoin, Refkey, refkey } from "@alloy-js/core";
+import { Children, code, mapJoin, Refkey, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Model, ModelProperty, Scalar, Type } from "@typespec/compiler";
+import { Model, ModelProperty, Scalar, Type, Union } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import {
   ArraySerializerRefkey,
@@ -16,6 +16,34 @@ export interface TypeTransformProps {
   target: "application" | "transport";
 }
 
+
+export interface UnionTransformProps {
+  name?: string;
+  type: Union;
+  target: "application" | "transport";
+}
+function UnionTransformExpression(props: UnionTransformProps) {
+  const discriminator = $.type.getDiscriminator(props.type);
+
+  if(!discriminator) {
+    // TODO: Handle non-discriminated unions
+    return null;
+  }
+
+  const blocks: Children[] = []
+
+  for(const variant of props.type.variants.values()) {
+    const block = code`
+    if(item.${discriminator.propertyName} === ${JSON.stringify(variant.name)}) {
+      return ${<TypeTransformCall type={variant.type} target={props.target} itemPath={["item"]}/>}
+    }
+    `;
+    blocks.push(block);
+  }
+
+  return mapJoin(blocks, block => block, { joiner: "\n" });
+}
+
 /**
  * Component that represents a function declaration that transforms a model to a transport or application model.
  */
@@ -23,17 +51,22 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
   const namePolicy = ts.useTSNamePolicy();
 
   // TODO: Handle other type of declarations
-  if (!$.model.is(props.type)) {
+  if (!$.model.is(props.type) && !$.union.is(props.type)) {
     return null;
   }
 
-  const modelName = namePolicy.getName(
+  const baseName = namePolicy.getName(
     props.name ?? $.type.getPlausibleName(props.type),
     "function"
   );
   const functionSuffix = props.target === "application" ? "ToApplication" : "ToTransport";
-  const functionName = props.name ? props.name : `${modelName}${functionSuffix}`;
+  const functionName = props.name ? props.name : `${baseName}${functionSuffix}`;
   const itemType = props.target === "application" ? "any" : <ts.Reference refkey={refkey(props.type)} />;
+
+  const TransformExpression = $.model.is(props.type) 
+    ? <>return <ModelTransformExpression  type={props.type} itemPath={["item"]} target={props.target} />;</> 
+    : <UnionTransformExpression type={props.type} target={props.target} />;
+
   return (
     <ts.FunctionDeclaration
       export
@@ -41,7 +74,7 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
       refkey={getTypeTransformerRefkey(props.type, props.target)}
       parameters={{ item: itemType }}
     >
-      return <ModelTransformExpression type={props.type} itemPath={["item"]} target={props.target} />;
+      {TransformExpression}
     </ts.FunctionDeclaration>
   );
 }
@@ -53,7 +86,7 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
  * @param target target of the transformation "application" or "transport"
  * @returns the refkey for the TypeTransformer function
  */
-export function getTypeTransformerRefkey(type: Model, target: "application" | "transport") {
+export function getTypeTransformerRefkey(type: Type, target: "application" | "transport") {
   return refkey(type, target);
 }
 
