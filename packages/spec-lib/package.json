@@ -24,7 +24,7 @@
   },
   "scripts": {
     "watch": "tsc -p . --watch",
-    "build": "npm run gen-extern-signature && tsc -p .",
+    "build": "tsc -p .",
     "clean": "rimraf dist/ temp/",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "test": "echo \"Error: no test specified\" && exit 1"
