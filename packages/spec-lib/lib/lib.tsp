@@ -24,4 +24,4 @@ extern dec scenario(target: Namespace | Interface | Operation, name?: string);
  * @param doc Documentation
  * @param formatArgs Format arguments
  */
-extern dec scenarioDoc(target: Namespace | Interface | Operation, doc: string, formatArgs?: {});
+extern dec scenarioDoc(target: Namespace | Interface | Operation, doc: string, formatArgs?:  valueof Record<string>);
