@@ -25,12 +25,12 @@
   },
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
-    "@azure/identity": "^4.2.1",
-    "@azure/storage-blob": "^12.14.0",
-    "@types/node": "^18.16.0"
+    "@azure/identity": "^4.4.1",
+    "@azure/storage-blob": "^12.24.0",
+    "@types/node": "~22.5.4"
   },
   "devDependencies": {
     "rimraf": "^5.0.5",
-    "typescript": "~5.2.2"
+    "typescript": "~5.6.2"
   }
 }

@@ -34,9 +34,9 @@
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/rest": "workspace:~",
-    "@azure/identity": "^4.2.1",
+    "@azure/identity": "^4.4.1",
     "@types/js-yaml": "^4.0.5",
-    "ajv": "8.12.0",
+    "ajv": "~8.17.1",
     "body-parser": "^1.20.2",
     "deep-equal": "^2.2.0",
     "express": "^4.19.2",
@@ -45,11 +45,11 @@
     "js-yaml": "^4.1.0",
     "morgan": "^1.10.0",
     "node-fetch": "^3.3.1",
-    "picocolors": "^1.0.0",
-    "source-map-support": "^0.5.21",
+    "picocolors": "~1.1.0",
+    "source-map-support": "~0.5.21",
     "winston": "^3.8.2",
     "xml2js": "^0.5.0",
-    "yargs": "^17.7.1",
+    "yargs": "~17.7.2",
     "jackspeak": "2.1.1",
     "multer": "^1.4.5-lts.1"
   },
@@ -59,11 +59,11 @@
     "@types/deep-equal": "^1.0.1",
     "@types/express": "^4.17.17",
     "@types/morgan": "^1.9.4",
-    "@types/node": "^18.16.0",
+    "@types/node": "~22.5.4",
     "@types/node-fetch": "^2.6.3",
     "@types/xml2js": "^0.4.11",
-    "@types/yargs": "^17.0.24",
+    "@types/yargs": "~17.0.33",
     "rimraf": "^5.0.5",
-    "typescript": "~5.2.2"
+    "typescript": "~5.6.2"
   }
 }
