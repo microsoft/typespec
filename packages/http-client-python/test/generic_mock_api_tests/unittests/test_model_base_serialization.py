@@ -134,7 +134,7 @@ def test_has_no_property():
         "platformUpdateDomainCount": 5,
         "platformFaultDomainCount": 3,
         "virtualMachines": [],
-        "noprop": "bonjour!",
+        "noProp": "bonjour!",
     }
     model = BasicResource(dict_response)
     assert (
@@ -148,12 +148,12 @@ def test_has_no_property():
         model.no_prop
 
     assert str(ex.value) == "'BasicResource' object has no attribute 'no_prop'"
-    assert model["noprop"] == dict_response["noprop"] == "bonjour!"
+    assert model["noProp"] == dict_response["noProp"] == "bonjour!"
 
     # let's add it to model now
 
     class BasicResourceWithProperty(BasicResource):
-        no_prop: str = rest_field(name="noprop")
+        no_prop: str = rest_field(name="noProp")
 
     model = BasicResourceWithProperty(
         platform_update_domain_count=5,
@@ -161,7 +161,7 @@ def test_has_no_property():
         virtual_machines=[],
         no_prop="bonjour!",
     )
-    assert model.no_prop == model["noprop"] == dict_response["noprop"] == "bonjour!"
+    assert model.no_prop == model["noProp"] == dict_response["noProp"] == "bonjour!"
 
 
 def test_original_and_attr_name_same():
@@ -866,14 +866,14 @@ def test_model_recursion_complex():
 
 def test_literals():
     class LiteralModel(Model):
-        species: Literal["Mongose", "Eagle", "Penguin"] = rest_field()
+        species: Literal["Mongoose", "Eagle", "Penguin"] = rest_field()
         age: Literal[1, 2, 3] = rest_field()
 
         @overload
         def __init__(
             self,
             *,
-            species: Literal["Mongose", "Eagle", "Penguin"],
+            species: Literal["Moongose", "Eagle", "Penguin"],
             age: Literal[1, 2, 3],
         ): ...
 
@@ -932,7 +932,7 @@ def test_deserialization_callback_override():
 
     model_with_callback = MyModel2(prop=[1.3, 2.4, 3.5])
     assert model_with_callback.prop == ["1.3", "2.4", "3.5"]
-    # since the deserialize function is not roundtrippable, once we deserialize
+    # since the deserialize function is not roundtrip-able, once we deserialize
     # the serialized version is the same
     assert model_with_callback["prop"] == [1.3, 2.4, 3.5]
 
@@ -1933,10 +1933,10 @@ def test_inner_model_custom_serializer():
             super().__init__(*args, **kwargs)
 
     class OuterModel(Model):
-        innie: InnerModel = rest_field()
+        inner: InnerModel = rest_field()
 
         @overload
-        def __init__(self, *, innie: InnerModel): ...
+        def __init__(self, *, inner: InnerModel): ...
 
         @overload
         def __init__(self, mapping: Mapping[str, Any], /): ...
@@ -1944,9 +1944,9 @@ def test_inner_model_custom_serializer():
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
 
-    outer = OuterModel({"innie": {"prop": "hello"}})
-    assert outer.innie["prop"] == outer["innie"]["prop"] == "hello"
-    assert outer.innie.prop == outer["innie"].prop == "olleh"
+    outer = OuterModel({"inner": {"prop": "hello"}})
+    assert outer.inner["prop"] == outer["inner"]["prop"] == "hello"
+    assert outer.inner.prop == outer["inner"].prop == "olleh"
 
 
 def test_default_value():
@@ -3357,7 +3357,7 @@ class CatComplex(PetComplex):
     [
         CatComplex(
             id=2,
-            name="Siameeee",
+            name="Siameese",
             hates=[
                 DogComplex(id=1, name="Potato", food="tomato"),
                 DogComplex(id=-1, name="Tomato", food="french fries"),
@@ -3365,7 +3365,7 @@ class CatComplex(PetComplex):
         ),
         CatComplex(
             id=2,
-            name="Siameeee",
+            name="Siameese",
             hates=[
                 DogComplex(id=1, name="Potato", food="tomato"),
                 {"id": -1, "name": "Tomato", "food": "french fries"},
@@ -3373,7 +3373,7 @@ class CatComplex(PetComplex):
         ),
         CatComplex(
             id=2,
-            name="Siameeee",
+            name="Siameese",
             hates=[
                 {"id": 1, "name": "Potato", "food": "tomato"},
                 {"id": -1, "name": "Tomato", "food": "french fries"},
@@ -3383,7 +3383,7 @@ class CatComplex(PetComplex):
 )
 def test_complex_inheritance(model):
     assert model.id == model["id"] == 2
-    assert model.name == model["name"] == "Siameeee"
+    assert model.name == model["name"] == "Siameese"
     assert model.hates
     assert model.hates[1] == model["hates"][1] == {"id": -1, "name": "Tomato", "food": "french fries"}
     model["breed"] = "persian"
@@ -3392,7 +3392,7 @@ def test_complex_inheritance(model):
         model.breed
     assert model == {
         "id": 2,
-        "name": "Siameeee",
+        "name": "Siameese",
         "color": "green",
         "breed": "persian",
         "hates": [
@@ -3430,7 +3430,7 @@ def test_required_prop_not_passed():
         model["requiredProperty"]
 
 
-def test_null_serilization(core_library):
+def test_null_serialization(core_library):
     dict_response = {
         "name": "it's me!",
         "listOfMe": [
@@ -3622,7 +3622,7 @@ def test_as_dict():
 
     model = CatComplex(
         id=2,
-        name="Siameeee",
+        name="Siameese",
         hates=[
             DogComplex(id=1, name="Potato", food="tomato"),
             DogComplex(id=-1, name="Tomato", food="french fries"),
@@ -3630,7 +3630,7 @@ def test_as_dict():
     )
     assert model.as_dict(exclude_readonly=True) == {
         "id": 2,
-        "name": "Siameeee",
+        "name": "Siameese",
         "color": None,
     }
 

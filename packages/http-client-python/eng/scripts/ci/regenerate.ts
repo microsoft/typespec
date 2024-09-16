@@ -102,7 +102,6 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
     "client/structure/two-operation-group": {
         "package-name": "client-structure-twooperationgroup",
     },
-    "mgmt/sphere": [{ "package-name": "azure-mgmt-spheredpg" }],
 };
 
 function toPosix(dir: string): string {

@@ -62,8 +62,8 @@ def _all_same(data: List[List[str]]) -> bool:
 
 
 def _need_type_ignore(builder: OperationType) -> bool:
-    for excep in builder.non_default_errors:
-        for status_code in excep.status_codes:
+    for e in builder.non_default_errors:
+        for status_code in e.status_codes:
             if status_code in (401, 404, 409, 304):
                 return True
     return False
@@ -879,7 +879,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             # request builders don't allow grouped parameters, so we group them before making the call
             retval.extend(_serialize_grouped_body(builder))
         if builder.parameters.has_body and builder.parameters.body_parameter.flattened:
-            # unflatten before passing to request builder as well
+            # serialize flattened body before passing to request builder as well
             retval.extend(_serialize_flattened_body(builder.parameters.body_parameter))
         if is_json_model_type(builder.parameters):
             retval.extend(_serialize_json_model_body(builder.parameters.body_parameter, builder.parameters.parameters))
@@ -1097,17 +1097,17 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 retval.append("    409: ResourceExistsError,")
             if not 304 in builder.non_default_error_status_codes:
                 retval.append("    304: ResourceNotModifiedError,")
-            for excep in builder.non_default_errors:
+            for e in builder.non_default_errors:
                 error_model_str = ""
-                if isinstance(excep.type, ModelType):
+                if isinstance(e.type, ModelType):
                     if self.code_model.options["models_mode"] == "msrest":
                         error_model_str = (
-                            f", model=self._deserialize(" f"_models.{excep.type.serialization_type}, response)"
+                            f", model=self._deserialize(" f"_models.{e.type.serialization_type}, response)"
                         )
                     elif self.code_model.options["models_mode"] == "dpg":
-                        error_model_str = f", model=_deserialize(_models.{excep.type.name}, response.json())"
+                        error_model_str = f", model=_deserialize(_models.{e.type.name}, response.json())"
                 error_format_str = ", error_format=ARMErrorFormat" if self.code_model.options["azure_arm"] else ""
-                for status_code in excep.status_codes:
+                for status_code in e.status_codes:
                     if status_code == 401:
                         retval.append(
                             "    401:  cast(Type[HttpResponseError], "
@@ -1494,16 +1494,16 @@ def get_operation_serializer(
     LROOperationSerializer,
     LROPagingOperationSerializer,
 ]:
-    retcls: Union[
+    ret_cls: Union[
         Type[OperationSerializer],
         Type[PagingOperationSerializer],
         Type[LROOperationSerializer],
         Type[LROPagingOperationSerializer],
     ] = OperationSerializer
     if builder.operation_type == "lropaging":
-        retcls = LROPagingOperationSerializer
+        ret_cls = LROPagingOperationSerializer
     elif builder.operation_type == "lro":
-        retcls = LROOperationSerializer
+        ret_cls = LROOperationSerializer
     elif builder.operation_type == "paging":
-        retcls = PagingOperationSerializer
-    return retcls(code_model, async_mode)
+        ret_cls = PagingOperationSerializer
+    return ret_cls(code_model, async_mode)

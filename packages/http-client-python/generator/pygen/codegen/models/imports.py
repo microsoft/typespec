@@ -19,7 +19,7 @@ class ImportType(str, Enum):
     THIRDPARTY = "thirdparty"
     SDKCORE = "sdkcore"
     LOCAL = "local"
-    BYVERSION = "by_version"
+    BY_VERSION = "by_version"
 
 
 class TypingSection(str, Enum):
@@ -171,7 +171,7 @@ class FileImport:
         self.add_submodule_import(
             "typing",
             "MutableMapping",
-            ImportType.BYVERSION,
+            ImportType.BY_VERSION,
             TypingSection.REGULAR,
             None,
             (((3, 9), "collections.abc", None),),

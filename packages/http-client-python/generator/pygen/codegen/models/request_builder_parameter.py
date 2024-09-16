@@ -100,7 +100,7 @@ class RequestBuilderParameter(Parameter):
         super_method_location = super().method_location
         if super_method_location == ParameterMethodLocation.KWARG:
             return super_method_location
-        if self.in_overriden and super_method_location == ParameterMethodLocation.KEYWORD_ONLY:
+        if self.in_overridden and super_method_location == ParameterMethodLocation.KEYWORD_ONLY:
             return ParameterMethodLocation.KWARG
         if self.location != ParameterLocation.PATH:
             return ParameterMethodLocation.KEYWORD_ONLY

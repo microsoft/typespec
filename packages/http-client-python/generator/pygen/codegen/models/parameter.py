@@ -142,12 +142,12 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
         kwargs["is_operation_file"] = True
         # special logic for api-version parameter
         if self.is_api_version:
-            type_annot = "str"
+            type_annotation = "str"
         else:
-            type_annot = self.type.type_annotation(**kwargs)
+            type_annotation = self.type.type_annotation(**kwargs)
         if self.optional and self.client_default_value is None:
-            return f"Optional[{type_annot}]"
-        return type_annot
+            return f"Optional[{type_annotation}]"
+        return type_annotation
 
     def docstring_text(self, **kwargs: Any) -> str:
         return self.type.docstring_text(**kwargs)
@@ -306,7 +306,7 @@ class Parameter(_ParameterBase):
 
         self.skip_url_encoding: bool = self.yaml_data.get("skipUrlEncoding", False)
         self.explode: bool = self.yaml_data.get("explode", False)
-        self.in_overriden: bool = self.yaml_data.get("inOverriden", False)
+        self.in_overridden: bool = self.yaml_data.get("inOverridden", False)
         self.delimiter: Optional[ParameterDelimeter] = self.yaml_data.get("delimiter")
         self._default_to_unset_sentinel: bool = False
 

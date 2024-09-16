@@ -63,13 +63,13 @@ class {{ operation_group.class_name }}: {{ operation_group.pylint_disable() }}
 {% set request_builder = operation.request_builder %}
 {% set operation_serializer = get_operation_serializer(operation) %}
     {% if operation.operation_type == "lropaging" %}
-    {%- macro someop() %}{% include "lro_paging_operation.py.jinja2" %}{% endmacro %}
+    {%- macro some_op() %}{% include "lro_paging_operation.py.jinja2" %}{% endmacro %}
     {% elif operation.operation_type == "lro" %}
-    {%- macro someop() %}{% include "lro_operation.py.jinja2" %}{% endmacro %}
+    {%- macro some_op() %}{% include "lro_operation.py.jinja2" %}{% endmacro %}
     {% elif operation.operation_type == "paging" %}
-    {% macro someop() %}{% include "paging_operation.py.jinja2" %}{% endmacro %}
+    {% macro some_op() %}{% include "paging_operation.py.jinja2" %}{% endmacro %}
     {% else %}
-    {% macro someop() %}{% include "operation.py.jinja2" %}{% endmacro %}
+    {% macro some_op() %}{% include "operation.py.jinja2" %}{% endmacro %}
     {% endif %}
-    {{ someop()|indent }}
+    {{ some_op()|indent }}
 {% endfor %}

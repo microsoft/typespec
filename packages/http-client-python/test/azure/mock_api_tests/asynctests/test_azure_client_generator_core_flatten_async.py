@@ -64,7 +64,7 @@ async def test_dpg_model_none():
 
 
 @pytest.mark.asyncio
-async def test_dpg_model_compatility():
+async def test_dpg_model_compatibility():
     flatten_model = FlattenModel(description="test", age=0)
     assert flatten_model.description == "test"
     assert flatten_model.age == 0

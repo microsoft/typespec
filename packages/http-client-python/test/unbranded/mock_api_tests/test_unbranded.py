@@ -50,7 +50,7 @@ def check_sensitive_word(folder: Path, word: str) -> str:
     return sorted(list(result))
 
 
-def test_senstive_word():
+def test_sensitive_word():
     check_folder = (Path(os.path.dirname(__file__)) / "../generated").resolve()
     assert [] == check_sensitive_word(check_folder, "azure")
     # after update cadl-ranch, it shall also equal to []

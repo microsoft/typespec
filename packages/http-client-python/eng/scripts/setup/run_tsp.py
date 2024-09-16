@@ -16,9 +16,9 @@ _LOGGER = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     venv_path = _ROOT_DIR / "venv"
-    venv_prexists = venv_path.exists()
+    venv_preexists = venv_path.exists()
 
-    assert venv_prexists  # Otherwise install was not done
+    assert venv_preexists  # Otherwise install was not done
 
     env_builder = venv.EnvBuilder(with_pip=True)
     venv_context = env_builder.ensure_directories(venv_path)

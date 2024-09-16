@@ -57,7 +57,7 @@ def test_dpg_model_none():
     assert flatten_model.description is None
 
 
-def test_dpg_model_compatility():
+def test_dpg_model_compatibility():
     flatten_model = FlattenModel(description="test", age=0)
     assert flatten_model.description == "test"
     assert flatten_model.age == 0

@@ -636,7 +636,7 @@ class Model(_MyMutableMapping):
         return mapped_cls._deserialize(data, exist_discriminators)
 
     def as_dict(self, *, exclude_readonly: bool = False) -> typing.Dict[str, typing.Any]:
-        """Return a dict that can be JSONify using json.dump.
+        """Return a dict that can be jsonified using json.dump.
 
         :keyword bool exclude_readonly: Whether to remove the readonly properties.
         :returns: A dict JSON compatible object

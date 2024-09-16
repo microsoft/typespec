@@ -175,7 +175,7 @@ const resolvePythonRequirement = async (
 };
 
 /**
- * @param command list of the command and arguments. First item in array must be a python exe @see KnownPythonExe. (e.g. ["python", "mypythonfile.py"]
+ * @param command list of the command and arguments. First item in array must be a python exe @see KnownPythonExe. (e.g. ["python", "my_python_file.py"]
  * @param requirement
  */
 export const patchPythonPath = async (
@@ -222,7 +222,7 @@ interface SystemRequirementResolution {
 
     /**
      * Name of the command
-     * @example python3, /home/myuser/python39/python, java, etc.
+     * @example python3, /home/my_user/python39/python, java, etc.
      */
     command: string;
 

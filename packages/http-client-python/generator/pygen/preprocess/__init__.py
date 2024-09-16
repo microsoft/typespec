@@ -91,10 +91,10 @@ def add_overloads_for_body_param(yaml_data: Dict[str, Any]) -> None:
             yaml_data["overloads"].append(add_overload(yaml_data, body_type, for_flatten_params=True))
     content_type_param = next(p for p in yaml_data["parameters"] if p["wireName"].lower() == "content-type")
     content_type_param["inOverload"] = False
-    content_type_param["inOverriden"] = True
+    content_type_param["inOverridden"] = True
     content_type_param["inDocstring"] = True
     content_type_param["clientDefaultValue"] = (
-        None  # make it none bc it will be overriden, we depend on default of overloads
+        None  # make it none bc it will be overridden, we depend on default of overloads
     )
     content_type_param["optional"] = True
 
