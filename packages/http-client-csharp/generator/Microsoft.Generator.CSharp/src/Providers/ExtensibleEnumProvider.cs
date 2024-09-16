@@ -26,7 +26,13 @@ namespace Microsoft.Generator.CSharp.Providers
             _allowedValues = input.Values;
             // extensible enums are implemented as readonly structs
             _modifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct;
-            if (input.Accessibility == "internal")
+            var customCodeModifiers = GetCustomCodeModifiers();
+
+            if (customCodeModifiers != TypeSignatureModifiers.None)
+            {
+                _modifiers |= customCodeModifiers;
+            }
+            else if (input.Accessibility == "internal")
             {
                 _modifiers |= TypeSignatureModifiers.Internal;
             }
