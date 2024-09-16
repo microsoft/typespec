@@ -3,7 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "dist",
-    "tsBuildInfoFile": "temp/.tsbuildinfo"
+    "tsBuildInfoFile": "temp/.tsbuildinfo",
+    "types": ["multer"]
   },
   "include": ["src/**/*.ts", "test/**/*.ts"]
 }

@@ -1,5 +1,4 @@
 import type { Request } from "express";
-import "multer";
 import { MockRequest } from "./mock-request.js";
 
 /**
