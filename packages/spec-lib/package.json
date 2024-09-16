@@ -10,6 +10,7 @@
     "watch": "tsc -p ./tsconfig.build.json --watch",
     "build": "tsc -p ./tsconfig.build.json",
     "clean": "rimraf dist/ temp/",
+    "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {
@@ -28,6 +29,7 @@
   "devDependencies": {
     "@types/node": "^18.16.0",
     "@typespec/eslint-config-typespec": "~0.55.0",
+    "@typespec/tspd": "workspace:~",
     "eslint": "^8.50.0",
     "rimraf": "^5.0.5",
     "typescript": "~5.2.2"

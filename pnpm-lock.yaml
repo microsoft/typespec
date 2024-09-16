@@ -1545,6 +1545,9 @@ importers:
       '@typespec/eslint-config-typespec':
         specifier: ~0.55.0
         version: 0.55.0(@types/eslint@8.56.6)(prettier@3.3.3)(vitest@2.1.1(@types/node@18.19.43)(@vitest/ui@2.1.1(vitest@2.1.1))(happy-dom@15.7.4)(jsdom@19.0.0)(terser@5.30.0))
+      '@typespec/tspd':
+        specifier: workspace:~
+        version: link:../tspd
       eslint:
         specifier: ^8.50.0
         version: 8.57.0
