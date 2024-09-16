@@ -1,50 +1,63 @@
-import { expect } from "chai";
-import "mocha";
-import { RequestExt } from "../src/types.js";
+import { describe, expect, it } from "vitest";
 import { RequestExpectation } from "../src/expectation.js";
+import { RequestExt } from "../src/types.js";
 
 describe("expectation test suite", () => {
   describe("containsQueryParam()", () => {
     it("should validate successfully with correct input of multi collection", () => {
       const requestExt = { query: { letter: ["a", "b", "c"] } } as unknown as RequestExt;
       const requestExpectation = new RequestExpectation(requestExt);
-      expect(requestExpectation.containsQueryParam("letter", ["a", "b", "c"], "multi")).to.equal(undefined);
+      expect(requestExpectation.containsQueryParam("letter", ["a", "b", "c"], "multi")).toBe(
+        undefined
+      );
     });
 
     it("should validate successfully with correct input of csv collection with common not encoded", () => {
       const requestExt = { query: { letter: "a,b,c" } } as unknown as RequestExt;
       const requestExpectation = new RequestExpectation(requestExt);
-      expect(requestExpectation.containsQueryParam("letter", ["a", "b", "c"], "csv")).to.equal(undefined);
+      expect(requestExpectation.containsQueryParam("letter", ["a", "b", "c"], "csv")).toBe(
+        undefined
+      );
     });
 
     it("should validate successfully with correct input of csv collection with common encoded", () => {
       const requestExt = { query: { letter: "a%2Cb%2Cc" } } as unknown as RequestExt;
       const requestExpectation = new RequestExpectation(requestExt);
-      expect(requestExpectation.containsQueryParam("letter", ["a", "b", "c"], "csv")).to.equal(undefined);
+      expect(requestExpectation.containsQueryParam("letter", ["a", "b", "c"], "csv")).toBe(
+        undefined
+      );
     });
 
     it("should validate successfully with correct input of csv collection with common encoded and space", () => {
       const requestExt = { query: { letter: "a%2Cb%2Cc%20" } } as unknown as RequestExt;
       const requestExpectation = new RequestExpectation(requestExt);
-      expect(requestExpectation.containsQueryParam("letter", ["a", "b", "c "], "csv")).to.equal(undefined);
+      expect(requestExpectation.containsQueryParam("letter", ["a", "b", "c "], "csv")).toBe(
+        undefined
+      );
     });
 
     it("should throw validation error with wrong input of multi collection", () => {
       const requestExt = { query: { letter: ["a", "b", "d"] } } as unknown as RequestExt;
       const requestExpectation = new RequestExpectation(requestExt);
-      expect(() => requestExpectation.containsQueryParam("letter", ["a", "b", "c"], "multi")).to.throw();
+      expect(() =>
+        requestExpectation.containsQueryParam("letter", ["a", "b", "c"], "multi")
+      ).toThrow();
     });
 
     it("should throw validation error with wrong input of csv collection with common not encoded", () => {
       const requestExt = { query: { letter: "a,b,d" } } as unknown as RequestExt;
       const requestExpectation = new RequestExpectation(requestExt);
-      expect(() => requestExpectation.containsQueryParam("letter", ["a", "b", "c"], "csv")).to.throw();
+      expect(() =>
+        requestExpectation.containsQueryParam("letter", ["a", "b", "c"], "csv")
+      ).toThrow();
     });
 
     it("should validate successfully with correct input", () => {
       const requestExt = { query: { letter: "[a, b, c]" } } as unknown as RequestExt;
       const requestExpectation = new RequestExpectation(requestExt);
-      expect(requestExpectation.containsQueryParam("letter", "[a, b, c]")).to.equal(undefined);
+      expect(requestExpectation.containsQueryParam("letter", "[a, b, c]")).toBe(
+        undefined
+      );
     });
   });
 });
