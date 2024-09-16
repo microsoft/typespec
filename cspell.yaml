@@ -156,6 +156,7 @@ words:
   - pygen
   - pylint
   - pylintrc
+  - pyproject
   - pyright
   - pyrightconfig
   - pytest
