@@ -19,7 +19,7 @@ describe("openapi3: shared routes", () => {
         @route("/sharedroutes/resources?filter=subscription")
         op listBySubscription(...Resource): Resource[];
       }
-      `
+      `,
     );
     expectDiagnostics(diagnostics, [
       {
@@ -52,15 +52,15 @@ describe("openapi3: shared routes", () => {
         @route("/sharedroutes/resources")
         op listBySubscription(...Resource, @query subscription: string, @query foo: string): Resource[];
       }
-      `
+      `,
     );
     deepStrictEqual(
       results.paths["/sharedroutes/resources"].post.operationId,
-      "List_ResourceGroup_List_Subscription"
+      "List_ResourceGroup_List_Subscription",
     );
     deepStrictEqual(
       results.paths["/sharedroutes/resources"].post.responses["200"].statusCode,
-      undefined
+      undefined,
     );
     const params = results.paths["/sharedroutes/resources"].post.parameters as {
       name: string;
@@ -114,15 +114,15 @@ describe("openapi3: shared routes", () => {
         @route("/sharedroutes/resources")
         op listBySubscription(...Resource, @query filter: "subscription"): Resource[];
       }
-      `
+      `,
     );
     deepStrictEqual(
       results.paths["/sharedroutes/resources"].post.operationId,
-      "listByResourceGroup_listBySubscription"
+      "listByResourceGroup_listBySubscription",
     );
     deepStrictEqual(
       results.paths["/sharedroutes/resources"].post.responses["200"].statusCode,
-      undefined
+      undefined,
     );
     const params = results.paths["/sharedroutes/resources"].post.parameters as {
       name: string;
@@ -160,15 +160,15 @@ describe("openapi3: shared routes", () => {
         @route("/sharedroutes/resources")
         op listBySubscription(...Resource, @header filter: "subscription"): Resource[];
       }
-      `
+      `,
     );
     deepStrictEqual(
       results.paths["/sharedroutes/resources"].post.operationId,
-      "listByResourceGroup_listBySubscription"
+      "listByResourceGroup_listBySubscription",
     );
     deepStrictEqual(
       results.paths["/sharedroutes/resources"].post.responses["200"].statusCode,
-      undefined
+      undefined,
     );
     const params = results.paths["/sharedroutes/resources"].post.parameters as {
       name: string;
@@ -215,11 +215,11 @@ describe("openapi3: shared routes", () => {
         @route("/sharedroutes/resources")
         op returnsString(...Resource, @query options: string): string;
       }
-      `
+      `,
     );
     deepStrictEqual(
       results.paths["/sharedroutes/resources"].post.operationId,
-      "returnsInt_returnsString"
+      "returnsInt_returnsString",
     );
     const responses = results.paths["/sharedroutes/resources"].post.responses;
     deepStrictEqual(responses, {
@@ -265,7 +265,7 @@ describe("openapi3: shared routes", () => {
         @route("/2")
         op updateString(@body b: string, @query options: string): void;
       }
-      `
+      `,
     );
     deepStrictEqual(results.paths["/1"].post.operationId, "processInt_processString");
     deepStrictEqual(results.paths["/1"].post.requestBody, {
@@ -335,7 +335,7 @@ describe("openapi3: shared routes", () => {
         @route("/1")
         op processString(@body _: string, @query options: string): B;
       }
-      `
+      `,
     );
     const responses = results.paths["/1"].post.responses;
     deepStrictEqual(responses, {
@@ -385,7 +385,7 @@ describe("openapi3: shared routes", () => {
         @sharedRoute
         op updateB(b: B): int32;
       }
-      `
+      `,
     );
     deepStrictEqual(results.paths["/"].post.operationId, "updateA_updateB");
     const requestBody = results.paths["/"].post.requestBody;
@@ -438,7 +438,7 @@ describe("openapi3: shared routes", () => {
         @route("/process")
         op processString(@body body: string, @query options: string): string | ErrorModel;
       }
-      `
+      `,
     );
     deepStrictEqual(results.paths["/process"].post.operationId, "processInt_processString");
     const requestBody = results.paths["/process"].post.requestBody;
@@ -525,7 +525,7 @@ describe("openapi3: shared routes", () => {
         @parameterVisibility("create")
         op op2Foo(...Resource): Resource[];
       }
-      `
+      `,
     );
     expectDiagnostics(diagnostics, [
       {

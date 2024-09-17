@@ -29,7 +29,7 @@ describe("referencing non-JSON Schema types", () => {
       {
         emitNamespace: false,
         emitTypes: ["testModel", "testArray", "testUnion", "testEnum", "testScalar"],
-      }
+      },
     );
 
     validateInlinedSchema(schemas["testModel.json"], [
@@ -72,7 +72,7 @@ describe("referencing non-JSON Schema types", () => {
       strictEqual(
         unseenDefs.size,
         0,
-        "Expected all defs to be referenced, left with " + [...unseenDefs].join(", ")
+        "Expected all defs to be referenced, left with " + [...unseenDefs].join(", "),
       );
     }
 
@@ -100,7 +100,7 @@ describe("referencing non-JSON Schema types", () => {
       model Bar { }
     `,
       { emitAllModels: true },
-      { emitNamespace: false }
+      { emitNamespace: false },
     );
 
     assert.strictEqual(schemas["test.json"].$id, "test.json");
@@ -116,7 +116,7 @@ describe("referencing non-JSON Schema types", () => {
       model Bar { }
     `,
       { emitAllRefs: true },
-      { emitNamespace: false }
+      { emitNamespace: false },
     );
 
     assert.strictEqual(schemas["test.json"].$id, "test.json");
@@ -144,7 +144,7 @@ describe("referencing non-JSON Schema types", () => {
       }
     `,
       {},
-      { emitNamespace: false, emitTypes: ["C", "D"] }
+      { emitNamespace: false, emitTypes: ["C", "D"] },
     );
 
     const depSchemas = {
@@ -175,7 +175,7 @@ describe("referencing non-JSON Schema types", () => {
       model B {}
     `,
       {},
-      { emitNamespace: false, emitTypes: ["A"] }
+      { emitNamespace: false, emitTypes: ["A"] },
     );
 
     assert(schemas["A.json"] !== undefined);
@@ -189,7 +189,7 @@ describe("referencing non-JSON Schema types", () => {
       model B {}
     `,
       { emitAllModels: true },
-      { emitNamespace: false, emitTypes: ["A"] }
+      { emitNamespace: false, emitTypes: ["A"] },
     );
 
     assert(amSchemas["A.json"] !== undefined);
@@ -214,7 +214,7 @@ describe("referencing non-JSON Schema types", () => {
       }
     `,
       {},
-      { emitNamespace: false, emitTypes: ["R"] }
+      { emitNamespace: false, emitTypes: ["R"] },
     );
     assert(schemas["R.json"] !== undefined);
     assert(Object.keys(schemas).length === 1);

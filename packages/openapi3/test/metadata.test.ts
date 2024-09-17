@@ -389,7 +389,7 @@ describe("openapi3: metadata", () => {
     }
     `,
       undefined,
-      { "omit-unreachable-types": true }
+      { "omit-unreachable-types": true },
     );
 
     deepStrictEqual(res.components.schemas, {
@@ -613,7 +613,7 @@ describe("openapi3: metadata", () => {
       }
       @route("/single") @get op single(...Parameters): string;
       @route("/batch") @get op batch(@bodyRoot _: Parameters[]): string;
-      `
+      `,
     );
     deepStrictEqual(res.paths, {
       "/single/{p}": {
@@ -707,7 +707,7 @@ describe("openapi3: metadata", () => {
         foo: string;
         bar: int32;
       ): string;
-      `
+      `,
     );
     deepStrictEqual(res.paths, {
       "/test": {
@@ -768,7 +768,7 @@ describe("openapi3: metadata", () => {
         @header h: string;
       }
       @route("/batch") @post op batch(@bodyRoot body?: Parameters[]): string;
-      `
+      `,
     );
     deepStrictEqual(res.paths, {
       "/batch": {
@@ -825,7 +825,7 @@ describe("openapi3: metadata", () => {
         @visibility("delete") d: string;
       }
       @route("/") @post op createMultiple(...Thing): Thing[];
-      `
+      `,
     );
 
     const request = res.paths["/"].post.requestBody.content["application/json"].schema;
@@ -873,7 +873,7 @@ describe("openapi3: metadata", () => {
        inner?: Thing;
       }
       @route("/") @get op get(): Thing;
-      `
+      `,
     );
 
     const response = res.paths["/"].get.responses["200"].content["application/json"].schema;
@@ -901,7 +901,7 @@ describe("openapi3: metadata", () => {
       }
 
       @route("/") @post op create(...Thing): Thing;
-      `
+      `,
     );
 
     const request = res.paths["/"].post.requestBody.content["application/json"].schema;
@@ -945,7 +945,7 @@ describe("openapi3: metadata", () => {
       
       @route("/pets")
       @post op create(...Pet): Pet;
-      `
+      `,
     );
 
     deepStrictEqual(res.paths, {
@@ -1064,7 +1064,7 @@ describe("openapi3: metadata", () => {
         @body body: bytes;
       }
       op doStuffWithBytes(data: Image): int32;
-      `
+      `,
     );
 
     const requestSchema =
@@ -1081,7 +1081,7 @@ describe("openapi3: metadata", () => {
         moreNesting: { @body body: bytes };
       }
       op doStuffWithBytes(data: Image): int32;
-      `
+      `,
     );
 
     const requestSchema =

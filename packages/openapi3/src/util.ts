@@ -30,7 +30,7 @@ export type EqualityComparer<T> = (x: T, y: T) => boolean;
 export function arrayEquals<T>(
   left: T[],
   right: T[],
-  equals: EqualityComparer<T> = (x, y) => x === y
+  equals: EqualityComparer<T> = (x, y) => x === y,
 ): boolean {
   if (left === right) {
     return true;
@@ -56,7 +56,7 @@ export function arrayEquals<T>(
 export function mapEquals<K, V>(
   left: Map<K, V>,
   right: Map<K, V>,
-  equals: EqualityComparer<V> = (x, y) => x === y
+  equals: EqualityComparer<V> = (x, y) => x === y,
 ): boolean {
   if (left === right) {
     return true;
@@ -83,7 +83,7 @@ export interface SharedHttpOperation {
   operations: HttpOperation[];
 }
 export function isSharedHttpOperation(
-  operation: HttpOperation | SharedHttpOperation
+  operation: HttpOperation | SharedHttpOperation,
 ): operation is SharedHttpOperation {
   return (operation as SharedHttpOperation).kind === "shared";
 }

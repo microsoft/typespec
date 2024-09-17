@@ -5,7 +5,7 @@ export function defineConfig(config: RepoConfig) {
 }
 
 export function defineLabels<const T extends string>(
-  labels: Record<T, { color: string; description: string }>
+  labels: Record<T, { color: string; description: string }>,
 ) {
   return labels;
 }

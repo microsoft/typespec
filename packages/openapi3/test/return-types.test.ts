@@ -12,7 +12,7 @@ describe("openapi3: return types", () => {
       }
       @route("c1") op c1(): Foo;
       @route("c2") op c2(): {@body _: Foo};
-      `
+      `,
     );
     deepStrictEqual(res.paths["/c1"].get.responses["200"].content["application/json"].schema, {
       $ref: "#/components/schemas/Foo",
@@ -32,7 +32,7 @@ describe("openapi3: return types", () => {
         key: string;
       }
       @get() op read(): Key & ETagHeader;
-      `
+      `,
     );
     ok(res.paths["/"].get.responses["200"].headers);
     ok(res.paths["/"].get.responses["200"].headers["e-tag"]);
@@ -51,7 +51,7 @@ describe("openapi3: return types", () => {
         }
         @put op create(): CreatedResponse & Key;  
       }
-      `
+      `,
     );
     ok(res.paths["/"].put.responses["201"]);
     ok(res.paths["/"].put.responses["201"].content["application/json"].schema);
@@ -70,7 +70,7 @@ describe("openapi3: return types", () => {
         }
         @put op create(): CreatedResponse & Key;
       }
-      `
+      `,
     );
     ok(res.paths["/"].put.responses["201"]);
     ok(res.paths["/"].put.responses["201"].content["application/json"].schema);
@@ -92,7 +92,7 @@ describe("openapi3: return types", () => {
         }
         @put op create(): { ...CreatedResponse, ...ETagHeader, @body body: Key};
       }
-      `
+      `,
     );
     ok(res.paths["/"].put.responses["201"]);
     ok(res.paths["/"].put.responses["201"].headers["e-tag"]);
@@ -105,7 +105,7 @@ describe("openapi3: return types", () => {
     const res = await openApiFor(
       `
       @put op create(): {@header eTag: string};
-      `
+      `,
     );
     ok(res.paths["/"].put.responses["200"]);
     ok(res.paths["/"].put.responses["200"].headers["e-tag"]);
@@ -116,7 +116,7 @@ describe("openapi3: return types", () => {
     const res = await openApiFor(
       `
       @put op create(): {@header eTag?: string};
-      `
+      `,
     );
     ok(res.paths["/"].put.responses["200"]);
     ok(res.paths["/"].put.responses["200"].headers["e-tag"]);
@@ -141,7 +141,7 @@ describe("openapi3: return types", () => {
         }
         @put op create(): CreatePageResponse;
       }
-      `
+      `,
     );
     ok(res.paths["/"].put.responses["201"]);
     ok(res.paths["/"].put.responses["201"].headers["location"]);
@@ -163,18 +163,18 @@ describe("openapi3: return types", () => {
         key: string;
       }
       @put op create(): CreatedOrUpdatedResponse & DateHeader & Key;
-      `
+      `,
     );
     ok(res.paths["/"].put.responses["200"]);
     ok(res.paths["/"].put.responses["201"]);
     // Note: 200 and 201 response should be equal except for description
     deepStrictEqual(
       res.paths["/"].put.responses["200"].headers,
-      res.paths["/"].put.responses["201"].headers
+      res.paths["/"].put.responses["201"].headers,
     );
     deepStrictEqual(
       res.paths["/"].put.responses["200"].content,
-      res.paths["/"].put.responses["201"].content
+      res.paths["/"].put.responses["201"].content,
     );
   });
 
@@ -191,7 +191,7 @@ describe("openapi3: return types", () => {
         key: string;
       }
       @get op read(): Key | Error;
-      `
+      `,
     );
     ok(res.paths["/"].get.responses["200"]);
     ok(res.components.schemas.Key);
@@ -222,7 +222,7 @@ describe("openapi3: return types", () => {
       
       // Note: & takes precedence over |
       @get op read(): Key & TextPlain | Error;
-      `
+      `,
     );
     ok(res.paths["/"].get.responses["200"]);
     ok(res.paths["/"].get.responses["200"].content["text/plain"].schema);
@@ -239,7 +239,7 @@ describe("openapi3: return types", () => {
         @header contentType: "text/plain" | "text/html" | "text/csv";
       }
       @get op read(): { ...TextMulti, @body body: string };
-    `
+    `,
     );
     ok(res.paths["/"].get.responses["200"]);
     ok(res.paths["/"].get.responses["200"].content["text/plain"]);
@@ -255,7 +255,7 @@ describe("openapi3: return types", () => {
     ok(res.paths["/"].get.responses["200"].content);
     strictEqual(
       res.paths["/"].get.responses["200"].content["application/json"].schema.type,
-      "string"
+      "string",
     );
   });
 
@@ -266,13 +266,13 @@ describe("openapi3: return types", () => {
         foo: string;
       }
       @get() op read(): Foo[];
-      `
+      `,
     );
     ok(res.paths["/"].get.responses["200"]);
     ok(res.paths["/"].get.responses["200"].content);
     strictEqual(
       res.paths["/"].get.responses["200"].content["application/json"].schema.type,
-      "array"
+      "array",
     );
   });
 
@@ -280,7 +280,7 @@ describe("openapi3: return types", () => {
     const res = await openApiFor(
       `
       @get op test(): Record<string>;
-      `
+      `,
     );
 
     const responses = res.paths["/"].get.responses;
@@ -321,7 +321,7 @@ describe("openapi3: return types", () => {
       }
 
       @get op get(): Foo | Error;
-      `
+      `,
     );
     const responses = res.paths["/"].get.responses;
     ok(responses["200"]);
@@ -349,7 +349,7 @@ describe("openapi3: return types", () => {
       }
 
       @get op get(): Foo | Error;
-      `
+      `,
     );
     const responses = res.paths["/"].get.responses;
     ok(responses["200"]);
@@ -378,7 +378,7 @@ describe("openapi3: return types", () => {
       }
 
       @get op get(): Foo | Error;
-      `
+      `,
     );
     const responses = res.paths["/"].get.responses;
     ok(responses["200"]);
@@ -398,7 +398,7 @@ describe("openapi3: return types", () => {
     const res = await openApiFor(
       `
       @delete op delete(): { @header date: string, @body body: {} };
-      `
+      `,
     );
     const responses = res.paths["/"].delete.responses;
     ok(responses["204"] === undefined);
@@ -457,7 +457,7 @@ describe("openapi3: return types", () => {
       async (body) => {
         const res = await openApiFor(`op test(): ${body};`);
         strictEqual(res.paths["/"].get.responses["200"].content, undefined);
-      }
+      },
     );
   });
 
@@ -502,7 +502,7 @@ describe("openapi3: return types", () => {
         `@get op read():
           | { @body body: {} }
           | {@header contentType: "text/plain", @body body: string };
-        `
+        `,
       );
       ok(res.paths["/"].get.responses[200].content["application/json"]);
       ok(res.paths["/"].get.responses[200].content["text/plain"]);
@@ -513,7 +513,7 @@ describe("openapi3: return types", () => {
         `@get op read():
           | { @body body: {}, @header foo: string }
           | {@header contentType: "text/plain", @body body: string, @header bar: string };
-        `
+        `,
       );
       ok(res.paths["/"].get.responses[200].headers["foo"]);
       ok(res.paths["/"].get.responses[200].headers["bar"]);
@@ -524,7 +524,7 @@ describe("openapi3: return types", () => {
         `@get op read():
           | { @body body: {}, @header foo: string }
           | {@header contentType: "text/plain", @body body: string, @header foo: int16 };
-        `
+        `,
       );
       expectDiagnostics(diagnostics, [{ code: "@typespec/openapi3/duplicate-header" }]);
     });
@@ -533,7 +533,7 @@ describe("openapi3: return types", () => {
       const diagnostics = await checkFor(
         `@get op read():
            {@header contentType: "text/plain" | "application/json", @body body: string, @header foo: string };
-        `
+        `,
       );
       expectDiagnosticEmpty(diagnostics);
     });

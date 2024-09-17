@@ -10,7 +10,7 @@ import type { XmlEncodeData, XmlEncoding } from "./types.js";
  */
 export function getXmlEncoding(
   program: Program,
-  type: Scalar | ModelProperty
+  type: Scalar | ModelProperty,
 ): XmlEncodeData | undefined {
   const encodeData = getEncode(program, type);
   if (encodeData) {

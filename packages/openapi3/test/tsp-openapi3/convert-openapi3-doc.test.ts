@@ -41,7 +41,7 @@ it("should convert an OpenAPI3 document to a formatted TypeSpec program", async 
 
       scalar Foo extends string;
         `,
-      { printWidth: 100, tabWidth: 2 }
-    )
+      { printWidth: 100, tabWidth: 2 },
+    ),
   );
 });

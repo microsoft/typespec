@@ -41,7 +41,7 @@ interface StandalonePlaygroundContext {
   stateStorage: StateStorage<PlaygroundSaveData>;
 }
 function useStandalonePlaygroundContext(
-  config: ReactPlaygroundConfig
+  config: ReactPlaygroundConfig,
 ): StandalonePlaygroundContext | undefined {
   const [context, setContext] = useState<StandalonePlaygroundContext | undefined>();
   useEffect(() => {
@@ -75,10 +75,10 @@ export const StandalonePlayground: FunctionComponent<ReactPlaygroundConfig> = (c
           <ToastTitle>Saved!</ToastTitle>
           <ToastBody>Playground link has been copied to the clipboard.</ToastBody>
         </Toast>,
-        { intent: "success" }
+        { intent: "success" },
       );
     },
-    [dispatchToast, context]
+    [dispatchToast, context],
   );
 
   const fixedOptions: PlaygroundProps | undefined = useMemo(
@@ -91,7 +91,7 @@ export const StandalonePlayground: FunctionComponent<ReactPlaygroundConfig> = (c
         defaultCompilerOptions: context.initialState.options,
         defaultSampleName: context.initialState.sampleName,
       },
-    [config.defaultEmitter, config.libraries, context]
+    [config.defaultEmitter, config.libraries, context],
   );
   if (context === undefined || fixedOptions === undefined) {
     return config.fallback;
@@ -122,7 +122,7 @@ export async function renderReactPlayground(config: ReactPlaygroundConfig) {
   root.render(
     <FluentProvider theme={webLightTheme} style={{ height: "100vh" }}>
       {app}
-    </FluentProvider>
+    </FluentProvider>,
   );
 }
 
@@ -149,7 +149,7 @@ export function createStandalonePlaygroundStateStorage(): UrlStateStorage<Playgr
     resolveSearchParams: stateStorage.resolveSearchParams,
     save(data: PlaygroundSaveData) {
       stateStorage.save(
-        data.sampleName ? { sampleName: data.sampleName, options: data.options } : data
+        data.sampleName ? { sampleName: data.sampleName, options: data.options } : data,
       );
     },
   };

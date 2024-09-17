@@ -26,7 +26,7 @@ export const OutputView: FunctionComponent<OutputViewProps> = ({
 }) => {
   const resolvedViewers = useMemo(
     () => resolveViewers(viewers, fileViewers),
-    [fileViewers, viewers]
+    [fileViewers, viewers],
   );
 
   if (compilationState === undefined) {
@@ -46,7 +46,7 @@ export const OutputView: FunctionComponent<OutputViewProps> = ({
 
 function resolveViewers(
   viewers: ProgramViewer[] | undefined,
-  fileViewers: FileOutputViewer[] | undefined
+  fileViewers: FileOutputViewer[] | undefined,
 ): ResolvedViewers {
   const fileViewer = createFileViewer(fileViewers ?? []);
   const output: ResolvedViewers = {
@@ -77,7 +77,7 @@ const OutputViewInternal: FunctionComponent<{
 
   const onTabSelect = useCallback<SelectTabEventHandler>(
     (_, data) => setSelected(data.value as any),
-    [setSelected]
+    [setSelected],
   );
 
   const viewer = useMemo(() => {

@@ -14,7 +14,7 @@ describe("compiler: semantic checks on source with parse errors", () => {
       `model M extends Q {
         a: B;
         a: C;
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("./");

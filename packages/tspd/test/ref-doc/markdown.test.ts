@@ -23,7 +23,7 @@ describe("ref-doc: markdown", () => {
 | Header 1<br /><br />The first header | Header 2<br /><br />The second header | Header 3<br /><br />The third header |
 |----------------------------|-----------------------------|----------------------------|
 | First row<br />First column<br />has<br />lots of newlines<br />!!! | First row<br />Second column<br />has<br />lots of newlines<br />!!! | First row<br />Third column<br />has<br />lots of newlines<br />!!! |
-      `.trim()
+      `.trim(),
     );
   });
 });

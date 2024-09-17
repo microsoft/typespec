@@ -99,7 +99,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>,
     metadataInfo: MetadataInfo,
     visibilityUsage: VisibilityUsageTracker,
-    options: ResolvedOpenAPI3EmitterOptions
+    options: ResolvedOpenAPI3EmitterOptions,
   ) {
     super(emitter);
     this.#metadataInfo = metadataInfo;
@@ -259,7 +259,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       new ObjectBuilder({
         type: "array",
         items: this.emitter.emitTypeReference(elementType),
-      })
+      }),
     );
   }
 
@@ -288,7 +288,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         const encodedName = resolveEncodedName(
           this.emitter.getProgram(),
           prop,
-          this.#getContentType()
+          this.#getContentType(),
         );
 
         requiredProps.push(encodedName);
@@ -534,7 +534,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     const wrapWithObjectBuilder = (
       schemaMember: { schema: any; type: Type | null },
-      { mergeUnionWideConstraints }: { mergeUnionWideConstraints: boolean }
+      { mergeUnionWideConstraints }: { mergeUnionWideConstraints: boolean },
     ): ObjectBuilder<OpenAPI3Schema> => {
       // we can just return the single schema member after applying nullable
       const schema = schemaMember.schema;
@@ -591,7 +591,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     const schema: OpenAPI3Schema = {
       [ofType]: schemaMembers.map((m) =>
-        wrapWithObjectBuilder(m, { mergeUnionWideConstraints: false })
+        wrapWithObjectBuilder(m, { mergeUnionWideConstraints: false }),
       ),
     };
 
@@ -657,7 +657,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     targetDeclaration: Declaration<Record<string, unknown>>,
     pathUp: Scope<Record<string, unknown>>[],
     pathDown: Scope<Record<string, unknown>>[],
-    commonScope: Scope<Record<string, unknown>> | null
+    commonScope: Scope<Record<string, unknown>> | null,
   ): object | EmitEntity<Record<string, unknown>> {
     if (targetDeclaration.value instanceof Placeholder) {
       // I don't think this is possible, confirm.
@@ -678,7 +678,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   circularReference(
     target: EmitEntity<Record<string, any>>,
     scope: Scope<Record<string, any>> | undefined,
-    cycle: ReferenceCycle
+    cycle: ReferenceCycle,
   ): Record<string, any> | EmitEntity<Record<string, any>> {
     if (!cycle.containsDeclaration) {
       reportDiagnostic(this.emitter.getProgram(), {
@@ -704,7 +704,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   scalarInstantiation(
     scalar: Scalar,
-    name: string | undefined
+    name: string | undefined,
   ): EmitterOutput<Record<string, any>> {
     return this.#getSchemaForScalar(scalar);
   }
@@ -734,7 +734,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   #applySchemaExamples(
     type: Model | Scalar | Union | Enum | ModelProperty,
-    target: ObjectBuilder<unknown>
+    target: ObjectBuilder<unknown>,
   ) {
     const program = this.emitter.getProgram();
     const examples = getExamples(program, type);
@@ -745,7 +745,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   #applyConstraints(
     type: Scalar | Model | ModelProperty | Union | Enum,
-    original: OpenAPI3Schema
+    original: OpenAPI3Schema,
   ): ObjectBuilder<OpenAPI3Schema> {
     const schema = new ObjectBuilder(original);
     const program = this.emitter.getProgram();
@@ -791,7 +791,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     applyConstraint(getSummary, "title");
     applyConstraint(
       (p: Program, t: Type) => (getDeprecated(p, t) !== undefined ? true : undefined),
-      "deprecated"
+      "deprecated",
     );
 
     this.#attachExtensions(program, type, schema);
@@ -843,7 +843,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       this.emitter.getProgram(),
       type,
       fullName,
-      Object.fromEntries(decl.scope.declarations.map((x) => [x.name, true]))
+      Object.fromEntries(decl.scope.declarations.map((x) => [x.name, true])),
     );
     return decl;
   }
@@ -854,7 +854,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   #applyEncoding(
     typespecType: Scalar | ModelProperty,
-    target: OpenAPI3Schema | Placeholder<OpenAPI3Schema>
+    target: OpenAPI3Schema | Placeholder<OpenAPI3Schema>,
   ): OpenAPI3Schema {
     return applyEncoding(this.emitter.getProgram(), typespecType, target as any, this.#options);
   }

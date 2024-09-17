@@ -164,5 +164,43 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.IsTrue(modelTypeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class));
             Assert.IsFalse(modelTypeProvider.Type.IsPublic);
         }
+
+        [TestCase]
+        public async Task CanChangeEnumToExtensibleEnum()
+        {
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var props = new[] {
+                InputFactory.EnumMember.Int32("val1", 1),
+                InputFactory.EnumMember.Int32("val2", 2),
+                InputFactory.EnumMember.Int32("val3", 3)
+            };
+
+            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.Int32, values: props, isExtensible: false);
+            var enumProvider = EnumProvider.Create(inputEnum);
+
+            Assert.IsTrue(enumProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Struct | TypeSignatureModifiers.ReadOnly));
+        }
+
+        [TestCase]
+        public async Task CanChangeExtensibleEnumToEnum()
+        {
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var props = new[] {
+                InputFactory.EnumMember.Int32("val1", 1),
+                InputFactory.EnumMember.Int32("val2", 2),
+                InputFactory.EnumMember.Int32("val3", 3)
+            };
+
+            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.Int32, values: props, isExtensible: true);
+            var enumProvider = EnumProvider.Create(inputEnum);
+
+            Assert.IsTrue(enumProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Enum));
+            Assert.AreEqual(3, enumProvider.EnumValues.Count);
+            Assert.AreEqual("Val1", enumProvider.EnumValues[0].Name);
+            Assert.AreEqual("Val2", enumProvider.EnumValues[1].Name);
+            Assert.AreEqual("Val3", enumProvider.EnumValues[2].Name);
+        }
     }
 }

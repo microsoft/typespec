@@ -62,7 +62,7 @@ export function normalizeLibrary(library: InitTemplateLibrary): InitTemplateLibr
 
 export function makeScaffoldingConfig(
   template: InitTemplate,
-  config: Partial<ScaffoldingConfig>
+  config: Partial<ScaffoldingConfig>,
 ): ScaffoldingConfig {
   return {
     template,
@@ -128,7 +128,7 @@ async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
 
   return host.writeFile(
     joinPaths(config.directory, "package.json"),
-    JSON.stringify(packageJson, null, 2)
+    JSON.stringify(packageJson, null, 2),
   );
 }
 
@@ -209,7 +209,7 @@ async function writeFile(
   host: CompilerHost,
   config: ScaffoldingConfig,
   context: FileTemplatingContext,
-  file: InitTemplateFile
+  file: InitTemplateFile,
 ) {
   const baseDir = config.baseUri + "/";
   const template = await readUrlOrPath(host, resolveRelativeUrlOrPath(baseDir, file.path));

@@ -31,7 +31,7 @@ import type {
 export type VersionedDecorator = (
   context: DecoratorContext,
   target: Namespace,
-  versions: Enum
+  versions: Enum,
 ) => void;
 
 /**
@@ -97,7 +97,7 @@ export type AddedDecorator = (
     | UnionVariant
     | Scalar
     | Interface,
-  version: EnumMember
+  version: EnumMember,
 ) => void;
 
 /**
@@ -132,7 +132,7 @@ export type RemovedDecorator = (
     | UnionVariant
     | Scalar
     | Interface,
-  version: EnumMember
+  version: EnumMember,
 ) => void;
 
 /**
@@ -159,7 +159,7 @@ export type RenamedFromDecorator = (
     | Scalar
     | Interface,
   version: EnumMember,
-  oldName: string
+  oldName: string,
 ) => void;
 
 /**
@@ -178,7 +178,7 @@ export type RenamedFromDecorator = (
 export type MadeOptionalDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-  version: EnumMember
+  version: EnumMember,
 ) => void;
 
 /**
@@ -197,7 +197,7 @@ export type MadeOptionalDecorator = (
 export type MadeRequiredDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-  version: EnumMember
+  version: EnumMember,
 ) => void;
 
 /**
@@ -210,7 +210,7 @@ export type TypeChangedFromDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
   version: EnumMember,
-  oldType: Type
+  oldType: Type,
 ) => void;
 
 /**
@@ -223,7 +223,7 @@ export type ReturnTypeChangedFromDecorator = (
   context: DecoratorContext,
   target: Operation,
   version: EnumMember,
-  oldType: Type
+  oldType: Type,
 ) => void;
 
 export type TypeSpecVersioningDecorators = {

@@ -49,7 +49,7 @@ describe("compiler: tag decorator", () => {
           RecursiveOperation(): string;
         }
       }
-      `
+      `,
     );
 
     const {

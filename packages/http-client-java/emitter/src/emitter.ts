@@ -147,7 +147,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
     const jarFileName = resolvePath(
       moduleRoot,
       "generator/http-client-generator/target",
-      "emitter.jar"
+      "emitter.jar",
     );
     program.trace("http-client-java", `Exec JAR ${jarFileName}`);
 
