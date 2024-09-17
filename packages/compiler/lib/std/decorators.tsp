@@ -696,7 +696,7 @@ extern dec list(target: Operation);
  * @example
  * ```tsp
  * model Page<T> {
- *   items: T[];
+ *   @pageItems items: T[];
  * }
  * @list op listPets(@offset skip: int32, @pageSize pageSize: int8): Page<Pet>;
  * ```
@@ -709,7 +709,7 @@ extern dec offset(target: ModelProperty);
  * @example
  * ```tsp
  * model Page<T> {
- *   items: T[];
+ *   @pageItems items: T[];
  * }
  * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
  * ```
@@ -722,12 +722,25 @@ extern dec pageIndex(target: ModelProperty);
  * @example
  * ```tsp
  * model Page<T> {
- *   items: T[];
+ *   @pageItems items: T[];
  * }
  * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
  * ```
  */
 extern dec pageSize(target: ModelProperty);
+
+/**
+ * Specify the the property that contains the array of page items.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ * }
+ * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+ * ```
+ */
+extern dec pageItems(target: ModelProperty);
 
 /**
  * Pagingation property defining the token to get to the next page.
@@ -736,13 +749,89 @@ extern dec pageSize(target: ModelProperty);
  * @example
  * ```tsp
  * model Page<T> {
- *   items: T[];
+ *   @pageItems items: T[];
  *   @continuationToken continuationToken: string;
  * }
  * @list op listPets(@continuationToken continuationToken: string): Page<Pet>;
  * ```
  */
 extern dec continuationToken(target: ModelProperty);
+
+/**
+ * Pagingation property defining a link to the next page.
+ *
+ * It is expected that the navigating to the link will return the same set of response as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+extern dec nextLink(target: ModelProperty);
+
+/**
+ * Pagingation property defining a link to the previous page.
+ *
+ * It is expected that the navigating to the link will return the same set of response as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+extern dec prevLink(target: ModelProperty);
+
+/**
+ * Pagingation property defining a link to the first page.
+ *
+ * It is expected that the navigating to the link will return the same set of response as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+extern dec firstLink(target: ModelProperty);
+
+/**
+ * Pagingation property defining a link to the last page.
+ *
+ * It is expected that the navigating to the link will return the same set of response as the operation that returned the current page.
+ *
+ * @example
+ * ```tsp
+ * model Page<T> {
+ *   @pageItems items: T[];
+ *   @nextLink next: url;
+ *   @prevLink prev: url;
+ *   @firstLink first: url;
+ *   @lastLink last: url;
+ * }
+ * @list op listPets(): Page<Pet>;
+ * ```
+ */
+extern dec lastLink(target: ModelProperty);
 
 //---------------------------------------------------------------------------
 // Debugging
