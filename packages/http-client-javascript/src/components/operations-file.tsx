@@ -33,7 +33,7 @@ function getSourceDirectory(directoyrPath: string[], children: Children) {
 
   return (
     <SourceDirectory path={directoryName}>
-      <ts.BarrelFile />
+      <ts.BarrelFile export />
       {getSourceDirectory(currentPath, children)}
     </SourceDirectory>
   );
@@ -52,7 +52,7 @@ export function OperationsFile(props: OperationsFileProps) {
 
 
   return (
-    <ts.SourceFile export path={props.path}>
+    <ts.SourceFile path={props.path}>
       {mapJoin(props.operations, (operation) => {
         const responses = $.httpOperation.getResponses(operation).filter(r => r.statusCode !== "*")
 
