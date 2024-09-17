@@ -48,6 +48,8 @@ try {
         }
 
         try {
+            Write-Host "Pip List" 
+            & pip list
             # Run tox
             Write-Host 'Running tests'
             & npm run test
