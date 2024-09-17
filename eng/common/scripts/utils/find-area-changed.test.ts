@@ -34,7 +34,7 @@ describe("paths that should trigger python CI", () => {
     ["packages/http-client-python/package.json"],
   ])("%s", (...paths) => {
     const areas = findAreasChanged(paths);
-    expect(areas).toEqual(["Java"]);
+    expect(areas).toEqual(["Python"]);
   });
 });
 
@@ -71,7 +71,7 @@ it("Should return a combination of core and isolated packages", () => {
 
 it("Should return CSharp, Core and Java if .editorconfig is changed", () => {
   const areas = findAreasChanged([".editorconfig"]);
-  expect(areas).toEqual(["CSharp", "Java", "Core"]);
+  expect(areas).toEqual(["CSharp", "Java", "Python", "Core"]);
 });
 
 it("Should not return Core for .prettierignore, .prettierrc.json, cspell.yaml, esling.config.json", () => {
