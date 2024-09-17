@@ -11,7 +11,8 @@
     "watch-tsc": "tsc -p . --watch",
     "watch": "concurrently --kill-others \"npm run watch-tsc\" \"npm run watch-src\"",
     "test": "vitest run",
-    "build-sample": "tsp compile sample/main.tsp --emit http-client-javascript && babel tsp-output -d dist/tsp-output --extensions '.ts,.tsx'"
+    "build-sample": "tsp compile sample/main.tsp --emit http-client-javascript && babel tsp-output -d dist/tsp-output --extensions '.ts,.tsx'",
+    "format": "prettier . --write"
   },
   "keywords": [],
   "author": "",
@@ -25,17 +26,16 @@
   },
   "dependencies": {
     "@typespec/emitter-framework": "workspace:*",
-    "@alloy-js/core": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@0f9a3a3",
-    "@alloy-js/typescript": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@0f9a3a3"
+    "@alloy-js/core": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@a4ee1f6",
+    "@alloy-js/typescript": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@a4ee1f6"
   },
   "devDependencies": {
-    "star": "0.14.6",
     "@azure-tools/cadl-ranch-specs": "0.37.2",
     "@azure-tools/cadl-ranch-expect": "0.15.4",
     "@babel/cli": "^7.24.8",
     "@babel/core": "^7.24.9",
     "@rollup/plugin-babel": "^6.0.4",
-    "babel-preset-alloy": "https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@0f9a3a3",
+    "babel-preset-alloy": "https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@a4ee1f6",
     "concurrently": "^8.2.2",
     "typescript": "^5.5.3",
     "vitest": "^2.0.3",

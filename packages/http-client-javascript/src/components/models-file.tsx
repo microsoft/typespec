@@ -9,8 +9,7 @@ export interface ModelsFileProps {
 }
 
 export function ModelsFile(props: ModelsFileProps) {
-  return (
-    <ts.SourceFile path={props.path ?? "models.ts"}>
+  return <ts.SourceFile path={props.path ?? "models.ts"}>
       {mapJoin(
         props.types,
         (type) => {
@@ -18,6 +17,5 @@ export function ModelsFile(props: ModelsFileProps) {
         },
         { joiner: "\n\n" }
       )}
-    </ts.SourceFile>
-  );
+    </ts.SourceFile>;
 }

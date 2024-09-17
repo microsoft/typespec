@@ -1,14 +1,14 @@
-import { defineConfig } from "vitest/config";
 import { babel } from "@rollup/plugin-babel";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
     include: ["test/**/*.test.ts", "test/**/*.test.tsx"],
-    exclude: ["test/**/*.d.ts"]
+    exclude: ["test/**/*.d.ts"],
   },
   esbuild: {
     jsx: "preserve",
-    sourcemap: "both"
+    sourcemap: "both",
   },
   plugins: [
     babel({

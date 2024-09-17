@@ -1,5 +1,5 @@
-import { code, refkey } from "@alloy-js/core"
-import * as ts from "@alloy-js/typescript"
+import { code, refkey } from "@alloy-js/core";
+import * as ts from "@alloy-js/typescript";
 
 export const HttpFetchOptionsOptionsRefkey = refkey();
 export function HttpFetchOptionsDeclaration() {
@@ -7,13 +7,12 @@ export function HttpFetchOptionsDeclaration() {
     <ts.InterfaceMember name="method" type="string" />
     <ts.InterfaceMember optional name="headers" type="Record<string, string>" />
     <ts.InterfaceMember optional name="body" type="string" />
-  </ts.InterfaceDeclaration>
+  </ts.InterfaceDeclaration>;
 }
 
 export const HttpFetchRefkey = refkey();
 export function HttpFetchDeclaration() {
-  return (
-    <ts.FunctionDeclaration export async name="httpFetch"  refkey={HttpFetchRefkey}>
+  return <ts.FunctionDeclaration export async name="httpFetch"  refkey={HttpFetchRefkey}>
       <ts.FunctionDeclaration.Parameters>url: string, options: <ts.Reference refkey={HttpFetchOptionsOptionsRefkey} />
       </ts.FunctionDeclaration.Parameters>
       {code`
@@ -30,6 +29,5 @@ export function HttpFetchDeclaration() {
           throw error;
         }
       `}
-    </ts.FunctionDeclaration>
-  )
+    </ts.FunctionDeclaration>;
 }

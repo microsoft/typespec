@@ -1,14 +1,23 @@
 import * as ts from "@alloy-js/typescript";
 import { Type } from "@typespec/compiler";
-import { ArraySerializer, RecordSerializer, TypeTransformDeclaration, DateDeserializer, DateRfc7231Deserializer, DateRfc3339Serializer, DateRfc7231Serializer, DateUnixTimestampSerializer, DateUnixTimestampDeserializer } from "@typespec/emitter-framework/typescript"
+import {
+  ArraySerializer,
+  DateDeserializer,
+  DateRfc3339Serializer,
+  DateRfc7231Deserializer,
+  DateRfc7231Serializer,
+  DateUnixTimestampDeserializer,
+  DateUnixTimestampSerializer,
+  RecordSerializer,
+  TypeTransformDeclaration,
+} from "@typespec/emitter-framework/typescript";
 
 export interface ModelSerializersProps {
   types: Type[];
   path?: string;
 }
 export function ModelSerializers(props: ModelSerializersProps) {
-  return (
-    <ts.SourceFile path={props.path ?? "serializers.ts"}>
+  return <ts.SourceFile path={props.path ?? "serializers.ts"}>
       <RecordSerializer />
       <ArraySerializer />
       <DateDeserializer />
@@ -25,6 +34,5 @@ export function ModelSerializers(props: ModelSerializersProps) {
             <TypeTransformDeclaration type={type} target="application" />
           </>          
         ))}
-    </ts.SourceFile>
-  );
+    </ts.SourceFile>;
 }

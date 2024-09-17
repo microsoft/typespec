@@ -4,10 +4,10 @@ import * as ts from "@alloy-js/typescript";
 import { Model, Operation } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { assert, beforeEach, describe, expect, it } from "vitest";
-import { createHttpClientJavascriptEmitterTestRunner } from "../../test-host.js";
 import { HttpRequestOptions } from "../../../src/components/http-request-options.jsx";
 import { ModelsFile } from "../../../src/components/models-file.jsx";
 import { ModelSerializers } from "../../../src/components/serializers.jsx";
+import { createHttpClientJavascriptEmitterTestRunner } from "../../test-host.js";
 
 const namePolicy = ts.createTSNamePolicy();
 let runner: BasicTestRunner;
@@ -258,7 +258,7 @@ describe("HttpRequestBody", () => {
     }
     `;
 
-    const { read, Widget } = (await runner.compile(spec)) as { read: Operation, Widget: Model };
+    const { read, Widget } = (await runner.compile(spec)) as { read: Operation; Widget: Model };
 
     const res = render(
       <Output namePolicy={namePolicy}>
@@ -303,7 +303,7 @@ describe("HttpRequestBody", () => {
     }
     `;
 
-    const { read, Widget } = (await runner.compile(spec)) as { read: Operation, Widget: Model };
+    const { read, Widget } = (await runner.compile(spec)) as { read: Operation; Widget: Model };
 
     const res = render(
       <Output namePolicy={namePolicy}>

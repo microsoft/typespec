@@ -1,12 +1,11 @@
 import { Children, mapJoin, refkey, SourceDirectory } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Operation, Service, Type } from "@typespec/compiler";
-import {FunctionDeclaration, TypeExpression} from "@typespec/emitter-framework/typescript";
-import {getClientContextRefkey} from "./client-context.js"
+import { $ } from "@typespec/compiler/typekit";
+import { FunctionDeclaration, TypeExpression } from "@typespec/emitter-framework/typescript";
+import { getClientContextRefkey } from "./client-context.js";
 import { HttpRequest } from "./http-request.js";
 import { HttpResponse } from "./http-response.jsx";
-import { $ } from "@typespec/compiler/typekit";
-
 
 export interface OperationsProps {
   operations: Map<string, Operation[]>;
@@ -14,28 +13,33 @@ export interface OperationsProps {
 }
 
 export function Operations(props: OperationsProps) {
-  return mapJoin(props.operations, (key, operations) => {
-    const containerParts = key.split("/") ?? [];
-    return getSourceDirectory(containerParts, <><ts.BarrelFile /><OperationsFile path="operations.ts" operations={operations} service={props.service} /></>);
-  }, {joiner: "\n\n"});
+  return mapJoin(
+    props.operations,
+    (key, operations) => {
+      const containerParts = key.split("/") ?? [];
+      return getSourceDirectory(
+        containerParts,
+        <><ts.BarrelFile /><OperationsFile path="operations.ts" operations={operations} service={props.service} /></>
+      );
+    },
+    { joiner: "\n\n" }
+  );
 }
 
 function getSourceDirectory(directoyrPath: string[], children: Children) {
   const currentPath = [...directoyrPath];
   const current = currentPath.shift();
 
-  if(!current) {
+  if (!current) {
     return children;
   }
 
   const namePolicy = ts.createTSNamePolicy();
   const directoryName = namePolicy.getName(current, "variable");
 
-  return (
-    <SourceDirectory path={directoryName}>
+  return <SourceDirectory path={directoryName}>
       {getSourceDirectory(currentPath, children)}
-    </SourceDirectory>
-  );
+    </SourceDirectory>;
 }
 
 export interface OperationsFileProps {
@@ -45,13 +49,11 @@ export interface OperationsFileProps {
 }
 
 export function OperationsFile(props: OperationsFileProps) {
-  if(!props.service) {
+  if (!props.service) {
     return null;
   }
 
-
-  return (
-    <ts.SourceFile path={props.path}>
+  return <ts.SourceFile path={props.path}>
       {mapJoin(props.operations, (operation) => {
         const responses = $.httpOperation.getResponses(operation).filter(r => r.statusCode !== "*")
 
@@ -72,6 +74,5 @@ export function OperationsFile(props: OperationsFileProps) {
           </FunctionDeclaration>
         );
       }, {joiner: "\n\n"})}
-    </ts.SourceFile>
-  );
+    </ts.SourceFile>;
 }

@@ -15,7 +15,7 @@ export function ClientContext(props: ClientContextProps): Children {
 
   const namePolicy = ts.useTSNamePolicy();
   const serviceName = namePolicy.getName(props.service.type.name, "interface");
-  const contextInterface = ts.useTSNamePolicy().getName( `${serviceName}Context`, "interface");
+  const contextInterface = ts.useTSNamePolicy().getName(`${serviceName}Context`, "interface");
   const factoryFunctionName = namePolicy.getName(`create${serviceName}Context`, "function");
   const clientOptionsName = namePolicy.getName(`${serviceName}Options`, "interface");
 
@@ -32,13 +32,14 @@ export function ClientContext(props: ClientContextProps): Children {
   } else {
     // Apply the override in the factory function
     bodyVars.set("endpoint", code`options.endpoint ?? "${server.url}"`);
-
   }
 
-  clientParameters["options"] = { type: clientOptionsName, refkey: getClientOptionsRefkey(props.service) };
-  const clientContextInterfaceRefkey = getClientContextRefkey(props.service)
-  return (
-    <ts.SourceFile path="clientContext.ts">
+  clientParameters["options"] = {
+    type: clientOptionsName,
+    refkey: getClientOptionsRefkey(props.service),
+  };
+  const clientContextInterfaceRefkey = getClientContextRefkey(props.service);
+  return <ts.SourceFile path="clientContext.ts">
       <ts.InterfaceDeclaration export name={contextInterface} refkey={clientContextInterfaceRefkey}>
         <ts.InterfaceMember name="endpoint" type="string" />
       </ts.InterfaceDeclaration>
@@ -63,8 +64,7 @@ export function ClientContext(props: ClientContextProps): Children {
           endpoint 
         };`}
       </ts.FunctionDeclaration>
-    </ts.SourceFile>
-  );
+    </ts.SourceFile>;
 }
 
 function getClientOptionsRefkey(service: Service) {

@@ -4,12 +4,15 @@ import * as ts from "@alloy-js/typescript";
 import { Model, Operation } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { assert, beforeEach, describe, expect, it } from "vitest";
-import { createHttpClientJavascriptEmitterTestRunner } from "../../test-host.js";
+import { uriTemplateLib } from "../../../src/components/external-packages/uri-template.js";
+import { HttpRequest } from "../../../src/components/http-request.jsx";
 import { ModelsFile } from "../../../src/components/models-file.jsx";
 import { ModelSerializers } from "../../../src/components/serializers.jsx";
-import { HttpRequest } from "../../../src/components/http-request.jsx";
-import { uriTemplateLib } from "../../../src/components/external-packages/uri-template.js";
-import { HttpFetchDeclaration, HttpFetchOptionsDeclaration } from "../../../src/components/static-fetch-wrapper.jsx";
+import {
+  HttpFetchDeclaration,
+  HttpFetchOptionsDeclaration,
+} from "../../../src/components/static-fetch-wrapper.jsx";
+import { createHttpClientJavascriptEmitterTestRunner } from "../../test-host.js";
 
 const namePolicy = ts.createTSNamePolicy();
 let runner: BasicTestRunner;
@@ -17,7 +20,6 @@ let runner: BasicTestRunner;
 beforeEach(async () => {
   runner = await createHttpClientJavascriptEmitterTestRunner();
 });
-
 
 describe("HttpRequest", () => {
   it("should handle a basic request", async () => {
@@ -51,7 +53,7 @@ describe("HttpRequest", () => {
     const testFile = res.contents.find((file) => file.path === "test.ts");
     assert(testFile, "test.ts file not rendered");
     const actualContent = testFile.contents;
-    const expectedContent =d `
+    const expectedContent = d`
     import { parse } from "uri-template";
     import { httpFetch } from "./http-fetch.js";
 
@@ -91,7 +93,7 @@ describe("HttpRequest", () => {
     }
     `;
 
-    const { read, Widget } = (await runner.compile(spec)) as { read: Operation, Widget: Model };
+    const { read, Widget } = (await runner.compile(spec)) as { read: Operation; Widget: Model };
 
     const res = render(
       <Output namePolicy={namePolicy} externals={[uriTemplateLib]}>

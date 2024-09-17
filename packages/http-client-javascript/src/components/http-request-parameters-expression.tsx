@@ -12,32 +12,34 @@ export function HttpRequestParametersExpression(props: HttpRequestParametersExpr
   const namingPolicy = ts.useTSNamePolicy();
   const parameters: (ModelProperty | Children)[] = [];
 
-  if(props.children || (Array.isArray(props.children) && props.children.length) ) { 
+  if (props.children || (Array.isArray(props.children) && props.children.length)) {
     parameters.push(<>
       {props.children},
 
     </>);
   }
 
-  if(!props.parameters && parameters.length) { 
+  if (!props.parameters && parameters.length) {
     return <ts.ObjectExpression>
       {parameters}
     </ts.ObjectExpression>;
-  } else if(!props.parameters) {
+  } else if (!props.parameters) {
     return <ts.ObjectExpression />;
   }
 
-  const members = mapJoin(props.parameters.properties, (parameterName, parameter) => {
-    const options = $.modelProperty.getHttpParamOptions(parameter);
-    const name = options?.name ? options.name : parameter.name;
-    const applicationName = namingPolicy.getName(parameter.name, "parameter");
-    const parameterPath = parameter.optional
-      ? `options.${applicationName}`
-      : applicationName;
-    return <ts.ObjectProperty name={JSON.stringify(name)} value={parameterPath} />;
-  }, {joiner: ",\n"});
+  const members = mapJoin(
+    props.parameters.properties,
+    (parameterName, parameter) => {
+      const options = $.modelProperty.getHttpParamOptions(parameter);
+      const name = options?.name ? options.name : parameter.name;
+      const applicationName = namingPolicy.getName(parameter.name, "parameter");
+      const parameterPath = parameter.optional ? `options.${applicationName}` : applicationName;
+      return <ts.ObjectProperty name={JSON.stringify(name)} value={parameterPath} />;
+    },
+    { joiner: ",\n" }
+  );
 
-  parameters.push(...members)
+  parameters.push(...members);
 
   return <ts.ObjectExpression>
     {parameters}
