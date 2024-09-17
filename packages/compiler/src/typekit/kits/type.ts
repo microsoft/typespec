@@ -28,7 +28,7 @@ export interface TypeKit {
    * Get the plausible name of a type. If the type has a name, it will use it otherwise it will try generate a name based on the context.
    * If the type can't get a name, it will return an empty string.
    * If the type is a TemplateInstance, it will prefix the name with the template arguments.
-   * @param type The scalar to get the name of.
+   * @param type The scalar to get the name of.z
    */
   getPlausibleName(type: Model | Union | Enum | Scalar): string;
   /**

@@ -1,10 +1,10 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { EmitContext, Enum, listServices, Model, navigateProgram, navigateType, Operation, Scalar, Type, Union } from "@typespec/compiler";
+import { EmitContext, Enum, getNamespaceFullName, listServices, Model, navigateProgram, navigateType, Operation, Scalar, Type, Union } from "@typespec/compiler";
 import { ClientContext } from "./components/client-context.js";
 import { uriTemplateLib } from "./components/external-packages/uri-template.js";
 import { ModelsFile } from "./components/models-file.js";
-import { OperationsFile } from "./components/operations-file.js";
+import { Operations } from "./components/operations-file.js";
 import { ModelSerializers } from "./components/serializers.js";
 import {
   HttpFetchDeclaration,
@@ -27,7 +27,7 @@ export async function $onEmit(context: EmitContext) {
           </ay.SourceDirectory>
           <ay.SourceDirectory path="api">
             <ClientContext service={service} />
-            <OperationsFile operations={visited.operations} service={service} />
+            <Operations operations={visited.operations} service={service} />
             <ts.BarrelFile />
           </ay.SourceDirectory>
           <ay.SourceDirectory path="utilities">
@@ -42,12 +42,34 @@ export async function $onEmit(context: EmitContext) {
   );
 }
 
+function getOperationContainerKey(operation: Operation) {
+  const interfaceName = operation.interface?.name;
+  const namespace = operation.namespace
+  const operationContainer = [];
+  if(interfaceName) {
+    operationContainer.push(interfaceName);
+  }
+  if(namespace) {
+    const namespaceParts = getNamespaceFullName(namespace, {namespaceFilter: (ns) => !getNamespaceFullName(ns).includes("TypeSpec") }).split(".");
+    operationContainer.push(...namespaceParts);
+  }
+  return operationContainer.join("/");
+}
+
+function trackOperation(operations: Map<string, Operation[]>, operation: Operation) {
+  const key = getOperationContainerKey(operation);
+  if(!operations.has(key)) {
+    operations.set(key, []);
+  }
+  operations.get(key)!.push(operation);
+}
+
 function operationWalker(context: EmitContext) {
   const types = new Set<DataType>();
-  const operations = new Set<Operation>();
+  const operations = new Map<string, Operation[]>();
   navigateProgram(context.program, {
     operation(o) {
-      operations.add(o);
+      trackOperation(operations, o);
       navigateType(o, {
         model(m) {
           trackType(types, m);
@@ -75,9 +97,8 @@ function operationWalker(context: EmitContext) {
   }, {includeTemplateDeclaration: false});
 
   const dataTypes = Array.from(types);
-  const operationsArray = Array.from(operations);
 
-  return {dataTypes, operations: operationsArray};
+  return {dataTypes, operations};
  
 }
 

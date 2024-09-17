@@ -1,4 +1,4 @@
-import { mapJoin, refkey } from "@alloy-js/core";
+import { Children, mapJoin, refkey, SourceDirectory } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Operation, Service, Type } from "@typespec/compiler";
 import {FunctionDeclaration, TypeExpression} from "@typespec/emitter-framework/typescript";
@@ -7,7 +7,40 @@ import { HttpRequest } from "./http-request.js";
 import { HttpResponse } from "./http-response.jsx";
 import { $ } from "@typespec/compiler/typekit";
 
+
+export interface OperationsProps {
+  operations: Map<string, Operation[]>;
+  service?: Service;
+}
+
+export function Operations(props: OperationsProps) {
+  return mapJoin(props.operations, (key, operations) => {
+    const containerParts = key.split("/") ?? [];
+    return getSourceDirectory(containerParts, <OperationsFile path="operations.ts" operations={operations} service={props.service} />);
+  }, {joiner: "\n\n"});
+}
+
+function getSourceDirectory(directoyrPath: string[], children: Children) {
+  const currentPath = [...directoyrPath];
+  const current = currentPath.shift();
+
+  if(!current) {
+    return children;
+  }
+
+  const namePolicy = ts.createTSNamePolicy();
+  const directoryName = namePolicy.getName(current, "variable");
+
+  return (
+    <SourceDirectory path={directoryName}>
+      <ts.BarrelFile />
+      {getSourceDirectory(currentPath, children)}
+    </SourceDirectory>
+  );
+}
+
 export interface OperationsFileProps {
+  path: string;
   operations: Operation[];
   service?: Service;
 }
@@ -17,8 +50,9 @@ export function OperationsFile(props: OperationsFileProps) {
     return null;
   }
 
+
   return (
-    <ts.SourceFile path="operations.ts">
+    <ts.SourceFile export path={props.path}>
       {mapJoin(props.operations, (operation) => {
         const responses = $.httpOperation.getResponses(operation).filter(r => r.statusCode !== "*")
 
