@@ -24,7 +24,7 @@ export function HttpFetchDeclaration() {
             throw new Error(\`HTTP error! Status: \${response.status}\`);
           }
 
-          return await response.json();
+          return response;
         } catch (error) {
           console.error('Fetch error:', error);
           throw error;

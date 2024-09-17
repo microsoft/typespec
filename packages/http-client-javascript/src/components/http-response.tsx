@@ -31,20 +31,26 @@ export function HttpResponses(props: HttpResponsesProps) {
 
     let expression = code`return;`;
 
-    const contentTypeCheck = body ?
-        `&& response.headers.get("content-type") === "${contentType}"`
-      : "&& !response.body";
+    let contentTypeCheck = body ?
+        ` && response.headers.get("content-type") === "${contentType}"`
+      : " && !response.body";
+
+    if(contentType === "application/json") {
+      contentTypeCheck = "";
+    }
+
 
     if(body && body.bodyKind === "single") {
       expression = <>
-      return <TypeTransformCall type={body.type} target="application" itemPath={["response","body"]} />;
+      const bodyJson = await response.json();
+      return <TypeTransformCall type={body.type} target="application" itemPath={["bodyJson"]} />;
       </>
     }
 
 
     if($.httpResponse.statusCode.isSingle(statusCode)) {
       return code`
-      if (response.status === ${statusCode} ${contentTypeCheck}) {
+      if (response.status === ${statusCode}${contentTypeCheck}) {
         ${expression}
       }
       `;

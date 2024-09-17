@@ -67,6 +67,8 @@ export function TypeExpression({ type }: TypeExpressionProps) {
 const intrinsicNameToTSType = new Map<string, string>([
   ["unknown", "unknown"],
   ["string", "string"],
+  ["decimal", "number"],
+  ["decimal128", "number"],
   ["int32", "number"],
   ["int16", "number"],
   ["float16", "number"],

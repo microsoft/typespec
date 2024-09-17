@@ -93,8 +93,9 @@ describe("HttpResponse", () => {
     const expectedContent =d `
     import { widgetToApplication } from "./serializers.js";
 
-    if (response.status === 200 && response.headers.get("content-type") === "application/json") {
-      return widgetToApplication(response.body);
+    if (response.status === 200) {
+      const bodyJson = await response.json();
+      return widgetToApplication(bodyJson);
     }
     
     throw new Error("Unhandled response");
@@ -139,8 +140,9 @@ describe("HttpResponse", () => {
     const expectedContent =d `
     import { widgetToApplication } from "./serializers.js";
     
-    if (response.status === 200 && response.headers.get("content-type") === "application/json") {
-      return widgetToApplication(response.body);
+    if (response.status === 200) {
+      const bodyJson = await response.json();
+      return widgetToApplication(bodyJson);
     }
 
     if (response.status === 204 && !response.body) {
@@ -190,14 +192,16 @@ describe("HttpResponse", () => {
     import { widgetToApplication } from "./serializers.js";
     
     if (response.status === 200 && response.headers.get("content-type") === "application/json+something") {
+      const bodyJson = await response.json();
       return {
-        "name": response.body.name,
-        "age": response.body.age
+        "name": bodyJson.name,
+        "age": bodyJson.age
       };
     }
 
-    if (response.status === 200 && response.headers.get("content-type") === "application/json") {
-      return widgetToApplication(response.body);
+    if (response.status === 200) {
+      const bodyJson = await response.json();
+      return widgetToApplication(bodyJson);
     }
 
     if (response.status === 204 && !response.body) {

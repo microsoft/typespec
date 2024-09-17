@@ -30,8 +30,6 @@ export function ClientContext(props: ClientContextProps): Children {
   if (!server?.url) {
     clientParameters["endpoint"] = { type: "string", refkey: refkey("endpoint") };
   } else {
-    // When there is a URL defined for the service, we need to allow client options to override it.
-    clientOptions.set("endpoint",  "string");
     // Apply the override in the factory function
     bodyVars.set("endpoint", code`options.endpoint ?? "${server.url}"`);
 
@@ -42,7 +40,7 @@ export function ClientContext(props: ClientContextProps): Children {
   return (
     <ts.SourceFile path="clientContext.ts">
       <ts.InterfaceDeclaration export name={contextInterface} refkey={clientContextInterfaceRefkey}>
-        {server?.url ? null : <ts.InterfaceMember name="endpoint" type="string" />}
+        <ts.InterfaceMember name="endpoint" type="string" />
       </ts.InterfaceDeclaration>
       <ts.InterfaceDeclaration export name={clientOptionsName} refkey={getClientOptionsRefkey(props.service)}>
         {mapJoin(clientOptions, (key, value) => (

@@ -45,7 +45,7 @@ HttpRequest.Url = function HttpUrlDeclaration(props: HttpUrlProps) {
 
     <ts.VarDeclaration name="url" refkey={props.refkey}>
       {code`
-      \`\${client.endpoint.replace(/\\/+$/, '')}\/\${path.replace(/\\/+$/, '')}\`
+      \`\${client.endpoint.replace(/\\/+$/, '')}\/\${path.replace(/^\\/+/, '')}\`
       `}
     </ts.VarDeclaration>
   </>

@@ -72,17 +72,17 @@ The response body is of type Widget so the right transform should be imported to
 
 It should throw an exception if an unexpected status code is received
 
-```ts src/api/operations.ts
-import { TestContext } from "./clientContext.js";
-import { Widget } from "../models/models.js";
+```ts src/api/test/operations.ts
+import { TestContext } from "../clientContext.js";
+import { Widget } from "../../models/models.js";
 import { parse } from "uri-template";
-import { widgetToApplication } from "../models/serializers.js";
-import { httpFetch } from "../utilities/http-fetch.js";
+import { widgetToApplication } from "../../models/serializers.js";
+import { httpFetch } from "../../utilities/http-fetch.js";
 
 export async function foo(client: TestContext): Promise<Widget> {
   const path = parse("/").expand({});
 
-  const url = `${client.endpoint.replace(/\/+$/, "")}/${path.replace(/\/+$/, "")}`;
+  const url = `${client.endpoint.replace(/\/+$/, "")}/${path.replace(/^\/+/, "")}`;
 
   const httpRequestOptions = {
     method: "get",
@@ -90,8 +90,9 @@ export async function foo(client: TestContext): Promise<Widget> {
   };
 
   const response = await httpFetch(url, httpRequestOptions);
-  if (response.status === 200 && response.headers.get("content-type") === "application/json") {
-    return widgetToApplication(response.body);
+  if (response.status === 200) {
+    const bodyJson = await response.json();
+    return widgetToApplication(bodyJson);
   }
 
   throw new Error("Unhandled response");

@@ -57,7 +57,7 @@ describe("HttpRequest", () => {
 
     const path = parse("/widgets").expand({});
 
-    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/\\/+$/, '')}\`;
+    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
 
     const httpRequestOptions = {
       method: "get",
@@ -119,7 +119,7 @@ describe("HttpRequest", () => {
       "foo": foo
     });
 
-    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/\\/+$/, '')}\`;
+    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
 
     const httpRequestOptions = {
       method: "post",
@@ -174,7 +174,7 @@ describe("HttpRequest", () => {
 
     const path = parse("/widgets").expand({});
 
-    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/\\/+$/, '')}\`;
+    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
 
     const httpRequestOptions = {
       method: "get",

@@ -48,7 +48,7 @@ describe("HttpRequest.Url", () => {
 
     const path = parse("/widgets").expand({});
 
-    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/\\/+$/, '')}\`;
+    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
     `;
     expect(actualContent).toEqual(expectedContent);
   });
@@ -87,7 +87,7 @@ describe("HttpRequest.Url", () => {
       "id": id
     });
 
-    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/\\/+$/, '')}\`;
+    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
     `;
     expect(actualContent).toEqual(expectedContent);
   });
@@ -130,7 +130,7 @@ describe("HttpRequest.Url", () => {
       "id": id
     });
 
-    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/\\/+$/, '')}\`;
+    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
     `;
     expect(actualContent).toEqual(expectedContent);
   });
@@ -169,7 +169,7 @@ describe("HttpRequest.Url", () => {
       "my_id": myId
     });
 
-    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/\\/+$/, '')}\`;
+    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
     `;
     expect(actualContent).toEqual(expectedContent);
   });
@@ -208,7 +208,7 @@ describe("HttpRequest.Url", () => {
       "id": id
     });
 
-    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/\\/+$/, '')}\`;
+    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
     `;
     expect(actualContent).toEqual(expectedContent);
   });
@@ -247,7 +247,7 @@ describe("HttpRequest.Url", () => {
       "id": options.id
     });
 
-    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/\\/+$/, '')}\`;
+    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
     `;
     expect(actualContent).toEqual(expectedContent);
   });
@@ -290,7 +290,7 @@ describe("HttpRequest.Url", () => {
       "id": options.id
     });
 
-    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/\\/+$/, '')}\`;
+    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
     `;
     expect(actualContent).toEqual(expectedContent);
   });
