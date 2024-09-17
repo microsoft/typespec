@@ -39,7 +39,11 @@ defineKit<HttpRequestKit>({
   httpRequest: {
     body: {
       isExplicit(httpOperation: HttpOperation) {
-        return httpOperation.parameters.properties.find((p) => p.kind === "body") !== undefined;
+        return (
+          httpOperation.parameters.properties.find(
+            (p) => p.kind === "body" || p.kind === "bodyRoot"
+          ) !== undefined
+        );
       },
     },
     getBodyParameters(httpOperation: HttpOperation): Model | undefined {
