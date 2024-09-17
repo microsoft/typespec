@@ -40,3 +40,9 @@ export type ScenarioDocDecorator = (
   doc: Type,
   formatArgs?: Record,
 ) => void;
+
+export type TypeSpecSpecLibDecorators = {
+  scenarioService: ScenarioServiceDecorator;
+  scenario: ScenarioDecorator;
+  scenarioDoc: ScenarioDocDecorator;
+};

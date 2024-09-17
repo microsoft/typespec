@@ -17,7 +17,7 @@
   "main": "dist/index.js",
   "tspMain": "lib/lib.tsp",
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/src/index.js"
   },
   "engines": {
     "node": ">=16.0.0"
