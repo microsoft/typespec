@@ -16,7 +16,7 @@ export interface OperationsProps {
 export function Operations(props: OperationsProps) {
   return mapJoin(props.operations, (key, operations) => {
     const containerParts = key.split("/") ?? [];
-    return getSourceDirectory(containerParts, <OperationsFile path="operations.ts" operations={operations} service={props.service} />);
+    return getSourceDirectory(containerParts, <><ts.BarrelFile /><OperationsFile path="operations.ts" operations={operations} service={props.service} /></>);
   }, {joiner: "\n\n"});
 }
 
@@ -33,7 +33,6 @@ function getSourceDirectory(directoyrPath: string[], children: Children) {
 
   return (
     <SourceDirectory path={directoryName}>
-      <ts.BarrelFile export />
       {getSourceDirectory(currentPath, children)}
     </SourceDirectory>
   );
