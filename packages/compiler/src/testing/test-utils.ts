@@ -66,7 +66,7 @@ export interface TestWrapperOptions {
 }
 export function createTestWrapper(
   host: TestHost,
-  testWrapperOptions: TestWrapperOptions = {}
+  testWrapperOptions: TestWrapperOptions = {},
 ): BasicTestRunner {
   const {
     autoImports,

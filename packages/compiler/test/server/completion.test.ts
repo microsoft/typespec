@@ -163,7 +163,7 @@ describe("completes for keywords", () => {
       if (keywords.length > 0) {
         check(
           completions,
-          keywords.map((w) => ({ label: w, kind: CompletionItemKind.Keyword }))
+          keywords.map((w) => ({ label: w, kind: CompletionItemKind.Keyword })),
         );
       } else {
         equal(completions.items.length, 0, "No completions expected");
@@ -224,7 +224,7 @@ describe("imports", () => {
         ],
         {
           allowAdditionalCompletions: false,
-        }
+        },
       );
     }
     it(`complete at start of "`, () => testCompleteLibrary(` import "~~~┆~~~"`));
@@ -289,7 +289,7 @@ describe("imports", () => {
         ],
         {
           allowAdditionalCompletions: false,
-        }
+        },
       );
     });
 
@@ -313,7 +313,7 @@ describe("imports", () => {
         ],
         {
           allowAdditionalCompletions: false,
-        }
+        },
       );
     });
 
@@ -335,7 +335,7 @@ describe("imports", () => {
         ],
         {
           allowAdditionalCompletions: false,
-        }
+        },
       );
     });
 
@@ -357,7 +357,7 @@ describe("imports", () => {
         ],
         {
           allowAdditionalCompletions: false,
-        }
+        },
       );
     });
 
@@ -379,7 +379,7 @@ describe("identifiers", () => {
       model M {
         s: ┆
       }
-      `
+      `,
     );
     check(completions, [
       {
@@ -407,7 +407,7 @@ describe("identifiers", () => {
       `
       @┆
       namespace N {}
-      `
+      `,
     );
     check(completions, [
       {
@@ -426,7 +426,7 @@ describe("identifiers", () => {
     const completions = await complete(
       `
       @@┆
-      `
+      `,
     );
     check(completions, [
       {
@@ -447,14 +447,14 @@ describe("identifiers", () => {
       model M {
         s: ┆
       }
-      `
+      `,
     );
 
     deepStrictEqual(
       [],
       completions.items.filter(
-        (c) => c.label === "doc" || c.label === "getDoc" || c.kind === CompletionItemKind.Function
-      )
+        (c) => c.label === "doc" || c.label === "getDoc" || c.kind === CompletionItemKind.Function,
+      ),
     );
   });
 
@@ -463,7 +463,7 @@ describe("identifiers", () => {
       `
       @┆
       model M {}
-      `
+      `,
     );
 
     check(completions, [
@@ -485,7 +485,7 @@ describe("identifiers", () => {
       model M {
         s: stri┆
       }
-      `
+      `,
     );
     check(completions, [
       {
@@ -509,7 +509,7 @@ describe("identifiers", () => {
       model M {
         s: \`enum\`.f┆
       }
-      `
+      `,
     );
     check(completions, [
       {
@@ -531,7 +531,7 @@ describe("identifiers", () => {
       model M {
         s: 𐌰𐌲┆
       }
-      `
+      `,
     );
 
     check(completions, [
@@ -553,7 +553,7 @@ describe("identifiers", () => {
       }
 
       model M extends N.┆
-      `
+      `,
     );
 
     check(
@@ -574,7 +574,7 @@ describe("identifiers", () => {
       ],
       {
         allowAdditionalCompletions: false,
-      }
+      },
     );
   });
 
@@ -589,7 +589,7 @@ describe("identifiers", () => {
       model M {
         f: Fruit.┆
       }
-      `
+      `,
     );
 
     check(
@@ -616,7 +616,7 @@ describe("identifiers", () => {
       ],
       {
         allowAdditionalCompletions: false,
-      }
+      },
     );
   });
 
@@ -633,7 +633,7 @@ describe("identifiers", () => {
       model M {
         f: Fruit.┆
       }
-      `
+      `,
     );
 
     check(
@@ -660,7 +660,7 @@ describe("identifiers", () => {
       ],
       {
         allowAdditionalCompletions: false,
-      }
+      },
     );
   });
 
@@ -671,7 +671,7 @@ describe("identifiers", () => {
         op test(): void;
        }
        @myDec(N.┆)
-      `
+      `,
     );
 
     check(
@@ -689,7 +689,7 @@ describe("identifiers", () => {
       ],
       {
         allowAdditionalCompletions: false,
-      }
+      },
     );
   });
 
@@ -701,7 +701,7 @@ describe("identifiers", () => {
        }
       
        @myDec(I.┆
-      `
+      `,
     );
 
     check(
@@ -719,7 +719,7 @@ describe("identifiers", () => {
       ],
       {
         allowAdditionalCompletions: false,
-      }
+      },
     );
   });
 
@@ -730,7 +730,7 @@ describe("identifiers", () => {
         test: string;
        }
        @myDec(M.┆
-      `
+      `,
     );
 
     check(
@@ -748,7 +748,7 @@ describe("identifiers", () => {
       ],
       {
         allowAdditionalCompletions: false,
-      }
+      },
     );
   });
 
@@ -763,7 +763,7 @@ describe("identifiers", () => {
         test: string;
         ┆
        }
-      `
+      `,
     );
 
     check(
@@ -790,7 +790,7 @@ describe("identifiers", () => {
       ],
       {
         allowAdditionalCompletions: false,
-      }
+      },
     );
   });
 
@@ -806,7 +806,7 @@ describe("identifiers", () => {
         name: string;
         va┆
        }
-      `
+      `,
     );
 
     check(
@@ -833,7 +833,7 @@ describe("identifiers", () => {
       ],
       {
         allowAdditionalCompletions: false,
-      }
+      },
     );
   });
 
@@ -843,7 +843,7 @@ describe("identifiers", () => {
       model Template<Param> {
         prop: ┆
       }
-      `
+      `,
     );
 
     check(completions, [
@@ -914,7 +914,7 @@ describe("identifiers", () => {
         model A {}
         model B extends ┆
       }
-        `
+        `,
     );
 
     check(completions, [
@@ -938,7 +938,7 @@ describe("identifiers", () => {
 
       using A.┆;
       }
-      `
+      `,
     );
 
     check(
@@ -953,7 +953,7 @@ describe("identifiers", () => {
       ],
       {
         allowAdditionalCompletions: false,
-      }
+      },
     );
   });
 
@@ -980,7 +980,7 @@ describe("identifiers", () => {
       @Outer.┆
       model M {}
       `,
-      js
+      js,
     );
     check(
       completions,
@@ -1003,7 +1003,7 @@ describe("identifiers", () => {
       ],
       {
         allowAdditionalCompletions: false,
-      }
+      },
     );
   });
   it("deals with trivia before missing identifier", async () => {
@@ -1020,7 +1020,7 @@ describe("identifiers", () => {
         multi-line comment
       */
       {/*<-- missing identifier immediately before this brace*/}
-      `
+      `,
     );
 
     check(
@@ -1041,7 +1041,7 @@ describe("identifiers", () => {
       ],
       {
         allowAdditionalCompletions: false,
-      }
+      },
     );
   });
 
@@ -1063,7 +1063,7 @@ describe("identifiers", () => {
         extern dec hello(value: string);
       }
       @N.┆
-      `
+      `,
     );
 
     check(
@@ -1080,7 +1080,7 @@ describe("identifiers", () => {
           },
         },
       ],
-      { fullDocs: true }
+      { fullDocs: true },
     );
   });
 
@@ -1092,7 +1092,7 @@ describe("identifiers", () => {
       }
 
       alias FooAlias= Foo;
-      alias A = FooAlias.┆`
+      alias A = FooAlias.┆`,
     );
     check(completions, [
       {
@@ -1115,7 +1115,7 @@ describe("identifiers", () => {
       }
 
       alias FooAlias = Foo;
-      alias A = FooAlias.┆`
+      alias A = FooAlias.┆`,
     );
     check(completions, [
       {
@@ -1138,7 +1138,7 @@ describe("identifiers", () => {
       }
 
       alias FooOfString = Foo<string>;
-      alias A = FooOfString.┆`
+      alias A = FooOfString.┆`,
     );
     check(completions, [
       {
@@ -1161,7 +1161,7 @@ describe("identifiers", () => {
       }
 
       alias FooOfString = Foo<string>;
-      alias A = FooOfString.┆`
+      alias A = FooOfString.┆`,
     );
     check(completions, [
       {
@@ -1185,12 +1185,12 @@ describe("identifiers", () => {
       model Bar {
         prop: ┆
       }
-      `
+      `,
     );
 
     ok(
       !completions.items.find((t) => t.label === "Foo"),
-      "deprecated items should be hidden from completion"
+      "deprecated items should be hidden from completion",
     );
   });
 
@@ -1205,12 +1205,12 @@ describe("identifiers", () => {
       model Bar {
         prop: Ali┆
       }
-      `
+      `,
     );
 
     ok(
       !completions.items.find((t) => t.label === "AliasedFoo"),
-      "deprecated items should be hidden from completion"
+      "deprecated items should be hidden from completion",
     );
   });
 
@@ -1293,7 +1293,7 @@ describe("identifiers", () => {
         {
           fullDocs: true,
           allowAdditionalCompletions: false,
-        }
+        },
       );
     });
 
@@ -1331,16 +1331,16 @@ describe("identifiers", () => {
           {
             fullDocs: true,
             allowAdditionalCompletions: false,
-          }
+          },
         );
-      }
+      },
     );
 
     it("no completion for type to value", async () => {
       const completions = await complete(
         `${def}
         model TestModel<T extends valueof MyLogArg = {┆}>{};
-          `
+          `,
       );
       ok(completions.items.length === 0, "No completions expected for model");
     });
@@ -1349,7 +1349,7 @@ describe("identifiers", () => {
       const completions = await complete(
         `${def}
         model TestModel<T extends MyLogArg = #{┆}>{};
-          `
+          `,
       );
       ok(completions.items.length === 0, "No completions expected for model");
     });
@@ -1357,7 +1357,7 @@ describe("identifiers", () => {
       const completions = await complete(
         `${def}
         model TestModel<T extends MyLogArg = #{}┆>{};
-          `
+          `,
       );
       ok(completions.items.length === 0, "No completions expected for model");
     });
@@ -1410,7 +1410,7 @@ describe("identifiers", () => {
         {
           fullDocs: true,
           allowAdditionalCompletions: false,
-        }
+        },
       );
     });
 
@@ -1441,7 +1441,7 @@ describe("identifiers", () => {
         {
           fullDocs: true,
           allowAdditionalCompletions: false,
-        }
+        },
       );
     });
 
@@ -1472,7 +1472,7 @@ describe("identifiers", () => {
         {
           fullDocs: true,
           allowAdditionalCompletions: false,
-        }
+        },
       );
     });
 
@@ -1503,7 +1503,7 @@ describe("identifiers", () => {
         {
           fullDocs: true,
           allowAdditionalCompletions: false,
-        }
+        },
       );
     });
 
@@ -1534,7 +1534,7 @@ describe("identifiers", () => {
         {
           fullDocs: true,
           allowAdditionalCompletions: false,
-        }
+        },
       );
     });
 
@@ -1565,7 +1565,7 @@ describe("identifiers", () => {
         {
           fullDocs: true,
           allowAdditionalCompletions: false,
-        }
+        },
       );
     });
 
@@ -1573,7 +1573,7 @@ describe("identifiers", () => {
       const completions = await complete(
         `${def}
         model MyLogContext4<┆;
-          `
+          `,
       );
       ok(completions.items.length === 0, "No completions expected for model");
     });
@@ -1582,7 +1582,7 @@ describe("identifiers", () => {
       const completions = await complete(
         `${def}
         model MyLogContext4<string, ┆;
-          `
+          `,
       );
       ok(completions.items.length === 0, "No completions expected for model");
     });
@@ -1634,7 +1634,7 @@ describe("identifiers", () => {
       const completions = await complete(
         `${def}
          const c = TestString.createFromLog(#{┆});
-        `
+        `,
       );
       check(
         completions,
@@ -1671,14 +1671,14 @@ describe("identifiers", () => {
         {
           fullDocs: true,
           allowAdditionalCompletions: false,
-        }
+        },
       );
     });
     it("show all properties of literal array -> literal model", async () => {
       const completions = await complete(
         `${def}
          const c = TestString.createFromLog2(#[#{┆}]);
-        `
+        `,
       );
       check(
         completions,
@@ -1715,14 +1715,14 @@ describe("identifiers", () => {
         {
           fullDocs: true,
           allowAdditionalCompletions: false,
-        }
+        },
       );
     });
     it("show all properties of tuple->object->tuple->object", async () => {
       const completions = await complete(
         `${def}
          const c = TestString.createFromLog4(1, #[#{arg:#[#{┆},"abc"]}]);
-        `
+        `,
       );
       check(
         completions,
@@ -1759,14 +1759,14 @@ describe("identifiers", () => {
         {
           fullDocs: true,
           allowAdditionalCompletions: false,
-        }
+        },
       );
     });
     it("no completion for model", async () => {
       const completions = await complete(
         `${def}
          const c = TestString.createFromLog({┆});
-        `
+        `,
       );
       ok(completions.items.length === 0, "No completions expected for model");
     });
@@ -1774,7 +1774,7 @@ describe("identifiers", () => {
       const completions = await complete(
         `${def}
          const c = TestString.createFromLog3(┆);
-        `
+        `,
       );
       ok(completions.items.length === 0, "No completions expected for model");
     });
@@ -1782,7 +1782,7 @@ describe("identifiers", () => {
       const completions = await complete(
         `${def}
          const c = TestString.createFromLog({}┆);
-        `
+        `,
       );
       ok(completions.items.length === 0, "No completions expected for model");
     });
@@ -1830,7 +1830,7 @@ describe("identifiers", () => {
       const completions = await complete(
         `${def}
          const c : MyLogArg = #{┆};
-        `
+        `,
       );
       check(
         completions,
@@ -1877,7 +1877,7 @@ describe("identifiers", () => {
         {
           fullDocs: true,
           allowAdditionalCompletions: false,
-        }
+        },
       );
     });
 
@@ -1885,7 +1885,7 @@ describe("identifiers", () => {
       const completions = await complete(
         `${def}
          const c : MyLogArg[] = #[#{┆}];
-        `
+        `,
       );
       check(
         completions,
@@ -1932,7 +1932,7 @@ describe("identifiers", () => {
         {
           fullDocs: true,
           allowAdditionalCompletions: false,
-        }
+        },
       );
     });
 
@@ -1940,7 +1940,7 @@ describe("identifiers", () => {
       const completions = await complete(
         `${def}
          const c : MyLogArg = #{context:#[#{┆}]};
-        `
+        `,
       );
       check(
         completions,
@@ -1969,7 +1969,7 @@ describe("identifiers", () => {
         {
           fullDocs: true,
           allowAdditionalCompletions: false,
-        }
+        },
       );
     });
 
@@ -1977,7 +1977,7 @@ describe("identifiers", () => {
       const completions = await complete(
         `${def}
          const c : MyLogArg = #{context2:#[#{┆}]};
-        `
+        `,
       );
       check(
         completions,
@@ -2006,7 +2006,7 @@ describe("identifiers", () => {
         {
           fullDocs: true,
           allowAdditionalCompletions: false,
-        }
+        },
       );
     });
 
@@ -2015,7 +2015,7 @@ describe("identifiers", () => {
         `${def}
          alias A = [MyLogArg];
          const c : A = #[#{context:#[#{┆}]}];
-        `
+        `,
       );
       check(
         completions,
@@ -2044,7 +2044,7 @@ describe("identifiers", () => {
         {
           fullDocs: true,
           allowAdditionalCompletions: false,
-        }
+        },
       );
     });
 
@@ -2052,7 +2052,7 @@ describe("identifiers", () => {
       const completions = await complete(
         `${def}
          const c : MyLogArg = #{context:#[#{item: #[┆]}]};
-        `
+        `,
       );
       ok(completions.items.length === 0, "No completions expected for scalar array");
     });
@@ -2061,7 +2061,7 @@ describe("identifiers", () => {
       const completions = await complete(
         `${def}
          const c : MyLogArg = {┆};
-        `
+        `,
       );
       ok(completions.items.length === 0, "No completions expected for model");
     });
@@ -2070,7 +2070,7 @@ describe("identifiers", () => {
       const completions = await complete(
         `${def}
          const c : MyLogArg = #{}┆;
-        `
+        `,
       );
       ok(completions.items.length === 0, "No completions expected after }");
     });
@@ -2079,7 +2079,7 @@ describe("identifiers", () => {
       const completions = await complete(
         `${def}
          const c = #{┆};
-        `
+        `,
       );
       ok(completions.items.length === 0, "No completions expected for const without type");
     });
@@ -2142,7 +2142,7 @@ describe("identifiers", () => {
         `${decArgModelDef}
         ${code}
         model M {}
-        `
+        `,
       );
       check(
         completions,
@@ -2179,7 +2179,7 @@ describe("identifiers", () => {
         {
           fullDocs: true,
           allowAdditionalCompletions: false,
-        }
+        },
       );
 
       const result = await complete(
@@ -2187,7 +2187,7 @@ describe("identifiers", () => {
         @myDec(#{┆})
         model M {}
         `,
-        js
+        js,
       );
       ok(result.items.length === 0, "No completions expected when value is used for type");
     });
@@ -2207,7 +2207,7 @@ describe("identifiers", () => {
         `${decArgModelDef}
           ${code}
           model M {}
-          `
+          `,
       );
       check(
         completions,
@@ -2236,7 +2236,7 @@ describe("identifiers", () => {
         {
           fullDocs: true,
           allowAdditionalCompletions: false,
-        }
+        },
       );
 
       const result = await complete(
@@ -2244,7 +2244,7 @@ describe("identifiers", () => {
         @myDec(#{ context: #{┆} }, { context: {} })
         model M {}
         `,
-        js
+        js,
       );
       ok(result.items.length === 0, "No completions expected when value is used for type");
     });
@@ -2265,7 +2265,7 @@ describe("identifiers", () => {
         `${decArgModelDef}
         ${code}
         model M {}
-        `
+        `,
       );
       check(
         completions,
@@ -2284,7 +2284,7 @@ describe("identifiers", () => {
         {
           fullDocs: true,
           allowAdditionalCompletions: false,
-        }
+        },
       );
 
       const result = await complete(
@@ -2292,7 +2292,7 @@ describe("identifiers", () => {
       @myDec(#{ context: #{ name: "abc", ┆} })
       model M {}
       `,
-        js
+        js,
       );
       ok(result.items.length === 0, "No completions expected when value is used for type");
     });
@@ -2312,7 +2312,7 @@ describe("identifiers", () => {
         `${decArgModelDef}
         ${code}
         model M {}
-        `
+        `,
       );
       check(
         completions,
@@ -2340,14 +2340,14 @@ describe("identifiers", () => {
         {
           fullDocs: true,
           allowAdditionalCompletions: false,
-        }
+        },
       );
       const result = await complete(
         `${decArgModelDef}
       @myDec(#{ msg: "msg", conte┆xt})
       model M {}
       `,
-        js
+        js,
       );
       ok(result.items.length === 0, "No completions expected when value is used for type");
     });
@@ -2365,7 +2365,7 @@ describe("identifiers", () => {
         @myDec({}┆)
         model M {}
         `,
-        js
+        js,
       );
       ok(completions.items.length === 0, "No completions expected when cursor is after }");
     });
@@ -2388,7 +2388,7 @@ describe("identifiers", () => {
           value: string
         }
         `,
-        js
+        js,
       );
       ok(completions.items.length === 0, "No completions expected for normal model expression }");
     });
@@ -2400,7 +2400,7 @@ describe("identifiers", () => {
         `
         #┆
         model Bar {}
-        `
+        `,
       );
 
       check(completions, [
@@ -2420,7 +2420,7 @@ describe("identifiers", () => {
         `
         #suppress s┆
         model Bar {}
-        `
+        `,
       );
 
       check(completions, []);
@@ -2434,7 +2434,7 @@ function check(
   options?: {
     allowAdditionalCompletions?: boolean;
     fullDocs?: boolean;
-  }
+  },
 ) {
   options = {
     allowAdditionalCompletions: true,
@@ -2468,7 +2468,7 @@ function check(
 
     ok(
       actual,
-      `Expected completion item not found: '${expected.label}'. Available: ${list.items.map((x) => x.label).join(", ")}`
+      `Expected completion item not found: '${expected.label}'. Available: ${list.items.map((x) => x.label).join(", ")}`,
     );
     deepStrictEqual(actual, expected);
     actualMap.delete(actual.label);
@@ -2487,7 +2487,7 @@ function check(
 async function complete(
   sourceWithCursor: string,
   jsSourceFile?: { name: string; js: Record<string, any> },
-  additionalFiles?: Record<string, string>
+  additionalFiles?: Record<string, string>,
 ): Promise<CompletionList> {
   const { source, pos } = extractCursor(sourceWithCursor);
   const testHost = await createTestServerHost();

@@ -356,7 +356,7 @@ describe("json serialization of examples", () => {
           } else {
             expect(result).toEqual(expected);
           }
-        }
+        },
       );
     });
   });

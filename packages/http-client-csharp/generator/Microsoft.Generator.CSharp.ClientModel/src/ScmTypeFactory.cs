@@ -38,17 +38,32 @@ namespace Microsoft.Generator.CSharp.ClientModel
                         return [new MrwSerializationTypeDefinition(inputModel, modelProvider)];
                     }
                     return [];
-                case InputEnumType { IsExtensible: true } inputEnumType:
-                    if (ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputEnumType)?.UnderlyingEnumType.Equals(typeof(string)) == true)
-                    {
-                        return [];
-                    }
-                    return [new ExtensibleEnumSerializationProvider(inputEnumType, typeProvider)];
                 case InputEnumType inputEnumType:
+                    switch (typeProvider.CustomCodeView)
+                    {
+                        case { Type: { IsValueType: true, IsStruct: true } }:
+                            return CreateExtensibleEnumSerializations(inputEnumType, typeProvider);
+                        case { Type: { IsValueType: true, IsStruct: false } }:
+                            return [new FixedEnumSerializationProvider(inputEnumType, typeProvider)];
+                    }
+                    if (inputEnumType.IsExtensible)
+                    {
+                        return CreateExtensibleEnumSerializations(inputEnumType, typeProvider);
+                    }
                     return [new FixedEnumSerializationProvider(inputEnumType, typeProvider)];
                 default:
                     return base.CreateSerializationsCore(inputType, typeProvider);
             }
+        }
+
+        private ExtensibleEnumSerializationProvider[] CreateExtensibleEnumSerializations(InputEnumType inputEnumType, TypeProvider typeProvider)
+        {
+            // if the underlying type is string, we don't need to generate serialization methods as we use ToString
+            if (ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputEnumType)?.UnderlyingEnumType == typeof(string))
+            {
+                return [];
+            }
+            return [new ExtensibleEnumSerializationProvider(inputEnumType, typeProvider)];
         }
 
         public ClientProvider CreateClient(InputClient inputClient)

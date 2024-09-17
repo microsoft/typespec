@@ -19,7 +19,7 @@ const { compile: compileTypeOf, diagnose: diagnoseTypeOf } = defineTest(
     ok(target, `Expected a property tagged with @test("target")`);
     strictEqual(target.kind, "ModelProperty");
     return [target.type, diagnostics];
-  }
+  },
 );
 
 describe("get the type of a const", () => {

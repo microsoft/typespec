@@ -15,7 +15,7 @@ import { getScopeAndName } from "../utils/get-scope-and-name.js";
  */
 export function transformComponentParameters(
   context: Context,
-  dataTypes: TypeSpecDataTypes[]
+  dataTypes: TypeSpecDataTypes[],
 ): void {
   const parameters = context.openApi3Doc.components?.parameters;
   if (!parameters) return;
@@ -29,7 +29,7 @@ export function transformComponentParameters(
 function transformComponentParameter(
   dataTypes: TypeSpecDataTypes[],
   key: string,
-  parameter: OpenAPI3Parameter
+  parameter: OpenAPI3Parameter,
 ): void {
   const { name, scope } = getScopeAndName(key);
   // Parameters should live in the root Parameters namespace

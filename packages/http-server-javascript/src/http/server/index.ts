@@ -67,7 +67,7 @@ export function emitRawServer(ctx: HttpContext, operationsModule: Module): Modul
 function* emitRawServerOperation(
   ctx: HttpContext,
   operation: HttpOperation,
-  module: Module
+  module: Module,
 ): Iterable<string> {
   const op = operation.operation;
   const operationNameCase = parseCase(op.name);
@@ -101,7 +101,7 @@ function* emitRawServerOperation(
   yield "): Promise<void> {";
 
   const [_, parameters] = bifilter(op.parameters.properties.values(), (param) =>
-    isValueLiteralType(param.type)
+    isValueLiteralType(param.type),
   );
 
   const queryParams: Extract<HttpOperationParameter, { type: "query" }>[] = [];
@@ -127,7 +127,7 @@ function* emitRawServerOperation(
         throw new Error(
           `UNREACHABLE: parameter type ${
             (parameter satisfies never as HttpOperationParameter).type
-          }`
+          }`,
         );
     }
   }
@@ -144,7 +144,7 @@ function* emitRawServerOperation(
   const bodyFields = new Map<string, Type>(
     operation.parameters.body && operation.parameters.body.type.kind === "Model"
       ? getAllProperties(operation.parameters.body.type).map((p) => [p.name, p.type] as const)
-      : []
+      : [],
   );
 
   let bodyName: string | undefined = undefined;
@@ -171,7 +171,7 @@ function* emitRawServerOperation(
       body.type,
       body.property?.type ?? operation.operation.node,
       module,
-      { altName: defaultBodyTypeName }
+      { altName: defaultBodyTypeName },
     );
 
     bodyName = bodyNameCase.camelCase;
@@ -259,7 +259,7 @@ function* emitRawServerOperation(
         resolvedParameter.type.kind === "Scalar" && parsedParams.has(resolvedParameter)
           ? parseTemplateForScalar(ctx, resolvedParameter.type).replace(
               "{}",
-              paramNameCase.camelCase
+              paramNameCase.camelCase,
             )
           : paramNameCase.camelCase;
     }
@@ -276,12 +276,13 @@ function* emitRawServerOperation(
 
   if (hasOptions) {
     paramLines.push(
-      `{ ${[...optionalParams.entries()].map(([name, expr]) => (name === expr ? name : `${name}: ${expr}`)).join(", ")} }`
+      `{ ${[...optionalParams.entries()].map(([name, expr]) => (name === expr ? name : `${name}: ${expr}`)).join(", ")} }`,
     );
   }
 
   yield `  const result = await operations.${operationNameCase.camelCase}(ctx, `;
   yield* indent(indent(paramLines));
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   yield `  );`, yield "";
 
   yield* indent(emitResultProcessing(ctx, op.returnType, module));
@@ -328,7 +329,7 @@ function* emitResultProcessing(ctx: HttpContext, t: Type, module: Module): Itera
 function* emitResultProcessingForType(
   ctx: HttpContext,
   target: Type,
-  module: Module
+  module: Module,
 ): Iterable<string> {
   if (target.kind !== "Model") {
     throw new UnimplementedError(`result processing for type kind '${target.kind}'`);
@@ -393,7 +394,7 @@ function* emitResultProcessingForType(
  */
 function* emitHeaderParamBinding(
   ctx: HttpContext,
-  parameter: Extract<HttpOperationParameter, { type: "header" }>
+  parameter: Extract<HttpOperationParameter, { type: "header" }>,
 ): Iterable<string> {
   const nameCase = parseCase(parameter.param.name);
 
@@ -424,7 +425,7 @@ function* emitHeaderParamBinding(
  */
 function* emitQueryParamBinding(
   ctx: HttpContext,
-  parameter: Extract<HttpOperationParameter, { type: "query" }>
+  parameter: Extract<HttpOperationParameter, { type: "query" }>,
 ): Iterable<string> {
   const nameCase = parseCase(parameter.param.name);
 

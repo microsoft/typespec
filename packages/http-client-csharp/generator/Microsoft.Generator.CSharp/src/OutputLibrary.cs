@@ -25,7 +25,14 @@ namespace Microsoft.Generator.CSharp
                 if (inputEnum.Usage.HasFlag(Input.InputModelTypeUsage.ApiVersionEnum))
                     continue;
                 var outputEnum = CodeModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
-                if (outputEnum != null)
+
+                // If there is a custom code view for a fixed enum, then we should not emit the generated enum as the custom code will have
+                // the implementation. We will still need to emit the serialization code.
+                if (outputEnum is FixedEnumProvider { CustomCodeView: { IsEnum: true, Type: { IsValueType: true, IsStruct: false } } })
+                {
+                    enums.AddRange(outputEnum.SerializationProviders);
+                }
+                else if (outputEnum != null)
                 {
                     enums.Add(outputEnum);
                 }

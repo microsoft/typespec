@@ -8,7 +8,7 @@ export async function generateThirdPartyNotice() {
   const rootName = basename(root);
   const packages = await findThirdPartyPackages();
   const packageRoots = [...packages.keys()].sort((a, b) =>
-    packages.get(a).name.localeCompare(packages.get(b).name)
+    packages.get(a).name.localeCompare(packages.get(b).name),
   );
   let text = `${rootName}
 

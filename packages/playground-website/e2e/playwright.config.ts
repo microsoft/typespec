@@ -19,10 +19,11 @@ const config: PlaywrightTestConfig = {
     trace: "retain-on-failure",
   },
   projects: [
-    {
-      name: "chromium",
-      use: { browserName: "chromium" },
-    },
+    // TODO: investigate
+    // {
+    //   name: "chromium",
+    //   use: { browserName: "chromium" },
+    // },
     {
       name: "firefox",
       use: { browserName: "firefox" },

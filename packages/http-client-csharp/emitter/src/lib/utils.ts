@@ -26,7 +26,7 @@ export function getNameForTemplate(model: Model): string {
 
 export function getTypeName(
   context: SdkContext,
-  type: Model | Enum | EnumMember | ModelProperty | Scalar | Operation
+  type: Model | Enum | EnumMember | ModelProperty | Scalar | Operation,
 ): string {
   const name = getLibraryName(context, type);
   if (type.kind !== "Model") return name;
@@ -44,7 +44,7 @@ export function getTypeName(
 export function createContentTypeOrAcceptParameter(
   mediaTypes: string[],
   name: string,
-  nameInRequest: string
+  nameInRequest: string,
 ): InputParameter {
   const isContentType: boolean = nameInRequest.toLowerCase() === "content-type";
   const inputType: InputPrimitiveType = {
@@ -76,7 +76,7 @@ export function createContentTypeOrAcceptParameter(
 }
 
 export function isSdkPathParameter(
-  parameter: SdkModelPropertyTypeBase
+  parameter: SdkModelPropertyTypeBase,
 ): parameter is SdkPathParameter {
   return (parameter as SdkPathParameter).kind === "path";
 }

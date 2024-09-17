@@ -55,7 +55,7 @@ async function getChangeCountPerPackage(workspaceRoot: string) {
 }
 
 async function getPackages(
-  workspaceRoot: string
+  workspaceRoot: string,
 ): Promise<Record<string, { path: string; version: string }>> {
   const paths: Record<string, { path: string; version: string }> = {};
   for (const project of await findWorkspacePackagesNoCheck(workspaceRoot)) {
@@ -79,7 +79,7 @@ async function getPackages(
 function updateDependencyVersions(
   packageManifest: PackageJson,
   updatedPackages: Record<string, BumpManifest>,
-  prereleaseTag: string = "dev"
+  prereleaseTag: string = "dev",
 ) {
   const clone: PackageJson = {
     ...packageManifest,
@@ -136,7 +136,7 @@ function getNextVersion(version: string) {
 
 async function addPrereleaseNumber(
   changeCounts: Record<string, number>,
-  packages: Record<string, { path: string; version: string }>
+  packages: Record<string, { path: string; version: string }>,
 ) {
   const updatedManifests: Record<string, BumpManifest> = {};
   for (const [packageName, packageInfo] of Object.entries(packages)) {
@@ -187,7 +187,7 @@ async function readJsonFile<T>(filename: string): Promise<T> {
 export async function bumpVersionsForPR(
   workspaceRoot: string,
   prNumber: number,
-  buildNumber: string
+  buildNumber: string,
 ) {
   const packages = await getPackages(workspaceRoot);
   console.log("Packages", packages);

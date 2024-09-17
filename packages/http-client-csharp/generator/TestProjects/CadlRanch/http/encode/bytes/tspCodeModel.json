@@ -1371,7 +1371,6 @@
         "$id": "129",
         "kind": "bytes",
         "name": "bytes",
-        "encode": "base64",
         "crossLanguageDefinitionId": "TypeSpec.bytes",
         "decorators": []
        },
@@ -1454,7 +1453,6 @@
         "$id": "136",
         "kind": "bytes",
         "name": "bytes",
-        "encode": "base64",
         "crossLanguageDefinitionId": "TypeSpec.bytes",
         "decorators": []
        },

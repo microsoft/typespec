@@ -183,7 +183,7 @@ describe("compiler: semantic walker", () => {
         "Global.My.Simple",
         "Global.My.Parent",
         "Global.My.Parent.Child",
-      ]
+      ],
     );
   });
 
@@ -282,7 +282,7 @@ describe("compiler: semantic walker", () => {
         shouldNavigate: true;
       }
     `,
-      { model: (x) => (x.name === "A" ? ListenerFlow.NoRecursion : undefined) }
+      { model: (x) => (x.name === "A" ? ListenerFlow.NoRecursion : undefined) },
     );
 
     strictEqual(result.modelProperties.length, 1);

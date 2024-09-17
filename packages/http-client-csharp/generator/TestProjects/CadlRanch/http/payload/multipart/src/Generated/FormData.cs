@@ -18,9 +18,9 @@ namespace Payload.MultiPart
 
         public virtual Task<ClientResult> BasicAsync(BinaryContent content, string contentType, RequestOptions options) => throw null;
 
-        public virtual ClientResult Complex(BinaryContent content, string contentType, RequestOptions options) => throw null;
+        public virtual ClientResult FileArrayAndBasic(BinaryContent content, string contentType, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> ComplexAsync(BinaryContent content, string contentType, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> FileArrayAndBasicAsync(BinaryContent content, string contentType, RequestOptions options) => throw null;
 
         public virtual ClientResult JsonPart(BinaryContent content, string contentType, RequestOptions options) => throw null;
 
@@ -42,20 +42,6 @@ namespace Payload.MultiPart
 
         public virtual Task<ClientResult> AnonymousModelAsync(BinaryContent content, string contentType, RequestOptions options) => throw null;
 
-        public virtual ClientResult FileWithHttpPartSpecificContentType(BinaryContent content, string contentType, RequestOptions options) => throw null;
-
-        public virtual Task<ClientResult> FileWithHttpPartSpecificContentTypeAsync(BinaryContent content, string contentType, RequestOptions options) => throw null;
-
-        public virtual ClientResult FileWithHttpPartRequiredContentType(BinaryContent content, string contentType, RequestOptions options) => throw null;
-
-        public virtual Task<ClientResult> FileWithHttpPartRequiredContentTypeAsync(BinaryContent content, string contentType, RequestOptions options) => throw null;
-
-        public virtual ClientResult FileWithHttpPartOptionalContentType(BinaryContent content, string contentType, RequestOptions options) => throw null;
-
-        public virtual Task<ClientResult> FileWithHttpPartOptionalContentTypeAsync(BinaryContent content, string contentType, RequestOptions options) => throw null;
-
-        public virtual ClientResult ComplexWithHttpPart(BinaryContent content, string contentType, RequestOptions options) => throw null;
-
-        public virtual Task<ClientResult> ComplexWithHttpPartAsync(BinaryContent content, string contentType, RequestOptions options) => throw null;
+        public virtual FormDataHttpParts GetFormDataHttpPartsClient() => throw null;
     }
 }

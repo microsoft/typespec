@@ -16,7 +16,7 @@ export interface ListOperationOptions {
  */
 export function listOperationsIn(
   container: Namespace | Interface,
-  options: ListOperationOptions = {}
+  options: ListOperationOptions = {},
 ): Operation[] {
   const operations: Operation[] = [];
 
