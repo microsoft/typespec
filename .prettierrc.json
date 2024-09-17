@@ -20,15 +20,9 @@
       }
     },
     {
-      "files": "*.tsx",
+      "files": ["packages/http-client-javascript/**/*.tsx"],
       "options": {
         "parser": "alloy-ts"
-      }
-    },
-    {
-      "files": "*.jsx",
-      "options": {
-        "parser": "alloy-js"
       }
     }
   ]

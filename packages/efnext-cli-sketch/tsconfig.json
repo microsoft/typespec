@@ -12,8 +12,8 @@
     "declarationMap": true,
     "jsx": "preserve",
     "emitDeclarationOnly": true,
-    "outDir": "dist",
+    "outDir": "dist"
   },
-  "include": [ "src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx", "tsp-output/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx", "tsp-output/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }
