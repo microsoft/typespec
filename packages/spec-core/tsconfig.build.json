@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./src"
+  },
+  "references": [
+    { "path": "../spec-lib/tsconfig.build.json" },
+    { "path": "../spec-api/tsconfig.build.json" },
+    { "path": "../spec-coverage-sdk/tsconfig.build.json" }
+  ],
+  "exclude": ["**/*.test.*", "test/**/*"]
+}
