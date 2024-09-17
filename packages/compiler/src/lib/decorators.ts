@@ -1269,7 +1269,7 @@ export const $overload: OverloadDecorator = (
 
   setOverloadBase(context.program, target, overloadBase);
   const existingOverloads = getOverloads(context.program, overloadBase) || new Array<Operation>();
-  setOverloads(context.program, target, existingOverloads.concat(target));
+  setOverloads(context.program, overloadBase, existingOverloads.concat(target));
 };
 
 function areOperationsInSameContainer(op1: Operation, op2: Operation): boolean {
