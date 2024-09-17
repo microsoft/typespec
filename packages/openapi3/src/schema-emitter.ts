@@ -925,29 +925,9 @@ const B = {
 export function getDefaultValue(
   program: Program,
   defaultType: Value,
-  modelProperty?: ModelProperty,
+  modelProperty: ModelProperty,
 ): any {
-  switch (defaultType.valueKind) {
-    case "StringValue":
-      return defaultType.value;
-    case "NumericValue":
-      return defaultType.value.asNumber() ?? undefined;
-    case "BooleanValue":
-      return defaultType.value;
-    case "ArrayValue":
-      return defaultType.values.map((x) => getDefaultValue(program, x));
-    case "NullValue":
-      return null;
-    case "EnumValue":
-      return defaultType.value.value ?? defaultType.value.name;
-    case "ScalarValue":
-      if (modelProperty) {
-        return serializeValueAsJson(program, defaultType, modelProperty);
-      }
-      return serializeValueAsJson(program, defaultType, defaultType.type);
-    case "ObjectValue":
-      return serializeValueAsJson(program, defaultType, defaultType.type);
-  }
+  return serializeValueAsJson(program, defaultType, modelProperty);
 }
 
 export function isBytesKeptRaw(program: Program, type: Type) {
