@@ -43,7 +43,7 @@
     },
     "./experimental": {
       "types": "./dist/src/experimental/index.d.ts",
-      "import": "./dist/src/experimental/index.js"
+      "default": "./dist/src/experimental/index.js"
     }
   },
   "browser": {
