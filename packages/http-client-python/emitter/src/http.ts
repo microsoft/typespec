@@ -47,7 +47,7 @@ export function emitBasicHttpMethod(
   context: PythonSdkContext<SdkHttpOperation>,
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkBasicServiceMethod<SdkHttpOperation>,
-  operationGroupName: string
+  operationGroupName: string,
 ): Record<string, any>[] {
   return [
     {
@@ -65,7 +65,7 @@ function emitInitialLroHttpMethod(
   context: PythonSdkContext<SdkHttpOperation>,
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkLroServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
-  operationGroupName: string
+  operationGroupName: string,
 ): Record<string, any> {
   return {
     ...emitHttpOperation(context, rootClient, operationGroupName, method.operation, method),
@@ -82,7 +82,7 @@ function addLroInformation(
   context: PythonSdkContext<SdkHttpOperation>,
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkLroServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
-  operationGroupName: string
+  operationGroupName: string,
 ) {
   return {
     ...emitHttpOperation(context, rootClient, operationGroupName, method.operation, method),
@@ -99,7 +99,7 @@ function addPagingInformation(
   context: PythonSdkContext<SdkHttpOperation>,
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
-  operationGroupName: string
+  operationGroupName: string,
 ) {
   for (const response of method.operation.responses.values()) {
     if (response.type) {
@@ -128,7 +128,7 @@ export function emitLroHttpMethod(
   context: PythonSdkContext<SdkHttpOperation>,
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkLroServiceMethod<SdkHttpOperation>,
-  operationGroupName: string
+  operationGroupName: string,
 ): Record<string, any>[] {
   const lroMethod = addLroInformation(context, rootClient, method, operationGroupName);
   return [lroMethod.initialOperation, lroMethod];
@@ -138,7 +138,7 @@ export function emitPagingHttpMethod(
   context: PythonSdkContext<SdkHttpOperation>,
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkPagingServiceMethod<SdkHttpOperation>,
-  operationGroupName: string
+  operationGroupName: string,
 ): Record<string, any>[] {
   const pagingMethod = addPagingInformation(context, rootClient, method, operationGroupName);
   return [pagingMethod];
@@ -148,7 +148,7 @@ export function emitLroPagingHttpMethod(
   context: PythonSdkContext<SdkHttpOperation>,
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkLroPagingServiceMethod<SdkHttpOperation>,
-  operationGroupName: string
+  operationGroupName: string,
 ): Record<string, any>[] {
   const pagingMethod = addPagingInformation(context, rootClient, method, operationGroupName);
   const lroMethod = addLroInformation(context, rootClient, method, operationGroupName);
@@ -160,7 +160,7 @@ function emitHttpOperation(
   rootClient: SdkClientType<SdkHttpOperation>,
   operationGroupName: string,
   operation: SdkHttpOperation,
-  method: SdkServiceMethod<SdkHttpOperation>
+  method: SdkServiceMethod<SdkHttpOperation>,
 ): Record<string, any> {
   const responses: Record<string, any>[] = [];
   const exceptions: Record<string, any>[] = [];
@@ -217,7 +217,7 @@ function isSpreadBody(bodyParam: SdkBodyParameter | undefined): boolean {
 
 function emitFlattenedParameter(
   bodyParameter: Record<string, any>,
-  property: Record<string, any>
+  property: Record<string, any>,
 ): Record<string, any> {
   return {
     checkClientInput: false,
@@ -242,7 +242,7 @@ function emitFlattenedParameter(
 
 function emitHttpPathParameter(
   context: PythonSdkContext<SdkHttpOperation>,
-  parameter: SdkPathParameter
+  parameter: SdkPathParameter,
 ) {
   const base = emitParamBase(context, parameter);
   return {
@@ -256,7 +256,7 @@ function emitHttpPathParameter(
 }
 function emitHttpHeaderParameter(
   context: PythonSdkContext<SdkHttpOperation>,
-  parameter: SdkHeaderParameter
+  parameter: SdkHeaderParameter,
 ): Record<string, any> {
   const base = emitParamBase(context, parameter);
   const [delimiter, explode] = getDelimiterAndExplode(parameter);
@@ -281,7 +281,7 @@ function emitHttpHeaderParameter(
 
 function emitHttpQueryParameter(
   context: PythonSdkContext<SdkHttpOperation>,
-  parameter: SdkQueryParameter
+  parameter: SdkQueryParameter,
 ): Record<string, any> {
   const base = emitParamBase(context, parameter);
   const [delimiter, explode] = getDelimiterAndExplode(parameter);
@@ -299,7 +299,7 @@ function emitHttpQueryParameter(
 function emitHttpParameters(
   context: PythonSdkContext<SdkHttpOperation>,
   rootClient: SdkClientType<SdkHttpOperation>,
-  operation: SdkHttpOperation
+  operation: SdkHttpOperation,
 ): Record<string, any>[] {
   const parameters: Record<string, any>[] = [...context.__endpointPathParameters];
   for (const parameter of operation.parameters) {
@@ -320,7 +320,7 @@ function emitHttpParameters(
 
 function emitHttpBodyParameter(
   context: PythonSdkContext<SdkHttpOperation>,
-  bodyParam?: SdkBodyParameter
+  bodyParam?: SdkBodyParameter,
 ): Record<string, any> | undefined {
   if (bodyParam === undefined) return undefined;
   return {
@@ -340,7 +340,7 @@ function emitHttpResponse(
   statusCodes: HttpStatusCodeRange | number | "*",
   response: SdkHttpResponse,
   method?: SdkServiceMethod<SdkHttpOperation>,
-  isException = false
+  isException = false,
 ): Record<string, any> | undefined {
   if (!response) return undefined;
   let type = undefined;
@@ -373,7 +373,7 @@ function emitHttpResponse(
 
 function emitHttpResponseHeader(
   context: PythonSdkContext<SdkHttpOperation>,
-  header: SdkServiceResponseHeader
+  header: SdkServiceResponseHeader,
 ): Record<string, any> {
   return {
     type: getType(context, header.type),

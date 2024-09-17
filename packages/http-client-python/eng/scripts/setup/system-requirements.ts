@@ -8,7 +8,7 @@ import { coerce, satisfies } from "semver";
 const execute = (
   command: string,
   cmdlineargs: Array<string>,
-  options: MoreOptions = {}
+  options: MoreOptions = {},
 ): Promise<ExecResult> => {
   return new Promise((resolve, reject) => {
     const cp = spawn(command, cmdlineargs, { ...options, stdio: "pipe", shell: true });
@@ -41,7 +41,7 @@ const execute = (
         log: all,
         error: code ? new Error("Process Failed.") : null,
         code,
-      })
+      }),
     );
   });
 };
@@ -64,7 +64,7 @@ const versionIsSatisfied = (version: string, requirement: string): boolean => {
 const validateVersionRequirement = (
   resolution: SystemRequirementResolution,
   actualVersion: string,
-  requirement: SystemRequirement
+  requirement: SystemRequirement,
 ): SystemRequirementResolution | SystemRequirementError => {
   if (!requirement.version) {
     return resolution; // No version requirement.
@@ -95,7 +95,7 @@ const validateVersionRequirement = (
 const tryPython = async (
   requirement: SystemRequirement,
   command: string,
-  additionalArgs: string[] = []
+  additionalArgs: string[] = [],
 ): Promise<SystemRequirementResolution | SystemRequirementError> => {
   const resolution: SystemRequirementResolution = {
     name: PythonRequirement,
@@ -129,7 +129,7 @@ const getExecutablePath = (requirement: SystemRequirement): string | undefined =
 
 const createPythonErrorMessage = (
   requirement: SystemRequirement,
-  errors: SystemRequirementError[]
+  errors: SystemRequirementError[],
 ): SystemRequirementError => {
   const versionReq = requirement.version ?? "*";
   const lines = [
@@ -146,7 +146,7 @@ const createPythonErrorMessage = (
 };
 
 const resolvePythonRequirement = async (
-  requirement: SystemRequirement
+  requirement: SystemRequirement,
 ): Promise<SystemRequirementResolution | SystemRequirementError> => {
   // Hardcoding AUTOREST_PYTHON_EXE is for backward compatibility
   const path = getExecutablePath(requirement) ?? process.env["AUTOREST_PYTHON_EXE"];
@@ -188,7 +188,7 @@ const resolvePythonRequirement = async (
  */
 export const patchPythonPath = async (
   command: PythonCommandLine,
-  requirement: SystemRequirement
+  requirement: SystemRequirement,
 ): Promise<string[]> => {
   const [_, ...args] = command;
   const resolution = await resolvePythonRequirement(requirement);

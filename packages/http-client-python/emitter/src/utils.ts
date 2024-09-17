@@ -32,7 +32,7 @@ function IsFullyUpperCase(identifier: string, maxUppercasePreserve: number) {
 
 function deconstruct(
   identifier: string | Array<string>,
-  maxUppercasePreserve: number
+  maxUppercasePreserve: number,
 ): Array<string> {
   if (Array.isArray(identifier)) {
     return [...identifier.flatMap((each) => deconstruct(each, maxUppercasePreserve))];
@@ -72,7 +72,7 @@ function removeSequentialDuplicates(identifier: Iterable<string>) {
 function normalize(
   identifier: string | Array<string>,
   removeDuplicates = true,
-  maxUppercasePreserve = 0
+  maxUppercasePreserve = 0,
 ): Array<string> {
   if (!identifier || identifier.length === 0) {
     return [""];
@@ -81,7 +81,7 @@ function normalize(
     ? normalize(
         deconstruct(identifier, maxUppercasePreserve),
         removeDuplicates,
-        maxUppercasePreserve
+        maxUppercasePreserve,
       )
     : removeDuplicates
       ? removeSequentialDuplicates(identifier)
@@ -103,20 +103,20 @@ export function removeUnderscoresFromNamespace(name?: string): string {
 
 export function getImplementation<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
-  parameter: SdkParameter | SdkHttpParameter
+  parameter: SdkParameter | SdkHttpParameter,
 ): "Client" | "Method" {
   if (parameter.onClient) return "Client";
   return "Method";
 }
 
 export function isAbstract<TServiceOperation extends SdkServiceOperation>(
-  method: SdkServiceMethod<TServiceOperation>
+  method: SdkServiceMethod<TServiceOperation>,
 ): boolean {
   return (method.operation.bodyParam?.contentTypes.length ?? 0) > 1 && method.access !== "internal";
 }
 
 export function getDelimiterAndExplode(
-  parameter: SdkQueryParameter | SdkHeaderParameter
+  parameter: SdkQueryParameter | SdkHeaderParameter,
 ): [string | undefined, boolean] {
   if (parameter.type.kind !== "array") return [undefined, false];
   let delimiter: string | undefined = undefined;
@@ -147,7 +147,7 @@ type ParamBase = {
 
 export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
-  type: SdkModelPropertyType | SdkMethod<TServiceOperation>
+  type: SdkModelPropertyType | SdkMethod<TServiceOperation>,
 ): string | undefined {
   // since we do not support multi-service for now, we can just check the root client's api version
   // if type is added in the first version of the client, we do not need to add the versioning info
@@ -161,7 +161,7 @@ export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
 
 export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
-  parameter: SdkParameter | SdkHttpParameter
+  parameter: SdkParameter | SdkHttpParameter,
 ): ParamBase {
   let type = getType(context, parameter.type);
   if (parameter.isApiVersionParam) {
@@ -197,7 +197,7 @@ export function isAzureCoreErrorResponse(t: SdkType | undefined): boolean {
 }
 
 export function getDescriptionAndSummary<TServiceOperation extends SdkServiceOperation>(
-  method: SdkMethod<TServiceOperation>
+  method: SdkMethod<TServiceOperation>,
 ): { description?: string; summary?: string } {
   if (method.details) {
     return {

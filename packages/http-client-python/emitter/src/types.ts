@@ -67,7 +67,7 @@ export function getSimpleTypeResult(result: Record<string, any>): Record<string,
 
 export function getType<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
-  type: CredentialType | CredentialTypeUnion | Type | SdkType | MultiPartFileType
+  type: CredentialType | CredentialTypeUnion | Type | SdkType | MultiPartFileType,
 ): Record<string, any> {
   switch (type.kind) {
     case "model":
@@ -125,7 +125,7 @@ export function getType<TServiceOperation extends SdkServiceOperation>(
 
 function emitMultiPartFile<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
-  type: MultiPartFileType
+  type: MultiPartFileType,
 ): Record<string, any> {
   if (type.type.kind === "array") {
     return getSimpleTypeResult({
@@ -216,7 +216,7 @@ function addDisableGenerationMap(type: SdkType): void {
 function emitProperty<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
   model: SdkModelType,
-  property: SdkBodyModelPropertyType
+  property: SdkBodyModelPropertyType,
 ): Record<string, any> {
   const isMultipartFileInput = property.multipartOptions?.isFilePart;
   let sourceType: SdkType | MultiPartFileType = property.type;
@@ -250,7 +250,7 @@ function emitProperty<TServiceOperation extends SdkServiceOperation>(
 
 function emitModel<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
-  type: SdkModelType
+  type: SdkModelType,
 ): Record<string, any> {
   if (isEmptyModel(type)) {
     return KnownTypes.any;
@@ -318,7 +318,7 @@ function emitEnum(type: SdkEnumType): Record<string, any> {
           type: "constant",
           value: value.value,
           valueType: emitBuiltInType(type.valueType),
-        })
+        }),
       );
     }
     if (!type.isFixed) {
@@ -361,7 +361,7 @@ function enumName(name: string): string {
 
 function emitEnumMember(
   type: SdkEnumValueType,
-  enumType: Record<string, any>
+  enumType: Record<string, any>,
 ): Record<string, any> {
   return {
     name: enumName(type.name),
@@ -382,7 +382,7 @@ function emitDurationOrDateType(type: SdkDurationType | SdkDateTimeType): Record
 
 function emitArrayOrDict<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
-  type: SdkArrayType | SdkDictionaryType
+  type: SdkArrayType | SdkDictionaryType,
 ): Record<string, any> {
   const kind = type.kind === "array" ? "list" : type.kind;
   return getSimpleTypeResult({
@@ -429,7 +429,7 @@ const sdkScalarKindToPythonKind: Record<string, string> = {
 };
 
 function emitBuiltInType(
-  type: SdkBuiltInType | SdkDurationType | SdkDateTimeType
+  type: SdkBuiltInType | SdkDurationType | SdkDateTimeType,
 ): Record<string, any> {
   if (type.kind === "duration" && type.encode === "seconds") {
     return getSimpleTypeResult({
@@ -451,7 +451,7 @@ function emitBuiltInType(
 
 function emitUnion<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
-  type: SdkUnionType
+  type: SdkUnionType,
 ): Record<string, any> {
   return getSimpleTypeResult({
     name: type.isGeneratedName ? undefined : type.name,
@@ -488,7 +488,7 @@ export const KnownTypes = {
 
 export function emitEndpointType<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
-  type: SdkEndpointType
+  type: SdkEndpointType,
 ): Record<string, any>[] {
   const params: Record<string, any>[] = [];
   for (const param of type.templateArguments) {
@@ -511,7 +511,7 @@ export function emitEndpointType<TServiceOperation extends SdkServiceOperation>(
 function getXmlMetadata(type: SdkType | SdkModelPropertyType): Record<string, any> {
   const xmlMetadata: Record<string, any> = {};
   const xmlDecorators = type.decorators.filter(
-    (x) => x.name.startsWith("TypeSpec.Xml.") || x.name.startsWith("TypeSpec.@encodedName")
+    (x) => x.name.startsWith("TypeSpec.Xml.") || x.name.startsWith("TypeSpec.@encodedName"),
   );
   for (const decorator of xmlDecorators) {
     switch (decorator.name) {

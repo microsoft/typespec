@@ -1,11 +1,14 @@
 /* eslint-disable no-console */
 import { execSync } from "child_process";
-import { readFileSync } from "fs";
-import { join } from "path";
+import fs, { readFileSync } from "fs";
+import { platform } from "os";
+import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { parseArgs } from "util";
 
 const validCommands = ["ci", "lint", "mypy", "pyright", "apiview"];
+
+const root = join(dirname(fileURLToPath(import.meta.url)), "../../../");
 
 const argv = parseArgs({
   args: process.argv.slice(2),
@@ -17,13 +20,21 @@ const argv = parseArgs({
   },
 });
 
-const foldersToProcess = argv.values.flavor ? [argv.values.flavor] : argv.values.validFolders || ["azure", "unbranded"];
+const foldersToProcess = argv.values.flavor
+  ? [argv.values.flavor]
+  : argv.values.validFolders || ["azure", "unbranded"];
 
 const commandToRun = argv.values.command || "all";
 
 function getCommand(command: string, flavor: string, name?: string): string {
   if (!validCommands.includes(command)) throw new Error(`Unknown command '${command}'.`);
-  const retval = `FOLDER=${flavor} tox -c ./test/${flavor}/tox.ini -e ${command}`;
+  let retval: string;
+  if (platform() === "win32") {
+    retval = `set FOLDER=${flavor} && tox -c ./test/${flavor}/tox.ini -e ${command}`;
+  } else {
+    // Linux and macOS
+    retval = `FOLDER=${flavor} tox -c ./test/${flavor}/tox.ini -e ${command}`;
+  }
   if (name) {
     return `${retval} -- -f ${name}`;
   }
@@ -31,7 +42,7 @@ function getCommand(command: string, flavor: string, name?: string): string {
 }
 
 function sectionExistsInToxIni(command: string, flavor: string): boolean {
-  const toxIniPath = join(fileURLToPath(import.meta.url), `../../../../test/${flavor}/tox.ini`);
+  const toxIniPath = join(root, `test/${flavor}/tox.ini`);
   const toxIniContent = readFileSync(toxIniPath, "utf-8");
   const sectionHeader = `[testenv:${command}]`;
   return toxIniContent.includes(sectionHeader);
@@ -43,6 +54,24 @@ function myExecSync(command: string, flavor: string, name?: string): void {
     return;
   }
   execSync(getCommand(command, flavor, name), { stdio: "inherit" });
+}
+
+let venvPath = join(root, "venv");
+if (fs.existsSync(join(venvPath, "bin"))) {
+  venvPath = join(venvPath, "bin", "python");
+} else if (fs.existsSync(join(venvPath, "Scripts"))) {
+  venvPath = join(venvPath, "Scripts", "python.exe");
+} else {
+  throw new Error("Virtual environment doesn't exist.");
+}
+
+// Install dependencies from dev_requirements.txt
+const devRequirementsPath = join(root, "generator", "dev_requirements.txt");
+if (fs.existsSync(devRequirementsPath)) {
+  console.log("Installing dependencies from dev_requirements.txt...");
+  execSync(`${venvPath} -m pip install -r ${devRequirementsPath}`, { stdio: "inherit" });
+} else {
+  throw new Error("dev_requirements.txt doesn't exist.");
 }
 
 foldersToProcess.forEach((flavor) => {

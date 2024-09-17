@@ -34,7 +34,7 @@ export async function saveCodeModelAsYaml(name: string, codemodel: unknown): Pro
 export async function execAsync(
   command: string,
   args: string[],
-  options: SpawnOptions = {}
+  options: SpawnOptions = {},
 ): Promise<{ exitCode: number; proc: ChildProcess }> {
   const child = spawn(command, args, { stdio: "inherit", ...options });
   return new Promise((resolve, reject) => {

@@ -217,7 +217,7 @@ interface EmitterConfig {
 function addOptions(
   spec: string,
   generatedFolder: string,
-  flags: RegenerateFlags
+  flags: RegenerateFlags,
 ): EmitterConfig[] {
   const emitterConfigs: EmitterConfig[] = [];
   for (const config of getEmitterOption(spec)) {
@@ -229,7 +229,7 @@ function addOptions(
     if (options["emitter-output-dir"] === undefined) {
       const packageName = options["package-name"] || defaultPackageName(spec);
       options["emitter-output-dir"] = toPosix(
-        `${generatedFolder}/test/${flags.flavor}/generated/${packageName}`
+        `${generatedFolder}/test/${flags.flavor}/generated/${packageName}`,
       );
     }
     if (flags.debug) {
@@ -267,7 +267,7 @@ async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
     const CADL_RANCH_DIR = resolve(PLUGIN_DIR, "node_modules/@azure-tools/cadl-ranch-specs/http");
     const subdirectories = await getSubdirectories(CADL_RANCH_DIR, flagsResolved);
     const cmdList: TspCommand[] = subdirectories.flatMap((subdirectory) =>
-      _getCmdList(subdirectory, flagsResolved)
+      _getCmdList(subdirectory, flagsResolved),
     );
     const PromiseCommands = cmdList.map((tspCommand) => executeCommand(tspCommand));
     await Promise.all(PromiseCommands);

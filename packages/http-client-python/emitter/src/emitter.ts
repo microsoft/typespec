@@ -22,7 +22,7 @@ export function getModelsMode(context: SdkContext): "dpg" | "none" {
       return specifiedModelsMode;
     }
     throw new Error(
-      `Need to specify models mode with the following values: ${modelModes.join(", ")}`
+      `Need to specify models mode with the following values: ${modelModes.join(", ")}`,
     );
   }
   return "dpg";
@@ -45,7 +45,7 @@ function addDefaultOptions(sdkContext: SdkContext) {
   }
   if (!options["package-name"]) {
     options["package-name"] = removeUnderscoresFromNamespace(
-      sdkContext.sdkPackage.rootNamespace.toLowerCase()
+      sdkContext.sdkPackage.rootNamespace.toLowerCase(),
     ).replace(/\./g, "-");
   }
   if (options.flavor !== "azure") {
@@ -58,7 +58,7 @@ function addDefaultOptions(sdkContext: SdkContext) {
 }
 
 async function createPythonSdkContext<TServiceOperation extends SdkServiceOperation>(
-  context: EmitContext<PythonEmitterOptions>
+  context: EmitContext<PythonEmitterOptions>,
 ): Promise<PythonSdkContext<TServiceOperation>> {
   return {
     ...(await createSdkContext<PythonEmitterOptions, TServiceOperation>(
@@ -66,7 +66,7 @@ async function createPythonSdkContext<TServiceOperation extends SdkServiceOperat
       "@typespec/http-client-python",
       {
         additionalDecorators: ["TypeSpec\\.@encodedName"],
-      }
+      },
     )),
     __endpointPathParameters: [],
   };
@@ -99,7 +99,7 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
     const keyValuePairs = Object.entries(resolvedOptions["packaging-files-config"]).map(
       ([key, value]) => {
         return `${key}:${value}`;
-      }
+      },
     );
     commandArgs.push(`--packaging-files-config='${keyValuePairs.join("|")}'`);
     resolvedOptions["packaging-files-config"] = undefined;

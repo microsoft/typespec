@@ -35,7 +35,7 @@ function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkBasicServiceMethod<TServiceOperation>,
-  operationGroupName: string
+  operationGroupName: string,
 ): Record<string, any>[] {
   if (method.operation.kind !== "http")
     throw new Error("We only support HTTP operations right now");
@@ -51,7 +51,7 @@ function emitLroMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkLroServiceMethod<TServiceOperation>,
-  operationGroupName: string
+  operationGroupName: string,
 ): Record<string, any>[] {
   if (method.operation.kind !== "http")
     throw new Error("We only support HTTP operations right now");
@@ -67,7 +67,7 @@ function emitPagingMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkPagingServiceMethod<TServiceOperation>,
-  operationGroupName: string
+  operationGroupName: string,
 ): Record<string, any>[] {
   if (method.operation.kind !== "http")
     throw new Error("We only support HTTP operations right now");
@@ -83,7 +83,7 @@ function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkLroPagingServiceMethod<TServiceOperation>,
-  operationGroupName: string
+  operationGroupName: string,
 ): Record<string, any>[] {
   if (method.operation.kind !== "http")
     throw new Error("We only support HTTP operations right now");
@@ -97,7 +97,7 @@ function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
 
 function emitMethodParameter<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
-  parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter
+  parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter,
 ): Record<string, any>[] {
   if (parameter.kind === "endpoint") {
     if (parameter.type.kind === "union") {
@@ -131,7 +131,7 @@ function emitMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkServiceMethod<TServiceOperation>,
-  operationGroupName: string
+  operationGroupName: string,
 ): Record<string, any>[] {
   switch (method.kind) {
     case "basic":
@@ -149,7 +149,7 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
   client: SdkClientType<TServiceOperation>,
   rootClient: SdkClientType<TServiceOperation>,
-  prefix: string
+  prefix: string,
 ): Record<string, any>[] | undefined {
   const operationGroups: Record<string, any>[] = [];
 
@@ -194,7 +194,7 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
 
 function emitClient<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
-  client: SdkClientType<TServiceOperation>
+  client: SdkClientType<TServiceOperation>,
 ): Record<string, any> {
   if (client.initialization) {
     context.__endpointPathParameters = [];
@@ -226,7 +226,7 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
 }
 
 export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
-  sdkContext: PythonSdkContext<TServiceOperation>
+  sdkContext: PythonSdkContext<TServiceOperation>,
 ) {
   // Get types
   const sdkPackage = sdkContext.sdkPackage;

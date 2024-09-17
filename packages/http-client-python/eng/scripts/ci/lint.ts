@@ -22,7 +22,7 @@ export function mypy() {
 export function pyright() {
   runCommand(
     `pyright ${argv.values.folderName}/ -p ./eng/scripts/ci/pyrightconfig.json`,
-    "pyright"
+    "pyright",
   );
 }
 
