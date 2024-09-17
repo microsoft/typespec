@@ -17,7 +17,7 @@ const argv = parseArgs({
   },
 });
 
-const foldersToProcess = argv.values.flavor ? [argv.values.flavor] : argv.values.validFolders!;
+const foldersToProcess = argv.values.flavor ? [argv.values.flavor] : argv.values.validFolders || ["azure", "unbranded"];
 
 const commandToRun = argv.values.command || "all";
 
