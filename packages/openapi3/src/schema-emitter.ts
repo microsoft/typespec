@@ -377,7 +377,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(
       prop,
       {},
-      refSchema.value
+      refSchema.value,
     );
     if (prop.defaultValue) {
       additionalProps.default = getDefaultValue(program, prop.defaultValue, prop);
@@ -663,7 +663,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   #attachXmlObjectForScalarOrModel(
     program: Program,
     prop: Scalar | Model,
-    emitObject: OpenAPI3Schema
+    emitObject: OpenAPI3Schema,
   ) {
     const xmlObject: OpenAPI3XmlSchema = {};
 
@@ -690,7 +690,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     program: Program,
     prop: ModelProperty,
     emitObject: OpenAPI3Schema,
-    ref?: Record<string, any>
+    ref?: Record<string, any>,
   ) {
     const xmlObject: OpenAPI3XmlSchema = {};
 
@@ -871,7 +871,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   #applyConstraints(
     type: Scalar | Model | ModelProperty | Union | Enum,
     original: OpenAPI3Schema,
-    ref?: Record<string, any>
+    ref?: Record<string, any>,
   ): ObjectBuilder<OpenAPI3Schema> {
     const schema = new ObjectBuilder(original);
     const program = this.emitter.getProgram();

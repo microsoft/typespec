@@ -10,7 +10,7 @@ describe("@name", () => {
         @name("xmlBook")
         model Book {        
           content: string;
-        };`
+        };`,
     );
 
     expect(res.schemas.Book).toMatchObject({
@@ -27,7 +27,7 @@ describe("@name", () => {
         @name("xmlBook")
         model Book {        
           tags: string[];
-        };`
+        };`,
     );
 
     expect(res.schemas.Book).toMatchObject({
@@ -61,7 +61,7 @@ describe("@name", () => {
       `model Book {
           @name("xmlcontent")
           content: ${type};
-        };`
+        };`,
     );
     expect(res.schemas.Book).toMatchObject({
       properties: {
@@ -80,7 +80,7 @@ describe("@name", () => {
       `model Book {
           @name("xmlcontent")
           content: ${type};
-        };`
+        };`,
     );
     expect(res.schemas.Book).toMatchObject({
       properties: {
@@ -95,7 +95,7 @@ describe("@name", () => {
       "Book",
       `
         @name("xmlBook")
-        scalar Book extends string;`
+        scalar Book extends string;`,
     );
 
     expect(res.schemas.Book).toMatchObject({
@@ -111,7 +111,7 @@ describe("@name", () => {
           @name("xmlContent")
           @encodedName("application/json", "jsonContent")    
           content: string;
-        };`
+        };`,
     );
 
     expect(res.schemas.Book).toMatchObject({
@@ -129,7 +129,7 @@ describe("@name", () => {
         model Book {
           @encodedName("application/json", "jsonContent")    
           content: string;
-        };`
+        };`,
     );
 
     expect(res.schemas.Book).toMatchObject({
@@ -154,7 +154,7 @@ describe("@attribute", () => {
       `model Book {
           @attribute
           id: ${type};
-        };`
+        };`,
     );
     expect(res.schemas.Book).toMatchObject({
       properties: {
@@ -172,7 +172,7 @@ describe("@attribute", () => {
       model Pet {
         @attribute
         tags: Tag;
-      }`
+      }`,
     );
     expectDiagnostics(diagnostics, {
       code: "@typespec/openapi3/invalid-property-type",
@@ -188,7 +188,7 @@ describe("@unwrapped", () => {
       `model Book {
           @unwrapped
           id: string;
-       };`
+       };`,
     );
     expectDiagnostics(diagnostics, {
       code: "@typespec/openapi3/invalid-property-type",
@@ -205,7 +205,7 @@ describe("@ns", () => {
         @ns("https://example.com/ns1", "ns1")
         model Book {
           id: string;
-        };`
+        };`,
     );
     expect(res.schemas.Book).toMatchObject({
       type: "object",
@@ -228,7 +228,7 @@ describe("@ns", () => {
       `model Book {
           @ns("https://example.com/ns1", "ns1")
           id: string;
-        };`
+        };`,
     );
     expect(res.schemas.Book).toMatchObject({
       type: "object",
@@ -257,7 +257,7 @@ describe("@ns", () => {
         @ns(Namespaces.smp)
         model Book {
           id: string;
-        };`
+        };`,
     );
     expect(res.schemas.Book).toMatchObject({
       type: "object",
@@ -291,7 +291,7 @@ describe("@ns", () => {
           title: string;
           @ns(Namespaces.ns2)
           author: string;
-        };`
+        };`,
     );
     expect(res.schemas.Book).toMatchObject({
       type: "object",
@@ -331,7 +331,7 @@ describe("Array of primitive types", () => {
       model Book {
         @unwrapped 
         tags: string[];
-      };`
+      };`,
     );
 
     expect(res.schemas.Book).toMatchObject({
@@ -359,7 +359,7 @@ describe("Array of primitive types", () => {
       model Book {
         @name("ItemsTags")
         tags: string[];
-      };`
+      };`,
     );
 
     expect(res.schemas.Book).toMatchObject({
@@ -403,7 +403,7 @@ describe("Array of primitive types", () => {
         model Book {
           @unwrapped
           tags: tag[]
-        };`
+        };`,
       );
       expect(res.schemas.tag).toMatchObject({
         type: `${type}`,
@@ -447,7 +447,7 @@ describe("Array of primitive types", () => {
         model Book {
           @name("ItemsTags")
           tags: tag[]
-        };`
+        };`,
       );
       expect(res.schemas.tag).toMatchObject({
         type: `${type}`,
@@ -496,7 +496,7 @@ describe("Complex array types", () => {
         @name("XmlTag")
         model Tag {
           name: string;
-        }`
+        }`,
     );
 
     expect(res.schemas.Tag).toMatchObject({
@@ -541,7 +541,7 @@ describe("Complex array types", () => {
         @name("XmlTag")
         model Tag {
           name: string;
-        }`
+        }`,
     );
 
     expect(res.schemas.Tag).toMatchObject({
@@ -599,7 +599,7 @@ describe("Complex array types", () => {
         @name("XmlTag")
         model Tag {
           name: string;
-        }`
+        }`,
     );
     expect(res.schemas.Tag).toMatchObject({
       type: "object",
@@ -643,7 +643,7 @@ describe("Complex array types", () => {
         @name("XmlTag")
         model Tag {
           name: string;
-        }`
+        }`,
     );
 
     expect(res.schemas.Tag).toMatchObject({
