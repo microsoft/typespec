@@ -25,8 +25,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public ErrorResultDefinition()
         {
-            _responseField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, typeof(PipelineResponse), "_response", this);
-            _exceptionField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, typeof(ClientResultException), "_exception", this);
+            _responseField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, ClientModelPlugin.Instance.TypeFactory.HttpResponseType, "_response", this);
+            _exceptionField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, ClientModelPlugin.Instance.TypeFactory.ClientResponseExceptionType, "_exception", this);
             _response = new VariableExpression(_responseField.Type, _responseField.Declaration);
             _exception = new VariableExpression(_exceptionField.Type, _exceptionField.Declaration);
         }
@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override CSharpType[] BuildImplements()
         {
-            return [new CSharpType(typeof(ClientResult<>), _t)];
+            return [new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseGenericType, _t)];
         }
 
         protected override FieldProvider[] BuildFields()
@@ -62,8 +62,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private ConstructorProvider BuildCtor()
         {
-            var response = new ParameterProvider("response", FormattableStringHelpers.Empty, typeof(PipelineResponse));
-            var exception = new ParameterProvider("exception", FormattableStringHelpers.Empty, typeof(ClientResultException));
+            var response = new ParameterProvider("response", FormattableStringHelpers.Empty, ClientModelPlugin.Instance.TypeFactory.HttpResponseType);
+            var exception = new ParameterProvider("exception", FormattableStringHelpers.Empty, ClientModelPlugin.Instance.TypeFactory.ClientResponseExceptionType);
             var baseInitializer = new ConstructorInitializer(true, new List<ValueExpression> { Default, response });
             var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [response, exception], Initializer: baseInitializer);
             return new ConstructorProvider(signature, new MethodBodyStatement[]

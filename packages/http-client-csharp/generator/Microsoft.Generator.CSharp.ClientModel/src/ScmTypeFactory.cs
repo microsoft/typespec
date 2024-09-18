@@ -26,6 +26,10 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         public virtual CSharpType ClientResponseType => new CSharpType(typeof(ClientResult));
 
+        public virtual Type ClientResponseGenericType => typeof(ClientResult<>);
+
+        public virtual Type ClientResponseExceptionType => typeof(ClientResultException);
+
         public virtual CSharpType HttpResponseType => new CSharpType(typeof(PipelineResponse));
 
         internal ClientResponseApi CreateClientResponse(ValueExpression original) => new ClientResultProvider(original.As<ClientResult>());

@@ -152,7 +152,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 //cast operators
                 methods.Add(BuildImplicitToBinaryContent());
-                methods.Add(BuildExplicitFromClientResult());
+                methods.Add(BuildExplicitFromClientResponse());
             }
 
             if (_isStruct)
@@ -167,17 +167,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return [.. methods];
         }
 
-        private MethodProvider BuildExplicitFromClientResult()
+        private MethodProvider BuildExplicitFromClientResponse()
         {
             var result = new ParameterProvider("result", $"The {ClientModelPlugin.Instance.TypeFactory.ClientResponseType:C} to deserialize the {Type:C} from.", ClientModelPlugin.Instance.TypeFactory.ClientResponseType);
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
             // using PipelineResponse response = result.GetRawResponse();
-            var responseDeclaration = UsingDeclare<HttpResponseApi>("response", typeof(PipelineResponse), result.AsExpression.ToApi<ClientResponseApi>().GetRawResponse(), out var response);
+            var responseDeclaration = UsingDeclare<HttpResponseApi>("response", ClientModelPlugin.Instance.TypeFactory.HttpResponseType, result.AsExpression.ToApi<ClientResponseApi>().GetRawResponse(), out var response);
             // using JsonDocument document = JsonDocument.Parse(response.Content);
             var document = UsingDeclare(
                 "document",
                 typeof(JsonDocument),
-                JsonDocumentSnippets.Parse(response.Property(nameof(PipelineResponse.Content)).As<BinaryData>()),
+                JsonDocumentSnippets.Parse(response.Property(nameof(HttpResponseApi.Content)).As<BinaryData>()),
                 out var docVariable);
             // return DeserializeT(doc.RootElement, ModelSerializationExtensions.WireOptions);
             var deserialize = Return(_model.Type.Deserialize(docVariable.As<JsonDocument>().RootElement(), ModelSerializationExtensionsSnippets.Wire));

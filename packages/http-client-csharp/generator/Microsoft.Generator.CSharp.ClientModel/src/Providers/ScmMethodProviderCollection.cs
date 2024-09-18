@@ -99,9 +99,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 [
                     .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var paramDeclarations),
                     Declare("result", This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, paramDeclarations), Null], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
-                    .. GetStackVariablesForReturnValueConversion(result /*ClientModelPlugin.Instance.TypeFactory.CreateClientResponse(result) */, responseBodyType, isAsync, out var resultDeclarations),
-                    Return(Static<ClientResult>().Invoke(
-                        nameof(ClientResult.FromValue),
+                    .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
+                    Return(Static(ClientModelPlugin.Instance.TypeFactory.ClientResponseType).Invoke(
+                        nameof(ClientResponseApi.FromValue),
                         [
                             GetResultConversion(result, responseBodyType, resultDeclarations),
                             result.GetRawResponse()
@@ -110,7 +110,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType);
-            convenienceMethod.XmlDocs!.Exceptions.Add(new(typeof(ClientResultException), "Service returned a non-success status code.", []));
+            convenienceMethod.XmlDocs!.Exceptions.Add(new(ClientModelPlugin.Instance.TypeFactory.ClientResponseExceptionType, "Service returned a non-success status code.", []));
             return convenienceMethod;
         }
 
@@ -401,12 +401,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             MethodBodyStatement[] methodBody =
             [
                 UsingDeclare("message", typeof(PipelineMessage), This.Invoke(createRequestMethod.Signature, [.. MethodParameters]), out var message),
-                Return(Static<ClientResult>().Invoke(nameof(ClientResult.FromResponse), client.PipelineProperty.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
+                Return(Static(ClientModelPlugin.Instance.TypeFactory.ClientResponseType).Invoke("FromResponse", client.PipelineProperty.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
             ];
 
             var protocolMethod =
                 new ScmMethodProvider(methodSignature, methodBody, EnclosingType) { IsServiceCall = true };
-            protocolMethod.XmlDocs!.Exceptions.Add(new(typeof(ClientResultException), "Service returned a non-success status code.", []));
+            protocolMethod.XmlDocs!.Exceptions.Add(new(ClientModelPlugin.Instance.TypeFactory.ClientResponseExceptionType, "Service returned a non-success status code.", []));
             List<XmlDocStatement> listItems =
             [
                 new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."]))
@@ -419,7 +419,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private static CSharpType? GetResponseType(IReadOnlyList<OperationResponse> responses, bool isConvenience, bool isAsync, out CSharpType? responseBodyType)
         {
             responseBodyType = null;
-            var returnType = isConvenience ? GetConvenienceReturnType(responses, out responseBodyType) : typeof(ClientResult);
+            var returnType = isConvenience ? GetConvenienceReturnType(responses, out responseBodyType) : ClientModelPlugin.Instance.TypeFactory.ClientResponseType;
             return isAsync ? new CSharpType(typeof(Task<>), returnType) : returnType;
         }
 
@@ -428,8 +428,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var response = responses.FirstOrDefault(r => !r.IsErrorResponse);
             responseBodyType = response?.BodyType is null ? null : ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(response.BodyType);
             return response is null || responseBodyType is null
-                ? typeof(ClientResult)
-                : new CSharpType(typeof(ClientResult<>), responseBodyType);
+                ? ClientModelPlugin.Instance.TypeFactory.ClientResponseType
+                : new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseGenericType, responseBodyType);
         }
     }
 }

@@ -2,21 +2,21 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel.Primitives;
 using System.IO;
+using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
     internal static class PipelineResponseSnippets
     {
-        public static ScopedApi<BinaryData> Content(this ScopedApi<PipelineResponse> pipelineMessage)
-            => pipelineMessage.Property(nameof(PipelineResponse.Content)).As<BinaryData>();
+        public static ScopedApi<BinaryData> Content(this HttpResponseApi pipelineMessage)
+            => pipelineMessage.Property(nameof(HttpResponseApi.Content)).As<BinaryData>();
 
-        public static ScopedApi<Stream> ContentStream(this ScopedApi<PipelineResponse> pipelineMessage)
-            => pipelineMessage.Property(nameof(PipelineResponse.ContentStream)).As<Stream>();
+        public static ScopedApi<Stream> ContentStream(this HttpResponseApi pipelineMessage)
+            => pipelineMessage.Property(nameof(HttpResponseApi.ContentStream)).As<Stream>();
 
-        public static ScopedApi<bool> IsError(this ScopedApi<PipelineResponse> pipelineMessage)
-            => pipelineMessage.Property(nameof(PipelineResponse.IsError)).As<bool>();
+        public static ScopedApi<bool> IsError(this HttpResponseApi pipelineMessage)
+            => pipelineMessage.Property(nameof(HttpResponseApi.IsError)).As<bool>();
     }
 }

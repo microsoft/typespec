@@ -33,6 +33,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public abstract ScopedApi<Stream> ContentStream();
 
         public abstract ScopedApi<BinaryData> Content();
+
+        public abstract ScopedApi<bool> IsError();
     }
 
 #pragma warning disable SA1402 // File may only contain a single type
@@ -44,10 +46,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         public override ScopedApi<Stream> ContentStream()
-            => Original.Property(nameof(HttpResponseApi.ContentStream)).As<Stream>();
+            => Original.Property(nameof(PipelineResponse.ContentStream)).As<Stream>();
 
         public override ScopedApi<BinaryData> Content()
-            => Original.Property(nameof(HttpResponseApi.Content)).As<BinaryData>();
+            => Original.Property(nameof(PipelineResponse.Content)).As<BinaryData>();
+
+        public override ScopedApi<bool> IsError()
+            => Original.Property(nameof(PipelineResponse.IsError)).As<bool>();
     }
 
 #pragma warning disable SA1402 // File may only contain a single type
@@ -69,16 +74,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     }
 
 #pragma warning disable SA1402 // File may only contain a single type
-    internal static class HttpResponseApiSnippets {
-#pragma warning restore SA1402 // File may only contain a single type
-        public static ScopedApi<Stream> ContentStream(this HttpResponseApi httpResponse)
-            => httpResponse.Property(nameof(HttpResponseApi.ContentStream)).As<Stream>();
-
-        public static ScopedApi<BinaryData> Content(this HttpResponseApi httpResponse)
-            => httpResponse.Property(nameof(HttpResponseApi.Content)).As<BinaryData>();
-    }
-
-#pragma warning disable SA1402 // File may only contain a single type
     internal static class ClientResponseApiSnippets
 #pragma warning restore SA1402 // File may only contain a single type
     {
@@ -86,10 +81,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             => clientResponse.Invoke(nameof(ClientResponseApi.GetRawResponse)).As<HttpResponseApi>();
 
         public static ClientResponseApi FromValue<T>(ValueExpression value, HttpResponseApi response)
-        {
-            var expression = Snippet.Static(ClientModelPlugin.Instance.TypeFactory.ClientResponseType).Invoke(nameof(ClientResult.FromValue), [value, response], [typeof(T)], false).ToApi<ClientResponseApi>();
-            return expression;
-        }
+            => Snippet.Static(ClientModelPlugin.Instance.TypeFactory.ClientResponseType).Invoke(nameof(ClientResult.FromValue), [value, response], [typeof(T)], false).ToApi<ClientResponseApi>();
     }
 
 #pragma warning disable SA1402 // File may only contain a single type
