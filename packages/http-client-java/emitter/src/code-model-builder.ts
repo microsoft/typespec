@@ -1408,7 +1408,7 @@ export class CodeModelBuilder {
           }
           // // TODO haoling: maybe put to a global post processing
           // this.postProcessSchemaUsage(schema);
-          // return;
+          return;
         }
 
         const schemaUsage = (schema as SchemaUsage).usage;
@@ -2707,7 +2707,9 @@ export class CodeModelBuilder {
       const usages = (schema as SchemaUsage).usage;
       if (usages && usages.includes(SchemaContext.Public) && usages.includes(SchemaContext.Internal)) { // TODO haoling: add check to apply only to json-merge-patch and multipart
         // remove internal
-        usages.splice(usages.indexOf(SchemaContext.Internal), 1);
+        if (usages.includes(SchemaContext.JsonMergePatch) || schema.serializationFormats?.includes(KnownMediaType.Multipart)) {
+          usages.splice(usages.indexOf(SchemaContext.Internal), 1);
+        }
       }
       // if (usages && usages.includes(SchemaContext.Exception)) {
       //   // remove internal
