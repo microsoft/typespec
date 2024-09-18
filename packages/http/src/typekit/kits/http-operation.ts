@@ -1,4 +1,4 @@
-import { ignoreDiagnostics, Operation, StringLiteral } from "@typespec/compiler";
+import { ignoreDiagnostics, Operation, StringLiteral, Type, VoidType } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/typekit";
 import { getHttpOperation } from "../../operations.js";
 import { HttpOperation, HttpOperationResponseContent, HttpStatusCodesEntry } from "../../types.js";
@@ -35,6 +35,11 @@ interface HttpOperationKit {
      * @param op operation to extract the HttpResponse from
      */
     getResponses(op: Operation): FlatHttpResponse[];
+    /**
+     * Get the Http Return type for the given operation. This function will resolve the returnType based on the Http Operation.
+     * @param op operation to get the return type for
+     */
+    getReturnType(op: Operation, options?: { includeErrors?: boolean }): Type;
   };
 }
 
@@ -46,6 +51,35 @@ defineKit<HttpOperationKit>({
   httpOperation: {
     get(op) {
       return ignoreDiagnostics(getHttpOperation(this.program, op));
+    },
+    getReturnType(operation, options) {
+      let responses = this.httpOperation.getResponses(operation);
+
+      if (!options?.includeErrors) {
+        responses = responses.filter((r) => !this.httpResponse.isErrorResponse(r.responseContent));
+      }
+
+      const voidType = { kind: "Intrinsic", name: "void" } as VoidType;
+      let httpReturnType: Type = voidType;
+
+      if (!responses.length) {
+        return voidType;
+      }
+
+      if (responses.length > 1) {
+        const res = [...new Set(responses.map((r) => r.responseContent.body?.type))];
+        httpReturnType = this.union.create({
+          variants: res.map((t) =>
+            this.unionVariant.create({
+              type: t ?? voidType,
+            })
+          ),
+        });
+      } else {
+        httpReturnType = responses[0].responseContent.body?.type ?? voidType;
+      }
+
+      return httpReturnType;
     },
     getResponses(operation) {
       const responsesMap: FlatHttpResponse[] = [];
