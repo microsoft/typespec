@@ -40,13 +40,24 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
 
         if (enumType.getExpandable()) {
             if(settings.isBranded()) {
-                writeExpandableStringEnum(enumType, javaFile, settings);
+                writeBrandedExpandableEnum(enumType, javaFile, settings);
             } else {
                 writeExpandableStringEnumInterface(enumType, javaFile, settings);
             }
         } else {
             writeEnum(enumType, javaFile, settings);
         }
+    }
+
+    /**
+     * Extension point for expandable enum implementation of branded flavor.
+     *
+     * @param enumType enumType to write implementation
+     * @param javaFile javaFile to write into
+     * @param settings {@link JavaSettings} instance
+     */
+    protected void writeBrandedExpandableEnum(EnumType enumType, JavaFile javaFile, JavaSettings settings) {
+        writeExpandableStringEnum(enumType, javaFile, settings);
     }
 
     private void writeExpandableStringEnumInterface(EnumType enumType, JavaFile javaFile, JavaSettings settings) {

@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.fluent;
 
 import com.microsoft.typespec.http.client.generator.core.mapper.ChoiceMapper;
 import com.microsoft.typespec.http.client.generator.core.mapper.SealedChoiceMapper;
+import com.microsoft.typespec.http.client.generator.mapper.TypeSpecChoiceMapper;
 import com.microsoft.typespec.http.client.generator.mgmt.mapper.FluentMapperFactory;
 import com.microsoft.typespec.http.client.generator.core.mapper.ClientMapper;
 import com.microsoft.typespec.http.client.generator.core.mapper.ModelMapper;
@@ -42,7 +43,7 @@ public class TypeSpecFluentMapperFactory extends FluentMapperFactory {
 
     @Override
     public ChoiceMapper getChoiceMapper() {
-        return ChoiceMapper.getInstance();
+        return TypeSpecChoiceMapper.getInstance();
     }
 
     @Override

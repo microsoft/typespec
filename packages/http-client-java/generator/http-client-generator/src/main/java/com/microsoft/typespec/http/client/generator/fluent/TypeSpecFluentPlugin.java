@@ -8,6 +8,7 @@ import com.microsoft.typespec.http.client.generator.TypeSpecPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
 import com.microsoft.typespec.http.client.generator.mgmt.mapper.FluentMapper;
 import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJavaPackage;
@@ -89,6 +90,7 @@ public class TypeSpecFluentPlugin extends FluentGen {
     protected FluentMapper getFluentMapper() {
         FluentMapper fluentMapper = super.getFluentMapper();
         Mappers.setFactory(new TypeSpecFluentMapperFactory());
+        Templates.setFactory(new TypeSpecFluentTemplateFactory());
         return fluentMapper;
     }
 

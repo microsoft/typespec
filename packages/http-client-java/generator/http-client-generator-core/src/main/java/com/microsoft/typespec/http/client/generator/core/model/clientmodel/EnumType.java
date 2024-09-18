@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 
 import java.util.List;
@@ -35,19 +36,24 @@ public class EnumType implements IType {
     private final ImplementationDetails implementationDetails;
 
     private String crossLanguageDefinitionId;
+    private final String fromMethodName;
+    private final String toMethodName;
 
     /**
      * Create a new Enum with the provided properties.
-     * @param name The name of the new Enum.
-     * @param description The description of the Enum.
-     * @param expandable Whether this will be an ExpandableStringEnum type.
-     * @param values The values of the Enum.
+     *
+     * @param name                      The name of the new Enum.
+     * @param description               The description of the Enum.
+     * @param expandable                Whether this will be an ExpandableStringEnum type.
+     * @param values                    The values of the Enum.
+     * @param fromMethodName            The method name used to convert JSON to the enum type.
+     * @param toMethodName              The method name used to convert the enum type to JSON.
      */
     private EnumType(String packageKeyword, String name, String description,
                      boolean expandable, List<ClientEnumValue> values,
                      IType elementType,
                      ImplementationDetails implementationDetails,
-                     String crossLanguageDefinitionId) {
+                     String crossLanguageDefinitionId, String fromMethodName, String toMethodName) {
         this.name = name;
         this.packageName = packageKeyword;
         this.description = description;
@@ -56,6 +62,8 @@ public class EnumType implements IType {
         this.elementType = elementType;
         this.implementationDetails = implementationDetails;
         this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+        this.fromMethodName = fromMethodName;
+        this.toMethodName = toMethodName;
     }
 
     public String getCrossLanguageDefinitionId() {
@@ -134,7 +142,9 @@ public class EnumType implements IType {
      * @return The method name used to convert JSON to the enum type.
      */
     public final String getFromMethodName() {
-        return "from" + CodeNamer.toPascalCase(elementType.getClientType().toString());
+        return CoreUtils.isNullOrEmpty(fromMethodName)
+            ? "from" + CodeNamer.toPascalCase(elementType.getClientType().toString())
+            : fromMethodName;
     }
 
     /**
@@ -143,7 +153,9 @@ public class EnumType implements IType {
      * @return The method name used to convert the enum type to JSON.
      */
     public final String getToMethodName() {
-        return "to" + CodeNamer.toPascalCase(elementType.getClientType().toString());
+        return CoreUtils.isNullOrEmpty(toMethodName)
+            ? "to" + CodeNamer.toPascalCase(elementType.getClientType().toString())
+            : toMethodName;
     }
 
     @Override
@@ -231,6 +243,8 @@ public class EnumType implements IType {
         private ImplementationDetails implementationDetails;
 
         private String crossLanguageDefinitionId;
+        private String fromMethodName;
+        private String toMethodName;
 
         /**
          * Sets the name of the Enum.
@@ -309,6 +323,16 @@ public class EnumType implements IType {
             return this;
         }
 
+        public Builder fromMethodName(String fromMethodName) {
+            this.fromMethodName = fromMethodName;
+            return this;
+        }
+
+        public Builder toMethodName(String toMethodName) {
+            this.toMethodName = toMethodName;
+            return this;
+        }
+
         /**
          * @return an immutable EnumType instance with the configurations on this builder.
          */
@@ -321,8 +345,8 @@ public class EnumType implements IType {
                     values,
                     elementType,
                     implementationDetails,
-                    crossLanguageDefinitionId
-            );
+                    crossLanguageDefinitionId,
+                fromMethodName, toMethodName);
         }
     }
 }
