@@ -2374,11 +2374,11 @@ export interface DiagnosticCreator<T extends { [code: string]: DiagnosticMessage
   readonly type: T;
   readonly diagnostics: DiagnosticMap<T>;
   createDiagnostic<C extends keyof T, M extends keyof T[C] = "default">(
-    diag: DiagnosticReport<T, C, M>
+    diag: DiagnosticReport<T, C, M>,
   ): Diagnostic;
   reportDiagnostic<C extends keyof T, M extends keyof T[C] = "default">(
     program: Program,
-    diag: DiagnosticReport<T, C, M>
+    diag: DiagnosticReport<T, C, M>,
   ): void;
 }
 
@@ -2400,7 +2400,7 @@ export interface JSONSchemaValidator {
    */
   validate(
     config: unknown,
-    target: YamlScript | YamlPathTarget | SourceFile | typeof NoTarget
+    target: YamlScript | YamlPathTarget | SourceFile | typeof NoTarget,
   ): Diagnostic[];
 }
 
@@ -2586,10 +2586,10 @@ export interface TypeSpecLibrary<
 
   reportDiagnostic<C extends keyof T, M extends keyof T[C]>(
     program: Program,
-    diag: DiagnosticReport<T, C, M>
+    diag: DiagnosticReport<T, C, M>,
   ): void;
   createDiagnostic<C extends keyof T, M extends keyof T[C]>(
-    diag: DiagnosticReport<T, C, M>
+    diag: DiagnosticReport<T, C, M>,
   ): Diagnostic;
 
   /**

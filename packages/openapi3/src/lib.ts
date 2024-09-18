@@ -239,12 +239,6 @@ export const libDef = {
         default: "Enums are not supported unless all options are literals of the same type.",
       },
     },
-    "invalid-default": {
-      severity: "error",
-      messages: {
-        default: paramMessage`Invalid type '${"type"}' for a default value`,
-      },
-    },
     "inline-cycle": {
       severity: "error",
       messages: {

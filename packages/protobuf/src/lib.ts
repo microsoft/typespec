@@ -226,7 +226,7 @@ const keys = [
 ] as const;
 
 export const state = Object.fromEntries(
-  keys.map((k) => [k, TypeSpecProtobufLibrary.createStateSymbol(k)])
+  keys.map((k) => [k, TypeSpecProtobufLibrary.createStateSymbol(k)]),
 ) as {
   [K in (typeof keys)[number]]: symbol;
 };

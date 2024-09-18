@@ -22,7 +22,7 @@ export async function runScript(relativePath: string, backupPath: string): Promi
     await import(scriptUrl);
   } else {
     throw new Error(
-      "Couldn't resolve TypeSpec compiler root. This is unexpected. Please file an issue at https://github.com/microsoft/typespec."
+      "Couldn't resolve TypeSpec compiler root. This is unexpected. Please file an issue at https://github.com/microsoft/typespec.",
     );
   }
 }
@@ -49,7 +49,7 @@ async function resolvePackageRoot(): Promise<string> {
     });
     if (resolved.type !== "module") {
       throw new Error(
-        `Error resolving "@typespec/compiler", expected to find a node module but found a file: "${resolved.path}".`
+        `Error resolving "@typespec/compiler", expected to find a node module but found a file: "${resolved.path}".`,
       );
     }
     return resolved.path;

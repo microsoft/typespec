@@ -66,7 +66,7 @@ export const callDecoratorRule = createRule<never[], keyof typeof messages>({
 function isTypeSpecFunctionSignature(
   checker: ts.TypeChecker,
   signature: ts.Signature,
-  tsNode: ts.Node
+  tsNode: ts.Node,
 ): boolean {
   if (signature.parameters.length < 2) {
     return false;

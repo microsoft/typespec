@@ -4,7 +4,7 @@ import type { InitTemplate } from "../src/init/init-template.js";
 import { localDir, packageRoot } from "./helpers.js";
 
 const pkgJson = JSON.parse(
-  (await readFile(resolve(packageRoot, "package.json"))).toString("utf-8")
+  (await readFile(resolve(packageRoot, "package.json"))).toString("utf-8"),
 );
 const minCompilerVersion = pkgJson.version;
 
@@ -52,5 +52,5 @@ const distDir = resolve(packageRoot, "dist");
 await mkdir(distDir, { recursive: true });
 await writeFile(
   resolve(packageRoot, "templates", "scaffolding.json"),
-  JSON.stringify(builtInTemplates, null, 2)
+  JSON.stringify(builtInTemplates, null, 2),
 );

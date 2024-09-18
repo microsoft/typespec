@@ -113,7 +113,7 @@ describe("emitting models", () => {
         x: Record<string>;
       }
     `,
-      { emitAllRefs: true }
+      { emitAllRefs: true },
     );
 
     assert.deepStrictEqual(schemas["ExtendsRecord.json"].allOf[0], { $ref: "RecordString.json" });
@@ -147,7 +147,7 @@ describe("emitting models", () => {
           "null": Record<null>;
         }
       `,
-      { emitAllRefs: true }
+      { emitAllRefs: true },
     );
 
     assert.deepStrictEqual(schemas["RecordNever.json"].additionalProperties, { not: {} });
@@ -165,7 +165,7 @@ describe("emitting models", () => {
           "boolean": Record<true>;
         }
       `,
-      { emitAllRefs: true }
+      { emitAllRefs: true },
     );
     assert.deepStrictEqual(schemas["Test.json"].properties.string.additionalProperties, {
       type: "string",
@@ -193,7 +193,7 @@ describe("emitting models", () => {
           "unspeakableInstantiation": Record<Record<A & B>>;
         }
       `,
-      { emitAllRefs: true }
+      { emitAllRefs: true },
     );
 
     assert.deepStrictEqual(schemas["Test.json"].properties.union.additionalProperties, {
@@ -249,7 +249,7 @@ describe("emitting models", () => {
           },
           required: ["x", "y"],
         },
-      }
+      },
     );
     assert.deepStrictEqual(schemas["RecordRecordInt32.json"].additionalProperties, {
       $ref: "RecordInt32.json",
@@ -268,7 +268,7 @@ describe("emitting models", () => {
           a: "a-value",
           b,
         }
-        `
+        `,
       );
 
       deepStrictEqual(res["Foo.json"].properties.optionalEnum, {
@@ -283,7 +283,7 @@ describe("emitting models", () => {
         model Foo {
           optional?: string = "abc";
         }
-        `
+        `,
       );
 
       deepStrictEqual(res["Foo.json"].properties.optional, {
@@ -298,7 +298,7 @@ describe("emitting models", () => {
         model Foo {
           optional?: int32 = 123;
         }
-        `
+        `,
       );
 
       deepStrictEqual(res["Foo.json"].properties.optional, {
@@ -315,7 +315,7 @@ describe("emitting models", () => {
         model Foo {
           optional?: boolean = true;
         }
-        `
+        `,
       );
 
       deepStrictEqual(res["Foo.json"].properties.optional, {
@@ -335,7 +335,7 @@ describe("emitting models", () => {
           a: "a-value",
           b: "b-value",
         }
-        `
+        `,
       );
 
       deepStrictEqual(res["Foo.json"].properties.optionalUnion, {

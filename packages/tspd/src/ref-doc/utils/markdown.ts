@@ -54,7 +54,7 @@ export function tabs(tabs: Tab[]) {
       "",
       tab.content,
       "",
-      "</TabItem>"
+      "</TabItem>",
     );
   }
   result.push("</Tabs>", "");

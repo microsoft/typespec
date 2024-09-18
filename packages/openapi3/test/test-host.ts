@@ -55,7 +55,7 @@ export async function createOpenAPITestRunner({
 
 export async function emitOpenApiWithDiagnostics(
   code: string,
-  options: OpenAPI3EmitterOptions = {}
+  options: OpenAPI3EmitterOptions = {},
 ): Promise<[OpenAPI3Document, readonly Diagnostic[]]> {
   const runner = await createOpenAPITestRunner();
   const outputFile = resolveVirtualPath("openapi.json");
@@ -84,7 +84,7 @@ export async function diagnoseOpenApiFor(code: string, options: OpenAPI3EmitterO
 export async function openApiFor(
   code: string,
   versions?: string[],
-  options: OpenAPI3EmitterOptions = {}
+  options: OpenAPI3EmitterOptions = {},
 ) {
   const host = await createOpenAPITestHost();
   const outPath = resolveVirtualPath("{version}.openapi.json");
