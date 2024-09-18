@@ -73,7 +73,7 @@ describe("http: overloads", () => {
 
     const [[overload, uploadString, uploadBytes]] = listHttpOperationsIn(
       runner.program,
-      runner.program.getGlobalNamespaceType()
+      runner.program.getGlobalNamespaceType(),
     );
 
     strictEqual(uploadString.overloading, overload);

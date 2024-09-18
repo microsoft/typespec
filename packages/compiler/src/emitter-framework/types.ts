@@ -114,7 +114,7 @@ export class Declaration<T> extends EmitterResult {
   constructor(
     public name: string,
     public scope: Scope<T>,
-    public value: T | Placeholder<T>
+    public value: T | Placeholder<T>,
   ) {
     if (value instanceof Placeholder) {
       value.onValue((v) => (this.value = v));

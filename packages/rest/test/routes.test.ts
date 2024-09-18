@@ -23,7 +23,7 @@ describe("rest: routes", () => {
       @action("actionTwo")
       @actionSeparator(":")
       op separatorRoute(): {};
-      `
+      `,
     );
 
     deepStrictEqual(routes, [
@@ -53,7 +53,7 @@ describe("rest: routes", () => {
         @action
         op ActionThree(...ThingId, @body bodyParam: string): string;
       }
-      `
+      `,
     );
 
     deepStrictEqual(routes, [
@@ -77,7 +77,7 @@ describe("rest: routes", () => {
         @action("")
         @put op MyAction(...ThingId): string;
       }
-      `
+      `,
     );
     expectDiagnostics(diagnostics, [
       {
@@ -126,7 +126,7 @@ describe("rest: routes", () => {
           @post CreateSubthing(...KeysOf<Thing>, ...KeysOf<Subthing>): string;
         }
       }
-      `
+      `,
     );
 
     deepStrictEqual(routes, [
@@ -165,7 +165,7 @@ describe("rest: routes", () => {
           ...ThingId
         ): string;
       }
-      `
+      `,
     );
 
     deepStrictEqual(routes, [
@@ -346,7 +346,7 @@ describe("rest: routes", () => {
             };
           },
         },
-      }
+      },
     );
 
     deepStrictEqual(routes, [{ verb: "get", path: "/things/{foo}/subthings/bar", params: [] }]);
@@ -364,7 +364,7 @@ describe("rest: routes", () => {
           @path thingId: string
         ): string;
       }
-      `
+      `,
     );
 
     deepStrictEqual(routes, [
@@ -398,7 +398,7 @@ describe("rest: routes", () => {
           @path thingId: string
         ): string;
       }
-      `
+      `,
     );
     deepStrictEqual(routes, [
       { verb: "put", path: "/things/{thingId}:customAction1", params: ["thingId"] },
@@ -419,7 +419,7 @@ describe("rest: routes", () => {
           @path thingId: string
         ): string;
       }
-      `
+      `,
     );
     expectDiagnostics(diagnostics, {
       code: "invalid-argument",
@@ -437,7 +437,7 @@ describe("rest: routes", () => {
         @route("/{thingId}")
         @put op CreateThing(@path thingId: string): string;
       }
-      `
+      `,
     );
 
     deepStrictEqual(routes, [
@@ -491,7 +491,7 @@ describe("rest: routes", () => {
       @sharedRoute
       @collectionAction(Thing, "goodCollection")
       op goodCollectionAction(): {};
-      `
+      `,
     );
 
     expectDiagnostics(diagnostics, [
@@ -513,7 +513,7 @@ describe("rest: routes", () => {
       `
       @autoRoute 
       op test(@path("custom-name") @segment("params") myParam: string): void;
-      `
+      `,
     );
 
     deepStrictEqual(routes, [

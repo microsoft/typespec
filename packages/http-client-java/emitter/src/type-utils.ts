@@ -5,6 +5,7 @@ import {
   EnumMember,
   IntrinsicScalarName,
   Model,
+  Namespace,
   Program,
   Scalar,
   StringLiteral,
@@ -20,6 +21,7 @@ import {
   isTypeSpecValueTypeOf,
 } from "@typespec/compiler";
 import { DurationSchema } from "./common/schemas/time.js";
+import { SchemaContext } from "./common/schemas/usage.js";
 import { getNamespace } from "./utils.js";
 import { SdkDurationType, SdkEnumType, SdkModelType, SdkType, UsageFlags, isSdkFloatKind, isSdkIntKind } from "@azure-tools/typespec-client-generator-core";
 import { SchemaContext, SchemaUsage } from "./common/schemas/usage.js";
@@ -85,7 +87,7 @@ export function isModelReferredInTemplate(template: TemplatedTypeBase, target: M
     (template?.templateMapper?.args?.some((it) =>
       "kind" in it && (it.kind === "Model" || it.kind === "Union")
         ? isModelReferredInTemplate(it, target)
-        : false
+        : false,
     ) ??
       false)
   );
@@ -118,7 +120,7 @@ export function getDefaultValue(value: Value | undefined): any {
   return undefined;
 }
 
-export function getDurationFormatFromSdkType(type: SdkDurationType): DurationSchema["format"] {
+export function getDurationFormat(type: SdkDurationType): DurationSchema["format"] {
   let format: DurationSchema["format"] = "duration-rfc3339";
   // duration encoded as seconds
   if (type.encode === "seconds") {
@@ -128,7 +130,7 @@ export function getDurationFormatFromSdkType(type: SdkDurationType): DurationSch
       format = "seconds-number";
     } else {
       throw new Error(
-        `Unrecognized scalar type used by duration encoded as seconds: '${type.kind}'.`
+        `Unrecognized scalar type used by duration encoded as seconds: '${type.kind}'.`,
       );
     }
   }
@@ -149,7 +151,7 @@ export function hasScalarAsBase(type: Scalar, scalarName: IntrinsicScalarName): 
 export function unionReferredByType(
   program: Program,
   type: Type,
-  cache: Map<Type, Union | null | undefined>
+  cache: Map<Type, Union | null | undefined>,
 ): Union | null {
   if (cache.has(type)) {
     const ret = cache.get(type);
@@ -227,15 +229,19 @@ export function modelIs(model: Model, name: string, namespace: string): boolean 
   return false;
 }
 
-export function getAccess(type: Type | undefined): string | undefined {
+export function getAccess(
+  type: Type | undefined,
+  accessCache: Map<Namespace, string | undefined>,
+): string | undefined {
   if (
     type &&
     (type.kind === "Model" ||
       type.kind === "Operation" ||
       type.kind === "Enum" ||
-      type.kind === "Union")
+      type.kind === "Union" ||
+      type.kind === "Namespace")
   ) {
-    return getDecoratorScopedValue(type, "$access", (it) => {
+    let access = getDecoratorScopedValue(type, "$access", (it) => {
       const value = it.args[0].value;
       if ("kind" in value && value.kind === "EnumMember") {
         return value.name;
@@ -243,6 +249,16 @@ export function getAccess(type: Type | undefined): string | undefined {
         return undefined;
       }
     });
+    if (!access && type.namespace) {
+      // check (parent) namespace
+      if (accessCache.has(type.namespace)) {
+        access = accessCache.get(type.namespace);
+      } else {
+        access = getAccess(type.namespace, accessCache);
+        accessCache.set(type.namespace, access);
+      }
+    }
+    return access;
   } else {
     return undefined;
   }
@@ -252,15 +268,19 @@ export function isAllValueInteger(values: number[]): boolean {
   return values.every((it) => Number.isInteger(it));
 }
 
-export function getUsage(type: Type | undefined): SchemaContext[] | undefined {
+export function getUsage(
+  type: Type | undefined,
+  usageCache: Map<Namespace, SchemaContext[] | undefined>,
+): SchemaContext[] | undefined {
   if (
     type &&
     (type.kind === "Model" ||
       type.kind === "Operation" ||
       type.kind === "Enum" ||
-      type.kind === "Union")
+      type.kind === "Union" ||
+      type.kind === "Namespace")
   ) {
-    return getDecoratorScopedValue(type, "$usage", (it) => {
+    let usage = getDecoratorScopedValue(type, "$usage", (it) => {
       const value = it.args[0].value;
       const values: EnumMember[] = [];
       const ret: SchemaContext[] = [];
@@ -288,6 +308,16 @@ export function getUsage(type: Type | undefined): SchemaContext[] | undefined {
       }
       return ret;
     });
+    if (!usage && type.namespace) {
+      // check (parent) namespace
+      if (usageCache.has(type.namespace)) {
+        usage = usageCache.get(type.namespace);
+      } else {
+        usage = getUsage(type.namespace, usageCache);
+        usageCache.set(type.namespace, usage);
+      }
+    }
+    return usage;
   } else {
     return undefined;
   }
@@ -304,7 +334,7 @@ export function isArmCommonType(entity: Type): boolean {
   const commonDecorators = ["$armCommonDefinition", "$armCommonParameter"];
   if (isTypeSpecValueTypeOf(entity, ["Model", "ModelProperty"])) {
     return commonDecorators.some((commonDecorator) =>
-      entity.decorators.some((d) => d.decorator.name === commonDecorator)
+      entity.decorators.some((d) => d.decorator.name === commonDecorator),
     );
   }
   return false;
@@ -365,14 +395,14 @@ export function trackSchemaUsage(schema: Schema, schemaUsage: SchemaUsage): void
 function getDecoratorScopedValue<T>(
   type: DecoratedType,
   decorator: string,
-  mapFunc: (d: DecoratorApplication) => T
+  mapFunc: (d: DecoratorApplication) => T,
 ): T | undefined {
   let value = type.decorators
     .filter(
       (it) =>
         it.decorator.name === decorator &&
         it.args.length === 2 &&
-        (it.args[1].value as StringLiteral).value === "java"
+        (it.args[1].value as StringLiteral).value === "java",
     )
     .map((it) => mapFunc(it))
     .find(() => true);
@@ -384,7 +414,7 @@ function getDecoratorScopedValue<T>(
       (it) =>
         it.decorator.name === decorator &&
         it.args.length === 2 &&
-        (it.args[1].value as StringLiteral).value === "client"
+        (it.args[1].value as StringLiteral).value === "client",
     )
     .map((it) => mapFunc(it))
     .find(() => true);

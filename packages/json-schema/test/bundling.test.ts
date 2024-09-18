@@ -9,7 +9,7 @@ describe("bundling", () => {
       model Foo { }
       model Bar { }
     `,
-      { bundleId: "test.json" }
+      { bundleId: "test.json" },
     );
 
     const types = schemas["test.json"];
@@ -43,7 +43,7 @@ describe("bundling", () => {
       {
         emitNamespace: false,
         emitTypes: ["testModel", "testArray", "testUnion", "testEnum", "testScalar"],
-      }
+      },
     );
 
     const defs = Object.keys(schemas["test.json"].$defs);
@@ -78,7 +78,7 @@ describe("bundling", () => {
       {
         emitNamespace: false,
         emitTypes: ["testModel", "testArray", "testUnion", "testEnum", "testScalar"],
-      }
+      },
     );
 
     const defs = Object.keys(schemas["test.json"].$defs);
@@ -125,7 +125,7 @@ describe("bundling", () => {
       { bundleId: "test.json", emitAllModels: true },
       {
         emitNamespace: false,
-      }
+      },
     );
 
     const defs = Object.keys(schemas["test.json"].$defs);

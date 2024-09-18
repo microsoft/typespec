@@ -10,7 +10,7 @@ describe("openapi3: info", () => {
       namespace Foo {
         op test(): string;
       }
-      `
+      `,
     );
     strictEqual(res.info.title, "My Service");
   });
@@ -25,7 +25,7 @@ describe("openapi3: info", () => {
       namespace Foo {
         op test(): string;
       }
-      `
+      `,
     );
     strictEqual(res.info.version, "1.2.3-test");
   });
@@ -38,7 +38,7 @@ describe("openapi3: info", () => {
       namespace Foo {
         op test(): string;
       }
-      `
+      `,
     );
     strictEqual(res.info.description, "My service description");
   });
@@ -50,7 +50,7 @@ describe("openapi3: info", () => {
       namespace Foo {
         op test(): string;
       }
-      `
+      `,
     );
     deepStrictEqual(res.externalDocs, {
       url: "https://example.com",
@@ -77,7 +77,7 @@ describe("openapi3: info", () => {
       namespace Foo {
         op test(): string;
       }
-      `
+      `,
     );
     deepStrictEqual(res.info, {
       title: "(title)",

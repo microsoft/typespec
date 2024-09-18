@@ -53,8 +53,8 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@fluentui/react-components": "~9.54.5",
-    "@fluentui/react-icons": "^2.0.249",
+    "@fluentui/react-components": "~9.54.15",
+    "@fluentui/react-icons": "^2.0.258",
     "@typespec/compiler": "workspace:~",
     "@typespec/html-program-viewer": "workspace:~",
     "@typespec/http": "workspace:~",
@@ -70,23 +70,23 @@
     "react-dom": "~18.3.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.9",
-    "@playwright/test": "^1.45.3",
+    "@babel/core": "^7.25.2",
+    "@playwright/test": "^1.47.0",
     "@types/debounce": "~1.2.4",
-    "@types/node": "~18.11.19",
-    "@types/react": "~18.3.3",
+    "@types/node": "~22.5.4",
+    "@types/react": "~18.3.5",
     "@types/react-dom": "~18.3.0",
     "@types/swagger-ui": "~3.52.4",
     "@vitejs/plugin-react": "~4.3.1",
-    "@vitest/coverage-v8": "^2.0.4",
-    "@vitest/ui": "^2.0.4",
+    "@vitest/coverage-v8": "^2.1.0",
+    "@vitest/ui": "^2.1.0",
     "c8": "^10.1.2",
     "cross-env": "~7.0.3",
     "rimraf": "~6.0.1",
     "rollup-plugin-visualizer": "~5.12.0",
-    "typescript": "~5.5.4",
-    "vite": "^5.3.4",
-    "vite-plugin-dts": "4.0.0-beta.1",
-    "vitest": "^2.0.4"
+    "typescript": "~5.6.2",
+    "vite": "^5.4.4",
+    "vite-plugin-dts": "4.2.1",
+    "vitest": "^2.1.0"
   }
 }

@@ -14,7 +14,7 @@ export class ObjectBuilder<T> {
     initializer:
       | Record<string, unknown>
       | Placeholder<Record<string, unknown>>
-      | ObjectBuilder<T> = {}
+      | ObjectBuilder<T> = {},
   ) {
     const copyProperties = (source: Record<string, unknown>) => {
       for (const [key, value] of Object.entries(source)) {

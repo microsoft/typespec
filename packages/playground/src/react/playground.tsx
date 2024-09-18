@@ -112,17 +112,17 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const [selectedEmitter, onSelectedEmitterChange] = useControllableValue(
     props.emitter,
     props.defaultEmitter,
-    props.onEmitterChange
+    props.onEmitterChange,
   );
   const [compilerOptions, onCompilerOptionsChange] = useControllableValue(
     props.compilerOptions,
     props.defaultCompilerOptions ?? {},
-    props.onCompilerOptionsChange
+    props.onCompilerOptionsChange,
   );
   const [selectedSampleName, onSelectedSampleNameChange] = useControllableValue(
     props.sampleName,
     props.defaultSampleName,
-    props.onSampleNameChange
+    props.onSampleNameChange,
   );
   const [content, setContent] = useState(props.defaultContent);
   const isSampleUntouched = useMemo(() => {
@@ -158,7 +158,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
         typespecModel.setValue(value);
       }
     },
-    [typespecModel]
+    [typespecModel],
   );
   useEffect(() => {
     updateTypeSpec(props.defaultContent ?? "");
@@ -232,7 +232,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       // ctrl/cmd+S => save
       { id: "save", label: "Save", keybindings: [KeyMod.CtrlCmd | KeyCode.KeyS], run: saveCode },
     ],
-    [saveCode]
+    [saveCode],
   );
 
   const onTypeSpecEditorMount = useCallback(({ editor }: OnMountData) => {
@@ -240,7 +240,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   }, []);
 
   const [verticalPaneSizes, setVerticalPaneSizes] = useState<(string | number | undefined)[]>(
-    verticalPaneSizesConst.collapsed
+    verticalPaneSizesConst.collapsed,
   );
   const toggleProblemPane = useCallback(() => {
     setVerticalPaneSizes((value) => {
@@ -254,13 +254,13 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     (sizes: number[]) => {
       setVerticalPaneSizes(sizes);
     },
-    [setVerticalPaneSizes]
+    [setVerticalPaneSizes],
   );
   const handleDiagnosticSelected = useCallback(
     (diagnostic: Diagnostic) => {
       editorRef.current?.setSelection(getMonacoRange(host.compiler, diagnostic.target));
     },
-    [host.compiler]
+    [host.compiler],
   );
 
   const playgroundContext = useMemo(() => {
@@ -337,7 +337,7 @@ async function compile(
   host: BrowserHost,
   content: string,
   selectedEmitter: string,
-  options: CompilerOptions
+  options: CompilerOptions,
 ): Promise<CompilationState> {
   await host.writeFile("main.tsp", content);
   await emptyOutputDir(host);

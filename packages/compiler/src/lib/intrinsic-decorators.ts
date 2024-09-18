@@ -21,7 +21,7 @@ export const $docFromComment = (
   context: DecoratorContext,
   target: Type,
   key: DocTarget,
-  text: string
+  text: string,
 ) => {
   setDocData(context.program, target, key, { value: text, source: "comment" });
 };

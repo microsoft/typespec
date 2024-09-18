@@ -53,7 +53,7 @@ export async function uninstallVSExtension(host: CliCompilerHost): Promise<reado
 
 function getVsixInstallerPath(): [string | undefined, readonly Diagnostic[]] {
   return getVSInstallerPath(
-    "resources/app/ServiceHub/Services/Microsoft.VisualStudio.Setup.Service/VSIXInstaller.exe"
+    "resources/app/ServiceHub/Services/Microsoft.VisualStudio.Setup.Service/VSIXInstaller.exe",
   );
 }
 
@@ -70,7 +70,7 @@ function getVSInstallerPath(relativePath: string): [string | undefined, readonly
     joinPaths(
       process.env["ProgramFiles(x86)"] ?? "",
       "Microsoft Visual Studio/Installer",
-      relativePath
+      relativePath,
     ),
     [],
   ];
@@ -88,7 +88,7 @@ function isVSInstalled(host: CliCompilerHost, versionRange: string) {
     {
       stdio: [null, "pipe", "inherit"],
       allowNotFound: true,
-    }
+    },
   );
   return proc.status === 0 && proc.stdout;
 }

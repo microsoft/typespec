@@ -19,21 +19,21 @@ describe("Path interpolation", () => {
     it("omit path segment if followed by /", () => {
       strictEqual(
         interpolatePath("dist/{version}/output.json", { serviceName: "PetStore" }),
-        "dist/output.json"
+        "dist/output.json",
       );
     });
 
     it("omit segment if the value is followed by .", () => {
       strictEqual(
         interpolatePath("dist/{version}.output.json", { serviceName: "PetStore" }),
-        "dist/output.json"
+        "dist/output.json",
       );
     });
 
     it("doesn't omit if in middle of path segment", () => {
       strictEqual(
         interpolatePath("dist/{version}-suffix/output.json", { serviceName: "PetStore" }),
-        "dist/-suffix/output.json"
+        "dist/-suffix/output.json",
       );
     });
   });

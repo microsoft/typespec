@@ -21,7 +21,7 @@ export interface TestHost extends TestFileSystem {
   diagnose(main: string, options?: CompilerOptions): Promise<readonly Diagnostic[]>;
   compileAndDiagnose(
     main: string,
-    options?: CompilerOptions
+    options?: CompilerOptions,
   ): Promise<[Record<string, Type>, readonly Diagnostic[]]>;
 }
 
@@ -58,7 +58,7 @@ export interface TestHostConfig {
 export class TestHostError extends Error {
   constructor(
     message: string,
-    public code: "ENOENT" | "ERR_MODULE_NOT_FOUND"
+    public code: "ENOENT" | "ERR_MODULE_NOT_FOUND",
   ) {
     super(message);
   }
@@ -88,6 +88,6 @@ export interface BasicTestRunner {
    */
   compileAndDiagnose(
     code: string,
-    options?: CompilerOptions
+    options?: CompilerOptions,
   ): Promise<[Record<string, Type>, readonly Diagnostic[]]>;
 }

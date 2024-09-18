@@ -1,21 +1,22 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is crucial to get correct test data file.
+namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
 {
     public class ModelCustomizationTests
     {
         // Validates that the property body's setter is correctly set based on the property type
         [Test]
-        public void TestCustomization_CanChangeModelName()
+        public async Task CanChangeModelName()
         {
-            MockHelpers.LoadMockPlugin(customization: Helpers.GetCompilationFromFile());
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[]
             {
@@ -30,9 +31,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
         }
 
         [Test]
-        public void TestCustomization_CanChangePropertyName()
+        public async Task CanChangePropertyName()
         {
-            MockHelpers.LoadMockPlugin(customization: Helpers.GetCompilationFromFile());
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[]
             {
@@ -54,9 +55,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
         }
 
         [Test]
-        public void TestCustomization_CanChangePropertyType()
+        public async Task CanChangePropertyType()
         {
-            MockHelpers.LoadMockPlugin(customization: Helpers.GetCompilationFromFile());
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[]
             {
@@ -79,9 +80,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
         }
 
         [Test]
-        public void TestCustomization_CanChangePropertyAccessibility()
+        public async Task CanChangePropertyAccessibility()
         {
-            MockHelpers.LoadMockPlugin(customization: Helpers.GetCompilationFromFile());
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[]
             {
@@ -110,6 +111,96 @@ namespace Microsoft.Generator.CSharp.Tests.Providers // the namespace here is cr
             Assert.AreEqual(expectedName, modelTypeProvider.Type.Name);
             Assert.AreEqual(customCodeView?.Name, modelTypeProvider.Type.Name);
             Assert.AreEqual(customCodeView?.Type.Namespace, modelTypeProvider.Type.Namespace);
+        }
+
+        [TestCase]
+        public async Task CanChangeToStruct()
+        {
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var props = new[]
+            {
+                InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            Assert.IsTrue(modelTypeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct));
+            Assert.IsTrue(modelTypeProvider.Type.IsValueType);
+        }
+
+        [Test]
+        public async Task CanChangeModelNameAndToStructAtSameTime()
+        {
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var props = new[]
+            {
+                InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            Assert.IsTrue(modelTypeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct));
+            Assert.IsTrue(modelTypeProvider.Type.IsValueType);
+            Assert.AreEqual("CustomizedModel", modelTypeProvider.Type.Name);
+            Assert.AreEqual("NewNamespace.Models", modelTypeProvider.Type.Namespace);
+        }
+
+        [TestCase]
+        public async Task CanChangeAccessibility()
+        {
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var props = new[] {
+                InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            Assert.IsTrue(modelTypeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class));
+            Assert.IsFalse(modelTypeProvider.Type.IsPublic);
+        }
+
+        [TestCase]
+        public async Task CanChangeEnumToExtensibleEnum()
+        {
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var props = new[] {
+                InputFactory.EnumMember.Int32("val1", 1),
+                InputFactory.EnumMember.Int32("val2", 2),
+                InputFactory.EnumMember.Int32("val3", 3)
+            };
+
+            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.Int32, values: props, isExtensible: false);
+            var enumProvider = EnumProvider.Create(inputEnum);
+
+            Assert.IsTrue(enumProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Struct | TypeSignatureModifiers.ReadOnly));
+        }
+
+        [TestCase]
+        public async Task CanChangeExtensibleEnumToEnum()
+        {
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var props = new[] {
+                InputFactory.EnumMember.Int32("val1", 1),
+                InputFactory.EnumMember.Int32("val2", 2),
+                InputFactory.EnumMember.Int32("val3", 3)
+            };
+
+            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.Int32, values: props, isExtensible: true);
+            var enumProvider = EnumProvider.Create(inputEnum);
+
+            Assert.IsTrue(enumProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Enum));
+            Assert.AreEqual(3, enumProvider.EnumValues.Count);
+            Assert.AreEqual("Val1", enumProvider.EnumValues[0].Name);
+            Assert.AreEqual("Val2", enumProvider.EnumValues[1].Name);
+            Assert.AreEqual("Val3", enumProvider.EnumValues[2].Name);
         }
     }
 }

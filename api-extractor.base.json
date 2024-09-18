@@ -18,6 +18,10 @@
     "compilerMessageReporting": {
       "default": {
         "logLevel": "error"
+      },
+      "TS2552": {
+        "logLevel": "none", // False positive with non support for 5.6 yet
+        "addToApiReportFile": false
       }
     },
 

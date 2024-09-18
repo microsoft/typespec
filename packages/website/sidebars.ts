@@ -5,7 +5,7 @@ function createLibraryReferenceStructure(
   libDir: string,
   labelName: string,
   hasLinterRules: boolean,
-  extra: SidebarItemConfig[]
+  extra: SidebarItemConfig[],
 ): SidebarItemConfig {
   const rules: SidebarItemConfig = {
     type: "category",

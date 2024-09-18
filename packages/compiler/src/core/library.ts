@@ -34,7 +34,7 @@ export const createCadlLibrary = createTypeSpecLibrary;
 
 function createStateKeys<T extends string>(
   libName: string,
-  state: Record<T, StateDef> | undefined
+  state: Record<T, StateDef> | undefined,
 ): Record<T, symbol> {
   const result: Record<string, symbol> = {};
 
@@ -113,7 +113,7 @@ export function defineLinter(def: LinterDefinition): LinterDefinition {
 
 /** Create a new linter rule. */
 export function createLinterRule<const N extends string, const T extends DiagnosticMessages>(
-  definition: LinterRuleDefinition<N, T>
+  definition: LinterRuleDefinition<N, T>,
 ) {
   compilerAssert(!definition.name.includes("/"), "Rule name cannot contain a '/'.");
   return definition;
@@ -142,7 +142,7 @@ function getCaller() {
 function getCallStack() {
   const _prepareStackTrace = Error.prepareStackTrace;
   Error.prepareStackTrace = (_, stack) => stack;
-  const stack = (new Error() as any).stack.slice(1); // eslint-disable-line unicorn/error-message
+  const stack = (new Error() as any).stack.slice(1);
   Error.prepareStackTrace = _prepareStackTrace;
   return stack;
 }

@@ -15,6 +15,5 @@ namespace Encode.Duration.Models
             get => throw null;
             set => throw null;
         }
-
     }
 }

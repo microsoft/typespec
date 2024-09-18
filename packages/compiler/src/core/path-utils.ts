@@ -108,7 +108,7 @@ function getEncodedRootLength(path: string): number {
 
     const p1 = path.indexOf(
       ch0 === CharacterCodes.slash ? directorySeparator : altDirectorySeparator,
-      2
+      2,
     );
     if (p1 < 0) return path.length; // UNC: "//server" or "\\server"
 
@@ -352,7 +352,7 @@ export function joinPaths(path: string, ...paths: (string | undefined)[]): strin
  */
 export function resolvePath(path: string, ...paths: (string | undefined)[]): string {
   return normalizePath(
-    paths.some((x) => x !== undefined) ? joinPaths(path, ...paths) : normalizeSlashes(path)
+    paths.some((x) => x !== undefined) ? joinPaths(path, ...paths) : normalizeSlashes(path),
   );
 }
 
@@ -404,7 +404,7 @@ function getPathWithoutRoot(pathComponents: readonly string[]) {
 
 export function getNormalizedAbsolutePathWithoutRoot(
   fileName: string,
-  currentDirectory: string | undefined
+  currentDirectory: string | undefined,
 ) {
   return getPathWithoutRoot(getNormalizedPathComponents(fileName, currentDirectory));
 }
@@ -565,7 +565,7 @@ function getPathComponentsRelativeTo(
   from: string,
   to: string,
   stringEqualityComparer: (a: string, b: string) => boolean,
-  getCanonicalFileName: GetCanonicalFileName
+  getCanonicalFileName: GetCanonicalFileName,
 ) {
   const fromComponents = reducePathComponents(getPathComponents(from));
   const toComponents = reducePathComponents(getPathComponents(to));
@@ -600,12 +600,12 @@ export function getRelativePathFromDirectory(from: string, to: string, ignoreCas
 export function getRelativePathFromDirectory(
   fromDirectory: string,
   to: string,
-  getCanonicalFileName: GetCanonicalFileName
-): string; // eslint-disable-line @typescript-eslint/unified-signatures
+  getCanonicalFileName: GetCanonicalFileName,
+): string;
 export function getRelativePathFromDirectory(
   fromDirectory: string,
   to: string,
-  getCanonicalFileNameOrIgnoreCase: GetCanonicalFileName | boolean
+  getCanonicalFileNameOrIgnoreCase: GetCanonicalFileName | boolean,
 ) {
   if (getRootLength(fromDirectory) > 0 !== getRootLength(to) > 0) {
     throw new Error("Paths must either both be absolute or both be relative");
@@ -622,7 +622,7 @@ export function getRelativePathFromDirectory(
     fromDirectory,
     to,
     ignoreCase ? equateStringsCaseInsensitive : equateStringsCaseSensitive,
-    getCanonicalFileName
+    getCanonicalFileName,
   );
   return getPathFromPathComponents(pathComponents);
 }

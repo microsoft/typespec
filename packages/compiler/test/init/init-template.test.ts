@@ -20,7 +20,7 @@ describe("compiler: init: templates", () => {
 
   async function runTemplate(
     overrides: Partial<InitTemplate>,
-    configOverrides?: Partial<ScaffoldingConfig>
+    configOverrides?: Partial<ScaffoldingConfig>,
   ): Promise<void> {
     const template: InitTemplate = {
       title: "Test Template",
@@ -34,7 +34,7 @@ describe("compiler: init: templates", () => {
         folderName: "test-template",
         template,
         ...configOverrides,
-      })
+      }),
     );
   }
 

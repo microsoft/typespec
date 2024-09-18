@@ -57,7 +57,7 @@ describe("spreading", () => {
   it("override properties defined before if there is a name conflict", async () => {
     const object = await compileValue(
       `#{name: "John", age: 21, ...Common, }`,
-      `const Common = #{ name: "Common" };`
+      `const Common = #{ name: "Common" };`,
     );
     strictEqual(object.valueKind, "ObjectValue");
 
@@ -69,7 +69,7 @@ describe("spreading", () => {
   it("override properties spread before", async () => {
     const object = await compileValue(
       `#{...Common, name: "John", age: 21 }`,
-      `const Common = #{ name: "John" };`
+      `const Common = #{ name: "John" };`,
     );
     strictEqual(object.valueKind, "ObjectValue");
 
@@ -81,7 +81,7 @@ describe("spreading", () => {
   it("emit diagnostic is spreading a model", async () => {
     const diagnostics = await diagnoseValue(
       `#{...Common, age: 21}`,
-      `alias Common = { name: "John" };`
+      `alias Common = { name: "John" };`,
     );
     expectDiagnostics(diagnostics, {
       code: "expect-value",
@@ -154,7 +154,7 @@ describe("(LEGACY) cast model to object value", () => {
   it("create the value", async () => {
     const value = await compileValueOrType(
       `valueof {a: string, b: string}`,
-      `{a: "foo", b: "bar"}`
+      `{a: "foo", b: "bar"}`,
     );
     ok(value && isValue(value));
     strictEqual(value.valueKind, "ObjectValue");
@@ -173,7 +173,7 @@ describe("(LEGACY) cast model to object value", () => {
     const [entity, diagnostics] = await compileAndDiagnoseValueOrType(
       `{a: string} | valueof {a: string}`,
       `{a: "b"}`,
-      { disableDeprecatedSuppression: true }
+      { disableDeprecatedSuppression: true },
     );
     expectDiagnosticEmpty(diagnostics);
     strictEqual(entity?.entityKind, "Type");

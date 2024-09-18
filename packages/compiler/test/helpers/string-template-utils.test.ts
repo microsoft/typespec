@@ -12,7 +12,6 @@ describe("compiler: stringTemplateToString (deprecated)", () => {
     };
 
     strictEqual(value.type.kind, "StringTemplate");
-    // eslint-disable-next-line deprecation/deprecation
     return stringTemplateToString(value.type);
   }
 
@@ -38,7 +37,7 @@ describe("compiler: stringTemplateToString (deprecated)", () => {
     it("nested string template", async () => {
       await expectTemplateToString(
         '"Start ${"Nested-start ${"one"} nested-end"} end"',
-        "Start Nested-start one nested-end end"
+        "Start Nested-start one nested-end end",
       );
     });
   });
@@ -46,7 +45,7 @@ describe("compiler: stringTemplateToString (deprecated)", () => {
   it("stringify template with multiple spans", async () => {
     await expectTemplateToString(
       '"Start ${"one"} middle ${"two"} end"',
-      "Start one middle two end"
+      "Start one middle two end",
     );
   });
 });

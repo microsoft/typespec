@@ -96,7 +96,7 @@ export function createProjectionMembers(checker: Checker): {
               node: undefined!,
               default: defaultT,
               type,
-            })
+            }),
           );
 
           return voidType;
@@ -285,7 +285,7 @@ export function createProjectionMembers(checker: Checker): {
               parameters,
               returnType,
               decorators: [],
-            })
+            }),
           );
           return voidType;
         });
@@ -348,7 +348,7 @@ export function createProjectionMembers(checker: Checker): {
               decorators: [],
               node: undefined!,
               value: type ? type.value : undefined,
-            })
+            }),
           );
 
           return voidType;

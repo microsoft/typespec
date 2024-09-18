@@ -26,7 +26,13 @@ namespace Microsoft.Generator.CSharp.Providers
             _allowedValues = input.Values;
             // extensible enums are implemented as readonly structs
             _modifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct;
-            if (input.Accessibility == "internal")
+            var customCodeModifiers = GetCustomCodeModifiers();
+
+            if (customCodeModifiers != TypeSignatureModifiers.None)
+            {
+                _modifiers |= customCodeModifiers;
+            }
+            else if (input.Accessibility == "internal")
             {
                 _modifiers |= TypeSignatureModifiers.Internal;
             }
@@ -241,7 +247,5 @@ namespace Microsoft.Generator.CSharp.Providers
             return CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType, this).ToArray();
         }
         protected override bool GetIsEnum() => true;
-
-        protected override CSharpType BuildEnumUnderlyingType() => CodeModelPlugin.Instance.TypeFactory.CreatePrimitiveCSharpType(_inputType.ValueType) ?? throw new InvalidOperationException($"Failed to create CSharpType for {_inputType.ValueType}");
     }
 }
