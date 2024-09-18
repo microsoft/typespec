@@ -1736,7 +1736,7 @@ export class CodeModelBuilder {
 
   private processSchemaImpl(type: SdkType, nameHint: string): Schema {
     if (isSdkBuiltInKind(type.kind)) {
-      return this.processBuiltIn(type as SdkBuiltInType, nameHint);
+      return this.processSdkBuiltInType(type as SdkBuiltInType, nameHint);
     } else {
       switch (type.kind) {
         case "enum":
@@ -1775,7 +1775,7 @@ export class CodeModelBuilder {
     throw new Error(`Unrecognized type: '${type.kind}'.`);
   }
 
-  private processBuiltIn(type: SdkBuiltInType, nameHint: string): Schema {
+  private processSdkBuiltInType(type: SdkBuiltInType, nameHint: string): Schema {
     nameHint = nameHint || type.kind;
 
     if (isSdkIntKind(type.kind)) {
