@@ -30,3 +30,6 @@ extends:
           LanguageShortName: "java"
           HasNugetPackages: true
           CadlRanchName: "@typespec/http-client-java"
+          Variables:
+            - template: /packages/http-client-java/eng/pipeline/variables/globals.yml
+          
