@@ -20,7 +20,8 @@
     { "path": "packages/json-schema/tsconfig.json" },
     { "path": "packages/best-practices/tsconfig.json" },
     { "path": "packages/xml/tsconfig.json" },
-    { "path": "packages/http-server-javascript/tsconfig.json" }
+    { "path": "packages/http-server-javascript/tsconfig.json" },
+    { "path": "packages/http-server-csharp/tsconfig.json" }
   ],
   "files": []
 }

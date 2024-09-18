@@ -3,12 +3,12 @@ import { parseMimeType } from "../core/mime-type.js";
 import type { Program } from "../core/program.js";
 import type { DecoratorContext, Enum, Model, Type, Union } from "../core/types.js";
 import { DuplicateTracker } from "../utils/index.js";
+import { useStateMap } from "./utils.js";
 
-function createStateSymbol(name: string) {
-  return Symbol.for(`TypeSpec.${name}`);
-}
-
-const encodedNameKey = createStateSymbol("encodedName");
+const [getEncodedNamesMap, setEncodedNamesMap, getEncodedNamesStateMap] = useStateMap<
+  Type,
+  Map<string, string>
+>("encodedName");
 
 export function $encodedName(
   context: DecoratorContext,
@@ -16,10 +16,10 @@ export function $encodedName(
   mimeType: string,
   name: string,
 ) {
-  let existing = context.program.stateMap(encodedNameKey).get(target);
+  let existing = getEncodedNamesMap(context.program, target);
   if (existing === undefined) {
     existing = new Map<string, string>();
-    context.program.stateMap(encodedNameKey).set(target, existing);
+    setEncodedNamesMap(context.program, target, existing);
   }
   const mimeTypeObj = parseMimeType(mimeType);
 
@@ -47,7 +47,7 @@ function getEncodedName(program: Program, target: Type, mimeType: string): strin
   const resolvedMimeType = mimeTypeObj?.suffix
     ? `${mimeTypeObj.type}/${mimeTypeObj.suffix}`
     : mimeType;
-  return program.stateMap(encodedNameKey).get(target)?.get(resolvedMimeType);
+  return getEncodedNamesMap(program, target)?.get(resolvedMimeType);
 }
 
 /**
@@ -104,7 +104,7 @@ export function validateEncodedNamesConflicts(program: Program) {
     return tracker;
   }
 
-  for (const [target, map] of program.stateMap(encodedNameKey).entries()) {
+  for (const [target, map] of getEncodedNamesStateMap(program).entries()) {
     const scope = getScope(target);
     if (scope === undefined) {
       return;
