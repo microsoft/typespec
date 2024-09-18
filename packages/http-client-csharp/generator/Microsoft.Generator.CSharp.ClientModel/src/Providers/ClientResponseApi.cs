@@ -18,8 +18,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         public abstract HttpResponseApi GetRawResponse();
-
-        public abstract ClientResponseApi FromValue<T>(ValueExpression valueExpression, HttpResponseApi value);
     }
 
 #pragma warning disable SA1402 // File may only contain a single type
@@ -63,9 +61,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
         }
 
-        public override ClientResponseApi FromValue<ValueType>(ValueExpression valueExpression, HttpResponseApi response)
-            => ClientResponseApiSnippets.FromValue<ValueType>(valueExpression, response);
-
         public override HttpResponseApi GetRawResponse()
             => new PipelineResponseProvider(GetRawResponseExpression());
 
@@ -79,9 +74,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     {
         public static ScopedApi<HttpResponseApi> GetRawResponse(this ClientResponseApi clientResponse)
             => clientResponse.Invoke(nameof(ClientResponseApi.GetRawResponse)).As<HttpResponseApi>();
-
-        public static ClientResponseApi FromValue<T>(ValueExpression value, HttpResponseApi response)
-            => Snippet.Static(ClientModelPlugin.Instance.TypeFactory.ClientResponseType).Invoke(nameof(ClientResult.FromValue), [value, response], [typeof(T)], false).ToApi<ClientResponseApi>();
     }
 
 #pragma warning disable SA1402 // File may only contain a single type

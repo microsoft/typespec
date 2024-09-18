@@ -101,7 +101,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Declare("result", This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, paramDeclarations), Null], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
                     Return(Static(ClientModelPlugin.Instance.TypeFactory.ClientResponseType).Invoke(
-                        nameof(ClientResponseApi.FromValue),
+                        "FromValue",
                         [
                             GetResultConversion(result, responseBodyType, resultDeclarations),
                             result.GetRawResponse()
