@@ -128,8 +128,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                     new string[]
                     {
                         "case global::System.Text.Json.JsonValueKind.Number:",
-                        "if (prop.Value.TryGetSingle(out float single))",
-                        "additionalProperties.Add(prop.Name, single);"
+                        "if (prop.Value.TryGetSingle(out float floatValue))",
+                        "additionalProperties.Add(prop.Name, floatValue);"
                     });
                 // union additional properties
                 yield return new TestCaseData(
@@ -140,8 +140,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                         "case global::System.Text.Json.JsonValueKind.String:",
                         "additionalProperties.Add(prop.Name, prop.Value.GetString());",
                         "case global::System.Text.Json.JsonValueKind.Number:",
-                        "if (prop.Value.TryGetDouble(out double @double))",
-                        "additionalDoubleProperties.Add(prop.Name, @double);"
+                        "if (prop.Value.TryGetDouble(out double doubleValue))",
+                        "additionalDoubleProperties.Add(prop.Name, doubleValue);"
                     });
             }
         }

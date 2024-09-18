@@ -790,7 +790,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     case Type t when t == typeof(float):
                         AddStatements(JsonValueKind.Number,
                         [
-                            new IfStatement(jsonProperty.Value().TryGetValue(nameof(JsonElement.TryGetSingle), out ScopedApi<float> floatValue))
+                            new IfStatement(jsonProperty.Value().TryGetSingle(out ScopedApi<float> floatValue))
                             {
                                 additionalPropsDict.Add(jsonProperty.Name(), floatValue),
                                 Continue
@@ -800,7 +800,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     case Type t when t == typeof(byte):
                         AddStatements(JsonValueKind.Number,
                         [
-                            new IfStatement(jsonProperty.Value().TryGetValue(nameof(JsonElement.TryGetByte), out ScopedApi<byte> byteValue))
+                            new IfStatement(jsonProperty.Value().TryGetByte(out ScopedApi<byte> byteValue))
                             {
                                 additionalPropsDict.Add(jsonProperty.Name(), byteValue),
                                 Continue
@@ -810,7 +810,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     case Type t when t == typeof(byte[]):
                         AddStatements(JsonValueKind.String,
                         [
-                            new IfStatement(jsonProperty.Value().TryGetValue(nameof(JsonElement.TryGetBytesFromBase64), out ScopedApi<byte[]> byteArray))
+                            new IfStatement(jsonProperty.Value().TryGetBytesFromBase64(out ScopedApi<byte[]> byteArray))
                             {
                                 additionalPropsDict.Add(jsonProperty.Name(), byteArray),
                                 Continue
@@ -820,7 +820,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     case Type t when t == typeof(sbyte):
                         AddStatements(JsonValueKind.Number,
                         [
-                            new IfStatement(jsonProperty.Value().TryGetValue(nameof(JsonElement.TryGetSByte), out ScopedApi<sbyte> sbyteValue))
+                            new IfStatement(jsonProperty.Value().TryGetSByte(out ScopedApi<sbyte> sbyteValue))
                             {
                                 additionalPropsDict.Add(jsonProperty.Name(), sbyteValue),
                                 Continue
@@ -830,7 +830,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     case Type t when t == typeof(DateTime):
                         AddStatements(JsonValueKind.String,
                         [
-                            new IfStatement(jsonProperty.Value().TryGetValue(nameof(JsonElement.TryGetDateTime), out ScopedApi<DateTime> dateTimeValue))
+                            new IfStatement(jsonProperty.Value().TryGetDateTime(out ScopedApi<DateTime> dateTimeValue))
                             {
                                 additionalPropsDict.Add(jsonProperty.Name(), dateTimeValue),
                                 Continue
@@ -840,7 +840,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     case Type t when t == typeof(DateTimeOffset):
                         AddStatements(JsonValueKind.String,
                         [
-                            new IfStatement(jsonProperty.Value().TryGetValue(nameof(JsonElement.TryGetDateTimeOffset), out ScopedApi<DateTimeOffset> dateTimeOffsetValue))
+                            new IfStatement(jsonProperty.Value().TryGetDateTimeOffset(out ScopedApi<DateTimeOffset> dateTimeOffsetValue))
                             {
                                 additionalPropsDict.Add(jsonProperty.Name(), dateTimeOffsetValue),
                                 Continue
@@ -850,7 +850,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     case Type t when t == typeof(Guid):
                         AddStatements(JsonValueKind.String,
                         [
-                            new IfStatement(jsonProperty.Value().TryGetValue(nameof(JsonElement.TryGetGuid), out ScopedApi<Guid> guidValue))
+                            new IfStatement(jsonProperty.Value().TryGetGuid(out ScopedApi<Guid> guidValue))
                             {
                                 additionalPropsDict.Add(jsonProperty.Name(), guidValue),
                                 Continue
@@ -860,7 +860,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     case Type t when t == typeof(decimal):
                         AddStatements(JsonValueKind.Number,
                         [
-                            new IfStatement(jsonProperty.Value().TryGetValue(nameof(JsonElement.TryGetDecimal), out ScopedApi<decimal> decimalValue))
+                            new IfStatement(jsonProperty.Value().TryGetDecimal(out ScopedApi<decimal> decimalValue))
                             {
                                 additionalPropsDict.Add(jsonProperty.Name(), decimalValue),
                                 Continue
@@ -870,7 +870,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     case Type t when t == typeof(double):
                         AddStatements(JsonValueKind.Number,
                         [
-                            new IfStatement(jsonProperty.Value().TryGetValue(nameof(JsonElement.TryGetDouble), out ScopedApi<double> doubleValue))
+                            new IfStatement(jsonProperty.Value().TryGetDouble( out ScopedApi<double> doubleValue))
                             {
                                 additionalPropsDict.Add(jsonProperty.Name(), doubleValue),
                                 Continue
@@ -880,7 +880,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     case Type t when t == typeof(short):
                         AddStatements(JsonValueKind.Number,
                         [
-                            new IfStatement(jsonProperty.Value().TryGetValue(nameof(JsonElement.TryGetInt16), out ScopedApi<short> shortValue))
+                            new IfStatement(jsonProperty.Value().TryGetInt16(out ScopedApi<short> shortValue))
                             {
                                 additionalPropsDict.Add(jsonProperty.Name(), shortValue),
                                 Continue
@@ -890,7 +890,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     case Type t when t == typeof(int):
                         AddStatements(JsonValueKind.Number,
                         [
-                            new IfStatement(jsonProperty.Value().TryGetValue(nameof(JsonElement.TryGetInt32), out ScopedApi<int> intValue))
+                            new IfStatement(jsonProperty.Value().TryGetInt32(out ScopedApi<int> intValue))
                             {
                                 additionalPropsDict.Add(jsonProperty.Name(), intValue),
                                 Continue
@@ -900,7 +900,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     case Type t when t == typeof(long):
                         AddStatements(JsonValueKind.Number,
                         [
-                            new IfStatement(jsonProperty.Value().TryGetValue(nameof(JsonElement.TryGetInt64), out ScopedApi<long> longValue))
+                            new IfStatement(jsonProperty.Value().TryGetInt64(out ScopedApi<long> longValue))
                             {
                                 additionalPropsDict.Add(jsonProperty.Name(), longValue),
                                 Continue
@@ -910,7 +910,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     case Type t when t == typeof(ushort):
                         AddStatements(JsonValueKind.Number,
                         [
-                            new IfStatement(jsonProperty.Value().TryGetValue(nameof(JsonElement.TryGetUInt16), out ScopedApi<ushort> ushortValue))
+                            new IfStatement(jsonProperty.Value().TryGetUInt16(out ScopedApi<ushort> ushortValue))
                             {
                                 additionalPropsDict.Add(jsonProperty.Name(), ushortValue),
                                 Continue
@@ -920,7 +920,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     case Type t when t == typeof(uint):
                         AddStatements(JsonValueKind.Number,
                         [
-                            new IfStatement(jsonProperty.Value().TryGetValue(nameof(JsonElement.TryGetUInt32), out ScopedApi<uint> uintValue))
+                            new IfStatement(jsonProperty.Value().TryGetUInt32(out ScopedApi<uint> uintValue))
                             {
                                 additionalPropsDict.Add(jsonProperty.Name(), uintValue),
                                 Continue
@@ -930,7 +930,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     case Type t when t == typeof(ulong):
                         AddStatements(JsonValueKind.Number,
                         [
-                            new IfStatement(jsonProperty.Value().TryGetValue(nameof(JsonElement.TryGetUInt64), out ScopedApi<ulong> ulongValue))
+                            new IfStatement(jsonProperty.Value().TryGetUInt64(out ScopedApi<ulong> ulongValue))
                             {
                                 additionalPropsDict.Add(jsonProperty.Name(), ulongValue),
                                 Continue
@@ -1660,12 +1660,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private PropertyProvider? GetAdditionalBinaryDataPropertiesProp()
         {
             PropertyProvider? property = _model.Properties.FirstOrDefault(
-                p => p.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName
-                || p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
+                p => p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
             // search in the base model if the property is not found in the current model
             return property ?? _model.BaseModelProvider?.Properties.FirstOrDefault(
-                p => p.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName
-                || p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
+                p => p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
         }
 
         private static bool TypeRequiresNullCheckInSerialization(CSharpType type)
