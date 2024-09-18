@@ -125,8 +125,8 @@ export class VersioningTimeline {
         compilerAssert(
           false,
           `Version "${version?.name}" from ${getTypeName(
-            version.namespace
-          )} should have been resolved. ${this.prettySerialize()}`
+            version.namespace,
+          )} should have been resolved. ${this.prettySerialize()}`,
         );
       }
     }

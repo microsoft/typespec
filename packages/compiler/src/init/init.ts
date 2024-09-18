@@ -20,7 +20,7 @@ export interface InitTypeSpecProjectOptions {
 export async function initTypeSpecProject(
   host: CompilerHost,
   directory: string,
-  options: InitTypeSpecProjectOptions = {}
+  options: InitTypeSpecProjectOptions = {},
 ) {
   if (!(await confirmDirectoryEmpty(directory))) {
     return;
@@ -118,7 +118,7 @@ async function confirmDirectoryEmpty(directory: string) {
   }
 
   return confirm(
-    `Folder '${directory}' is not empty. Are you sure you want to initialize a new project here?`
+    `Folder '${directory}' is not empty. Are you sure you want to initialize a new project here?`,
   );
 }
 
@@ -218,7 +218,7 @@ async function validateTemplate(template: any, loaded: LoadedTemplate): Promise<
     const confirmationMessage = `The template you selected is designed for tsp version ${template.compilerVersion}. You are currently using tsp version ${currentCompilerVersion}.`;
     if (
       await confirm(
-        `${confirmationMessage} The project created may not be correct. Do you want to continue?`
+        `${confirmationMessage} The project created may not be correct. Do you want to continue?`,
       )
     ) {
       // 2.1 If user choose to continue, proceed with relaxed validation
@@ -233,7 +233,7 @@ async function validateTemplate(template: any, loaded: LoadedTemplate): Promise<
     logDiagnostics(validationResult.diagnostics);
 
     return await confirm(
-      "Template schema failed. The project created may not be correct. Do you want to continue?"
+      "Template schema failed. The project created may not be correct. Do you want to continue?",
     );
   }
   return true;
@@ -281,7 +281,7 @@ export class InitTemplateError extends Error {
 function validateTemplateDefinitions(
   template: unknown,
   templateName: SourceFile,
-  strictValidation: boolean
+  strictValidation: boolean,
 ): ValidationResult {
   const validator = createJSONSchemaValidator(InitTemplateSchema, {
     strict: strictValidation,

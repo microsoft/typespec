@@ -4,7 +4,7 @@ import type { OpenAPI3Schema } from "./types.js";
 
 export function getSchemaForStdScalars(
   scalar: Scalar & { name: IntrinsicScalarName },
-  options: ResolvedOpenAPI3EmitterOptions
+  options: ResolvedOpenAPI3EmitterOptions,
 ): OpenAPI3Schema {
   switch (scalar.name) {
     case "bytes":

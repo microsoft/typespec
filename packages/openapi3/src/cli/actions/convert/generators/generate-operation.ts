@@ -37,7 +37,7 @@ export function generateOperation(operation: TypeSpecOperation, context: Context
 function generateOperationParameter(
   operation: TypeSpecOperation,
   parameter: Refable<TypeSpecOperationParameter>,
-  context: Context
+  context: Context,
 ) {
   if ("$ref" in parameter) {
     return `...${context.getRefName(parameter.$ref, operation.scope)}`;
@@ -52,7 +52,7 @@ function generateOperationParameter(
   definitions.push(...generateDecorators(parameter.decorators));
 
   definitions.push(
-    `${parameter.name}${parameter.isOptional ? "?" : ""}: ${context.generateTypeFromRefableSchema(parameter.schema, operation.scope)}`
+    `${parameter.name}${parameter.isOptional ? "?" : ""}: ${context.generateTypeFromRefableSchema(parameter.schema, operation.scope)}`,
   );
 
   return definitions.join(" ");
@@ -60,7 +60,7 @@ function generateOperationParameter(
 
 function generateRequestBodyParameters(
   requestBodies: TypeSpecRequestBody[],
-  context: Context
+  context: Context,
 ): string[] {
   if (!requestBodies.length) {
     return [];
@@ -79,8 +79,8 @@ function generateRequestBodyParameters(
     new Set(
       requestBodies
         .filter((r) => !!r.schema)
-        .map((r) => context.generateTypeFromRefableSchema(r.schema!, []))
-    )
+        .map((r) => context.generateTypeFromRefableSchema(r.schema!, [])),
+    ),
   ).join(" | ");
 
   if (body) {

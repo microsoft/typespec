@@ -189,7 +189,7 @@ function testColorization(description: string, tokenize: Tokenize) {
           deepStrictEqual(tokens, [
             ...joinTokensInSemantic(
               [Token.literals.stringTriple('"""'), Token.literals.stringTriple("          Start ")],
-              "\n"
+              "\n",
             ),
             Token.punctuation.templateExpression.begin,
             Token.literals.numeric("123"),
@@ -203,7 +203,7 @@ function testColorization(description: string, tokenize: Tokenize) {
                   templateTripleOrDouble('"""'),
                 ]),
               ],
-              "\n"
+              "\n",
             ),
           ]);
         });
@@ -228,7 +228,7 @@ function testColorization(description: string, tokenize: Tokenize) {
                   Token.literals.stringTriple('"""'),
                 ]),
               ],
-              "\n"
+              "\n",
             ),
           ]);
         });
@@ -249,7 +249,7 @@ function testColorization(description: string, tokenize: Tokenize) {
                   Token.literals.stringTriple(`"""`),
                 ]),
               ],
-              "\n"
+              "\n",
             ),
           ]);
         });
@@ -981,7 +981,7 @@ function testColorization(description: string, tokenize: Tokenize) {
 
       it("union with named variants with escaped identifier", async () => {
         const tokens = await tokenize(
-          `union Direction { \`north east\`: "North East", \`north west\`: "North West" }`
+          `union Direction { \`north east\`: "North East", \`north west\`: "North West" }`,
         );
         deepStrictEqual(tokens, [
           Token.keywords.union,
@@ -1110,7 +1110,7 @@ function testColorization(description: string, tokenize: Tokenize) {
 
       it("operation with decorated parameters", async () => {
         const tokens = await tokenize(
-          "op foo(@path param1: string, @query param2?: int32): string"
+          "op foo(@path param1: string, @query param2?: int32): string",
         );
         deepStrictEqual(tokens, [
           Token.keywords.operation,
@@ -1152,7 +1152,7 @@ function testColorization(description: string, tokenize: Tokenize) {
 
       it("defining a templated operation signature", async () => {
         const tokens = await tokenize(
-          "op ResourceRead<TResource> is ResourceReadBase<TResource, DefaultOptions>"
+          "op ResourceRead<TResource> is ResourceReadBase<TResource, DefaultOptions>",
         );
         deepStrictEqual(tokens, [
           Token.keywords.operation,
@@ -1434,7 +1434,7 @@ function testColorization(description: string, tokenize: Tokenize) {
             > = T`);
 
             const index = tokens.findIndex((x) =>
-              deepEquals(x, Token.punctuation.typeParameters.begin)
+              deepEquals(x, Token.punctuation.typeParameters.begin),
             );
             deepStrictEqual(tokens.slice(index, index + 4), [
               Token.punctuation.typeParameters.begin,
@@ -1470,7 +1470,7 @@ function testColorization(description: string, tokenize: Tokenize) {
             * Doc comment
             * @param foo Foo desc
             */
-          alias A = 1;`
+          alias A = 1;`,
         );
 
         deepStrictEqual(tokens, [
@@ -1487,7 +1487,7 @@ function testColorization(description: string, tokenize: Tokenize) {
             * Doc comment
             * @template foo Foo desc
             */
-          alias A = 1;`
+          alias A = 1;`,
         );
 
         deepStrictEqual(tokens, [
@@ -1504,7 +1504,7 @@ function testColorization(description: string, tokenize: Tokenize) {
             * Doc comment
             * @prop foo Foo desc
             */
-          alias A = 1;`
+          alias A = 1;`,
         );
 
         deepStrictEqual(tokens, [
@@ -1521,7 +1521,7 @@ function testColorization(description: string, tokenize: Tokenize) {
             * Doc comment
             * @returns Foo desc
             */
-          alias A = 1;`
+          alias A = 1;`,
         );
 
         deepStrictEqual(tokens, [Token.tspdoc.tag("@"), Token.tspdoc.tag("returns"), ...common]);
@@ -1532,7 +1532,7 @@ function testColorization(description: string, tokenize: Tokenize) {
             * Doc comment
             * @custom Foo desc
             */
-          alias A = 1;`
+          alias A = 1;`,
         );
 
         deepStrictEqual(tokens, [
@@ -1619,7 +1619,7 @@ function testColorization(description: string, tokenize: Tokenize) {
             Token.punctuation.semicolon,
             Token.punctuation.closeBrace,
             Token.punctuation.semicolon,
-          ]
+          ],
         );
       });
 
@@ -1652,7 +1652,7 @@ function testColorization(description: string, tokenize: Tokenize) {
             Token.punctuation.closeBrace,
 
             Token.punctuation.semicolon,
-          ]
+          ],
         );
       });
 
@@ -1669,7 +1669,7 @@ function testColorization(description: string, tokenize: Tokenize) {
             Token.identifiers.type("name"),
             Token.punctuation.closeParen,
             Token.punctuation.semicolon,
-          ]
+          ],
         );
       });
     });
@@ -1782,7 +1782,7 @@ const registry = new Registry({
   loadGrammar: async () => {
     const data = await readFile(
       resolve(await findTestPackageRoot(import.meta.url), "dist/typespec.tmLanguage"),
-      "utf-8"
+      "utf-8",
     );
     return parseRawGrammar(data);
   },
@@ -1856,7 +1856,7 @@ interface Span {
 class Input {
   private constructor(
     public lines: string[],
-    public span: Span
+    public span: Span,
   ) {}
 
   public static fromText(text: string) {

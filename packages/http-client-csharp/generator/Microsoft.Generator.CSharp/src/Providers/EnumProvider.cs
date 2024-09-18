@@ -13,9 +13,20 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly InputEnumType _inputType;
 
         public static EnumProvider Create(InputEnumType input, TypeProvider? declaringType = null)
-            => input.IsExtensible
-            ? new ExtensibleEnumProvider(input, declaringType)
-            : new FixedEnumProvider(input, declaringType);
+        {
+            var fixedEnumProvider = new FixedEnumProvider(input, declaringType);
+            var extensibleEnumProvider = new ExtensibleEnumProvider(input, declaringType);
+
+            // Check to see if there is custom code that customizes the enum.
+            var customCodeView = fixedEnumProvider.CustomCodeView ?? extensibleEnumProvider.CustomCodeView;
+
+            return customCodeView switch
+            {
+                { Type: { IsValueType: true, IsStruct: true } } => extensibleEnumProvider,
+                { Type: { IsValueType: true, IsStruct: false } } => fixedEnumProvider,
+                _ => input.IsExtensible ? extensibleEnumProvider : fixedEnumProvider
+            };
+        }
 
         protected EnumProvider(InputEnumType input)
         {

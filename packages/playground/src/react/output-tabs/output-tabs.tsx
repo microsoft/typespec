@@ -24,7 +24,7 @@ export const OutputTabs: FunctionComponent<OutputTabsProps> = ({
     (event: SelectTabEvent, data: SelectTabData) => {
       onSelect(data.value as any);
     },
-    [onSelect]
+    [onSelect],
   );
 
   return (

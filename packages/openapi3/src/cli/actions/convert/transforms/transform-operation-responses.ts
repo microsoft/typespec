@@ -18,7 +18,7 @@ import { getScopeAndName } from "../utils/get-scope-and-name.js";
  */
 export function collectOperationResponses(
   operationId: string,
-  operationResponses: OpenAPI3Responses
+  operationResponses: OpenAPI3Responses,
 ): TypeSpecModel[] {
   const models: TypeSpecModel[] = [];
 
@@ -108,7 +108,7 @@ export function collectOperationResponses(
 
 function convertHeaderToProperty(
   name: string,
-  meta: Refable<OpenAPI3Header>
+  meta: Refable<OpenAPI3Header>,
 ): TypeSpecModelProperty | undefined {
   const normalizedName = convertHeaderName(name);
   // TODO: handle style
@@ -182,7 +182,7 @@ function isErrorStatusCode(statusCode: OpenAPI3StatusCode): boolean {
 export function generateResponseModelName(
   operationId: string,
   statusCode: string,
-  contentType?: string
+  contentType?: string,
 ): string {
   if (statusCode === "default") {
     statusCode = "Default";

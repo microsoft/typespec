@@ -195,7 +195,7 @@ function getDocKey(target: DocTarget): symbol {
 export function getDocDataInternal(
   program: Program,
   target: Type,
-  key: DocTarget
+  key: DocTarget,
 ): DocData | undefined {
   return program.stateMap(getDocKey(key)).get(target);
 }

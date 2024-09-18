@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "references": [{ "path": "../compiler/tsconfig.json" }],
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "tsBuildInfoFile": "temp/.tsbuildinfo"
+  },
+  "include": ["src/**/*.ts", "generated-defs/**/*.ts", "test/**/*.ts"]
+}

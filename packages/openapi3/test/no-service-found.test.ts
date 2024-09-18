@@ -9,7 +9,7 @@ describe("openapi3: no-service-found diagnostic", () => {
     namespace Test {
       model Foo {};
     }
-    `
+    `,
     );
     expectDiagnosticEmpty(diagnostics);
   });
@@ -23,7 +23,7 @@ describe("openapi3: no-service-found diagnostic", () => {
       @route("/foo")
       op get(): Foo;
     }
-    `
+    `,
     );
     expectDiagnostics(diagnostics, [
       {
@@ -39,7 +39,7 @@ describe("openapi3: no-service-found diagnostic", () => {
     namespace Test {
       model Foo {};
     }
-    `
+    `,
     );
     expectDiagnosticEmpty(diagnostics);
   });
@@ -58,7 +58,7 @@ describe("openapi3: no-service-found diagnostic", () => {
     namespace Library {
       op ping(): void;
     }
-    `
+    `,
     );
     expectDiagnosticEmpty(diagnostics);
   });

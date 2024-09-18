@@ -6,7 +6,7 @@ import { generateOperation } from "./generate-operation.js";
 export function generateNamespace(
   name: string,
   namespace: TypeSpecNamespace,
-  context: Context
+  context: Context,
 ): string {
   const definitions: string[] = [];
   definitions.push(`namespace ${name} {`);

@@ -39,7 +39,7 @@ export class ConstantSchema<ConstantType extends Schema = Schema>
   constructor(
     name: string,
     description: string,
-    objectInitializer?: DeepPartial<ConstantSchema<ConstantType>>
+    objectInitializer?: DeepPartial<ConstantSchema<ConstantType>>,
   ) {
     super(name, description, SchemaType.Constant);
     this.apply(objectInitializer);

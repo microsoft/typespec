@@ -63,7 +63,7 @@ export function expectCodeFixOnAst(code: string, callback: (node: Node) => CodeF
           updatedContent = value;
         },
       },
-      codefix
+      codefix,
     );
     ok(updatedContent);
     strictEqual(trimBlankLines(updatedContent), trimBlankLines(expectedCode));

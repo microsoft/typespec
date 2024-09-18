@@ -22,7 +22,7 @@ describe("Test GetInputType for scalar", () => {
         op test(@query location: azureLocation): void;
       `,
       runner,
-      { IsNamespaceNeeded: true, IsAzureCoreNeeded: true }
+      { IsNamespaceNeeded: true, IsAzureCoreNeeded: true },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);

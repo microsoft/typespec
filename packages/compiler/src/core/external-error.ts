@@ -49,7 +49,7 @@ export class ExternalError extends Error {
 
 function renderExternalErrorInfo(
   info: ExternalErrorInfo,
-  color: (text: string, color: Colors) => string = (x) => x
+  color: (text: string, color: Colors) => string = (x) => x,
 ): string {
   const { metadata, kind } = info;
   const msg = [
@@ -57,7 +57,7 @@ function renderExternalErrorInfo(
       kind === "emitter"
         ? `Emitter "${metadata.name}" crashed! This is a bug.`
         : `Library "${metadata.name}" $onValidate crashed! This is a bug.`,
-      "red"
+      "red",
     ),
   ];
   if (metadata.bugs?.url) {

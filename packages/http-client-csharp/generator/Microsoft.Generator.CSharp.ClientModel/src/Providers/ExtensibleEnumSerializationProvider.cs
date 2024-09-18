@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -22,7 +21,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public ExtensibleEnumSerializationProvider(InputEnumType enumType, TypeProvider enumProvider)
         {
-            Debug.Assert(enumType.IsExtensible);
             _enumType = enumType;
             _enumProvider = enumProvider;
         }

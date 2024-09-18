@@ -37,7 +37,7 @@ describe("implicit type", () => {
       `a`,
       `
       const a: boolean | myBoolean = true;
-      scalar myBoolean extends boolean;`
+      scalar myBoolean extends boolean;`,
     );
     expectDiagnostics(diagnostics, {
       code: "ambiguous-scalar-type",

@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => {
   config.plugins!.push(
     visualizer({
       filename: "temp/stats.html",
-    }) as any
+    }) as any,
   );
 
   const prNumber = getPrNumber();
