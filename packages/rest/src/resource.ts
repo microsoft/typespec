@@ -109,7 +109,7 @@ function cloneKeyProperties(context: DecoratorContext, target: Model, resourceTy
   const resourceKey = getResourceTypeKey(program, resourceType);
   if (resourceKey) {
     const { keyProperty } = resourceKey;
-    const keyName = getKeyName(program, keyProperty);
+    const keyName = getKeyName(program, keyProperty)!;
 
     const decorators = [
       // Filter out the @visibility decorator because it might affect metadata

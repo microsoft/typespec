@@ -17,7 +17,7 @@ export interface Service extends ServiceDetails {
 }
 
 const [getService, setService, getServiceMap] = useStateMap<Namespace, Service>(
-  "@typespec/compiler.services",
+  Symbol.for("@typespec/compiler.services"),
 );
 
 /**
