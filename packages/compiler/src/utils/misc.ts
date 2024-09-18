@@ -424,7 +424,16 @@ export type Mutable<T> =
   T extends ReadonlySet<infer T> ? Set<T> :
   T extends readonly (infer V)[] ? V[] :
   // brand to force explicit conversion.
-  { -readonly [P in keyof T]: T[P] } & { __writableBrand: never };
+  { -readonly [P in keyof T]: T[P] };
+
+//prettier-ignore
+type MutableExt<T> =
+T extends SymbolTable ? T & { set(key: string, value: Sym): void } :
+T extends ReadonlyMap<infer K, infer V> ? Map<K, V> :
+T extends ReadonlySet<infer T> ? Set<T> :
+T extends readonly (infer V)[] ? V[] :
+// brand to force explicit conversion.
+{ -readonly [P in keyof T]: T[P] } & { __writableBrand: never };
 
 /**
  * Casts away readonly typing.
@@ -432,8 +441,8 @@ export type Mutable<T> =
  * Use it like this when it is safe to override readonly typing:
  *   mutate(item).prop = value;
  */
-export function mutate<T>(value: T): Mutable<T> {
-  return value as Mutable<T>;
+export function mutate<T>(value: T): MutableExt<T> {
+  return value as MutableExt<T>;
 }
 
 export function createStringMap<T>(caseInsensitive: boolean): Map<string, T> {

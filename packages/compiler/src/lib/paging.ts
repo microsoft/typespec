@@ -11,8 +11,18 @@ import type {
   PrevLinkDecorator,
 } from "../../generated-defs/TypeSpec.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
-import { reportDiagnostic } from "../core/messages.js";
-import type { DecoratorContext, DecoratorFunction, ModelProperty } from "../core/types.js";
+import { createDiagnosticCollector, navigateProgram, Program } from "../core/index.js";
+import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
+import type {
+  DecoratorContext,
+  DecoratorFunction,
+  Diagnostic,
+  ModelProperty,
+  Operation,
+  Type,
+} from "../core/types.js";
+import { DuplicateTracker } from "../utils/duplicate-tracker.js";
+import { Mutable } from "../utils/misc.js";
 import { isNumericType, isStringType } from "./decorators.js";
 import { useStateSet } from "./utils.js";
 
@@ -141,11 +151,199 @@ export const [
   lastLinkDecorator,
 ] = createMarkerDecorator<LastLinkDecorator>("lastLink");
 
+export function validatePagingOperations(program: Program) {
+  navigateProgram(program, {
+    operation: (op) => {
+      if (isList(program, op)) {
+        validatePagingOperation(program, op);
+      }
+    },
+  });
+}
+
+type PagingPropertyKind =
+  | "offset"
+  | "pageIndex"
+  | "pageSize"
+  | "pageItems"
+  | "continuationToken"
+  | "nextLink"
+  | "prevLink"
+  | "firstLink"
+  | "lastLink";
+export interface PagingOperation {
+  readonly input: {
+    readonly offset?: ModelProperty;
+    readonly pageIndex?: ModelProperty;
+    readonly pageSize?: ModelProperty;
+    readonly continuationToken?: ModelProperty;
+  };
+
+  readonly output: {
+    readonly pageItems?: ModelProperty;
+    readonly nextLink?: ModelProperty;
+    readonly prevLink?: ModelProperty;
+    readonly firstLink?: ModelProperty;
+    readonly lastLink?: ModelProperty;
+    readonly continuationToken?: ModelProperty;
+  };
+}
+
+function getPagingOperation(
+  program: Program,
+  op: Operation,
+): [PagingOperation | undefined, readonly Diagnostic[]] {
+  const diags = createDiagnosticCollector();
+  const input: Mutable<PagingOperation["input"]> = {};
+  const output: Mutable<PagingOperation["output"]> = {};
+
+  let duplicateTracker = new DuplicateTracker<string, ModelProperty>();
+  navigateProperties(op.parameters, (prop) => {
+    const kind = diags.pipe(getPagingProperty(program, prop));
+    duplicateTracker.track(kind, prop);
+    switch (kind) {
+      case "offset":
+      case "pageIndex":
+      case "pageSize":
+        input[kind] = prop;
+        break;
+      case "continuationToken":
+        input.continuationToken = prop;
+        break;
+      case "pageItems":
+      case "nextLink":
+      case "prevLink":
+      case "firstLink":
+      case "lastLink":
+        diags.add(
+          createDiagnostic({
+            code: "invalid-paging-prop",
+            messageId: "parmeters",
+            format: { kind },
+            target: prop,
+          }),
+        );
+        break;
+    }
+  });
+  for (const [key, duplicates] of duplicateTracker.entries()) {
+    for (const prop of duplicates) {
+      diags.add(
+        createDiagnostic({
+          code: "duplicate-paging-prop",
+          format: { kind: key, operationName: op.name },
+          target: prop,
+        }),
+      );
+    }
+  }
+
+  duplicateTracker = new DuplicateTracker<string, ModelProperty>();
+  navigateProperties(op.returnType, (prop) => {
+    const kind = diags.pipe(getPagingProperty(program, prop));
+    duplicateTracker.track(kind, prop);
+    console.log("Track this", kind);
+    switch (kind) {
+      case "offset":
+      case "pageIndex":
+      case "pageSize":
+        diags.add(
+          createDiagnostic({
+            code: "invalid-paging-prop",
+            messageId: "returnType",
+            format: { kind },
+            target: prop,
+          }),
+        );
+        break;
+      case "continuationToken":
+        output.continuationToken = prop;
+        break;
+      case "pageItems":
+      case "nextLink":
+      case "prevLink":
+      case "firstLink":
+      case "lastLink":
+        output[kind] = prop;
+        break;
+    }
+  });
+
+  for (const [key, duplicates] of duplicateTracker.entries()) {
+    console.log("Duplicate", key, duplicates);
+    for (const prop of duplicates) {
+      diags.add(
+        createDiagnostic({
+          code: "duplicate-paging-prop",
+          format: { kind: key, operationName: op.name },
+          target: prop,
+        }),
+      );
+    }
+  }
+
+  return [{ input, output }, diags.diagnostics];
+}
+
+function navigateProperties(type: Type, callback: (prop: ModelProperty) => void) {
+  switch (type.kind) {
+    case "Model":
+      for (const prop of type.properties.values()) {
+        callback(prop);
+      }
+      break;
+    case "Union":
+      for (const member of type.variants.values()) {
+        navigateProperties(member, callback);
+      }
+      break;
+    case "UnionVariant":
+      navigateProperties(type.type, callback);
+      break;
+  }
+}
+
+function getPagingProperty(
+  program: Program,
+  prop: ModelProperty,
+): [PagingPropertyKind, readonly Diagnostic[]] {
+  const diagnostics: Diagnostic[] = [];
+  const props = {
+    offset: isPageIndexProperty(program, prop),
+    pageIndex: isOffsetProperty(program, prop),
+    pageItems: isPageItemsProperty(program, prop),
+    pageSize: isPageSizeProperty(program, prop),
+    continuationToken: isContinuationTokenProperty(program, prop),
+    nextLink: isNextLink(program, prop),
+    prevLink: isPrevLink(program, prop),
+    lastLink: isLastLink(program, prop),
+    firstLink: isFirstLink(program, prop),
+  };
+  const defined = Object.entries(props).filter((x) => !!x[1]);
+
+  if (defined.length > 1) {
+    diagnostics.push(
+      createDiagnostic({
+        code: "incompatible-paging-props",
+        format: { kinds: defined.map((x) => x[0]).join(", ") },
+        target: prop,
+      }),
+    );
+  }
+
+  return [defined[0][0] satisfies string as PagingPropertyKind, diagnostics] as const;
+}
+
+function validatePagingOperation(program: Program, op: Operation) {
+  const [_, diagnostics] = getPagingOperation(program, op);
+  program.reportDiagnostics(diagnostics);
+}
+
 function createMarkerDecorator<T extends DecoratorFunction>(
   key: string,
   validate?: (...args: Parameters<T>) => boolean,
 ) {
-  const [isLink, markLink] = useStateSet<ModelProperty>(key);
+  const [isLink, markLink] = useStateSet<Parameters<T>[1]>(key);
   const decorator = (...args: Parameters<T>) => {
     if (validate && !validate(...args)) {
       return;
