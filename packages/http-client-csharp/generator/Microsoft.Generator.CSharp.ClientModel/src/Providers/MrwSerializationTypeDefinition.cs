@@ -55,7 +55,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private ConstructorProvider? _serializationConstructor;
         // Flag to determine if the model should override the serialization methods
         private readonly bool _shouldOverrideMethods;
-        private Lazy<PropertyProvider[]> _additionalProperties;
+        private readonly Lazy<PropertyProvider[]> _additionalProperties;
 
         public MrwSerializationTypeDefinition(InputModelType inputModel, ModelProvider modelProvider)
         {
@@ -70,7 +70,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _persistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
             _rawDataField = _model.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
             _additionalBinaryDataProperty = GetAdditionalBinaryDataPropertiesProp();
-            _additionalProperties = new([.. _model.Properties.Where(IsAdditionalProperty)]);
+            _additionalProperties = new([.. _model.Properties.Where(p => p.IsAdditionalProperties)]);
             _shouldOverrideMethods = _model.Type.BaseType != null && _model.Type.BaseType is { IsFrameworkType: false };
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
@@ -564,7 +564,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 if (parameter.Property is { } property)
                 {
                     var variableRef = property.AsVariableExpression;
-                    if (IsAdditionalProperty(property))
+                    if (property.IsAdditionalProperties)
                     {
                         // IDictionary<string, T> additionalTProperties = new Dictionary<string, T>();
                         propertyDeclarationStatements.Add(Declare(variableRef, new DictionaryExpression(property.Type, New.Instance(property.Type.PropertyInitializationType))));
@@ -678,7 +678,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             var isRequired = propertyProvider.WireInfo?.IsRequired ?? false;
 
-            if (!propertyProvider.Type.IsFrameworkType || IsAdditionalProperty(propertyProvider))
+            if (!propertyProvider.Type.IsFrameworkType || propertyProvider.IsAdditionalProperties)
             {
                 return propertyProvider.AsVariableExpression;
             }
@@ -703,7 +703,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 if (parameter.Property is { } property)
                 {
                     // handle additional properties
-                    if (property != _additionalBinaryDataProperty && IsAdditionalProperty(property))
+                    if (property != _additionalBinaryDataProperty && property.IsAdditionalProperties)
                     {
                         AddAdditionalPropertiesValueKindStatements(additionalPropsValueKindBodyStatements, property, jsonProperty);
                         continue;
@@ -1684,15 +1684,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             return false;
-        }
-
-        private static bool IsAdditionalProperty(PropertyProvider property)
-        {
-            // additional properties should have backing fields and its' type should be a dictionary
-            if (property.BackingField == null || !property.Type.IsDictionary)
-                return false;
-            var span = property.Name.AsSpan();
-            return span.StartsWith("Additional", StringComparison.Ordinal) && span.EndsWith("Properties", StringComparison.Ordinal);
         }
     }
 }

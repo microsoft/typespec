@@ -255,7 +255,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     assignment,
                     this)
                 {
-                    BackingField = field
+                    BackingField = field,
+                    IsAdditionalProperties = true
                 });
                 containsAdditionalTypeProperties = true;
             }
@@ -296,7 +297,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     assignment,
                     this)
                 {
-                    BackingField = RawDataField
+                    BackingField = RawDataField,
+                    IsAdditionalProperties = true
                 };
                 properties.Add(property);
             }
