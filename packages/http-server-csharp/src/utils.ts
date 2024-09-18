@@ -146,7 +146,7 @@ export function getCSharpType(
       }
       let name: string = type.name;
       if (isTemplateInstance(type)) {
-        name = getFriendlyName(program, type);
+        name = getFriendlyName(program, type)!;
       }
       return {
         type: new CSharpType({
@@ -538,7 +538,7 @@ export function getModelAttributes(
 
 export function getModelInstantiationName(program: Program, model: Model, name: string): string {
   const friendlyName = getFriendlyName(program, model);
-  if (friendlyName?.length > 0) return friendlyName;
+  if (friendlyName && friendlyName.length > 0) return friendlyName;
   if (name === undefined || name.length < 1)
     name = ensureCSharpIdentifier(program, model, "", NameCasingType.Class);
   const names: string[] = [name];
