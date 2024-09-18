@@ -33,7 +33,7 @@ export function HttpRequestParametersExpression(props: HttpRequestParametersExpr
       const options = $.modelProperty.getHttpParamOptions(parameter);
       const name = options?.name ? options.name : parameter.name;
       const applicationName = namingPolicy.getName(parameter.name, "parameter");
-      const parameterPath = parameter.optional ? `options.${applicationName}` : applicationName;
+      const parameterPath = parameter.optional ? `options?.${applicationName}` : applicationName;
       return <ts.ObjectProperty name={JSON.stringify(name)} value={parameterPath} />;
     },
     { joiner: ",\n" }

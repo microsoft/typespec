@@ -68,7 +68,8 @@ HttpRequestOptions.Body = function HttpRequestOptionsBody(props: HttpRequestOpti
     return <></>;
   }
 
-  const bodyTransform = <ef.TypeTransformCall type={body} target="transport" collapse={collapse}/>;
+  const bodyTransform =
+    <ef.TypeTransformCall type={body} target="transport" collapse={collapse} optionsBagName="options"/>;
   return <><ts.ObjectProperty name="body" value={<JSONSerializer>{bodyTransform}</JSONSerializer>} />,</>;
 };
 

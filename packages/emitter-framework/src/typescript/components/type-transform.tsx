@@ -95,6 +95,7 @@ export interface ModelTransformExpressionProps {
   type: Model;
   itemPath?: string[];
   target: "application" | "transport";
+  optionsBagName?: string;
 }
 
 /**
@@ -118,7 +119,17 @@ export function ModelTransformExpression(props: ModelTransformExpressionProps) {
           }
 
           const itemPath = [...(props.itemPath ?? []), sourcePropertyName];
-          return <ts.ObjectProperty name={JSON.stringify(targetPropertyName)} value={<TypeTransformCall target={props.target} type={property.type} itemPath={itemPath} />} />;
+          if(property.optional && props.optionsBagName) {
+            itemPath.unshift(`${props.optionsBagName}?`);
+          }
+
+          let value = <TypeTransformCall target={props.target} type={property.type} itemPath={itemPath} />
+
+          if(property.optional && needsTransform(property.type)) {
+            value = <>{itemPath.join(".")} ? <TypeTransformCall target={props.target} type={property.type} itemPath={itemPath} /> : {itemPath.join(".")}</>
+          }
+
+          return <ts.ObjectProperty name={JSON.stringify(targetPropertyName)} value={value} />;
         },
         { joiner: ",\n" }
       )}
@@ -195,6 +206,14 @@ export interface TypeTransformCallProps {
    * Path of the item to be transformed
    */
   itemPath?: string[];
+  /**
+   * Name of the options bag to be used when transforming optional properties
+   */
+  optionsBagName?: string;
+}
+
+function needsTransform(type: Type): boolean {
+  return $.model.is(type)   || $.scalar.isUtcDateTime(type)
 }
 
 /**
@@ -236,7 +255,7 @@ export function TypeTransformCall(props: TypeTransformCallProps) {
   if ($.model.is(transformType)) {
     if($.model.isExpresion(transformType)) {
       const effectiveModel = $.model.getEffectiveModel(transformType);
-      return <ModelTransformExpression type={effectiveModel} itemPath={itemPath} target={props.target} />;
+      return <ModelTransformExpression type={effectiveModel} itemPath={itemPath} target={props.target} optionsBagName={props.optionsBagName} />;
     }
     return <ts.FunctionCallExpression refkey={ getTypeTransformerRefkey(transformType, props.target)} args={[itemName]} />
   }

@@ -1,10 +1,20 @@
-import { Discriminator, getDiscriminatedUnion, getDiscriminator } from "../../core/index.js";
+import {
+  Discriminator,
+  getDiscriminatedUnion,
+  getDiscriminator,
+  isErrorType,
+} from "../../core/index.js";
 import type { Enum, Model, Scalar, Type, Union } from "../../core/types.js";
 import { getDoc, getSummary, resolveEncodedName } from "../../lib/decorators.js";
 import { $, defineKit } from "../define-kit.js";
 import { getPlausibleName } from "./utils/get-plausible-name.js";
 
 export interface TypeKit {
+  /**
+   * Checks if a type is decorated with @error
+   * @param type The type to check.
+   */
+  isError(type: Type): boolean;
   /**
    * Get the name of this type in the specified encoding.
    */
@@ -56,6 +66,9 @@ declare module "../define-kit.js" {
 
 defineKit<BaseTypeKit>({
   type: {
+    isError(type) {
+      return isErrorType(type);
+    },
     getEncodedName(type, encoding) {
       return resolveEncodedName(this.program, type, encoding);
     },

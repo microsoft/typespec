@@ -169,8 +169,8 @@ headers: {
       headers: {
         "Content-Type": "application/json",
         "required": required,
-        "optional": options.optional,
-        "automatic-casing": automaticCasing
+        "automatic-casing": automaticCasing,
+        "optional": options?.optional
       },
     `;
     expect(actualContent).toEqual(expectedContent);

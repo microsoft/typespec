@@ -1,10 +1,8 @@
 import { refkey as getRefkey, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Interface, Model, ModelProperty, Operation, Type, isTemplateInstance } from "@typespec/compiler";
-import { isInterface, isModel } from "../../core/utils/typeguards.js";
-import { InterfaceMember } from "./interface-member.js";
+import { Interface, Model, ModelProperty, Operation, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-
+import { InterfaceMember } from "./interface-member.js";
 
 export interface TypedInterfaceDeclarationProps extends Omit<ts.InterfaceDeclarationProps, "name"> {
   type: Model | Interface;
@@ -21,33 +19,42 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
   }
 
   const namePolicy = ts.useTSNamePolicy();
-  const { type, ...coreProps } = props;
 
-  let name = coreProps.name;
+  let name = props.name;
 
-  if(!name) {
-    if($.model.is(type)) {
-      name = $.type.getPlausibleName(type)
-    } else {
-      name =type.name
-    }
-
-    name = namePolicy.getName(name, "interface");
-  }
-  
-  const refkey = coreProps.refkey ?? getRefkey(type);
-
-  let extendsType = coreProps.extends;
-
-  if (!extendsType && type.kind === "Model" && type.baseModel) {
-    extendsType = <ts.Reference refkey={getRefkey(type.baseModel)} />;
+  if (!name) {
+    const typeName = $.model.is(props.type) ? $.type.getPlausibleName(props.type) : props.type.name;
+    name = namePolicy.getName(typeName, "interface");
   }
 
-  const members = type ? membersFromType(type) : [];
+  const refkey = props.refkey ?? getRefkey(props.type);
+
+  let extendsType = props.extends;
+
+  if (!extendsType && $.model.is(props.type) && props.type.baseModel) {
+    extendsType = <ts.Reference refkey={getRefkey(props.type.baseModel)} />;
+  }
+
+  const members = props.type ? membersFromType(props.type) : [];
+
+  const children = [...members];
+
+  if(Array.isArray(props.children)) {
+    children.push(...props.children);
+  } else if (props.children) {
+    children.push(props.children);
+  }
 
   return (
-    <ts.InterfaceDeclaration {...coreProps} name={name} refkey={refkey} extends={extendsType}>
-      {members}{coreProps.children}
+    <ts.InterfaceDeclaration
+      default={props.default}
+      export={props.export}
+      kind={props.kind}
+      name={name}
+      refkey={refkey}
+      extends={extendsType}
+    >
+      {children}
     </ts.InterfaceDeclaration>
   );
 }
@@ -65,25 +72,25 @@ export interface InterfaceExpressionProps extends ts.InterfaceExpressionProps {
 export function InterfaceExpression({ type, children }: InterfaceExpressionProps) {
   const members = type ? membersFromType(type) : [];
 
-  return <>
-    {"{"}
-      {members}{children}
-    {"}"}
-  </>
+  return (
+    <>
+      {"{"}
+      {members}
+      {children}
+      {"}"}
+    </>
+  );
 }
 
-
-function membersFromType(type: Type) {
+function membersFromType(type: Model | Interface) {
   let typeMembers: IterableIterator<ModelProperty | Operation> | undefined;
-  if (isModel(type)) {
+  if ($.model.is(type)) {
     typeMembers = type.properties.values();
-  } else if (isInterface(type)) {
-    typeMembers = type.operations.values();
   } else {
-    throw new Error("NYI");
+    typeMembers = type.operations.values();
   }
 
-  return mapJoin(Array.from(typeMembers), (prop) => (
-    <InterfaceMember type={prop} />
-  ), { joiner: "\n" });
+  return mapJoin(Array.from(typeMembers), (prop) => <InterfaceMember type={prop} />, {
+    joiner: "\n",
+  });
 }

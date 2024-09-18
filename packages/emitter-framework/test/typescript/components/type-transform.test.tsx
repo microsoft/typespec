@@ -144,9 +144,10 @@ describe("Typescript Type Transform", () => {
           @test model Widget {
             id: string;
             my_color: "blue" | "red";
-            simple: string[];
+            simple?: string[];
             complex: Widget[];
             nested: Widget[][];
+            optionalString?: string;
           }
           `;
 
@@ -174,26 +175,29 @@ describe("Typescript Type Transform", () => {
           export interface Widget {
             "id": string;
             "myColor": "blue" | "red";
-            "simple": (string)[];
+            "simple"?: (string)[];
             "complex": (Widget)[];
             "nested": ((Widget)[])[];
+            "optionalString"?: string;
           }
           export function widgetToApplication(item: any) {
             return {
               "id": item.id,
               "myColor": item.my_color,
-              "simple": arraySerializer(item.simple, ),
+              "simple": item.simple ? arraySerializer(item.simple, ) : item.simple,
               "complex": arraySerializer(item.complex, widgetToApplication),
-              "nested": arraySerializer(item.nested, (i: any) => arraySerializer(i, widgetToApplication))
+              "nested": arraySerializer(item.nested, (i: any) => arraySerializer(i, widgetToApplication)),
+              "optionalString": item.optionalString
             };
           }
           export function widgetToTransport(item: Widget) {
             return {
               "id": item.id,
               "my_color": item.myColor,
-              "simple": arraySerializer(item.simple, ),
+              "simple": item.simple ? arraySerializer(item.simple, ) : item.simple,
               "complex": arraySerializer(item.complex, widgetToTransport),
-              "nested": arraySerializer(item.nested, (i: any) => arraySerializer(i, widgetToTransport))
+              "nested": arraySerializer(item.nested, (i: any) => arraySerializer(i, widgetToTransport)),
+              "optionalString": item.optionalString
             };
           }
          `;

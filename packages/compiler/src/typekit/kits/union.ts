@@ -26,6 +26,11 @@ interface UnionDescriptor {
 export interface UnionKit {
   union: {
     /**
+     * Creates a union type with filtered variants.
+     * @param filterFn Function to filter the union variants
+     */
+    filter(union: Union, filterFn: (variant: UnionVariant) => boolean): Union;
+    /**
      * Create a union type.
      *
      * @param desc The descriptor of the union.
@@ -70,6 +75,10 @@ declare module "../define-kit.js" {
 
 export const UnionKit = defineKit<UnionKit>({
   union: {
+    filter(union, filterFn) {
+      const variants = Array.from(union.variants.values()).filter(filterFn);
+      return this.union.create({ variants });
+    },
     create(desc) {
       const union: Union = this.program.checker.createType({
         kind: "Union",

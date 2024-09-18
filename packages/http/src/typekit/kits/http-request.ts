@@ -1,9 +1,8 @@
 import { Model, ModelProperty } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
-import { HttpProperty } from "../../http-property.js";
 import { HttpOperation } from "../../types.js";
 
-export type HttpRequestParameterKind = "query" | "header" | "path" | "contentType";
+export type HttpRequestParameterKind = "query" | "header" | "path" | "contentType" | "body";
 
 interface HttpRequestKit {
   httpRequest: {
@@ -73,11 +72,22 @@ defineKit<HttpRequestKit>({
       kind: HttpRequestParameterKind | HttpRequestParameterKind[]
     ): Model | undefined {
       const kinds = new Set(Array.isArray(kind) ? kind : [kind]);
-      const parameterProperties: HttpProperty[] = [];
+      const parameterProperties: ModelProperty[] = [];
 
       for (const kind of kinds) {
-        const params = httpOperation.parameters.properties.filter((p) => p.kind === kind);
-        parameterProperties.push(...params);
+        if (kind === "body") {
+          const bodyParams = Array.from(
+            this.httpRequest.getBodyParameters(httpOperation)?.properties.values() ?? []
+          );
+          if (bodyParams) {
+            parameterProperties.push(...bodyParams);
+          }
+        } else {
+          const params = httpOperation.parameters.properties
+            .filter((p) => p.kind === kind)
+            .map((p) => p.property);
+          parameterProperties.push(...params);
+        }
       }
 
       if (parameterProperties.length === 0) {
@@ -86,7 +96,7 @@ defineKit<HttpRequestKit>({
 
       const properties = parameterProperties.reduce(
         (acc, prop) => {
-          acc[prop.property.name] = prop.property;
+          acc[prop.name] = prop;
           return acc;
         },
         {} as Record<string, ModelProperty>

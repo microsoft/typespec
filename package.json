@@ -60,7 +60,7 @@
     "picocolors": "~1.0.1",
     "prettier": "~3.3.3",
     "prettier-plugin-organize-imports": "~4.0.0",
-    "@alloy-js/prettier-plugin-alloy": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/prettier-plugin-alloy@a4ee1f6",
+    "@alloy-js/prettier-plugin-alloy": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/prettier-plugin-alloy@5535a9c",
     "rimraf": "~6.0.1",
     "syncpack": "^12.3.3",
     "tsx": "^4.16.2",

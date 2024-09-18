@@ -244,7 +244,7 @@ describe("HttpRequest.Url", () => {
     import { parse } from "uri-template";
 
     const path = parse("/widgets{?id}").expand({
-      "id": options.id
+      "id": options?.id
     });
 
     const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
@@ -287,7 +287,7 @@ describe("HttpRequest.Url", () => {
     import { parse } from "uri-template";
 
     const path = parse("/widgets{?id}").expand({
-      "id": options.id
+      "id": options?.id
     });
 
     const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;

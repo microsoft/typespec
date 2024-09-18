@@ -1,10 +1,6 @@
-import { Children, refkey as getRefkey, mapJoin } from "@alloy-js/core";
+import { Children, refkey as getRefkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import {
-  Model,
-  Operation,
-  isErrorModel,
-} from "@typespec/compiler";
+import { Model, Operation } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { TypeExpression } from "./type-expression.js";
 
@@ -25,33 +21,29 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
     return <ts.FunctionDeclaration {...props} />;
   }
 
-  const { type, ...coreProps } = props;
-  const refkey = coreProps.refkey ?? getRefkey(type);
+  const refkey = props.refkey ?? getRefkey(props.type);
 
-  let functionName = props.name
-    ? props.name
-    : ts.useTSNamePolicy().getName(type.name, "function");
+  let name = props.name ? props.name : ts.useTSNamePolicy().getName(props.type.name, "function");
 
+  // TODO: This should probably be a broader check in alloy to guard\
+  // any identifier.
+  if (reservedFunctionKeywords.has(name)) {
+    name = `${name}_`;
+  }
 
-    // TODO: This should probably be a broader check in alloy to guard\
-    // any identifier.
-    if(reservedFunctionKeywords.has(functionName)) {
-      functionName = `${functionName}_`;
-    }
-
-  const returnType = props.returnType ?? getReturnType(type);
-
-  coreProps.refkey ??= getRefkey(type);
-
-  const _props: ts.FunctionDeclarationProps = {
-    ...coreProps,
-    name: functionName,
-    returnType,
-  };
+  const returnType = props.returnType ?? getReturnType(props.type);
 
   return (
-    <ts.FunctionDeclaration {..._props} refkey={refkey}>
-      {getParameters(type.parameters, { params: props.parameters })}
+    <ts.FunctionDeclaration
+      refkey={refkey}
+      name={name}
+      async={props.async}
+      default={props.default}
+      export={props.export}
+      kind={props.kind}
+      returnType={returnType}
+    >
+      {buildParameterDescriptors(props.type.parameters, { params: props.parameters })}
       {props.children}
     </ts.FunctionDeclaration>
   );
@@ -69,61 +61,40 @@ FunctionDeclaration.Parameters = function Parameters(props: FunctionParametersPr
     return <ts.FunctionDeclaration.Parameters {...props} />;
   }
 
-  const { type, ...coreProps } = props;
-
-  const parameters = getParameters(type);
-  return <ts.FunctionDeclaration.Parameters {...coreProps} parameters={parameters} />;
+  const parameterDescriptors = buildParameterDescriptors(props.type);
+  return (
+    <ts.FunctionDeclaration.Parameters parameters={parameterDescriptors}>
+      {props.children}
+    </ts.FunctionDeclaration.Parameters>
+  );
 };
 
-function getParameters(
-  type: Model,
-  {
-    params = {},
-    location = "start",
-  }: { params?: Record<string, Children | ts.ParameterDescriptor>; location?: "start" | "end" } = {}
-) {
+interface BuildParameterDescriptorsOptions {
+  params?: Record<string, Children | ts.ParameterDescriptor>;
+  location?: "start" | "end";
+}
+function buildParameterDescriptors(type: Model, options: BuildParameterDescriptorsOptions = {}) {
   const namePolicy = ts.useTSNamePolicy();
 
-  // Utility function to create parameter name
-  const createParameterName = (key: string, isOptional: boolean) => {
-    let name = namePolicy.getName(key, "parameter");
-    return isOptional ? `${name}?` : name;
-  };
+  const operationParams: Record<string, Children | ts.ParameterDescriptor> = {};
 
-  // Utility function to convert type properties to parameters
-  const getOperationParams = (type: Model): Map<string, Children | ts.ParameterDescriptor> => {
-    const params = new Map<string, Children | ts.ParameterDescriptor>();
-
-    type.properties.forEach((prop, key) => {
-      const paramName = createParameterName(key, prop.optional);
-      params.set(paramName, <TypeExpression type={prop.type} />);
-    });
-
-    return params;
-  };
-
-  const operationParams = getOperationParams(type);
-  const extraParamsMap = new Map(Object.entries(params));
+  for (const [key, prop] of type.properties) {
+    const paramName = namePolicy.getName(key, "parameter");
+    const paramDescriptor: ts.ParameterDescriptor = {
+      refkey: getRefkey(prop),
+      optional: prop.optional,
+      type: <TypeExpression type={prop.type} />,
+    };
+    operationParams[paramName] = paramDescriptor;
+  }
 
   // Merge parameters based on location
   const allParams =
-    location === "end"
-      ? new Map([...operationParams, ...extraParamsMap])
-      : new Map([...extraParamsMap, ...operationParams]);
+    options.location === "end"
+      ? { ...operationParams, ...options.params }
+      : { ...options.params, ...operationParams };
 
-  return (
-    <ts.FunctionDeclaration.Parameters>
-      {mapJoin(
-        allParams,
-        (key, value) => (
-          <>
-            {key}: {value}
-          </>
-        ),
-        { joiner: ", " }
-      )}
-    </ts.FunctionDeclaration.Parameters>
-  );
+  return <ts.FunctionDeclaration.Parameters parameters={allParams} />;
 }
 
 function isTypedFunctionDeclarationProps(
@@ -138,26 +109,61 @@ function isTypedFunctionParametersProps(
   return "type" in props;
 }
 
-
 function getReturnType(
   type: Operation,
   options: { skipErrorFiltering: boolean } = { skipErrorFiltering: false }
 ) {
-  const returnType = type.returnType;
+  let returnType = type.returnType;
 
-  if (options.skipErrorFiltering || returnType.kind !== "Union") {
-    return <TypeExpression type={returnType} />; 
+  if (!options.skipErrorFiltering && type.returnType.kind === "Union") {
+    returnType = $.union.filter(type.returnType, (variant) => !$.type.isError(variant.type));
   }
-  
-  const variants = [...returnType.variants.values()].filter(v => !isErrorModel($.program, v.type));
-  return mapJoin(variants, (variant) => {
-    return <TypeExpression type={variant.type} />;
-  }, { joiner: " | " });
+
+  return <TypeExpression type={returnType} />;
 }
 
 const reservedFunctionKeywords = new Set([
-  "break", "case", "catch", "class", "const", "continue", "debugger", "default", "delete", "do", "else",
-  "enum", "export", "extends", "finally", "for", "function", "if", "import", "in", "instanceof", "new", 
-  "return", "super", "switch", "this", "throw", "try", "typeof", "var", "void", "while", "with", "yield", 
-  "let", "static", "implements", "interface", "package", "private", "protected", "public", "await"
+  "break",
+  "case",
+  "catch",
+  "class",
+  "const",
+  "continue",
+  "debugger",
+  "default",
+  "delete",
+  "do",
+  "else",
+  "enum",
+  "export",
+  "extends",
+  "finally",
+  "for",
+  "function",
+  "if",
+  "import",
+  "in",
+  "instanceof",
+  "new",
+  "return",
+  "super",
+  "switch",
+  "this",
+  "throw",
+  "try",
+  "typeof",
+  "var",
+  "void",
+  "while",
+  "with",
+  "yield",
+  "let",
+  "static",
+  "implements",
+  "interface",
+  "package",
+  "private",
+  "protected",
+  "public",
+  "await",
 ]);
