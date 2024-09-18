@@ -718,9 +718,15 @@ importers:
       '@typespec/http':
         specifier: workspace:*
         version: link:../http
+      '@typespec/json-schema':
+        specifier: workspace:*
+        version: link:../json-schema
       '@typespec/openapi':
         specifier: workspace:*
         version: link:../openapi
+      '@typespec/openapi3':
+        specifier: workspace:*
+        version: link:../openapi3
       '@typespec/rest':
         specifier: workspace:*
         version: link:../rest

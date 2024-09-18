@@ -46,6 +46,8 @@ export function TypeExpression({ type }: TypeExpressionProps) {
           {type.enum.name}.{type.name}
         </>
       );
+    case "ModelProperty": 
+      return <TypeExpression type={type.type} />;
     case "Model":
       if (isArray(type)) {
         const elementType = type.indexer.value;
@@ -60,7 +62,7 @@ export function TypeExpression({ type }: TypeExpressionProps) {
       return <InterfaceExpression type={type} />;
 
     default:
-      console.warn("TypeExpression: unhandled type", type);
+      console.warn("TypeExpression: unhandled type", type.kind);
   }
 }
 

@@ -721,21 +721,21 @@ export async function compile(
       if (typeof result === "function") {
         // assume this is an alloy component
         const tree = render(result);
-        await writeOutputDirectory(tree);
+        await writeOutputDirectory(tree, context.emitterOutputDir);
       }
     } catch (error: unknown) {
       throw new ExternalError({ kind: "emitter", metadata: emitter.metadata, error });
     }
   }
 
-  async function writeOutputDirectory(dir: OutputDirectory) {
+  async function writeOutputDirectory(dir: OutputDirectory, emitterOutputDir: string) {
     for (const sub of dir.contents) {
       if (Array.isArray(sub.contents)) {
-        await writeOutputDirectory(sub as OutputDirectory);
+        await writeOutputDirectory(sub as OutputDirectory, emitterOutputDir);
       } else {
         await emitFile(program, {
           content: sub.contents as string,
-          path: sub.path,
+          path: joinPaths(emitterOutputDir, sub.path),
         });
       }
     }

@@ -21,24 +21,26 @@
   "peerDependencies": {
     "@typespec/compiler": "workspace:*",
     "@typespec/http": "workspace:*",
+    "@typespec/openapi": "workspace:*",
     "@typespec/rest": "workspace:*",
-    "@typespec/openapi": "workspace:*"
+    "@typespec/emitter-framework": "workspace:*",
+    "@typespec/json-schema": "workspace:*",
+    "@typespec/openapi3": "workspace:*"
   },
   "dependencies": {
-    "@typespec/emitter-framework": "workspace:*",
     "@alloy-js/core": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@a4ee1f6",
     "@alloy-js/typescript": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@a4ee1f6"
   },
   "devDependencies": {
-    "@azure-tools/cadl-ranch-specs": "0.37.2",
     "@azure-tools/cadl-ranch-expect": "0.15.4",
+    "@azure-tools/cadl-ranch-specs": "0.37.2",
     "@babel/cli": "^7.24.8",
     "@babel/core": "^7.24.9",
     "@rollup/plugin-babel": "^6.0.4",
     "babel-preset-alloy": "https://pkg.pr.new/alloy-framework/alloy/babel-preset-alloy@a4ee1f6",
     "concurrently": "^8.2.2",
+    "ts-morph": "^23.0.0",
     "typescript": "^5.5.3",
-    "vitest": "^2.0.3",
-    "ts-morph": "^23.0.0"
+    "vitest": "^2.0.3"
   }
 }

@@ -26,11 +26,11 @@ import {
 export async function $onEmit(context: EmitContext) {
   const visited = operationWalker(context);
   const tsNamePolicy = ts.createTSNamePolicy();
-  const outputDir = context.emitterOutputDir;
   const service = listServices(context.program)[0];
-  return <ay.Output namePolicy={tsNamePolicy} externals={[uriTemplateLib]} basePath={outputDir}>
+  return <ay.Output namePolicy={tsNamePolicy} externals={[uriTemplateLib]}>
       <ts.PackageDirectory name="test-package" version="1.0.0" path=".">
         <ay.SourceDirectory path="src">
+          <ts.BarrelFile export="." />
           <ay.SourceDirectory path="models">
             <ts.BarrelFile />
             <ModelsFile types={visited.dataTypes} />

@@ -13,13 +13,17 @@ export interface OperationsProps {
 }
 
 export function Operations(props: OperationsProps) {
+  const namePolicy = ts.createTSNamePolicy();
   return mapJoin(
     props.operations,
     (key, operations) => {
       const containerParts = key.split("/") ?? [];
+      const subPathExport = ["api", ...containerParts]
+        .map((p) => namePolicy.getName(p, "interface-member"))
+        .join("/");
       return getSourceDirectory(
         containerParts,
-        <><ts.BarrelFile /><OperationsFile path="operations.ts" operations={operations} service={props.service} /></>
+        <><ts.BarrelFile export={subPathExport} /><OperationsFile path="operations.ts" operations={operations} service={props.service} /></>
       );
     },
     { joiner: "\n\n" }
