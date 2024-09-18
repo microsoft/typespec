@@ -177,7 +177,7 @@ export class CodeModelBuilder {
   private loggingEnabled: boolean = false;
 
   readonly schemaCache = new ProcessingCache((type: SdkType, name: string) =>
-    this.processSchemaImpl(type, name)
+    this.processSchemaImpl(type, name),
   );
   readonly typeUnionRefCache = new Map<Type, Union | null | undefined>(); // Union means it ref a Union type, null means it does not ref any Union, undefined means type visited but not completed
 
@@ -1758,11 +1758,7 @@ export class CodeModelBuilder {
           return this.processArraySchema(type, nameHint);
 
         case "duration":
-          return this.processDurationSchema(
-            type,
-            nameHint,
-            getDurationFormat(type)
-          );
+          return this.processDurationSchema(type, nameHint, getDurationFormat(type));
 
         case "constant":
           return this.processConstantSchema(type, nameHint);
@@ -1898,10 +1894,7 @@ export class CodeModelBuilder {
     );
   }
 
-  private processDictionarySchema(
-    type: SdkDictionaryType,
-    name: string,
-  ): DictionarySchema {
+  private processDictionarySchema(type: SdkDictionaryType, name: string): DictionarySchema {
     const dictSchema = new DictionarySchema<any>(name, type.details ?? "", null, {
       summary: type.description,
     });
@@ -1969,10 +1962,7 @@ export class CodeModelBuilder {
     );
   }
 
-  private processConstantSchemaFromEnumValue(
-    type: SdkEnumValueType,
-    name: string,
-  ): ConstantSchema {
+  private processConstantSchemaFromEnumValue(type: SdkEnumValueType, name: string): ConstantSchema {
     const valueType = this.processSchema(type.enumType, type.enumType.name);
 
     return this.codeModel.schemas.add(
@@ -2068,7 +2058,7 @@ export class CodeModelBuilder {
     // discriminator
     if (type.discriminatedSubtypes && type.discriminatorProperty) {
       objectSchema.discriminator = new Discriminator(
-        this.processModelProperty(type.discriminatorProperty)
+        this.processModelProperty(type.discriminatorProperty),
       );
       for (const discriminatorValue in type.discriminatedSubtypes) {
         const subType = type.discriminatedSubtypes[discriminatorValue];
@@ -2316,9 +2306,7 @@ export class CodeModelBuilder {
     }
   }
 
-  private processMultipartFormDataFilePropertySchema(
-    property: SdkBodyModelPropertyType
-  ): Schema {
+  private processMultipartFormDataFilePropertySchema(property: SdkBodyModelPropertyType): Schema {
     const processSchemaFunc = (type: SdkType) => this.processSchema(type, "");
     if (property.type.kind === "bytes" || property.type.kind === "model") {
       const namespace =
