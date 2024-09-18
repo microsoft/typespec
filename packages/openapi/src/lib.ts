@@ -16,6 +16,12 @@ export const $lib = createTypeSpecLibrary({
         parameter: paramMessage`Duplicate parameter key: '${"value"}'. Check @friendlyName decorators and overlap with types in TypeSpec or service namespace.`,
       },
     },
+    "not-uri": {
+      severity: "error",
+      messages: {
+        default: paramMessage`${"value"} is not a valid URI.`,
+      },
+    },
   },
 });
 

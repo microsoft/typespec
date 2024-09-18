@@ -185,6 +185,11 @@ export const $info: InfoDecorator = (
   if (data === undefined) {
     return;
   }
+  if (data.termsOfService) {
+    if (!validateIsUri(context, data.termsOfService)) {
+      return;
+    }
+  }
   setInfo(context.program, entity, data);
 };
 
@@ -213,4 +218,18 @@ export function resolveInfo(program: Program, entity: Namespace): AdditionalInfo
 
 function omitUndefined<T extends Record<string, unknown>>(data: T): T {
   return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
+}
+
+function validateIsUri(context: DecoratorContext, url: string) {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    reportDiagnostic(context.program, {
+      code: "not-uri",
+      target: context.getArgumentTarget(0)!,
+      format: { value: url },
+    });
+    return false;
+  }
 }
