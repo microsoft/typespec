@@ -1,0 +1,75 @@
+{% set base_class = ("(" + operation_group.base_class + ")") if operation_group.base_class else "" %}
+{% macro check_abstract_methods() %}
+{% if operation_group.has_abstract_operations %}
+        raise_if_not_implemented(self.__class__, [
+        {% for operation in operation_group.operations if operation.abstract %}
+            '{{operation.name}}',
+        {% endfor %}
+        ])
+{% endif %}
+{% endmacro %}
+{% if operation_group.base_class %}
+class {{ operation_group.class_name }}( {{ operation_group.pylint_disable() }}
+    {{ operation_group.base_class }}
+):
+{% else %}
+class {{ operation_group.class_name }}: {{ operation_group.pylint_disable() }}
+{% endif %}
+{% if not operation_group.is_mixin %}
+    """
+    .. warning::
+        **DO NOT** instantiate this class directly.
+
+        Instead, you should access the following operations through
+        :class:`{{ "~" + code_model.namespace + (".aio." if async_mode else ".") + operation_group.client.name }}`'s
+        :attr:`{{ operation_group.property_name }}` attribute.
+    """
+
+{% if code_model.public_model_types and code_model.options["models_mode"] == "msrest" %}
+    models = _models
+
+{% endif %}
+    def __init__(self, *args, **kwargs){{ return_none_type_annotation }}:
+        input_args = list(args)
+        self._client = input_args.pop(0) if input_args else kwargs.pop("client")
+        self._config = input_args.pop(0) if input_args else kwargs.pop("config")
+        self._serialize = input_args.pop(0) if input_args else kwargs.pop("serializer")
+        self._deserialize = input_args.pop(0) if input_args else kwargs.pop("deserializer")
+        {% if code_model.options["multiapi"] %}
+        self._api_version = input_args.pop(0) if input_args else kwargs.pop("api_version")
+        {% endif %}
+
+        {% for og in operation_group.operation_groups %}
+        self.{{ og.property_name }} = {{ og.class_name }}(
+            self._client, self._config, self._serialize, self._deserialize{{ ", self._api_version" if code_model.options["multiapi"] else "" }}
+        )
+        {% endfor %}
+
+{{ check_abstract_methods() }}
+{% elif operation_group.has_abstract_operations %}
+
+    def __init__(self){{ return_none_type_annotation }}:
+{{ check_abstract_methods() }}
+{% endif %}
+{% if operation_group.is_mixin and code_model.options["multiapi"] %}
+    def _api_version(self, op_name: str) -> str:  # pylint: disable=unused-argument
+        try:
+            return self._config.api_version
+        except:  # pylint: disable=bare-except
+            return ""
+{% endif %}
+{% for operation in operation_group.operations if not operation.abstract %}
+
+{% set request_builder = operation.request_builder %}
+{% set operation_serializer = get_operation_serializer(operation) %}
+    {% if operation.operation_type == "lropaging" %}
+    {%- macro some_op() %}{% include "lro_paging_operation.py.jinja2" %}{% endmacro %}
+    {% elif operation.operation_type == "lro" %}
+    {%- macro some_op() %}{% include "lro_operation.py.jinja2" %}{% endmacro %}
+    {% elif operation.operation_type == "paging" %}
+    {% macro some_op() %}{% include "paging_operation.py.jinja2" %}{% endmacro %}
+    {% else %}
+    {% macro some_op() %}{% include "operation.py.jinja2" %}{% endmacro %}
+    {% endif %}
+    {{ some_op()|indent }}
+{% endfor %}
