@@ -346,7 +346,7 @@ def _get_model(module_name: str, model_name: str):
 _UNSET = object()
 
 
-class _MyMutableMapping(MutableMapping[str, typing.Any]):
+class _MyMutableMapping(MutableMapping[str, typing.Any]): # pylint: disable=unsubscriptable-object
     def __init__(self, data: typing.Dict[str, typing.Any]) -> None:
         self._data = data
 
@@ -596,7 +596,7 @@ class Model(_MyMutableMapping):
             cls._attr_to_rest_field: typing.Dict[str, _RestField] = dict(attr_to_rest_field.items())
             cls._calculated.add(f"{cls.__module__}.{cls.__qualname__}")
 
-        return super().__new__(cls)
+        return super().__new__(cls) # pylint: disable=no-value-for-parameter
 
     def __init_subclass__(cls, discriminator: typing.Optional[str] = None) -> None:
         for base in cls.__bases__:
