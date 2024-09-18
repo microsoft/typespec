@@ -1,11 +1,4 @@
-import { SchemaContext } from "@autorest/codemodel";
 import { getUnionAsEnum } from "@azure-tools/typespec-azure-core";
-import {
-  SdkDurationType,
-  SdkType,
-  isSdkFloatKind,
-  isSdkIntKind,
-} from "@azure-tools/typespec-client-generator-core";
 import {
   DecoratedType,
   DecoratorApplication,
@@ -28,6 +21,13 @@ import {
 } from "@typespec/compiler";
 import { DurationSchema } from "./common/schemas/time.js";
 import { getNamespace } from "./utils.js";
+import { SdkDurationType, SdkEnumType, SdkModelType, SdkType, UsageFlags, isSdkFloatKind, isSdkIntKind } from "@azure-tools/typespec-client-generator-core";
+import { SchemaContext, SchemaUsage } from "./common/schemas/usage.js";
+import { ChoiceSchema, SealedChoiceSchema } from "./common/schemas/choice.js";
+import { OrSchema } from "./common/schemas/relationship.js";
+import { ConstantSchema } from "./common/schemas/constant.js";
+import { ArraySchema, DictionarySchema, GroupSchema, ObjectSchema, Schema } from "@autorest/codemodel";
+
 
 /** Acts as a cache for processing inputs.
  *
@@ -309,6 +309,58 @@ export function isArmCommonType(entity: Type): boolean {
   }
   return false;
 }
+
+export function processSchemaUsageFromSdkType(sdkType: SdkModelType | SdkEnumType, schemaUsage: SchemaContext[] | undefined): SchemaContext[] {
+  let usage: SchemaContext[] = schemaUsage ?? [];
+  const usageFlags: UsageFlags = sdkType.usage;
+  if (usageFlags & UsageFlags.Error) {
+    usage = [SchemaContext.Exception];
+    return usage;
+  }
+  if (usageFlags & UsageFlags.Input) 
+    usage = pushDistinct(usage, SchemaContext.Input);
+  if (usageFlags & UsageFlags.Output) 
+    usage = pushDistinct(usage, SchemaContext.Output);
+  if (usageFlags & UsageFlags.JsonMergePatch) 
+    usage = pushDistinct(usage, SchemaContext.JsonMergePatch);
+  if (usageFlags & UsageFlags.Spread)
+    usage = pushDistinct(usage, SchemaContext.Input);
+
+
+  const accessFlags = sdkType.access;
+  if (accessFlags === "internal") {
+    usage = pushDistinct(usage ?? [], SchemaContext.Internal);
+  } else {
+    usage = pushDistinct(usage ?? [], SchemaContext.Public);
+  }
+  return usage;
+}
+
+export function trackSchemaUsage(schema: Schema, schemaUsage: SchemaUsage): void {
+  if (
+    schema instanceof ObjectSchema ||
+    schema instanceof GroupSchema ||
+    schema instanceof ChoiceSchema ||
+    schema instanceof SealedChoiceSchema ||
+    schema instanceof OrSchema ||
+    schema instanceof ConstantSchema
+  ) {
+    if (schemaUsage.usage) {
+      pushDistinct((schema.usage = schema.usage || []), ...schemaUsage.usage);
+    }
+    if (schemaUsage.serializationFormats) {
+      pushDistinct(
+        (schema.serializationFormats = schema.serializationFormats || []),
+        ...schemaUsage.serializationFormats,
+      );
+    }
+  } else if (schema instanceof DictionarySchema) {
+    trackSchemaUsage(schema.elementType, schemaUsage);
+  } else if (schema instanceof ArraySchema) {
+    trackSchemaUsage(schema.elementType, schemaUsage);
+  }
+}
+
 
 function getDecoratorScopedValue<T>(
   type: DecoratedType,

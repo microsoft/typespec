@@ -16,6 +16,8 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { CrossLanguageDefinition } from "./common/client.js";
 import { getNamespace, pascalCase } from "./utils.js";
+import { trackSchemaUsage } from "./type-utils.js";
+import { SchemaContext } from "./common/schemas/usage.js";
 
 /*
  * These schema need to reflect
@@ -336,6 +338,9 @@ export function getFileDetailsSchema(
       addFilenameProperty(fileDetailsSchema, stringSchema);
       addContentTypeProperty(fileDetailsSchema, stringSchema);
     }
+    // set the schema usage to public access, later we will have post processor to propagate operation's access to the model
+    trackSchemaUsage(fileDetailsSchema, { usage: [SchemaContext.Input, SchemaContext.Public] });
+
     return fileDetailsSchema;
   }
 }
