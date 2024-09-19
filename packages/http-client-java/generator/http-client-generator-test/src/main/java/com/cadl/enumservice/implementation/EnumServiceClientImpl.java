@@ -526,6 +526,8 @@ public final class EnumServiceClientImpl {
      *     colorValue: String(Red/Blue/Green) (Required)
      *     colorModelValue: String(Red/Blue/Green) (Required)
      *     unitValue: String(1/0.001/1000) (Optional)
+     *     olympicRecord: String(9.58/19.3) (Optional)
+     *     olympicRecordValue: String(9.58/19.3) (Optional)
      * }
      * }</pre>
      * 
@@ -560,6 +562,8 @@ public final class EnumServiceClientImpl {
      *     colorValue: String(Red/Blue/Green) (Required)
      *     colorModelValue: String(Red/Blue/Green) (Required)
      *     unitValue: String(1/0.001/1000) (Optional)
+     *     olympicRecord: String(9.58/19.3) (Optional)
+     *     olympicRecordValue: String(9.58/19.3) (Optional)
      * }
      * }</pre>
      * 
@@ -593,6 +597,8 @@ public final class EnumServiceClientImpl {
      *     colorValue: String(Red/Blue/Green) (Required)
      *     colorModelValue: String(Red/Blue/Green) (Required)
      *     unitValue: String(1/0.001/1000) (Optional)
+     *     olympicRecord: String(9.58/19.3) (Optional)
+     *     olympicRecordValue: String(9.58/19.3) (Optional)
      * }
      * }</pre>
      * 
@@ -627,6 +633,8 @@ public final class EnumServiceClientImpl {
      *     colorValue: String(Red/Blue/Green) (Required)
      *     colorModelValue: String(Red/Blue/Green) (Required)
      *     unitValue: String(1/0.001/1000) (Optional)
+     *     olympicRecord: String(9.58/19.3) (Optional)
+     *     olympicRecordValue: String(9.58/19.3) (Optional)
      * }
      * }</pre>
      * 
@@ -660,6 +668,8 @@ public final class EnumServiceClientImpl {
      *     colorValue: String(Red/Blue/Green) (Required)
      *     colorModelValue: String(Red/Blue/Green) (Required)
      *     unitValue: String(1/0.001/1000) (Optional)
+     *     olympicRecord: String(9.58/19.3) (Optional)
+     *     olympicRecordValue: String(9.58/19.3) (Optional)
      * }
      * }</pre>
      * 
@@ -694,6 +704,8 @@ public final class EnumServiceClientImpl {
      *     colorValue: String(Red/Blue/Green) (Required)
      *     colorModelValue: String(Red/Blue/Green) (Required)
      *     unitValue: String(1/0.001/1000) (Optional)
+     *     olympicRecord: String(9.58/19.3) (Optional)
+     *     olympicRecordValue: String(9.58/19.3) (Optional)
      * }
      * }</pre>
      * 
@@ -727,6 +739,8 @@ public final class EnumServiceClientImpl {
      *     colorValue: String(Red/Blue/Green) (Required)
      *     colorModelValue: String(Red/Blue/Green) (Required)
      *     unitValue: String(1/0.001/1000) (Optional)
+     *     olympicRecord: String(9.58/19.3) (Optional)
+     *     olympicRecordValue: String(9.58/19.3) (Optional)
      * }
      * }</pre>
      * 
@@ -761,6 +775,8 @@ public final class EnumServiceClientImpl {
      *     colorValue: String(Red/Blue/Green) (Required)
      *     colorModelValue: String(Red/Blue/Green) (Required)
      *     unitValue: String(1/0.001/1000) (Optional)
+     *     olympicRecord: String(9.58/19.3) (Optional)
+     *     olympicRecordValue: String(9.58/19.3) (Optional)
      * }
      * }</pre>
      * 
