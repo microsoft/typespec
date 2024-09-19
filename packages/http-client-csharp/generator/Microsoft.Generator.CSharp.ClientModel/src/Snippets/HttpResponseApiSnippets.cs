@@ -8,7 +8,7 @@ using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal static class PipelineResponseSnippets
+    internal static class HttpResponseApiSnippets
     {
         public static ScopedApi<BinaryData> Content(this HttpResponseApi pipelineMessage)
             => pipelineMessage.Property(nameof(HttpResponseApi.Content)).As<BinaryData>();
