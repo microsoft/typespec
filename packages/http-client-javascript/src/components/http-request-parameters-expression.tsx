@@ -29,7 +29,7 @@ export function HttpRequestParametersExpression(props: HttpRequestParametersExpr
 
   const members = mapJoin(
     props.parameters.properties,
-    (parameterName, parameter) => {
+    (_parameterName, parameter) => {
       const options = $.modelProperty.getHttpParamOptions(parameter);
       const name = options?.name ? options.name : parameter.name;
       const applicationName = namingPolicy.getName(parameter.name, "parameter");

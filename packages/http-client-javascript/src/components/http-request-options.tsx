@@ -30,19 +30,25 @@ export interface HttpRequestOptionsHeadersProps {
 HttpRequestOptions.Headers = function HttpRequestOptionsHeaders(
   props: HttpRequestOptionsHeadersProps
 ) {
+  // Extract the header request parameters from the operation
   const httpOperation = $.httpOperation.get(props.operation);
   const headers = $.httpRequest.getParameters(httpOperation, "header");
 
-  const contentTypeProperty = $.httpRequest
-    .getParameters(httpOperation, "contentType")
-    ?.properties.get("contentType");
+  // Prepare the default content type, to use in case no explicit content type is provided
   let contentType = $.httpRequest.getBodyParameters(httpOperation) ? (
     <ts.ObjectProperty name='"Content-Type"' value='"application/json"' />
   ) : null;
 
+  // Extract the content type property from the header request parameters, if available
+  const contentTypeProperty = $.httpRequest
+    .getParameters(httpOperation, "contentType")
+    ?.properties.get("contentType");
+
+  // If the content type property is available, use it to set the content type header.
   if (contentTypeProperty) {
     let contentTypePath = "contentType";
     contentTypePath = contentTypeProperty.optional ? `options.${contentTypePath}` : contentTypePath;
+    // Override the default content type
     contentType = <ts.ObjectProperty name='"Content-Type"' value={contentTypePath} />;
   }
 
@@ -61,16 +67,21 @@ export interface HttpRequestOptionsBodyProps {
 
 HttpRequestOptions.Body = function HttpRequestOptionsBody(props: HttpRequestOptionsBodyProps) {
   const httpOperation = $.httpOperation.get(props.operation);
-  const body = $.httpRequest.getBodyParameters(httpOperation);
+  const body = $.httpRequest.getParameters(httpOperation, "body");
+  // If @body or @bodyRoot was used then collapse a model with a single property to that property type.
   const collapse = $.httpRequest.body.isExplicit(httpOperation);
 
   if (!body) {
     return <></>;
   }
 
+  // The transformer to apply to the body.
   const bodyTransform =
     <ef.TypeTransformCall type={body} target="transport" collapse={collapse} optionsBagName="options"/>;
-  return <><ts.ObjectProperty name="body" value={<JSONSerializer>{bodyTransform}</JSONSerializer>} />,</>;
+
+  return <>
+    <ts.ObjectProperty name="body" value={<JSONSerializer>{bodyTransform}</JSONSerializer>} />,
+    </>;
 };
 
 export function JSONSerializer(props: { children?: Children }) {
