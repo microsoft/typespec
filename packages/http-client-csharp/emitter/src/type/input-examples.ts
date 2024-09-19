@@ -19,13 +19,12 @@ interface InputExampleBase {
   name: string;
   description: string;
   filePath: string;
-  rawExample: any;
 }
 
 export interface InputHttpOperationExample extends InputExampleBase {
   kind: "http";
   parameters: InputParameterExampleValue[];
-  responses: Map<number, OperationResponseExample>;
+  responses: OperationResponseExample[];
 }
 
 export interface InputParameterExampleValue {

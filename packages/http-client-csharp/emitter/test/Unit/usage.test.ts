@@ -27,15 +27,15 @@ describe("Test Usage", () => {
             }
             op test(@path id: string, @body foo: Foo): void;
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
-    const fooModel = root.Models.find((model) => model.Name === "Foo");
+    const fooModel = root.Models.find((model) => model.name === "Foo");
 
     ok(fooModel);
-    strictEqual(fooModel.Usage, UsageFlags.Input | UsageFlags.Json);
+    strictEqual(fooModel.usage, UsageFlags.Input | UsageFlags.Json);
   });
 
   it("Get usage for response body", async () => {
@@ -48,15 +48,15 @@ describe("Test Usage", () => {
             }
             op test(@path id: string): Foo;
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
-    const fooModel = root.Models.find((model) => model.Name === "Foo");
+    const fooModel = root.Models.find((model) => model.name === "Foo");
 
     ok(fooModel);
-    strictEqual(fooModel.Usage, UsageFlags.Output | UsageFlags.Json);
+    strictEqual(fooModel.usage, UsageFlags.Output | UsageFlags.Json);
   });
 
   it("Get usage for the model in both input and output", async () => {
@@ -69,15 +69,15 @@ describe("Test Usage", () => {
             }
             op test(@path id: string, @body foo: Foo): Foo;
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
-    const fooModel = root.Models.find((model) => model.Name === "Foo");
+    const fooModel = root.Models.find((model) => model.name === "Foo");
 
     ok(fooModel);
-    strictEqual(fooModel.Usage, UsageFlags.Input | UsageFlags.Output | UsageFlags.Json);
+    strictEqual(fooModel.usage, UsageFlags.Input | UsageFlags.Output | UsageFlags.Json);
   });
 
   it("Get usage for the model which is used in two operations", async () => {
@@ -91,15 +91,15 @@ describe("Test Usage", () => {
             op test(@path id: string, @body foo: Foo): void;
             op test2(@path id: string): Foo;
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
-    const fooModel = root.Models.find((model) => model.Name === "Foo");
+    const fooModel = root.Models.find((model) => model.name === "Foo");
 
     ok(fooModel);
-    strictEqual(fooModel.Usage, UsageFlags.Input | UsageFlags.Output | UsageFlags.Json);
+    strictEqual(fooModel.usage, UsageFlags.Input | UsageFlags.Output | UsageFlags.Json);
   });
 
   it("Get usage for the model as the template argument", async () => {
@@ -118,18 +118,18 @@ describe("Test Usage", () => {
             }
             op test(@path id: string, @body foo: TemplateModel<Foo>): void;
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
-    const fooModel = root.Models.find((model) => model.Name === "Foo");
-    const templateModel = root.Models.find((model) => model.Name === "TemplateModelFoo");
+    const fooModel = root.Models.find((model) => model.name === "Foo");
+    const templateModel = root.Models.find((model) => model.name === "TemplateModelFoo");
 
     ok(fooModel);
-    strictEqual(fooModel.Usage, UsageFlags.Input | UsageFlags.Json);
+    strictEqual(fooModel.usage, UsageFlags.Input | UsageFlags.Json);
     ok(templateModel);
-    strictEqual(templateModel.Usage, UsageFlags.Input | UsageFlags.Json);
+    strictEqual(templateModel.usage, UsageFlags.Input | UsageFlags.Json);
   });
 
   it("Test the usage inheritance between base model and derived model", async () => {
@@ -148,18 +148,18 @@ describe("Test Usage", () => {
             op test(@path id: string, @body foo: Foo): void;
             op test2(@path id: string): BaseModel;
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
-    const baseModel = root.Models.find((model) => model.Name === "BaseModel");
-    const fooModel = root.Models.find((model) => model.Name === "Foo");
+    const baseModel = root.Models.find((model) => model.name === "BaseModel");
+    const fooModel = root.Models.find((model) => model.name === "Foo");
 
     ok(baseModel);
-    strictEqual(baseModel.Usage, UsageFlags.Input | UsageFlags.Output | UsageFlags.Json);
+    strictEqual(baseModel.usage, UsageFlags.Input | UsageFlags.Output | UsageFlags.Json);
     ok(fooModel);
-    strictEqual(fooModel.Usage, UsageFlags.Input | UsageFlags.Json);
+    strictEqual(fooModel.usage, UsageFlags.Input | UsageFlags.Json);
   });
 
   it("Test the usage inheritance between base model and derived model which has model property", async () => {
@@ -185,21 +185,21 @@ describe("Test Usage", () => {
             op test(@path id: string, @body foo: Foo): void;
             op test2(@path id: string): BaseModel;
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
-    const baseModel = root.Models.find((model) => model.Name === "BaseModel");
-    const fooModel = root.Models.find((model) => model.Name === "Foo");
-    const propertyModel = root.Models.find((model) => model.Name === "PropertyModel");
+    const baseModel = root.Models.find((model) => model.name === "BaseModel");
+    const fooModel = root.Models.find((model) => model.name === "Foo");
+    const propertyModel = root.Models.find((model) => model.name === "PropertyModel");
 
     ok(baseModel);
-    strictEqual(baseModel.Usage, UsageFlags.Input | UsageFlags.Output | UsageFlags.Json);
+    strictEqual(baseModel.usage, UsageFlags.Input | UsageFlags.Output | UsageFlags.Json);
     ok(fooModel);
-    strictEqual(fooModel.Usage, UsageFlags.Input | UsageFlags.Json);
+    strictEqual(fooModel.usage, UsageFlags.Input | UsageFlags.Json);
     ok(propertyModel);
-    strictEqual(propertyModel.Usage, UsageFlags.Input | UsageFlags.Output | UsageFlags.Json);
+    strictEqual(propertyModel.usage, UsageFlags.Input | UsageFlags.Output | UsageFlags.Json);
   });
 
   it("Test the usage of models spread alias", async () => {
@@ -212,15 +212,15 @@ describe("Test Usage", () => {
             };
             op test(...FooAlias): void;
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
-    const fooAlias = root.Models.find((model) => model.Name === "TestRequest");
+    const fooAlias = root.Models.find((model) => model.name === "TestRequest");
 
     ok(fooAlias);
-    strictEqual(fooAlias.Usage, UsageFlags.Spread | UsageFlags.Json);
+    strictEqual(fooAlias.usage, UsageFlags.Spread | UsageFlags.Json);
   });
 
   it("Test the usage of body parameter of azure core operation.", async () => {
@@ -260,25 +260,25 @@ describe("Test Usage", () => {
             }
       `,
       runner,
-      { IsNamespaceNeeded: true, IsAzureCoreNeeded: true }
+      { IsNamespaceNeeded: true, IsAzureCoreNeeded: true },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
-    const fooInfo = root.Models.find((model) => model.Name === "FooInfo");
+    const fooInfo = root.Models.find((model) => model.name === "FooInfo");
     const batchCreateFooListItemsRequest = root.Models.find(
-      (model) => model.Name === "BatchCreateFooListItemsRequest"
+      (model) => model.name === "BatchCreateFooListItemsRequest",
     );
     const batchCreateTextListItemsResponse = root.Models.find(
-      (model) => model.Name === "BatchCreateTextListItemsResponse"
+      (model) => model.name === "BatchCreateTextListItemsResponse",
     );
 
     ok(fooInfo);
-    strictEqual(fooInfo.Usage, UsageFlags.Input | UsageFlags.Json);
+    strictEqual(fooInfo.usage, UsageFlags.Input | UsageFlags.Json);
     ok(batchCreateFooListItemsRequest);
-    strictEqual(batchCreateFooListItemsRequest.Usage, UsageFlags.Input | UsageFlags.Json);
+    strictEqual(batchCreateFooListItemsRequest.usage, UsageFlags.Input | UsageFlags.Json);
     ok(batchCreateTextListItemsResponse);
-    strictEqual(batchCreateTextListItemsResponse.Usage, UsageFlags.Output | UsageFlags.Json);
+    strictEqual(batchCreateTextListItemsResponse.usage, UsageFlags.Output | UsageFlags.Json);
   });
 
   it("Test the usage of body parameter and return type of azure core resource operation.", async () => {
@@ -305,18 +305,18 @@ describe("Test Usage", () => {
             }
       `,
       runner,
-      { IsNamespaceNeeded: true, IsAzureCoreNeeded: true }
+      { IsNamespaceNeeded: true, IsAzureCoreNeeded: true },
     );
 
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
-    const fooModel = root.Models.find((model) => model.Name === "Foo");
+    const fooModel = root.Models.find((model) => model.name === "Foo");
 
     ok(fooModel);
     strictEqual(
-      fooModel.Usage,
-      UsageFlags.Input | UsageFlags.Output | UsageFlags.JsonMergePatch | UsageFlags.Json
+      fooModel.usage,
+      UsageFlags.Input | UsageFlags.Output | UsageFlags.JsonMergePatch | UsageFlags.Json,
     );
   });
 
@@ -364,21 +364,21 @@ describe("Test Usage", () => {
             }
       `,
       runner,
-      { IsNamespaceNeeded: true, IsAzureCoreNeeded: true }
+      { IsNamespaceNeeded: true, IsAzureCoreNeeded: true },
     );
 
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
-    const baseModel = root.Models.find((model) => model.Name === "BaseModelWithDiscriminator");
+    const baseModel = root.Models.find((model) => model.name === "BaseModelWithDiscriminator");
     const derivedModel = root.Models.find(
-      (model) => model.Name === "DerivedModelWithDiscriminatorA"
+      (model) => model.name === "DerivedModelWithDiscriminatorA",
     );
 
     ok(baseModel);
-    strictEqual(baseModel.Usage, UsageFlags.Input | UsageFlags.Json);
+    strictEqual(baseModel.usage, UsageFlags.Input | UsageFlags.Json);
     ok(derivedModel);
-    strictEqual(derivedModel.Usage, UsageFlags.Input | UsageFlags.Json);
+    strictEqual(derivedModel.usage, UsageFlags.Input | UsageFlags.Json);
   });
 
   it("Test the usage of response polymorphism type in azure core resource operation.", async () => {
@@ -434,24 +434,24 @@ describe("Test Usage", () => {
             }
       `,
       runner,
-      { IsNamespaceNeeded: true, IsAzureCoreNeeded: true }
+      { IsNamespaceNeeded: true, IsAzureCoreNeeded: true },
     );
 
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
-    const baseModel = root.Models.find((model) => model.Name === "BaseModelWithDiscriminator");
+    const baseModel = root.Models.find((model) => model.name === "BaseModelWithDiscriminator");
     const derivedModel = root.Models.find(
-      (model) => model.Name === "DerivedModelWithDiscriminatorA"
+      (model) => model.name === "DerivedModelWithDiscriminatorA",
     );
-    const nestedModel = root.Models.find((model) => model.Name === "NestedModel");
+    const nestedModel = root.Models.find((model) => model.name === "NestedModel");
 
     ok(baseModel);
-    strictEqual(baseModel.Usage, UsageFlags.Output | UsageFlags.Json);
+    strictEqual(baseModel.usage, UsageFlags.Output | UsageFlags.Json);
     ok(derivedModel);
-    strictEqual(derivedModel.Usage, UsageFlags.Output | UsageFlags.Json);
+    strictEqual(derivedModel.usage, UsageFlags.Output | UsageFlags.Json);
     ok(nestedModel);
-    strictEqual(nestedModel.Usage, UsageFlags.Output | UsageFlags.Json);
+    strictEqual(nestedModel.usage, UsageFlags.Output | UsageFlags.Json);
   });
 
   it("Test the usage of enum which is renamed via @clientName.", async () => {
@@ -471,16 +471,16 @@ describe("Test Usage", () => {
             op test(@path id: SimpleEnum): void;
       `,
       runner,
-      { IsNamespaceNeeded: true, IsTCGCNeeded: true }
+      { IsNamespaceNeeded: true, IsTCGCNeeded: true },
     );
 
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
-    const simpleEnumRenamed = root.Enums.find((enumType) => enumType.Name === "SimpleEnumRenamed");
+    const simpleEnumRenamed = root.Enums.find((enumType) => enumType.name === "SimpleEnumRenamed");
 
     ok(simpleEnumRenamed);
-    strictEqual(simpleEnumRenamed.Usage, UsageFlags.Input);
+    strictEqual(simpleEnumRenamed.usage, UsageFlags.Input);
   });
 
   it("Test the usage of model which is renamed via @clientName.", async () => {
@@ -495,16 +495,16 @@ describe("Test Usage", () => {
             op test(@body body: ModelToRename): void;
       `,
       runner,
-      { IsNamespaceNeeded: true, IsTCGCNeeded: true }
+      { IsNamespaceNeeded: true, IsTCGCNeeded: true },
     );
 
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
-    const renamedModel = root.Models.find((model) => model.Name === "RenamedModel");
+    const renamedModel = root.Models.find((model) => model.name === "RenamedModel");
 
     ok(renamedModel);
-    strictEqual(renamedModel.Usage, UsageFlags.Input | UsageFlags.Json);
+    strictEqual(renamedModel.usage, UsageFlags.Input | UsageFlags.Json);
   });
 
   it("Test the usage of return type of a customized LRO operation.", async () => {
@@ -653,17 +653,17 @@ interface LegacyLro {
         IsNamespaceNeeded: true,
         IsAzureCoreNeeded: true,
         IsTCGCNeeded: true,
-      }
+      },
     );
 
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const radiologyInsightsInferenceResult = root.Models.find(
-      (model) => model.Name === "RadiologyInsightsInferenceResult"
+      (model) => model.name === "RadiologyInsightsInferenceResult",
     );
 
     ok(radiologyInsightsInferenceResult);
-    strictEqual(radiologyInsightsInferenceResult.Usage, UsageFlags.Output | UsageFlags.Json);
+    strictEqual(radiologyInsightsInferenceResult.usage, UsageFlags.Output | UsageFlags.Json);
   });
 });

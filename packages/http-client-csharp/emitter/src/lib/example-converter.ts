@@ -53,7 +53,7 @@ export function fromSdkHttpExamples(
   examples: SdkHttpOperationExample[],
   parameterMap: Map<SdkHttpParameter, InputParameter>,
   responseMap: Map<SdkHttpResponse, OperationResponse>,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): InputHttpOperationExample[] {
   return examples.map((example) => fromSdkHttpExample(example));
 
@@ -63,7 +63,6 @@ export function fromSdkHttpExamples(
       name: example.name,
       description: example.description,
       filePath: example.filePath,
-      rawExample: example.rawExample,
       parameters: example.parameters.map((p) => fromSdkParameterExample(p)),
       responses: fromSdkOperationResponses(example.responses),
     };
@@ -77,11 +76,11 @@ export function fromSdkHttpExamples(
   }
 
   function fromSdkOperationResponses(
-    responses: Map<number, SdkHttpResponseExample>
-  ): Map<number, OperationResponseExample> {
-    const result = new Map<number, OperationResponseExample>();
-    for (const [status, response] of responses) {
-      result.set(status, fromSdkOperationResponse(response));
+    responses: Map<number, SdkHttpResponseExample>,
+  ): OperationResponseExample[] {
+    const result: OperationResponseExample[] = [];
+    for (const [_, response] of responses) {
+      result.push(fromSdkOperationResponse(response));
     }
     return result;
   }
@@ -192,14 +191,14 @@ export function fromSdkHttpExamples(
   }
 
   function fromExampleRecord(
-    value: Record<string, SdkTypeExample>
+    value: Record<string, SdkTypeExample>,
   ): Record<string, InputExampleValue> {
     return Object.entries(value).reduce(
       (acc, [key, value]) => {
         acc[key] = fromSdkExample(value);
         return acc;
       },
-      {} as Record<string, InputExampleValue>
+      {} as Record<string, InputExampleValue>,
     );
   }
 }

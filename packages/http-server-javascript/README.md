@@ -132,7 +132,7 @@ directory.
 export interface Users<Context = unknown> {
   create(
     ctx: Context,
-    user: User
+    user: User,
   ): Promise<
     | UserCreatedResponse
     | UserExistsResponse

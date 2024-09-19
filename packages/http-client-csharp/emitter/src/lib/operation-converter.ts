@@ -4,7 +4,6 @@
 import {
   SdkBodyParameter,
   SdkBuiltInKinds,
-  SdkBuiltInType,
   SdkContext,
   SdkHeaderParameter,
   SdkHttpOperation,
@@ -17,7 +16,6 @@ import {
   SdkType,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
-  UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { getDeprecated, getDoc, getSummary, isErrorModel } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
@@ -30,7 +28,7 @@ import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputOperation } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
-import { InputPrimitiveType, InputType } from "../type/input-type.js";
+import { InputType } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
 import { OperationPaging } from "../type/operation-paging.js";
 import { OperationResponse } from "../type/operation-response.js";
@@ -42,6 +40,7 @@ import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { Logger } from "./logger.js";
 import { getInputType } from "./model.js";
+import { capitalize, isSdkPathParameter } from "./utils.js";
 
 export function fromSdkServiceMethod(
   method: SdkServiceMethod<SdkHttpOperation>,
@@ -49,12 +48,12 @@ export function fromSdkServiceMethod(
   clientParameters: InputParameter[],
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): InputOperation {
   let generateConvenience = shouldGenerateConvenient(sdkContext, method.operation.__raw.operation);
   if (method.operation.verb === "patch" && generateConvenience) {
     Logger.getInstance().warn(
-      `Convenience method is not supported for PATCH method, it will be automatically turned off. Please set the '@convenientAPI' to false for operation ${method.operation.__raw.operation.name}.`
+      `Convenience method is not supported for PATCH method, it will be automatically turned off. Please set the '@convenientAPI' to false for operation ${method.operation.__raw.operation.name}.`,
     );
     generateConvenience = false;
   }
@@ -63,12 +62,12 @@ export function fromSdkServiceMethod(
     method.operation,
     rootApiVersions,
     sdkContext,
-    typeMap
+    typeMap,
   );
   const responseMap = fromSdkHttpOperationResponses(
     method.operation.responses,
     sdkContext,
-    typeMap
+    typeMap,
   );
   return {
     Name: method.name,
@@ -103,7 +102,7 @@ export function fromSdkServiceMethod(
           method.operation.examples,
           parameterMap,
           responseMap,
-          typeMap
+          typeMap,
         )
       : undefined,
   };
@@ -111,12 +110,12 @@ export function fromSdkServiceMethod(
 
 export function getParameterDefaultValue(
   clientDefaultValue: any,
-  parameterType: InputType
+  parameterType: InputType,
 ): InputConstant | undefined {
   if (
     clientDefaultValue === undefined ||
     // a constant parameter should overwrite client default value
-    parameterType.Kind === "constant"
+    parameterType.kind === "constant"
   ) {
     return undefined;
   }
@@ -124,9 +123,9 @@ export function getParameterDefaultValue(
   const kind = getValueType(clientDefaultValue);
   return {
     Type: {
-      Kind: kind,
-      Name: kind,
-      CrossLanguageDefinitionId: `TypeSpec.${kind}`,
+      kind: kind,
+      name: kind,
+      crossLanguageDefinitionId: `TypeSpec.${kind}`,
     },
     Value: clientDefaultValue,
   };
@@ -151,7 +150,7 @@ function fromSdkOperationParameters(
   operation: SdkHttpOperation,
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): Map<SdkHttpParameter, InputParameter> {
   const parameters = new Map<SdkHttpParameter, InputParameter>();
   for (const p of operation.parameters) {
@@ -164,30 +163,22 @@ function fromSdkOperationParameters(
       operation.bodyParam,
       rootApiVersions,
       sdkContext,
-      typeMap
+      typeMap,
     );
     parameters.set(operation.bodyParam, bodyParam);
   }
   return parameters;
 }
 
-// TODO: roll back to SdkMethodParameter when we figure out how to represent the parameter location
-// https://github.com/Azure/typespec-azure/issues/981
 function fromSdkHttpOperationParameter(
   p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter,
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): InputParameter {
   const isContentType =
     p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type";
   const parameterType = fromSdkType(p.type, sdkContext, typeMap);
-  // remove this after: https://github.com/Azure/typespec-azure/issues/1084
-  if (p.type.kind === "bytes") {
-    (parameterType as InputPrimitiveType).Encode = (
-      p.correspondingMethodParams[0].type as SdkBuiltInType
-    ).encode;
-  }
   const format = p.kind === "header" || p.kind === "query" ? p.collectionFormat : undefined;
   const serializedName = p.kind !== "body" ? p.serializedName : p.name;
 
@@ -201,24 +192,35 @@ function fromSdkHttpOperationParameter(
       p.name.toLocaleLowerCase() === "apiversion" || p.name.toLocaleLowerCase() === "api-version",
     IsContentType: isContentType,
     IsEndpoint: false,
-    Explode: parameterType.Kind === "array" && format === "multi" ? true : false,
+    Explode: parameterType.kind === "array" && format === "multi" ? true : false,
     ArraySerializationDelimiter: format ? collectionFormatToDelimMap[format] : undefined,
     IsRequired: !p.optional,
     Kind: getParameterKind(p, parameterType, rootApiVersions.length > 0),
     DefaultValue: getParameterDefaultValue(p.clientDefaultValue, parameterType),
     Decorators: p.decorators,
+    SkipUrlEncoding: isSdkPathParameter(p) ? p.allowReserved : false,
   } as InputParameter;
 }
 
 function loadLongRunningOperation(
   method: SdkServiceMethod<SdkHttpOperation>,
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): import("../type/operation-long-running.js").OperationLongRunning | undefined {
   if (method.kind !== "lro") {
     return undefined;
   }
-
+  /* Remove this workaround when https://github.com/Azure/typespec-azure/issues/1538 is resolved */
+  if (
+    method.__raw_lro_metadata.finalEnvelopeResult &&
+    method.__raw_lro_metadata.finalEnvelopeResult !== "void" &&
+    method.__raw_lro_metadata.finalEnvelopeResult.name === ""
+  ) {
+    method.__raw_lro_metadata.finalEnvelopeResult = {
+      ...method.__raw_lro_metadata.finalEnvelopeResult,
+      name: capitalize(`${method.name}Response`),
+    };
+  }
   return {
     FinalStateVia: convertLroFinalStateVia(method.__raw_lro_metadata.finalStateVia),
     FinalResponse: {
@@ -232,7 +234,7 @@ function loadLongRunningOperation(
               sdkContext,
               method.__raw_lro_metadata.finalEnvelopeResult,
               typeMap,
-              method.operation.__raw.operation
+              method.operation.__raw.operation,
             )
           : undefined,
       BodyMediaType: BodyMediaType.Json,
@@ -244,7 +246,7 @@ function loadLongRunningOperation(
 function fromSdkHttpOperationResponses(
   operationResponses: Map<HttpStatusCodeRange | number, SdkHttpResponse>,
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): Map<SdkHttpResponse, OperationResponse> {
   const responses = new Map<SdkHttpResponse, OperationResponse>();
   for (const [range, r] of operationResponses) {
@@ -263,7 +265,7 @@ function fromSdkHttpOperationResponses(
 function fromSdkServiceResponseHeaders(
   headers: SdkServiceResponseHeader[],
   sdkContext: SdkContext<NetEmitterOptions>,
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): HttpResponseHeader[] {
   return headers.map(
     (h) =>
@@ -272,7 +274,7 @@ function fromSdkServiceResponseHeaders(
         NameInResponse: h.serializedName,
         Description: h.description,
         Type: fromSdkType(h.type, sdkContext, typeMap),
-      }) as HttpResponseHeader
+      }) as HttpResponseHeader,
   );
 }
 
@@ -303,7 +305,7 @@ function getBodyMediaType(type: SdkType | undefined) {
 
 function getRequestMediaTypes(op: SdkHttpOperation): string[] | undefined {
   const contentTypes = op.parameters.filter(
-    (p) => p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type"
+    (p) => p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type",
   );
   if (contentTypes.length === 0) return undefined;
   return contentTypes.map((p) => getMediaTypes(p.type)).flat();
@@ -335,7 +337,7 @@ function getMediaTypes(type: SdkType): string[] {
 }
 
 function loadOperationPaging(
-  method: SdkServiceMethod<SdkHttpOperation>
+  method: SdkServiceMethod<SdkHttpOperation>,
 ): OperationPaging | undefined {
   if (method.kind !== "paging") {
     return undefined;
@@ -349,7 +351,7 @@ function loadOperationPaging(
 
 // TODO: https://github.com/Azure/typespec-azure/issues/981
 function getParameterLocation(
-  p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter | undefined
+  p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter | undefined,
 ): RequestLocation {
   switch (p?.kind) {
     case "path":
@@ -368,27 +370,37 @@ function getParameterLocation(
 function getParameterKind(
   p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter,
   type: InputType,
-  hasGlobalApiVersion: boolean
+  hasGlobalApiVersion: boolean,
 ): InputOperationParameterKind {
   if (p.kind === "body") {
-    if (type.Kind === "model" && (type.Usage & UsageFlags.Spread) !== 0) {
+    /** TODO: remove this and use the spread metadata of parameter when https://github.com/Azure/typespec-azure/issues/1513 is resolved */
+    if (type.kind === "model" && p.type !== p.correspondingMethodParams[0]?.type) {
       return InputOperationParameterKind.Spread;
     }
     return InputOperationParameterKind.Method;
   }
-  return type.Kind === "constant"
+
+  /** remove this, use p.onClient directly when https://github.com/Azure/typespec-azure/issues/1532 is resolved */
+  const paramOnClient =
+    p.correspondingMethodParams &&
+    p.correspondingMethodParams.length > 0 &&
+    p.correspondingMethodParams[0].onClient;
+
+  return type.kind === "constant"
     ? InputOperationParameterKind.Constant
     : p.isApiVersionParam
       ? hasGlobalApiVersion
         ? InputOperationParameterKind.Client
         : InputOperationParameterKind.Method
-      : InputOperationParameterKind.Method;
+      : paramOnClient // use p.onClient when https://github.com/Azure/typespec-azure/issues/1532 is resolved
+        ? InputOperationParameterKind.Client
+        : InputOperationParameterKind.Method;
 }
 
 function getOperationGroupName(
   context: SdkContext,
   operation: SdkHttpOperation,
-  namespace: string
+  namespace: string,
 ): string {
   const explicitOperationId = getOperationId(context, operation.__raw.operation);
   if (explicitOperationId) {

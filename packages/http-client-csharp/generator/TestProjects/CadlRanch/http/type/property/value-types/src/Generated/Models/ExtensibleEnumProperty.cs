@@ -13,6 +13,5 @@ namespace _Type.Property.ValueTypes.Models
             get => throw null;
             set => throw null;
         }
-
     }
 }

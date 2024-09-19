@@ -23,7 +23,7 @@ afterAll(async () => {
   // Write the test format expected in monaco-editor repo. You can then copy the content to the test file and update src/basic-languages/typespec/typespec.test.ts
   await writeFile(
     resolve(fileURLToPath(import.meta.url), "../../temp/monaco-tests.json"),
-    JSON.stringify(lines, null, 2)
+    JSON.stringify(lines, null, 2),
   );
 });
 
@@ -85,7 +85,7 @@ function tokenizeTo(expected: Token[]): TestFunction {
 
 it(
   `import "@typespec/http";`,
-  tokenizeTo([Token.keyword("import"), Token.stringQuoted("@typespec/http"), Token.default(";")])
+  tokenizeTo([Token.keyword("import"), Token.stringQuoted("@typespec/http"), Token.default(";")]),
 );
 
 it(
@@ -95,11 +95,11 @@ it(
     Token.identifier("TypeSpec"),
     Token.default("."),
     Token.identifier("Http"),
-  ])
+  ]),
 );
 it(
   "namespace Foo {}",
-  tokenizeTo([Token.keyword("namespace"), Token.identifier("Foo"), Token.default("{}")])
+  tokenizeTo([Token.keyword("namespace"), Token.identifier("Foo"), Token.default("{}")]),
 );
 
 it(
@@ -114,12 +114,12 @@ it(
     Token.identifier("Bar"),
     Token.default("{}"),
     Token.default("}"),
-  ])
+  ]),
 );
 
 it(
   "model Foo {}",
-  tokenizeTo([Token.keyword("model"), Token.identifier("Foo"), Token.default("{}")])
+  tokenizeTo([Token.keyword("model"), Token.identifier("Foo"), Token.default("{}")]),
 );
 
 it(
@@ -130,7 +130,7 @@ it(
     Token.keyword("is"),
     Token.identifier("Bar"),
     Token.default(";"),
-  ])
+  ]),
 );
 it(
   "model Foo extends Bar;",
@@ -140,17 +140,17 @@ it(
     Token.keyword("extends"),
     Token.identifier("Bar"),
     Token.default(";"),
-  ])
+  ]),
 );
 
 it(
   "interface Foo {}",
-  tokenizeTo([Token.keyword("interface"), Token.identifier("Foo"), Token.default("{}")])
+  tokenizeTo([Token.keyword("interface"), Token.identifier("Foo"), Token.default("{}")]),
 );
 
 it(
   "union Foo {}",
-  tokenizeTo([Token.keyword("union"), Token.identifier("Foo"), Token.default("{}")])
+  tokenizeTo([Token.keyword("union"), Token.identifier("Foo"), Token.default("{}")]),
 );
 
 it(
@@ -161,7 +161,7 @@ it(
     Token.keyword("extends"),
     Token.identifier("string"),
     Token.default(";"),
-  ])
+  ]),
 );
 
 it(
@@ -172,7 +172,7 @@ it(
     Token.default("():"),
     Token.keyword("void"),
     Token.default(";"),
-  ])
+  ]),
 );
 
 it(
@@ -185,7 +185,7 @@ it(
     Token.default(","),
     Token.identifier("down"),
     Token.default("}"),
-  ])
+  ]),
 );
 
 it(
@@ -198,7 +198,7 @@ it(
     Token.default("|"),
     Token.stringQuoted("b"),
     Token.default(";"),
-  ])
+  ]),
 );
 
 it(
@@ -216,7 +216,7 @@ it(
     Token.string(`  is`),
     Token.string(`  multiline`),
     Token.string(`  """`),
-  ])
+  ]),
 );
 
 it(
@@ -229,5 +229,5 @@ it(
     Token.default(":"),
     Token.stringQuoted("abc"),
     Token.default("};"),
-  ])
+  ]),
 );

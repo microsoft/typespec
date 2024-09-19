@@ -22,7 +22,7 @@ const _SERIALIZATIONS_MAP = new WeakMap<SerializableType, Set<SerializationConte
 export function requireSerialization(
   ctx: JsContext,
   type: Type,
-  contentType: SerializationContentType
+  contentType: SerializationContentType,
 ): void {
   if (!isSerializableType(type)) {
     throw new UnimplementedError(`no implementation of JSON serialization for type '${type.kind}'`);
@@ -56,8 +56,8 @@ export function emitSerialization(ctx: JsContext): void {
 
     const requiredSerializations = new Set<SerializationContentType>(
       [...serializations].filter((serialization) =>
-        isSerializationRequired(ctx, type, serialization)
-      )
+        isSerializationRequired(ctx, type, serialization),
+      ),
     );
 
     if (requiredSerializations.size > 0) {
@@ -69,7 +69,7 @@ export function emitSerialization(ctx: JsContext): void {
 export function isSerializationRequired(
   ctx: JsContext,
   type: Type,
-  serialization: SerializationContentType
+  serialization: SerializationContentType,
 ): boolean {
   switch (serialization) {
     case "application/json": {
@@ -83,7 +83,7 @@ export function isSerializationRequired(
 function emitSerializationsForType(
   ctx: SerializationContext,
   type: SerializableType,
-  serializations: Set<SerializationContentType>
+  serializations: Set<SerializationContentType>,
 ): void {
   const isSynthetic = ctx.syntheticNames.has(type) || !type.namespace;
 
@@ -97,7 +97,7 @@ function emitSerializationsForType(
 
   for (const serialization of serializations) {
     serializationCode.push(
-      ...indent(emitSerializationForType(ctx, type, serialization, module, typeName))
+      ...indent(emitSerializationForType(ctx, type, serialization, module, typeName)),
     );
   }
 
@@ -111,7 +111,7 @@ function* emitSerializationForType(
   type: SerializableType,
   contentType: SerializationContentType,
   module: Module,
-  typeName: string
+  typeName: string,
 ): Iterable<string> {
   switch (contentType) {
     case "application/json": {

@@ -17,7 +17,7 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import com.type.union.implementation.StringExtensiblesImpl;
-import com.type.union.implementation.models.SendRequest1;
+import com.type.union.implementation.models.SendRequest8;
 import com.type.union.models.GetResponse8;
 import com.type.union.models.GetResponseProp3;
 import reactor.core.publisher.Mono;
@@ -123,7 +123,7 @@ public final class StringExtensibleAsyncClient {
     public Mono<Void> send(GetResponseProp3 prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest1 sendRequest8Obj = new SendRequest1(prop);
+        SendRequest8 sendRequest8Obj = new SendRequest8(prop);
         BinaryData sendRequest8 = BinaryData.fromObject(sendRequest8Obj);
         return sendWithResponse(sendRequest8, requestOptions).flatMap(FluxUtil::toMono);
     }

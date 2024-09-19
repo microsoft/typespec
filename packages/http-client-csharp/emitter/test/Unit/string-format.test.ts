@@ -21,13 +21,13 @@ describe("Test string format", () => {
       `
             op test(@path sourceUrl: url): void;
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const type = root.Clients[0].Operations[0].Parameters[1].Type;
-    strictEqual(type.Kind, "url");
+    strictEqual(type.kind, "url");
   });
 
   it("scalar url as model property", async () => {
@@ -41,15 +41,15 @@ describe("Test string format", () => {
 
             op test(@body foo: Foo): void;
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const codeModel = createModel(sdkContext);
     const models = codeModel.Models;
-    const foo = models.find((m) => m.Name === "Foo");
+    const foo = models.find((m) => m.name === "Foo");
     ok(foo);
-    const type = foo?.Properties[0].Type;
-    strictEqual(type.Kind, "url");
+    const type = foo?.properties[0].type;
+    strictEqual(type.kind, "url");
   });
 });

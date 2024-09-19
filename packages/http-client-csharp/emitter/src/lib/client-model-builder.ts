@@ -10,7 +10,6 @@ import {
   SdkServiceMethod,
   SdkType,
   UsageFlags,
-  getAllModels,
 } from "@azure-tools/typespec-client-generator-core";
 import { getDoc } from "@typespec/compiler";
 import { NetEmitterOptions, resolveOptions } from "../options.js";
@@ -28,9 +27,6 @@ import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-conv
 import { processServiceAuthentication } from "./service-authentication.js";
 
 export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeModel {
-  // initialize tcgc model
-  if (!sdkContext.operationModelsMap) getAllModels(sdkContext);
-
   const sdkPackage = sdkContext.sdkPackage;
 
   const sdkTypeMap: SdkTypeMap = {
@@ -52,7 +48,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   fromSdkClients(
     sdkPackage.clients.filter((c) => c.initialization.access === "public"),
     inputClients,
-    []
+    [],
   );
 
   const clientModel: CodeModel = {
@@ -68,7 +64,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   function fromSdkClients(
     clients: SdkClientType<SdkHttpOperation>[],
     inputClients: InputClient[],
-    parentClientNames: string[]
+    parentClientNames: string[],
   ) {
     for (const client of clients) {
       const inputClient = emitClient(client, parentClientNames);
@@ -84,7 +80,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
 
   function emitClient(client: SdkClientType<SdkHttpOperation>, parentNames: string[]): InputClient {
     const endpointParameter = client.initialization.properties.find(
-      (p) => p.kind === "endpoint"
+      (p) => p.kind === "endpoint",
     ) as SdkEndpointParameter;
     const uri = getMethodUri(endpointParameter);
     const clientParameters = fromSdkEndpointParameter(endpointParameter);
@@ -100,8 +96,8 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
             clientParameters,
             rootApiVersions,
             sdkContext,
-            sdkTypeMap
-          )
+            sdkTypeMap,
+          ),
         ),
       Protocol: {},
       Parent: parentNames.length > 0 ? parentNames[parentNames.length - 1] : undefined,
@@ -112,7 +108,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
 
   function getClientName(
     client: SdkClientType<SdkHttpOperation>,
-    parentClientNames: string[]
+    parentClientNames: string[],
   ): string {
     const clientName = client.name;
 
@@ -155,9 +151,9 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       const isEndpoint = parameter.name === endpointVariableName;
       const parameterType: InputType = isEndpoint
         ? {
-            Kind: "url",
-            Name: "url",
-            CrossLanguageDefinitionId: "TypeSpec.url",
+            kind: "url",
+            name: "url",
+            crossLanguageDefinitionId: "TypeSpec.url",
           }
         : fromSdkType(parameter.type, sdkContext, sdkTypeMap); // TODO: consolidate with converter.fromSdkEndpointType
       parameters.push({

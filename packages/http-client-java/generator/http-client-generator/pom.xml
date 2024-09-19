@@ -12,8 +12,12 @@
     <version>1.0.0-beta.1</version>
   </parent>
 
-  <dependencies>
+  <properties>
+    <shade.finalName>emitter</shade.finalName>
+    <shade.mainClass>com.microsoft.typespec.http.client.generator.Main</shade.mainClass>
+  </properties>
 
+  <dependencies>
     <dependency>
       <groupId>com.microsoft.typespec</groupId>
       <artifactId>http-client-generator-mgmt</artifactId>
@@ -37,35 +41,59 @@
       <version>5.9.3</version> <!-- {x-version-update;org.junit.jupiter:junit-jupiter-params;external_dependency} -->
       <scope>test</scope>
     </dependency>
-  </dependencies>
 
+     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.36</version>
+    </dependency>
+  </dependencies>
 
   <build>
     <finalName>emitter</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.6.0</version>
         <executions>
           <execution>
             <phase>package</phase>
             <goals>
-              <goal>single</goal>
+              <goal>shade</goal>
             </goals>
             <configuration>
-              <appendAssemblyId>false</appendAssemblyId>
-              <archive>
-                <manifest>
-                  <mainClass>com.microsoft.typespec.http.client.generator.Main</mainClass>
-                </manifest>
-              </archive>
-              <descriptorRefs>
-                <descriptorRef>jar-with-dependencies</descriptorRef>
-              </descriptorRefs>
+              <finalName>${shade.finalName}</finalName>
+              <minimizeJar>true</minimizeJar>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <entryPoints>
+                <entryPoint>${shade.mainClass}</entryPoint>
+              </entryPoints>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>${shade.mainClass}</mainClass>
+                </transformer>
+
+                <!-- this handles and properly merges the content of META-INF/services in the dependencies -->
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+              </transformers>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <!-- remove the dependencies signature as not relevant-->
+                    <exclude>META-INF/*.MF</exclude>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
+              </filters>
             </configuration>
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>

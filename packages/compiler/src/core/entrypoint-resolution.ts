@@ -11,7 +11,7 @@ import { CompilerHost } from "./types.js";
 export async function resolveTypeSpecEntrypoint(
   host: CompilerHost,
   path: string,
-  reportDiagnostic: DiagnosticHandler
+  reportDiagnostic: DiagnosticHandler,
 ): Promise<string | undefined> {
   const resolvedPath = resolvePath(path);
   const mainStat = await doIO(host.stat, resolvedPath, reportDiagnostic);
@@ -29,7 +29,7 @@ export async function resolveTypeSpecEntrypoint(
 export async function resolveTypeSpecEntrypointForDir(
   host: CompilerHost,
   dir: string,
-  reportDiagnostic: DiagnosticHandler
+  reportDiagnostic: DiagnosticHandler,
 ): Promise<string> {
   const pkgJsonPath = resolvePath(dir, "package.json");
   const [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, reportDiagnostic, {
@@ -45,7 +45,7 @@ export async function resolveTypeSpecEntrypointForDir(
   const stat = await doIO(
     () => host.stat(mainFile),
     mainFile,
-    () => {}
+    () => {},
   );
   // if not found, use the normal resolution.
   if (stat?.isFile() !== true) {

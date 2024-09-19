@@ -33,9 +33,11 @@ model ApiVersionParameter {
 
 alias Request = {
   @visibility("read") @key name: string;
+  endpoint: string;
   user?: User;
   input: string;
   constant: "constant";
+  requiredInt: int32;
 };
 
 alias LongRequest = {
@@ -44,6 +46,7 @@ alias LongRequest = {
   dataInt: int32;
   dataIntOptional?: int32;
   dataLong?: int64;
+  requiredUser: User;
 
   @clientName("dataFloat")
   @encodedName("application/json", "data_float")

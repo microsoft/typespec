@@ -11,9 +11,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.OutputTypes
         [Test]
         public void TestTokenAuth()
         {
-            MockHelpers.LoadMockPlugin(tokenCredentialType: () => typeof(int));
+            MockHelpers.LoadMockPlugin(keyCredentialType: () => typeof(int));
 
-            var result = ClientModelPlugin.Instance.TypeFactory.TokenCredentialType();
+            var result = ClientModelPlugin.Instance.TypeFactory.KeyCredentialType;
             Assert.IsNotNull(result);
             Assert.AreEqual(new CSharpType(typeof(int)), result);
         }
@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.OutputTypes
         {
             MockHelpers.LoadMockPlugin(matchConditionsType: () => typeof(int));
 
-            var result = ClientModelPlugin.Instance.TypeFactory.MatchConditionsType();
+            var result = ClientModelPlugin.Instance.TypeFactory.MatchConditionsType;
             Assert.IsNotNull(result);
             Assert.AreEqual(new CSharpType(typeof(int)), result);
         }

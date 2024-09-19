@@ -10,7 +10,7 @@ using Microsoft.Generator.CSharp.Customization;
 
 namespace Microsoft.Generator.CSharp.SourceInput
 {
-    internal class CodeGenAttributes
+    internal static class CodeGenAttributes
     {
         public const string CodeGenSuppressAttributeName = "CodeGenSuppressAttribute";
 
@@ -24,7 +24,7 @@ namespace Microsoft.Generator.CSharp.SourceInput
 
         public const string CodeGenSerializationAttributeName = "CodeGenSerializationAttribute";
 
-        public bool TryGetCodeGenMemberAttributeValue(AttributeData attributeData, [MaybeNullWhen(false)] out string name)
+        public static bool TryGetCodeGenMemberAttributeValue(AttributeData attributeData, [MaybeNullWhen(false)] out string name)
         {
             name = null;
             if (attributeData.AttributeClass?.Name != CodeGenMemberAttributeName)
@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp.SourceInput
             return name != null;
         }
 
-        public bool TryGetCodeGenSerializationAttributeValue(AttributeData attributeData, [MaybeNullWhen(false)] out string propertyName, out IReadOnlyList<string>? serializationNames, out string? serializationHook, out string? deserializationHook, out string? bicepSerializationHook)
+        public static bool TryGetCodeGenSerializationAttributeValue(AttributeData attributeData, [MaybeNullWhen(false)] out string propertyName, out IReadOnlyList<string>? serializationNames, out string? serializationHook, out string? deserializationHook, out string? bicepSerializationHook)
         {
             propertyName = null;
             serializationNames = null;
@@ -80,7 +80,7 @@ namespace Microsoft.Generator.CSharp.SourceInput
             return propertyName != null && (serializationNames != null || serializationHook != null || deserializationHook != null || bicepSerializationHook != null);
         }
 
-        public bool TryGetCodeGenModelAttributeValue(AttributeData attributeData, out string[]? usage, out string[]? formats)
+        public static bool TryGetCodeGenModelAttributeValue(AttributeData attributeData, out string[]? usage, out string[]? formats)
         {
             usage = null;
             formats = null;

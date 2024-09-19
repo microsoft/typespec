@@ -52,7 +52,7 @@ describe("converts top-level schemas", () => {
     expect(customArray.indexer?.key.name).toBe("integer");
     assert(
       customArray.indexer?.value.kind === "Scalar",
-      `Expected indexer.value.kind to be "Scalar", got "${customArray?.indexer?.value?.kind}"`
+      `Expected indexer.value.kind to be "Scalar", got "${customArray?.indexer?.value?.kind}"`,
     );
     expect(customArray.indexer?.value.name).toBe("string");
 
@@ -214,13 +214,13 @@ describe("converts top-level schemas", () => {
       const discriminatedUnionVariants = [...(discriminatedUnion?.variants.values() ?? [])];
       expect(discriminatedUnionVariants.length).toBe(2);
       expect(
-        (discriminatedUnionVariants[0].type as Model).properties.get("kind")?.type
+        (discriminatedUnionVariants[0].type as Model).properties.get("kind")?.type,
       ).toMatchObject({
         kind: "String",
         value: "foo",
       });
       expect(
-        (discriminatedUnionVariants[1].type as Model).properties.get("kind")?.type
+        (discriminatedUnionVariants[1].type as Model).properties.get("kind")?.type,
       ).toMatchObject({
         kind: "String",
         value: "bar",
@@ -309,7 +309,7 @@ describe("converts top-level schemas", () => {
       });
       assert(
         Foo.indexer?.value.kind === "Scalar",
-        `Expected indexer.value.kind to be 'Scalar', got ${Foo.indexer?.value.kind}`
+        `Expected indexer.value.kind to be 'Scalar', got ${Foo.indexer?.value.kind}`,
       );
       expect(Foo.indexer?.value.name).toBe("string");
     });
@@ -335,6 +335,193 @@ describe("converts top-level schemas", () => {
       expect(FooAlias?.sourceModels.length).toBe(1);
       expect(FooAlias?.sourceModels[0].usage).toBe("is");
       expect(FooAlias?.sourceModels[0].model).toBe(Foo);
+    });
+
+    it("allOf with parent discriminator", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          Pet: {
+            type: "object",
+            required: ["kind"],
+            properties: {
+              kind: { type: "string" },
+            },
+            discriminator: { propertyName: "kind" },
+          },
+          Cat: {
+            allOf: [
+              { $ref: "#/components/schemas/Pet" },
+              {
+                type: "object",
+                required: ["kind", "meow"],
+                properties: { kind: { type: "string", enum: ["cat"] }, meow: { type: "string" } },
+              },
+            ],
+          },
+        },
+      });
+
+      /* @discriminator("kind") model Pet { kind: string, } */
+      const Pet = serviceNamespace.models.get("Pet");
+      assert(Pet, "Pet model not found");
+
+      /* model Cat extends Pet { kind: "cat", meow: string, } */
+      const Cat = serviceNamespace.models.get("Cat");
+      assert(Cat, "Cat model not found");
+      expect(Cat.baseModel).toBe(Pet);
+      expect(Cat.properties.size).toBe(2);
+      expect(Cat.properties.get("kind")).toMatchObject({
+        optional: false,
+        type: { kind: "String", value: "cat" },
+      });
+      expect(Cat.properties.get("meow")).toMatchObject({
+        optional: false,
+        type: { kind: "Scalar", name: "string" },
+      });
+    });
+
+    it("allOf without parent discriminator", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          Pet: {
+            type: "object",
+            required: ["name"],
+            properties: {
+              name: { type: "string" },
+            },
+          },
+          Cat: {
+            allOf: [
+              { $ref: "#/components/schemas/Pet" },
+              {
+                type: "object",
+                required: ["kind", "meow"],
+                properties: { kind: { type: "string", enum: ["cat"] }, meow: { type: "string" } },
+              },
+            ],
+          },
+        },
+      });
+
+      /* model Pet { name: string, } */
+      const Pet = serviceNamespace.models.get("Pet");
+      assert(Pet, "Pet model not found");
+
+      /* model Cat { ...Pet, kind: "cat", meow: string, } */
+      const Cat = serviceNamespace.models.get("Cat");
+      assert(Cat, "Cat model not found");
+      expect(Cat.baseModel).toBeUndefined();
+      expect(Cat.properties.size).toBe(3);
+      expect(Cat.properties.get("name")).toMatchObject({
+        optional: false,
+        type: { kind: "Scalar", name: "string" },
+      });
+      expect(Cat.properties.get("kind")).toMatchObject({
+        optional: false,
+        type: { kind: "String", value: "cat" },
+      });
+      expect(Cat.properties.get("meow")).toMatchObject({
+        optional: false,
+        type: { kind: "Scalar", name: "string" },
+      });
+    });
+
+    it("allOf with props", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          Pet: {
+            type: "object",
+            required: ["kind"],
+            properties: {
+              kind: { type: "string" },
+            },
+            discriminator: { propertyName: "kind" },
+          },
+          Cat: {
+            type: "object",
+            properties: {
+              paws: { type: "integer", format: "int8" },
+            },
+            allOf: [
+              { $ref: "#/components/schemas/Pet" },
+              {
+                type: "object",
+                required: ["kind", "meow"],
+                properties: { kind: { type: "string", enum: ["cat"] }, meow: { type: "string" } },
+              },
+            ],
+          },
+        },
+      });
+
+      /* @discriminator("kind") model Pet { kind: string, } */
+      const Pet = serviceNamespace.models.get("Pet");
+      assert(Pet, "Pet model not found");
+
+      /* model Cat extends Pet { kind: "cat", meow: string, paws?: int8 } */
+      const Cat = serviceNamespace.models.get("Cat");
+      assert(Cat, "Cat model not found");
+      expect(Cat.baseModel).toBe(Pet);
+      expect(Cat.properties.size).toBe(3);
+      expect(Cat.properties.get("kind")).toMatchObject({
+        optional: false,
+        type: { kind: "String", value: "cat" },
+      });
+      expect(Cat.properties.get("meow")).toMatchObject({
+        optional: false,
+        type: { kind: "Scalar", name: "string" },
+      });
+      expect(Cat.properties.get("paws")).toMatchObject({
+        optional: true,
+        type: { kind: "Scalar", name: "int8" },
+      });
+    });
+
+    it("allOf with multiple discriminators fallback to spread", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          Foo: {
+            type: "object",
+            required: ["kind"],
+            properties: {
+              kind: { type: "string" },
+            },
+            discriminator: { propertyName: "kind" },
+          },
+          Bar: {
+            type: "object",
+            required: ["type"],
+            properties: {
+              type: { type: "string" },
+            },
+            discriminator: { propertyName: "type" },
+          },
+          Thing: {
+            allOf: [{ $ref: "#/components/schemas/Foo" }, { $ref: "#/components/schemas/Bar" }],
+          },
+        },
+      });
+
+      /* @discriminator("kind") model Foo { kind: string, } */
+      const Foo = serviceNamespace.models.get("Foo");
+      assert(Foo, "Foo model not found");
+      /* @discriminator("type") model Bar { type: string, } */
+      const Bar = serviceNamespace.models.get("Bar");
+      assert(Bar, "Bar model not found");
+
+      /* model Thing { ...Foo; ...Bar; } */
+      const Thing = serviceNamespace.models.get("Thing");
+      assert(Thing, "Thing model not found");
+      expect(Thing.baseModel).toBeUndefined();
+      expect(Thing.properties.size).toBe(2);
+      expect(Thing.properties.get("kind")).toMatchObject({
+        optional: false,
+        type: { kind: "Scalar", name: "string" },
+      });
+      expect(Thing.properties.get("type")).toMatchObject({
+        optional: false,
+        type: { kind: "Scalar", name: "string" },
+      });
     });
   });
 });

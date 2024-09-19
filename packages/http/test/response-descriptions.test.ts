@@ -15,7 +15,7 @@ describe("http: response descriptions", () => {
     const op = await getHttpOp(
       `
       op read(): {@statusCode _: 200, content: string};
-      `
+      `,
     );
     strictEqual(op.responses[0].description, "The request has succeeded.");
   });
@@ -26,7 +26,7 @@ describe("http: response descriptions", () => {
       @error model Error {}
       @returnsDoc("A string")
       op read(): { @statusCode _: 200, content: string } |  { @statusCode _: 201, content: string } | Error;
-      `
+      `,
     );
     strictEqual(op.responses[0].description, "A string");
     strictEqual(op.responses[1].description, "A string");
@@ -39,12 +39,12 @@ describe("http: response descriptions", () => {
       @error model Error {}
       @errorsDoc("Generic error")
       op read(): { @statusCode _: 200, content: string } |  { @statusCode _: 201, content: string } | Error;
-      `
+      `,
     );
     strictEqual(op.responses[0].description, "The request has succeeded.");
     strictEqual(
       op.responses[1].description,
-      "The request has succeeded and a new resource has been created as a result."
+      "The request has succeeded and a new resource has been created as a result.",
     );
     strictEqual(op.responses[2].description, "Generic error");
   });
@@ -56,14 +56,28 @@ describe("http: response descriptions", () => {
       @error @doc("Not found model") model NotFound {@statusCode _: 404}
       @errorsDoc("Generic error")
       op read(): { @statusCode _: 200, content: string } |  { @statusCode _: 201, content: string } | NotFound | Error ;
-      `
+      `,
     );
     strictEqual(op.responses[0].description, "The request has succeeded.");
     strictEqual(
       op.responses[1].description,
-      "The request has succeeded and a new resource has been created as a result."
+      "The request has succeeded and a new resource has been created as a result.",
     );
     strictEqual(op.responses[2].description, "Not found model");
     strictEqual(op.responses[3].description, "Generic error");
+  });
+
+  it("@doc on response model set response doc if model is an evelope with @statusCode", async () => {
+    const op = await getHttpOp(
+      `
+      /** Explicit doc */
+      model Result {
+        @statusCode _: 201;
+        implicit: 200;
+      }
+      op read(): Result;
+      `,
+    );
+    strictEqual(op.responses[0].description, "Explicit doc");
   });
 });

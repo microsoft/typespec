@@ -83,7 +83,7 @@ describe("versioning: logic", () => {
         ["v1", "v2"],
         `
         @renamedFrom(Versions.v2, "OldTest")
-        model Test { a: int32; }`
+        model Test { a: int32; }`,
       );
 
       strictEqual(v1.name, "OldTest");
@@ -93,7 +93,7 @@ describe("versioning: logic", () => {
           [v1, "v1"],
           [v2, "v2"],
         ],
-        source
+        source,
       );
     });
 
@@ -130,7 +130,7 @@ describe("versioning: logic", () => {
           a: int32;
           @added(Versions.v2) b: int32;
         }
-        `
+        `,
       );
 
       assertHasProperties(v1, ["t", "a"]);
@@ -141,7 +141,7 @@ describe("versioning: logic", () => {
           [v1, "v1"],
           [v2, "v2"],
         ],
-        source
+        source,
       );
     });
 
@@ -156,7 +156,7 @@ describe("versioning: logic", () => {
         @renamedFrom(Versions.v5, "Baz")
         model Test {
           name: string,
-        }`
+        }`,
       );
       strictEqual((v1 as Model).name, "Foo");
       strictEqual((v2 as Model).name, "Bar");
@@ -177,7 +177,7 @@ describe("versioning: logic", () => {
         @removed(Versions.v6)
         model Test {
           val: int32;
-        }`
+        }`,
       );
       strictEqual(v1.kind, "Intrinsic");
       strictEqual((v1 as any as IntrinsicType).name, "never");
@@ -229,7 +229,7 @@ describe("versioning: logic", () => {
           d: int32;
           @added(Versions.v3) e: int32;
         }
-        `
+        `,
       );
 
       assertHasProperties(v1, ["a"]);
@@ -244,7 +244,7 @@ describe("versioning: logic", () => {
           [v2, "v2"],
           [v3, "v3"],
         ],
-        source
+        source,
       );
     });
 
@@ -265,7 +265,7 @@ describe("versioning: logic", () => {
         model NewThing {
           val: string;
         }
-        `
+        `,
       );
       assertHasProperties(v1, ["a"]);
       assertHasProperties(v2, ["a", "b"]);
@@ -275,7 +275,7 @@ describe("versioning: logic", () => {
           [v1, "v1"],
           [v2, "v2"],
         ],
-        source
+        source,
       );
     });
 
@@ -295,7 +295,7 @@ describe("versioning: logic", () => {
           d: int32;
           @removed(Versions.v2) e: int32;
         }
-        `
+        `,
       );
       assertHasProperties(v1, ["a", "b", "c", "nested"]);
       assertHasProperties(v1.properties.get("nested")!.type as Model, ["d", "e"]);
@@ -308,7 +308,7 @@ describe("versioning: logic", () => {
           [v2, "v2"],
           [v3, "v3"],
         ],
-        source
+        source,
       );
     });
 
@@ -325,7 +325,7 @@ describe("versioning: logic", () => {
           @added(Versions.v4)
           b: int32;
         }
-        `
+        `,
       );
 
       assertHasProperties(v2, ["a", "b"]);
@@ -338,7 +338,7 @@ describe("versioning: logic", () => {
           [v3, "v3"],
           [v4, "v4"],
         ],
-        source
+        source,
       );
     });
 
@@ -354,7 +354,7 @@ describe("versioning: logic", () => {
           @added(Versions.v3)
           b: int32;
         }
-        `
+        `,
       );
 
       assertHasProperties(v1, ["a", "b"]);
@@ -367,7 +367,7 @@ describe("versioning: logic", () => {
           [v2, "v2"],
           [v3, "v3"],
         ],
-        source
+        source,
       );
     });
 
@@ -381,7 +381,7 @@ describe("versioning: logic", () => {
           a: int32;
           @renamedFrom(Versions.v2, "foo") b: int32;
           @renamedFrom(Versions.v3, "bar") c: int32;
-        }`
+        }`,
       );
 
       assertHasProperties(v1, ["a", "foo", "bar"]);
@@ -393,7 +393,7 @@ describe("versioning: logic", () => {
           [v2, "v2"],
           [v3, "v3"],
         ],
-        source
+        source,
       );
     });
 
@@ -408,7 +408,7 @@ describe("versioning: logic", () => {
           @renamedFrom(Versions.v3, "b")
           @renamedFrom(Versions.v5, "c")
           d: int32;
-        }`
+        }`,
       );
       assertHasProperties(v1, ["a"]);
       assertHasProperties(v2, ["b"]);
@@ -424,7 +424,7 @@ describe("versioning: logic", () => {
           [v4, "v4"],
           [v5, "v5"],
         ],
-        source
+        source,
       );
     });
 
@@ -470,7 +470,7 @@ describe("versioning: logic", () => {
           @added(Versions.v5)
           @removed(Versions.v6)
           val: int32;
-        }`
+        }`,
       );
       assertHasProperties(v1, []);
       assertHasProperties(v2, ["val"]);
@@ -488,7 +488,7 @@ describe("versioning: logic", () => {
           [v5, "v5"],
           [v6, "v6"],
         ],
-        source
+        source,
       );
     });
 
@@ -500,7 +500,7 @@ describe("versioning: logic", () => {
         `model Test {
           a: int32;
           @madeOptional(Versions.v2) b?: int32;
-        }`
+        }`,
       );
 
       ok(v1.properties.get("a")!.optional === false);
@@ -517,7 +517,7 @@ describe("versioning: logic", () => {
         `model Test {
           a: int32;
           @madeRequired(Versions.v2) b: int32;
-        }`
+        }`,
       );
 
       ok(v1.properties.get("a")!.optional === false);
@@ -545,7 +545,7 @@ describe("versioning: logic", () => {
           @typeChangedFrom(Versions.v3, Original)
           prop: Updated;
         }
-        `
+        `,
       );
 
       ok(v1.properties.get("prop") === undefined);
@@ -566,7 +566,7 @@ describe("versioning: logic", () => {
         }
         
         model MyDate {}
-        `
+        `,
       );
 
       ok((v1.properties.get("changed")!.type as Scalar).name === "string");
@@ -602,7 +602,7 @@ describe("versioning: logic", () => {
         ["v1", "v2"],
         `
         @renamedFrom(Versions.v2, "OldTest")
-        union Test {}`
+        union Test {}`,
       );
 
       strictEqual(v1.name, "OldTest");
@@ -612,7 +612,7 @@ describe("versioning: logic", () => {
           [v1, "v1"],
           [v2, "v2"],
         ],
-        source
+        source,
       );
     });
 
@@ -645,7 +645,7 @@ describe("versioning: logic", () => {
         @renamedFrom(Versions.v2, "a")
         @renamedFrom(Versions.v3, "b")
         @renamedFrom(Versions.v5, "c")
-        union Test {}`
+        union Test {}`,
       );
       strictEqual((v1 as Union).name, "a");
       strictEqual((v2 as Union).name, "b");
@@ -664,7 +664,7 @@ describe("versioning: logic", () => {
         @removed(Versions.v3)
         @added(Versions.v5)
         @removed(Versions.v6)
-        union Test {}`
+        union Test {}`,
       );
       strictEqual(v1.kind, "Intrinsic");
       strictEqual((v1 as any as IntrinsicType).name, "never");
@@ -678,6 +678,31 @@ describe("versioning: logic", () => {
       strictEqual((v5 as Union).name, "Test");
       strictEqual(v6.kind, "Intrinsic");
       strictEqual((v6 as any as IntrinsicType).name, "never");
+    });
+
+    it("does not emit diagnostic when using named versioned union variant in incompatible versioned source", async () => {
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace TestService {
+          enum Versions {v1, v2}
+
+          @added(Versions.v2)
+          model Versioned {}
+
+          union NamedUnion {
+            string;
+
+            @added(Versions.v2)
+            Versioned;
+          }
+          
+          @added(Versions.v1)
+          model Foo {
+            content: NamedUnion;
+          }
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
     });
 
     async function versionedUnion(versions: string[], union: string) {
@@ -716,7 +741,7 @@ describe("versioning: logic", () => {
           d: int32;
           @added(Versions.v3) e: int32;
         }
-        `
+        `,
       );
       assertHasVariants(v1, ["a"]);
 
@@ -730,7 +755,7 @@ describe("versioning: logic", () => {
           [v2, "v2"],
           [v3, "v3"],
         ],
-        source
+        source,
       );
     });
 
@@ -750,7 +775,7 @@ describe("versioning: logic", () => {
           d: int32;
           @removed(Versions.v2) e: int32;
         }
-        `
+        `,
       );
       assertHasVariants(v1, ["a", "b", "c", "nested"]);
       assertHasProperties(v1.variants.get("nested")!.type as Model, ["d", "e"]);
@@ -763,7 +788,7 @@ describe("versioning: logic", () => {
           [v2, "v2"],
           [v3, "v3"],
         ],
-        source
+        source,
       );
     });
 
@@ -777,7 +802,7 @@ describe("versioning: logic", () => {
           a: int32;
           @renamedFrom(Versions.v2, "foo") b: int32;
           @renamedFrom(Versions.v3, "bar") c: int32;
-        }`
+        }`,
       );
 
       assertHasVariants(v1, ["a", "foo", "bar"]);
@@ -789,7 +814,7 @@ describe("versioning: logic", () => {
           [v2, "v2"],
           [v3, "v3"],
         ],
-        source
+        source,
       );
     });
 
@@ -804,7 +829,7 @@ describe("versioning: logic", () => {
           @renamedFrom(Versions.v3, "b")
           @renamedFrom(Versions.v5, "c")
           d: int32;
-        }`
+        }`,
       );
       assertHasVariants(v1, ["a"]);
       assertHasVariants(v2, ["b"]);
@@ -852,7 +877,7 @@ describe("versioning: logic", () => {
           @added(Versions.v5)
           @removed(Versions.v6)  
           b: string;
-        }`
+        }`,
       );
       assertHasVariants(v1, ["a"]);
       assertHasVariants(v2, ["a", "b"]);
@@ -889,7 +914,7 @@ describe("versioning: logic", () => {
         ["v1", "v2"],
         `
         @renamedFrom(Versions.v2, "OldTest")
-        op Test(): void;`
+        op Test(): void;`,
       );
 
       strictEqual(v1.name, "OldTest");
@@ -924,7 +949,7 @@ describe("versioning: logic", () => {
         @renamedFrom(Versions.v2, "a")
         @renamedFrom(Versions.v3, "b")
         @renamedFrom(Versions.v5, "c")
-        op Test(): void;`
+        op Test(): void;`,
       );
       strictEqual((v1 as Operation).name, "a");
       strictEqual((v2 as Operation).name, "b");
@@ -943,7 +968,7 @@ describe("versioning: logic", () => {
         @removed(Versions.v3)
         @added(Versions.v5)
         @removed(Versions.v6)  
-        op Test(): void;`
+        op Test(): void;`,
       );
       strictEqual(v1.kind, "Intrinsic");
       strictEqual((v1 as any as IntrinsicType).name, "never");
@@ -1009,16 +1034,10 @@ describe("versioning: logic", () => {
         model NewThing {
           name: string;
         }
-        `
+        `,
       )) as { MyService: Namespace };
 
-      const [v1, v2] = runProjections(runner.program, MyService);
-      const w1 = v1.projectedTypes.get(MyService) as Namespace;
-      const w2 = v2.projectedTypes.get(MyService) as Namespace;
-      w1.models.get("Widget")?.properties.size === 1;
-      w1.operations.get("create")?.parameters.properties.size === 1;
-      w2.models.get("Widget")?.properties.size === 2;
-      w2.operations.get("create")?.parameters.properties.size === 2;
+      runProjections(runner.program, MyService);
     });
 
     it("can share a model reference between operations with different versions", async () => {
@@ -1063,7 +1082,7 @@ describe("versioning: logic", () => {
         projections: [v1, v2],
       } = await versionedOperation(
         ["v1", "v2"],
-        `op Test(@renamedFrom(Versions.v2, "a") b: string): void;`
+        `op Test(@renamedFrom(Versions.v2, "a") b: string): void;`,
       );
 
       assertHasProperties(v1.parameters, ["a"]);
@@ -1080,7 +1099,7 @@ describe("versioning: logic", () => {
           @renamedFrom(Versions.v3, "b")
           @renamedFrom(Versions.v5, "c")
           d: string
-        ): void;`
+        ): void;`,
       );
       assertHasProperties(v1.parameters, ["a"]);
       assertHasProperties(v2.parameters, ["b"]);
@@ -1100,7 +1119,7 @@ describe("versioning: logic", () => {
           @added(Versions.v5)
           @removed(Versions.v6)
           a: string
-        ): void;`
+        ): void;`,
       );
       assertHasProperties(v1.parameters, []);
       assertHasProperties(v2.parameters, ["a"]);
@@ -1119,7 +1138,7 @@ describe("versioning: logic", () => {
           @typeChangedFrom(Versions.v2, string)
           @typeChangedFrom(Versions.v4, utcDateTime)
           date: int64
-        ): void;`
+        ): void;`,
       );
 
       strictEqual((v1.parameters.properties.get("date")?.type as Scalar).name, "string");
@@ -1134,18 +1153,18 @@ describe("versioning: logic", () => {
         projections: [v1, v2],
       } = await versionedOperation(
         ["v1", "v2"],
-        `op Test(a: string, @madeOptional(Versions.v2) b?: string): void;`
+        `op Test(a: string, @madeOptional(Versions.v2) b?: string): void;`,
       );
 
       const prop1 = [...v1.parameters.properties.values()];
       const prop2 = [...v2.parameters.properties.values()];
       deepStrictEqual(
         prop1.map((x) => x.optional),
-        [false, false]
+        [false, false],
       );
       deepStrictEqual(
         prop2.map((x) => x.optional),
-        [false, true]
+        [false, true],
       );
     });
 
@@ -1180,7 +1199,7 @@ describe("versioning: logic", () => {
           a: string;
           @added(Versions.v2) b: int32;
         }
-        `
+        `,
       );
 
       assertHasVariants(v1.returnType as Union, ["a"]);
@@ -1198,7 +1217,7 @@ describe("versioning: logic", () => {
           a: string;
           @removed(Versions.v2) b: int32;
         }
-        `
+        `,
       );
 
       assertHasVariants(v1.returnType as Union, ["a", "b"]);
@@ -1216,7 +1235,7 @@ describe("versioning: logic", () => {
           a: string;
           @renamedFrom(Versions.v2, "b") c: int32;
         }
-        `
+        `,
       );
 
       assertHasVariants(v1.returnType as Union, ["a", "b"]);
@@ -1236,7 +1255,7 @@ describe("versioning: logic", () => {
           @renamedFrom(Versions.v5, "c")
           d: int32;
           err: string;
-        }`
+        }`,
       );
       assertHasVariants(v1.returnType as Union, ["a", "err"]);
       assertHasVariants(v2.returnType as Union, ["b", "err"]);
@@ -1259,7 +1278,7 @@ describe("versioning: logic", () => {
           @added(Versions.v5)
           @removed(Versions.v6)  
           b: string;
-        }`
+        }`,
       );
       assertHasVariants(v1.returnType as Union, ["a"]);
       assertHasVariants(v2.returnType as Union, ["a", "b"]);
@@ -1280,7 +1299,7 @@ describe("versioning: logic", () => {
         op Test(): MyDate;
 
         model MyDate {};
-        `
+        `,
       );
       ok((v1.returnType as Scalar).name === "string");
       ok((v2.returnType as Scalar).name === "utcDateTime");
@@ -1315,7 +1334,7 @@ describe("versioning: logic", () => {
         ["v1", "v2"],
         `
         @renamedFrom(Versions.v2, "OldTest")
-        interface Test { }`
+        interface Test { }`,
       );
 
       strictEqual(v1.name, "OldTest");
@@ -1325,7 +1344,7 @@ describe("versioning: logic", () => {
           [v1, "v1"],
           [v2, "v2"],
         ],
-        source
+        source,
       );
     });
 
@@ -1357,7 +1376,7 @@ describe("versioning: logic", () => {
         @renamedFrom(Versions.v2, "a")
         @renamedFrom(Versions.v3, "b")
         @renamedFrom(Versions.v5, "c")
-        interface Test {}`
+        interface Test {}`,
       );
       strictEqual((v1 as Interface).name, "a");
       strictEqual((v2 as Interface).name, "b");
@@ -1376,7 +1395,7 @@ describe("versioning: logic", () => {
         @removed(Versions.v3)
         @added(Versions.v5)
         @removed(Versions.v6)  
-        interface Test {}`
+        interface Test {}`,
       );
       strictEqual(v1.kind, "Intrinsic");
       strictEqual((v1 as any as IntrinsicType).name, "never");
@@ -1420,7 +1439,7 @@ describe("versioning: logic", () => {
         ["v1", "v2"],
         `interface Test {
         @added(Versions.v2) foo(): void;
-      }`
+      }`,
       );
 
       assertHasOperations(v1, []);
@@ -1430,7 +1449,7 @@ describe("versioning: logic", () => {
           [v1, "v1"],
           [v2, "v2"],
         ],
-        source
+        source,
       );
     });
 
@@ -1442,7 +1461,7 @@ describe("versioning: logic", () => {
         ["v1", "v2"],
         `interface Test {
         @removed(Versions.v2) foo(): void;
-      }`
+      }`,
       );
 
       assertHasOperations(v1, ["foo"]);
@@ -1452,7 +1471,7 @@ describe("versioning: logic", () => {
           [v1, "v1"],
           [v2, "v2"],
         ],
-        source
+        source,
       );
     });
 
@@ -1469,7 +1488,7 @@ describe("versioning: logic", () => {
           @added(Versions.v4)
           foo(): void;
         }
-        `
+        `,
       );
       assertHasOperations(v2, ["allVersions", "foo"]);
       assertHasOperations(v3, ["allVersions"]);
@@ -1480,7 +1499,7 @@ describe("versioning: logic", () => {
           [v3, "v3"],
           [v4, "v4"],
         ],
-        source
+        source,
       );
     });
 
@@ -1492,7 +1511,7 @@ describe("versioning: logic", () => {
         ["v1", "v2"],
         `interface Test {
         @renamedFrom(Versions.v2, "foo") bar(): void;
-      }`
+      }`,
       );
 
       assertHasOperations(v1, ["foo"]);
@@ -1502,7 +1521,7 @@ describe("versioning: logic", () => {
           [v1, "v1"],
           [v2, "v2"],
         ],
-        source
+        source,
       );
     });
 
@@ -1516,7 +1535,7 @@ describe("versioning: logic", () => {
           @renamedFrom(Versions.v3, "b")
           @renamedFrom(Versions.v5, "c")
           op Test(): void;
-        }`
+        }`,
       );
       assertHasOperations(v1, ["a"]);
       assertHasOperations(v2, ["b"]);
@@ -1536,7 +1555,7 @@ describe("versioning: logic", () => {
           @added(Versions.v5)
           @removed(Versions.v6)  
           op Test(): void;
-        }`
+        }`,
       );
       assertHasOperations(v1, []);
       assertHasOperations(v2, ["Test"]);
@@ -1559,7 +1578,7 @@ describe("versioning: logic", () => {
         }
 
         model MyDate {};
-        `
+        `,
       );
       ok((v1.operations.get("foo")!.returnType as Scalar).name === "string");
       ok((v2.operations.get("foo")!.returnType as Scalar).name === "utcDateTime");
@@ -1593,7 +1612,7 @@ describe("versioning: logic", () => {
         ["v1", "v2"],
         `interface Test { 
           op foo(@added(Versions.v2) a: string): void;
-        }`
+        }`,
       );
 
       assertHasProperties(v1.operations.get("foo")!.parameters, []);
@@ -1607,7 +1626,7 @@ describe("versioning: logic", () => {
         ["v1", "v2"],
         `interface Test {
         op foo(@removed(Versions.v2) a: string): void;
-      }`
+      }`,
       );
 
       assertHasProperties(v1.operations.get("foo")!.parameters, ["a"]);
@@ -1621,7 +1640,7 @@ describe("versioning: logic", () => {
         ["v1", "v2"],
         `interface Test {
           op foo(@renamedFrom(Versions.v2, "a") b: string): void;
-        }`
+        }`,
       );
 
       assertHasProperties(v1.operations.get("foo")!.parameters, ["a"]);
@@ -1640,7 +1659,7 @@ describe("versioning: logic", () => {
             @renamedFrom(Versions.v5, "c")
             d: string
           ): void;
-        }`
+        }`,
       );
       assertHasProperties(v1.operations.get("foo")!.parameters, ["a"]);
       assertHasProperties(v2.operations.get("foo")!.parameters, ["b"]);
@@ -1662,7 +1681,7 @@ describe("versioning: logic", () => {
             @removed(Versions.v6)
             a: string
           ): void;
-        }`
+        }`,
       );
       assertHasProperties(v1.operations.get("foo")!.parameters, []);
       assertHasProperties(v2.operations.get("foo")!.parameters, ["a"]);
@@ -1700,7 +1719,7 @@ describe("versioning: logic", () => {
         ["v1", "v2"],
         `
         @renamedFrom(Versions.v2, "OldTest")
-        enum Test { }`
+        enum Test { }`,
       );
 
       strictEqual(v1.name, "OldTest");
@@ -1710,7 +1729,7 @@ describe("versioning: logic", () => {
           [v1, "v1"],
           [v2, "v2"],
         ],
-        source
+        source,
       );
     });
 
@@ -1742,7 +1761,7 @@ describe("versioning: logic", () => {
         @renamedFrom(Versions.v2, "a")
         @renamedFrom(Versions.v3, "b")
         @renamedFrom(Versions.v5, "c")
-        enum Test {}`
+        enum Test {}`,
       );
       strictEqual((v1 as Enum).name, "a");
       strictEqual((v2 as Enum).name, "b");
@@ -1761,7 +1780,7 @@ describe("versioning: logic", () => {
         @removed(Versions.v3)
         @added(Versions.v5)
         @removed(Versions.v6)
-        enum Test {}`
+        enum Test {}`,
       );
       strictEqual(v1.kind, "Intrinsic");
       strictEqual((v1 as any as IntrinsicType).name, "never");
@@ -1808,7 +1827,7 @@ describe("versioning: logic", () => {
           @added(Versions.v2) b: 2;
           @added(Versions.v3) c: 3;
         }
-        `
+        `,
       );
 
       assertHasMembers(v1, ["a"]);
@@ -1820,7 +1839,7 @@ describe("versioning: logic", () => {
           [v2, "v2"],
           [v3, "v3"],
         ],
-        source
+        source,
       );
     });
 
@@ -1835,7 +1854,7 @@ describe("versioning: logic", () => {
           @removed(Versions.v2) b: 2;
           @removed(Versions.v3) c: 3;
         }
-        `
+        `,
       );
       assertHasMembers(v1, ["a", "b", "c"]);
       assertHasMembers(v2, ["a", "c"]);
@@ -1847,7 +1866,7 @@ describe("versioning: logic", () => {
           [v2, "v2"],
           [v3, "v3"],
         ],
-        source
+        source,
       );
     });
 
@@ -1861,7 +1880,7 @@ describe("versioning: logic", () => {
           a: 1;
           @renamedFrom(Versions.v2, "foo") b: 2;
           @renamedFrom(Versions.v3, "bar") c: 3;
-        }`
+        }`,
       );
 
       assertHasMembers(v1, ["a", "foo", "bar"]);
@@ -1873,7 +1892,7 @@ describe("versioning: logic", () => {
           [v2, "v2"],
           [v3, "v3"],
         ],
-        source
+        source,
       );
     });
 
@@ -1888,7 +1907,7 @@ describe("versioning: logic", () => {
           @renamedFrom(Versions.v3, "b")
           @renamedFrom(Versions.v5, "c")
           d: 1;
-        }`
+        }`,
       );
       assertHasMembers(v1, ["a"]);
       assertHasMembers(v2, ["b"]);
@@ -1936,7 +1955,7 @@ describe("versioning: logic", () => {
           @added(Versions.v5)
           @removed(Versions.v6)  
           b: 2;
-        }`
+        }`,
       );
       assertHasMembers(v1, ["a"]);
       assertHasMembers(v2, ["a", "b"]);
@@ -1973,7 +1992,7 @@ describe("versioning: logic", () => {
         ["v1", "v2"],
         `
         @renamedFrom(Versions.v2, "oldTest")
-        scalar test;`
+        scalar test;`,
       );
 
       strictEqual(v1.name, "oldTest");

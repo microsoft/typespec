@@ -1,0 +1,12 @@
+{% import 'operation_tools.jinja2' as op_tools %}
+# coding=utf-8
+{{ code_model.options['license_header'] }}
+
+{{ imports }}
+{% for model in code_model.model_types %}
+{% if model.base == "dpg" %}
+{% include "model_dpg.py.jinja2" %}
+{% elif model.base == "msrest" %}
+{% include "model_msrest.py.jinja2" %}
+{% endif %}
+{% endfor %}

@@ -1,43 +1,38 @@
-import { OpenAPI3Schema, Refable } from "../../../../types.js";
 import {
   TypeSpecAlias,
   TypeSpecDataTypes,
   TypeSpecEnum,
   TypeSpecModel,
-  TypeSpecModelProperty,
   TypeSpecScalar,
   TypeSpecUnion,
 } from "../interfaces.js";
+import { Context } from "../utils/context.js";
 import { getDecoratorsForSchema } from "../utils/decorators.js";
 import { generateDocs } from "../utils/docs.js";
 import { generateDecorators } from "./generate-decorators.js";
-import {
-  generateTypeFromSchema,
-  getRefScopeAndName,
-  getTypeSpecPrimitiveFromSchema,
-} from "./generate-types.js";
+import { getTypeSpecPrimitiveFromSchema } from "./generate-types.js";
 
-export function generateDataType(type: TypeSpecDataTypes): string {
+export function generateDataType(type: TypeSpecDataTypes, context: Context): string {
   switch (type.kind) {
     case "alias":
-      return generateAlias(type);
+      return generateAlias(type, context);
     case "enum":
       return generateEnum(type);
     case "model":
-      return generateModel(type);
+      return generateModel(type, context);
     case "scalar":
-      return generateScalar(type);
+      return generateScalar(type, context);
     case "union":
-      return generateUnion(type);
+      return generateUnion(type, context);
   }
 }
 
-function generateAlias(alias: TypeSpecAlias): string {
+function generateAlias(alias: TypeSpecAlias, context: Context): string {
   // Since aliases are not represented in the TypeGraph,
   // generate a model so that the model name is present in emitted OpenAPI3.
   // May revisit to allow emitting actual alias.
-  const { scope, name } = getRefScopeAndName(alias.ref);
-  return `model ${alias.name} is ${[...scope, name].join(".")};`;
+  const sourceModel = context.getRefName(alias.ref, alias.scope);
+  return `model ${alias.name} is ${sourceModel};`;
 }
 
 function generateEnum(tsEnum: TypeSpecEnum): string {
@@ -61,7 +56,7 @@ function generateEnum(tsEnum: TypeSpecEnum): string {
   return definitions.join("\n");
 }
 
-function generateScalar(scalar: TypeSpecScalar): string {
+function generateScalar(scalar: TypeSpecScalar, context: Context): string {
   const definitions: string[] = [];
 
   if (scalar.doc) {
@@ -69,14 +64,14 @@ function generateScalar(scalar: TypeSpecScalar): string {
   }
 
   definitions.push(...generateDecorators(scalar.decorators));
-  const type = generateTypeFromSchema(scalar.schema);
+  const type = context.generateTypeFromRefableSchema(scalar.schema, scalar.scope);
 
   definitions.push(`scalar ${scalar.name} extends ${type};`);
 
   return definitions.join("\n");
 }
 
-function generateUnion(union: TypeSpecUnion): string {
+function generateUnion(union: TypeSpecUnion, context: Context): string {
   const definitions: string[] = [];
 
   if (union.doc) {
@@ -92,9 +87,13 @@ function generateUnion(union: TypeSpecUnion): string {
   if (schema.enum) {
     definitions.push(...schema.enum.map((e) => `${JSON.stringify(e)},`));
   } else if (schema.oneOf) {
-    definitions.push(...schema.oneOf.map(generateUnionMember));
+    definitions.push(
+      ...schema.oneOf.map((member) => context.generateTypeFromRefableSchema(member, union.scope)),
+    );
   } else if (schema.anyOf) {
-    definitions.push(...schema.anyOf.map(generateUnionMember));
+    definitions.push(
+      ...schema.anyOf.map((member) => context.generateTypeFromRefableSchema(member, union.scope)),
+    );
   } else {
     // check if it's a primitive type
     const primitiveType = getTypeSpecPrimitiveFromSchema(schema);
@@ -112,11 +111,7 @@ function generateUnion(union: TypeSpecUnion): string {
   return definitions.join("\n");
 }
 
-function generateUnionMember(member: Refable<OpenAPI3Schema>): string {
-  return `${generateTypeFromSchema(member)},`;
-}
-
-export function generateModel(model: TypeSpecModel): string {
+function generateModel(model: TypeSpecModel, context: Context): string {
   const definitions: string[] = [];
   const modelDeclaration = generateModelDeclaration(model);
 
@@ -127,10 +122,29 @@ export function generateModel(model: TypeSpecModel): string {
   definitions.push(...generateDecorators(model.decorators));
   definitions.push(modelDeclaration.open);
 
-  definitions.push(...model.properties.map(generateModelProperty));
+  if (model.spread?.length) {
+    definitions.push(...model.spread.map((spread) => `...${spread};`));
+  }
+
+  definitions.push(
+    ...model.properties.map((prop) => {
+      // Decorators will be a combination of top-level (parameters) and
+      // schema-level decorators.
+      const decorators = generateDecorators([
+        ...prop.decorators,
+        ...getDecoratorsForSchema(prop.schema),
+      ]).join(" ");
+
+      const doc = prop.doc ? generateDocs(prop.doc) : "";
+
+      return `${doc}${decorators} ${prop.name}${prop.isOptional ? "?" : ""}: ${context.generateTypeFromRefableSchema(prop.schema, model.scope)};`;
+    }),
+  );
 
   if (model.additionalProperties) {
-    definitions.push(`...Record<${generateTypeFromSchema(model.additionalProperties)}>;`);
+    definitions.push(
+      `...Record<${context.generateTypeFromRefableSchema(model.additionalProperties, model.scope)}>;`,
+    );
   }
 
   if (modelDeclaration.close) definitions.push(modelDeclaration.close);
@@ -142,32 +156,14 @@ type ModelDeclarationOutput = { open: string; close?: string };
 
 function generateModelDeclaration(model: TypeSpecModel): ModelDeclarationOutput {
   const modelName = model.name;
-  const modelType = model.type ?? "object";
 
   if (model.is) {
     return { open: `model ${modelName} is ${model.is};` };
   }
 
-  if (!model.extends) {
-    return { open: `model ${modelName} {`, close: "}" };
-  }
-
-  if (modelType === "object") {
+  if (model.extends) {
     return { open: `model ${modelName} extends ${model.extends} {`, close: "}" };
   }
 
   return { open: `model ${modelName} {`, close: "}" };
-}
-
-function generateModelProperty(property: TypeSpecModelProperty): string {
-  // Decorators will be a combination of top-level (parameters) and
-  // schema-level decorators.
-  const decorators = generateDecorators([
-    ...property.decorators,
-    ...getDecoratorsForSchema(property.schema),
-  ]).join(" ");
-
-  const doc = property.doc ? generateDocs(property.doc) : "";
-
-  return `${doc}${decorators} ${property.name}${property.isOptional ? "?" : ""}: ${generateTypeFromSchema(property.schema)};`;
 }

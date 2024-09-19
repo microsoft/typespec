@@ -4,10 +4,12 @@
 
 package com.azure.resourcemanager.models.resources.implementation;
 
+import com.azure.core.http.rest.Response;
 import com.azure.core.management.Region;
 import com.azure.core.management.SystemData;
 import com.azure.core.util.Context;
 import com.azure.resourcemanager.models.resources.fluent.models.TopLevelTrackedResourceInner;
+import com.azure.resourcemanager.models.resources.models.NotificationDetails;
 import com.azure.resourcemanager.models.resources.models.TopLevelTrackedResource;
 import com.azure.resourcemanager.models.resources.models.TopLevelTrackedResourceProperties;
 import java.util.Collections;
@@ -143,6 +145,15 @@ public final class TopLevelTrackedResourceImpl
             .getByResourceGroupWithResponse(resourceGroupName, topLevelTrackedResourceName, context)
             .getValue();
         return this;
+    }
+
+    public Response<Void> actionSyncWithResponse(NotificationDetails body, Context context) {
+        return serviceManager.topLevelTrackedResources()
+            .actionSyncWithResponse(resourceGroupName, topLevelTrackedResourceName, body, context);
+    }
+
+    public void actionSync(NotificationDetails body) {
+        serviceManager.topLevelTrackedResources().actionSync(resourceGroupName, topLevelTrackedResourceName, body);
     }
 
     public TopLevelTrackedResourceImpl withRegion(Region location) {

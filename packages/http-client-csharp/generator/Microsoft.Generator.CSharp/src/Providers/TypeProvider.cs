@@ -6,12 +6,25 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
     public abstract class TypeProvider
     {
+        private Lazy<TypeProvider?> _customCodeView;
+
+        protected TypeProvider()
+        {
+            _customCodeView = new(GetCustomCodeView);
+        }
+
+        private protected virtual TypeProvider? GetCustomCodeView()
+            => CodeModelPlugin.Instance.SourceInputModel.FindForType(GetNamespace(), BuildName());
+
+        public TypeProvider? CustomCodeView => _customCodeView.Value;
+
         protected string? _deprecated;
 
         /// <summary>
@@ -22,9 +35,12 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private string? _relativeFilePath;
 
-        public string Name => _name ??= BuildName();
+        public string Name => _name ??= CustomCodeView?.Name ?? BuildName();
 
         private string? _name;
+
+        public string Namespace => _namespace ??= GetNamespace();
+        private string? _namespace;
 
         protected virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
 
@@ -45,7 +61,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private CSharpType? _type;
         public CSharpType Type => _type ??= new(
             this,
-            GetNamespace(),
+            CustomCodeView?.GetNamespace() ?? GetNamespace(),
             GetTypeArguments(),
             GetBaseType());
 
@@ -63,6 +79,9 @@ namespace Microsoft.Generator.CSharp.Providers
         }
 
         protected virtual TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.None;
+
+        internal TypeSignatureModifiers GetCustomCodeModifiers() => CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
+
         private TypeSignatureModifiers GetDeclarationModifiersInternal()
         {
             var modifiers = GetDeclarationModifiers();
@@ -83,7 +102,7 @@ namespace Microsoft.Generator.CSharp.Providers
             // mask & (mask - 1) gives us 0 if mask is a power of 2, it means we have exactly one flag of above when the mask is a power of 2
             if ((mask & (mask - 1)) != 0)
             {
-                throw new InvalidOperationException($"Invalid modifier {modifiers} on TypeProvider {Type.Namespace}.{Name}");
+                throw new InvalidOperationException($"Invalid modifier {modifiers} on TypeProvider {Name}");
             }
 
             // we always add partial when possible
@@ -131,6 +150,23 @@ namespace Microsoft.Generator.CSharp.Providers
         protected virtual CSharpType[] GetTypeArguments() => [];
 
         protected virtual PropertyProvider[] BuildProperties() => [];
+
+        private HashSet<string> BuildPropertyNames()
+        {
+            var propertyNames = new HashSet<string>();
+            foreach (var property in Properties)
+            {
+                propertyNames.Add(property.Name);
+                foreach (var attribute in property.Attributes ?? [])
+                {
+                    if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var name))
+                    {
+                        propertyNames.Add(name);
+                    }
+                }
+            }
+            return propertyNames;
+        }
 
         protected virtual FieldProvider[] BuildFields() => [];
 

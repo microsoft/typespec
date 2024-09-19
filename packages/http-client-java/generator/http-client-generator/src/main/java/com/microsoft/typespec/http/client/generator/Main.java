@@ -43,14 +43,14 @@ import java.util.stream.Stream;
 
 public class Main {
   private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
-
+  private static final String DEFAULT_OUTPUT_DIR = "http-client-generator-test/tsp-output/";
 
   private static Yaml yaml = null;
 
   // java -jar target/azure-typespec-extension-jar-with-dependencies.jar
   public static void main(String[] args) throws IOException {
     // parameters
-    String inputYamlFileName = "typespec-tests/tsp-output/code-model.yaml";
+    String inputYamlFileName = DEFAULT_OUTPUT_DIR + "code-model.yaml";
     if (args.length >= 1) {
       inputYamlFileName = args[0];
     }
@@ -86,6 +86,8 @@ public class Main {
     } else {
       handleDPG(codeModel, emitterOptions, sdkIntegration, outputDir);
     }
+    // ensure the process exits as expected
+    System.exit(0);
   }
 
   private static void handleFluent(CodeModel codeModel, EmitterOptions emitterOptions, boolean sdkIntegration) {
@@ -179,7 +181,6 @@ public class Main {
       typeSpecPlugin.writeFile("src/main/resources/META-INF/" + artifactId + "_apiview_properties.json",
         sb.toString(), null);
     }
-    System.exit(0);
   }
 
   private static EmitterOptions loadEmitterOptions(CodeModel codeModel) {
@@ -200,7 +201,7 @@ public class Main {
 
         // output path
         if (CoreUtils.isNullOrEmpty(options.getOutputDir())) {
-          options.setOutputDir("typespec-tests/tsp-output/");
+          options.setOutputDir(DEFAULT_OUTPUT_DIR);
         } else if (!options.getOutputDir().endsWith("/")) {
           options.setOutputDir(options.getOutputDir() + "/");
         }
@@ -212,7 +213,7 @@ public class Main {
     if (options == null) {
       // default if emitterOptions fails
       options = new EmitterOptions();
-      options.setOutputDir("typespec-tests/tsp-output/");
+      options.setOutputDir(DEFAULT_OUTPUT_DIR);
       if (codeModel.getLanguage().getJava() != null && !CoreUtils.isNullOrEmpty(
         codeModel.getLanguage().getJava().getNamespace())) {
         options.setNamespace(codeModel.getLanguage().getJava().getNamespace());

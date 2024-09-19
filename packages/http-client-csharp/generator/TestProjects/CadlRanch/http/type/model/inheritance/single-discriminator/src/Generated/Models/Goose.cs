@@ -11,6 +11,6 @@ namespace _Type.Model.Inheritance.SingleDiscriminator.Models
     {
         public Goose(int wingspan) : base("goose", wingspan) => throw null;
 
-        internal Goose(int wingspan, IDictionary<string, BinaryData> serializedAdditionalRawData) : base("goose", wingspan, serializedAdditionalRawData) => throw null;
+        internal Goose(string kind, int wingspan, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind, wingspan, additionalBinaryDataProperties) => throw null;
     }
 }

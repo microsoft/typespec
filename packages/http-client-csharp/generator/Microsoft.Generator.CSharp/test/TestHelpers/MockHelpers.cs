@@ -1,20 +1,39 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.IO;
 using System;
-using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
-using Moq.Protected;
-using Moq;
+using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Tests.Common;
+using Moq;
+using Moq.Protected;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
     internal static class MockHelpers
     {
         public const string TestHelpersFolder = "TestHelpers";
+
+        public async static Task<Mock<CodeModelPlugin>> LoadMockPluginAsync(
+            Func<InputType, CSharpType>? createCSharpTypeCore = null,
+            Func<OutputLibrary>? createOutputLibrary = null,
+            string? configuration = null,
+            InputModelType[]? inputModelTypes = null,
+            Func<Task<Compilation>>? compilation = null)
+        {
+            var mockPlugin = LoadMockPlugin(createCSharpTypeCore, createOutputLibrary, configuration, inputModelTypes);
+
+            var compilationResult = compilation == null ? null : await compilation();
+
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilationResult)) { CallBase = true };
+            mockPlugin.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
+
+            return mockPlugin;
+        }
 
         public static Mock<CodeModelPlugin> LoadMockPlugin(
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
@@ -47,7 +66,11 @@ namespace Microsoft.Generator.CSharp.Tests
 
             mockPlugin.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
 
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null)) { CallBase = true };
+            mockPlugin.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
+
             CodeModelPlugin.Instance = mockPlugin.Object;
+
             return mockPlugin;
         }
     }

@@ -29,9 +29,12 @@ describe("compiler: semantic walker", () => {
   function createCollector(customListener?: SemanticNodeListener) {
     const result = {
       models: [] as Model[],
+      exitModels: [] as Model[],
       modelProperties: [] as ModelProperty[],
+      exitModelProperties: [] as ModelProperty[],
       namespaces: [] as Namespace[],
       operations: [] as Operation[],
+      exitOperations: [] as Operation[],
       interfaces: [] as Interface[],
       unions: [] as Union[],
       unionVariants: [] as UnionVariant[],
@@ -46,13 +49,25 @@ describe("compiler: semantic walker", () => {
         result.operations.push(x);
         return customListener?.operation?.(x);
       },
+      exitOperation: (x) => {
+        result.exitOperations.push(x);
+        return customListener?.exitOperation?.(x);
+      },
       model: (x) => {
         result.models.push(x);
         return customListener?.model?.(x);
       },
+      exitModel: (x) => {
+        result.exitModels.push(x);
+        return customListener?.exitModel?.(x);
+      },
       modelProperty: (x) => {
         result.modelProperties.push(x);
         return customListener?.modelProperty?.(x);
+      },
+      exitModelProperty: (x) => {
+        result.exitModelProperties.push(x);
+        return customListener?.exitModelProperty?.(x);
       },
       union: (x) => {
         result.unions.push(x);
@@ -100,6 +115,25 @@ describe("compiler: semantic walker", () => {
     strictEqual(result.models[2].name, "Bar");
   });
 
+  it("finds exit models", async () => {
+    const result = await runNavigator(`
+      model Foo {
+        nested: {
+          inline: true
+        }
+      }
+
+      model Bar {
+        name: Foo;
+      }
+    `);
+
+    strictEqual(result.exitModels.length, 3);
+    strictEqual(result.exitModels[0].name, "", "Inline models don't have name");
+    strictEqual(result.exitModels[1].name, "Foo");
+    strictEqual(result.exitModels[2].name, "Bar");
+  });
+
   it("finds operations", async () => {
     const result = await runNavigator(`
       op foo(): true;
@@ -112,6 +146,20 @@ describe("compiler: semantic walker", () => {
     strictEqual(result.operations.length, 2);
     strictEqual(result.operations[0].name, "foo");
     strictEqual(result.operations[1].name, "bar");
+  });
+
+  it("finds exit operations", async () => {
+    const result = await runNavigator(`
+      op foo(): true;
+
+      namespace Nested {
+        op bar(): true;
+      }
+    `);
+
+    strictEqual(result.exitOperations.length, 2);
+    strictEqual(result.exitOperations[0].name, "foo");
+    strictEqual(result.exitOperations[1].name, "bar");
   });
 
   it("finds namespaces", async () => {
@@ -135,7 +183,7 @@ describe("compiler: semantic walker", () => {
         "Global.My.Simple",
         "Global.My.Parent",
         "Global.My.Parent.Child",
-      ]
+      ],
     );
   });
 
@@ -156,6 +204,25 @@ describe("compiler: semantic walker", () => {
     strictEqual(result.modelProperties[0].name, "nested");
     strictEqual(result.modelProperties[1].name, "inline");
     strictEqual(result.modelProperties[2].name, "name");
+  });
+
+  it("finds exit model properties", async () => {
+    const result = await runNavigator(`
+      model Foo {
+        nested: {
+          inline: true
+        }
+      }
+
+      model Bar {
+        name: Foo;
+      }
+    `);
+
+    strictEqual(result.exitModelProperties.length, 3);
+    strictEqual(result.exitModelProperties[0].name, "inline");
+    strictEqual(result.exitModelProperties[1].name, "nested");
+    strictEqual(result.exitModelProperties[2].name, "name");
   });
 
   it("finds unions", async () => {
@@ -215,7 +282,7 @@ describe("compiler: semantic walker", () => {
         shouldNavigate: true;
       }
     `,
-      { model: (x) => (x.name === "A" ? ListenerFlow.NoRecursion : undefined) }
+      { model: (x) => (x.name === "A" ? ListenerFlow.NoRecursion : undefined) },
     );
 
     strictEqual(result.modelProperties.length, 1);

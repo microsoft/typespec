@@ -9,9 +9,9 @@ namespace _Type.Model.Inheritance.SingleDiscriminator.Models
 {
     public abstract partial class Dinosaur
     {
-        protected Dinosaur(string kind, int size) => throw null;
+        private protected Dinosaur(string kind, int size) => throw null;
 
-        internal Dinosaur(string kind, int size, IDictionary<string, BinaryData> serializedAdditionalRawData) => throw null;
+        internal Dinosaur(string kind, int size, IDictionary<string, BinaryData> additionalBinaryDataProperties) => throw null;
 
         internal string Kind
         {
@@ -19,12 +19,10 @@ namespace _Type.Model.Inheritance.SingleDiscriminator.Models
             set => throw null;
         }
 
-
         public int Size
         {
             get => throw null;
             set => throw null;
         }
-
     }
 }

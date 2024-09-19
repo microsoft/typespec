@@ -4,6 +4,7 @@
 package com.microsoft.typespec.http.client.generator.core.template;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.implementation.ClientModelPropertiesManager;
 import com.microsoft.typespec.http.client.generator.core.implementation.PolymorphicDiscriminatorHandler;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
@@ -44,11 +45,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -76,6 +75,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
     final boolean requireSerialization = modelRequireSerialization(model);
 
     JavaSettings settings = JavaSettings.getInstance();
+    ClientModelPropertiesManager propertiesManager = new ClientModelPropertiesManager(model, settings);
     Set<String> imports = settings.isStreamStyleSerialization() ? new StreamStyleImports() : new HashSet<>();
 
     addImports(imports, model, settings);
@@ -146,7 +146,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         discriminator -> addFieldAnnotations(model, discriminator, classBlock, settings), settings);
 
       // properties
-      addProperties(model, classBlock, settings);
+      addProperties(propertiesManager, classBlock);
 
       // add jsonMergePatch related properties and accessors
       if (ClientModelUtil.isJsonMergePatchModel(model, settings)) {
@@ -159,7 +159,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         : JavaVisibility.Public;
       addModelConstructor(model, modelConstructorVisibility, settings, classBlock);
 
-      for (ClientModelProperty property : getFieldProperties(model, settings)) {
+      for (ClientModelProperty property : getFieldProperties(propertiesManager)) {
         final boolean propertyIsReadOnly = immutableModel || property.isReadOnly();
 
         IType propertyWireType = property.getWireType();
@@ -170,7 +170,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
           : JavaVisibility.Public;
 
         if (!property.isPolymorphicDiscriminator()
-          || PolymorphicDiscriminatorHandler.generateGetter(model, property)) {
+          || PolymorphicDiscriminatorHandler.generateGetter(model, property, settings)) {
           generateGetterJavadoc(classBlock, property);
           addGeneratedAnnotation(classBlock);
           if (property.isAdditionalProperties() && !settings.isStreamStyleSerialization()) {
@@ -323,7 +323,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
       }
 
       if (requireSerialization) {
-        writeStreamStyleSerialization(classBlock, model, settings);
+        writeStreamStyleSerialization(classBlock, propertiesManager);
       }
     });
   }
@@ -334,7 +334,9 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
       return false;
     }
 
-    if (property.isPolymorphicDiscriminator() && model.isAllPolymorphicModelsInSamePackage()) {
+    if (settings.isShareJsonSerializableCode()
+      && property.isPolymorphicDiscriminator()
+      && model.isAllPolymorphicModelsInSamePackage()) {
       return false;
     }
 
@@ -525,13 +527,11 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
   /**
    * Adds the property fields to a class.
    *
-   * @param model The client model.
    * @param classBlock The Java class.
-   * @param settings AutoRest configuration settings.
    */
-  private void addProperties(ClientModel model, JavaClass classBlock, JavaSettings settings) {
-    for (ClientModelProperty property : getFieldProperties(model, settings)) {
-      addProperty(property, model, classBlock, settings);
+  private void addProperties(ClientModelPropertiesManager propertiesManager, JavaClass classBlock) {
+    for (ClientModelProperty property : getFieldProperties(propertiesManager)) {
+      addProperty(property, propertiesManager.getModel(), classBlock, propertiesManager.getSettings());
     }
   }
 
@@ -609,14 +609,12 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
 
   /**
    * Get properties to generate as fields of the class.
-   * @param model the model to generate class of
-   * @param settings JavaSettings
+   * @param propertiesManager The properties manager.
    * @return properties to generate as fields of the class
    */
-  protected List<ClientModelProperty> getFieldProperties(ClientModel model, JavaSettings settings) {
-    return Stream.concat(
-      model.getParentPolymorphicDiscriminators().stream(),
-      model.getProperties().stream()
+  protected List<ClientModelProperty> getFieldProperties(ClientModelPropertiesManager propertiesManager) {
+    ClientModel model = propertiesManager.getModel();
+    return Stream.concat(model.getParentPolymorphicDiscriminators().stream(), model.getProperties().stream()
     ).collect(Collectors.toList());
   }
 
@@ -1052,7 +1050,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         comment.methodThrows("IllegalArgumentException", "thrown if the instance is not valid");
       });
 
-      if (this.parentModelHasValidate(model.getParentModelName())) {
+      if (this.modelHasValidate(model.getParentModelName())) {
         classBlock.annotation("Override");
       }
       classBlock.publicMethod("void validate()", methodBlock -> {
@@ -1090,7 +1088,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
    * @return whether to call validate() on parent model
    */
   protected boolean callParentValidate(String parentModelName) {
-    return parentModelHasValidate(parentModelName);
+    return modelHasValidate(parentModelName);
   }
 
   /**
@@ -1114,13 +1112,13 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
   }
 
   /**
-   * Extension for validation on parent model.
+   * Extension for validation on model.
    *
-   * @param parentModelName the parent model name
-   * @return Whether validate() exists in parent model.
+   * @param modelName the model name
+   * @return Whether validate() exists in this model.
    */
-  protected boolean parentModelHasValidate(String parentModelName) {
-    return parentModelName != null;
+  protected boolean modelHasValidate(String modelName) {
+    return modelName != null;
   }
 
   /**
@@ -1219,10 +1217,9 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
    * the model uses.
    *
    * @param classBlock The class block where serialization methods will be written.
-   * @param model The model.
-   * @param settings Autorest generation settings.
+   * @param propertiesManager The properties manager.
    */
-  protected void writeStreamStyleSerialization(JavaClass classBlock, ClientModel model, JavaSettings settings) {
+  protected void writeStreamStyleSerialization(JavaClass classBlock, ClientModelPropertiesManager propertiesManager) {
     // No-op, meant for StreamSerializationModelTemplate.
   }
 

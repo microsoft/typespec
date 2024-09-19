@@ -60,7 +60,7 @@ const _protoExternMap = new WeakMap<Program, Map<string, [string, ProtoRef]>>();
  * Create a worker function that converts the TypeSpec program to Protobuf and writes it to the file system.
  */
 export function createProtobufEmitter(
-  program: Program
+  program: Program,
 ): (outDir: string, options: ProtobufEmitterOptions) => Promise<void> {
   return async function doEmit(outDir, options) {
     // Convert the program to a set of proto files.
@@ -79,7 +79,7 @@ export function createProtobufEmitter(
         await program.host.mkdirp(filePath);
         await program.host.writeFile(
           resolvePath(filePath, packageSlug[packageSlug.length - 1] + ".proto"),
-          writeProtoFile(file)
+          writeProtoFile(file),
         );
       }
     }
@@ -93,7 +93,7 @@ export function createProtobufEmitter(
  */
 function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): ProtoFile[] {
   const packages = new Set<Namespace>(
-    program.stateMap(state.package).keys() as Iterable<Namespace>
+    program.stateMap(state.package).keys() as Iterable<Namespace>,
   );
 
   const serviceInterfaces = [...(program.stateSet(state.service) as Set<Interface>)];
@@ -101,7 +101,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
   const declaredMessages = [...(program.stateSet(state.message) as Set<Model>)];
 
   const declarationMap = new Map<Namespace, ProtoTopLevelDeclaration[]>(
-    [...packages].map((p) => [p, []])
+    [...packages].map((p) => [p, []]),
   );
 
   const visitedTypes = new Set<Type>();
@@ -142,7 +142,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
       // We only support enums where every variant is explicitly assigned an integer value
       if (
         members.some(
-          ({ value: v }) => v === undefined || typeof v !== "number" || !Number.isInteger(v)
+          ({ value: v }) => v === undefined || typeof v !== "number" || !Number.isInteger(v),
         )
       ) {
         reportDiagnostic(program, {
@@ -258,7 +258,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     }
 
     const interfacesInNamespace = new Set(
-      serviceInterfaces.filter((iface) => isDeclaredInNamespace(iface, namespace))
+      serviceInterfaces.filter((iface) => isDeclaredInNamespace(iface, namespace)),
     );
 
     // Each interface will be reified as a `service` declaration.
@@ -292,7 +292,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
           program,
           addInputParams(operation.parameters, operation),
           operation,
-          getEffectiveModelType(program, operation.parameters)
+          getEffectiveModelType(program, operation.parameters),
         );
 
     return {
@@ -304,7 +304,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
         program,
         addReturnType(operation.returnType, operation),
         operation,
-        operation.returnType as NamespaceTraversable
+        operation.returnType as NamespaceTraversable,
       ),
       doc: getDoc(program, operation),
     };
@@ -320,7 +320,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
   function addInputParams(paramsModel: Model, operation: Operation): ProtoRef {
     const effectiveModel = computeEffectiveModel(
       paramsModel,
-      capitalize(operation.name) + "Request"
+      capitalize(operation.name) + "Request",
     );
 
     /* c8 ignore start */
@@ -359,7 +359,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
   function getCachedExternType(
     program: Program,
     relativeSource: Operation | Model,
-    name: string
+    name: string,
   ): ProtoRef {
     let cache = _protoExternMap.get(program);
 
@@ -380,7 +380,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
     if (!emptyType) {
       throw new Error(
-        `Could not resolve the empty type: ${diagnostics.map(formatDiagnostic).join("\n")}`
+        `Could not resolve the empty type: ${diagnostics.map(formatDiagnostic).join("\n")}`,
       );
     }
 
@@ -561,7 +561,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
       keyProto[1] as "string" | ScalarIntegralName,
       valueType.kind === "Model"
         ? addImportSourceForProtoIfNeeded(program, valueProto, relativeSource, valueType)
-        : valueProto
+        : valueProto,
     );
   }
 
@@ -611,7 +611,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
         if (!type) {
           const diagnosticString = diagnostics.map(formatDiagnostic).join("\n");
           throw new Error(
-            `Failed to construct TypeSpec -> Protobuf scalar map. Unexpected failure to resolve TypeSpec scalar: ${diagnosticString}`
+            `Failed to construct TypeSpec -> Protobuf scalar map. Unexpected failure to resolve TypeSpec scalar: ${diagnosticString}`,
           );
         }
       }
@@ -680,7 +680,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
         reportDiagnostic(program, {
           code: "namespace-collision",
           format: {
-            name: `"${file.package}"` ?? "<empty>",
+            name: file.package ? `"${file.package}"` : "<empty>",
           },
           target: file.source,
         });
@@ -740,7 +740,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
    */
   function toMessageBodyDeclaration(
     property: ModelProperty,
-    model: Model
+    model: Model,
   ): ProtoMessageBodyDeclaration {
     if (property.type.kind === "Union") {
       // Unions are difficult to represent in protobuf, so for now we don't support them.
@@ -823,7 +823,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
         program,
         addType(property.type, model),
         model,
-        property.type as NamespaceTraversable
+        property.type as NamespaceTraversable,
       ),
       index: program.stateMap(state.fieldIndex).get(property),
       doc: getDoc(program, property),
@@ -854,7 +854,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
           name: variant.name,
           value: variant.value as number,
           doc: getDoc(program, variant),
-        })
+        }),
       ),
       doc: getDoc(program, e),
     };
@@ -911,7 +911,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     program: Program,
     pt: T,
     dependent: Model | Operation,
-    dependency: NamespaceTraversable
+    dependency: NamespaceTraversable,
   ): T {
     {
       // Early escape for intrinsics
@@ -939,7 +939,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
         program,
         pt,
         dependent,
-        (dependency as Model).templateMapper!.args[0] as NamespaceTraversable
+        (dependency as Model).templateMapper!.args[0] as NamespaceTraversable,
       );
     }
     try {
@@ -953,7 +953,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
                 k,
                 addImportSourceForProtoIfNeeded(program, v, mapInfo[0], mapInfo[1]) as
                   | ProtoRef
-                  | ProtoScalar
+                  | ProtoScalar,
                 // Anything else is unreachable by construction.
               ) as T)
             : pt;
@@ -1030,7 +1030,7 @@ function getOperationReturnSyntaxTarget(op: Operation): DiagnosticTarget {
     default:
       const __exhaust: never = signature;
       throw new Error(
-        `Internal Emitter Error: reached unreachable operation signature: ${op.node.signature.kind}`
+        `Internal Emitter Error: reached unreachable operation signature: ${op.node.signature.kind}`,
       );
   }
 }
@@ -1056,7 +1056,7 @@ function getPropertyNameSyntaxTarget(property: ModelProperty): DiagnosticTarget 
     default:
       const __exhaust: never = node;
       throw new Error(
-        `Internal Emitter Error: reached unreachable model property node: ${property.node.kind}`
+        `Internal Emitter Error: reached unreachable model property node: ${property.node.kind}`,
       );
   }
 }

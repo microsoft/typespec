@@ -41,6 +41,7 @@ const isolatedEmitters = ["eng/emitters/"];
 export const CIRules = {
   CSharp: [...all, ...isolatedEmitters, ...AreaPaths["emitter:client:csharp"], ".editorconfig"],
   Java: [...all, ...isolatedEmitters, ...AreaPaths["emitter:client:java"], ".editorconfig"],
+  Python: [...all, ...isolatedEmitters, ...AreaPaths["emitter:client:python"], ".editorconfig"],
 
   Core: [
     "**/*",
@@ -51,6 +52,7 @@ export const CIRules = {
     ...ignore(isolatedEmitters),
     ...ignore(AreaPaths["emitter:client:csharp"]),
     ...ignore(AreaPaths["emitter:client:java"]),
+    ...ignore(AreaPaths["emitter:client:python"]),
   ],
 };
 

@@ -21,7 +21,7 @@ public class Bird implements JsonSerializable<Bird> {
      * The kind property.
      */
     @Generated
-    String kind;
+    private String kind = "Bird";
 
     /*
      * The wingspan property.
@@ -37,7 +37,6 @@ public class Bird implements JsonSerializable<Bird> {
     @Generated
     public Bird(int wingspan) {
         this.wingspan = wingspan;
-        this.kind = "Bird";
     }
 
     /**
@@ -67,13 +66,9 @@ public class Bird implements JsonSerializable<Bird> {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        toJsonShared(jsonWriter);
-        return jsonWriter.writeEndObject();
-    }
-
-    void toJsonShared(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeIntField("wingspan", this.wingspan);
         jsonWriter.writeStringField("kind", this.kind);
+        return jsonWriter.writeEndObject();
     }
 
     /**

@@ -1,0 +1,55 @@
+/**
+ * Config file for API Extractor.  For more info, please visit: https://api-extractor.com
+ */
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
+  "mainEntryPointFilePath": "<projectFolder>/dist/src/index.d.ts",
+  "apiReport": {
+    "enabled": true,
+    "reportFolder": "<projectFolder>/temp"
+  },
+  "docModel": {
+    "enabled": true
+  },
+  "dtsRollup": {
+    "enabled": false
+  },
+  "messages": {
+    "compilerMessageReporting": {
+      "default": {
+        "logLevel": "error"
+      },
+      "TS2552": {
+        "logLevel": "none", // False positive with non support for 5.6 yet
+        "addToApiReportFile": false
+      }
+    },
+
+    "extractorMessageReporting": {
+      "default": {
+        "logLevel": "error"
+      },
+      "ae-undocumented": {
+        "logLevel": "error"
+      },
+      "ae-forgotten-export": {
+        "logLevel": "none", // False positive with decorators functions.
+        "addToApiReportFile": false
+      },
+      "ae-missing-release-tag": {
+        "logLevel": "none", // This is just extra verbosity. Should rely on api view to see if we exported something by mistake
+        "addToApiReportFile": false
+      }
+    },
+
+    "tsdocMessageReporting": {
+      "default": {
+        "logLevel": "error"
+      },
+      "tsdoc-param-tag-missing-hyphen": {
+        "logLevel": "none",
+        "addToApiReportFile": false
+      }
+    }
+  }
+}

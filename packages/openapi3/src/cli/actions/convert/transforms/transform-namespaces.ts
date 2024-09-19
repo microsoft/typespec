@@ -8,7 +8,7 @@ import {
 type TypeSpecProgramDeclarations = Pick<TypeSpecProgram, "types" | "operations" | "namespaces">;
 export function transformNamespaces(
   types: TypeSpecDataTypes[],
-  operations: TypeSpecOperation[]
+  operations: TypeSpecOperation[],
 ): TypeSpecProgramDeclarations {
   // There can only be 1 file namespace - so if scopes is empty then entity belongs at root level
   const programDecs: TypeSpecProgramDeclarations = {
@@ -33,7 +33,7 @@ function expandModels(programDecs: TypeSpecProgramDeclarations, types: TypeSpecD
 
 function expandOperations(
   programDecs: TypeSpecProgramDeclarations,
-  operations: TypeSpecOperation[]
+  operations: TypeSpecOperation[],
 ): void {
   for (const operation of operations) {
     const { scope } = operation;
@@ -44,7 +44,7 @@ function expandOperations(
 
 function getNamespace(
   programDecs: TypeSpecProgramDeclarations,
-  scope: string[]
+  scope: string[],
 ): TypeSpecNamespace | undefined {
   if (!scope.length) return programDecs;
 
@@ -59,7 +59,7 @@ function getNamespace(
 
 function createNamespace(
   programDecs: TypeSpecProgramDeclarations,
-  scope: string[]
+  scope: string[],
 ): TypeSpecNamespace {
   let namespace: TypeSpecNamespace = programDecs;
   for (const fragment of scope) {

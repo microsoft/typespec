@@ -1,0 +1,95 @@
+{% import 'keywords.jinja2' as keywords with context %}
+{{ code_model.options['license_header'] }}
+
+{{ imports }}
+
+{% if code_model.need_mixin_abc %}
+    {% for client in clients | selectattr("has_mixin") %}
+class {{ client.name }}MixinABC(
+    ABC
+):
+    """DO NOT use this class. It is for internal typing use only."""
+    _client: "{{ keywords.async_class }}PipelineClient"
+    _config: {{ client.name }}Configuration
+    _serialize: "Serializer"
+    _deserialize: "Deserializer"
+    {% endfor %}
+{% endif %}
+{% if code_model.has_abstract_operations %}
+
+def raise_if_not_implemented(cls, abstract_methods):
+    not_implemented = [f for f in abstract_methods if not callable(getattr(cls, f, None))]
+    if not_implemented:
+        raise NotImplementedError("The following methods on operation group '{}' are not implemented: '{}'."
+        " Please refer to https://aka.ms/azsdk/python/dpcodegen/python/customize to learn how to customize.".format(
+        cls.__name__, '\', \''.join(not_implemented))
+        )
+{% endif %}
+
+{% if code_model.has_etag %}
+def quote_etag(etag: Optional[str]) -> Optional[str]:
+    if not etag or etag == "*":
+        return etag
+    if etag.startswith("W/"):
+        return etag
+    if etag.startswith('"') and etag.endswith('"'):
+        return etag
+    if etag.startswith("'") and etag.endswith("'"):
+        return etag
+    return '"' + etag + '"'
+
+
+def prep_if_match(etag: Optional[str], match_condition: Optional[MatchConditions]) -> Optional[str]:
+    if match_condition == MatchConditions.IfNotModified:
+        if_match = quote_etag(etag) if etag else None
+        return if_match
+    if match_condition == MatchConditions.IfPresent:
+        return "*"
+    return None
+
+
+def prep_if_none_match(etag: Optional[str], match_condition: Optional[MatchConditions]) -> Optional[str]:
+    if match_condition == MatchConditions.IfModified:
+        if_none_match = quote_etag(etag) if etag else None
+        return if_none_match
+    if match_condition == MatchConditions.IfMissing:
+        return "*"
+    return None
+{% endif %}
+{% if code_model.has_form_data and code_model.options["models_mode"] == "dpg" and not async_mode  %}
+# file-like tuple could be `(filename, IO (or bytes))` or `(filename, IO (or bytes), content_type)`
+FileContent = Union[str, bytes, IO[str], IO[bytes]]
+
+FileType = Union[
+    # file (or bytes)
+    FileContent,
+    # (filename, file (or bytes))
+    Tuple[Optional[str], FileContent],
+    # (filename, file (or bytes), content_type)
+    Tuple[Optional[str], FileContent, Optional[str]],
+]
+
+def serialize_multipart_data_entry(data_entry: Any) -> Any:
+    if isinstance(data_entry, (list, tuple, dict, Model)):
+        return json.dumps(data_entry, cls=SdkJSONEncoder, exclude_readonly=True)
+    return data_entry
+
+def prepare_multipart_form_data(
+    body: Mapping[str, Any], multipart_fields: List[str], data_fields: List[str]
+) -> Tuple[List[FileType], Dict[str, Any]]:
+    files: List[FileType] = []
+    data: Dict[str, Any] = {}
+    for multipart_field in multipart_fields:
+        multipart_entry = body.get(multipart_field)
+        if isinstance(multipart_entry, list):
+            files.extend([(multipart_field, e) for e in multipart_entry ])
+        elif multipart_entry:
+            files.append((multipart_field, multipart_entry))
+
+    for data_field in data_fields:
+        data_entry = body.get(data_field)
+        if data_entry:
+            data[data_field] = serialize_multipart_data_entry(data_entry)
+
+    return files, data
+{% endif %}

@@ -21,7 +21,7 @@ public class AbstractModel implements JsonSerializable<AbstractModel> {
      * Discriminator property for AbstractModel.
      */
     @Generated
-    String kind;
+    private String kind = "AbstractModel";
 
     /*
      * The name property.
@@ -37,7 +37,6 @@ public class AbstractModel implements JsonSerializable<AbstractModel> {
     @Generated
     protected AbstractModel(String name) {
         this.name = name;
-        this.kind = "AbstractModel";
     }
 
     /**
@@ -67,13 +66,9 @@ public class AbstractModel implements JsonSerializable<AbstractModel> {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        toJsonShared(jsonWriter);
-        return jsonWriter.writeEndObject();
-    }
-
-    void toJsonShared(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStringField("name", this.name);
         jsonWriter.writeStringField("kind", this.kind);
+        return jsonWriter.writeEndObject();
     }
 
     /**

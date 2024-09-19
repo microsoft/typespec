@@ -28,7 +28,7 @@ export interface Linter {
  */
 export function resolveLinterDefinition(
   libName: string,
-  linter: LinterDefinition
+  linter: LinterDefinition,
 ): LinterResolvedDefinition {
   const rules: LinterRule<string, any>[] = linter.rules.map((rule) => {
     return { ...rule, id: `${libName}/${rule.name}` };
@@ -53,7 +53,7 @@ export function resolveLinterDefinition(
 
 export function createLinter(
   program: Program,
-  loadLibrary: (name: string) => Promise<LibraryInstance | undefined>
+  loadLibrary: (name: string) => Promise<LibraryInstance | undefined>,
 ): Linter {
   const tracer = program.tracer.sub("linter");
 
@@ -84,7 +84,7 @@ export function createLinter(
                 code: "unknown-rule-set",
                 format: { libraryName: ref.libraryName, ruleSetName: ref.name },
                 target: NoTarget,
-              })
+              }),
             );
           }
         }
@@ -110,7 +110,7 @@ export function createLinter(
                 code: "unknown-rule",
                 format: { libraryName: ref.libraryName, ruleName: ref.name },
                 target: NoTarget,
-              })
+              }),
             );
           }
         }
@@ -125,7 +125,7 @@ export function createLinter(
               code: "rule-enabled-disabled",
               format: { ruleName },
               target: NoTarget,
-            })
+            }),
           );
         }
         enabledRules.delete(ruleName);
@@ -133,7 +133,7 @@ export function createLinter(
     }
     tracer.trace(
       "extend-rule-set.end",
-      "Rules enabled: \n" + [...enabledRules.keys()].map((x) => ` - ${x}`).join("\n")
+      "Rules enabled: \n" + [...enabledRules.keys()].map((x) => ` - ${x}`).join("\n"),
     );
 
     return diagnostics.diagnostics;
@@ -145,7 +145,7 @@ export function createLinter(
     tracer.trace(
       "lint",
       `Running linter with following rules:\n` +
-        [...enabledRules.keys()].map((x) => ` - ${x}`).join("\n")
+        [...enabledRules.keys()].map((x) => ` - ${x}`).join("\n"),
     );
 
     for (const rule of enabledRules.values()) {
@@ -175,7 +175,7 @@ export function createLinter(
       for (const rule of linter.rules) {
         tracer.trace(
           "register-library.rule",
-          `Registering rule "${rule.id}" for library "${name}".`
+          `Registering rule "${rule.id}" for library "${name}".`,
         );
         if (ruleMap.has(rule.id)) {
           compilerAssert(false, `Unexpected duplicate linter rule: "${rule.id}"`);
@@ -190,7 +190,7 @@ export function createLinter(
   }
 
   function parseRuleReference(
-    ref: RuleRef
+    ref: RuleRef,
   ): [{ libraryName: string; name: string } | undefined, readonly Diagnostic[]] {
     const segments = ref.split("/");
     const name = segments.pop();
@@ -208,7 +208,7 @@ export function createLinter(
 export function createLinterRuleContext<N extends string, DM extends DiagnosticMessages>(
   program: Program,
   rule: LinterRule<N, DM>,
-  diagnosticCollector: DiagnosticCollector
+  diagnosticCollector: DiagnosticCollector,
 ): LinterRuleContext<DM> {
   return {
     program,
@@ -216,7 +216,7 @@ export function createLinterRuleContext<N extends string, DM extends DiagnosticM
   };
 
   function createDiagnostic<M extends keyof DM>(
-    diag: LinterRuleDiagnosticReport<DM, M>
+    diag: LinterRuleDiagnosticReport<DM, M>,
   ): Diagnostic {
     const message = rule.messages[diag.messageId ?? "default"];
     if (!message) {
@@ -225,7 +225,7 @@ export function createLinterRuleContext<N extends string, DM extends DiagnosticM
         .join("\n");
       const messageId = String(diag.messageId);
       throw new Error(
-        `Unexpected message id '${messageId}' for rule '${rule.name}'. Defined messages:\n${messageString}`
+        `Unexpected message id '${messageId}' for rule '${rule.name}'. Defined messages:\n${messageString}`,
       );
     }
 

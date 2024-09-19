@@ -12,7 +12,7 @@ export type HttpPartDecorator = (
   context: DecoratorContext,
   target: Model,
   type: Type,
-  options: HttpPartOptions
+  options: HttpPartOptions,
 ) => void;
 
 export type TypeSpecHttpPrivateDecorators = {

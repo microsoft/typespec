@@ -57,24 +57,24 @@
   ],
   "dependencies": {
     "@typespec/compiler": "workspace:~",
-    "picocolors": "~1.0.1",
+    "picocolors": "~1.1.0",
     "prettier": "~3.3.3",
-    "yaml": "~2.4.5",
+    "yaml": "~2.5.1",
     "yargs": "~17.7.2"
   },
   "devDependencies": {
-    "@types/node": "~18.11.19",
-    "@types/yargs": "~17.0.32",
+    "@types/node": "~22.5.4",
+    "@types/yargs": "~17.0.33",
     "@typespec/compiler": "workspace:~",
     "@typespec/prettier-plugin-typespec": "workspace:~",
-    "@vitest/coverage-v8": "^2.0.4",
-    "@vitest/ui": "^2.0.4",
+    "@vitest/coverage-v8": "^2.1.0",
+    "@vitest/ui": "^2.1.0",
     "c8": "^10.1.2",
     "rimraf": "~6.0.1",
     "source-map-support": "~0.5.21",
-    "typedoc": "^0.26.5",
-    "typedoc-plugin-markdown": "^4.2.2",
-    "typescript": "~5.5.4",
-    "vitest": "^2.0.4"
+    "typedoc": "^0.26.7",
+    "typedoc-plugin-markdown": "^4.2.7",
+    "typescript": "~5.6.2",
+    "vitest": "^2.1.0"
   }
 }

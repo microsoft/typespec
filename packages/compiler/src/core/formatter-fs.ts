@@ -26,7 +26,7 @@ export interface TypeSpecFormatResult {
  */
 export async function formatTypeSpecFiles(
   patterns: string[],
-  { exclude, debug }: TypeSpecFormatOptions
+  { exclude, debug }: TypeSpecFormatOptions,
 ): Promise<[TypeSpecFormatResult, readonly Diagnostic[]]> {
   const files = await findFiles(patterns, exclude);
   const diagnostics: Diagnostic[] = [];
@@ -43,7 +43,7 @@ export async function formatTypeSpecFiles(
             code: "format-failed",
             format: { file, details },
             target: NoTarget,
-          })
+          }),
         );
       } else {
         throw e;
@@ -60,7 +60,7 @@ export async function formatTypeSpecFiles(
  */
 export async function findUnformattedTypeSpecFiles(
   patterns: string[],
-  { exclude, debug }: TypeSpecFormatOptions
+  { exclude, debug }: TypeSpecFormatOptions,
 ): Promise<string[]> {
   const files = await findFiles(patterns, exclude);
   const unformatted = [];

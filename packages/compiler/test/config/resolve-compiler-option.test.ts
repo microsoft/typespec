@@ -8,7 +8,7 @@ import { findTestPackageRoot } from "../../src/testing/test-utils.js";
 
 const scenarioRoot = resolvePath(
   await findTestPackageRoot(import.meta.url),
-  "test/config/scenarios"
+  "test/config/scenarios",
 );
 
 describe("compiler: resolve compiler options", () => {
@@ -22,7 +22,7 @@ describe("compiler: resolve compiler options", () => {
           cwd: normalizePath(process.cwd()),
           entrypoint: fullPath, // not really used here
           configPath: fullPath,
-        }
+        },
       );
       return [options, diagnostics] as const;
     };

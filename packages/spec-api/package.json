@@ -1,0 +1,55 @@
+{
+  "name": "@typespec/spec-api",
+  "version": "0.1.0",
+  "description": "Spec api to implement mock api",
+  "main": "dist/index.js",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "watch": "tsc -p ./tsconfig.build.json --watch",
+    "build": "tsc -p ./tsconfig.build.json",
+    "clean": "rimraf dist/ temp/",
+    "test": "vitest run"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
+  "author": "Microsoft",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "homepage": "https://github.com/microsoft/typespec#readme",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "deep-equal": "^2.2.0",
+    "express": "^4.19.2",
+    "express-promise-router": "^4.1.1",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "picocolors": "~1.1.0",
+    "winston": "^3.8.2",
+    "prettier": "~3.3.3",
+    "xml2js": "^0.5.0",
+    "yargs": "~17.7.2"
+  },
+  "devDependencies": {
+    "@types/body-parser": "^1.19.2",
+    "@types/deep-equal": "^1.0.1",
+    "@types/express": "^4.17.17",
+    "@types/morgan": "^1.9.4",
+    "@types/multer": "^1.4.10",
+    "@types/node": "~22.5.4",
+    "@types/xml2js": "^0.4.11",
+    "@types/yargs": "~17.0.33",
+    "rimraf": "~6.0.1",
+    "typescript": "~5.6.2",
+    "vitest": "^2.1.0",
+    "@vitest/coverage-v8": "^2.1.0",
+    "@vitest/ui": "^2.1.0"
+  }
+}

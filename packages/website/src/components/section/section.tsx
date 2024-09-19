@@ -39,7 +39,7 @@ export const Section = ({
     <div
       className={clsx(
         style["section"],
-        style[layout === "text-right" ? "text-right" : "text-left"]
+        style[layout === "text-right" ? "text-right" : "text-left"],
       )}
     >
       <div className={style["info-container"]}>

@@ -17,10 +17,16 @@ import java.io.IOException;
 @Immutable
 public class Shark extends Fish {
     /*
+     * discriminator property
+     */
+    @Generated
+    private FishKind kind = FishKind.SHARK;
+
+    /*
      * The sharktype property.
      */
     @Generated
-    SharkKind sharktype;
+    private SharkKind sharktype = SharkKind.fromString("shark");
 
     /**
      * Creates an instance of Shark class.
@@ -30,8 +36,17 @@ public class Shark extends Fish {
     @Generated
     public Shark(int age) {
         super(age);
-        this.kind = FishKind.SHARK;
-        this.sharktype = SharkKind.fromString("shark");
+    }
+
+    /**
+     * Get the kind property: discriminator property.
+     * 
+     * @return the kind value.
+     */
+    @Generated
+    @Override
+    public FishKind getKind() {
+        return this.kind;
     }
 
     /**
@@ -51,13 +66,10 @@ public class Shark extends Fish {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        toJsonShared(jsonWriter);
-        return jsonWriter.writeEndObject();
-    }
-
-    void toJsonShared(JsonWriter jsonWriter) throws IOException {
-        super.toJsonShared(jsonWriter);
+        jsonWriter.writeStringField("kind", this.kind == null ? null : this.kind.toString());
+        jsonWriter.writeIntField("age", getAge());
         jsonWriter.writeStringField("sharktype", this.sharktype == null ? null : this.sharktype.toString());
+        return jsonWriter.writeEndObject();
     }
 
     /**
