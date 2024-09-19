@@ -121,6 +121,7 @@ const sidebars: SidebarsConfig = {
         },
         "standard-library/discriminated-types",
         "standard-library/examples",
+        "standard-library/pagination",
       ],
     },
     {
