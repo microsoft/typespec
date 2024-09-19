@@ -11,7 +11,12 @@ import type {
   PrevLinkDecorator,
 } from "../../generated-defs/TypeSpec.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
-import { createDiagnosticCollector, navigateProgram, Program } from "../core/index.js";
+import {
+  createDiagnosticCollector,
+  isArrayModelType,
+  navigateProgram,
+  Program,
+} from "../core/index.js";
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import type {
   DecoratorContext,
@@ -22,7 +27,6 @@ import type {
   Type,
 } from "../core/types.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
-import { Mutable } from "../utils/misc.js";
 import { isNumericType, isStringType } from "./decorators.js";
 import { useStateSet } from "./utils.js";
 
@@ -48,7 +52,7 @@ export const [
   markOffset,
   /** {@inheritdoc OffsetDecorator} */
   offsetDecorator,
-] = createMarkerDecorator<OffsetDecorator>("offset", createNumericValidation("pageItems"));
+] = createMarkerDecorator<OffsetDecorator>("offset", createNumericValidation("offset"));
 
 export const [
   /**
@@ -60,7 +64,7 @@ export const [
   markPageIndexProperty,
   /** {@inheritdoc PageIndexDecorator} */
   pageIndexDecorator,
-] = createMarkerDecorator<PageIndexDecorator>("pageIndex", createNumericValidation("pageItems"));
+] = createMarkerDecorator<PageIndexDecorator>("pageIndex", createNumericValidation("pageIndex"));
 
 export const [
   /**
@@ -72,7 +76,7 @@ export const [
   markPageSizeProperty,
   /** {@inheritdoc PageSizeDecorator} */
   pageSizeDecorator,
-] = createMarkerDecorator<PageSizeDecorator>("pageSize", createNumericValidation("pageItems"));
+] = createMarkerDecorator<PageSizeDecorator>("pageSize", createNumericValidation("pageSize"));
 
 export const [
   /**
@@ -84,7 +88,18 @@ export const [
   markPageItemsProperty,
   /** {@inheritdoc PageItemsDecorator} */
   pageItemsDecorator,
-] = createMarkerDecorator<PageItemsDecorator>("pageItems", createNumericValidation("pageItems"));
+] = createMarkerDecorator<PageItemsDecorator>("pageItems", (context, target) => {
+  if (target.type.kind !== "Model" || !isArrayModelType(context.program, target.type)) {
+    reportDiagnostic(context.program, {
+      code: "decorator-wrong-target",
+      messageId: "withExpected",
+      format: { decorator: "continuationToken", expected: "Array", to: getTypeName(target.type) },
+      target: context.decoratorTarget,
+    });
+    return false;
+  }
+  return true;
+});
 
 export const [
   /**
@@ -171,118 +186,89 @@ type PagingPropertyKind =
   | "prevLink"
   | "firstLink"
   | "lastLink";
+
+export interface PagingProperty {
+  readonly property: ModelProperty;
+}
 export interface PagingOperation {
   readonly input: {
-    readonly offset?: ModelProperty;
-    readonly pageIndex?: ModelProperty;
-    readonly pageSize?: ModelProperty;
-    readonly continuationToken?: ModelProperty;
+    readonly offset?: PagingProperty;
+    readonly pageIndex?: PagingProperty;
+    readonly pageSize?: PagingProperty;
+    readonly continuationToken?: PagingProperty;
   };
 
   readonly output: {
-    readonly pageItems?: ModelProperty;
-    readonly nextLink?: ModelProperty;
-    readonly prevLink?: ModelProperty;
-    readonly firstLink?: ModelProperty;
-    readonly lastLink?: ModelProperty;
-    readonly continuationToken?: ModelProperty;
+    readonly pageItems?: PagingProperty;
+    readonly nextLink?: PagingProperty;
+    readonly prevLink?: PagingProperty;
+    readonly firstLink?: PagingProperty;
+    readonly lastLink?: PagingProperty;
+    readonly continuationToken?: PagingProperty;
   };
 }
 
-function getPagingOperation(
+const inputProps = new Set(["offset", "pageIndex", "pageSize", "continuationToken"]);
+const outputProps = new Set([
+  "pageItems",
+  "nextLink",
+  "prevLink",
+  "firstLink",
+  "lastLink",
+  "continuationToken",
+]);
+
+function findPagingProperties<K extends "input" | "output">(
+  program: Program,
+  op: Operation,
+  base: Type,
+  source: K,
+): [PagingOperation[K], readonly Diagnostic[]] {
+  const diags = createDiagnosticCollector();
+  const acceptableProps = source === "input" ? inputProps : outputProps;
+  const duplicateTracker = new DuplicateTracker<string, ModelProperty>();
+  const data: Record<any, any> = {};
+  navigateProperties(base, (property) => {
+    const kind = diags.pipe(getPagingProperty(program, property));
+    duplicateTracker.track(kind, property);
+    if (acceptableProps.has(kind)) {
+      data[kind] = property;
+    } else {
+      diags.add(
+        createDiagnostic({
+          code: "invalid-paging-prop",
+          messageId: source === "input" ? "input" : "output",
+          format: { kind },
+          target: property,
+        }),
+      );
+    }
+  });
+  for (const [key, duplicates] of duplicateTracker.entries()) {
+    for (const prop of duplicates) {
+      diags.add(
+        createDiagnostic({
+          code: "duplicate-paging-prop",
+          format: { kind: key, operationName: op.name },
+          target: prop,
+        }),
+      );
+    }
+  }
+  return diags.wrap(data);
+}
+
+export function getPagingOperation(
   program: Program,
   op: Operation,
 ): [PagingOperation | undefined, readonly Diagnostic[]] {
   const diags = createDiagnosticCollector();
-  const input: Mutable<PagingOperation["input"]> = {};
-  const output: Mutable<PagingOperation["output"]> = {};
+  const result: PagingOperation = {
+    input: diags.pipe(findPagingProperties(program, op, op.parameters, "input")),
+    output: diags.pipe(findPagingProperties(program, op, op.returnType, "output")),
+  };
 
-  let duplicateTracker = new DuplicateTracker<string, ModelProperty>();
-  navigateProperties(op.parameters, (prop) => {
-    const kind = diags.pipe(getPagingProperty(program, prop));
-    duplicateTracker.track(kind, prop);
-    switch (kind) {
-      case "offset":
-      case "pageIndex":
-      case "pageSize":
-        input[kind] = prop;
-        break;
-      case "continuationToken":
-        input.continuationToken = prop;
-        break;
-      case "pageItems":
-      case "nextLink":
-      case "prevLink":
-      case "firstLink":
-      case "lastLink":
-        diags.add(
-          createDiagnostic({
-            code: "invalid-paging-prop",
-            messageId: "parmeters",
-            format: { kind },
-            target: prop,
-          }),
-        );
-        break;
-    }
-  });
-  for (const [key, duplicates] of duplicateTracker.entries()) {
-    for (const prop of duplicates) {
-      diags.add(
-        createDiagnostic({
-          code: "duplicate-paging-prop",
-          format: { kind: key, operationName: op.name },
-          target: prop,
-        }),
-      );
-    }
-  }
-
-  duplicateTracker = new DuplicateTracker<string, ModelProperty>();
-  navigateProperties(op.returnType, (prop) => {
-    const kind = diags.pipe(getPagingProperty(program, prop));
-    duplicateTracker.track(kind, prop);
-    console.log("Track this", kind);
-    switch (kind) {
-      case "offset":
-      case "pageIndex":
-      case "pageSize":
-        diags.add(
-          createDiagnostic({
-            code: "invalid-paging-prop",
-            messageId: "returnType",
-            format: { kind },
-            target: prop,
-          }),
-        );
-        break;
-      case "continuationToken":
-        output.continuationToken = prop;
-        break;
-      case "pageItems":
-      case "nextLink":
-      case "prevLink":
-      case "firstLink":
-      case "lastLink":
-        output[kind] = prop;
-        break;
-    }
-  });
-
-  for (const [key, duplicates] of duplicateTracker.entries()) {
-    console.log("Duplicate", key, duplicates);
-    for (const prop of duplicates) {
-      diags.add(
-        createDiagnostic({
-          code: "duplicate-paging-prop",
-          format: { kind: key, operationName: op.name },
-          target: prop,
-        }),
-      );
-    }
-  }
-
-  return [{ input, output }, diags.diagnostics];
+  return [result, diags.diagnostics];
 }
 
 function navigateProperties(type: Type, callback: (prop: ModelProperty) => void) {
@@ -309,8 +295,8 @@ function getPagingProperty(
 ): [PagingPropertyKind, readonly Diagnostic[]] {
   const diagnostics: Diagnostic[] = [];
   const props = {
-    offset: isPageIndexProperty(program, prop),
-    pageIndex: isOffsetProperty(program, prop),
+    offset: isOffsetProperty(program, prop),
+    pageIndex: isPageIndexProperty(program, prop),
     pageItems: isPageItemsProperty(program, prop),
     pageSize: isPageSizeProperty(program, prop),
     continuationToken: isContinuationTokenProperty(program, prop),

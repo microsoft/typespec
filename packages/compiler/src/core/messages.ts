@@ -899,8 +899,8 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Paging property '${"kind"}' is not valid in this context.`,
-      parmeters: paramMessage`Paging property '${"kind"}' cannot be used in the parameters of an operation.`,
-      returnType: paramMessage`Paging property '${"kind"}' cannot be used in the return type of an operation.`,
+      input: paramMessage`Paging property '${"kind"}' cannot be used in the parameters of an operation.`,
+      output: paramMessage`Paging property '${"kind"}' cannot be used in the return type of an operation.`,
     },
   },
   "duplicate-paging-prop": {
