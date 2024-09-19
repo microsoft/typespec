@@ -129,7 +129,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private IReadOnlyList<PropertyProvider>? _properties;
         public IReadOnlyList<PropertyProvider> Properties => _properties ??= BuildProperties();
 
-        protected IReadOnlyList<MethodProvider>? _methods;
+        private IReadOnlyList<MethodProvider>? _methods;
         public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethods();
 
         private IReadOnlyList<ConstructorProvider>? _constructors;

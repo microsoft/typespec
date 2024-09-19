@@ -219,9 +219,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
 
             protected override string BuildName() => "MockInputClient";
 
-            protected override MethodProvider[] BuildMethods() => MethodProviders!;
+            protected override MethodProvider[] BuildMethods() => MethodProviders;
 
-            protected override ConstructorProvider[] BuildConstructors() => ConstructorProviders!;
+            protected override ConstructorProvider[] BuildConstructors() => ConstructorProviders;
         }
     }
 }
