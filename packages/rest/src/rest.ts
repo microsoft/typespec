@@ -88,7 +88,7 @@ const resourceOperationToVerb: any = {
 
 function getResourceOperationHttpVerb(
   program: Program,
-  operation: Operation
+  operation: Operation,
 ): HttpVerb | undefined {
   const resourceOperation = getResourceOperation(program, operation);
   return (
@@ -105,7 +105,7 @@ function autoRouteProducer(
   operation: Operation,
   parentSegments: string[],
   overloadBase: HttpOperation | undefined,
-  options: RouteOptions
+  options: RouteOptions,
 ): DiagnosticResult<RouteProducerResult> {
   const diagnostics = createDiagnosticCollector();
   const routePath = getRoutePath(program, operation)?.path;
@@ -117,7 +117,7 @@ function autoRouteProducer(
   };
 
   const parameters: HttpOperationParameters = diagnostics.pipe(
-    getOperationParameters(program, operation, "", undefined, paramOptions)
+    getOperationParameters(program, operation, "", undefined, paramOptions),
   );
 
   for (const httpParam of parameters.parameters) {
@@ -179,7 +179,7 @@ const autoRouteKey = createStateSymbol("autoRoute");
  */
 export const $autoRoute: AutoRouteDecorator = (
   context: DecoratorContext,
-  entity: Interface | Operation
+  entity: Interface | Operation,
 ) => {
   if (entity.kind === "Operation") {
     setRouteProducer(context.program, entity, autoRouteProducer);
@@ -219,7 +219,7 @@ const segmentsKey = createStateSymbol("segments");
 export function $segment(
   context: DecoratorContext,
   entity: Model | ModelProperty | Operation,
-  name: string
+  name: string,
 ) {
   context.program.stateMap(segmentsKey).set(entity, name);
 }
@@ -235,7 +235,7 @@ function getResourceSegment(program: Program, resourceType: Model): string | und
 export const $segmentOf: SegmentOfDecorator = (
   context: DecoratorContext,
   entity: Operation,
-  resourceType: Model
+  resourceType: Model,
 ) => {
   if ((resourceType.kind as any) === "TemplateParameter") {
     // Skip it, this operation is in a templated interface
@@ -264,7 +264,7 @@ const actionSeparatorKey = createStateSymbol("actionSeparator");
 export function $actionSeparator(
   context: DecoratorContext,
   entity: Model | ModelProperty | Operation,
-  separator: "/" | ":" | "/:"
+  separator: "/" | ":" | "/:",
 ) {
   context.program.stateMap(actionSeparatorKey).set(entity, separator);
 }
@@ -290,7 +290,7 @@ export function getActionSeparator(program: Program, entity: Type): string | und
 export const $resource: ResourceDecorator = (
   context: DecoratorContext,
   entity: Model,
-  collectionName: string
+  collectionName: string,
 ) => {
   // Ensure type has a key property
   const key = getResourceTypeKey(context.program, entity);
@@ -341,7 +341,7 @@ function resourceRouteProducer(
   operation: Operation,
   parentSegments: string[],
   overloadBase: HttpOperation | undefined,
-  options: RouteOptions
+  options: RouteOptions,
 ): DiagnosticResult<RouteProducerResult> {
   // NOTE: The purpose of this producer is to pass along the behavior of the
   // DefaultRouteProducer while setting the appropriate HTTP verb based on any
@@ -365,7 +365,7 @@ export function setResourceOperation(
   context: DecoratorContext,
   entity: Operation,
   resourceType: Model,
-  operation: ResourceOperations
+  operation: ResourceOperations,
 ) {
   if ((resourceType as any).kind === "TemplateParameter") {
     // Skip it, this operation is in a templated interface
@@ -387,7 +387,7 @@ export function setResourceOperation(
 
 export function getResourceOperation(
   program: Program,
-  typespecOperation: Operation
+  typespecOperation: Operation,
 ): ResourceOperation | undefined {
   return program.stateMap(resourceOperationsKey).get(typespecOperation);
 }
@@ -395,7 +395,7 @@ export function getResourceOperation(
 export const $readsResource: ReadsResourceDecorator = (
   context: DecoratorContext,
   entity: Operation,
-  resourceType: Model
+  resourceType: Model,
 ) => {
   setResourceOperation(context, entity, resourceType, "read");
 };
@@ -403,7 +403,7 @@ export const $readsResource: ReadsResourceDecorator = (
 export function $createsResource(
   context: DecoratorContext,
   entity: Operation,
-  resourceType: Model
+  resourceType: Model,
 ) {
   // Add path segment for resource type key
   context.call($segmentOf, entity, resourceType);
@@ -414,7 +414,7 @@ export function $createsResource(
 export function $createsOrReplacesResource(
   context: DecoratorContext,
   entity: Operation,
-  resourceType: Model
+  resourceType: Model,
 ) {
   setResourceOperation(context, entity, resourceType, "createOrReplace");
 }
@@ -422,7 +422,7 @@ export function $createsOrReplacesResource(
 export function $createsOrUpdatesResource(
   context: DecoratorContext,
   entity: Operation,
-  resourceType: Model
+  resourceType: Model,
 ) {
   setResourceOperation(context, entity, resourceType, "createOrUpdate");
 }
@@ -430,7 +430,7 @@ export function $createsOrUpdatesResource(
 export function $updatesResource(
   context: DecoratorContext,
   entity: Operation,
-  resourceType: Model
+  resourceType: Model,
 ) {
   setResourceOperation(context, entity, resourceType, "update");
 }
@@ -438,7 +438,7 @@ export function $updatesResource(
 export function $deletesResource(
   context: DecoratorContext,
   entity: Operation,
-  resourceType: Model
+  resourceType: Model,
 ) {
   setResourceOperation(context, entity, resourceType, "delete");
 }
@@ -446,7 +446,7 @@ export function $deletesResource(
 export const $listsResource: ListsResourceDecorator = (
   context: DecoratorContext,
   entity: Operation,
-  resourceType: Model
+  resourceType: Model,
 ) => {
   // Add path segment for resource type key
   context.call($segmentOf, entity, resourceType);
@@ -480,7 +480,7 @@ const actionsSegmentKey = createStateSymbol("actionSegment");
 export const $actionSegment: ActionSegmentDecorator = (
   context: DecoratorContext,
   entity: Operation,
-  name: string
+  name: string,
 ) => {
   context.program.stateMap(actionsSegmentKey).set(entity, name);
 };
@@ -509,7 +509,7 @@ const actionsKey = createStateSymbol("actions");
 export const $action: ActionDecorator = (
   context: DecoratorContext,
   entity: Operation,
-  name?: string
+  name?: string,
 ) => {
   if (name === "") {
     reportDiagnostic(context.program, {
@@ -529,7 +529,7 @@ export const $action: ActionDecorator = (
  */
 export function getActionDetails(
   program: Program,
-  operation: Operation
+  operation: Operation,
 ): ActionDetails | undefined {
   return program.stateMap(actionsKey).get(operation);
 }
@@ -547,7 +547,7 @@ export const $collectionAction: CollectionActionDecorator = (
   context: DecoratorContext,
   entity: Operation,
   resourceType: Model,
-  name?: string
+  name?: string,
 ) => {
   if ((resourceType as Type).kind === "TemplateParameter") {
     // Skip it, this operation is in a templated interface
@@ -573,7 +573,7 @@ export const $collectionAction: CollectionActionDecorator = (
  */
 export function getCollectionActionDetails(
   program: Program,
-  operation: Operation
+  operation: Operation,
 ): ActionDetails | undefined {
   return program.stateMap(collectionActionsKey).get(operation);
 }
@@ -583,7 +583,7 @@ export function getCollectionActionDetails(
  */
 export function getCollectionAction(
   program: Program,
-  operation: Operation
+  operation: Operation,
 ): string | null | undefined {
   return getCollectionActionDetails(program, operation)?.name;
 }
@@ -593,7 +593,7 @@ const resourceLocationsKey = createStateSymbol("resourceLocations");
 export const $resourceLocation: ResourceLocationDecorator = (
   context: DecoratorContext,
   entity: Scalar,
-  resourceType: Model
+  resourceType: Model,
 ) => {
   if ((resourceType as Type).kind === "TemplateParameter") {
     // Skip it, this operation is in a templated interface

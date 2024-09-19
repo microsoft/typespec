@@ -40,7 +40,7 @@ function validateHttpFileModel(program: Program, model: Model) {
 }
 
 function groupHttpOperations(
-  operations: HttpOperation[]
+  operations: HttpOperation[],
 ): Map<string, Map<string, HttpOperation[]>> {
   const paths = new Map<string, Map<string, HttpOperation[]>>();
 

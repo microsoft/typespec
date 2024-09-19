@@ -22,7 +22,7 @@ describe("Test GetInputType for array", () => {
       `
         op test(@body input: string[]): string[];
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
@@ -39,7 +39,7 @@ describe("Test GetInputType for array", () => {
       `
         op test(): string[];
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
@@ -78,7 +78,7 @@ describe("Test GetInputType for enum", () => {
         op test(@doc("fixed enum as input.")@body input: SimpleEnum): string[];
       `,
       runner,
-      { IsNamespaceNeeded: true, IsAzureCoreNeeded: true }
+      { IsNamespaceNeeded: true, IsAzureCoreNeeded: true },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
@@ -120,7 +120,7 @@ describe("Test GetInputType for enum", () => {
       op test(@doc("fixed enum as input.")@body input: FixedIntEnum): string[];
     `,
       runner,
-      { IsNamespaceNeeded: true, IsAzureCoreNeeded: true }
+      { IsNamespaceNeeded: true, IsAzureCoreNeeded: true },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
@@ -155,7 +155,7 @@ describe("Test GetInputType for enum", () => {
         }
         op test(@body input: FixedEnum): string[];
       `,
-      runner
+      runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);

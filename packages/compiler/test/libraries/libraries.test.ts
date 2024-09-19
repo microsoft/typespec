@@ -36,7 +36,7 @@ describe("compiler: libraries", () => {
         name: "@typespec/compiler",
         main: "index.js",
         version: "0.1.0-notthesame.1",
-      })
+      }),
     );
     testHost.addJsFile("./node_modules/@typespec/compiler/index.js", {});
     const diagnostics = await testHost.diagnose("main.tsp");
@@ -52,7 +52,7 @@ describe("compiler: libraries", () => {
     testHost.addTypeSpecFile("main.tsp", "");
     testHost.addTypeSpecFile(
       "./node_modules/@typespec/compiler/package.json",
-      JSON.stringify({ name: "@typespec/compiler", main: "index.js", version: MANIFEST.version })
+      JSON.stringify({ name: "@typespec/compiler", main: "index.js", version: MANIFEST.version }),
     );
     testHost.addJsFile("./node_modules/@typespec/compiler/index.js", {});
     const diagnostics = await testHost.diagnose("main.tsp");
@@ -68,7 +68,7 @@ describe("compiler: libraries", () => {
       `
     import "./lib1.js";
     import "./lib2.js";
-    `
+    `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [

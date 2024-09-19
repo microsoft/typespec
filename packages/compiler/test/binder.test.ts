@@ -533,7 +533,7 @@ function assertBindings(path: string, table: SymbolTable, descriptor: BindTest, 
       for (const exportBindingName of binding.exports.keys()) {
         if (expectedBindingNames.indexOf(exportBindingName) === -1) {
           throw new Error(
-            `Unexpected binding '${exportBindingName}' at ${subpath}, expected bindings are ${expectedBindingNames}`
+            `Unexpected binding '${exportBindingName}' at ${subpath}, expected bindings are ${expectedBindingNames}`,
           );
         }
       }
@@ -547,7 +547,7 @@ function assertBindings(path: string, table: SymbolTable, descriptor: BindTest, 
       strictEqual(
         binding.declarations.length,
         value.declarations.length,
-        `declaration count for ${subpath}`
+        `declaration count for ${subpath}`,
       );
       for (const [i, kind] of value.declarations.entries()) {
         strictEqual(binding.declarations[i].kind, kind, `declaration ${i} of ${subpath}`);

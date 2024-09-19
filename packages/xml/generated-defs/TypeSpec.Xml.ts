@@ -163,7 +163,7 @@ export type NsDecorator = (
   context: DecoratorContext,
   target: Type,
   ns: Type,
-  prefix?: string
+  prefix?: string,
 ) => void;
 
 /**

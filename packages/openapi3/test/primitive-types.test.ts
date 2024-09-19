@@ -40,7 +40,7 @@ describe("openapi3: primitives", () => {
           "Pet",
           `
           model Pet { name: ${name} };
-          `
+          `,
         );
 
         const schema = res.schemas.Pet.properties.name;
@@ -56,7 +56,7 @@ describe("openapi3: primitives", () => {
       model Pet { name: safeint };
       `,
         undefined,
-        { "safeint-strategy": "double-int" }
+        { "safeint-strategy": "double-int" },
       );
 
       const schema = res.components.schemas.Pet.properties.name;
@@ -69,7 +69,7 @@ describe("openapi3: primitives", () => {
       model Pet { name: safeint };
       `,
         undefined,
-        { "safeint-strategy": "int64" }
+        { "safeint-strategy": "int64" },
       );
 
       const schema = res.components.schemas.Pet.properties.name;
@@ -83,7 +83,7 @@ describe("openapi3: primitives", () => {
       `
       scalar shortString extends string;
       model Pet { name: shortString };
-      `
+      `,
     );
 
     ok(res.isRef);
@@ -102,7 +102,7 @@ describe("openapi3: primitives", () => {
       @maxLength(10) @minLength(10)
       scalar shortString extends string;
       model Pet { name: shortString };
-      `
+      `,
       );
 
       ok(res.isRef);
@@ -124,7 +124,7 @@ describe("openapi3: primitives", () => {
       @minLength(1)
       scalar shortButNotEmptyString extends shortString;
       model Pet { name: shortButNotEmptyString, breed: shortString };
-      `
+      `,
       );
       ok(res.isRef);
       ok(res.schemas.shortString, "expected definition named shortString");
@@ -148,7 +148,7 @@ describe("openapi3: primitives", () => {
         `
       @extension("x-custom", "my-value")
       scalar Pet extends string;
-      `
+      `,
       );
 
       ok(res.schemas.Pet, "expected definition named Pet");
@@ -166,7 +166,7 @@ describe("openapi3: primitives", () => {
         `
       @doc("My custom description")
       scalar shortString extends string;
-      `
+      `,
       );
 
       ok(res.isRef);
@@ -182,7 +182,7 @@ describe("openapi3: primitives", () => {
         `
       @doc("My custom description")
       scalar specialint extends int32;
-      `
+      `,
       );
 
       ok(res.isRef);
@@ -202,7 +202,7 @@ describe("openapi3: primitives", () => {
 
       @doc("Override specialint description")
       scalar superSpecialint extends specialint;
-      `
+      `,
       );
 
       ok(res.isRef);
@@ -221,7 +221,7 @@ describe("openapi3: primitives", () => {
         `
       @secret
       scalar Pet extends string;
-      `
+      `,
       );
       deepStrictEqual(res.schemas.Pet, { type: "string", format: "password" });
     });
@@ -236,7 +236,7 @@ describe("openapi3: primitives", () => {
       }
 
       op test(): Pet;
-      `
+      `,
       );
       deepStrictEqual(res.schemas.Pet.properties.foo, {
         type: "string",
@@ -250,7 +250,7 @@ describe("openapi3: primitives", () => {
       "Foo",
       `
       @summary("FooScalar") scalar Foo extends string;
-      `
+      `,
     );
     strictEqual(res.schemas.Foo.title, "FooScalar");
   });
@@ -260,7 +260,7 @@ describe("openapi3: primitives", () => {
       scalar: string,
       expectedOpenApi: OpenAPI3Schema,
       encoding?: string | null,
-      encodeAs?: string
+      encodeAs?: string,
     ) {
       const encodeAsParam = encodeAs ? `, ${encodeAs}` : "";
       const encodeDecorator =

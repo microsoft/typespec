@@ -18,7 +18,7 @@ export const opReferenceContainerRouteRule = createRule({
     const checkedOps = new Map<Operation, string | undefined>();
 
     function getContainerRoutePrefix(
-      container: OperationContainer | Operation | undefined
+      container: OperationContainer | Operation | undefined,
     ): string | undefined {
       if (container === undefined) {
         return undefined;

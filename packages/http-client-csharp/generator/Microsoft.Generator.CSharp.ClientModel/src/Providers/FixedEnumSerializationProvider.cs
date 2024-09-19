@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
@@ -26,7 +25,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public FixedEnumSerializationProvider(InputEnumType enumType, TypeProvider enumProvider)
         {
-            Debug.Assert(!enumType.IsExtensible);
             _enumType = enumType;
             _enumProvider = enumProvider;
         }

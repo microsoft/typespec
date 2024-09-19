@@ -1,0 +1,6 @@
+{
+  "reportUnnecessaryCast": "warning",
+  "reportTypeCommentUsage": true,
+  "reportMissingImports": false,
+  "pythonVersion": "3.8"
+}

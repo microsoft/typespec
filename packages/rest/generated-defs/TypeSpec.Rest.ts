@@ -37,7 +37,7 @@ export type AutoRouteDecorator = (context: DecoratorContext, target: Interface |
 export type SegmentDecorator = (
   context: DecoratorContext,
   target: Model | ModelProperty | Operation,
-  name: string
+  name: string,
 ) => void;
 
 /**
@@ -48,7 +48,7 @@ export type SegmentDecorator = (
 export type SegmentOfDecorator = (
   context: DecoratorContext,
   target: Operation,
-  type: Model
+  type: Model,
 ) => void;
 
 /**
@@ -59,7 +59,7 @@ export type SegmentOfDecorator = (
 export type ActionSeparatorDecorator = (
   context: DecoratorContext,
   target: Model | ModelProperty | Operation,
-  seperator: "/" | ":" | "/:"
+  seperator: "/" | ":" | "/:",
 ) => void;
 
 /**
@@ -70,7 +70,7 @@ export type ActionSeparatorDecorator = (
 export type ResourceDecorator = (
   context: DecoratorContext,
   target: Model,
-  collectionName: string
+  collectionName: string,
 ) => void;
 
 /**
@@ -81,7 +81,7 @@ export type ResourceDecorator = (
 export type ParentResourceDecorator = (
   context: DecoratorContext,
   target: Model,
-  parent: Model
+  parent: Model,
 ) => void;
 
 /**
@@ -95,7 +95,7 @@ export type ParentResourceDecorator = (
 export type ReadsResourceDecorator = (
   context: DecoratorContext,
   target: Operation,
-  resourceType: Model
+  resourceType: Model,
 ) => void;
 
 /**
@@ -109,7 +109,7 @@ export type ReadsResourceDecorator = (
 export type CreatesResourceDecorator = (
   context: DecoratorContext,
   target: Operation,
-  resourceType: Model
+  resourceType: Model,
 ) => void;
 
 /**
@@ -123,7 +123,7 @@ export type CreatesResourceDecorator = (
 export type CreatesOrReplacesResourceDecorator = (
   context: DecoratorContext,
   target: Operation,
-  resourceType: Model
+  resourceType: Model,
 ) => void;
 
 /**
@@ -137,7 +137,7 @@ export type CreatesOrReplacesResourceDecorator = (
 export type CreatesOrUpdatesResourceDecorator = (
   context: DecoratorContext,
   target: Operation,
-  resourceType: Model
+  resourceType: Model,
 ) => void;
 
 /**
@@ -151,7 +151,7 @@ export type CreatesOrUpdatesResourceDecorator = (
 export type UpdatesResourceDecorator = (
   context: DecoratorContext,
   target: Operation,
-  resourceType: Model
+  resourceType: Model,
 ) => void;
 
 /**
@@ -165,7 +165,7 @@ export type UpdatesResourceDecorator = (
 export type DeletesResourceDecorator = (
   context: DecoratorContext,
   target: Operation,
-  resourceType: Model
+  resourceType: Model,
 ) => void;
 
 /**
@@ -179,7 +179,7 @@ export type DeletesResourceDecorator = (
 export type ListsResourceDecorator = (
   context: DecoratorContext,
   target: Operation,
-  resourceType: Model
+  resourceType: Model,
 ) => void;
 
 /**
@@ -202,7 +202,7 @@ export type CollectionActionDecorator = (
   context: DecoratorContext,
   target: Operation,
   resourceType: Model,
-  name?: string
+  name?: string,
 ) => void;
 
 /**
@@ -213,7 +213,7 @@ export type CollectionActionDecorator = (
 export type CopyResourceKeyParametersDecorator = (
   context: DecoratorContext,
   target: Model,
-  filter?: string
+  filter?: string,
 ) => void;
 
 export type TypeSpecRestDecorators = {

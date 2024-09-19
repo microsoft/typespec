@@ -29,7 +29,7 @@ describe("compiler: cli", () => {
         "ws/main.tsp",
         cwd,
         args,
-        env
+        env,
       );
       expectDiagnosticEmpty(diagnostics);
       ok(options, "Options should have been set.");
@@ -73,7 +73,7 @@ describe("compiler: cli", () => {
                 "emitter-output-dir": "{custom-arg}/custom",
               },
             },
-          })
+          }),
         );
       });
 
@@ -82,7 +82,7 @@ describe("compiler: cli", () => {
 
         strictEqual(
           options?.options?.["@typespec/openapi3"]?.["emitter-output-dir"],
-          `${cwd}/tsp-output/custom`
+          `${cwd}/tsp-output/custom`,
         );
       });
 
@@ -91,7 +91,7 @@ describe("compiler: cli", () => {
 
         strictEqual(
           options?.options?.["@typespec/openapi3"]?.["emitter-output-dir"],
-          `${cwd}/my-output-dir/custom`
+          `${cwd}/my-output-dir/custom`,
         );
       });
 
@@ -102,7 +102,7 @@ describe("compiler: cli", () => {
 
         strictEqual(
           options?.options?.["@typespec/openapi3"]?.["emitter-output-dir"],
-          `${cwd}/relative-to-cwd`
+          `${cwd}/relative-to-cwd`,
         );
       });
 
@@ -113,7 +113,7 @@ describe("compiler: cli", () => {
 
         strictEqual(
           options?.options?.["path/to/emitter.js"]?.["emitter-output-dir"],
-          `${cwd}/relative-to-cwd`
+          `${cwd}/relative-to-cwd`,
         );
       });
 
@@ -123,7 +123,7 @@ describe("compiler: cli", () => {
 
           strictEqual(
             options?.options?.["@typespec/with-args"]?.["emitter-output-dir"],
-            `/default-arg-value/custom`
+            `/default-arg-value/custom`,
           );
         });
 
@@ -134,7 +134,7 @@ describe("compiler: cli", () => {
 
           strictEqual(
             options?.options?.["@typespec/with-args"]?.["emitter-output-dir"],
-            `/my-updated-arg-value/custom`
+            `/my-updated-arg-value/custom`,
           );
         });
       });
@@ -147,7 +147,7 @@ describe("compiler: cli", () => {
           {
             args: ["not-defined-arg=my-value"],
           },
-          {}
+          {},
         );
 
         expectDiagnostics(diagnostics, {
@@ -161,14 +161,14 @@ describe("compiler: cli", () => {
           "ws/tspconfig.yaml",
           stringify({
             "output-dir": "./my-output",
-          })
+          }),
         );
         const [_, diagnostics] = await getCompilerOptions(
           host.compilerHost,
           "ws/main.tsp",
           cwd,
           {},
-          {}
+          {},
         );
 
         expectDiagnostics(diagnostics, {
