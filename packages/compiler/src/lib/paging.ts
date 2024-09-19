@@ -227,12 +227,12 @@ function findPagingProperties<K extends "input" | "output">(
   const diags = createDiagnosticCollector();
   const acceptableProps = source === "input" ? inputProps : outputProps;
   const duplicateTracker = new DuplicateTracker<string, ModelProperty>();
-  const data: Record<any, any> = {};
+  const data: Record<string, PagingProperty> = {};
   navigateProperties(base, (property) => {
     const kind = diags.pipe(getPagingProperty(program, property));
     duplicateTracker.track(kind, property);
     if (acceptableProps.has(kind)) {
-      data[kind] = property;
+      data[kind] = { property };
     } else {
       diags.add(
         createDiagnostic({

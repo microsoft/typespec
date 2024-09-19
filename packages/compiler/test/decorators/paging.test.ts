@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { ignoreDiagnostics, ModelProperty, Operation } from "../../src/index.js";
-import { getPagingOperation } from "../../src/lib/paging.js";
+import { getPagingOperation, PagingOperation } from "../../src/lib/paging.js";
 import { expectDiagnostics } from "../../src/testing/expect.js";
 import { createTestRunner } from "../../src/testing/test-host.js";
 import { BasicTestRunner } from "../../src/testing/types.js";
@@ -92,9 +92,8 @@ describe("collect paging properties", () => {
     `)) as { list: Operation; prop: ModelProperty };
 
     const paging = ignoreDiagnostics(getPagingOperation(runner.program, list));
-    console.log("Paging", paging?.input);
     expect(paging?.input).toHaveProperty(name);
-    // expect(paging?.input[name as keyof PagingOperation["input"]]!.property).toBe(prop);
+    expect(paging?.input[name as keyof PagingOperation["input"]]!.property).toBe(prop);
   });
 
   it.each([
@@ -111,6 +110,6 @@ describe("collect paging properties", () => {
 
     const paging = ignoreDiagnostics(getPagingOperation(runner.program, list));
     expect(paging?.output).toHaveProperty(name);
-    // expect(paging?.output[name as keyof PagingOperation["output"]]!.property).toBe(prop);
+    expect(paging?.output[name as keyof PagingOperation["output"]]!.property).toBe(prop);
   });
 });
