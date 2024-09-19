@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -201,6 +202,46 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual("Val1", enumProvider.EnumValues[0].Name);
             Assert.AreEqual("Val2", enumProvider.EnumValues[1].Name);
             Assert.AreEqual("Val3", enumProvider.EnumValues[2].Name);
+        }
+
+        [Test]
+        public async Task CanAddProperties()
+        {
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputFactory.Array(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+            var modelTypeProvider = new ModelProvider(inputModel);
+            var customCodeView = modelTypeProvider.CustomCodeView;
+
+            AssertCommon(customCodeView, modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // the custom properties shouldn't be added to the model provider
+            Assert.AreEqual(1, modelTypeProvider.Properties.Count);
+            Assert.AreEqual("Prop1", modelTypeProvider.Properties[0].Name);
+
+            // the custom properties shouldn't be parameters of the model's ctor
+            var modelCtors = modelTypeProvider.Constructors;
+            foreach (var ctor in modelCtors)
+            {
+                Assert.IsFalse(ctor.Signature.Parameters.Any(p => p.Name == "newProperty" || p.Name == "newProperty2"));
+            }
+
+            // the custom properties should be added to the custom code view
+            Assert.AreEqual(2, customCodeView!.Properties.Count);
+            Assert.AreEqual("NewProperty", customCodeView.Properties[0].Name);
+            Assert.AreEqual(new CSharpType(typeof(int)), customCodeView.Properties[0].Type);
+            Assert.AreEqual(MethodSignatureModifiers.Public, customCodeView.Properties[0].Modifiers);
+            Assert.IsTrue(customCodeView.Properties[0].Body.HasSetter);
+
+            Assert.AreEqual("NewProperty2", customCodeView.Properties[1].Name);
+            Assert.AreEqual(new CSharpType(typeof(string)), customCodeView.Properties[1].Type);
+            Assert.AreEqual(MethodSignatureModifiers.Public, customCodeView.Properties[1].Modifiers);
+            Assert.IsFalse(customCodeView.Properties[1].Body.HasSetter);
         }
     }
 }
