@@ -871,13 +871,13 @@ export class CodeModelBuilder {
     }
 
     // responses
-    for (const [code, response] of sdkMethod.operation.responses) {
-      this.processResponse(codeModelOperation, code, response, lroMetadata.longRunning, false);
+    for (const response of sdkMethod.operation.responses) {
+      this.processResponse(codeModelOperation, response.statusCodes, response, lroMetadata.longRunning, false);
     }
 
     // exception
-    for (const [code, response] of sdkMethod.operation.exceptions) {
-      this.processResponse(codeModelOperation, code, response, lroMetadata.longRunning, true);
+    for (const response of sdkMethod.operation.exceptions) {
+      this.processResponse(codeModelOperation, response.statusCodes, response, lroMetadata.longRunning, true);
     }
 
     // check for paged
@@ -893,11 +893,11 @@ export class CodeModelBuilder {
 
   private processRouteForPaged(
     op: CodeModelOperation,
-    responses: Map<number | HttpStatusCodeRange, SdkHttpResponse>,
+    responses: SdkHttpResponse[],
     sdkMethod: SdkMethod<SdkHttpOperation>,
   ) {
     if (sdkMethod.kind === "paging" || sdkMethod.kind === "lropaging") {
-      for (const [_, response] of responses) {
+      for (const response of responses) {
         const bodyType = response.type;
         if (bodyType && bodyType.kind === "model") {
           const itemName = sdkMethod.response.resultPath;
@@ -993,6 +993,10 @@ export class CodeModelBuilder {
           this.trackSchemaUsage(pollingSchema, {
             usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
           });
+        } else {
+          trackSchemaUsage(pollingSchema, {
+            usage: [SchemaContext.None]
+          });
         }
       }
       if (finalSchema) {
@@ -1000,6 +1004,10 @@ export class CodeModelBuilder {
         if (trackConvenienceApi) {
           this.trackSchemaUsage(finalSchema, {
             usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+          });
+        } else { // overwrite the schema usage set by tcgc
+          trackSchemaUsage(finalSchema, {
+            usage: [SchemaContext.None]
           });
         }
       }
@@ -1019,7 +1027,7 @@ export class CodeModelBuilder {
 
   private processRouteForLongRunning(
     op: CodeModelOperation,
-    responses: Map<number | HttpStatusCodeRange, SdkHttpResponse>,
+    responses: SdkHttpResponse[],
     lroMetadata: LongRunningMetadata,
   ) {
     if (lroMetadata.longRunning) {
@@ -1621,6 +1629,10 @@ export class CodeModelBuilder {
     if (sdkResponse.headers) {
       for (const header of sdkResponse.headers) {
         const schema = this.processSchema(header.type, header.serializedName);
+        // TODO haoling: why header schema do not need usage tracking? no usage tracking for header schema?
+        trackSchemaUsage(schema, {
+          usage: [SchemaContext.None]
+        });
         headers.push(
           new HttpHeader(header.serializedName, schema, {
             language: {
@@ -1714,18 +1726,22 @@ export class CodeModelBuilder {
       op.addResponse(response);
 
       if (response instanceof SchemaResponse) {
-        if (!trackConvenienceApi) {
+        // if (!trackConvenienceApi) {
+        //   trackSchemaUsage(response.schema, {
+        //     usage: [SchemaContext.None]
+        //   });
+        // }
+        this.trackSchemaUsage(response.schema, { usage: [SchemaContext.Output] });
+
+        if (trackConvenienceApi) {
+          this.trackSchemaUsage(response.schema, {
+            usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+          });
+        } else {
           trackSchemaUsage(response.schema, {
             usage: [SchemaContext.None]
           });
         }
-        // this.trackSchemaUsage(response.schema, { usage: [SchemaContext.Output] });
-
-        // if (trackConvenienceApi) {
-        //   this.trackSchemaUsage(response.schema, {
-        //     usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
-        //   });
-        // }
       }
     }
   }
@@ -2709,7 +2725,7 @@ export class CodeModelBuilder {
   // }
 
   private postProcessSchemaUsage(): void {
-    this.codeModel.schemas.objects?.forEach((schema) => {
+    const innerProcessUsage = (schema: ObjectSchema | ChoiceSchema | SealedChoiceSchema) => {
       const usages = (schema as SchemaUsage).usage;
       // if (usages && usages.includes(SchemaContext.Public) && usages.includes(SchemaContext.Internal)) { // TODO haoling: add check to apply only to json-merge-patch and multipart
       //   // remove internal
@@ -2725,13 +2741,10 @@ export class CodeModelBuilder {
         // no usage
         (schema as SchemaUsage).usage = [];
       }
-
-      // if (usages && usages.includes(SchemaContext.Exception)) {
-      //   // remove internal
-      //   usages.length = 0; // remove all items in the usages array
-      //   trackSchemaUsage(schema, { usage: [SchemaContext.Exception] });
-      // }
-    });
+    };
+    this.codeModel.schemas.choices?.forEach(innerProcessUsage);
+    this.codeModel.schemas.objects?.forEach(innerProcessUsage);
+    this.codeModel.schemas.sealedChoices?.forEach(innerProcessUsage);
   }
 
   private trackSchemaUsage(schema: Schema, schemaUsage: SchemaUsage): void {

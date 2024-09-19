@@ -319,6 +319,8 @@ export function getFileDetailsSchema(
         processSchemaFunc,
       );
     }
+    // set the schema usage to public access, later we will have post processor to propagate operation's access to the model
+    trackSchemaUsage(fileDetailsSchema, { usage: [SchemaContext.Input, SchemaContext.Public] });
     return fileDetailsSchema;
   } else {
     // property.type is bytes, create a File schema
