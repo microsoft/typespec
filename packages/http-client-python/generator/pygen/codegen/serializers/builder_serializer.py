@@ -187,6 +187,24 @@ def _get_json_response_template_to_status_codes(
     return retval
 
 
+def _api_version_validation(builder: OperationType) -> str:
+    if builder.is_overload:
+        return ""
+    retval: List[str] = []
+    if builder.added_on:
+        retval.append(f'    method_added_on="{builder.added_on}",')
+    params_added_on = defaultdict(list)
+    for parameter in builder.parameters:
+        if parameter.added_on:
+            params_added_on[parameter.added_on].append(parameter.client_name)
+    if params_added_on:
+        retval.append(f"    params_added_on={dict(params_added_on)},")
+    if retval:
+        retval_str = "\n".join(retval)
+        return f"@api_version_validation(\n{retval_str}\n){builder.pylint_disable}"
+    return ""
+
+
 def is_json_model_type(parameters: ParameterListType) -> bool:
     return (
         parameters.has_body
@@ -266,8 +284,8 @@ class _BuilderBaseSerializer(Generic[BuilderType]):
         return description_list
 
     @staticmethod
-    def line_too_long(docs: List[str]) -> bool:
-        return any(len(line) > 120 for line in docs)
+    def line_too_long(docs: List[str], indentation: int = 0) -> bool:
+        return any(len(line) > (120 - indentation) for line in docs)
 
     def example_template(self, builder: BuilderType) -> List[str]:
         template = []
@@ -581,26 +599,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
     def decorators(self, builder: OperationType) -> List[str]:
         """Decorators for the method"""
         retval = super().decorators(builder)
-        if self._api_version_validation(builder):
-            retval.append(self._api_version_validation(builder))
+        if _api_version_validation(builder):
+            retval.append(_api_version_validation(builder))
         return retval
-
-    def _api_version_validation(self, builder: OperationType) -> str:
-        if builder.is_overload:
-            return ""
-        retval: List[str] = []
-        if builder.added_on:
-            retval.append(f'    method_added_on="{builder.added_on}",')
-        params_added_on = defaultdict(list)
-        for parameter in builder.parameters:
-            if parameter.added_on:
-                params_added_on[parameter.added_on].append(parameter.client_name)
-        if params_added_on:
-            retval.append(f"    params_added_on={dict(params_added_on)},")
-        if retval:
-            retval_str = "\n".join(retval)
-            return f"@api_version_validation(\n{retval_str}\n)"
-        return ""
 
     def pop_kwargs_from_signature(self, builder: OperationType) -> List[str]:
         kwargs_to_pop = builder.parameters.kwargs_to_pop
@@ -1190,8 +1191,8 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
             return ["@overload"]
         if self.code_model.options["tracing"] and builder.want_tracing:
             retval.append("@distributed_trace")
-        if self._api_version_validation(builder):
-            retval.append(self._api_version_validation(builder))
+        if _api_version_validation(builder):
+            retval.append(_api_version_validation(builder))
         return retval
 
     def call_next_link_request_builder(self, builder: PagingOperationType) -> List[str]:

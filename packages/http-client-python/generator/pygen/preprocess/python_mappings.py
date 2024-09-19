@@ -126,7 +126,7 @@ RESERVED_WORDS = {
         "connection_cert",
         "connection_data_block_size",
         "use_env_settings",
-        # the following aren't in the readme, but @xiangyan99 said these are also transport kwargs
+        # the following aren't in the readme, but Xiang said these are also transport kwargs
         "read_timeout",
         "proxies",
         "cookies",
