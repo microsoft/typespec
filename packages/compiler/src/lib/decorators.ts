@@ -1121,8 +1121,8 @@ export function isKey(program: Program, property: ModelProperty) {
   return getKey(program, property) !== undefined;
 }
 
-export function getKeyName(program: Program, property: ModelProperty): string {
-  return getKey(program, property) || property.name;
+export function getKeyName(program: Program, property: ModelProperty): string | undefined {
+  return getKey(program, property);
 }
 
 export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (

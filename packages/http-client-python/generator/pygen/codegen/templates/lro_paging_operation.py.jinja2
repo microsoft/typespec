@@ -1,0 +1,18 @@
+{% import 'operation_tools.jinja2' as op_tools with context %}
+{% import 'keywords.jinja2' as keywords with context %}
+{# actual template starts here #}
+{% if operation.overloads and operation.include_documentation %}
+{{ op_tools.generate_overloads(operation_serializer, operation) }}
+{% endif %}
+{{ operation_serializer.method_signature_and_response_type_annotation(operation) }}
+    {{ op_tools.description(operation, operation_serializer) | indent }}
+    {% if not operation.abstract %}
+        {% if operation_serializer.pop_kwargs_from_signature(operation) %}
+    {{ op_tools.serialize(operation_serializer.pop_kwargs_from_signature(operation)) | indent }}
+        {% endif %}
+    {{ op_tools.serialize(operation_serializer.set_up_params_for_pager(operation)) | indent }}
+
+    {{ op_tools.serialize(operation_serializer.initial_call(operation)) | indent }}
+    {{ op_tools.serialize(operation_serializer.get_long_running_output(operation)) | indent }}
+    {{ op_tools.serialize(operation_serializer.return_lro_poller(operation)) | indent }}
+    {% endif %}
