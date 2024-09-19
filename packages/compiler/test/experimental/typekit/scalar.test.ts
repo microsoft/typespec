@@ -1,6 +1,6 @@
 import { assert, expect, it } from "vitest";
-import { Scalar } from "../../../src/core/types.js";
-import { $ } from "../../../src/experimental/typekit/define-kit.js";
+import { $ } from "../../../src/experimental/typekit/index.js";
+import { Scalar } from "../../../src/index.js";
 import { getTypes } from "./utils.js";
 
 it("can check for a string", async () => {

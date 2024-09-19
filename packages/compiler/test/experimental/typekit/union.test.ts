@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { $ } from "../../../src/experimental/typekit/define-kit.js";
+import { $ } from "../../../src/experimental/typekit/index.js";
 import { Union } from "../../../src/index.js";
 import { getTypes } from "./utils.js";
 

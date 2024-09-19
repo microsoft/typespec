@@ -1,6 +1,7 @@
 export * from "./mutators.js";
 export * from "./realm.js";
 export { unsafe_useStateMap, unsafe_useStateSet } from "./state-accessor.js";
+export * from "./typekit/index.js";
 
 import { createConsoleSink } from "../core/logger/console-sink.js";
 import { createLogger } from "../core/logger/logger.js";

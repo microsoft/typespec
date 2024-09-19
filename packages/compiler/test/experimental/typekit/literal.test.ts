@@ -1,7 +1,5 @@
 import { expect, it } from "vitest";
-import "../../src/typekit/kits/literal.js";
-
-import { $ } from "../../../src/experimental/typekit/define-kit.js";
+import { $ } from "../../../src/experimental/typekit/index.js";
 import { getTypes } from "./utils.js";
 
 it("can check for a string", async () => {
