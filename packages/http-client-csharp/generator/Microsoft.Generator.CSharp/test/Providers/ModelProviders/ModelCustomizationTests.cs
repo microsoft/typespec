@@ -150,7 +150,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual("NewNamespace.Models", modelTypeProvider.Type.Namespace);
         }
 
-        [TestCase]
+        [Test]
         public async Task CanChangeAccessibility()
         {
             await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -166,7 +166,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.IsFalse(modelTypeProvider.Type.IsPublic);
         }
 
-        [TestCase]
+        [Test]
         public async Task CanChangeEnumToExtensibleEnum()
         {
             await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -183,7 +183,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.IsTrue(enumProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Struct | TypeSignatureModifiers.ReadOnly));
         }
 
-        [TestCase]
+        [Test]
         public async Task CanChangeExtensibleEnumToEnum()
         {
             await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -242,6 +242,21 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual(new CSharpType(typeof(string)), customCodeView.Properties[1].Type);
             Assert.AreEqual(MethodSignatureModifiers.Public, customCodeView.Properties[1].Modifiers);
             Assert.IsFalse(customCodeView.Properties[1].Body.HasSetter);
+        }
+
+        [Test]
+        public async Task CanRemoveProperty()
+        {
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: new[] {
+                    InputFactory.Model("mockInputModel", properties: new[] {
+                        InputFactory.Property("Prop1", InputPrimitiveType.String)
+                    })
+                },
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+            await csharpGen.ExecuteAsync();
+            Assert.AreEqual(0, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Properties.Count);
         }
     }
 }
