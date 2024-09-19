@@ -48,7 +48,7 @@ class StateMapRealmView<V> implements Map<Type, V> {
     this.#realmState.clear();
   }
 
-  *entries() {
+  *entries(): IterableIterator<[Type, V]> {
     for (const item of this.#realmState) {
       yield item;
     }
@@ -56,18 +56,24 @@ class StateMapRealmView<V> implements Map<Type, V> {
     for (const item of this.#parentState) {
       yield item;
     }
+
+    return undefined;
   }
 
-  *values() {
+  *values(): IterableIterator<V> {
     for (const item of this.entries()) {
       yield item[1];
     }
+
+    return undefined;
   }
 
-  *keys() {
+  *keys(): IterableIterator<Type> {
     for (const item of this.entries()) {
       yield item[0];
     }
+
+    return undefined;
   }
 
   [Symbol.iterator]() {
