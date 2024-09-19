@@ -7,7 +7,7 @@ toc_max_heading_level: 3
 ## TypeSpec
 ### `@continuationToken` {#@continuationToken}
 
-Pagingation property defining the token to get to the next page.
+Pagination property defining the token to get to the next page.
 It MUST be specified both on the request parameter and the response.
 ```typespec
 @continuationToken
@@ -282,7 +282,7 @@ model Pet {
 
 ### `@firstLink` {#@firstLink}
 
-Pagingation property defining a link to the first page.
+Pagination property defining a link to the first page.
 
 It is expected that the navigating to the link will return the same set of response as the operation that returned the current page.
 ```typespec
@@ -459,7 +459,7 @@ enum KnownErrorCode {
 
 ### `@lastLink` {#@lastLink}
 
-Pagingation property defining a link to the last page.
+Pagination property defining a link to the last page.
 
 It is expected that the navigating to the link will return the same set of response as the operation that returned the current page.
 ```typespec
@@ -699,7 +699,7 @@ scalar distance is float64;
 
 ### `@nextLink` {#@nextLink}
 
-Pagingation property defining a link to the next page.
+Pagination property defining a link to the next page.
 
 It is expected that the navigating to the link will return the same set of response as the operation that returned the current page.
 ```typespec
@@ -729,7 +729,7 @@ model Page<T> {
 
 ### `@offset` {#@offset}
 
-Pagingation property defining the number of items to skip.
+Pagination property defining the number of items to skip.
 ```typespec
 @offset
 ```
@@ -805,7 +805,7 @@ op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): vo
 
 ### `@pageIndex` {#@pageIndex}
 
-Pagingation property defining the page index.
+Pagination property defining the page index.
 ```typespec
 @pageIndex
 ```
@@ -927,7 +927,7 @@ scalar LowerAlpha extends string;
 
 ### `@prevLink` {#@prevLink}
 
-Pagingation property defining a link to the previous page.
+Pagination property defining a link to the previous page.
 
 It is expected that the navigating to the link will return the same set of response as the operation that returned the current page.
 ```typespec

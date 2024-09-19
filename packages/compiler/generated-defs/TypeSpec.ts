@@ -704,7 +704,7 @@ export type WithVisibilityDecorator = (
 export type ListDecorator = (context: DecoratorContext, target: Operation) => void;
 
 /**
- * Pagingation property defining the number of items to skip.
+ * Pagination property defining the number of items to skip.
  *
  * @example
  * ```tsp
@@ -717,7 +717,7 @@ export type ListDecorator = (context: DecoratorContext, target: Operation) => vo
 export type OffsetDecorator = (context: DecoratorContext, target: ModelProperty) => void;
 
 /**
- * Pagingation property defining the page index.
+ * Pagination property defining the page index.
  *
  * @example
  * ```tsp
@@ -756,7 +756,7 @@ export type PageSizeDecorator = (context: DecoratorContext, target: ModelPropert
 export type PageItemsDecorator = (context: DecoratorContext, target: ModelProperty) => void;
 
 /**
- * Pagingation property defining the token to get to the next page.
+ * Pagination property defining the token to get to the next page.
  * It MUST be specified both on the request parameter and the response.
  *
  * @example
@@ -771,7 +771,7 @@ export type PageItemsDecorator = (context: DecoratorContext, target: ModelProper
 export type ContinuationTokenDecorator = (context: DecoratorContext, target: ModelProperty) => void;
 
 /**
- * Pagingation property defining a link to the next page.
+ * Pagination property defining a link to the next page.
  *
  * It is expected that the navigating to the link will return the same set of response as the operation that returned the current page.
  *
@@ -790,7 +790,7 @@ export type ContinuationTokenDecorator = (context: DecoratorContext, target: Mod
 export type NextLinkDecorator = (context: DecoratorContext, target: ModelProperty) => void;
 
 /**
- * Pagingation property defining a link to the previous page.
+ * Pagination property defining a link to the previous page.
  *
  * It is expected that the navigating to the link will return the same set of response as the operation that returned the current page.
  *
@@ -809,7 +809,7 @@ export type NextLinkDecorator = (context: DecoratorContext, target: ModelPropert
 export type PrevLinkDecorator = (context: DecoratorContext, target: ModelProperty) => void;
 
 /**
- * Pagingation property defining a link to the first page.
+ * Pagination property defining a link to the first page.
  *
  * It is expected that the navigating to the link will return the same set of response as the operation that returned the current page.
  *
@@ -828,7 +828,7 @@ export type PrevLinkDecorator = (context: DecoratorContext, target: ModelPropert
 export type FirstLinkDecorator = (context: DecoratorContext, target: ModelProperty) => void;
 
 /**
- * Pagingation property defining a link to the last page.
+ * Pagination property defining a link to the last page.
  *
  * It is expected that the navigating to the link will return the same set of response as the operation that returned the current page.
  *
