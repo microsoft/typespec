@@ -1,5 +1,5 @@
 import { beforeEach, expect, it } from "vitest";
-import { mutateSubgraph, Mutator, MutatorFlow } from "../../src/experimental/index.js";
+import { mutateSubgraph, Mutator, MutatorFlow } from "../../src/experimental/mutators.js";
 import { Model } from "../../src/index.js";
 import { createTestHost } from "../../src/testing/test-host.js";
 import { createTestWrapper } from "../../src/testing/test-utils.js";
