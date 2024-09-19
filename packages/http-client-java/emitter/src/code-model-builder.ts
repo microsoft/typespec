@@ -868,12 +868,24 @@ export class CodeModelBuilder {
 
     // responses
     for (const response of sdkMethod.operation.responses) {
-      this.processResponse(codeModelOperation, response.statusCodes, response, lroMetadata.longRunning, false);
+      this.processResponse(
+        codeModelOperation,
+        response.statusCodes,
+        response,
+        lroMetadata.longRunning,
+        false,
+      );
     }
 
     // exception
     for (const response of sdkMethod.operation.exceptions) {
-      this.processResponse(codeModelOperation, response.statusCodes, response, lroMetadata.longRunning, true);
+      this.processResponse(
+        codeModelOperation,
+        response.statusCodes,
+        response,
+        lroMetadata.longRunning,
+        true,
+      );
     }
 
     // check for paged
@@ -1014,10 +1026,7 @@ export class CodeModelBuilder {
     return new LongRunningMetadata(false);
   }
 
-  private processRouteForLongRunning(
-    op: CodeModelOperation,
-    lroMetadata: LongRunningMetadata,
-  ) {
+  private processRouteForLongRunning(op: CodeModelOperation, lroMetadata: LongRunningMetadata) {
     if (lroMetadata.longRunning) {
       op.extensions = op.extensions ?? {};
       op.extensions["x-ms-long-running-operation"] = true;
