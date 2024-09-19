@@ -5,6 +5,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
 using Microsoft.Generator.CSharp.Tests.Common;
@@ -163,9 +164,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             var outputLibrary = ClientModelPlugin.Instance.OutputLibrary;
             var catModel = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "Cat");
             Assert.IsNotNull(catModel);
-            Assert.IsNotNull(catModel!.FullConstructor.Signature.Initializer);
-            Assert.IsFalse(catModel.FullConstructor.Signature.Initializer!.Arguments.Any(a => a.ToDisplayString().Contains("kind")));
-            Assert.IsTrue(catModel.FullConstructor.Signature.Initializer!.Arguments.Any(a => a.ToDisplayString() == "\"cat\""));
+            var publicCtor = catModel!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicCtor);
+
+            var initializer = publicCtor!.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsFalse(initializer!.Arguments.Any(a => a.ToDisplayString().Contains("kind")));
+            Assert.IsTrue(initializer!.Arguments.Any(a => a.ToDisplayString() == "\"cat\""));
         }
     }
 }

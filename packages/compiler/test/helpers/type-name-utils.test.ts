@@ -37,12 +37,12 @@ describe("compiler: TypeNameUtils", () => {
     it("keeps TypeSpec as top level namespace", () =>
       assertNameFor(
         `namespace TypeSpec.Foo {@test("target") scalar unreal; }`,
-        "TypeSpec.Foo.unreal"
+        "TypeSpec.Foo.unreal",
       ));
     it("keeps TypeSpec as bottom level namespace", () =>
       assertNameFor(
         `namespace Foo.TypeSpec {@test("target") scalar unreal; }`,
-        "Foo.TypeSpec.unreal"
+        "Foo.TypeSpec.unreal",
       ));
   });
 

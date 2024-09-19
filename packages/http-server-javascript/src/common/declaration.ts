@@ -22,7 +22,7 @@ export function* emitDeclaration(
   ctx: JsContext,
   type: DeclarationType,
   module: Module,
-  altName?: string
+  altName?: string,
 ): Iterable<string> {
   switch (type.kind) {
     case "Model": {

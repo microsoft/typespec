@@ -76,7 +76,6 @@ $failingSpecs = @(
     Join-Path 'http' 'type' 'model' 'inheritance' 'not-discriminated'
     Join-Path 'http' 'type' 'model' 'inheritance' 'recursive'
     Join-Path 'http' 'type' 'model' 'templated'
-    Join-Path 'http' 'type' 'property' 'additional-properties'
 )
 
 $cadlRanchLaunchProjects = @{}

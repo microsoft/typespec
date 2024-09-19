@@ -24,7 +24,7 @@ describe("openapi3: union type", () => {
       }
 
       op foo(x: AorB): { thing: AorB };
-      `
+      `,
     );
 
     deepStrictEqual(res.components.schemas.AorB, {
@@ -70,7 +70,7 @@ describe("openapi3: union type", () => {
       }
 
       op foo(x: AorB): { thing: AorB };
-      `
+      `,
     );
 
     deepStrictEqual(res.components.schemas.AorB, {
@@ -99,7 +99,7 @@ describe("openapi3: union type", () => {
         model Pet {
           prop: "a" | "b";
         };
-        `
+        `,
       );
       deepStrictEqual(res.components.schemas.Pet.properties.prop, {
         type: "string",
@@ -112,7 +112,7 @@ describe("openapi3: union type", () => {
         model Pet {
           prop: 0 | 1;
         };
-        `
+        `,
       );
       deepStrictEqual(res.components.schemas.Pet.properties.prop, {
         type: "number",
@@ -128,7 +128,7 @@ describe("openapi3: union type", () => {
           prop1: "a" | "b";
           prop2: "a" | "b";
         }
-        `
+        `,
       );
       deepStrictEqual(res.components.schemas.Pet.properties.prop1, {
         type: "string",
@@ -147,7 +147,7 @@ describe("openapi3: union type", () => {
           prop1: 0 | 1;
           prop2: 0 | 1;
         }
-        `
+        `,
       );
       deepStrictEqual(res.components.schemas.Pet.properties.prop1, {
         type: "number",
@@ -167,7 +167,7 @@ describe("openapi3: union type", () => {
       model Pet {
         name: int32 | string | null;
       };
-      `
+      `,
     );
     ok(res.isRef);
     ok(res.schemas.Pet.properties.name.nullable);
@@ -189,7 +189,7 @@ describe("openapi3: union type", () => {
       model Pet {
         type: "cat" | "dog" | null;
       };
-    `
+    `,
     );
     ok(res.isRef);
     deepStrictEqual(res.schemas.Pet, {
@@ -214,7 +214,7 @@ describe("openapi3: union type", () => {
         prop: 1 | C;
         prop2: C | 1; 
       }
-      `
+      `,
     );
     ok(res.isRef);
     deepStrictEqual(res.schemas.X.properties.prop.anyOf, [
@@ -244,7 +244,7 @@ describe("openapi3: union type", () => {
       model X {
         prop: 1 | "string"
       }
-      `
+      `,
     );
     ok(res.isRef);
     deepStrictEqual(res.schemas.X.properties.prop.anyOf, [
@@ -279,7 +279,7 @@ describe("openapi3: union type", () => {
       }
 
       op foo(x: AorB): { thing: AorB };
-      `
+      `,
     );
 
     deepStrictEqual(res.components.schemas.AorB, {
@@ -315,7 +315,7 @@ describe("openapi3: union type", () => {
       model X {
         prop: A | B
       }
-      `
+      `,
     );
     ok(res.isRef);
     deepStrictEqual(res.schemas.X.properties.prop.anyOf, [
@@ -482,7 +482,7 @@ describe("openapi3: union type", () => {
         "b";
       }
 
-      `
+      `,
     );
     strictEqual(res.schemas.Foo.description, "FooUnion");
   });
@@ -502,7 +502,7 @@ describe("openapi3: union type", () => {
       union Bar {
         string;
       }
-      `
+      `,
     );
     strictEqual(res.schemas.Foo.title, "FooUnion");
     strictEqual(res.schemas.Bar.title, "BarUnion");
@@ -518,7 +518,7 @@ describe("openapi3: union type", () => {
 
         bar: "bar",
         buzz: "buzz",
-      }`
+      }`,
     );
 
     strictEqual(res.schemas.Foo.description, "The possible types of things");

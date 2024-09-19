@@ -62,7 +62,7 @@ describe("jsonschema: scalar constraints", () => {
             @minValueExclusive(1)
             @maxValueExclusive(2)
             scalar Test extends ${numType};
-          `
+          `,
           );
 
           strictEqual(schemas["Test.json"].exclusiveMinimum, 1);
@@ -75,7 +75,7 @@ describe("jsonschema: scalar constraints", () => {
             @minValueExclusive(1)
             @maxValueExclusive(2)
             union Test {int32, string, null};
-          `
+          `,
           );
 
           strictEqual(schemas["Test.json"].exclusiveMinimum, 1);

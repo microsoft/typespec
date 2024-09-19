@@ -47,7 +47,7 @@ export function requiresJsonSerialization(ctx: JsContext, type: Type): boolean {
   switch (type.kind) {
     case "Model": {
       requiresSerialization = [...type.properties.values()].some((property) =>
-        propertyRequiresJsonSerialization(ctx, property)
+        propertyRequiresJsonSerialization(ctx, property),
       );
       break;
     }
@@ -57,7 +57,7 @@ export function requiresJsonSerialization(ctx: JsContext, type: Type): boolean {
     }
     case "Union": {
       requiresSerialization = [...type.variants.values()].some((variant) =>
-        requiresJsonSerialization(ctx, variant)
+        requiresJsonSerialization(ctx, variant),
       );
       break;
     }
@@ -102,7 +102,7 @@ export function* emitJsonSerialization(
   ctx: SerializationContext,
   type: SerializableType,
   module: Module,
-  typeName: string
+  typeName: string,
 ): Iterable<string> {
   yield `toJsonObject(input: ${typeName}): object {`;
   yield* indent(emitToJson(ctx, type, module));
@@ -116,7 +116,7 @@ export function* emitJsonSerialization(
 function* emitToJson(
   ctx: SerializationContext,
   type: SerializableType,
-  module: Module
+  module: Module,
 ): Iterable<string> {
   switch (type.kind) {
     case "Model": {
@@ -132,7 +132,7 @@ function* emitToJson(
           ctx,
           property.type,
           `input.${property.name}`,
-          module
+          module,
         );
 
         yield `  ${encodedName}: ${expr},`;
@@ -168,7 +168,7 @@ function transposeExpressionToJson(
   ctx: SerializationContext,
   type: Type,
   expr: string,
-  module: Module
+  module: Module,
 ): string {
   switch (type.kind) {
     case "Model": {
@@ -188,7 +188,7 @@ function transposeExpressionToJson(
             ctx,
             argumentType,
             "value",
-            module
+            module,
           )}]))`;
         } else {
           return expr;
@@ -272,7 +272,7 @@ function literalToExpr(type: StringLiteral | BooleanLiteral | NumericLiteral): s
 function* emitFromJson(
   ctx: SerializationContext,
   type: SerializableType,
-  module: Module
+  module: Module,
 ): Iterable<string> {
   switch (type.kind) {
     case "Model": {
@@ -288,7 +288,7 @@ function* emitFromJson(
           ctx,
           property.type,
           `input["${encodedName}"]`,
-          module
+          module,
         );
 
         yield `  ${property.name}: ${expr},`;
@@ -328,7 +328,7 @@ function transposeExpressionFromJson(
   ctx: SerializationContext,
   type: Type,
   expr: string,
-  module: Module
+  module: Module,
 ): string {
   switch (type.kind) {
     case "Model": {
@@ -348,7 +348,7 @@ function transposeExpressionFromJson(
             ctx,
             argumentType,
             "value",
-            module
+            module,
           )}]))`;
         } else {
           return expr;
@@ -391,7 +391,7 @@ function transposeExpressionFromJson(
           return expr;
         default:
           throw new Error(
-            `Unreachable: intrinsic type ${(type satisfies never as IntrinsicType).name}`
+            `Unreachable: intrinsic type ${(type satisfies never as IntrinsicType).name}`,
           );
       }
     case "String":

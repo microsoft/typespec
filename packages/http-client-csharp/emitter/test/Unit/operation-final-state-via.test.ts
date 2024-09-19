@@ -29,7 +29,7 @@ describe("convertLroFinalStateVia()", () => {
       it(`should throw exception for unsupported input '${input}'`, function () {
         assert.throws(
           () => convertLroFinalStateVia(input),
-          new RegExp(`Unsupported LRO final state value: ${input}`)
+          new RegExp(`Unsupported LRO final state value: ${input}`),
         );
       });
     }

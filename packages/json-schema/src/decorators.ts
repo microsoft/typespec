@@ -42,7 +42,7 @@ const jsonSchemaKey = createStateSymbol("JsonSchema");
 export const $jsonSchema: JsonSchemaDecorator = (
   context: DecoratorContext,
   target: Type,
-  baseUriOrId?: string
+  baseUriOrId?: string,
 ) => {
   context.program.stateSet(jsonSchemaKey).add(target);
   if (baseUriOrId) {
@@ -58,7 +58,7 @@ const baseUriKey = createStateSymbol("JsonSchema.baseURI");
 export const $baseUri: BaseUriDecorator = (
   context: DecoratorContext,
   target: Namespace,
-  baseUri: string
+  baseUri: string,
 ) => {
   context.program.stateMap(baseUriKey).set(target, baseUri);
 };
@@ -69,7 +69,7 @@ export function getBaseUri(program: Program, target: Type) {
 
 export function findBaseUri(
   program: Program,
-  target: JsonSchemaDeclaration | Namespace
+  target: JsonSchemaDeclaration | Namespace,
 ): string | undefined {
   let baseUrl: string | undefined;
   let current: JsonSchemaDeclaration | Namespace | undefined = target;
@@ -106,7 +106,7 @@ const multipleOfKey = createStateSymbol("JsonSchema.multipleOf");
 export const $multipleOf: MultipleOfDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: Numeric
+  value: Numeric,
 ) => {
   context.program.stateMap(multipleOfKey).set(target, value);
 };
@@ -140,7 +140,7 @@ const containsKey = createStateSymbol("JsonSchema.contains");
 export const $contains: ContainsDecorator = (
   context: DecoratorContext,
   target: Type,
-  value: Type
+  value: Type,
 ) => {
   context.program.stateMap(containsKey).set(target, value);
 };
@@ -153,7 +153,7 @@ const minContainsKey = createStateSymbol("JsonSchema.minContains");
 export const $minContains: MinContainsDecorator = (
   context: DecoratorContext,
   target: Type,
-  value: number
+  value: number,
 ) => {
   context.program.stateMap(minContainsKey).set(target, value);
 };
@@ -166,7 +166,7 @@ const maxContainsKey = createStateSymbol("JsonSchema.maxContains");
 export const $maxContains: MaxContainsDecorator = (
   context: DecoratorContext,
   target: Type,
-  value: number
+  value: number,
 ) => {
   context.program.stateMap(maxContainsKey).set(target, value);
 };
@@ -188,7 +188,7 @@ const minPropertiesKey = createStateSymbol("JsonSchema.minProperties");
 export const $minProperties: MinPropertiesDecorator = (
   context: DecoratorContext,
   target: Type,
-  value: number
+  value: number,
 ) => {
   context.program.stateMap(minPropertiesKey).set(target, value);
 };
@@ -201,7 +201,7 @@ const maxPropertiesKey = createStateSymbol("JsonSchema.maxProperties");
 export const $maxProperties: MaxPropertiesDecorator = (
   context: DecoratorContext,
   target: Type,
-  value: number
+  value: number,
 ) => {
   context.program.stateMap(maxPropertiesKey).set(target, value);
 };
@@ -214,7 +214,7 @@ const contentEncodingKey = createStateSymbol("JsonSchema.contentEncoding");
 export const $contentEncoding: ContentEncodingDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: string
+  value: string,
 ) => {
   context.program.stateMap(contentEncodingKey).set(target, value);
 };
@@ -227,7 +227,7 @@ const contentMediaType = createStateSymbol("JsonSchema.contentMediaType");
 export const $contentMediaType: ContentMediaTypeDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: string
+  value: string,
 ) => {
   context.program.stateMap(contentMediaType).set(target, value);
 };
@@ -240,7 +240,7 @@ const contentSchemaKey = createStateSymbol("JsonSchema.contentSchema");
 export const $contentSchema: ContentSchemaDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: Type
+  value: Type,
 ) => {
   context.program.stateMap(contentSchemaKey).set(target, value);
 };
@@ -253,7 +253,7 @@ const prefixItemsKey = createStateSymbol("JsonSchema.prefixItems");
 export const $prefixItems: PrefixItemsDecorator = (
   context: DecoratorContext,
   target: Type,
-  value: Type
+  value: Type,
 ) => {
   context.program.stateMap(prefixItemsKey).set(target, value);
 };
@@ -272,7 +272,7 @@ export const $extension: ExtensionDecorator = (
   context: DecoratorContext,
   target: Type,
   key: string,
-  value: unknown
+  value: unknown,
 ) => {
   setExtension(context.program, target, key, value);
 };
@@ -299,7 +299,7 @@ export function setExtension(program: Program, target: Type, key: string, value:
 }
 
 function isJsonTemplateType(
-  value: any
+  value: any,
 ): value is Type & { kind: "Model"; name: "Json"; namespace: { name: "JsonSchema" } } {
   return (
     typeof value === "object" &&
@@ -314,7 +314,7 @@ function isJsonTemplateType(
 export const $validatesRawJson: ValidatesRawJsonDecorator = (
   context: DecoratorContext,
   target: Model,
-  value: Type
+  value: Type,
 ) => {
   const [_, diagnostics] = typespecTypeToJson(value, target);
   if (diagnostics.length > 0) {

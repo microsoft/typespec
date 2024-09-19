@@ -526,7 +526,7 @@ describe("http: decorators", () => {
           key: string;
         }
         @put op create(): CreatedOrUpdatedResponse & DateHeader & Key;
-        `
+        `,
       );
       expectDiagnostics(diagnostics, [{ code: "@typespec/http/multiple-status-codes" }]);
     });
@@ -549,7 +549,7 @@ describe("http: decorators", () => {
         }
         
         op list(): PetList | CustomUnauthorizedResponse;
-        `
+        `,
       );
       expectDiagnostics(diagnostics, [{ code: "@typespec/http/multiple-status-codes" }]);
     });
@@ -1118,7 +1118,7 @@ describe("http: decorators", () => {
       strictEqual(M.kind, "Model" as const);
       strictEqual(
         includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
-        true
+        true,
       );
     });
     it("can specify at namespace level", async () => {
@@ -1131,7 +1131,7 @@ describe("http: decorators", () => {
       strictEqual(M.kind, "Model" as const);
       strictEqual(
         includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
-        false
+        false,
       );
     });
     it("can specify at model level", async () => {
@@ -1143,7 +1143,7 @@ describe("http: decorators", () => {
       strictEqual(M.kind, "Model" as const);
       strictEqual(
         includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
-        false
+        false,
       );
     });
     it("can specify at property level", async () => {
@@ -1155,7 +1155,7 @@ describe("http: decorators", () => {
       strictEqual(M.kind, "Model" as const);
       strictEqual(
         includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
-        false
+        false,
       );
     });
 
@@ -1169,7 +1169,7 @@ describe("http: decorators", () => {
       strictEqual(M.kind, "Model" as const);
       strictEqual(
         includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
-        true
+        true,
       );
     });
   });
@@ -1182,7 +1182,7 @@ describe("http: decorators", () => {
       `);
       deepStrictEqual(
         getRequestVisibility("patch"),
-        resolveRequestVisibility(runner.program, testPatch as Operation, "patch")
+        resolveRequestVisibility(runner.program, testPatch as Operation, "patch"),
       );
     });
 
@@ -1195,7 +1195,7 @@ describe("http: decorators", () => {
       deepStrictEqual(getRequestVisibility("patch"), Visibility.Update | Visibility.Patch);
       deepStrictEqual(
         resolveRequestVisibility(runner.program, testPatch as Operation, "patch"),
-        Visibility.Update | Visibility.Create | Visibility.Patch
+        Visibility.Update | Visibility.Create | Visibility.Patch,
       );
     });
   });

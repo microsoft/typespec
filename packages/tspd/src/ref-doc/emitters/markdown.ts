@@ -81,7 +81,7 @@ export async function renderReadme(refDoc: TypeSpecRefDoc, projectRoot: string) 
 
 export function groupByNamespace(
   namespaces: readonly NamespaceRefDoc[],
-  callback: (namespace: NamespaceRefDoc) => MarkdownDoc | undefined
+  callback: (namespace: NamespaceRefDoc) => MarkdownDoc | undefined,
 ): MarkdownDoc {
   const content: MarkdownDoc = [];
   for (const namespace of namespaces) {
@@ -209,7 +209,7 @@ export class MarkdownRenderer {
     if (namedType) {
       return link(
         prefix + inlinecode(namedType.name),
-        `${this.filename(namedType)}#${this.anchorId(namedType)}`
+        `${this.filename(namedType)}#${this.anchorId(namedType)}`,
       );
     }
 
@@ -221,7 +221,7 @@ export class MarkdownRenderer {
       prefix +
         getEntityName(type, {
           namespaceFilter: (ns) => !this.refDoc.namespaces.some((x) => x.name === ns.name),
-        })
+        }),
     );
   }
 
@@ -244,7 +244,7 @@ export class MarkdownRenderer {
         x.name,
         x.type.value
           ? inlinecode(
-              typeof x.type.value === "string" ? `"${x.type.value}"` : x.type.value.toString()
+              typeof x.type.value === "string" ? `"${x.type.value}"` : x.type.value.toString(),
             )
           : "",
         x.doc,
@@ -334,7 +334,7 @@ export class MarkdownRenderer {
   /** Render all decorators */
   decoratorsSection(
     refDoc: TypeSpecRefDocBase,
-    options: { includeToc?: boolean } = {}
+    options: { includeToc?: boolean } = {},
   ): MarkdownDoc {
     return groupByNamespace(refDoc.namespaces, (namespace) => {
       if (namespace.decorators.length === 0) {
@@ -349,7 +349,7 @@ export class MarkdownRenderer {
 
   toc(items: readonly (ReferencableElement & RefDocEntity)[]) {
     return items.map(
-      (item) => ` - [${inlinecode(item.name)}](${this.filename(item)}#${this.anchorId(item)})`
+      (item) => ` - [${inlinecode(item.name)}](${this.filename(item)}#${this.anchorId(item)})`,
     );
   }
 
@@ -375,7 +375,7 @@ export class MarkdownRenderer {
         "The config can be extended with options as follows:",
         codeblock(
           `emit:\n  - "${refDoc.name}"\noptions:\n  "${refDoc.name}":\n    option: value`,
-          "yaml"
+          "yaml",
         ),
       ]),
       this.emitterOptions(refDoc.emitter.options),
@@ -386,7 +386,7 @@ export class MarkdownRenderer {
     const content = [];
     for (const option of options) {
       content.push(
-        section(`${inlinecode(option.name)}`, [`**Type:** ${inlinecode(option.type)}`, ""])
+        section(`${inlinecode(option.name)}`, [`**Type:** ${inlinecode(option.type)}`, ""]),
       );
 
       content.push(option.doc);

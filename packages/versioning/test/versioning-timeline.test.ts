@@ -39,12 +39,12 @@ describe("versioning: VersioningTimeline", () => {
       .getGlobalNamespaceType()
       .namespaces.get("TestServiceNs")!;
     const libNamespaces: Namespace[] = libNamespaceNames.map(
-      (x) => runner.program.getGlobalNamespaceType().namespaces.get(x)!
+      (x) => runner.program.getGlobalNamespaceType().namespaces.get(x)!,
     );
     const resolutions = resolveVersions(runner.program, serviceNamespace);
     const timeline = new VersioningTimeline(
       runner.program,
-      resolutions.map((x) => x.versions)
+      resolutions.map((x) => x.versions),
     );
     const timelineMatrix: string[][] = [];
 
@@ -119,7 +119,7 @@ describe("versioning: VersioningTimeline", () => {
     const timeline = await resolveTimelineMatrix(
       { v1: ["l2", "k1"], v2: ["l5", "k1"] },
       ["l1", "l2", "l3", "l4", "l5", "l6"],
-      ["k1", "k2", "k3"]
+      ["k1", "k2", "k3"],
     );
     deepStrictEqual(timeline, [
       ["", "l1", ""],
