@@ -1,10 +1,17 @@
 import type { Type } from "../../../core/types.js";
-import { Realm } from "../../realm.js";
 import { defineKit } from "../define-kit.js";
 import { copyMap } from "../utils.js";
 
+/**  @experimental */
 export interface TypeKit {
-  clone<T extends Type>(type: T, realm?: Realm): T;
+  /**
+   * Clones a type and adds it to the typekit's realm.
+   * @param type Type to clone
+   */
+  clone<T extends Type>(type: T): T;
+  /**
+   * Finishes a type, applying all the decorators.
+   */
   finishType(type: Type): void;
 }
 
@@ -24,7 +31,7 @@ defineKit<BaseTypeKit>({
     finishType(type: Type) {
       this.program.checker.finishType(type);
     },
-    clone<T extends Type>(type: T, realm?: Realm): T {
+    clone<T extends Type>(type: T): T {
       let clone: T;
       switch (type.kind) {
         case "Model":
@@ -67,7 +74,7 @@ defineKit<BaseTypeKit>({
           });
           break;
       }
-      realm?.addType(clone);
+      this.realm.get().addType(clone);
       return clone;
     },
   },

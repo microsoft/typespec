@@ -238,7 +238,7 @@ export function mutateSubgraph<T extends MutableType>(
     return clone!;
 
     function initializeClone() {
-      clone = $.type.clone(type, realm);
+      clone = $.type.clone(type);
       seen.set([type, activeMutators], clone);
       seen.set([type, mutatorsToApply], clone);
     }

@@ -2,16 +2,20 @@ import { type Program } from "../../core/program.js";
 
 let currentProgram: Program | undefined;
 
+/** @experimental */
 export function setCurrentProgram(program: Program): void {
   currentProgram = program;
 }
 
+/** @experimental */
 export interface TypekitPrototype {
   program: Program;
 }
 
+/** @experimental */
 export const TypekitPrototype: Record<string, unknown> = {};
 
+/** @experimental */
 export function createTypekit(): TypekitPrototype {
   const tk = Object.create(TypekitPrototype);
 
@@ -48,19 +52,23 @@ export function createTypekit(): TypekitPrototype {
   return proxy;
 }
 
+/** @experimental */
 export interface TypekitContext {
   program: Program;
 }
 
-// contextual typing to type guards is annoying (often have to restate the
-// signature), so this helper will remove the type assertions from the interface
-// you are currently defining.
+/**
+ * contextual typing to type guards is annoying (often have to restate the signature),
+ * so this helper will remove the type assertions from the interface you are currently defining.
+ * @experimental
+ */
 export type StripGuards<T> = {
   [K in keyof T]: T[K] extends (...args: infer P) => infer R
     ? (...args: P) => R
     : StripGuards<T[K]>;
 };
 
+/** @experimental */
 export function defineKit<T extends Record<string, any>>(
   source: StripGuards<T> & ThisType<TypekitPrototype>,
 ): void {
@@ -69,4 +77,5 @@ export function defineKit<T extends Record<string, any>>(
   }
 }
 
+/** @experimental */
 export const $: TypekitPrototype = createTypekit();

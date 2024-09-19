@@ -17,7 +17,7 @@ describe("Visibility", () => {
   it("works", async () => {
     const code = `
       @test model Foo {
-        @visibility("create") x: string;
+        x: string;
         y: string;
       };
     `;
@@ -26,24 +26,79 @@ describe("Visibility", () => {
     const mutator: Mutator = {
       name: "test",
       Model: {
-        filter: () => {
-          return MutatorFlow.DoNotRecurse;
-        },
-        mutate: (sourceType, clone) => {
+        mutate: (_model, clone) => {
           clone.properties.delete("x");
         },
       },
     };
-    const mutated = mutateSubgraph(
-      runner.program,
-      [mutator],
-      // [Mutators.Visibility.update, Mutators.JSONMergePatch],
-      Foo,
-    );
+    const mutated = mutateSubgraph(runner.program, [mutator], Foo);
 
     const mutatedModel = mutated.type as Model;
-    expect(mutatedModel.properties.size).toBe(1);
     expect(mutatedModel.properties.get("x")).toBeUndefined();
     expect(mutatedModel.properties.get("y")).toBeDefined();
+    // checking if the original model is not mutated
+    expect(Foo.properties.size).toBe(2);
+    expect(Foo.properties.get("x")).toBeDefined();
+    expect(Foo.properties.get("y")).toBeDefined();
+  });
+
+  it("recurses the model", async () => {
+    const code = `
+    @test model Bar {
+      bar: string;
+    }
+    @test model Foo {
+      x: string;
+      y: string;
+      z: Bar;
+    };
+  `;
+
+    const visited: string[] = [];
+    const { Foo } = (await runner.compile(code)) as { Foo: Model };
+    const mutator: Mutator = {
+      name: "test",
+      Model: {
+        filter: () => {
+          return MutatorFlow.MutateAndRecurse;
+        },
+        mutate: (clone) => {
+          visited.push(clone.name);
+        },
+      },
+    };
+    mutateSubgraph(runner.program, [mutator], Foo);
+
+    expect(visited).toStrictEqual(["Foo", "Bar"]);
+  });
+
+  it("do not recurse the model", async () => {
+    const code = `
+    @test model Bar {
+      bar: string;
+    }
+    @test model Foo {
+      x: string;
+      y: string;
+      z: Bar;
+    };
+  `;
+
+    const visited: string[] = [];
+    const { Foo } = (await runner.compile(code)) as { Foo: Model };
+    const mutator: Mutator = {
+      name: "test",
+      Model: {
+        filter: () => {
+          return MutatorFlow.DoNotRecurse;
+        },
+        mutate: (clone) => {
+          visited.push(clone.name);
+        },
+      },
+    };
+    mutateSubgraph(runner.program, [mutator], Foo);
+
+    expect(visited).toStrictEqual(["Foo"]);
   });
 });
