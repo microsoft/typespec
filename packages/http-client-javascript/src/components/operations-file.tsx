@@ -3,7 +3,7 @@ import * as ts from "@alloy-js/typescript";
 import { mutateSubgraph, Mutator, MutatorFlow, Operation, Service } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { FunctionDeclaration, TypeExpression } from "@typespec/emitter-framework/typescript";
-import { getClientContextRefkey } from "./client-context.jsx";
+import { ClientContextRefkey } from "./client-context.jsx";
 import { HttpRequest } from "./http-request.js";
 import { HttpResponse } from "./http-response.jsx";
 
@@ -62,7 +62,7 @@ export function OperationsFile(props: OperationsFileProps) {
         const mutatedOperation = mutateSubgraph($.program, [httpParamsMutator], o).type as Operation;
         const httpReturnType = $.httpOperation.getReturnType(mutatedOperation);
         const responseRefkey = refkey();
-        const signatureParams = {  "client": <ts.Reference refkey={getClientContextRefkey(props.service!)}/>};
+        const signatureParams = {  "client": <ts.Reference refkey={ClientContextRefkey}/>};
         return (
           <FunctionDeclaration export async type={mutatedOperation} returnType={httpReturnType ?<TypeExpression type={httpReturnType} /> : "void"} parameters={signatureParams}>
             <HttpRequest operation={o} responseRefkey={responseRefkey} />

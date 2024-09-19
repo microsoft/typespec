@@ -49,7 +49,7 @@ export function widgetToTransport(item: Widget) {
 The context stores the information required to reach the service. In this case a createTestContext function should be generated with a required endpoint parameter. This example has no auth or other client parameters so endpoint will be the only.
 
 ```ts src/api/clientContext.ts function createTestContext
-export function createTestContext(endpoint: string, options: TestOptions): TestContext {
+export function createTestContext(endpoint: string, options?: TestOptions): TestContext {
   return {
     endpoint,
   };

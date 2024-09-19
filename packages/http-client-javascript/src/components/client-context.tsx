@@ -13,68 +13,95 @@ export function ClientContext(props: ClientContextProps): Children {
     return null;
   }
 
+  return <ts.SourceFile path="clientContext.ts">
+      <ClientContextDeclaration service={props.service} />
+      <ClientOptionsDeclaration service={props.service} />
+      <ClientContextFactoryDeclaration service={props.service} />
+  </ts.SourceFile>;
+}
+
+interface ClientContextDeclarationProps {
+  service: Service;
+}
+
+export const ClientContextRefkey = refkey();
+function ClientContextDeclaration(props: ClientContextDeclarationProps) {
   const namePolicy = ts.useTSNamePolicy();
-  const serviceName = namePolicy.getName(props.service.type.name, "interface");
-  const contextInterface = ts.useTSNamePolicy().getName(`${serviceName}Context`, "interface");
-  const factoryFunctionName = namePolicy.getName(`create${serviceName}Context`, "function");
-  const clientOptionsName = namePolicy.getName(`${serviceName}Options`, "interface");
+  const name = namePolicy.getName(`${getServiceName(props.service)}Context`, "interface");
+  return <ts.InterfaceDeclaration export name={name} refkey={ClientContextRefkey}>
+  <ts.InterfaceMember name="endpoint" type="string" />
+</ts.InterfaceDeclaration>;
+}
+
+interface ClientOptionsDeclarationProps {
+  service: Service;
+}
+
+export const ClientOptionsRefkey = refkey();
+function ClientOptionsDeclaration(props: ClientOptionsDeclarationProps) {
+  const namePolicy = ts.useTSNamePolicy();
+  const name = namePolicy.getName(`${getServiceName(props.service)}Options`, "interface");
+
+  // TODO: Here we will calculate and include all the options that the client can accept
+  const clientOptions: Map<string, Children> = new Map();
+
+  return <ts.InterfaceDeclaration export name={name} refkey={ClientOptionsRefkey}>
+        {mapJoin(clientOptions, (key, value) => (
+          <ts.InterfaceMember optional name={key} type={value} />
+        ), { joiner: ";\n" })}
+        <ts.InterfaceMember optional name="endpoint" type="string" />
+      </ts.InterfaceDeclaration>;
+}
+
+interface ClientContextFactoryDeclaration {
+  service: Service;
+}
+
+export const ClientContextFactoryRefkey = refkey();
+function ClientContextFactoryDeclaration(props: ClientContextFactoryDeclaration) {
+  const namePolicy = ts.useTSNamePolicy();
+  const factoryFunctionName = namePolicy.getName(
+    `create${getServiceName(props.service)}Context`,
+    "function"
+  );
 
   const servers = getServers($.program, props.service.type);
-
   const server = servers?.[0];
+
   const clientParameters: Record<string, ts.ParameterDescriptor> = {};
-  const clientOptions: Map<string, Children> = new Map();
-  const bodyVars: Map<string, Children> = new Map();
+  const clientVarAssignments: Map<string, Children> = new Map();
 
   // If there is no URL defined we make it a required parameter
   if (!server?.url) {
     clientParameters["endpoint"] = { type: "string", refkey: refkey("endpoint") };
   } else {
     // Apply the override in the factory function
-    bodyVars.set("endpoint", code`options.endpoint ?? "${server.url}"`);
+    clientVarAssignments.set("endpoint", code`options?.endpoint ?? "${server.url}"`);
   }
 
   clientParameters["options"] = {
-    type: clientOptionsName,
-    refkey: getClientOptionsRefkey(props.service),
+    optional: true,
+    type: <ts.Reference refkey={ClientOptionsRefkey} />,
+    refkey: refkey("client.options"),
   };
-  const clientContextInterfaceRefkey = getClientContextRefkey(props.service);
-  return <ts.SourceFile path="clientContext.ts">
-      <ts.InterfaceDeclaration export name={contextInterface} refkey={clientContextInterfaceRefkey}>
-        <ts.InterfaceMember name="endpoint" type="string" />
-      </ts.InterfaceDeclaration>
-      <ts.InterfaceDeclaration export name={clientOptionsName} refkey={getClientOptionsRefkey(props.service)}>
-        {mapJoin(clientOptions, (key, value) => (
-          <ts.InterfaceMember optional name={key} type={value} />
-        ), { joiner: ";\n" })}
-        <ts.InterfaceMember optional name="endpoint" type="string" />
-      </ts.InterfaceDeclaration>
 
-      <ts.FunctionDeclaration
-        export
-        name={factoryFunctionName}
-        parameters={clientParameters}
-        returnType={<ts.Reference refkey={clientContextInterfaceRefkey} />}
-        refkey={getClientContextFactoryRefkey(props.service)}
-      >
-        {mapJoin(bodyVars, (key, value) => {
-          return <ts.VarDeclaration name={key} value={value} />;
-        }, { joiner: ";\n" })}
-        {code`return { 
-          endpoint 
-        };`}
-      </ts.FunctionDeclaration>
-    </ts.SourceFile>;
+  return <ts.FunctionDeclaration
+  export
+  name={factoryFunctionName}
+  parameters={clientParameters}
+  returnType={<ts.Reference refkey={ClientContextRefkey} />}
+  refkey={ClientContextFactoryRefkey}
+>
+  {mapJoin(clientVarAssignments, (key, value) => {
+    return <ts.VarDeclaration name={key} value={value} />;
+  }, { joiner: ";\n" })}
+  {code`return { 
+    endpoint 
+  };`}
+</ts.FunctionDeclaration>;
 }
 
-function getClientOptionsRefkey(service: Service) {
-  return refkey(service.type, "clientOptions");
-}
-
-export function getClientContextFactoryRefkey(service: Service) {
-  return refkey(service.type, "clientContextFactory");
-}
-
-export function getClientContextRefkey(service: Service) {
-  return refkey(service.type, "clientContext");
+function getServiceName(service: Service) {
+  const namePolicy = ts.useTSNamePolicy();
+  return namePolicy.getName(service.type.name, "interface");
 }
