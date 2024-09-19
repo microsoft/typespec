@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.Generator.CSharp.Expressions;
@@ -71,7 +72,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         {
             var discriminatorDeclaration = new VariableExpression(typeof(JsonElement), "discriminator");
             discriminator = discriminatorDeclaration.As<JsonElement>();
-            var invocation = jsonElement.Invoke(nameof(JsonElement.TryGetProperty), [Literal(propertyName), new DeclarationExpression(discriminatorDeclaration, true)], null, false);
+            var invocation = jsonElement.Invoke(nameof(JsonElement.TryGetProperty), [LiteralU8(propertyName), new DeclarationExpression(discriminatorDeclaration, true)], null, false);
+            return invocation.As<bool>();
+        }
+
+        public static ScopedApi<bool> TryGetInt16(this ScopedApi<JsonElement> jsonElement, out ScopedApi<short> shortValue)
+        {
+            var shortValueDeclaration = new VariableExpression(typeof(short), "shortValue");
+            shortValue = shortValueDeclaration.As<short>();
+            var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetInt16), [new DeclarationExpression(shortValueDeclaration, true)]);
             return invocation.As<bool>();
         }
 
@@ -88,6 +97,102 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             var longValueDeclaration = new VariableExpression(typeof(long), "longValue");
             longValue = longValueDeclaration.As<long>();
             var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetInt64), [new DeclarationExpression(longValueDeclaration, true)]);
+            return invocation.As<bool>();
+        }
+
+        public static ScopedApi<bool> TryGetSingle(this ScopedApi<JsonElement> jsonElement, out ScopedApi<float> floatValue)
+        {
+            var floatValueDeclaration = new VariableExpression(typeof(float), "floatValue");
+            floatValue= floatValueDeclaration.As<float>();
+            var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetSingle), [new DeclarationExpression(floatValueDeclaration, true)]);
+            return invocation.As<bool>();
+        }
+
+        public static ScopedApi<bool> TryGetDouble(this ScopedApi<JsonElement> jsonElement, out ScopedApi<double> doubleValue)
+        {
+            var doubleValueDeclaration = new VariableExpression(typeof(double), "doubleValue");
+            doubleValue = doubleValueDeclaration.As<double>();
+            var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetDouble), [new DeclarationExpression(doubleValueDeclaration, true)]);
+            return invocation.As<bool>();
+        }
+
+        public static ScopedApi<bool> TryGetByte(this ScopedApi<JsonElement> jsonElement, out ScopedApi<byte> byteValue)
+        {
+            var byteValueDeclaration = new VariableExpression(typeof(byte), "byteValue");
+            byteValue = byteValueDeclaration.As<byte>();
+            var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetByte), [new DeclarationExpression(byteValueDeclaration, true)]);
+            return invocation.As<bool>();
+        }
+
+        public static ScopedApi<bool> TryGetSByte(this ScopedApi<JsonElement> jsonElement, out ScopedApi<sbyte> sbyteValue)
+        {
+            var sbyteValueDeclaration = new VariableExpression(typeof(sbyte), "sbyteValue");
+            sbyteValue = sbyteValueDeclaration.As<sbyte>();
+            var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetSByte), [new DeclarationExpression(sbyteValueDeclaration, true)]);
+            return invocation.As<bool>();
+        }
+
+        public static ScopedApi<bool> TryGetUInt16(this ScopedApi<JsonElement> jsonElement, out ScopedApi<ushort> ushortValue)
+        {
+            var ushortValueDeclaration = new VariableExpression(typeof(ushort), "ushortValue");
+            ushortValue = ushortValueDeclaration.As<ushort>();
+            var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetUInt16), [new DeclarationExpression(ushortValueDeclaration, true)]);
+            return invocation.As<bool>();
+        }
+
+        public static ScopedApi<bool> TryGetUInt64(this ScopedApi<JsonElement> jsonElement, out ScopedApi<ulong> ulongValue)
+        {
+            var ulongValueDeclaration = new VariableExpression(typeof(ulong), "ulongValue");
+            ulongValue = ulongValueDeclaration.As<ulong>();
+            var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetUInt64), [new DeclarationExpression(ulongValueDeclaration, true)]);
+            return invocation.As<bool>();
+        }
+
+        public static ScopedApi<bool> TryGetUInt32(this ScopedApi<JsonElement> jsonElement, out ScopedApi<uint> uintValue)
+        {
+            var uintValueDeclaration = new VariableExpression(typeof(uint), "uintValue");
+            uintValue = uintValueDeclaration.As<uint>();
+            var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetUInt32), [new DeclarationExpression(uintValueDeclaration, true)]);
+            return invocation.As<bool>();
+        }
+
+        public static ScopedApi<bool> TryGetBytesFromBase64(this ScopedApi<JsonElement> jsonElement, out ScopedApi<byte[]> bytes)
+        {
+            var bytesDeclaration = new VariableExpression(typeof(byte[]), "bytes");
+            bytes = bytesDeclaration.As<byte[]>();
+            var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetBytesFromBase64), [new DeclarationExpression(bytesDeclaration, true)]);
+            return invocation.As<bool>();
+        }
+
+        public static ScopedApi<bool> TryGetDateTime(this ScopedApi<JsonElement> jsonElement, out ScopedApi<DateTime> dateTime)
+        {
+            var dateTimeDeclaration = new VariableExpression(typeof(DateTime), "dateTime");
+            dateTime = dateTimeDeclaration.As<DateTime>();
+            var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetDateTime), [new DeclarationExpression(dateTimeDeclaration, true)]);
+            return invocation.As<bool>();
+        }
+
+        public static ScopedApi<bool> TryGetDateTimeOffset(this ScopedApi<JsonElement> jsonElement, out ScopedApi<DateTimeOffset> dateTimeOffset)
+        {
+            var dateTimeOffsetDeclaration = new VariableExpression(typeof(DateTimeOffset), "dateTimeOffset");
+            dateTimeOffset = dateTimeOffsetDeclaration.As<DateTimeOffset>();
+            var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetDateTimeOffset), [new DeclarationExpression(dateTimeOffsetDeclaration, true)]);
+            return invocation.As<bool>();
+        }
+
+        public static ScopedApi<bool> TryGetGuid(this ScopedApi<JsonElement> jsonElement, out ScopedApi<Guid> guid)
+        {
+            var guidDeclaration = new VariableExpression(typeof(Guid), "guid");
+            guid = guidDeclaration.As<Guid>();
+            var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetGuid), [new DeclarationExpression(guidDeclaration, true)]);
+            return invocation.As<bool>();
+        }
+
+        public static ScopedApi<bool> TryGetDecimal(this ScopedApi<JsonElement> jsonElement, out ScopedApi<decimal> decimalValue)
+        {
+            var decimalValueDeclaration = new VariableExpression(typeof(decimal), "decimalValue");
+            decimalValue = decimalValueDeclaration.As<decimal>();
+            var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetDecimal), [new DeclarationExpression(decimalValueDeclaration, true)]);
             return invocation.As<bool>();
         }
     }

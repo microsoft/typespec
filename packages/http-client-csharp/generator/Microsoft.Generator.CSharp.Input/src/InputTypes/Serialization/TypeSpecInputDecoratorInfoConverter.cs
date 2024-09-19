@@ -32,8 +32,8 @@ namespace AutoRest.CSharp.Common.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadString(nameof(InputDecoratorInfo.Name).ToLower(), ref name)
-                    || reader.TryReadStringBinaryDataDictionary(nameof(InputDecoratorInfo.Arguments).ToLower(), ref arguments);
+                    || reader.TryReadString("name", ref name)
+                    || reader.TryReadStringBinaryDataDictionary("arguments", ref arguments);
 
                 if (!isKnownProperty)
                 {

@@ -83,8 +83,8 @@ describe("compiler: entrypoints", () => {
             `Please file an issue at https://github.com/microsoft/my-emitter/issues`,
             ``,
             `Error: This is bad`,
-          ].join("\n")
-        )
+          ].join("\n"),
+        ),
       );
     });
 
@@ -97,8 +97,8 @@ describe("compiler: entrypoints", () => {
             `Please file an issue at https://github.com/microsoft/my-validator/issues`,
             ``,
             `Error: This is bad`,
-          ].join("\n")
-        )
+          ].join("\n"),
+        ),
       );
     });
 

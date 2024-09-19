@@ -23,7 +23,7 @@ export interface TypeSpecServer {
 export function resolveServers(
   context: SdkContext<NetEmitterOptions>,
   servers: HttpServer[],
-  typeMap: SdkTypeMap
+  typeMap: SdkTypeMap,
 ): TypeSpecServer[] {
   return servers.map((server) => {
     const parameters: InputParameter[] = [];
@@ -35,9 +35,9 @@ export function resolveServers(
       const value = prop.default ? getDefaultValue(prop.default) : "";
       const inputType: InputType = isEndpoint
         ? {
-            Kind: "url",
-            Name: "url",
-            CrossLanguageDefinitionId: "TypeSpec.url",
+            kind: "url",
+            name: "url",
+            crossLanguageDefinitionId: "TypeSpec.url",
           }
         : getInputType(context, prop, typeMap);
 
@@ -75,9 +75,9 @@ export function resolveServers(
         NameInRequest: "host",
         Description: server.description,
         Type: {
-          Kind: "string",
-          Name: "string",
-          CrossLanguageDefinitionId: "TypeSpec.string",
+          kind: "string",
+          name: "string",
+          crossLanguageDefinitionId: "TypeSpec.string",
         },
         Location: RequestLocation.Uri,
         IsApiVersion: false,
@@ -90,9 +90,9 @@ export function resolveServers(
         Kind: InputOperationParameterKind.Client,
         DefaultValue: {
           Type: {
-            Kind: "string",
-            Name: "string",
-            CrossLanguageDefinitionId: "TypeSpec.string",
+            kind: "string",
+            name: "string",
+            crossLanguageDefinitionId: "TypeSpec.string",
           },
           Value: server.url,
         } as InputConstant,

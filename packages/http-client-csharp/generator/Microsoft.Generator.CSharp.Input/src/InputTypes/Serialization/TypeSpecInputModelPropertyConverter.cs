@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp.Input
             string? description = null;
             InputType? propertyType = null;
             bool isReadOnly = false;
-            bool isRequired = false;
+            bool isOptional = false;
             bool isDiscriminator = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             IReadOnlyList<string>? flattenedNames = null;
@@ -38,15 +38,15 @@ namespace Microsoft.Generator.CSharp.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadString(nameof(InputModelProperty.Name), ref name)
-                    || reader.TryReadString(nameof(InputModelProperty.SerializedName), ref serializedName)
-                    || reader.TryReadString(nameof(InputModelProperty.Description), ref description)
-                    || reader.TryReadWithConverter(nameof(InputModelProperty.Type), options, ref propertyType)
-                    || reader.TryReadBoolean(nameof(InputModelProperty.IsReadOnly), ref isReadOnly)
-                    || reader.TryReadBoolean(nameof(InputModelProperty.IsRequired), ref isRequired)
-                    || reader.TryReadBoolean(nameof(InputModelProperty.IsDiscriminator), ref isDiscriminator)
-                    || reader.TryReadWithConverter(nameof(InputModelProperty.Decorators), options, ref decorators)
-                    || reader.TryReadWithConverter(nameof(InputModelProperty.FlattenedNames), options, ref flattenedNames);
+                    || reader.TryReadString("name", ref name)
+                    || reader.TryReadString("serializedName", ref serializedName)
+                    || reader.TryReadString("description", ref description)
+                    || reader.TryReadWithConverter("type", options, ref propertyType)
+                    || reader.TryReadBoolean("readOnly", ref isReadOnly)
+                    || reader.TryReadBoolean("optional", ref isOptional)
+                    || reader.TryReadBoolean("discriminator", ref isDiscriminator)
+                    || reader.TryReadWithConverter("decorators", options, ref decorators)
+                    || reader.TryReadWithConverter("flattenNames", options, ref flattenedNames);
 
                 if (!isKnownProperty)
                 {
@@ -55,12 +55,11 @@ namespace Microsoft.Generator.CSharp.Input
             }
 
             name = name ?? throw new JsonException($"{nameof(InputModelProperty)} must have a name.");
-            description = description ?? throw new JsonException($"{nameof(InputModelProperty)} must have a description.");
             // TO-DO: Implement as part of autorest output classes migration https://github.com/Azure/autorest.csharp/issues/4198
             // description = BuilderHelpers.EscapeXmlDocDescription(description);
             propertyType = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");
 
-            var property = new InputModelProperty(name, serializedName ?? name, description, propertyType, isRequired, isReadOnly, isDiscriminator, flattenedNames) { Decorators = decorators ?? [] };
+            var property = new InputModelProperty(name, serializedName ?? name, description, propertyType, !isOptional, isReadOnly, isDiscriminator, flattenedNames) { Decorators = decorators ?? [] };
             if (id != null)
             {
                 resolver.AddReference(id, property);

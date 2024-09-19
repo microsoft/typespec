@@ -9,6 +9,7 @@
     <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/ErrorResult.cs" />
     <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/BinaryContentHelper.cs" />
     <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/Utf8JsonBinaryContent.cs" />
+    <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/PipelineRequestHeadersExtensions.cs" />
   </ItemGroup>
 
   <ItemGroup>

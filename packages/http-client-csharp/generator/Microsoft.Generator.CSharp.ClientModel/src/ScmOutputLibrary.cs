@@ -51,7 +51,19 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 new ClientUriBuilderDefinition(),
                 new Utf8JsonBinaryContentDefinition(),
                 new BinaryContentHelperDefinition(),
+                new PipelineRequestHeadersExtensionsDefinition(),
+                .. GetMultipartFormDataBinaryContentDefinition()
             ];
+        }
+
+        private IEnumerable<TypeProvider> GetMultipartFormDataBinaryContentDefinition()
+        {
+            if (ClientModelPlugin.Instance.InputLibrary.HasMultipartFormDataOperation)
+            {
+                var multipart = new MultiPartFormDataBinaryContentDefinition();
+                ClientModelPlugin.Instance.AddTypeToKeep(multipart.Name);
+                yield return multipart;
+            }
         }
     }
 }

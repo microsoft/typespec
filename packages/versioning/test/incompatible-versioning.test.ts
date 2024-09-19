@@ -127,7 +127,7 @@ describe("versioning: validate incompatible references", () => {
         model Foo {}
 
         op test(param: string, @added(Versions.v2) newParam: Foo): void;
-      `)
+      `),
       );
     });
 
@@ -540,6 +540,31 @@ describe("versioning: validate incompatible references", () => {
     });
   });
 
+  describe("operations", () => {
+    it("ok if operation is added before model used in params", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model Foo {}
+
+        @added(Versions.v2)
+        op test(param: Foo): void;
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("emit diagnostic when unversioned parameter type is a versioned model", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model Foo {}
+
+        op test(param: Foo): void;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+      });
+    });
+  });
+
   describe("complex type references", () => {
     it("emit diagnostic when using versioned model as template argument in non versioned property", async () => {
       const diagnostics = await runner.diagnose(`
@@ -581,6 +606,17 @@ describe("versioning: validate incompatible references", () => {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' is referencing versioned type 'TestService.Versioned' but is not versioned itself.",
+      });
+    });
+
+    it("emit diagnostic when using versioned union variant of array in non versioned source", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model Versioned {}
+        op test(): Versioned[] | string;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
       });
     });
 
@@ -663,7 +699,7 @@ describe("versioning: validate incompatible references", () => {
         interface Ops<T extends {}> {
           get(): T[];
         }
-        `
+        `,
       );
     });
     it("emit diagnostic when extending interface with versioned type argument from unversioned interface", async () => {
@@ -674,7 +710,7 @@ describe("versioning: validate incompatible references", () => {
           id: string;
         }
         interface WidgetService extends Lib.Ops<Widget> {}
-        `
+        `,
       );
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
@@ -693,7 +729,7 @@ describe("versioning: validate incompatible references", () => {
       
         @added(Versions.v1)
         interface WidgetService extends Lib.Ops<Widget> {}
-      `
+      `,
       );
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
@@ -712,7 +748,7 @@ describe("versioning: validate incompatible references", () => {
       
         @added(Versions.v2)
         interface WidgetService extends Lib.Ops<Widget> {}
-      `
+      `,
       );
       expectDiagnosticEmpty(diagnostics);
     });

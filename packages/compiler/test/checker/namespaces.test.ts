@@ -31,7 +31,7 @@ describe("compiler: namespaces with blocks", () => {
       @blue @test namespace Z.Q;
       @blue @test namespace N { }
       @blue @test namespace X.Y { }
-      `
+      `,
     );
     const { N, Y, Q } = (await testHost.compile("./")) as {
       N: Namespace;
@@ -55,7 +55,7 @@ describe("compiler: namespaces with blocks", () => {
         arrayProp: string[];
       }
     }
-    `
+    `,
     );
     const { Test } = await testHost.compile("./");
 
@@ -70,7 +70,7 @@ describe("compiler: namespaces with blocks", () => {
       namespace N { @test model X { x: string } }
       namespace N { @test model Y { y: string } }
       namespace N { @test model Z { ... X, ... Y } }
-      `
+      `,
     );
     const { N, X, Y, Z } = (await testHost.compile("./")) as {
       N: Namespace;
@@ -91,26 +91,26 @@ describe("compiler: namespaces with blocks", () => {
       import "./a.tsp";
       import "./b.tsp";
       import "./c.tsp";
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "a.tsp",
       `
       @test
       namespace N { @test model X { x: string } }
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "b.tsp",
       `
       namespace N { @test model Y { y: int32 } }
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "c.tsp",
       `
       namespace N { @test model Z { ... X, ... Y } }
-      `
+      `,
     );
     const { N, X, Y, Z } = (await testHost.compile("./")) as {
       N: Namespace;
@@ -131,25 +131,25 @@ describe("compiler: namespaces with blocks", () => {
       import "./a.tsp";
       import "./b.tsp";
       import "./c.tsp";
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "a.tsp",
       `
       namespace N { namespace M { model X { x: string } } }
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "b.tsp",
       `
       namespace N { namespace M { model Y { y: int32 } } }
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "c.tsp",
       `
       namespace N { @test model Z { ... M.X, ... M.Y } }
-      `
+      `,
     );
 
     const { Z } = (await testHost.compile("./")) as {
@@ -187,7 +187,7 @@ describe("compiler: namespaces with blocks", () => {
 
       @blue
       namespace N {}
-      `
+      `,
     );
 
     const { N } = (await testHost.compile("./")) as {
@@ -226,7 +226,7 @@ describe("compiler: namespaces with blocks", () => {
       @ref(N)
       namespace A { }
     
-      `
+      `,
     );
 
     testHost.addTypeSpecFile(
@@ -236,7 +236,7 @@ describe("compiler: namespaces with blocks", () => {
       @test
       namespace N {}
     
-      `
+      `,
     );
 
     testHost.addTypeSpecFile(
@@ -244,7 +244,7 @@ describe("compiler: namespaces with blocks", () => {
       `
       @blue
       namespace N {}
-      `
+      `,
     );
 
     const { N } = (await testHost.compile("./")) as {
@@ -264,7 +264,7 @@ describe("compiler: namespaces with blocks", () => {
       `
       model A { }
       namespace N { model B extends A { } }
-      `
+      `,
     );
     await testHost.compile("./");
   });
@@ -276,19 +276,19 @@ describe("compiler: namespaces with blocks", () => {
       import "./a.tsp";
       import "./b.tsp";
       import "./c.tsp";
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "a.tsp",
       `
       model A { }
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "b.tsp",
       `
       model B extends A { }
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "c.tsp",
@@ -297,7 +297,7 @@ describe("compiler: namespaces with blocks", () => {
       namespace foo {
         op foo(a: A, b: B): C;
       }
-      `
+      `,
     );
     await testHost.compile("./");
   });
@@ -311,7 +311,7 @@ describe("compiler: namespaces with blocks", () => {
         op Baz(): {};
         model Qux { };
       }
-      `
+      `,
     );
 
     const { Foo } = (await testHost.compile("./")) as {
@@ -333,7 +333,7 @@ describe("compiler: namespaces with blocks", () => {
         model Foo { }
       }
 
-      `
+      `,
     );
 
     await testHost.compile("./");
@@ -360,27 +360,27 @@ describe("compiler: blockless namespaces", () => {
       import "./a.tsp";
       import "./b.tsp";
       import "./c.tsp";
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "a.tsp",
       `
       namespace N;
       model X { x: int32 }
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "b.tsp",
       `
       namespace N;
       model Y { y: int32 }
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "c.tsp",
       `
       @test model Z { ... N.X, ... N.Y }
-      `
+      `,
     );
     const { Z } = (await testHost.compile("./")) as {
       Z: Model;
@@ -398,7 +398,7 @@ describe("compiler: blockless namespaces", () => {
       model Hey {
         wat: Yo;
       }
-      `
+      `,
     );
 
     await testHost.compile("./");
@@ -414,7 +414,7 @@ describe("compiler: blockless namespaces", () => {
       model Hey {
         wat: Yo;
       }
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "b.tsp",
@@ -424,7 +424,7 @@ describe("compiler: blockless namespaces", () => {
         yo: Hey;
         wat: Yo;
       }
-      `
+      `,
     );
 
     await testHost.compile("./");
@@ -436,13 +436,13 @@ describe("compiler: blockless namespaces", () => {
       `
       namespace N.M;
       model A { }
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "b.tsp",
       `
       model X { a: N.M.A }
-      `
+      `,
     );
 
     await testHost.compile("./");
@@ -459,13 +459,13 @@ describe("compiler: blockless namespaces", () => {
       namespace M {
         model A { }
       }
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "b.tsp",
       `
       model X { a: N.M.A }
-      `
+      `,
     );
     const { N, M } = (await testHost.compile("./")) as {
       N: Namespace;
@@ -482,7 +482,7 @@ describe("compiler: blockless namespaces", () => {
       `
       import "./a.tsp";
       import "./b.tsp";
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "a.tsp",
@@ -494,13 +494,13 @@ describe("compiler: blockless namespaces", () => {
       namespace O {
         model A { }
       }
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "b.tsp",
       `
       model X { a: N.M.O.A }
-      `
+      `,
     );
     const { M, O } = (await testHost.compile("./")) as {
       M: Namespace;
@@ -518,14 +518,14 @@ describe("compiler: blockless namespaces", () => {
       `
       import "./b.tsp";
       model M {x: N.X }
-      `
+      `,
     );
     testHost.addTypeSpecFile(
       "b.tsp",
       `
       namespace N;
       model X {}
-      `
+      `,
     );
 
     await testHost.compile("./a.tsp");
@@ -539,7 +539,7 @@ describe("compiler: blockless namespaces", () => {
       namespace Bar { };
       op Baz(): {};
       model Qux { };
-      `
+      `,
     );
 
     const { Foo } = (await testHost.compile("./a.tsp")) as {
@@ -572,7 +572,7 @@ describe("compiler: namespace type name", () => {
          @test()
         model Model2 {}
       }
-      `
+      `,
     );
 
     const { Model1, Model2 } = await testHost.compile("./a.tsp");
@@ -601,7 +601,7 @@ describe("compiler: namespace type name", () => {
         @test()
         model AnotherModel {}
       }
-      `
+      `,
     );
 
     const { SomeModel, AnotherModel } = await testHost.compile("./main.tsp");
@@ -640,7 +640,7 @@ describe("compiler: decorators in namespaces", () => {
       `
       import "./dec.js";
       @A.B.foo @A.B.C.bar model M { };
-      `
+      `,
     );
 
     await testHost.compile("main.tsp");
@@ -670,7 +670,7 @@ describe("compiler: decorators in namespaces", () => {
       import "./dec.js";
 
       @A.foo @A.B.bar model M { };
-      `
+      `,
     );
 
     await testHost.compile("main.tsp");
@@ -686,14 +686,14 @@ describe("compiler: decorators in namespaces", () => {
       namespace A.B;
       model M { }
       model N extends A.B.M {}// There's a A.B.M, but this looks in A.B.A.B for M
-    `
+    `,
     );
     testHost.addTypeSpecFile(
       "other.tsp",
       `
       namespace A.B.A.B;
       model N {}
-      `
+      `,
     );
 
     const diagnostics = await testHost.diagnose("./");
@@ -717,7 +717,7 @@ describe("compiler: decorators in namespaces", () => {
       namespace B {
         @test model X {}
       }
-    `
+    `,
     );
 
     const { B, X, Y } = await testHost.compile("./main.tsp");

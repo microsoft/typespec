@@ -44,11 +44,15 @@ export class ServiceVersion extends Metadata {
           },
         },
       },
-      initializer
+      initializer,
     );
   }
 }
 
 export interface CrossLanguageDefinition {
   crossLanguageDefinitionId?: string;
+}
+
+export interface EncodedSchema {
+  encode?: string;
 }

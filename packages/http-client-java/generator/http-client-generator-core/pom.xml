@@ -44,7 +44,6 @@
       <artifactId>slf4j-api</artifactId>
       <version>1.7.36</version>
     </dependency>
-
     <dependency>
       <groupId>com.github.javaparser</groupId>
       <artifactId>javaparser-core</artifactId>
@@ -69,6 +68,11 @@
       <groupId>org.atteo</groupId>
       <artifactId>evo-inflector</artifactId>
       <version>1.3</version>
+    </dependency>
+     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.36</version>
     </dependency>
   </dependencies>
 </project>

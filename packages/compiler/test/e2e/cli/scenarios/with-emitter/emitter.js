@@ -5,7 +5,7 @@ export async function $onEmit(context) {
     await mkdir(context.program.compilerOptions.outputDir, { recursive: true });
     await writeFile(
       context.program.compilerOptions.outputDir + "/out.txt",
-      context.options["text"] ?? "Hello, world!"
+      context.options["text"] ?? "Hello, world!",
     );
   }
 }

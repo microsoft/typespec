@@ -1,12 +1,5 @@
 import { printIdentifier } from "@typespec/compiler";
-import { OpenAPI3Components, OpenAPI3Schema, Refable } from "../../../../types.js";
-import {
-  getArrayType,
-  getIntegerType,
-  getNumberType,
-  getRefName,
-  getStringType,
-} from "../generators/generate-types.js";
+import { OpenAPI3Schema, Refable } from "../../../../types.js";
 import {
   TypeSpecDataTypes,
   TypeSpecEnum,
@@ -14,6 +7,7 @@ import {
   TypeSpecModelProperty,
   TypeSpecUnion,
 } from "../interfaces.js";
+import { Context } from "../utils/context.js";
 import { getDecoratorsForSchema } from "../utils/decorators.js";
 import { getScopeAndName } from "../utils/get-scope-and-name.js";
 
@@ -24,141 +18,172 @@ import { getScopeAndName } from "../utils/get-scope-and-name.js";
  * @param schemas
  * @returns
  */
-export function transformComponentSchemas(
-  models: TypeSpecModel[],
-  schemas?: OpenAPI3Components["schemas"]
-): void {
+export function transformComponentSchemas(context: Context, models: TypeSpecModel[]): void {
+  const schemas = context.openApi3Doc.components?.schemas;
   if (!schemas) return;
 
   for (const name of Object.keys(schemas)) {
     const schema = schemas[name];
     transformComponentSchema(models, name, schema);
   }
-}
 
-function transformComponentSchema(
-  types: TypeSpecDataTypes[],
-  name: string,
-  schema: OpenAPI3Schema
-): void {
-  const kind = getTypeSpecKind(schema);
-  switch (kind) {
-    case "alias":
-      return populateAlias(types, name, schema);
-    case "enum":
-      return populateEnum(types, name, schema);
-    case "model":
-      return populateModel(types, name, schema);
-    case "union":
-      return populateUnion(types, name, schema);
-    case "scalar":
-      return populateScalar(types, name, schema);
-  }
-}
-
-function populateAlias(
-  types: TypeSpecDataTypes[],
-  name: string,
-  schema: Refable<OpenAPI3Schema>
-): void {
-  if (!("$ref" in schema)) {
-    return;
+  return;
+  function transformComponentSchema(
+    types: TypeSpecDataTypes[],
+    name: string,
+    schema: OpenAPI3Schema,
+  ): void {
+    const kind = getTypeSpecKind(schema);
+    switch (kind) {
+      case "alias":
+        return populateAlias(types, name, schema);
+      case "enum":
+        return populateEnum(types, name, schema);
+      case "model":
+        return populateModel(types, name, schema);
+      case "union":
+        return populateUnion(types, name, schema);
+      case "scalar":
+        return populateScalar(types, name, schema);
+    }
   }
 
-  types.push({
-    kind: "alias",
-    ...getScopeAndName(name),
-    doc: schema.description,
-    ref: getRefName(schema.$ref),
-  });
-}
+  function populateAlias(
+    types: TypeSpecDataTypes[],
+    rawName: string,
+    schema: Refable<OpenAPI3Schema>,
+  ): void {
+    if (!("$ref" in schema)) {
+      return;
+    }
 
-function populateEnum(types: TypeSpecDataTypes[], name: string, schema: OpenAPI3Schema): void {
-  const tsEnum: TypeSpecEnum = {
-    kind: "enum",
-    ...getScopeAndName(name),
-    decorators: getDecoratorsForSchema(schema),
-    doc: schema.description,
-    schema,
-  };
+    const { name, scope } = getScopeAndName(rawName);
 
-  types.push(tsEnum);
-}
-
-function populateScalar(types: TypeSpecDataTypes[], name: string, schema: OpenAPI3Schema): void {
-  types.push({
-    kind: "scalar",
-    ...getScopeAndName(name),
-    decorators: getDecoratorsForSchema(schema),
-    doc: schema.description,
-    schema,
-  });
-}
-
-function populateUnion(types: TypeSpecDataTypes[], name: string, schema: OpenAPI3Schema): void {
-  const union: TypeSpecUnion = {
-    kind: "union",
-    ...getScopeAndName(name),
-    decorators: getDecoratorsForSchema(schema),
-    doc: schema.description,
-    schema,
-  };
-
-  types.push(union);
-}
-
-function populateModel(types: TypeSpecDataTypes[], name: string, schema: OpenAPI3Schema): void {
-  const extendsParent = getModelExtends(schema);
-  const isParent = getModelIs(schema);
-  types.push({
-    kind: "model",
-    ...getScopeAndName(name),
-    decorators: [...getDecoratorsForSchema(schema)],
-    doc: schema.description,
-    properties: getModelPropertiesFromObjectSchema(schema),
-    additionalProperties:
-      typeof schema.additionalProperties === "object" ? schema.additionalProperties : undefined,
-    extends: extendsParent,
-    is: isParent,
-    type: schema.type,
-  });
-}
-
-function getModelExtends(schema: OpenAPI3Schema): string | undefined {
-  switch (schema.type) {
-    case "boolean":
-      return "boolean";
-    case "integer":
-      return getIntegerType(schema);
-    case "number":
-      return getNumberType(schema);
-    case "string":
-      return getStringType(schema);
+    types.push({
+      kind: "alias",
+      name,
+      scope,
+      doc: schema.description,
+      ref: context.getRefName(schema.$ref, scope),
+    });
   }
 
-  if (schema.type !== "object" || !schema.allOf) {
-    return;
+  function populateEnum(types: TypeSpecDataTypes[], name: string, schema: OpenAPI3Schema): void {
+    const tsEnum: TypeSpecEnum = {
+      kind: "enum",
+      ...getScopeAndName(name),
+      decorators: getDecoratorsForSchema(schema),
+      doc: schema.description,
+      schema,
+    };
+
+    types.push(tsEnum);
   }
 
-  if (schema.allOf.length !== 1) {
-    // TODO: Emit warning - can't extend more than 1 model
-    return;
+  function populateModel(
+    types: TypeSpecDataTypes[],
+    rawName: string,
+    schema: OpenAPI3Schema,
+  ): void {
+    const { name, scope } = getScopeAndName(rawName);
+    const allOfDetails = getAllOfDetails(schema, scope);
+    const isParent = getModelIs(schema, scope);
+    types.push({
+      kind: "model",
+      name,
+      scope,
+      decorators: [...getDecoratorsForSchema(schema)],
+      doc: schema.description,
+      properties: [...getModelPropertiesFromObjectSchema(schema), ...allOfDetails.properties],
+      additionalProperties:
+        typeof schema.additionalProperties === "object" ? schema.additionalProperties : undefined,
+      extends: allOfDetails.extends,
+      is: isParent,
+      type: schema.type,
+      spread: allOfDetails.spread,
+    });
   }
 
-  const parent = schema.allOf[0];
-  if (!parent || !("$ref" in parent)) {
-    // TODO: Error getting parent - must be a reference, not expression
-    return;
+  function populateUnion(types: TypeSpecDataTypes[], name: string, schema: OpenAPI3Schema): void {
+    const union: TypeSpecUnion = {
+      kind: "union",
+      ...getScopeAndName(name),
+      decorators: getDecoratorsForSchema(schema),
+      doc: schema.description,
+      schema,
+    };
+
+    types.push(union);
   }
 
-  return getRefName(parent.$ref);
-}
-
-function getModelIs(schema: OpenAPI3Schema): string | undefined {
-  if (schema.type !== "array") {
-    return;
+  function populateScalar(types: TypeSpecDataTypes[], name: string, schema: OpenAPI3Schema): void {
+    types.push({
+      kind: "scalar",
+      ...getScopeAndName(name),
+      decorators: getDecoratorsForSchema(schema),
+      doc: schema.description,
+      schema,
+    });
   }
-  return getArrayType(schema);
+
+  interface AllOfDetails {
+    extends?: string;
+    properties: TypeSpecModelProperty[];
+    spread: string[];
+  }
+  function getAllOfDetails(schema: OpenAPI3Schema, callingScope: string[]): AllOfDetails {
+    const details: AllOfDetails = {
+      spread: [],
+      properties: [],
+    };
+
+    if (!schema.allOf) {
+      return details;
+    }
+
+    let foundParentWithDiscriminator = false;
+
+    for (const member of schema.allOf) {
+      // inline-schemas treated as normal objects with properties
+      if (!("$ref" in member)) {
+        details.properties.push(...getModelPropertiesFromObjectSchema(member));
+        continue;
+      }
+
+      const refSchema = context.getSchemaByRef(member.$ref);
+
+      // Inheritance only supported if parent has a discriminator defined, otherwise prefer
+      // composition via spreading.
+      if (!refSchema?.discriminator) {
+        details.spread.push(context.getRefName(member.$ref, callingScope));
+        continue;
+      }
+
+      if (!foundParentWithDiscriminator) {
+        details.extends = context.getRefName(member.$ref, callingScope);
+        foundParentWithDiscriminator = true;
+        continue;
+      }
+
+      // can only extend once, so if we have multiple potential parents, spread them all
+      // user will need to resolve TypeSpec errors (e.g. duplicate fields) manually
+      if (details.extends) {
+        details.spread.push(details.extends);
+        details.extends = undefined;
+      }
+
+      details.spread.push(context.getRefName(member.$ref, callingScope));
+    }
+
+    return details;
+  }
+
+  function getModelIs(schema: OpenAPI3Schema, callingScope: string[]): string | undefined {
+    if (schema.type !== "array") {
+      return;
+    }
+    return context.generateTypeFromRefableSchema(schema, callingScope);
+  }
 }
 
 function getModelPropertiesFromObjectSchema({

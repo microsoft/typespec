@@ -51,7 +51,7 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
         type: "doc",
         id: "index",
       },
-    })
+    }),
   );
 }
 

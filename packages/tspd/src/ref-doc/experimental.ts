@@ -20,7 +20,7 @@ import { TypeSpecRefDocBase } from "./types.js";
 export async function generateLibraryDocs(
   libraryPath: string,
   outputDir: string,
-  skipJSApi: boolean = false
+  skipJSApi: boolean = false,
 ): Promise<readonly Diagnostic[]> {
   const diagnostics = createDiagnosticCollector();
   const pkgJson = await readPackageJson(libraryPath);
@@ -35,7 +35,7 @@ export async function generateLibraryDocs(
   const readme = await formatMarkdown(
     joinPaths(libraryPath, "README.md"),
     await renderReadme(refDoc, libraryPath),
-    config ?? {}
+    config ?? {},
   );
   await writeFile(joinPaths(libraryPath, "README.md"), readme);
   if (pkgJson.main && !skipJSApi) {
@@ -46,7 +46,7 @@ export async function generateLibraryDocs(
 
 export async function resolveLibraryRefDocsBase(
   libraryPath: string,
-  options: ExtractRefDocOptions = {}
+  options: ExtractRefDocOptions = {},
 ): Promise<[TypeSpecRefDocBase, readonly Diagnostic[]] | undefined> {
   const diagnostics = createDiagnosticCollector();
   const pkgJson = await readPackageJson(libraryPath);
@@ -71,7 +71,7 @@ async function readPackageJson(libraryPath: string): Promise<NodePackage> {
 async function formatMarkdown(
   filename: string,
   content: string,
-  options: prettier.Options | null
+  options: prettier.Options | null,
 ): Promise<string> {
   try {
     return await prettier.format(content, {

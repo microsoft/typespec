@@ -15,7 +15,7 @@ import {
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
 import { CrossLanguageDefinition } from "./common/client.js";
-import { getJavaNamespace, getNamespace, pascalCase } from "./utils.js";
+import { getNamespace, pascalCase } from "./utils.js";
 
 /*
  * These schema need to reflect
@@ -24,7 +24,7 @@ import { getJavaNamespace, getNamespace, pascalCase } from "./utils.js";
  */
 export function createResponseErrorSchema(
   schemas: Schemas,
-  stringSchema: StringSchema
+  stringSchema: StringSchema,
 ): ObjectSchema {
   const responseErrorSchema = new ObjectSchema(
     "Error",
@@ -35,7 +35,7 @@ export function createResponseErrorSchema(
           namespace: "Azure.Core.Foundations",
         },
       },
-    }
+    },
   );
   schemas.add(responseErrorSchema);
   responseErrorSchema.addProperty(
@@ -44,7 +44,7 @@ export function createResponseErrorSchema(
       required: true,
       nullable: false,
       readOnly: true,
-    })
+    }),
   );
   responseErrorSchema.addProperty(
     new Property("message", "the error message of this error.", stringSchema, {
@@ -52,7 +52,7 @@ export function createResponseErrorSchema(
       required: true,
       nullable: false,
       readOnly: true,
-    })
+    }),
   );
   responseErrorSchema.addProperty(
     new Property("target", "the target of this error.", stringSchema, {
@@ -60,12 +60,12 @@ export function createResponseErrorSchema(
       required: false,
       nullable: true,
       readOnly: true,
-    })
+    }),
   );
   const errorDetailsSchema = new ArraySchema(
     "errorDetails",
     "the array of errors.",
-    responseErrorSchema
+    responseErrorSchema,
   );
   responseErrorSchema.addProperty(
     new Property(
@@ -77,15 +77,15 @@ export function createResponseErrorSchema(
         required: false,
         nullable: true,
         readOnly: true,
-      }
-    )
+      },
+    ),
   );
   return responseErrorSchema;
 }
 
 export function createPollOperationDetailsSchema(
   schemas: Schemas,
-  stringSchema: StringSchema
+  stringSchema: StringSchema,
 ): ObjectSchema {
   const pollOperationDetailsSchema = new ObjectSchema(
     "PollOperationDetails",
@@ -99,7 +99,7 @@ export function createPollOperationDetailsSchema(
           namespace: "com.azure.core.util.polling",
         },
       },
-    }
+    },
   );
   schemas.add(pollOperationDetailsSchema);
   pollOperationDetailsSchema.addProperty(
@@ -108,7 +108,7 @@ export function createPollOperationDetailsSchema(
       required: true,
       nullable: false,
       readOnly: true,
-    })
+    }),
   );
   pollOperationDetailsSchema.addProperty(
     new Property("status", "The status of the operation.", stringSchema, {
@@ -116,7 +116,7 @@ export function createPollOperationDetailsSchema(
       required: true,
       nullable: false,
       readOnly: true,
-    })
+    }),
   );
   const responseErrorSchema = createResponseErrorSchema(schemas, stringSchema);
   pollOperationDetailsSchema.addProperty(
@@ -134,15 +134,20 @@ export function createPollOperationDetailsSchema(
             namespace: "com.azure.core.models",
           },
         },
-      }
-    )
+      },
+    ),
   );
   return pollOperationDetailsSchema;
 }
 
 const fileDetailsMap: Map<string, ObjectSchema> = new Map();
 
-function getFileSchemaName(baseName: string) {
+function getFileSchemaName(baseName: string, sdkModelType?: SdkModelType): string {
+  // If the TypeSpec Model exists and is not TypeSpec.Http.File, directly use its name
+  if (sdkModelType && sdkModelType.crossLanguageDefinitionId !== "TypeSpec.Http.File") {
+    return baseName;
+  }
+
   // make sure suffix "FileDetails"
   if (baseName.toLocaleLowerCase().endsWith("filedetails")) {
     return pascalCase(baseName);
@@ -157,7 +162,8 @@ function createFileDetailsSchema(
   schemaName: string,
   propertyName: string,
   namespace: string,
-  schemas: Schemas
+  javaNamespace: string | undefined,
+  schemas: Schemas,
 ) {
   const fileDetailsSchema = new ObjectSchema(
     schemaName,
@@ -168,11 +174,11 @@ function createFileDetailsSchema(
           namespace: namespace,
         },
         java: {
-          namespace: getJavaNamespace(namespace),
+          namespace: javaNamespace,
         },
       },
       serializationFormats: [KnownMediaType.Multipart],
-    }
+    },
   );
   schemas.add(fileDetailsSchema);
   fileDetailsMap.set(schemaName, fileDetailsSchema);
@@ -185,7 +191,7 @@ function addContentProperty(fileDetailsSchema: ObjectSchema, binarySchema: Binar
       required: true,
       nullable: false,
       readOnly: false,
-    })
+    }),
   );
 }
 
@@ -193,7 +199,7 @@ function addFilenameProperty(
   fileDetailsSchema: ObjectSchema,
   stringSchema: StringSchema,
   filenameProperty?: SdkModelPropertyType,
-  processSchemaFunc?: (type: SdkType) => Schema
+  processSchemaFunc?: (type: SdkType) => Schema,
 ) {
   fileDetailsSchema.addProperty(
     new Property(
@@ -206,8 +212,8 @@ function addFilenameProperty(
         required: filenameProperty ? !filenameProperty.optional : false,
         nullable: false,
         readOnly: false,
-      }
-    )
+      },
+    ),
   );
 }
 
@@ -215,7 +221,7 @@ function addContentTypeProperty(
   fileDetailsSchema: ObjectSchema,
   stringSchema: StringSchema,
   contentTypeProperty?: SdkModelPropertyType,
-  processSchemaFunc?: (type: SdkType) => Schema
+  processSchemaFunc?: (type: SdkType) => Schema,
 ) {
   fileDetailsSchema.addProperty(
     new Property(
@@ -230,18 +236,19 @@ function addContentTypeProperty(
         readOnly: false,
         clientDefaultValue:
           contentTypeProperty?.type.kind === "constant" ? undefined : "application/octet-stream",
-      }
-    )
+      },
+    ),
   );
 }
 
 export function getFileDetailsSchema(
   property: SdkBodyModelPropertyType,
   namespace: string,
+  javaNamespace: string | undefined,
   schemas: Schemas,
   binarySchema: BinarySchema,
   stringSchema: StringSchema,
-  processSchemaFunc: (type: SdkType) => Schema
+  processSchemaFunc: (type: SdkType) => Schema,
 ): ObjectSchema {
   let fileSdkType: SdkModelType | undefined;
   if (property.type.kind === "model") {
@@ -262,7 +269,7 @@ export function getFileDetailsSchema(
      */
     const filePropertyName = property.name;
     const fileSchemaName = fileSdkType.name;
-    const schemaName = getFileSchemaName(fileSchemaName);
+    const schemaName = getFileSchemaName(fileSchemaName, fileSdkType);
     let fileDetailsSchema = fileDetailsMap.get(schemaName);
     if (!fileDetailsSchema) {
       const typeNamespace = getNamespace(property.type.__raw) ?? namespace;
@@ -270,7 +277,8 @@ export function getFileDetailsSchema(
         schemaName,
         filePropertyName,
         typeNamespace,
-        schemas
+        javaNamespace,
+        schemas,
       );
 
       // description if available
@@ -306,7 +314,7 @@ export function getFileDetailsSchema(
         fileDetailsSchema,
         stringSchema,
         contentTypeProperty,
-        processSchemaFunc
+        processSchemaFunc,
       );
     }
     return fileDetailsSchema;
@@ -316,7 +324,13 @@ export function getFileDetailsSchema(
     const schemaName = getFileSchemaName(filePropertyName);
     let fileDetailsSchema = fileDetailsMap.get(schemaName);
     if (!fileDetailsSchema) {
-      fileDetailsSchema = createFileDetailsSchema(schemaName, filePropertyName, namespace, schemas);
+      fileDetailsSchema = createFileDetailsSchema(
+        schemaName,
+        filePropertyName,
+        namespace,
+        javaNamespace,
+        schemas,
+      );
 
       addContentProperty(fileDetailsSchema, binarySchema);
       addFilenameProperty(fileDetailsSchema, stringSchema);

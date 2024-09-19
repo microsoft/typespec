@@ -4,7 +4,12 @@ import { OpenAPITestLibrary } from "@typespec/openapi/testing";
 import assert from "node:assert";
 import { convertOpenAPI3Document } from "../../../src/index.js";
 import { OpenAPI3TestLibrary } from "../../../src/testing/index.js";
-import { OpenAPI3Document, OpenAPI3Schema, Refable } from "../../../src/types.js";
+import {
+  OpenAPI3Document,
+  OpenAPI3Parameter,
+  OpenAPI3Schema,
+  Refable,
+} from "../../../src/types.js";
 
 function wrapCodeInTest(code: string): string {
   // Find the 1st namespace declaration and decorate it
@@ -14,9 +19,10 @@ function wrapCodeInTest(code: string): string {
 
 export interface OpenAPI3Options {
   schemas?: Record<string, Refable<OpenAPI3Schema>>;
+  parameters?: Record<string, Refable<OpenAPI3Parameter>>;
 }
 
-export async function tspForOpenAPI3({ schemas }: OpenAPI3Options) {
+export async function tspForOpenAPI3({ parameters, schemas }: OpenAPI3Options) {
   const openApi3Doc: OpenAPI3Document = {
     info: {
       title: "Test Service",
@@ -27,6 +33,9 @@ export async function tspForOpenAPI3({ schemas }: OpenAPI3Options) {
     components: {
       schemas: {
         ...(schemas as any),
+      },
+      parameters: {
+        ...(parameters as any),
       },
     },
   };
@@ -42,7 +51,7 @@ export async function tspForOpenAPI3({ schemas }: OpenAPI3Options) {
 
   assert(
     TestService?.kind === "Namespace",
-    `Expected TestService to be a namespace, instead got ${TestService?.kind}`
+    `Expected TestService to be a namespace, instead got ${TestService?.kind}`,
   );
   return TestService;
 }

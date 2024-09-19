@@ -1,0 +1,24 @@
+{
+  "operationId": "EtagHeaders_ListWithEtag",
+  "title": "Etag headers ListWithEtag",
+  "parameters": {
+    "api-version": "2022-06-01-preview"
+  },
+  "responses": {
+    "200": {
+      "headers": {
+        "ETag": "\"64e005\""
+      },
+      "body": {
+        "value": [
+          {
+            "id": "myId",
+            "name": "name",
+            "type": "myType",
+            "description": "This is sample for Etag headers"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -34,7 +34,7 @@ describe("compiler: type cloning", () => {
         `
         import "./test.js";
         ${code}
-        `
+        `,
       );
 
       const { test } = (await testHost.compile("./test.tsp")) as {
@@ -123,16 +123,14 @@ describe("compiler: type cloning", () => {
       model Test {
         @test test: Template<string, int32>;
       }
-      `
+      `,
     );
 
     const { test } = await testHost.compile("./test.tsp");
     strictEqual(test.kind, "ModelProperty" as const);
     strictEqual(test.type.kind, "Model" as const);
     const clone = testHost.program.checker.cloneType(test.type);
-    // eslint-disable-next-line deprecation/deprecation
     strictEqual(clone.templateArguments?.length, 2);
-    // eslint-disable-next-line deprecation/deprecation
     deepStrictEqual(test.type.templateArguments, clone.templateArguments);
     deepStrictEqual(test.type.templateMapper, clone.templateMapper);
   });

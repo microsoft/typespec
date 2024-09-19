@@ -113,7 +113,7 @@ function* writeReservations(decl: ProtoMessageDeclaration): Iterable<string> {
     {
       reservedNumbers: (v) => (Array.isArray(v) ? v[0] + " to " + v[1] : v.toString()),
       reservedNames: (v) => `"${v.toString()}"`,
-    }
+    },
   );
 
   if (reservedNumbers.length + reservedNames.length > 0) {
@@ -145,7 +145,7 @@ function* writeMethod(decl: ProtoMethodDeclaration): Iterable<string> {
   ].map((v) => (v ? "stream " : ""));
 
   yield `rpc ${decl.name}(${inStream}${writeType(decl.input)}) returns (${outStream}${writeType(
-    decl.returns
+    decl.returns,
   )});`;
 }
 
@@ -225,7 +225,7 @@ function* writeBlockDocumentationComment(decl: ProtoDeclaration | ProtoFile): It
 function* writeDocumentationCommentFlexible(
   decl: ProtoDeclaration,
   output: string,
-  indentLevel: number
+  indentLevel: number,
 ): Iterable<string> {
   const docComment = decl.doc?.trim();
   const docCommentIsOneLine = docComment && !docComment?.includes("\n");
@@ -279,7 +279,7 @@ function collect<T>(it: Iterable<T>): T[] {
 function selectMap<TIn, Delegates extends { [k: string]: (input: TIn) => unknown }>(
   source: Iterable<TIn>,
   select: (v: TIn) => keyof Delegates,
-  delegates: Delegates
+  delegates: Delegates,
 ) {
   const result = Object.fromEntries(Object.keys(delegates).map((k) => [k, []])) as unknown as {
     [K in keyof Delegates]: ReturnType<Delegates[K]>[];

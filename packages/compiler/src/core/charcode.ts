@@ -249,7 +249,7 @@ export function isNonAsciiIdentifierCharacter(codePoint: number) {
 
 export function codePointBefore(
   text: string,
-  pos: number
+  pos: number,
 ): { char: number | undefined; size: number } {
   if (pos <= 0 || pos > text.length) {
     return { char: undefined, size: 0 };

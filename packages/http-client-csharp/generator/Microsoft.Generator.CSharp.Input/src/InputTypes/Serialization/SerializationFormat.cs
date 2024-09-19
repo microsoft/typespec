@@ -3,6 +3,7 @@
 
 namespace Microsoft.Generator.CSharp.Input
 {
+    // TODO: This enum should be removed, see https://github.com/microsoft/typespec/issues/4228
     /// <summary>
     /// Represents the set of known serialization formats.
     /// </summary>
@@ -22,6 +23,7 @@ namespace Microsoft.Generator.CSharp.Input
         Duration_Seconds_Double,
         Time_ISO8601,
         Bytes_Base64Url,
-        Bytes_Base64
+        Bytes_Base64,
+        Int_String,
     }
 }

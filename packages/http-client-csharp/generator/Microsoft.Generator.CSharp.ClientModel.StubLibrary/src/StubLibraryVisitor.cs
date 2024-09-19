@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
@@ -16,7 +17,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
 
         protected override TypeProvider? Visit(TypeProvider type)
         {
-            if (!type.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+            if (!type.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) &&
+                !type.Name.StartsWith("Unknown", StringComparison.Ordinal) &&
+                !type.Name.Equals("MultiPartFormDataBinaryContent", StringComparison.Ordinal))
                 return null;
 
             type.Update(xmlDocs: _emptyDocs);
@@ -39,7 +42,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
 
         protected override ConstructorProvider? Visit(ConstructorProvider constructor)
         {
-            if (!ShouldKeep(constructor.Signature.Modifiers))
+            if (!IsCallingBaseCtor(constructor) &&
+                !IsEffectivelyPublic(constructor.Signature.Modifiers) &&
+                (constructor.EnclosingType is not ModelProvider model || model.DerivedModels.Count == 0))
                 return null;
 
             constructor.Update(
@@ -50,6 +55,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
             return constructor;
         }
 
+        private static bool IsCallingBaseCtor(ConstructorProvider constructor)
+        {
+            return constructor.Signature.Initializer is not null &&
+                constructor.Signature.Initializer.IsBase &&
+                constructor.Signature.Initializer.Arguments.Count > 0;
+        }
+
         protected override FieldProvider? Visit(FieldProvider field)
         {
             return field.Modifiers.HasFlag(FieldModifiers.Public) ? field : null;
@@ -57,7 +69,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
 
         protected override MethodProvider? Visit(MethodProvider method)
         {
-            if (method.Signature.ExplicitInterface is null && !ShouldKeep(method.Signature.Modifiers))
+            if (method.Signature.ExplicitInterface is null && !IsEffectivelyPublic(method.Signature.Modifiers))
                 return null;
 
             method.Signature.Update(modifiers: method.Signature.Modifiers & ~MethodSignatureModifiers.Async);
@@ -72,7 +84,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
 
         protected override PropertyProvider? Visit(PropertyProvider property)
         {
-            if (!ShouldKeep(property.Modifiers))
+            if (!property.IsDiscriminator && !IsEffectivelyPublic(property.Modifiers))
                 return null;
 
             var propertyBody = new ExpressionPropertyBody(_throwNull, property.Body.HasSetter ? _throwNull : null);
@@ -84,7 +96,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
             return property;
         }
 
-        private bool ShouldKeep(MethodSignatureModifiers modifiers)
+        private bool IsEffectivelyPublic(MethodSignatureModifiers modifiers)
         {
             if (modifiers.HasFlag(MethodSignatureModifiers.Public))
                 return true;

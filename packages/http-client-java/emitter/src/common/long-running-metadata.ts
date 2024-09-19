@@ -12,7 +12,7 @@ export class LongRunningMetadata {
     pollResultType?: Schema,
     finalResultType?: Schema,
     pollingStrategy?: Metadata,
-    finalResultPropertySerializedName?: string
+    finalResultPropertySerializedName?: string,
   ) {
     this.longRunning = longRunning;
     this.pollResultType = pollResultType;

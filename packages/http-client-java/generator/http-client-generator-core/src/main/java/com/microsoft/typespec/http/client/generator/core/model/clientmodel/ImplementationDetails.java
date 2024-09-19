@@ -50,13 +50,6 @@ public class ImplementationDetails {
         PAGED("paged"),
 
         /**
-         * Anonymous model.
-         * <p>
-         * Codegen may choose to not generate class for it, or generate class in implementation package.
-         */
-        ANONYMOUS("anonymous"),
-
-        /**
          * External model.
          * <p>
          * Codegen should not generate the class. Javadoc or test/sample generation will still need to process the
@@ -144,8 +137,6 @@ public class ImplementationDetails {
                     return PUBLIC;
                 case PAGED:
                     return PAGED;
-                case ANONYMOUS:
-                    return ANONYMOUS;
                 case INTERNAL:
                     return INTERNAL;
                 case JSON_MERGE_PATCH:

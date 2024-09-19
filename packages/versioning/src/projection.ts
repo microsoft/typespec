@@ -17,7 +17,7 @@ export interface VersionProjections {
 export function indexTimeline(
   program: Program,
   timeline: VersioningTimeline,
-  projectingMoment: TimelineMoment
+  projectingMoment: TimelineMoment,
 ) {
   const versionKey = program.checker.createType<ObjectType>({
     kind: "Object",
@@ -33,7 +33,7 @@ export function buildVersionProjections(program: Program, rootNs: Namespace): Ve
   const resolutions = resolveVersions(program, rootNs);
   const timeline = new VersioningTimeline(
     program,
-    resolutions.map((x) => x.versions)
+    resolutions.map((x) => x.versions),
   );
   return resolutions.map((resolution) => {
     if (resolution.versions.size === 0) {
@@ -42,7 +42,7 @@ export function buildVersionProjections(program: Program, rootNs: Namespace): Ve
       const versionKey = indexTimeline(
         program,
         timeline,
-        timeline.get(resolution.versions.values().next().value)
+        timeline.get(resolution.versions.values().next().value!),
       );
       return {
         version: resolution.rootVersion?.value,

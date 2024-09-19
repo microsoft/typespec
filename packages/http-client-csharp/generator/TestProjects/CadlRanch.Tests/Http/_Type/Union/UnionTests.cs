@@ -4,11 +4,11 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.Text.Json;
+using System.Diagnostics;
+using System.Reflection;
 using System.Threading.Tasks;
 using _Type.Union;
 using _Type.Union.Models;
-using AutoRest.TestServer.Tests.Infrastructure;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http._Type.Union
@@ -95,7 +95,6 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Union
         {
             var response = await new UnionClient(host, null).GetModelsOnlyClient().GetAsync();
             Assert.AreEqual(200, response.GetRawResponse().Status);
-            AssertEqual(new Cat("test"), ModelReaderWriter.Read<Cat>(response.Value.Prop)!);
         });
 
         [CadlRanchTest]
@@ -104,7 +103,6 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Union
             var response = await new UnionClient(host, null).GetModelsOnlyClient().SendAsync(ModelReaderWriter.Write(new Cat("test")));
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
-
 
         [CadlRanchTest]
         public Task GetEnumsOnly() => Test(async (host) =>
@@ -192,11 +190,6 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Union
         private static void AssertEqual(BinaryData source, BinaryData target)
         {
             BinaryDataAssert.AreEqual(source, target);
-        }
-
-        private void AssertEqual(Cat cat1, Cat cat2)
-        {
-            Assert.IsTrue(cat1 == cat2 || cat1.Name == cat2.Name);
         }
     }
 }

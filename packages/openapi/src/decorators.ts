@@ -18,10 +18,9 @@ import {
   ExternalDocsDecorator,
   InfoDecorator,
   OperationIdDecorator,
-  TypeSpecOpenAPIDecorators,
 } from "../generated-defs/TypeSpec.OpenAPI.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
-import { AdditionalInfo, ExtensionKey } from "./types.js";
+import { AdditionalInfo, ExtensionKey, ExternalDocs } from "./types.js";
 
 const operationIdsKey = createStateSymbol("operationIds");
 /**
@@ -33,13 +32,13 @@ const operationIdsKey = createStateSymbol("operationIds");
 export const $operationId: OperationIdDecorator = (
   context: DecoratorContext,
   entity: Operation,
-  opId: string
+  opId: string,
 ) => {
   context.program.stateMap(operationIdsKey).set(entity, opId);
 };
 
 /**
- * @returns operationId set via the @operationId decorator or `undefined`
+ * Returns operationId set via the `@operationId` decorator or `undefined`
  */
 export function getOperationId(program: Program, entity: Operation): string | undefined {
   return program.stateMap(operationIdsKey).get(entity);
@@ -47,11 +46,12 @@ export function getOperationId(program: Program, entity: Operation): string | un
 
 const openApiExtensionKey = createStateSymbol("openApiExtension");
 
+/** {@inheritdoc ExtensionDecorator} */
 export const $extension: ExtensionDecorator = (
   context: DecoratorContext,
   entity: Type,
   extensionName: string,
-  value: TypeSpecValue
+  value: TypeSpecValue,
 ) => {
   if (!isOpenAPIExtensionKey(extensionName)) {
     reportDiagnostic(context.program, {
@@ -68,19 +68,32 @@ export const $extension: ExtensionDecorator = (
   setExtension(context.program, entity, extensionName as ExtensionKey, data);
 };
 
+/**
+ * Set the OpenAPI info node on for the given service namespace.
+ * @param program Program
+ * @param entity Service namespace
+ * @param data OpenAPI Info object
+ */
 export function setInfo(
   program: Program,
   entity: Namespace,
-  data: AdditionalInfo & Record<ExtensionKey, unknown>
+  data: AdditionalInfo & Record<ExtensionKey, unknown>,
 ) {
   program.stateMap(infoKey).set(entity, data);
 }
 
+/**
+ *  Set OpenAPI extension on the given type. Equivalent of using `@extension` decorator
+ * @param program Program
+ * @param entity Type to annotate
+ * @param extensionName Extension key
+ * @param data Extension value
+ */
 export function setExtension(
   program: Program,
   entity: Type,
   extensionName: ExtensionKey,
-  data: unknown
+  data: unknown,
 ) {
   const openApiExtensions = program.stateMap(openApiExtensionKey);
   const typeExtensions = openApiExtensions.get(entity) ?? new Map<string, any>();
@@ -88,6 +101,11 @@ export function setExtension(
   openApiExtensions.set(entity, typeExtensions);
 }
 
+/**
+ * Get extensions set for the given type.
+ * @param program Program
+ * @param entity Type
+ */
 export function getExtensions(program: Program, entity: Type): ReadonlyMap<ExtensionKey, any> {
   return program.stateMap(openApiExtensionKey).get(entity) ?? new Map<ExtensionKey, any>();
 }
@@ -102,11 +120,12 @@ function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
  *
  */
 const defaultResponseKey = createStateSymbol("defaultResponse");
+/** {@inheritdoc DefaultResponseDecorator} */
 export const $defaultResponse: DefaultResponseDecorator = (
   context: DecoratorContext,
-  entity: Model
+  entity: Model,
 ) => {
-  // eslint-disable-next-line deprecation/deprecation
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   setStatusCode(context.program, entity, ["*"]);
   context.program.stateSet(defaultResponseKey).add(entity);
 };
@@ -121,10 +140,6 @@ export function isDefaultResponse(program: Program, entity: Type): boolean {
   return program.stateSet(defaultResponseKey).has(entity);
 }
 
-export interface ExternalDocs {
-  url: string;
-  description?: string;
-}
 const externalDocsKey = createStateSymbol("externalDocs");
 
 /**
@@ -136,7 +151,7 @@ export const $externalDocs: ExternalDocsDecorator = (
   context: DecoratorContext,
   target: Type,
   url: string,
-  description?: string
+  description?: string,
 ) => {
   const doc: ExternalDocs = { url };
   if (description) {
@@ -145,19 +160,26 @@ export const $externalDocs: ExternalDocsDecorator = (
   context.program.stateMap(externalDocsKey).set(target, doc);
 };
 
+/**
+ * Return external doc info set via the `@externalDocs` decorator.
+ * @param program Program
+ * @param entity Type
+ */
 export function getExternalDocs(program: Program, entity: Type): ExternalDocs | undefined {
   return program.stateMap(externalDocsKey).get(entity);
 }
 
 const infoKey = createStateSymbol("info");
+
+/** {@inheritdoc InfoDecorator} */
 export const $info: InfoDecorator = (
   context: DecoratorContext,
   entity: Namespace,
-  model: TypeSpecValue
+  model: TypeSpecValue,
 ) => {
   const [data, diagnostics] = typespecTypeToJson<AdditionalInfo & Record<ExtensionKey, unknown>>(
     model,
-    context.getArgumentTarget(0)!
+    context.getArgumentTarget(0)!,
   );
   context.program.reportDiagnostics(diagnostics);
   if (data === undefined) {
@@ -166,6 +188,11 @@ export const $info: InfoDecorator = (
   setInfo(context.program, entity, data);
 };
 
+/**
+ * Get the info entry for the given service namespace.
+ * @param program Program
+ * @param entity Service namespace
+ */
 export function getInfo(program: Program, entity: Namespace): AdditionalInfo | undefined {
   return program.stateMap(infoKey).get(entity);
 }
@@ -177,7 +204,7 @@ export function resolveInfo(program: Program, entity: Namespace): AdditionalInfo
   return omitUndefined({
     ...info,
     title: info?.title ?? service?.title,
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     version: info?.version ?? service?.version,
     summary: info?.summary ?? getSummary(program, entity),
     description: info?.description ?? getDoc(program, entity),
@@ -187,14 +214,3 @@ export function resolveInfo(program: Program, entity: Namespace): AdditionalInfo
 function omitUndefined<T extends Record<string, unknown>>(data: T): T {
   return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
 }
-
-/** @internal */
-export const $decorators = {
-  "TypeSpec.OpenAPI": {
-    defaultResponse: $defaultResponse,
-    extension: $extension,
-    externalDocs: $externalDocs,
-    info: $info,
-    operationId: $operationId,
-  } satisfies TypeSpecOpenAPIDecorators,
-};

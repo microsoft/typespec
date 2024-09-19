@@ -1,7 +1,7 @@
 import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
 import { describe, it } from "vitest";
-import { generateTypeFromSchema } from "../../src/cli/actions/convert/generators/generate-types.js";
+import { createContext } from "../../src/cli/actions/convert/utils/context.js";
 import { OpenAPI3Schema, Refable } from "../../src/types.js";
 
 interface TestScenario {
@@ -145,13 +145,18 @@ const testScenarios: TestScenario[] = [
 ];
 
 describe("tsp-openapi: generate-type", () => {
+  const context = createContext({
+    openapi: "3.0.0",
+    info: { title: "Test", version: "1.0.0" },
+    paths: {},
+  });
   testScenarios.forEach((t) =>
     it(`${generateScenarioName(t)}`, async () => {
-      const type = generateTypeFromSchema(t.schema);
+      const type = context.generateTypeFromRefableSchema(t.schema, []);
       const wrappedType = await formatWrappedType(type);
       const wrappedExpected = await formatWrappedType(t.expected);
       strictEqual(wrappedType, wrappedExpected);
-    })
+    }),
   );
 });
 

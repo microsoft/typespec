@@ -4,6 +4,7 @@ import { Type, getTypeName, reportDeprecated } from "../core/index.js";
 import { reportDiagnostic } from "../core/messages.js";
 import type { Program } from "../core/program.js";
 import { DecoratorContext, Namespace } from "../core/types.js";
+import { useStateMap } from "./utils.js";
 
 export interface ServiceDetails {
   title?: string;
@@ -15,10 +16,9 @@ export interface Service extends ServiceDetails {
   type: Namespace;
 }
 
-const serviceDetailsKey = Symbol.for("@typespec/compiler.services");
-function getServiceMap(program: Program): Map<Namespace, Service> {
-  return program.stateMap(serviceDetailsKey) as Map<Namespace, Service>;
-}
+const [getService, setService, getServiceMap] = useStateMap<Namespace, Service>(
+  Symbol.for("@typespec/compiler.services"),
+);
 
 /**
  * List all the services defined in the TypeSpec program
@@ -29,15 +29,15 @@ export function listServices(program: Program): Service[] {
   return [...getServiceMap(program).values()];
 }
 
-/**
- * Get the service information for the given namespace.
- * @param program Program
- * @param namespace Service namespace
- * @returns Service information or undefined if namespace is not a service namespace.
- */
-export function getService(program: Program, namespace: Namespace): Service | undefined {
-  return getServiceMap(program).get(namespace);
-}
+export {
+  /**
+   * Get the service information for the given namespace.
+   * @param program Program
+   * @param namespace Service namespace
+   * @returns Service information or undefined if namespace is not a service namespace.
+   */
+  getService,
+};
 
 /**
  * Check if the namespace is defined as a service.
@@ -58,17 +58,17 @@ export function isService(program: Program, namespace: Namespace): boolean {
 export function addService(
   program: Program,
   namespace: Namespace,
-  details: ServiceDetails = {}
+  details: ServiceDetails = {},
 ): void {
   const serviceMap = getServiceMap(program);
   const existing = serviceMap.get(namespace) ?? {};
-  serviceMap.set(namespace, { ...existing, ...details, type: namespace });
+  setService(program, namespace, { ...existing, ...details, type: namespace });
 }
 
 export const $service: ServiceDecorator = (
   context: DecoratorContext,
   target: Namespace,
-  options?: Type
+  options?: Type,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $service);
 
@@ -89,7 +89,7 @@ export const $service: ServiceDecorator = (
     } else {
       reportDiagnostic(context.program, {
         code: "unassignable",
-        format: { value: getTypeName(title), targetType: "String" },
+        format: { sourceType: getTypeName(title), targetType: "String" },
         target: context.getArgumentTarget(0)!,
       });
     }
@@ -99,15 +99,15 @@ export const $service: ServiceDecorator = (
     reportDeprecated(
       context.program,
       "version: property is deprecated in @service. If wanting to describe a service versioning you can use the `@typespec/versioning` library. If wanting to describe the project version you can use the package.json version.",
-      versionProp
+      versionProp,
     );
     if (version.kind === "String") {
-      // eslint-disable-next-line deprecation/deprecation
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       serviceDetails.version = version.value;
     } else {
       reportDiagnostic(context.program, {
         code: "unassignable",
-        format: { value: getTypeName(version), targetType: "String" },
+        format: { sourceType: getTypeName(version), targetType: "String" },
         target: context.getArgumentTarget(0)!,
       });
     }

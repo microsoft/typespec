@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
@@ -24,7 +25,14 @@ namespace Microsoft.Generator.CSharp
                 if (inputEnum.Usage.HasFlag(Input.InputModelTypeUsage.ApiVersionEnum))
                     continue;
                 var outputEnum = CodeModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
-                if (outputEnum != null)
+
+                // If there is a custom code view for a fixed enum, then we should not emit the generated enum as the custom code will have
+                // the implementation. We will still need to emit the serialization code.
+                if (outputEnum is FixedEnumProvider { CustomCodeView: { IsEnum: true, Type: { IsValueType: true, IsStruct: false } } })
+                {
+                    enums.AddRange(outputEnum.SerializationProviders);
+                }
+                else if (outputEnum != null)
                 {
                     enums.Add(outputEnum);
                 }
@@ -43,6 +51,15 @@ namespace Microsoft.Generator.CSharp
                 if (outputModel != null)
                 {
                     models.Add(outputModel);
+                    var unknownVariant = inputModel.DiscriminatedSubtypes.Values.FirstOrDefault(m => m.IsUnknownDiscriminatorModel);
+                    if (unknownVariant != null)
+                    {
+                        var unknownModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(unknownVariant);
+                        if (unknownModel != null)
+                        {
+                            models.Add(unknownModel);
+                        }
+                    }
                 }
             }
 
@@ -64,7 +81,7 @@ namespace Microsoft.Generator.CSharp
 
         private static TypeProvider[] BuildModelFactory()
         {
-            var modelFactory = new ModelFactoryProvider(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Models);
+            var modelFactory = ModelFactoryProvider.FromInputLibrary();
             return modelFactory.Methods.Count > 0 ? [modelFactory] : [];
         }
     }

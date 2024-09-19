@@ -27,7 +27,7 @@ describe("compiler: checker: doc comments", () => {
     testMainDoc(
       "model",
       `${docComment}
-      @test("target") model Foo {}`
+      @test("target") model Foo {}`,
     );
 
     testMainDoc(
@@ -35,7 +35,7 @@ describe("compiler: checker: doc comments", () => {
       `${docComment}
       @test("target") model Foo<T> {}
 
-      model Bar { foo: Foo<string> }`
+      model Bar { foo: Foo<string> }`,
     );
 
     testMainDoc(
@@ -45,19 +45,19 @@ describe("compiler: checker: doc comments", () => {
         ${docComment}
         @test("target") foo: string;
       }
-    `
+    `,
     );
 
     testMainDoc(
       "scalar",
       `${docComment}
-      @test("target") scalar foo;`
+      @test("target") scalar foo;`,
     );
 
     testMainDoc(
       "enum",
       `${docComment}
-      @test("target") enum Foo {}`
+      @test("target") enum Foo {}`,
     );
 
     testMainDoc(
@@ -67,18 +67,18 @@ describe("compiler: checker: doc comments", () => {
         ${docComment}
         @test("target") foo,
       }
-    `
+    `,
     );
     testMainDoc(
       "operation",
       `${docComment}
-      @test("target") op test(): string;`
+      @test("target") op test(): string;`,
     );
 
     testMainDoc(
       "interface",
       `${docComment}
-      @test("target") interface Foo {}`
+      @test("target") interface Foo {}`,
     );
   });
 
@@ -360,11 +360,11 @@ describe("@param", () => {
     strictEqual(getDoc(runner.program, addUser), "This is the operation doc.");
     strictEqual(
       getDoc(runner.program, addUser.parameters.properties.get("name")!),
-      "This is the name param doc."
+      "This is the name param doc.",
     );
     strictEqual(
       getDoc(runner.program, addUser.parameters.properties.get("age")!),
-      "This is the age param doc."
+      "This is the age param doc.",
     );
   });
 });

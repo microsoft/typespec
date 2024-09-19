@@ -20,8 +20,13 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static ValueExpression NullConditional(this ParameterProvider parameter) => new NullConditionalExpression(parameter);
 
+        public static ValueExpression NullCoalesce(this ParameterProvider parameter, ValueExpression value) => parameter.AsExpression.NullCoalesce(value);
+
         public static DictionaryExpression AsDictionary(this FieldProvider field, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), field);
         public static DictionaryExpression AsDictionary(this ParameterProvider parameter, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), parameter);
+        public static DictionaryExpression AsDictionary(this PropertyProvider property, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), property);
+
+        public static TypeOfExpression TypeOf(CSharpType type) => new TypeOfExpression(type);
 
         public static ValueExpression Static<T>() => TypeReferenceExpression.FromType(typeof(T));
         //overload needed since static types cannot be usd as type arguments
@@ -54,8 +59,6 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ValueExpression Nameof(ValueExpression expression) => new InvokeMethodExpression(null, "nameof", new[] { expression });
         public static ValueExpression ThrowExpression(ValueExpression expression) => new KeywordExpression("throw", expression);
 
-        public static ValueExpression NullCoalescing(ValueExpression left, ValueExpression right) => new BinaryOperatorExpression("??", left, right);
-
         // TO-DO: Migrate remaining class as part of output classes migration : https://github.com/Azure/autorest.csharp/issues/4198
         //public static ValueExpression EnumValue(EnumType type, EnumTypeValue value) => new MemberExpression(new TypeReference(type.Type), value.Declaration.Name);
         public static ValueExpression FrameworkEnumValue<TEnum>(TEnum value) where TEnum : struct, Enum => new MemberExpression(TypeReferenceExpression.FromType(typeof(TEnum)), Enum.GetName(value)!);
@@ -69,6 +72,10 @@ namespace Microsoft.Generator.CSharp.Snippets
             };
 
         public static ValueExpression Literal(object? value) => new LiteralExpression(value);
+
+        public static ScopedApi<char> Literal(char value) => new LiteralExpression(value).As<char>();
+
+        public static ScopedApi<int> Literal(int value) => new LiteralExpression(value).As<int>();
 
         public static ScopedApi<string> Literal(string? value) => (value is null ? Null : new LiteralExpression(value)).As<string>();
         public static ScopedApi<string> LiteralU8(string value) => new UnaryOperatorExpression("u8", new LiteralExpression(value), true).As<string>();
@@ -105,6 +112,9 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static ValueExpression Property(this ParameterProvider parameter, string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(parameter) : parameter, propertyName);
+
+        public static InvokeMethodExpression Invoke(this FieldProvider field, string methodName, IEnumerable<ValueExpression> parameters)
+            => field.Invoke(methodName, parameters, false, false);
 
         public static InvokeMethodExpression Invoke(this FieldProvider field,
             string methodName,

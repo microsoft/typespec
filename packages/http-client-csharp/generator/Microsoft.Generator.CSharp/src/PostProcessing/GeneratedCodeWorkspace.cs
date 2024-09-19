@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -14,6 +13,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -21,6 +21,7 @@ namespace Microsoft.Generator.CSharp
     {
         private const string GeneratedFolder = "Generated";
         private const string GeneratedCodeProjectName = "GeneratedCode";
+        private const string GeneratedTestFolder = "GeneratedTests";
 
         private static readonly Lazy<IReadOnlyList<MetadataReference>> _assemblyMetadataReferences = new(() => new List<MetadataReference>()
             { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) });
@@ -30,6 +31,7 @@ namespace Microsoft.Generator.CSharp
         private static readonly string _newLine = "\n";
 
         private Project _project;
+        private Compilation? _compilation;
         private Dictionary<string, string> PlainFiles { get; }
 
         private GeneratedCodeWorkspace(Project generatedCodeProject)
@@ -45,6 +47,14 @@ namespace Microsoft.Generator.CSharp
         public static void Initialize()
         {
             _cachedProject = Task.Run(CreateGeneratedCodeProject);
+        }
+
+        internal async Task<CSharpCompilation> GetCompilationAsync()
+        {
+            var compilation = await _project.GetCompilationAsync();
+            Debug.Assert(compilation is CSharpCompilation);
+
+            return (CSharpCompilation)compilation;
         }
 
         public void AddPlainFiles(string name, string content)
@@ -93,11 +103,22 @@ namespace Microsoft.Generator.CSharp
 
         private async Task<Document> ProcessDocument(Document document)
         {
+            var syntaxTree = await document.GetSyntaxTreeAsync();
+            var compilation = await GetProjectCompilationAsync();
+            if (syntaxTree != null)
+            {
+                var semanticModel = compilation.GetSemanticModel(syntaxTree);
+                var modelRemoveRewriter = new MemberRemoverRewriter(_project, semanticModel);
+                document = document.WithSyntaxRoot(modelRemoveRewriter.Visit(await syntaxTree.GetRootAsync()));
+            }
+
             document = await Simplifier.ReduceAsync(document);
             return document;
         }
 
         public static bool IsGeneratedDocument(Document document) => document.Folders.Contains(GeneratedFolder);
+        public static bool IsCustomDocument(Document document) => !IsGeneratedDocument(document);
+        public static bool IsGeneratedTestDocument(Document document) => document.Folders.Contains(GeneratedTestFolder);
 
         /// <summary>
         /// Create a new AdHoc workspace using the Roslyn SDK and add a project with all the necessary compilation options.
@@ -140,28 +161,30 @@ namespace Microsoft.Generator.CSharp
             return new GeneratedCodeWorkspace(generatedCodeProject);
         }
 
-        public static GeneratedCodeWorkspace CreateExistingCodeProject(string outputDirectory)
+        internal static GeneratedCodeWorkspace CreateExistingCodeProject(IEnumerable<string> projectDirectories, string generatedDirectory)
         {
             var workspace = new AdhocWorkspace();
             var newOptionSet = workspace.Options.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, _newLine);
             workspace.TryApplyChanges(workspace.CurrentSolution.WithOptions(newOptionSet));
             Project project = workspace.AddProject("ExistingCode", LanguageNames.CSharp);
 
-            if (Path.IsPathRooted(outputDirectory))
+            foreach (var projectDirectory in projectDirectories)
             {
-                outputDirectory = Path.GetFullPath(outputDirectory);
-                project = AddDirectory(project, outputDirectory, null);
+                if (Path.IsPathRooted(projectDirectory))
+                {
+                    project = AddDirectory(project, Path.GetFullPath(projectDirectory), skipPredicate: sourceFile => sourceFile.StartsWith(generatedDirectory));
+                }
             }
 
             project = project
-                .AddMetadataReferences(_assemblyMetadataReferences.Value)
+                .AddMetadataReferences(_assemblyMetadataReferences.Value.Concat(CodeModelPlugin.Instance.AdditionalMetadataReferences))
                 .WithCompilationOptions(new CSharpCompilationOptions(
                     OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: _metadataReferenceResolver.Value, nullableContextOptions: NullableContextOptions.Disable));
 
             return new GeneratedCodeWorkspace(project);
         }
 
-        public static async Task<Compilation?> CreatePreviousContractFromDll(string xmlDocumentationpath, string dllPath)
+        internal static async Task<Compilation?> CreatePreviousContractFromDll(string xmlDocumentationpath, string dllPath)
         {
             var workspace = new AdhocWorkspace();
             Project project = workspace.AddProject("PreviousContract", LanguageNames.CSharp);
@@ -174,7 +197,7 @@ namespace Microsoft.Generator.CSharp
         }
 
         /// <summary>
-        /// Add the files in the directory to a project per a given predicate with the folders specified
+        /// Add the files in the directory to a project per a given predicate with the folders specified.
         /// </summary>
         /// <param name="project"></param>
         /// <param name="directory"></param>
@@ -192,6 +215,36 @@ namespace Microsoft.Generator.CSharp
             }
 
             return project;
+        }
+
+        /// <summary>
+        /// This method invokes the postProcessor to do some post processing work
+        /// Depending on the configuration, it will either remove + internalize, just internalize or do nothing
+        /// </summary>
+        public async Task PostProcessAsync()
+        {
+            var modelFactory = ModelFactoryProvider.FromInputLibrary();
+            var postProcessor = new PostProcessor(
+                [.. CodeModelPlugin.Instance.TypeFactory.UnionTypes, .. CodeModelPlugin.Instance.TypesToKeep],
+                modelFactoryFullName: $"{modelFactory.Namespace}.{modelFactory.Name}");
+            switch (Configuration.UnreferencedTypesHandling)
+            {
+                case Configuration.UnreferencedTypesHandlingOption.KeepAll:
+                    break;
+                case Configuration.UnreferencedTypesHandlingOption.Internalize:
+                    _project = await postProcessor.InternalizeAsync(_project);
+                    break;
+                case Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize:
+                    _project = await postProcessor.InternalizeAsync(_project);
+                    _project = await postProcessor.RemoveAsync(_project);
+                    break;
+            }
+        }
+
+        private async Task<Compilation> GetProjectCompilationAsync()
+        {
+            _compilation ??= await _project.GetCompilationAsync();
+            return _compilation!;
         }
     }
 }

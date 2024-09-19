@@ -12,11 +12,11 @@ title: "[P] JS API"
 
 ## Type Aliases
 
+- [DefaultResponseDecorator](type-aliases/DefaultResponseDecorator.md)
+- [ExtensionDecorator](type-aliases/ExtensionDecorator.md)
 - [ExtensionKey](type-aliases/ExtensionKey.md)
-
-## Variables
-
-- [namespace](variables/namespace.md)
+- [ExternalDocsDecorator](type-aliases/ExternalDocsDecorator.md)
+- [InfoDecorator](type-aliases/InfoDecorator.md)
 
 ## Functions
 

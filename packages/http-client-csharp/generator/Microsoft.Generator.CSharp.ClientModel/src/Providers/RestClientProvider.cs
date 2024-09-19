@@ -206,24 +206,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 CSharpType? type;
                 string? format;
                 ValueExpression valueExpression;
-                GetParamInfo(paramMap, inputParameter, out type, out format, out valueExpression);
-                ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
-                ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
+                GetParamInfo(paramMap, operation, inputParameter, out type, out format, out valueExpression);
+                var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
+                ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : convertToStringExpression;
                 MethodBodyStatement statement;
-                if (type?.Equals(typeof(BinaryData)) == true)
+                if (type?.IsCollection == true)
                 {
-                    statement = request.SetHeaderValue(
-                        inputParameter.NameInRequest,
-                        TypeFormattersSnippets.ToString(valueExpression.Invoke("ToArray"), Literal(format)));
-                }
-                else if (type?.Equals(typeof(IList<BinaryData>)) == true)
-                {
-                    statement =
-                        new ForeachStatement("item", valueExpression.As<IEnumerable<BinaryData>>(), out var item)
-                        {
-                            request.AddHeaderValue(inputParameter.NameInRequest, TypeFormattersSnippets.ToString(item.Invoke("ToArray"),
-                                Literal(format)))
-                        };
+                    statement = request.SetHeaderDelimited(inputParameter.NameInRequest, valueExpression, Literal(inputParameter.ArraySerializationDelimiter), format != null ? Literal(format) : null);
                 }
                 else
                 {
@@ -246,19 +235,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
                 string? format;
                 ValueExpression valueExpression;
-                GetParamInfo(paramMap, inputParameter, out var type, out format, out valueExpression);
-                ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
-                var toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
+                GetParamInfo(paramMap, operation, inputParameter, out var type, out format, out valueExpression);
+                var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
+                ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : convertToStringExpression;
                 MethodBodyStatement statement;
-                if (type?.Equals(typeof(BinaryData)) == true)
-                {
-                    statement = uri.AppendQuery(Literal(inputParameter.NameInRequest),
-                        valueExpression.Invoke("ToArray"), format, true).Terminate();
-                }
-                else if (type?.Equals(typeof(IList<BinaryData>)) == true)
+                if (type?.IsCollection == true)
                 {
                     statement = uri.AppendQueryDelimited(Literal(inputParameter.NameInRequest),
-                        valueExpression, format, true).Terminate();
+                       valueExpression, format, true).Terminate();
                 }
                 else
                 {
@@ -284,8 +268,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
             string? endpoint = ClientProvider.EndpointParameterName;
             int uriOffset = endpoint is null || !operation.Uri.StartsWith(endpoint, StringComparison.Ordinal) ? 0 : endpoint.Length;
-            AddUriSegments(operation.Uri, uriOffset, uri, statements, inputParamHash, paramMap);
-            AddUriSegments(operation.Path, 0, uri, statements, inputParamHash, paramMap);
+            AddUriSegments(operation.Uri, uriOffset, uri, statements, inputParamHash, paramMap, operation);
+            AddUriSegments(operation.Path, 0, uri, statements, inputParamHash, paramMap, operation);
             return statements;
         }
 
@@ -295,7 +279,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ScopedApi<ClientUriBuilderDefinition> uri,
             List<MethodBodyStatement> statements,
             Dictionary<string, InputParameter> inputParamHash,
-            Dictionary<string, ParameterProvider> paramMap)
+            Dictionary<string, ParameterProvider> paramMap,
+            InputOperation operation)
         {
             var pathSpan = segments.AsSpan().Slice(offset);
             while (pathSpan.Length > 0)
@@ -318,7 +303,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     CSharpType? type;
                     string? format;
                     ValueExpression valueExpression;
-                    GetParamInfo(paramMap, inputParam, out type, out format, out valueExpression);
+                    GetParamInfo(paramMap, operation, inputParam, out type, out format, out valueExpression);
                     ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
                     valueExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
                     statements.Add(uri.AppendPath(valueExpression, true).Terminate());
@@ -328,10 +313,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
         }
 
-        private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputParameter inputParam, out CSharpType? type, out string? format, out ValueExpression valueExpression)
+        private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out string? format, out ValueExpression valueExpression)
         {
             type = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
-            if (inputParam.Kind == InputOperationParameterKind.Constant)
+            if (inputParam.Kind == InputOperationParameterKind.Constant && !(operation.IsMultipartFormData && inputParam.IsContentType))
             {
                 valueExpression = Literal((inputParam.Type as InputLiteralType)?.Value);
                 format = ClientModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
@@ -490,6 +475,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         sortedParams.Add(optional++, parameter);
                         break;
                 }
+            }
+
+            if (operation.IsMultipartFormData)
+            {
+                sortedParams.Add(bodyRequired++, ScmKnownParameters.ContentType);
             }
 
             return [.. sortedParams.Values];

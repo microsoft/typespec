@@ -1,0 +1,32 @@
+{
+  "name": "@typespec/http-client-java-tests",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "clean": "rimraf ./node_modules/@typespec/http-client-java ./package-lock.json ./tsp-output",
+    "format": "npm run -s prettier -- --write",
+    "check-format": "npm run prettier -- --check",
+    "prettier": "prettier --config ./.prettierrc.yaml **/*.tsp",
+    "testserver-run": "npx cadl-ranch serve ./node_modules/@azure-tools/cadl-ranch-specs/http --coverageFile ./cadl-ranch-coverage-java.json",
+    "testserver-start": "npx cadl-ranch server start ./node_modules/@azure-tools/cadl-ranch-specs/http --coverageFile ./cadl-ranch-coverage-java.json",
+    "testserver-stop": "npx cadl-ranch server stop"
+  },
+  "dependencies": {
+    "@azure-tools/cadl-ranch-specs": "0.37.1",
+    "@typespec/http-client-java": "file:/../../typespec-http-client-java-0.1.0.tgz",
+    "@typespec/http-client-java-tests": "file:"
+  },
+  "overrides": {
+    "@typespec/compiler": "~0.60.0",
+    "@typespec/http": "~0.60.0",
+    "@typespec/rest": "~0.60.0",
+    "@typespec/versioning": "~0.60.0",
+    "@typespec/openapi": "~0.60.0",
+    "@typespec/xml": "~0.60.0",
+    "@azure-tools/typespec-azure-core": "~0.46.0",
+    "@azure-tools/typespec-client-generator-core": "~0.46.0",
+    "@azure-tools/typespec-azure-resource-manager": "~0.46.0",
+    "@azure-tools/typespec-autorest": "~0.46.0"
+  },
+  "private": true
+}

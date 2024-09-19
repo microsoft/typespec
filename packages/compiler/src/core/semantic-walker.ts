@@ -50,7 +50,7 @@ const defaultOptions = {
 export function navigateProgram(
   program: Program,
   listeners: SemanticNodeListener,
-  options: NavigationOptions = {}
+  options: NavigationOptions = {},
 ) {
   const context = createNavigationContext(listeners, options);
   context.emit("root", program);
@@ -67,7 +67,7 @@ export function navigateProgram(
 export function navigateType(
   type: Type,
   listeners: SemanticNodeListener,
-  options: NavigationOptions
+  options: NavigationOptions,
 ) {
   const context = createNavigationContext(listeners, options);
   navigateTypeInternal(type, context);
@@ -83,7 +83,7 @@ export function navigateType(
 export function scopeNavigationToNamespace<T extends TypeListeners>(
   namespace: Namespace,
   listeners: T,
-  options: NamespaceNavigationOptions = {}
+  options: NamespaceNavigationOptions = {},
 ): T {
   const wrappedListeners: TypeListeners = {};
   for (const [name, callback] of Object.entries(listeners)) {
@@ -105,7 +105,7 @@ export function scopeNavigationToNamespace<T extends TypeListeners>(
 export function navigateTypesInNamespace(
   namespace: Namespace,
   listeners: TypeListeners,
-  options: NamespaceNavigationOptions & NavigationOptions = {}
+  options: NamespaceNavigationOptions & NavigationOptions = {},
 ) {
   navigateType(namespace, scopeNavigationToNamespace(namespace, listeners, options), options);
 }
@@ -116,7 +116,7 @@ export function navigateTypesInNamespace(
  * @returns Semantic node listener.
  */
 export function mapEventEmitterToNodeListener(
-  eventEmitter: EventEmitter<SemanticNodeListener>
+  eventEmitter: EventEmitter<SemanticNodeListener>,
 ): SemanticNodeListener {
   const listener: SemanticNodeListener = {};
   for (const eventName of eventNames) {
@@ -140,7 +140,7 @@ function isSubNamespace(subNamespace: Namespace, namespace: Namespace): boolean 
 }
 function createNavigationContext(
   listeners: SemanticNodeListener,
-  options: NavigationOptions = {}
+  options: NavigationOptions = {},
 ): NavigationContext {
   return {
     visited: new Set(),
@@ -206,7 +206,7 @@ function checkVisited(visited: Set<any>, item: Type) {
 
 function shouldNavigateTemplatableType(
   context: NavigationContext,
-  type: Operation | Interface | Model | Union
+  type: Operation | Interface | Model | Union,
 ) {
   if (context.options.includeTemplateDeclaration) {
     return type.isFinished || isTemplateDeclaration(type);
@@ -229,6 +229,7 @@ function navigateOperationType(operation: Operation, context: NavigationContext)
   if (operation.sourceOperation) {
     navigateTypeInternal(operation.sourceOperation, context);
   }
+  context.emit("exitOperation", operation);
 }
 
 function navigateModelType(model: Model, context: NavigationContext) {
@@ -257,6 +258,7 @@ function navigateModelTypeProperty(property: ModelProperty, context: NavigationC
   }
   if (context.emit("modelProperty", property) === ListenerFlow.NoRecursion) return;
   navigateTypeInternal(property.type, context);
+  context.emit("exitModelProperty", property);
 }
 
 function navigateScalarType(scalar: Scalar, context: NavigationContext) {

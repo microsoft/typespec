@@ -97,7 +97,7 @@ const Search = ({ onBlur }: SearchProps) => {
         setSearch(item.optionValue.slice(2));
       }
     },
-    [nav]
+    [nav],
   );
 
   return (

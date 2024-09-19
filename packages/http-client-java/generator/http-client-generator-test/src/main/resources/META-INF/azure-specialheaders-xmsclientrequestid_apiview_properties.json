@@ -1,0 +1,12 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "com.azure.specialheaders.xmsclientrequestid.XmsClientRequestIdAsyncClient": "Azure.SpecialHeaders.XmsClientRequestId",
+    "com.azure.specialheaders.xmsclientrequestid.XmsClientRequestIdAsyncClient.get": "Azure.SpecialHeaders.XmsClientRequestId.get",
+    "com.azure.specialheaders.xmsclientrequestid.XmsClientRequestIdAsyncClient.getWithResponse": "Azure.SpecialHeaders.XmsClientRequestId.get",
+    "com.azure.specialheaders.xmsclientrequestid.XmsClientRequestIdClient": "Azure.SpecialHeaders.XmsClientRequestId",
+    "com.azure.specialheaders.xmsclientrequestid.XmsClientRequestIdClient.get": "Azure.SpecialHeaders.XmsClientRequestId.get",
+    "com.azure.specialheaders.xmsclientrequestid.XmsClientRequestIdClient.getWithResponse": "Azure.SpecialHeaders.XmsClientRequestId.get",
+    "com.azure.specialheaders.xmsclientrequestid.XmsClientRequestIdClientBuilder": "Azure.SpecialHeaders.XmsClientRequestId"
+  }
+}

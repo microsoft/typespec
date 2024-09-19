@@ -19,10 +19,12 @@ import type { XmlNamespace } from "./types.js";
 /** @internal */
 export const namespace = "TypeSpec.Xml";
 
+/** {@inheritDoc NameDecorator}  */
 export const $name: NameDecorator = (context, target, name) => {
   context.call($encodedName, target, "application/xml", name);
 };
 
+/** {@inheritDoc AttributeDecorator} */
 export const $attribute: AttributeDecorator = (context, target) => {
   context.program.stateSet(XmlStateKeys.attribute).add(target);
 };
@@ -34,6 +36,7 @@ export function isAttribute(program: Program, target: ModelProperty): boolean {
   return program.stateSet(XmlStateKeys.attribute).has(target);
 }
 
+/** {@inheritdoc UnwrappedDecorator} */
 export const $unwrapped: UnwrappedDecorator = (context, target) => {
   context.program.stateSet(XmlStateKeys.unwrapped).add(target);
 };
@@ -45,6 +48,7 @@ export function isUnwrapped(program: Program, target: ModelProperty): boolean {
   return program.stateSet(XmlStateKeys.unwrapped).has(target);
 }
 
+/** {@inheritdoc NsDeclarationsDecorator} */
 export const $nsDeclarations: NsDeclarationsDecorator = (context, target) => {
   context.program.stateSet(XmlStateKeys.nsDeclaration).add(target);
 };
@@ -53,6 +57,7 @@ function isNsDeclarationsEnum(program: Program, target: Enum): boolean {
   return program.stateSet(XmlStateKeys.nsDeclaration).has(target);
 }
 
+/** {@inheritdoc NsDecorator} */
 export const $ns: NsDecorator = (context, target, namespace: Type, prefix?: string) => {
   const data = getData(context, namespace, prefix);
   if (data) {
@@ -72,7 +77,7 @@ export function getNs(program: Program, target: Type): XmlNamespace | undefined 
 function getData(
   context: DecoratorContext,
   namespace: Type,
-  prefix?: string
+  prefix?: string,
 ): XmlNamespace | undefined {
   switch (namespace.kind) {
     case "String":

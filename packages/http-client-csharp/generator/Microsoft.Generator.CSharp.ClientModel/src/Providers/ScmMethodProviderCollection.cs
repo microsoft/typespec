@@ -43,12 +43,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var syncProtocol = BuildProtocolMethod(_createRequestMethod, false);
             var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true);
 
+            if (Operation.GenerateConvenienceMethod && !Operation.IsMultipartFormData)
+            {
+                return
+                [
+                    syncProtocol,
+                    asyncProtocol,
+                    BuildConvenienceMethod(syncProtocol, false),
+                    BuildConvenienceMethod(asyncProtocol, true),
+                ];
+            }
+
             return
             [
                 syncProtocol,
                 asyncProtocol,
-                BuildConvenienceMethod(syncProtocol, false),
-                BuildConvenienceMethod(asyncProtocol, true),
             ];
         }
 
@@ -126,6 +135,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromEnumerable(parameter), out var content));
                         declarations["content"] = content;
                     }
+                    else if (parameter.Type.IsDictionary)
+                    {
+                        statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromDictionary(parameter), out var content));
+                        declarations["content"] = content;
+                    }
                     else if (parameter.Type.Equals(typeof(string)))
                     {
                         var bdExpression = Operation.RequestMediaTypes?.Contains("application/json") == true
@@ -170,9 +184,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         var interfaceType = param.Property!.WireInfo?.IsReadOnly == true
                             ? new CSharpType(typeof(IReadOnlyList<>), convenienceParam.Type.Arguments)
                             : new CSharpType(typeof(IList<>), convenienceParam.Type.Arguments);
-                        expressions.Add(NullCoalescing(
-                            new AsExpression(convenienceParam.NullConditional().ToList(), interfaceType),
-                            New.Instance(convenienceParam.Type.PropertyInitializationType, [])));
+                        expressions.Add(new AsExpression(convenienceParam.NullConditional().ToList(), interfaceType)
+                            .NullCoalesce(New.Instance(convenienceParam.Type.PropertyInitializationType, [])));
                     }
                     else
                     {
@@ -210,28 +223,60 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     return statements;
                 }
             }
+            else if (responseBodyType.IsDictionary)
+            {
+                var keyType = responseBodyType.Arguments[0];
+                var valueType = responseBodyType.Arguments[1];
+                if (!valueType.IsFrameworkType || valueType.Equals(typeof(TimeSpan)) || valueType.Equals(typeof(BinaryData)))
+                {
+                    var valueDeclaration = Declare("value", New.Instance(new CSharpType(typeof(Dictionary<,>), keyType, valueType)).As(responseBodyType), out var value);
+                    MethodBodyStatement[] statements =
+                    [
+                        valueDeclaration,
+                        UsingDeclare("document", JsonDocumentSnippets.Parse(result.GetRawResponse().ContentStream(), isAsync), out var document),
+                        ForeachStatement.Create("item", document.RootElement().EnumerateObject(), out ScopedApi<JsonProperty> item)
+                            .Add(GetElementConversion(valueType, item.Value(), value, item.Name()))
+                    ];
+                    declarations = new Dictionary<string, ValueExpression>
+                    {
+                        { "value", value }
+                    };
+                    return statements;
+                }
+            }
 
             declarations = [];
             return [];
         }
 
-        private MethodBodyStatement GetElementConversion(CSharpType elementType, ScopedApi<JsonElement> item, ScopedApi value)
+        private MethodBodyStatement GetElementConversion(CSharpType elementType, ScopedApi<JsonElement> item, ScopedApi value, ValueExpression? dictKey = null)
         {
             if (elementType.Equals(typeof(TimeSpan)))
             {
-                return value.Add(item.Invoke("GetTimeSpan", Literal("P")));
+                return AddElement(dictKey, item.Invoke("GetTimeSpan", Literal("P")), value);
             }
             else if (elementType.Equals(typeof(BinaryData)))
             {
                 return new IfElseStatement(
                     item.ValueKind().Equal(JsonValueKindSnippets.Null),
-                    value.Add(Null),
-                    value.Add(BinaryDataSnippets.FromString(item.GetRawText())));
+                    AddElement(dictKey, Null, value),
+                    AddElement(dictKey, BinaryDataSnippets.FromString(item.GetRawText()), value));
             }
             else
             {
-                return value.Add(Static(elementType).Invoke($"Deserialize{elementType.Name}", item, ModelSerializationExtensionsSnippets.Wire));
+                return AddElement(dictKey, Static(elementType).Invoke($"Deserialize{elementType.Name}", item, ModelSerializationExtensionsSnippets.Wire), value);
             }
+        }
+
+        private MethodBodyStatement AddElement(ValueExpression? dictKey, ValueExpression element, ScopedApi scopedApi)
+        {
+            if (dictKey != null)
+            {
+                // Add items to dictionary
+                return scopedApi.Add(dictKey, element);
+            }
+            // Add items to list
+            return scopedApi.Add(element);
         }
 
         private ValueExpression GetResultConversion(ScopedApi<ClientResult> result, CSharpType responseBodyType, Dictionary<string, ValueExpression> declarations)
@@ -243,6 +288,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (responseBodyType.IsList)
             {
                 if (!responseBodyType.Arguments[0].IsFrameworkType || responseBodyType.Arguments[0].Equals(typeof(TimeSpan)) || responseBodyType.Arguments[0].Equals(typeof(BinaryData)))
+                {
+                    return declarations["value"];
+                }
+                else
+                {
+                    return result.GetRawResponse().Content().ToObjectFromJson(responseBodyType);
+                }
+            }
+            if (responseBodyType.IsDictionary)
+            {
+                if (!responseBodyType.Arguments[1].IsFrameworkType || responseBodyType.Arguments[1].Equals(typeof(TimeSpan)) || responseBodyType.Arguments[1].Equals(typeof(BinaryData)))
                 {
                     return declarations["value"];
                 }

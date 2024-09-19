@@ -8,7 +8,7 @@ import { dumpAST } from "../ast-test-utils.js";
 describe("compiler: server: misc", () => {
   describe("getCompletionNodeAtPosition", () => {
     async function getNodeAtCursor(
-      sourceWithCursor: string
+      sourceWithCursor: string,
     ): Promise<{ root: TypeSpecScriptNode; detail: PositionDetail | undefined }> {
       const { source, pos } = extractCursor(sourceWithCursor);
       const root = parse(source, { comments: true, docs: true });

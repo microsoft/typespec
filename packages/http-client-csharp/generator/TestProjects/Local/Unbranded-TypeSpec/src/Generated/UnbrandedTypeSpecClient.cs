@@ -263,38 +263,6 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        /// <summary> Return hi again. </summary>
-        /// <param name="p2"></param>
-        /// <param name="p1"></param>
-        /// <param name="action"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="p2"/>, <paramref name="p1"/> or <paramref name="action"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<RoundTripModel> NoContentType(string p2, string p1, RoundTripModel action)
-        {
-            Argument.AssertNotNull(p2, nameof(p2));
-            Argument.AssertNotNull(p1, nameof(p1));
-            Argument.AssertNotNull(action, nameof(action));
-
-            ClientResult result = NoContentType(p2, p1, action, null);
-            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
-        }
-
-        /// <summary> Return hi again. </summary>
-        /// <param name="p2"></param>
-        /// <param name="p1"></param>
-        /// <param name="action"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="p2"/>, <paramref name="p1"/> or <paramref name="action"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<RoundTripModel>> NoContentTypeAsync(string p2, string p1, RoundTripModel action)
-        {
-            Argument.AssertNotNull(p2, nameof(p2));
-            Argument.AssertNotNull(p1, nameof(p1));
-            Argument.AssertNotNull(action, nameof(action));
-
-            ClientResult result = await NoContentTypeAsync(p2, p1, action, null).ConfigureAwait(false);
-            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
-        }
-
         /// <summary>
         /// [Protocol Method] Return hi in demo2
         /// <list type="bullet">
@@ -549,22 +517,6 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        /// <summary> top level method2. </summary>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<Thing> TopAction2()
-        {
-            ClientResult result = TopAction2(null);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
-        }
-
-        /// <summary> top level method2. </summary>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<Thing>> TopAction2Async()
-        {
-            ClientResult result = await TopAction2Async(null).ConfigureAwait(false);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
-        }
-
         /// <summary>
         /// [Protocol Method] top level patch
         /// <list type="bullet">
@@ -605,30 +557,6 @@ namespace UnbrandedTypeSpec
 
             using PipelineMessage message = CreatePatchActionRequest(content, options);
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> top level patch. </summary>
-        /// <param name="body"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<Thing> PatchAction(Thing body)
-        {
-            Argument.AssertNotNull(body, nameof(body));
-
-            ClientResult result = PatchAction(body, null);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
-        }
-
-        /// <summary> top level patch. </summary>
-        /// <param name="body"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<Thing>> PatchActionAsync(Thing body)
-        {
-            Argument.AssertNotNull(body, nameof(body));
-
-            ClientResult result = await PatchActionAsync(body, null).ConfigureAwait(false);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -689,13 +617,13 @@ namespace UnbrandedTypeSpec
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/> or <paramref name="requiredBadDescription"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<Thing> AnonymousBody(string name, BinaryData requiredUnion, AnonymousBodyRequestRequiredLiteralString requiredLiteralString, AnonymousBodyRequestRequiredLiteralInt requiredLiteralInt, AnonymousBodyRequestRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, string requiredBadDescription, IEnumerable<int> requiredNullableList, AnonymousBodyRequestOptionalLiteralString? optionalLiteralString = default, AnonymousBodyRequestOptionalLiteralInt? optionalLiteralInt = default, AnonymousBodyRequestOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default)
+        public virtual ClientResult<Thing> AnonymousBody(string name, BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, string requiredBadDescription, IEnumerable<int> requiredNullableList, ThingOptionalLiteralString? optionalLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default)
         {
             Argument.AssertNotNull(name, nameof(name));
             Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
             Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
 
-            AnonymousBodyRequest spreadModel = new AnonymousBodyRequest(
+            Thing spreadModel = new Thing(
                 name,
                 requiredUnion,
                 requiredLiteralString,
@@ -730,13 +658,13 @@ namespace UnbrandedTypeSpec
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/> or <paramref name="requiredBadDescription"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<Thing>> AnonymousBodyAsync(string name, BinaryData requiredUnion, AnonymousBodyRequestRequiredLiteralString requiredLiteralString, AnonymousBodyRequestRequiredLiteralInt requiredLiteralInt, AnonymousBodyRequestRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, string requiredBadDescription, IEnumerable<int> requiredNullableList, AnonymousBodyRequestOptionalLiteralString? optionalLiteralString = default, AnonymousBodyRequestOptionalLiteralInt? optionalLiteralInt = default, AnonymousBodyRequestOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default)
+        public virtual async Task<ClientResult<Thing>> AnonymousBodyAsync(string name, BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, string requiredBadDescription, IEnumerable<int> requiredNullableList, ThingOptionalLiteralString? optionalLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default)
         {
             Argument.AssertNotNull(name, nameof(name));
             Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
             Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
 
-            AnonymousBodyRequest spreadModel = new AnonymousBodyRequest(
+            Thing spreadModel = new Thing(
                 name,
                 requiredUnion,
                 requiredLiteralString,
@@ -805,7 +733,7 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(name, nameof(name));
 
-            FriendlyModelRequest spreadModel = new FriendlyModelRequest(name, null);
+            Friend spreadModel = new Friend(name, null);
             ClientResult result = FriendlyModel(spreadModel, null);
             return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
@@ -818,7 +746,7 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(name, nameof(name));
 
-            FriendlyModelRequest spreadModel = new FriendlyModelRequest(name, null);
+            Friend spreadModel = new Friend(name, null);
             ClientResult result = await FriendlyModelAsync(spreadModel, null).ConfigureAwait(false);
             return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
@@ -921,7 +849,7 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(name, nameof(name));
 
-            ProjectedNameModelRequest spreadModel = new ProjectedNameModelRequest(name, null);
+            ProjectedModel spreadModel = new ProjectedModel(name, null);
             ClientResult result = ProjectedNameModel(spreadModel, null);
             return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
         }
@@ -934,7 +862,7 @@ namespace UnbrandedTypeSpec
         {
             Argument.AssertNotNull(name, nameof(name));
 
-            ProjectedNameModelRequest spreadModel = new ProjectedNameModelRequest(name, null);
+            ProjectedModel spreadModel = new ProjectedModel(name, null);
             ClientResult result = await ProjectedNameModelAsync(spreadModel, null).ConfigureAwait(false);
             return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
         }

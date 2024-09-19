@@ -1,6 +1,6 @@
 {
   "name": "typespec-vscode",
-  "version": "0.59.0",
+  "version": "0.60.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",
@@ -25,7 +25,7 @@
   "type": "module",
   "main": "./dist/src/extension.cjs",
   "engines": {
-    "vscode": "^1.91.0"
+    "vscode": "^1.93.0"
   },
   "activationEvents": [
     "onLanguage:typespec",
@@ -121,6 +121,25 @@
           ]
         }
       }
+    ],
+    "taskDefinitions": [
+      {
+        "type": "typespec",
+        "when": "shellExecutionSupported",
+        "required": [
+          "path"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "The path to trigger tsp compile"
+          },
+          "args": {
+            "type": "string",
+            "description": "The arguments to tsp compile"
+          }
+        }
+      }
     ]
   },
   "scripts": {
@@ -139,18 +158,18 @@
     "@rollup/plugin-commonjs": "~26.0.1",
     "@rollup/plugin-node-resolve": "~15.2.3",
     "@rollup/plugin-typescript": "~11.1.6",
-    "@types/node": "~18.11.19",
-    "@types/vscode": "~1.91.0",
+    "@types/node": "~22.5.4",
+    "@types/vscode": "~1.93.0",
     "@typespec/compiler": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
-    "@vitest/coverage-v8": "^2.0.4",
-    "@vitest/ui": "^2.0.4",
-    "@vscode/vsce": "~2.31.1",
+    "@vitest/coverage-v8": "^2.1.0",
+    "@vitest/ui": "^2.1.0",
+    "@vscode/vsce": "~3.1.0",
     "c8": "^10.1.2",
     "rimraf": "~6.0.1",
-    "rollup": "~4.19.0",
-    "typescript": "~5.5.4",
-    "vitest": "^2.0.4",
+    "rollup": "~4.21.3",
+    "typescript": "~5.6.2",
+    "vitest": "^2.1.0",
     "vscode-languageclient": "~9.0.1"
   }
 }

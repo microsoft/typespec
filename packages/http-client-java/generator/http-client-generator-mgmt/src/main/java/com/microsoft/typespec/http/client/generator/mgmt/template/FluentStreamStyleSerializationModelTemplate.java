@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.template;
 
-import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.mgmt.model.arm.ErrorClientModel;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
@@ -27,12 +26,12 @@ public class FluentStreamStyleSerializationModelTemplate extends StreamSerializa
     }
 
     @Override
-    protected boolean parentModelHasValidate(String parentModelName) {
-        return FLUENT_MODEL_TEMPLATE.parentModelHasValidate(parentModelName);
+    protected boolean modelHasValidate(String modelName) {
+        return FLUENT_MODEL_TEMPLATE.modelHasValidate(modelName);
     }
 
     @Override
-    protected boolean isManagementErrorSubclass(ClientModel model, JavaSettings settings) {
+    protected boolean isManagementErrorSubclass(ClientModel model) {
         if (CoreUtils.isNullOrEmpty(model.getParentModelName())) {
             return false;
         }

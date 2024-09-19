@@ -6,9 +6,12 @@ dictionaries:
   - typescript
 words:
   - Adoptium
+  - aiohttp
   - alzimmer
   - amqp
   - AQID
+  - astimezone
+  - asyncio
   - atrule
   - atteo
   - autorest
@@ -17,8 +20,10 @@ words:
   - azurecr
   - azuresdk
   - bifilter
+  - blib
   - blockful
   - blockless
+  - buongiorno
   - cadl
   - cadleditor
   - cadleng
@@ -32,30 +37,43 @@ words:
   - createsorreplacesresource
   - createsorupdatesresource
   - CRUDL
+  - ctxt
   - dbaeumer
   - Dcodegen
   - debouncer
+  - debugpy
   - Declipse
   - Dedupes
   - destructures
   - devdiv
   - Diagnoser
   - Dlog
+  - docutils
   - dogfood
   - Dorg
   - Dosgi
+  - dotenv
   - Dskip
   - eastus
   - ecmarkup
+  - elif
   - EMBEDME
+  - Entra
+  - enumdiscriminator
+  - equalto
   - esbenp
   - esbuild
   - espt
   - ESRP
+  - etree
   - fluentui
   - genproto
+  - getpgid
+  - giacamo
   - globby
   - graalvm
+  - headasbooleanfalse
+  - headasbooleantrue
   - Gson
   - imple
   - Infima
@@ -64,33 +82,55 @@ words:
   - instanceid
   - interner
   - intrinsics
+  - IOHTTP
+  - isdigit
+  - isinstance
+  - issubclass
+  - itertype
   - itor
+  - ivar
   - Jacoco
   - jdwp
   - jobject
   - jsyaml
   - keyer
+  - killpg
+  - kwargs
   - lifecyle
   - LINUXNEXTVMIMAGE
   - LINUXOS
   - LINUXVMIMAGE
+  - ljust
+  - lmazuel
+  - lropaging
+  - lstrip
   - lzutf
   - MACVMIMAGE
+  - mday
   - mgmt
+  - mgmtplane
   - mocharc
   - mqtt
+  - mros
   - msbuild
+  - mspaint
   - MSRC
+  - msrest
   - multis
   - munge
   - mylib
+  - mypy
   - nanos
+  - nexted
+  - nihao
   - noformat
   - noopener
   - noreferrer
+  - nosec
   - nostdlib
   - noverify
   - npmjs
+  - nspkg
   - nupkg
   - oapi
   - ODATA
@@ -104,31 +144,51 @@ words:
   - openapiv
   - Perfolizer
   - picocolors
+  - posargs
   - prismjs
   - proto
   - protobuf
   - protoc
   - psscriptanalyzer
+  - ptvsd
   - pwsh
+  - pyexpat
+  - pygen
+  - pylint
+  - pylintrc
+  - pyproject
+  - pyright
+  - pyrightconfig
+  - pytest
+  - rcfile
   - reactivex
   - recase
   - regen
+  - repr
   - respecify
+  - rjust
   - rpaas
+  - rsplit
+  - rstrip
+  - rtype
   - rushx
   - safeint
+  - sdkcore
   - segmentof
   - serde
   - sfixed
   - sint
   - snakeyaml
   - srnagar
-  - statment
+  - ssdlrs
   - sses
   - ssvs
+  - statment
   - strs
   - syncpack
   - TCGC
+  - timegm
+  - tomli
   - triaging
   - TRYIT
   - tsdoc
@@ -138,6 +198,7 @@ words:
   - tsvs
   - typespec
   - typespecvs
+  - tzname
   - Uhoh
   - uitestresults
   - unassignable
@@ -153,19 +214,26 @@ words:
   - unrepresentable
   - unsourced
   - unversioned
+  - venv
+  - venvtools
   - VITE
   - vitest
   - vsix
   - VSSDK
   - Vsts
   - vswhere
+  - wday
   - weidxu
   - westus
   - WINDOWSVMIMAGE
+  - xiangyan
   - xiaofei
   - xlarge
+  - xmsclientrequestid
   - xors
   - xplat
+  - xxsubtype
+  - yamls
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
@@ -178,6 +246,7 @@ ignorePaths:
   - common/scripts/*
   - "**/ThirdPartyNotices.txt"
   - packages/compiler/test/formatter/scenarios/**
+  - packages/http-client-java/generator/http-client-generator-test/**
   - pnpm-lock.yaml
   - "**/*.mp4"
   - .git/**

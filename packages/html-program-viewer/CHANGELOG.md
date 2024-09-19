@@ -1,5 +1,13 @@
 # Change Log - @typespec/html-program-viewer
 
+## 0.60.0
+
+### Bug Fixes
+
+- [#4353](https://github.com/microsoft/typespec/pull/4353) Fix crash when using anonymous union variant
+- [#4136](https://github.com/microsoft/typespec/pull/4136) Fix namespace with the same name conflicting in the tree navigation
+
+
 ## 0.59.0
 
 ### Bump dependencies

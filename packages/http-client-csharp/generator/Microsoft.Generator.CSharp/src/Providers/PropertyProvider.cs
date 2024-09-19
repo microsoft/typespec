@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -20,13 +22,18 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public FormattableString Description { get; }
         public XmlDocSummaryStatement XmlDocSummary { get; }
-        public MethodSignatureModifiers Modifiers { get; }
+        public MethodSignatureModifiers Modifiers { get; internal set; }
         public CSharpType Type { get; }
-        public string Name { get; }
-        public PropertyBody Body { get; private set; }
+        public string Name { get; internal set; }
+        public PropertyBody Body { get; internal set; }
         public CSharpType? ExplicitInterface { get; }
         public XmlDocProvider XmlDocs { get; private set; }
         public PropertyWireInformation? WireInfo { get; }
+        public bool IsDiscriminator { get; }
+        public bool IsAdditionalProperties { get; init; }
+
+        public FieldProvider? BackingField { get; set; }
+        public PropertyProvider? BaseProperty { get; set; }
 
         /// <summary>
         /// Converts this property to a parameter.
@@ -34,6 +41,8 @@ namespace Microsoft.Generator.CSharp.Providers
         public ParameterProvider AsParameter => _parameter.Value;
 
         public TypeProvider EnclosingType { get; }
+
+        internal IEnumerable<AttributeData>? Attributes { get; init; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -73,7 +82,7 @@ namespace Microsoft.Generator.CSharp.Providers
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
 
             Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
-            Modifiers = MethodSignatureModifiers.Public;
+            Modifiers = inputProperty.IsDiscriminator ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
             Name = inputProperty.Name.ToCleanName();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
             Description = string.IsNullOrEmpty(inputProperty.Description) ? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter) : $"{inputProperty.Description}";
@@ -81,8 +90,9 @@ namespace Microsoft.Generator.CSharp.Providers
             XmlDocs = GetXmlDocs();
             WireInfo = new PropertyWireInformation(inputProperty);
             EnclosingType = enclosingType;
+            IsDiscriminator = inputProperty.IsDiscriminator;
 
-            InitializeParameter(Name, FormattableStringHelpers.FromString(inputProperty.Description), Type);
+            InitializeParameter(Name, FormattableStringHelpers.FromString(inputProperty.Description) ?? FormattableStringHelpers.Empty, Type);
         }
 
         public PropertyProvider(
