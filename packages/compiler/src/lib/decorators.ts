@@ -109,7 +109,7 @@ import { useStateMap, useStateSet } from "./utils.js";
 
 export { $encodedName, resolveEncodedName } from "./encoded-names.js";
 export { serializeValueAsJson } from "./examples.js";
-export { getPagingOperation, type PagingOperation, type PagingProperty } from "./paging.js";
+export { getPagingOperation, isList, type PagingOperation, type PagingProperty } from "./paging.js";
 export * from "./service.js";
 export { ExampleOptions };
 
