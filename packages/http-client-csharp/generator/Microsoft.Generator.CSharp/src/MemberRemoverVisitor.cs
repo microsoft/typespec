@@ -14,6 +14,7 @@ namespace Microsoft.Generator.CSharp
 {
     internal class MemberRemoverVisitor : LibraryVisitor
     {
+        private readonly IDictionary<TypeProvider, HashSet<string>> _customPropertyNames = new Dictionary<TypeProvider, HashSet<string>>();
         protected override MethodProvider? Visit(MethodProvider methodProvider)
         {
             foreach (var attribute in GetMemberSuppressionAttributes(methodProvider.EnclosingType))
@@ -50,7 +51,27 @@ namespace Microsoft.Generator.CSharp
                 }
             }
 
-            return propertyProvider;
+            if (!_customPropertyNames.TryGetValue(propertyProvider.EnclosingType, out var customPropertyNames))
+            {
+                customPropertyNames = new HashSet<string>();
+                _customPropertyNames[propertyProvider.EnclosingType] = customPropertyNames;
+                foreach (var customProperty in propertyProvider.EnclosingType.CustomCodeView?.Properties ?? [])
+                {
+                    // Add the actual custom property name
+                    customPropertyNames.Add(customProperty.Name);
+                    foreach (var attribute in customProperty.Attributes ?? [])
+                    {
+                        // Add the name of the property that the custom property is replacing
+                        if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var name))
+                        {
+                            customPropertyNames.Add(name);
+                        }
+                    }
+                }
+            }
+
+            // Don't generate properties that are replaced by custom properties
+            return customPropertyNames.Contains(propertyProvider.Name) ? null : propertyProvider;
         }
 
         private static IEnumerable<AttributeData> GetMemberSuppressionAttributes(TypeProvider typeProvider)

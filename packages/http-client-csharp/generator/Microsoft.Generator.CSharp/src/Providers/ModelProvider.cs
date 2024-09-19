@@ -330,19 +330,6 @@ namespace Microsoft.Generator.CSharp.Providers
 
             Dictionary<string, InputModelProperty> baseProperties = _inputModel.BaseModel?.Properties.ToDictionary(p => p.Name) ?? [];
 
-            var customPropertyNames = new HashSet<string>();
-            foreach (var customProperty in CustomCodeView?.Properties ?? [])
-            {
-                customPropertyNames.Add(customProperty.Name);
-                foreach (var attribute in customProperty.Attributes ?? [])
-                {
-                    if (CodeGenAttributes.TryGetCodeGenMemberAttributeValue(attribute, out var name))
-                    {
-                        customPropertyNames.Add(name);
-                    }
-                }
-            }
-
             for (int i = 0; i < propertiesCount; i++)
             {
                 var property = _inputModel.Properties[i];
@@ -352,9 +339,6 @@ namespace Microsoft.Generator.CSharp.Providers
 
                 var outputProperty = CodeModelPlugin.Instance.TypeFactory.CreateProperty(property, this);
                 if (outputProperty is null)
-                    continue;
-
-                if (customPropertyNames.Contains(property.Name))
                     continue;
 
                 if (!property.IsDiscriminator)
